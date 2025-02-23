@@ -441,8 +441,12 @@ export const MTForumPost = {
 				pathName: "/uc_server/avatar.php",
 			},
 		];
-		function viewIMG(imgList: string[] = [], index: number = 0) {
-			/* 查看图片 */
+		/**
+		 * 查看图片
+		 * @param [imgList=[]] 图片链接列表
+		 * @param [index=0] 默认显示第几张图片
+		 */
+		function viewerViewImage(imgList: string[] = [], index: number = 0) {
 			let viewerULNodeHTML = "";
 			imgList.forEach((item) => {
 				viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
@@ -462,65 +466,76 @@ export const MTForumPost = {
 			viewer.zoomTo(1);
 			viewer.show();
 		}
-		function handleImage() {
-			document
-				.querySelectorAll<HTMLElement>(
-					"#postlist .comiis_vrx:not([data-isHandlingViewIMG])"
-				)
-				.forEach((item) => {
-					item.setAttribute("data-isHandlingViewIMG", "true");
-					let clickShowIMGList: string[] = []; /* 点击显示的图片组 */
-					item.querySelectorAll("img").forEach(($img) => {
-						/* 图片链接 */
-						let IMG_URL = $img.src;
-						/* 主机名 */
-						let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname;
-						/* 路径 */
-						let IMG_URL_PATHNAME = new URL(IMG_URL).pathname;
-						/* img标签的父元素 */
-						let imgParentNode = $img.parentElement!;
+		/**
+		 * 处理页面中的图片
+		 */
+		function handleImageClick() {
+			$$<HTMLElement>(
+				"#postlist .comiis_vrx:not([data-isHandlingViewIMG])"
+			).forEach((item) => {
+				item.setAttribute("data-isHandlingViewIMG", "true");
+				/* 待显示的图片组 */
+				let totalImageList: string[] = [];
+				item.querySelectorAll("img").forEach(($img) => {
+					/* 图片链接 */
+					let currentImageUrl = $img.src;
+					/* 主机名 */
+					let imageUrlHostName = new URL(currentImageUrl).hostname;
+					/* 路径 */
+					let imageUrlPathName = new URL(currentImageUrl).pathname;
+					/* img标签的父元素 */
+					let $parent = $img.parentElement!;
+					if (
+						$parent.nodeName.toLowerCase() === "a" &&
+						$parent.getAttribute("href") === currentImageUrl
+					) {
+						$parent.setAttribute("href", "javascript:;");
+						$parent.removeAttribute("target");
+					}
+					/** 是否在黑名单中 */
+					let isInBlackList = false;
+					/* 图片黑名单 */
+					for (let item of blackListNoViewIMG) {
 						if (
-							imgParentNode.nodeName.toLowerCase() === "a" &&
-							imgParentNode.getAttribute("href") === IMG_URL
+							imageUrlHostName.indexOf(item["hostName"]) != -1 &&
+							imageUrlPathName.match(item["pathName"])
 						) {
-							imgParentNode.setAttribute("href", "javascript:;");
-							imgParentNode.removeAttribute("target");
+							isInBlackList = true;
+							break;
 						}
-						let isMatching = false;
-						/* 图片黑名单 */
-						for (let item of blackListNoViewIMG) {
-							if (
-								IMG_URL_HOSTNAME.indexOf(item["hostName"]) != -1 &&
-								IMG_URL_PATHNAME.match(item["pathName"])
-							) {
-								isMatching = true;
-								break;
-							}
-						}
-						if (isMatching) {
-							return;
-						}
-						clickShowIMGList = [...clickShowIMGList, IMG_URL];
-						$img.removeAttribute("onclick");
-						$img.setAttribute("onclick", "");
-						DOMUtils.on($img, "click", function () {
+					}
+					if (isInBlackList) {
+						return;
+					}
+					totalImageList.push(currentImageUrl);
+					// 移除默认的点击事件
+					$img.removeAttribute("onclick");
+					$img.setAttribute("onclick", "");
+					DOMUtils.on(
+						$img,
+						"click",
+						function (event) {
+							utils.preventEvent(event);
 							log.info("点击图片", $img);
-							let _index_ = clickShowIMGList.findIndex((_img_) => {
-								return _img_ == IMG_URL;
+							let viewImageIndex = totalImageList.findIndex((imgUrl) => {
+								return imgUrl == currentImageUrl;
 							});
-							viewIMG(clickShowIMGList, _index_);
-						});
-					});
+							viewerViewImage(totalImageList, viewImageIndex);
+						},
+						{ capture: true }
+					);
 				});
+			});
 		}
 		let lockFn = new utils.LockFunction(() => {
-			handleImage();
+			handleImageClick();
 		});
 		utils.mutationObserver(document, {
 			config: {
 				subtree: true,
 				childList: true,
 			},
+			immediate: true,
 			callback: () => {
 				lockFn.run();
 			},

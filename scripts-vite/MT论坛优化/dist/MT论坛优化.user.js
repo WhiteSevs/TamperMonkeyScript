@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.18
+// @version      2025.2.23
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -46,7 +46,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-z0dJ9Fiv.js"(exports, module) {
+    "entrance-CD18RKQ9.js"(exports, module) {
       var _a;
       var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
@@ -3474,52 +3474,59 @@
             viewer.zoomTo(1);
             viewer.show();
           }
-          function handleImage() {
-            document.querySelectorAll(
+          function handleImageClick() {
+            $$(
               "#postlist .comiis_vrx:not([data-isHandlingViewIMG])"
             ).forEach((item) => {
               item.setAttribute("data-isHandlingViewIMG", "true");
-              let clickShowIMGList = [];
+              let totalImageList = [];
               item.querySelectorAll("img").forEach(($img) => {
-                let IMG_URL = $img.src;
-                let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname;
-                let IMG_URL_PATHNAME = new URL(IMG_URL).pathname;
-                let imgParentNode = $img.parentElement;
-                if (imgParentNode.nodeName.toLowerCase() === "a" && imgParentNode.getAttribute("href") === IMG_URL) {
-                  imgParentNode.setAttribute("href", "javascript:;");
-                  imgParentNode.removeAttribute("target");
+                let currentImageUrl = $img.src;
+                let imageUrlHostName = new URL(currentImageUrl).hostname;
+                let imageUrlPathName = new URL(currentImageUrl).pathname;
+                let $parent = $img.parentElement;
+                if ($parent.nodeName.toLowerCase() === "a" && $parent.getAttribute("href") === currentImageUrl) {
+                  $parent.setAttribute("href", "javascript:;");
+                  $parent.removeAttribute("target");
                 }
-                let isMatching = false;
+                let isInBlackList = false;
                 for (let item2 of blackListNoViewIMG) {
-                  if (IMG_URL_HOSTNAME.indexOf(item2["hostName"]) != -1 && IMG_URL_PATHNAME.match(item2["pathName"])) {
-                    isMatching = true;
+                  if (imageUrlHostName.indexOf(item2["hostName"]) != -1 && imageUrlPathName.match(item2["pathName"])) {
+                    isInBlackList = true;
                     break;
                   }
                 }
-                if (isMatching) {
+                if (isInBlackList) {
                   return;
                 }
-                clickShowIMGList = [...clickShowIMGList, IMG_URL];
+                totalImageList.push(currentImageUrl);
                 $img.removeAttribute("onclick");
                 $img.setAttribute("onclick", "");
-                domUtils.on($img, "click", function() {
-                  log.info("点击图片", $img);
-                  let _index_ = clickShowIMGList.findIndex((_img_) => {
-                    return _img_ == IMG_URL;
-                  });
-                  viewIMG(clickShowIMGList, _index_);
-                });
+                domUtils.on(
+                  $img,
+                  "click",
+                  function(event) {
+                    utils.preventEvent(event);
+                    log.info("点击图片", $img);
+                    let viewImageIndex = totalImageList.findIndex((imgUrl) => {
+                      return imgUrl == currentImageUrl;
+                    });
+                    viewIMG(totalImageList, viewImageIndex);
+                  },
+                  { capture: true }
+                );
               });
             });
           }
           let lockFn = new utils.LockFunction(() => {
-            handleImage();
+            handleImageClick();
           });
           utils.mutationObserver(document, {
             config: {
               subtree: true,
               childList: true
             },
+            immediate: true,
             callback: () => {
               lockFn.run();
             }
