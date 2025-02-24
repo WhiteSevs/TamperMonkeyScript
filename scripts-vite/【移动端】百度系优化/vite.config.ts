@@ -200,7 +200,6 @@ if (process.argv.includes("--minify")) {
 }
 
 /* 是否清空输出目录 */
-/* 是否清空输出目录 */
 let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
 	isEmptyOutDir = false;
