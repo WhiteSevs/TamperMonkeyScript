@@ -229,12 +229,13 @@ process.on("exit", (code) => {
 let FILE_NAME = SCRIPT_NAME + ".user.js";
 
 /* 是否压缩代码 */
-let isMinify = false;
+let isMinify: boolean | "esbuild" | "terser" = false;
 if (process.argv.includes("--minify")) {
-	isMinify = true;
+	isMinify = "esbuild";
 	FILE_NAME = SCRIPT_NAME + ".min.user.js";
 }
 
+/* 是否清空输出目录 */
 let isEmptyOutDir = true;
 if (process.argv.includes("--no-empty-outDir")) {
 	isEmptyOutDir = false;
