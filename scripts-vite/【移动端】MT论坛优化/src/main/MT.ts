@@ -194,7 +194,7 @@ export const MT = {
 			if (cookieItem.session) {
 				return;
 			}
-			let expireTime = cookieItem.expirationDate;
+			let expireTime = cookieItem.expirationDate!;
 			let nowTime = Date.now() / 1000;
 			if (expireTime < nowTime) {
 				// 已过期
@@ -215,7 +215,7 @@ export const MT = {
 				.set({
 					name: cookieItem.name,
 					value: cookieItem.value,
-					expirationDate: cookieItem.expirationDate + _30days,
+					expirationDate: cookieItem.expirationDate! + _30days,
 				})
 				.then(() => {
 					log.info(`延长Cookie +30天成功：${cookieItem.name}`);
