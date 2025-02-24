@@ -152,6 +152,10 @@ const TiebaPost = {
 					log.info("点击的<img>属于Viewer内的元素， 不处理");
 					return;
 				}
+				if ($clickParent?.classList?.contains("forum-avatar")) {
+					// 顶部左上角的吧的图标
+					return;
+				}
 				if ($click.closest(".pic-popup-guide-thread-wrapper")) {
 					// 帖子主内容的图片右滑的导航推荐帖子
 					return;

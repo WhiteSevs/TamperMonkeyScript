@@ -13,7 +13,7 @@ interface LandlordInfo {
 	type: number;
 	userhide: number;
 }
-const TiebaCore = {
+export const TiebaCore = {
 	/**
 	 * 伪装客户端已调用
 	 */
@@ -291,5 +291,3 @@ const TiebaCore = {
 		);
 	},
 };
-
-export { TiebaCore };

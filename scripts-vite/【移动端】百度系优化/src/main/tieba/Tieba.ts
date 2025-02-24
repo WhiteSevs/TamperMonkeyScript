@@ -20,6 +20,7 @@ import { TiebaHotTopic } from "./hot-topic/TiebaHotTopic";
 import { TiebaMsgTab } from "./msgtab/TiebaMsgTab";
 import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
 import { TiebaCollectionCenter } from "./collection-center/TiebaCollectionCenter";
+import { TiebaSmallAppApi } from "./api/TiebaSmallAppApi";
 
 /**
  * 百度贴吧
@@ -174,7 +175,11 @@ export const BaiduTieBa = {
 	 */
 	initTiebaData() {
 		utils
-			.waitAnyNode<HTMLDivElement>([".tb-mobile-viewport", ".main-page-wrap"])
+			.waitAnyNode<HTMLDivElement>([
+				".tb-mobile-viewport",
+				".main-page-wrap",
+				".forum-name .name",
+			])
 			.then(async () => {
 				let interval = setInterval(() => {
 					TiebaData.forumName = TiebaCore.getCurrentForumName();
@@ -203,7 +208,13 @@ export const BaiduTieBa = {
 		}	
 		`);
 		utils
-			.waitNode<HTMLDivElement>(".nav-bar-top .logo-wrapper", 10000)
+			.waitAnyNode<HTMLDivElement>(
+				[
+					".nav-bar-top .logo-wrapper",
+					"uni-app .frs-wise-nav-bar .logo-wrapper",
+				],
+				10000
+			)
 			.then(($ele) => {
 				if (!$ele) {
 					return;
@@ -213,7 +224,9 @@ export const BaiduTieBa = {
 					<svg t="1718595396255" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3147" width="24" height="24"><path d="M128 298.666667h768a42.666667 42.666667 0 0 0 0-85.333334H128a42.666667 42.666667 0 0 0 0 85.333334z m768 170.666666H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z m0 256H128a42.666667 42.666667 0 0 0 0 85.333334h768a42.666667 42.666667 0 0 0 0-85.333334z" p-id="3148"></path></svg>
 				</div>
 				`;
-				let $logoWrapper = $<HTMLDivElement>(".nav-bar-top .logo-wrapper");
+				let $logoWrapper =
+					$<HTMLDivElement>(".nav-bar-top .logo-wrapper") ||
+					$<HTMLDivElement>("uni-app .frs-wise-nav-bar .logo-wrapper");
 				function getHelloText() {
 					var myDate = new Date();
 					var i = myDate.getHours();
@@ -236,40 +249,7 @@ export const BaiduTieBa = {
 						icon: '<svg fill="#FF9900" t="1718599526156" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3362"><path d="M783.530667 910.961778l-252.017778-123.448889a38.001778 38.001778 0 0 1 33.28-68.266667l206.620444 101.319111 89.144889-610.247111-401.635555 481.678222v223.857778a37.944889 37.944889 0 0 1-75.832889 0v-236.316444c0-1.991111 0.113778-3.868444 0.455111-5.859556a38.968889 38.968889 0 0 1 8.533333-20.024889l378.424889-453.859555L163.84 514.389333l143.018667 74.126223c18.773333 9.898667 26.225778 32.824889 17.066666 51.768888a36.864 36.864 0 0 1-49.322666 17.066667L67.754667 549.717333a38.912 38.912 0 0 1-17.692445-18.887111 37.546667 37.546667 0 0 1 15.587556-50.744889L899.185778 47.786667a39.139556 39.139556 0 0 1 17.976889-4.323556 37.831111 37.831111 0 0 1 37.944889 31.004445 39.310222 39.310222 0 0 1-0.682667 18.318222L839.111111 882.062222a38.115556 38.115556 0 0 1-32.142222 32.199111 37.148444 37.148444 0 0 1-23.438222-3.299555z" p-id="3363"></path></svg>',
 						text: "发帖",
 						clickCallBack(event: MouseEvent | PointerEvent) {
-							if (BaiduRouter.isTieBaPost() || BaiduRouter.isTieBaNei()) {
-								// let fname = TiebaData.forumName!;
-								// let fid = TiebaData.forumId!;
-								// let tbs = "";
-								// TiebaUrlApi.getPostPage(fname, fid, tbs);
-								let $mobileViewport = $<HTMLDivElement>(".tb-mobile-viewport");
-								if ($mobileViewport) {
-									let vueObj = VueUtils.getVue($mobileViewport);
-									if (vueObj) {
-										let goPost = vueObj?.goPost || vueObj?.$parent?.goPost;
-										if (typeof goPost === "function") {
-											goPost();
-											return;
-										}
-									}
-								}
-
-								let $appView = $<HTMLDivElement>(".app-view");
-								if ($appView) {
-									let appViewVueObj = VueUtils.getVue($appView);
-									if (
-										appViewVueObj &&
-										typeof appViewVueObj.gotoPostPage === "function"
-									) {
-										appViewVueObj.gotoPostPage();
-										return;
-									}
-								}
-								log.error("未找到发帖函数");
-								Qmsg.error("未找到发帖函数");
-							} else {
-								log.error("请在吧内|帖子内使用");
-								Qmsg.error("请在吧内|帖子内使用");
-							}
+							Qmsg.warning("暂未实现该功能");
 						},
 					},
 					{
@@ -495,35 +475,32 @@ export const BaiduTieBa = {
 						});
 						$menuList.appendChild($menuItem);
 					});
-					$avatar.src = TiebaUrlHandler.getUserAvatar("null");
-					let $ele =
-						$<HTMLDivElement>(".app-view") ||
-						$<HTMLDivElement>(".tb-mobile-viewport");
-					if ($ele) {
-						let eleVueObj = VueUtils.getVue($ele);
-						if (eleVueObj) {
-							if (eleVueObj?.user?.is_login) {
-								isLogin = true;
-								// 已登录
-								let portrait = eleVueObj.user.portrait;
-								let showName =
-									eleVueObj.user.show_nickname ||
-									eleVueObj.user.name_show ||
-									eleVueObj.user.name;
-								$avatar.src = TiebaUrlHandler.getUserAvatar(portrait);
-								$tieba_user_nologin_tip_center.innerText = showName;
-								DOMUtils.hide($tieba_user_nologin_tip_bottom);
-							} else if (eleVueObj?.$store?.state?.common?.isLogin) {
-								// 在首页的时候
-								isLogin = true;
-								DOMUtils.hide($tieba_user_nologin_tip_bottom);
-								$tieba_user_nologin_tip_center.innerText = "未知";
-								$avatar.src = TiebaUrlHandler.getUserAvatar(
-									eleVueObj?.$store?.state?.common?.portrait
-								);
-							}
+
+					// 填充当前已登录的用户的信息
+					TiebaSmallAppApi.userInfo(false).then((userInfo) => {
+						if (!userInfo) {
+							return;
 						}
-					}
+						$avatar.src = TiebaUrlHandler.getUserAvatar("null");
+						if (
+							typeof userInfo.user?.is_login === "boolean" &&
+							!userInfo.user?.is_login
+						) {
+							// 未登录
+						} else {
+							isLogin = true;
+							// 已登录
+							let showName =
+								userInfo.user.show_nickname ||
+								userInfo.user.name_show ||
+								userInfo.user.user_nickname ||
+								userInfo.user.user_name;
+							let portrait = userInfo.user.portrait;
+							$avatar.src = TiebaUrlHandler.getUserAvatar(portrait);
+							$tieba_user_nologin_tip_center.innerText = showName;
+							DOMUtils.hide($tieba_user_nologin_tip_bottom);
+						}
+					});
 
 					DOMUtils.on($tieba_user, "click", () => {
 						if (isLogin) {
