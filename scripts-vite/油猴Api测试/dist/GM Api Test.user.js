@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.22
+// @version      2025.2.25
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -21797,21 +21797,76 @@ ${err.stack}`);
       };
       if (this.isSupport()) {
         result2["forms"][1].forms.push(
-          UIInfo(() => {
-            try {
+          (() => {
+            return UIInfo(() => {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: "测试获取当前Tab",
+                description: "",
+                tag: "info",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击测试</span>
+										</button>
+									</div>
+								`,
+                    false,
+                    false
+                  );
+                  domUtils.after(container.$leftContainer, $button);
+                  let timeId;
+                  domUtils.on($button, "click", (event) => {
+                    utils.preventEvent(event);
+                    domUtils.text(container.$leftDesc, this.text);
+                    domUtils.show(container.$leftDesc, false);
+                    try {
+                      clearTimeout(timeId);
+                      qmsg.info("等待3s内触发成功复制的回调");
+                      timeId = setTimeoutLog(() => {
+                        TagUtil.setTag(
+                          container.$leftText,
+                          "error",
+                          "不支持触发回调函数"
+                        );
+                      }, 3e3);
+                      _GM_getTab((tab) => {
+                        clearTimeout(timeId);
+                        if (typeof tab === "object" && tab != null) {
+                          TagUtil.setTagList(container.$leftText, [
+                            {
+                              tag: "success",
+                              text: "支持触发回调函数"
+                            },
+                            {
+                              tag: "success",
+                              text: "入参tab为object类型"
+                            }
+                          ]);
+                        } else {
+                          TagUtil.setTagList(container.$leftText, [
+                            {
+                              tag: "success",
+                              text: "支持触发回调函数"
+                            },
+                            {
+                              tag: "error",
+                              text: "入参tab不为object类型"
+                            }
+                          ]);
+                        }
+                      });
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    }
+                  });
+                }
               };
-            } catch (error2) {
-              console.error(error2);
-              return {
-                text: "执行错误 " + error2,
-                tag: "error"
-              };
-            } finally {
-            }
-          })
+            });
+          })()
         );
       }
       return result2;
