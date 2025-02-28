@@ -18,7 +18,7 @@ import {
 } from "./NetDiskUserRuleReplaceParam";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
-/** 网盘-自定义规则 */
+/** 网盘-链接识别规则 */
 export const NetDiskUserRule = {
 	KEY: "userRule",
 	/** 用户规则上下文存储的数据 */
@@ -220,7 +220,7 @@ export const NetDiskUserRule = {
 		};
 	},
 	/**
-	 * 把用户自定义规则进行转换成脚本规则
+	 * 把用户链接识别规则进行转换成脚本规则
 	 * @param localRule 用户的规则
 	 */
 	parseRule(localRule: NetDiskUserCustomRule[]): NetDiskRuleConfig[] {

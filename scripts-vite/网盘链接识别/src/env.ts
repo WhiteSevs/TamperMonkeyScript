@@ -25,7 +25,9 @@ const isDebug = false;
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
 const __pops = pops;
-const Cryptojs = CryptoJS ?? window.CryptoJS ?? unsafeWindow.CryptoJS;
+const Cryptojs: typeof import("@lib/CryptoJS") =
+	// @ts-ignore
+	CryptoJS ?? window.CryptoJS ?? unsafeWindow.CryptoJS;
 // @ts-ignore
 const __DataPaging: typeof import("@lib/DataPaging") =
 	// @ts-ignore

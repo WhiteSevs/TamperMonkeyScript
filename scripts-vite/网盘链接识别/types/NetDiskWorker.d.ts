@@ -1,6 +1,6 @@
 /** worker的传递的数据 */
 declare interface NetDiskWorkerOptions {
-	/** 字符映射 */
+	/** 字符映射规则 */
 	characterMapping: {
 		searchValue: RegExp | string;
 		replaceValue: string;

@@ -58,9 +58,9 @@ export const WebsiteRule = {
 		};
 	},
 	/**
-	 * 显示视图
+	 * 获取规则视图配置
 	 */
-	show() {
+	getRuleView() {
 		const that = this;
 		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
 		let addData = this.getTemplateData();
@@ -482,6 +482,13 @@ export const WebsiteRule = {
 				},
 			},
 		});
+		return ruleView;
+	},
+	/**
+	 * 显示视图
+	 */
+	show() {
+		let ruleView = this.getRuleView();
 		ruleView.showView();
 	},
 	/**

@@ -9,6 +9,7 @@ import { NetDiskWorkerUtils } from "./NetDiskWorkerUtils";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
 import { CharacterMapping } from "../character-mapping/CharacterMapping";
+import { GM_getValue, GM_setValue } from "ViteGM";
 
 /** Woker */
 export const NetDiskWorker = {
@@ -187,9 +188,24 @@ export const NetDiskWorker = {
 			NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
 		} catch (error: any) {
 			log.error(
-				"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果内容过大会导致页面卡死",
+				"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
 				error.message
 			);
+			/** 是否 不再提示Worker错误 */
+			let neverToastWorkerError = GM_getValue(
+				"never-toast-worker-error",
+				false
+			);
+			if (
+				!neverToastWorkerError &&
+				!window.confirm(
+					"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死，请在网站规则中新增对该网站的规则，修改匹配模式为Menu。（如果希望不再弹出该提示可点击取消按钮）"
+				)
+			) {
+				if (window.confirm("是否不再弹出该提示？")) {
+					GM_setValue("never-toast-worker-error", true);
+				}
+			}
 			// @ts-ignore
 			NetDiskWorker.GM_matchWorker = {
 				postMessage(data: NetDiskWorkerOptions) {

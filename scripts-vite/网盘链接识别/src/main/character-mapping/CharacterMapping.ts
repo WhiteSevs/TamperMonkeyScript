@@ -75,7 +75,7 @@ export const CharacterMapping = {
 			};
 		}
 		let ruleView = new RuleView({
-			title: "字符映射",
+			title: "字符映射规则",
 			data: () => {
 				return this.getData();
 			},

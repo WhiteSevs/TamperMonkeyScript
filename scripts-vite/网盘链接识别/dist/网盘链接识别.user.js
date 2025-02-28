@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.2.22
+// @version      2025.2.28
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -639,7 +639,7 @@
         };
       }
       let ruleView = new RuleView({
-        title: "字符映射",
+        title: "字符映射规则",
         data: () => {
           return this.getData();
         },
@@ -1472,7 +1472,7 @@
       }
     },
     /**
-     * 自定义规则的弹窗
+     * 链接识别规则的弹窗
      */
     customRulesView: {
       PC: {
@@ -1485,7 +1485,7 @@
       }
     },
     /**
-     * 自定义规则的调试视图
+     * 链接识别规则的调试视图
      */
     customRuleDebugView: {
       PC: {
@@ -9432,7 +9432,7 @@
       };
     },
     /**
-     * 把用户自定义规则进行转换成脚本规则
+     * 把用户链接识别规则进行转换成脚本规则
      * @param localRule 用户的规则
      */
     parseRule(localRule) {
@@ -12836,9 +12836,20 @@
         NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
       } catch (error) {
         log.error(
-          "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果内容过大会导致页面卡死",
+          "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
           error.message
         );
+        let neverToastWorkerError = _GM_getValue(
+          "never-toast-worker-error",
+          false
+        );
+        if (!neverToastWorkerError && !window.confirm(
+          "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死，请在网站规则中新增对该网站的规则，修改匹配模式为Menu。（如果希望不再弹出该提示可点击取消按钮）"
+        )) {
+          if (window.confirm("是否不再弹出该提示？")) {
+            _GM_setValue("never-toast-worker-error", true);
+          }
+        }
         NetDiskWorker.GM_matchWorker = {
           postMessage(data) {
             return new Promise((resolve, reject) => {
@@ -13622,7 +13633,7 @@
       if (isEdit) {
         titleText = "编辑";
       }
-      titleText += "自定义规则";
+      titleText += "链接识别规则";
       let $ruleInput = null;
       function saveCallBack(event, isDebug2) {
         let ruleText = $ruleInput.value.trim();
@@ -13672,7 +13683,7 @@
           content: {
             text: (
               /*html*/
-              `<textarea class="netdisk-custom-rules" placeholder="请输入自定义规则"></textarea>`
+              `<textarea class="netdisk-custom-rules" placeholder="请输入规则配置"></textarea>`
             ),
             html: true
           },
@@ -13761,7 +13772,7 @@
     showPanel(details = {}) {
     },
     /**
-     * 设置自定义规则顶部的编辑|删除的点击事件
+     * 设置规则顶部的编辑|删除的点击事件
      */
     setRuleHeaderControlsClickEvent($shadowRoot) {
       domUtils.on(
@@ -13789,7 +13800,7 @@
               position: "center"
             },
             content: {
-              text: `确定删除自定义规则 ${ruleName}(${ruleKey}) 吗？`
+              text: `确定删除规则 ${ruleName}(${ruleKey}) 吗？`
             },
             btn: {
               ok: {
@@ -13810,7 +13821,7 @@
                     Qmsg.success("删除成功");
                     okEvent.close();
                   } else {
-                    Qmsg.error("删除自定义规则失败");
+                    Qmsg.error("删除规则失败");
                   }
                 }
               }
@@ -14540,42 +14551,42 @@
         {
           text: "设置",
           callback() {
-            log.info("打开-设置");
+            log.info("右键菜单-打开-" + this.text);
             NetDiskGlobalSettingView.show();
           }
         },
         {
           text: "历史匹配记录",
           callback() {
-            log.info("打开-历史匹配记录");
+            log.info("右键菜单-打开-" + this.text);
             NetDiskUI.netDiskHistoryMatch.show();
           }
         },
         {
-          text: "自定义规则",
+          text: "添加链接识别规则",
           callback() {
-            log.info("打开-自定义规则");
+            log.info("右键菜单-打开-" + this.text);
             NetDiskUserRuleUI.show(false);
           }
         },
         {
           text: "网站规则",
           callback() {
-            log.info("打开-网站规则");
+            log.info("右键菜单-打开-" + this.text);
             WebsiteRule.show();
           }
         },
         {
-          text: "字符映射",
+          text: "字符映射规则",
           callback() {
-            log.info("打开-字符映射");
+            log.info("右键菜单-打开-" + this.text);
             CharacterMapping.show();
           }
         },
         {
           text: "主动识别文本",
           callback() {
-            log.info("打开-主动识别文本");
+            log.info("右键菜单-打开-" + this.text);
             NetDiskUI.matchPasteText.show();
           }
         }
@@ -15642,9 +15653,9 @@
       };
     },
     /**
-     * 显示视图
+     * 获取规则视图配置
      */
-    show() {
+    getRuleView() {
       const that = this;
       let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
       let addData = this.getTemplateData();
@@ -15998,6 +16009,13 @@
           }
         }
       });
+      return ruleView;
+    },
+    /**
+     * 显示视图
+     */
+    show() {
+      let ruleView = this.getRuleView();
       ruleView.showView();
     },
     /**
@@ -16348,7 +16366,10 @@
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
-  const Cryptojs = CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS;
+  const Cryptojs = (
+    // @ts-ignore
+    CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS
+  );
   const __DataPaging = (
     // @ts-ignore
     DataPaging ?? window.DataPaging ?? _unsafeWindow.DataPaging
@@ -16846,7 +16867,7 @@
         "netdisk-keyboard-open-user-rule": {
           target: "window",
           callback: () => {
-            log.info("快捷键 ==> 【打开】⚙ 用户自定义规则");
+            log.info("快捷键 ==> 【打开】⚙ 链接识别规则");
             NetDiskUserRuleUI.show(false);
           }
         },
@@ -16867,7 +16888,7 @@
         "netdisk-keyboard-character-mapping": {
           target: "window",
           callback() {
-            log.info("快捷键 ==> 【打开】⚙ 字符映射");
+            log.info("快捷键 ==> 【打开】⚙ 字符映射规则");
             CharacterMapping.show();
           }
         }
@@ -17683,7 +17704,7 @@
                     NetDiskShortcut.shortCut
                   ),
                   UIButtonShortCut(
-                    "【打开】⚙ 自定义规则",
+                    "【打开】⚙ 添加链接识别规则",
                     "",
                     "netdisk-keyboard-open-user-rule",
                     void 0,
@@ -17701,7 +17722,7 @@
                     NetDiskShortcut.shortCut
                   ),
                   UIButtonShortCut(
-                    "【打开】⚙ 字符映射",
+                    "【打开】⚙ 字符映射规则",
                     "",
                     "netdisk-keyboard-character-mapping",
                     void 0,
@@ -17846,7 +17867,7 @@
         },
         {
           key: "charater-mapping",
-          text: "⚙ 字符映射",
+          text: "⚙ 字符映射规则",
           autoReload: false,
           isStoreValue: false,
           showText(text) {
@@ -17858,7 +17879,7 @@
         },
         {
           key: "showUserRule",
-          text: "⚙ 自定义规则",
+          text: "⚙ 添加链接识别规则",
           autoReload: false,
           isStoreValue: false,
           showText(text) {

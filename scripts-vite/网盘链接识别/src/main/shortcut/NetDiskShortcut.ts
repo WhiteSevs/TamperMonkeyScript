@@ -30,7 +30,7 @@ export const NetDiskShortcut = {
 			"netdisk-keyboard-open-user-rule": {
 				target: "window",
 				callback: () => {
-					log.info("快捷键 ==> 【打开】⚙ 用户自定义规则");
+					log.info("快捷键 ==> 【打开】⚙ 链接识别规则");
 					NetDiskUserRuleUI.show(false);
 				},
 			},
@@ -51,7 +51,7 @@ export const NetDiskShortcut = {
 			"netdisk-keyboard-character-mapping": {
 				target: "window",
 				callback() {
-					log.info("快捷键 ==> 【打开】⚙ 字符映射");
+					log.info("快捷键 ==> 【打开】⚙ 字符映射规则");
 					CharacterMapping.show();
 				},
 			},

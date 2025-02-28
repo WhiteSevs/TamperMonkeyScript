@@ -31,9 +31,3 @@ declare module "*.vue" {
 	const Component: ReturnType<typeof defineComponent>;
 	export default Component;
 }
-
-
-/**
- * 全局变量-加密库
- */
-declare var CryptoJS: typeof import("@lib/CryptoJS/index");

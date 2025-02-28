@@ -55,7 +55,7 @@ export const NetDiskGlobalSettingView = {
 	},
 	showPanel(details = {}) {},
 	/**
-	 * 设置自定义规则顶部的编辑|删除的点击事件
+	 * 设置规则顶部的编辑|删除的点击事件
 	 */
 	setRuleHeaderControlsClickEvent($shadowRoot: ShadowRoot | HTMLElement) {
 		DOMUtils.on(
@@ -84,7 +84,7 @@ export const NetDiskGlobalSettingView = {
 						position: "center",
 					},
 					content: {
-						text: `确定删除自定义规则 ${ruleName}(${ruleKey}) 吗？`,
+						text: `确定删除规则 ${ruleName}(${ruleKey}) 吗？`,
 					},
 					btn: {
 						ok: {
@@ -107,7 +107,7 @@ export const NetDiskGlobalSettingView = {
 									Qmsg.success("删除成功");
 									okEvent.close();
 								} else {
-									Qmsg.error("删除自定义规则失败");
+									Qmsg.error("删除规则失败");
 								}
 							},
 						},

@@ -142,7 +142,7 @@ export const NetDiskUISizeConfig = {
 		},
 	},
 	/**
-	 * 自定义规则的弹窗
+	 * 链接识别规则的弹窗
 	 */
 	customRulesView: {
 		PC: {
@@ -155,7 +155,7 @@ export const NetDiskUISizeConfig = {
 		},
 	},
 	/**
-	 * 自定义规则的调试视图
+	 * 链接识别规则的调试视图
 	 */
 	customRuleDebugView: {
 		PC: {

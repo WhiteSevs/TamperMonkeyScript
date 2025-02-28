@@ -123,42 +123,42 @@ export const NetDiskUI = {
 			{
 				text: "设置",
 				callback() {
-					log.info("打开-设置");
+					log.info("右键菜单-打开-" + this.text);
 					NetDiskGlobalSettingView.show();
 				},
 			},
 			{
 				text: "历史匹配记录",
 				callback() {
-					log.info("打开-历史匹配记录");
+					log.info("右键菜单-打开-" + this.text);
 					NetDiskUI.netDiskHistoryMatch.show();
 				},
 			},
 			{
-				text: "自定义规则",
+				text: "添加链接识别规则",
 				callback() {
-					log.info("打开-自定义规则");
+					log.info("右键菜单-打开-" + this.text);
 					NetDiskUserRuleUI.show(false);
 				},
 			},
 			{
 				text: "网站规则",
 				callback() {
-					log.info("打开-网站规则");
+					log.info("右键菜单-打开-" + this.text);
 					WebsiteRule.show();
 				},
 			},
 			{
-				text: "字符映射",
+				text: "字符映射规则",
 				callback() {
-					log.info("打开-字符映射");
+					log.info("右键菜单-打开-" + this.text);
 					CharacterMapping.show();
 				},
 			},
 			{
 				text: "主动识别文本",
 				callback() {
-					log.info("打开-主动识别文本");
+					log.info("右键菜单-打开-" + this.text);
 					NetDiskUI.matchPasteText.show();
 				},
 			},

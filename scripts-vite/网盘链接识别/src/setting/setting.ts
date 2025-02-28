@@ -145,7 +145,7 @@ export const PopsPanel = {
 			},
 			{
 				key: "charater-mapping",
-				text: "⚙ 字符映射",
+				text: "⚙ 字符映射规则",
 				autoReload: false,
 				isStoreValue: false,
 				showText(text) {
@@ -157,7 +157,7 @@ export const PopsPanel = {
 			},
 			{
 				key: "showUserRule",
-				text: "⚙ 自定义规则",
+				text: "⚙ 添加链接识别规则",
 				autoReload: false,
 				isStoreValue: false,
 				showText(text) {

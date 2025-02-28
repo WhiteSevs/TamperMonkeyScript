@@ -18,7 +18,7 @@ export const NetDiskUserRuleUI = {
 		if (isEdit) {
 			titleText = "编辑";
 		}
-		titleText += "自定义规则";
+		titleText += "链接识别规则";
 		let $ruleInput = null as any as HTMLTextAreaElement;
 
 		/**
@@ -77,7 +77,7 @@ export const NetDiskUserRuleUI = {
 					position: "center",
 				},
 				content: {
-					text: /*html*/ `<textarea class="netdisk-custom-rules" placeholder="请输入自定义规则"></textarea>`,
+					text: /*html*/ `<textarea class="netdisk-custom-rules" placeholder="请输入规则配置"></textarea>`,
 					html: true,
 				},
 				btn: {

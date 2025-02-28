@@ -829,7 +829,7 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									NetDiskShortcut.shortCut
 								),
 								UIButtonShortCut(
-									"【打开】⚙ 自定义规则",
+									"【打开】⚙ 添加链接识别规则",
 									"",
 									"netdisk-keyboard-open-user-rule",
 									void 0,
@@ -847,7 +847,7 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									NetDiskShortcut.shortCut
 								),
 								UIButtonShortCut(
-									"【打开】⚙ 字符映射",
+									"【打开】⚙ 字符映射规则",
 									"",
 									"netdisk-keyboard-character-mapping",
 									void 0,
