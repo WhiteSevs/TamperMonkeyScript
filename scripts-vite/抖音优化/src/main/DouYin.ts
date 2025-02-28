@@ -17,6 +17,7 @@ import { DouYinVideo } from "./video/DouYinVideo";
 import { DouYinChannel } from "./channel/DouYinChannel";
 import { DouYinVideoFilter } from "./video/DouYinVideoFilter";
 import { DouYinNote } from "./note/DouYinNote";
+import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 
 export const DouYin = {
 	init() {
@@ -26,7 +27,7 @@ export const DouYin = {
 		DouYinGestureBackClearHash();
 		DouYinHook.init();
 		DouYinVideoFilter.init();
-		// DouYinNetWorkHook.init();
+		DouYinNetWorkHook.init();
 		DouYinRedirect.init();
 		PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
 			DouYinAccount.watchLoginDialogToClose();

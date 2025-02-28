@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.18
+// @version      2025.2.28
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1374,11 +1374,14 @@
       log.info("【屏蔽】评论区（聊天室）");
       return [
         CommonUtil.addBlockCSS("#chatroom"),
-        addStyle(`
+        addStyle(
+          /*css*/
+          `
             div[data-e2e="living-container"],
             div[data-e2e="living-container"] > div{
                 margin-bottom: 0px !important;
-            }`)
+            }`
+        )
       ];
     },
     /**
@@ -9289,7 +9292,7 @@
             }
             callback($os, observer);
           }, 50);
-          utils.mutationObserver(document.body, {
+          utils.mutationObserver(document, {
             config: {
               childList: true,
               subtree: true
@@ -9313,17 +9316,88 @@
     disguiseLogin() {
       log.info("伪装登录");
       const WAIT_TIME = 2e4;
-      let uid = 996996;
-      let notChangeInfoUid = Object.defineProperty({}, "uid", {
-        value: uid,
-        writable: false
-      });
+      let uid = 114514;
+      let info = {
+        uid,
+        secUid: "",
+        shortId: "",
+        realName: "",
+        // 昵称
+        nickname: "乌萨奇",
+        // 描述
+        desc: "除草证3级",
+        // 性别
+        gender: 0,
+        // 头像
+        avatarUrl: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+        avatar300Url: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+        followStatus: 0,
+        followerStatus: 0,
+        // 作品数量
+        awemeCount: 0,
+        // 稍后再看数量
+        watchLaterCount: 0,
+        // 关注
+        followingCount: 0,
+        followerCount: 0,
+        followerCountStr: "",
+        // 粉丝数量
+        mplatformFollowersCount: 9999999,
+        // 我的喜欢的数量
+        favoritingCount: 0,
+        // 获赞
+        totalFavorited: 9999999,
+        userCollectCount: {
+          logPb: {
+            impr_id: ""
+          },
+          collectCountList: [],
+          statusCode: 0,
+          extra: {
+            fatal_item_ids: [],
+            logid: "",
+            now: Date.now()
+          }
+        },
+        uniqueId: "",
+        customVerify: "",
+        // 年龄
+        age: (/* @__PURE__ */ new Date()).getFullYear() - 2019,
+        country: "",
+        province: "",
+        city: "",
+        district: "",
+        // 学校
+        school: "chiikawa",
+        // 控制学校显示
+        schoolVisible: 1,
+        enterpriseVerifyReason: "",
+        secret: 1,
+        userCanceled: false,
+        roomData: {},
+        shareQrcodeUrl: "",
+        shareInfo: void 0,
+        coverAndHeadImageInfo: {
+          profileCoverList: []
+        },
+        roomId: 0,
+        favoritePermission: 1,
+        viewHistoryPermission: true,
+        isGovMediaVip: false,
+        isStar: false,
+        hideLocation: false,
+        needSpecialShowFollowerCount: false,
+        continuationState: 0,
+        im_role_ids: [],
+        accountCertInfo: {},
+        close_consecutive_chat: 0
+      };
       function getUserInfo(element) {
         var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D;
         let userInfoList = [];
-        let $react = utils.getReactObj(element);
-        let reactFiber = $react == null ? void 0 : $react.reactFiber;
-        $react == null ? void 0 : $react.reactProps;
+        let reactInstance = utils.getReactObj(element);
+        let reactFiber = reactInstance == null ? void 0 : reactInstance.reactFiber;
+        reactInstance == null ? void 0 : reactInstance.reactProps;
         if ((_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.userInfo) {
           userInfoList.push(
             (_f = (_e = (_d = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _d.return) == null ? void 0 : _e.memoizedProps) == null ? void 0 : _f.userInfo
@@ -9348,16 +9422,11 @@
       }
       function setLogin(element) {
         getUserInfo(element).forEach((userInfo) => {
-          Object.defineProperties(userInfo, {
-            info: {
-              value: notChangeInfoUid,
-              writable: false
-            },
-            isLogin: {
-              value: true,
-              writable: false
-            }
-          });
+          if (!userInfo.isLogin) {
+            userInfo.info = info;
+            userInfo.isLogin = true;
+            userInfo.statusCode = 0;
+          }
         });
       }
       DouYinElement.watchFeedVideoListChange(($os) => {

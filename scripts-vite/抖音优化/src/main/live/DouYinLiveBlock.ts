@@ -4,10 +4,10 @@ import { CommonUtil } from "@/utils/CommonUtil";
 
 /**
  * 需验证以下状态下的屏蔽情况，防止误杀
- * 1. Chrome、Firefox浏览器下
- * 2. 普通播放情况下
- * 3. 网页宽屏模式下
- * 3. F11全屏情况下
+ * + Chrome、Firefox浏览器下
+ * + 普通播放情况下
+ * + 网页宽屏模式下
+ * + F11全屏情况下
  */
 export const DouYinLiveBlock = {
 	init() {

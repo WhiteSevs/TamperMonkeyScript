@@ -8,7 +8,7 @@ export const DouYinElement = {
 	watchFeedVideoListChange(
 		callback: (osElement: HTMLDivElement, observer: MutationObserver) => void
 	) {
-		let $os = null as HTMLDivElement | null;
+		let $os: HTMLDivElement | null = null;
 		DOMUtils.ready(() => {
 			utils
 				.waitAnyNode<HTMLDivElement>([
@@ -26,7 +26,7 @@ export const DouYinElement = {
 						}
 						callback($os, observer);
 					}, 50);
-					utils.mutationObserver(document.body, {
+					utils.mutationObserver(document, {
 						config: {
 							childList: true,
 							subtree: true,

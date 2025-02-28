@@ -13,16 +13,89 @@ export const DouYinAccount = {
 		log.info("伪装登录");
 		const WAIT_TIME = 20000;
 		// let uid = parseInt((Math.random() * 1000000).toString());
-		let uid = 996996;
-		let notChangeInfoUid = Object.defineProperty({}, "uid", {
-			value: uid,
-			writable: false,
-		});
+		let uid = 114514;
+		let info = {
+			uid: uid,
+			secUid: "",
+			shortId: "",
+			realName: "",
+			// 昵称
+			nickname: "乌萨奇",
+			// 描述
+			desc: "除草证3级",
+			// 性别
+			gender: 0,
+			// 头像
+			avatarUrl:
+				"https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+			avatar300Url:
+				"https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+			followStatus: 0,
+			followerStatus: 0,
+			// 作品数量
+			awemeCount: 0,
+			// 稍后再看数量
+			watchLaterCount: 0,
+			// 关注
+			followingCount: 0,
+			followerCount: 0,
+			followerCountStr: "",
+			// 粉丝数量
+			mplatformFollowersCount: 9999999,
+			// 我的喜欢的数量
+			favoritingCount: 0,
+			// 获赞
+			totalFavorited: 9999999,
+			userCollectCount: {
+				logPb: {
+					impr_id: "",
+				},
+				collectCountList: [],
+				statusCode: 0,
+				extra: {
+					fatal_item_ids: [],
+					logid: "",
+					now: Date.now(),
+				},
+			},
+			uniqueId: "",
+			customVerify: "",
+			// 年龄
+			age: new Date().getFullYear() - 2019,
+			country: "",
+			province: "",
+			city: "",
+			district: "",
+			// 学校
+			school: "chiikawa",
+			// 控制学校显示
+			schoolVisible: 1,
+			enterpriseVerifyReason: "",
+			secret: 1,
+			userCanceled: false,
+			roomData: {},
+			shareQrcodeUrl: "",
+			shareInfo: void 0,
+			coverAndHeadImageInfo: {
+				profileCoverList: [],
+			},
+			roomId: 0,
+			favoritePermission: 1,
+			viewHistoryPermission: true,
+			isGovMediaVip: false,
+			isStar: false,
+			hideLocation: false,
+			needSpecialShowFollowerCount: false,
+			continuationState: 0,
+			im_role_ids: [],
+			accountCertInfo: {},
+			close_consecutive_chat: 0,
+		};
 		function getUserInfo(element: HTMLElement) {
 			let userInfoList = [];
-			let $react = utils.getReactObj(element);
-			let reactFiber = $react?.reactFiber;
-			let reactProps = $react?.reactProps;
+			let reactInstance = utils.getReactObj(element);
+			let reactFiber = reactInstance?.reactFiber;
+			let reactProps = reactInstance?.reactProps;
 			if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
 				userInfoList.push(
 					reactFiber?.alternate?.return?.memoizedProps?.userInfo
@@ -54,16 +127,11 @@ export const DouYinAccount = {
 		 */
 		function setLogin(element: HTMLElement) {
 			getUserInfo(element).forEach((userInfo) => {
-				Object.defineProperties(userInfo, {
-					info: {
-						value: notChangeInfoUid,
-						writable: false,
-					},
-					isLogin: {
-						value: true,
-						writable: false,
-					},
-				});
+				if (!userInfo.isLogin) {
+					userInfo.info = info;
+					userInfo.isLogin = true;
+					userInfo.statusCode = 0;
+				}
 			});
 		}
 		DouYinElement.watchFeedVideoListChange(($os) => {
@@ -84,7 +152,6 @@ export const DouYinAccount = {
 						subtree: true,
 						childList: true,
 					},
-
 					immediate: true,
 					callback: () => {
 						lockFn.run();
