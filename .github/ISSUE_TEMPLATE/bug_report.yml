@@ -12,7 +12,9 @@ body:
     attributes:
       value: |
         感谢你拨冗提交油猴脚本的问题。在提交之前，请仔细阅读并遵守以下指引，以确保你的问题能够被尽快解决。  
-        带有星号（*）的选项为必填，其他可选填。**如果你填写的资料不符合规范，维护者可能不予回复，并直接关闭这个 issue。**
+        带有星号（*）的选项为必填，其他可选填。
+        请确保该问题是脚本已有的功能未正常生效的情况，而非新功能请求。
+        **如果你填写的资料不符合规范，维护者可能不予回复，并直接关闭这个 issue。**
         如果你可以自行 debug 并且修正，我们随时欢迎你提交 Pull Request，将你的修改合并到上游。
 
   - type: checkboxes
@@ -103,7 +105,7 @@ body:
   - type: input
     attributes:
       label: 浏览器内核版本
-      description: "请填写运行脚本的浏览器内核版本"
+      description: "请填写运行脚本的浏览器内核版本，如果是套壳浏览器，请填写webview的版本"
     validations:
       required: true
 
@@ -128,6 +130,6 @@ body:
   - type: textarea
     attributes:
       label: 复现步骤
-      placeholder: "在这里提供问题的具体重现步骤（支持 Markdown 语法）"
+      placeholder: "在这里提供问题的具体重现步骤，可以录视频上传（支持 Markdown 语法）"
     validations:
       required: true
