@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.2.28
+// @version      2025.3.1
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -12694,6 +12694,8 @@
   const NetDiskWorker = {
     /** 是否正在匹配中 */
     isHandleMatch: false,
+    /** 触发的CSP策略报错 */
+    CSP_Error: null,
     /** 触发匹配，但是处于匹配中，计数器保存匹配数，等待完成匹配后再执行一次匹配 */
     delayNotMatchCount: 0,
     /** 主动触发监听DOM变化的事件 */
@@ -12835,21 +12837,11 @@
         NetDiskWorker.GM_matchWorker.onmessage = NetDiskWorker.onMessage;
         NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
       } catch (error) {
+        this.CSP_Error = error;
         log.error(
           "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
           error.message
         );
-        let neverToastWorkerError = _GM_getValue(
-          "never-toast-worker-error",
-          false
-        );
-        if (!neverToastWorkerError && !window.confirm(
-          "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死，请在网站规则中新增对该网站的规则，修改匹配模式为Menu。（如果希望不再弹出该提示可点击取消按钮）"
-        )) {
-          if (window.confirm("是否不再弹出该提示？")) {
-            _GM_setValue("never-toast-worker-error", true);
-          }
-        }
         NetDiskWorker.GM_matchWorker = {
           postMessage(data) {
             return new Promise((resolve, reject) => {
@@ -13286,7 +13278,21 @@
           return dispatchMonitorDOMChange;
         }
       });
-      if (NetDiskGlobalData.features["netdisk-match-mode"].value === "MutationObserver") {
+      let matchMode = NetDiskGlobalData.features["netdisk-match-mode"].value;
+      if (matchMode !== "Menu") {
+        let neverToastWorkerError = _GM_getValue(
+          "never-toast-worker-error",
+          false
+        );
+        if (this.CSP_Error != null && !neverToastWorkerError && !window.confirm(
+          "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死，请在网站规则中新增对该网站的规则，修改匹配模式为Menu。（如果希望不再弹出该提示可点击取消按钮）"
+        )) {
+          if (window.confirm("是否不再弹出该提示？")) {
+            _GM_setValue("never-toast-worker-error", true);
+          }
+        }
+      }
+      if (matchMode === "MutationObserver") {
         utils.mutationObserver(document.documentElement, {
           callback: observeEvent,
           config: {
@@ -13299,7 +13305,7 @@
           }
         });
         this.dispatchMonitorDOMChange = true;
-      } else if (NetDiskGlobalData.features["netdisk-match-mode"].value === "Menu") {
+      } else if (matchMode === "Menu") {
         GM_Menu.add({
           key: "performPageTextMatchingManually",
           text: "点击执行文本匹配",

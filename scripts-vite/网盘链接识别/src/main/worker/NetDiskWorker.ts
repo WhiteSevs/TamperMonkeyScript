@@ -15,6 +15,8 @@ import { GM_getValue, GM_setValue } from "ViteGM";
 export const NetDiskWorker = {
 	/** 是否正在匹配中 */
 	isHandleMatch: false,
+	/** 触发的CSP策略报错 */
+	CSP_Error: null as Error | null,
 	/** 触发匹配，但是处于匹配中，计数器保存匹配数，等待完成匹配后再执行一次匹配 */
 	delayNotMatchCount: 0,
 	/** 主动触发监听DOM变化的事件 */
@@ -187,25 +189,11 @@ export const NetDiskWorker = {
 			NetDiskWorker.GM_matchWorker.onmessage = NetDiskWorker.onMessage;
 			NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
 		} catch (error: any) {
+			this.CSP_Error = error;
 			log.error(
 				"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
 				error.message
 			);
-			/** 是否 不再提示Worker错误 */
-			let neverToastWorkerError = GM_getValue(
-				"never-toast-worker-error",
-				false
-			);
-			if (
-				!neverToastWorkerError &&
-				!window.confirm(
-					"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死，请在网站规则中新增对该网站的规则，修改匹配模式为Menu。（如果希望不再弹出该提示可点击取消按钮）"
-				)
-			) {
-				if (window.confirm("是否不再弹出该提示？")) {
-					GM_setValue("never-toast-worker-error", true);
-				}
-			}
 			// @ts-ignore
 			NetDiskWorker.GM_matchWorker = {
 				postMessage(data: NetDiskWorkerOptions) {
@@ -568,7 +556,7 @@ export const NetDiskWorker = {
 			NetDiskGlobalData.match.depthQueryWithShadowRoot.value;
 
 		/** 过滤出执行匹配的规则 */
-		const matchRegular = {} as NetDiskMatchRule;
+		const matchRegular: NetDiskMatchRule = {};
 		/** 字符映射规则 */
 		const characterMapping = CharacterMapping.getMappingData();
 		/* 循环 */
@@ -760,11 +748,28 @@ export const NetDiskWorker = {
 				return dispatchMonitorDOMChange;
 			},
 		});
-
-		if (
-			NetDiskGlobalData.features["netdisk-match-mode"].value ===
-			"MutationObserver"
-		) {
+		/** 匹配模式 */
+		let matchMode = NetDiskGlobalData.features["netdisk-match-mode"].value;
+		if (matchMode !== "Menu") {
+			/** 是否 不再提示Worker错误 */
+			let neverToastWorkerError = GM_getValue(
+				"never-toast-worker-error",
+				false
+			);
+			if (
+				this.CSP_Error != null &&
+				!neverToastWorkerError &&
+				!window.confirm(
+					"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死，请在网站规则中新增对该网站的规则，修改匹配模式为Menu。（如果希望不再弹出该提示可点击取消按钮）"
+				)
+			) {
+				if (window.confirm("是否不再弹出该提示？")) {
+					GM_setValue("never-toast-worker-error", true);
+				}
+			}
+		}
+		// 匹配模式 - MutationObserver
+		if (matchMode === "MutationObserver") {
 			utils.mutationObserver(document.documentElement, {
 				callback: observeEvent,
 				config: {
@@ -780,10 +785,8 @@ export const NetDiskWorker = {
 			});
 			// 主动触发一下
 			this.dispatchMonitorDOMChange = true;
-		} else if (
-			NetDiskGlobalData.features["netdisk-match-mode"].value === "Menu"
-		) {
-			// 手动
+		} else if (matchMode === "Menu") {
+			// 匹配模式 - Menu
 			// 注册油猴菜单
 			GM_Menu.add({
 				key: "performPageTextMatchingManually",
@@ -798,10 +801,7 @@ export const NetDiskWorker = {
 				},
 			});
 		} else {
-			log.error(
-				"未知匹配模式：" +
-					NetDiskGlobalData.features["netdisk-match-mode"].value
-			);
+			log.error("未知匹配模式：" + matchMode);
 		}
 	},
 };
