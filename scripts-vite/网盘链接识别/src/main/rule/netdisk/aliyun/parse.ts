@@ -65,7 +65,7 @@ export class NetDiskParse_Aliyun extends NetDiskParseObject {
 				void 0,
 				(event) => {
 					utils.preventEvent(event);
-					NetDiskLinkClickMode.openBlank(
+					NetDiskLinkClickMode.openBlankUrl(
 						url,
 						"aliyun",
 						that.netDiskIndex,

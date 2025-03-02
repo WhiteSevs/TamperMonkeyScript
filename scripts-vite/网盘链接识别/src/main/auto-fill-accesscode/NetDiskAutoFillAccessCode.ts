@@ -20,7 +20,7 @@ export const NetDiskAutoFillAccessCode = {
 		/**
 		 * 当前的网盘数据
 		 */
-		netDiskInfo: null as any as NetDiskAutoFillAccessCodeOption,
+		netDiskInfo: null as any as NetDiskAutoFillAccessCodeOption[],
 		/**
 		 * 自动输入访问码是否开启
 		 */
@@ -32,55 +32,61 @@ export const NetDiskAutoFillAccessCode = {
 	 * 初始化
 	 */
 	init() {
-		this.$data.netDiskInfo = this.getValue();
-		if (!this.$data.netDiskInfo) {
-			return;
-		}
+		// 判定是否开启了自动填入访问码
 		if (!this.$data.enable) {
 			return;
 		}
-		/* 访问码为空的话就不填 */
-		if (utils.isNull(this.$data.netDiskInfo.accessCode)) {
-			return;
-		}
-		/* 百度如果shareCode第一位是1的话，新版本会在href中去除这个1 */
-		if (
-			this.$data.netDiskInfo.netDiskName === "baidu" &&
-			this.$data.netDiskInfo.shareCode.startsWith("1")
-		) {
+		// 获取存储的访问码信息
+		this.$data.netDiskInfo = this.getValue();
+		let flag = false;
+		for (let index = 0; index < this.$data.netDiskInfo.length; index++) {
+			const fillAccessCodeNetDiskInfo = this.$data.netDiskInfo[index];
+			let accessCode = fillAccessCodeNetDiskInfo.accessCode;
 			if (
-				!window.location.href.includes(
-					this.$data.netDiskInfo.shareCode.slice(
-						1,
-						this.$data.netDiskInfo.shareCode.length
-					)
-				)
+				accessCode == null ||
+				(typeof accessCode === "string" && accessCode.trim() === "")
 			) {
-				return;
+				// 访问码为空
+				continue;
 			}
-		} else if (
-			// 网址路径中不包含shareCode的话，就跳过
-			!window.location.href.includes(this.$data.netDiskInfo.shareCode)
-		) {
-			return;
+			let shareCode = fillAccessCodeNetDiskInfo.shareCode;
+			// 百度如果shareCode第一位是1的话，新版本会在href中去除这个1
+			// 那么这里需要把这个1处理掉，再进行分享码匹配
+			if (
+				fillAccessCodeNetDiskInfo.netDiskName === "baidu" &&
+				shareCode.startsWith("1")
+			) {
+				shareCode = shareCode.slice(1, shareCode.length);
+			}
+			/** 链接地址是否匹配到分享码，从而触发自动填入 */
+			let isMatchedFillShareCode = window.location.href.includes(shareCode);
+			if (isMatchedFillShareCode) {
+				let autoFillFn =
+					NetDiskAutoFillAccessCode.netDisk[
+						fillAccessCodeNetDiskInfo.netDiskName
+					];
+				if (typeof autoFillFn === "function") {
+					log.success(
+						`成功匹配到对应的自动填入访问码的网盘信息：`,
+						fillAccessCodeNetDiskInfo
+					);
+					autoFillFn(fillAccessCodeNetDiskInfo);
+				} else {
+					log.warn(
+						"自动填写访问码失败：" +
+							fillAccessCodeNetDiskInfo.netDiskName +
+							"，原因：该网盘未适配"
+					);
+				}
+				flag = true;
+				break;
+			}
 		}
-		// 判断当前执行的自动填写网盘名是否是已有的
-		if (
-			this.$data.netDiskInfo.netDiskName in NetDiskAutoFillAccessCode.netDisk
-		) {
-			let autoFillFn =
-				NetDiskAutoFillAccessCode.netDisk[this.$data.netDiskInfo.netDiskName];
-			if (typeof autoFillFn === "function") {
-				autoFillFn(this.$data.netDiskInfo);
-			} else {
-				log.warn(
-					"自动填写访问码失败：" +
-						this.$data.netDiskInfo.netDiskName +
-						"，原因：该网盘未适配"
-				);
-			}
-		} else {
-			log.error("网盘名未找到，跳过自动填写：" + this.$data.netDiskInfo);
+		if (!flag) {
+			log.error(
+				"未触发自动填入访问码，原因：未找到对应的网盘信息：👇",
+				this.$data.netDiskInfo
+			);
 		}
 	},
 	netDisk: <
@@ -157,13 +163,53 @@ export const NetDiskAutoFillAccessCode = {
 	 * 设置值
 	 * @param value
 	 */
-	setValue(value: NetDiskAutoFillAccessCodeOption) {
+	setValue(value: NetDiskAutoFillAccessCodeOption[]) {
 		GM_setValue(this.key, value);
+	},
+	/**
+	 * 添加值
+	 * @param netDiskFillOption
+	 */
+	addValue(netDiskFillOption: NetDiskAutoFillAccessCodeOption) {
+		let accessCode = netDiskFillOption.accessCode;
+		// 空值不需要填入
+		if (
+			accessCode == null ||
+			(typeof accessCode === "string" && accessCode.trim() === "")
+		) {
+			return;
+		}
+		let localValue = this.getValue();
+		localValue = localValue.filter((it) => {
+			// 排除掉相同的链接
+			if (
+				it.netDiskName === netDiskFillOption.netDiskName &&
+				it.shareCode === netDiskFillOption.shareCode
+			) {
+				return false;
+			} else {
+				return true;
+			}
+		});
+		localValue.push(netDiskFillOption);
+		this.setValue(localValue);
 	},
 	/**
 	 * 获取值
 	 */
 	getValue() {
-		return GM_getValue<NetDiskAutoFillAccessCodeOption>(this.key);
+		let localValue = GM_getValue<NetDiskAutoFillAccessCodeOption[]>(
+			this.key,
+			[]
+		);
+		if (!Array.isArray(localValue)) {
+			localValue = [localValue];
+		}
+		localValue = localValue.filter(
+			(it) => Date.now() - it.time < 24 * 60 * 60 * 1000
+		);
+		// 更新值
+		this.setValue(localValue);
+		return localValue;
 	},
 };

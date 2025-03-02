@@ -19,6 +19,7 @@ import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import indexCSS from "./index.css?raw";
 import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 import { NetDiskFilterScheme } from "../scheme/NetDiskFilterScheme";
+import { GM_openInTab } from "ViteGM";
 
 /**
  * 传递给生成需要的网盘参数数据
@@ -541,6 +542,7 @@ export const NetDiskView = {
 	 * @param clickNodeSelector 元素选择器
 	 */
 	setNetDiskUrlClickEvent($el: any, clickNodeSelector: string) {
+		// 点击事件
 		DOMUtils.on($el, "click", clickNodeSelector, (event) => {
 			let $click = event.target as HTMLElement;
 			$click.setAttribute("isvisited", "true");
@@ -552,6 +554,37 @@ export const NetDiskView = {
 				$click: $click,
 			});
 		});
+		// 鼠标中键的点击事件
+		DOMUtils.on<PointerEvent>(
+			$el,
+			"auxclick",
+			clickNodeSelector,
+			(event, $click) => {
+				if (event.button !== 1) {
+					// 1是鼠标中键
+					// 2是鼠标右键
+					return;
+				}
+				utils.preventEvent(event);
+				$click.setAttribute("isvisited", "true");
+				// 解析数据
+				const data = NetDiskView.praseElementAttributeRuleInfo($click);
+				let url = NetDiskLinkClickModeUtils.getBlankUrl(
+					data.netDiskName,
+					data.netDiskIndex,
+					data.shareCode,
+					data.accessCode
+				);
+				NetDiskLinkClickMode.openBlankUrl(
+					url,
+					data.netDiskName,
+					data.netDiskIndex,
+					data.shareCode,
+					data.accessCode,
+					true
+				);
+			}
+		);
 	},
 	/**
 	 * 网盘链接点击事件
@@ -622,7 +655,7 @@ export const NetDiskView = {
 				);
 			} else {
 				// 否则用原链接打开
-				NetDiskLinkClickMode.openBlank(
+				NetDiskLinkClickMode.openBlankUrl(
 					url,
 					netDiskName,
 					netDiskIndex,

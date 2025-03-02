@@ -34,6 +34,8 @@ declare interface NetDiskAutoFillAccessCodeOption {
 	shareCode: string;
 	/** 访问码 */
 	accessCode: string;
+	/** 存储时间 */
+	time: number;
 }
 
 declare interface NetDiskSettingMenuDetails

@@ -202,12 +202,34 @@ export const NetDiskUI = {
 						shareCode,
 						accessCode
 					);
-					NetDiskLinkClickMode.openBlank(
+					NetDiskLinkClickMode.openBlankUrl(
 						url,
 						netDiskName,
 						netDiskIndex,
 						shareCode,
 						accessCode
+					);
+				},
+			},
+			{
+				text: "后台打开",
+				callback: function (event: any, contextMenuEvent: any) {
+					let linkElement = contextMenuEvent.target;
+					const { netDiskName, netDiskIndex, shareCode, accessCode } =
+						NetDiskView.praseElementAttributeRuleInfo(linkElement);
+					let url = NetDiskLinkClickModeUtils.getBlankUrl(
+						netDiskName,
+						netDiskIndex,
+						shareCode,
+						accessCode
+					);
+					NetDiskLinkClickMode.openBlankUrl(
+						url,
+						netDiskName,
+						netDiskIndex,
+						shareCode,
+						accessCode,
+						true
 					);
 				},
 			},

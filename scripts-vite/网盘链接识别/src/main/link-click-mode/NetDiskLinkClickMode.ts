@@ -1,4 +1,4 @@
-import { httpx, log, utils } from "@/env";
+import { $, httpx, log, utils } from "@/env";
 import { NetDiskParse } from "../parse/NetDiskParse";
 import Qmsg from "qmsg";
 import { NetDiskAutoFillAccessCode } from "../auto-fill-accesscode/NetDiskAutoFillAccessCode";
@@ -7,6 +7,7 @@ import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDisk } from "../NetDisk";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
+import { GM_openInTab } from "ViteGM";
 
 /** 点击动作 */
 export type NetDiskRuleSettingConfigurationInterface_linkClickMode =
@@ -183,31 +184,48 @@ export const NetDiskLinkClickMode = {
 	 * @param netDiskIndex 网盘索引
 	 * @param shareCode 分享码
 	 * @param accessCode 提取码
+	 * @param isOpenInBackEnd 是否使用后台打开，默认false
 	 */
-	openBlank(
+	openBlankUrl(
 		url: string,
 		netDiskName: string,
 		netDiskIndex: number,
 		shareCode: string,
-		accessCode: string
+		accessCode: string,
+		isOpenInBackEnd: boolean = false
 	) {
-		log.success("新标签页打开", arguments);
+		log.success(
+			"新标签页打开" + isOpenInBackEnd ? "（后台打开）" : "",
+			arguments
+		);
 		if (NetDiskAutoFillAccessCode.$data.enable) {
-			NetDiskAutoFillAccessCode.setValue({
+			NetDiskAutoFillAccessCode.addValue({
 				url: url,
 				netDiskName: netDiskName,
 				netDiskIndex: netDiskIndex,
 				shareCode: shareCode,
 				accessCode: accessCode,
+				time: Date.now(),
 			});
 		}
 		if (NetDiskFilterScheme.isForwardBlankLink(netDiskName)) {
 			url = NetDiskFilterScheme.parseDataToSchemeUri(netDiskName, url);
 		}
 		/* 百度网盘会拒绝referrer不安全访问 */
-		document
-			.querySelector("meta[name='referrer']")
-			?.setAttribute("content", "no-referrer");
+		$("meta[name='referrer']")?.setAttribute("content", "no-referrer");
+
+		/**
+		 * 新标签页打开链接
+		 */
+		let openUrl = () => {
+			if (isOpenInBackEnd) {
+				GM_openInTab(url, {
+					active: false,
+				});
+			} else {
+				window.open(url, "_blank");
+			}
+		};
 		if (
 			utils.isNotNull(accessCode) &&
 			NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(
@@ -216,10 +234,10 @@ export const NetDiskLinkClickMode = {
 		) {
 			/* 等待复制完毕再跳转 */
 			utils.setClip(accessCode).then(() => {
-				window.open(url, "_blank");
+				openUrl();
 			});
 		} else {
-			window.open(url, "_blank");
+			openUrl();
 		}
 	},
 	/**

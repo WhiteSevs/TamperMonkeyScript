@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.3.1
+// @version      2025.3.2
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -69,6 +69,7 @@
 // @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
+// @grant        GM_openInTab
 // @grant        GM_registerMenuCommand
 // @grant        GM_setValue
 // @grant        GM_unregisterMenuCommand
@@ -89,6 +90,7 @@
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_openInTab = /* @__PURE__ */ (() => typeof GM_openInTab != "undefined" ? GM_openInTab : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
   var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
   var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
@@ -2036,42 +2038,44 @@
      * 初始化
      */
     init() {
-      this.$data.netDiskInfo = this.getValue();
-      if (!this.$data.netDiskInfo) {
-        return;
-      }
       if (!this.$data.enable) {
         return;
       }
-      if (utils.isNull(this.$data.netDiskInfo.accessCode)) {
-        return;
-      }
-      if (this.$data.netDiskInfo.netDiskName === "baidu" && this.$data.netDiskInfo.shareCode.startsWith("1")) {
-        if (!window.location.href.includes(
-          this.$data.netDiskInfo.shareCode.slice(
-            1,
-            this.$data.netDiskInfo.shareCode.length
-          )
-        )) {
-          return;
+      this.$data.netDiskInfo = this.getValue();
+      let flag = false;
+      for (let index = 0; index < this.$data.netDiskInfo.length; index++) {
+        const fillAccessCodeNetDiskInfo = this.$data.netDiskInfo[index];
+        let accessCode = fillAccessCodeNetDiskInfo.accessCode;
+        if (accessCode == null || typeof accessCode === "string" && accessCode.trim() === "") {
+          continue;
         }
-      } else if (
-        // 网址路径中不包含shareCode的话，就跳过
-        !window.location.href.includes(this.$data.netDiskInfo.shareCode)
-      ) {
-        return;
-      }
-      if (this.$data.netDiskInfo.netDiskName in NetDiskAutoFillAccessCode.netDisk) {
-        let autoFillFn = NetDiskAutoFillAccessCode.netDisk[this.$data.netDiskInfo.netDiskName];
-        if (typeof autoFillFn === "function") {
-          autoFillFn(this.$data.netDiskInfo);
-        } else {
-          log.warn(
-            "自动填写访问码失败：" + this.$data.netDiskInfo.netDiskName + "，原因：该网盘未适配"
-          );
+        let shareCode = fillAccessCodeNetDiskInfo.shareCode;
+        if (fillAccessCodeNetDiskInfo.netDiskName === "baidu" && shareCode.startsWith("1")) {
+          shareCode = shareCode.slice(1, shareCode.length);
         }
-      } else {
-        log.error("网盘名未找到，跳过自动填写：" + this.$data.netDiskInfo);
+        let isMatchedFillShareCode = window.location.href.includes(shareCode);
+        if (isMatchedFillShareCode) {
+          let autoFillFn = NetDiskAutoFillAccessCode.netDisk[fillAccessCodeNetDiskInfo.netDiskName];
+          if (typeof autoFillFn === "function") {
+            log.success(
+              `成功匹配到对应的自动填入访问码的网盘信息：`,
+              fillAccessCodeNetDiskInfo
+            );
+            autoFillFn(fillAccessCodeNetDiskInfo);
+          } else {
+            log.warn(
+              "自动填写访问码失败：" + fillAccessCodeNetDiskInfo.netDiskName + "，原因：该网盘未适配"
+            );
+          }
+          flag = true;
+          break;
+        }
+      }
+      if (!flag) {
+        log.error(
+          "未触发自动填入访问码，原因：未找到对应的网盘信息：👇",
+          this.$data.netDiskInfo
+        );
       }
     },
     netDisk: {
@@ -2152,10 +2156,41 @@
       _GM_setValue(this.key, value);
     },
     /**
+     * 添加值
+     * @param netDiskFillOption
+     */
+    addValue(netDiskFillOption) {
+      let accessCode = netDiskFillOption.accessCode;
+      if (accessCode == null || typeof accessCode === "string" && accessCode.trim() === "") {
+        return;
+      }
+      let localValue = this.getValue();
+      localValue = localValue.filter((it) => {
+        if (it.netDiskName === netDiskFillOption.netDiskName && it.shareCode === netDiskFillOption.shareCode) {
+          return false;
+        } else {
+          return true;
+        }
+      });
+      localValue.push(netDiskFillOption);
+      this.setValue(localValue);
+    },
+    /**
      * 获取值
      */
     getValue() {
-      return _GM_getValue(this.key);
+      let localValue = _GM_getValue(
+        this.key,
+        []
+      );
+      if (!Array.isArray(localValue)) {
+        localValue = [localValue];
+      }
+      localValue = localValue.filter(
+        (it) => Date.now() - it.time < 24 * 60 * 60 * 1e3
+      );
+      this.setValue(localValue);
+      return localValue;
     }
   };
   const NetDiskAuthorization_Lanzouyx = function() {
@@ -3042,7 +3077,7 @@
           void 0,
           (event) => {
             utils.preventEvent(event);
-            NetDiskLinkClickMode.openBlank(
+            NetDiskLinkClickMode.openBlankUrl(
               url,
               "aliyun",
               that.netDiskIndex,
@@ -3864,6 +3899,33 @@
           $click
         });
       });
+      domUtils.on(
+        $el,
+        "auxclick",
+        clickNodeSelector,
+        (event, $click) => {
+          if (event.button !== 1) {
+            return;
+          }
+          utils.preventEvent(event);
+          $click.setAttribute("isvisited", "true");
+          const data = NetDiskView.praseElementAttributeRuleInfo($click);
+          let url = NetDiskLinkClickModeUtils.getBlankUrl(
+            data.netDiskName,
+            data.netDiskIndex,
+            data.shareCode,
+            data.accessCode
+          );
+          NetDiskLinkClickMode.openBlankUrl(
+            url,
+            data.netDiskName,
+            data.netDiskIndex,
+            data.shareCode,
+            data.accessCode,
+            true
+          );
+        }
+      );
     },
     /**
      * 网盘链接点击事件
@@ -3909,7 +3971,7 @@
             accessCode
           );
         } else {
-          NetDiskLinkClickMode.openBlank(
+          NetDiskLinkClickMode.openBlankUrl(
             url,
             netDiskName,
             netDiskIndex,
@@ -7562,7 +7624,7 @@
       if (jsonData["code"] === 0) {
         if (jsonData["data"]["fileList"][0]["type"] === 2) {
           Qmsg.error("该链接为多层级文件嵌套，跳转");
-          NetDiskLinkClickMode.openBlank(
+          NetDiskLinkClickMode.openBlankUrl(
             NetDiskLinkClickModeUtils.getBlankUrl(
               "wenshushu",
               that.netDiskIndex,
@@ -7811,31 +7873,45 @@
      * @param netDiskIndex 网盘索引
      * @param shareCode 分享码
      * @param accessCode 提取码
+     * @param isOpenInBackEnd 是否使用后台打开，默认false
      */
-    openBlank(url, netDiskName, netDiskIndex, shareCode, accessCode) {
+    openBlankUrl(url, netDiskName, netDiskIndex, shareCode, accessCode, isOpenInBackEnd = false) {
       var _a2;
-      log.success("新标签页打开", arguments);
+      log.success(
+        "新标签页打开" + isOpenInBackEnd ? "（后台打开）" : "",
+        arguments
+      );
       if (NetDiskAutoFillAccessCode.$data.enable) {
-        NetDiskAutoFillAccessCode.setValue({
+        NetDiskAutoFillAccessCode.addValue({
           url,
           netDiskName,
           netDiskIndex,
           shareCode,
-          accessCode
+          accessCode,
+          time: Date.now()
         });
       }
       if (NetDiskFilterScheme.isForwardBlankLink(netDiskName)) {
         url = NetDiskFilterScheme.parseDataToSchemeUri(netDiskName, url);
       }
-      (_a2 = document.querySelector("meta[name='referrer']")) == null ? void 0 : _a2.setAttribute("content", "no-referrer");
+      (_a2 = $("meta[name='referrer']")) == null ? void 0 : _a2.setAttribute("content", "no-referrer");
+      let openUrl = () => {
+        if (isOpenInBackEnd) {
+          _GM_openInTab(url, {
+            active: false
+          });
+        } else {
+          window.open(url, "_blank");
+        }
+      };
       if (utils.isNotNull(accessCode) && NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(
         netDiskName
       )) {
         utils.setClip(accessCode).then(() => {
-          window.open(url, "_blank");
+          openUrl();
         });
       } else {
-        window.open(url, "_blank");
+        openUrl();
       }
     },
     /**
@@ -13319,9 +13395,7 @@
           }
         });
       } else {
-        log.error(
-          "未知匹配模式：" + NetDiskGlobalData.features["netdisk-match-mode"].value
-        );
+        log.error("未知匹配模式：" + matchMode);
       }
     }
   };
@@ -14630,12 +14704,33 @@
               shareCode,
               accessCode
             );
-            NetDiskLinkClickMode.openBlank(
+            NetDiskLinkClickMode.openBlankUrl(
               url,
               netDiskName,
               netDiskIndex,
               shareCode,
               accessCode
+            );
+          }
+        },
+        {
+          text: "后台打开",
+          callback: function(event, contextMenuEvent) {
+            let linkElement = contextMenuEvent.target;
+            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo(linkElement);
+            let url = NetDiskLinkClickModeUtils.getBlankUrl(
+              netDiskName,
+              netDiskIndex,
+              shareCode,
+              accessCode
+            );
+            NetDiskLinkClickMode.openBlankUrl(
+              url,
+              netDiskName,
+              netDiskIndex,
+              shareCode,
+              accessCode,
+              true
             );
           }
         },
@@ -16469,7 +16564,7 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle.bind(utils);
-  document.querySelector.bind(document);
+  const $ = document.querySelector.bind(document);
   document.querySelectorAll.bind(document);
   const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {
     let __defaultButtonText = defaultButtonText;

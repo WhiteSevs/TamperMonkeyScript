@@ -146,7 +146,7 @@ export class NetDiskParse_Wenshushu extends NetDiskParseObject {
 		if (jsonData["code"] === 0) {
 			if (jsonData["data"]["fileList"][0]["type"] === 2) {
 				Qmsg.error("该链接为多层级文件嵌套，跳转");
-				NetDiskLinkClickMode.openBlank(
+				NetDiskLinkClickMode.openBlankUrl(
 					NetDiskLinkClickModeUtils.getBlankUrl(
 						"wenshushu",
 						that.netDiskIndex,
