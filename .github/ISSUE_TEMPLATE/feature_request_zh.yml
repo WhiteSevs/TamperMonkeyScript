@@ -2,7 +2,7 @@ name: （中文）建议一个新功能
 description: 在这里提供一个的想法或建议
 labels:
   - enhancement
-title: "[Feature] <标题>"
+title: "[Feature] "
 body:
   - type: markdown
     attributes:

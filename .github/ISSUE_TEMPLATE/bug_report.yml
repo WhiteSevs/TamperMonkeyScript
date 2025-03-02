@@ -2,7 +2,7 @@ name: （中文）提交 脚本的BUG
 description: 如果脚本出现BUG，在这里提交问题
 labels:
   - bug
-title: "[Bug] <问题标题>"
+title: "[Bug] "
 body:
   - type: markdown
     attributes:
