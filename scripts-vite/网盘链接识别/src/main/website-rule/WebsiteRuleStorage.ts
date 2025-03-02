@@ -69,6 +69,10 @@ export const WebsiteProxyGlobalValue = <T>(
 	let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
 
 	let findValue = matchedUrlRuleList.find((item) => {
+		if (!item.enable) {
+			// 未启用
+			return false;
+		}
 		let data = WebsiteRule.getRuleData(item);
 		// 判断存储的数据中是否存在该键
 		return Reflect.has(data, key);

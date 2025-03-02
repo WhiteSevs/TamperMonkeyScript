@@ -54,16 +54,16 @@ export const NetDiskWorkerUtils = {
 		let ignoreNodeList: HTMLElement[] = [];
 		if (ignoreNodeList.length) {
 			ignoreNodeList.forEach(($ignore) => {
-				if ($ignore == void 0) {
+				if ($ignore == null) {
 					return;
 				}
 				if (isHTML) {
-					if ($ignore.innerHTML != void 0) {
+					if ($ignore.innerHTML != null) {
 						text = text.replaceAll($ignore.innerHTML, "");
 					}
 				} else {
 					let text = $ignore.innerText || $ignore.textContent;
-					if (text != void 0) {
+					if (text != null) {
 						text = text.replaceAll(text, "");
 					}
 				}

@@ -23,6 +23,8 @@ import {
 import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import panelSettingCSS from "./css/index.css?raw";
 import panelIndexCSS from "./../view/global-setting/index.css?raw";
+
+/** 深拷贝 */
 function deepCopy<T>(obj: T): T {
 	if (obj === null || typeof obj !== "object") {
 		return obj;
@@ -59,11 +61,12 @@ export const WebsiteRule = {
 	},
 	/**
 	 * 获取规则视图配置
+	 * @param originAddData 用于快速添加数据
 	 */
-	getRuleView() {
+	getRuleView(originAddData?: WebsiteRuleOption) {
 		const that = this;
 		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
-		let addData = this.getTemplateData();
+		let addData = originAddData ?? this.getTemplateData();
 		/**
 		 * 自定义存储api的配置
 		 * @param uuid
@@ -201,7 +204,8 @@ export const WebsiteRule = {
 							false,
 							false,
 							"primary",
-							() => {
+							(event) => {
+								utils.preventEvent(event);
 								// 先获取总设置和所有规则的content配置
 								let originPanelContentConfig =
 									PopsPanel.getPanelContentConfig().concat(

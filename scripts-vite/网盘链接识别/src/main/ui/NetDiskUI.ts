@@ -20,6 +20,7 @@ import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
 import { CharacterMapping } from "../character-mapping/CharacterMapping";
 import { WebsiteRule } from "../website-rule/WebsiteRule";
+import DOMUtils from "@whitesev/domutils";
 
 /** 弹窗UI界面 */
 export const NetDiskUI = {
@@ -344,7 +345,7 @@ export const NetDiskUI = {
 						netDiskItem.clear();
 					});
 					NetDisk.$match.matchedInfoRuleKey.clear();
-					$boxAll.innerHTML = "";
+					DOMUtils.html($boxAll, "");
 				},
 			});
 		}

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.3.2
+// @version      2025.3.3
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@11f749fc58f5674c1b4db129731403b77d97f7eb/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
 // @connect      *
 // @connect      lanzoub.com
 // @connect      lanzouc.com
@@ -3861,7 +3861,7 @@
       let $url = $viewBox.querySelector(".netdisk-url");
       let $link = $viewBox.querySelector(".netdisk-link");
       $iconImg.style.cssText = `background: url(${netDiskImgSrc}) no-repeat;background-size: 100%;`;
-      $link.innerHTML = uiLinkText;
+      domUtils.html($link, uiLinkText);
       this.handleElementAttributeRuleInfo(
         {
           netDisk: netDiskName,
@@ -7878,7 +7878,7 @@
     openBlankUrl(url, netDiskName, netDiskIndex, shareCode, accessCode, isOpenInBackEnd = false) {
       var _a2;
       log.success(
-        "新标签页打开" + isOpenInBackEnd ? "（后台打开）" : "",
+        `新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`,
         arguments
       );
       if (NetDiskAutoFillAccessCode.$data.enable) {
@@ -8707,7 +8707,7 @@
      * @param accessCode 访问码
      */
     async init(netDiskIndex, shareCode, accessCode) {
-      var _a2, _b, _c, _d;
+      var _a2, _b, _c;
       let url = NetDiskLinkClickModeUtils.getBlankUrl(
         "onedrive",
         netDiskIndex,
@@ -8746,7 +8746,8 @@
       if (utils.isNotNull(responseText)) {
         try {
           let respDOM = domUtils.parseHTML(responseText, true, true);
-          if ((_d = (_c = respDOM.querySelector("title")) == null ? void 0 : _c.innerHTML) == null ? void 0 : _d.includes("错误")) {
+          let title = (_c = respDOM.querySelector("title")) == null ? void 0 : _c.innerHTML;
+          if (title == null ? void 0 : title.includes("错误")) {
             return {
               ...NetDiskCheckLinkValidity.status.failed,
               data: response
@@ -8888,7 +8889,7 @@
           "loading",
           msg ?? this.msg
         );
-        $ele.innerHTML = __pops.config.iconSVG.loading;
+        domUtils.html($ele, __pops.config.iconSVG.loading);
       }
     },
     /**
@@ -8903,14 +8904,17 @@
           "success",
           msg ?? this.msg
         );
-        $ele.innerHTML = /*html*/
-        `
-			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-				<path
-				fill="currentColor"
-				d="M874.119618 149.859922A510.816461 510.816461 0 0 0 511.997 0.00208a509.910462 509.910462 0 0 0-362.119618 149.857842c-199.817789 199.679789-199.817789 524.581447 0 724.260236a509.969462 509.969462 0 0 0 362.119618 149.857842A508.872463 508.872463 0 0 0 874.119618 874.120158c199.836789-199.679789 199.836789-524.581447 0-724.260236zM814.94268 378.210681L470.999043 744.132295a15.359984 15.359984 0 0 1-5.887994 4.095996c-1.751998 1.180999-2.913997 2.362998-5.276994 2.913997a34.499964 34.499964 0 0 1-13.469986 2.914997 45.547952 45.547952 0 0 1-12.897986-2.303998l-4.095996-2.363997a45.291952 45.291952 0 0 1-7.009992-4.095996l-196.902793-193.789796a34.126964 34.126964 0 0 1-10.555989-25.186973c0-9.37399 3.583996-18.74698 9.98399-25.186974a36.429962 36.429962 0 0 1 50.372947 0l169.98382 167.423824L763.389735 330.220732a37.059961 37.059961 0 0 1 50.371947-1.732998 33.647965 33.647965 0 0 1 11.165988 25.186973 35.544963 35.544963 0 0 1-9.98399 24.575974v-0.04z m0 0"></path>
-			</svg>
-			`;
+        domUtils.html(
+          $ele,
+          /*html*/
+          `
+				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+					<path
+					fill="currentColor"
+					d="M874.119618 149.859922A510.816461 510.816461 0 0 0 511.997 0.00208a509.910462 509.910462 0 0 0-362.119618 149.857842c-199.817789 199.679789-199.817789 524.581447 0 724.260236a509.969462 509.969462 0 0 0 362.119618 149.857842A508.872463 508.872463 0 0 0 874.119618 874.120158c199.836789-199.679789 199.836789-524.581447 0-724.260236zM814.94268 378.210681L470.999043 744.132295a15.359984 15.359984 0 0 1-5.887994 4.095996c-1.751998 1.180999-2.913997 2.362998-5.276994 2.913997a34.499964 34.499964 0 0 1-13.469986 2.914997 45.547952 45.547952 0 0 1-12.897986-2.303998l-4.095996-2.363997a45.291952 45.291952 0 0 1-7.009992-4.095996l-196.902793-193.789796a34.126964 34.126964 0 0 1-10.555989-25.186973c0-9.37399 3.583996-18.74698 9.98399-25.186974a36.429962 36.429962 0 0 1 50.372947 0l169.98382 167.423824L763.389735 330.220732a37.059961 37.059961 0 0 1 50.371947-1.732998 33.647965 33.647965 0 0 1 11.165988 25.186973 35.544963 35.544963 0 0 1-9.98399 24.575974v-0.04z m0 0"></path>
+				</svg>
+				`
+        );
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($ele, checkInfo);
       }
     },
@@ -8926,14 +8930,17 @@
           "error",
           msg ?? this.msg
         );
-        $ele.innerHTML = /*html*/
-        `
-			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-				<path
-				fill="currentColor"
-				d="M511.808 692.224c-18.048 0-35.136 3.968-50.432 11.392-25.472 12.416-46.528 33.92-57.792 60.032-5.632 14.144-9.024 29.504-9.024 45.952 0 65.152 52.672 117.824 117.248 117.824 65.28 0 117.952-52.672 117.952-117.824 0-64.64-52.672-117.376-117.952-117.376z m0 178.496c-33.408 0-60.608-27.712-60.608-61.12 0-33.472 27.2-60.672 60.608-60.672s61.248 27.2 61.248 60.672c0 33.472-27.776 61.12-61.248 61.12zM286.784 661.632c3.968 3.392 8.512 5.632 12.992 5.632L438.08 523.328c-60.032 14.72-114.432 49.344-155.328 98.624-9.536 11.84-7.872 30.08 4.032 39.68zM622.912 534.656l-43.008 45.312c45.312 13.056 86.72 40.256 117.376 78.208 5.632 6.784 13.568 10.24 22.08 10.24 6.272 0 12.416-2.24 18.176-6.784 11.904-9.6 13.568-27.84 3.392-39.68-31.808-39.104-72.704-69.12-118.016-87.296zM511.808 391.168c17.024 0 33.408 1.216 49.856 3.456l47.68-49.856c-31.744-6.848-64.064-10.24-97.536-10.24-142.784 0-277.12 63.488-367.232 174.656-10.24 11.904-8.576 30.08 3.904 39.68 5.12 4.48 11.328 6.784 18.176 6.784 7.936 0 15.872-3.968 21.568-10.816 79.872-97.536 197.76-153.664 323.584-153.664zM751.616 400.32l-40.256 41.92c47.04 24.96 89.536 60.032 124.096 102.592 10.24 12.48 27.84 14.208 40.256 3.968 11.968-9.6 13.632-27.84 3.968-39.68-36.16-44.8-79.872-81.088-128.064-108.8zM705.152 244.928l42.56-44.672c-73.664-28.992-153.6-44.224-235.904-44.224-196.672 0-380.864 87.872-505.6 239.744-9.6 12.48-7.872 30.08 3.968 40.256 5.632 3.968 11.904 6.208 18.112 6.208 7.936 0 16.448-3.392 22.144-10.176C163.84 292.608 332.096 212.672 511.808 212.672c66.944 0 132.16 10.752 193.344 32.256zM1017.472 395.776c-40.192-49.92-87.296-92.416-139.456-126.976l-39.68 41.344C889.408 343.04 935.36 383.808 973.888 432c9.6 11.904 27.776 13.568 39.68 3.968 11.84-10.176 14.144-27.712 3.904-40.192zM937.408 104.512c-11.328-10.944-29.312-10.496-40.064 0.832L179.008 854.72c-10.816 11.328-10.496 29.248 0.896 40.064 5.44 5.312 12.48 7.872 19.584 7.872 7.488 0 14.848-2.88 20.416-8.704L938.24 144.576c10.88-11.328 10.496-29.248-0.832-40.064z"></path>
-			</svg>
-			`;
+        domUtils.html(
+          $ele,
+          /*html*/
+          `
+				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+					<path
+					fill="currentColor"
+					d="M511.808 692.224c-18.048 0-35.136 3.968-50.432 11.392-25.472 12.416-46.528 33.92-57.792 60.032-5.632 14.144-9.024 29.504-9.024 45.952 0 65.152 52.672 117.824 117.248 117.824 65.28 0 117.952-52.672 117.952-117.824 0-64.64-52.672-117.376-117.952-117.376z m0 178.496c-33.408 0-60.608-27.712-60.608-61.12 0-33.472 27.2-60.672 60.608-60.672s61.248 27.2 61.248 60.672c0 33.472-27.776 61.12-61.248 61.12zM286.784 661.632c3.968 3.392 8.512 5.632 12.992 5.632L438.08 523.328c-60.032 14.72-114.432 49.344-155.328 98.624-9.536 11.84-7.872 30.08 4.032 39.68zM622.912 534.656l-43.008 45.312c45.312 13.056 86.72 40.256 117.376 78.208 5.632 6.784 13.568 10.24 22.08 10.24 6.272 0 12.416-2.24 18.176-6.784 11.904-9.6 13.568-27.84 3.392-39.68-31.808-39.104-72.704-69.12-118.016-87.296zM511.808 391.168c17.024 0 33.408 1.216 49.856 3.456l47.68-49.856c-31.744-6.848-64.064-10.24-97.536-10.24-142.784 0-277.12 63.488-367.232 174.656-10.24 11.904-8.576 30.08 3.904 39.68 5.12 4.48 11.328 6.784 18.176 6.784 7.936 0 15.872-3.968 21.568-10.816 79.872-97.536 197.76-153.664 323.584-153.664zM751.616 400.32l-40.256 41.92c47.04 24.96 89.536 60.032 124.096 102.592 10.24 12.48 27.84 14.208 40.256 3.968 11.968-9.6 13.632-27.84 3.968-39.68-36.16-44.8-79.872-81.088-128.064-108.8zM705.152 244.928l42.56-44.672c-73.664-28.992-153.6-44.224-235.904-44.224-196.672 0-380.864 87.872-505.6 239.744-9.6 12.48-7.872 30.08 3.968 40.256 5.632 3.968 11.904 6.208 18.112 6.208 7.936 0 16.448-3.392 22.144-10.176C163.84 292.608 332.096 212.672 511.808 212.672c66.944 0 132.16 10.752 193.344 32.256zM1017.472 395.776c-40.192-49.92-87.296-92.416-139.456-126.976l-39.68 41.344C889.408 343.04 935.36 383.808 973.888 432c9.6 11.904 27.776 13.568 39.68 3.968 11.84-10.176 14.144-27.712 3.904-40.192zM937.408 104.512c-11.328-10.944-29.312-10.496-40.064 0.832L179.008 854.72c-10.816 11.328-10.496 29.248 0.896 40.064 5.44 5.312 12.48 7.872 19.584 7.872 7.488 0 14.848-2.88 20.416-8.704L938.24 144.576c10.88-11.328 10.496-29.248-0.832-40.064z"></path>
+				</svg>
+				`
+        );
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($ele, checkInfo);
       }
     },
@@ -8949,14 +8956,17 @@
           "failed",
           msg ?? this.msg
         );
-        $ele.innerHTML = /*html*/
-        `
-			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-				<path
-					fill="currentColor"
-					d="M549.044706 512l166.189176-166.249412a26.383059 26.383059 0 0 0 0-36.98447 26.383059 26.383059 0 0 0-37.044706 0L512 475.015529l-166.249412-166.249411a26.383059 26.383059 0 0 0-36.98447 0 26.383059 26.383059 0 0 0 0 37.044706L475.015529 512l-166.249411 166.249412a26.383059 26.383059 0 0 0 0 36.98447 26.383059 26.383059 0 0 0 37.044706 0L512 548.984471l166.249412 166.249411a26.383059 26.383059 0 0 0 36.98447 0 26.383059 26.383059 0 0 0 0-37.044706L548.984471 512zM512 1024a512 512 0 1 1 0-1024 512 512 0 0 1 0 1024z"></path>
-			</svg>
-			`;
+        domUtils.html(
+          $ele,
+          /*html*/
+          `
+				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+					<path
+						fill="currentColor"
+						d="M549.044706 512l166.189176-166.249412a26.383059 26.383059 0 0 0 0-36.98447 26.383059 26.383059 0 0 0-37.044706 0L512 475.015529l-166.249412-166.249411a26.383059 26.383059 0 0 0-36.98447 0 26.383059 26.383059 0 0 0 0 37.044706L475.015529 512l-166.249411 166.249412a26.383059 26.383059 0 0 0 0 36.98447 26.383059 26.383059 0 0 0 37.044706 0L512 548.984471l166.249412 166.249411a26.383059 26.383059 0 0 0 36.98447 0 26.383059 26.383059 0 0 0 0-37.044706L548.984471 512zM512 1024a512 512 0 1 1 0-1024 512 512 0 0 1 0 1024z"></path>
+				</svg>
+				`
+        );
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($ele, checkInfo);
       }
     },
@@ -8972,17 +8982,20 @@
           "needAccessCode",
           msg ?? this.msg
         );
-        $ele.innerHTML = /*html*/
-        `
-			<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-				<path
-				fill="currentColor"
-				d="M757.810429 373.751333 325.645708 373.751333l0-83.895759c0-103.694687 81.507362-184.922686 185.559183-184.922686 78.121242 0 146.053424 46.74565 173.062568 119.090329 3.865028 10.352789 15.384385 15.609513 25.742291 11.746532 10.351766-3.866051 15.609513-15.390525 11.744485-25.742291C688.844707 121.877815 606.198405 64.918545 511.204891 64.918545c-61.918211 0-119.246895 23.662933-161.423483 66.63156-41.3692 42.142819-64.151066 98.363262-64.151066 158.305469l0 83.895759-20.007683 0c-60.774155 0-110.042255 49.267077-110.042255 110.042255l0 366.139981c0 60.774155 49.267077 110.042255 110.042255 110.042255l492.187769 0c60.775178 0 110.042255-49.267077 110.042255-110.042255L867.852684 483.793588C867.852684 423.01841 818.585607 373.751333 757.810429 373.751333zM827.837318 849.933569c0 38.674834-31.352055 70.02689-70.02689 70.02689L265.62266 919.960459c-38.674834 0-70.02689-31.352055-70.02689-70.02689L195.59577 483.793588c0-38.674834 31.352055-70.02689 70.02689-70.02689l492.187769 0c38.674834 0 70.02689 31.352055 70.02689 70.02689L827.837318 849.933569z"></path>
-				<path
-				fill="currentColor"
-				d="M509.715981 583.832002c-11.048637 0-20.007683 8.959046-20.007683 20.007683l0 110.042255c0 11.048637 8.958022 20.007683 20.007683 20.007683s20.007683-8.958022 20.007683-20.007683L529.723663 603.839685C529.723663 592.790024 520.765641 583.832002 509.715981 583.832002z"></path>
-			</svg>
-			`;
+        domUtils.html(
+          $ele,
+          /*html*/
+          `
+				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+					<path
+					fill="currentColor"
+					d="M757.810429 373.751333 325.645708 373.751333l0-83.895759c0-103.694687 81.507362-184.922686 185.559183-184.922686 78.121242 0 146.053424 46.74565 173.062568 119.090329 3.865028 10.352789 15.384385 15.609513 25.742291 11.746532 10.351766-3.866051 15.609513-15.390525 11.744485-25.742291C688.844707 121.877815 606.198405 64.918545 511.204891 64.918545c-61.918211 0-119.246895 23.662933-161.423483 66.63156-41.3692 42.142819-64.151066 98.363262-64.151066 158.305469l0 83.895759-20.007683 0c-60.774155 0-110.042255 49.267077-110.042255 110.042255l0 366.139981c0 60.774155 49.267077 110.042255 110.042255 110.042255l492.187769 0c60.775178 0 110.042255-49.267077 110.042255-110.042255L867.852684 483.793588C867.852684 423.01841 818.585607 373.751333 757.810429 373.751333zM827.837318 849.933569c0 38.674834-31.352055 70.02689-70.02689 70.02689L265.62266 919.960459c-38.674834 0-70.02689-31.352055-70.02689-70.02689L195.59577 483.793588c0-38.674834 31.352055-70.02689 70.02689-70.02689l492.187769 0c38.674834 0 70.02689 31.352055 70.02689 70.02689L827.837318 849.933569z"></path>
+					<path
+					fill="currentColor"
+					d="M509.715981 583.832002c-11.048637 0-20.007683 8.959046-20.007683 20.007683l0 110.042255c0 11.048637 8.958022 20.007683 20.007683 20.007683s20.007683-8.958022 20.007683-20.007683L529.723663 603.839685C529.723663 592.790024 520.765641 583.832002 509.715981 583.832002z"></path>
+				</svg>
+				`
+        );
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($ele, checkInfo);
       }
     },
@@ -8998,13 +9011,16 @@
           "partial-violation",
           msg ?? this.msg
         );
-        $ele.innerHTML = /*html*/
-        `
-			<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
-				<path 
-				fill="currentColor"
-				d="M954.963 810.267L543.112 96.919c-14.07-24.37-49.245-24.37-63.315 0L67.945 810.267c-14.07 24.37 3.518 54.832 31.657 54.832h823.703c28.141 0 45.728-30.463 31.658-54.832zM476.699 306.55c0-19.115 15.64-34.755 34.755-34.755 19.115 0 34.755 15.64 34.755 34.755v281.817c0 19.115-15.64 34.755-34.755 34.755-19.115 0-34.755-15.64-34.755-34.755V306.55z m34.755 445.293c-23.198 0-42.004-18.806-42.004-42.004s18.806-42.004 42.004-42.004c23.198 0 42.004 18.806 42.004 42.004s-18.806 42.004-42.004 42.004z"></path>
-			</svg>`;
+        domUtils.html(
+          $ele,
+          /*html*/
+          `
+				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+					<path 
+					fill="currentColor"
+					d="M954.963 810.267L543.112 96.919c-14.07-24.37-49.245-24.37-63.315 0L67.945 810.267c-14.07 24.37 3.518 54.832 31.657 54.832h823.703c28.141 0 45.728-30.463 31.658-54.832zM476.699 306.55c0-19.115 15.64-34.755 34.755-34.755 19.115 0 34.755 15.64 34.755 34.755v281.817c0 19.115-15.64 34.755-34.755 34.755-19.115 0-34.755-15.64-34.755-34.755V306.55z m34.755 445.293c-23.198 0-42.004-18.806-42.004-42.004s18.806-42.004 42.004-42.004c23.198 0 42.004 18.806 42.004 42.004s-18.806 42.004-42.004 42.004z"></path>
+				</svg>`
+        );
       }
     },
     /**
@@ -9019,17 +9035,20 @@
           "unknown",
           msg ?? this.msg
         );
-        $ele.innerHTML = /*html*/
-        `
-			<svg viewBox="0 0 1025 1024" xmlns="http://www.w3.org/2000/svg">
-				<path
-				fill="currentColor"
-				d="M512.473172 1023.995242A511.814852 511.814852 0 0 1 313.545134 40.351073a512.244696 512.244696 0 0 1 398.855715 943.658633 508.815937 508.815937 0 0 1-199.927677 39.985536z m0-943.658634C274.559237 80.336608 80.629391 274.266455 80.629391 512.18039s193.929846 431.843781 431.843781 431.843781 431.843781-193.929846 431.843781-431.843781S751.386745 80.336608 512.473172 80.336608z"></path>
-				<path
-				fill="currentColor"
-				d="M506.475342 716.10662a39.985535 39.985535 0 0 1-39.985536-39.985535v-76.972156c0-79.971071 64.976495-144.947566 144.947566-144.947565a77.971794 77.971794 0 0 0 0-155.943588H445.4974a56.979388 56.979388 0 0 0-56.979387 56.979388 39.985535 39.985535 0 0 1-79.971071 0c0-74.972879 60.977941-136.950458 136.950458-136.950459h164.940333c86.968539 0 157.942864 70.974325 157.942865 157.942865s-69.974687 157.942864-157.942865 157.942864a64.976495 64.976495 0 0 0-64.976494 64.976495v76.972156a39.985535 39.985535 0 0 1-38.985897 39.985535zM505.475703 742.097218a48.982281 48.982281 0 1 0 48.982281 48.982281 48.982281 48.982281 0 0 0-48.982281-48.982281z"></path>
-			</svg>
-			`;
+        domUtils.html(
+          $ele,
+          /*html*/
+          `
+				<svg viewBox="0 0 1025 1024" xmlns="http://www.w3.org/2000/svg">
+					<path
+					fill="currentColor"
+					d="M512.473172 1023.995242A511.814852 511.814852 0 0 1 313.545134 40.351073a512.244696 512.244696 0 0 1 398.855715 943.658633 508.815937 508.815937 0 0 1-199.927677 39.985536z m0-943.658634C274.559237 80.336608 80.629391 274.266455 80.629391 512.18039s193.929846 431.843781 431.843781 431.843781 431.843781-193.929846 431.843781-431.843781S751.386745 80.336608 512.473172 80.336608z"></path>
+					<path
+					fill="currentColor"
+					d="M506.475342 716.10662a39.985535 39.985535 0 0 1-39.985536-39.985535v-76.972156c0-79.971071 64.976495-144.947566 144.947566-144.947565a77.971794 77.971794 0 0 0 0-155.943588H445.4974a56.979388 56.979388 0 0 0-56.979387 56.979388 39.985535 39.985535 0 0 1-79.971071 0c0-74.972879 60.977941-136.950458 136.950458-136.950459h164.940333c86.968539 0 157.942864 70.974325 157.942865 157.942865s-69.974687 157.942864-157.942865 157.942864a64.976495 64.976495 0 0 0-64.976494 64.976495v76.972156a39.985535 39.985535 0 0 1-38.985897 39.985535zM505.475703 742.097218a48.982281 48.982281 0 1 0 48.982281 48.982281 48.982281 48.982281 0 0 0-48.982281-48.982281z"></path>
+				</svg>
+				`
+        );
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($ele, checkInfo);
       }
     }
@@ -11983,16 +12002,16 @@
       let ignoreNodeList = [];
       if (ignoreNodeList.length) {
         ignoreNodeList.forEach(($ignore) => {
-          if ($ignore == void 0) {
+          if ($ignore == null) {
             return;
           }
           if (isHTML) {
-            if ($ignore.innerHTML != void 0) {
+            if ($ignore.innerHTML != null) {
               text = text.replaceAll($ignore.innerHTML, "");
             }
           } else {
             let text2 = $ignore.innerText || $ignore.textContent;
-            if (text2 != void 0) {
+            if (text2 != null) {
               text2 = text2.replaceAll(text2, "");
             }
           }
@@ -12774,6 +12793,8 @@
     CSP_Error: null,
     /** 触发匹配，但是处于匹配中，计数器保存匹配数，等待完成匹配后再执行一次匹配 */
     delayNotMatchCount: 0,
+    /** 跨域传递消息的类型 */
+    postMessageType: "worker-init-error",
     /** 主动触发监听DOM变化的事件 */
     dispatchMonitorDOMChange: false,
     /** worker的Blob链接 */
@@ -12781,6 +12802,7 @@
     /** worker对象 */
     GM_matchWorker: void 0,
     init() {
+      this.listenWorkerInitErrorDialog();
       this.initWorkerBlobLink();
       this.initWorker();
       this.monitorDOMChange();
@@ -12819,8 +12841,25 @@
         })();
   		`
       );
-      let blob = new Blob([handleMatch]);
-      NetDiskWorker.blobUrl = window.URL.createObjectURL(blob);
+      let workerScript = new Blob([handleMatch], {
+        type: "application/javascript"
+      });
+      let workerUrl = globalThis.URL.createObjectURL(workerScript);
+      if (
+        // @ts-ignore
+        globalThis.trustedTypes && // @ts-ignore
+        typeof globalThis.trustedTypes.createPolicy === "function"
+      ) {
+        const workerPolicy = globalThis.trustedTypes.createPolicy(
+          "workerPolicy",
+          {
+            // @ts-ignore
+            createScriptURL: (url) => url
+          }
+        );
+        workerUrl = workerPolicy.createScriptURL(workerUrl);
+      }
+      NetDiskWorker.blobUrl = workerUrl;
       log.info(`Worker Blob Link ===> ${NetDiskWorker.blobUrl}`);
     },
     /**
@@ -12914,10 +12953,6 @@
         NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
       } catch (error) {
         this.CSP_Error = error;
-        log.error(
-          "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
-          error.message
-        );
         NetDiskWorker.GM_matchWorker = {
           postMessage(data) {
             return new Promise((resolve, reject) => {
@@ -12947,6 +12982,136 @@
           }
         };
       }
+    },
+    /**
+     * 监听Worker初始化失败的弹窗
+     */
+    listenWorkerInitErrorDialog() {
+      if (!PopsPanel.isTopWindow()) {
+        return;
+      }
+      domUtils.on(window, "message", (event) => {
+        let messageData = event.data;
+        if (typeof messageData === "object" && (messageData == null ? void 0 : messageData["type"]) === this.postMessageType) {
+          let data = messageData.data;
+          NetDiskPops.confirm(
+            {
+              title: {
+                text: "Worker Init Error",
+                position: "center"
+              },
+              content: {
+                text: (
+                  /*html*/
+                  `
+							<div style="padding: 10px;gap: 10px;display: flex;flex-direction: column;">
+								<p>链接：${data.url}</p>
+								<p>原因：初始化Worker失败，可能页面使用了Content-Security-Policy策略，执行匹配时如果页面的内容过大会导致页面卡死，请使用Menu模式进行匹配或者使用CSP插件禁用CSP策略（不建议）。</p>
+								<p>
+									错误信息：
+									<span style="color: red;">${data.error}</span>
+								</p>
+							</div>
+							`
+                ),
+                html: true
+              },
+              btn: {
+                merge: true,
+                position: "space-between",
+                ok: {
+                  text: "添加网站规则",
+                  callback(eventDetails, event2) {
+                    let ruleOption = WebsiteRule.getTemplateData();
+                    ruleOption.name = "手动匹配：" + data.hostname;
+                    ruleOption.url = `^http(s|):\\/\\/${data.hostname}\\/`;
+                    ruleOption.data[NetDiskGlobalData.features["netdisk-match-mode"].KEY] = "Menu";
+                    let websiteRuleView = WebsiteRule.getRuleView(ruleOption);
+                    websiteRuleView.showEditView(
+                      false,
+                      ruleOption,
+                      void 0,
+                      void 0,
+                      () => {
+                        Qmsg.success("添加成功");
+                      }
+                    );
+                  }
+                },
+                cancel: {
+                  text: "网站规则",
+                  callback(details, event2) {
+                    let websiteRuleView = WebsiteRule.getRuleView();
+                    websiteRuleView.showView();
+                  }
+                },
+                other: {
+                  enable: true,
+                  text: "不再提示",
+                  type: "xiaomi-primary",
+                  callback(eventDetails, event2) {
+                    NetDiskPops.confirm(
+                      {
+                        title: {
+                          text: "提示",
+                          position: "center"
+                        },
+                        content: {
+                          text: "确定不再弹出该提示？"
+                        },
+                        btn: {
+                          ok: {
+                            callback(eventDetails2, event3) {
+                              _GM_setValue("never-toast-worker-error", true);
+                              eventDetails2.close();
+                            }
+                          }
+                        }
+                      },
+                      {
+                        PC: {
+                          width: "400px",
+                          height: "200px"
+                        },
+                        Mobile: {
+                          width: "80vw",
+                          height: "200px"
+                        }
+                      }
+                    );
+                  }
+                }
+              }
+            },
+            {
+              PC: {
+                width: "550px",
+                height: "350px"
+              },
+              Mobile: {
+                width: "88vw",
+                height: "500px"
+              }
+            }
+          );
+        }
+      });
+    },
+    /**
+     * 主动触发Worker初始化失败的弹窗
+     */
+    dispatchWorkerInitErrorDialog() {
+      top == null ? void 0 : top.postMessage(
+        {
+          type: this.postMessageType,
+          data: {
+            url: window.location.href,
+            hostname: window.location.hostname,
+            error: this.CSP_Error
+          }
+        },
+        "*"
+      );
     },
     /**
      * 传递数据给worker内进行处理匹配
@@ -13332,9 +13497,7 @@
         set: function(value) {
           dispatchMonitorDOMChange = value;
           if (value) {
-            let addedNodes = document.querySelectorAll(
-              "html"
-            );
+            let addedNodes = $$("html");
             observeEvent([
               {
                 addedNodes,
@@ -13360,11 +13523,13 @@
           "never-toast-worker-error",
           false
         );
-        if (this.CSP_Error != null && !neverToastWorkerError && !window.confirm(
-          "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死，请在网站规则中新增对该网站的规则，修改匹配模式为Menu。（如果希望不再弹出该提示可点击取消按钮）"
-        )) {
-          if (window.confirm("是否不再弹出该提示？")) {
-            _GM_setValue("never-toast-worker-error", true);
+        if (this.CSP_Error != null) {
+          log.error(
+            "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
+            this.CSP_Error
+          );
+          if (!neverToastWorkerError) {
+            this.dispatchWorkerInitErrorDialog();
           }
         }
       }
@@ -13383,8 +13548,8 @@
         this.dispatchMonitorDOMChange = true;
       } else if (matchMode === "Menu") {
         GM_Menu.add({
-          key: "performPageTextMatchingManually",
-          text: "点击执行文本匹配",
+          key: "performPageTextMatchingManually_" + window.location.href,
+          text: "点击执行文本匹配" + (PopsPanel.isTopWindow() ? "" : "（iframe）"),
           autoReload: false,
           isStoreValue: false,
           showText(text) {
@@ -13446,7 +13611,7 @@
      * 清空日志
      */
     clearLog() {
-      this.$el.$log.innerHTML = "";
+      domUtils.html(this.$el.$log);
     },
     /**
      * 显示调试规则的界面
@@ -14007,20 +14172,20 @@
           innerHTML: (
             /*html*/
             `
-                <style type="text/css">
-				/* 动态生成z-index */
-				#whitesevSuspensionId{
-					z-index: ${utils.getMaxValue(4e4, utils.getMaxZIndex(10))};;
-				}
+					<style type="text/css">
+						/* 动态生成z-index */
+						#whitesevSuspensionId{
+							z-index: ${utils.getMaxValue(4e4, utils.getMaxZIndex(10))};;
+						}
 
-				${indexCSS$2}
+						${indexCSS$2}
 
-                </style>
-                <div class="whitesevSuspensionMain">
-                <div class="whitesevSuspensionFloor">
-                    <div class="netdisk"></div>
-                </div>
-                </div>
+					</style>
+					<div class="whitesevSuspensionMain">
+					<div class="whitesevSuspensionFloor">
+						<div class="netdisk"></div>
+					</div>
+					</div>
                 `
           )
         },
@@ -14837,7 +15002,7 @@
               netDiskItem.clear();
             });
             NetDisk.$match.matchedInfoRuleKey.clear();
-            $boxAll.innerHTML = "";
+            DOMUtils.html($boxAll, "");
           }
         });
       }
@@ -15755,11 +15920,12 @@
     },
     /**
      * 获取规则视图配置
+     * @param originAddData 用于快速添加数据
      */
-    getRuleView() {
+    getRuleView(originAddData) {
       const that = this;
       let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
-      let addData = this.getTemplateData();
+      let addData = originAddData ?? this.getTemplateData();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -15875,7 +16041,8 @@
                 false,
                 false,
                 "primary",
-                () => {
+                (event) => {
+                  utils.preventEvent(event);
                   let originPanelContentConfig = PopsPanel.getPanelContentConfig().concat(
                     NetDiskRule.getRulePanelContent()
                   );
@@ -15978,8 +16145,8 @@
                       btn: {
                         close: {
                           enable: true,
-                          callback(event) {
-                            event.close();
+                          callback(event2) {
+                            event2.close();
                           }
                         }
                       },
@@ -16249,6 +16416,9 @@
     }
     let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
     let findValue = matchedUrlRuleList.find((item) => {
+      if (!item.enable) {
+        return false;
+      }
       let data = WebsiteRule.getRuleData(item);
       return Reflect.has(data, key);
     });
@@ -16565,7 +16735,7 @@
   });
   const addStyle = utils.addStyle.bind(utils);
   const $ = document.querySelector.bind(document);
-  document.querySelectorAll.bind(document);
+  const $$ = document.querySelectorAll.bind(document);
   const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {
     let __defaultButtonText = defaultButtonText;
     let getButtonText = () => {
@@ -16581,6 +16751,7 @@
       buttonType,
       async (event) => {
         var _a2;
+        utils.preventEvent(event);
         let $click = event.target;
         let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
         if (shortCut.isWaitPress) {
@@ -16614,7 +16785,7 @@
             );
           }
         }
-        $btn.innerHTML = getButtonText();
+        domUtils.html($btn, getButtonText());
       }
     );
     result.attributes = {};
@@ -17697,7 +17868,8 @@
                     void 0,
                     false,
                     "primary",
-                    () => {
+                    (event) => {
+                      utils.preventEvent(event);
                       try {
                         const { count, repairCount } = NetDiskUI.netDiskHistoryMatch.checkAndRepairLocalData();
                         if (repairCount === 0) {

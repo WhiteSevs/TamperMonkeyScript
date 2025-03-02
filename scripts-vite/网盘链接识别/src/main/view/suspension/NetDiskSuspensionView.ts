@@ -105,20 +105,20 @@ export const NetDiskSuspension = {
 				id: "whitesevSuspensionId",
 				className: "whitesevSuspension",
 				innerHTML: /*html*/ `
-                <style type="text/css">
-				/* 动态生成z-index */
-				#whitesevSuspensionId{
-					z-index: ${utils.getMaxValue(40000, utils.getMaxZIndex(10))};;
-				}
+					<style type="text/css">
+						/* 动态生成z-index */
+						#whitesevSuspensionId{
+							z-index: ${utils.getMaxValue(40000, utils.getMaxZIndex(10))};;
+						}
 
-				${indexCSS}
+						${indexCSS}
 
-                </style>
-                <div class="whitesevSuspensionMain">
-                <div class="whitesevSuspensionFloor">
-                    <div class="netdisk"></div>
-                </div>
-                </div>
+					</style>
+					<div class="whitesevSuspensionMain">
+					<div class="whitesevSuspensionFloor">
+						<div class="netdisk"></div>
+					</div>
+					</div>
                 `,
 			},
 			{

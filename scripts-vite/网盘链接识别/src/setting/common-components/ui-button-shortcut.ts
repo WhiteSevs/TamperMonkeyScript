@@ -3,7 +3,7 @@ import { UIButton } from "./ui-button";
 import { ATTRIBUTE_INIT } from "../config";
 import { ShortCut, ShortCutKeyboardOption } from "@/utils/ShortCut";
 import Qmsg from "qmsg";
-import { log } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 
 /**
  * 获取录入快捷键配置
@@ -55,6 +55,7 @@ export const UIButtonShortCut = function (
 		false,
 		buttonType,
 		async (event) => {
+			utils.preventEvent(event);
 			let $click = event.target as HTMLDivElement;
 			let $btn = $click
 				.closest(".pops-panel-button")
@@ -93,7 +94,7 @@ export const UIButtonShortCut = function (
 					);
 				}
 			}
-			$btn.innerHTML = getButtonText();
+			DOMUtils.html($btn, getButtonText());
 		}
 	);
 	result.attributes = {};

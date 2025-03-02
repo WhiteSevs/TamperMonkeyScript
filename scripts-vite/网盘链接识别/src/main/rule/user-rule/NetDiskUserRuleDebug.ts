@@ -59,7 +59,7 @@ export const NetDiskUserRuleDebug = {
 	 * 清空日志
 	 */
 	clearLog() {
-		this.$el.$log.innerHTML = "";
+		DOMUtils.html(this.$el.$log);
 	},
 	/**
 	 * 显示调试规则的界面

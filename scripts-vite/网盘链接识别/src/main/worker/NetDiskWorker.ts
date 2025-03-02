@@ -1,4 +1,4 @@
-import { GM_Menu, isDebug, log, utils } from "@/env";
+import { $$, DOMUtils, GM_Menu, isDebug, log, utils } from "@/env";
 import { NetDisk } from "../NetDisk";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskUI } from "../ui/NetDiskUI";
@@ -10,6 +10,10 @@ import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
 import { CharacterMapping } from "../character-mapping/CharacterMapping";
 import { GM_getValue, GM_setValue } from "ViteGM";
+import { NetDiskPops } from "../pops/NetDiskPops";
+import { WebsiteRule } from "../website-rule/WebsiteRule";
+import Qmsg from "qmsg";
+import { PopsPanel } from "@/setting/setting";
 
 /** Woker */
 export const NetDiskWorker = {
@@ -19,6 +23,8 @@ export const NetDiskWorker = {
 	CSP_Error: null as Error | null,
 	/** 触发匹配，但是处于匹配中，计数器保存匹配数，等待完成匹配后再执行一次匹配 */
 	delayNotMatchCount: 0,
+	/** 跨域传递消息的类型 */
+	postMessageType: "worker-init-error",
 	/** 主动触发监听DOM变化的事件 */
 	dispatchMonitorDOMChange: false,
 	/** worker的Blob链接 */
@@ -26,6 +32,7 @@ export const NetDiskWorker = {
 	/** worker对象 */
 	GM_matchWorker: void 0 as any as Worker,
 	init() {
+		this.listenWorkerInitErrorDialog();
 		this.initWorkerBlobLink();
 		this.initWorker();
 		this.monitorDOMChange();
@@ -62,8 +69,27 @@ export const NetDiskWorker = {
             );
         })();
   		`;
-		let blob = new Blob([handleMatch]);
-		NetDiskWorker.blobUrl = window.URL.createObjectURL(blob);
+		let workerScript = new Blob([handleMatch], {
+			type: "application/javascript",
+		});
+		let workerUrl: string = globalThis.URL.createObjectURL(workerScript);
+		if (
+			// @ts-ignore
+			globalThis.trustedTypes &&
+			// @ts-ignore
+			typeof globalThis.trustedTypes.createPolicy === "function"
+		) {
+			// @ts-ignore
+			const workerPolicy = globalThis.trustedTypes.createPolicy(
+				"workerPolicy",
+				{
+					// @ts-ignore
+					createScriptURL: (url) => url,
+				}
+			);
+			workerUrl = workerPolicy.createScriptURL(workerUrl);
+		}
+		NetDiskWorker.blobUrl = workerUrl;
 		log.info(`Worker Blob Link ===> ${NetDiskWorker.blobUrl}`);
 	},
 	/**
@@ -188,12 +214,9 @@ export const NetDiskWorker = {
 			NetDiskWorker.GM_matchWorker = new Worker(NetDiskWorker.blobUrl);
 			NetDiskWorker.GM_matchWorker.onmessage = NetDiskWorker.onMessage;
 			NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
+			// globalThis.URL.revokeObjectURL(NetDiskWorker.blobUrl);
 		} catch (error: any) {
 			this.CSP_Error = error;
-			log.error(
-				"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
-				error.message
-			);
 			// @ts-ignore
 			NetDiskWorker.GM_matchWorker = {
 				postMessage(data: NetDiskWorkerOptions) {
@@ -224,6 +247,140 @@ export const NetDiskWorker = {
 				},
 			};
 		}
+	},
+	/**
+	 * 监听Worker初始化失败的弹窗
+	 */
+	listenWorkerInitErrorDialog() {
+		if (!PopsPanel.isTopWindow()) {
+			return;
+		}
+		// 只做顶层的监听
+		DOMUtils.on<MessageEvent>(window, "message", (event) => {
+			let messageData = event.data;
+			if (
+				typeof messageData === "object" &&
+				messageData?.["type"] === this.postMessageType
+			) {
+				let data = messageData.data;
+				NetDiskPops.confirm(
+					{
+						title: {
+							text: "Worker Init Error",
+							position: "center",
+						},
+						content: {
+							text: /*html*/ `
+							<div style="padding: 10px;gap: 10px;display: flex;flex-direction: column;">
+								<p>链接：${data.url}</p>
+								<p>原因：初始化Worker失败，可能页面使用了Content-Security-Policy策略，执行匹配时如果页面的内容过大会导致页面卡死，请使用Menu模式进行匹配或者使用CSP插件禁用CSP策略（不建议）。</p>
+								<p>
+									错误信息：
+									<span style="color: red;">${data.error}</span>
+								</p>
+							</div>
+							`,
+							html: true,
+						},
+						btn: {
+							merge: true,
+							position: "space-between",
+							ok: {
+								text: "添加网站规则",
+								callback(eventDetails, event) {
+									let ruleOption = WebsiteRule.getTemplateData();
+									ruleOption.name = "手动匹配：" + data.hostname;
+									ruleOption.url = `^http(s|):\\/\\/${data.hostname}\\/`;
+									ruleOption.data[
+										NetDiskGlobalData.features["netdisk-match-mode"].KEY
+									] =
+										"Menu" as (typeof NetDiskGlobalData.features)["netdisk-match-mode"]["value"];
+									let websiteRuleView = WebsiteRule.getRuleView(ruleOption);
+									websiteRuleView.showEditView(
+										false,
+										ruleOption,
+										void 0,
+										void 0,
+										() => {
+											Qmsg.success("添加成功");
+										}
+									);
+								},
+							},
+							cancel: {
+								text: "网站规则",
+								callback(details, event) {
+									let websiteRuleView = WebsiteRule.getRuleView();
+									websiteRuleView.showView();
+								},
+							},
+							other: {
+								enable: true,
+								text: "不再提示",
+								type: "xiaomi-primary",
+								callback(eventDetails, event) {
+									NetDiskPops.confirm(
+										{
+											title: {
+												text: "提示",
+												position: "center",
+											},
+											content: {
+												text: "确定不再弹出该提示？",
+											},
+											btn: {
+												ok: {
+													callback(eventDetails, event) {
+														GM_setValue("never-toast-worker-error", true);
+														eventDetails.close();
+													},
+												},
+											},
+										},
+										{
+											PC: {
+												width: "400px",
+												height: "200px",
+											},
+											Mobile: {
+												width: "80vw",
+												height: "200px",
+											},
+										}
+									);
+								},
+							},
+						},
+					},
+					{
+						PC: {
+							width: "550px",
+							height: "350px",
+						},
+						Mobile: {
+							width: "88vw",
+							height: "500px",
+						},
+					}
+				);
+			}
+		});
+	},
+	/**
+	 * 主动触发Worker初始化失败的弹窗
+	 */
+	dispatchWorkerInitErrorDialog() {
+		top?.postMessage(
+			{
+				type: this.postMessageType,
+				data: {
+					url: window.location.href,
+					hostname: window.location.hostname,
+					error: this.CSP_Error,
+				},
+			},
+			"*"
+		);
 	},
 	/**
 	 * 传递数据给worker内进行处理匹配
@@ -726,9 +883,7 @@ export const NetDiskWorker = {
 			set: function (value) {
 				dispatchMonitorDOMChange = value;
 				if (value) {
-					let addedNodes = document.querySelectorAll<HTMLElement>(
-						"html"
-					) as any as NodeList;
+					let addedNodes = $$<HTMLElement>("html") as any as NodeList;
 					observeEvent([
 						{
 							addedNodes: addedNodes,
@@ -756,15 +911,14 @@ export const NetDiskWorker = {
 				"never-toast-worker-error",
 				false
 			);
-			if (
-				this.CSP_Error != null &&
-				!neverToastWorkerError &&
-				!window.confirm(
-					"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死，请在网站规则中新增对该网站的规则，修改匹配模式为Menu。（如果希望不再弹出该提示可点击取消按钮）"
-				)
-			) {
-				if (window.confirm("是否不再弹出该提示？")) {
-					GM_setValue("never-toast-worker-error", true);
+			if (this.CSP_Error != null) {
+				log.error(
+					"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
+					this.CSP_Error
+				);
+				if (!neverToastWorkerError) {
+					// 弹出弹窗
+					this.dispatchWorkerInitErrorDialog();
 				}
 			}
 		}
@@ -789,8 +943,9 @@ export const NetDiskWorker = {
 			// 匹配模式 - Menu
 			// 注册油猴菜单
 			GM_Menu.add({
-				key: "performPageTextMatchingManually",
-				text: "点击执行文本匹配",
+				key: "performPageTextMatchingManually" + "_" + window.location.href,
+				text:
+					"点击执行文本匹配" + (PopsPanel.isTopWindow() ? "" : "（iframe）"),
 				autoReload: false,
 				isStoreValue: false,
 				showText(text) {

@@ -4,7 +4,7 @@ import { UISwitch } from "../common-components/ui-switch";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { UISlider } from "../common-components/ui-slider";
-import { DOMUtils } from "@/env";
+import { DOMUtils, utils } from "@/env";
 import Qmsg from "qmsg";
 import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
 import { NetDiskShortcut } from "@/main/shortcut/NetDiskShortcut";
@@ -715,7 +715,8 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									void 0,
 									false,
 									"primary",
-									() => {
+									(event) => {
+										utils.preventEvent(event);
 										try {
 											const { count, repairCount } =
 												NetDiskUI.netDiskHistoryMatch.checkAndRepairLocalData();

@@ -510,7 +510,7 @@ export const NetDiskView = {
 		// 设置网盘图标（设置为背景图片）
 		$iconImg.style.cssText = `background: url(${netDiskImgSrc}) no-repeat;background-size: 100%;`;
 		// 设置显示的网盘链接
-		$link.innerHTML = uiLinkText;
+		DOMUtils.html($link, uiLinkText);
 
 		// 将数据信息添加到元素attr上
 		this.handleElementAttributeRuleInfo(

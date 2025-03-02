@@ -195,7 +195,7 @@ export const NetDiskLinkClickMode = {
 		isOpenInBackEnd: boolean = false
 	) {
 		log.success(
-			"新标签页打开" + isOpenInBackEnd ? "（后台打开）" : "",
+			`新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`,
 			arguments
 		);
 		if (NetDiskAutoFillAccessCode.$data.enable) {
