@@ -3,4 +3,4 @@
 set "CURRENT_DIR=%~dp0"
 
 :: 直接在当前目录下执行 pnpm update 命令
-pnpm update @whitesev/domutils @whitesev/pops @whitesev/utils qmsg --dir %CURRENT_DIR%
+pnpm update @whitesev/domutils @whitesev/pops @whitesev/utils qmsg --latest --dir %CURRENT_DIR%
