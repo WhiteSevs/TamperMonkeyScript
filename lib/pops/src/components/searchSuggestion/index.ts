@@ -5,6 +5,7 @@ import { popsUtils } from "../../utils/PopsUtils";
 import type { PopsSearchSuggestionDetails } from "./indexType";
 import { searchSuggestionConfig as PopsSearchSuggestionConfig } from "./config";
 import { GlobalConfig } from "../../GlobalConfig";
+import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 
 export class PopsSearchSuggestion {
 	constructor(details: PopsSearchSuggestionDetails) {
@@ -35,8 +36,15 @@ export class PopsSearchSuggestion {
 
 		if (config.style != null) {
 			let cssNode = document.createElement("style");
-			cssNode.setAttribute("type", "text/css");
-			cssNode.innerHTML = config.style;
+			popsDOMUtils.createElement(
+				"style",
+				{
+					innerHTML: config.style,
+				},
+				{
+					type: "text/css",
+				}
+			);
 			$shadowRoot.appendChild(cssNode);
 		}
 
@@ -515,7 +523,7 @@ export class PopsSearchSuggestion {
 			 * 清空所有的搜索结果
 			 */
 			clearAllSearchItemLi() {
-				SearchSuggestion.$el.$hintULContainer.innerHTML = "";
+				PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$hintULContainer, "");
 			},
 			/**
 			 * 更新搜索建议框的位置(top、left)
@@ -610,7 +618,8 @@ export class PopsSearchSuggestion {
 			 * 动态更新CSS
 			 */
 			updateDynamicCSS() {
-				this.$el.$dynamicCSS.innerHTML = this.getDynamicCSS();
+				let cssText = this.getDynamicCSS();
+				PopsSafeUtils.setSafeHTML(this.$el.$dynamicCSS, cssText);
 			},
 			/**
 			 * 更新页面显示的搜索结果

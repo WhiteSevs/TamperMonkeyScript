@@ -78,12 +78,13 @@ import { PopsMathFloatUtils } from "./utils/PopsMathUtils";
 import { PanelHandleContentDetails } from "./components/panel/PanelHandleContentDetails";
 import { GlobalConfig } from "./GlobalConfig";
 import { PopsTooltip, type PopsTooltipResult } from "./components/tooltip";
+import { PopsSafeUtils } from "./utils/PopsSafeUtils";
 
 class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2025.1.1",
+		version: "2025.3.2",
 		cssText: {
 			/** 主CSS */
 			index: indexCSS,
@@ -194,7 +195,7 @@ class Pops {
 			/* 处理获取当前所有的动画名 */
 			this.config.isInit = true;
 			let animationStyle = document.createElement("style");
-			animationStyle.innerHTML = this.config.cssText.anim;
+			PopsSafeUtils.setSafeHTML(animationStyle, this.config.cssText.anim);
 			popsDOMUtils.appendHead(animationStyle);
 			this.config.animation = null as any;
 			this.config.animation = PopsInstanceUtils.getKeyFrames(
@@ -283,7 +284,7 @@ class Pops {
 	 * 提示框
 	 * @param details 配置
 	 */
-	tooltip = <T extends PopsToolTipDetails=PopsToolTipDetails>(details: T) => {
+	tooltip = <T extends PopsToolTipDetails = PopsToolTipDetails>(details: T) => {
 		let popsTooltip = new PopsTooltip(details) as PopsTooltipResult<T>;
 		return popsTooltip;
 	};

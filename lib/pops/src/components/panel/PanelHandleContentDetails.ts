@@ -2,6 +2,7 @@ import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { PopsMathFloatUtils } from "../../utils/PopsMathUtils";
+import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import type { PopsAlertDetails } from "../alert/indexType";
 import type { PopsTooltipResult } from "../tooltip";
@@ -135,8 +136,8 @@ export const PanelHandleContentDetails = () => {
 		 * 清空container容器的元素
 		 */
 		clearContainer() {
-			this.sectionContainerHeaderULElement.innerHTML = "";
-			this.sectionContainerULElement.innerHTML = "";
+			PopsSafeUtils.setSafeHTML(this.sectionContainerHeaderULElement, "");
+			PopsSafeUtils.setSafeHTML(this.sectionContainerULElement, "");
 			this.$el.$content
 				?.querySelectorAll("section.pops-panel-deepMenu-container")
 				.forEach((ele) => ele.remove());
@@ -223,8 +224,9 @@ export const PanelHandleContentDetails = () => {
 		createAsideItem(asideConfig: PopsPanelContentConfig) {
 			let liElement = document.createElement("li");
 			liElement.id = asideConfig.id;
-			(liElement as any)["__forms__"] = asideConfig.forms;
-			liElement.innerHTML = asideConfig.title;
+			// @ts-ignore
+			liElement["__forms__"] = asideConfig.forms;
+			PopsSafeUtils.setSafeHTML(liElement, asideConfig.title);
 			/* 处理className */
 			this.setElementClassName(liElement, asideConfig.className);
 			this.setElementAttributes(liElement, asideConfig.attributes);
@@ -247,18 +249,21 @@ export const PanelHandleContentDetails = () => {
 			if (Boolean(formConfig.description)) {
 				leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 			}
-			liElement.innerHTML = /*html*/ `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-			</div>
-			<div class="pops-panel-switch">
-				<input class="pops-panel-switch__input" type="checkbox">
-				<span class="pops-panel-switch__core">
-					<div class="pops-panel-switch__action">
-					</div>
-				</span>
-			</div>`;
+			PopsSafeUtils.setSafeHTML(
+				liElement,
+				/*html*/ `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-switch">
+					<input class="pops-panel-switch__input" type="checkbox">
+					<span class="pops-panel-switch__core">
+						<div class="pops-panel-switch__action">
+						</div>
+					</span>
+				</div>`
+			);
 			const PopsPanelSwitch = {
 				[Symbol.toStringTag]: "PopsPanelSwitch",
 				$data: {
@@ -366,15 +371,18 @@ export const PanelHandleContentDetails = () => {
 			if (Boolean(formConfig.description)) {
 				leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 			}
-			liElement.innerHTML = `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-			</div>
-			<div class="pops-panel-slider">
-				<input type="range" min="${formConfig.min}" max="${formConfig.max}">
-			</div>`;
-
+			PopsSafeUtils.setSafeHTML(
+				liElement,
+				/*html*/ `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-slider">
+					<input type="range" min="${formConfig.min}" max="${formConfig.max}">
+				</div>
+			`
+			);
 			let rangeInputElement = liElement.querySelector<HTMLInputElement>(
 				".pops-panel-slider input[type=range]"
 			)!;
@@ -441,19 +449,22 @@ export const PanelHandleContentDetails = () => {
 			if (Boolean(formConfig.description)) {
 				leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 			}
-			liElement.innerHTML = /*html*/ `
-			<div class="pops-panel-item-left-text" style="flex: 1;">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-			</div>
-			<div class="pops-slider pops-slider-width">
-				<div class="pops-slider__runway">
-					<div class="pops-slider__bar" style="width: 0%; left: 0%"></div>
-					<div class="pops-slider__button-wrapper" style="left: 0%">
-						<div class="pops-slider__button"></div>
-					</div>
+			PopsSafeUtils.setSafeHTML(
+				liElement,
+				/*html*/ `
+				<div class="pops-panel-item-left-text" style="flex: 1;">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
 				</div>
-			</div>`;
+				<div class="pops-slider pops-slider-width">
+					<div class="pops-slider__runway">
+						<div class="pops-slider__bar" style="width: 0%; left: 0%"></div>
+						<div class="pops-slider__button-wrapper" style="left: 0%">
+							<div class="pops-slider__button"></div>
+						</div>
+					</div>
+				</div>`
+			);
 			const PopsPanelSlider = {
 				[Symbol.toStringTag]: "PopsPanelSlider",
 				/**
@@ -1033,15 +1044,18 @@ export const PanelHandleContentDetails = () => {
 			if (Boolean(formConfig.description)) {
 				leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 			}
-			liElement.innerHTML = `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-			${leftDescriptionText}
-			</div>
-			<div class="pops-panel-input pops-user-select-none">
-				<input type="${inputType}" placeholder="${formConfig.placeholder}">
-			</div>
-			`;
+			PopsSafeUtils.setSafeHTML(
+				liElement,
+				/*html*/ `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-input pops-user-select-none">
+					<input type="${inputType}" placeholder="${formConfig.placeholder}">
+				</div>
+				`
+			);
 			const PopsPanelInput = {
 				[Symbol.toStringTag]: "PopsPanelInput",
 				$ele: {
@@ -1088,11 +1102,14 @@ export const PanelHandleContentDetails = () => {
 						this.$ele.input.nextSibling
 					);
 					this.$ele.inputSpanIcon.className = "pops-panel-input__suffix";
-					this.$ele.inputSpanIcon.innerHTML = `
-					<span class="pops-panel-input__suffix-inner">
-						<i class="pops-panel-icon"></i>
-					</span>
-					`;
+					PopsSafeUtils.setSafeHTML(
+						this.$ele.inputSpanIcon,
+						/*html*/ `
+						<span class="pops-panel-input__suffix-inner">
+							<i class="pops-panel-icon"></i>
+						</span>
+					`
+					);
 					this.$ele.inputSpanIconInner =
 						this.$ele.inputSpanIcon.querySelector<HTMLElement>(
 							".pops-panel-input__suffix-inner"
@@ -1131,7 +1148,7 @@ export const PanelHandleContentDetails = () => {
 				},
 				/**
 				 * 设置input元素的type
-				 * @param {string} [typeValue="text"] type值
+				 * @param [typeValue="text"] type值
 				 */
 				setInputType(typeValue = "text") {
 					this.$ele.input.setAttribute("type", typeValue);
@@ -1140,14 +1157,14 @@ export const PanelHandleContentDetails = () => {
 				 * 删除图标按钮
 				 */
 				removeCircleIcon() {
-					this.$ele.icon.innerHTML = "";
+					PopsSafeUtils.setSafeHTML(this.$ele.icon, "");
 				},
 				/**
 				 * 添加清空图标按钮
-				 * @param {string} [svgHTML=pops.config.iconSVG.circleClose] svg图标，默认为清空的图标
+				 * @param [svgHTML=pops.config.iconSVG.circleClose] svg图标，默认为清空的图标
 				 */
 				setCircleIcon(svgHTML = pops.config.iconSVG.circleClose) {
-					this.$ele.icon.innerHTML = svgHTML;
+					PopsSafeUtils.setSafeHTML(this.$ele.icon, svgHTML);
 				},
 				/**
 				 * 添加图标按钮的点击事件
@@ -1244,16 +1261,19 @@ export const PanelHandleContentDetails = () => {
 			if (Boolean(formConfig.description)) {
 				leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 			}
-			liElement.innerHTML = `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-			${leftDescriptionText}
-			</div>
-			<div class="pops-panel-textarea">
-				<textarea placeholder="${formConfig.placeholder ?? ""}">
-			</textarea>
-			</div>
-			`;
+			PopsSafeUtils.setSafeHTML(
+				liElement,
+				/*html*/ `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-textarea">
+					<textarea placeholder="${formConfig.placeholder ?? ""}">
+				</textarea>
+				</div>
+			`
+			);
 
 			const PopsPanelTextArea = {
 				[Symbol.toStringTag]: "PopsPanelTextArea",
@@ -1336,15 +1356,18 @@ export const PanelHandleContentDetails = () => {
 			if (Boolean(formConfig.description)) {
 				leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 			}
-			liElement.innerHTML = /*html*/ `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-			${leftDescriptionText}
-			</div>
-			<div class="pops-panel-select pops-user-select-none">
-				<select></select>
-			</div>
-			`;
+			PopsSafeUtils.setSafeHTML(
+				liElement,
+				/*html*/ `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-select pops-user-select-none">
+					<select></select>
+				</div>
+				`
+			);
 
 			const PopsPanelSelect = {
 				[Symbol.toStringTag]: "PopsPanelSelect",
@@ -1569,34 +1592,36 @@ export const PanelHandleContentDetails = () => {
 			if (Boolean(formConfig.description)) {
 				leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 			}
-			liElement.innerHTML = /*html*/ `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-			${leftDescriptionText}
-			</div>
-			<div class="pops-panel-select-multiple">
-				<div class="el-select__wrapper">
-					<div class="el-select__selection">
-						<!-- 这个是用于手动输入的，这里暂不适配 -->
-						<div class="el-select__selected-item el-select__input-wrapper">
-	
+			PopsSafeUtils.setSafeHTML(
+				liElement,
+				/*html*/ `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-select-multiple">
+					<div class="el-select__wrapper">
+						<div class="el-select__selection">
+							<!-- 这个是用于手动输入的，这里暂不适配 -->
+							<div class="el-select__selected-item el-select__input-wrapper">
+		
+							</div>
+							<!-- 这个是placeholder -->
+							<div class="el-select__selected-item el-select__placeholder">
+							</div>
 						</div>
-						<!-- 这个是placeholder -->
-						<div class="el-select__selected-item el-select__placeholder">
+						<!-- 下拉箭头 -->
+						<div class="el-select__suffix">
+							<i class="el-icon el-select__caret el-select__icon">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+									<path fill="currentColor" d="M831.872 340.864 512 652.672 192.128 340.864a30.592 30.592 0 0 0-42.752 0 29.12 29.12 0 0 0 0 41.6L489.664 714.24a32 32 0 0 0 44.672 0l340.288-331.712a29.12 29.12 0 0 0 0-41.728 30.592 30.592 0 0 0-42.752 0z"></path>
+								</svg>
+							</i>
 						</div>
-					</div>
-					<!-- 下拉箭头 -->
-					<div class="el-select__suffix">
-						<i class="el-icon el-select__caret el-select__icon">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-								<path fill="currentColor" d="M831.872 340.864 512 652.672 192.128 340.864a30.592 30.592 0 0 0-42.752 0 29.12 29.12 0 0 0 0 41.6L489.664 714.24a32 32 0 0 0 44.672 0l340.288-331.712a29.12 29.12 0 0 0 0-41.728 30.592 30.592 0 0 0-42.752 0z"></path>
-							</svg>
-						</i>
 					</div>
 				</div>
-			</div>
-			`;
-
+				`
+			);
 			const PopsPanelSelectMultiple = {
 				[Symbol.toStringTag]: "PopsPanelSelectMultiple",
 				$el: {
@@ -1743,7 +1768,7 @@ export const PanelHandleContentDetails = () => {
 						".el-icon.el-tag__close"
 					)!;
 					if (data.isHTML) {
-						$tagText.innerHTML = data.text;
+						PopsSafeUtils.setSafeHTML($tagText, data.text);
 					} else {
 						$tagText.innerText = data.text;
 					}
@@ -2197,18 +2222,21 @@ export const PanelHandleContentDetails = () => {
 			if (Boolean(formConfig.description)) {
 				leftDescriptionText = /*html*/ `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
 			}
-			liElement.innerHTML = /*html*/ `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-			</div>
-			<div class="pops-panel-button">
-				<button class="pops-panel-button_inner">
-					<i class="pops-bottom-icon"></i>
-					<span class="pops-panel-button-text"></span>
-				</button>
-			</div>
-			`;
+			PopsSafeUtils.setSafeHTML(
+				liElement,
+				/*html*/ `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-button">
+					<button class="pops-panel-button_inner">
+						<i class="pops-bottom-icon"></i>
+						<span class="pops-panel-button-text"></span>
+					</button>
+				</div>
+				`
+			);
 
 			const PopsPanelButton = {
 				[Symbol.toStringTag]: "PopsPanelButton",
@@ -2285,7 +2313,7 @@ export const PanelHandleContentDetails = () => {
 				 * 设置icon图标的svg
 				 */
 				setIconSVG(svgHTML: string) {
-					this.$ele.icon.innerHTML = svgHTML;
+					PopsSafeUtils.setSafeHTML(this.$ele.icon, svgHTML);
 				},
 				/**
 				 * 设置icon图标是否旋转
@@ -2324,7 +2352,7 @@ export const PanelHandleContentDetails = () => {
 				 * @param text
 				 */
 				setButtonText(text: string) {
-					this.$ele.spanText.innerHTML = text;
+					PopsSafeUtils.setSafeHTML(this.$ele.spanText, text);
 				},
 				setClickEvent() {
 					popsDOMUtils.on(this.$ele.button, "click", void 0, (event) => {
@@ -2372,16 +2400,19 @@ export const PanelHandleContentDetails = () => {
 			if (formConfig.rightText) {
 				rightText = /*html*/ `<p class="pops-panel-item-right-text">${formConfig.rightText}</p>`;
 			}
-			$li.innerHTML = /*html*/ `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-			</div>
-			<div class="pops-panel-deepMenu">
-				${rightText}
-				${arrowRightIconHTML}
-			</div>
-			`;
+			PopsSafeUtils.setSafeHTML(
+				$li,
+				/*html*/ `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-deepMenu">
+					${rightText}
+					${arrowRightIconHTML}
+				</div>
+				`
+			);
 			const PopsPanelDeepMenu = {
 				[Symbol.toStringTag]: "PopsPanelDeepMenu",
 				$ele: {
@@ -2418,20 +2449,25 @@ export const PanelHandleContentDetails = () => {
 						let formHeaderDivElement = popsDOMUtils.createElement("div", {
 							className: "pops-panel-forms-container-item-header-text",
 						});
-						formHeaderDivElement.innerHTML = formConfig_forms["text"];
+						PopsSafeUtils.setSafeHTML(
+							formHeaderDivElement,
+							formConfig_forms["text"]
+						);
 
 						if (formConfig_forms.isFold) {
 							/* 添加第一个 */
 							/* 加进容器内 */
-							formHeaderDivElement.innerHTML = /*html*/ `
+							PopsSafeUtils.setSafeHTML(
+								formHeaderDivElement,
+								/*html*/ `
 								<p>${formConfig_forms.text}</p>
 								<i class="pops-panel-forms-fold-container-icon">
 									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
 										<path d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>
 									</svg>
 								</i>
-								
-							`;
+							`
+							);
 							// 添加点击事件
 							popsDOMUtils.on(formHeaderDivElement, "click", (event) => {
 								if (formContainerListElement.hasAttribute("data-fold-enable")) {
@@ -2671,18 +2707,23 @@ export const PanelHandleContentDetails = () => {
 				let formHeaderDivElement = popsDOMUtils.createElement("div", {
 					className: "pops-panel-forms-container-item-header-text",
 				});
-				formHeaderDivElement.innerHTML = formConfig_forms["text"];
+				PopsSafeUtils.setSafeHTML(
+					formHeaderDivElement,
+					formConfig_forms["text"]
+				);
 				if (formConfig_forms.isFold) {
 					/* 加进容器内 */
-					formHeaderDivElement.innerHTML = /*html*/ `
+					PopsSafeUtils.setSafeHTML(
+						formHeaderDivElement,
+						/*html*/ `
 						<p>${formConfig_forms.text}</p>
 						<i class="pops-panel-forms-fold-container-icon">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
 								<path d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>
 							</svg>
 						</i>
-						
-					`;
+					`
+					);
 					// 添加点击事件
 					popsDOMUtils.on(formHeaderDivElement, "click", (event) => {
 						if (formContainerListElement.hasAttribute("data-fold-enable")) {
@@ -2784,7 +2825,10 @@ export const PanelHandleContentDetails = () => {
 						let containerHeaderTitleLIElement = document.createElement("li");
 						(containerHeaderTitleLIElement as any)["__asideConfig__"] =
 							asideConfig;
-						containerHeaderTitleLIElement.innerHTML = headerTitleText;
+						PopsSafeUtils.setSafeHTML(
+							containerHeaderTitleLIElement,
+							headerTitleText
+						);
 						this.sectionContainerHeaderULElement.appendChild(
 							containerHeaderTitleLIElement
 						);

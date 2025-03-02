@@ -2,6 +2,7 @@ import { GlobalConfig } from "../../GlobalConfig";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
+import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsTooltipConfig } from "./config";
 import type { PopsToolTipDetails } from "./indexType";
@@ -127,7 +128,7 @@ export class ToolTip {
 		if (text == null) {
 			text = this.getContent();
 		}
-		this.$el.$content.innerHTML = text;
+		PopsSafeUtils.setSafeHTML(this.$el.$content, text);
 	}
 	/**
 	 * 获取z-index

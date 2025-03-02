@@ -4,6 +4,7 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
+import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsFolderConfig } from "./config";
 import { Folder_ICON } from "./folderIcon";
@@ -387,27 +388,36 @@ export class PopsFolder {
 			fileNameElement.className = "pops-folder-list-table__body-td";
 			fileTimeElement.className = "pops-folder-list-table__body-td";
 			fileFormatSize.className = "pops-folder-list-table__body-td";
-			fileNameElement.innerHTML = `
-            <div class="pops-folder-list-file-name cursor-p">
-                <div>
-                    <img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
-                    <a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">
-                    ${fileName}
-                    </a>
-                </div>
-            </div>
-            `;
-			fileTimeElement.innerHTML = `
-            <div class="pops-folder-list__time">
-                <span>${latestTime}</span>
-            </div>
-            `;
+			PopsSafeUtils.setSafeHTML(
+				fileNameElement,
+				/*html*/ `
+				<div class="pops-folder-list-file-name cursor-p">
+					<div>
+						<img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
+						<a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">
+						${fileName}
+						</a>
+					</div>
+				</div>
+            `
+			);
+			PopsSafeUtils.setSafeHTML(
+				fileTimeElement,
+				/*html*/ `
+				<div class="pops-folder-list__time">
+					<span>${latestTime}</span>
+				</div>
+				`
+			);
+			PopsSafeUtils.setSafeHTML(
+				fileFormatSize,
+				/*html*/ `
+				<div class="pops-folder-list-format-size">
+					<span>${fileSize}</span>
+				</div>
+				`
+			);
 
-			fileFormatSize.innerHTML = `
-            <div class="pops-folder-list-format-size">
-                <span>${fileSize}</span>
-            </div>
-            `;
 			/* 存储原来的值 */
 			let __value__ = {
 				fileName: origin_fileName,
@@ -479,17 +489,20 @@ export class PopsFolder {
 			}
 			folderELement.className = "pops-folder-list-table__body-row";
 			fileNameElement.className = "pops-folder-list-table__body-td";
-			fileNameElement.innerHTML = `
-            <div class="pops-folder-list-file-name pops-mobile-folder-list-file-name cursor-p">
-                <img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
-                <div>
-                    <a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">
-                        ${fileName}
-                    </a>
-                    <span>${latestTime} ${fileSize}</span>
-                </div>
-            </div>
-            `;
+			PopsSafeUtils.setSafeHTML(
+				fileNameElement,
+				/*html*/ `
+				<div class="pops-folder-list-file-name pops-mobile-folder-list-file-name cursor-p">
+					<img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
+					<div>
+						<a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">
+							${fileName}
+						</a>
+						<span>${latestTime} ${fileSize}</span>
+					</div>
+				</div>
+			`
+			);
 			/* 存储原来的值 */
 			let __value__ = {
 				fileName: origin_fileName,
@@ -511,7 +524,7 @@ export class PopsFolder {
 		 * 清空每行的元素
 		 */
 		function clearFolerRow() {
-			folderListBodyElement.innerHTML = "";
+			PopsSafeUtils.setSafeHTML(folderListBodyElement, "");
 		}
 		function getArrowIconElement() {
 			let iconArrowElement = popsDOMUtils.createElement("div", {

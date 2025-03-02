@@ -11,6 +11,7 @@ import type {
 	PopsDOMUtilsEventListenerOptionsAttribute,
 } from "../types/PopsDOMUtilsEventType";
 import { popsUtils } from "./PopsUtils";
+import { PopsSafeUtils } from "./PopsSafeUtils";
 
 class PopsDOMUtilsEvent {
 	/**
@@ -1636,7 +1637,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	): HTMLElementTagNameMap[K] {
 		let tempElement = PopsCore.document.createElement(tagName);
 		if (typeof property === "string") {
-			tempElement.innerHTML = property;
+			PopsSafeUtils.setSafeHTML(tempElement, property);
 			return tempElement;
 		}
 		if (property == null) {
@@ -1647,7 +1648,12 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		}
 		Object.keys(property).forEach((key) => {
 			let value = property[key];
-			(tempElement as any)[key] = value;
+			if (key === "innerHTML") {
+				PopsSafeUtils.setSafeHTML(tempElement, value);
+				return;
+			}
+			// @ts-ignore
+			tempElement[key] = value;
 		});
 		Object.keys(attributes).forEach((key) => {
 			let value = attributes[key];
@@ -1899,7 +1905,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		}
 		function parseHTMLByCreateDom() {
 			let tempDIV = PopsCore.document.createElement("div");
-			tempDIV.innerHTML = html;
+			PopsSafeUtils.setSafeHTML(tempDIV, html);
 			if (isComplete) {
 				return tempDIV;
 			} else {

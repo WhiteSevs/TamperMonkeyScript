@@ -37,9 +37,15 @@ export class PopsRightClickMenu {
 		]);
 
 		if (config.style != null) {
-			let cssNode = document.createElement("style");
-			cssNode.setAttribute("type", "text/css");
-			cssNode.innerHTML = config.style;
+			let cssNode = popsDOMUtils.createElement(
+				"style",
+				{
+					innerHTML: config.style,
+				},
+				{
+					type: "text/css",
+				}
+			);
 			$shadowRoot.appendChild(cssNode);
 		}
 
