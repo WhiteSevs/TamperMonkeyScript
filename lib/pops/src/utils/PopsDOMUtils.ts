@@ -1944,7 +1944,10 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		}
 		function elementAppendChild(ele: HTMLElement, text: HTMLElement | string) {
 			if (typeof content === "string") {
-				ele.insertAdjacentHTML("beforeend", text as string);
+				ele.insertAdjacentHTML(
+					"beforeend",
+					PopsSafeUtils.getSafeHTML(text as string)
+				);
 			} else {
 				ele.appendChild(text as HTMLElement);
 			}
@@ -2078,7 +2081,10 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			return;
 		}
 		if (typeof content === "string") {
-			element.insertAdjacentHTML("beforebegin", content);
+			element.insertAdjacentHTML(
+				"beforebegin",
+				PopsSafeUtils.getSafeHTML(content)
+			);
 		} else {
 			element!.parentElement!.insertBefore(content, element);
 		}
@@ -2103,7 +2109,10 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			return;
 		}
 		if (typeof content === "string") {
-			element.insertAdjacentHTML("afterend", content);
+			element.insertAdjacentHTML(
+				"afterend",
+				PopsSafeUtils.getSafeHTML(content)
+			);
 		} else {
 			element!.parentElement!.insertBefore(content, element.nextSibling);
 		}

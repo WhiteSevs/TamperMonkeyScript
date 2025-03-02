@@ -4,6 +4,7 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import type { PopsIcon } from "../../types/icon";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
+import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { rightClickMenuConfig as PopsRightClickMenuConfig } from "./config";
 import type {
@@ -453,7 +454,7 @@ export class PopsRightClickMenu {
 					/* 插入文字 */
 					menuLiElement.insertAdjacentHTML(
 						"beforeend",
-						`<span>${item.text}</span>`
+						PopsSafeUtils.getSafeHTML(`<span>${item.text}</span>`)
 					);
 					/* 如果存在子数据，显示 */
 					if (item.item && Array.isArray(item.item)) {
