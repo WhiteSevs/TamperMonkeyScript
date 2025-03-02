@@ -53,4 +53,8 @@ export declare const QmsgUtils: {
      * 配合 QmsgUtils.setInterval 使用
      */
     clearInterval(timeId: number | undefined): void;
+    /**
+     * 设置安全的html
+     */
+    setSafeHTML($el: Element, text: string): void;
 };

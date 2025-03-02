@@ -211,7 +211,7 @@ class Qmsg {
 	$eventUtils: typeof QmsgEvent;
 	constructor() {
 		this.$data = {
-			version: "2024.12.6",
+			version: "2025.3.3",
 			config: QmsgConfig,
 			icon: QmsgIcon,
 			instanceStorage: QmsgInstanceStorage,

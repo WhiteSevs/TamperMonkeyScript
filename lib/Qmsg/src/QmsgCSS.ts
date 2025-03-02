@@ -1,4 +1,5 @@
 import { QmsgConfig } from "./QmsgConfig";
+import { QmsgUtils } from "./QmsgUtils";
 
 export const QmsgCSS = {
 	css: `@charset "utf-8";
@@ -68,7 +69,7 @@ export const QmsgCSS = {
 		let cssResourceNode = document.createElement("style");
 		cssResourceNode.setAttribute("type", "text/css");
 		cssResourceNode.setAttribute("data-type", QmsgConfig.PLUGIN_NAME);
-		cssResourceNode.innerHTML = this.css;
+		QmsgUtils.setSafeHTML(cssResourceNode, this.css);
 		return cssResourceNode;
 	},
 };

@@ -136,7 +136,7 @@ export class QmsgMsg {
 		);
 		if (this.setting.html || this.setting.isHTML) {
 			/* 内容是html */
-			$content.innerHTML = content;
+			QmsgUtils.setSafeHTML($content, content);
 		} else {
 			/* 内容是纯文本 */
 			$content.innerText = content;
@@ -169,15 +169,18 @@ export class QmsgMsg {
 				$content.style.whiteSpace = "";
 			}
 		}
-		this.$Qmsg.innerHTML = /*html*/ `
-        <div class="qmsg-content">
-            <div class="${contentClassName}">
-            ${this.setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
-                ${$content.outerHTML}
-                ${$closeIcon}
-            </div>
-        </div>
-        `;
+		QmsgUtils.setSafeHTML(
+			this.$Qmsg,
+			/*html*/ `
+			<div class="qmsg-content">
+				<div class="${contentClassName}">
+				${this.setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
+					${$content.outerHTML}
+					${$closeIcon}
+				</div>
+			</div>
+			`
+		);
 		/** 内容容器 */
 		let $contentContainer =
 			this.$Qmsg.querySelector<HTMLDivElement>(".qmsg-content")!;
@@ -210,7 +213,7 @@ export class QmsgMsg {
 				let __$ownStyle__ = document.createElement("style");
 				__$ownStyle__.setAttribute("type", "text/css");
 				__$ownStyle__.setAttribute("data-id", this.uuid);
-				__$ownStyle__.innerHTML = this.setting.style;
+				QmsgUtils.setSafeHTML(__$ownStyle__, this.setting.style);
 				$contentContainer.insertAdjacentElement("afterend", __$ownStyle__);
 			}
 			document.body.appendChild($shadowContainer);
@@ -389,7 +392,7 @@ export class QmsgMsg {
 			$count.classList.add(countClassName);
 			$content.appendChild($count);
 		}
-		$count.innerHTML = this.getRepeatNum().toString();
+		QmsgUtils.setSafeHTML($count, this.getRepeatNum().toString());
 		QmsgAnimation.setStyleAnimationName($count);
 		QmsgAnimation.setStyleAnimationName($count, "MessageShake");
 		/* 重置定时器 */
@@ -448,7 +451,7 @@ export class QmsgMsg {
 			"div[class^=qmsg-content-] > span"
 		) as HTMLSpanElement | null;
 		if ($content) {
-			$content.innerHTML = text;
+			QmsgUtils.setSafeHTML($content, text);
 			this.setting.content = text;
 		} else {
 			throw new TypeError("$content is null");
