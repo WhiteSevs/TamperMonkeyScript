@@ -17,6 +17,7 @@ export type DOMUtilsCreateElementAttributesMap = {
 
 export interface DOMUtils_MouseEvent {
 	click: MouseEvent | PointerEvent;
+	auxclick: PointerEvent;
 	contextmenu: MouseEvent | PointerEvent;
 	dblclick: MouseEvent | PointerEvent;
 	mousedown: MouseEvent | PointerEvent;

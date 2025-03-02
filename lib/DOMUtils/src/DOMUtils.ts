@@ -20,7 +20,7 @@ class DOMUtils extends DOMUtilsEvent {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2024.12.4";
+	version = "2025.3.2";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -112,7 +112,7 @@ class DOMUtils extends DOMUtilsEvent {
 		let DOMUtilsContext = this;
 		let tempElement = DOMUtilsContext.windowApi.document.createElement(tagName);
 		if (typeof property === "string") {
-			tempElement.innerHTML = property;
+			DOMUtilsContext.html(tempElement, property);
 			return tempElement;
 		}
 		if (property == null) {
@@ -123,6 +123,10 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		Object.keys(property).forEach((key) => {
 			let value = property[key];
+			if (key === "innerHTML") {
+				DOMUtilsContext.html(tempElement, value);
+				return;
+			}
 			(tempElement as any)[key] = value;
 		});
 		Object.keys(attributes).forEach((key) => {
@@ -424,7 +428,7 @@ class DOMUtils extends DOMUtilsEvent {
 				html = html.innerHTML;
 			}
 			if ("innerHTML" in element) {
-				element.innerHTML = html;
+				DOMUtilsCommonUtils.setSafeHTML(element, html);
 			}
 		}
 	}
@@ -627,7 +631,11 @@ class DOMUtils extends DOMUtilsEvent {
 		if (propValue == null) {
 			return Reflect.get(element, propName);
 		} else {
-			Reflect.set(element, propName, propValue);
+			if (element instanceof Element && propName === "innerHTML") {
+				DOMUtilsContext.html(element, propValue);
+			} else {
+				Reflect.set(element, propName, propValue);
+			}
 		}
 	}
 	/**
@@ -1034,7 +1042,7 @@ class DOMUtils extends DOMUtilsEvent {
 			});
 			return;
 		}
-		element.innerHTML = "";
+		DOMUtilsContext.html(element, "");
 	}
 	/**
 	 * 获取元素相对于文档的偏移坐标（加上文档的滚动条）
@@ -1476,7 +1484,7 @@ class DOMUtils extends DOMUtilsEvent {
 		element = element as HTMLElement;
 		// 创建一个新的div元素，并将wrapperHTML作为其innerHTML
 		let wrapper = DOMUtilsContext.windowApi.document.createElement("div");
-		wrapper.innerHTML = wrapperHTML;
+		DOMUtilsContext.html(wrapper, wrapperHTML);
 
 		let wrapperFirstChild = wrapper.firstChild as HTMLElement;
 		// 将要包裹的元素插入目标元素前面
@@ -1663,7 +1671,7 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		function parseHTMLByCreateDom() {
 			let tempDIV = DOMUtilsContext.windowApi.document.createElement("div");
-			tempDIV.innerHTML = html;
+			DOMUtilsContext.html(tempDIV, html);
 			if (isComplete) {
 				return tempDIV;
 			} else {
