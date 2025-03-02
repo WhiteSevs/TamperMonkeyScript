@@ -15,26 +15,28 @@ const DOMUtilsCommonUtils = {
 		return Boolean(element.getClientRects().length);
 	},
 	/**
+	 * 获取安全的html
+	 */
+	getSafeHTML(text: string) {
+		// @ts-ignore
+		if (globalThis.trustedTypes) {
+			// @ts-ignore
+			const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
+				createHTML: (html: string) => html,
+			});
+			return policy.createHTML(text);
+		} else {
+			return text;
+		}
+	},
+	/**
 	 * 在CSP策略下设置innerHTML
 	 * @param $el 元素
 	 * @param text 文本
 	 */
 	setSafeHTML($el: HTMLElement, text: string) {
 		// 创建 TrustedHTML 策略（需 CSP 允许）
-		try {
-			$el.innerHTML = text;
-		} catch (error) {
-			// @ts-ignore
-			if (globalThis.trustedTypes) {
-				// @ts-ignore
-				const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
-					createHTML: (html: string) => html,
-				});
-				$el.innerHTML = policy.createHTML(text);
-			} else {
-				throw new Error("trustedTypes is not defined");
-			}
-		}
+		$el.innerHTML = this.getSafeHTML(text);
 	},
 	/**
 	 * 用于显示元素并获取它的高度宽度等其它属性

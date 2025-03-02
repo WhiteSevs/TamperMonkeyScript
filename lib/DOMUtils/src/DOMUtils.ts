@@ -867,7 +867,10 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		function elementAppendChild(ele: HTMLElement, text: HTMLElement | string) {
 			if (typeof content === "string") {
-				ele.insertAdjacentHTML("beforeend", text as string);
+				ele.insertAdjacentHTML(
+					"beforeend",
+					DOMUtilsCommonUtils.getSafeHTML(text as string)
+				);
 			} else {
 				ele.appendChild(text as HTMLElement);
 			}
@@ -912,7 +915,10 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof content === "string") {
-			element.insertAdjacentHTML("afterbegin", content);
+			element.insertAdjacentHTML(
+				"afterbegin",
+				DOMUtilsCommonUtils.getSafeHTML(content)
+			);
 		} else {
 			let $firstChild = element.firstChild;
 			if ($firstChild == null) {
@@ -947,7 +953,10 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof content === "string") {
-			element.insertAdjacentHTML("afterend", content);
+			element.insertAdjacentHTML(
+				"afterend",
+				DOMUtilsCommonUtils.getSafeHTML(content)
+			);
 		} else {
 			let $parent = element.parentElement;
 			let $nextSlibling = element.nextSibling;
@@ -984,7 +993,10 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof content === "string") {
-			element.insertAdjacentHTML("beforebegin", content);
+			element.insertAdjacentHTML(
+				"beforebegin",
+				DOMUtilsCommonUtils.getSafeHTML(content)
+			);
 		} else {
 			let $parent = element.parentElement;
 			if (!$parent) {

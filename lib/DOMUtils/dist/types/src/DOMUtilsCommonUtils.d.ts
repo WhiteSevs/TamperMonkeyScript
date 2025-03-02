@@ -8,6 +8,10 @@ declare const DOMUtilsCommonUtils: {
      */
     isShow(element: HTMLElement): boolean;
     /**
+     * 获取安全的html
+     */
+    getSafeHTML(text: string): any;
+    /**
      * 在CSP策略下设置innerHTML
      * @param $el 元素
      * @param text 文本
