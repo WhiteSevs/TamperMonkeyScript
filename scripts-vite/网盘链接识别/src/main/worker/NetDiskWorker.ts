@@ -12,15 +12,17 @@ import { CharacterMapping } from "../character-mapping/CharacterMapping";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { NetDiskPops } from "../pops/NetDiskPops";
 import { WebsiteRule } from "../website-rule/WebsiteRule";
-import Qmsg from "qmsg";
 import { PopsPanel } from "@/setting/setting";
+import Qmsg from "qmsg";
 
 /** Woker */
 export const NetDiskWorker = {
 	/** 是否正在匹配中 */
 	isHandleMatch: false,
-	/** 触发的CSP策略报错 */
-	CSP_Error: null as Error | null,
+	/** 初始化Worker失败的错误的对象实例 */
+	workerInitError: null as Error | null,
+	/** 不再弹出Worker初始化失败的提示 */
+	neverTipWorkerInitErrorKey: "never-toast-worker-error",
 	/** 触发匹配，但是处于匹配中，计数器保存匹配数，等待完成匹配后再执行一次匹配 */
 	delayNotMatchCount: 0,
 	/** 跨域传递消息的类型 */
@@ -33,12 +35,12 @@ export const NetDiskWorker = {
 	GM_matchWorker: void 0 as any as Worker,
 	init() {
 		this.listenWorkerInitErrorDialog();
-		this.initWorkerBlobLink();
+		this.initWorkerBlobUrl();
 		this.initWorker();
 		this.monitorDOMChange();
 	},
-	/** 初始化Worker的Blob链接 */
-	initWorkerBlobLink() {
+	/** 初始化生成Worker的Blob链接 */
+	initWorkerBlobUrl() {
 		/* 需要注意的是Worker内是不能访问全局document的 */
 		const handleMatch = /*js*/ `
         (() => {
@@ -216,7 +218,7 @@ export const NetDiskWorker = {
 			NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
 			// globalThis.URL.revokeObjectURL(NetDiskWorker.blobUrl);
 		} catch (error: any) {
-			this.CSP_Error = error;
+			this.workerInitError = error;
 			// @ts-ignore
 			NetDiskWorker.GM_matchWorker = {
 				postMessage(data: NetDiskWorkerOptions) {
@@ -255,6 +257,7 @@ export const NetDiskWorker = {
 		if (!PopsPanel.isTopWindow()) {
 			return;
 		}
+		const that = this;
 		// 只做顶层的监听
 		DOMUtils.on<MessageEvent>(window, "message", (event) => {
 			let messageData = event.data;
@@ -301,6 +304,7 @@ export const NetDiskWorker = {
 										ruleOption,
 										void 0,
 										void 0,
+										void 0,
 										() => {
 											Qmsg.success("添加成功");
 										}
@@ -326,12 +330,25 @@ export const NetDiskWorker = {
 												position: "center",
 											},
 											content: {
-												text: "确定不再弹出该提示？",
+												text: `确定不再弹出该提示？（仅针对域名：${window.location.hostname}）`,
 											},
 											btn: {
 												ok: {
 													callback(eventDetails, event) {
-														GM_setValue("never-toast-worker-error", true);
+														let neverToastWorkerError = GM_getValue<string[]>(
+															that.neverTipWorkerInitErrorKey,
+															[]
+														);
+														if (!Array.isArray(neverToastWorkerError)) {
+															neverToastWorkerError = [neverToastWorkerError];
+														}
+														neverToastWorkerError.push(
+															window.location.hostname
+														);
+														GM_setValue(
+															that.neverTipWorkerInitErrorKey,
+															neverToastWorkerError
+														);
 														eventDetails.close();
 													},
 												},
@@ -376,7 +393,7 @@ export const NetDiskWorker = {
 				data: {
 					url: window.location.href,
 					hostname: window.location.hostname,
-					error: this.CSP_Error,
+					error: this.workerInitError,
 				},
 			},
 			"*"
@@ -907,16 +924,22 @@ export const NetDiskWorker = {
 		let matchMode = NetDiskGlobalData.features["netdisk-match-mode"].value;
 		if (matchMode !== "Menu") {
 			/** 是否 不再提示Worker错误 */
-			let neverToastWorkerError = GM_getValue(
-				"never-toast-worker-error",
-				false
+			let neverToastWorkerError = GM_getValue<string[]>(
+				this.neverTipWorkerInitErrorKey,
+				[]
 			);
-			if (this.CSP_Error != null) {
+			if (!Array.isArray(neverToastWorkerError)) {
+				neverToastWorkerError = [neverToastWorkerError];
+			}
+			if (this.workerInitError != null) {
 				log.error(
 					"初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
-					this.CSP_Error
+					this.workerInitError
 				);
-				if (!neverToastWorkerError) {
+				let findHostName = neverToastWorkerError.find(
+					(it) => it === window.location.hostname
+				);
+				if (!findHostName) {
 					// 弹出弹窗
 					this.dispatchWorkerInitErrorDialog();
 				}

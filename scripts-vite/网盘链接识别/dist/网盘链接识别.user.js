@@ -14,7 +14,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
 // @connect      *
 // @connect      lanzoub.com
@@ -12789,8 +12789,10 @@
   const NetDiskWorker = {
     /** 是否正在匹配中 */
     isHandleMatch: false,
-    /** 触发的CSP策略报错 */
-    CSP_Error: null,
+    /** 初始化Worker失败的错误的对象实例 */
+    workerInitError: null,
+    /** 不再弹出Worker初始化失败的提示 */
+    neverTipWorkerInitErrorKey: "never-toast-worker-error",
     /** 触发匹配，但是处于匹配中，计数器保存匹配数，等待完成匹配后再执行一次匹配 */
     delayNotMatchCount: 0,
     /** 跨域传递消息的类型 */
@@ -12803,12 +12805,12 @@
     GM_matchWorker: void 0,
     init() {
       this.listenWorkerInitErrorDialog();
-      this.initWorkerBlobLink();
+      this.initWorkerBlobUrl();
       this.initWorker();
       this.monitorDOMChange();
     },
-    /** 初始化Worker的Blob链接 */
-    initWorkerBlobLink() {
+    /** 初始化生成Worker的Blob链接 */
+    initWorkerBlobUrl() {
       const handleMatch = (
         /*js*/
         `
@@ -12952,7 +12954,7 @@
         NetDiskWorker.GM_matchWorker.onmessage = NetDiskWorker.onMessage;
         NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
       } catch (error) {
-        this.CSP_Error = error;
+        this.workerInitError = error;
         NetDiskWorker.GM_matchWorker = {
           postMessage(data) {
             return new Promise((resolve, reject) => {
@@ -12990,6 +12992,7 @@
       if (!PopsPanel.isTopWindow()) {
         return;
       }
+      const that = this;
       domUtils.on(window, "message", (event) => {
         let messageData = event.data;
         if (typeof messageData === "object" && (messageData == null ? void 0 : messageData["type"]) === this.postMessageType) {
@@ -13032,6 +13035,7 @@
                       ruleOption,
                       void 0,
                       void 0,
+                      void 0,
                       () => {
                         Qmsg.success("添加成功");
                       }
@@ -13057,12 +13061,25 @@
                           position: "center"
                         },
                         content: {
-                          text: "确定不再弹出该提示？"
+                          text: `确定不再弹出该提示？（仅针对域名：${window.location.hostname}）`
                         },
                         btn: {
                           ok: {
                             callback(eventDetails2, event3) {
-                              _GM_setValue("never-toast-worker-error", true);
+                              let neverToastWorkerError = _GM_getValue(
+                                that.neverTipWorkerInitErrorKey,
+                                []
+                              );
+                              if (!Array.isArray(neverToastWorkerError)) {
+                                neverToastWorkerError = [neverToastWorkerError];
+                              }
+                              neverToastWorkerError.push(
+                                window.location.hostname
+                              );
+                              _GM_setValue(
+                                that.neverTipWorkerInitErrorKey,
+                                neverToastWorkerError
+                              );
                               eventDetails2.close();
                             }
                           }
@@ -13107,7 +13124,7 @@
           data: {
             url: window.location.href,
             hostname: window.location.hostname,
-            error: this.CSP_Error
+            error: this.workerInitError
           }
         },
         "*"
@@ -13520,15 +13537,21 @@
       let matchMode = NetDiskGlobalData.features["netdisk-match-mode"].value;
       if (matchMode !== "Menu") {
         let neverToastWorkerError = _GM_getValue(
-          "never-toast-worker-error",
-          false
+          this.neverTipWorkerInitErrorKey,
+          []
         );
-        if (this.CSP_Error != null) {
+        if (!Array.isArray(neverToastWorkerError)) {
+          neverToastWorkerError = [neverToastWorkerError];
+        }
+        if (this.workerInitError != null) {
           log.error(
             "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
-            this.CSP_Error
+            this.workerInitError
           );
-          if (!neverToastWorkerError) {
+          let findHostName = neverToastWorkerError.find(
+            (it) => it === window.location.hostname
+          );
+          if (!findHostName) {
             this.dispatchWorkerInitErrorDialog();
           }
         }
@@ -15789,11 +15812,19 @@
      * 显示编辑视图
      * @param isEdit 是否是编辑状态
      * @param editData 编辑的数据
+     * @param $parentShadowRoot 关闭弹窗后对ShadowRoot进行操作
+     * @param $editRuleItemElement 关闭弹窗后对规则行进行更新数据
+     * @param updateDataCallBack 关闭添加/编辑弹窗的回调（不更新数据）
+     * @param submitCallBack 添加/修改提交的回调
      */
-    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack) {
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
-        if (isSubmit) ;
-        else {
+        if (isSubmit) {
+          if (typeof submitCallBack === "function") {
+            let newData = await this.option.getData(editData);
+            submitCallBack(newData);
+          }
+        } else {
           if (!isEdit) {
             await this.option.deleteData(editData);
           }

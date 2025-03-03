@@ -608,16 +608,25 @@ export class RuleView<T> {
 	 * 显示编辑视图
 	 * @param isEdit 是否是编辑状态
 	 * @param editData 编辑的数据
+	 * @param $parentShadowRoot 关闭弹窗后对ShadowRoot进行操作
+	 * @param $editRuleItemElement 关闭弹窗后对规则行进行更新数据
+	 * @param updateDataCallBack 关闭添加/编辑弹窗的回调（不更新数据）
+	 * @param submitCallBack 添加/修改提交的回调
 	 */
 	showEditView(
 		isEdit: boolean,
 		editData: T,
 		$parentShadowRoot?: ShadowRoot | HTMLElement,
 		$editRuleItemElement?: HTMLDivElement,
-		updateDataCallBack?: (data: T) => void
+		updateDataCallBack?: (data: T) => void,
+		submitCallBack?: (data: T) => void
 	) {
 		let dialogCloseCallBack = async (isSubmit: boolean) => {
 			if (isSubmit) {
+				if (typeof submitCallBack === "function") {
+					let newData = await this.option.getData(editData!);
+					submitCallBack(newData);
+				}
 			} else {
 				if (!isEdit) {
 					// 添加规则，关闭时清理掉规则
