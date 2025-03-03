@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.28
+// @version      2025.3.3
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -9511,7 +9511,7 @@
     watchLoginDialogToClose() {
       log.info("监听登录弹窗并关闭");
       let result = [
-        CommonUtil.addBlockCSS('div[id^="login-full-panel-"]')
+        CommonUtil.addBlockCSS('body > div[id^="login-full-panel-"]')
       ];
       utils.waitNode("body").then(() => {
         utils.mutationObserver(document.body, {
@@ -9520,15 +9520,31 @@
             childList: true
           },
           callback() {
-            var _a2, _b;
+            var _a2;
             if (!PopsPanel.getValue("watchLoginDialogToClose")) {
               return;
             }
-            let accountCloseBtn = $(
-              'body > div[id^="login-full-panel-"] .dy-account-close'
+            let $loginDialog = $(
+              'body > div[id^="login-full-panel-"]'
             );
-            if (accountCloseBtn) {
-              (_b = (_a2 = utils.getReactObj(accountCloseBtn)) == null ? void 0 : _a2.reactProps) == null ? void 0 : _b.onClick(new Event("click"));
+            if ($loginDialog) {
+              let $loginDialogCloseBtn = $loginDialog.querySelector(".dy-account-close") || $loginDialog.querySelector(
+                'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
+              );
+              if ($loginDialogCloseBtn) {
+                let reactInstance = utils.getReactObj($loginDialogCloseBtn);
+                let onClick = (_a2 = reactInstance == null ? void 0 : reactInstance.reactProps) == null ? void 0 : _a2.onClick;
+                if (typeof onClick === "function") {
+                  onClick(new Event("click"));
+                } else {
+                  log.error("监听到登录弹窗但是关闭失败，未获取到onClick函数");
+                }
+              } else {
+                log.error(
+                  "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
+                  $loginDialog
+                );
+              }
             }
           }
         });

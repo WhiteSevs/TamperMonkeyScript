@@ -256,8 +256,10 @@ export const DouYinHook = {
 								}
 							}
 							if (!PopsPanel.getValue(keyboardConfig.enableKey)) {
+								// 未启用
 								continue;
 							}
+							// 阻止触发
 							return;
 						}
 					}
