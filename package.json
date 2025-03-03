@@ -20,7 +20,7 @@
 		"@mgdn/bvid": "^0.3.0",
 		"@types/md5": "^2.3.5",
 		"@whitesev/domutils": "^1.5.1",
-		"@whitesev/pops": "^2.0.1",
+		"@whitesev/pops": "^2.0.2",
 		"@whitesev/utils": "^2.6.1",
 		"artplayer": "^5.2.2",
 		"artplayer-plugin-danmuku": "^5.1.5",
