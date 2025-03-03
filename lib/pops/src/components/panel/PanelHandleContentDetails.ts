@@ -188,7 +188,12 @@ export const PanelHandleContentDetails = () => {
 				return;
 			}
 			Object.keys(props).forEach((propName) => {
-				Reflect.set(element, propName, props[propName]);
+				let value = props[propName];
+				if (propName === "innerHTML") {
+					PopsSafeUtils.setSafeHTML(element, value);
+					return;
+				}
+				Reflect.set(element, propName, value);
 			});
 		},
 		/**
