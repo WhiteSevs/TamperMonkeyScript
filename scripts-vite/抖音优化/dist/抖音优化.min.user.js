@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.3.22
+// @version      2025.3.5
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -397,6 +397,11 @@
 			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon svg{
 				
 			}
+			  /* 修复搜索结果单列页面 解析按钮的高度错位 */
+  			.searchControl33px .xg-right-grid xg-icon.gm-video-filter-parse-btn span svg{
+				transform: translateY(-6px) !important;
+			}
+
 		`);let t=new Ue,e=o=>{var u,p,f,m,b,k;let n=this,r=(u=v.getReactObj(o))==null?void 0:u.reactFiber,d=((f=(p=r==null?void 0:r.return)==null?void 0:p.memoizedProps)==null?void 0:f.awemeInfo)||((k=(b=(m=r==null?void 0:r.return)==null?void 0:m.return)==null?void 0:b.memoizedProps)==null?void 0:k.awemeInfo);if(d==null){x.error("未获取到awemeInfo信息",{consoleLogContent:true});return}if(typeof d!="object"){x.error("获取到的awemeInfo信息不是对象",{consoleLogContent:true});return}let s=t.parseAwemeInfoDictData(d,false);l.info(["视频awemeInfo：",d,s]);let a=n.$data.isFilterAwemeInfoList.get(s.awemeId)||[];P.confirm({title:{text:"视频awemeInfo",position:"center"},content:{text:JSON.stringify(s,null,4).trim(),html:false},drag:true,btn:{merge:!!a.length,position:a.length?"space-between":"flex-end",ok:{enable:true,text:"添加过滤规则",callback(C,w){n.getRuleViewInstance().showEditView(false,n.getTemplateData());}},cancel:{enable:true,text:"规则管理器",callback(C,w){n.showView();}},other:{enable:!!a.length,text:`命中的规则（${a.length}）`,type:"xiaomi-primary",callback(C,w){n.getRuleViewInstance().showView(_=>!!a.find(O=>_.uuid===O.uuid));}}},mask:{enable:true,clickEvent:{toClose:true}},width:J.setting.width,height:J.setting.height,style:`
 				.pops-confirm-content p{
 					white-space: break-spaces;

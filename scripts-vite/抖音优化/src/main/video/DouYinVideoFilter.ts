@@ -483,6 +483,11 @@ export const DouYinVideoFilter = {
 			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon svg{
 				
 			}
+			  /* 修复搜索结果单列页面 解析按钮的高度错位 */
+  			.searchControl33px .xg-right-grid xg-icon.gm-video-filter-parse-btn span svg{
+				transform: translateY(-6px) !important;
+			}
+
 		`);
 		let filterBase = new DouYinVideoFilterBase();
 
