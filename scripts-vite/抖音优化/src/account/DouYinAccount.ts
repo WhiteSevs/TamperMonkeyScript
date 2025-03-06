@@ -164,12 +164,12 @@ export const DouYinAccount = {
 			log.info("伪装登录：live");
 			utils
 				.waitNode<HTMLDivElement>(
-					`#douyin-header div:has(.dy-tip-container)`,
+					`[id^="douyin-header"] div:has(.dy-tip-container)`,
 					WAIT_TIME
 				)
 				.then(() => {
 					let lockFn = new utils.LockFunction(() => {
-						setLogin($<HTMLDivElement>(`#douyin-header`)!);
+						setLogin($<HTMLDivElement>(`[id^="douyin-header"]`)!);
 					}, 70);
 					utils.mutationObserver(document.body, {
 						config: {

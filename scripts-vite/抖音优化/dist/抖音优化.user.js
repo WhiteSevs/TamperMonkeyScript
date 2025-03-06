@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.5
+// @version      2025.3.6
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -9460,11 +9460,11 @@
       if (DouYinRouter.isLive()) {
         log.info("伪装登录：live");
         utils.waitNode(
-          `#douyin-header div:has(.dy-tip-container)`,
+          `[id^="douyin-header"] div:has(.dy-tip-container)`,
           WAIT_TIME
         ).then(() => {
           let lockFn = new utils.LockFunction(() => {
-            setLogin($(`#douyin-header`));
+            setLogin($(`[id^="douyin-header"]`));
           }, 70);
           utils.mutationObserver(document.body, {
             config: {
