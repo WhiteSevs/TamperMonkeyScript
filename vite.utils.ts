@@ -267,7 +267,12 @@ export class ViteUtils {
 		reTry: boolean = true
 	): Promise<string> {
 		try {
+			// 去掉开头的/
 			pathName = pathName.replace(/^\//i, "");
+			// 去掉开头的/
+			repoName = repoName.replace(/^\//i, "");
+			// 去掉末尾的/
+			repoName = repoName.replace(/\/$/i, "");
 			let scriptInfo = await fetch(
 				`https://github.com/${repoName}/latest-commit/${branchName}/${pathName}`,
 				{
@@ -286,7 +291,7 @@ export class ViteUtils {
 			);
 			console.log(`github文件sha值：${oid}`);
 			console.log("");
-			return github_jsdelivr(oid, pathName);
+			return github_jsdelivr(repoName, oid, pathName);
 		} catch (error) {
 			if (reTry) {
 				return await this.getGitHubLibLatestVersionUrl(
@@ -374,10 +379,10 @@ const jsdelivrHost = "fastly.jsdelivr.net";
 /**
  * github的链接
  */
-const github_jsdelivr = (sha_hash, file_path) => {
+const github_jsdelivr = (repoName, sha_hash, file_path) => {
 	file_path = file_path.replace(/^\//i, "");
 	file_path = encodeURI(file_path);
-	return `https://${jsdelivrHost}/gh/WhiteSevs/TamperMonkeyScript@${sha_hash}/${file_path}`;
+	return `https://${jsdelivrHost}/gh/${repoName}@${sha_hash}/${file_path}`;
 };
 
 /** 库映射信息 */
@@ -614,6 +619,14 @@ const LIB_MAP = {
 				"master",
 				"/scripts-vite/网盘链接识别/网盘链接识别-图标.js"
 			);
+		},
+	},
+	"bilibili-comment-style": {
+		localPath: async () => {
+			return await viteUtils.getGreasyForkLibLatestVersionUrl(512574);
+		},
+		url: async () => {
+			return await viteUtils.getGreasyForkLibLatestVersionUrl(512574);
 		},
 	},
 };
