@@ -330,7 +330,7 @@ export const NetDiskWorker = {
 												position: "center",
 											},
 											content: {
-												text: `确定不再弹出该提示？（仅针对域名：${window.location.hostname}）`,
+												text: `确定不再弹出该提示？（仅针对域名：${data.hostname}）`,
 											},
 											btn: {
 												ok: {
@@ -342,9 +342,7 @@ export const NetDiskWorker = {
 														if (!Array.isArray(neverToastWorkerError)) {
 															neverToastWorkerError = [neverToastWorkerError];
 														}
-														neverToastWorkerError.push(
-															window.location.hostname
-														);
+														neverToastWorkerError.push(data.hostname);
 														GM_setValue(
 															that.neverTipWorkerInitErrorKey,
 															neverToastWorkerError
