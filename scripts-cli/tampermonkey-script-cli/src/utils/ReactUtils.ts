@@ -17,12 +17,16 @@ type ReactWaitSetOption = {
 	msg?: string;
 	/**
 	 * 检测属性的函数
+	 * @param reactInstance react实例
+	 * @param target 目标元素
 	 */
-	check(reactInstance: any): boolean;
+	check(reactInstance: any, target: HTMLElement): boolean;
 	/**
 	 * 进行设置
+	 * @param reactInstance react实例
+	 * @param target 目标元素
 	 */
-	set(reactInstance: any): void;
+	set(reactInstance: any, target: HTMLElement): void;
 };
 
 export const ReactUtils = {
@@ -64,15 +68,15 @@ export const ReactUtils = {
 				if (target == null) {
 					return false;
 				}
-				let targetObj = utils.getReactObj(target);
-				if (targetObj == null) {
+				let reactInstance = utils.getReactObj(target);
+				if (reactInstance == null) {
 					return false;
 				}
-				let targetObjProp = targetObj[propName];
-				if (targetObjProp == null) {
+				let reactInstanceProp = reactInstance[propName];
+				if (reactInstanceProp == null) {
 					return false;
 				}
-				let needOwnCheck = needSetOption.check(targetObjProp);
+				let needOwnCheck = needSetOption.check(reactInstanceProp, target);
 				return Boolean(needOwnCheck);
 			}
 			utils
@@ -89,15 +93,15 @@ export const ReactUtils = {
 					if (target == null) {
 						return;
 					}
-					let targetObj = utils.getReactObj(target as HTMLElement);
-					if (targetObj == null) {
+					let reactInstance = utils.getReactObj(target as HTMLElement);
+					if (reactInstance == null) {
 						return;
 					}
-					let targetObjProp = targetObj[propName];
-					if (targetObjProp == null) {
+					let reactInstanceProp = reactInstance[propName];
+					if (reactInstanceProp == null) {
 						return;
 					}
-					needSetOption.set(targetObjProp);
+					needSetOption.set(reactInstanceProp, target);
 				});
 		});
 	},

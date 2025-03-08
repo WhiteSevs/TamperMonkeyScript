@@ -1,3 +1,7 @@
+import { log } from "@/env";
+
 export const DemoWebSite = {
-	init() {},
+	init() {
+		log.info(`demo site init`);
+	},
 };

@@ -1,7 +1,7 @@
 import { DOMUtils, log, pops, utils } from "@/env";
-import Qmsg from "qmsg";
 import { RuleEditView } from "./RuleEditView";
 import { RuleFilterView, type RuleFilterViewOption } from "./RuleFilterView";
+import Qmsg from "qmsg";
 
 /**
  * 规则视图配置
@@ -352,10 +352,10 @@ export class RuleView<T> {
 	 * 显示编辑视图
 	 * @param isEdit 是否是编辑状态
 	 * @param editData 编辑的数据
-	 * @param $parentShadowRoot 关闭弹窗后对ShadowRoot进行操作
-	 * @param $editRuleItemElement 关闭弹窗后对规则行进行更新数据
-	 * @param updateDataCallBack 关闭添加/编辑弹窗的回调（不更新数据）
-	 * @param submitCallBack 添加/修改提交的回调
+	 * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
+	 * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
+	 * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
+	 * @param submitCallBack （可选）添加/修改提交的回调
 	 */
 	showEditView(
 		isEdit: boolean,

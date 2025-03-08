@@ -25,7 +25,9 @@ export type ShortCutOptionWindow = {
 	 * @default "window"
 	 */
 	target: "window";
-	/** 触发该快捷键的回调 */
+	/** 
+	 * 触发该快捷键的回调
+	 */
 	callback(): void;
 };
 export type ShortCutOptionElement = {
@@ -35,7 +37,9 @@ export type ShortCutOptionElement = {
 	 * target不能为document，因为会先触发window的事件
 	 */
 	target: string | Element | (() => IPromise<Element | void>);
-	/** 触发该快捷键的回调 */
+	/** 
+	 * 触发该快捷键的回调
+	 */
 	callback(): void;
 };
 

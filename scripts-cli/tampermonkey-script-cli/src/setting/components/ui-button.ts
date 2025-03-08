@@ -3,7 +3,7 @@ import { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/s
 import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
 import { PopsIcon } from "@whitesev/pops/dist/types/src/types/icon";
-import { ATTRIBUTE_INIT } from "../config";
+import { ATTRIBUTE_INIT } from "../panel-config";
 
 /**
  * 获取button按钮配置
@@ -13,10 +13,10 @@ import { ATTRIBUTE_INIT } from "../config";
  * @param buttonIcon 按钮图标
  * @param buttonIsRightIcon 按钮是否在右边
  * @param buttonIconIsLoading 按钮图标是否旋转
- * @param buttonType 按钮类型
- * @param clickCallBack 点击回调
- * @param afterAddToUListCallBack 在添加到元素后触发该回调
- * @param disable 是否禁用按钮
+ * @param buttonType 按钮的样式类型
+ * @param clickCallBack （可选）点击回调
+ * @param afterAddToUListCallBack （可选）在添加到元素后触发该回调
+ * @param disable （可选）是否禁用该按钮
  */
 export const UIButton = function (
 	text: string,

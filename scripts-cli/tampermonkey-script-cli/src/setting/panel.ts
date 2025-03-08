@@ -5,17 +5,17 @@ import {
 	ATTRIBUTE_INIT_MORE_VALUE,
 	ATTRIBUTE_KEY,
 	KEY,
-} from "@/setting/config";
+} from "@/setting/panel-config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { Component_Common } from "./components/common";
-import {
+import { Component_Common } from "./view/general";
+import { PanelUISize } from "./panel-ui-size";
+import Utils from "@whitesev/utils";
+import type {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
-import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { PanelUISize } from "./panel-ui-size";
-import Utils from "@whitesev/utils";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 
 type PosPanelListenerData = {
 	id: number;

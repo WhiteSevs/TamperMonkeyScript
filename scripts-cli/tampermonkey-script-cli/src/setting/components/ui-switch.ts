@@ -3,20 +3,20 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "../config";
+} from "../panel-config";
 import { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/switchType";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
-import { PopsPanel } from "../setting";
+import { PopsPanel } from "../panel";
 
 /**
  * 获取checkbox按钮配置
  * @param text 文字
  * @param key 键
  * @param defaultValue 默认值
- * @param clickCallBack 点击回调
- * @param description 左边的文字下面的描述，可以是html格式
- * @param afterAddToUListCallBack 在添加到元素后触发该回调
+ * @param clickCallBack （可选）点击回调
+ * @param description （可选）左边的文字下面的描述，可以是html格式
+ * @param afterAddToUListCallBack （可选）在添加到元素后触发该回调
  */
 export const UISwitch = function (
 	text: string,

@@ -1,12 +1,12 @@
 import { log } from "@/env";
-import { UISwitch } from "../common-components/ui-switch";
-import { UITextArea } from "../common-components/ui-textarea";
-import { UISelect } from "../common-components/ui-select";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UISwitch } from "../components/ui-switch";
+import { UITextArea } from "../components/ui-textarea";
+import { UISelect } from "../components/ui-select";
 import { PanelSettingConfig } from "../panel-setting-config";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 export const Component_Common: PopsPanelContentConfig = {
-	id: "component-common",
+	id: "view-general",
 	title: "通用",
 	forms: [
 		{
@@ -107,7 +107,7 @@ export const Component_Common: PopsPanelContentConfig = {
 					PanelSettingConfig.httpx_cookie_manager_enable.key,
 					PanelSettingConfig.httpx_cookie_manager_enable.defaultValue,
 					void 0,
-					"启用后，将根据下面的配置进行添加cookie"
+					"Api请求时会自动使用下面的Cookie设置"
 				),
 				UISwitch(
 					"使用document.cookie",
@@ -115,7 +115,7 @@ export const Component_Common: PopsPanelContentConfig = {
 					PanelSettingConfig.httpx_cookie_manager_use_document_cookie
 						.defaultValue,
 					void 0,
-					"自动根据请求的域名来设置对应的cookie"
+					"会自动根据请求的域名来使用cookie"
 				),
 				// UITextArea(
 				// 	"tieba.baidu.com",
@@ -123,7 +123,7 @@ export const Component_Common: PopsPanelContentConfig = {
 				// 	"",
 				// 	void 0,
 				// 	void 0,
-				// 	"Cookie格式：xxx=xxxx;xxx=xxxx"
+				// 	"Cookie填写格式：xxx=xxxx;xxx=xxxx"
 				// ),
 			],
 		},

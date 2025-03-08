@@ -81,12 +81,19 @@ type HookObjectDefinePropertyHandler = (
 
 export const Hook = {
 	$data: {
+		/** 存储 document.addEventListener 的hook实例 */
 		document_addEventListener: <HookEventListenerHandler<Document>[]>[],
+		/** 存储 Element.prototype.addEventListener 的hook实例 */
 		element_addEventListener: <HookEventListenerHandler<Element>[]>[],
+		/** 存储 setTimeout 的hook实例 */
 		setTimeout: <HookSetTimeoutHandler[]>[],
+		/** 存储 setInterval 的hook实例 */
 		setInterval: <HookSetIntervalHandler[]>[],
+		/** 存储 Function.prototype.apply 的hook实例 */
 		function_apply: <HookFunctionApplyHandler[]>[],
+		/** 存储 Function.prototype.call 的hook实例 */
 		function_call: <HookFunctionCallHandler[]>[],
+		/** 存储 Object.defineProperty 的hook实例 */
 		defineProperty: <HookObjectDefinePropertyHandler[]>[],
 	},
 	/**
@@ -452,18 +459,18 @@ export const Hook = {
 		mainCoreData: string[] | number[],
 		handler: (exports: any) => any
 	) {
-		let originObject: {
+		let originWebPack: {
 			push: (this: any, ...args: any[][]) => any;
 		} = void 0 as any;
 		unsafeWindow.Object.defineProperty(unsafeWindow, webpackName, {
 			get() {
-				return originObject;
+				return originWebPack;
 			},
 			set(newValue) {
 				log.success("成功劫持webpack，当前webpack名：" + webpackName);
-				originObject = newValue;
-				const originPush = originObject.push;
-				originObject.push = function (...args) {
+				originWebPack = newValue;
+				const originWebPackPush = originWebPack.push;
+				originWebPack.push = function (...args) {
 					let _mainCoreData = args[0][0];
 					if (
 						mainCoreData == _mainCoreData ||
@@ -480,7 +487,7 @@ export const Hook = {
 							};
 						});
 					}
-					return Reflect.apply(originPush, this, args);
+					return Reflect.apply(originWebPackPush, this, args);
 				};
 			},
 		});

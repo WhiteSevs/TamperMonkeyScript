@@ -14,7 +14,7 @@ import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
 import pops from "@whitesev/pops";
-import { PopsPanel } from "./setting/setting";
+import { PopsPanel } from "./setting/panel";
 import { httpxCookieManager } from "./utils/HttpxCookieManager";
 import { CommonUtil } from "./utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
@@ -174,9 +174,18 @@ const OriginPrototype = {
 	setTimeout: unsafeWindow.setTimeout,
 };
 
+/** 
+ * 添加样式
+ */
 const addStyle = utils.addStyle.bind(utils);
 
+/** 
+ * 元素选择器
+ */
 const $ = document.querySelector.bind(document);
+/** 
+ * 多组元素选择器
+ */
 const $$ = document.querySelectorAll.bind(document);
 
 /**

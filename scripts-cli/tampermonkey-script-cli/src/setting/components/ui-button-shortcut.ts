@@ -1,6 +1,6 @@
 import { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
 import { UIButton } from "./ui-button";
-import { ATTRIBUTE_INIT } from "../config";
+import { ATTRIBUTE_INIT } from "../panel-config";
 import { ShortCut, ShortCutKeyboardOption } from "@/utils/ShortCut";
 import Qmsg from "qmsg";
 import { log } from "@/env";
@@ -9,11 +9,11 @@ import { log } from "@/env";
  * 获取录入快捷键配置
  * @param text 左边的文字
  * @param description 左边的文字下面的描述
- * @param key
- * @param defaultValue
+ * @param key 存储该快捷键的键名
+ * @param defaultValue 快捷键的默认值
  * @param defaultButtonText 按钮的文字
- * @param buttonType 按钮类型
- * @param clickCallBack 点击回调，一般由自定义录入，录入完毕后请调用传入的改变按钮文字的回调
+ * @param buttonType （可选）按钮的样式类型，默认为"default"
+ * @param shortCut ShortCut的实例，用于纪录快捷键
  * @example
  * UIButtonShortCut(
  *   "左边的文字",
