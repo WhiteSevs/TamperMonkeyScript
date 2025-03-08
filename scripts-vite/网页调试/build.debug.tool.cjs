@@ -138,10 +138,13 @@ let update_eruda = async () => {
 `);
 
 	let eruda_text = await tool.getNpmText();
-	eruda_text = eruda_text.replace(
-		`!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.eruda=t():e.eruda=t()}(self`,
-		"!function(e,t){e[erudaName] = t();}(currentWindow"
-	);
+	let needReplaceText = `!function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.eruda=t():e.eruda=t()}(self`;
+	let replaceText = "!function(e,t){e[erudaName] = t();}(currentWindow";
+	if (eruda_text.includes(needReplaceText)) {
+		eruda_text = eruda_text.replace(needReplaceText, replaceText);
+	} else {
+		throw new TypeError("未匹配到待替换的文字，请自行查看是否是部分代码改变了");
+	}
 	eruda_text = `
 /**
  * 初始化eruda
@@ -161,9 +164,9 @@ let initEruda = function (
 	var window = currentWindow;
 	var globalThis = currentWindow;
 	var console = currentWindow.console;
-	// !function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.eruda=t():e.eruda=t()}(self
+	// ${needReplaceText}
 	// 替换↓
-	// !function(e,t){e[erudaName] = t();}(currentWindow
+	// ${replaceText}
 	
 ${eruda_text}
 
@@ -188,14 +191,17 @@ let update_vconsole = async () => {
 `);
 
 	let vconsole_text = await tool.getNpmText();
-	vconsole_text = vconsole_text.replace(
-		`!function(t,n){"object"==typeof exports&&"object"==typeof module?module.exports=n():"function"==typeof define&&define.amd?define("VConsole",[],n):"object"==typeof exports?exports.VConsole=n():t.VConsole=n()}(this||self,(function()`,
-		`
+	let needReplaceText = `!function(t,n){"object"==typeof exports&&"object"==typeof module?module.exports=n():"function"==typeof define&&define.amd?define("VConsole",[],n):"object"==typeof exports?exports.VConsole=n():t.VConsole=n()}(this||self,(function()`;
+	let replaceText = `
 !((function (global, factory) {
     global[vConsoleName] = factory(global, global.console);
   })(currentWindow, function (window, console)
-`
-	);
+`;
+	if (vconsole_text.includes(needReplaceText)) {
+		vconsole_text = vconsole_text.replace(needReplaceText, replaceText);
+	} else {
+		throw new TypeError("未匹配到待替换的文字，请自行查看是否是部分代码改变了");
+	}
 
 	vconsole_text = `
 /**
