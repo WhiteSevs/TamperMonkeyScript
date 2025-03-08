@@ -115,7 +115,9 @@ __pops.GlobalConfig.setGlobalConfig({
 		return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 	},
 	mask: {
+		// 开启遮罩层
 		enable: true,
+		// 取消点击遮罩层的事件
 		clickEvent: {
 			toClose: false,
 			toHide: false,
@@ -143,13 +145,13 @@ httpx.interceptors.request.use((data) => {
 httpx.interceptors.response.use(void 0, (data) => {
 	log.error("拦截器-请求错误", data);
 	if (data.type === "onabort") {
-		Qmsg.warning("请求取消");
+		Qmsg.warning("请求取消", { consoleLogContent: true });
 	} else if (data.type === "onerror") {
-		Qmsg.error("请求异常");
+		Qmsg.error("请求异常", { consoleLogContent: true });
 	} else if (data.type === "ontimeout") {
-		Qmsg.error("请求超时");
+		Qmsg.error("请求超时", { consoleLogContent: true });
 	} else {
-		Qmsg.error("其它错误");
+		Qmsg.error("其它错误", { consoleLogContent: true });
 	}
 	return data;
 });
@@ -177,6 +179,9 @@ const addStyle = utils.addStyle.bind(utils);
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
+/**
+ * Vue的根元素的id
+ */
 const VUE_ELE_NAME_ID = "vite-app";
 /**
  * 注册vue、element-plus、element-plus/icons-vue
