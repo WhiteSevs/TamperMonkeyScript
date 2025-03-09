@@ -16,7 +16,7 @@ type VueWaitSetOption = {
 	/**
 	 * 进行设置
 	 */
-	set(vueInstance: Vue2Instance): void;
+	set(vueInstance: Vue2Instance, target: HTMLElement): void;
 	/**
 	 * 当检测失败/超时触发该回调
 	 */
@@ -66,7 +66,7 @@ export const VueUtils = {
 		function getTarget() {
 			let __target__ = null;
 			if (typeof $target === "string") {
-				__target__ = document.querySelector($target);
+				__target__ = document.querySelector<HTMLElement>($target);
 			} else if (typeof $target === "function") {
 				__target__ = $target();
 			} else if ($target instanceof HTMLElement) {
@@ -117,7 +117,7 @@ export const VueUtils = {
 						}
 						return;
 					}
-					needSetOption.set(vueInstance);
+					needSetOption.set(vueInstance, target!);
 				});
 		});
 	},
