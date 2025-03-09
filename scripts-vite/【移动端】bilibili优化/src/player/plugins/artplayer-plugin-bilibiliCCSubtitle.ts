@@ -1,7 +1,7 @@
 import { BilibiliApiResponseCheck } from "@/api/BilibiliApiResponseCheck";
 import { BilibiliApiConfig } from "@/api/BilibiliApiConfig";
 import { httpx, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import Artplayer from "artplayer";
 import type { Setting, SettingOption } from "artplayer/types/setting";
 import Chinese, { type CustomStr } from "s2t-chinese";

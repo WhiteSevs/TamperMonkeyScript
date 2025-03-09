@@ -1,5 +1,5 @@
 import { utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { VueUtils } from "@/utils/VueUtils";
 
 export const BilibiliSearchVueProp = {

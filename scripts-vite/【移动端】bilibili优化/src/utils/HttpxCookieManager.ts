@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
 
 interface HttpxCookieManagerRule {

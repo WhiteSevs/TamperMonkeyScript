@@ -3,11 +3,11 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "../config";
+} from "../panel-config";
 import { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/switchType";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
-import { PopsPanel } from "../setting";
+import { PopsPanel } from "../panel";
 
 /**
  * 获取checkbox按钮配置

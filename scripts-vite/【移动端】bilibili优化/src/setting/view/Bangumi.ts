@@ -1,10 +1,10 @@
 import { BilibiliRouter } from "@/router/BilibiliRouter";
-import { UISwitch } from "../common-components/ui-switch";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISelect } from "../common-components/ui-select";
+import { UISwitch } from "../components/ui-switch";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UISelect } from "../components/ui-select";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
-import { UIInput } from "../common-components/ui-input";
-import { UISlider } from "../common-components/ui-slider";
+import { UIInput } from "../components/ui-input";
+import { UISlider } from "../components/ui-slider";
 
 const SettingUIBangumi: PopsPanelContentConfig = {
 	id: "panel-bangumi",

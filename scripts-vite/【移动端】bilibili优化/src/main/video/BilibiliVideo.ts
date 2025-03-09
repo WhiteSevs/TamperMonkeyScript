@@ -1,5 +1,5 @@
 import { $, $$, DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliData } from "@/data/BlibiliData";

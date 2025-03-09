@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import { BilibiliApiConfig } from "./BilibiliApiConfig";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 

@@ -2,9 +2,9 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "../config";
+} from "../panel-config";
 import { PopsPanelTextAreaDetails } from "@whitesev/pops/dist/types/src/components/panel/textareaType";
-import { PopsPanel } from "../setting";
+import { PopsPanel } from "../panel";
 
 /**
  * 获取多行输入框配置

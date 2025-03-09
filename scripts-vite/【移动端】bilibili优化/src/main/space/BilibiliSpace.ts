@@ -1,6 +1,6 @@
 import { BilibiliData } from "@/data/BlibiliData";
 import { $$, DOMUtils, log, Qmsg, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { VueUtils } from "@/utils/VueUtils";

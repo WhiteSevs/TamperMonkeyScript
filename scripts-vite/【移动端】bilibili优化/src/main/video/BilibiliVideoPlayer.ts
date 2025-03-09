@@ -7,7 +7,7 @@ import {
 	type TypeBilibiliVideoInfo_m4s,
 	type TypeBilibiliVideoInfo_mp4,
 } from "@/api/BilibiliVideoApi";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import {

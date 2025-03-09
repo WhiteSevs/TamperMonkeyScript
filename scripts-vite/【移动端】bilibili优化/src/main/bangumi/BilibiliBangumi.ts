@@ -1,5 +1,5 @@
 import { addStyle, DOMUtils, log, Qmsg, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { unsafeWindow } from "ViteGM";
 import { BilibiliData } from "@/data/BlibiliData";
 import artPlayerCSS from "./artplayer/index.css?raw";

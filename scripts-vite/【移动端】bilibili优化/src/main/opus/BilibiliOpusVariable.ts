@@ -1,6 +1,6 @@
 import { BilibiliData } from "@/data/BlibiliData";
 import { log } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { VueUtils } from "@/utils/VueUtils";
 import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { BilibiliOpus } from "./BilibiliOpus";

@@ -1,9 +1,9 @@
 import { BilibiliRouter } from "@/router/BilibiliRouter";
-import { UISwitch } from "../common-components/ui-switch";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISelect } from "../common-components/ui-select";
+import { UISwitch } from "../components/ui-switch";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UISelect } from "../components/ui-select";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
-import { UISlider } from "../common-components/ui-slider";
+import { UISlider } from "../components/ui-slider";
 
 const SettingUIVideo: PopsPanelContentConfig = {
 	id: "panel-video",

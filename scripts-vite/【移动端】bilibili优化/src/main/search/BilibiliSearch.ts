@@ -1,5 +1,5 @@
 import { DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { BilibiliExtraSearch } from "./BilibiliExtraSearch";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliSearchBeautify } from "./BilibiliSearchBeautify";

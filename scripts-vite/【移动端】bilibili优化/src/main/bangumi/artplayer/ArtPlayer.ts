@@ -14,7 +14,7 @@ import {
 	type ArtPlayerPluginBilibiliSubTitleOption,
 	type ArtPlayerPluginBilibiliSubTitleResult,
 } from "@/player/plugins/artplayer-plugin-bilibiliCCSubtitle";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import {
 	ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY,
 	artplayerPluginTopToolBar,

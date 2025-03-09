@@ -4,7 +4,7 @@ import BilibiliBeautifyCSS from "./css/beautify.css?raw";
 import { BilibiliPCRouter, BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
 import { addStyle, DOMUtils, GMCookie, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { BilibiliBangumi } from "./bangumi/BilibiliBangumi";
 import { BilibiliSearch } from "./search/BilibiliSearch";
 import { BilibiliLive } from "./live/BilibiliLive";

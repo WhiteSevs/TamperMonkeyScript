@@ -5,26 +5,26 @@ import {
 	ATTRIBUTE_INIT_MORE_VALUE,
 	ATTRIBUTE_KEY,
 	KEY,
-} from "@/setting/config";
+} from "@/setting/panel-config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { SettingUICommon } from "./components/Common";
-import { SettingUIVideo } from "./components/Video";
-import { SettingUIBangumi } from "./components/Bangumi";
-import { SettingUISearch } from "./components/Search";
-import { SettingUILive } from "./components/Live";
-import { SettingUIOpus } from "./components/Opus";
-import { SettingUIDynamic } from "./components/Dynamic";
-import { SettingUITopicDetail } from "./components/TopicDetail";
-import { SettingUIHead } from "./components/Head";
+import { SettingUICommon } from "./view/Common";
+import { SettingUIVideo } from "./view/Video";
+import { SettingUIBangumi } from "./view/Bangumi";
+import { SettingUISearch } from "./view/Search";
+import { SettingUILive } from "./view/Live";
+import { SettingUIOpus } from "./view/Opus";
+import { SettingUIDynamic } from "./view/Dynamic";
+import { SettingUITopicDetail } from "./view/TopicDetail";
+import { SettingUIHead } from "./view/Head";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
-import {
+import type {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
-import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { SettingUISpace } from "./components/Space";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import { SettingUISpace } from "./view/Space";
 import { PanelUISize } from "./panel-ui-size";
 
 type PosPanelListenerData = {

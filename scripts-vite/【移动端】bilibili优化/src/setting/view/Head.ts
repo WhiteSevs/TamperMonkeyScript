@@ -1,7 +1,7 @@
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
-import { UIInput } from "../common-components/ui-input";
-import { UISwitch } from "../common-components/ui-switch";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { UIInput } from "../components/ui-input";
+import { UISwitch } from "../components/ui-switch";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 export const SettingUIHead: PopsPanelContentConfig = {
 	id: "panel-head",

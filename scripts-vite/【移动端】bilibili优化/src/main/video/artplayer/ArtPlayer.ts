@@ -1,6 +1,6 @@
 import { BilibiliVideoCodingCode } from "@/api/BilibiliApiConfig";
 import { ArtPlayerDanmakuOptionHelper } from "@/player/plugins/artplayer-plugin-DanmakuHelper";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import Artplayer from "artplayer";
 import type Option from "artplayer/types/option";
 import artplayerPluginDanmuku from "artplayer-plugin-danmuku";

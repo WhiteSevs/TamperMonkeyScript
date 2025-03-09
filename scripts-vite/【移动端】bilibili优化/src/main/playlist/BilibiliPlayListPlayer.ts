@@ -7,7 +7,7 @@ import {
 	type VideoInfo,
 } from "../video/BilibiliVideoPlayer";
 import { BilibiliVideoArtPlayer } from "../video/artplayer/ArtPlayer";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 type PlayListVideoInfo = {
 	/** aid */

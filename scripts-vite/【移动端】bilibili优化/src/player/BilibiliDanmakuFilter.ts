@@ -1,6 +1,6 @@
 import { utils } from "@/env";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 /** 弹幕过滤器 */
 export const BilibiliDanmakuFilter = {

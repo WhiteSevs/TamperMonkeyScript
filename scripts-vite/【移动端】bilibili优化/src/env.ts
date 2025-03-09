@@ -16,7 +16,7 @@ import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
-import { PopsPanel } from "./setting/setting";
+import { PopsPanel } from "./setting/panel";
 import pops from "@whitesev/pops";
 
 const _SCRIPT_NAME_ = "【移动端】bilibili优化";

@@ -8,7 +8,7 @@ import {
 	BilibiliBangumiArtPlayer,
 	type BilibiliBangumiArtPlayerOption,
 } from "./artplayer/ArtPlayer";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
 import type { EP_INFO, EP_LIST } from "./TypeBangumi";

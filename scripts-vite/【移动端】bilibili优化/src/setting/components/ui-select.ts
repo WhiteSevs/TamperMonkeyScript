@@ -2,10 +2,10 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "../config";
+} from "../panel-config";
 import { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/selectType";
 import { log } from "@/env";
-import { PopsPanel } from "../setting";
+import { PopsPanel } from "../panel";
 
 /**
  * 下拉列表

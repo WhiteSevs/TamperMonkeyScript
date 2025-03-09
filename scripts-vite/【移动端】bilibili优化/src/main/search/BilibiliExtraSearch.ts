@@ -4,7 +4,7 @@ import {
 	type BilibiliSearchBangumiResultEntity,
 } from "@/api/BilibiliSearchApi";
 import { addStyle, DOMUtils, log, pops, Qmsg, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { VueUtils } from "@/utils/VueUtils";
 import beautifyCSS from "./css/beautify.css?raw";
 

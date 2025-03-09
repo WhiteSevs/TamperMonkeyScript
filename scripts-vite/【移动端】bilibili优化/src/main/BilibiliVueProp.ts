@@ -1,5 +1,5 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { VueUtils } from "@/utils/VueUtils";
 import { BilibiliHead } from "./head/BilibiliHead";
