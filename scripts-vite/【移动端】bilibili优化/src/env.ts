@@ -195,6 +195,7 @@ pops.GlobalConfig.setGlobalConfig({
 		return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
 	},
 });
+
 export {
 	utils,
 	domutils as DOMUtils,
