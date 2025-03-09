@@ -29,10 +29,10 @@ import { PanelEasyLearnSettingUI } from "./view/easylearn/PanelEasyLearnSettingU
 import { PanelAiStudySettingUI } from "./view/aistudy/PanelAiStudySettingUI";
 import { YiYanChat } from "@/main/yiyan/YiYanChat";
 import { PanelCommonSettingUI } from "./view/common/PanelCommonSettingUI";
-import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
-import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { PanelUISize } from "./panel-ui-size";
 
 type PosPanelListenerData = {
