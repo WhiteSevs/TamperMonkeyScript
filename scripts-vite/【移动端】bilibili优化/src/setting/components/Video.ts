@@ -59,6 +59,20 @@ const SettingUIVideo: PopsPanelContentConfig = {
 								// 	void 0,
 								// 	"如@用户、搜索"
 								// ),
+								UISwitch(
+									"新增评论模块",
+									"bili-video-addCommentModule",
+									true,
+									void 0,
+									"用于查看当前视频的评论"
+								),
+								UISwitch(
+									"新增简介模块",
+									"bili-video-addDescModule",
+									true,
+									void 0,
+									"用于查看当前视频的播放量、简介、一键三连等信息"
+								),
 							],
 						},
 						// {

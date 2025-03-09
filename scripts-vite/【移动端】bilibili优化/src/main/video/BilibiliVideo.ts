@@ -1,4 +1,4 @@
-import { $$, DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
+import { $, $$, DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
@@ -6,11 +6,20 @@ import { BilibiliData } from "@/data/BlibiliData";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { VueUtils } from "@/utils/VueUtils";
 import { BilibiliVideoPlayer } from "./BilibiliVideoPlayer";
+import { MobileCommentModule } from "@/lib/MobileCommentModule";
+import MobileCommentModuleStyle from "@/lib/MobileCommentModule.css?raw";
+import { CommonUtil } from "@/utils/CommonUtil";
+import { GM_RESOURCE_MAPPING } from "@/GM_Resource_Mapping";
+import { GestureBack } from "@/utils/GestureBack";
 
-const BilibiliVideo = {
+export const BilibiliVideo = {
 	$data: {
 		/** 是否已添加美化CSS */
 		isAddBeautifyCSS: false,
+		/** 是否已经初始化评论模块 */
+		isInitCommentModule: false,
+		/** 是否已经初始化简介模块 */
+		isInitDescModule: false,
 	},
 	init() {
 		BilibiliVideoPlayer.init();
@@ -43,6 +52,12 @@ const BilibiliVideo = {
 			// PopsPanel.execMenu("bili-video-disableSwipeTab", () => {
 			// 	this.disableSwipeTab();
 			// });
+			PopsPanel.execMenu("bili-video-addCommentModule", () => {
+				this.addCommentModule();
+			});
+			PopsPanel.execMenu("bili-video-addDescModule", () => {
+				this.addDescModule();
+			});
 		});
 	},
 	/**
@@ -794,6 +809,355 @@ const BilibiliVideo = {
 			},
 		});
 	},
-};
+	/**
+	 * 新增评论模块
+	 *
+	 * + https://greasyfork.org/zh-CN/scripts/524844-bilibili-mobile-comment-module
+	 */
+	addCommentModule() {
+		log.info(`新增评论模块`);
+		if (this.$data.isInitCommentModule) {
+			// 重新初始化评论模块
+			let $commentModuleWrapper = $<HTMLTableRowElement>(
+				"#comment-module-wrapper"
+			)!;
+			// 清空
+			DOMUtils.empty($commentModuleWrapper);
+			MobileCommentModule.init($commentModuleWrapper);
+			return;
+		}
+		this.$data.isInitCommentModule = true;
+		CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
+		addStyle(MobileCommentModuleStyle);
+		addStyle(/*css*/ `
+			.comment-container{
+				position: relative;
+			}
+			.comment-container .reply-header{
+				position: sticky;
+				top: 0;
+				z-index: 999;
+				left: 0;
+				right: 0;
+				background: #fff;
+			}
+			#comment-module-wrapper{
+				position: fixed;
+				top: 0;
+				left: 0;
+				z-index: 2000;
+				display: none;
+				width: 100vw;
+				height: 100vh;
+				background-color: #fff;
+				overflow-x: hidden;
+			}
+			.close-comment-module-btn{
+				position: fixed;
+				right: 20px;
+				bottom: 20px;
+				z-index: 2001;
+				display: none;
+				justify-content: center;
+				align-items: center;
+				width: 40px;
+				height: 40px;
+				color: #fff;
+				border-radius: 100%;
+				background-color: var(--bili-color);
+			}
+		`);
+		addStyle(/*css*/ `
+			.comment-module-show-btn{
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				margin: 0 12px 20px 12px;
+				height: 40px;
+				color: #fff;
+				border-radius: 4px;
+				background-color: var(--bili-color);
+			}
+		`);
+		utils.waitNode<HTMLElement>(".m-video-info", 10000).then(($videoInfo) => {
+			if (!$videoInfo) {
+				log.error(`获取视频信息元素失败`);
+				return;
+			}
+			const history_hash = "comment-module";
+			// 手势模式
+			let gestureBack = new GestureBack({
+				hash: history_hash,
+				useUrl: true,
+				beforeHistoryBackCallBack(isUrlChange) {
+					let $viewerClose = $<HTMLElement>(".viewer-button.viewer-close");
+					// 当前是看图模式,仅退出看图
+					if ($viewerClose) {
+						$viewerClose.click();
+					}
+					if (isUrlChange) {
+						$closeCommentModuleBtn.click();
+					}
+				},
+			});
+			let $commentModuleShowBtn = DOMUtils.createElement("div", {
+				className: "comment-module-show-btn",
+				innerHTML: `查看评论`,
+			});
+			let $closeCommentModuleBtn = DOMUtils.createElement("span", {
+				className: "close-comment-module-btn",
+				innerHTML: "×",
+			});
+			// 显示评论模块
+			DOMUtils.on($commentModuleShowBtn, "click", (event) => {
+				utils.preventEvent(event);
+				DOMUtils.css($commentModuleWrapper, { display: "block" });
+				DOMUtils.css($closeCommentModuleBtn, { display: "flex" });
+				gestureBack.enterGestureBackMode();
+			});
+			// 隐藏评论模块
+			DOMUtils.on($closeCommentModuleBtn, "click", (event) => {
+				utils.preventEvent(event);
+				DOMUtils.css($commentModuleWrapper, { display: "" });
+				DOMUtils.css($closeCommentModuleBtn, { display: "" });
+				gestureBack.quitGestureBackMode(false);
+			});
 
-export { BilibiliVideo };
+			DOMUtils.append($videoInfo, $commentModuleShowBtn);
+			let $commentModuleWrapper = DOMUtils.createElement("div", {
+				id: "comment-module-wrapper",
+			});
+			DOMUtils.append(document.body, $commentModuleWrapper);
+			DOMUtils.after($commentModuleWrapper, $closeCommentModuleBtn);
+			// 初始化评论模块
+			MobileCommentModule.init($commentModuleWrapper);
+		});
+	},
+	/**
+	 * 新增简介模块
+	 */
+	addDescModule() {
+		log.info(`新增简介模块`);
+		if (!this.$data.isInitDescModule) {
+			this.$data.isInitDescModule = true;
+			addStyle(/*css*/ `
+				${BilibiliData.className.mVideo} .m-video-info .bottom-wrapper{
+					flex-direction: column;
+					align-items: flex-start;
+					height: auto;
+				}
+			`);
+			addStyle(/*css*/ `
+				.video-desc-wrapper {
+					color: #9499A0;
+					font-size: 14px;
+					width: 100%;
+
+					.video-desc-text {
+						margin: 10px 0px;
+						white-space: pre-wrap;
+					}
+	
+					.video-view-info-wrapper {
+						display: flex;
+						align-items: center;
+						justify-content: flex-start;
+						gap: 10px;
+						margin: 5px 0px;
+	
+						.video-info-icon{
+							display: flex;
+							align-items: center;
+							gap: 2px;
+						}
+						.video-info-text{
+							display: flex;
+							align-items: center;
+							line-height: 1rem;
+						}
+					}
+					.video-desc-controls-wrapper{
+						margin: 10px 0px;
+						display: flex;
+						justify-content: space-around;
+						align-items: center;
+	
+						.video-info-icon {
+							display: flex;
+							flex-direction: column;
+							align-items: center;
+							gap: 2px;
+						}
+					}
+				}
+	
+			`);
+		}
+		// 移除旧的
+		DOMUtils.remove(
+			BilibiliData.className.mVideo + "  .m-video-info .video-desc-wrapper"
+		);
+		VueUtils.waitVuePropToSet(
+			BilibiliData.className.mVideo + "  .m-video-info .bottom-wrapper",
+			{
+				check(vueInstance) {
+					return typeof vueInstance?.info?.bvid === "string";
+				},
+				set(vueInstance, target) {
+					// 视频信息
+					let info = vueInstance.info;
+					// 视频作者信息
+					let upInfo = vueInstance.upInfo;
+
+					// 粉丝数
+					let follower = upInfo.follower;
+					// 投稿数
+					let archive_count = upInfo.archive_count;
+
+					// 观看人数
+					let view = info.stat.view;
+					// 弹幕数
+					let danmakuCount = info.stat.danmaku;
+					// 发布时间
+					let ctime = info.ctime;
+					// bv号
+					let bvid = info.bvid;
+					// 视频描述
+					let desc = info.desc;
+					// 点赞
+					let like = info.stat.like;
+					// 投币
+					let coin = info.stat.coin;
+					// 收藏
+					let favorite = info.stat.favorite;
+					// 分享
+					let share = info.stat.share;
+
+					let $descWrapper = DOMUtils.createElement("div", {
+						className: "video-desc-wrapper",
+						innerHTML: /*html*/ `
+							<div class="video-view-info-wrapper">
+								<div class="video-info-icon">
+									<svg
+										class="stats-item__icon"
+										style="width: 16px; height: 16px"
+										xmlns="http://www.w3.org/2000/svg"
+										xmlns:xlink="http://www.w3.org/1999/xlink"
+										viewBox="0 0 16 16"
+										width="16"
+										height="16">
+										<path
+											d="M8 3.3320333333333334C6.321186666666667 3.3320333333333334 4.855333333333333 3.4174399999999996 3.820593333333333 3.5013466666666666C3.1014733333333333 3.5596599999999996 2.5440733333333334 4.109013333333333 2.48 4.821693333333333C2.4040466666666664 5.666533333333334 2.333333333333333 6.780666666666666 2.333333333333333 7.998666666666666C2.333333333333333 9.216733333333334 2.4040466666666664 10.330866666666665 2.48 11.175699999999999C2.5440733333333334 11.888366666666666 3.1014733333333333 12.437733333333334 3.820593333333333 12.496066666666666C4.855333333333333 12.579933333333333 6.321186666666667 12.665333333333333 8 12.665333333333333C9.678999999999998 12.665333333333333 11.144933333333334 12.579933333333333 12.179733333333333 12.496033333333333C12.898733333333332 12.4377 13.456 11.888533333333331 13.520066666666667 11.176033333333333C13.595999999999998 10.331533333333333 13.666666666666666 9.217633333333332 13.666666666666666 7.998666666666666C13.666666666666666 6.779766666666667 13.595999999999998 5.665846666666667 13.520066666666667 4.821366666666666C13.456 4.108866666666666 12.898733333333332 3.55968 12.179733333333333 3.5013666666666663C11.144933333333334 3.417453333333333 9.678999999999998 3.3320333333333334 8 3.3320333333333334zM3.7397666666666667 2.50462C4.794879999999999 2.41906 6.288386666666666 2.3320333333333334 8 2.3320333333333334C9.7118 2.3320333333333334 11.2054 2.4190733333333334 12.260533333333331 2.5046399999999998C13.458733333333331 2.6018133333333333 14.407866666666665 3.5285199999999994 14.516066666666667 4.73182C14.593933333333332 5.597933333333334 14.666666666666666 6.7427 14.666666666666666 7.998666666666666C14.666666666666666 9.2547 14.593933333333332 10.399466666666665 14.516066666666667 11.2656C14.407866666666665 12.468866666666665 13.458733333333331 13.395566666666667 12.260533333333331 13.492766666666665C11.2054 13.578333333333333 9.7118 13.665333333333333 8 13.665333333333333C6.288386666666666 13.665333333333333 4.794879999999999 13.578333333333333 3.7397666666666667 13.492799999999999C2.541373333333333 13.395599999999998 1.5922066666666668 12.468633333333333 1.4840200000000001 11.265266666666665C1.4061199999999998 10.3988 1.3333333333333333 9.253866666666667 1.3333333333333333 7.998666666666666C1.3333333333333333 6.743533333333333 1.4061199999999998 5.598579999999999 1.4840200000000001 4.732153333333333C1.5922066666666668 3.5287466666666667 2.541373333333333 2.601793333333333 3.7397666666666667 2.50462z"
+											fill="currentColor"></path>
+										<path
+											d="M9.8092 7.3125C10.338433333333333 7.618066666666666 10.338433333333333 8.382 9.809166666666666 8.687533333333333L7.690799999999999 9.910599999999999C7.161566666666666 10.216133333333332 6.5 9.8342 6.500006666666666 9.223066666666666L6.500006666666666 6.776999999999999C6.500006666666666 6.165873333333334 7.161566666666666 5.783913333333333 7.690799999999999 6.089479999999999L9.8092 7.3125z"
+											fill="currentColor"></path>
+									</svg>
+									<span class="video-info-text" data-value="${view}">${BilibiliUtils.parseCount(
+							view
+						)}</span>
+								</div>
+								<div class="video-info-icon">
+									<svg
+										class="stats-item__icon"
+										style="width: 16px; height: 16px"
+										xmlns="http://www.w3.org/2000/svg"
+										xmlns:xlink="http://www.w3.org/1999/xlink"
+										viewBox="0 0 16 16"
+										width="16"
+										height="16">
+										<path
+											d="M8 3.3320333333333334C6.321186666666667 3.3320333333333334 4.855333333333333 3.4174399999999996 3.820593333333333 3.5013466666666666C3.1014733333333333 3.5596599999999996 2.5440733333333334 4.109013333333333 2.48 4.821693333333333C2.4040466666666664 5.666533333333334 2.333333333333333 6.780666666666666 2.333333333333333 7.998666666666666C2.333333333333333 9.216733333333334 2.4040466666666664 10.330866666666665 2.48 11.175699999999999C2.5440733333333334 11.888366666666666 3.1014733333333333 12.437733333333334 3.820593333333333 12.496066666666666C4.855333333333333 12.579933333333333 6.321186666666667 12.665333333333333 8 12.665333333333333C9.678999999999998 12.665333333333333 11.144933333333334 12.579933333333333 12.179733333333333 12.496033333333333C12.898733333333332 12.4377 13.456 11.888533333333331 13.520066666666667 11.176033333333333C13.595999999999998 10.331533333333333 13.666666666666666 9.217633333333332 13.666666666666666 7.998666666666666C13.666666666666666 6.779766666666667 13.595999999999998 5.665846666666667 13.520066666666667 4.821366666666666C13.456 4.108866666666666 12.898733333333332 3.55968 12.179733333333333 3.5013666666666663C11.144933333333334 3.417453333333333 9.678999999999998 3.3320333333333334 8 3.3320333333333334zM3.7397666666666667 2.50462C4.794879999999999 2.41906 6.288386666666666 2.3320333333333334 8 2.3320333333333334C9.7118 2.3320333333333334 11.2054 2.4190733333333334 12.260533333333331 2.5046399999999998C13.458733333333331 2.6018133333333333 14.407866666666665 3.5285199999999994 14.516066666666667 4.73182C14.593933333333332 5.597933333333334 14.666666666666666 6.7427 14.666666666666666 7.998666666666666C14.666666666666666 9.2547 14.593933333333332 10.399466666666665 14.516066666666667 11.2656C14.407866666666665 12.468866666666665 13.458733333333331 13.395566666666667 12.260533333333331 13.492766666666665C11.2054 13.578333333333333 9.7118 13.665333333333333 8 13.665333333333333C6.288386666666666 13.665333333333333 4.794879999999999 13.578333333333333 3.7397666666666667 13.492799999999999C2.541373333333333 13.395599999999998 1.5922066666666668 12.468633333333333 1.4840200000000001 11.265266666666665C1.4061199999999998 10.3988 1.3333333333333333 9.253866666666667 1.3333333333333333 7.998666666666666C1.3333333333333333 6.743533333333333 1.4061199999999998 5.598579999999999 1.4840200000000001 4.732153333333333C1.5922066666666668 3.5287466666666667 2.541373333333333 2.601793333333333 3.7397666666666667 2.50462z"
+											fill="currentColor"></path>
+										<path
+											d="M10.583333333333332 7.166666666666666L6.583333333333333 7.166666666666666C6.307193333333332 7.166666666666666 6.083333333333333 6.942799999999999 6.083333333333333 6.666666666666666C6.083333333333333 6.390526666666666 6.307193333333332 6.166666666666666 6.583333333333333 6.166666666666666L10.583333333333332 6.166666666666666C10.859466666666666 6.166666666666666 11.083333333333332 6.390526666666666 11.083333333333332 6.666666666666666C11.083333333333332 6.942799999999999 10.859466666666666 7.166666666666666 10.583333333333332 7.166666666666666z"
+											fill="currentColor"></path>
+										<path
+											d="M11.583333333333332 9.833333333333332L7.583333333333333 9.833333333333332C7.3072 9.833333333333332 7.083333333333333 9.609466666666666 7.083333333333333 9.333333333333332C7.083333333333333 9.0572 7.3072 8.833333333333332 7.583333333333333 8.833333333333332L11.583333333333332 8.833333333333332C11.859466666666666 8.833333333333332 12.083333333333332 9.0572 12.083333333333332 9.333333333333332C12.083333333333332 9.609466666666666 11.859466666666666 9.833333333333332 11.583333333333332 9.833333333333332z"
+											fill="currentColor"></path>
+										<path
+											d="M5.25 6.666666666666666C5.25 6.942799999999999 5.02614 7.166666666666666 4.75 7.166666666666666L4.416666666666666 7.166666666666666C4.140526666666666 7.166666666666666 3.9166666666666665 6.942799999999999 3.9166666666666665 6.666666666666666C3.9166666666666665 6.390526666666666 4.140526666666666 6.166666666666666 4.416666666666666 6.166666666666666L4.75 6.166666666666666C5.02614 6.166666666666666 5.25 6.390526666666666 5.25 6.666666666666666z"
+											fill="currentColor"></path>
+										<path
+											d="M6.25 9.333333333333332C6.25 9.609466666666666 6.02614 9.833333333333332 5.75 9.833333333333332L5.416666666666666 9.833333333333332C5.140526666666666 9.833333333333332 4.916666666666666 9.609466666666666 4.916666666666666 9.333333333333332C4.916666666666666 9.0572 5.140526666666666 8.833333333333332 5.416666666666666 8.833333333333332L5.75 8.833333333333332C6.02614 8.833333333333332 6.25 9.0572 6.25 9.333333333333332z"
+											fill="currentColor"></path>
+									</svg>
+									<span class="video-info-text" data-value="${danmakuCount}">${BilibiliUtils.parseCount(
+							danmakuCount
+						)}</span>
+								</div>
+								<span class="video-info-text">${utils.formatTime(
+									info.ctime * 1000,
+									"yyyy年MM月dd日 HH:mm:ss"
+								)}</span>
+							</div>
+							<div class="video-bvid">${bvid}</div>
+							<div class="video-desc-text">${desc}</div>
+							<div class="video-desc-controls-wrapper">
+								<div class="video-info-icon">
+									<svg
+										width="24"
+										height="24"
+										viewBox="0 0 36 36"
+										xmlns="http://www.w3.org/2000/svg"
+										class="video-like-icon video-toolbar-item-icon">
+										<path
+											fill-rule="evenodd"
+											clip-rule="evenodd"
+											d="M9.77234 30.8573V11.7471H7.54573C5.50932 11.7471 3.85742 13.3931 3.85742 15.425V27.1794C3.85742 29.2112 5.50932 30.8573 7.54573 30.8573H9.77234ZM11.9902 30.8573V11.7054C14.9897 10.627 16.6942 7.8853 17.1055 3.33591C17.2666 1.55463 18.9633 0.814421 20.5803 1.59505C22.1847 2.36964 23.243 4.32583 23.243 6.93947C23.243 8.50265 23.0478 10.1054 22.6582 11.7471H29.7324C31.7739 11.7471 33.4289 13.402 33.4289 15.4435C33.4289 15.7416 33.3928 16.0386 33.3215 16.328L30.9883 25.7957C30.2558 28.7683 27.5894 30.8573 24.528 30.8573H11.9911H11.9902Z"
+											fill="currentColor"></path>
+									</svg>
+									<span data-value="${like}">${BilibiliUtils.parseCount(like)}</span>
+								</div>
+								<div class="video-info-icon">
+									<svg
+										width="24"
+										height="24"
+										viewBox="0 0 28 28"
+										xmlns="http://www.w3.org/2000/svg"
+										class="video-coin-icon video-toolbar-item-icon">
+										<path
+											fill-rule="evenodd"
+											clip-rule="evenodd"
+											d="M14.045 25.5454C7.69377 25.5454 2.54504 20.3967 2.54504 14.0454C2.54504 7.69413 7.69377 2.54541 14.045 2.54541C20.3963 2.54541 25.545 7.69413 25.545 14.0454C25.545 17.0954 24.3334 20.0205 22.1768 22.1771C20.0201 24.3338 17.095 25.5454 14.045 25.5454ZM9.66202 6.81624H18.2761C18.825 6.81624 19.27 7.22183 19.27 7.72216C19.27 8.22248 18.825 8.62807 18.2761 8.62807H14.95V10.2903C17.989 10.4444 20.3766 12.9487 20.3855 15.9916V17.1995C20.3854 17.6997 19.9799 18.1052 19.4796 18.1052C18.9793 18.1052 18.5738 17.6997 18.5737 17.1995V15.9916C18.5667 13.9478 16.9882 12.2535 14.95 12.1022V20.5574C14.95 21.0577 14.5444 21.4633 14.0441 21.4633C13.5437 21.4633 13.1382 21.0577 13.1382 20.5574V12.1022C11.1 12.2535 9.52148 13.9478 9.51448 15.9916V17.1995C9.5144 17.6997 9.10883 18.1052 8.60856 18.1052C8.1083 18.1052 7.70273 17.6997 7.70265 17.1995V15.9916C7.71158 12.9487 10.0992 10.4444 13.1382 10.2903V8.62807H9.66202C9.11309 8.62807 8.66809 8.22248 8.66809 7.72216C8.66809 7.22183 9.11309 6.81624 9.66202 6.81624Z"
+											fill="currentColor"></path>
+									</svg>
+									<span data-value="${coin}">${BilibiliUtils.parseCount(coin)}</span>
+								</div>
+								<div class="video-info-icon">
+									<svg
+										width="24"
+										height="24"
+										viewBox="0 0 28 28"
+										xmlns="http://www.w3.org/2000/svg"
+										class="video-fav-icon video-toolbar-item-icon">
+										<path
+											fill-rule="evenodd"
+											clip-rule="evenodd"
+											d="M19.8071 9.26152C18.7438 9.09915 17.7624 8.36846 17.3534 7.39421L15.4723 3.4972C14.8998 2.1982 13.1004 2.1982 12.4461 3.4972L10.6468 7.39421C10.1561 8.36846 9.25639 9.09915 8.19315 9.26152L3.94016 9.91102C2.63155 10.0734 2.05904 11.6972 3.04049 12.6714L6.23023 15.9189C6.96632 16.6496 7.29348 17.705 7.1299 18.7605L6.39381 23.307C6.14844 24.6872 7.62063 25.6614 8.84745 25.0119L12.4461 23.0634C13.4276 22.4951 14.6544 22.4951 15.6359 23.0634L19.2345 25.0119C20.4614 25.6614 21.8518 24.6872 21.6882 23.307L20.8703 18.7605C20.7051 17.705 21.0339 16.6496 21.77 15.9189L24.9597 12.6714C25.9412 11.6972 25.3687 10.0734 24.06 9.91102L19.8071 9.26152Z"
+											fill="currentColor"></path>
+									</svg>
+									<span data-value="${favorite}">${BilibiliUtils.parseCount(favorite)}</span>
+								</div>
+								<div class="video-info-icon">
+									<svg
+										width="24"
+										height="24"
+										viewBox="0 0 28 28"
+										xmlns="http://www.w3.org/2000/svg"
+										class="video-share-icon video-toolbar-item-icon">
+										<path
+											d="M12.6058 10.3326V5.44359C12.6058 4.64632 13.2718 4 14.0934 4C14.4423 4 14.78 4.11895 15.0476 4.33606L25.3847 12.7221C26.112 13.3121 26.2087 14.3626 25.6007 15.0684C25.5352 15.1443 25.463 15.2144 25.3847 15.2779L15.0476 23.6639C14.4173 24.1753 13.4791 24.094 12.9521 23.4823C12.7283 23.2226 12.6058 22.8949 12.6058 22.5564V18.053C7.59502 18.053 5.37116 19.9116 2.57197 23.5251C2.47607 23.6489 2.00031 23.7769 2.00031 23.2122C2.00031 16.2165 3.90102 10.3326 12.6058 10.3326Z"
+											fill="currentColor"></path>
+									</svg>
+									<span data-value="${share}">${BilibiliUtils.parseCount(share)}</span>
+								</div>
+							</div>
+						`,
+					});
+					target.appendChild($descWrapper);
+				},
+			}
+		);
+	},
+};
