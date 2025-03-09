@@ -9,7 +9,7 @@ type GestureBackConfig = {
 	useUrl?: boolean;
 	/** 退出手势模式的延迟时间，单位ms @default 150 */
 	backDelayTime?: number;
-	/** 调用退出手势模式前执行的回调函数 @default null */
+	/** 调用退出手势模式前执行的回调函数,一般在这里面执行关闭弹窗或其它的 @default null */
 	beforeHistoryBackCallBack?: (isUrlChange: boolean) => void;
 	/** 调用退出手势模式后执行的回调函数 @default null */
 	afterHistoryBackCallBack?: (isUrlChange: boolean) => void;
@@ -84,8 +84,8 @@ export class GestureBack {
 	 * @param isUrlChange 是否是url改变触发的
 	 */
 	async quitGestureBackMode(isUrlChange: boolean = false) {
-		this.isBacking = true;
 		log.success("退出手势模式");
+		this.isBacking = true;
 		if (typeof this.config.beforeHistoryBackCallBack === "function") {
 			this.config.beforeHistoryBackCallBack(isUrlChange);
 		}
