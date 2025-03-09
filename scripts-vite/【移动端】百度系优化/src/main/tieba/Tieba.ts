@@ -1,7 +1,7 @@
 import { $, DOMUtils, addStyle, log, pops, utils } from "@/env";
 import TieBaShieldCSS from "./shield.css?raw";
 import UniTieBaShieldCSS from "./uni-app-shield.css?raw";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { BaiduHook } from "@/hook/BaiduHook";
 import { TiebaTopicTemplate } from "./topic-template/TiebaTopicTemplate";

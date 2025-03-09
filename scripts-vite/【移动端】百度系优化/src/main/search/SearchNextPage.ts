@@ -9,7 +9,7 @@ import {
 	log,
 	utils,
 } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { BaiduHandleResultItem } from "./SearchHandleResultItem";
 import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
 import { CommonUtil } from "@/utils/CommonUtil";

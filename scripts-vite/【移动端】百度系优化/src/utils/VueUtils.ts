@@ -1,7 +1,7 @@
-import { DOMUtils, addStyle, log, utils } from "@/env";
-import Qmsg from "qmsg";
+import { DOMUtils, log, utils } from "@/env";
 import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { unsafeWindow } from "ViteGM";
+import Qmsg from "qmsg";
 
 /** 等待设置vue某个值的配置 */
 type VueWaitSetOption = {
@@ -11,12 +11,16 @@ type VueWaitSetOption = {
 	msg?: string;
 	/**
 	 * 检测属性的函数
+	 * @param vueInstance vue实例
+	 * @param target 目标元素
 	 */
-	check(vueInstance: Vue2Instance): boolean;
+	check(vueInstance: Vue2Instance, target: HTMLElement): boolean;
 	/**
 	 * 进行设置
+	 * @param vueInstance vue实例
+	 * @param target 目标元素
 	 */
-	set(vueInstance: Vue2Instance): void;
+	set(vueInstance: Vue2Instance, target: HTMLElement): void;
 	/**
 	 * 当检测失败/超时触发该回调
 	 */
@@ -29,9 +33,8 @@ export const VueUtils = {
 	/**
 	 * 获取vue2实例
 	 * @param element
-	 * @returns
 	 */
-	getVue(element: Element | null | EventTarget) {
+	getVue(element: Element | null | EventTarget | HTMLElement) {
 		if (element == null) {
 			return;
 		}
@@ -42,9 +45,8 @@ export const VueUtils = {
 	/**
 	 * 获取vue3实例
 	 * @param element
-	 * @returns
 	 */
-	getVue3(element: Element | null | EventTarget) {
+	getVue3(element: Element | null | EventTarget | HTMLElement) {
 		if (element == null) {
 			return;
 		}
@@ -66,7 +68,7 @@ export const VueUtils = {
 		function getTarget() {
 			let __target__ = null;
 			if (typeof $target === "string") {
-				__target__ = document.querySelector($target);
+				__target__ = document.querySelector<HTMLElement>($target);
 			} else if (typeof $target === "function") {
 				__target__ = $target();
 			} else if ($target instanceof HTMLElement) {
@@ -90,7 +92,7 @@ export const VueUtils = {
 				if (vueInstance == null) {
 					return false;
 				}
-				let needOwnCheck = needSetOption.check(vueInstance);
+				let needOwnCheck = needSetOption.check(vueInstance, target);
 				return Boolean(needOwnCheck);
 			}
 			utils
@@ -117,7 +119,7 @@ export const VueUtils = {
 						}
 						return;
 					}
-					needSetOption.set(vueInstance);
+					needSetOption.set(vueInstance, target!);
 				});
 		});
 	},
@@ -192,12 +194,12 @@ export const VueUtils = {
 			log.error("跳转Url: $vueNode为空：" + path);
 			return;
 		}
-		let vueObj = VueUtils.getVue($vueNode);
-		if (vueObj == null) {
+		let vueInstance = VueUtils.getVue($vueNode);
+		if (vueInstance == null) {
 			Qmsg.error("获取vue属性失败", { consoleLogContent: true });
 			return;
 		}
-		let $router = vueObj.$router;
+		let $router = vueInstance.$router;
 		let isBlank = true;
 		log.info("即将跳转URL：" + path);
 		if (useRouter) {

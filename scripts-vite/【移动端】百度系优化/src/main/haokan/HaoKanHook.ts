@@ -1,6 +1,6 @@
 import { log } from "@/env";
 import { BaiduHook } from "@/hook/BaiduHook";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 const BaiduHaoKanHook = {
     init() {

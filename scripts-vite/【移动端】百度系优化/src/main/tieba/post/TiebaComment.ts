@@ -10,7 +10,7 @@ import {
 	utils,
 } from "@/env";
 import { TieBaApi } from "../api/TiebaApi";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { TiebaCore } from "../TiebaCore";
 import { TiebaData } from "../home/data";
 import { LoadingView } from "@/utils/LoadingView";

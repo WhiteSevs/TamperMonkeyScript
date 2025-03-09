@@ -1,11 +1,11 @@
 import { $$, DOMUtils, log, pops, utils } from "@/env";
-import { UIInput } from "@/setting/common-components/ui-input";
-import { UISwitch } from "@/setting/common-components/ui-switch";
+import { UIInput } from "@/setting/components/ui-input";
+import { UISwitch } from "@/setting/components/ui-switch";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "@/setting/config";
+} from "@/setting/panel-config";
 import { RuleView } from "@/utils/RuleView";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";

@@ -1,6 +1,6 @@
 import { OriginPrototype, log } from "@/env";
 import { BaiduHook } from "@/hook/BaiduHook";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 /**
  * 处理劫持

@@ -1,6 +1,6 @@
 import { addStyle, log } from "@/env";
 import MbdShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { BaiduMbdHook } from "./MbdHook";
 import { CommonUtil } from "@/utils/CommonUtil";
 

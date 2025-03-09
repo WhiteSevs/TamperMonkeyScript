@@ -1,6 +1,6 @@
 import { $, $$, DOMUtils, addStyle, log } from "@/env";
 import ZhiDaoShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduZhiDao = {

@@ -1,5 +1,5 @@
 import { addStyle, log } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import BaiJiaHaoShieldCSS from "./shield.css?raw";
 import { BaiJiaHaoHook } from "./BaiJiaHaoHook";
 import { CommonUtil } from "@/utils/CommonUtil";

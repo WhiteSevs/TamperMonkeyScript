@@ -1,5 +1,5 @@
 import { $$, DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
 import { BaiduSearchBlockRule } from "./SearchBlockRule";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";

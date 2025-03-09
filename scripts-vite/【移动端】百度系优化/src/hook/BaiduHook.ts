@@ -1,7 +1,7 @@
 import { unsafeWindow } from "ViteGM";
 import { BaiduData } from "@/main/BaiduData";
 import { DOMUtils, OriginPrototype, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 type BaiduHookFunctionApplyMode = "copy" | "scheme";
 type BaiduHookFunctionCallMode = "baijiahao_invoke" | "map";

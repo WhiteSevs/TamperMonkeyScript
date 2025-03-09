@@ -15,7 +15,7 @@ import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
-import { PopsPanel } from "./setting/setting";
+import { PopsPanel } from "./setting/panel";
 import pops from "@whitesev/pops";
 import { CommonUtil } from "./utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";

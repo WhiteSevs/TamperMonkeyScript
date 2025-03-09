@@ -1,5 +1,5 @@
 import { $$, addStyle, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";

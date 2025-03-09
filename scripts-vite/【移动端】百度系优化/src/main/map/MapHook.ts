@@ -1,6 +1,6 @@
 import { addStyle, DOMUtils, log } from "@/env";
 import { BaiduHook } from "@/hook/BaiduHook";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import blockCSS from "./shield.css?raw";
 
 export const BaiduMapHook = {

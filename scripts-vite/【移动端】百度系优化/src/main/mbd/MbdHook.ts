@@ -1,7 +1,7 @@
 import { unsafeWindow } from "ViteGM";
 import { OriginPrototype, log } from "@/env";
 import { BaiduHook } from "@/hook/BaiduHook";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 const BaiduMbdHook = {
 	init() {

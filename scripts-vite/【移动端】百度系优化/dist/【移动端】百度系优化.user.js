@@ -1938,9 +1938,9 @@ match-attr##srcid##sp_purc_atom
       if (!url.startsWith("http://")) {
         return url;
       }
-      let urlObj = new URL(url);
-      urlObj.protocol = "https:";
-      return urlObj.toString();
+      let urlInstance = new URL(url);
+      urlInstance.protocol = "https:";
+      return urlInstance.toString();
     }
   };
   const TiebaPCApi = {
@@ -2746,7 +2746,6 @@ match-attr##srcid##sp_purc_atom
     /**
      * 获取vue2实例
      * @param element
-     * @returns
      */
     getVue(element) {
       if (element == null) {
@@ -2757,7 +2756,6 @@ match-attr##srcid##sp_purc_atom
     /**
      * 获取vue3实例
      * @param element
-     * @returns
      */
     getVue3(element) {
       if (element == null) {
@@ -2799,7 +2797,7 @@ match-attr##srcid##sp_purc_atom
           if (vueInstance == null) {
             return false;
           }
-          let needOwnCheck = needSetOption.check(vueInstance);
+          let needOwnCheck = needSetOption.check(vueInstance, target);
           return Boolean(needOwnCheck);
         }
         utils.waitVueByInterval(
@@ -2824,7 +2822,7 @@ match-attr##srcid##sp_purc_atom
             }
             return;
           }
-          needSetOption.set(vueInstance);
+          needSetOption.set(vueInstance, target);
         });
       });
     },
@@ -2888,12 +2886,12 @@ match-attr##srcid##sp_purc_atom
         log.error("跳转Url: $vueNode为空：" + path);
         return;
       }
-      let vueObj = VueUtils.getVue($vueNode);
-      if (vueObj == null) {
+      let vueInstance = VueUtils.getVue($vueNode);
+      if (vueInstance == null) {
         Qmsg.error("获取vue属性失败", { consoleLogContent: true });
         return;
       }
-      let $router = vueObj.$router;
+      let $router = vueInstance.$router;
       let isBlank = true;
       log.info("即将跳转URL：" + path);
       if (useRouter) {

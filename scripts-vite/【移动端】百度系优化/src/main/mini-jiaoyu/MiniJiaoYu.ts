@@ -1,6 +1,6 @@
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import MiniJiaoYuShieldCSS from "./shield.css?raw";
 
 const BaiduMiniJiaoYu = {

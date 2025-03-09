@@ -1,5 +1,5 @@
 import { httpx, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import md5 from "md5";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";

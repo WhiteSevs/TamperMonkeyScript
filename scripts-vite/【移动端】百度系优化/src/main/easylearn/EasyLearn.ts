@@ -1,6 +1,6 @@
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { CommonUtil } from "@/utils/CommonUtil";
 import EasyLearnShieldCSS from "./shield.css?raw";
 import { VueUtils } from "@/utils/VueUtils";

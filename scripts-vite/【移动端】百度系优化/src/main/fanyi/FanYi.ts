@@ -1,6 +1,6 @@
 import { addStyle, log, utils } from "@/env";
 import FanYiShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduFanYi = {

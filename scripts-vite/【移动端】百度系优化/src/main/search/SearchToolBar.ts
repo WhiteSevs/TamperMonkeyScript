@@ -1,6 +1,6 @@
 import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
 import searchToolBarCSS from "./search-toolbar.css?raw";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { GestureBack } from "@/utils/GestureBack";
 
 export const BaiduSearchToolBar = {

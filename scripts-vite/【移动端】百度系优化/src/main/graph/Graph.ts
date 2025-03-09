@@ -1,5 +1,5 @@
 import { $, DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { BaiduGraphApi } from "./GraphApi";
 import GraphShieldCSS from "./shield.css?raw";
 

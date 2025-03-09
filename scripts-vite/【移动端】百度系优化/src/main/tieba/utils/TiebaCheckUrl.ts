@@ -1,5 +1,5 @@
 import { log } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import Qmsg from "qmsg";
 
 export const TiebaCheckUrl = {

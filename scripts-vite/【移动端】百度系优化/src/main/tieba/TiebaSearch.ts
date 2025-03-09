@@ -1,5 +1,5 @@
 import { $, DOMUtils, addStyle, httpx, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { LoadingView } from "@/utils/LoadingView";
 import { TiebaCore } from "./TiebaCore";
 import Qmsg from "qmsg";

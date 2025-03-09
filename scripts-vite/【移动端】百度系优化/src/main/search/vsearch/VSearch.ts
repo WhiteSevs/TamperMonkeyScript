@@ -1,6 +1,6 @@
 import { DOMUtils, log, utils } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { VueUtils } from "@/utils/VueUtils";
 import { unsafeWindow } from "ViteGM";
 

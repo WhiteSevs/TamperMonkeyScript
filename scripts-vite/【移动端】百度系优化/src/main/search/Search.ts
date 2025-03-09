@@ -1,6 +1,6 @@
 import { DOMUtils, log, utils, addStyle } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import SearchShieldCSS from "./shield.css?raw";
 import { BaiduHeadlth } from "./bh/SearchHealth";
 import { BaiduSearchHook } from "./SearchHook";

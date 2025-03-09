@@ -1,5 +1,5 @@
 import { $, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 export const SearchHandleResultEveryOneSearch = {
 	/**

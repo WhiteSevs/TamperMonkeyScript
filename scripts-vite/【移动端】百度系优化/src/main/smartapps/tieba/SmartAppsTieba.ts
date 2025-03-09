@@ -1,6 +1,6 @@
 import { addStyle, log, utils } from "@/env";
 import blockCSS from "./css/block.css?raw";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import DOMUtils from "@whitesev/domutils";
 
 export const SmartAppsTieba = {

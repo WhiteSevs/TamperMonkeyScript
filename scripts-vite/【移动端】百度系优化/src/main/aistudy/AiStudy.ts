@@ -1,6 +1,6 @@
 import { addStyle, log } from "@/env";
 import AiStudyShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 const BaiduAiStudy = {

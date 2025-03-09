@@ -1,5 +1,5 @@
 import { addStyle, log } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import SearchHomeShieldCSS from "./shield.css?raw";
 import SearchHomeMinificationShieldCSS from "./minificationShield.css?raw";
 

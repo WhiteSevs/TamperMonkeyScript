@@ -1,7 +1,7 @@
 import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { VueUtils } from "@/utils/VueUtils";
 import Qmsg from "qmsg";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { TiebaUniAppComment } from "./TiebaUniAppComment";
 import { TiebaPostApi } from "../api/TiebaPostApi";

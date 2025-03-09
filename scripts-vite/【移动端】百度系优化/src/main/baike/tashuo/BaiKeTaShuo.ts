@@ -1,5 +1,5 @@
 import { addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import BaiKeTaShuoShieldCSS from "./shield.css?raw";
 
 const BaiduBaiKeTaShuo = {
