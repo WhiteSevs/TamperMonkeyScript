@@ -48,7 +48,7 @@ export const BilibiliComponentDetection = {
 				width: fit-content;
 				background: #574AB830;
 				border-radius: 8px;
-				margin: 0 0 0 6px;
+				margin: 0 6px 0 6px;
 				font-family: PingFang SC, HarmonyOS_Regular, Helvetica Neue, Microsoft YaHei, sans-serif;
 			}
 
@@ -120,15 +120,26 @@ export const BilibiliComponentDetection = {
 					($replyItem) => {
 						$replyItem.setAttribute("data-is-inject-search-label", "");
 						let $floorTime =
-							$replyItem.querySelector<HTMLElement>(".info .floor-time")!;
+							$replyItem.querySelector<HTMLElement>(".info .floor-time")! ||
+							$replyItem.querySelector<HTMLElement>(".content-warp .user-info");
 						let { $container, $compositionNameControl } =
 							this.createSearchButton(() => {
-								let vueIns = VueUtils.getVue($replyItem);
+								// let vueIns = VueUtils.getVue($replyItem);
 
-								if (!vueIns) {
-									throw new TypeError("获取vue属性失败");
+								// if (!vueIns) {
+								// 	throw new TypeError("获取vue属性失败");
+								// }
+								// let mid: null | number = vueIns.info.mid;
+								// if (mid == null) {
+								// 	throw new TypeError("获取mid失败");
+								// }
+								let $userName = $replyItem.querySelector<HTMLElement>(
+									".user-name[data-user-id]"
+								);
+								if (!$userName) {
+									throw new TypeError("获取用户名元素失败");
 								}
-								let mid: null | number = vueIns.info.mid;
+								let mid = $userName.getAttribute("data-user-id");
 								if (mid == null) {
 									throw new TypeError("获取mid失败");
 								}
@@ -138,15 +149,29 @@ export const BilibiliComponentDetection = {
 					}
 				);
 				// 评论内容里面的@别人的
-				$$<HTMLElement>(
-					".reply-item .member-link[data-url]:not([data-is-inject-search-label])"
-				).forEach(($memberLink) => {
+				[
+					...Array.from(
+						$$<HTMLElement>(
+							".reply-item .member-link[data-url]:not([data-is-inject-search-label])"
+						)
+					),
+					...Array.from(
+						$$<HTMLElement>(
+							".reply-item .jump-link.user[data-user-id]:not([data-is-inject-search-label])"
+						)
+					),
+					...Array.from(
+						$$<HTMLElement>(
+							".reply-item .sub-user-name[data-user-id]:not([data-is-inject-search-label])"
+						)
+					),
+				].forEach(($memberLink) => {
 					$memberLink.setAttribute("data-is-inject-search-label", "");
 					let {
 						$container: $memberContainer,
 						$compositionNameControl: $memberCompositionNameControl,
 					} = this.createSearchButton(() => {
-						let spaceUrl = $memberLink.getAttribute("data-url")!;
+						let spaceUrl = $memberLink.getAttribute("href")!;
 						let mid = spaceUrl.match(/space.bilibili.com\/([\d]+)/i)?.[1];
 						if (mid == null) {
 							throw new TypeError("获取mid失败");
@@ -405,6 +430,13 @@ export const BilibiliComponentDetection = {
 			$compositionCheckable.setAttribute("data-is-searching", "");
 			DOMUtils.html($compositionNameControl, "...");
 			try {
+				if (BilibiliComponentDetectionRule.$data.ruleData.length === 0) {
+					// 没有规则
+					Qmsg.warning("未配置规则，请在设置中进行添加");
+					// 重置状态为搜索图标
+					DOMUtils.html($compositionNameControl, this.$data.searchIcon);
+					return;
+				}
 				let mid = queryMIDFn();
 				this.clearLabel($compositionCheckable);
 				let userInfo = await this.queryUserInfo(mid);
