@@ -111,6 +111,34 @@ export const BilibiliUtils = {
 		}
 	},
 	/**
+	 * 转换显示的文本
+	 *
+	 * 如：播放量、弹幕量、点赞、投币、收藏、转发
+	 *
+	 * 播放量：114514
+	 * 
+	 * ↓
+	 * 
+	 * 播放量：114.5万
+	 */
+	parseCount(count: number) {
+		let countText = count.toString();
+		if (count > 10000) {
+			let roundNum = (count / 10000).toFixed(2).slice(0, -1);
+			if (roundNum.endsWith(".0")) {
+				roundNum = roundNum.slice(0, -2);
+			}
+			countText = `${roundNum}万`;
+		} else if (count > 10000 * 10000) {
+			let roundNum = (count / (10000 * 10000)).toFixed(2).slice(0, -1);
+			if (roundNum.endsWith(".0")) {
+				roundNum = roundNum.slice(0, -2);
+			}
+			countText = `${roundNum}亿`;
+		}
+		return countText;
+	},
+	/**
 	 * 手势返回
 	 */
 	hookGestureReturnByVueRouter(option: {
