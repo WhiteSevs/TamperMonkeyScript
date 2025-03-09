@@ -2,18 +2,18 @@ import { RuleView } from "@/utils/RuleView";
 import { WebsiteRuleStorage } from "./WebsiteRuleStorage";
 import type { WebsiteRuleOption } from "./WebsiteRuleType";
 import { log, pops, utils } from "@/env";
-import { UISwitch } from "@/setting/common-components/ui-switch";
+import { UISwitch } from "@/setting/components/ui-switch";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "@/setting/config";
-import { UIInput } from "@/setting/common-components/ui-input";
-import { UIButton } from "@/setting/common-components/ui-button";
+} from "@/setting/panel-config";
+import { UIInput } from "@/setting/components/ui-input";
+import { UIButton } from "@/setting/components/ui-button";
 import Qmsg from "qmsg";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { NetDiskPops } from "../pops/NetDiskPops";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { NetDiskRule } from "../rule/NetDiskRule";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import {

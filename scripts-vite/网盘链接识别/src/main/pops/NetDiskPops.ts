@@ -9,7 +9,7 @@ import { PopsFolderDetails } from "@whitesev/pops/dist/types/src/components/fold
 import { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/indexType";
 import { PopsPromptDetails } from "@whitesev/pops/dist/types/src/components/prompt/indexType";
 import { PopsAnimation } from "@whitesev/pops/dist/types/src/types/animation";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { PopsRightClickMenuDetails } from "@whitesev/pops/dist/types/src/components/rightClickMenu/indexType";
 

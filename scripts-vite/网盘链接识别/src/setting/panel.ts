@@ -5,15 +5,15 @@ import {
 	ATTRIBUTE_INIT_MORE_VALUE,
 	ATTRIBUTE_KEY,
 	KEY,
-} from "@/setting/config";
+} from "@/setting/panel-config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import {
+import type {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { PanelUI_allSetting } from "./components/all-setting";
+import { PanelUI_allSetting } from "./view/all-setting";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskRule } from "@/main/rule/NetDiskRule";
 import { NetDiskUserRuleUI } from "@/main/rule/user-rule/NetDiskUserRuleUI";

@@ -1,5 +1,5 @@
 import { NetDiskRuleConfig, NetDiskRuleSetting } from "../../NetDiskRule";
-import { UIInput } from "@/setting/common-components/ui-input";
+import { UIInput } from "@/setting/components/ui-input";
 import { NetDiskParse_Lanzou_Config } from "./parse";
 
 export const NetDiskRule_lanzou = (): NetDiskRuleConfig => {

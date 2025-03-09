@@ -6,7 +6,7 @@ import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskUI } from "../../ui/NetDiskUI";
 import { NetDiskView } from "../NetDiskView";
 import indexCSS from "./index.css?raw";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 export const NetDiskHistoryMatchView = {
 	/**

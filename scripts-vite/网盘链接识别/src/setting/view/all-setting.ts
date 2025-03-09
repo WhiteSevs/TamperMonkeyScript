@@ -1,15 +1,15 @@
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISelect } from "../common-components/ui-select";
-import { UISwitch } from "../common-components/ui-switch";
+import { UISelect } from "../components/ui-select";
+import { UISwitch } from "../components/ui-switch";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
-import { UISlider } from "../common-components/ui-slider";
+import { UISlider } from "../components/ui-slider";
 import { DOMUtils, utils } from "@/env";
 import Qmsg from "qmsg";
-import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
+import { UIButtonShortCut } from "../components/ui-button-shortcut";
 import { NetDiskShortcut } from "@/main/shortcut/NetDiskShortcut";
-import { UIButton } from "../common-components/ui-button";
-import { UISelectMultiple } from "../common-components/ui-select-multiple";
+import { UIButton } from "../components/ui-button";
+import { UISelectMultiple } from "../components/ui-select-multiple";
 
 export const PanelUI_allSetting: PopsPanelContentConfig = {
 	id: "netdisk-panel-config-all-setting",

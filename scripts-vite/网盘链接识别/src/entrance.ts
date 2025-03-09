@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { NetDisk } from "@/main/NetDisk";
 import { NetDiskRule } from "./main/rule/NetDiskRule";
 import { NetDiskUI } from "./main/ui/NetDiskUI";

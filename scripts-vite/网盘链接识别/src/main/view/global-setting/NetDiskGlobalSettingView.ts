@@ -1,7 +1,7 @@
 import { DOMUtils, log, SCRIPT_NAME } from "@/env";
 import { NetDiskUI } from "../../ui/NetDiskUI";
 import Qmsg from "qmsg";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { NetDiskUserRule } from "@/main/rule/user-rule/NetDiskUserRule";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { GM_info } from "ViteGM";

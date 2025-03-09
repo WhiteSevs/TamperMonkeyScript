@@ -4,7 +4,7 @@ import {
 	ATTRIBUTE_KEY,
 	KEY,
 	PROPS_STORAGE_API,
-} from "../config";
+} from "../panel-config";
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 /**

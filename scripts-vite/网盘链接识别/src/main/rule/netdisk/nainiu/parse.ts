@@ -6,6 +6,7 @@ import { NetDiskParseObject } from "../../../parse/NetDiskParseObject";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { NetDiskCommonUtils } from "@/utils/NetDiskCommonUtils";
 
 export class NetDiskParse_nainiu extends NetDiskParseObject {
 	panelList = [];
@@ -459,7 +460,7 @@ export class NetDiskParse_nainiu extends NetDiskParseObject {
 			window.open(downloadUrl, "_blank");
 			return;
 		}
-		if (!CommonUtil.isSupport_GM_download()) {
+		if (!NetDiskCommonUtils.isSupport_GM_download()) {
 			Qmsg.error("当前脚本环境不支持API 【GM_download】");
 			return;
 		}

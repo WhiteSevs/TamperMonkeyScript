@@ -3,7 +3,7 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "../config";
+} from "../panel-config";
 import { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/selectMultipleType";
 import { log } from "@/env";
 import type { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/indexType";
