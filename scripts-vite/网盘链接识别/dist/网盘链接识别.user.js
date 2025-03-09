@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.3.8
+// @version      2025.3.9
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -66,7 +66,6 @@
 // @connect      sharepoint.com
 // @grant        GM_deleteValue
 // @grant        GM_download
-// @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_openInTab
@@ -87,7 +86,6 @@
   var _a;
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_openInTab = /* @__PURE__ */ (() => typeof GM_openInTab != "undefined" ? GM_openInTab : void 0)();
@@ -5956,131 +5954,7 @@
       );
     }
   }
-  const CommonUtil = {
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-      if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
-      } else {
-        CommonUtil.loadStyleLink(resourceMapData.url);
-      }
-    },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
-      let $link = document.createElement("link");
-      $link.rel = "stylesheet";
-      $link.type = "text/css";
-      $link.href = url;
-      domUtils.ready(() => {
-        document.head.appendChild($link);
-      });
-    },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
-      let $script = document.createElement("script");
-      $script.src = url;
-      return new Promise((resolve) => {
-        $script.onload = () => {
-          resolve(null);
-        };
-        (document.head || document.documentElement).appendChild($script);
-      });
-    },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
-      url = url.trim();
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
-        url = window.location.origin + url;
-        return url;
-      }
-    },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
-      let urlObj = new URL(url);
-      urlObj.protocol = "https:";
-      return urlObj.toString();
-    },
+  const NetDiskCommonUtils = {
     /**
      * 测试是否支持GM_download
      */
@@ -6515,7 +6389,7 @@
         window.open(downloadUrl, "_blank");
         return;
       }
-      if (!CommonUtil.isSupport_GM_download()) {
+      if (!NetDiskCommonUtils.isSupport_GM_download()) {
         Qmsg.error("当前脚本环境不支持API 【GM_download】");
         return;
       }
@@ -7150,7 +7024,7 @@
         window.open(downloadUrl, "_blank");
         return;
       }
-      if (!CommonUtil.isSupport_GM_download()) {
+      if (!NetDiskCommonUtils.isSupport_GM_download()) {
         Qmsg.error("当前脚本环境不支持API 【GM_download】");
         return;
       }
@@ -13020,6 +12894,7 @@
                   `
 							<div style="padding: 10px;gap: 10px;display: flex;flex-direction: column;">
 								<p>链接：${data.url}</p>
+								<p>来源：${PopsPanel.isTopWindow() ? "top" : "iframe"}</p>
 								<p>原因：初始化Worker失败，可能页面使用了Content-Security-Policy策略，执行匹配时如果页面的内容过大会导致页面卡死，请使用Menu模式进行匹配或者使用CSP插件禁用CSP策略（不建议）。</p>
 								<p>
 									错误信息：
@@ -16773,7 +16648,7 @@
     },
     setTimeout: _unsafeWindow.setTimeout
   });
-  const addStyle = utils.addStyle.bind(utils);
+  utils.addStyle.bind(utils);
   const $ = document.querySelector.bind(document);
   const $$ = document.querySelectorAll.bind(document);
   const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {

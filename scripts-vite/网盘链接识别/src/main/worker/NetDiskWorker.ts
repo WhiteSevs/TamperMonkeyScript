@@ -12,7 +12,7 @@ import { CharacterMapping } from "../character-mapping/CharacterMapping";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { NetDiskPops } from "../pops/NetDiskPops";
 import { WebsiteRule } from "../website-rule/WebsiteRule";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import Qmsg from "qmsg";
 
 /** Woker */
@@ -276,6 +276,7 @@ export const NetDiskWorker = {
 							text: /*html*/ `
 							<div style="padding: 10px;gap: 10px;display: flex;flex-direction: column;">
 								<p>链接：${data.url}</p>
+								<p>来源：${PopsPanel.isTopWindow() ? "top" : "iframe"}</p>
 								<p>原因：初始化Worker失败，可能页面使用了Content-Security-Policy策略，执行匹配时如果页面的内容过大会导致页面卡死，请使用Menu模式进行匹配或者使用CSP插件禁用CSP策略（不建议）。</p>
 								<p>
 									错误信息：
