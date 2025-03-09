@@ -45,13 +45,18 @@ export class ArtPlayerDanmakuOptionHelper {
 	getLocalArtDanmakuOption() {
 		return this.$data.localArtDanmakuOption;
 	}
+	/**
+	 * 监听配置项的改变
+	 */
 	onConfigChange(art: Artplayer) {
 		art.on(
 			// @ts-ignore
 			"artplayerPluginDanmuku:config",
 			(option: ArtPlayerDanmakuOption) => {
 				// 更新配置值
-				console.log(TAG + "更新配置项", option);
+				if (import.meta.env.DEV) {
+					console.log(TAG + "更新配置项", option);
+				}
 				Object.keys(this.$data.localArtDanmakuOption).forEach((key) => {
 					if (Reflect.has(option, key)) {
 						let value = Reflect.get(option, key);
