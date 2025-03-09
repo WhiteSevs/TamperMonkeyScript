@@ -19,7 +19,13 @@ div#app div.guid-new,
 /* 精彩推荐右边的 打开APP看更多精彩推荐 */
 div[class*="relateTitle"] span[class*="subTitle"],
 /* 会自动在上面弹出的【百度热榜】 */
-#page_wrapper div:has(>div[class*="leftbox"]) {
+#page_wrapper div:has(>div[class*="leftbox"]),
+/* dtlandingwise 右上角 App内打开 */
+.fusionWrapper > [class^="fusionTopGuid_"] > [class^="button_"],
+/* dtlandingwise 底部 精彩推荐 右边的 打开APP看更多精彩推荐 */
+.fusionWrapper [class^="recoConatainer_"] > [class^="titleBar_"] [class^="right_"] > span:first-child,
+/* landingsuper 文章内容的展开的蒙板 */
+#mainContentContainer .oPadding {
 	display: none !important;
 }
 /* 展开阅读 */

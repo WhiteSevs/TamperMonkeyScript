@@ -9,7 +9,7 @@ const BaiduMbd = {
 		/* 
 		示例
 		https://mbd.baidu.com/newspage/data/landingsuper?isBdboxFrom=1&pageType=1&context=%7B%22nid%22%3A%22news_8924612668430208297%22,%22sourceFrom%22%3A%22bjh%22%7D
-		https://mbd.baidu.com/newspage/data/dtlandingshare?sourceFrom=share_ugc&nid=dt_5121203594593120342
+		https://mbd.baidu.com/newspage/data/dtlandingwise?sourceFrom=share_ugc&nid=dt_3556283486523760921
 		*/
 		addStyle(MbdShieldCSS);
 		log.info("插入CSS规则");
@@ -37,6 +37,8 @@ const BaiduMbd = {
 	},
 	/**
 	 * 屏蔽最热推荐
+	 *
+	 * 精彩推荐
 	 */
 	blockExcitingRecommendations() {
 		log.info("屏蔽最热推荐");
@@ -48,7 +50,8 @@ const BaiduMbd = {
 				/* 精彩推荐的文字 */
 				"#content_wrapper + div + div",
 				/* 简单UA下精彩推荐的文字 */
-				"#page_wrapper .searchCraft #content_wrapper + div"
+				"#page_wrapper .searchCraft #content_wrapper + div",
+				'.fusionWrapper [class^="reco_"]:has(>[class^="recoConatainer_"])'
 			),
 			CommonUtil.addBlockCSS(
 				/* Gecko下的简单UA下精彩推荐 */
