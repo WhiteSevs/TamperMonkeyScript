@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.8
+// @version      2025.3.9
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -7275,6 +7275,9 @@
           `
             <div class="art-player-video-statistics">
                 <style>
+					.art-layer-video-statistics{
+						height: fit-content;
+					}
                     .art-player-video-statistics{
                         left: var(--art-padding);
                         top: var(--art-padding);
@@ -9973,6 +9976,7 @@
      * 新增简介模块
      */
     addDescModule() {
+      log.info(`新增简介模块`);
       if (!this.$data.isInitDescModule) {
         this.$data.isInitDescModule = true;
         addStyle(
@@ -10040,7 +10044,6 @@
       VueUtils.waitVuePropToSet(
         BilibiliData.className.mVideo + "  .m-video-info .bottom-wrapper",
         {
-          msg: "新增简介模块",
           check(vueInstance) {
             var _a2;
             return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.info) == null ? void 0 : _a2.bvid) === "string";

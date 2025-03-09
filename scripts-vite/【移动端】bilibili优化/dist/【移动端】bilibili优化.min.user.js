@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.8
+// @version      2025.3.9
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -492,6 +492,9 @@
                 `.trim(),this.art.proxy(t,"click",n=>{n.stopPropagation(),n.stopImmediatePropagation(),n.preventDefault(),this.art.setting.show=false,this.isRegisterLayer()?this.updateLayer():this.showLayer(true);},{capture:true});}});}getLayerOption(){var m;let t,r,n,i={key:"Resolution:",value:`${this.art.video.videoWidth} x ${this.art.video.videoHeight}`},a,o,l,s=this.art.plugins[Me];if(s){let g=s.getCurrentQualityOption();g&&(t={key:"Mime Type:",value:`${g.mimeType}`},g.codecs.trim()!==""&&(t.value+=`;codecs="${g.codecs}"`),g.frameRate.trim()!==""&&(i.value+="@"+g.frameRate),g.bandwidth&&(a={key:"Video DataRate:",value:(g.bandwidth/1024).toFixed(0)+"Kbps"}));}let p=this.art.plugins[ot];if(p){let g=p.getCurrentPlayConfig();g&&(r={key:"Audio Host:",value:new URL(g.url).host},n={key:"Audio Time:",value:p.getAudio().currentTime.toString()},t&&(t.value.trim()!==""&&(t.value+=", "),t.value+=`${g.mimeType}`,g.codecs.trim()!==""&&(t.value+=`;codecs="${g.codecs}"`)),o={key:"Audio DataRate:",value:(g.bandwidth/1024).toFixed(0)+"Kbps"},l={key:"Audio Duration:",value:p.getAudio().duration.toString()});}let c=[t,{key:"Player Type",value:"ArtPlayer@"+it.version},i,a,o,{key:"Video Host:",value:new URL(this.art.url).host},r,{key:"Video Time:",value:this.art.currentTime.toString()},n,{key:"Video Duration:",value:this.art.duration.toString()},l];return c.push(...((m=this==null?void 0:this.option)==null?void 0:m.data)||[]),{name:this.$key.setting_name,html:`
             <div class="art-player-video-statistics">
                 <style>
+					.art-layer-video-statistics{
+						height: fit-content;
+					}
                     .art-player-video-statistics{
                         left: var(--art-padding);
                         top: var(--art-padding);
@@ -4737,7 +4740,7 @@
 				border-radius: 4px;
 				background-color: var(--bili-color);
 			}
-		`),d.waitNode(".m-video-info",1e4).then(e=>{if(!e){u.error("获取视频信息元素失败");return}const t="comment-module";let r=new qr({hash:t,useUrl:true,beforeHistoryBackCallBack(o){let l=K(".viewer-button.viewer-close");l&&l.click(),o&&i.click();}}),n=h.createElement("div",{className:"comment-module-show-btn",innerHTML:"查看评论"}),i=h.createElement("span",{className:"close-comment-module-btn",innerHTML:"×"});h.on(n,"click",o=>{d.preventEvent(o),h.css(a,{display:"block"}),h.css(i,{display:"flex"}),r.enterGestureBackMode();}),h.on(i,"click",o=>{d.preventEvent(o),h.css(a,{display:""}),h.css(i,{display:""}),r.quitGestureBackMode(false);}),h.append(e,n);let a=h.createElement("div",{id:"comment-module-wrapper"});h.append(document.body,a),h.after(a,i),vt.init(a);});},addDescModule(){this.$data.isInitDescModule||(this.$data.isInitDescModule=true,P(`
+		`),d.waitNode(".m-video-info",1e4).then(e=>{if(!e){u.error("获取视频信息元素失败");return}const t="comment-module";let r=new qr({hash:t,useUrl:true,beforeHistoryBackCallBack(o){let l=K(".viewer-button.viewer-close");l&&l.click(),o&&i.click();}}),n=h.createElement("div",{className:"comment-module-show-btn",innerHTML:"查看评论"}),i=h.createElement("span",{className:"close-comment-module-btn",innerHTML:"×"});h.on(n,"click",o=>{d.preventEvent(o),h.css(a,{display:"block"}),h.css(i,{display:"flex"}),r.enterGestureBackMode();}),h.on(i,"click",o=>{d.preventEvent(o),h.css(a,{display:""}),h.css(i,{display:""}),r.quitGestureBackMode(false);}),h.append(e,n);let a=h.createElement("div",{id:"comment-module-wrapper"});h.append(document.body,a),h.after(a,i),vt.init(a);});},addDescModule(){u.info("新增简介模块"),this.$data.isInitDescModule||(this.$data.isInitDescModule=true,P(`
 				${x.className.mVideo} .m-video-info .bottom-wrapper{
 					flex-direction: column;
 					align-items: flex-start;
@@ -4787,7 +4790,7 @@
 					}
 				}
 	
-			`)),h.remove(x.className.mVideo+"  .m-video-info .video-desc-wrapper"),T.waitVuePropToSet(x.className.mVideo+"  .m-video-info .bottom-wrapper",{msg:"新增简介模块",check(e){var t;return typeof((t=e==null?void 0:e.info)==null?void 0:t.bvid)=="string"},set(e,t){let r=e.info,n=e.upInfo;n.follower,n.archive_count;let i=r.stat.view,a=r.stat.danmaku;r.ctime;let o=r.bvid,l=r.desc,s=r.stat.like,p=r.stat.coin,c=r.stat.favorite,m=r.stat.share,g=h.createElement("div",{className:"video-desc-wrapper",innerHTML:`
+			`)),h.remove(x.className.mVideo+"  .m-video-info .video-desc-wrapper"),T.waitVuePropToSet(x.className.mVideo+"  .m-video-info .bottom-wrapper",{check(e){var t;return typeof((t=e==null?void 0:e.info)==null?void 0:t.bvid)=="string"},set(e,t){let r=e.info,n=e.upInfo;n.follower,n.archive_count;let i=r.stat.view,a=r.stat.danmaku;r.ctime;let o=r.bvid,l=r.desc,s=r.stat.like,p=r.stat.coin,c=r.stat.favorite,m=r.stat.share,g=h.createElement("div",{className:"video-desc-wrapper",innerHTML:`
 							<div class="video-view-info-wrapper">
 								<div class="video-info-icon">
 									<svg
