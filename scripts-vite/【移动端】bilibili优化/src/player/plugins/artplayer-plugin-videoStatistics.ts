@@ -202,6 +202,9 @@ class VideoStatistics {
 			html: /*html*/ `
             <div class="art-player-video-statistics">
                 <style>
+					.art-layer-video-statistics{
+						height: fit-content;
+					}
                     .art-player-video-statistics{
                         left: var(--art-padding);
                         top: var(--art-padding);
@@ -261,6 +264,12 @@ class VideoStatistics {
                             width: 70vw;
                         }
                     }
+					@media (orientation: portrait){
+						.art-player-video-statistics{
+							width: calc(100% - var(--art-padding));
+							right: var(--art-padding);
+						}
+					}
                 </style>
                 <div class="art-player-video-statistics-container-title">
                     统计信息
