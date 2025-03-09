@@ -11,9 +11,9 @@ import IconsResolver from "unplugin-icons/dist/resolver";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
-import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
+
 const Utils = new ViteUtils(__dirname);
 const pkg = Utils.getPackageJSON();
 /**
@@ -30,7 +30,6 @@ const SCRIPT_NAME = "【移动端】bilibili优化";
  * + true 启用vue插件
  */
 const isVueProject = false;
-
 // 油猴插件配置
 const MonkeyOption: Partial<__MonkeyOption__> = {
 	userscript: {
@@ -61,30 +60,36 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 		require: [...(await GetLib(["QRCode"]))],
 		// 资源引用
 		resource: {
-			// ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
+			ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
 		},
 	},
 	build: {
 		// import库的文件映射
 		externalGlobals: {
-			// viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
+			viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
 			md5: cdn.jsdelivrFastly("MD5", "dist/md5.min.js"),
 			"flv.js": cdn.jsdelivrFastly("MD5", "dist/flv.js"),
+			artplayer: cdn.jsdelivrFastly("Artplayer", "dist/artplayer.js"),
+			// artplayer: [
+			// 	`Artplayer`,
+			// 	await viteUtils.getGitHubLibLatestVersionUrl(
+			// 		"WhiteSevs/ArtPlayer",
+			// 		"master",
+			// 		"/packages/artplayer/dist/artplayer.js"
+			// 	),
+			// ],
 			// "artplayer-plugin-danmuku": cdn.jsdelivrFastly(
 			// 	"artplayerPluginDanmuku",
 			// 	"dist/artplayer-plugin-danmuku.js"
 			// ),
-			artplayer: cdn.jsdelivrFastly("Artplayer", "dist/artplayer.js"),
 			"artplayer-plugin-danmuku": [
 				"artplayerPluginDanmuku",
-				() =>
-					`https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@aca6fb3795ea03b9614cd32613e2588e60470524/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js`,
+				await viteUtils.getGitHubLibLatestVersionUrl(
+					"WhiteSevs/ArtPlayer",
+					"master",
+					"/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js"
+				),
 			],
-			// artplayer: [
-			// 	`Artplayer`,
-			// 	() =>
-			// 		`https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@3cbe20292ddaf3018362944c2e6e06250b463d14/packages/artplayer/dist/artplayer.js`,
-			// ],
 		},
 		// import资源文件的映射
 		externalResource: {
