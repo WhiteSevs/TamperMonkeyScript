@@ -43,9 +43,10 @@ const afterEnterDeepMenuCallBack: PopsPanelDeepMenuDetails["afterEnterDeepMenuCa
 	};
 export const AutoOpenOrClose = {
 	text: /*html*/ `
-        <a href="javascript:;" class="keyboard-oneClickOpen">一键开启</a>
+		<p>注：开启是禁用该快捷键、关闭是不禁用该快捷键</p>
+        <a href="javascript:;" class="keyboard-oneClickOpen">禁用全部快捷键</a>
         <br>
-        <a href="javascript:;" class="keyboard-oneClickClose">一键关闭</a>
+        <a href="javascript:;" class="keyboard-oneClickClose">取消禁用全部快捷键</a>
     `,
 	afterEnterDeepMenuCallBack: afterEnterDeepMenuCallBack,
 };

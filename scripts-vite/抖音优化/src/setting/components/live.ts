@@ -267,7 +267,7 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 				},
 				{
 					type: "deepMenu",
-					text: "快捷键禁用",
+					text: "禁用抖音快捷键",
 					afterEnterDeepMenuCallBack:
 						AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
