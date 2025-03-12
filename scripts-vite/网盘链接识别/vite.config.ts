@@ -94,9 +94,7 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 		// 脚本运行域
 		match: ["*://*/*"],
 		// 引用库
-		require: [
-			...(await GetLib(["JS-分页插件", "网盘链接识别-图标库", "Crypto-JS"])),
-		],
+		require: [...(await GetLib(["网盘链接识别-图标库"]))],
 		// 资源引用
 		resource: {
 			// ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
@@ -106,6 +104,7 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 		// import库的文件映射
 		externalGlobals: {
 			// viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
+			"crypto-js": ["CryptoJS", await GetLib("Crypto-JS")],
 		},
 		// import资源文件的映射
 		externalResource: {

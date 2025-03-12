@@ -17,6 +17,8 @@ import { NetDiskGlobalData } from "./main/data/NetDiskGlobalData";
 import { CommonUtil } from "./utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
 import { createApp } from "vue";
+import CryptoJS from "crypto-js";
+import DataPaging from "@lib/DataPaging/index.esm";
 
 /* 脚本名 */
 const _SCRIPT_NAME_ = "网盘链接识别";
@@ -25,11 +27,8 @@ const isDebug = false;
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
 const __pops = pops;
-const Cryptojs: typeof import("@lib/CryptoJS") =
-	// @ts-ignore
-	CryptoJS ?? window.CryptoJS ?? unsafeWindow.CryptoJS;
-// @ts-ignore
-const __DataPaging: typeof import("@lib/DataPaging") =
+const Cryptojs = CryptoJS ?? window.CryptoJS ?? unsafeWindow.CryptoJS;
+const __DataPaging =
 	// @ts-ignore
 	DataPaging ?? window.DataPaging ?? unsafeWindow.DataPaging;
 const log = new utils.Log(

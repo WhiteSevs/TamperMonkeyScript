@@ -284,6 +284,7 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 							return;
 						}
 						let downloadUrl = await that.getDownloadFileUrl(
+							// @ts-ignore
 							...that.getDownloadFileParams(fileId, userId, uuid)
 						);
 						if (downloadUrl) {
@@ -517,7 +518,7 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 	 * @param userId 用户id
 	 * @param uuid 用户登录生成的uuid
 	 */
-	getDownloadFileParams(fileId: string, userId: string = "", uuid?: string) {
+	getDownloadFileParams(fileId: string, userId: string = "", uuid: string) {
 		const that = this;
 		let nowTime = Date.now();
 		let downloadId = LanZouUtils.encryptHex(fileId + "|" + userId),
@@ -527,7 +528,7 @@ export class NetDiskParse_Lanzouyx extends NetDiskParseObject {
 		return [
 			downloadId,
 			enable,
-			this.$data.devType,
+			that.$data.devType,
 			uuid,
 			timestamp,
 			auth,
