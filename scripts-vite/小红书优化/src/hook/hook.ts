@@ -4,7 +4,7 @@ import { unsafeWindow } from "ViteGM";
 import { Hook } from "./CommonHook";
 
 /* 小红书劫持函数 */
-const XHS_Hook = {
+export const XHS_Hook = {
 	/**
 	 * 劫持webpack
 	 * 笔记的
@@ -137,8 +137,8 @@ const XHS_Hook = {
 	setTimeout() {
 		Hook.setTimeout((fn) => {
 			let fnStr = fn.toString();
-			if (fnStr === "function(){r()}") {
-				log.success("成功劫持setTimeout唤醒");
+			if (fnStr === "function(){r()}" || fnStr === "function(){u()}") {
+				log.success(["成功劫持setTimeout唤醒", fn]);
 				return false;
 			}
 		});
@@ -154,7 +154,7 @@ const XHS_Hook = {
 				Array.isArray(argArray[0]?.trys) &&
 				typeof argArray[0]?.sent === "function"
 			) {
-				log.success(`成功劫持call唤醒`);
+				log.success([`成功劫持call唤醒`, context, thisArg, argArray]);
 				return {
 					argArray: [],
 					context: context,
@@ -164,5 +164,3 @@ const XHS_Hook = {
 		});
 	},
 };
-
-export { XHS_Hook };

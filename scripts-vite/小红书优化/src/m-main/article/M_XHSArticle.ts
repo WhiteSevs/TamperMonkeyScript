@@ -18,6 +18,7 @@ interface CommentDataInfo {
 	create_time: string | number;
 	ip_location: string;
 }
+
 export const M_XHSArticle = {
 	init() {
 		addStyle(blockCSS);
@@ -26,7 +27,7 @@ export const M_XHSArticle = {
 			PopsPanel.getValue("little-red-book-hijack-webpack-scheme")
 		) {
 			log.info("劫持webpack");
-			XHS_Hook.webpackChunkranchi();
+			// XHS_Hook.webpackChunkranchi();
 			XHS_Hook.setTimeout();
 			XHS_Hook.call();
 		}

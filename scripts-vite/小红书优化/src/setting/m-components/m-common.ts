@@ -145,25 +145,25 @@ export const MSettingUI_Common: PopsPanelContentConfig = {
 						},
 					],
 				},
-				{
-					text: "劫持/拦截",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"劫持Vue",
-									"little-red-book-hijack-vue",
-									true,
-									void 0,
-									"恢复__vue__属性"
-								),
-							],
-						},
-					],
-				},
+				// {
+				// 	text: "劫持/拦截",
+				// 	type: "deepMenu",
+				// 	forms: [
+				// 		{
+				// 			text: "",
+				// 			type: "forms",
+				// 			forms: [
+				// 				UISwitch(
+				// 					"劫持Vue",
+				// 					"little-red-book-hijack-vue",
+				// 					true,
+				// 					void 0,
+				// 					"恢复__vue__属性"
+				// 				),
+				// 			],
+				// 		},
+				// 	],
+				// },
 			],
 		},
 	],
