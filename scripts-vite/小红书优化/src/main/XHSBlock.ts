@@ -56,7 +56,7 @@ export const XHSBlock = {
 	blockTopToolbar() {
 		log.info("【屏蔽】顶部工具栏");
 		return [
-			CommonUtil.addBlockCSS("#headerContainer"),
+			CommonUtil.addBlockCSS("#headerContainer", ".header-container"),
 			addStyle(/*css*/ `
 			/* 主内容去除padding */
 			#mfContainer{

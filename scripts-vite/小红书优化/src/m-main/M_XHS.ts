@@ -8,10 +8,10 @@ import { addStyle, log } from "@/env";
 
 export const M_XHS = {
 	init() {
-		PopsPanel.execMenu("little-red-book-hijack-vue", () => {
-			log.info("劫持页面的Vue");
-			XHS_Hook.webPackVue();
-		});
+		// PopsPanel.execMenu("little-red-book-hijack-vue", () => {
+		// 	log.info("劫持页面的Vue");
+		// 	XHS_Hook.webPackVue();
+		// });
 		PopsPanel.execMenuOnce("little-red-book-shieldAd", () => {
 			log.info("注入默认屏蔽CSS");
 			return addStyle(blockCSS);
@@ -34,8 +34,8 @@ export const M_XHS = {
 		log.info("允许复制文字");
 		return addStyle(/*css*/ `
         *{
-            -webkit-user-select: unset;
-            user-select: unset;
+            -webkit-user-select: unset !important;
+            user-select: unset !important;
         }
         `);
 	},

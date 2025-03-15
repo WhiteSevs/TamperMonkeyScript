@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.12
+// @version      2025.3.15
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      edith.xiaohongshu.com
@@ -930,26 +930,26 @@
                 ]
               }
             ]
-          },
-          {
-            text: "劫持/拦截",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "劫持Vue",
-                    "little-red-book-hijack-vue",
-                    true,
-                    void 0,
-                    "恢复__vue__属性"
-                  )
-                ]
-              }
-            ]
           }
+          // {
+          // 	text: "劫持/拦截",
+          // 	type: "deepMenu",
+          // 	forms: [
+          // 		{
+          // 			text: "",
+          // 			type: "forms",
+          // 			forms: [
+          // 				UISwitch(
+          // 					"劫持Vue",
+          // 					"little-red-book-hijack-vue",
+          // 					true,
+          // 					void 0,
+          // 					"恢复__vue__属性"
+          // 				),
+          // 			],
+          // 		},
+          // 	],
+          // },
         ]
       }
     ]
@@ -1476,6 +1476,144 @@
       return configList;
     }
   };
+  const blockCSS$2 = '/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar,\r\n/* 首页-顶部横幅 */\r\n#app .launch-app-container[spm="NewNavBar"],\r\n/* 笔记-顶部横幅 */\r\n.note-view-container .nav-bar-box-expand ,\r\n.note-view-container .nav-bar-box-expand+.placeholder-expand {\r\n	display: none !important;\r\n}\r\n';
+  const ScriptRouter = {
+    /**
+     * 判断是否是笔记页面
+     */
+    isArticle() {
+      return globalThis.location.pathname.startsWith("/discovery/item/") || globalThis.location.pathname.startsWith("/explore/");
+    },
+    /**
+     * 判断是否是用户主页页面
+     */
+    isUserHome() {
+      return globalThis.location.pathname.startsWith("/user/profile/");
+    },
+    /**
+     * 判断是否是主页
+     */
+    isHome() {
+      return globalThis.location.href === "https://www.xiaohongshu.com/" || globalThis.location.href === "https://www.xiaohongshu.com";
+    },
+    /**
+     * 判断是否是搜索页面
+     */
+    isSearch() {
+      return globalThis.location.pathname.startsWith("/search_result/");
+    }
+  };
+  const XHS_BASE_URL = "https://edith.xiaohongshu.com";
+  const XHSApi = {
+    /**
+     * 获取页信息
+     */
+    async getPageInfo(note_id, cursor = "", xsec_token = "", top_comment_id = "", image_formats = "jpg,webp") {
+      const Api = `/api/sns/web/v2/comment/page`;
+      const SearchParamsData = {
+        note_id,
+        cursor,
+        top_comment_id,
+        image_formats,
+        xsec_token
+      };
+      const SearchParams = Api + "?" + utils.toSearchParamsStr(SearchParamsData);
+      let getResp = await httpx.get(`${XHS_BASE_URL}${SearchParams}`, {
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "User-Agent": utils.getRandomPCUA(),
+          Origin: "https://www.xiaohongshu.com",
+          Referer: "https://www.xiaohongshu.com/"
+          // "X-S": signInfo.xs,
+          // "X-T": signInfo.xt,
+        }
+      });
+      if (!getResp.status) {
+        return;
+      }
+      let data = utils.toJSON(getResp.data.responseText);
+      log.info(["获取页信息", data]);
+      if (data["code"] === 0 || data["success"]) {
+        return data["data"];
+      } else if (data["code"] === -101) {
+        return;
+      } else {
+        Qmsg.error(data["msg"]);
+      }
+    },
+    /**
+     * 获取楼中楼页信息
+     */
+    async getLzlPageInfo(note_id = "", root_comment_id = "", num = 10, cursor = "", image_formats = "jpg,webp,avif", top_comment_id = "") {
+      const Api = `/api/sns/web/v2/comment/sub/page`;
+      let ApiData = {
+        note_id,
+        root_comment_id,
+        num,
+        cursor,
+        image_formats,
+        top_comment_id
+      };
+      Api + "?" + utils.toSearchParamsStr(ApiData);
+      let url = `${XHS_BASE_URL}${Api}?${utils.toSearchParamsStr(ApiData)}`;
+      let getResp = await httpx.get(url, {
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          Host: "edith.xiaohongshu.com",
+          Origin: "https://www.xiaohongshu.com",
+          Referer: "https://www.xiaohongshu.com/"
+          // "X-S": signInfo.xs,
+          // "X-T": signInfo.xt,
+          // "X-S-Common": signInfo.xsCommon,
+          // "X-B3-Traceid": signInfo.traceId,
+        },
+        onerror() {
+        }
+      });
+      if (!getResp.status) {
+        if (getResp.data.status === 406 && utils.isNotNull(getResp.data.responseText)) {
+          let errorData = utils.toJSON(getResp.data.responseText);
+          if (errorData["code"] == -1) {
+            Qmsg.error("获取楼中楼信息失败，验证x-s、x-t、x-s-common失败");
+          } else {
+            Qmsg.error("获取楼中楼信息失败");
+          }
+        } else {
+          Qmsg.error("请求异常");
+        }
+        log.error(["获取楼中楼信息失败", getResp]);
+        return;
+      }
+      let data = utils.toJSON(getResp.data.responseText);
+      log.info(["获取楼中楼页信息", data]);
+      if (data["code"] === 0 || data["success"]) {
+        return data["data"];
+      } else {
+        Qmsg.error(data["msg"]);
+      }
+    },
+    /**
+     * 获取搜索推荐内容
+     * @param searchText
+     */
+    async getSearchRecommend(searchText) {
+      let getResp = await httpx.get(
+        `https://edith.xiaohongshu.com/api/sns/web/v1/search/recommend?keyword=${searchText}`,
+        {
+          fetch: true
+        }
+      );
+      if (!getResp.status) {
+        return;
+      }
+      let data = utils.toJSON(getResp.data.responseText);
+      if (!(data.success || data.code === 1e3)) {
+        return;
+      }
+      return data.data.sug_items;
+    }
+  };
   const Hook = {
     $data: {
       document_addEventListener: [],
@@ -1893,8 +2031,8 @@
     setTimeout() {
       Hook.setTimeout((fn) => {
         let fnStr = fn.toString();
-        if (fnStr === "function(){r()}") {
-          log.success("成功劫持setTimeout唤醒");
+        if (fnStr === "function(){r()}" || fnStr === "function(){u()}") {
+          log.success(["成功劫持setTimeout唤醒", fn]);
           return false;
         }
       });
@@ -1906,7 +2044,7 @@
       Hook.function_call((context, thisArg, argArray) => {
         var _a2, _b, _c, _d;
         if (((_a2 = argArray[0]) == null ? void 0 : _a2.label) === 0 && Array.isArray((_b = argArray[0]) == null ? void 0 : _b.ops) && Array.isArray((_c = argArray[0]) == null ? void 0 : _c.trys) && typeof ((_d = argArray[0]) == null ? void 0 : _d.sent) === "function") {
-          log.success(`成功劫持call唤醒`);
+          log.success([`成功劫持call唤醒`, context, thisArg, argArray]);
           return {
             argArray: [],
             context,
@@ -1914,144 +2052,6 @@
           };
         }
       });
-    }
-  };
-  const blockCSS$2 = '/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar,\r\n/* 首页-顶部横幅 */\r\n#app .launch-app-container[spm="NewNavBar"],\r\n/* 笔记-顶部横幅 */\r\n.note-view-container .nav-bar-box-expand ,\r\n.note-view-container .nav-bar-box-expand+.placeholder-expand {\r\n	display: none !important;\r\n}\r\n';
-  const ScriptRouter = {
-    /**
-     * 判断是否是笔记页面
-     */
-    isArticle() {
-      return globalThis.location.pathname.startsWith("/discovery/item/") || globalThis.location.pathname.startsWith("/explore/");
-    },
-    /**
-     * 判断是否是用户主页页面
-     */
-    isUserHome() {
-      return globalThis.location.pathname.startsWith("/user/profile/");
-    },
-    /**
-     * 判断是否是主页
-     */
-    isHome() {
-      return globalThis.location.href === "https://www.xiaohongshu.com/" || globalThis.location.href === "https://www.xiaohongshu.com";
-    },
-    /**
-     * 判断是否是搜索页面
-     */
-    isSearch() {
-      return globalThis.location.pathname.startsWith("/search_result/");
-    }
-  };
-  const XHS_BASE_URL = "https://edith.xiaohongshu.com";
-  const XHSApi = {
-    /**
-     * 获取页信息
-     */
-    async getPageInfo(note_id, cursor = "", xsec_token = "", top_comment_id = "", image_formats = "jpg,webp") {
-      const Api = `/api/sns/web/v2/comment/page`;
-      const SearchParamsData = {
-        note_id,
-        cursor,
-        top_comment_id,
-        image_formats,
-        xsec_token
-      };
-      const SearchParams = Api + "?" + utils.toSearchParamsStr(SearchParamsData);
-      let getResp = await httpx.get(`${XHS_BASE_URL}${SearchParams}`, {
-        headers: {
-          Accept: "application/json, text/plain, */*",
-          "User-Agent": utils.getRandomPCUA(),
-          Origin: "https://www.xiaohongshu.com",
-          Referer: "https://www.xiaohongshu.com/"
-          // "X-S": signInfo.xs,
-          // "X-T": signInfo.xt,
-        }
-      });
-      if (!getResp.status) {
-        return;
-      }
-      let data = utils.toJSON(getResp.data.responseText);
-      log.info(["获取页信息", data]);
-      if (data["code"] === 0 || data["success"]) {
-        return data["data"];
-      } else if (data["code"] === -101) {
-        return;
-      } else {
-        Qmsg.error(data["msg"]);
-      }
-    },
-    /**
-     * 获取楼中楼页信息
-     */
-    async getLzlPageInfo(note_id = "", root_comment_id = "", num = 10, cursor = "", image_formats = "jpg,webp,avif", top_comment_id = "") {
-      const Api = `/api/sns/web/v2/comment/sub/page`;
-      let ApiData = {
-        note_id,
-        root_comment_id,
-        num,
-        cursor,
-        image_formats,
-        top_comment_id
-      };
-      Api + "?" + utils.toSearchParamsStr(ApiData);
-      let url = `${XHS_BASE_URL}${Api}?${utils.toSearchParamsStr(ApiData)}`;
-      let getResp = await httpx.get(url, {
-        headers: {
-          Accept: "application/json, text/plain, */*",
-          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          Host: "edith.xiaohongshu.com",
-          Origin: "https://www.xiaohongshu.com",
-          Referer: "https://www.xiaohongshu.com/"
-          // "X-S": signInfo.xs,
-          // "X-T": signInfo.xt,
-          // "X-S-Common": signInfo.xsCommon,
-          // "X-B3-Traceid": signInfo.traceId,
-        },
-        onerror() {
-        }
-      });
-      if (!getResp.status) {
-        if (getResp.data.status === 406 && utils.isNotNull(getResp.data.responseText)) {
-          let errorData = utils.toJSON(getResp.data.responseText);
-          if (errorData["code"] == -1) {
-            Qmsg.error("获取楼中楼信息失败，验证x-s、x-t、x-s-common失败");
-          } else {
-            Qmsg.error("获取楼中楼信息失败");
-          }
-        } else {
-          Qmsg.error("请求异常");
-        }
-        log.error(["获取楼中楼信息失败", getResp]);
-        return;
-      }
-      let data = utils.toJSON(getResp.data.responseText);
-      log.info(["获取楼中楼页信息", data]);
-      if (data["code"] === 0 || data["success"]) {
-        return data["data"];
-      } else {
-        Qmsg.error(data["msg"]);
-      }
-    },
-    /**
-     * 获取搜索推荐内容
-     * @param searchText
-     */
-    async getSearchRecommend(searchText) {
-      let getResp = await httpx.get(
-        `https://edith.xiaohongshu.com/api/sns/web/v1/search/recommend?keyword=${searchText}`,
-        {
-          fetch: true
-        }
-      );
-      if (!getResp.status) {
-        return;
-      }
-      let data = utils.toJSON(getResp.data.responseText);
-      if (!(data.success || data.code === 1e3)) {
-        return;
-      }
-      return data.data.sug_items;
     }
   };
   const M_XHSArticleBlock = {
@@ -2131,7 +2131,6 @@
       addStyle(blockCSS$1);
       if (PopsPanel.getValue("little-red-book-hijack-webpack-mask") || PopsPanel.getValue("little-red-book-hijack-webpack-scheme")) {
         log.info("劫持webpack");
-        XHS_Hook.webpackChunkranchi();
         XHS_Hook.setTimeout();
         XHS_Hook.call();
       }
@@ -2648,10 +2647,6 @@
   };
   const M_XHS = {
     init() {
-      PopsPanel.execMenu("little-red-book-hijack-vue", () => {
-        log.info("劫持页面的Vue");
-        XHS_Hook.webPackVue();
-      });
       PopsPanel.execMenuOnce("little-red-book-shieldAd", () => {
         log.info("注入默认屏蔽CSS");
         return addStyle(blockCSS$2);
@@ -2674,8 +2669,8 @@
         /*css*/
         `
         *{
-            -webkit-user-select: unset;
-            user-select: unset;
+            -webkit-user-select: unset !important;
+            user-select: unset !important;
         }
         `
       );
@@ -2734,7 +2729,7 @@
     blockTopToolbar() {
       log.info("【屏蔽】顶部工具栏");
       return [
-        CommonUtil.addBlockCSS("#headerContainer"),
+        CommonUtil.addBlockCSS("#headerContainer", ".header-container"),
         addStyle(
           /*css*/
           `
