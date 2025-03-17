@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.12
+// @version      2025.3.18
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1976,12 +1976,6 @@
       PopsPanel.execMenu("live-danmu-shield-rule-enable", () => {
         DouYinLiveDanmuku.filterDanmu();
       });
-      PopsPanel.execMenu("live-chooseQuality", (quality) => {
-        if (quality === "auto") {
-          return;
-        }
-        this.chooseQuality(quality);
-      });
       PopsPanel.execMenu("live-unlockImageQuality", () => {
         this.unlockImageQuality();
       });
@@ -1998,6 +1992,14 @@
       });
       PopsPanel.execMenuOnce("live-parsePlayerInstance", () => {
         DouYinLivePlayerInstance.initMenu();
+      });
+      domUtils.ready(() => {
+        PopsPanel.execMenu("live-chooseQuality", (quality) => {
+          if (quality === "auto") {
+            return;
+          }
+          this.chooseQuality(quality);
+        });
       });
     },
     /**
@@ -2027,13 +2029,9 @@
           set(reactInstance) {
             let qualityHandler = reactInstance.children.props.children.props.qualityHandler;
             let currentQualityList = qualityHandler.getCurrentQualityList();
-            if (currentQualityList.includes(quality)) {
-              qualityHandler.setCurrentQuality(quality);
-              log.success("成功设置画质为【" + quality + "】");
-            } else {
-              let __quality = quality;
-              Qmsg.error(
-                "当前直播没有【" + __quality + "】画质，自动选择最高画质"
+            if (!currentQualityList.includes(quality)) {
+              Qmsg.warning(
+                "当前直播没有【" + quality + "】画质，自动选择最高画质"
               );
               currentQualityList.sort((a, b) => {
                 if (!VideoQualityMap[a]) {
@@ -2046,10 +2044,10 @@
                 }
                 return VideoQualityMap[a].sign - VideoQualityMap[b].sign;
               });
-              __quality = currentQualityList[currentQualityList.length - 1];
-              qualityHandler.setCurrentQuality(quality);
-              log.success("成功设置画质为【" + quality + "】");
+              quality = currentQualityList[currentQualityList.length - 1];
             }
+            qualityHandler.setCurrentQuality(quality);
+            log.success("成功设置画质为【" + quality + "】");
           }
         }
       );
@@ -2065,10 +2063,9 @@
         document,
         "click",
         'div[data-e2e="quality-selector"] > div',
-        function(event) {
+        function(event, clickNode) {
           var _a2, _b;
           utils.preventEvent(event);
-          let clickNode = event.target;
           try {
             let reactInstance = utils.getReactObj(clickNode);
             let key = (_a2 = reactInstance == null ? void 0 : reactInstance.reactFiber) == null ? void 0 : _a2["key"];
