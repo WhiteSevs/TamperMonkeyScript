@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.12
+// @version      2025.3.18
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -14,9 +14,9 @@
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
 // @connect      *
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -2250,19 +2250,21 @@
             var _a2;
             let originResponseData = utils.toJSON(originResponse.responseText);
             let cards = originResponseData["data"]["cards"];
-            for (let index = 0; index < cards.length; index++) {
-              const card = cards[index];
-              let mblog = card == null ? void 0 : card.mblog;
-              if (mblog) {
-                let id = mblog.id;
-                let ad_state = mblog == null ? void 0 : mblog.ad_state;
-                let cardText = mblog == null ? void 0 : mblog.text;
-                (_a2 = mblog == null ? void 0 : mblog.page_info) == null ? void 0 : _a2.page_title;
-                if (ad_state) {
-                  cards.splice(index, 1);
-                  index--;
-                  log.info(`移除广告url：https://m.weibo.cn/detail/` + id);
-                  log.info(`移除广告card：` + cardText);
+            if (Array.isArray(cards)) {
+              for (let index = 0; index < cards.length; index++) {
+                const card = cards[index];
+                let mblog = card == null ? void 0 : card.mblog;
+                if (mblog) {
+                  let id = mblog.id;
+                  let ad_state = mblog == null ? void 0 : mblog.ad_state;
+                  let cardText = mblog == null ? void 0 : mblog.text;
+                  (_a2 = mblog == null ? void 0 : mblog.page_info) == null ? void 0 : _a2.page_title;
+                  if (ad_state) {
+                    cards.splice(index, 1);
+                    index--;
+                    log.info(`移除广告url：https://m.weibo.cn/detail/` + id);
+                    log.info(`移除广告card：` + cardText);
+                  }
                 }
               }
             }

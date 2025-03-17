@@ -232,19 +232,21 @@ const WeiBoHook = {
 				request.response = function (originResponse) {
 					let originResponseData = utils.toJSON(originResponse.responseText);
 					let cards = originResponseData["data"]["cards"];
-					for (let index = 0; index < cards.length; index++) {
-						const card = cards[index];
-						let mblog = card?.mblog;
-						if (mblog) {
-							let id = mblog.id;
-							let ad_state = mblog?.ad_state;
-							let cardText = mblog?.text;
-							let page_title = mblog?.page_info?.page_title;
-							if (ad_state) {
-								cards.splice(index, 1);
-								index--;
-								log.info(`移除广告url：` + "https://m.weibo.cn/detail/" + id);
-								log.info(`移除广告card：` + cardText);
+					if (Array.isArray(cards)) {
+						for (let index = 0; index < cards.length; index++) {
+							const card = cards[index];
+							let mblog = card?.mblog;
+							if (mblog) {
+								let id = mblog.id;
+								let ad_state = mblog?.ad_state;
+								let cardText = mblog?.text;
+								let page_title = mblog?.page_info?.page_title;
+								if (ad_state) {
+									cards.splice(index, 1);
+									index--;
+									log.info(`移除广告url：` + "https://m.weibo.cn/detail/" + id);
+									log.info(`移除广告card：` + cardText);
+								}
 							}
 						}
 					}
