@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.18
+// @version      2025.3.19
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -9325,31 +9325,31 @@
         secUid: "",
         shortId: "",
         realName: "",
-        // 昵称
         nickname: "乌萨奇",
-        // 描述
+        // 昵称
         desc: "除草证3级",
-        // 性别
+        // 描述
         gender: 0,
-        // 头像
+        // 性别
         avatarUrl: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+        // 头像
         avatar300Url: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
         followStatus: 0,
         followerStatus: 0,
-        // 作品数量
         awemeCount: 0,
-        // 稍后再看数量
+        // 作品数量
         watchLaterCount: 0,
-        // 关注
+        // 稍后再看数量
         followingCount: 0,
+        // 关注
         followerCount: 0,
         followerCountStr: "",
-        // 粉丝数量
         mplatformFollowersCount: 9999999,
-        // 我的喜欢的数量
+        // 粉丝数量
         favoritingCount: 0,
-        // 获赞
+        // 我的喜欢的数量
         totalFavorited: 9999999,
+        // 获赞
         userCollectCount: {
           logPb: {
             impr_id: ""
@@ -9364,16 +9364,19 @@
         },
         uniqueId: "",
         customVerify: "",
-        // 年龄
+        generalPermission: {
+          is_hit_active_fans_grayed: false
+        },
         age: (/* @__PURE__ */ new Date()).getFullYear() - 2019,
+        // 年龄
         country: "",
         province: "",
         city: "",
         district: "",
-        // 学校
         school: "chiikawa",
-        // 控制学校显示
+        // 学校
         schoolVisible: 1,
+        // 控制学校显示
         enterpriseVerifyReason: "",
         secret: 1,
         userCanceled: false,
