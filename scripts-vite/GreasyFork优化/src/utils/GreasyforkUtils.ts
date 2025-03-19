@@ -26,7 +26,7 @@ export const GreasyforkUtils = {
 	 */
 	monacoEditor() {
 		/** 版本号 */
-		const MonacoVersion = "0.52.0";
+		const MonacoVersion = "0.52.2";
 		const readyEventType = "monaco-editor-ready";
 		log.info(`网络加载monaco编辑器中，请稍后...`);
 		if (!isRegisdterMonacoEditorCSS) {

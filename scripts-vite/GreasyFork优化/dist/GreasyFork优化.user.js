@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.2.20
+// @version            2025.3.19
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -14,9 +14,9 @@
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@24.2.2/i18next.min.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -2543,7 +2543,7 @@
      * 加载monaco编辑器
      */
     monacoEditor() {
-      const MonacoVersion = "0.52.0";
+      const MonacoVersion = "0.52.2";
       const readyEventType = "monaco-editor-ready";
       log.info(`网络加载monaco编辑器中，请稍后...`);
       if (!isRegisdterMonacoEditorCSS) {
@@ -2866,11 +2866,11 @@
               }
               let code_url = scriptInfo["code_url"];
               let compareLeftUrl = code_url.replace(
-                `/${scriptId}`,
+                new RegExp(`/${scriptId}(/[\\d]+|)`),
                 `/${scriptId}/${compareLeftVersion}`
               );
               let compareRightUrl = code_url.replace(
-                `/${scriptId}`,
+                new RegExp(`/${scriptId}(/[\\d]+|)`),
                 `/${scriptId}/${compareRighttVersion}`
               );
               let compareLeftText = "";

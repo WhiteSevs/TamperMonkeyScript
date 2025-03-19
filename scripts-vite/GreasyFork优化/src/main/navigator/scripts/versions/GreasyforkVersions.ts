@@ -170,11 +170,11 @@ export const GreasyforkVersions = {
 						}
 						let code_url: string = scriptInfo["code_url"];
 						let compareLeftUrl = code_url.replace(
-							`/${scriptId}`,
+							new RegExp(`/${scriptId}(/[\\d]+|)`),
 							`/${scriptId}/${compareLeftVersion}`
 						);
 						let compareRightUrl = code_url.replace(
-							`/${scriptId}`,
+							new RegExp(`/${scriptId}(/[\\d]+|)`),
 							`/${scriptId}/${compareRighttVersion}`
 						);
 						let compareLeftText = "";
