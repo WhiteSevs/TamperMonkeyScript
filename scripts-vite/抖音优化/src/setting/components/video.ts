@@ -142,6 +142,13 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"双击视频自动进入网页全屏，检测间隔250ms"
 								),
+								UISwitch(
+									"移除video的bottom偏移",
+									"dy-video-removeStyle-bottom",
+									false,
+									void 0,
+									""
+								),
 							],
 						},
 						{

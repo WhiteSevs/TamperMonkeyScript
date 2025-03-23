@@ -61,9 +61,6 @@ export const DouYinLive = {
 	init() {
 		DouYinLiveBlock.init();
 		DouYinLiveShortCut.init();
-		PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
-			this.autoEnterElementFullScreen();
-		});
 		PopsPanel.execMenu("live-danmu-shield-rule-enable", () => {
 			DouYinLiveDanmuku.filterDanmu();
 		});
@@ -92,24 +89,32 @@ export const DouYinLive = {
 				}
 				this.chooseQuality(quality);
 			});
+			PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
+				this.autoEnterElementFullScreen();
+			});
 		});
 	},
 	/**
 	 * 自动进入网页全屏
 	 */
 	autoEnterElementFullScreen() {
-		log.info("自动进入网页全屏");
-		utils
-			.waitNode<HTMLDivElement>(
-				'xg-icon[classname] > div > div:has(path[d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
-			)
-			.then((element) => {
-				element.click();
-			});
+		ReactUtils.waitReactPropsToSet(
+			"xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)",
+			"reactFiber",
+			{
+				check(reactInstance) {
+					return typeof reactInstance?.memoizedProps?.onClick === "function";
+				},
+				set(reactInstance, $target) {
+					log.success("自动进入网页全屏");
+					reactInstance.memoizedProps.onClick();
+				},
+			}
+		);
 	},
 	/**
 	 * 选择画质
-	 * @param [quality="origin"] 选择的画质
+	 * @param quality 选择的画质
 	 */
 	chooseQuality(quality = "origin") {
 		ReactUtils.waitReactPropsToSet(

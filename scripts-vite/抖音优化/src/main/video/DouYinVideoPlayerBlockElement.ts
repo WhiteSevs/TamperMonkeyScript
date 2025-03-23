@@ -3,6 +3,7 @@ import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { DouYinVideoPlayer } from "./DouYinVideoPlayer";
 
 export const DouYinVideoPlayerCommentBlockElement = {
 	init() {
@@ -53,13 +54,13 @@ export const DouYinVideoPlayerBlockElement_BottomToolbar = {
 		return [
 			CommonUtil.addBlockCSS("xg-controls.xgplayer-controls"),
 			// 修复屏蔽后视频信息区域未沉底
+			DouYinVideoPlayer.removeStyleBottom(),
 			addStyle(/*css*/ `
-			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
-			div:has( > div > pace-island > #video-info-wrap ),
-			xg-video-container.xg-video-container,
-			div:has(> #video-info-wrap){
-				bottom: 0 !important;
-			}`),
+				/* 视频标题往下移 */
+				div:has(> #video-info-wrap){
+					bottom: 0px !important;
+				}
+			`),
 		];
 	},
 	/**

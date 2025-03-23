@@ -85,6 +85,9 @@ export const DouYinVideoPlayer = {
 		PopsPanel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
 			this.waitToRemovePauseDialog();
 		});
+		PopsPanel.execMenuOnce("dy-video-removeStyle-bottom", () => {
+			this.removeStyleBottom();
+		});
 		DOMUtils.ready(() => {
 			DouYinVideoPlayer.chooseQuality(
 				PopsPanel.getValue("chooseVideoDefinition")
@@ -595,12 +598,14 @@ export const DouYinVideoPlayer = {
 				// 一般的推荐视频|单个视频的当前观看的视频
 				$<HTMLElement>(
 					'#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
-				)
-			);
-			videoInfoList.push(
+				),
 				// 进入作者主页后的当前观看的视频
 				$<HTMLElement>(
 					'#slideMode[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
+				),
+				// 单个视频
+				$<HTMLElement>(
+					'div[data-e2e="video-detail"] #video-info-wrap:not([data-is-inject-mouse-hide])'
 				)
 			);
 			if (!videoInfoList.length) {
@@ -650,6 +655,10 @@ export const DouYinVideoPlayer = {
 				// 进入作者主页后的当前观看的视频
 				$<HTMLElement>(
 					'#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])'
+				),
+				// 单个视频
+				$<HTMLElement>(
+					'div[data-e2e="video-detail"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])'
 				)
 			);
 			if (!videoInfoList.length) {
@@ -701,12 +710,14 @@ export const DouYinVideoPlayer = {
 				// 一般的推荐视频|单个视频的当前观看的视频
 				$<HTMLElement>(
 					'#sliderVideo[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
-				)
-			);
-			videoInfoList.push(
+				),
 				// 进入作者主页后的当前观看的视频
 				$<HTMLElement>(
 					'#slideMode[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
+				),
+				// 单个视频
+				$<HTMLElement>(
+					'div[data-e2e="video-detail"] .positionBox:not([data-is-inject-mouse-hide])'
 				)
 			);
 			if (!videoInfoList.length) {
@@ -865,5 +876,18 @@ export const DouYinVideoPlayer = {
 				},
 			});
 		});
+	},
+	/**
+	 * 移除video的bottom偏移
+	 */
+	removeStyleBottom() {
+		log.info(`移除video的bottom偏移`);
+		return addStyle(/*css*/`
+			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
+			div:has( > div > pace-island > #video-info-wrap ),
+			xg-video-container.xg-video-container{
+				bottom: 0 !important;
+			}
+		`)
 	},
 };

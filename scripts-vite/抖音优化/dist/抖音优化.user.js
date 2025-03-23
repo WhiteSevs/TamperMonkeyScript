@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.19
+// @version      2025.3.24
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1970,9 +1970,6 @@
     init() {
       DouYinLiveBlock.init();
       DouYinLiveShortCut.init();
-      PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
-        this.autoEnterElementFullScreen();
-      });
       PopsPanel.execMenu("live-danmu-shield-rule-enable", () => {
         DouYinLiveDanmuku.filterDanmu();
       });
@@ -2000,22 +1997,33 @@
           }
           this.chooseQuality(quality);
         });
+        PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
+          this.autoEnterElementFullScreen();
+        });
       });
     },
     /**
      * 自动进入网页全屏
      */
     autoEnterElementFullScreen() {
-      log.info("自动进入网页全屏");
-      utils.waitNode(
-        'xg-icon[classname] > div > div:has(path[d="M9.75 8.5a2 2 0 00-2 2v11a2 2 0 002 2h12.5a2 2 0 002-2v-11a2 2 0 00-2-2H9.75zM15 11.25h-3.75a1 1 0 00-1 1V16h2v-2.75H15v-2zm5.75 9.5H17v-2h2.75V16h2v3.75a1 1 0 01-1 1z"])'
-      ).then((element) => {
-        element.click();
-      });
+      ReactUtils.waitReactPropsToSet(
+        "xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)",
+        "reactFiber",
+        {
+          check(reactInstance) {
+            var _a2;
+            return typeof ((_a2 = reactInstance == null ? void 0 : reactInstance.memoizedProps) == null ? void 0 : _a2.onClick) === "function";
+          },
+          set(reactInstance, $target) {
+            log.success("自动进入网页全屏");
+            reactInstance.memoizedProps.onClick();
+          }
+        }
+      );
     },
     /**
      * 选择画质
-     * @param [quality="origin"] 选择的画质
+     * @param quality 选择的画质
      */
     chooseQuality(quality = "origin") {
       ReactUtils.waitReactPropsToSet(
@@ -2830,15 +2838,15 @@
       return [
         CommonUtil.addBlockCSS("xg-controls.xgplayer-controls"),
         // 修复屏蔽后视频信息区域未沉底
+        DouYinVideoPlayer.removeStyleBottom(),
         addStyle(
           /*css*/
           `
-			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
-			div:has( > div > pace-island > #video-info-wrap ),
-			xg-video-container.xg-video-container,
-			div:has(> #video-info-wrap){
-				bottom: 0 !important;
-			}`
+				/* 视频标题往下移 */
+				div:has(> #video-info-wrap){
+					bottom: 0px !important;
+				}
+			`
         )
       ];
     },
@@ -3453,6 +3461,9 @@
       PopsPanel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
         this.waitToRemovePauseDialog();
       });
+      PopsPanel.execMenuOnce("dy-video-removeStyle-bottom", () => {
+        this.removeStyleBottom();
+      });
       domUtils.ready(() => {
         DouYinVideoPlayer.chooseQuality(
           PopsPanel.getValue("chooseVideoDefinition")
@@ -3940,12 +3951,14 @@
           // 一般的推荐视频|单个视频的当前观看的视频
           $(
             '#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
-          )
-        );
-        videoInfoList.push(
+          ),
           // 进入作者主页后的当前观看的视频
           $(
             '#slideMode[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
+          ),
+          // 单个视频
+          $(
+            'div[data-e2e="video-detail"] #video-info-wrap:not([data-is-inject-mouse-hide])'
           )
         );
         if (!videoInfoList.length) {
@@ -3994,6 +4007,10 @@
           // 进入作者主页后的当前观看的视频
           $(
             '#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])'
+          ),
+          // 单个视频
+          $(
+            'div[data-e2e="video-detail"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])'
           )
         );
         if (!videoInfoList.length) {
@@ -4046,12 +4063,14 @@
           // 一般的推荐视频|单个视频的当前观看的视频
           $(
             '#sliderVideo[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
-          )
-        );
-        videoInfoList.push(
+          ),
           // 进入作者主页后的当前观看的视频
           $(
             '#slideMode[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
+          ),
+          // 单个视频
+          $(
+            'div[data-e2e="video-detail"] .positionBox:not([data-is-inject-mouse-hide])'
           )
         );
         if (!videoInfoList.length) {
@@ -4202,6 +4221,22 @@
           }
         });
       });
+    },
+    /**
+     * 移除video的bottom偏移
+     */
+    removeStyleBottom() {
+      log.info(`移除video的bottom偏移`);
+      return addStyle(
+        /*css*/
+        `
+			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
+			div:has( > div > pace-island > #video-info-wrap ),
+			xg-video-container.xg-video-container{
+				bottom: 0 !important;
+			}
+		`
+      );
     }
   };
   const DouYinVideoPlayerShortCut = {
@@ -6739,6 +6774,13 @@
                     false,
                     void 0,
                     "双击视频自动进入网页全屏，检测间隔250ms"
+                  ),
+                  UISwitch(
+                    "移除video的bottom偏移",
+                    "dy-video-removeStyle-bottom",
+                    false,
+                    void 0,
+                    ""
                   )
                 ]
               },
