@@ -3462,7 +3462,7 @@
         this.waitToRemovePauseDialog();
       });
       PopsPanel.execMenuOnce("dy-video-removeStyle-bottom", () => {
-        this.removeStyleBottom();
+        return this.removeStyleBottom();
       });
       domUtils.ready(() => {
         DouYinVideoPlayer.chooseQuality(
