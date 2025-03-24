@@ -1,5 +1,5 @@
 import type { UtilsGMCookieDeleteOptions, UtilsGMCookieListOptions, UtilsGMCookieResult, UtilsGMCookieSetOptions, WindowApiOption } from "./types/UtilsGMCookie";
-declare class UtilsGMCookie {
+export declare class UtilsGMCookie {
     private windowApi;
     constructor(windowApiOption?: WindowApiOption);
     /**
@@ -14,12 +14,12 @@ declare class UtilsGMCookie {
      * + cookies object[]
      * + error string|undefined
      **/
-    list(option: UtilsGMCookieListOptions, callback?: (data: UtilsGMCookieResult[], error?: Error) => void): void;
+    list(option: UtilsGMCookieListOptions | {}, callback?: (data: UtilsGMCookieResult[], error?: Error) => void): void;
     /**
      *  获取多组Cookie
      * @param option 配置
      **/
-    getList(option: UtilsGMCookieListOptions): UtilsGMCookieResult[];
+    getList(option: UtilsGMCookieListOptions | {}): UtilsGMCookieResult[];
     /**
      * 设置Cookie
      * @param option 配置
@@ -42,4 +42,3 @@ declare class UtilsGMCookie {
         value: string;
     }[];
 }
-export { UtilsGMCookie };

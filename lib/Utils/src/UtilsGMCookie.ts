@@ -7,7 +7,7 @@ import type {
 } from "./types/UtilsGMCookie";
 import { Utils } from "./Utils";
 
-class UtilsGMCookie {
+export class UtilsGMCookie {
 	private windowApi = {
 		window: window,
 		document: document,
@@ -60,7 +60,7 @@ class UtilsGMCookie {
 	 * + error string|undefined
 	 **/
 	list(
-		option: UtilsGMCookieListOptions,
+		option: UtilsGMCookieListOptions | {},
 		callback?: (data: UtilsGMCookieResult[], error?: Error) => void
 	) {
 		if (option == null) {
@@ -114,7 +114,7 @@ class UtilsGMCookie {
 	 *  获取多组Cookie
 	 * @param option 配置
 	 **/
-	getList(option: UtilsGMCookieListOptions): UtilsGMCookieResult[] {
+	getList(option: UtilsGMCookieListOptions | {}): UtilsGMCookieResult[] {
 		if (option == null) {
 			throw new Error("Utils.GMCookie.list 参数不能为空");
 		}
@@ -226,7 +226,7 @@ class UtilsGMCookie {
 	/**
 	 * 解析cookie字符串
 	 * 例如：document.cookie
-	 * @param cookieStr 
+	 * @param cookieStr
 	 */
 	parseCookie(cookieStr: string) {
 		let cookies = cookieStr.split(";");
@@ -245,5 +245,3 @@ class UtilsGMCookie {
 		return result;
 	}
 }
-
-export { UtilsGMCookie };
