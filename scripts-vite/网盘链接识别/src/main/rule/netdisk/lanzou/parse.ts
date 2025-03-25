@@ -536,18 +536,23 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 		let responseInstance = response.data;
 		log.info(responseInstance);
 		let pageText = responseInstance.responseText;
-		let websignkeyMatch = pageText.match(/var[\s]*aihidcms[\s]*=[\s]*'(.*)';/i);
+		let websignkeyMatch =
+			pageText.match(/'websignkey'[\s]*:[\s]*'(.+?)'/i) ||
+			pageText.match(/var[\s]*aihidcms[\s]*=[\s]*'(.*)';/i);
 		let websignMatch = pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
 		let signsMatch = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
 		let signMatch =
 			pageText.match(/'sign':[\s]*'(.+)',/i) ||
 			pageText.match(/var[\s]*wp_sign[\s]*=[\s]*'(.*)';/i);
-		let ajaxUrlMatch = pageText.match(/url[\s]*:[\s]*'(.+)'[\s]*,/);
+		let ajaxUrlMatch =
+			pageText.match(/[^\/\/]url[\s]*:[\s]*'(.+?)'[\s]*,/i) ||
+			pageText.match(/url[\s]*:[\s]*'(.+?)'[\s]*,/);
 		let ajaxUrl = "ajaxm.php";
 		let websignkey = "";
 		let websign = "";
 		let signs = "";
 		let sign = "";
+		let kdns = await this.getKNDS();
 		if (ajaxUrlMatch) {
 			ajaxUrl = ajaxUrlMatch[ajaxUrlMatch.length - 1];
 		} else {
@@ -584,12 +589,11 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 			sign: sign,
 			websign: websign,
 			websignkey: websignkey,
+			kd: kdns,
 			ves: 1,
-			// kdns
-			kd: 1,
 		};
-		log.success("请求的路径参数：" + ajaxUrlMatch);
-		log.success("ajaxm.php的请求参数-> " + postData);
+		log.success("请求的路径参数：" + ajaxUrl);
+		log.success(["ajaxm.php的请求参数-> ", postData]);
 		let postResp = await httpx.post(that.router.root(ajaxUrl), {
 			data: utils.toSearchParamsStr(postData),
 			headers: {
@@ -643,6 +647,22 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 				: fileInfo.fileName;
 			log.info(downloadUrl);
 			return downloadUrl;
+		}
+	}
+	/**
+	 * 获取kdns的参数
+	 */
+	async getKNDS() {
+		let response = await httpx.get(
+			"https://down-load.lanrar.com/file/kdns.js",
+			{
+				allowInterceptConfig: false,
+			}
+		);
+		if (response.status && utils.isNotNull(response.data.responseText)) {
+			return 1;
+		} else {
+			return 0;
 		}
 	}
 	/**
