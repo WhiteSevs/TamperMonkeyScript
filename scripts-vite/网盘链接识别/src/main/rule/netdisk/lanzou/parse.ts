@@ -536,37 +536,37 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 		let responseInstance = response.data;
 		log.info(responseInstance);
 		let pageText = responseInstance.responseText;
-		let aihidcmsMatch = pageText.match(/var[\s]*aihidcms[\s]*=[\s]*'(.*)';/i);
-		let ciucjdsdcMatch = pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
-		let ajaxdataMatch = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
+		let websignkeyMatch = pageText.match(/var[\s]*aihidcms[\s]*=[\s]*'(.*)';/i);
+		let websignMatch = pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
+		let signsMatch = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
 		let signMatch =
 			pageText.match(/'sign':[\s]*'(.+)',/i) ||
 			pageText.match(/var[\s]*wp_sign[\s]*=[\s]*'(.*)';/i);
 		let ajaxUrlMatch = pageText.match(/url[\s]*:[\s]*'(.+)'[\s]*,/);
 		let ajaxUrl = "ajaxm.php";
-		let aihidcms = "";
-		let ciucjdsdc = "";
-		let ajaxdata = "";
+		let websignkey = "";
+		let websign = "";
+		let signs = "";
 		let sign = "";
 		if (ajaxUrlMatch) {
 			ajaxUrl = ajaxUrlMatch[ajaxUrlMatch.length - 1];
 		} else {
 			Qmsg.error("提取ajaxm.php的具体参数失败，使用默认的" + ajaxUrl);
 		}
-		if (aihidcmsMatch) {
-			aihidcms = aihidcmsMatch[aihidcmsMatch.length - 1];
+		if (websignkeyMatch) {
+			websignkey = websignkeyMatch[websignkeyMatch.length - 1];
 		} else {
 			Qmsg.error("ajaxm.php请求参数 websignkey 获取失败");
 			return;
 		}
-		if (ciucjdsdcMatch) {
-			ciucjdsdc = ciucjdsdcMatch[ciucjdsdcMatch.length - 1];
+		if (websignMatch) {
+			websign = websignMatch[websignMatch.length - 1];
 		} else {
 			Qmsg.error("ajaxm.php请求参数 websign 获取失败");
 			return;
 		}
-		if (ajaxdataMatch) {
-			ajaxdata = ajaxdataMatch[ajaxdataMatch.length - 1];
+		if (signsMatch) {
+			signs = signsMatch[signsMatch.length - 1];
 		} else {
 			Qmsg.error("ajaxm.php请求参数 signs 获取失败");
 			return;
@@ -580,10 +580,10 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 
 		let postData = {
 			action: "downprocess",
-			signs: ajaxdata,
+			signs: signs,
 			sign: sign,
-			websign: ciucjdsdc,
-			websignkey: aihidcms,
+			websign: websign,
+			websignkey: websignkey,
 			ves: 1,
 			// kdns
 			kd: 1,
