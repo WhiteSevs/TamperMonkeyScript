@@ -72,15 +72,23 @@ export const CookieManager = {
 	 * 查询所有Cookie
 	 */
 	queryAllCookie() {
-		return new Promise<(GMCookieInstance | CookieStoreData)[]>((resolve) => {
-			this.cookieManager.list({}, (cookieListResult) => {
-				let __cookieListResult__ = cookieListResult || [];
-				__cookieListResult__ = __cookieListResult__.sort((a, b) =>
-					a.name.localeCompare(b.name)
-				);
-				resolve(__cookieListResult__);
-			});
-		});
+		return new Promise<(GMCookieInstance | CookieStoreData)[]>(
+			(resolve, reject) => {
+				try {
+					this.cookieManager.list({}, (cookieListResult) => {
+						let __cookieListResult__ = cookieListResult || [];
+						__cookieListResult__ = __cookieListResult__.sort((a, b) =>
+							a.name.localeCompare(b.name)
+						);
+						resolve(__cookieListResult__);
+					});
+				} catch (error: any) {
+					log.error(error);
+					Qmsg.error(error.toString());
+					reject(error);
+				}
+			}
+		);
 	},
 	/**
 	 * 清除所有Cookie
@@ -89,81 +97,101 @@ export const CookieManager = {
 		return new Promise<{
 			success: number;
 			error: number;
-		}>((resolve) => {
-			this.cookieManager.list({}, async (cookieListResult) => {
-				const __cookieListResult__ = cookieListResult || [];
-				const result = {
-					success: 0,
-					error: 0,
-				};
-				for (let index = 0; index < __cookieListResult__.length; index++) {
-					const cookieListItem = __cookieListResult__[index];
-					let deleteError = await new Promise<
-						Error | null | undefined | string
-					>((deleteResolve) => {
-						this.deleteCookie(cookieListItem).then((deleteResult) => {
-							deleteResolve(deleteResult);
+		}>((resolve, reject) => {
+			try {
+				this.cookieManager.list({}, async (cookieListResult) => {
+					const __cookieListResult__ = cookieListResult || [];
+					const result = {
+						success: 0,
+						error: 0,
+					};
+					for (let index = 0; index < __cookieListResult__.length; index++) {
+						const cookieListItem = __cookieListResult__[index];
+						let deleteError = await new Promise<
+							Error | null | undefined | string
+						>((deleteResolve) => {
+							this.deleteCookie(cookieListItem).then((deleteResult) => {
+								deleteResolve(deleteResult);
+							});
 						});
-					});
-					if (deleteError) {
-						result.error++;
-					} else {
-						result.success++;
+						if (deleteError) {
+							result.error++;
+						} else {
+							result.success++;
+						}
 					}
-				}
-				resolve(result);
-			});
+					resolve(result);
+				});
+			} catch (error: any) {
+				log.error(error);
+				Qmsg.error(error.toString());
+				reject(error);
+			}
 		});
 	},
 	/**
 	 * 添加Cookie
 	 */
 	addCookie(cookieInfo: GMCookieInstance) {
-		return new Promise<string | Error | null | undefined>((resolve) => {
-			// @ts-ignore
-			delete cookieInfo.hostOnly;
-			// @ts-ignore
-			CookieManager.cookieManager.set(cookieInfo, (error) => {
-				log.info(["添加Cookie", cookieInfo]);
-				resolve(error);
-			});
+		return new Promise<string | Error | null | undefined>((resolve, reject) => {
+			try {
+				// @ts-ignore
+				delete cookieInfo.hostOnly;
+				// @ts-ignore
+				CookieManager.cookieManager.set(cookieInfo, (error) => {
+					log.info(["添加Cookie", cookieInfo]);
+					resolve(error);
+				});
+			} catch (error: any) {
+				log.error(error);
+				Qmsg.error(error.toString());
+				reject(error);
+			}
 		});
 	},
 	/**
 	 * 删除Cookie
 	 */
 	deleteCookie(cookieInfo: GMCookieInstance | CookieStoreData) {
-		return new Promise<string | Error | null | undefined>((resolve) => {
-			// @ts-ignore
-			CookieManager.cookieManager.delete(cookieInfo, (error) => {
-				log.info(["删除Cookie", cookieInfo]);
-				resolve(error);
-			});
+		return new Promise<string | Error | null | undefined>((resolve, reject) => {
+			try {
+				// @ts-ignore
+				CookieManager.cookieManager.delete(cookieInfo, (error) => {
+					log.info(["删除Cookie", cookieInfo]);
+					resolve(error);
+				});
+			} catch (error: any) {
+				log.error(error);
+				Qmsg.error(error.toString());
+				reject(error);
+			}
 		});
 	},
 	/**
 	 * 更新Cookie
 	 */
 	updateCookie(cookieInfo: GMCookieInstance) {
-		return new Promise<string | Error | null | undefined>(async (resolve) => {
-			let result: any;
-			try {
-				log.info(["更新Cookie", cookieInfo]);
-				let deleteError = await CookieManager.deleteCookie(cookieInfo);
-				log.error(deleteError);
-				if (deleteError) {
-					throw new TypeError(deleteError.toString());
+		return new Promise<string | Error | null | undefined>(
+			async (resolve, reject) => {
+				let result: any;
+				try {
+					log.info(["更新Cookie", cookieInfo]);
+					let deleteError = await CookieManager.deleteCookie(cookieInfo);
+					log.error(deleteError);
+					if (deleteError) {
+						throw new TypeError(deleteError.toString());
+					}
+					let addError = await CookieManager.addCookie(cookieInfo);
+					log.error(addError);
+					if (addError) {
+						throw new TypeError(addError.toString());
+					}
+				} catch (error: any) {
+					result = error;
+				} finally {
+					resolve(result);
 				}
-				let addError = await CookieManager.addCookie(cookieInfo);
-				log.error(addError);
-				if (addError) {
-					throw new TypeError(addError.toString());
-				}
-			} catch (error: any) {
-				result = error;
-			} finally {
-				resolve(result);
 			}
-		});
+		);
 	},
 };

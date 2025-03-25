@@ -895,91 +895,119 @@
      * 查询所有Cookie
      */
     queryAllCookie() {
-      return new Promise((resolve) => {
-        this.cookieManager.list({}, (cookieListResult) => {
-          let __cookieListResult__ = cookieListResult || [];
-          __cookieListResult__ = __cookieListResult__.sort(
-            (a, b) => a.name.localeCompare(b.name)
-          );
-          resolve(__cookieListResult__);
-        });
-      });
+      return new Promise(
+        (resolve, reject) => {
+          try {
+            this.cookieManager.list({}, (cookieListResult) => {
+              let __cookieListResult__ = cookieListResult || [];
+              __cookieListResult__ = __cookieListResult__.sort(
+                (a, b) => a.name.localeCompare(b.name)
+              );
+              resolve(__cookieListResult__);
+            });
+          } catch (error) {
+            log.error(error);
+            Qmsg.error(error.toString());
+            reject(error);
+          }
+        }
+      );
     },
     /**
      * 清除所有Cookie
      */
     deleteAllCookie() {
-      return new Promise((resolve) => {
-        this.cookieManager.list({}, async (cookieListResult) => {
-          const __cookieListResult__ = cookieListResult || [];
-          const result = {
-            success: 0,
-            error: 0
-          };
-          for (let index = 0; index < __cookieListResult__.length; index++) {
-            const cookieListItem = __cookieListResult__[index];
-            let deleteError = await new Promise((deleteResolve) => {
-              this.deleteCookie(cookieListItem).then((deleteResult) => {
-                deleteResolve(deleteResult);
+      return new Promise((resolve, reject) => {
+        try {
+          this.cookieManager.list({}, async (cookieListResult) => {
+            const __cookieListResult__ = cookieListResult || [];
+            const result = {
+              success: 0,
+              error: 0
+            };
+            for (let index = 0; index < __cookieListResult__.length; index++) {
+              const cookieListItem = __cookieListResult__[index];
+              let deleteError = await new Promise((deleteResolve) => {
+                this.deleteCookie(cookieListItem).then((deleteResult) => {
+                  deleteResolve(deleteResult);
+                });
               });
-            });
-            if (deleteError) {
-              result.error++;
-            } else {
-              result.success++;
+              if (deleteError) {
+                result.error++;
+              } else {
+                result.success++;
+              }
             }
-          }
-          resolve(result);
-        });
+            resolve(result);
+          });
+        } catch (error) {
+          log.error(error);
+          Qmsg.error(error.toString());
+          reject(error);
+        }
       });
     },
     /**
      * 添加Cookie
      */
     addCookie(cookieInfo) {
-      return new Promise((resolve) => {
-        delete cookieInfo.hostOnly;
-        CookieManager.cookieManager.set(cookieInfo, (error) => {
-          log.info(["添加Cookie", cookieInfo]);
-          resolve(error);
-        });
+      return new Promise((resolve, reject) => {
+        try {
+          delete cookieInfo.hostOnly;
+          CookieManager.cookieManager.set(cookieInfo, (error) => {
+            log.info(["添加Cookie", cookieInfo]);
+            resolve(error);
+          });
+        } catch (error) {
+          log.error(error);
+          Qmsg.error(error.toString());
+          reject(error);
+        }
       });
     },
     /**
      * 删除Cookie
      */
     deleteCookie(cookieInfo) {
-      return new Promise((resolve) => {
-        CookieManager.cookieManager.delete(cookieInfo, (error) => {
-          log.info(["删除Cookie", cookieInfo]);
-          resolve(error);
-        });
+      return new Promise((resolve, reject) => {
+        try {
+          CookieManager.cookieManager.delete(cookieInfo, (error) => {
+            log.info(["删除Cookie", cookieInfo]);
+            resolve(error);
+          });
+        } catch (error) {
+          log.error(error);
+          Qmsg.error(error.toString());
+          reject(error);
+        }
       });
     },
     /**
      * 更新Cookie
      */
     updateCookie(cookieInfo) {
-      return new Promise(async (resolve) => {
-        let result;
-        try {
-          log.info(["更新Cookie", cookieInfo]);
-          let deleteError = await CookieManager.deleteCookie(cookieInfo);
-          log.error(deleteError);
-          if (deleteError) {
-            throw new TypeError(deleteError.toString());
+      return new Promise(
+        async (resolve, reject) => {
+          let result;
+          try {
+            log.info(["更新Cookie", cookieInfo]);
+            let deleteError = await CookieManager.deleteCookie(cookieInfo);
+            log.error(deleteError);
+            if (deleteError) {
+              throw new TypeError(deleteError.toString());
+            }
+            let addError = await CookieManager.addCookie(cookieInfo);
+            log.error(addError);
+            if (addError) {
+              throw new TypeError(addError.toString());
+            }
+          } catch (error) {
+            result = error;
+          } finally {
+            resolve(result);
           }
-          let addError = await CookieManager.addCookie(cookieInfo);
-          log.error(addError);
-          if (addError) {
-            throw new TypeError(addError.toString());
-          }
-        } catch (error) {
-          result = error;
-        } finally {
-          resolve(result);
         }
-      });
+      );
     }
   };
   let edit_ui_input = (text, getValue, setValue, disabled) => {
