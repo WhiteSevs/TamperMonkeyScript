@@ -521,7 +521,7 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 		const that = this;
 		log.info(urlPathName, fileInfo);
 		let iFrameUrl = that.router.root(urlPathName);
-		let getResp = await httpx.get({
+		let response = await httpx.get({
 			url: iFrameUrl,
 			headers: {
 				Accept:
@@ -530,16 +530,18 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 				Referer: that.router.root(that.shareCode),
 			},
 		});
-		if (!getResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let respData = getResp.data;
-		log.info(respData);
-		let pageText = respData.responseText;
+		let responseInstance = response.data;
+		log.info(responseInstance);
+		let pageText = responseInstance.responseText;
 		let aihidcmsMatch = pageText.match(/var[\s]*aihidcms[\s]*=[\s]*'(.*)';/i);
 		let ciucjdsdcMatch = pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
 		let ajaxdataMatch = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
-		let signMatch = pageText.match(/'sign':[\s]*'(.+)',/i);
+		let signMatch =
+			pageText.match(/'sign':[\s]*'(.+)',/i) ||
+			pageText.match(/var[\s]*wp_sign[\s]*=[\s]*'(.*)';/i);
 		let ajaxUrlMatch = pageText.match(/url[\s]*:[\s]*'(.+)'[\s]*,/);
 		let ajaxUrl = "ajaxm.php";
 		let aihidcms = "";
@@ -607,11 +609,11 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 		let zt = jsonData["zt"];
 
 		// var killdns = true;
-		let killdns = await httpx.get("https://down-load.lanrar.com/file/kdns.js",{
+		let killdns = await httpx.get("https://down-load.lanrar.com/file/kdns.js", {
 			allowInterceptConfig: false,
 		});
 		// var killdns2 = true;
-		let killdns2 = await httpx.get("https://boce.lanosso.com/file/kdns2.js",{
+		let killdns2 = await httpx.get("https://boce.lanosso.com/file/kdns2.js", {
 			allowInterceptConfig: false,
 		});
 		if (!killdns2.status) {

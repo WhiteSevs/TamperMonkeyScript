@@ -10,7 +10,7 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@11f749fc58f5674c1b4db129731403b77d97f7eb/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
@@ -5154,7 +5154,7 @@
       const that = this;
       log.info(urlPathName, fileInfo);
       let iFrameUrl = that.router.root(urlPathName);
-      let getResp = await httpx.get({
+      let response = await httpx.get({
         url: iFrameUrl,
         headers: {
           Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -5162,16 +5162,16 @@
           Referer: that.router.root(that.shareCode)
         }
       });
-      if (!getResp.status) {
+      if (!response.status) {
         return;
       }
-      let respData = getResp.data;
-      log.info(respData);
-      let pageText = respData.responseText;
+      let responseInstance = response.data;
+      log.info(responseInstance);
+      let pageText = responseInstance.responseText;
       let aihidcmsMatch = pageText.match(/var[\s]*aihidcms[\s]*=[\s]*'(.*)';/i);
       let ciucjdsdcMatch = pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
       let ajaxdataMatch = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
-      let signMatch = pageText.match(/'sign':[\s]*'(.+)',/i);
+      let signMatch = pageText.match(/'sign':[\s]*'(.+)',/i) || pageText.match(/var[\s]*wp_sign[\s]*=[\s]*'(.*)';/i);
       let ajaxUrlMatch = pageText.match(/url[\s]*:[\s]*'(.+)'[\s]*,/);
       let ajaxUrl = "ajaxm.php";
       let aihidcms = "";
