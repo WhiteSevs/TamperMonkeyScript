@@ -402,9 +402,14 @@ export const WebsiteRule = {
 						let $ulist_li = $form.querySelectorAll<HTMLLIElement>(
 							".rule-form-ulist > li"
 						);
-						let data = addData;
+						let data: WebsiteRuleOption = addData;
 						if (isEdit) {
 							data.uuid = editData!.uuid;
+							let allData = this.getAllRule();
+							let findValue = allData.find((item) => item.uuid === data.uuid);
+							if (findValue) {
+								data.data = findValue.data;
+							}
 						}
 						$ulist_li.forEach(($li) => {
 							let formConfig = Reflect.get($li, "__formConfig__");
