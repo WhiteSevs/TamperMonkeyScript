@@ -18,6 +18,15 @@ export class UtilsGMCookie {
 		}
 	}
 	/**
+	 * 获取Cookie分组
+	 */
+	private getCookiesList() {
+		if (this.windowApi.document.cookie.trim() === "") {
+			return [];
+		}
+		return this.windowApi.document.cookie.split(";");
+	}
+	/**
 	 * 获取单个cookie
 	 * @param cookieName cookie名
 	 */
@@ -25,8 +34,7 @@ export class UtilsGMCookie {
 		if (typeof cookieName !== "string") {
 			throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
 		}
-
-		let cookies = this.windowApi.document.cookie.split(";");
+		let cookies = this.getCookiesList();
 		let findValue: UtilsGMCookieResult | undefined = void 0;
 		for (const cookieItem of cookies) {
 			let item = cookieItem.trim();
@@ -75,7 +83,7 @@ export class UtilsGMCookie {
 				path: "/",
 			};
 			defaultOption = Utils.assign(defaultOption, option);
-			let cookies = this.windowApi.document.cookie.split(";");
+			let cookies = this.getCookiesList();
 			cookies.forEach((item) => {
 				item = item.trim();
 				let itemSplit = item.split("=");
@@ -126,7 +134,7 @@ export class UtilsGMCookie {
 			path: "/",
 		};
 		defaultOption = Utils.assign(defaultOption, option);
-		let cookies = this.windowApi.document.cookie.split(";");
+		let cookies = this.getCookiesList();
 		cookies.forEach((item) => {
 			item = item.trim();
 			let itemSplit = item.split("=");
@@ -235,6 +243,9 @@ export class UtilsGMCookie {
 	 * @param cookieStr
 	 */
 	parseCookie(cookieStr: string) {
+		if (cookieStr.trim() === "") {
+			return [];
+		}
 		let cookies = cookieStr.split(";");
 		let result: { key: string; value: string }[] = [];
 		for (const cookieItem of cookies) {

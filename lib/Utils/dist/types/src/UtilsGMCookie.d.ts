@@ -3,6 +3,10 @@ export declare class UtilsGMCookie {
     private windowApi;
     constructor(windowApiOption?: WindowApiOption);
     /**
+     * 获取Cookie分组
+     */
+    private getCookiesList;
+    /**
      * 获取单个cookie
      * @param cookieName cookie名
      */
