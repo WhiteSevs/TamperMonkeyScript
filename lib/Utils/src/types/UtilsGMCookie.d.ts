@@ -41,7 +41,8 @@ export interface UtilsGMCookieSetOptions {
 	url?: string;
 	/**
 	 * Cookie所在域
-	 * @default window.location.hostname
+	 *
+	 * 不填的话会默认在window.location.hostname的前面加上.
 	 */
 	domain?: string;
 	/** 需要检索的Cookie的名字 */
@@ -82,7 +83,6 @@ export interface UtilsGMCookieDeleteOptions {
 	path?: string;
 	/**
 	 * Cookie所在域
-	 * @default window.location.hostname
 	 */
 	firstPartyDomain?: string;
 }

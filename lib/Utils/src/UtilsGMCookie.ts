@@ -166,7 +166,7 @@ export class UtilsGMCookie {
 				url: this.windowApi.window.location.href,
 				name: "",
 				value: "",
-				domain: this.windowApi.window.location.hostname,
+				domain: "",
 				path: "/",
 				secure: true,
 				httpOnly: false,
@@ -186,6 +186,9 @@ export class UtilsGMCookie {
 				";expires=" +
 				(new Date(life) as any).toGMTString() +
 				"; path=/";
+			if (Utils.isNotNull(defaultOption.domain)) {
+				cookieStr += "; domain=" + defaultOption.domain;
+			}
 			this.windowApi.document.cookie = cookieStr;
 		} catch (error: any) {
 			errorInfo = error;
@@ -210,10 +213,13 @@ export class UtilsGMCookie {
 				url: this.windowApi.window.location.href,
 				name: "",
 				path: "/",
-				firstPartyDomain: this.windowApi.window.location.hostname,
+				firstPartyDomain: "",
 			};
 			defaultOption = Utils.assign(defaultOption, option);
-			let cookieStr = `${defaultOption.name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${defaultOption.path}; domain=${defaultOption.firstPartyDomain};`;
+			let cookieStr = `${defaultOption.name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${defaultOption.path}`;
+			if (Utils.isNotNull(defaultOption.firstPartyDomain)) {
+				cookieStr += `; domain=${defaultOption.firstPartyDomain};`;
+			}
 			this.windowApi.document.cookie = cookieStr;
 		} catch (error: any) {
 			errorInfo = error;
