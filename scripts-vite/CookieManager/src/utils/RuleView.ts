@@ -278,6 +278,7 @@ export class RuleView<T> {
 			mask: {
 				enable: true,
 			},
+			drag: true,
 			width: window.innerWidth > 500 ? "500px" : "88vw",
 			height: window.innerHeight > 500 ? "500px" : "80vh",
 			style: /*css*/ `

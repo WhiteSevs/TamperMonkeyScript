@@ -5,9 +5,9 @@ import { PopsPanel } from "@/setting/panel";
 import { PanelUISize } from "@/setting/panel-ui-size";
 import Qmsg from "qmsg";
 import { UISwitch } from "@/setting/components/ui-switch";
-import { CookieManagerAutoUpdateExpirationDate } from "./CookieManagerAutoUpdateExpirationDate";
 import { CookieManagerEditView } from "./CookieManagerEditView";
 import { UISelect } from "@/setting/components/ui-select";
+import { CookieRule } from "./CookieRule";
 
 export const CookieManagerView = {
 	init() {
@@ -41,6 +41,7 @@ export const CookieManagerView = {
                             <button class="cookie-control-add" type="default">添加</button>
                             <button class="cookie-control-copy-all" type="default">复制全部</button>
                             <button class="cookie-control-clear-all" type="default">清除全部</button>
+                            <button class="cookie-control-rule-manager" type="default">规则管理</button>
                             <div class="cookie-setting"> 
                                 <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4368" width="28" height="28">
                                     <path fill="#2c2c2c" d="M439.264 208a16 16 0 0 0-16 16v67.968a239.744 239.744 0 0 0-46.496 26.896l-58.912-34a16 16 0 0 0-21.856 5.856l-80 138.56a16 16 0 0 0 5.856 21.856l58.896 34a242.624 242.624 0 0 0 0 53.728l-58.88 34a16 16 0 0 0-6.72 20.176l0.848 1.68 80 138.56a16 16 0 0 0 21.856 5.856l58.912-34a239.744 239.744 0 0 0 46.496 26.88V800a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-67.968a239.744 239.744 0 0 0 46.512-26.896l58.912 34a16 16 0 0 0 21.856-5.856l80-138.56a16 16 0 0 0-4.288-20.832l-1.568-1.024-58.896-34a242.624 242.624 0 0 0 0-53.728l58.88-34a16 16 0 0 0 6.72-20.176l-0.848-1.68-80-138.56a16 16 0 0 0-21.856-5.856l-58.912 34a239.744 239.744 0 0 0-46.496-26.88V224a16 16 0 0 0-16-16h-160z m32 48h96v67.376l28.8 12.576c13.152 5.76 25.632 12.976 37.184 21.52l25.28 18.688 58.448-33.728 48 83.136-58.368 33.68 3.472 31.2a194.624 194.624 0 0 1 0 43.104l-3.472 31.2 58.368 33.68-48 83.136-58.432-33.728-25.296 18.688c-11.552 8.544-24.032 15.76-37.184 21.52l-28.8 12.576V768h-96v-67.376l-28.784-12.576c-13.152-5.76-25.632-12.976-37.184-21.52l-25.28-18.688-58.448 33.728-48-83.136 58.368-33.68-3.472-31.2a194.624 194.624 0 0 1 0-43.104l3.472-31.2-58.368-33.68 48-83.136 58.432 33.728 25.296-18.688a191.744 191.744 0 0 1 37.184-21.52l28.8-12.576V256z m47.28 144a112 112 0 1 0 0 224 112 112 0 0 0 0-224z m0 48a64 64 0 1 1 0 128 64 64 0 0 1 0-128z"></path>
@@ -167,6 +168,9 @@ export const CookieManagerView = {
 		)!;
 		const $clearAll = $alert.$shadowRoot.querySelector<HTMLButtonElement>(
 			".cookie-control-clear-all"
+		)!;
+		const $ruleManager = $alert.$shadowRoot.querySelector<HTMLButtonElement>(
+			".cookie-control-rule-manager"
 		)!;
 		const $setting =
 			$alert.$shadowRoot.querySelector<HTMLDivElement>(".cookie-setting")!;
@@ -538,6 +542,10 @@ export const CookieManagerView = {
 				}
 				updateCookieListGroup();
 			});
+		});
+		DOMUtils.on($ruleManager, "click", (event) => {
+			utils.preventEvent(event);
+			CookieRule.showView();
 		});
 		DOMUtils.on($setting, "click", (event) => {
 			utils.preventEvent(event);

@@ -16,6 +16,7 @@ import type {
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import { Component_Rule } from "./view/rule";
 
 type PosPanelListenerData = {
 	id: number;
@@ -596,7 +597,10 @@ export const PopsPanel = {
 	 * 获取配置内容
 	 */
 	getPanelContentConfig() {
-		let configList: PopsPanelContentConfig[] = [Component_Common];
+		let configList: PopsPanelContentConfig[] = [
+			Component_Common,
+			Component_Rule,
+		];
 		return configList;
 	},
 };

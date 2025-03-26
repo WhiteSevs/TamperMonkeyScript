@@ -8,6 +8,7 @@ import {
 	GM_unregisterMenuCommand,
 	GM_addStyle,
 	GM_getResourceText,
+	GM_xmlhttpRequest,
 } from "ViteGM";
 import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
@@ -132,6 +133,32 @@ const GM_Menu = new utils.GM_Menu({
 	GM_unregisterMenuCommand,
 });
 
+const httpx = new utils.Httpx(GM_xmlhttpRequest);
+
+// 添加请求拦截器
+httpx.interceptors.request.use((data) => {
+	return data;
+});
+
+// 添加响应拦截器
+httpx.interceptors.response.use(void 0, (data) => {
+	log.error("拦截器-请求错误", data);
+	if (data.type === "onabort") {
+		Qmsg.warning("请求取消");
+	} else if (data.type === "onerror") {
+		Qmsg.error("请求异常");
+	} else if (data.type === "ontimeout") {
+		Qmsg.error("请求超时");
+	} else {
+		Qmsg.error("其它错误");
+	}
+	return data;
+});
+
+httpx.config({
+	logDetails: DEBUG,
+});
+
 const OriginPrototype = {
 	Object: {
 		defineProperty: unsafeWindow.Object.defineProperty,
@@ -160,6 +187,14 @@ const $ = document.querySelector.bind(document);
  */
 const $$ = document.querySelectorAll.bind(document);
 
+if (import.meta.hot) {
+	Reflect.set(unsafeWindow, "httpx", httpx);
+	Object.defineProperty(unsafeWindow, "PopsPanel", {
+		get() {
+			return PopsPanel;
+		},
+	});
+}
 /**
  * Vue的根元素的id
  */
@@ -211,7 +246,7 @@ export {
 	GM_Menu,
 	SCRIPT_NAME,
 	OriginPrototype,
-	// httpx,
+	httpx,
 	addStyle,
 	$,
 	$$,

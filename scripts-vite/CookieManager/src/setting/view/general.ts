@@ -98,18 +98,5 @@ export const Component_Common: PopsPanelContentConfig = {
 				),
 			],
 		},
-		{
-			text: "Cookie配置",
-			type: "forms",
-			forms: [
-				UISwitch(
-					"启用GM_cookie Api",
-					"use-GM-cookie",
-					false,
-					void 0,
-					"获取到的Cookie信息会更完善，需要脚本管理器支持该函数"
-				),
-			],
-		},
 	],
 };

@@ -34,6 +34,9 @@ declare module "*.vue" {
 
 declare interface GMCookieInstance {
 	domain: string;
+	/**
+	 * 秒级时间戳
+	 */
 	expirationDate?: number | null;
 	firstPartyDomain?: string;
 	partitionKey?: {

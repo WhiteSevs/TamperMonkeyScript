@@ -132,14 +132,14 @@ export const CookieManager = {
 	/**
 	 * 添加Cookie
 	 */
-	addCookie(cookieInfo: GMCookieInstance) {
+	addCookie(cookieInfo: GMCookieInstance | CookieStoreData) {
 		return new Promise<string | Error | null | undefined>((resolve, reject) => {
 			try {
 				// @ts-ignore
 				delete cookieInfo.hostOnly;
 				// @ts-ignore
 				CookieManager.cookieManager.set(cookieInfo, (error) => {
-					log.info(["添加Cookie", cookieInfo]);
+					log.info(["添加Cookie：" + cookieInfo.name, cookieInfo]);
 					resolve(error);
 				});
 			} catch (error: any) {
@@ -157,7 +157,7 @@ export const CookieManager = {
 			try {
 				// @ts-ignore
 				CookieManager.cookieManager.delete(cookieInfo, (error) => {
-					log.info(["删除Cookie", cookieInfo]);
+					log.info(["删除Cookie：" + cookieInfo.name, cookieInfo]);
 					resolve(error);
 				});
 			} catch (error: any) {
@@ -170,25 +170,23 @@ export const CookieManager = {
 	/**
 	 * 更新Cookie
 	 */
-	updateCookie(cookieInfo: GMCookieInstance) {
+	updateCookie(cookieInfo: GMCookieInstance | CookieStoreData) {
 		return new Promise<string | Error | null | undefined>(
 			async (resolve, reject) => {
 				let result: any;
 				try {
-					log.info(["更新Cookie", cookieInfo]);
 					let deleteError = await CookieManager.deleteCookie(cookieInfo);
-					log.error(deleteError);
 					if (deleteError) {
 						throw new TypeError(deleteError.toString());
 					}
 					let addError = await CookieManager.addCookie(cookieInfo);
-					log.error(addError);
 					if (addError) {
 						throw new TypeError(addError.toString());
 					}
 				} catch (error: any) {
 					result = error;
 				} finally {
+					log.info(["更新Cookie：" + cookieInfo.name, cookieInfo]);
 					resolve(result);
 				}
 			}

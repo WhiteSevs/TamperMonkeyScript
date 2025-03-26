@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.25
+// @version      2025.3.26
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -15,11 +15,13 @@
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
 // @connect      *
 // @grant        GM_cookie
+// @grant        GM_deleteValue
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
 // @grant        GM_setValue
 // @grant        GM_unregisterMenuCommand
+// @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @run-at       document-start
 // ==/UserScript==
@@ -27,13 +29,18 @@
 (function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
+  var __defProp = Object.defineProperty;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var _a;
   var _GM_cookie = /* @__PURE__ */ (() => typeof GM_cookie != "undefined" ? GM_cookie : void 0)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
   var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
   var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const PanelSettingConfig = {
@@ -140,6 +147,26 @@
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+  });
+  const httpx = new utils.Httpx(_GM_xmlhttpRequest);
+  httpx.interceptors.request.use((data) => {
+    return data;
+  });
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error("拦截器-请求错误", data);
+    if (data.type === "onabort") {
+      Qmsg.warning("请求取消");
+    } else if (data.type === "onerror") {
+      Qmsg.error("请求异常");
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时");
+    } else {
+      Qmsg.error("其它错误");
+    }
+    return data;
+  });
+  httpx.config({
+    logDetails: DEBUG
   });
   ({
     Object: {
@@ -330,19 +357,6 @@
             "修改Toast弹出的顺序"
           )
         ]
-      },
-      {
-        text: "Cookie配置",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "启用GM_cookie Api",
-            "use-GM-cookie",
-            false,
-            void 0,
-            "获取到的Cookie信息会更完善，需要脚本管理器支持该函数"
-          )
-        ]
       }
     ]
   };
@@ -369,6 +383,1395 @@
         return window.innerHeight < 250 ? "250px" : "250px";
       }
     }
+  };
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
+    let result = {
+      text,
+      type: "button",
+      attributes: {},
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
+        }
+      },
+      afterAddToUListCallBack
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(
+        disable
+      );
+    });
+    return result;
+  };
+  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
+    let result = {
+      text,
+      type: "input",
+      isNumber: Boolean(isNumber),
+      isPassword: Boolean(isPassword),
+      props: {},
+      attributes: {},
+      description,
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(event, value) {
+        this.props[PROPS_STORAGE_API].set(key, value);
+      },
+      placeholder
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
+    return result;
+  };
+  const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
+    let result = {
+      text,
+      type: "textarea",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      disabled,
+      getValue() {
+        let value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        if (Array.isArray(value)) {
+          return value.join("\n");
+        }
+        return value;
+      },
+      callback(event, value) {
+        this.props[PROPS_STORAGE_API].set(key, value);
+      }
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return PopsPanel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        PopsPanel.setValue(key2, value);
+      }
+    });
+    return result;
+  };
+  class RuleEditView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    /**
+     * 显示视图
+     */
+    async showView() {
+      var _a2;
+      let $dialog = __pops.confirm({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <form class="rule-form-container" onsubmit="return false">
+                        <ul class="rule-form-ulist">
+                            
+                        </ul>
+                        <input type="submit" style="display: none;" />
+                    </form>
+                    `
+          ),
+          html: true
+        },
+        btn: utils.assign(
+          {
+            ok: {
+              callback: async () => {
+                await submitSaveOption();
+              }
+            }
+          },
+          this.option.btn || {},
+          true
+        ),
+        mask: {
+          enable: true
+        },
+        drag: true,
+        style: (
+          /*css*/
+          `
+                ${__pops.config.cssText.panelCSS}
+                
+                .rule-form-container {
+                    
+                }
+                .rule-form-container li{
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 5px 20px;
+                    gap: 10px;
+                }
+                .pops-panel-item-left-main-text{
+                    max-width: 150px;
+                }
+                .pops-panel-item-right-text{
+                    padding-left: 30px;
+                }
+                .pops-panel-item-right-text,
+                .pops-panel-item-right-main-text{
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
+
+                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
+            `
+        ),
+        width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+        height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
+      });
+      let $form = $dialog.$shadowRoot.querySelector(
+        ".rule-form-container"
+      );
+      $dialog.$shadowRoot.querySelector(
+        "input[type=submit]"
+      );
+      let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
+      let view = await this.option.getView(await this.option.data());
+      $ulist.appendChild(view);
+      const submitSaveOption = async () => {
+        let result = await this.option.onsubmit($form, await this.option.data());
+        if (!result.success) {
+          return;
+        }
+        $dialog.close();
+        await this.option.dialogCloseCallBack(true);
+      };
+    }
+  }
+  class RuleFilterView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    showView() {
+      let $alert = __pops.alert({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                <div class="filter-container"></div>
+                `
+          )
+        },
+        btn: {
+          ok: {
+            text: "关闭",
+            type: "default"
+          }
+        },
+        mask: {
+          enable: true
+        },
+        width: window.innerWidth > 500 ? "350px" : "80vw",
+        height: window.innerHeight > 500 ? "300px" : "70vh",
+        style: (
+          /*css*/
+          `
+            .filter-container{
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .filter-container button{
+                text-wrap: wrap;
+                padding: 8px;
+                height: auto;
+                text-align: left;
+            }
+            `
+        )
+      });
+      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
+      let $fragment = document.createDocumentFragment();
+      this.option.filterOption.forEach((filterOption) => {
+        let $button = document.createElement("button");
+        $button.innerText = filterOption.name;
+        let execFilterAndCloseDialog = async () => {
+          let allRuleInfo = await this.option.getAllRuleInfo();
+          allRuleInfo.forEach(async (ruleInfo) => {
+            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
+            if (!filterResult) {
+              domUtils.hide(ruleInfo.$el, false);
+            } else {
+              domUtils.show(ruleInfo.$el, false);
+            }
+          });
+          if (typeof this.option.execFilterCallBack === "function") {
+            await this.option.execFilterCallBack();
+          }
+          $alert.close();
+        };
+        domUtils.on($button, "click", async (event) => {
+          utils.preventEvent(event);
+          if (typeof filterOption.callback === "function") {
+            let result = await filterOption.callback(
+              event,
+              execFilterAndCloseDialog
+            );
+            if (!result) {
+              return;
+            }
+          }
+          await execFilterAndCloseDialog();
+        });
+        $fragment.appendChild($button);
+      });
+      $filterContainer.appendChild($fragment);
+    }
+  }
+  class RuleView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    /**
+     * 显示视图
+     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
+     */
+    async showView(filterCallBack) {
+      var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
+      let $popsConfirm = __pops.confirm({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <div class="rule-view-container">
+                    </div>
+                    `
+          ),
+          html: true
+        },
+        btn: {
+          merge: true,
+          reverse: false,
+          position: "space-between",
+          ok: {
+            enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
+            type: "primary",
+            text: "添加",
+            callback: async (event) => {
+              this.showEditView(
+                false,
+                await this.option.getAddData(),
+                $popsConfirm.$shadowRoot
+              );
+            }
+          },
+          close: {
+            enable: true,
+            callback(event) {
+              $popsConfirm.close();
+            }
+          },
+          cancel: {
+            enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
+            type: "default",
+            text: "过滤",
+            callback: (details, event) => {
+              var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
+              if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
+                this.option.bottomControls.filter.callback();
+              }
+              let getAllRuleElement = () => {
+                return Array.from(
+                  $popsConfirm.$shadowRoot.querySelectorAll(
+                    ".rule-view-container .rule-item"
+                  )
+                );
+              };
+              let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
+              if (domUtils.text($button).includes("取消")) {
+                getAllRuleElement().forEach(($el) => {
+                  domUtils.show($el, false);
+                });
+                domUtils.text($button, "过滤");
+              } else {
+                let ruleFilterView = new RuleFilterView({
+                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
+                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
+                  execFilterCallBack() {
+                    domUtils.text($button, "取消过滤");
+                  },
+                  getAllRuleInfo: () => {
+                    return getAllRuleElement().map(($el) => {
+                      return {
+                        data: this.parseRuleItemElement($el).data,
+                        $el
+                      };
+                    });
+                  }
+                });
+                ruleFilterView.showView();
+              }
+            }
+          },
+          other: {
+            enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
+            type: "xiaomi-primary",
+            text: `清空所有(${(await this.option.data()).length})`,
+            callback: (event) => {
+              let $askDialog = __pops.confirm({
+                title: {
+                  text: "提示",
+                  position: "center"
+                },
+                content: {
+                  text: "确定清空所有的数据？",
+                  html: false
+                },
+                btn: {
+                  ok: {
+                    enable: true,
+                    callback: async (popsEvent) => {
+                      var _a3, _b2, _c2;
+                      log.success("清空所有");
+                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
+                        this.option.bottomControls.clear.callback();
+                      }
+                      let data = await this.option.data();
+                      if (data.length) {
+                        Qmsg.error("清理失败");
+                        return;
+                      } else {
+                        Qmsg.success("清理成功");
+                      }
+                      await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
+                      this.clearContent($popsConfirm.$shadowRoot);
+                      $askDialog.close();
+                    }
+                  },
+                  cancel: {
+                    text: "取消",
+                    enable: true
+                  }
+                },
+                mask: { enable: true },
+                width: "300px",
+                height: "200px"
+              });
+            }
+          }
+        },
+        mask: {
+          enable: true
+        },
+        drag: true,
+        width: window.innerWidth > 500 ? "500px" : "88vw",
+        height: window.innerHeight > 500 ? "500px" : "80vh",
+        style: (
+          /*css*/
+          `
+            ${__pops.config.cssText.panelCSS}
+            
+            .rule-item{
+                display: flex;
+                align-items: center;
+                line-height: normal;
+                font-size: 16px;
+                padding: 4px 8px;
+                gap: 8px;
+            }
+            .rule-name{
+                flex: 1;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+            .rule-controls{
+                display: flex;
+                align-items: center;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                gap: 8px;
+                padding: 0px;
+            }
+            .rule-controls-enable{
+                
+            }
+            .rule-controls-edit{
+                
+            }
+            .rule-controls-delete{
+                
+            }
+            .rule-controls-edit,
+            .rule-controls-delete{
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+            }
+            `
+        )
+      });
+      let allData = await this.option.data();
+      let changeButtonText = false;
+      for (let index = 0; index < allData.length; index++) {
+        let item = allData[index];
+        let $ruleItemList = await this.appendRuleItemElement(
+          $popsConfirm.$shadowRoot,
+          item
+        );
+        let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
+        if (!flag) {
+          changeButtonText = true;
+          $ruleItemList.forEach(($el) => {
+            domUtils.hide($el, false);
+          });
+        }
+      }
+      if (changeButtonText) {
+        let $button = $popsConfirm.$shadowRoot.querySelector(
+          ".pops-confirm-btn-cancel span"
+        );
+        domUtils.text($button, "取消过滤");
+      }
+    }
+    /**
+     * 显示编辑视图
+     * @param isEdit 是否是编辑状态
+     * @param editData 编辑的数据
+     * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
+     * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
+     * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
+     * @param submitCallBack （可选）添加/修改提交的回调
+     */
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+      let dialogCloseCallBack = async (isSubmit) => {
+        if (isSubmit) {
+          if (typeof submitCallBack === "function") {
+            let newData = await this.option.getData(editData);
+            submitCallBack(newData);
+          }
+        } else {
+          if (!isEdit) {
+            await this.option.deleteData(editData);
+          }
+          if (typeof updateDataCallBack === "function") {
+            let newData = await this.option.getData(editData);
+            updateDataCallBack(newData);
+          }
+        }
+      };
+      let editView = new RuleEditView({
+        title: isEdit ? "编辑" : "添加",
+        data: () => {
+          return editData;
+        },
+        dialogCloseCallBack,
+        getView: async (data) => {
+          return await this.option.itemControls.edit.getView(data, isEdit);
+        },
+        btn: {
+          ok: {
+            enable: true,
+            text: isEdit ? "修改" : "添加"
+          },
+          cancel: {
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
+            }
+          },
+          close: {
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
+            }
+          }
+        },
+        onsubmit: async ($form, data) => {
+          let result = await this.option.itemControls.edit.onsubmit(
+            $form,
+            isEdit,
+            data
+          );
+          if (result.success) {
+            if (isEdit) {
+              Qmsg.success("修改成功");
+              $parentShadowRoot && await this.updateRuleItemElement(
+                result.data,
+                $editRuleItemElement,
+                $parentShadowRoot
+              );
+            } else {
+              $parentShadowRoot && await this.appendRuleItemElement(
+                $parentShadowRoot,
+                result.data
+              );
+            }
+          } else {
+            if (isEdit) {
+              Qmsg.error("修改失败");
+            }
+          }
+          return result;
+        },
+        style: this.option.itemControls.edit.style,
+        width: this.option.itemControls.edit.width,
+        height: this.option.itemControls.edit.height
+      });
+      editView.showView();
+    }
+    /**
+     * 解析弹窗内的各个元素
+     */
+    parseViewElement($shadowRoot) {
+      let $container = $shadowRoot.querySelector(
+        ".rule-view-container"
+      );
+      let $deleteBtn = $shadowRoot.querySelector(
+        ".pops-confirm-btn button.pops-confirm-btn-other"
+      );
+      return {
+        /** 容器 */
+        $container,
+        /** 左下角的清空按钮 */
+        $deleteBtn
+      };
+    }
+    /**
+     * 解析每一项的元素
+     */
+    parseRuleItemElement($ruleElement) {
+      let $enable = $ruleElement.querySelector(
+        ".rule-controls-enable"
+      );
+      let $enableSwitch = $enable.querySelector(".pops-panel-switch");
+      let $enableSwitchInput = $enable.querySelector(
+        ".pops-panel-switch__input"
+      );
+      let $enableSwitchCore = $enable.querySelector(
+        ".pops-panel-switch__core"
+      );
+      let $edit = $ruleElement.querySelector(".rule-controls-edit");
+      let $delete = $ruleElement.querySelector(
+        ".rule-controls-delete"
+      );
+      return {
+        /** 启用开关 */
+        $enable,
+        /** 启用开关的container */
+        $enableSwitch,
+        /** 启用开关的input */
+        $enableSwitchInput,
+        /** 启用开关的core */
+        $enableSwitchCore,
+        /** 编辑按钮 */
+        $edit,
+        /** 删除按钮 */
+        $delete,
+        /** 存储在元素上的数据 */
+        data: Reflect.get($ruleElement, "data-rule")
+      };
+    }
+    /**
+     * 创建一条规则元素
+     */
+    async createRuleItemElement(data, $shadowRoot) {
+      let name = await this.option.getDataItemName(data);
+      let $ruleItem = domUtils.createElement("div", {
+        className: "rule-item",
+        innerHTML: (
+          /*html*/
+          `
+			<div class="rule-name">${name}</div>
+			<div class="rule-controls">
+				<div class="rule-controls-enable">
+					<div class="pops-panel-switch">
+						<input class="pops-panel-switch__input" type="checkbox">
+						<span class="pops-panel-switch__core">
+							<div class="pops-panel-switch__action">
+							</div>
+						</span>
+					</div>
+				</div>
+				<div class="rule-controls-edit">
+					${__pops.config.iconSVG.edit}
+				</div>
+				<div class="rule-controls-delete">
+					${__pops.config.iconSVG.delete}
+				</div>
+			</div>
+			`
+        )
+      });
+      Reflect.set($ruleItem, "data-rule", data);
+      let switchCheckedClassName = "pops-panel-switch-is-checked";
+      const {
+        $enable,
+        $enableSwitch,
+        $enableSwitchCore,
+        $enableSwitchInput,
+        $delete,
+        $edit
+      } = this.parseRuleItemElement($ruleItem);
+      if (this.option.itemControls.enable.enable) {
+        domUtils.on($enableSwitchCore, "click", async (event) => {
+          let isChecked = false;
+          if ($enableSwitch.classList.contains(switchCheckedClassName)) {
+            $enableSwitch.classList.remove(switchCheckedClassName);
+            isChecked = false;
+          } else {
+            $enableSwitch.classList.add(switchCheckedClassName);
+            isChecked = true;
+          }
+          $enableSwitchInput.checked = isChecked;
+          await this.option.itemControls.enable.callback(data, isChecked);
+        });
+        if (await this.option.itemControls.enable.getEnable(data)) {
+          $enableSwitch.classList.add(switchCheckedClassName);
+        }
+      } else {
+        $enable.remove();
+      }
+      if (this.option.itemControls.edit.enable) {
+        domUtils.on($edit, "click", (event) => {
+          utils.preventEvent(event);
+          this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
+            data = null;
+            data = newData;
+          });
+        });
+      } else {
+        $edit.remove();
+      }
+      if (this.option.itemControls.delete.enable) {
+        domUtils.on($delete, "click", (event) => {
+          utils.preventEvent(event);
+          let $askDialog = __pops.confirm({
+            title: {
+              text: "提示",
+              position: "center"
+            },
+            content: {
+              text: "确定删除该条数据？",
+              html: false
+            },
+            btn: {
+              ok: {
+                enable: true,
+                callback: async (popsEvent) => {
+                  log.success("删除数据");
+                  let flag = await this.option.itemControls.delete.deleteCallBack(
+                    data
+                  );
+                  if (flag) {
+                    Qmsg.success("成功删除该数据");
+                    $ruleItem.remove();
+                    await this.updateDeleteAllBtnText($shadowRoot);
+                    $askDialog.close();
+                  } else {
+                    Qmsg.error("删除该数据失败");
+                  }
+                }
+              },
+              cancel: {
+                text: "取消",
+                enable: true
+              }
+            },
+            mask: {
+              enable: true
+            },
+            width: "300px",
+            height: "200px"
+          });
+        });
+      } else {
+        $delete.remove();
+      }
+      return $ruleItem;
+    }
+    /**
+     * 添加一个规则元素
+     */
+    async appendRuleItemElement($shadowRoot, data) {
+      let { $container } = this.parseViewElement($shadowRoot);
+      let $ruleItem = [];
+      let iteratorData = Array.isArray(data) ? data : [data];
+      for (let index = 0; index < iteratorData.length; index++) {
+        let item = iteratorData[index];
+        let $item = await this.createRuleItemElement(item, $shadowRoot);
+        $container.appendChild($item);
+        $ruleItem.push($item);
+      }
+      await this.updateDeleteAllBtnText($shadowRoot);
+      return $ruleItem;
+    }
+    /**
+     * 更新弹窗内容的元素
+     */
+    async updateRuleContaienrElement($shadowRoot) {
+      this.clearContent($shadowRoot);
+      const { $container } = this.parseViewElement($shadowRoot);
+      let data = await this.option.data();
+      await this.appendRuleItemElement($shadowRoot, data);
+      await this.updateDeleteAllBtnText($shadowRoot);
+    }
+    /**
+     * 更新规则元素
+     */
+    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+      let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
+      $oldRuleItem.after($newRuleItem);
+      $oldRuleItem.remove();
+    }
+    /**
+     * 清空内容
+     */
+    clearContent($shadowRoot) {
+      const { $container } = this.parseViewElement($shadowRoot);
+      domUtils.html($container, "");
+    }
+    /**
+     * 设置删除按钮的文字
+     */
+    setDeleteBtnText($shadowRoot, text, isHTML = false) {
+      const { $deleteBtn } = this.parseViewElement($shadowRoot);
+      if (isHTML) {
+        domUtils.html($deleteBtn, text);
+      } else {
+        domUtils.text($deleteBtn, text);
+      }
+    }
+    /**
+     * 更新【清空所有】的按钮的文字
+     * @param $shadowRoot
+     */
+    async updateDeleteAllBtnText($shadowRoot) {
+      let data = await this.option.data();
+      this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
+    }
+  }
+  const CookieRule = {
+    $key: {
+      STORAGE_KEY: "cookie-rule"
+    },
+    $data: {
+      /** 规则数据 */
+      ruleData: []
+    },
+    /** 初始化数据 */
+    init() {
+      this.$data.ruleData = [];
+      let allData = this.getData();
+      allData.forEach((data) => {
+        if (!data.enable) {
+          return;
+        }
+        let url = window.location.href;
+        let ruleUrl = data.data.url;
+        let enableRegExpToMatchUrl = data.data.enableRegExpToMatchUrl;
+        if (enableRegExpToMatchUrl) {
+          let regExpUrl = new RegExp(ruleUrl, "i");
+          if (!regExpUrl.test(url)) {
+            return;
+          }
+        } else {
+          if (!url.includes(ruleUrl)) {
+            return;
+          }
+        }
+        this.$data.ruleData.push(data);
+      });
+    },
+    /**
+     * 显示视图
+     */
+    showView() {
+      let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
+      function generateStorageApi(data, handler) {
+        return {
+          get(key, defaultValue) {
+            return Reflect.get(data, key) ?? defaultValue;
+          },
+          set(key, value) {
+            Reflect.set(data, key, value);
+          }
+        };
+      }
+      let ruleView = new RuleView({
+        title: "Cookie规则",
+        data: () => {
+          return this.getData();
+        },
+        getAddData: () => {
+          return this.getTemplateData();
+        },
+        getDataItemName: (data) => {
+          return data["name"];
+        },
+        updateData: (data) => {
+          return this.updateData(data);
+        },
+        deleteData: (data) => {
+          return this.deleteData(data);
+        },
+        getData: (data) => {
+          let allData = this.getData();
+          let findValue = allData.find((item) => item.uuid === data.uuid);
+          return findValue ?? data;
+        },
+        itemControls: {
+          enable: {
+            enable: true,
+            getEnable(data) {
+              return data.enable;
+            },
+            callback: (data, enable) => {
+              data.enable = enable;
+              this.updateData(data);
+            }
+          },
+          edit: {
+            enable: true,
+            getView: (data, isEdit) => {
+              let $fragment = document.createDocumentFragment();
+              let templateData = this.getTemplateData();
+              if (!isEdit) {
+                data = templateData;
+              }
+              let enable_template = UISwitch(
+                "启用",
+                "enable",
+                templateData.enable
+              );
+              Reflect.set(
+                enable_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data)
+              );
+              let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
+                enable_template
+              );
+              let name_template = UIInput(
+                "规则名称",
+                "name",
+                "",
+                templateData.name,
+                void 0,
+                "必填"
+              );
+              Reflect.set(
+                name_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data)
+              );
+              let $name = popsPanelContentUtils.createSectionContainerItem_input(
+                name_template
+              );
+              let url_template = UIInput(
+                "网址",
+                "url",
+                templateData.data.url,
+                "用于执行该规则的网址",
+                void 0,
+                "必填"
+              );
+              Reflect.set(
+                url_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data.data)
+              );
+              let $url = popsPanelContentUtils.createSectionContainerItem_input(
+                url_template
+              );
+              let enableRegExpToMatchUrl_template = UISwitch(
+                "启用正则匹配网址",
+                "enableRegExpToMatchUrl",
+                templateData.data.enableRegExpToMatchUrl
+              );
+              Reflect.set(
+                enableRegExpToMatchUrl_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data.data)
+              );
+              let $enableRegExpToMatchUrl = popsPanelContentUtils.createSectionContainerItem_switch(
+                enableRegExpToMatchUrl_template
+              );
+              let cookieName_template = UIInput(
+                "Cookie名称",
+                "cookieName",
+                templateData.data.cookieName,
+                "用于匹配执行操作的Cookie名",
+                void 0,
+                "必填"
+              );
+              Reflect.set(
+                cookieName_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data.data)
+              );
+              let $cookieName = popsPanelContentUtils.createSectionContainerItem_input(
+                cookieName_template
+              );
+              let enableRegExpToMatchCookieName_template = UISwitch(
+                "启用正则匹配Cookie名称",
+                "enableRegExpToMatchCookieName",
+                templateData.data.enableRegExpToMatchCookieName
+              );
+              Reflect.set(
+                enableRegExpToMatchCookieName_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data.data)
+              );
+              let $enableRegExpToMatchCookieName = popsPanelContentUtils.createSectionContainerItem_switch(
+                enableRegExpToMatchCookieName_template
+              );
+              let operationMode_template = UISelect(
+                "操作模式",
+                "operationMode",
+                templateData.data.operationMode,
+                [
+                  {
+                    value: "delete",
+                    text: "删除Cookie"
+                  },
+                  {
+                    value: "extended",
+                    text: "自动延长Cookie有效期30天"
+                  },
+                  {
+                    value: "extended-90",
+                    text: "自动延长Cookie有效期90天"
+                  },
+                  {
+                    value: "extended-180",
+                    text: "自动延长Cookie有效期180天"
+                  },
+                  {
+                    value: "extended-360",
+                    text: "自动延长Cookie有效期360天"
+                  }
+                ]
+              );
+              Reflect.set(
+                operationMode_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data.data)
+              );
+              let $operationMode = popsPanelContentUtils.createSectionContainerItem_select(
+                operationMode_template
+              );
+              let remark_template = UITextArea(
+                "备注",
+                "remark",
+                templateData.data.remark
+              );
+              Reflect.set(
+                remark_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data.data)
+              );
+              let $remark = popsPanelContentUtils.createSectionContainerItem_textarea(
+                remark_template
+              );
+              $fragment.append(
+                $enable,
+                $name,
+                $url,
+                $enableRegExpToMatchUrl,
+                $cookieName,
+                $enableRegExpToMatchCookieName,
+                $operationMode,
+                $remark
+              );
+              return $fragment;
+            },
+            onsubmit: ($form, isEdit, editData) => {
+              let $ulist_li = $form.querySelectorAll(
+                ".rule-form-ulist > li"
+              );
+              let data = this.getTemplateData();
+              if (isEdit) {
+                data.uuid = editData.uuid;
+              }
+              try {
+                $ulist_li.forEach(($li) => {
+                  let formConfig = Reflect.get($li, "__formConfig__");
+                  let attrs = Reflect.get(formConfig, "attributes");
+                  let storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                  let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                  let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                  let value = storageApi.get(key, defaultValue);
+                  if (Reflect.has(data, key)) {
+                    Reflect.set(data, key, value);
+                  } else if (Reflect.has(data.data, key)) {
+                    Reflect.set(data.data, key, value);
+                  } else {
+                    log.error(`${key}不在数据中`);
+                  }
+                });
+                if (data.name.trim() === "") {
+                  Qmsg.error("规则名称不能为空");
+                  return {
+                    success: false,
+                    data
+                  };
+                }
+                if (data.data.url.trim() === "") {
+                  Qmsg.error("网址不能为空");
+                  return {
+                    success: false,
+                    data
+                  };
+                }
+                if (data.data.cookieName.trim() === "") {
+                  Qmsg.error("Cookie名称不能为空");
+                  return {
+                    success: false,
+                    data
+                  };
+                }
+                if (isEdit) {
+                  return {
+                    success: this.updateData(data),
+                    data
+                  };
+                } else {
+                  return {
+                    success: this.addData(data),
+                    data
+                  };
+                }
+              } catch (error) {
+                log.error(error);
+                return {
+                  success: false,
+                  data
+                };
+              } finally {
+                this.init();
+              }
+            },
+            style: (
+              /*css*/
+              `
+                    .pops-panel-textarea textarea{
+                        height: 150px;
+                    }
+					.pops-panel-item-left-desc-text{
+						line-height: normal;
+						margin-top: 6px;
+						font-size: 0.8em;
+						color: rgb(108, 108, 108);
+						max-width: 100px;
+					}
+                    `
+            )
+          },
+          delete: {
+            enable: true,
+            deleteCallBack: (data) => {
+              return this.deleteData(data);
+            }
+          }
+        }
+      });
+      ruleView.showView();
+    },
+    /**
+     * 获取模板数据
+     */
+    getTemplateData() {
+      return {
+        uuid: utils.generateUUID(),
+        enable: true,
+        name: "",
+        data: {
+          url: "",
+          enableRegExpToMatchUrl: false,
+          cookieName: "",
+          enableRegExpToMatchCookieName: false,
+          operationMode: "delete",
+          remark: ""
+        }
+      };
+    },
+    /**
+     * 获取数据
+     */
+    getData() {
+      return _GM_getValue(this.$key.STORAGE_KEY, []);
+    },
+    /**
+     * 设置数据
+     * @param data
+     */
+    setData(data) {
+      _GM_setValue(this.$key.STORAGE_KEY, data);
+    },
+    /**
+     * 添加数据
+     * @param data
+     */
+    addData(data) {
+      let localData = this.getData();
+      let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
+      if (findIndex === -1) {
+        localData.push(data);
+        _GM_setValue(this.$key.STORAGE_KEY, localData);
+        return true;
+      } else {
+        return false;
+      }
+    },
+    /**
+     * 更新数据
+     * @param data
+     */
+    updateData(data) {
+      let localData = this.getData();
+      let index = localData.findIndex((item) => item.uuid == data.uuid);
+      let updateFlag = false;
+      if (index !== -1) {
+        updateFlag = true;
+        localData[index] = data;
+      }
+      this.setData(localData);
+      return updateFlag;
+    },
+    /**
+     * 删除数据
+     * @param data
+     */
+    deleteData(data) {
+      let localData = this.getData();
+      let index = localData.findIndex((item) => item.uuid == data.uuid);
+      let deleteFlag = false;
+      if (index !== -1) {
+        deleteFlag = true;
+        localData.splice(index, 1);
+      }
+      this.setData(localData);
+      return deleteFlag;
+    },
+    /**
+     * 清空数据
+     */
+    clearData() {
+      _GM_deleteValue(this.$key.STORAGE_KEY);
+    },
+    /**
+     * 导出规则
+     */
+    exportRule(fileName = "rule.json") {
+      let allRule = this.getData();
+      let blob = new Blob([JSON.stringify(allRule, null, 4)]);
+      let blobUrl = window.URL.createObjectURL(blob);
+      let $a = domUtils.createElement("a");
+      $a.href = blobUrl;
+      $a.download = fileName;
+      $a.click();
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl);
+      }, 1500);
+    },
+    /**
+     * 导入规则
+     */
+    importRule() {
+      let $alert = __pops.alert({
+        title: {
+          text: "请选择导入方式",
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <div class="import-mode" data-mode="local">本地导入</div>
+                    <div class="import-mode" data-mode="network">网络导入</div>
+                `
+          ),
+          html: true
+        },
+        width: PanelUISize.info.width,
+        height: PanelUISize.info.height,
+        style: (
+          /*css*/
+          `
+                .import-mode{
+                    display: inline-block;
+                    margin: 10px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+            `
+        )
+      });
+      let $local = $alert.$shadowRoot.querySelector(
+        ".import-mode[data-mode='local']"
+      );
+      let $network = $alert.$shadowRoot.querySelector(
+        ".import-mode[data-mode='network']"
+      );
+      domUtils.on($local, "click", (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        let $input = domUtils.createElement("input", {
+          type: "file",
+          accept: ".json"
+        });
+        domUtils.on($input, ["propertychange", "input"], (event2) => {
+          var _a2;
+          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
+            return;
+          }
+          let uploadFile = $input.files[0];
+          let fileReader = new FileReader();
+          fileReader.onload = () => {
+            let data = utils.toJSON(fileReader.result);
+            if (!Array.isArray(data)) {
+              log.error("不是正确的规则文件", data);
+              Qmsg.error("不是正确的规则文件");
+              return;
+            }
+            this.setData(data);
+            Qmsg.success(`成功导入 ${data.length}条规则`);
+          };
+          fileReader.readAsText(uploadFile, "UTF-8");
+        });
+        $input.click();
+      });
+      domUtils.on($network, "click", (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        __pops.prompt({
+          title: {
+            text: "网络导入",
+            position: "center"
+          },
+          content: {
+            text: "",
+            placeholder: "url",
+            focus: true
+          },
+          btn: {
+            ok: {
+              callback: async (eventDetails, event2) => {
+                let url = eventDetails.text;
+                if (utils.isNull(url)) {
+                  Qmsg.error("请填入完整的url");
+                  return;
+                }
+                let response = await httpx.get(url);
+                if (!response.status) {
+                  return;
+                }
+                let data = utils.toJSON(response.data.responseText);
+                if (!Array.isArray(data)) {
+                  log.error("不是正确的规则文件", response, data);
+                  Qmsg.error("不是正确的规则文件");
+                  return;
+                }
+                this.setData(data);
+                eventDetails.close();
+                Qmsg.success(`成功导入 ${data.length}条规则`);
+              }
+            }
+          },
+          width: PanelUISize.info.width,
+          height: "auto"
+        });
+      });
+    }
+  };
+  const Component_Rule = {
+    id: "view-rule",
+    title: "规则",
+    headerTitle: "Cookie操作规则",
+    forms: [
+      {
+        type: "forms",
+        text: "",
+        forms: [
+          UIButton(
+            "自定义规则",
+            "操作Cookie的规则",
+            "管理",
+            void 0,
+            false,
+            false,
+            "default",
+            () => {
+              CookieRule.showView();
+            }
+          )
+        ]
+      },
+      {
+        type: "forms",
+        text: "",
+        forms: [
+          UIButton(
+            "数据导入",
+            "导入自定义规则数据",
+            "导入",
+            void 0,
+            false,
+            false,
+            "primary",
+            () => {
+              CookieRule.importRule();
+            }
+          ),
+          UIButton(
+            "数据导出",
+            "导出自定义规则数据",
+            "导出",
+            void 0,
+            false,
+            false,
+            "primary",
+            () => {
+              CookieRule.exportRule("CookieManagerRule.json");
+            }
+          )
+        ]
+      }
+    ]
   };
   const PopsPanel = {
     /** 数据 */
@@ -846,7 +2249,10 @@
      * 获取配置内容
      */
     getPanelContentConfig() {
-      let configList = [Component_Common];
+      let configList = [
+        Component_Common,
+        Component_Rule
+      ];
       return configList;
     }
   };
@@ -955,7 +2361,7 @@
         try {
           delete cookieInfo.hostOnly;
           CookieManager.cookieManager.set(cookieInfo, (error) => {
-            log.info(["添加Cookie", cookieInfo]);
+            log.info(["添加Cookie：" + cookieInfo.name, cookieInfo]);
             resolve(error);
           });
         } catch (error) {
@@ -972,7 +2378,7 @@
       return new Promise((resolve, reject) => {
         try {
           CookieManager.cookieManager.delete(cookieInfo, (error) => {
-            log.info(["删除Cookie", cookieInfo]);
+            log.info(["删除Cookie：" + cookieInfo.name, cookieInfo]);
             resolve(error);
           });
         } catch (error) {
@@ -990,20 +2396,18 @@
         async (resolve, reject) => {
           let result;
           try {
-            log.info(["更新Cookie", cookieInfo]);
             let deleteError = await CookieManager.deleteCookie(cookieInfo);
-            log.error(deleteError);
             if (deleteError) {
               throw new TypeError(deleteError.toString());
             }
             let addError = await CookieManager.addCookie(cookieInfo);
-            log.error(addError);
             if (addError) {
               throw new TypeError(addError.toString());
             }
           } catch (error) {
             result = error;
           } finally {
+            log.info(["更新Cookie：" + cookieInfo.name, cookieInfo]);
             resolve(result);
           }
         }
@@ -1400,6 +2804,7 @@
                             <button class="cookie-control-add" type="default">添加</button>
                             <button class="cookie-control-copy-all" type="default">复制全部</button>
                             <button class="cookie-control-clear-all" type="default">清除全部</button>
+                            <button class="cookie-control-rule-manager" type="default">规则管理</button>
                             <div class="cookie-setting"> 
                                 <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4368" width="28" height="28">
                                     <path fill="#2c2c2c" d="M439.264 208a16 16 0 0 0-16 16v67.968a239.744 239.744 0 0 0-46.496 26.896l-58.912-34a16 16 0 0 0-21.856 5.856l-80 138.56a16 16 0 0 0 5.856 21.856l58.896 34a242.624 242.624 0 0 0 0 53.728l-58.88 34a16 16 0 0 0-6.72 20.176l0.848 1.68 80 138.56a16 16 0 0 0 21.856 5.856l58.912-34a239.744 239.744 0 0 0 46.496 26.88V800a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-67.968a239.744 239.744 0 0 0 46.512-26.896l58.912 34a16 16 0 0 0 21.856-5.856l80-138.56a16 16 0 0 0-4.288-20.832l-1.568-1.024-58.896-34a242.624 242.624 0 0 0 0-53.728l58.88-34a16 16 0 0 0 6.72-20.176l-0.848-1.68-80-138.56a16 16 0 0 0-21.856-5.856l-58.912 34a239.744 239.744 0 0 0-46.496-26.88V224a16 16 0 0 0-16-16h-160z m32 48h96v67.376l28.8 12.576c13.152 5.76 25.632 12.976 37.184 21.52l25.28 18.688 58.448-33.728 48 83.136-58.368 33.68 3.472 31.2a194.624 194.624 0 0 1 0 43.104l-3.472 31.2 58.368 33.68-48 83.136-58.432-33.728-25.296 18.688c-11.552 8.544-24.032 15.76-37.184 21.52l-28.8 12.576V768h-96v-67.376l-28.784-12.576c-13.152-5.76-25.632-12.976-37.184-21.52l-25.28-18.688-58.448 33.728-48-83.136 58.368-33.68-3.472-31.2a194.624 194.624 0 0 1 0-43.104l3.472-31.2-58.368-33.68 48-83.136 58.432 33.728 25.296-18.688a191.744 191.744 0 0 1 37.184-21.52l28.8-12.576V256z m47.28 144a112 112 0 1 0 0 224 112 112 0 0 0 0-224z m0 48a64 64 0 1 1 0 128 64 64 0 0 1 0-128z"></path>
@@ -1530,6 +2935,9 @@
       );
       const $clearAll = $alert.$shadowRoot.querySelector(
         ".cookie-control-clear-all"
+      );
+      const $ruleManager = $alert.$shadowRoot.querySelector(
+        ".cookie-control-rule-manager"
       );
       const $setting = $alert.$shadowRoot.querySelector(".cookie-setting");
       const $cookieListWrapper = $alert.$shadowRoot.querySelector(
@@ -1861,6 +3269,10 @@
           updateCookieListGroup();
         });
       });
+      domUtils.on($ruleManager, "click", (event) => {
+        utils.preventEvent(event);
+        CookieRule.showView();
+      });
       domUtils.on($setting, "click", (event) => {
         utils.preventEvent(event);
         let $settingAlert = __pops.alert({
@@ -1982,7 +3394,88 @@
       });
     }
   };
+  const CookieRuleController = {
+    init() {
+      this.execController();
+      domUtils.ready(() => {
+        this.execController();
+      });
+    },
+    /**
+     * 执行操作
+     */
+    execController() {
+      for (let index = 0; index < CookieRule.$data.ruleData.length; index++) {
+        const rule = CookieRule.$data.ruleData[index];
+        CookieManager.queryAllCookie().then(async (cookieListResult) => {
+          for (let cookieInfoIndex = 0; cookieInfoIndex < cookieListResult.length; cookieInfoIndex++) {
+            let cookieInfo = cookieListResult[cookieInfoIndex];
+            const cookieName = cookieInfo.name;
+            const ruleCookieName = rule.data.cookieName;
+            let flag = false;
+            if (rule.data.enableRegExpToMatchCookieName) {
+              let regExpCookieName = new RegExp(ruleCookieName, "i");
+              if (regExpCookieName.test(cookieName)) {
+                flag = true;
+              }
+            } else {
+              if (cookieName.includes(ruleCookieName)) {
+                flag = true;
+              }
+            }
+            if (flag) {
+              let operationMode = rule.data.operationMode;
+              if (operationMode === "delete") {
+                CookieManager.deleteCookie(cookieInfo);
+              } else if (operationMode === "extended" || operationMode === "extended-90" || operationMode === "extended-180" || operationMode === "extended-360") {
+                let currentTime = Date.now();
+                let oneMonth = 30 * 24 * 60 * 60 * 1e3;
+                let threeMonth = oneMonth * 3;
+                let halfAYear = oneMonth * 6;
+                let oneYear = oneMonth * 12;
+                let checkTime = oneMonth;
+                if (operationMode === "extended-90") {
+                  checkTime = threeMonth;
+                } else if (operationMode === "extended-180") {
+                  checkTime = halfAYear;
+                } else if (operationMode === "extended-360") {
+                  checkTime = oneYear;
+                }
+                let updateFlag = false;
+                if (CookieManager.cookieManagerApiName === "document.cookie") {
+                  cookieInfo.expirationDate = currentTime + checkTime;
+                  updateFlag = true;
+                } else if (CookieManager.cookieManagerApiName === "cookieStore") {
+                  let expireTime = cookieInfo.expires;
+                  if (typeof expireTime === "number" && expireTime - currentTime < checkTime) {
+                    cookieInfo.expires = expireTime + checkTime;
+                    updateFlag = true;
+                  }
+                } else if (CookieManager.cookieManagerApiName === "GM_cookie") {
+                  let expireTime = cookieInfo.expirationDate;
+                  if (typeof expireTime === "number" && expireTime * 1e3 - currentTime < checkTime) {
+                    cookieInfo.expirationDate = expireTime + checkTime / 1e3;
+                    updateFlag = true;
+                  }
+                } else {
+                  log.error(
+                    "未知的cookieManagerApiName",
+                    CookieManager.cookieManagerApiName
+                  );
+                }
+                if (updateFlag) {
+                  await CookieManager.updateCookie(cookieInfo);
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+  };
   PopsPanel.init();
+  CookieRule.init();
+  CookieRuleController.init();
   CookieManagerView.init();
 
 })(Qmsg, DOMUtils, Utils, pops);

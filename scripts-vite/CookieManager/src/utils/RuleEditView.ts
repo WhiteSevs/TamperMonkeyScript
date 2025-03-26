@@ -85,6 +85,7 @@ export class RuleEditView<T> {
 			mask: {
 				enable: true,
 			},
+			drag: true,
 			style: /*css*/ `
                 ${pops.config.cssText.panelCSS}
                 
