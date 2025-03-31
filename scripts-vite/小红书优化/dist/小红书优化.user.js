@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.15
+// @version      2025.3.31
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,7 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
@@ -3049,7 +3049,7 @@
 			padding-left: 0 !important;
 		}
 		.outer-link-container{
-			width: 100vw !important;
+			width: 100% !important;
 		}
 		/* 隐藏左侧工具栏 */
 		.main-container .side-bar{
@@ -3169,9 +3169,16 @@
           utils.preventEvent(event);
           let $click = event.target;
           let $url = $click.querySelector("a.cover[href]");
-          if ($url && $url.href) {
-            log.info("跳转文章: " + $url.href);
-            window.open($url.href, "_blank");
+          let url = $url == null ? void 0 : $url.href;
+          if (url) {
+            log.info("跳转文章: " + url);
+            let urlInstance = new URL(url);
+            urlInstance.pathname = urlInstance.pathname.replace(
+              /^\/user\/profile\/[a-z0-9A-Z]+\//i,
+              "/discovery/item/"
+            );
+            url = urlInstance.toString();
+            window.open(url, "_blank");
           } else {
             Qmsg.error("未找到文章链接");
           }
