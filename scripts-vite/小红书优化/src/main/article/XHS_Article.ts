@@ -106,7 +106,7 @@ export const XHS_Article = {
 			padding-left: 0 !important;
 		}
 		.outer-link-container{
-			width: 100vw !important;
+			width: 100% !important;
 		}
 		/* 隐藏左侧工具栏 */
 		.main-container .side-bar{
