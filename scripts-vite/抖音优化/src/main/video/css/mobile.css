@@ -17,6 +17,15 @@
 	svg {
 	scale: unset !important;
 }
+/* 设置视频区域的高度 */
+#slidelist {
+	height: calc(100vh - var(--header-height)) !important;
+}
+/* 去除视频区域右侧偏移 */
+.is-mobile-pc div[data-e2e="slideList"] {
+	padding-right: 0px !important;
+	height: 100% !important;
+}
 /* 设备处于横向方向，即宽度大于高度。 */
 @media screen and (orientation: landscape) {
 	/* 右侧工具栏放大 */
