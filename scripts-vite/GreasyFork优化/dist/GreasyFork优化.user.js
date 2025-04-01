@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.3.19
+// @version            2025.4.2
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,12 +13,13 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.4/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@24.2.2/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.0/dist/otpauth.umd.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
 // @connect            sleazyfork.org
@@ -38,8 +39,27 @@
 
 (t=>{function d(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let e=document.createElement("style");return e.setAttribute("type","text/css"),e.innerHTML=n,document.head?document.head.appendChild(e):document.body?document.body.appendChild(e):document.documentElement.childNodes.length===0?document.documentElement.appendChild(e):document.documentElement.insertBefore(e,document.documentElement.childNodes[0]),e}if(typeof GM_addStyle=="function"){GM_addStyle(t);return}d(t)})(" .whitesev-hide{display:none}.whitesev-hide-important{display:none!important} ");
 
-(function (Qmsg, DOMUtils, Utils, i18next, pops, Viewer) {
+(function (Qmsg, DOMUtils, Utils, i18next, pops, OTPAuth, Viewer) {
   'use strict';
+
+  function _interopNamespaceDefault(e) {
+    const n = Object.create(null, { [Symbol.toStringTag]: { value: 'Module' } });
+    if (e) {
+      for (const k in e) {
+        if (k !== 'default') {
+          const d = Object.getOwnPropertyDescriptor(e, k);
+          Object.defineProperty(n, k, d.get ? d : {
+            enumerable: true,
+            get: () => e[k]
+          });
+        }
+      }
+    }
+    n.default = e;
+    return Object.freeze(n);
+  }
+
+  const OTPAuth__namespace = /*#__PURE__*/_interopNamespaceDefault(OTPAuth);
 
   var __defProp = Object.defineProperty;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -577,7 +597,10 @@
     全词匹配: "Full word match",
     获取搜索关键词失败: "Failed to obtain search keyword",
     "名称/描述": "Name/Description",
-    任一全词匹配: "Any full word match"
+    任一全词匹配: "Any full word match",
+    请先在菜单中录入secret: "Please enter the secret in the menu first",
+    请输入secret: "Please enter Secret",
+    "两步验证（2FA）": "Two-step verification (2FA)"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -4432,6 +4455,16 @@
                     i18next.t("请输入密码"),
                     false,
                     true
+                  ),
+                  UIInput(
+                    i18next.t("secret"),
+                    "secret",
+                    "",
+                    "两步验证（2FA）",
+                    void 0,
+                    i18next.t("请输入secret"),
+                    false,
+                    true
                   )
                 ]
               },
@@ -6619,6 +6652,7 @@
       utils.waitNode("span.sign-in-link a[rel=nofollow]").then(async () => {
         let user = PopsPanel.getValue("user");
         let pwd = PopsPanel.getValue("pwd");
+        let secret = PopsPanel.getValue("secret");
         if (utils.isNull(user)) {
           Qmsg.error(i18next.t("请先在菜单中录入账号"));
           return;
@@ -6627,18 +6661,26 @@
           Qmsg.error(i18next.t("请先在菜单中录入密码"));
           return;
         }
-        let csrfToken = document.querySelector("meta[name='csrf-token']");
+        if (utils.isNull(secret)) {
+          Qmsg.error(i18next.t("请先在菜单中录入secret"));
+          return;
+        }
+        let csrfToken = $("meta[name='csrf-token']");
         if (!csrfToken) {
           Qmsg.error(i18next.t("获取csrf-token失败"));
           return;
         }
+        let totp = new OTPAuth__namespace.TOTP({
+          secret
+        });
+        let otpPwd = totp.generate();
         let loginTip = Qmsg.loading(i18next.t("正在登录中..."));
         let postResp = await httpx.post("/zh-CN/users/sign_in", {
           fetch: true,
           data: encodeURI(
             `authenticity_token=${csrfToken.getAttribute(
             "content"
-          )}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&commit=登录`
+          )}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&user[otp_attempt]=${otpPwd}&commit=登录`
           ),
           headers: {
             "Content-Type": "application/x-www-form-urlencoded"
@@ -6647,25 +6689,34 @@
         loginTip.destroy();
         if (!postResp.status) {
           log.error(postResp);
-          Qmsg.error(i18next.t("登录失败，请在控制台查看原因"));
+          Qmsg.error(i18next.t("登录失败，请求异常"));
           return;
         }
         let respText = postResp.data.responseText;
-        let parseLoginHTMLNode = domUtils.parseHTML(respText, true, true);
-        if (parseLoginHTMLNode.querySelectorAll(
+        let $signInPageHTML = domUtils.parseHTML(respText, true, true);
+        let $error = $signInPageHTML.querySelector(
+          ".width-constraint .alert"
+        );
+        if ($signInPageHTML.querySelectorAll(
           ".sign-out-link a[rel=nofollow][data-method='delete']"
         ).length) {
           Qmsg.success(i18next.t("登录成功，1s后自动跳转"));
           setTimeout(() => {
             window.location.reload();
           }, 1e3);
+        } else if ($error) {
+          log.error($error);
+          Qmsg.error(domUtils.text($error));
         } else {
+          Qmsg.error(
+            i18next.t("登录失败，可能是账号/密码错误，请在控制台查看原因"),
+            {
+              consoleLogContent: true
+            }
+          );
           log.error(postResp);
           log.error(`当前账号:${user}`);
           log.error(`当前密码:${pwd}`);
-          Qmsg.error(
-            i18next.t("登录失败，可能是账号/密码错误，请在控制台查看原因")
-          );
         }
       });
     }
@@ -8144,4 +8195,4 @@
   PopsPanel.init();
   Greasyfork.init();
 
-})(Qmsg, DOMUtils, Utils, i18next, pops, Viewer);
+})(Qmsg, DOMUtils, Utils, i18next, pops, OTPAuth, Viewer);

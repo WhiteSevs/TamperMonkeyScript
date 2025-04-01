@@ -170,6 +170,16 @@ export const SettingUICommon: PopsPanelContentConfig = {
 									false,
 									true
 								),
+								UIInput(
+									i18next.t("secret"),
+									"secret",
+									"",
+									"两步验证（2FA）",
+									void 0,
+									i18next.t("请输入secret"),
+									false,
+									true
+								),
 							],
 						},
 						{

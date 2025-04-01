@@ -341,4 +341,7 @@ export const en_US_language = {
 	获取搜索关键词失败: "Failed to obtain search keyword",
 	"名称/描述": "Name/Description",
 	任一全词匹配: "Any full word match",
+	请先在菜单中录入secret: "Please enter the secret in the menu first",
+	请输入secret: "Please enter Secret",
+	"两步验证（2FA）": "Two-step verification (2FA)",
 };

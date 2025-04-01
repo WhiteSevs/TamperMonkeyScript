@@ -71,6 +71,7 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 		externalGlobals: {
 			viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
 			i18next: cdn.jsdelivrFastly("i18next", "i18next.min.js"),
+			otpauth: cdn.jsdelivrFastly("OTPAuth", "dist/otpauth.umd.js"),
 		},
 		// import资源文件的映射
 		externalResource: {

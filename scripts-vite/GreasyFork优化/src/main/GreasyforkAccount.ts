@@ -1,7 +1,8 @@
-import { DOMUtils, httpx, log, utils } from "@/env";
+import { $, DOMUtils, httpx, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import i18next from "i18next";
 import Qmsg from "qmsg";
+import * as OTPAuth from "otpauth";
 
 export const GreasyforkAccount = {
 	init() {
@@ -17,8 +18,9 @@ export const GreasyforkAccount = {
 		utils
 			.waitNode<HTMLAnchorElement>("span.sign-in-link a[rel=nofollow]")
 			.then(async () => {
-				let user = PopsPanel.getValue("user");
-				let pwd = PopsPanel.getValue("pwd");
+				let user = PopsPanel.getValue<string>("user");
+				let pwd = PopsPanel.getValue<string>("pwd");
+				let secret = PopsPanel.getValue<string>("secret");
 				if (utils.isNull(user)) {
 					Qmsg.error(i18next.t("请先在菜单中录入账号"));
 					return;
@@ -27,18 +29,26 @@ export const GreasyforkAccount = {
 					Qmsg.error(i18next.t("请先在菜单中录入密码"));
 					return;
 				}
-				let csrfToken = document.querySelector("meta[name='csrf-token']");
+				if (utils.isNull(secret)) {
+					Qmsg.error(i18next.t("请先在菜单中录入secret"));
+					return;
+				}
+				let csrfToken = $<HTMLElement>("meta[name='csrf-token']");
 				if (!csrfToken) {
 					Qmsg.error(i18next.t("获取csrf-token失败"));
 					return;
 				}
+				let totp = new OTPAuth.TOTP({
+					secret: secret,
+				});
+				let otpPwd = totp.generate();
 				let loginTip = Qmsg.loading(i18next.t("正在登录中..."));
 				let postResp = await httpx.post("/zh-CN/users/sign_in", {
 					fetch: true,
 					data: encodeURI(
 						`authenticity_token=${csrfToken.getAttribute(
 							"content"
-						)}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&commit=登录`
+						)}&user[email]=${user}&user[password]=${pwd}&user[remember_me]=1&user[otp_attempt]=${otpPwd}&commit=登录`
 					),
 					headers: {
 						"Content-Type": "application/x-www-form-urlencoded",
@@ -47,13 +57,16 @@ export const GreasyforkAccount = {
 				loginTip.destroy();
 				if (!postResp.status) {
 					log.error(postResp);
-					Qmsg.error(i18next.t("登录失败，请在控制台查看原因"));
+					Qmsg.error(i18next.t("登录失败，请求异常"));
 					return;
 				}
 				let respText = postResp.data.responseText;
-				let parseLoginHTMLNode = DOMUtils.parseHTML(respText, true, true);
+				let $signInPageHTML = DOMUtils.parseHTML(respText, true, true);
+				let $error = $signInPageHTML.querySelector<HTMLElement>(
+					".width-constraint .alert"
+				);
 				if (
-					parseLoginHTMLNode.querySelectorAll(
+					$signInPageHTML.querySelectorAll(
 						".sign-out-link a[rel=nofollow][data-method='delete']"
 					).length
 				) {
@@ -61,13 +74,19 @@ export const GreasyforkAccount = {
 					setTimeout(() => {
 						window.location.reload();
 					}, 1000);
+				} else if ($error) {
+					log.error($error);
+					Qmsg.error(DOMUtils.text($error));
 				} else {
+					Qmsg.error(
+						i18next.t("登录失败，可能是账号/密码错误，请在控制台查看原因"),
+						{
+							consoleLogContent: true,
+						}
+					);
 					log.error(postResp);
 					log.error(`当前账号:${user}`);
 					log.error(`当前密码:${pwd}`);
-					Qmsg.error(
-						i18next.t("登录失败，可能是账号/密码错误，请在控制台查看原因")
-					);
 				}
 			});
 	},
