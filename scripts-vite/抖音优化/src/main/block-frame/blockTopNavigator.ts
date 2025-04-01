@@ -76,6 +76,13 @@ export const BlockTopNavigator = {
 			#douyin-right-container{
 				padding-top: 0px !important;
 			}
+			/* 兼容手机模式 */
+			@media screen and (max-width: 550px){
+				.is-mobile-pc{
+					--header-height: 0px !important;
+				}
+				
+			}
 		`)
 		);
 		if (DouYinRouter.isSearch()) {

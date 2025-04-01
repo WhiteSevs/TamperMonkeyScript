@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.31
+// @version      2025.4.1
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -94,78 +94,28 @@
 											#chatroom > div{
 												background: ${o.value};
 											}
-											`,c.setValue("live-changeBackgroundColor",o.value);}),t.appendChild(e),t.appendChild(i),t}}]}]},{text:"弹幕过滤器",type:"deepMenu",forms:[{text:"",type:"forms",forms:[h("启用","live-danmu-shield-rule-enable",false,void 0,"启用自定义的弹幕过滤规则"),h("【屏蔽】送礼信息","live-danmu-shield-gift",false,void 0,""),h("【屏蔽】福袋口令","live-danmu-shield-lucky-bag",false,void 0,""),ye("初始化规则","解析并重置规则","重置",void 0,false,false,"primary",()=>{me.init(),x.success("更新完毕");}),{type:"own",getLiElementCallBack(t){let e=g.createElement("div",{className:"pops-panel-textarea",innerHTML:'<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>'},{style:"width: 100%;"}),i=e.querySelector("textarea");return i.value=me.get(),g.on(i,["input","propertychange"],v.debounce(function(){me.set(i.value);},1e3)),t.appendChild(e),t}}]}]},{text:"自定义快捷键",type:"deepMenu",forms:[{text:"",type:"forms",forms:[le("【屏蔽】聊天室","","dy-live-block-chatroom",void 0,"点击录入快捷键",void 0,be.shortCut),le("【屏蔽】礼物特效","","dy-live-shieldGiftEffects",void 0,"点击录入快捷键",void 0,be.shortCut),le("切换静音状态","切换video标签的muted属性","dy-live-shortcut-changeVideoMuted",void 0,"点击录入快捷键",void 0,be.shortCut)]}]},{type:"deepMenu",text:"禁用抖音快捷键",afterEnterDeepMenuCallBack:T.afterEnterDeepMenuCallBack,forms:[{type:"forms",text:T.text,forms:[h("刷新","dy-live-refresh",false,void 0,"E"),h("屏幕旋转","dy-live-screenRotation",false,void 0,"D"),h("开启小窗模式","dy-live-enableSmallWindowMode",false,void 0,"U")]}]}]},{text:"",type:"forms",forms:[{text:"布局屏蔽-视频区域内",type:"deepMenu",afterEnterDeepMenuCallBack:T.afterEnterDeepMenuCallBack,forms:[{text:T.text,type:"forms",forms:[h("【屏蔽】顶栏信息","live-shieldTopToolBarInfo",false,void 0,"屏蔽元素，包括直播作者、右侧的礼物展馆"),h("【屏蔽】底部的礼物栏","live-shieldGiftColumn",false,void 0,"屏蔽元素"),h("【屏蔽】礼物特效","live-shieldGiftEffects",false,void 0,"屏蔽元素"),h("【屏蔽】福袋","live-shieldLucky",false,void 0,"屏蔽元素"),h("【屏蔽】弹幕","live-shieldDanmuku",false,void 0,"屏蔽元素"),h("【屏蔽】小黄车","live-shielYellowCar",false,void 0,"屏蔽元素")]},{type:"forms",text:"右键菜单",forms:[h("【屏蔽】下载客户端","dy-live-blockVideoRightMenu-downloadClient",true,void 0,"屏蔽右键菜单项")]}]},{text:"布局屏蔽-聊天室",type:"deepMenu",afterEnterDeepMenuCallBack:T.afterEnterDeepMenuCallBack,forms:[{text:T.text,type:"forms",forms:[h("【屏蔽】聊天室","live-shieldChatRoom",false,void 0,"屏蔽元素"),h("【屏蔽】贵宾席","live-shielChatRoomVipSeats",false,void 0,"屏蔽元素"),h("【屏蔽】用户等级图标","dy-live-shieldUserLevelIcon",false,void 0,"屏蔽元素"),h("【屏蔽】VIP图标","dy-live-shieldUserVIPIcon",false,void 0,"屏蔽元素"),h("【屏蔽】粉丝牌","dy-live-shieldUserFansIcon",false,void 0,"屏蔽元素"),h("【屏蔽】信息播报","dy-live-shieldMessage",false,void 0,"底部滚动播报的的xxx来了，xxx给主播点赞")]}]}]}]},Ct={isVerticalScreen(){return !window.screen.orientation.type.includes("landscape")}},M={isLive(){return window.location.hostname==="live.douyin.com"||this.isFollowLive()||this.isRootLive()},isFollowLive(){return this.isIndex()&&window.location.pathname.startsWith("/follow/live/")},isRootLive(){return this.isIndex()&&window.location.pathname.startsWith("/root/live/")},isIndex(){return window.location.hostname==="www.douyin.com"},isRecommend(){let t=new URLSearchParams(window.location.search);return this.isIndex()&&t.has("recommend")},isSearch(){return this.isIndex()&&(window.location.pathname.startsWith("/search/")||this.isRootSearch())},isRootSearch(){return this.isIndex()&&window.location.pathname.startsWith("/root/search/")},isChannel(){return this.isIndex()&&window.location.pathname.startsWith("/channel/")},isDiscover(){return this.isIndex()&&window.location.pathname.startsWith("/discover/")},isUser(){return this.isIndex()&&window.location.pathname.startsWith("/user/")},isVideo(){return this.isIndex()&&window.location.pathname.startsWith("/video/")},isNote(){return this.isIndex()&&window.location.pathname.startsWith("/note/")}},xt=`/* 右侧工具栏放大 */\r
-.basePlayerContainer .positionBox {\r
-	bottom: 80px !important;\r
-	padding-right: 5px !important;\r
-	scale: unset !important;\r
-	transform: scale3d(1.12, 1.12, 1.12) !important;\r
-}\r
-/* 右侧工具栏的svg再放大 */\r
-.basePlayerContainer .positionBox svg {\r
-	transform: scale3d(1.12, 1.12, 1.12);\r
-}\r
-/* 重置关注按钮的scale */\r
-.basePlayerContainer\r
-	.positionBox\r
-	.dy-tip-container\r
-	div[data-e2e="feed-follow-icon"]\r
-	svg {\r
-	scale: unset !important;\r
-}\r
-/* 设置视频区域的高度 */\r
-#slidelist {\r
-	height: calc(100vh - var(--header-height)) !important;\r
-}\r
-/* 去除视频区域右侧偏移 */\r
-.is-mobile-pc div[data-e2e="slideList"] {\r
-	padding-right: 0px !important;\r
-	height: 100% !important;\r
-}\r
-/* 设备处于横向方向，即宽度大于高度。 */\r
-@media screen and (orientation: landscape) {\r
+											`,c.setValue("live-changeBackgroundColor",o.value);}),t.appendChild(e),t.appendChild(i),t}}]}]},{text:"弹幕过滤器",type:"deepMenu",forms:[{text:"",type:"forms",forms:[h("启用","live-danmu-shield-rule-enable",false,void 0,"启用自定义的弹幕过滤规则"),h("【屏蔽】送礼信息","live-danmu-shield-gift",false,void 0,""),h("【屏蔽】福袋口令","live-danmu-shield-lucky-bag",false,void 0,""),ye("初始化规则","解析并重置规则","重置",void 0,false,false,"primary",()=>{me.init(),x.success("更新完毕");}),{type:"own",getLiElementCallBack(t){let e=g.createElement("div",{className:"pops-panel-textarea",innerHTML:'<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>'},{style:"width: 100%;"}),i=e.querySelector("textarea");return i.value=me.get(),g.on(i,["input","propertychange"],v.debounce(function(){me.set(i.value);},1e3)),t.appendChild(e),t}}]}]},{text:"自定义快捷键",type:"deepMenu",forms:[{text:"",type:"forms",forms:[le("【屏蔽】聊天室","","dy-live-block-chatroom",void 0,"点击录入快捷键",void 0,be.shortCut),le("【屏蔽】礼物特效","","dy-live-shieldGiftEffects",void 0,"点击录入快捷键",void 0,be.shortCut),le("切换静音状态","切换video标签的muted属性","dy-live-shortcut-changeVideoMuted",void 0,"点击录入快捷键",void 0,be.shortCut)]}]},{type:"deepMenu",text:"禁用抖音快捷键",afterEnterDeepMenuCallBack:T.afterEnterDeepMenuCallBack,forms:[{type:"forms",text:T.text,forms:[h("刷新","dy-live-refresh",false,void 0,"E"),h("屏幕旋转","dy-live-screenRotation",false,void 0,"D"),h("开启小窗模式","dy-live-enableSmallWindowMode",false,void 0,"U")]}]}]},{text:"",type:"forms",forms:[{text:"布局屏蔽-视频区域内",type:"deepMenu",afterEnterDeepMenuCallBack:T.afterEnterDeepMenuCallBack,forms:[{text:T.text,type:"forms",forms:[h("【屏蔽】顶栏信息","live-shieldTopToolBarInfo",false,void 0,"屏蔽元素，包括直播作者、右侧的礼物展馆"),h("【屏蔽】底部的礼物栏","live-shieldGiftColumn",false,void 0,"屏蔽元素"),h("【屏蔽】礼物特效","live-shieldGiftEffects",false,void 0,"屏蔽元素"),h("【屏蔽】福袋","live-shieldLucky",false,void 0,"屏蔽元素"),h("【屏蔽】弹幕","live-shieldDanmuku",false,void 0,"屏蔽元素"),h("【屏蔽】小黄车","live-shielYellowCar",false,void 0,"屏蔽元素")]},{type:"forms",text:"右键菜单",forms:[h("【屏蔽】下载客户端","dy-live-blockVideoRightMenu-downloadClient",true,void 0,"屏蔽右键菜单项")]}]},{text:"布局屏蔽-聊天室",type:"deepMenu",afterEnterDeepMenuCallBack:T.afterEnterDeepMenuCallBack,forms:[{text:T.text,type:"forms",forms:[h("【屏蔽】聊天室","live-shieldChatRoom",false,void 0,"屏蔽元素"),h("【屏蔽】贵宾席","live-shielChatRoomVipSeats",false,void 0,"屏蔽元素"),h("【屏蔽】用户等级图标","dy-live-shieldUserLevelIcon",false,void 0,"屏蔽元素"),h("【屏蔽】VIP图标","dy-live-shieldUserVIPIcon",false,void 0,"屏蔽元素"),h("【屏蔽】粉丝牌","dy-live-shieldUserFansIcon",false,void 0,"屏蔽元素"),h("【屏蔽】信息播报","dy-live-shieldMessage",false,void 0,"底部滚动播报的的xxx来了，xxx给主播点赞")]}]}]}]},Ct={isVerticalScreen(){return !window.screen.orientation.type.includes("landscape")}},M={isLive(){return window.location.hostname==="live.douyin.com"||this.isFollowLive()||this.isRootLive()},isFollowLive(){return this.isIndex()&&window.location.pathname.startsWith("/follow/live/")},isRootLive(){return this.isIndex()&&window.location.pathname.startsWith("/root/live/")},isIndex(){return window.location.hostname==="www.douyin.com"},isRecommend(){let t=new URLSearchParams(window.location.search);return this.isIndex()&&t.has("recommend")},isSearch(){return this.isIndex()&&(window.location.pathname.startsWith("/search/")||this.isRootSearch())},isRootSearch(){return this.isIndex()&&window.location.pathname.startsWith("/root/search/")},isChannel(){return this.isIndex()&&window.location.pathname.startsWith("/channel/")},isDiscover(){return this.isIndex()&&window.location.pathname.startsWith("/discover/")},isUser(){return this.isIndex()&&window.location.pathname.startsWith("/user/")},isVideo(){return this.isIndex()&&window.location.pathname.startsWith("/video/")},isNote(){return this.isIndex()&&window.location.pathname.startsWith("/note/")}},xt=`/* 竖屏且高度小于550px */\r
+@media screen and (max-width: 550px) and (orientation: portrait) {\r
 	/* 右侧工具栏放大 */\r
 	.basePlayerContainer .positionBox {\r
-		/*transform: scale(0.95) !important;\r
-		bottom: 42px !important;*/\r
-		padding-right: 10px !important;\r
+		bottom: 80px !important;\r
+		padding-right: 5px !important;\r
+		scale: unset !important;\r
+		transform: scale3d(1.12, 1.12, 1.12) !important;\r
 	}\r
-}\r
-/* 该设备是纵向的，即高度大于或等于宽度 */\r
-@media screen and (orientation: portrait) {\r
-	/* /video/xxx页面 */\r
-	/* 点赞、评论、分享偏移 */\r
-	div[data-e2e="video-detail"]\r
-		.leftContainer\r
-		.basePlayerContainer\r
-		.positionBox {\r
-		padding-right: 30px !important;\r
+	/* 右侧工具栏的svg再放大 */\r
+	.basePlayerContainer .positionBox svg {\r
+		transform: scale3d(1.12, 1.12, 1.12);\r
 	}\r
-	/* 底部工具栏右侧的按钮 */\r
-	div[data-e2e="video-detail"]\r
-		.leftContainer\r
-		.xgplayer.xgplayer-pc\r
-		.xg-right-grid {\r
-		margin-right: 35px !important;\r
+	/* 重置关注按钮的scale */\r
+	.basePlayerContainer\r
+		.positionBox\r
+		.dy-tip-container\r
+		div[data-e2e="feed-follow-icon"]\r
+		svg {\r
+		scale: unset !important;\r
 	}\r
-	/* 评论区全屏 */\r
-	div[data-e2e="video-detail"]\r
-		.leftContainer\r
-		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r
-	div[data-e2e="video-detail"]\r
-		.leftContainer\r
-		> div\r
-		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r
-		width: 100vw !important;\r
-	}\r
-}\r
 \r
-/* 调整视频列表的宽度 */\r
-@media screen and (max-width: 550px) {\r
-	#slidelist {\r
-		width: 100vw;\r
-		height: 100vh;\r
-	}\r
 	/* 调整顶部搜索框的宽度 */\r
 	#douyin-header\r
 		div[data-click="doubleClick"]\r
@@ -195,6 +145,65 @@
 	/* 去除设置 */\r
 	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r
 		min-width: 100%;\r
+	}\r
+\r
+	/* /video/xxx页面 */\r
+	/* 点赞、评论、分享偏移 */\r
+	div[data-e2e="video-detail"]\r
+		.leftContainer\r
+		.basePlayerContainer\r
+		.positionBox {\r
+		padding-right: 30px !important;\r
+	}\r
+	/* 底部工具栏右侧的按钮 */\r
+	div[data-e2e="video-detail"]\r
+		.leftContainer\r
+		.xgplayer.xgplayer-pc\r
+		.xg-right-grid {\r
+		margin-right: 35px !important;\r
+	}\r
+	/* 评论区全屏 */\r
+	div[data-e2e="video-detail"]\r
+		.leftContainer\r
+		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r
+	div[data-e2e="video-detail"]\r
+		.leftContainer\r
+		> div\r
+		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r
+		width: 100vw !important;\r
+	}\r
+\r
+	/* 设置视频区域的高度 */\r
+	#slidelist {\r
+		width: 100vw;\r
+		height: calc(100vh - var(--header-height)) !important;\r
+	}\r
+	/* 修正网页全屏下的视频高度 */\r
+	#slidelist[class*="isCssFullScreen"] {\r
+		height: 100vh !important;\r
+	}\r
+	/* 去除视频区域右侧偏移 */\r
+	.is-mobile-pc div[data-e2e="slideList"] {\r
+		padding-right: 0px !important;\r
+		height: 100% !important;\r
+	}\r
+}\r
+\r
+/* 横屏且高度小于550px */\r
+@media screen and (max-height: 550px) and (orientation: landscape) {\r
+	/* 右侧工具栏缩小 */\r
+	.basePlayerContainer .positionBox {\r
+		transform: scale(0.95) !important;\r
+		bottom: 42px !important;\r
+		padding-right: 10px !important;\r
+	}\r
+	/* 右侧工具栏的svg再缩小 */\r
+	.basePlayerContainer .positionBox svg {\r
+		transform: scale3d(0.95, 0.95, 0.95);\r
+	}\r
+	/* 修复全屏下不显示视频底部的控制栏 */\r
+	.isCssFullScreen [data-e2e="slideList"] {\r
+		min-height: auto !important;\r
 	}\r
 }\r
 `,wt={init(){c.execMenuOnce("dy-video-shieldUserCommentToolBar",()=>this.shieldUserCommentToolBar()),c.execMenuOnce("dy-video-shieldUserCommentEveryOneAllSearch",()=>this.shieldUserCommentEveryOneAllSearch());},shieldUserCommentToolBar(){return l.info("【屏蔽】评论工具栏"),[y.addBlockCSS(".comment-input-container")]},shieldUserCommentEveryOneAllSearch(){return l.info("【屏蔽】大家都在搜"),[y.addBlockCSS(".comment-header-with-search")]}},St={init(){c.execMenuOnce("shieldBottomVideoToolBar",()=>this.shieldBottomVideoToolBar()),c.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap",()=>this.shieldVideoInfoWrap()),c.execMenuOnce("shieldBottomVideoToolbarDanmuContainer",()=>this.shieldBottomVideoToolbarDanmuContainer());},shieldBottomVideoToolBar(){return l.info("【屏蔽】底部视频工具栏"),[y.addBlockCSS("xg-controls.xgplayer-controls"),X.removeStyleBottom(),S(`
@@ -530,6 +539,13 @@
 			/* 修复视频的高度 */
 			#douyin-right-container{
 				padding-top: 0px !important;
+			}
+			/* 兼容手机模式 */
+			@media screen and (max-width: 550px){
+				.is-mobile-pc{
+					--header-height: 0px !important;
+				}
+				
 			}
 		`)),M.isSearch()&&t.push(S(`
 				/* 把搜索顶部的工具栏置顶 */
