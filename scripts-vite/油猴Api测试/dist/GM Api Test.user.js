@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.25
+// @version      2025.4.2
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -362,7 +362,7 @@
       let cssResourceNode = document.createElement("style");
       cssResourceNode.setAttribute("type", "text/css");
       cssResourceNode.setAttribute("data-type", QmsgConfig.PLUGIN_NAME);
-      cssResourceNode.innerHTML = this.css;
+      QmsgUtils.setSafeHTML(cssResourceNode, this.css);
       return cssResourceNode;
     }
   };
@@ -468,7 +468,7 @@
       let $content = document.createElement("span");
       let $positionClassName = QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase());
       if (this.setting.html || this.setting.isHTML) {
-        $content.innerHTML = content;
+        QmsgUtils.setSafeHTML($content, content);
       } else {
         $content.innerText = content;
       }
@@ -493,16 +493,19 @@
           $content.style.whiteSpace = "";
         }
       }
-      this.$Qmsg.innerHTML = /*html*/
-      `
-        <div class="qmsg-content">
-            <div class="${contentClassName}">
-            ${this.setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
-                ${$content.outerHTML}
-                ${$closeIcon}
-            </div>
-        </div>
-        `;
+      QmsgUtils.setSafeHTML(
+        this.$Qmsg,
+        /*html*/
+        `
+			<div class="qmsg-content">
+				<div class="${contentClassName}">
+				${this.setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
+					${$content.outerHTML}
+					${$closeIcon}
+				</div>
+			</div>
+			`
+      );
       let $contentContainer = this.$Qmsg.querySelector(".qmsg-content");
       this.$Qmsg.classList.add(QmsgUtils.getNameSpacify("item"));
       this.$Qmsg.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.uuid);
@@ -521,7 +524,7 @@
           let __$ownStyle__ = document.createElement("style");
           __$ownStyle__.setAttribute("type", "text/css");
           __$ownStyle__.setAttribute("data-id", this.uuid);
-          __$ownStyle__.innerHTML = this.setting.style;
+          QmsgUtils.setSafeHTML(__$ownStyle__, this.setting.style);
           $contentContainer.insertAdjacentElement("afterend", __$ownStyle__);
         }
         document.body.appendChild($shadowContainer);
@@ -653,7 +656,7 @@
         $count.classList.add(countClassName);
         $content.appendChild($count);
       }
-      $count.innerHTML = this.getRepeatNum().toString();
+      QmsgUtils.setSafeHTML($count, this.getRepeatNum().toString());
       QmsgAnimation.setStyleAnimationName($count);
       QmsgAnimation.setStyleAnimationName($count, "MessageShake");
       QmsgUtils.clearTimeout(this.timeId);
@@ -705,7 +708,7 @@
     setHTML(text) {
       let $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
       if ($content) {
-        $content.innerHTML = text;
+        QmsgUtils.setSafeHTML($content, text);
         this.setting.content = text;
       } else {
         throw new TypeError("$content is null");
@@ -1074,6 +1077,23 @@
       } finally {
         globalThis.clearInterval(timeId);
       }
+    },
+    /**
+     * 设置安全的html
+     */
+    setSafeHTML($el, text) {
+      try {
+        $el.innerHTML = text;
+      } catch (error2) {
+        if (globalThis.trustedTypes) {
+          const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
+            createHTML: (html) => html
+          });
+          $el.innerHTML = policy.createHTML(text);
+        } else {
+          throw new Error("trustedTypes is not defined");
+        }
+      }
     }
   };
   CompatibleProcessing();
@@ -1118,7 +1138,7 @@
       __publicField(this, "$data");
       __publicField(this, "$eventUtils");
       this.$data = {
-        version: "2024.12.6",
+        version: "2025.3.3",
         config: QmsgConfig,
         icon: QmsgIcon,
         instanceStorage: QmsgInstanceStorage
@@ -1235,6 +1255,38 @@
      */
     isShow(element) {
       return Boolean(element.getClientRects().length);
+    },
+    /**
+     * 获取安全的html
+     */
+    getSafeHTML(text) {
+      if (globalThis.trustedTypes) {
+        const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
+          createHTML: (html) => html
+        });
+        return policy.createHTML(text);
+      } else {
+        return text;
+      }
+    },
+    /**
+     * 在CSP策略下设置innerHTML
+     * @param $el 元素
+     * @param text 文本
+     */
+    setSafeHTML($el, text) {
+      try {
+        $el.innerHTML = text;
+      } catch (error2) {
+        if (globalThis.trustedTypes) {
+          const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
+            createHTML: (html) => html
+          });
+          $el.innerHTML = policy.createHTML(text);
+        } else {
+          throw new Error("trustedTypes is not defined");
+        }
+      }
     },
     /**
      * 用于显示元素并获取它的高度宽度等其它属性
@@ -2071,7 +2123,7 @@
     constructor(option) {
       super(option);
       /** 版本号 */
-      __publicField(this, "version", "2024.12.4");
+      __publicField(this, "version", "2025.3.2");
     }
     attr(element, attrName, attrValue) {
       let DOMUtilsContext = this;
@@ -2119,7 +2171,7 @@
       let DOMUtilsContext = this;
       let tempElement = DOMUtilsContext.windowApi.document.createElement(tagName);
       if (typeof property === "string") {
-        tempElement.innerHTML = property;
+        DOMUtilsContext.html(tempElement, property);
         return tempElement;
       }
       if (property == null) {
@@ -2130,6 +2182,10 @@
       }
       Object.keys(property).forEach((key) => {
         let value = property[key];
+        if (key === "innerHTML") {
+          DOMUtilsContext.html(tempElement, value);
+          return;
+        }
         tempElement[key] = value;
       });
       Object.keys(attributes).forEach((key) => {
@@ -2265,7 +2321,7 @@
           html = html.innerHTML;
         }
         if ("innerHTML" in element) {
-          element.innerHTML = html;
+          DOMUtilsCommonUtils.setSafeHTML(element, html);
         }
       }
     }
@@ -2352,7 +2408,11 @@
       if (propValue == null) {
         return Reflect.get(element, propName);
       } else {
-        Reflect.set(element, propName, propValue);
+        if (element instanceof Element && propName === "innerHTML") {
+          DOMUtilsContext.html(element, propValue);
+        } else {
+          Reflect.set(element, propName, propValue);
+        }
       }
     }
     /**
@@ -2560,7 +2620,7 @@
       }
       function elementAppendChild(ele, text) {
         if (typeof content === "string") {
-          ele.insertAdjacentHTML("beforeend", text);
+          ele.insertAdjacentHTML("beforeend", DOMUtilsCommonUtils.getSafeHTML(text));
         } else {
           ele.appendChild(text);
         }
@@ -2602,7 +2662,7 @@
         return;
       }
       if (typeof content === "string") {
-        element.insertAdjacentHTML("afterbegin", content);
+        element.insertAdjacentHTML("afterbegin", DOMUtilsCommonUtils.getSafeHTML(content));
       } else {
         let $firstChild = element.firstChild;
         if ($firstChild == null) {
@@ -2636,7 +2696,7 @@
         return;
       }
       if (typeof content === "string") {
-        element.insertAdjacentHTML("afterend", content);
+        element.insertAdjacentHTML("afterend", DOMUtilsCommonUtils.getSafeHTML(content));
       } else {
         let $parent = element.parentElement;
         let $nextSlibling = element.nextSibling;
@@ -2671,7 +2731,7 @@
         return;
       }
       if (typeof content === "string") {
-        element.insertAdjacentHTML("beforebegin", content);
+        element.insertAdjacentHTML("beforebegin", DOMUtilsCommonUtils.getSafeHTML(content));
       } else {
         let $parent = element.parentElement;
         if (!$parent) {
@@ -2728,7 +2788,7 @@
         });
         return;
       }
-      element.innerHTML = "";
+      DOMUtilsContext.html(element, "");
     }
     /**
      * 获取元素相对于文档的偏移坐标（加上文档的滚动条）
@@ -2963,7 +3023,7 @@
       }
       element = element;
       let wrapper = DOMUtilsContext.windowApi.document.createElement("div");
-      wrapper.innerHTML = wrapperHTML;
+      DOMUtilsContext.html(wrapper, wrapperHTML);
       let wrapperFirstChild = wrapper.firstChild;
       let parentElement = element.parentElement;
       parentElement.insertBefore(wrapperFirstChild, element);
@@ -3053,7 +3113,7 @@
       }
       function parseHTMLByCreateDom() {
         let tempDIV = DOMUtilsContext.windowApi.document.createElement("div");
-        tempDIV.innerHTML = html;
+        DOMUtilsContext.html(tempDIV, html);
         if (isComplete) {
           return tempDIV;
         } else {
@@ -3618,6 +3678,15 @@
       }
     }
     /**
+     * 获取Cookie分组
+     */
+    getCookiesList() {
+      if (this.windowApi.document.cookie.trim() === "") {
+        return [];
+      }
+      return this.windowApi.document.cookie.split(";");
+    }
+    /**
      * 获取单个cookie
      * @param cookieName cookie名
      */
@@ -3625,7 +3694,7 @@
       if (typeof cookieName !== "string") {
         throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
       }
-      let cookies = this.windowApi.document.cookie.split(";");
+      let cookies = this.getCookiesList();
       let findValue = void 0;
       for (const cookieItem of cookies) {
         let item = cookieItem.trim();
@@ -3671,7 +3740,7 @@
           path: "/"
         };
         defaultOption = utils$1.assign(defaultOption, option);
-        let cookies = this.windowApi.document.cookie.split(";");
+        let cookies = this.getCookiesList();
         cookies.forEach((item) => {
           item = item.trim();
           let itemSplit = item.split("=");
@@ -3719,7 +3788,7 @@
         path: "/"
       };
       defaultOption = utils$1.assign(defaultOption, option);
-      let cookies = this.windowApi.document.cookie.split(";");
+      let cookies = this.getCookiesList();
       cookies.forEach((item) => {
         item = item.trim();
         let itemSplit = item.split("=");
@@ -3756,7 +3825,7 @@
           url: this.windowApi.window.location.href,
           name: "",
           value: "",
-          domain: this.windowApi.window.location.hostname,
+          domain: "",
           path: "/",
           secure: true,
           httpOnly: false,
@@ -3768,6 +3837,9 @@
         defaultOption = utils$1.assign(defaultOption, option);
         let life = defaultOption.expirationDate ? defaultOption.expirationDate : Math.floor(Date.now()) + 60 * 60 * 24 * 30;
         let cookieStr = defaultOption.name + "=" + decodeURIComponent(defaultOption.value) + ";expires=" + new Date(life).toGMTString() + "; path=/";
+        if (utils$1.isNotNull(defaultOption.domain)) {
+          cookieStr += "; domain=" + defaultOption.domain;
+        }
         this.windowApi.document.cookie = cookieStr;
       } catch (error2) {
         errorInfo = error2;
@@ -3789,10 +3861,13 @@
           url: this.windowApi.window.location.href,
           name: "",
           path: "/",
-          firstPartyDomain: this.windowApi.window.location.hostname
+          firstPartyDomain: ""
         };
         defaultOption = utils$1.assign(defaultOption, option);
-        let cookieStr = `${defaultOption.name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${defaultOption.path}; domain=${defaultOption.firstPartyDomain};`;
+        let cookieStr = `${defaultOption.name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${defaultOption.path}`;
+        if (utils$1.isNotNull(defaultOption.firstPartyDomain)) {
+          cookieStr += `; domain=${defaultOption.firstPartyDomain};`;
+        }
         this.windowApi.document.cookie = cookieStr;
       } catch (error2) {
         errorInfo = error2;
@@ -3808,6 +3883,9 @@
      * @param cookieStr
      */
     parseCookie(cookieStr) {
+      if (cookieStr.trim() === "") {
+        return [];
+      }
       let cookies = cookieStr.split(";");
       let result2 = [];
       for (const cookieItem of cookies) {
@@ -7972,7 +8050,7 @@ ${err.stack}`);
     constructor(option) {
       __publicField(this, "windowApi");
       /** 版本号 */
-      __publicField(this, "version", "2025.2.8");
+      __publicField(this, "version", "2025.3.25");
       /**
        * ajax劫持库，支持xhr和fetch劫持。
        * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
@@ -11415,6 +11493,27 @@ ${err.stack}`);
     }
   }
   const popsUtils = new PopsUtils();
+  const PopsSafeUtils = {
+    /**
+     * 获取安全的html
+     */
+    getSafeHTML(text) {
+      if (globalThis.trustedTypes) {
+        const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
+          createHTML: (html) => html
+        });
+        return policy.createHTML(text);
+      } else {
+        return text;
+      }
+    },
+    /**
+     * 设置安全的html
+     */
+    setSafeHTML($el, text) {
+      $el.innerHTML = this.getSafeHTML(text);
+    }
+  };
   class PopsDOMUtilsEvent {
     on(element, eventType, selector, callback2, option) {
       function getOption(args3, startIndex, option2) {
@@ -12212,7 +12311,7 @@ ${err.stack}`);
     createElement(tagName, property, attributes) {
       let tempElement = PopsCore.document.createElement(tagName);
       if (typeof property === "string") {
-        tempElement.innerHTML = property;
+        PopsSafeUtils.setSafeHTML(tempElement, property);
         return tempElement;
       }
       if (property == null) {
@@ -12223,6 +12322,10 @@ ${err.stack}`);
       }
       Object.keys(property).forEach((key) => {
         let value = property[key];
+        if (key === "innerHTML") {
+          PopsSafeUtils.setSafeHTML(tempElement, value);
+          return;
+        }
         tempElement[key] = value;
       });
       Object.keys(attributes).forEach((key) => {
@@ -12386,7 +12489,7 @@ ${err.stack}`);
       }
       function parseHTMLByCreateDom() {
         let tempDIV = PopsCore.document.createElement("div");
-        tempDIV.innerHTML = html;
+        PopsSafeUtils.setSafeHTML(tempDIV, html);
         if (isComplete) {
           return tempDIV;
         } else {
@@ -12417,7 +12520,7 @@ ${err.stack}`);
       }
       function elementAppendChild(ele, text) {
         if (typeof content === "string") {
-          ele.insertAdjacentHTML("beforeend", text);
+          ele.insertAdjacentHTML("beforeend", PopsSafeUtils.getSafeHTML(text));
         } else {
           ele.appendChild(text);
         }
@@ -12537,7 +12640,7 @@ ${err.stack}`);
         return;
       }
       if (typeof content === "string") {
-        element.insertAdjacentHTML("beforebegin", content);
+        element.insertAdjacentHTML("beforebegin", PopsSafeUtils.getSafeHTML(content));
       } else {
         element.parentElement.insertBefore(content, element);
       }
@@ -12559,7 +12662,7 @@ ${err.stack}`);
         return;
       }
       if (typeof content === "string") {
-        element.insertAdjacentHTML("afterend", content);
+        element.insertAdjacentHTML("afterend", PopsSafeUtils.getSafeHTML(content));
       } else {
         element.parentElement.insertBefore(content, element.nextSibling);
       }
@@ -15397,26 +15500,38 @@ ${err.stack}`);
         fileNameElement.className = "pops-folder-list-table__body-td";
         fileTimeElement.className = "pops-folder-list-table__body-td";
         fileFormatSize.className = "pops-folder-list-table__body-td";
-        fileNameElement.innerHTML = `
-            <div class="pops-folder-list-file-name cursor-p">
-                <div>
-                    <img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
-                    <a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">
-                    ${fileName}
-                    </a>
-                </div>
-            </div>
-            `;
-        fileTimeElement.innerHTML = `
-            <div class="pops-folder-list__time">
-                <span>${latestTime}</span>
-            </div>
-            `;
-        fileFormatSize.innerHTML = `
-            <div class="pops-folder-list-format-size">
-                <span>${fileSize}</span>
-            </div>
-            `;
+        PopsSafeUtils.setSafeHTML(
+          fileNameElement,
+          /*html*/
+          `
+				<div class="pops-folder-list-file-name cursor-p">
+					<div>
+						<img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
+						<a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">
+						${fileName}
+						</a>
+					</div>
+				</div>
+            `
+        );
+        PopsSafeUtils.setSafeHTML(
+          fileTimeElement,
+          /*html*/
+          `
+				<div class="pops-folder-list__time">
+					<span>${latestTime}</span>
+				</div>
+				`
+        );
+        PopsSafeUtils.setSafeHTML(
+          fileFormatSize,
+          /*html*/
+          `
+				<div class="pops-folder-list-format-size">
+					<span>${fileSize}</span>
+				</div>
+				`
+        );
         let __value__ = {
           fileName: origin_fileName,
           latestTime: origin_latestTime,
@@ -15470,17 +15585,21 @@ ${err.stack}`);
         }
         folderELement.className = "pops-folder-list-table__body-row";
         fileNameElement.className = "pops-folder-list-table__body-td";
-        fileNameElement.innerHTML = `
-            <div class="pops-folder-list-file-name pops-mobile-folder-list-file-name cursor-p">
-                <img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
-                <div>
-                    <a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">
-                        ${fileName}
-                    </a>
-                    <span>${latestTime} ${fileSize}</span>
-                </div>
-            </div>
-            `;
+        PopsSafeUtils.setSafeHTML(
+          fileNameElement,
+          /*html*/
+          `
+				<div class="pops-folder-list-file-name pops-mobile-folder-list-file-name cursor-p">
+					<img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
+					<div>
+						<a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">
+							${fileName}
+						</a>
+						<span>${latestTime} ${fileSize}</span>
+					</div>
+				</div>
+			`
+        );
         let __value__ = {
           fileName: origin_fileName,
           latestTime: origin_latestTime,
@@ -15496,7 +15615,7 @@ ${err.stack}`);
         };
       }
       function clearFolerRow() {
-        folderListBodyElement.innerHTML = "";
+        PopsSafeUtils.setSafeHTML(folderListBodyElement, "");
       }
       function getArrowIconElement() {
         let iconArrowElement = popsDOMUtils.createElement("div", {
@@ -16379,8 +16498,8 @@ ${err.stack}`);
        */
       clearContainer() {
         var _a2;
-        this.sectionContainerHeaderULElement.innerHTML = "";
-        this.sectionContainerULElement.innerHTML = "";
+        PopsSafeUtils.setSafeHTML(this.sectionContainerHeaderULElement, "");
+        PopsSafeUtils.setSafeHTML(this.sectionContainerULElement, "");
         (_a2 = this.$el.$content) == null ? void 0 : _a2.querySelectorAll("section.pops-panel-deepMenu-container").forEach((ele) => ele.remove());
       },
       /**
@@ -16427,7 +16546,12 @@ ${err.stack}`);
           return;
         }
         Object.keys(props).forEach((propName) => {
-          Reflect.set(element, propName, props[propName]);
+          let value = props[propName];
+          if (propName === "innerHTML") {
+            PopsSafeUtils.setSafeHTML(element, value);
+            return;
+          }
+          Reflect.set(element, propName, value);
         });
       },
       /**
@@ -16461,7 +16585,7 @@ ${err.stack}`);
         let liElement = document.createElement("li");
         liElement.id = asideConfig.id;
         liElement["__forms__"] = asideConfig.forms;
-        liElement.innerHTML = asideConfig.title;
+        PopsSafeUtils.setSafeHTML(liElement, asideConfig.title);
         this.setElementClassName(liElement, asideConfig.className);
         this.setElementAttributes(liElement, asideConfig.attributes);
         this.setElementProps(liElement, asideConfig.props);
@@ -16483,19 +16607,22 @@ ${err.stack}`);
           leftDescriptionText = /*html*/
           `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
-        liElement.innerHTML = /*html*/
-        `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-			</div>
-			<div class="pops-panel-switch">
-				<input class="pops-panel-switch__input" type="checkbox">
-				<span class="pops-panel-switch__core">
-					<div class="pops-panel-switch__action">
-					</div>
-				</span>
-			</div>`;
+        PopsSafeUtils.setSafeHTML(
+          liElement,
+          /*html*/
+          `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-switch">
+					<input class="pops-panel-switch__input" type="checkbox">
+					<span class="pops-panel-switch__core">
+						<div class="pops-panel-switch__action">
+						</div>
+					</span>
+				</div>`
+        );
         const PopsPanelSwitch = {
           [Symbol.toStringTag]: "PopsPanelSwitch",
           $data: {
@@ -16582,14 +16709,19 @@ ${err.stack}`);
         if (Boolean(formConfig.description)) {
           leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
-        liElement.innerHTML = `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-			</div>
-			<div class="pops-panel-slider">
-				<input type="range" min="${formConfig.min}" max="${formConfig.max}">
-			</div>`;
+        PopsSafeUtils.setSafeHTML(
+          liElement,
+          /*html*/
+          `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-slider">
+					<input type="range" min="${formConfig.min}" max="${formConfig.max}">
+				</div>
+			`
+        );
         let rangeInputElement = liElement.querySelector(".pops-panel-slider input[type=range]");
         if (formConfig.step) {
           rangeInputElement.setAttribute("step", formConfig.step.toString());
@@ -16640,20 +16772,23 @@ ${err.stack}`);
           leftDescriptionText = /*html*/
           `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
-        liElement.innerHTML = /*html*/
-        `
-			<div class="pops-panel-item-left-text" style="flex: 1;">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-			</div>
-			<div class="pops-slider pops-slider-width">
-				<div class="pops-slider__runway">
-					<div class="pops-slider__bar" style="width: 0%; left: 0%"></div>
-					<div class="pops-slider__button-wrapper" style="left: 0%">
-						<div class="pops-slider__button"></div>
-					</div>
+        PopsSafeUtils.setSafeHTML(
+          liElement,
+          /*html*/
+          `
+				<div class="pops-panel-item-left-text" style="flex: 1;">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
 				</div>
-			</div>`;
+				<div class="pops-slider pops-slider-width">
+					<div class="pops-slider__runway">
+						<div class="pops-slider__bar" style="width: 0%; left: 0%"></div>
+						<div class="pops-slider__button-wrapper" style="left: 0%">
+							<div class="pops-slider__button"></div>
+						</div>
+					</div>
+				</div>`
+        );
         const PopsPanelSlider = {
           [Symbol.toStringTag]: "PopsPanelSlider",
           /**
@@ -17155,15 +17290,19 @@ ${err.stack}`);
         if (Boolean(formConfig.description)) {
           leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
-        liElement.innerHTML = `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-			${leftDescriptionText}
-			</div>
-			<div class="pops-panel-input pops-user-select-none">
-				<input type="${inputType}" placeholder="${formConfig.placeholder}">
-			</div>
-			`;
+        PopsSafeUtils.setSafeHTML(
+          liElement,
+          /*html*/
+          `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-input pops-user-select-none">
+					<input type="${inputType}" placeholder="${formConfig.placeholder}">
+				</div>
+				`
+        );
         const PopsPanelInput = {
           [Symbol.toStringTag]: "PopsPanelInput",
           $ele: {
@@ -17203,11 +17342,15 @@ ${err.stack}`);
           initEle() {
             this.$ele.input.parentElement.insertBefore(this.$ele.inputSpanIcon, this.$ele.input.nextSibling);
             this.$ele.inputSpanIcon.className = "pops-panel-input__suffix";
-            this.$ele.inputSpanIcon.innerHTML = `
-					<span class="pops-panel-input__suffix-inner">
-						<i class="pops-panel-icon"></i>
-					</span>
-					`;
+            PopsSafeUtils.setSafeHTML(
+              this.$ele.inputSpanIcon,
+              /*html*/
+              `
+						<span class="pops-panel-input__suffix-inner">
+							<i class="pops-panel-icon"></i>
+						</span>
+					`
+            );
             this.$ele.inputSpanIconInner = this.$ele.inputSpanIcon.querySelector(".pops-panel-input__suffix-inner");
             this.$ele.icon = this.$ele.inputSpanIcon.querySelector(".pops-panel-icon");
           },
@@ -17240,7 +17383,7 @@ ${err.stack}`);
           },
           /**
            * 设置input元素的type
-           * @param {string} [typeValue="text"] type值
+           * @param [typeValue="text"] type值
            */
           setInputType(typeValue = "text") {
             this.$ele.input.setAttribute("type", typeValue);
@@ -17249,14 +17392,14 @@ ${err.stack}`);
            * 删除图标按钮
            */
           removeCircleIcon() {
-            this.$ele.icon.innerHTML = "";
+            PopsSafeUtils.setSafeHTML(this.$ele.icon, "");
           },
           /**
            * 添加清空图标按钮
-           * @param {string} [svgHTML=pops.config.iconSVG.circleClose] svg图标，默认为清空的图标
+           * @param [svgHTML=pops.config.iconSVG.circleClose] svg图标，默认为清空的图标
            */
           setCircleIcon(svgHTML = pops.config.iconSVG.circleClose) {
-            this.$ele.icon.innerHTML = svgHTML;
+            PopsSafeUtils.setSafeHTML(this.$ele.icon, svgHTML);
           },
           /**
            * 添加图标按钮的点击事件
@@ -17327,16 +17470,20 @@ ${err.stack}`);
         if (Boolean(formConfig.description)) {
           leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
-        liElement.innerHTML = `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-			${leftDescriptionText}
-			</div>
-			<div class="pops-panel-textarea">
-				<textarea placeholder="${formConfig.placeholder ?? ""}">
-			</textarea>
-			</div>
-			`;
+        PopsSafeUtils.setSafeHTML(
+          liElement,
+          /*html*/
+          `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-textarea">
+					<textarea placeholder="${formConfig.placeholder ?? ""}">
+				</textarea>
+				</div>
+			`
+        );
         const PopsPanelTextArea = {
           [Symbol.toStringTag]: "PopsPanelTextArea",
           $ele: {
@@ -17400,16 +17547,19 @@ ${err.stack}`);
           leftDescriptionText = /*html*/
           `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
-        liElement.innerHTML = /*html*/
-        `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-			${leftDescriptionText}
-			</div>
-			<div class="pops-panel-select pops-user-select-none">
-				<select></select>
-			</div>
-			`;
+        PopsSafeUtils.setSafeHTML(
+          liElement,
+          /*html*/
+          `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-select pops-user-select-none">
+					<select></select>
+				</div>
+				`
+        );
         const PopsPanelSelect = {
           [Symbol.toStringTag]: "PopsPanelSelect",
           $ele: {
@@ -17588,34 +17738,37 @@ ${err.stack}`);
           leftDescriptionText = /*html*/
           `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
-        liElement.innerHTML = /*html*/
-        `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-			${leftDescriptionText}
-			</div>
-			<div class="pops-panel-select-multiple">
-				<div class="el-select__wrapper">
-					<div class="el-select__selection">
-						<!-- 这个是用于手动输入的，这里暂不适配 -->
-						<div class="el-select__selected-item el-select__input-wrapper">
-	
+        PopsSafeUtils.setSafeHTML(
+          liElement,
+          /*html*/
+          `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+				${leftDescriptionText}
+				</div>
+				<div class="pops-panel-select-multiple">
+					<div class="el-select__wrapper">
+						<div class="el-select__selection">
+							<!-- 这个是用于手动输入的，这里暂不适配 -->
+							<div class="el-select__selected-item el-select__input-wrapper">
+		
+							</div>
+							<!-- 这个是placeholder -->
+							<div class="el-select__selected-item el-select__placeholder">
+							</div>
 						</div>
-						<!-- 这个是placeholder -->
-						<div class="el-select__selected-item el-select__placeholder">
+						<!-- 下拉箭头 -->
+						<div class="el-select__suffix">
+							<i class="el-icon el-select__caret el-select__icon">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+									<path fill="currentColor" d="M831.872 340.864 512 652.672 192.128 340.864a30.592 30.592 0 0 0-42.752 0 29.12 29.12 0 0 0 0 41.6L489.664 714.24a32 32 0 0 0 44.672 0l340.288-331.712a29.12 29.12 0 0 0 0-41.728 30.592 30.592 0 0 0-42.752 0z"></path>
+								</svg>
+							</i>
 						</div>
-					</div>
-					<!-- 下拉箭头 -->
-					<div class="el-select__suffix">
-						<i class="el-icon el-select__caret el-select__icon">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-								<path fill="currentColor" d="M831.872 340.864 512 652.672 192.128 340.864a30.592 30.592 0 0 0-42.752 0 29.12 29.12 0 0 0 0 41.6L489.664 714.24a32 32 0 0 0 44.672 0l340.288-331.712a29.12 29.12 0 0 0 0-41.728 30.592 30.592 0 0 0-42.752 0z"></path>
-							</svg>
-						</i>
 					</div>
 				</div>
-			</div>
-			`;
+				`
+        );
         const PopsPanelSelectMultiple = {
           [Symbol.toStringTag]: "PopsPanelSelectMultiple",
           $el: {
@@ -17734,7 +17887,7 @@ ${err.stack}`);
             const $tagText = $selectedItem.querySelector(".el-select__tags-text");
             const $closeIcon = $selectedItem.querySelector(".el-icon.el-tag__close");
             if (data.isHTML) {
-              $tagText.innerHTML = data.text;
+              PopsSafeUtils.setSafeHTML($tagText, data.text);
             } else {
               $tagText.innerText = data.text;
             }
@@ -18086,19 +18239,22 @@ ${err.stack}`);
           leftDescriptionText = /*html*/
           `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
-        liElement.innerHTML = /*html*/
-        `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-			</div>
-			<div class="pops-panel-button">
-				<button class="pops-panel-button_inner">
-					<i class="pops-bottom-icon"></i>
-					<span class="pops-panel-button-text"></span>
-				</button>
-			</div>
-			`;
+        PopsSafeUtils.setSafeHTML(
+          liElement,
+          /*html*/
+          `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-button">
+					<button class="pops-panel-button_inner">
+						<i class="pops-bottom-icon"></i>
+						<span class="pops-panel-button-text"></span>
+					</button>
+				</div>
+				`
+        );
         const PopsPanelButton = {
           [Symbol.toStringTag]: "PopsPanelButton",
           $ele: {
@@ -18162,7 +18318,7 @@ ${err.stack}`);
            * 设置icon图标的svg
            */
           setIconSVG(svgHTML) {
-            this.$ele.icon.innerHTML = svgHTML;
+            PopsSafeUtils.setSafeHTML(this.$ele.icon, svgHTML);
           },
           /**
            * 设置icon图标是否旋转
@@ -18201,7 +18357,7 @@ ${err.stack}`);
            * @param text
            */
           setButtonText(text) {
-            this.$ele.spanText.innerHTML = text;
+            PopsSafeUtils.setSafeHTML(this.$ele.spanText, text);
           },
           setClickEvent() {
             popsDOMUtils.on(this.$ele.button, "click", void 0, (event) => {
@@ -18241,17 +18397,20 @@ ${err.stack}`);
           rightText = /*html*/
           `<p class="pops-panel-item-right-text">${formConfig.rightText}</p>`;
         }
-        $li.innerHTML = /*html*/
-        `
-			<div class="pops-panel-item-left-text">
-				<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-			</div>
-			<div class="pops-panel-deepMenu">
-				${rightText}
-				${arrowRightIconHTML}
-			</div>
-			`;
+        PopsSafeUtils.setSafeHTML(
+          $li,
+          /*html*/
+          `
+				<div class="pops-panel-item-left-text">
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
+					${leftDescriptionText}
+				</div>
+				<div class="pops-panel-deepMenu">
+					${rightText}
+					${arrowRightIconHTML}
+				</div>
+				`
+        );
         const PopsPanelDeepMenu = {
           [Symbol.toStringTag]: "PopsPanelDeepMenu",
           $ele: {
@@ -18278,18 +18437,20 @@ ${err.stack}`);
               let formHeaderDivElement = popsDOMUtils.createElement("div", {
                 className: "pops-panel-forms-container-item-header-text"
               });
-              formHeaderDivElement.innerHTML = formConfig_forms["text"];
+              PopsSafeUtils.setSafeHTML(formHeaderDivElement, formConfig_forms["text"]);
               if (formConfig_forms.isFold) {
-                formHeaderDivElement.innerHTML = /*html*/
-                `
+                PopsSafeUtils.setSafeHTML(
+                  formHeaderDivElement,
+                  /*html*/
+                  `
 								<p>${formConfig_forms.text}</p>
 								<i class="pops-panel-forms-fold-container-icon">
 									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
 										<path d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>
 									</svg>
 								</i>
-								
-							`;
+							`
+                );
                 popsDOMUtils.on(formHeaderDivElement, "click", (event) => {
                   if (formContainerListElement.hasAttribute("data-fold-enable")) {
                     formContainerListElement.removeAttribute("data-fold-enable");
@@ -18465,18 +18626,20 @@ ${err.stack}`);
           let formHeaderDivElement = popsDOMUtils.createElement("div", {
             className: "pops-panel-forms-container-item-header-text"
           });
-          formHeaderDivElement.innerHTML = formConfig_forms["text"];
+          PopsSafeUtils.setSafeHTML(formHeaderDivElement, formConfig_forms["text"]);
           if (formConfig_forms.isFold) {
-            formHeaderDivElement.innerHTML = /*html*/
-            `
+            PopsSafeUtils.setSafeHTML(
+              formHeaderDivElement,
+              /*html*/
+              `
 						<p>${formConfig_forms.text}</p>
 						<i class="pops-panel-forms-fold-container-icon">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
 								<path d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>
 							</svg>
 						</i>
-						
-					`;
+					`
+            );
             popsDOMUtils.on(formHeaderDivElement, "click", (event) => {
               if (formContainerListElement.hasAttribute("data-fold-enable")) {
                 formContainerListElement.removeAttribute("data-fold-enable");
@@ -18553,7 +18716,7 @@ ${err.stack}`);
           if (typeof headerTitleText === "string" && headerTitleText.trim() !== "") {
             let containerHeaderTitleLIElement = document.createElement("li");
             containerHeaderTitleLIElement["__asideConfig__"] = asideConfig;
-            containerHeaderTitleLIElement.innerHTML = headerTitleText;
+            PopsSafeUtils.setSafeHTML(containerHeaderTitleLIElement, headerTitleText);
             this.sectionContainerHeaderULElement.appendChild(containerHeaderTitleLIElement);
           }
           let __forms__ = asideLiElement["__forms__"];
@@ -18821,9 +18984,11 @@ ${err.stack}`);
         pops.config.cssText.rightClickMenu
       ]);
       if (config.style != null) {
-        let cssNode = document.createElement("style");
-        cssNode.setAttribute("type", "text/css");
-        cssNode.innerHTML = config.style;
+        let cssNode = popsDOMUtils.createElement("style", {
+          innerHTML: config.style
+        }, {
+          type: "text/css"
+        });
         $shadowRoot.appendChild(cssNode);
       }
       const PopsContextMenu = {
@@ -19111,7 +19276,7 @@ ${err.stack}`);
               let iconElement = popsUtils.parseTextToDOM(`<i class="pops-${PopsType}-icon" is-loading="${item.iconIsLoading}">${iconSVGHTML}</i>`);
               menuLiElement.appendChild(iconElement);
             }
-            menuLiElement.insertAdjacentHTML("beforeend", `<span>${item.text}</span>`);
+            menuLiElement.insertAdjacentHTML("beforeend", PopsSafeUtils.getSafeHTML(`<span>${item.text}</span>`));
             if (item.item && Array.isArray(item.item)) {
               popsDOMUtils.addClassName(menuLiElement, `pops-${PopsType}-item`);
             }
@@ -19267,8 +19432,11 @@ ${err.stack}`);
       ]);
       if (config.style != null) {
         let cssNode = document.createElement("style");
-        cssNode.setAttribute("type", "text/css");
-        cssNode.innerHTML = config.style;
+        popsDOMUtils.createElement("style", {
+          innerHTML: config.style
+        }, {
+          type: "text/css"
+        });
         $shadowRoot.appendChild(cssNode);
       }
       const SearchSuggestion = {
@@ -19614,7 +19782,7 @@ ${err.stack}`);
          * 清空所有的搜索结果
          */
         clearAllSearchItemLi() {
-          SearchSuggestion.$el.$hintULContainer.innerHTML = "";
+          PopsSafeUtils.setSafeHTML(SearchSuggestion.$el.$hintULContainer, "");
         },
         /**
          * 更新搜索建议框的位置(top、left)
@@ -19676,7 +19844,8 @@ ${err.stack}`);
          * 动态更新CSS
          */
         updateDynamicCSS() {
-          this.$el.$dynamicCSS.innerHTML = this.getDynamicCSS();
+          let cssText = this.getDynamicCSS();
+          PopsSafeUtils.setSafeHTML(this.$el.$dynamicCSS, cssText);
         },
         /**
          * 更新页面显示的搜索结果
@@ -19857,7 +20026,7 @@ ${err.stack}`);
       if (text == null) {
         text = this.getContent();
       }
-      this.$el.$content.innerHTML = text;
+      PopsSafeUtils.setSafeHTML(this.$el.$content, text);
     }
     /**
      * 获取z-index
@@ -20189,7 +20358,7 @@ ${err.stack}`);
       /** 配置 */
       __publicField(this, "config", {
         /** 版本号 */
-        version: "2025.1.1",
+        version: "2025.3.2",
         cssText: {
           /** 主CSS */
           index: indexCSS,
@@ -20376,7 +20545,7 @@ ${err.stack}`);
       if (!this.config.isInit) {
         this.config.isInit = true;
         let animationStyle = document.createElement("style");
-        animationStyle.innerHTML = this.config.cssText.anim;
+        PopsSafeUtils.setSafeHTML(animationStyle, this.config.cssText.anim);
         popsDOMUtils.appendHead(animationStyle);
         this.config.animation = null;
         this.config.animation = PopsInstanceUtils.getKeyFrames(animationStyle.sheet);
@@ -25066,12 +25235,46 @@ ${err.stack}`);
             text: "功能测试",
             forms: [
               UIInfo(() => {
-                return {
-                  text: "TODO",
-                  tag: "info",
-                  afterRender(container) {
-                  }
-                };
+                try {
+                  return {
+                    text: CommonUtil.escapeHtml("测试window.close"),
+                    tag: "info",
+                    description: "点击按钮执行该函数",
+                    afterRender(container) {
+                      let $button = domUtils.parseHTML(
+                        /*html*/
+                        `
+											<div class="pops-panel-button pops-panel-button-no-icon">
+												<button class="pops-panel-button_inner" type="default">
+													<i class="pops-bottom-icon" is-loading="false"></i>
+													<span class="pops-panel-button-text">点击执行</span>
+												</button>
+											</div>
+										`,
+                        false,
+                        false
+                      );
+                      domUtils.on($button, "click", (event) => {
+                        utils.preventEvent(event);
+                        try {
+                          window.close();
+                        } catch (error2) {
+                          qmsg.error(error2.toString(), {
+                            consoleLogContent: true
+                          });
+                        }
+                      });
+                      domUtils.after(container.$leftContainer, $button);
+                    }
+                  };
+                } catch (error2) {
+                  console.error(error2);
+                  return {
+                    text: "执行错误 " + error2,
+                    tag: "error"
+                  };
+                } finally {
+                }
               })
             ]
           }

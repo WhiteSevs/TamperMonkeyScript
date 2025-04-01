@@ -1,9 +1,14 @@
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type {
+	PopsPanelContentConfig,
+	PopsPanelFormsTotalDetails,
+} from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { ApiTestBase } from "../base/ApiTestBase";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/common-components/ui-info";
 import { CommonUtil } from "@/utils/CommonUtil";
+import { DOMUtils, utils } from "@/env";
+import Qmsg from "qmsg";
 
 export class GrantTest_close extends ApiTestBase {
 	public getApiName() {
@@ -34,11 +39,45 @@ export class GrantTest_close extends ApiTestBase {
 					text: "功能测试",
 					forms: [
 						UIInfo(() => {
-							return {
-								text: "TODO",
-								tag: "info",
-								afterRender(container) {},
-							};
+							try {
+								return {
+									text: CommonUtil.escapeHtml("测试window.close"),
+									tag: "info",
+									description: "点击按钮执行该函数",
+									afterRender(container) {
+										let $button = DOMUtils.parseHTML(
+											/*html*/ `
+											<div class="pops-panel-button pops-panel-button-no-icon">
+												<button class="pops-panel-button_inner" type="default">
+													<i class="pops-bottom-icon" is-loading="false"></i>
+													<span class="pops-panel-button-text">点击执行</span>
+												</button>
+											</div>
+										`,
+											false,
+											false
+										);
+										DOMUtils.on($button, "click", (event) => {
+											utils.preventEvent(event);
+											try {
+												window.close();
+											} catch (error: any) {
+												Qmsg.error(error.toString(), {
+													consoleLogContent: true,
+												});
+											}
+										});
+										DOMUtils.after(container.$leftContainer, $button);
+									},
+								};
+							} catch (error) {
+								console.error(error);
+								return {
+									text: "执行错误 " + error,
+									tag: "error",
+								};
+							} finally {
+							}
 						}),
 					],
 				},
