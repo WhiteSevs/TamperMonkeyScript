@@ -20,7 +20,7 @@ declare interface NetDiskCheckLinkValidityOption {
 	 */
 	accessCode: string;
 }
-declare interface NetDiskCheckLinkValidityStatusObj {
+declare interface NetDiskCheckLinkValidityStatusInstance {
 	/**
 	 * 状态码
 	 */
@@ -30,18 +30,23 @@ declare interface NetDiskCheckLinkValidityStatusObj {
 	 */
 	msg: string;
 	/**
+	 * 设置元素图标
+	 * @param $el netdisk-status元素
+	 */
+	setIcon($el: HTMLElement): void;
+	/**
 	 * 设置元素状态
-	 * @param ele netdisk-status元素
+	 * @param $el netdisk-status元素
 	 * @param checkInfo
 	 * @param msg 悬浮提示
 	 */
 	setView(
-		ele: HTMLDivElement,
+		$el: HTMLElement,
 		checkInfo: NetDiskCheckLinkValidityOption,
 		msg?: string
 	): void;
 }
-declare interface NetDiskCheckLinkValidityEntranceObj {
+declare interface NetDiskCheckLinkValidityEntranceInstance {
 	/**
 	 * 入口函数
 	 * @param netDiskIndex 网盘名称索引下标
@@ -54,7 +59,7 @@ declare interface NetDiskCheckLinkValidityEntranceObj {
 		shareCode: string,
 		accessCode: string
 	) => IPromise<
-		NetDiskCheckLinkValidityStatusObj & {
+		NetDiskCheckLinkValidityStatusInstance & {
 			/**
 			 * 网络请求的数据
 			 *
@@ -70,5 +75,5 @@ declare interface NetDiskCheckLinkValidityEntranceObj {
 }
 
 declare interface NetDiskCheckLinkValidityEntrance {
-	[key: string]: NetDiskCheckLinkValidityEntranceObj;
+	[key: string]: NetDiskCheckLinkValidityEntranceInstance;
 }

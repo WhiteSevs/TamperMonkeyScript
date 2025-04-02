@@ -4,7 +4,7 @@ import {
 	NetDiskCheckLinkValidityRequestOption,
 } from "../../../check-valid/NetDiskCheckLinkValidity";
 
-export const NetDiskCheckLinkValidity_tianyiyun: NetDiskCheckLinkValidityEntranceObj =
+export const NetDiskCheckLinkValidity_tianyiyun: NetDiskCheckLinkValidityEntranceInstance =
 	{
 		/**
 		 * @param netDiskIndex 网盘名称索引下标

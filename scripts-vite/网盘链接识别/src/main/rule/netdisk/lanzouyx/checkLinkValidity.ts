@@ -5,7 +5,7 @@ import {
 } from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskParse } from "../../../parse/NetDiskParse";
 
-export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntranceObj =
+export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntranceInstance =
 	{
 		/**
 		 * @param netDiskIndex 网盘名称索引下标

@@ -5,7 +5,7 @@ import {
 } from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
-export const NetDiskCheckLinkValidity_hecaiyun: NetDiskCheckLinkValidityEntranceObj =
+export const NetDiskCheckLinkValidity_hecaiyun: NetDiskCheckLinkValidityEntranceInstance =
 	{
 		/**
 		 * 新版和彩云校验已失效

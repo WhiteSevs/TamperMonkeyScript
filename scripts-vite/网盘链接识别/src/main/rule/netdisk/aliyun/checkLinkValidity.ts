@@ -4,7 +4,7 @@ import {
 	NetDiskCheckLinkValidityRequestOption,
 } from "@/main/check-valid/NetDiskCheckLinkValidity";
 
-export const NetDiskCheckLinkValidity_aliyun: NetDiskCheckLinkValidityEntranceObj =
+export const NetDiskCheckLinkValidity_aliyun: NetDiskCheckLinkValidityEntranceInstance =
 	{
 		/**
 		 * @param netDiskIndex 网盘名称索引下标

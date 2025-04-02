@@ -5,7 +5,7 @@ import {
 } from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
 
-export const NetDiskCheckLinkValidity_wenshushu: NetDiskCheckLinkValidityEntranceObj =
+export const NetDiskCheckLinkValidity_wenshushu: NetDiskCheckLinkValidityEntranceInstance =
 	{
 		/**
 		 * @param netDiskIndex 网盘名称索引下标
