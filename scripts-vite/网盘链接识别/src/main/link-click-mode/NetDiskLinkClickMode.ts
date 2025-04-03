@@ -219,11 +219,16 @@ export const NetDiskLinkClickMode = {
 		 */
 		let openUrl = () => {
 			if (isOpenInBackEnd) {
+				// 后台打开
 				GM_openInTab(url, {
 					active: false,
 				});
 			} else {
-				window.open(url, "_blank");
+				// 新标签页打开（自动获取焦点）
+				let blankWindow = window.open(url, "_blank");
+				if (blankWindow) {
+					blankWindow.focus();
+				}
 			}
 		};
 		if (
