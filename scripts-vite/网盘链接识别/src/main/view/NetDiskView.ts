@@ -549,10 +549,21 @@ export const NetDiskView = {
 
 			// 解析数据
 			const data = NetDiskView.praseElementAttributeRuleInfo($click);
-			this.netDiskUrlClickEvent({
-				data: data,
-				$click: $click,
-			});
+			// 是否是按下左键
+			// 如果是，那么就是新标签页打开
+			let ctrlClick = event.ctrlKey;
+			if (ctrlClick) {
+				this.netDiskUrlClickEvent({
+					data: data,
+					clickMode: "openBlank",
+					$click: $click,
+				});
+			} else {
+				this.netDiskUrlClickEvent({
+					data: data,
+					$click: $click,
+				});
+			}
 		});
 		// 鼠标中键的点击事件
 		DOMUtils.on<PointerEvent>(

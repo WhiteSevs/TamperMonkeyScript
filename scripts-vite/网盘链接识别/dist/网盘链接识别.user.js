@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.4.2
+// @version      2025.4.3
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -3891,10 +3891,19 @@
         let $click = event.target;
         $click.setAttribute("isvisited", "true");
         const data = NetDiskView.praseElementAttributeRuleInfo($click);
-        this.netDiskUrlClickEvent({
-          data,
-          $click
-        });
+        let ctrlClick = event.ctrlKey;
+        if (ctrlClick) {
+          this.netDiskUrlClickEvent({
+            data,
+            clickMode: "openBlank",
+            $click
+          });
+        } else {
+          this.netDiskUrlClickEvent({
+            data,
+            $click
+          });
+        }
       });
       domUtils.on(
         $el,
@@ -4691,7 +4700,7 @@
     }
   }
   const NetDiskParse_Lanzou_Config = {
-    /* 蓝奏云默认域名 */
+    /** 蓝奏云默认域名 */
     DEFAULT_HOST_NAME: "www.lanzout.com",
     /** 菜单配置项的键名 */
     MENU_KEY: "lanzou-host-name",
@@ -4699,6 +4708,11 @@
       let generateData = GeneratePanelData(this.MENU_KEY, this.DEFAULT_HOST_NAME);
       return generateData.value;
     }
+  };
+  let deleteAnnotationCode = (text) => {
+    text = text.replace(/\/\/.+/gi, "");
+    text = text.replace(/\/\*[\s\S\n]+\*\//gi, "");
+    return text;
   };
   class NetDiskParse_Lanzou extends NetDiskParseObject {
     constructor() {
@@ -4893,7 +4907,7 @@
         await that.getMoreFile();
       } else {
         log.info(respData);
-        let pageText = respData.responseText;
+        let pageText = deleteAnnotationCode(respData.responseText);
         if (getShareCodeByPageAgain) {
           let shareCodeNewMatch = pageText.match(
             /var[\s]*link[\s]*=[\s]*\'tp\/(.+?)\';/i
@@ -5020,25 +5034,18 @@
         await that.getFileLink(true);
         return;
       }
-      let sign = pageText.match(that.regexp.sign.match);
+      pageText = deleteAnnotationCode(pageText);
+      let sign = pageText.match(/'sign':'(.+?)',/i) || pageText.match(that.regexp.sign.match);
       let postData_p = "";
       let postData_sign = "";
-      let fileName = pageText.match(that.regexp.fileName.match);
-      let fileSize = pageText.match(that.regexp.fileSize.match) || pageText.match(/<div class="n_filesize">大小：(.+?)<\/div>/i);
-      let fileUploadTime = pageText.match(that.regexp.uploadTime.match) || pageText.match(/<span class="n_file_infos">(.+?)<\/span>/i);
-      if (fileName) {
-        fileName = fileName[fileName.length - 1].trim();
-      } else {
-        fileName = "";
-      }
-      if (fileSize) {
-        fileSize = fileSize[fileSize.length - 1].trim();
-      } else {
-        fileSize = "";
-      }
-      if (fileUploadTime) {
-        fileUploadTime = fileUploadTime[fileUploadTime.length - 1].trim();
-      }
+      let fileNameMatch = pageText.match(that.regexp.fileName.match);
+      let fileName = fileNameMatch ? fileNameMatch[fileNameMatch.length - 1].trim() : "";
+      let fileSizeMatch = pageText.match(that.regexp.fileSize.match) || pageText.match(/<div class="n_filesize">大小：(.+?)<\/div>/i);
+      let fileSize = fileSizeMatch ? fileSizeMatch[fileSizeMatch.length - 1].trim() : "";
+      let fileUploadTimeMatch = pageText.match(that.regexp.uploadTime.match) || pageText.match(/<span class="n_file_infos">(.+?)<\/span>/i);
+      let fileUploadTime = fileUploadTimeMatch ? fileUploadTimeMatch[fileUploadTimeMatch.length - 1].trim() : "";
+      let fileIdMatch = pageText.match(/[\s]+url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i) || pageText.match(/\/\/url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i);
+      let fileId = fileIdMatch ? fileIdMatch[fileIdMatch.length - 1] : "1";
       if (sign) {
         postData_sign = sign[sign.length - 1];
         log.info(`获取Sign: ${postData_sign}`);
@@ -5048,15 +5055,18 @@
         } else {
           log.info("传入参数=>无密码");
         }
+        let kd = await that.getKNDS();
         let postResp = await httpx.post({
-          url: that.router.root("ajaxm.php"),
+          url: that.router.root("ajaxm.php?file=" + fileId),
           responseType: "json",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            accept: "application/json, text/javascript, */*",
+            "Content-Type": "application/x-www-form-urlencoded",
             "User-Agent": utils.getRandomAndroidUA(),
+            Origin: "https://" + NetDiskParse_Lanzou_Config.hostname,
             Referer: that.router.root(that.shareCode)
           },
-          data: `action=downprocess&sign=${postData_sign}&p=${postData_p}`
+          data: `action=downprocess&sign=${postData_sign}&p=${postData_p}&kd=${kd}`
         });
         if (!postResp.status) {
           return;
@@ -5105,7 +5115,8 @@
       } else {
         let loadDownHost = pageText.match(that.regexp.loadDownHost.match);
         let loadDown = pageText.match(that.regexp.loadDown.match);
-        let appleDown = pageText.match(that.regexp.appleDown.match);
+        let appleDownMatch = pageText.match(that.regexp.appleDown.match);
+        let appleDown = appleDownMatch[appleDownMatch.length - 1];
         if (utils.isNull(loadDown)) {
           loadDown = pageText.match(/var[\s]*(cppat)[\s]*=[\s]*'(.+?)'/i);
         }

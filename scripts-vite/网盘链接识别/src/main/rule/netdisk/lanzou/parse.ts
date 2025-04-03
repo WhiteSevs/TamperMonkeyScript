@@ -5,9 +5,10 @@ import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { GeneratePanelData } from "@/main/data/NetDiskDataUtils";
 import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
+import type { HttpxResponse } from "@whitesev/utils/src/types/Httpx";
 
 export const NetDiskParse_Lanzou_Config = {
-	/* 蓝奏云默认域名 */
+	/** 蓝奏云默认域名 */
 	DEFAULT_HOST_NAME: "www.lanzout.com",
 	/** 菜单配置项的键名 */
 	MENU_KEY: "lanzou-host-name",
@@ -15,6 +16,15 @@ export const NetDiskParse_Lanzou_Config = {
 		let generateData = GeneratePanelData(this.MENU_KEY, this.DEFAULT_HOST_NAME);
 		return generateData.value;
 	},
+};
+
+/**
+ * 删除注释的代码
+ */
+let deleteAnnotationCode = (text: string) => {
+	text = text.replace(/\/\/.+/gi, "");
+	text = text.replace(/\/\*[\s\S\n]+\*\//gi, "");
+	return text;
 };
 
 /**
@@ -220,7 +230,7 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 			await that.getMoreFile();
 		} else {
 			log.info(respData);
-			let pageText = respData.responseText;
+			let pageText = deleteAnnotationCode(respData.responseText);
 			if (getShareCodeByPageAgain) {
 				let shareCodeNewMatch = pageText.match(
 					/var[\s]*link[\s]*=[\s]*\'tp\/(.+?)\';/i
@@ -353,7 +363,7 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 	 * 获取链接
 	 * @param response
 	 */
-	async getLink(response: any) {
+	async getLink(response: HttpxResponse<any>["data"]) {
 		const that = this;
 		let pageText = response.responseText;
 		if (pageText == void 0) {
@@ -361,31 +371,34 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 			await that.getFileLink(true);
 			return;
 		}
-		let sign = pageText.match(that.regexp.sign.match);
+		// 删除注释的代码
+		pageText = deleteAnnotationCode(pageText);
+		let sign =
+			pageText.match(/'sign':'(.+?)',/i) ||
+			pageText.match(that.regexp.sign.match);
+
 		let postData_p = "";
 		let postData_sign = "";
-		let fileName = pageText.match(that.regexp.fileName.match);
-		let fileSize =
+		let fileNameMatch = pageText.match(that.regexp.fileName.match);
+		let fileName = fileNameMatch
+			? fileNameMatch[fileNameMatch.length - 1].trim()
+			: "";
+		let fileSizeMatch =
 			pageText.match(that.regexp.fileSize.match) ||
 			pageText.match(/<div class="n_filesize">大小：(.+?)<\/div>/i);
-		let fileUploadTime =
+		let fileSize = fileSizeMatch
+			? fileSizeMatch[fileSizeMatch.length - 1].trim()
+			: "";
+		let fileUploadTimeMatch =
 			pageText.match(that.regexp.uploadTime.match) ||
 			pageText.match(/<span class="n_file_infos">(.+?)<\/span>/i);
-		if (fileName) {
-			fileName = fileName[fileName.length - 1].trim();
-		} else {
-			fileName = "";
-		}
-		if (fileSize) {
-			fileSize = fileSize[fileSize.length - 1].trim();
-		} else {
-			fileSize = "";
-		}
-		if (fileUploadTime) {
-			fileUploadTime = fileUploadTime[fileUploadTime.length - 1].trim();
-		} else {
-			fileUploadTime;
-		}
+		let fileUploadTime = fileUploadTimeMatch
+			? fileUploadTimeMatch[fileUploadTimeMatch.length - 1].trim()
+			: "";
+		let fileIdMatch =
+			pageText.match(/[\s]+url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i) ||
+			pageText.match(/\/\/url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i);
+		let fileId = fileIdMatch ? fileIdMatch[fileIdMatch.length - 1] : "1";
 		if (sign) {
 			postData_sign = sign[sign.length - 1];
 			log.info(`获取Sign: ${postData_sign}`);
@@ -395,15 +408,18 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 			} else {
 				log.info("传入参数=>无密码");
 			}
+			let kd = await that.getKNDS();
 			let postResp = await httpx.post({
-				url: that.router.root("ajaxm.php"),
+				url: that.router.root("ajaxm.php?file=" + fileId),
 				responseType: "json",
 				headers: {
-					"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+					accept: "application/json, text/javascript, */*",
+					"Content-Type": "application/x-www-form-urlencoded",
 					"User-Agent": utils.getRandomAndroidUA(),
+					Origin: "https://" + NetDiskParse_Lanzou_Config.hostname,
 					Referer: that.router.root(that.shareCode),
 				},
-				data: `action=downprocess&sign=${postData_sign}&p=${postData_p}`,
+				data: `action=downprocess&sign=${postData_sign}&p=${postData_p}&kd=${kd}`,
 			});
 			if (!postResp.status) {
 				return;
@@ -461,7 +477,8 @@ export class NetDiskParse_Lanzou extends NetDiskParseObject {
 		} else {
 			let loadDownHost = pageText.match(that.regexp.loadDownHost.match);
 			let loadDown = pageText.match(that.regexp.loadDown.match);
-			let appleDown = pageText.match(that.regexp.appleDown.match);
+			let appleDownMatch = pageText.match(that.regexp.appleDown.match)!;
+			let appleDown = appleDownMatch[appleDownMatch.length - 1];
 			if (utils.isNull(loadDown)) {
 				loadDown = pageText.match(/var[\s]*(cppat)[\s]*=[\s]*'(.+?)'/i);
 			}
