@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.12
+// @version      2025.4.5
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
 // @grant        GM_deleteValue
@@ -265,7 +265,7 @@
   });
   const addStyle = utils.addStyle.bind(utils);
   const $ = document.querySelector.bind(document);
-  document.querySelectorAll.bind(document);
+  const $$ = document.querySelectorAll.bind(document);
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -2645,8 +2645,10 @@
           if (!$click.classList.contains("hljs-button")) {
             return;
           }
+          let $code = $parent.querySelector("code");
+          $code = $code || $parent;
           utils.preventEvent(event);
-          let copyText = ($parent.innerText || $parent.textContent || "").toString();
+          let copyText = $code.innerText;
           log.info(
             "点击复制按钮复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText)
           );
@@ -2702,10 +2704,10 @@
       });
       utils.waitNode(".hljs-button").then(() => {
         setTimeout(() => {
-          document.querySelectorAll(".hljs-button").forEach((element) => {
-            element.removeAttribute("onclick");
-            element.removeAttribute("data-report-click");
-            element.setAttribute("data-title", "复制");
+          $$(".hljs-button").forEach(($el) => {
+            $el.removeAttribute("onclick");
+            $el.removeAttribute("data-report-click");
+            $el.setAttribute("data-title", "复制");
           });
         }, 250);
       });

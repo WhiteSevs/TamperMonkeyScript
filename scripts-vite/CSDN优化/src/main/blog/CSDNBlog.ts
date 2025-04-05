@@ -1,6 +1,6 @@
 import { CSDNRouter } from "@/router/CSDNRouter";
 import { CSDNBlogArticle } from "./CSDNBlogArticle";
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { $$, addStyle, DOMUtils, log, utils } from "@/env";
 import BlogShieldCSS from "./css/shield.css?raw";
 import BlogCSS from "./css/CSDNBlog.css?raw";
 import { PopsPanel } from "@/setting/setting";
@@ -71,13 +71,11 @@ export const CSDNBlog = {
 				if (!$click.classList.contains("hljs-button")) {
 					return;
 				}
+				let $code = $parent.querySelector<HTMLElement>("code");
+				$code = $code || $parent;
 				utils.preventEvent(event);
 				/* 需要复制的文本 */
-				let copyText = (
-					$parent.innerText ||
-					$parent.textContent ||
-					""
-				).toString();
+				let copyText = $code.innerText;
 				log.info(
 					"点击复制按钮复制内容：" +
 						(copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText)
@@ -139,13 +137,11 @@ export const CSDNBlog = {
 		/* 删除所有复制按钮的原有的复制事件 */
 		utils.waitNode(".hljs-button").then(() => {
 			setTimeout(() => {
-				document
-					.querySelectorAll<HTMLDivElement>(".hljs-button")
-					.forEach((element) => {
-						element.removeAttribute("onclick");
-						element.removeAttribute("data-report-click");
-						element.setAttribute("data-title", "复制");
-					});
+				$$<HTMLDivElement>(".hljs-button").forEach(($el) => {
+					$el.removeAttribute("onclick");
+					$el.removeAttribute("data-report-click");
+					$el.setAttribute("data-title", "复制");
+				});
 			}, 250);
 		});
 	},
