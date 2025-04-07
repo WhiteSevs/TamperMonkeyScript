@@ -87,6 +87,8 @@ export const NetDiskGlobalData = {
 			"suspended-button-adsorption-edge",
 			false
 		),
+		/** z-index层级 */
+		"suspended-z-index": GeneratePanelData("suspended-z-index", -1),
 	},
 	/** 小窗模式 */
 	smallWindow: {
@@ -99,6 +101,11 @@ export const NetDiskGlobalData = {
 		"netdisk-ui-small-window-max-height": GeneratePanelData(
 			"netdisk-ui-small-window-max-height",
 			200
+		),
+		/** z-index */
+		"netdisk-link-view-z-index": GeneratePanelData(
+			"netdisk-link-view-z-index",
+			-1
 		),
 	},
 	/** 历史匹配记录 */

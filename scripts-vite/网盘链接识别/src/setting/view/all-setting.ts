@@ -10,6 +10,7 @@ import { UIButtonShortCut } from "../components/ui-button-shortcut";
 import { NetDiskShortcut } from "@/main/shortcut/NetDiskShortcut";
 import { UIButton } from "../components/ui-button";
 import { UISelectMultiple } from "../components/ui-select-multiple";
+import { UIInput } from "../components/ui-input";
 
 export const PanelUI_allSetting: PopsPanelContentConfig = {
 	id: "netdisk-panel-config-all-setting",
@@ -372,17 +373,31 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									void 0,
 									"移动悬浮按钮松开后自动吸附边缘"
 								),
+								UIInput(
+									"z-index",
+									NetDiskGlobalData.suspension["suspended-z-index"].KEY,
+									NetDiskGlobalData.suspension["suspended-z-index"].default,
+									"值小于等于0则为动态获取z-index",
+
+									(event, value, valueAsNumber) => {
+										NetDiskGlobalData.suspension["suspended-z-index"].value =
+											valueAsNumber!;
+										return true;
+									},
+									"",
+									true
+								),
 							],
 						},
 					],
 				},
 				{
 					type: "deepMenu",
-					text: "小窗模式",
+					text: "大/小链接弹窗",
 					forms: [
 						{
 							type: "forms",
-							text: "",
+							text: "小窗",
 							className: "netdisk-panel-forms-small-window",
 							forms: [
 								UISlider(
@@ -419,6 +434,30 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 											"netdisk-ui-small-window-max-height"
 										].default,
 									1
+								),
+							],
+						},
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UIInput(
+									"z-index",
+									NetDiskGlobalData.smallWindow[
+										"netdisk-link-view-z-index"
+									].KEY,
+									NetDiskGlobalData.smallWindow[
+										"netdisk-link-view-z-index"
+									].default,
+									"值小于等于0则为动态获取z-index",
+									(event, value, valueAsNumber) => {
+										NetDiskGlobalData.smallWindow[
+											"netdisk-link-view-z-index"
+										].value = valueAsNumber!;
+										return true;
+									},
+									"",
+									true
 								),
 							],
 						},

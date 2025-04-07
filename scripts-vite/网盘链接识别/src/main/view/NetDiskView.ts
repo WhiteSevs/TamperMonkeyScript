@@ -19,7 +19,6 @@ import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import indexCSS from "./index.css?raw";
 import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 import { NetDiskFilterScheme } from "../scheme/NetDiskFilterScheme";
-import { GM_openInTab } from "ViteGM";
 
 /**
  * 传递给生成需要的网盘参数数据
@@ -67,24 +66,22 @@ export const NetDiskView = {
 		// 根据匹配到的链接生成视图
 		NetDiskUI.isMatchedNetDiskIconMap.forEach((netDiskName) => {
 			let netDiskDict = NetDisk.$match.matchedInfo.get(netDiskName);
-			let netDiskData = netDiskDict.getItems() as any;
-			Object.keys(netDiskData).forEach((shareCode) => {
-				let accessCodeDict = netDiskData[shareCode];
+			netDiskDict.forEach((netDiskData, shareCode) => {
 				let uiLink = NetDisk.handleLinkShow(
 					netDiskName,
-					accessCodeDict["netDiskIndex"],
+					netDiskData["netDiskIndex"]!,
 					shareCode,
-					accessCodeDict["accessCode"],
-					accessCodeDict["matchText"]
+					netDiskData["accessCode"],
+					netDiskData["matchText"]
 				);
 				viewAddHTML =
 					viewAddHTML +
 					this.createViewBoxElementInfo(
 						NetDiskUI.src.icon[netDiskName],
 						netDiskName,
-						accessCodeDict["netDiskIndex"],
+						netDiskData["netDiskIndex"]!,
 						shareCode,
-						accessCodeDict["accessCode"],
+						netDiskData["accessCode"],
 						uiLink
 					).html;
 			});
@@ -93,12 +90,12 @@ export const NetDiskView = {
             <div class="netdisk-url-box-all">
                 ${viewAddHTML}
             </div>`;
-
 		if (
 			NetDiskGlobalData.features["netdisk-behavior-mode"].value
 				.toLowerCase()
 				.includes("smallwindow")
 		) {
+			// 小窗
 			NetDiskUI.Alias.uiLinkAlias = NetDiskPops.alert(
 				{
 					title: {
@@ -315,6 +312,7 @@ export const NetDiskView = {
 				}, 300);
 			}
 		} else {
+			// 大窗
 			NetDiskUI.Alias.uiLinkAlias = NetDiskPops.alert(
 				{
 					title: {
@@ -362,6 +360,14 @@ export const NetDiskView = {
 			);
 		}
 
+		// 链接视图的z-index
+		let netDiskLinkViewZIndex =
+			NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].value;
+		if (netDiskLinkViewZIndex > 0) {
+			DOMUtils.css(NetDiskUI.Alias.uiLinkAlias.popsElement, {
+				"z-index": netDiskLinkViewZIndex,
+			});
+		}
 		NetDiskUI.Alias.uiLinkAlias.popsElement
 			.querySelectorAll<HTMLElement>(".netdisk-url-box-all .netdisk-url-box")
 			.forEach(($netDiskBox) => {

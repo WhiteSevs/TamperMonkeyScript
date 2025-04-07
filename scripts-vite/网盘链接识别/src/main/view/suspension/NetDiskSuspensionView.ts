@@ -99,6 +99,12 @@ export const NetDiskSuspension = {
 			className: "whitesev-suspension-shadow-container",
 		});
 		let $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
+		// 悬浮按钮的z-index
+		let suspendedZIndex =
+			NetDiskGlobalData.suspension["suspended-z-index"].value;
+		if (suspendedZIndex <= 0) {
+			suspendedZIndex = utils.getMaxValue(40000, utils.getMaxZIndex(10));
+		}
 		this.suspensionNode = DOMUtils.createElement(
 			"div",
 			{
@@ -108,7 +114,7 @@ export const NetDiskSuspension = {
 					<style type="text/css">
 						/* 动态生成z-index */
 						#whitesevSuspensionId{
-							z-index: ${utils.getMaxValue(40000, utils.getMaxZIndex(10))};;
+							z-index: ${suspendedZIndex};;
 						}
 
 						${indexCSS}

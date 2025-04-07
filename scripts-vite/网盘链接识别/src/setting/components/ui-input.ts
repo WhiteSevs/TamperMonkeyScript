@@ -4,7 +4,7 @@ import {
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
 } from "../panel-config";
-import { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/inputType";
+import type { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/inputType";
 
 /**
  * 获取输入框配置
@@ -12,20 +12,20 @@ import { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/
  * @param key 键
  * @param defaultValue 默认值
  * @param description 左边的文字下面的描述
- * @param changeCallBack 输入框内容改变时的回调
+ * @param changeCallBack 输入框内容改变时的回调，返回true则阻止默认行为（存储值）
  * @param placeholder 输入框的默认提示内容
  * @param isNumber 是否是数字框
  * @param isPassword 是否是密码框
  */
-export const UIInput = function (
+export const UIInput = function <T extends string | number>(
 	text: string,
 	key: string,
-	defaultValue: string,
+	defaultValue: T,
 	description?: string | undefined,
 	changeCallBack?:
 		| ((
 				event: InputEvent,
-				value: string,
+				value: T,
 				valueAsNumber?: number | undefined
 		  ) => void | boolean)
 		| undefined,
@@ -44,9 +44,10 @@ export const UIInput = function (
 		getValue() {
 			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
 		},
-		callback(event, value) {
+		callback(event, value, valueAsNumber) {
 			if (typeof changeCallBack === "function") {
-				if (changeCallBack(event, value)) {
+				// @ts-ignore
+				if (changeCallBack(event, value, valueAsNumber)) {
 					return;
 				}
 			}

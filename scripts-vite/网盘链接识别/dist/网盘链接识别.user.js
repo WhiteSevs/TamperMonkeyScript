@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.4.4
+// @version      2025.4.8
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -548,7 +548,12 @@
       getValue() {
         return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
-      callback(event, value) {
+      callback(event, value, valueAsNumber) {
+        if (typeof changeCallBack === "function") {
+          if (changeCallBack(event, value, valueAsNumber)) {
+            return;
+          }
+        }
         this.props[PROPS_STORAGE_API].set(key, value);
       },
       placeholder
@@ -3457,22 +3462,20 @@
       let viewAddHTML = "";
       NetDiskUI.isMatchedNetDiskIconMap.forEach((netDiskName) => {
         let netDiskDict = NetDisk.$match.matchedInfo.get(netDiskName);
-        let netDiskData = netDiskDict.getItems();
-        Object.keys(netDiskData).forEach((shareCode) => {
-          let accessCodeDict = netDiskData[shareCode];
+        netDiskDict.forEach((netDiskData, shareCode) => {
           let uiLink = NetDisk.handleLinkShow(
             netDiskName,
-            accessCodeDict["netDiskIndex"],
+            netDiskData["netDiskIndex"],
             shareCode,
-            accessCodeDict["accessCode"],
-            accessCodeDict["matchText"]
+            netDiskData["accessCode"],
+            netDiskData["matchText"]
           );
           viewAddHTML = viewAddHTML + this.createViewBoxElementInfo(
             NetDiskUI.src.icon[netDiskName],
             netDiskName,
-            accessCodeDict["netDiskIndex"],
+            netDiskData["netDiskIndex"],
             shareCode,
-            accessCodeDict["accessCode"],
+            netDiskData["accessCode"],
             uiLink
           ).html;
         });
@@ -3732,6 +3735,12 @@
           },
           NetDiskUI.popsStyle.mainView
         );
+      }
+      let netDiskLinkViewZIndex = NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].value;
+      if (netDiskLinkViewZIndex > 0) {
+        domUtils.css(NetDiskUI.Alias.uiLinkAlias.popsElement, {
+          "z-index": netDiskLinkViewZIndex
+        });
       }
       NetDiskUI.Alias.uiLinkAlias.popsElement.querySelectorAll(".netdisk-url-box-all .netdisk-url-box").forEach(($netDiskBox) => {
         let netDiskName = $netDiskBox.querySelector(".netdisk-link").getAttribute("data-netdisk");
@@ -14156,6 +14165,10 @@
         className: "whitesev-suspension-shadow-container"
       });
       let $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
+      let suspendedZIndex = NetDiskGlobalData.suspension["suspended-z-index"].value;
+      if (suspendedZIndex <= 0) {
+        suspendedZIndex = utils.getMaxValue(4e4, utils.getMaxZIndex(10));
+      }
       this.suspensionNode = DOMUtils.createElement(
         "div",
         {
@@ -14167,7 +14180,7 @@
 					<style type="text/css">
 						/* 动态生成z-index */
 						#whitesevSuspensionId{
-							z-index: ${utils.getMaxValue(4e4, utils.getMaxZIndex(10))};;
+							z-index: ${suspendedZIndex};;
 						}
 
 						${indexCSS$2}
@@ -16524,7 +16537,9 @@
       "suspended-button-adsorption-edge": GeneratePanelData(
         "suspended-button-adsorption-edge",
         false
-      )
+      ),
+      /** z-index层级 */
+      "suspended-z-index": GeneratePanelData("suspended-z-index", -1)
     },
     /** 小窗模式 */
     smallWindow: {
@@ -16537,6 +16552,11 @@
       "netdisk-ui-small-window-max-height": GeneratePanelData(
         "netdisk-ui-small-window-max-height",
         200
+      ),
+      /** z-index */
+      "netdisk-link-view-z-index": GeneratePanelData(
+        "netdisk-link-view-z-index",
+        -1
       )
     },
     /** 历史匹配记录 */
@@ -18226,6 +18246,18 @@
                     NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].default,
                     void 0,
                     "移动悬浮按钮松开后自动吸附边缘"
+                  ),
+                  UIInput(
+                    "z-index",
+                    NetDiskGlobalData.suspension["suspended-z-index"].KEY,
+                    NetDiskGlobalData.suspension["suspended-z-index"].default,
+                    "值小于等于0则为动态获取z-index",
+                    (event, value, valueAsNumber) => {
+                      NetDiskGlobalData.suspension["suspended-z-index"].value = valueAsNumber;
+                      return true;
+                    },
+                    "",
+                    true
                   )
                 ]
               }
@@ -18233,11 +18265,11 @@
           },
           {
             type: "deepMenu",
-            text: "小窗模式",
+            text: "大/小链接弹窗",
             forms: [
               {
                 type: "forms",
-                text: "",
+                text: "小窗",
                 className: "netdisk-panel-forms-small-window",
                 forms: [
                   UISlider(
@@ -18265,6 +18297,24 @@
                     },
                     "设置小窗最大高度(px)，默认: " + NetDiskGlobalData.smallWindow["netdisk-ui-small-window-max-height"].default,
                     1
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UIInput(
+                    "z-index",
+                    NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].KEY,
+                    NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].default,
+                    "值小于等于0则为动态获取z-index",
+                    (event, value, valueAsNumber) => {
+                      NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].value = valueAsNumber;
+                      return true;
+                    },
+                    "",
+                    true
                   )
                 ]
               }
