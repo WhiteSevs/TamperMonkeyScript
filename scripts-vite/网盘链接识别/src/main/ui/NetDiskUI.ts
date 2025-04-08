@@ -179,10 +179,10 @@ export const NetDiskUI = {
 		let showTextList: RegisterContextMenuShowTextOption[] = [
 			{
 				text: "复制链接",
-				callback: function (event: any, contextMenuEvent: any) {
-					let linkElement = contextMenuEvent.target;
+				callback: function (event, contextMenuEvent, liElement) {
+					let $link = contextMenuEvent.target as HTMLElement;
 					const { netDiskName, netDiskIndex, shareCode, accessCode } =
-						NetDiskView.praseElementAttributeRuleInfo(linkElement);
+						NetDiskView.praseElementAttributeRuleInfo($link);
 					NetDiskLinkClickMode.copy(
 						netDiskName,
 						netDiskIndex,
@@ -193,10 +193,10 @@ export const NetDiskUI = {
 			},
 			{
 				text: "访问链接",
-				callback: function (event: any, contextMenuEvent: any) {
-					let linkElement = contextMenuEvent.target;
+				callback: function (event, contextMenuEvent, liElement) {
+					let $link = contextMenuEvent.target as HTMLElement;
 					const { netDiskName, netDiskIndex, shareCode, accessCode } =
-						NetDiskView.praseElementAttributeRuleInfo(linkElement);
+						NetDiskView.praseElementAttributeRuleInfo($link);
 					let url = NetDiskLinkClickModeUtils.getBlankUrl(
 						netDiskName,
 						netDiskIndex,
@@ -214,10 +214,10 @@ export const NetDiskUI = {
 			},
 			{
 				text: "后台打开",
-				callback: function (event: any, contextMenuEvent: any) {
-					let linkElement = contextMenuEvent.target;
+				callback: function (event, contextMenuEvent, liElement) {
+					let $link = contextMenuEvent.target as HTMLElement;
 					const { netDiskName, netDiskIndex, shareCode, accessCode } =
-						NetDiskView.praseElementAttributeRuleInfo(linkElement);
+						NetDiskView.praseElementAttributeRuleInfo($link);
 					let url = NetDiskLinkClickModeUtils.getBlankUrl(
 						netDiskName,
 						netDiskIndex,
@@ -236,8 +236,9 @@ export const NetDiskUI = {
 			},
 			{
 				text: "修改访问码",
-				callback: function (event: any, contextMenuEvent: any) {
-					let $link = contextMenuEvent.target;
+				callback: function (event, contextMenuEvent, liElement) {
+					let eventTarget = event.target as HTMLElement;
+					let $link = contextMenuEvent.target as HTMLElement;
 					const { netDiskName, netDiskIndex, shareCode, accessCode } =
 						NetDiskView.praseElementAttributeRuleInfo($link);
 
@@ -252,11 +253,10 @@ export const NetDiskUI = {
 								// 来自历史匹配记录界面的
 								if (option.isUpdatedMatchedDict) {
 									let currentTime = new Date().getTime();
-									$link
-										.closest("li")
-										.querySelector(
-											".netdiskrecord-update-time"
-										).lastChild.textContent = utils.formatTime(currentTime);
+									let $updateTime = $link
+										.closest("li")!
+										.querySelector<HTMLElement>(".netdiskrecord-update-time")!;
+									DOMUtils.text($updateTime, utils.formatTime(currentTime));
 									$link.setAttribute("data-accesscode", option.accessCode);
 									Qmsg.success(
 										/*html*/ `
@@ -270,7 +270,7 @@ export const NetDiskUI = {
 									Qmsg.error("修改失败");
 								}
 							} else {
-								event.target.setAttribute("data-accesscode", option.accessCode);
+								eventTarget.setAttribute("data-accesscode", option.accessCode);
 								if (option.isUpdatedMatchedDict) {
 									Qmsg.success(
 										/*html*/ `
@@ -294,17 +294,53 @@ export const NetDiskUI = {
 					);
 				},
 			},
+			{
+				text: "复制全部",
+				callback(clickEvent, contextMenuEvent, liElement) {
+					let $link = contextMenuEvent.target as HTMLElement;
+					let $boxAll = $link.closest<HTMLElement>(".netdisk-url-box-all")!;
+					// 获取全部链接的复制文本
+					let copyTextList: string[] = [];
+					$boxAll
+						.querySelectorAll<HTMLElement>(selector)
+						.forEach(($linkItem) => {
+							const { netDiskName, netDiskIndex, shareCode, accessCode } =
+								NetDiskView.praseElementAttributeRuleInfo($linkItem);
+							// 复制的文本
+							let copyUrlText = NetDiskLinkClickModeUtils.getCopyUrlInfo(
+								netDiskName,
+								netDiskIndex,
+								shareCode,
+								accessCode
+							);
+							copyTextList.push(copyUrlText);
+						});
+					utils
+						.setClip(copyTextList.join("\n"))
+						.then((status) => {
+							if (status) {
+								Qmsg.success("成功复制全部");
+							} else {
+								Qmsg.error("复制全部失败");
+							}
+						})
+						.catch(() => {
+							Qmsg.error("复制全部失败");
+						});
+				},
+			},
 		];
 
 		if (!isHistoryView) {
-			// 添加清空当前or所有已匹配的项
+			// 如果当前视图不是历史匹配记录的
+			// 那么添加清空当前or所有已匹配的项
 			showTextList.push({
 				text: "删除当前项",
-				callback: function (event: any, contextMenuEvent: any) {
-					let $linkElement = contextMenuEvent.target as HTMLElement;
-					let $box = $linkElement.closest(".netdisk-url-box") as HTMLDivElement;
+				callback: function (event, contextMenuEvent, liElement) {
+					let $link = contextMenuEvent.target as HTMLElement;
+					let $box = $link.closest<HTMLElement>(".netdisk-url-box")!;
 					const { netDiskName, netDiskIndex, shareCode, accessCode } =
-						NetDiskView.praseElementAttributeRuleInfo($linkElement);
+						NetDiskView.praseElementAttributeRuleInfo($link);
 					let flag = false;
 					NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
 						if (netDiskKeyName !== netDiskName) {
@@ -334,13 +370,11 @@ export const NetDiskUI = {
 			});
 			showTextList.push({
 				text: "删除所有项",
-				callback: function (event: any, contextMenuEvent: any) {
-					let $linkElement = contextMenuEvent.target as HTMLElement;
-					let $boxAll = $linkElement.closest(
-						".netdisk-url-box-all"
-					) as HTMLDivElement;
+				callback: function (event, contextMenuEvent, liElement) {
+					let $link = contextMenuEvent.target as HTMLElement;
+					let $boxAll = $link.closest<HTMLElement>(".netdisk-url-box-all")!;
 					const { netDiskName, netDiskIndex, shareCode, accessCode } =
-						NetDiskView.praseElementAttributeRuleInfo($linkElement);
+						NetDiskView.praseElementAttributeRuleInfo($link);
 					NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
 						netDiskItem.clear();
 					});
@@ -349,6 +383,7 @@ export const NetDiskUI = {
 				},
 			});
 		}
+
 		NetDiskUI.view.registerContextMenu(target, selector, showTextList);
 	},
 };

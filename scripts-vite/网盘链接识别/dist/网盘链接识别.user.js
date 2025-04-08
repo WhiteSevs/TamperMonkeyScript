@@ -11,7 +11,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@11f749fc58f5674c1b4db129731403b77d97f7eb/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
@@ -7756,8 +7756,15 @@
           shareCode,
           accessCode
         )
-      );
-      Qmsg.success(toastText);
+      ).then((status) => {
+        if (status) {
+          Qmsg.success(toastText);
+        } else {
+          Qmsg.error("执行复制失败");
+        }
+      }).catch(() => {
+        Qmsg.error("执行复制失败");
+      });
     },
     /**
      * 网盘链接解析
@@ -14852,9 +14859,9 @@
       let showTextList = [
         {
           text: "复制链接",
-          callback: function(event, contextMenuEvent) {
-            let linkElement = contextMenuEvent.target;
-            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo(linkElement);
+          callback: function(event, contextMenuEvent, liElement) {
+            let $link = contextMenuEvent.target;
+            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($link);
             NetDiskLinkClickMode.copy(
               netDiskName,
               netDiskIndex,
@@ -14865,9 +14872,9 @@
         },
         {
           text: "访问链接",
-          callback: function(event, contextMenuEvent) {
-            let linkElement = contextMenuEvent.target;
-            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo(linkElement);
+          callback: function(event, contextMenuEvent, liElement) {
+            let $link = contextMenuEvent.target;
+            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($link);
             let url = NetDiskLinkClickModeUtils.getBlankUrl(
               netDiskName,
               netDiskIndex,
@@ -14885,9 +14892,9 @@
         },
         {
           text: "后台打开",
-          callback: function(event, contextMenuEvent) {
-            let linkElement = contextMenuEvent.target;
-            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo(linkElement);
+          callback: function(event, contextMenuEvent, liElement) {
+            let $link = contextMenuEvent.target;
+            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($link);
             let url = NetDiskLinkClickModeUtils.getBlankUrl(
               netDiskName,
               netDiskIndex,
@@ -14906,7 +14913,8 @@
         },
         {
           text: "修改访问码",
-          callback: function(event, contextMenuEvent) {
+          callback: function(event, contextMenuEvent, liElement) {
+            let eventTarget = event.target;
             let $link = contextMenuEvent.target;
             const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($link);
             NetDiskUI.newAccessCodeView(
@@ -14919,9 +14927,8 @@
                 if (isHistoryView) {
                   if (option.isUpdatedMatchedDict) {
                     let currentTime = (/* @__PURE__ */ new Date()).getTime();
-                    $link.closest("li").querySelector(
-                      ".netdiskrecord-update-time"
-                    ).lastChild.textContent = utils.formatTime(currentTime);
+                    let $updateTime = $link.closest("li").querySelector(".netdiskrecord-update-time");
+                    DOMUtils.text($updateTime, utils.formatTime(currentTime));
                     $link.setAttribute("data-accesscode", option.accessCode);
                     Qmsg.success(
                       /*html*/
@@ -14936,7 +14943,7 @@
                     Qmsg.error("修改失败");
                   }
                 } else {
-                  event.target.setAttribute("data-accesscode", option.accessCode);
+                  eventTarget.setAttribute("data-accesscode", option.accessCode);
                   if (option.isUpdatedMatchedDict) {
                     Qmsg.success(
                       /*html*/
@@ -14960,15 +14967,42 @@
               }
             );
           }
+        },
+        {
+          text: "复制全部",
+          callback(clickEvent, contextMenuEvent, liElement) {
+            let $link = contextMenuEvent.target;
+            let $boxAll = $link.closest(".netdisk-url-box-all");
+            let copyTextList = [];
+            $boxAll.querySelectorAll(selector).forEach(($linkItem) => {
+              const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($linkItem);
+              let copyUrlText = NetDiskLinkClickModeUtils.getCopyUrlInfo(
+                netDiskName,
+                netDiskIndex,
+                shareCode,
+                accessCode
+              );
+              copyTextList.push(copyUrlText);
+            });
+            utils.setClip(copyTextList.join("\n")).then((status) => {
+              if (status) {
+                Qmsg.success("成功复制全部");
+              } else {
+                Qmsg.error("复制全部失败");
+              }
+            }).catch(() => {
+              Qmsg.error("复制全部失败");
+            });
+          }
         }
       ];
       if (!isHistoryView) {
         showTextList.push({
           text: "删除当前项",
-          callback: function(event, contextMenuEvent) {
-            let $linkElement = contextMenuEvent.target;
-            let $box = $linkElement.closest(".netdisk-url-box");
-            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($linkElement);
+          callback: function(event, contextMenuEvent, liElement) {
+            let $link = contextMenuEvent.target;
+            let $box = $link.closest(".netdisk-url-box");
+            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($link);
             let flag = false;
             NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
               if (netDiskKeyName !== netDiskName) {
@@ -14997,12 +15031,10 @@
         });
         showTextList.push({
           text: "删除所有项",
-          callback: function(event, contextMenuEvent) {
-            let $linkElement = contextMenuEvent.target;
-            let $boxAll = $linkElement.closest(
-              ".netdisk-url-box-all"
-            );
-            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($linkElement);
+          callback: function(event, contextMenuEvent, liElement) {
+            let $link = contextMenuEvent.target;
+            let $boxAll = $link.closest(".netdisk-url-box-all");
+            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($link);
             NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
               netDiskItem.clear();
             });

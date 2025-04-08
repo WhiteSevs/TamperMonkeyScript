@@ -141,15 +141,25 @@ export const NetDiskLinkClickMode = {
 		accessCode: string,
 		toastText: string = "已复制"
 	) {
-		utils.setClip(
-			NetDiskLinkClickModeUtils.getCopyUrlInfo(
-				netDiskName,
-				netDiskIndex,
-				shareCode,
-				accessCode
+		utils
+			.setClip(
+				NetDiskLinkClickModeUtils.getCopyUrlInfo(
+					netDiskName,
+					netDiskIndex,
+					shareCode,
+					accessCode
+				)
 			)
-		);
-		Qmsg.success(toastText);
+			.then((status) => {
+				if (status) {
+					Qmsg.success(toastText);
+				} else {
+					Qmsg.error("执行复制失败");
+				}
+			})
+			.catch(() => {
+				Qmsg.error("执行复制失败");
+			});
 	},
 	/**
 	 * 网盘链接解析
