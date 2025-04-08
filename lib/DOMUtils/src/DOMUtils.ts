@@ -20,7 +20,7 @@ class DOMUtils extends DOMUtilsEvent {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2025.3.2";
+	version = "2025.4.8";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -280,36 +280,37 @@ class DOMUtils extends DOMUtilsEvent {
 			}
 			return;
 		}
+		let setStyleProperty = (
+			propertyName: string,
+			propertyValue: string | number
+		) => {
+			if (propertyValue === "string" && propertyValue.includes("!important")) {
+				propertyValue = propertyValue
+					.trim()
+					.replace(/!important$/gi, "")
+					.trim();
+				element.style.setProperty(propertyName, propertyValue, "important");
+			} else {
+				propertyValue = handlePixe(propertyName, propertyValue);
+				element.style.setProperty(propertyName, propertyValue);
+			}
+		};
 		if (typeof property === "string") {
 			if (value == null) {
 				return DOMUtilsContext.windowApi.globalThis
 					.getComputedStyle(element)
 					.getPropertyValue(property);
 			} else {
-				if (value === "string" && value.includes("!important")) {
-					element.style.setProperty(property, value, "important");
-				} else {
-					value = handlePixe(property, value);
-					element.style.setProperty(property, value);
-				}
+				setStyleProperty(property, value);
 			}
 		} else if (typeof property === "object") {
 			for (let prop in property) {
-				if (
-					typeof property[prop] === "string" &&
-					(property[prop] as string).includes("!important")
-				) {
-					element.style.setProperty(
-						prop,
-						property[prop] as string,
-						"important"
-					);
-				} else {
-					property[prop] = handlePixe(prop, property[prop] as string);
-					element.style.setProperty(prop, property[prop] as string);
-				}
+				let value = property[prop];
+				setStyleProperty(prop, value!);
 			}
 		} else {
+			// 其他情况
+			throw new TypeError("property must be string or object");
 		}
 	}
 	/**
