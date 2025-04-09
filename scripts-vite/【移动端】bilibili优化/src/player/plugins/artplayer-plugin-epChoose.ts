@@ -43,8 +43,13 @@ export const GenerateArtPlayerEpTitle = (
 	title: string,
 	title_id?: string | number | null | undefined
 ) => {
-	if (title_id == null) {
+	if (title_id == null || title_id == "") {
 		return title;
+	}
+	if (isNaN(Number(title_id))) {
+		// 这时候title_id是title
+		// title为空
+		return title_id.toString();
 	}
 	return `第${title_id}话 ${title}`;
 };
