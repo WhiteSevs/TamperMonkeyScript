@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.4.10
+// @version      2025.4.11
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -2960,6 +2960,7 @@
           },
           {
             leftText: "value",
+            // 解码值
             rightText: PopsPanel.getValue("decode-cookie-value") ? decodeURIComponent(cookieInfo.value) : encodeURIComponent(cookieInfo.value)
           }
         ];
@@ -3122,11 +3123,14 @@
         domUtils.empty($cookieListWrapper);
         let $fragment = document.createDocumentFragment();
         cookieList.forEach((cookieItem) => {
-          if (
-            // @ts-ignore
-            cookieItem.session && PopsPanel.getValue("exclude-session-cookie")
-          ) {
-            return;
+          if (PopsPanel.getValue("exclude-session-cookie")) {
+            if (cookieItem.session) {
+              return;
+            }
+            if (CookieManager.cookieManagerApiName === "cookieStore" && // @ts-ignore
+            cookieItem.expires == null) {
+              return;
+            }
           }
           const $cookieItem = createCookieItemElement(cookieItem);
           domUtils.append($fragment, $cookieItem);

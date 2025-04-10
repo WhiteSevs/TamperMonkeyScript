@@ -200,6 +200,7 @@ export const CookieManagerView = {
 				},
 				{
 					leftText: "value",
+					// 解码值
 					rightText: PopsPanel.getValue("decode-cookie-value")
 						? decodeURIComponent(cookieInfo.value)
 						: encodeURIComponent(cookieInfo.value),
@@ -383,13 +384,20 @@ export const CookieManagerView = {
 			DOMUtils.empty($cookieListWrapper);
 			let $fragment = document.createDocumentFragment();
 			cookieList.forEach((cookieItem) => {
-				if (
-					// @ts-ignore
-					cookieItem.session &&
-					PopsPanel.getValue("exclude-session-cookie")
-				) {
+				if (PopsPanel.getValue("exclude-session-cookie")) {
 					// 屏蔽session的cookie
-					return;
+					// @ts-ignore
+					if (cookieItem.session) {
+						return;
+					}
+					if (
+						CookieManager.cookieManagerApiName === "cookieStore" &&
+						// @ts-ignore
+						cookieItem.expires == null
+					) {
+						// 如果Api是cookieStore的话,expires的值为空时就是session的cookie
+						return;
+					}
 				}
 				const $cookieItem = createCookieItemElement(cookieItem);
 				// @ts-ignore
