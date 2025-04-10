@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.26
+// @version      2025.4.10
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
 // @connect      *
@@ -321,7 +321,7 @@
                     cursor: pointer;
                 }
             `}),e=i.$shadowRoot.querySelector(".cookie-search-inner input"),o=i.$shadowRoot.querySelector(".cookie-search-setting"),t=i.$shadowRoot.querySelector(".cookie-control-refresh"),a=i.$shadowRoot.querySelector(".cookie-control-add"),r=i.$shadowRoot.querySelector(".cookie-control-copy-all"),n=i.$shadowRoot.querySelector(".cookie-control-clear-all"),l=i.$shadowRoot.querySelector(".cookie-control-rule-manager"),s=i.$shadowRoot.querySelector(".cookie-setting"),u=i.$shadowRoot.querySelector(".cookie-list-wrapper");let h=c=>{const p=m.createElement("div",{className:"cookie-item",innerHTML:`
-                `}),d=[{leftText:"name",rightText:c.name},{leftText:"value",rightText:y.getValue("decode-cookie-value")?decodeURIComponent(c.value):encodeURIComponent(c.value)}];_.cookieManagerApiName==="GM_cookie"?(c=c,d.push({leftText:"domain",rightText:c.domain},{leftText:"path",rightText:c.path},{leftText:"session",rightText:JSON.stringify(c.session)},{leftText:"expires",rightText:c.session?"会话":c.expirationDate?new Date(c.expirationDate*1e3).toISOString():"未知"},{leftText:"httpOnly",rightText:JSON.stringify(c.httpOnly)},{leftText:"hostOnly",rightText:JSON.stringify(c.hostOnly)},{leftText:"secure",rightText:JSON.stringify(c.secure)},{leftText:"sameSite",rightText:c.sameSite})):_.cookieManagerApiName==="cookieStore"&&(c=c,d.push({leftText:"domain",rightText:c.domain},{leftText:"path",rightText:c.path},{leftText:"expires",rightText:c.expires?new Date(c.expires).toISOString():"未知"},{leftText:"secure",rightText:JSON.stringify(c.secure)},{leftText:"sameSite",rightText:c.sameSite})),d.forEach(b=>{const E=m.createElement("div",{className:"cookie-item-group",innerHTML:`
+                `,"data-cookie-info":c}),d=[{leftText:"name",rightText:c.name},{leftText:"value",rightText:y.getValue("decode-cookie-value")?decodeURIComponent(c.value):encodeURIComponent(c.value)}];_.cookieManagerApiName==="GM_cookie"?(c=c,d.push({leftText:"domain",rightText:c.domain},{leftText:"path",rightText:c.path},{leftText:"session",rightText:JSON.stringify(c.session)},{leftText:"expires",rightText:c.session?"会话":c.expirationDate?new Date(c.expirationDate*1e3).toISOString():"未知"},{leftText:"httpOnly",rightText:JSON.stringify(c.httpOnly)},{leftText:"hostOnly",rightText:JSON.stringify(c.hostOnly)},{leftText:"secure",rightText:JSON.stringify(c.secure)},{leftText:"sameSite",rightText:c.sameSite})):_.cookieManagerApiName==="cookieStore"&&(c=c,d.push({leftText:"domain",rightText:c.domain},{leftText:"path",rightText:c.path},{leftText:"expires",rightText:c.expires?new Date(c.expires).toISOString():"会话"},{leftText:"secure",rightText:JSON.stringify(c.secure)},{leftText:"sameSite",rightText:c.sameSite})),d.forEach(b=>{const E=m.createElement("div",{className:"cookie-item-group",innerHTML:`
                         <div class="cookie-item-group-left">
                             <p>${b.leftText}</p>
                         </div>

@@ -188,6 +188,7 @@ export const CookieManagerView = {
 				className: "cookie-item",
 				innerHTML: /*html*/ `
                 `,
+				"data-cookie-info": cookieInfo,
 			});
 			const cookieProperty: {
 				leftText: string;
@@ -259,7 +260,7 @@ export const CookieManagerView = {
 						leftText: "expires",
 						rightText: cookieInfo.expires
 							? new Date(cookieInfo.expires).toISOString()
-							: "未知",
+							: "会话",
 					},
 					{
 						leftText: "secure",
