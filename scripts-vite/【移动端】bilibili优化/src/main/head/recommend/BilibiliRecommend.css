@@ -205,3 +205,18 @@
 	margin-right: 4px;
 	font-size: 2vmin;
 }
+
+#app
+	.m-head
+	.m-recommend-view
+	.list-view
+	.video-list-box
+	.video-list
+	.card-box
+	.v-card
+	.count
+	> span {
+	display: flex;
+	align-items: center;
+	gap: 1.33333vmin;
+}
