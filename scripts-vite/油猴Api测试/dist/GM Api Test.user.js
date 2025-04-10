@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.4.2
+// @version      2025.4.11
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -1275,18 +1275,7 @@
      * @param text 文本
      */
     setSafeHTML($el, text) {
-      try {
-        $el.innerHTML = text;
-      } catch (error2) {
-        if (globalThis.trustedTypes) {
-          const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
-            createHTML: (html) => html
-          });
-          $el.innerHTML = policy.createHTML(text);
-        } else {
-          throw new Error("trustedTypes is not defined");
-        }
-      }
+      $el.innerHTML = this.getSafeHTML(text);
     },
     /**
      * 用于显示元素并获取它的高度宽度等其它属性
@@ -2123,7 +2112,7 @@
     constructor(option) {
       super(option);
       /** 版本号 */
-      __publicField(this, "version", "2025.3.2");
+      __publicField(this, "version", "2025.4.8");
     }
     attr(element, attrName, attrValue) {
       let DOMUtilsContext = this;
@@ -2243,27 +2232,29 @@
         } else ;
         return;
       }
+      let setStyleProperty = (propertyName, propertyValue) => {
+        if (propertyValue === "string" && propertyValue.includes("!important")) {
+          propertyValue = propertyValue.trim().replace(/!important$/gi, "").trim();
+          element.style.setProperty(propertyName, propertyValue, "important");
+        } else {
+          propertyValue = handlePixe(propertyName, propertyValue);
+          element.style.setProperty(propertyName, propertyValue);
+        }
+      };
       if (typeof property === "string") {
         if (value == null) {
           return DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).getPropertyValue(property);
         } else {
-          if (value === "string" && value.includes("!important")) {
-            element.style.setProperty(property, value, "important");
-          } else {
-            value = handlePixe(property, value);
-            element.style.setProperty(property, value);
-          }
+          setStyleProperty(property, value);
         }
       } else if (typeof property === "object") {
         for (let prop in property) {
-          if (typeof property[prop] === "string" && property[prop].includes("!important")) {
-            element.style.setProperty(prop, property[prop], "important");
-          } else {
-            property[prop] = handlePixe(prop, property[prop]);
-            element.style.setProperty(prop, property[prop]);
-          }
+          let value2 = property[prop];
+          setStyleProperty(prop, value2);
         }
-      } else ;
+      } else {
+        throw new TypeError("property must be string or object");
+      }
     }
     text(element, text) {
       let DOMUtilsContext = this;
