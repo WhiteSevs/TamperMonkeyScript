@@ -166,5 +166,11 @@ declare class Httpx {
      * @param details 配置
      */
     put<T extends HttpxRequestOption>(url: string, details: T): HttpxPromise<HttpxResponse<T>>;
+    /**
+     * 发送请求
+     * @param details 配置
+     * @param beforeRequestOption 处理请求前的配置
+     */
+    request<T extends HttpxRequestOption>(details: T, beforeRequestOption?: (option: Required<T>) => void): HttpxPromise<HttpxResponse<T>>;
 }
 export { Httpx };

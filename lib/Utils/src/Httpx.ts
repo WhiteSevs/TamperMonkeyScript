@@ -244,7 +244,7 @@ class Httpx {
 		handleBeforeRequestOption(...args: (HttpxRequestOption | string)[]) {
 			let option: HttpxRequestOption = {};
 			if (typeof args[0] === "string") {
-				/* 传入的是url,details? */
+				/* 传入的是url，转为配置 */
 				let url = args[0];
 				option.url = url;
 				if (typeof args[1] === "object") {
@@ -254,7 +254,7 @@ class Httpx {
 					option.url = url;
 				}
 			} else {
-				/* 传入的是details */
+				/* 传入的是配置 */
 				option = args[0];
 			}
 			return option;
@@ -1349,37 +1349,13 @@ class Httpx {
 	get(
 		...args: (string | HttpxRequestOption)[] // @ts-ignore
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
+		let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
-		let abortFn: Function | null = null;
-		let promise = new globalThis.Promise<HttpxResponse<HttpxRequestOption>>(
-			async (resolve, reject) => {
-				let requestOption = this.HttpxRequestOption.getRequestOption(
-					"GET",
-					userRequestOption,
-					resolve,
-					reject
-				);
-				Reflect.deleteProperty(requestOption, "onprogress");
-				this.HttpxRequestOption.removeRequestNullOption(requestOption);
-				const requestResult = await this.HttpxRequest.request(requestOption);
-				if (
-					requestResult != null &&
-					typeof requestResult.abort === "function"
-				) {
-					abortFn = requestResult.abort;
-				}
-			}
-		);
-		// @ts-ignore
-		promise.abort = () => {
-			if (typeof abortFn === "function") {
-				abortFn();
-			}
-		};
-		// @ts-ignore
-		return promise;
+		useRequestOption.method = "GET";
+		return this.request(useRequestOption, (option) => {
+			Reflect.deleteProperty(option, "onprogress");
+		});
 	}
 	/**
 	 * POST 请求
@@ -1411,38 +1387,11 @@ class Httpx {
 	post(
 		...args: (HttpxRequestOption | string)[] // @ts-ignore
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
+		let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
-		let abortFn: Function | null = null;
-		let promise = new Promise<HttpxResponse<HttpxRequestOption>>(
-			async (resolve, reject) => {
-				let requestOption = this.HttpxRequestOption.getRequestOption(
-					"POST",
-					userRequestOption,
-					resolve,
-					reject
-				);
-				// @ts-ignore
-				requestOption =
-					this.HttpxRequestOption.removeRequestNullOption(requestOption);
-				const requestResult = await this.HttpxRequest.request(requestOption);
-				if (
-					requestResult != null &&
-					typeof requestResult.abort === "function"
-				) {
-					abortFn = requestResult.abort;
-				}
-			}
-		);
-		// @ts-ignore
-		promise.abort = () => {
-			if (typeof abortFn === "function") {
-				abortFn();
-			}
-		};
-		// @ts-ignore
-		return promise;
+		useRequestOption.method = "POST";
+		return this.request(useRequestOption);
 	}
 	/**
 	 * HEAD 请求
@@ -1473,40 +1422,13 @@ class Httpx {
 	head(
 		...args: (HttpxRequestOption | string)[] // @ts-ignore
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
+		let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
-		let abortFn: Function | null = null;
-		let promise = new Promise<HttpxResponse<HttpxRequestOption>>(
-			async (resolve, reject) => {
-				let requestOption = this.HttpxRequestOption.getRequestOption(
-					"HEAD",
-					userRequestOption,
-					resolve,
-					reject
-				);
-				Reflect.deleteProperty(requestOption, "onprogress");
-				// @ts-ignore
-				requestOption =
-					this.HttpxRequestOption.removeRequestNullOption(requestOption);
-				const requestResult = await this.HttpxRequest.request(requestOption);
-				if (
-					requestResult != null &&
-					typeof requestResult.abort === "function"
-				) {
-					abortFn = requestResult.abort;
-				}
-			}
-		);
-
-		// @ts-ignore
-		promise.abort = () => {
-			if (typeof abortFn === "function") {
-				abortFn();
-			}
-		};
-		// @ts-ignore
-		return promise;
+		useRequestOption.method = "HEAD";
+		return this.request(useRequestOption, (option) => {
+			Reflect.deleteProperty(option, "onprogress");
+		});
 	}
 	/**
 	 * OPTIONS 请求
@@ -1537,39 +1459,13 @@ class Httpx {
 	options(
 		...args: (HttpxRequestOption | string)[] // @ts-ignore
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
+		let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
-		let abortFn: Function | null = null;
-		let promise = new Promise<HttpxResponse<HttpxRequestOption>>(
-			async (resolve, reject) => {
-				let requestOption = this.HttpxRequestOption.getRequestOption(
-					"OPTIONS",
-					userRequestOption,
-					resolve,
-					reject
-				);
-				Reflect.deleteProperty(requestOption, "onprogress");
-				// @ts-ignore
-				requestOption =
-					this.HttpxRequestOption.removeRequestNullOption(requestOption);
-				const requestResult = await this.HttpxRequest.request(requestOption);
-				if (
-					requestResult != null &&
-					typeof requestResult.abort === "function"
-				) {
-					abortFn = requestResult.abort;
-				}
-			}
-		);
-		// @ts-ignore
-		promise.abort = () => {
-			if (typeof abortFn === "function") {
-				abortFn();
-			}
-		};
-		// @ts-ignore
-		return promise;
+		useRequestOption.method = "OPTIONS";
+		return this.request(useRequestOption, (option) => {
+			Reflect.deleteProperty(option, "onprogress");
+		});
 	}
 
 	/**
@@ -1601,40 +1497,13 @@ class Httpx {
 	delete(
 		...args: (HttpxRequestOption | string)[] // @ts-ignore
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
+		let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
-		let abortFn: Function | null = null;
-		let promise = new Promise<HttpxResponse<HttpxRequestOption>>(
-			async (resolve, reject) => {
-				let requestOption = this.HttpxRequestOption.getRequestOption(
-					"DELETE",
-					userRequestOption,
-					resolve,
-					reject
-				);
-				Reflect.deleteProperty(requestOption, "onprogress");
-				// @ts-ignore
-				requestOption =
-					this.HttpxRequestOption.removeRequestNullOption(requestOption);
-				const requestResult = await this.HttpxRequest.request(requestOption);
-				if (
-					requestResult != null &&
-					typeof requestResult.abort === "function"
-				) {
-					abortFn = requestResult.abort;
-				}
-			}
-		);
-
-		// @ts-ignore
-		promise.abort = () => {
-			if (typeof abortFn === "function") {
-				abortFn();
-			}
-		};
-		// @ts-ignore
-		return promise;
+		useRequestOption.method = "DELETE";
+		return this.request(useRequestOption, (option) => {
+			Reflect.deleteProperty(option, "onprogress");
+		});
 	}
 
 	/**
@@ -1669,15 +1538,35 @@ class Httpx {
 		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
 			...args
 		);
+		userRequestOption.method = "PUT";
+		return this.request(userRequestOption);
+	}
+
+	/**
+	 * 发送请求
+	 * @param details 配置
+	 * @param beforeRequestOption 处理请求前的配置
+	 */
+	request<T extends HttpxRequestOption>(
+		details: T,
+		beforeRequestOption?: (option: Required<T>) => void
+	): HttpxPromise<HttpxResponse<T>> {
+		let useRequestOption =
+			this.HttpxRequestOption.handleBeforeRequestOption(details);
+		/** 取消请求 */
 		let abortFn: Function | null = null;
-		let promise = new Promise<HttpxResponse<HttpxRequestOption>>(
+		let promise = new globalThis.Promise<HttpxResponse<HttpxRequestOption>>(
 			async (resolve, reject) => {
 				let requestOption = this.HttpxRequestOption.getRequestOption(
-					"PUT",
-					userRequestOption,
+					useRequestOption.method!,
+					useRequestOption,
 					resolve,
 					reject
 				);
+				if (typeof beforeRequestOption === "function") {
+					// @ts-ignore
+					beforeRequestOption(requestOption);
+				}
 				// @ts-ignore
 				requestOption =
 					this.HttpxRequestOption.removeRequestNullOption(requestOption);

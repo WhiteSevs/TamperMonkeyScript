@@ -63,6 +63,19 @@ export type HttpxStatus =
 	| 511;
 
 /**
+ * HTTP WebDav的请求方法
+ * + https://blog.csdn.net/weixin_48421613/article/details/128611546
+ */
+export type HttpxWebDavMethod =
+	| "PROPFIND"
+	| "PROPPATCH"
+	| "MKCOL"
+	| "MOVE"
+	| "COPY"
+	| "LOCK"
+	| "UNLOCK";
+
+/**
  * HTTP 请求方法
  * + https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
  */
@@ -75,7 +88,8 @@ export type HttpxMethod =
 	| "CONNECT"
 	| "OPTIONS"
 	| "TRACE"
-	| "PATCH";
+	| "PATCH"
+	| HttpxWebDavMethod;
 
 /**
  * 重定向参数
