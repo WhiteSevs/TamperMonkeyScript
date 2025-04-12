@@ -1,6 +1,6 @@
 {
 	"name": "qmsg",
-	"version": "1.3.0",
+	"version": "1.3.1",
 	"description": "一款优雅的页面消息提示插件，兼容性良好，无任何依赖。",
 	"main": "dist/index.cjs.js",
 	"module": "dist/node/index.esm.js",
@@ -17,7 +17,8 @@
 	"scripts": {
 		"dev": "rollup --config --watch",
 		"build": "rollup --config",
-		"build:all": "rollup --config"
+		"build:all": "rollup --config",
+		"build:all-new": "rollup --config"
 	},
 	"keywords": [
 		"javascript",

@@ -27,12 +27,12 @@ export interface QmsgOption {
 	 */
 	animation?: boolean;
 	/**
-	 * 是否自动关闭，注意在type为loading的时候自动关闭为false
+	 * 是否自动关闭，注意在type为loading的时候该值为false
 	 * @default true
 	 */
 	autoClose?: boolean;
 	/**
-	 * 显示的内容，默认使用innerText
+	 * 显示的内容
 	 */
 	content?: string;
 	/**
@@ -42,7 +42,7 @@ export interface QmsgOption {
 	 */
 	html?: boolean;
 	/**
-	 * 内容是否是html
+	 * 显示的内容是否是html
 	 * @default false
 	 */
 	isHTML?: boolean;
@@ -52,17 +52,17 @@ export interface QmsgOption {
 	 */
 	position?: QmsgPosition;
 	/**
-	 * 是否显示关闭图标
+	 * 是否在最右边显示关闭图标
 	 * @default false
 	 */
 	showClose?: boolean;
 	/**
-	 * 最大显示的数量
+	 * Qmsg最大显示的数量
 	 * @default 5
 	 */
 	maxNums?: number;
 	/**
-	 * 关闭时的回调函数
+	 * 关闭Qmsg时触发的回调函数
 	 */
 	onClose?: (<T extends QmsgMsg>(this: T) => void) | null;
 	/**
@@ -208,10 +208,13 @@ class Qmsg {
 		/** 每个Qmsg实例 */
 		instanceStorage: typeof QmsgInstanceStorage;
 	};
+	/**
+	 * 事件工具类
+	 */
 	$eventUtils: typeof QmsgEvent;
 	constructor() {
 		this.$data = {
-			version: "2025.3.3",
+			version: "2025.4.12",
 			config: QmsgConfig,
 			icon: QmsgIcon,
 			instanceStorage: QmsgInstanceStorage,
@@ -226,8 +229,10 @@ class Qmsg {
 	config(option?: QmsgDetails) {
 		if (option == null) return;
 		if (typeof option !== "object") return;
-		(QmsgConfig.INS_DEFAULT as any) = null;
-		(QmsgConfig.INS_DEFAULT as any) = option;
+		// @ts-ignore
+		QmsgConfig.INS_DEFAULT = null;
+		// @ts-ignore
+		QmsgConfig.INS_DEFAULT = option;
 	}
 	/**
 	 * 信息Toast

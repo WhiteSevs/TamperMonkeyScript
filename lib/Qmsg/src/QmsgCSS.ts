@@ -2,7 +2,7 @@ import { QmsgConfig } from "./QmsgConfig";
 import { QmsgUtils } from "./QmsgUtils";
 
 export const QmsgCSS = {
-	css: `@charset "utf-8";
+	css: /*css*/ `@charset "utf-8";
       .qmsg.qmsg-wrapper{position:fixed;top:16px;left:0;z-index:50000;display:flex;box-sizing:border-box;margin:0;padding:0;width:100%;color:rgba(0,0,0,.55);list-style:none;font-variant:tabular-nums;font-size:13px;line-height:1;font-feature-settings:"tnum";pointer-events:none;flex-direction:column;}
       .qmsg.qmsg-data-position-center,.qmsg.qmsg-data-position-left,.qmsg.qmsg-data-position-right{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);}
       .qmsg.qmsg-data-position-bottom,.qmsg.qmsg-data-position-bottomleft,.qmsg.qmsg-data-position-bottomright{position:fixed;top:unset;bottom:0;bottom:8px;left:50%;transform:translate(-50%,0);}
@@ -66,10 +66,10 @@ export const QmsgCSS = {
 	 * 获取CSS元素
 	 */
 	getStyleElement() {
-		let cssResourceNode = document.createElement("style");
-		cssResourceNode.setAttribute("type", "text/css");
-		cssResourceNode.setAttribute("data-type", QmsgConfig.PLUGIN_NAME);
-		QmsgUtils.setSafeHTML(cssResourceNode, this.css);
-		return cssResourceNode;
+		let $style = document.createElement("style");
+		$style.setAttribute("type", "text/css");
+		$style.setAttribute("data-type", QmsgConfig.PLUGIN_NAME);
+		QmsgUtils.setSafeHTML($style, this.css);
+		return $style;
 	},
 };

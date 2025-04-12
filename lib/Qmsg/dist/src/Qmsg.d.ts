@@ -12,12 +12,12 @@ export interface QmsgOption {
      */
     animation?: boolean;
     /**
-     * 是否自动关闭，注意在type为loading的时候自动关闭为false
+     * 是否自动关闭，注意在type为loading的时候该值为false
      * @default true
      */
     autoClose?: boolean;
     /**
-     * 显示的内容，默认使用innerText
+     * 显示的内容
      */
     content?: string;
     /**
@@ -27,7 +27,7 @@ export interface QmsgOption {
      */
     html?: boolean;
     /**
-     * 内容是否是html
+     * 显示的内容是否是html
      * @default false
      */
     isHTML?: boolean;
@@ -37,17 +37,17 @@ export interface QmsgOption {
      */
     position?: QmsgPosition;
     /**
-     * 是否显示关闭图标
+     * 是否在最右边显示关闭图标
      * @default false
      */
     showClose?: boolean;
     /**
-     * 最大显示的数量
+     * Qmsg最大显示的数量
      * @default 5
      */
     maxNums?: number;
     /**
-     * 关闭时的回调函数
+     * 关闭Qmsg时触发的回调函数
      */
     onClose?: (<T extends QmsgMsg>(this: T) => void) | null;
     /**
@@ -139,6 +139,9 @@ declare class Qmsg {
         /** 每个Qmsg实例 */
         instanceStorage: typeof QmsgInstanceStorage;
     };
+    /**
+     * 事件工具类
+     */
     $eventUtils: typeof QmsgEvent;
     constructor();
     /**
