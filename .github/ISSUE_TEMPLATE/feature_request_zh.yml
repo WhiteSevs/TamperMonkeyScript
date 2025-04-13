@@ -45,6 +45,7 @@ body:
         - MT论坛优化
         - 网页调试
         - 模拟竖屏
+        - CookieManager
         - 其它(请在下方填写脚本名称)
     validations:
       required: true

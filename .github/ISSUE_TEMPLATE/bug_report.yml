@@ -59,7 +59,7 @@ body:
   - type: input
     attributes:
       label: 扩展版本
-      description: "如果使用扩展加载的脚本，请填写当前扩展的版本"
+      description: "如果脚本运行的容器是浏览器扩展，请填写版本号"
     validations:
       required: false
 
@@ -84,6 +84,7 @@ body:
         - MT论坛优化
         - 网页调试
         - 模拟竖屏
+        - CookieManager
         - 其它(请在下方填写脚本名称)
     validations:
       required: true
@@ -122,14 +123,7 @@ body:
 
   - type: textarea
     attributes:
-      label: 问题描述
-      placeholder: "在这里详细叙述你的问题，帮助我们理解（支持 Markdown 语法）"
-    validations:
-      required: true
-
-  - type: textarea
-    attributes:
-      label: 复现步骤
-      placeholder: "在这里提供问题的具体重现步骤，可以录视频上传（支持 Markdown 语法）"
+      label: 问题描述 & 复现步骤
+      placeholder: "在这里详细叙述你的问题及具体重现步骤，可以录视频上传（支持 Markdown 语法）"
     validations:
       required: true
