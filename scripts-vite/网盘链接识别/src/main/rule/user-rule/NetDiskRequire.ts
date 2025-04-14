@@ -1,5 +1,5 @@
 import { httpx, log, utils } from "@/env";
-import type { HttpxRequestOption } from "@whitesev/Utils/dist/types/src/types/Httpx";
+import type { HttpxRequestOption } from "@whitesev/utils/src/types/Httpx";
 import { unsafeWindow } from "ViteGM";
 
 /** 网盘-引用/获取文件 */

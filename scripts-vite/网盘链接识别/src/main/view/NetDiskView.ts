@@ -399,15 +399,19 @@ export const NetDiskView = {
 	 * 初始化事件（在创建视图后）
 	 */
 	initViewEvent() {
+		// 注册右键菜单
 		NetDiskUI.setRightClickMenu(
 			NetDiskUI.Alias.uiLinkAlias.$shadowRoot,
 			".whitesevPop .netdisk-url a"
 		);
+		// 注册网盘图标的点击事件
 		this.registerIconGotoPagePosition(NetDiskUI.Alias.uiLinkAlias.$shadowRoot);
+		// 注册网盘链接点击事件
 		this.setNetDiskUrlClickEvent(
 			NetDiskUI.Alias.uiLinkAlias.$shadowRoot,
 			".netdisk-url a"
 		);
+		// 注册网盘链接弹窗视图的标题的右键菜单事件
 		NetDiskUI.setGlobalRightClickMenu(
 			NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector<HTMLElement>(
 				".pops .pops-alert-title > p"
@@ -544,12 +548,15 @@ export const NetDiskView = {
 	 * 设置网盘链接的点击事件
 	 *
 	 * 内部执行点击动作
-	 * @param $el 触发的元素
-	 * @param clickNodeSelector 元素选择器
+	 * @param $el 监听的元素
+	 * @param childSelector 子元素选择器
 	 */
-	setNetDiskUrlClickEvent($el: any, clickNodeSelector: string) {
+	setNetDiskUrlClickEvent(
+		$el: HTMLElement | ShadowRoot,
+		childSelector: string
+	) {
 		// 点击事件
-		DOMUtils.on($el, "click", clickNodeSelector, (event) => {
+		DOMUtils.on($el, "click", childSelector, (event) => {
 			let $click = event.target as HTMLElement;
 			$click.setAttribute("isvisited", "true");
 
@@ -575,7 +582,7 @@ export const NetDiskView = {
 		DOMUtils.on<PointerEvent>(
 			$el,
 			"auxclick",
-			clickNodeSelector,
+			childSelector,
 			(event, $click) => {
 				if (event.button !== 1) {
 					// 1是鼠标中键
