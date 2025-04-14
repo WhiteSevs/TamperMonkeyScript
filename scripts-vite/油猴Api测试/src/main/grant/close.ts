@@ -9,6 +9,7 @@ import { UIInfo } from "@/setting/common-components/ui-info";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { DOMUtils, utils } from "@/env";
 import Qmsg from "qmsg";
+import { monkeyWindow } from "ViteGM";
 
 export class GrantTest_close extends ApiTestBase {
 	public getApiName() {
@@ -53,14 +54,14 @@ export class GrantTest_close extends ApiTestBase {
 													<span class="pops-panel-button-text">点击执行</span>
 												</button>
 											</div>
-										`,
+											`,
 											false,
 											false
 										);
 										DOMUtils.on($button, "click", (event) => {
 											utils.preventEvent(event);
 											try {
-												window.close();
+												monkeyWindow.close();
 											} catch (error: any) {
 												Qmsg.error(error.toString(), {
 													consoleLogContent: true,

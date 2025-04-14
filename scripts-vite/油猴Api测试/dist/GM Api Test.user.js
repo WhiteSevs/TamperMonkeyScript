@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.4.11
+// @version      2025.4.14
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -94,35 +94,35 @@
     }
   });
   var _data, _U2Ghash, _G2Uhash, _defaultDetails, _LOG_DETAILS, _dbName, _storeName, _dbVersion, _slqVersion, _indexedDB, _db, _store, _statusCode, _flag, _delayTime, _callback, _context2, _disable, _console, _logCount, _details, _msgColorDetails, _config, _ctx, _width, _height, _a;
-  var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
-  var _GM_addElement = /* @__PURE__ */ (() => typeof GM_addElement != "undefined" ? GM_addElement : void 0)();
-  var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
-  var _GM_addValueChangeListener = /* @__PURE__ */ (() => typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
-  var _GM_cookie = /* @__PURE__ */ (() => typeof GM_cookie != "undefined" ? GM_cookie : void 0)();
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_deleteValues = /* @__PURE__ */ (() => typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0)();
-  var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getResourceURL = /* @__PURE__ */ (() => typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0)();
-  var _GM_getTab = /* @__PURE__ */ (() => typeof GM_getTab != "undefined" ? GM_getTab : void 0)();
-  var _GM_getTabs = /* @__PURE__ */ (() => typeof GM_getTabs != "undefined" ? GM_getTabs : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_getValues = /* @__PURE__ */ (() => typeof GM_getValues != "undefined" ? GM_getValues : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_listValues = /* @__PURE__ */ (() => typeof GM_listValues != "undefined" ? GM_listValues : void 0)();
-  var _GM_log = /* @__PURE__ */ (() => typeof GM_log != "undefined" ? GM_log : void 0)();
-  var _GM_notification = /* @__PURE__ */ (() => typeof GM_notification != "undefined" ? GM_notification : void 0)();
-  var _GM_openInTab = /* @__PURE__ */ (() => typeof GM_openInTab != "undefined" ? GM_openInTab : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_removeValueChangeListener = /* @__PURE__ */ (() => typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
-  var _GM_saveTab = /* @__PURE__ */ (() => typeof GM_saveTab != "undefined" ? GM_saveTab : void 0)();
-  var _GM_setClipboard = /* @__PURE__ */ (() => typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_setValues = /* @__PURE__ */ (() => typeof GM_setValues != "undefined" ? GM_setValues : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_webRequest = /* @__PURE__ */ (() => typeof GM_webRequest != "undefined" ? GM_webRequest : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : undefined)();
+  var _GM_addElement = /* @__PURE__ */ (() => typeof GM_addElement != "undefined" ? GM_addElement : undefined)();
+  var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : undefined)();
+  var _GM_addValueChangeListener = /* @__PURE__ */ (() => typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : undefined)();
+  var _GM_cookie = /* @__PURE__ */ (() => typeof GM_cookie != "undefined" ? GM_cookie : undefined)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
+  var _GM_deleteValues = /* @__PURE__ */ (() => typeof GM_deleteValues != "undefined" ? GM_deleteValues : undefined)();
+  var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : undefined)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
+  var _GM_getResourceURL = /* @__PURE__ */ (() => typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : undefined)();
+  var _GM_getTab = /* @__PURE__ */ (() => typeof GM_getTab != "undefined" ? GM_getTab : undefined)();
+  var _GM_getTabs = /* @__PURE__ */ (() => typeof GM_getTabs != "undefined" ? GM_getTabs : undefined)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
+  var _GM_getValues = /* @__PURE__ */ (() => typeof GM_getValues != "undefined" ? GM_getValues : undefined)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
+  var _GM_listValues = /* @__PURE__ */ (() => typeof GM_listValues != "undefined" ? GM_listValues : undefined)();
+  var _GM_log = /* @__PURE__ */ (() => typeof GM_log != "undefined" ? GM_log : undefined)();
+  var _GM_notification = /* @__PURE__ */ (() => typeof GM_notification != "undefined" ? GM_notification : undefined)();
+  var _GM_openInTab = /* @__PURE__ */ (() => typeof GM_openInTab != "undefined" ? GM_openInTab : undefined)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
+  var _GM_removeValueChangeListener = /* @__PURE__ */ (() => typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : undefined)();
+  var _GM_saveTab = /* @__PURE__ */ (() => typeof GM_saveTab != "undefined" ? GM_saveTab : undefined)();
+  var _GM_setClipboard = /* @__PURE__ */ (() => typeof GM_setClipboard != "undefined" ? GM_setClipboard : undefined)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
+  var _GM_setValues = /* @__PURE__ */ (() => typeof GM_setValues != "undefined" ? GM_setValues : undefined)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
+  var _GM_webRequest = /* @__PURE__ */ (() => typeof GM_webRequest != "undefined" ? GM_webRequest : undefined)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   function CompatibleProcessing() {
     try {
@@ -271,31 +271,76 @@
      */
     CAN_ANIMATION: Boolean(QmsgAnimation.getStyleAnimationNameValue(document.createElement("div")) != null)
   };
-  const QmsgHeaderCloseIcon = '<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" fill="white" fill-opacity="0.01"/><path d="M14 14L34 34" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 34L34 14" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const QmsgHeaderCloseIcon = (
+    /*css*/
+    `
+	<svg width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<rect width="48" height="48" fill="white" fill-opacity="0.01"/>
+		<path d="M14 14L34 34" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+		<path d="M14 34L34 14" stroke="#909399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+	</svg>`
+  );
   const QmsgIcon = {
-    info: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm67.008 275.008q26.016 0 43.008-15.488t16.992-41.504-16.992-41.504-42.496-15.488-42.496 15.488-16.992 41.504 16.992 41.504 42.016 15.488zm12 360q0-6.016.992-16T592 664l-52.992 60.992q-8 8.992-16.512 14.016T508 742.016q-8.992-4-8-14.016l88-276.992q4.992-28-8.992-48t-44.992-24q-35.008.992-76.512 29.504t-72.512 72.512v15.008q-.992 10.016 0 19.008l52.992-60.992q8-8.992 16.512-14.016T468 437.024q10.016 4.992 7.008 16l-87.008 276q-7.008 24.992 7.008 44.512T444 800.032q50.016-.992 84-28.992t63.008-72z" fill="#909399"/></svg>',
-    warning: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64C264.64 64 64 264.64 64 512c0 247.424 200.64 448 448 448 247.488 0 448-200.576 448-448 0-247.36-200.512-448-448-448zm0 704c-26.432 0-48-21.504-48-48s21.568-48 48-48c26.624 0 48 21.504 48 48s-21.376 48-48 48zm48-240c0 26.56-21.376 48-48 48-26.432 0-48-21.44-48-48V304c0-26.56 21.568-48 48-48 26.624 0 48 21.44 48 48v224z" fill="#E6A23C"/></svg>',
-    error: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64C264.58 64 64 264.58 64 512s200.58 448 448 448 448-200.57 448-448S759.42 64 512 64zm158.39 561.14a32 32 0 1 1-45.25 45.26L512 557.26 398.86 670.4a32 32 0 0 1-45.25-45.26L466.75 512 353.61 398.86a32 32 0 0 1 45.25-45.25L512 466.74l113.14-113.13a32 32 0 0 1 45.25 45.25L557.25 512z" fill="#F56C6C"/></svg>',
-    success: '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm-56 536l-99.008-99.008q-12-11.008-27.488-11.008t-27.008 11.488-11.488 26.496 11.008 27.008l127.008 127.008q11.008 11.008 27.008 11.008t27.008-11.008l263.008-263.008q15.008-15.008 9.504-36.512t-27.008-27.008-36.512 9.504z" fill="#67C23A"/></svg>',
-    loading: '<svg class="animate-turn" width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" fill-opacity=".01" d="M0 0h48v48H0z"/><path d="M4 24c0 11.046 8.954 20 20 20s20-8.954 20-20S35.046 4 24 4" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 24c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    info: (
+      /*css*/
+      `
+		<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+			<path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm67.008 275.008q26.016 0 43.008-15.488t16.992-41.504-16.992-41.504-42.496-15.488-42.496 15.488-16.992 41.504 16.992 41.504 42.016 15.488zm12 360q0-6.016.992-16T592 664l-52.992 60.992q-8 8.992-16.512 14.016T508 742.016q-8.992-4-8-14.016l88-276.992q4.992-28-8.992-48t-44.992-24q-35.008.992-76.512 29.504t-72.512 72.512v15.008q-.992 10.016 0 19.008l52.992-60.992q8-8.992 16.512-14.016T468 437.024q10.016 4.992 7.008 16l-87.008 276q-7.008 24.992 7.008 44.512T444 800.032q50.016-.992 84-28.992t63.008-72z" fill="#909399"/>
+		</svg>`
+    ),
+    warning: (
+      /*css*/
+      `
+
+		<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+			<path d="M512 64C264.64 64 64 264.64 64 512c0 247.424 200.64 448 448 448 247.488 0 448-200.576 448-448 0-247.36-200.512-448-448-448zm0 704c-26.432 0-48-21.504-48-48s21.568-48 48-48c26.624 0 48 21.504 48 48s-21.376 48-48 48zm48-240c0 26.56-21.376 48-48 48-26.432 0-48-21.44-48-48V304c0-26.56 21.568-48 48-48 26.624 0 48 21.44 48 48v224z" fill="#E6A23C"/>
+		</svg>`
+    ),
+    error: (
+      /*css*/
+      `
+
+		<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+			<path d="M512 64C264.58 64 64 264.58 64 512s200.58 448 448 448 448-200.57 448-448S759.42 64 512 64zm158.39 561.14a32 32 0 1 1-45.25 45.26L512 557.26 398.86 670.4a32 32 0 0 1-45.25-45.26L466.75 512 353.61 398.86a32 32 0 0 1 45.25-45.25L512 466.74l113.14-113.13a32 32 0 0 1 45.25 45.25L557.25 512z" fill="#F56C6C"/>
+		</svg>`
+    ),
+    success: (
+      /*css*/
+      `
+
+		<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+			<path d="M512 64q190.016 4.992 316.512 131.488T960 512q-4.992 190.016-131.488 316.512T512 960q-190.016-4.992-316.512-131.488T64 512q4.992-190.016 131.488-316.512T512 64zm-56 536l-99.008-99.008q-12-11.008-27.488-11.008t-27.008 11.488-11.488 26.496 11.008 27.008l127.008 127.008q11.008 11.008 27.008 11.008t27.008-11.008l263.008-263.008q15.008-15.008 9.504-36.512t-27.008-27.008-36.512 9.504z" fill="#67C23A"/>
+		</svg>`
+    ),
+    loading: (
+      /*css*/
+      `
+		<svg class="animate-turn" width="16" height="16" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path fill="#fff" fill-opacity=".01" d="M0 0h48v48H0z"/>
+			<path d="M4 24c0 11.046 8.954 20 20 20s20-8.954 20-20S35.046 4 24 4" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+			<path d="M36 24c0-6.627-5.373-12-12-12s-12 5.373-12 12 5.373 12 12 12" stroke="#409eff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+		</svg>`
+    )
   };
   const QmsgInstanceStorage = {
     QmsgList: [],
     /**
-     * 移除实例
-     * @param uuid
+     * 根据uuid移除Qmsg实例
+     * @param uuid 每个Qmsg实例的uuid
      */
     remove(uuid) {
       for (let index = 0; index < QmsgInstanceStorage.QmsgList.length; index++) {
         if (QmsgInstanceStorage.QmsgList[index].uuid === uuid) {
           QmsgInstanceStorage.QmsgList.splice(index, 1);
-          return;
+          break;
         }
       }
     }
   };
   const QmsgCSS = {
-    css: `@charset "utf-8";
+    css: (
+      /*css*/
+      `@charset "utf-8";
       .qmsg.qmsg-wrapper{position:fixed;top:16px;left:0;z-index:50000;display:flex;box-sizing:border-box;margin:0;padding:0;width:100%;color:rgba(0,0,0,.55);list-style:none;font-variant:tabular-nums;font-size:13px;line-height:1;font-feature-settings:"tnum";pointer-events:none;flex-direction:column;}
       .qmsg.qmsg-data-position-center,.qmsg.qmsg-data-position-left,.qmsg.qmsg-data-position-right{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);}
       .qmsg.qmsg-data-position-bottom,.qmsg.qmsg-data-position-bottomleft,.qmsg.qmsg-data-position-bottomright{position:fixed;top:unset;bottom:0;bottom:8px;left:50%;transform:translate(-50%,0);}
@@ -354,16 +399,17 @@
             0%,100%{opacity:1;transform:translateX(0);}
             25%,75%{opacity:.75;transform:translateX(-4px);}
             50%{opacity:.25;transform:translateX(4px);}
-      }`,
+      }`
+    ),
     /**
      * 获取CSS元素
      */
     getStyleElement() {
-      let cssResourceNode = document.createElement("style");
-      cssResourceNode.setAttribute("type", "text/css");
-      cssResourceNode.setAttribute("data-type", QmsgConfig.PLUGIN_NAME);
-      QmsgUtils.setSafeHTML(cssResourceNode, this.css);
-      return cssResourceNode;
+      let $style = document.createElement("style");
+      $style.setAttribute("type", "text/css");
+      $style.setAttribute("data-type", QmsgConfig.PLUGIN_NAME);
+      QmsgUtils.setSafeHTML($style, this.css);
+      return $style;
     }
   };
   class QmsgMsg {
@@ -400,7 +446,7 @@
        * 主元素
        */
       __publicField(this, "$Qmsg");
-      this.timeId = void 0;
+      this.timeId = undefined;
       this.startTime = Date.now();
       this.endTime = null;
       this.setting = QmsgUtils.toDynamicObject(QmsgConfig.DEFAULT, option, QmsgConfig.INS_DEFAULT);
@@ -510,7 +556,7 @@
       this.$Qmsg.classList.add(QmsgUtils.getNameSpacify("item"));
       this.$Qmsg.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.uuid);
       let $shadowContainer = document.querySelector(".qmsg-shadow-container");
-      let $shadowRoot = $shadowContainer == null ? void 0 : $shadowContainer.shadowRoot;
+      let $shadowRoot = $shadowContainer == null ? undefined : $shadowContainer.shadowRoot;
       if (!$shadowContainer) {
         $shadowContainer = document.createElement("div");
         $shadowContainer.className = "qmsg-shadow-container";
@@ -580,7 +626,7 @@
           this.startTime = null;
           this.endTime = null;
           QmsgUtils.clearTimeout(this.timeId);
-          this.timeId = void 0;
+          this.timeId = undefined;
         };
         let leaveEvent = (event) => {
           if (this.timeId != null) {
@@ -721,13 +767,13 @@
       return nextNumber;
     };
   };
-  const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER === void 0 ? 9007199254740991 : Number.MAX_SAFE_INTEGER;
+  const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER === undefined ? 9007199254740991 : Number.MAX_SAFE_INTEGER;
   const TWO_TO_THE_POWER_OF_TWENTY_NINE = 536870912;
   const TWO_TO_THE_POWER_OF_THIRTY = TWO_TO_THE_POWER_OF_TWENTY_NINE * 2;
   const createGenerateUniqueNumber = (cache2, lastNumberWeakMap) => {
     return (collection) => {
       const lastNumber = lastNumberWeakMap.get(collection);
-      let nextNumber = lastNumber === void 0 ? collection.size : lastNumber < TWO_TO_THE_POWER_OF_THIRTY ? lastNumber + 1 : 0;
+      let nextNumber = lastNumber === undefined ? collection.size : lastNumber < TWO_TO_THE_POWER_OF_THIRTY ? lastNumber + 1 : 0;
       if (!collection.has(nextNumber)) {
         return cache2(collection, nextNumber);
       }
@@ -749,142 +795,158 @@
   const LAST_NUMBER_WEAK_MAP = /* @__PURE__ */ new WeakMap();
   const cache = createCache(LAST_NUMBER_WEAK_MAP);
   const generateUniqueNumber = createGenerateUniqueNumber(cache, LAST_NUMBER_WEAK_MAP);
-  const isCallNotification = (message) => {
-    return message.method !== void 0 && message.method === "call";
+  const isMessagePort = (sender) => {
+    return typeof sender.start === "function";
   };
-  const isClearResponse = (message) => {
-    return typeof message.id === "number" && typeof message.result === "boolean";
+  const PORT_MAP = /* @__PURE__ */ new WeakMap();
+  const extendBrokerImplementation = (partialBrokerImplementation) => ({
+    ...partialBrokerImplementation,
+    connect: ({ call }) => {
+      return async () => {
+        const { port1, port2 } = new MessageChannel();
+        const portId = await call("connect", { port: port1 }, [port1]);
+        PORT_MAP.set(port2, portId);
+        return port2;
+      };
+    },
+    disconnect: ({ call }) => {
+      return async (port) => {
+        const portId = PORT_MAP.get(port);
+        if (portId === undefined) {
+          throw new Error("The given port is not connected.");
+        }
+        await call("disconnect", { portId });
+      };
+    },
+    isSupported: ({ call }) => {
+      return () => call("isSupported");
+    }
+  });
+  const ONGOING_REQUESTS = /* @__PURE__ */ new WeakMap();
+  const createOrGetOngoingRequests = (sender) => {
+    if (ONGOING_REQUESTS.has(sender)) {
+      return ONGOING_REQUESTS.get(sender);
+    }
+    const ongoingRequests = /* @__PURE__ */ new Map();
+    ONGOING_REQUESTS.set(sender, ongoingRequests);
+    return ongoingRequests;
   };
-  const load = (url) => {
-    const scheduledIntervalFunctions = /* @__PURE__ */ new Map([[0, () => {
-    }]]);
-    const scheduledTimeoutFunctions = /* @__PURE__ */ new Map([[0, () => {
-    }]]);
-    const unrespondedRequests = /* @__PURE__ */ new Map();
-    const worker2 = new Worker(url);
-    worker2.addEventListener("message", ({ data }) => {
-      if (isCallNotification(data)) {
-        const { params: { timerId, timerType } } = data;
-        if (timerType === "interval") {
-          const idOrFunc = scheduledIntervalFunctions.get(timerId);
-          if (typeof idOrFunc === void 0) {
-            throw new Error("The timer is in an undefined state.");
+  const createBroker = (brokerImplementation) => {
+    const fullBrokerImplementation = extendBrokerImplementation(brokerImplementation);
+    return (sender) => {
+      const ongoingRequests = createOrGetOngoingRequests(sender);
+      sender.addEventListener("message", ({ data: message }) => {
+        const { id } = message;
+        if (id !== null && ongoingRequests.has(id)) {
+          const { reject, resolve } = ongoingRequests.get(id);
+          ongoingRequests.delete(id);
+          if (message.error === undefined) {
+            resolve(message.result);
+          } else {
+            reject(new Error(message.error.message));
           }
-          if (typeof idOrFunc === "number") {
-            const timerIdAndTimerType = unrespondedRequests.get(idOrFunc);
-            if (timerIdAndTimerType === void 0 || timerIdAndTimerType.timerId !== timerId || timerIdAndTimerType.timerType !== timerType) {
-              throw new Error("The timer is in an undefined state.");
-            }
-          } else if (typeof idOrFunc === "function") {
-            idOrFunc();
-          }
-        } else if (timerType === "timeout") {
-          const idOrFunc = scheduledTimeoutFunctions.get(timerId);
-          if (typeof idOrFunc === void 0) {
-            throw new Error("The timer is in an undefined state.");
-          }
-          if (typeof idOrFunc === "number") {
-            const timerIdAndTimerType = unrespondedRequests.get(idOrFunc);
-            if (timerIdAndTimerType === void 0 || timerIdAndTimerType.timerId !== timerId || timerIdAndTimerType.timerType !== timerType) {
-              throw new Error("The timer is in an undefined state.");
-            }
-          } else if (typeof idOrFunc === "function") {
-            idOrFunc();
-            scheduledTimeoutFunctions.delete(timerId);
-          }
-        }
-      } else if (isClearResponse(data)) {
-        const { id } = data;
-        const timerIdAndTimerType = unrespondedRequests.get(id);
-        if (timerIdAndTimerType === void 0) {
-          throw new Error("The timer is in an undefined state.");
-        }
-        const { timerId, timerType } = timerIdAndTimerType;
-        unrespondedRequests.delete(id);
-        if (timerType === "interval") {
-          scheduledIntervalFunctions.delete(timerId);
-        } else {
-          scheduledTimeoutFunctions.delete(timerId);
-        }
-      } else {
-        const { error: { message } } = data;
-        throw new Error(message);
-      }
-    });
-    const clearInterval2 = (timerId) => {
-      if (typeof scheduledIntervalFunctions.get(timerId) === "function") {
-        const id = generateUniqueNumber(unrespondedRequests);
-        unrespondedRequests.set(id, { timerId, timerType: "interval" });
-        scheduledIntervalFunctions.set(timerId, id);
-        worker2.postMessage({
-          id,
-          method: "clear",
-          params: { timerId, timerType: "interval" }
-        });
-      }
-    };
-    const clearTimeout2 = (timerId) => {
-      if (typeof scheduledTimeoutFunctions.get(timerId) === "function") {
-        const id = generateUniqueNumber(unrespondedRequests);
-        unrespondedRequests.set(id, { timerId, timerType: "timeout" });
-        scheduledTimeoutFunctions.set(timerId, id);
-        worker2.postMessage({
-          id,
-          method: "clear",
-          params: { timerId, timerType: "timeout" }
-        });
-      }
-    };
-    const setInterval2 = (func, delay = 0, ...args2) => {
-      const timerId = generateUniqueNumber(scheduledIntervalFunctions);
-      scheduledIntervalFunctions.set(timerId, () => {
-        func(...args2);
-        if (typeof scheduledIntervalFunctions.get(timerId) === "function") {
-          worker2.postMessage({
-            id: null,
-            method: "set",
-            params: {
-              delay,
-              now: performance.timeOrigin + performance.now(),
-              timerId,
-              timerType: "interval"
-            }
-          });
         }
       });
-      worker2.postMessage({
-        id: null,
-        method: "set",
-        params: {
+      if (isMessagePort(sender)) {
+        sender.start();
+      }
+      const call = (method, params = null, transferables = []) => {
+        return new Promise((resolve, reject) => {
+          const id = generateUniqueNumber(ongoingRequests);
+          ongoingRequests.set(id, { reject, resolve });
+          if (params === null) {
+            sender.postMessage({ id, method }, transferables);
+          } else {
+            sender.postMessage({ id, method, params }, transferables);
+          }
+        });
+      };
+      const notify = (method, params, transferables = []) => {
+        sender.postMessage({ id: null, method, params }, transferables);
+      };
+      let functions = {};
+      for (const [key, handler] of Object.entries(fullBrokerImplementation)) {
+        functions = { ...functions, [key]: handler({ call, notify }) };
+      }
+      return { ...functions };
+    };
+  };
+  const scheduledIntervalsState = /* @__PURE__ */ new Map([[0, null]]);
+  const scheduledTimeoutsState = /* @__PURE__ */ new Map([[0, null]]);
+  const wrap = createBroker({
+    clearInterval: ({ call }) => {
+      return (timerId) => {
+        if (typeof scheduledIntervalsState.get(timerId) === "symbol") {
+          scheduledIntervalsState.set(timerId, null);
+          call("clear", { timerId, timerType: "interval" }).then(() => {
+            scheduledIntervalsState.delete(timerId);
+          });
+        }
+      };
+    },
+    clearTimeout: ({ call }) => {
+      return (timerId) => {
+        if (typeof scheduledTimeoutsState.get(timerId) === "symbol") {
+          scheduledTimeoutsState.set(timerId, null);
+          call("clear", { timerId, timerType: "timeout" }).then(() => {
+            scheduledTimeoutsState.delete(timerId);
+          });
+        }
+      };
+    },
+    setInterval: ({ call }) => {
+      return (func, delay = 0, ...args2) => {
+        const symbol = Symbol();
+        const timerId = generateUniqueNumber(scheduledIntervalsState);
+        scheduledIntervalsState.set(timerId, symbol);
+        const schedule = () => call("set", {
           delay,
           now: performance.timeOrigin + performance.now(),
           timerId,
           timerType: "interval"
-        }
-      });
-      return timerId;
-    };
-    const setTimeout2 = (func, delay = 0, ...args2) => {
-      const timerId = generateUniqueNumber(scheduledTimeoutFunctions);
-      scheduledTimeoutFunctions.set(timerId, () => func(...args2));
-      worker2.postMessage({
-        id: null,
-        method: "set",
-        params: {
+        }).then(() => {
+          const state = scheduledIntervalsState.get(timerId);
+          if (state === undefined) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (state === symbol) {
+            func(...args2);
+            if (scheduledIntervalsState.get(timerId) === symbol) {
+              schedule();
+            }
+          }
+        });
+        schedule();
+        return timerId;
+      };
+    },
+    setTimeout: ({ call }) => {
+      return (func, delay = 0, ...args2) => {
+        const symbol = Symbol();
+        const timerId = generateUniqueNumber(scheduledTimeoutsState);
+        scheduledTimeoutsState.set(timerId, symbol);
+        call("set", {
           delay,
           now: performance.timeOrigin + performance.now(),
           timerId,
           timerType: "timeout"
-        }
-      });
-      return timerId;
-    };
-    return {
-      clearInterval: clearInterval2,
-      clearTimeout: clearTimeout2,
-      setInterval: setInterval2,
-      setTimeout: setTimeout2
-    };
+        }).then(() => {
+          const state = scheduledTimeoutsState.get(timerId);
+          if (state === undefined) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (state === symbol) {
+            scheduledTimeoutsState.delete(timerId);
+            func(...args2);
+          }
+        });
+        return timerId;
+      };
+    }
+  });
+  const load = (url) => {
+    const worker2 = new Worker(url);
+    return wrap(worker2);
   };
   const createLoadOrReturnBroker = (loadBroker, worker2) => {
     let broker = null;
@@ -899,7 +961,7 @@
       return broker;
     };
   };
-  const worker = `(()=>{"use strict";const e=new Map,t=new Map,r=t=>{const r=e.get(t);return void 0!==r&&(clearTimeout(r),e.delete(t),!0)},s=e=>{const r=t.get(e);return void 0!==r&&(clearTimeout(r),t.delete(e),!0)},o=(e,t)=>{const r=performance.now(),s=e+t-r-performance.timeOrigin;return{expected:r+s,remainingDelay:s}},i=(e,t,r,s)=>{const o=r-performance.now();o>0?e.set(t,setTimeout(i,o,e,t,r,s)):(e.delete(t),postMessage({id:null,method:"call",params:{timerId:t,timerType:s}}))};addEventListener("message",(({data:n})=>{try{if("clear"===n.method){const{id:e,params:{timerId:t,timerType:o}}=n;if("interval"===o)postMessage({id:e,result:r(t)});else{if("timeout"!==o)throw new Error('The given type "'.concat(o,'" is not supported'));postMessage({id:e,result:s(t)})}}else{if("set"!==n.method)throw new Error('The given method "'.concat(n.method,'" is not supported'));{const{params:{delay:r,now:s,timerId:a,timerType:m}}=n;if("interval"===m)((t,r,s)=>{const{expected:n,remainingDelay:a}=o(t,s);e.set(r,setTimeout(i,a,e,r,n,"interval"))})(r,a,s);else{if("timeout"!==m)throw new Error('The given type "'.concat(m,'" is not supported'));((e,r,s)=>{const{expected:n,remainingDelay:a}=o(e,s);t.set(r,setTimeout(i,a,t,r,n,"timeout"))})(r,a,s)}}}}catch(e){postMessage({error:{message:e.message},id:n.id,result:null})}}))})();`;
+  const worker = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),d=t(c);e.addUniqueNumber=d,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const d=r instanceof Promise?await r:r;if(null===a){if(void 0!==d.result)throw s(i)}else{if(void 0===d.result)throw s(i);const{result:e,transferables:r=[]}=d;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),d=(e,t,r=()=>!0)=>{const n=c(d,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},l=e=>t=>{const r=e.get(t);if(void 0===r)return Promise.resolve(!1);const[n,o]=r;return clearTimeout(n),e.delete(t),o(!1),Promise.resolve(!0)},f=(e,t,r)=>(n,o,s)=>{const{expected:a,remainingDelay:i}=e(n,o);return new Promise((e=>{t.set(s,[setTimeout(r,i,a,t,e,s),e])}))},m=(e,t)=>{const r=performance.now(),n=e+t-r-performance.timeOrigin;return{expected:r+n,remainingDelay:n}},p=(e,t,r,n)=>{const o=e-performance.now();o>0?t.set(n,[setTimeout(p,o,e,t,r,n),r]):(t.delete(n),r(!0))},h=new Map,v=l(h),w=new Map,g=l(w),M=f(m,h,p),y=f(m,w,p);d(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?v(e):g(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?M:y)(e,t,r)})})})()})();`;
   const loadOrReturnBroker = createLoadOrReturnBroker(load, worker);
   const clearInterval$1 = (timerId) => loadOrReturnBroker().clearInterval(timerId);
   const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
@@ -968,7 +1030,7 @@
       let findQmsgItemInfo = QmsgInstanceStorage.QmsgList.find((item) => {
         return item.config === optionString;
       });
-      let QmsgInstance = findQmsgItemInfo == null ? void 0 : findQmsgItemInfo.instance;
+      let QmsgInstance = findQmsgItemInfo == null ? undefined : findQmsgItemInfo.instance;
       if (QmsgInstance == null) {
         let uuid = QmsgUtils.getUUID();
         let QmsgItemInfo = {
@@ -999,7 +1061,7 @@
         QmsgInstance.setMsgCount();
       }
       if (QmsgInstance) {
-        QmsgInstance.$Qmsg.setAttribute("data-count", QmsgInstance == null ? void 0 : QmsgInstance.getRepeatNum().toString());
+        QmsgInstance.$Qmsg.setAttribute("data-count", QmsgInstance == null ? undefined : QmsgInstance.getRepeatNum().toString());
       } else {
         throw new TypeError("QmsgInstance is null");
       }
@@ -1091,7 +1153,7 @@
           });
           $el.innerHTML = policy.createHTML(text);
         } else {
-          throw new Error("trustedTypes is not defined");
+          throw new TypeError("trustedTypes is not defined");
         }
       }
     }
@@ -1136,9 +1198,12 @@
     constructor() {
       /** 数据 */
       __publicField(this, "$data");
+      /**
+       * 事件工具类
+       */
       __publicField(this, "$eventUtils");
       this.$data = {
-        version: "2025.3.3",
+        version: "2025.4.12",
         config: QmsgConfig,
         icon: QmsgIcon,
         instanceStorage: QmsgInstanceStorage
@@ -1351,7 +1416,7 @@
       if (typeof unsafeWindow !== "undefined" && target === unsafeWindow) {
         return true;
       }
-      if (((_a2 = target == null ? void 0 : target.Math) == null ? void 0 : _a2.toString()) !== "[object Math]") {
+      if (((_a2 = target == null ? undefined : target.Math) == null ? undefined : _a2.toString()) !== "[object Math]") {
         return false;
       }
       return true;
@@ -2075,7 +2140,7 @@
         selector = selector.replace(/:empty$/gi, "");
         return Array.from(context2.windowApi.document.querySelectorAll(selector)).filter(($ele) => {
           var _a2;
-          return ((_a2 = $ele == null ? void 0 : $ele.innerHTML) == null ? void 0 : _a2.trim()) === "";
+          return ((_a2 = $ele == null ? undefined : $ele.innerHTML) == null ? undefined : _a2.trim()) === "";
         });
       } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
         let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
@@ -2083,7 +2148,7 @@
         selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
         return Array.from(context2.windowApi.document.querySelectorAll(selector)).filter(($ele) => {
           var _a2;
-          return (_a2 = ($ele == null ? void 0 : $ele.textContent) || ($ele == null ? void 0 : $ele.innerText)) == null ? void 0 : _a2.includes(text);
+          return (_a2 = ($ele == null ? undefined : $ele.textContent) || ($ele == null ? undefined : $ele.innerText)) == null ? undefined : _a2.includes(text);
         });
       } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
         let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
@@ -2098,7 +2163,7 @@
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
         return Array.from(context2.windowApi.document.querySelectorAll(selector)).filter(($ele) => {
           var _a2;
-          return Boolean((_a2 = ($ele == null ? void 0 : $ele.textContent) || ($ele == null ? void 0 : $ele.innerText)) == null ? void 0 : _a2.match(regexp));
+          return Boolean((_a2 = ($ele == null ? undefined : $ele.textContent) || ($ele == null ? undefined : $ele.innerText)) == null ? undefined : _a2.match(regexp));
         });
       } else {
         return Array.from(context2.windowApi.document.querySelectorAll(selector));
@@ -2332,7 +2397,7 @@
       }
       let elementTransform = DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).transform;
       if (elementTransform != null && elementTransform !== "none" && elementTransform !== "") {
-        let elementTransformSplit = (_a2 = elementTransform.match(/\((.+)\)/)) == null ? void 0 : _a2[1].split(",");
+        let elementTransformSplit = (_a2 = elementTransform.match(/\((.+)\)/)) == null ? undefined : _a2[1].split(",");
         if (elementTransformSplit) {
           transform_left = Math.abs(parseInt(elementTransformSplit[4]));
           transform_top = Math.abs(parseInt(elementTransformSplit[5]));
@@ -2572,7 +2637,7 @@
         }
         return flag;
       }
-      if (!(element == null ? void 0 : element.classList)) {
+      if (!(element == null ? undefined : element.classList)) {
         return false;
       }
       if (!Array.isArray(className)) {
@@ -2957,10 +3022,10 @@
       if (typeof duration !== "number" || duration <= 0) {
         throw new TypeError("duration must be a positive number");
       }
-      if (typeof callback2 !== "function" && callback2 !== void 0) {
+      if (typeof callback2 !== "function" && callback2 !== undefined) {
         throw new TypeError("callback must be a function or null");
       }
-      if (typeof styles !== "object" || styles === void 0) {
+      if (typeof styles !== "object" || styles === undefined) {
         throw new TypeError("styles must be an object");
       }
       if (Object.keys(styles).length === 0) {
@@ -3442,7 +3507,7 @@
       fakeClone.style.height = height + "px";
       DOMUtilsContext.windowApi.document.body.appendChild(fakeClone);
       var returnValue = fakeRange.getBoundingClientRect();
-      (_a2 = fakeClone == null ? void 0 : fakeClone.parentNode) == null ? void 0 : _a2.removeChild(fakeClone);
+      (_a2 = fakeClone == null ? undefined : fakeClone.parentNode) == null ? undefined : _a2.removeChild(fakeClone);
       return returnValue;
       function appendPart(start, end) {
         var span = DOMUtilsContext.windowApi.document.createElement("span");
@@ -3618,7 +3683,7 @@
           const codePoint = val.codePointAt(i2);
           const code = String.fromCodePoint(codePoint);
           let key = codePoint.toString(16);
-          key.length != 4 && (key = (_a2 = ("000" + key).match(/....$/)) == null ? void 0 : _a2[0]);
+          key.length != 4 && (key = (_a2 = ("000" + key).match(/....$/)) == null ? undefined : _a2[0]);
           i2 += code.length - 1;
           if (that.isAscii(codePoint)) {
             result2 += encodeURIComponent(code);
@@ -3686,7 +3751,7 @@
         throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
       }
       let cookies = this.getCookiesList();
-      let findValue = void 0;
+      let findValue = undefined;
       for (const cookieItem of cookies) {
         let item = cookieItem.trim();
         let itemSplit = item.split("=");
@@ -5084,7 +5149,7 @@
          */
         getMenuOption(menuKey) {
           var _a2;
-          return (_a2 = this.$data.data.find((item) => item.data.key === menuKey)) == null ? void 0 : _a2.data;
+          return (_a2 = this.$data.data.find((item) => item.data.key === menuKey)) == null ? undefined : _a2.data;
         },
         /**
          * 获取目标菜单处理后的配置
@@ -5092,7 +5157,7 @@
          */
         getMenuHandledOption(menuKey) {
           var _a2;
-          return (_a2 = this.$data.data.find((item) => item.handleData.key === menuKey)) == null ? void 0 : _a2.handleData;
+          return (_a2 = this.$data.data.find((item) => item.handleData.key === menuKey)) == null ? undefined : _a2.handleData;
         }
       });
       this.GM_Api.getValue = details.GM_getValue;
@@ -5105,7 +5170,7 @@
           throw new Error(`Utils.GM_Menu 请在脚本开头加上 @grant  ${keyName}，且传入该对象`);
         }
       }
-      this.add((details == null ? void 0 : details.data) || []);
+      this.add((details == null ? undefined : details.data) || []);
     }
     /**
      * 新增菜单数据
@@ -5117,13 +5182,13 @@
           const option = menuOption[index];
           this.MenuHandle.$data.data.push({
             data: option,
-            id: void 0
+            id: undefined
           });
         }
       } else {
         this.MenuHandle.$data.data.push({
           data: menuOption,
-          id: void 0
+          id: undefined
         });
       }
     }
@@ -5227,7 +5292,7 @@
      */
     getAccessKey(menuKey) {
       var _a2;
-      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? void 0 : _a2.accessKey;
+      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? undefined : _a2.accessKey;
     }
     /**
      * 根据键值获取autoClose值
@@ -5235,7 +5300,7 @@
      */
     getAutoClose(menuKey) {
       var _a2;
-      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? void 0 : _a2.autoClose;
+      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? undefined : _a2.autoClose;
     }
     /**
      * 根据键值获取autoReload值
@@ -5243,7 +5308,7 @@
      */
     getAutoReload(menuKey) {
       var _a2;
-      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? void 0 : _a2.autoReload;
+      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? undefined : _a2.autoReload;
     }
     /**
      * 根据键值获取callback函数
@@ -5251,7 +5316,7 @@
      */
     getCallBack(menuKey) {
       var _a2;
-      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? void 0 : _a2.callback;
+      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? undefined : _a2.callback;
     }
     /**
      * 获取当enable为true时默认显示在菜单中前面的emoji图标
@@ -5381,7 +5446,7 @@
   }
   const GenerateUUID = function() {
     var _a2;
-    if (typeof ((_a2 = window == null ? void 0 : window.crypto) == null ? void 0 : _a2.randomUUID) === "function") {
+    if (typeof ((_a2 = window == null ? undefined : window.crypto) == null ? undefined : _a2.randomUUID) === "function") {
       return window.crypto.randomUUID();
     } else {
       return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(charStr) {
@@ -5668,10 +5733,10 @@
             if (typeof userRequestOption.headers === "object") {
               Object.keys(userRequestOption.headers).forEach((keyName, index) => {
                 var _a2, _b;
-                if (keyName in requestOption.headers && ((_a2 = userRequestOption.headers) == null ? void 0 : _a2[keyName]) == null) {
+                if (keyName in requestOption.headers && ((_a2 = userRequestOption.headers) == null ? undefined : _a2[keyName]) == null) {
                   Reflect.deleteProperty(requestOption.headers, keyName);
                 } else {
-                  requestOption.headers[keyName] = (_b = userRequestOption == null ? void 0 : userRequestOption.headers) == null ? void 0 : _b[keyName];
+                  requestOption.headers[keyName] = (_b = userRequestOption == null ? undefined : userRequestOption.headers) == null ? undefined : _b[keyName];
                 }
               });
             }
@@ -6097,13 +6162,13 @@
               status: fetchResponse.status,
               statusText: fetchResponse.statusText,
               // @ts-ignore
-              response: void 0,
+              response: undefined,
               responseFetchHeaders: fetchResponse.headers,
               responseHeaders: "",
               // @ts-ignore
-              responseText: void 0,
+              responseText: undefined,
               responseType: option.responseType,
-              responseXML: void 0
+              responseXML: undefined
             };
             Object.assign(httpxResponse, option.context || {});
             for (const [key, value] of fetchResponse.headers.entries()) {
@@ -6125,7 +6190,7 @@
             let arrayBuffer = await fetchResponse.arrayBuffer();
             let encoding = "utf-8";
             if (fetchResponse.headers.has("Content-Type")) {
-              let charsetMatched = (_a2 = fetchResponse.headers.get("Content-Type")) == null ? void 0 : _a2.match(/charset=(.+)/);
+              let charsetMatched = (_a2 = fetchResponse.headers.get("Content-Type")) == null ? undefined : _a2.match(/charset=(.+)/);
               if (charsetMatched) {
                 encoding = charsetMatched[1];
                 encoding = encoding.toLowerCase();
@@ -6186,30 +6251,30 @@
        * 默认配置
        */
       __privateAdd(this, _defaultDetails, {
-        url: void 0,
+        url: undefined,
         timeout: 5e3,
         async: false,
-        responseType: void 0,
-        headers: void 0,
-        data: void 0,
-        redirect: void 0,
-        cookie: void 0,
-        cookiePartition: void 0,
-        binary: void 0,
-        nocache: void 0,
-        revalidate: void 0,
-        context: void 0,
-        overrideMimeType: void 0,
-        anonymous: void 0,
-        fetch: void 0,
-        fetchInit: void 0,
+        responseType: undefined,
+        headers: undefined,
+        data: undefined,
+        redirect: undefined,
+        cookie: undefined,
+        cookiePartition: undefined,
+        binary: undefined,
+        nocache: undefined,
+        revalidate: undefined,
+        context: undefined,
+        overrideMimeType: undefined,
+        anonymous: undefined,
+        fetch: undefined,
+        fetchInit: undefined,
         allowInterceptConfig: {
           beforeRequest: true,
           afterResponseSuccess: true,
           afterResponseError: true
         },
-        user: void 0,
-        password: void 0,
+        user: undefined,
+        password: undefined,
         onabort() {
         },
         onerror() {
@@ -6325,119 +6390,71 @@
      * @param details 配置
      */
     get(...args2) {
-      let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
-      let abortFn = null;
-      let promise = new globalThis.Promise(async (resolve, reject) => {
-        let requestOption = this.HttpxRequestOption.getRequestOption("GET", userRequestOption, resolve, reject);
-        Reflect.deleteProperty(requestOption, "onprogress");
-        this.HttpxRequestOption.removeRequestNullOption(requestOption);
-        const requestResult = await this.HttpxRequest.request(requestOption);
-        if (requestResult != null && typeof requestResult.abort === "function") {
-          abortFn = requestResult.abort;
-        }
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      useRequestOption.method = "GET";
+      return this.request(useRequestOption, (option) => {
+        Reflect.deleteProperty(option, "onprogress");
       });
-      promise.abort = () => {
-        if (typeof abortFn === "function") {
-          abortFn();
-        }
-      };
-      return promise;
     }
     /**
      * POST 请求
      */
     post(...args2) {
-      let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
-      let abortFn = null;
-      let promise = new Promise(async (resolve, reject) => {
-        let requestOption = this.HttpxRequestOption.getRequestOption("POST", userRequestOption, resolve, reject);
-        requestOption = this.HttpxRequestOption.removeRequestNullOption(requestOption);
-        const requestResult = await this.HttpxRequest.request(requestOption);
-        if (requestResult != null && typeof requestResult.abort === "function") {
-          abortFn = requestResult.abort;
-        }
-      });
-      promise.abort = () => {
-        if (typeof abortFn === "function") {
-          abortFn();
-        }
-      };
-      return promise;
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      useRequestOption.method = "POST";
+      return this.request(useRequestOption);
     }
     /**
      * HEAD 请求
      */
     head(...args2) {
-      let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
-      let abortFn = null;
-      let promise = new Promise(async (resolve, reject) => {
-        let requestOption = this.HttpxRequestOption.getRequestOption("HEAD", userRequestOption, resolve, reject);
-        Reflect.deleteProperty(requestOption, "onprogress");
-        requestOption = this.HttpxRequestOption.removeRequestNullOption(requestOption);
-        const requestResult = await this.HttpxRequest.request(requestOption);
-        if (requestResult != null && typeof requestResult.abort === "function") {
-          abortFn = requestResult.abort;
-        }
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      useRequestOption.method = "HEAD";
+      return this.request(useRequestOption, (option) => {
+        Reflect.deleteProperty(option, "onprogress");
       });
-      promise.abort = () => {
-        if (typeof abortFn === "function") {
-          abortFn();
-        }
-      };
-      return promise;
     }
     /**
      * OPTIONS 请求
      */
     options(...args2) {
-      let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
-      let abortFn = null;
-      let promise = new Promise(async (resolve, reject) => {
-        let requestOption = this.HttpxRequestOption.getRequestOption("OPTIONS", userRequestOption, resolve, reject);
-        Reflect.deleteProperty(requestOption, "onprogress");
-        requestOption = this.HttpxRequestOption.removeRequestNullOption(requestOption);
-        const requestResult = await this.HttpxRequest.request(requestOption);
-        if (requestResult != null && typeof requestResult.abort === "function") {
-          abortFn = requestResult.abort;
-        }
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      useRequestOption.method = "OPTIONS";
+      return this.request(useRequestOption, (option) => {
+        Reflect.deleteProperty(option, "onprogress");
       });
-      promise.abort = () => {
-        if (typeof abortFn === "function") {
-          abortFn();
-        }
-      };
-      return promise;
     }
     /**
      * DELETE 请求
      */
     delete(...args2) {
-      let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
-      let abortFn = null;
-      let promise = new Promise(async (resolve, reject) => {
-        let requestOption = this.HttpxRequestOption.getRequestOption("DELETE", userRequestOption, resolve, reject);
-        Reflect.deleteProperty(requestOption, "onprogress");
-        requestOption = this.HttpxRequestOption.removeRequestNullOption(requestOption);
-        const requestResult = await this.HttpxRequest.request(requestOption);
-        if (requestResult != null && typeof requestResult.abort === "function") {
-          abortFn = requestResult.abort;
-        }
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      useRequestOption.method = "DELETE";
+      return this.request(useRequestOption, (option) => {
+        Reflect.deleteProperty(option, "onprogress");
       });
-      promise.abort = () => {
-        if (typeof abortFn === "function") {
-          abortFn();
-        }
-      };
-      return promise;
     }
     /**
      * PUT 请求
      */
     put(...args2) {
       let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      userRequestOption.method = "PUT";
+      return this.request(userRequestOption);
+    }
+    /**
+     * 发送请求
+     * @param details 配置
+     * @param beforeRequestOption 处理请求前的配置
+     */
+    request(details, beforeRequestOption) {
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(details);
       let abortFn = null;
-      let promise = new Promise(async (resolve, reject) => {
-        let requestOption = this.HttpxRequestOption.getRequestOption("PUT", userRequestOption, resolve, reject);
+      let promise = new globalThis.Promise(async (resolve, reject) => {
+        let requestOption = this.HttpxRequestOption.getRequestOption(useRequestOption.method, useRequestOption, resolve, reject);
+        if (typeof beforeRequestOption === "function") {
+          beforeRequestOption(requestOption);
+        }
         requestOption = this.HttpxRequestOption.removeRequestNullOption(requestOption);
         const requestResult = await this.HttpxRequest.request(requestOption);
         if (requestResult != null && typeof requestResult.abort === "function") {
@@ -6645,14 +6662,14 @@
               success: false,
               code: __privateGet(that, _statusCode).getFailed.code,
               msg: __privateGet(that, _statusCode).getFailed.msg,
-              data: void 0
+              data: undefined
             });
           } else {
             let request = idbStore.get(key);
             request.onsuccess = function(event) {
               let target = event.target;
               let result2 = target.result;
-              let data = result2 ? result2.value : void 0;
+              let data = result2 ? result2.value : undefined;
               if (data == null) {
                 resolve({
                   success: true,
@@ -6678,7 +6695,7 @@
                 success: false,
                 code: __privateGet(that, _statusCode).getFailed.code,
                 msg: __privateGet(that, _statusCode).getFailed.msg,
-                data: void 0,
+                data: undefined,
                 event
               });
             };
@@ -6901,7 +6918,7 @@
       var _a2;
       if (typeof __GM_info === "string") {
         this.tag = __GM_info;
-      } else if (typeof __GM_info === "object" && typeof ((_a2 = __GM_info == null ? void 0 : __GM_info.script) == null ? void 0 : _a2.name) === "string") {
+      } else if (typeof __GM_info === "object" && typeof ((_a2 = __GM_info == null ? undefined : __GM_info.script) == null ? undefined : _a2.name) === "string") {
         this.tag = __GM_info.script.name;
       }
       __privateSet(this, _console, console2);
@@ -7221,11 +7238,11 @@
         callbackFunction = callback2;
         context = __context__ || this;
         let result2 = executeTryCatch(callbackFunction, handleError, context);
-        return result2 !== void 0 ? result2 : TryCatchCore;
+        return result2 !== undefined ? result2 : TryCatchCore;
       }
     };
     function executeTryCatch(callback, handleErrorFunc, funcThis) {
-      let result = void 0;
+      let result = undefined;
       try {
         if (typeof callback === "string") {
           (function() {
@@ -7237,7 +7254,7 @@
       } catch (error) {
         if (defaultDetails.log) {
           callback = callback;
-          console.log(`%c ${(callback == null ? void 0 : callback.name) ? callback == null ? void 0 : callback.name : callback + "出现错误"} `, "color: #f20000");
+          console.log(`%c ${(callback == null ? undefined : callback.name) ? callback == null ? undefined : callback.name : callback + "出现错误"} `, "color: #f20000");
           console.log(`%c 错误原因：${error}`, "color: #f20000");
           console.trace(callback);
         }
@@ -7288,7 +7305,7 @@
      */
     getStartsWith(key) {
       let allKeys = this.keys();
-      let result2 = void 0;
+      let result2 = undefined;
       for (const keyName of allKeys) {
         if (String(keyName).startsWith(String(key))) {
           result2 = this.get(keyName);
@@ -7303,7 +7320,7 @@
      * @param val 值，默认为""
      */
     set(key, val) {
-      if (key === void 0) {
+      if (key === undefined) {
         throw new Error("Utils.Dictionary().set 参数 key 不能为空");
       }
       Reflect.set(this.items, key, val);
@@ -7500,7 +7517,7 @@
         return this.fn();
       } finally {
         if (typeof cb === "function") {
-          cb(void 0);
+          cb(undefined);
         }
       }
     }
@@ -7866,7 +7883,7 @@ ${err.stack}`);
      * @internal
      */
     detectEntrypoint() {
-      if (this.target[this.entrypoint] != void 0) {
+      if (this.target[this.entrypoint] != undefined) {
         return;
       }
       if (this.strict) {
@@ -7943,7 +7960,7 @@ ${windowObjects.join(", ")}`);
       }
       modules.forEach((key) => {
         const module = this.modules[key.toString()];
-        if (module === void 0)
+        if (module === undefined)
           return;
         try {
           if (typeof query === "string") {
@@ -8041,7 +8058,7 @@ ${err.stack}`);
     constructor(option) {
       __publicField(this, "windowApi");
       /** 版本号 */
-      __publicField(this, "version", "2025.3.25");
+      __publicField(this, "version", "2025.4.11");
       /**
        * ajax劫持库，支持xhr和fetch劫持。
        * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
@@ -8495,9 +8512,9 @@ ${err.stack}`);
       }
       let clickEvent = UtilsContext.windowApi.window.event;
       let touchEvent = UtilsContext.windowApi.window.event;
-      let $click = (_a2 = clickEvent == null ? void 0 : clickEvent.composedPath()) == null ? void 0 : _a2[0];
-      let clickPosX = (clickEvent == null ? void 0 : clickEvent.clientX) != null ? clickEvent.clientX : touchEvent.touches[0].clientX;
-      let clickPosY = (clickEvent == null ? void 0 : clickEvent.clientY) != null ? clickEvent.clientY : touchEvent.touches[0].clientY;
+      let $click = (_a2 = clickEvent == null ? undefined : clickEvent.composedPath()) == null ? undefined : _a2[0];
+      let clickPosX = (clickEvent == null ? undefined : clickEvent.clientX) != null ? clickEvent.clientX : touchEvent.touches[0].clientX;
+      let clickPosY = (clickEvent == null ? undefined : clickEvent.clientY) != null ? clickEvent.clientY : touchEvent.touches[0].clientY;
       let {
         /* 要检测的元素的相对屏幕的横坐标最左边 */
         left: elementPosXLeft,
@@ -8553,8 +8570,8 @@ ${err.stack}`);
     }
     deepClone(obj) {
       let UtilsContext = this;
-      if (obj === void 0)
-        return void 0;
+      if (obj === undefined)
+        return undefined;
       if (obj === null)
         return null;
       let clone = obj instanceof Array ? [] : {};
@@ -9424,7 +9441,7 @@ ${err.stack}`);
       let checkList = [...args2];
       for (const objItem of checkList) {
         let itemResult = false;
-        if (objItem === null || objItem === void 0) {
+        if (objItem === null || objItem === undefined) {
           itemResult = true;
         } else {
           switch (typeof objItem) {
@@ -9582,36 +9599,36 @@ ${err.stack}`);
            * + true 监听以 target 为根节点的整个子树。包括子树中所有节点的属性，而不仅仅是针对 target
            * + false (默认) 不生效
            */
-          subtree: void 0,
+          subtree: undefined,
           /**
            * + true 监听 target 节点中发生的节点的新增与删除（同时，如果 subtree 为 true，会针对整个子树生效）
            * + false (默认) 不生效
            */
-          childList: void 0,
+          childList: undefined,
           /**
            * + true 观察所有监听的节点属性值的变化。默认值为 true，当声明了 attributeFilter 或 attributeOldValue
            * + false (默认) 不生效
            */
-          attributes: void 0,
+          attributes: undefined,
           /**
            * 一个用于声明哪些属性名会被监听的数组。如果不声明该属性，所有属性的变化都将触发通知
            */
-          attributeFilter: void 0,
+          attributeFilter: undefined,
           /**
            * + true 记录上一次被监听的节点的属性变化；可查阅 MutationObserver 中的 Monitoring attribute values 了解关于观察属性变化和属性值记录的详情
            * + false (默认) 不生效
            */
-          attributeOldValue: void 0,
+          attributeOldValue: undefined,
           /**
            * + true 监听声明的 target 节点上所有字符的变化。默认值为 true，如果声明了 characterDataOldValue
            * + false (默认) 不生效
            */
-          characterData: void 0,
+          characterData: undefined,
           /**
            * + true 记录前一个被监听的节点中发生的文本变化
            * + false (默认) 不生效
            */
-          characterDataOldValue: void 0
+          characterDataOldValue: undefined
         },
         immediate: false
       };
@@ -9845,9 +9862,9 @@ ${err.stack}`);
     }
     preventEvent(element, eventNameList = [], capture) {
       function stopEvent(event) {
-        event == null ? void 0 : event.preventDefault();
-        event == null ? void 0 : event.stopPropagation();
-        event == null ? void 0 : event.stopImmediatePropagation();
+        event == null ? undefined : event.preventDefault();
+        event == null ? undefined : event.stopPropagation();
+        event == null ? undefined : event.stopImmediatePropagation();
         return false;
       }
       if (arguments.length === 1) {
@@ -9994,15 +10011,15 @@ ${err.stack}`);
           return __privateGet(this, _copyDataType).includes("text");
         }
         hasClipboard() {
-          return (navigator == null ? void 0 : navigator.clipboard) != null;
+          return (navigator == null ? undefined : navigator.clipboard) != null;
         }
         hasClipboardWrite() {
           var _a2;
-          return ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.write) != null;
+          return ((_a2 = navigator == null ? undefined : navigator.clipboard) == null ? undefined : _a2.write) != null;
         }
         hasClipboardWriteText() {
           var _a2;
-          return ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.writeText) != null;
+          return ((_a2 = navigator == null ? undefined : navigator.clipboard) == null ? undefined : _a2.writeText) != null;
         }
         /**
          * 使用textarea和document.execCommand("copy")来复制文字
@@ -10109,7 +10126,7 @@ ${err.stack}`);
       }
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve(void 0);
+          resolve(undefined);
         }, delayTime);
       });
     }
@@ -10387,7 +10404,7 @@ ${err.stack}`);
           callback(mutations, __observer__) {
             let result2 = checkFn();
             if (result2.success) {
-              if (typeof (__observer__ == null ? void 0 : __observer__.disconnect) === "function") {
+              if (typeof (__observer__ == null ? undefined : __observer__.disconnect) === "function") {
                 __observer__.disconnect();
               }
               resolve(result2.data);
@@ -10396,7 +10413,7 @@ ${err.stack}`);
         });
         if (__timeout__ > 0) {
           setTimeout(() => {
-            if (typeof (observer == null ? void 0 : observer.disconnect) === "function") {
+            if (typeof (observer == null ? undefined : observer.disconnect) === "function") {
               observer.disconnect();
             }
             resolve(null);
@@ -10405,7 +10422,7 @@ ${err.stack}`);
       });
     }
     waitNode(...args2) {
-      args2 = args2.filter((arg) => arg !== void 0);
+      args2 = args2.filter((arg) => arg !== undefined);
       let UtilsContext = this;
       let selector = args2[0];
       let parent = UtilsContext.windowApi.document;
@@ -10473,7 +10490,7 @@ ${err.stack}`);
       }, timeout, parent);
     }
     waitAnyNode(...args2) {
-      args2 = args2.filter((arg) => arg !== void 0);
+      args2 = args2.filter((arg) => arg !== undefined);
       let UtilsContext = this;
       let selectorList = args2[0];
       let parent = UtilsContext.windowApi.document;
@@ -10513,7 +10530,7 @@ ${err.stack}`);
       return Promise.any(promiseList);
     }
     waitNodeList(...args2) {
-      args2 = args2.filter((arg) => arg !== void 0);
+      args2 = args2.filter((arg) => arg !== undefined);
       let UtilsContext = this;
       let selector = args2[0];
       let parent = UtilsContext.windowApi.document;
@@ -10582,7 +10599,7 @@ ${err.stack}`);
       }, timeout, parent);
     }
     waitAnyNodeList(...args2) {
-      args2 = args2.filter((arg) => arg !== void 0);
+      args2 = args2.filter((arg) => arg !== undefined);
       let UtilsContext = this;
       let selectorList = args2[0];
       let parent = UtilsContext.windowApi.document;
@@ -10830,6 +10847,12 @@ ${err.stack}`);
   }
   let utils$1 = new Utils();
   const SymbolEvents = Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).substring(1));
+  const PopsCoreDefaultEnv = {
+    document,
+    window,
+    globalThis,
+    self
+  };
   const PopsCoreEnv = {
     document,
     window,
@@ -10837,6 +10860,12 @@ ${err.stack}`);
     self
   };
   const PopsCore = {
+    init(option) {
+      if (!option) {
+        option = Object.assign({}, PopsCoreDefaultEnv);
+      }
+      Object.assign(PopsCoreEnv, option);
+    },
     get document() {
       return PopsCoreEnv.document;
     },
@@ -10872,18 +10901,18 @@ ${err.stack}`);
       return this;
     }
     emit(t3, i2, s2) {
-      void 0 !== this.__interceptor ? this.__interceptor(t3, () => {
+      undefined !== this.__interceptor ? this.__interceptor(t3, () => {
         this.__emit(t3, i2), s2 && s2();
       }) : (this.__emit(t3, i2), s2 && s2());
     }
     __emit(t3, i2) {
       const s2 = this.__map[t3];
-      if (Array.isArray(s2) && (null == s2 ? void 0 : s2.length)) for (const _ of s2) _(i2, t3);
+      if (Array.isArray(s2) && (null == s2 ? undefined : s2.length)) for (const _ of s2) _(i2, t3);
       this.event = i2;
     }
     off(t3, i2) {
       const s2 = this.__map[t3];
-      if (void 0 !== s2) if (void 0 === i2) delete this.__map[t3];
+      if (undefined !== s2) if (undefined === i2) delete this.__map[t3];
       else {
         const t4 = s2.findIndex((t5) => t5 === i2);
         s2.splice(t4, 1);
@@ -10899,7 +10928,7 @@ ${err.stack}`);
   }
   function b(n2, e2, t3) {
     const c2 = { 1: { 0: { move: 4 }, 4: { move: 5, end: 1, cancel: 3 }, 5: { move: 5, end: 1, cancel: 3 } }, 0: { 4: { move: 2, end: 1, cancel: 3 }, 5: { start: 2, move: 2, end: 1, cancel: 3 } } }[Number(n2)][e2];
-    return void 0 !== c2 && c2[t3] || 0;
+    return undefined !== c2 && c2[t3] || 0;
   }
   function g$1(n2) {
     [1, 3, 2].includes(n2.state) && (n2.state = 0);
@@ -10919,7 +10948,7 @@ ${err.stack}`);
   function r$3() {
     let t3, o2, i2, r2, a2 = 0;
     return function(u2) {
-      if (t3 = o2, void 0 !== u2) {
+      if (t3 = o2, undefined !== u2) {
         a2 = Number.MAX_SAFE_INTEGER > a2 ? ++a2 : 1;
         const h2 = function(t4, o3) {
           const { phase: i3, points: r3, changedPoints: a3, nativeEvent: u3 } = t4, h3 = r3.length, p3 = c$3 === i3, g3 = u$3 === i3 && 0 === h3 || s$1 === i3, l3 = Date.now(), { x: d2, y: m2 } = c$2(r3) || c$2(a3), { currentTarget: v2 } = u3;
@@ -10930,7 +10959,7 @@ ${err.stack}`);
         }(u2, a2);
         o2 = h2;
         const { isStart: p2, pointLength: g2 } = h2;
-        return p2 && (i2 = h2, t3 = void 0, r2 = 1 < g2 ? h2 : void 0), Object.assign(Object.assign({}, h2), { prevInput: t3, startMultiInput: r2, startInput: i2 });
+        return p2 && (i2 = h2, t3 = undefined, r2 = 1 < g2 ? h2 : undefined), Object.assign(Object.assign({}, h2), { prevInput: t3, startMultiInput: r2, startInput: i2 });
       }
     };
   }
@@ -10949,7 +10978,7 @@ ${err.stack}`);
     const o2 = {};
     for (const t4 in n2) ["target", "currentTarget", "type"].includes(t4) || (o2[t4] = n2[t4]);
     let i2;
-    return document.createEvent ? (i2 = document.createEvent("HTMLEvents"), i2.initEvent(t3, null == s2 ? void 0 : s2.bubbles, null == s2 ? void 0 : s2.cancelable)) : i2 = new Event(t3, s2), Object.assign(i2, o2, { match: () => n2.targets && 0 < n2.targets.length && n2.targets.every((t4) => i2.currentTarget.contains(t4)) }), e2.dispatchEvent(i2);
+    return document.createEvent ? (i2 = document.createEvent("HTMLEvents"), i2.initEvent(t3, null == s2 ? undefined : s2.bubbles, null == s2 ? undefined : s2.cancelable)) : i2 = new Event(t3, s2), Object.assign(i2, o2, { match: () => n2.targets && 0 < n2.targets.length && n2.targets.every((t4) => i2.currentTarget.contains(t4)) }), e2.dispatchEvent(i2);
   }
   function u$2(t3, e2) {
     const { preventDefault: n2 } = e2;
@@ -10972,7 +11001,7 @@ ${err.stack}`);
         return function(n3) {
           const s3 = [], o2 = [];
           Array.from(n3.touches).forEach(({ clientX: e4, clientY: n4, target: i3 }) => {
-            (null == t4 ? void 0 : t4.contains(i3)) && (s3.push(i3), o2.push({ clientX: e4, clientY: n4, target: i3 }));
+            (null == t4 ? undefined : t4.contains(i3)) && (s3.push(i3), o2.push({ clientX: e4, clientY: n4, target: i3 }));
           });
           const i2 = Array.from(n3.changedTouches).map(({ clientX: t5, clientY: e4, target: n4 }) => ({ clientX: t5, clientY: e4, target: n4 }));
           return e3({ phase: n3.type.replace("touch", ""), changedPoints: i2, points: o2, nativeEvent: n3, target: n3.target, targets: s3 });
@@ -10989,13 +11018,13 @@ ${err.stack}`);
             "mousemove" === c2 ? h2 = "move" : "mouseup" === c2 && (p2 = [], h2 = "end", e3 = false);
           }
           const g2 = t4 || [{ clientX: i2, clientY: r2, target: u2 }];
-          if (t4 = [{ clientX: i2, clientY: r2, target: u2 }], void 0 !== h2) return s3({ phase: h2, changedPoints: g2, points: p2, target: n3, targets: [n3], nativeEvent: o2 });
+          if (t4 = [{ clientX: i2, clientY: r2, target: u2 }], undefined !== h2) return s3({ phase: h2, changedPoints: g2, points: p2, target: n3, targets: [n3], nativeEvent: o2 });
         };
       }();
       if (this.__inputCreatorMap = { touchstart: n2, touchmove: n2, touchend: n2, touchcancel: n2, mousedown: s2, mousemove: s2, mouseup: s2 }, this.on("at:after", (t4) => {
         const { target: e3, __type: n3 } = t4, { domEvents: s3 } = this.__options;
-        s3 && void 0 !== this.el && e3 && (a$1(n3, e3, t4, s3), a$1("at:after", e3, t4, s3));
-      }), void 0 !== t3) {
+        s3 && undefined !== this.el && e3 && (a$1(n3, e3, t4, s3), a$1("at:after", e3, t4, s3));
+      }), undefined !== t3) {
         t3.style.webkitTapHighlightColor = "rgba(0,0,0,0)";
         let e3 = false;
         try {
@@ -11026,7 +11055,7 @@ ${err.stack}`);
     }
     catchEvent(t3) {
       const e2 = this.__inputCreatorMap[t3.type](t3);
-      if (void 0 !== e2) {
+      if (undefined !== e2) {
         const n2 = () => t3.stopPropagation(), s2 = () => t3.stopImmediatePropagation(), o2 = () => t3.preventDefault();
         if (u$2(t3, this.__options)) o2();
         else if ("touchstart" === t3.type ? this.__isIgnoreMouse = true : "touchmove" === t3.type && (this.__isIgnoreMouse = false), this.__isIgnoreMouse && t3.type.startsWith("mouse")) return void ("mouseup" === t3.type && (this.__isIgnoreMouse = false));
@@ -11034,7 +11063,7 @@ ${err.stack}`);
         const i2 = {};
         this.__computeFunctionList.forEach((t4) => {
           const n3 = t4(e2, i2);
-          if (void 0 !== n3) for (const t5 in n3) i2[t5] = n3[t5];
+          if (undefined !== n3) for (const t5 in n3) i2[t5] = n3[t5];
         }), this.emit("computed", Object.assign(Object.assign(Object.assign({}, e2), i2), { stopPropagation: n2, stopImmediatePropagation: s2, preventDefault: o2 }));
       }
     }
@@ -11045,7 +11074,7 @@ ${err.stack}`);
     beforeEach(t3) {
       super.beforeEach((e2, n2) => {
         var s2;
-        (null === (s2 = this.c) || void 0 === s2 ? void 0 : s2.name) ? t3(e2, n2) : n2();
+        (null === (s2 = this.c) || undefined === s2 ? undefined : s2.name) ? t3(e2, n2) : n2();
       });
     }
     get(t3) {
@@ -11085,7 +11114,7 @@ ${err.stack}`);
     return function(t3) {
       const { prevInput: e2 } = t3;
       let o$12 = 0, r2 = 0, i2 = 0;
-      if (void 0 !== e2 && (o$12 = t3.x - e2.x, r2 = t3.y - e2.y, 0 !== o$12 || 0 !== r2)) {
+      if (undefined !== e2 && (o$12 = t3.x - e2.x, r2 = t3.y - e2.y, 0 !== o$12 || 0 !== r2)) {
         const t4 = Math.sqrt(Math.pow(o$12, 2) + Math.pow(r2, 2));
         i2 = Math.round(o(Math.acos(Math.abs(o$12) / t4)));
       }
@@ -11110,7 +11139,7 @@ ${err.stack}`);
   function f() {
     let t$12, n2, e2 = 0, r2 = 0, i2 = 0, a2 = 0;
     return function(c2) {
-      if (void 0 !== c2) {
+      if (undefined !== c2) {
         n2 = n2 || c2.startInput;
         const u2 = c2.timestamp - n2.timestamp;
         if (t < u2) {
@@ -11135,7 +11164,7 @@ ${err.stack}`);
     let t3, n2, e2;
     return function(o2) {
       const { prevInput: r2, startMultiInput: i2 } = o2;
-      return void 0 !== i2 && void 0 !== r2 && o2.id !== i2.id && 1 < r2.pointLength && 1 < o2.pointLength ? (t3 = v(i2), n2 = v(r2), e2 = v(o2)) : e2 = void 0, { startVecotr: t3, prevVecotr: n2, activeVecotr: e2 };
+      return undefined !== i2 && undefined !== r2 && o2.id !== i2.id && 1 < r2.pointLength && 1 < o2.pointLength ? (t3 = v(i2), n2 = v(r2), e2 = v(o2)) : e2 = undefined, { startVecotr: t3, prevVecotr: n2, activeVecotr: e2 };
     };
   }
   const m = { name: "tap", pointLength: 1, tapTimes: 1, waitNextTapTime: 300, maxDistance: 2, maxDistanceFromPrevTap: 9, maxPressTime: 250 };
@@ -11143,7 +11172,7 @@ ${err.stack}`);
     const c2 = O(m, s2);
     let p2, u2, x$1, T = 0;
     function f2() {
-      T = 0, p2 = void 0, u2 = void 0;
+      T = 0, p2 = undefined, u2 = undefined;
     }
     return r2.compute([h$1, M], (t3) => {
       if (j(c2)) return;
@@ -11152,14 +11181,14 @@ ${err.stack}`);
         const { startInput: e2, pointLength: n2, timestamp: a2 } = t3, i3 = a2 - e2.timestamp, { distance: o3, maxPointLength: m3 } = t3;
         return m3 === c2.pointLength && 0 === n2 && c2.maxDistance >= o3 && c2.maxPressTime > i3;
       }() ? (f2(), c2.state = 2) : (clearTimeout(x$1), function(t4, e2) {
-        if (void 0 !== p2) {
+        if (undefined !== p2) {
           const n2 = x({ x: t4.x - p2.x, y: t4.y - p2.y });
           return p2 = t4, e2.maxDistanceFromPrevTap >= n2;
         }
         return p2 = t4, true;
       }({ x: o2, y: m2 }, c2) && function(t4) {
         const e2 = performance.now();
-        if (void 0 === u2) return u2 = e2, true;
+        if (undefined === u2) return u2 = e2, true;
         {
           const n2 = e2 - u2;
           return u2 = e2, n2 < t4;
@@ -11310,7 +11339,7 @@ ${err.stack}`);
       if (typeof unsafeWindow !== "undefined" && target === unsafeWindow) {
         return true;
       }
-      if (((_a2 = target == null ? void 0 : target.Math) == null ? void 0 : _a2.toString()) !== "[object Math]") {
+      if (((_a2 = target == null ? undefined : target.Math) == null ? undefined : _a2.toString()) !== "[object Math]") {
         return false;
       }
       return true;
@@ -11377,7 +11406,7 @@ ${err.stack}`);
      */
     getRandomGUID() {
       var _a2, _b;
-      if (typeof ((_b = (_a2 = PopsCore.globalThis) == null ? void 0 : _a2.crypto) == null ? void 0 : _b.randomUUID) === "function") {
+      if (typeof ((_b = (_a2 = PopsCore.globalThis) == null ? undefined : _a2.crypto) == null ? undefined : _b.randomUUID) === "function") {
         return PopsCore.globalThis.crypto.randomUUID();
       } else {
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(charStr) {
@@ -11552,7 +11581,7 @@ ${err.stack}`);
         passive: false
       };
       if (typeof selector === "function") {
-        _selector_ = void 0;
+        _selector_ = undefined;
         _callback_ = selector;
         _option_ = getOption(args2, 3, _option_);
       } else {
@@ -11638,7 +11667,7 @@ ${err.stack}`);
         capture: false
       };
       if (typeof selector === "function") {
-        _selector_ = void 0;
+        _selector_ = undefined;
         _callback_ = selector;
         _option_ = getOption(args2, 3, _option_);
       } else {
@@ -12019,9 +12048,9 @@ ${err.stack}`);
     }
     preventEvent(element, eventNameList = [], capture) {
       function stopEvent(event) {
-        event == null ? void 0 : event.preventDefault();
-        event == null ? void 0 : event.stopPropagation();
-        event == null ? void 0 : event.stopImmediatePropagation();
+        event == null ? undefined : event.preventDefault();
+        event == null ? undefined : event.stopPropagation();
+        event == null ? undefined : event.stopImmediatePropagation();
         return false;
       }
       if (arguments.length === 1) {
@@ -12067,7 +12096,7 @@ ${err.stack}`);
     offset(element, calcScroll = true) {
       let rect = element.getBoundingClientRect();
       let win = element.ownerDocument.defaultView;
-      let resultRect = new DOMRect(calcScroll ? parseFloat((rect.left + ((win == null ? void 0 : win.pageXOffset) || 0)).toString()) : rect.left, calcScroll ? parseFloat((rect.top + ((win == null ? void 0 : win.pageYOffset) || 0)).toString()) : rect.top, rect.width, rect.height);
+      let resultRect = new DOMRect(calcScroll ? parseFloat((rect.left + ((win == null ? undefined : win.pageXOffset) || 0)).toString()) : rect.left, calcScroll ? parseFloat((rect.top + ((win == null ? undefined : win.pageYOffset) || 0)).toString()) : rect.top, rect.width, rect.height);
       return resultRect;
     }
     width(element, isShow = false, parent) {
@@ -12787,10 +12816,10 @@ ${err.stack}`);
         if (typeof layerCommonConfig.beforeRemoveCallBack === "function") {
           layerCommonConfig.beforeRemoveCallBack(layerCommonConfig);
         }
-        (_a2 = layerCommonConfig == null ? void 0 : layerCommonConfig.animElement) == null ? void 0 : _a2.remove();
-        (_b = layerCommonConfig == null ? void 0 : layerCommonConfig.popsElement) == null ? void 0 : _b.remove();
-        (_c = layerCommonConfig == null ? void 0 : layerCommonConfig.maskElement) == null ? void 0 : _c.remove();
-        (_d = layerCommonConfig == null ? void 0 : layerCommonConfig.$shadowContainer) == null ? void 0 : _d.remove();
+        (_a2 = layerCommonConfig == null ? undefined : layerCommonConfig.animElement) == null ? undefined : _a2.remove();
+        (_b = layerCommonConfig == null ? undefined : layerCommonConfig.popsElement) == null ? undefined : _b.remove();
+        (_c = layerCommonConfig == null ? undefined : layerCommonConfig.maskElement) == null ? undefined : _c.remove();
+        (_d = layerCommonConfig == null ? undefined : layerCommonConfig.$shadowContainer) == null ? undefined : _d.remove();
       }
       moreLayerConfigList.forEach((layerConfigList) => {
         layerConfigList.forEach((layerConfigItem, index) => {
@@ -12941,13 +12970,13 @@ ${err.stack}`);
           if (event.propertyName !== "transform") {
             return;
           }
-          popsDOMUtils.off(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
+          popsDOMUtils.off(popsElement, popsDOMUtils.getTransitionEndNameList(), undefined, closeCallBack);
           PopsInstanceUtils.removeInstance([layerConfigList], guid);
         }
         popsDOMUtils.on(popsElement, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
         let popsTransForm = getComputedStyle(popsElement).transform;
         if (popsTransForm !== "none") {
-          popsDOMUtils.trigger(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, true);
+          popsDOMUtils.trigger(popsElement, popsDOMUtils.getTransitionEndNameList(), undefined, true);
           return;
         }
         if (["top"].includes(drawerConfig.direction)) {
@@ -13007,7 +13036,7 @@ ${err.stack}`);
         let transform_top = 0;
         let elementTransform = PopsCore.globalThis.getComputedStyle(element).transform;
         if (elementTransform !== "none" && elementTransform != null && elementTransform !== "") {
-          let elementTransformSplit = (_a2 = elementTransform.match(/\((.+)\)/)) == null ? void 0 : _a2[1].split(",");
+          let elementTransformSplit = (_a2 = elementTransform.match(/\((.+)\)/)) == null ? undefined : _a2[1].split(",");
           transform_left = Math.abs(parseInt(elementTransformSplit[4]));
           transform_top = Math.abs(parseInt(elementTransformSplit[5]));
         }
@@ -13110,7 +13139,7 @@ ${err.stack}`);
       if (options.triggerClick) {
         anyTouchElement.on(["tap"], function(event) {
           event.changedPoints.forEach((item) => {
-            popsDOMUtils.trigger(item.target, "click", void 0, true);
+            popsDOMUtils.trigger(item.target, "click", undefined, true);
           });
         });
       }
@@ -13315,13 +13344,13 @@ ${err.stack}`);
         return "";
       }
       let __config_confirm = config;
-      if (type !== "iframe" && !((_b = (_a2 = __config_confirm.btn) == null ? void 0 : _a2.close) == null ? void 0 : _b.enable)) {
+      if (type !== "iframe" && !((_b = (_a2 = __config_confirm.btn) == null ? undefined : _a2.close) == null ? undefined : _b.enable)) {
         return "";
       }
       let resultHTML = "";
       let closeHTML = "";
       let __config_iframe = config;
-      if (type === "iframe" && ((_c = __config_iframe.topRightButton) == null ? void 0 : _c.trim()) !== "") {
+      if (type === "iframe" && ((_c = __config_iframe.topRightButton) == null ? undefined : _c.trim()) !== "") {
         let topRightButtonHTML = "";
         __config_iframe.topRightButton.split("|").forEach((item) => {
           item = item.toLowerCase();
@@ -13335,7 +13364,7 @@ ${err.stack}`);
                 ${topRightButtonHTML}
             </div>`;
       } else {
-        if ((_e = (_d = __config_confirm.btn) == null ? void 0 : _d.close) == null ? void 0 : _e.enable) {
+        if ((_e = (_d = __config_confirm.btn) == null ? undefined : _d.close) == null ? undefined : _e.enable) {
           closeHTML = `
                 <div class="pops-header-controls">
                     <button class="pops-header-control" type="close" data-header>
@@ -13358,7 +13387,7 @@ ${err.stack}`);
         return "";
       }
       let __config_confirm = config;
-      if (!(((_b = (_a2 = config.btn) == null ? void 0 : _a2.ok) == null ? void 0 : _b.enable) || ((_d = (_c = __config_confirm.btn) == null ? void 0 : _c.cancel) == null ? void 0 : _d.enable) || ((_f = (_e = __config_confirm.btn) == null ? void 0 : _e.other) == null ? void 0 : _f.enable))) {
+      if (!(((_b = (_a2 = config.btn) == null ? undefined : _a2.ok) == null ? undefined : _b.enable) || ((_d = (_c = __config_confirm.btn) == null ? undefined : _c.cancel) == null ? undefined : _d.enable) || ((_f = (_e = __config_confirm.btn) == null ? undefined : _e.other) == null ? undefined : _f.enable))) {
         return "";
       }
       let btnStyle = "";
@@ -13372,7 +13401,7 @@ ${err.stack}`);
       if (__config_confirm.btn.reverse) {
         btnStyle += "flex-direction: row-reverse;";
       }
-      if ((_h = (_g = config.btn) == null ? void 0 : _g.ok) == null ? void 0 : _h.enable) {
+      if ((_h = (_g = config.btn) == null ? undefined : _g.ok) == null ? undefined : _h.enable) {
         let okButtonSizeClassName = "";
         if (config.btn.ok.size === "large") {
           okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
@@ -13397,15 +13426,15 @@ ${err.stack}`);
         okHTML = `
             <button 
                     class="pops-${type}-btn-ok ${okButtonSizeClassName}"
-                    type="${(_i = __config_confirm.btn.ok) == null ? void 0 : _i.type}"
+                    type="${(_i = __config_confirm.btn.ok) == null ? undefined : _i.type}"
 					data-has-icon="${(__config_confirm.btn.ok.icon || "") !== ""}"
-                    data-rightIcon="${(_j = __config_confirm.btn.ok) == null ? void 0 : _j.rightIcon}"
+                    data-rightIcon="${(_j = __config_confirm.btn.ok) == null ? undefined : _j.rightIcon}"
             >
             ${okIconHTML}
                 <span>${config.btn.ok.text}</span>
             </button>`;
       }
-      if ((_l = (_k = __config_confirm.btn) == null ? void 0 : _k.cancel) == null ? void 0 : _l.enable) {
+      if ((_l = (_k = __config_confirm.btn) == null ? undefined : _k.cancel) == null ? undefined : _l.enable) {
         let cancelButtonSizeClassName = "";
         if (__config_confirm.btn.cancel.size === "large") {
           cancelButtonSizeClassName = "pops-button-" + __config_confirm.btn.cancel.size;
@@ -13438,7 +13467,7 @@ ${err.stack}`);
                 <span>${__config_confirm.btn.cancel.text}</span>
             </button>`;
       }
-      if ((_n = (_m = __config_confirm.btn) == null ? void 0 : _m.other) == null ? void 0 : _n.enable) {
+      if ((_n = (_m = __config_confirm.btn) == null ? undefined : _m.other) == null ? undefined : _n.enable) {
         let otherButtonSizeClassName = "";
         if (__config_confirm.btn.other.size === "large") {
           otherButtonSizeClassName = "pops-button-" + __config_confirm.btn.other.size;
@@ -13506,8 +13535,8 @@ ${err.stack}`);
     getHeaderStyle(type, config) {
       var _a2, _b, _c, _d;
       return {
-        headerStyle: ((_a2 = config == null ? void 0 : config.title) == null ? void 0 : _a2.html) ? ((_b = config == null ? void 0 : config.title) == null ? void 0 : _b.style) || "" : "",
-        headerPStyle: ((_c = config == null ? void 0 : config.title) == null ? void 0 : _c.html) ? "" : ((_d = config == null ? void 0 : config.title) == null ? void 0 : _d.style) || ""
+        headerStyle: ((_a2 = config == null ? undefined : config.title) == null ? undefined : _a2.html) ? ((_b = config == null ? undefined : config.title) == null ? undefined : _b.style) || "" : "",
+        headerPStyle: ((_c = config == null ? undefined : config.title) == null ? undefined : _c.html) ? "" : ((_d = config == null ? undefined : config.title) == null ? undefined : _d.style) || ""
       };
     },
     /**
@@ -13518,8 +13547,8 @@ ${err.stack}`);
     getContentStyle(type, config) {
       var _a2, _b, _c, _d;
       return {
-        contentStyle: ((_a2 = config == null ? void 0 : config.content) == null ? void 0 : _a2.html) ? ((_b = config == null ? void 0 : config.content) == null ? void 0 : _b.style) || "" : "",
-        contentPStyle: ((_c = config == null ? void 0 : config.content) == null ? void 0 : _c.html) ? "" : ((_d = config == null ? void 0 : config.content) == null ? void 0 : _d.style) || ""
+        contentStyle: ((_a2 = config == null ? undefined : config.content) == null ? undefined : _a2.html) ? ((_b = config == null ? undefined : config.content) == null ? undefined : _b.style) || "" : "",
+        contentPStyle: ((_c = config == null ? undefined : config.content) == null ? undefined : _c.html) ? "" : ((_d = config == null ? undefined : config.content) == null ? undefined : _d.style) || ""
       };
     },
     /**
@@ -13604,19 +13633,19 @@ ${err.stack}`);
       if (details.config.mask.clickEvent.toClose || details.config.mask.clickEvent.toHide) {
         let isAnimElement2 = function(element) {
           var _a2;
-          return Boolean(((_a2 = element == null ? void 0 : element.localName) == null ? void 0 : _a2.toLowerCase()) === "div" && element.className && element.className === "pops-anim" && element.hasAttribute("anim"));
+          return Boolean(((_a2 = element == null ? undefined : element.localName) == null ? undefined : _a2.toLowerCase()) === "div" && element.className && element.className === "pops-anim" && element.hasAttribute("anim"));
         };
-        popsDOMUtils.on(details.animElement, ["touchstart", "mousedown"], void 0, (event) => {
+        popsDOMUtils.on(details.animElement, ["touchstart", "mousedown"], undefined, (event) => {
           let $click = event.composedPath()[0];
           isMaskClick = isAnimElement2($click);
         });
-        popsDOMUtils.on(details.animElement, "click", void 0, (event) => {
+        popsDOMUtils.on(details.animElement, "click", undefined, (event) => {
           let $click = event.composedPath()[0];
           if (isAnimElement2($click) && isMaskClick) {
             return clickEvent(event);
           }
         });
-        popsDOMUtils.on(result2.maskElement, "click", void 0, (event) => {
+        popsDOMUtils.on(result2.maskElement, "click", undefined, (event) => {
           isMaskClick = true;
           clickEvent(event);
         });
@@ -13944,9 +13973,9 @@ ${err.stack}`);
       btn: {
         position: "flex-end",
         ok: {
-          size: void 0,
+          size: undefined,
           enable: true,
-          icon: void 0,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "确定",
@@ -14101,8 +14130,8 @@ ${err.stack}`);
         position: "flex-end",
         ok: {
           enable: true,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "确定",
@@ -14113,8 +14142,8 @@ ${err.stack}`);
         },
         cancel: {
           enable: true,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "关闭",
@@ -14125,8 +14154,8 @@ ${err.stack}`);
         },
         other: {
           enable: false,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "其它按钮",
@@ -14288,8 +14317,8 @@ ${err.stack}`);
         position: "flex-end",
         ok: {
           enable: true,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "确定",
@@ -14300,8 +14329,8 @@ ${err.stack}`);
         },
         cancel: {
           enable: true,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "关闭",
@@ -14312,8 +14341,8 @@ ${err.stack}`);
         },
         other: {
           enable: false,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "其它按钮",
@@ -14694,7 +14723,7 @@ ${err.stack}`);
         $anim.style.height = "0%";
       });
       popsDOMUtils.on($iframe, "load", () => {
-        loadingElement == null ? void 0 : loadingElement.remove();
+        loadingElement == null ? undefined : loadingElement.remove();
         $contentLoading.style.animation = "iframeLoadingChange_85 0.3s forwards";
         popsDOMUtils.on($contentLoading, popsDOMUtils.getAnimationEndNameList(), () => {
           $contentLoading.remove();
@@ -14739,7 +14768,7 @@ ${err.stack}`);
         headerControlsElement.setAttribute("type", "min");
         headerMaxBtnElement.style.setProperty("display", "none");
         headerMiseBtnElement.style.setProperty("display", "");
-        if (typeof ((_b = (_a3 = config == null ? void 0 : config.btn) == null ? void 0 : _a3.min) == null ? void 0 : _b.callback) === "function") {
+        if (typeof ((_b = (_a3 = config == null ? undefined : config.btn) == null ? undefined : _a3.min) == null ? undefined : _b.callback) === "function") {
           config.btn.min.callback(eventDetails, event);
         }
       }, {
@@ -14766,13 +14795,13 @@ ${err.stack}`);
         headerControlsElement.setAttribute("type", "max");
         headerMaxBtnElement.style.setProperty("display", "none");
         headerMiseBtnElement.style.setProperty("display", "");
-        if (typeof ((_b = (_a3 = config == null ? void 0 : config.btn) == null ? void 0 : _a3.max) == null ? void 0 : _b.callback) === "function") {
+        if (typeof ((_b = (_a3 = config == null ? undefined : config.btn) == null ? undefined : _a3.max) == null ? undefined : _b.callback) === "function") {
           config.btn.max.callback(eventDetails, event);
         }
       }, {
         capture: true
       });
-      (_a2 = headerMiseBtnElement == null ? void 0 : headerMiseBtnElement.style) == null ? void 0 : _a2.setProperty("display", "none");
+      (_a2 = headerMiseBtnElement == null ? undefined : headerMiseBtnElement.style) == null ? undefined : _a2.setProperty("display", "none");
       popsDOMUtils.on(headerMiseBtnElement, "click", (event) => {
         var _a3, _b;
         event.preventDefault();
@@ -14799,7 +14828,7 @@ ${err.stack}`);
           headerMaxBtnElement.style.setProperty("display", "");
           headerMiseBtnElement.style.setProperty("display", "none");
         }
-        if (typeof ((_b = (_a3 = config == null ? void 0 : config.btn) == null ? void 0 : _a3.mise) == null ? void 0 : _b.callback) === "function") {
+        if (typeof ((_b = (_a3 = config == null ? undefined : config.btn) == null ? undefined : _a3.mise) == null ? undefined : _b.callback) === "function") {
           config.btn.mise.callback(eventDetails, event);
         }
       }, {
@@ -14810,7 +14839,7 @@ ${err.stack}`);
         event.preventDefault();
         event.stopPropagation();
         PopsInstanceUtils.removeInstance([pops.config.layer.iframe], guid, false);
-        if (typeof ((_b = (_a3 = config == null ? void 0 : config.btn) == null ? void 0 : _a3.close) == null ? void 0 : _b.callback) === "function") {
+        if (typeof ((_b = (_a3 = config == null ? undefined : config.btn) == null ? undefined : _a3.close) == null ? undefined : _b.callback) === "function") {
           config.btn.close.callback(eventDetails, event);
         }
       }, {
@@ -14849,8 +14878,8 @@ ${err.stack}`);
         position: "flex-end",
         ok: {
           enable: true,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "确定",
@@ -14861,8 +14890,8 @@ ${err.stack}`);
         },
         cancel: {
           enable: true,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "关闭",
@@ -14873,8 +14902,8 @@ ${err.stack}`);
         },
         other: {
           enable: false,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "其它按钮",
@@ -15137,8 +15166,8 @@ ${err.stack}`);
         position: "flex-end",
         ok: {
           enable: true,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "确定",
@@ -15149,8 +15178,8 @@ ${err.stack}`);
         },
         cancel: {
           enable: true,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "关闭",
@@ -15161,8 +15190,8 @@ ${err.stack}`);
         },
         other: {
           enable: false,
-          size: void 0,
-          icon: void 0,
+          size: undefined,
+          icon: undefined,
           rightIcon: false,
           iconIsLoading: false,
           text: "其它按钮",
@@ -15297,7 +15326,7 @@ ${err.stack}`);
       androidIconList.forEach((keyName) => {
         Folder_ICON[keyName] = Folder_ICON.apk;
       });
-      if (details == null ? void 0 : details.folder) {
+      if (details == null ? undefined : details.folder) {
         config.folder = details.folder;
       }
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
@@ -15678,9 +15707,9 @@ ${err.stack}`);
       }
       function setFileClickEvent(targetElement, _config_) {
         popsDOMUtils.on(targetElement, "click", async function(event) {
-          event == null ? void 0 : event.preventDefault();
-          event == null ? void 0 : event.stopPropagation();
-          event == null ? void 0 : event.stopImmediatePropagation();
+          event == null ? undefined : event.preventDefault();
+          event == null ? undefined : event.stopPropagation();
+          event == null ? undefined : event.stopImmediatePropagation();
           let linkElement = targetElement.querySelector("a");
           if (typeof _config_.clickEvent === "function") {
             let downloadInfo = await _config_.clickEvent(event, _config_);
@@ -15857,12 +15886,12 @@ ${err.stack}`);
       }, {
         capture: true
       });
-      popsDOMUtils.on(folderListSortLatestTimeElement.closest("th"), "click", void 0, function(event) {
+      popsDOMUtils.on(folderListSortLatestTimeElement.closest("th"), "click", undefined, function(event) {
         arrowSortClickEvent(folderListSortLatestTimeElement, event, "latestTime");
       }, {
         capture: true
       });
-      popsDOMUtils.on(folderListSortFileSizeElement.closest("th"), "click", void 0, function(event) {
+      popsDOMUtils.on(folderListSortFileSizeElement.closest("th"), "click", undefined, function(event) {
         arrowSortClickEvent(folderListSortFileSizeElement, event, "fileSize");
       }, {
         capture: true
@@ -16478,7 +16507,7 @@ ${err.stack}`);
         if ($asideDefaultItemElement) {
           $asideDefaultItemElement.click();
           if (isScrollToDefaultView) {
-            $asideDefaultItemElement == null ? void 0 : $asideDefaultItemElement.scrollIntoView();
+            $asideDefaultItemElement == null ? undefined : $asideDefaultItemElement.scrollIntoView();
           }
         } else {
           console.error("pops.panel：左侧容器没有项");
@@ -16491,7 +16520,7 @@ ${err.stack}`);
         var _a2;
         PopsSafeUtils.setSafeHTML(this.sectionContainerHeaderULElement, "");
         PopsSafeUtils.setSafeHTML(this.sectionContainerULElement, "");
-        (_a2 = this.$el.$content) == null ? void 0 : _a2.querySelectorAll("section.pops-panel-deepMenu-container").forEach((ele) => ele.remove());
+        (_a2 = this.$el.$content) == null ? undefined : _a2.querySelectorAll("section.pops-panel-deepMenu-container").forEach((ele) => ele.remove());
       },
       /**
        * 清空左侧容器已访问记录
@@ -16633,7 +16662,7 @@ ${err.stack}`);
           },
           setClickEvent() {
             let that = this;
-            popsDOMUtils.on(this.$ele.core, "click", void 0, function(event) {
+            popsDOMUtils.on(this.$ele.core, "click", undefined, function(event) {
               if (that.$ele.input.disabled || that.$ele.switch.hasAttribute("data-disabled")) {
                 return;
               }
@@ -16739,7 +16768,7 @@ ${err.stack}`);
           position: "top",
           arrowDistance: 10
         });
-        popsDOMUtils.on(rangeInputElement, ["input", "propertychange"], void 0, function(event) {
+        popsDOMUtils.on(rangeInputElement, ["input", "propertychange"], undefined, function(event) {
           tooltip.toolTip.changeContent(getToolTipContent(rangeInputElement.value));
           if (typeof formConfig.callback === "function") {
             formConfig.callback(event, event.target.value);
@@ -16876,7 +16905,7 @@ ${err.stack}`);
             this.$interval.isCheck = true;
             let isSuccess = false;
             let oldTotalWidth = this.$data.totalWidth;
-            let timer = void 0;
+            let timer = undefined;
             let interval = setInterval(() => {
               if (isSuccess) {
                 this.$interval.isCheck = false;
@@ -17087,7 +17116,7 @@ ${err.stack}`);
            * 设置进度条点击定位的事件
            */
           setRunAwayClickEvent() {
-            popsDOMUtils.on(this.$ele.runAway, "click", void 0, (event) => {
+            popsDOMUtils.on(this.$ele.runAway, "click", undefined, (event) => {
               if (event.target !== this.$ele.runAway && event.target !== this.$ele.bar) {
                 return;
               }
@@ -17396,7 +17425,7 @@ ${err.stack}`);
            * 添加图标按钮的点击事件
            */
           setCircleIconClickEvent() {
-            popsDOMUtils.on(this.$ele.icon, "click", void 0, () => {
+            popsDOMUtils.on(this.$ele.icon, "click", undefined, () => {
               if (this.isDisabled()) {
                 return;
               }
@@ -17422,7 +17451,7 @@ ${err.stack}`);
            * 监听输入框内容改变
            */
           setInputChangeEvent() {
-            popsDOMUtils.on(this.$ele.input, ["input", "propertychange"], void 0, (event) => {
+            popsDOMUtils.on(this.$ele.input, ["input", "propertychange"], undefined, (event) => {
               this.$data.value = this.$ele.input.value;
               if (!formConfig.isPassword) {
                 if (this.$ele.input.value !== "" && this.$ele.icon.innerHTML === "") {
@@ -17509,7 +17538,7 @@ ${err.stack}`);
            * 监听选择内容改变
            */
           setChangeEvent() {
-            popsDOMUtils.on(this.$ele.textarea, ["input", "propertychange"], void 0, (event) => {
+            popsDOMUtils.on(this.$ele.textarea, ["input", "propertychange"], undefined, (event) => {
               this.$data.value = event.target.value;
               if (typeof formConfig.callback === "function") {
                 formConfig.callback(event, event.target.value);
@@ -17671,7 +17700,7 @@ ${err.stack}`);
            * 监听选择内容改变
            */
           setChangeEvent() {
-            popsDOMUtils.on(this.$ele.select, "change", void 0, (event) => {
+            popsDOMUtils.on(this.$ele.select, "change", undefined, (event) => {
               let $isSelectedElement = event.target[event.target.selectedIndex];
               let selectInfo = this.getSelectOptionInfo($isSelectedElement);
               this.setSelectOptionsDisableStatus();
@@ -17701,7 +17730,7 @@ ${err.stack}`);
            * 监听点击事件
            */
           setClickEvent() {
-            popsDOMUtils.on(this.$ele.select, "click", void 0, (event) => {
+            popsDOMUtils.on(this.$ele.select, "click", undefined, (event) => {
               this.setSelectOptionsDisableStatus();
               if (typeof formConfig.clickCallBack === "function") {
                 formConfig.clickCallBack(event, this.$ele.select);
@@ -17764,19 +17793,19 @@ ${err.stack}`);
           [Symbol.toStringTag]: "PopsPanelSelectMultiple",
           $el: {
             /** 容器 */
-            $container: void 0,
+            $container: undefined,
             /** 包括的容器 */
-            $wrapper: void 0,
+            $wrapper: undefined,
             /** 内容区域 */
-            $section: void 0,
+            $section: undefined,
             /** 手动输入 */
-            $selectedInputWrapper: void 0,
+            $selectedInputWrapper: undefined,
             /** 灰色提示语 */
-            $selectedPlaceHolderWrapper: void 0,
+            $selectedPlaceHolderWrapper: undefined,
             /** 下拉箭头区域 */
-            $suffix: void 0,
+            $suffix: undefined,
             /** 下拉箭头图标 */
-            $suffixIcon: void 0
+            $suffixIcon: undefined
           },
           $data: {
             /** 默认值 */
@@ -18351,7 +18380,7 @@ ${err.stack}`);
             PopsSafeUtils.setSafeHTML(this.$ele.spanText, text);
           },
           setClickEvent() {
-            popsDOMUtils.on(this.$ele.button, "click", void 0, (event) => {
+            popsDOMUtils.on(this.$ele.button, "click", undefined, (event) => {
               if (typeof formConfig.callback === "function") {
                 formConfig.callback(event);
               }
@@ -18512,16 +18541,16 @@ ${err.stack}`);
               className: "pops-panel-deepMenu-container-left-arrow-icon",
               innerHTML: pops.config.iconSVG.arrowLeft
             });
-            popsDOMUtils.on($headerLeftArrow, "click", void 0, (event2) => {
-              event2 == null ? void 0 : event2.preventDefault();
-              event2 == null ? void 0 : event2.stopPropagation();
+            popsDOMUtils.on($headerLeftArrow, "click", undefined, (event2) => {
+              event2 == null ? undefined : event2.preventDefault();
+              event2 == null ? undefined : event2.stopPropagation();
               let $prev = $deepMenuContainer.previousElementSibling;
               popsDOMUtils.cssShow($prev);
               $deepMenuContainer.remove();
             }, {
               once: true
             });
-            (_a2 = $header.firstElementChild) == null ? void 0 : _a2.insertAdjacentElement("beforebegin", $headerLeftArrow);
+            (_a2 = $header.firstElementChild) == null ? undefined : _a2.insertAdjacentElement("beforebegin", $headerLeftArrow);
             $deepMenuHeaderUL.appendChild($header);
             $deepMenuContainer.appendChild($deepMenuHeaderUL);
             $deepMenuContainer.appendChild($deepMenuBodyUL);
@@ -18531,7 +18560,7 @@ ${err.stack}`);
                 this.initFormItem($deepMenuBodyUL, formItemConfig);
               }
             }
-            (_b = that.$el.$content) == null ? void 0 : _b.appendChild($deepMenuContainer);
+            (_b = that.$el.$content) == null ? undefined : _b.appendChild($deepMenuContainer);
             if (typeof formConfig.afterEnterDeepMenuCallBack === "function") {
               formConfig.afterEnterDeepMenuCallBack(formConfig, {
                 sectionContainer: $deepMenuContainer,
@@ -18543,7 +18572,7 @@ ${err.stack}`);
           },
           /** 设置项的点击事件 */
           setLiClickEvent() {
-            popsDOMUtils.on($li, "click", void 0, async (event) => {
+            popsDOMUtils.on($li, "click", undefined, async (event) => {
               if (typeof formConfig.clickCallBack === "function") {
                 let result2 = await formConfig.clickCallBack(event, formConfig);
                 if (result2) {
@@ -18698,7 +18727,7 @@ ${err.stack}`);
        */
       setAsideItemClickEvent(asideLiElement, asideConfig) {
         const that = this;
-        popsDOMUtils.on(asideLiElement, "click", void 0, (event) => {
+        popsDOMUtils.on(asideLiElement, "click", undefined, (event) => {
           this.clearContainer();
           popsDOMUtils.cssShow(that.$el.$contentSectionContainer);
           this.clearAsideItemIsVisited();
@@ -19022,13 +19051,13 @@ ${err.stack}`);
          * 添加全局点击检测事件
          */
         addWindowCheckClickListener() {
-          popsDOMUtils.on(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
+          popsDOMUtils.on(globalThis, "click touchstart", undefined, PopsContextMenu.windowCheckClickEvent, {
             capture: true
           });
           if (config.target instanceof Node) {
             const $shadowRoot2 = config.target.getRootNode();
             if ($shadowRoot2 instanceof ShadowRoot) {
-              popsDOMUtils.on($shadowRoot2, "click touchstart", void 0, PopsContextMenu.shadowRootCheckClickEvent, {
+              popsDOMUtils.on($shadowRoot2, "click touchstart", undefined, PopsContextMenu.shadowRootCheckClickEvent, {
                 capture: true
               });
             }
@@ -19038,13 +19067,13 @@ ${err.stack}`);
          * 移除全局点击检测事件
          */
         removeWindowCheckClickListener() {
-          popsDOMUtils.off(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
+          popsDOMUtils.off(globalThis, "click touchstart", undefined, PopsContextMenu.windowCheckClickEvent, {
             capture: true
           });
           if (config.target instanceof Node) {
             const $shadowRoot2 = config.target.getRootNode();
             if ($shadowRoot2 instanceof ShadowRoot) {
-              popsDOMUtils.off($shadowRoot2, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
+              popsDOMUtils.off($shadowRoot2, "click touchstart", undefined, PopsContextMenu.windowCheckClickEvent, {
                 capture: true
               });
             }
@@ -19099,13 +19128,13 @@ ${err.stack}`);
          */
         animationCloseMenu(element) {
           function transitionEndEvent(event) {
-            popsDOMUtils.off(element, popsDOMUtils.getTransitionEndNameList(), void 0, transitionEndEvent, {
+            popsDOMUtils.off(element, popsDOMUtils.getTransitionEndNameList(), undefined, transitionEndEvent, {
               capture: true
             });
             element.remove();
           }
           if (element.classList.contains(`pops-${PopsType}-anim-show`)) {
-            popsDOMUtils.on(element, popsDOMUtils.getTransitionEndNameList(), void 0, transitionEndEvent, {
+            popsDOMUtils.on(element, popsDOMUtils.getTransitionEndNameList(), undefined, transitionEndEvent, {
               capture: true
             });
             element.classList.remove(`pops-${PopsType}-anim-show`);
@@ -19122,8 +19151,8 @@ ${err.stack}`);
           if (rootElement == null) {
             return;
           }
-          if ((_a2 = rootElement == null ? void 0 : rootElement["__menuData__"]) == null ? void 0 : _a2.root) {
-            rootElement = (_b = rootElement == null ? void 0 : rootElement["__menuData__"]) == null ? void 0 : _b.root;
+          if ((_a2 = rootElement == null ? undefined : rootElement["__menuData__"]) == null ? undefined : _a2.root) {
+            rootElement = (_b = rootElement == null ? undefined : rootElement["__menuData__"]) == null ? undefined : _b.root;
           }
           let childMenuList = rootElement["__menuData__"].child;
           childMenuList.forEach((childMenuElement) => {
@@ -19280,7 +19309,7 @@ ${err.stack}`);
                 function removeElement(element) {
                   element.querySelectorAll("ul li").forEach((ele) => {
                     var _a2;
-                    if ((_a2 = ele == null ? void 0 : ele.__menuData__) == null ? void 0 : _a2.child) {
+                    if ((_a2 = ele == null ? undefined : ele.__menuData__) == null ? undefined : _a2.child) {
                       removeElement(ele.__menuData__.child);
                     }
                   });
@@ -19325,8 +19354,8 @@ ${err.stack}`);
               });
               PopsContextMenu.closeAllMenu(rootElement);
             }
-            popsDOMUtils.on(menuLiElement, "mouseenter touchstart", void 0, liElementHoverEvent);
-            popsDOMUtils.on(menuLiElement, "click", void 0, liElementClickEvent);
+            popsDOMUtils.on(menuLiElement, "mouseenter touchstart", undefined, liElementHoverEvent);
+            popsDOMUtils.on(menuLiElement, "click", undefined, liElementClickEvent);
             menuULElement.appendChild(menuLiElement);
           });
         }
@@ -19584,7 +19613,7 @@ ${err.stack}`);
          * @param liElement
          */
         setSearchItemClickEvent(liElement) {
-          popsDOMUtils.on(liElement, "click", void 0, (event) => {
+          popsDOMUtils.on(liElement, "click", undefined, (event) => {
             popsDOMUtils.preventEvent(event);
             let $click = event.target;
             if ($click.closest(`.pops-${PopsType}-delete-icon`)) {
@@ -19617,7 +19646,7 @@ ${err.stack}`);
             return;
           }
           config.inputTarget.setAttribute("autocomplete", "off");
-          popsDOMUtils.on(config.inputTarget, "input", void 0, async (event) => {
+          popsDOMUtils.on(config.inputTarget, "input", undefined, async (event) => {
             let getListResult = await config.getData(event.target.value);
             SearchSuggestion.update(getListResult);
           }, option);
@@ -19628,7 +19657,7 @@ ${err.stack}`);
         removeInputChangeEvent(option = {
           capture: true
         }) {
-          popsDOMUtils.off(config.inputTarget, "input", void 0, void 0, option);
+          popsDOMUtils.off(config.inputTarget, "input", undefined, undefined, option);
         },
         /**
          * 显示搜索建议框的事件
@@ -19654,11 +19683,11 @@ ${err.stack}`);
           capture: true
         }) {
           if (config.followPosition === "target") {
-            popsDOMUtils.on([config.target], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
+            popsDOMUtils.on([config.target], ["focus", "click"], undefined, SearchSuggestion.showEvent, option);
           } else if (config.followPosition === "input") {
-            popsDOMUtils.on([config.inputTarget], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
+            popsDOMUtils.on([config.inputTarget], ["focus", "click"], undefined, SearchSuggestion.showEvent, option);
           } else if (config.followPosition === "inputCursor") {
-            popsDOMUtils.on([config.inputTarget], ["focus", "click", "input"], void 0, SearchSuggestion.showEvent, option);
+            popsDOMUtils.on([config.inputTarget], ["focus", "click", "input"], undefined, SearchSuggestion.showEvent, option);
           } else {
             throw new TypeError("未知followPosition：" + config.followPosition);
           }
@@ -19669,8 +19698,8 @@ ${err.stack}`);
         removeShowEvent(option = {
           capture: true
         }) {
-          popsDOMUtils.off([config.target, config.inputTarget], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
-          popsDOMUtils.off([config.inputTarget], ["input"], void 0, SearchSuggestion.showEvent, option);
+          popsDOMUtils.off([config.target, config.inputTarget], ["focus", "click"], undefined, SearchSuggestion.showEvent, option);
+          popsDOMUtils.off([config.inputTarget], ["input"], undefined, SearchSuggestion.showEvent, option);
         },
         /**
          * 隐藏搜索建议框的事件
@@ -19698,10 +19727,10 @@ ${err.stack}`);
         }) {
           if (Array.isArray(SearchSuggestion.selfDocument)) {
             SearchSuggestion.selfDocument.forEach(($checkParent) => {
-              popsDOMUtils.on($checkParent, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
+              popsDOMUtils.on($checkParent, ["click", "touchstart"], undefined, SearchSuggestion.hideEvent, option);
             });
           } else {
-            popsDOMUtils.on(SearchSuggestion.selfDocument, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
+            popsDOMUtils.on(SearchSuggestion.selfDocument, ["click", "touchstart"], undefined, SearchSuggestion.hideEvent, option);
           }
         },
         /**
@@ -19712,10 +19741,10 @@ ${err.stack}`);
         }) {
           if (Array.isArray(SearchSuggestion.selfDocument)) {
             SearchSuggestion.selfDocument.forEach(($checkParent) => {
-              popsDOMUtils.off($checkParent, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
+              popsDOMUtils.off($checkParent, ["click", "touchstart"], undefined, SearchSuggestion.hideEvent, option);
             });
           } else {
-            popsDOMUtils.off(SearchSuggestion.selfDocument, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
+            popsDOMUtils.off(SearchSuggestion.selfDocument, ["click", "touchstart"], undefined, SearchSuggestion.hideEvent, option);
           }
         },
         /**
@@ -19767,7 +19796,7 @@ ${err.stack}`);
          */
         removePromptsInSearch() {
           var _a2;
-          (_a2 = SearchSuggestion.$el.$hintULContainer.querySelector(`li.pops-${PopsType}-search-suggestion-hint-searching-item`)) == null ? void 0 : _a2.remove();
+          (_a2 = SearchSuggestion.$el.$hintULContainer.querySelector(`li.pops-${PopsType}-search-suggestion-hint-searching-item`)) == null ? undefined : _a2.remove();
         },
         /**
          * 清空所有的搜索结果
@@ -20867,7 +20896,7 @@ ${err.stack}`);
                 tag: "error"
               };
             } finally {
-              $page_test == null ? void 0 : $page_test.remove();
+              $page_test == null ? undefined : $page_test.remove();
             }
           }),
           UIInfo(() => {
@@ -20920,7 +20949,7 @@ ${err.stack}`);
                 tag: "error"
               };
             } finally {
-              $page_test == null ? void 0 : $page_test.remove();
+              $page_test == null ? undefined : $page_test.remove();
             }
           })
         );
@@ -21033,8 +21062,8 @@ ${err.stack}`);
                 tag: "error"
               };
             } finally {
-              $test == null ? void 0 : $test.remove();
-              $testCSS == null ? void 0 : $testCSS.remove();
+              $test == null ? undefined : $test.remove();
+              $testCSS == null ? undefined : $testCSS.remove();
             }
           })
         );
@@ -21128,8 +21157,8 @@ ${err.stack}`);
                     false
                   );
                   domUtils.after(container.$leftContainer, $button);
-                  let timeoutId = void 0;
-                  let listenerId = void 0;
+                  let timeoutId = undefined;
+                  let listenerId = undefined;
                   let tagTextList = [];
                   domUtils.on($button, "click", (event) => {
                     utils.preventEvent(event);
@@ -21682,7 +21711,7 @@ ${err.stack}`);
               tag: "info",
               afterRender(container) {
                 var _a2;
-                (_a2 = container.target) == null ? void 0 : _a2.querySelector(".support-info");
+                (_a2 = container.target) == null ? undefined : _a2.querySelector(".support-info");
               }
             };
           })
@@ -22213,7 +22242,7 @@ ${err.stack}`);
             },
             {
               key: "Test GM_getValue undefined",
-              value: void 0,
+              value: undefined,
               text: function() {
                 return `存储undefined类型并读取`;
               },
@@ -22645,32 +22674,32 @@ ${err.stack}`);
         result2["forms"][1].forms.push(
           ...[
             {
-              value: _GM_info == null ? void 0 : _GM_info.scriptHandler,
+              value: _GM_info == null ? undefined : _GM_info.scriptHandler,
               type: "string",
               text: "GM_info.scriptHandler"
             },
             {
-              value: _GM_info == null ? void 0 : _GM_info.scriptMetaStr,
+              value: _GM_info == null ? undefined : _GM_info.scriptMetaStr,
               type: "string",
               text: "GM_info.scriptMetaStr"
             },
             {
-              value: _GM_info == null ? void 0 : _GM_info.version,
+              value: _GM_info == null ? undefined : _GM_info.version,
               type: "string",
               text: "GM_info.version"
             },
             {
-              value: _GM_info == null ? void 0 : _GM_info.script,
+              value: _GM_info == null ? undefined : _GM_info.script,
               type: "object",
               text: "GM_info.script"
             },
             {
-              value: (_a2 = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a2.name,
+              value: (_a2 = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a2.name,
               type: "string",
               text: "GM_info.script.name"
             },
             {
-              value: (_b = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _b.version,
+              value: (_b = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _b.version,
               type: "string",
               text: "GM_info.script.version"
             }
@@ -24209,7 +24238,7 @@ ${err.stack}`);
             },
             {
               key: "Test GM_setValue undefined",
-              value: void 0,
+              value: undefined,
               text: function() {
                 return `存储undefined类型`;
               },
@@ -24512,7 +24541,7 @@ ${err.stack}`);
       return "unsafeWindow";
     }
     getAsyncApiOption() {
-      return void 0;
+      return undefined;
     }
     isSupport() {
       return typeof _unsafeWindow === "object" && _unsafeWindow != null;
@@ -24751,13 +24780,13 @@ ${err.stack}`);
       return "GM";
     }
     getAsyncApiOption() {
-      return void 0;
+      return undefined;
     }
     isSupport() {
       return typeof _GM === "object" && _GM != null;
     }
     getUIOption() {
-      return void 0;
+      return undefined;
     }
   }
   const GMTotal = {
@@ -24863,7 +24892,7 @@ ${err.stack}`);
   const domUtils = domUtils$1.noConflict();
   const __pops = pops;
   const log = new utils.Log(_GM_info, window.console);
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -25089,7 +25118,7 @@ ${err.stack}`);
             container.formHeaderDivElement.style.color = "rgb(216, 30, 6)";
             container.formHeaderDivElement.style.fontWeight = "600";
             if (notSupportApiNameList.length === 0) {
-              (_a2 = container.formContainerListElement) == null ? void 0 : _a2.remove();
+              (_a2 = container.formContainerListElement) == null ? undefined : _a2.remove();
             }
           },
           forms: [
@@ -25117,7 +25146,7 @@ ${err.stack}`);
             var _a2;
             container.formHeaderDivElement.style.fontWeight = "600";
             if (supportApiNameList.length === 0) {
-              (_a2 = container.formContainerListElement) == null ? void 0 : _a2.remove();
+              (_a2 = container.formContainerListElement) == null ? undefined : _a2.remove();
             }
           },
           forms: [
@@ -25143,6 +25172,17 @@ ${err.stack}`);
   };
   const PanelUISize = {
     /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      get width() {
+        return window.innerWidth < 550 ? "88vw" : "550px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "70vh" : "450px";
+      }
+    },
+    /**
      * 功能丰富，aside铺满了的设置界面，要稍微大一点
      */
     settingBig: {
@@ -25152,6 +25192,17 @@ ${err.stack}`);
       get height() {
         return window.innerHeight < 600 ? "80vh" : "600px";
       }
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
     }
   };
   class GrantTest_onurlchange extends ApiTestBase {
@@ -25159,7 +25210,7 @@ ${err.stack}`);
       return "window.onurlchange ";
     }
     getAsyncApiOption() {
-      return void 0;
+      return undefined;
     }
     isSupport() {
       return true;
@@ -25202,7 +25253,7 @@ ${err.stack}`);
       return "window.close ";
     }
     getAsyncApiOption() {
-      return void 0;
+      return undefined;
     }
     isSupport() {
       return true;
@@ -25241,14 +25292,14 @@ ${err.stack}`);
 													<span class="pops-panel-button-text">点击执行</span>
 												</button>
 											</div>
-										`,
+											`,
                         false,
                         false
                       );
                       domUtils.on($button, "click", (event) => {
                         utils.preventEvent(event);
                         try {
-                          window.close();
+                          _monkeyWindow.close();
                         } catch (error2) {
                           qmsg.error(error2.toString(), {
                             consoleLogContent: true
@@ -25279,7 +25330,7 @@ ${err.stack}`);
       return "window.focus ";
     }
     getAsyncApiOption() {
-      return void 0;
+      return undefined;
     }
     isSupport() {
       return true;
@@ -25303,12 +25354,60 @@ ${err.stack}`);
             text: "功能测试",
             forms: [
               UIInfo(() => {
-                return {
-                  text: "TODO",
-                  tag: "info",
-                  afterRender(container) {
-                  }
-                };
+                try {
+                  return {
+                    text: CommonUtil.escapeHtml("测试window.focus"),
+                    tag: "info",
+                    description: "点击按钮执行该函数",
+                    afterRender(container) {
+                      let $button = domUtils.parseHTML(
+                        /*html*/
+                        `
+											<div class="pops-panel-button pops-panel-button-no-icon">
+												<button class="pops-panel-button_inner" type="default">
+													<i class="pops-bottom-icon" is-loading="false"></i>
+													<span class="pops-panel-button-text">点击执行</span>
+												</button>
+											</div>
+										`,
+                        false,
+                        false
+                      );
+                      let blurEvent = () => {
+                        setTimeout(() => {
+                          _monkeyWindow.focus();
+                        }, 3e3);
+                      };
+                      domUtils.on($button, "click", (event) => {
+                        utils.preventEvent(event);
+                        window.removeEventListener("blur", blurEvent, {
+                          capture: true
+                        });
+                        window.addEventListener("blur", blurEvent, {
+                          capture: true,
+                          once: true
+                        });
+                        try {
+                          qmsg.info(
+                            "请切换至其它Tab页面，切换完毕3秒后会自动调用该函数"
+                          );
+                        } catch (error2) {
+                          qmsg.error(error2.toString(), {
+                            consoleLogContent: true
+                          });
+                        }
+                      });
+                      domUtils.after(container.$leftContainer, $button);
+                    }
+                  };
+                } catch (error2) {
+                  console.error(error2);
+                  return {
+                    text: "执行错误 " + error2,
+                    tag: "error"
+                  };
+                } finally {
+                }
               })
             ]
           }
@@ -25508,7 +25607,7 @@ ${err.stack}`);
       Reflect.deleteProperty(locaData, key);
       StorageApi.set(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
       }
     },
     /**
@@ -25596,7 +25695,7 @@ ${err.stack}`);
       } else {
         runKeyList.push(key);
       }
-      let value = void 0;
+      let value = undefined;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
