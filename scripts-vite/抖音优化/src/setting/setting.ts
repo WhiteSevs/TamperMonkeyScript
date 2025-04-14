@@ -1,7 +1,7 @@
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { DOMUtils, GM_Menu, log, pops, SCRIPT_NAME, utils } from "@/env";
-import { PanelCommonConfig } from "./components/common";
-import { PanelLiveConfig } from "./components/live";
+import { PanelCommonConfig } from "./view/common";
+import { PanelLiveConfig } from "./view/live";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_INIT,
@@ -9,13 +9,13 @@ import {
 	ATTRIBUTE_KEY,
 	KEY,
 } from "./config";
-import { PanelVideoConfig } from "./components/video";
-import { PanelSearchConfig } from "./components/search";
-import { MPanelShareUserConfig } from "./m-components/shareUser";
-import { MPanelShareVideoConfig } from "./m-components/shareVideo";
-import { MPanelShareNoteConfig } from "./m-components/shareNote";
-import { MPanelShareChallengeConfig } from "./m-components/shareChallenge";
-import { MPanelShareMusicConfig } from "./m-components/shareMusic";
+import { PanelVideoConfig } from "./view/video";
+import { PanelSearchConfig } from "./view/search";
+import { MPanelShareUserConfig } from "./mobile-view/shareUser";
+import { MPanelShareVideoConfig } from "./mobile-view/shareVideo";
+import { MPanelShareNoteConfig } from "./mobile-view/shareNote";
+import { MPanelShareChallengeConfig } from "./mobile-view/shareChallenge";
+import { MPanelShareMusicConfig } from "./mobile-view/shareMusic";
 import {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
@@ -23,7 +23,7 @@ import {
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { PanelUISize } from "./panel-ui-size";
-import { PanelUserConfig } from "./components/user";
+import { PanelUserConfig } from "./view/user";
 
 type PosPanelListenerData = {
 	id: number;

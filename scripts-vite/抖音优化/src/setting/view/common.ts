@@ -1,9 +1,22 @@
-import { log } from "@/env";
-import { UISelect } from "../common-components/ui-select";
-import { UISwitch } from "../common-components/ui-switch";
+import { DOMUtils, log } from "@/env";
+import { UISelect } from "../components/ui-select";
+import { UISwitch } from "../components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
 
+/**
+ * 获取渲染的显卡信息，可能是核显，也可能是独显
+ */
+function getGPU() {
+	const canvas = document.createElement("canvas"),
+		gl = canvas.getContext("experimental-webgl")!,
+		// @ts-ignore
+		debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+	// @ts-ignore
+	const info = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) as string;
+	// console.warn(debugInfo.UNMASKED_RENDERER_WEBGL, info);
+	return info;
+}
 const PanelCommonConfig: PopsPanelContentConfig = {
 	id: "panel-config-common",
 	title: "通用",
@@ -156,6 +169,31 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									void 0,
 									"阻止触发验证弹窗（maybe）"
 								),
+								{
+									type: "own",
+									getLiElementCallBack(liElement) {
+										let $left = DOMUtils.createElement("div", {
+											className: "pops-panel-item-left-text",
+											innerHTML: /*html*/ `
+											<p class="pops-panel-item-left-main-text">WebGL</p>
+											<p class="pops-panel-item-left-desc-text"></p>
+											`,
+										});
+										let $leftDesc = $left.querySelector<HTMLElement>(
+											".pops-panel-item-left-desc-text"
+										)!;
+										let gpuInfo = "";
+										try {
+											gpuInfo = getGPU();
+										} catch (error: any) {
+											log.error(error);
+											gpuInfo = error.toString();
+										}
+										DOMUtils.text($leftDesc, gpuInfo);
+										DOMUtils.append(liElement, $left);
+										return liElement;
+									},
+								},
 							],
 						},
 						{

@@ -1,14 +1,14 @@
 import { DOMUtils, log, utils } from "@/env";
-import { UISwitch } from "../common-components/ui-switch";
+import { UISwitch } from "../components/ui-switch";
 import { DouYinDanmuFilter } from "@/main/live/DouYinLiveDanmuku";
 import { PopsPanel } from "../setting";
-import { UISelect } from "../common-components/ui-select";
+import { UISelect } from "../components/ui-select";
 import { VideoQualityMap } from "@/main/live/DouYinLive";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
-import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
+import { UIButtonShortCut } from "../components/ui-button-shortcut";
 import { DouYinLiveShortCut } from "@/main/live/DouYinLiveShortCut";
-import { UIButton } from "../common-components/ui-button";
+import { UIButton } from "../components/ui-button";
 import Qmsg from "qmsg";
 
 const PanelLiveConfig: PopsPanelContentConfig = {

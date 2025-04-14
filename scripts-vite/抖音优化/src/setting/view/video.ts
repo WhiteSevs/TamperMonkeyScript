@@ -1,15 +1,15 @@
 import { DOMUtils, log, SCRIPT_NAME, utils } from "@/env";
-import { UISelect } from "../common-components/ui-select";
-import { UISwitch } from "../common-components/ui-switch";
-import { UIButton } from "../common-components/ui-button";
+import { UISelect } from "../components/ui-select";
+import { UISwitch } from "../components/ui-switch";
+import { UIButton } from "../components/ui-button";
 import { DouYinVideoPlayerShortCut } from "@/main/video/DouYinVideoPlayerShortCut";
 import { PopsPanel } from "../setting";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
-import { UISlider } from "../common-components/ui-slider";
+import { UIButtonShortCut } from "../components/ui-button-shortcut";
+import { UISlider } from "../components/ui-slider";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
 import { DouYinVideoFilter } from "@/main/video/DouYinVideoFilter";
-import { UIInput } from "../common-components/ui-input";
+import { UIInput } from "../components/ui-input";
 
 const PanelVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-video",

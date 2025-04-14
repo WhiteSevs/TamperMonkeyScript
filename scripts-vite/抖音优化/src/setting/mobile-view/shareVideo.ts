@@ -1,10 +1,10 @@
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../common-components/ui-switch";
+import { UISwitch } from "../components/ui-switch";
 
-export const MPanelShareMusicConfig: PopsPanelContentConfig = {
-	id: "m-panel-config-share-music",
-	title: "音乐",
-	headerTitle: "/share/music<br />音乐",
+export const MPanelShareVideoConfig: PopsPanelContentConfig = {
+	id: "m-panel-config-share-video",
+	title: "视频",
+	headerTitle: "/share/video<br />视频",
 	forms: [
 		{
 			text: "",
@@ -19,11 +19,11 @@ export const MPanelShareMusicConfig: PopsPanelContentConfig = {
 							type: "forms",
 							forms: [
 								UISwitch(
-									"视频卡片",
-									"m-dy-share-music-coverVideoCard",
+									"全局点击",
+									"m-dy-share-video-coverGlobalClick",
 									true,
 									void 0,
-									"正确跳转视频页面"
+									"阻止跳转至下载页"
 								),
 							],
 						},

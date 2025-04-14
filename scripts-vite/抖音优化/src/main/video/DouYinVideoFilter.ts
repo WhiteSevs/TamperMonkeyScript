@@ -1,8 +1,8 @@
 import { $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
-import { UIInput } from "@/setting/common-components/ui-input";
-import { UISelect } from "@/setting/common-components/ui-select";
-import { UISelectMultiple } from "@/setting/common-components/ui-select-multiple";
-import { UISwitch } from "@/setting/common-components/ui-switch";
+import { UIInput } from "@/setting/components/ui-input";
+import { UISelect } from "@/setting/components/ui-select";
+import { UISelectMultiple } from "@/setting/components/ui-select-multiple";
+import { UISwitch } from "@/setting/components/ui-switch";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
@@ -19,7 +19,7 @@ import { PopsPanel } from "@/setting/setting";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { PanelUISize } from "@/setting/panel-ui-size";
-import { UITextArea } from "@/setting/common-components/ui-textarea";
+import { UITextArea } from "@/setting/components/ui-textarea";
 import Utils from "@whitesev/utils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";

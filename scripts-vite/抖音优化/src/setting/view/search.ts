@@ -1,6 +1,6 @@
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../common-components/ui-switch";
-import { UISelect } from "../common-components/ui-select";
+import { UISwitch } from "../components/ui-switch";
+import { UISelect } from "../components/ui-select";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
 
 const PanelSearchConfig: PopsPanelContentConfig = {

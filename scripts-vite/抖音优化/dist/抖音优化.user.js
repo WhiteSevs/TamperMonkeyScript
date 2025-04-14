@@ -167,6 +167,11 @@
     ),
     afterEnterDeepMenuCallBack
   };
+  function getGPU() {
+    const canvas = document.createElement("canvas"), gl = canvas.getContext("experimental-webgl"), debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+    const info = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+    return info;
+  }
   const PanelCommonConfig = {
     id: "panel-config-common",
     title: "通用",
@@ -318,7 +323,35 @@
                     false,
                     undefined,
                     "阻止触发验证弹窗（maybe）"
-                  )
+                  ),
+                  {
+                    type: "own",
+                    getLiElementCallBack(liElement) {
+                      let $left = domUtils.createElement("div", {
+                        className: "pops-panel-item-left-text",
+                        innerHTML: (
+                          /*html*/
+                          `
+											<p class="pops-panel-item-left-main-text">WebGL</p>
+											<p class="pops-panel-item-left-desc-text"></p>
+											`
+                        )
+                      });
+                      let $leftDesc = $left.querySelector(
+                        ".pops-panel-item-left-desc-text"
+                      );
+                      let gpuInfo = "";
+                      try {
+                        gpuInfo = getGPU();
+                      } catch (error) {
+                        log.error(error);
+                        gpuInfo = error.toString();
+                      }
+                      domUtils.text($leftDesc, gpuInfo);
+                      domUtils.append(liElement, $left);
+                      return liElement;
+                    }
+                  }
                 ]
               },
               {
