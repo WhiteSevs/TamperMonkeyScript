@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.4.2
+// @version            2025.4.14
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,12 +13,12 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.4/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@24.2.2/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@24.2.3/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.0/dist/otpauth.umd.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
@@ -65,15 +65,15 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const zh_CN_language = {
     GreasyFork优化: "GreasyFork优化",
@@ -795,7 +795,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -843,7 +843,7 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.interceptors.response.use(void 0, (data) => {
+  httpx.interceptors.response.use(undefined, (data) => {
     log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning(i18next.t("请求取消"));
@@ -1012,9 +1012,9 @@
      */
     getScriptId(text) {
       var _a2, _b;
-      return (_b = (_a2 = text || window.location.pathname) == null ? void 0 : _a2.match(
+      return (_b = (_a2 = text || window.location.pathname) == null ? undefined : _a2.match(
         /\/scripts\/([\d]+)/i
-      )) == null ? void 0 : _b[1];
+      )) == null ? undefined : _b[1];
     },
     /**
      * 从字符串中提取用户id
@@ -1023,7 +1023,7 @@
      */
     getUserId(text) {
       var _a2;
-      return (_a2 = (text || window.location.pathname).match(/\/users\/([\d]+)/i)) == null ? void 0 : _a2[1];
+      return (_a2 = (text || window.location.pathname).match(/\/users\/([\d]+)/i)) == null ? undefined : _a2[1];
     },
     /**
      * 获取举报地址
@@ -1196,7 +1196,7 @@
           return;
         }
         let setsName = liElement.querySelector("a").innerText;
-        let setsId = (_a2 = setsUrl.match(/\/sets\/([\d]+)\//)) == null ? void 0 : _a2[1];
+        let setsId = (_a2 = setsUrl.match(/\/sets\/([\d]+)\//)) == null ? undefined : _a2[1];
         scriptSetsIdList.push({
           id: setsId,
           name: setsName
@@ -1308,7 +1308,7 @@
      */
     isCode() {
       var _a2;
-      return Boolean((_a2 = window.location.pathname.split("/")) == null ? void 0 : _a2.includes("code"));
+      return Boolean((_a2 = window.location.pathname.split("/")) == null ? undefined : _a2.includes("code"));
     },
     /**
      * 代码页面
@@ -1697,7 +1697,7 @@
       async (event) => {
         var _a2;
         let $click = event.target;
-        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
+        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? undefined : _a2.querySelector("span");
         if (shortCut.isWaitPress) {
           Qmsg.warning("请先执行当前的录入操作");
           return;
@@ -1797,7 +1797,7 @@
     hasOptionValue(key) {
       if (this.hasOption(key)) {
         let option = this.getOption(key);
-        return !((option == null ? void 0 : option.value) == null);
+        return !((option == null ? undefined : option.value) == null);
       } else {
         return false;
       }
@@ -1988,7 +1988,7 @@
             if (that.isWaitPress) {
               return;
             }
-            if (config == null ? void 0 : config.isPrevent) {
+            if (config == null ? undefined : config.isPrevent) {
               utils.preventEvent(event);
             }
             localOptions = that.getLocalAllOptions();
@@ -2012,7 +2012,7 @@
             }
           },
           {
-            capture: Boolean(config == null ? void 0 : config.capture)
+            capture: Boolean(config == null ? undefined : config.capture)
           }
         );
       }
@@ -2323,7 +2323,7 @@
       }
       let userLinkElement = GreasyforkMenu.getUserLinkElement();
       let userLink = userLinkElement.href;
-      let userId = (_c = (_b = (_a2 = userLink == null ? void 0 : userLink.split("/")) == null ? void 0 : _a2.pop()) == null ? void 0 : _b.match(/([0-9]+)/)) == null ? void 0 : _c[0];
+      let userId = (_c = (_b = (_a2 = userLink == null ? undefined : userLink.split("/")) == null ? undefined : _a2.pop()) == null ? undefined : _b.match(/([0-9]+)/)) == null ? undefined : _c[0];
       let loading = __pops.loading({
         mask: {
           enable: true
@@ -2368,7 +2368,7 @@
 				<div class="w-script-update-time">
 					<p>${i18next.t("更新：")}${utils.getDaysDifference(
             new Date(scriptInfo["code_updated_at"]).getTime(),
-            void 0,
+            undefined,
             "auto"
           )}前</p>
 				</div>
@@ -2394,7 +2394,7 @@
           liElement.classList.add("w-script-deleted");
           buttonElement.querySelector("button").setAttribute("disabled", "true");
         }
-        domUtils.on(buttonElement, "click", void 0, async function() {
+        domUtils.on(buttonElement, "click", undefined, async function() {
           log.success("同步", scriptInfo);
           let btn = buttonElement.querySelector("button");
           let span = buttonElement.querySelector(
@@ -2414,7 +2414,7 @@
           btn.setAttribute("data-icon", "true");
           span.innerText = i18next.t("同步中...");
           domUtils.before(span, iconElement);
-          let scriptId = scriptInfo == null ? void 0 : scriptInfo["id"];
+          let scriptId = scriptInfo == null ? undefined : scriptInfo["id"];
           let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
             scriptId.toString()
           );
@@ -2675,12 +2675,21 @@
           return;
         }
         let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
-        let code_url = scriptInfo == null ? void 0 : scriptInfo.code_url;
+        let code_url = scriptInfo == null ? undefined : scriptInfo.code_url;
         if (!code_url) {
           Qmsg.error("请求结果中未解析出脚本代码URL", {
             consoleLogContent: true
           });
           return;
+        }
+        let searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.has("version")) {
+          let version = searchParams.get("version");
+          code_url = code_url.replace(
+            new RegExp(`/${scriptId}(/[\\d]+|)`),
+            `/${scriptId}/${version}`
+          );
+          log.info(`当前是历史代码页面，请求的脚本代码URL为${code_url}`);
         }
         let code_text_response = await httpx.get(code_url, {
           timeout: 2e4
@@ -2774,8 +2783,8 @@
           let versionNumber = liElement.querySelector(
             ".version-number a"
           ).innerText;
-          let versionDate = (_a2 = liElement.querySelector(".version-date")) == null ? void 0 : _a2.getAttribute("datetime");
-          let updateNote = ((_b = liElement.querySelector(".version-changelog")) == null ? void 0 : _b.innerHTML) || "";
+          let versionDate = (_a2 = liElement.querySelector(".version-date")) == null ? undefined : _a2.getAttribute("datetime");
+          let updateNote = ((_b = liElement.querySelector(".version-changelog")) == null ? undefined : _b.innerHTML) || "";
           let versionDateElement = domUtils.createElement("span", {
             className: "script-version-date",
             innerHTML: utils.formatTime(
@@ -2822,9 +2831,9 @@
             return;
           }
           let urlObj = new URL($anchor.href);
-          let scriptId = (_a2 = urlObj.pathname.match(/\/scripts\/([\d]+)/)) == null ? void 0 : _a2[1];
+          let scriptId = (_a2 = urlObj.pathname.match(/\/scripts\/([\d]+)/)) == null ? undefined : _a2[1];
           let scriptVersion = urlObj.searchParams.get("version");
-          let scriptName = (_b = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)) == null ? void 0 : _b[1];
+          let scriptName = (_b = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)) == null ? undefined : _b[1];
           let installUrl = GreasyforkUrlUtils.getInstallUrl(
             scriptId,
             scriptVersion,
@@ -3040,6 +3049,17 @@
       },
       get height() {
         return window.innerHeight < 450 ? "70vh" : "450px";
+      }
+    },
+    /**
+     * 功能丰富，aside铺满了的设置界面，要稍微大一点
+     */
+    settingBig: {
+      get width() {
+        return window.innerWidth < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return window.innerHeight < 600 ? "80vh" : "600px";
       }
     },
     /**
@@ -3532,7 +3552,7 @@
         return;
       }
       log.info("统计信息", scriptStatsJSON);
-      let todayStatsJSON = scriptStatsJSON[utils.formatTime(void 0, "yyyy-MM-dd")];
+      let todayStatsJSON = scriptStatsJSON[utils.formatTime(undefined, "yyyy-MM-dd")];
       if (!todayStatsJSON) {
         log.error("今日份的统计信息不存在");
         return;
@@ -3603,17 +3623,17 @@
     /** 获取 TamperMonkey 暴露在window下的函数 */
     getTampermonkey: () => {
       var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Tampermonkey;
+      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Tampermonkey;
     },
     /** 获取 Violentmonkey 暴露在window下的函数 */
     getViolentmonkey: () => {
       var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Violentmonkey;
+      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Violentmonkey;
     },
     /** 获取 ScriptCat 暴露在window下的函数 */
     getScriptCat: () => {
       var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Scriptcat;
+      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Scriptcat;
     },
     /**
      * 获取脚本容器启用状态
@@ -3625,13 +3645,13 @@
         Violentmonkey: false,
         ScriptCat: false
       };
-      if ((_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Tampermonkey) {
+      if ((_a2 = _unsafeWindow.external) == null ? undefined : _a2.Tampermonkey) {
         containerStatus.Tampermonkey = true;
       }
-      if ((_b = _unsafeWindow.external) == null ? void 0 : _b.Violentmonkey) {
+      if ((_b = _unsafeWindow.external) == null ? undefined : _b.Violentmonkey) {
         containerStatus.Violentmonkey = true;
       }
-      if ((_c = _unsafeWindow.external) == null ? void 0 : _c.Scriptcat) {
+      if ((_c = _unsafeWindow.external) == null ? undefined : _c.Scriptcat) {
         containerStatus.ScriptCat = true;
       }
       return containerStatus;
@@ -4391,14 +4411,14 @@
                         text: "5"
                       }
                     ],
-                    void 0,
+                    undefined,
                     i18next.t("限制Toast显示的数量")
                   ),
                   UISwitch(
                     i18next.t("逆序弹出"),
                     "qmsg-config-showreverse",
                     false,
-                    void 0,
+                    undefined,
                     i18next.t("修改Toast弹出的顺序")
                   )
                 ]
@@ -4442,16 +4462,16 @@
                     i18next.t("账号"),
                     "user",
                     "",
-                    void 0,
-                    void 0,
+                    undefined,
+                    undefined,
                     i18next.t("请输入账号")
                   ),
                   UIInput(
                     i18next.t("密码"),
                     "pwd",
                     "",
-                    void 0,
-                    void 0,
+                    undefined,
+                    undefined,
                     i18next.t("请输入密码"),
                     false,
                     true
@@ -4461,7 +4481,7 @@
                     "secret",
                     "",
                     "两步验证（2FA）",
-                    void 0,
+                    undefined,
                     i18next.t("请输入secret"),
                     false,
                     true
@@ -4476,15 +4496,15 @@
                     i18next.t("自动登录"),
                     "autoLogin",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("自动登录当前保存的账号")
                   ),
                   UIButton(
                     i18next.t("清空账号/密码"),
-                    void 0,
+                    undefined,
                     i18next.t("点击清空"),
-                    void 0,
-                    void 0,
+                    undefined,
+                    undefined,
                     false,
                     "default",
                     (event) => {
@@ -4549,35 +4569,35 @@
                     i18next.t("修复图片宽度显示问题"),
                     "fixImageWidth",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("修复图片在移动端宽度超出浏览器宽度问题")
                   ),
                   UISwitch(
                     i18next.t("优化图片浏览"),
                     "optimizeImageBrowsing",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("使用Viewer浏览图片")
                   ),
                   UISwitch(
                     i18next.t("覆盖图床图片跳转"),
                     "overlayBedImageClickEvent",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("配合上面的【优化图片浏览】更优雅浏览图片")
                   ),
                   UISwitch(
                     i18next.t("添加【操作面板】按钮"),
                     "scripts-addOperationPanelBtnWithNavigator",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("在脚本列表页面时为顶部导航栏添加【操作面板】按钮")
                   ),
                   UISwitch(
                     i18next.t("给Markdown添加【复制】按钮"),
                     "addMarkdownCopyButton",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t(
                       "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容"
                     )
@@ -4592,7 +4612,7 @@
                     i18next.t("启用"),
                     "checkPage",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t(
                       "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面"
                     )
@@ -4611,7 +4631,7 @@
                       }
                       return result;
                     })(),
-                    void 0,
+                    undefined,
                     i18next.t(
                       "设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面"
                     )
@@ -4632,7 +4652,7 @@
                     i18next.t("记住回复内容"),
                     "rememberReplyContent",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t(
                       "监听表单内的textarea内容改变并存储到indexDB中，提交表单将清除保存的数据，误刷新页面时可动态恢复"
                     )
@@ -4681,7 +4701,7 @@
                         value: 180
                       }
                     ],
-                    void 0,
+                    undefined,
                     i18next.t("根据设置的间隔时间自动清理保存的回复内容")
                   ),
                   UIButton(
@@ -4690,9 +4710,9 @@
                     }),
                     i18next.t("当前存储的数据所占用的空间大小"),
                     i18next.t("清空"),
-                    void 0,
-                    void 0,
-                    void 0,
+                    undefined,
+                    undefined,
+                    undefined,
                     "default",
                     async () => {
                       let isClear = await GreasyforkRememberFormTextArea.clearAllRememberReplyContent();
@@ -4739,28 +4759,28 @@
                     i18next.t("美化页面元素"),
                     "beautifyPage",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("如button、input、textarea")
                   ),
                   UISwitch(
                     i18next.t("美化上传图片按钮"),
                     "beautifyUploadImage",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("放大上传区域")
                   ),
                   UISwitch(
                     i18next.t("美化顶部导航栏"),
                     "beautifyTopNavigationBar",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("可能会跟Greasyfork Beautify脚本有冲突")
                   ),
                   UISwitch(
                     i18next.t("美化Greasyfork Beautify脚本"),
                     "beautifyGreasyforkBeautify",
                     false,
-                    void 0,
+                    undefined,
                     i18next.t(
                       '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
                     )
@@ -4775,14 +4795,14 @@
                     i18next.t("美化脚本列表"),
                     "beautifyCenterContent",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("双列显示且添加脚本卡片操作项（安装、收藏）")
                   ),
                   UISwitch(
                     "↑" + i18next.t("使用namespace查询脚本信息"),
                     "beautifyCenterContent-queryNameSpace",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("开启后检测已安装的脚本信息更准确，但是速度会更慢")
                   )
                 ]
@@ -4809,7 +4829,7 @@
                       ohterCodeList: ["ctrl"]
                     },
                     i18next.t("点击录入快捷键"),
-                    void 0,
+                    undefined,
                     GreasyforkShortCut.shortCut
                   )
                 ]
@@ -4830,7 +4850,7 @@
                     i18next.t("启用"),
                     "gf-scripts-filter-enable",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("作用域：脚本、脚本搜索、用户主页")
                   ),
                   {
@@ -4856,7 +4876,7 @@
                       domUtils.on(
                         $textarea,
                         ["input", "propertychange"],
-                        void 0,
+                        undefined,
                         utils.debounce(function(event) {
                           GreasyforkScriptsFilter.setValue($textarea.value);
                         }, 200)
@@ -4885,10 +4905,10 @@
                 forms: [
                   UIButton(
                     i18next.t("源代码同步【脚本列表】"),
-                    void 0,
+                    undefined,
                     i18next.t("一键同步"),
-                    void 0,
-                    void 0,
+                    undefined,
+                    undefined,
                     false,
                     "primary",
                     (event) => {
@@ -4918,10 +4938,10 @@
                   ),
                   UIButton(
                     i18next.t("源代码同步【未上架的脚本】"),
-                    void 0,
+                    undefined,
                     i18next.t("一键同步"),
-                    void 0,
-                    void 0,
+                    undefined,
+                    undefined,
                     false,
                     "primary",
                     (event) => {
@@ -4951,10 +4971,10 @@
                   ),
                   UIButton(
                     i18next.t("源代码同步【库】"),
-                    void 0,
+                    undefined,
                     i18next.t("一键同步"),
-                    void 0,
-                    void 0,
+                    undefined,
+                    undefined,
                     false,
                     "primary",
                     (event) => {
@@ -5032,28 +5052,28 @@
                     i18next.t("添加复制代码按钮"),
                     "addCopyCodeButton",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("更优雅的复制")
                   ),
                   UISwitch(
                     i18next.t("快捷键"),
                     "fullScreenOptimization",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("【F】键全屏、【Alt+Shift+F】键宽屏")
                   ),
                   UISwitch(
                     i18next.t("修复代码行号显示"),
                     "code-repairCodeLineNumber",
                     false,
-                    void 0,
+                    undefined,
                     i18next.t("修复代码行数超过1k行号显示不全问题")
                   ),
                   UISwitch(
                     "monacoEditor",
                     "code-use-monaco-editor",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("使用Monaco编辑器")
                   )
                 ]
@@ -5072,14 +5092,14 @@
                     i18next.t("添加额外的标签按钮"),
                     "scripts-versions-addExtraTagButton",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("在版本下面添加【安装】、【查看代码】按钮")
                   ),
                   UISwitch(
                     i18next.t("添加代码对比按钮"),
                     "scripts-versions-addCompareCodeButton",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("monacoEditor")
                   )
                 ]
@@ -5092,7 +5112,7 @@
                     i18next.t("美化历史版本页面"),
                     "beautifyHistoryVersionPage",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("更直观的查看版本迭代")
                   )
                 ]
@@ -5117,21 +5137,21 @@
                     i18next.t("添加【寻找引用】按钮"),
                     "addFindReferenceButton",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("在脚本栏添加按钮，一般用于搜索引用该库的相关脚本")
                   ),
                   UISwitch(
                     i18next.t("添加【收藏】按钮"),
                     "addCollectionButton",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("在脚本栏添加按钮，一般用于快捷收藏该脚本/库")
                   ),
                   UISwitch(
                     i18next.t("添加【今日检查】信息块"),
                     "scriptHomepageAddedTodaySUpdate",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("在脚本信息栏添加【今日检查】信息块")
                   )
                 ]
@@ -5274,12 +5294,12 @@
         /** 脚本主页地址 */
         scriptUrl: (_a2 = $listContainer.querySelector(
           ".discussion-meta-item-script-name a"
-        )) == null ? void 0 : _a2.href,
+        )) == null ? undefined : _a2.href,
         /** 脚本id */
         scriptId: GreasyforkUrlUtils.getScriptId(
           (_b = $listContainer.querySelector(
             ".discussion-meta-item-script-name a"
-          )) == null ? void 0 : _b.href
+          )) == null ? undefined : _b.href
         ),
         /** 发布的用户名 */
         postUserName: $listContainer.querySelector("a.user-link").innerText,
@@ -5298,15 +5318,15 @@
         /** 发布的地址*/
         snippetUrl: discussionUrl,
         /** 发布的内容片段*/
-        snippet: ((_c = $listContainer.querySelector("span.discussion-snippet")) == null ? void 0 : _c.innerText) || "",
+        snippet: ((_c = $listContainer.querySelector("span.discussion-snippet")) == null ? undefined : _c.innerText) || "",
         /** （如果有）回复的用户名*/
-        replyUserName: void 0,
+        replyUserName: undefined,
         /** （如果有）回复的用户主页地址*/
-        replyUserHomeUrl: void 0,
+        replyUserHomeUrl: undefined,
         /** （如果有）回复的用户id*/
-        replyUserId: void 0,
+        replyUserId: undefined,
         /** （如果有）回复的时间 */
-        replyTimeStamp: void 0
+        replyTimeStamp: undefined
       };
       if ($listContainer.querySelector(
         ".discussion-meta-item .discussion-meta-item"
@@ -5321,7 +5341,7 @@
         info.replyTimeStamp = new Date(
           (_d = $listContainer.querySelector(
             ".discussion-meta-item .discussion-meta-item relative-time"
-          )) == null ? void 0 : _d.getAttribute("datetime")
+          )) == null ? undefined : _d.getAttribute("datetime")
         );
       }
       return info;
@@ -5447,7 +5467,7 @@
                     i18next.t("添加【过滤】按钮"),
                     "discussions-addShortcutOperationButton",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t(
                       "在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效"
                     )
@@ -5456,7 +5476,7 @@
                     i18next.t("添加【举报】按钮"),
                     "discussions-addReportButton",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("在每一行讨论的最后面添加【举报】按钮")
                   )
                 ]
@@ -5477,14 +5497,14 @@
                     i18next.t("启用"),
                     "greasyfork-discussions-filter-enable",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("开启后下面的过滤功能才会生效")
                   ),
                   UISwitch(
                     i18next.t("过滤重复的评论"),
                     "greasyfork-discussions-filter-duplicate-comments",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("过滤掉重复的评论数量(≥2)")
                   ),
                   {
@@ -5510,7 +5530,7 @@
                       domUtils.on(
                         $textarea,
                         ["input", "propertychange"],
-                        void 0,
+                        undefined,
                         utils.debounce(function(event) {
                           GreasyforkDiscussionsFilter.setValue($textarea.value);
                         }, 200)
@@ -5548,7 +5568,7 @@
                     i18next.t("迁移【控制台】到顶部导航栏"),
                     "users-changeConsoleToTopNavigator",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("将【控制台】按钮移动到顶部导航栏，节省空间")
                   )
                 ]
@@ -5567,7 +5587,7 @@
                     i18next.t("美化私信页面"),
                     "conversations-beautifyDialogBox",
                     true,
-                    void 0,
+                    undefined,
                     i18next.t("美化为左右对话模式")
                   ),
                   UISwitch(
@@ -5732,7 +5752,7 @@
             i18next.t("新增【关键词】搜索框"),
             "gf-script-search-addFilterSearchInput",
             true,
-            void 0,
+            undefined,
             i18next.t("输入自定义关键词后自动执行过滤")
           ),
           UISwitch(
@@ -5741,7 +5761,7 @@
             }),
             "gf-script-search-filterScriptTitleWholeWordMatching",
             true,
-            void 0,
+            undefined,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           ),
           UISwitch(
@@ -5750,7 +5770,7 @@
             }),
             "gf-script-search-filterScriptDescWholeWordMatching",
             true,
-            void 0,
+            undefined,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           ),
           UISwitch(
@@ -5759,7 +5779,7 @@
             }),
             "gf-script-search-filterScriptTitleOrDescWholeWordMatching",
             true,
-            void 0,
+            undefined,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           ),
           UISwitch(
@@ -5768,7 +5788,7 @@
             }),
             "gf-script-search-filterScriptAuthorNameWholeWordMatching",
             true,
-            void 0,
+            undefined,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           )
         ]
@@ -5969,7 +5989,7 @@
       Reflect.deleteProperty(locaData, key);
       _GM_setValue(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
+        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
       }
     },
     /**
@@ -6056,7 +6076,7 @@
       } else {
         runKeyList.push(key);
       }
-      let value = void 0;
+      let value = undefined;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
@@ -6174,7 +6194,7 @@
         let childValue = that.getValue(childKey2);
         if (typeof replaceValueFn === "function") {
           let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue !== void 0) {
+          if (changedMainValue !== undefined) {
             return changedMainValue;
           }
         }
@@ -6323,8 +6343,8 @@
         $$(".user-content ul li").forEach(($li) => {
           var _a2, _b;
           let $first = $li.firstChild;
-          if (($first == null ? void 0 : $first.nodeName) === "#text") {
-            if ((_a2 = $first.textContent) == null ? void 0 : _a2.startsWith("[x] ")) {
+          if (($first == null ? undefined : $first.nodeName) === "#text") {
+            if ((_a2 = $first.textContent) == null ? undefined : _a2.startsWith("[x] ")) {
               $first.textContent = $first.textContent.replace("[x] ", "");
               domUtils.prepend(
                 $li,
@@ -6333,7 +6353,7 @@
 							<input type="checkbox" disabled="" class="task-list-item-checkbox" checked="">
 						`
               );
-            } else if ((_b = $first.textContent) == null ? void 0 : _b.startsWith("[ ] ")) {
+            } else if ((_b = $first.textContent) == null ? undefined : _b.startsWith("[ ] ")) {
               $first.textContent = $first.textContent.replace("[ ] ", "");
               domUtils.prepend(
                 $li,
@@ -6433,7 +6453,7 @@
               }
             );
             while ($markdownAlertTitle.nextSibling) {
-              if ((_b = (_a2 = $markdownAlertTitle.nextSibling) == null ? void 0 : _a2.classList) == null ? void 0 : _b.contains("markdown-alert-title")) {
+              if ((_b = (_a2 = $markdownAlertTitle.nextSibling) == null ? undefined : _a2.classList) == null ? undefined : _b.contains("markdown-alert-title")) {
                 break;
               }
               domUtils.append(
@@ -6872,13 +6892,13 @@
             ".pops-alert-content"
           );
           if (discussionInfo.scriptId == null) {
-            (_a2 = $content.querySelector(`button[${attr_filter_key}="scriptId"]`)) == null ? void 0 : _a2.remove();
+            (_a2 = $content.querySelector(`button[${attr_filter_key}="scriptId"]`)) == null ? undefined : _a2.remove();
           }
           if (discussionInfo.scriptName == null) {
-            (_b = $content.querySelector(`button[${attr_filter_key}="scriptName"]`)) == null ? void 0 : _b.remove();
+            (_b = $content.querySelector(`button[${attr_filter_key}="scriptName"]`)) == null ? undefined : _b.remove();
           }
           if (discussionInfo.postUserId == null) {
-            (_c = $content.querySelector(`button[${attr_filter_key}="postUserId"]`)) == null ? void 0 : _c.remove();
+            (_c = $content.querySelector(`button[${attr_filter_key}="postUserId"]`)) == null ? undefined : _c.remove();
           }
           if (discussionInfo.replyUserId != null) {
             let $replyUserIdButton = domUtils.createElement("button", {
@@ -7208,7 +7228,7 @@
           'a[href*="conversations"]'
         );
         let chatUrl = $user.href;
-        let userName = (_a2 = $user.textContent) == null ? void 0 : _a2.split(" ")[1];
+        let userName = (_a2 = $user.textContent) == null ? undefined : _a2.split(" ")[1];
         let $latestMsgUser = $li.querySelector("a.user-link");
         let latestSendMsgUser = null;
         let latestSendMsgUserHomeUrl = null;
@@ -7253,7 +7273,7 @@
         if (!$el) {
           return;
         }
-        let shadowRoot2 = $el == null ? void 0 : $el.shadowRoot;
+        let shadowRoot2 = $el == null ? undefined : $el.shadowRoot;
         if (!shadowRoot2) {
           return;
         }
@@ -7456,7 +7476,7 @@
           return $ownSearchInput.value;
         }
         let searchParams = new URLSearchParams(window.location.search);
-        let searchText = ((_a2 = searchParams.get("q")) == null ? void 0 : _a2.trim()) || ((_b = searchParams.get("c")) == null ? void 0 : _b.trim()) || "";
+        let searchText = ((_a2 = searchParams.get("q")) == null ? undefined : _a2.trim()) || ((_b = searchParams.get("c")) == null ? undefined : _b.trim()) || "";
         return searchText;
       };
       let execTotalFilter = () => {
@@ -7540,11 +7560,11 @@
                 let $switch = $pops.querySelector(selector);
                 if ($switch) {
                   let $input = $switch.querySelector("input");
-                  if ($input == null ? void 0 : $input.checked) {
+                  if ($input == null ? undefined : $input.checked) {
                     let $core = $switch.querySelector(
                       ".pops-panel-switch__core"
                     );
-                    $core == null ? void 0 : $core.click();
+                    $core == null ? undefined : $core.click();
                   }
                 }
               });
@@ -7694,7 +7714,7 @@
         function(event) {
           var _a2;
           let $img = event.target;
-          if (((_a2 = $img.parentElement) == null ? void 0 : _a2.localName) === "a" && $img.hasAttribute("data-screenshots")) {
+          if (((_a2 = $img.parentElement) == null ? undefined : _a2.localName) === "a" && $img.hasAttribute("data-screenshots")) {
             return;
           }
           if ($img.closest(".viewer-container")) {
@@ -7720,7 +7740,7 @@
               imgElementList.push(childImgElement);
               let imgSrc = getImgElementSrc(childImgElement);
               let $parent = childImgElement.parentElement;
-              if (($parent == null ? void 0 : $parent.localName) === "a") {
+              if (($parent == null ? undefined : $parent.localName) === "a") {
                 imgSrc = $parent.getAttribute("data-href") || $parent.href;
               }
               imgList.push(imgSrc);

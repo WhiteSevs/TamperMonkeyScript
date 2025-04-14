@@ -76,6 +76,16 @@ export const GreasyforkScriptsCode = {
 				});
 				return;
 			}
+			let searchParams = new URLSearchParams(window.location.search);
+			if (searchParams.has("version")) {
+				//  历史代码页面
+				let version = searchParams.get("version")!;
+				code_url = code_url.replace(
+					new RegExp(`/${scriptId}(/[\\d]+|)`),
+					`/${scriptId}/${version}`
+				);
+				log.info(`当前是历史代码页面，请求的脚本代码URL为${code_url}`);
+			}
 			let code_text_response = await httpx.get(code_url, {
 				timeout: 20000,
 			});
