@@ -21,6 +21,8 @@ body:
       label: 先决条件
       description: "若以下任意选项不适用，请勿提交这个 issue，因为我们会把它关闭"
       options:
+        - label: "本issue已加上标题"
+          required: true
         - label: "我已经在[这里](https://github.com/WhiteSevs/TamperMonkeyScript/issues?q=is%3Aissue+label%3Aenhancement)找过我要提出的建议，**并且没有找到相关问题**"
           required: true
 
@@ -36,7 +38,7 @@ body:
         - 【移动端】bilibili优化
         - 【移动端】MT论坛优化
         - 抖音优化
-        - 简书优化  
+        - 简书优化
         - 图片右键菜单
         - 网盘链接识别
         - 小红书优化
