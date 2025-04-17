@@ -88,21 +88,9 @@ body:
         - 网页调试
         - 模拟竖屏
         - CookieManager
-        - 其它
+        - 其它(请在下方填写脚本名称)
     validations:
       required: true
-
-  - type: input
-    id: other_scriptname
-    attributes:
-      label: 其它脚本名称
-      description: "如果选择了'其它'，请在这里填写脚本名称"
-      placeholder: "请输入脚本名称"
-    validations:
-      required: true
-    conditions:
-      - field: scriptname
-      value: "其它"
 
   - type: dropdown
     id: browserType
