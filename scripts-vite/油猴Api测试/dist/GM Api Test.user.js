@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.4.14
+// @version      2025.4.17
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -25234,12 +25234,68 @@ ${err.stack}`);
             text: "功能测试",
             forms: [
               UIInfo(() => {
-                return {
-                  text: "TODO",
-                  tag: "info",
-                  afterRender(container) {
-                  }
-                };
+                try {
+                  return {
+                    text: CommonUtil.escapeHtml("测试window.onurlchange"),
+                    tag: "info",
+                    description: "点击按钮进行测试",
+                    afterRender(container) {
+                      let $button = domUtils.parseHTML(
+                        /*html*/
+                        `
+											<div class="pops-panel-button pops-panel-button-no-icon">
+												<button class="pops-panel-button_inner" type="default">
+													<i class="pops-bottom-icon" is-loading="false"></i>
+													<span class="pops-panel-button-text">点击执行</span>
+												</button>
+											</div>
+											`,
+                        false,
+                        false
+                      );
+                      let urlChangeEvent = (info) => {
+                        clearTimeout(timeId);
+                        console.log("urlchange event info ==> ", info);
+                        qmsg.success("urlchange event ==> url is changed");
+                      };
+                      let timeId;
+                      domUtils.on($button, "click", (event) => {
+                        try {
+                          utils.preventEvent(event);
+                          clearTimeout(timeId);
+                          if (_monkeyWindow.onurlchange === null) {
+                            _monkeyWindow.removeEventListener(
+                              "urlchange",
+                              urlChangeEvent
+                            );
+                            _monkeyWindow.addEventListener(
+                              "urlchange",
+                              urlChangeEvent
+                            );
+                            window.history.pushState({}, "", "#/onurlchange");
+                            timeId = setTimeout(() => {
+                              qmsg.error("urlchange event is not trigger");
+                            }, 1e3);
+                          } else {
+                            qmsg.error("window.onurlchange is not null");
+                          }
+                        } catch (error2) {
+                          qmsg.error(error2.toString(), {
+                            consoleLogContent: true
+                          });
+                        }
+                      });
+                      domUtils.after(container.$leftContainer, $button);
+                    }
+                  };
+                } catch (error2) {
+                  console.error(error2);
+                  return {
+                    text: "执行错误 " + error2,
+                    tag: "error"
+                  };
+                } finally {
+                }
               })
             ]
           }
