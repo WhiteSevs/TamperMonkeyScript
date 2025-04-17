@@ -72,7 +72,6 @@ body:
       description: "勾选使用的脚本"
       multiple: false
       options:
-        - 请选择脚本
         - 【移动端】百度系优化
         - 【移动端】微博优化
         - 【移动端】bilibili优化
