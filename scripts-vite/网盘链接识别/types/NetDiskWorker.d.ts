@@ -58,3 +58,13 @@ declare interface NetDiskWorkerCallBackOptions {
 	 */
 	endTime: number;
 }
+
+/** worker初始化失败传递的对象 */
+declare type NetDiskInitErrorPostMessageObject = {
+	/** 来源url */
+	url: string;
+	/** 来源hostname */
+	hostname: string;
+	/** 错误信息 */
+	error: Error;
+};

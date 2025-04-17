@@ -443,12 +443,10 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							forms: [
 								UIInput(
 									"z-index",
-									NetDiskGlobalData.smallWindow[
-										"netdisk-link-view-z-index"
-									].KEY,
-									NetDiskGlobalData.smallWindow[
-										"netdisk-link-view-z-index"
-									].default,
+									NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"]
+										.KEY,
+									NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"]
+										.default,
 									"值小于等于0则为动态获取z-index",
 									(event, value, valueAsNumber) => {
 										NetDiskGlobalData.smallWindow[
@@ -493,7 +491,7 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 										},
 									],
 									void 0,
-									"MutationObserver是网页加载完毕后自动监听识别链接，Menu是油猴菜单点击进行识别"
+									"MutationObserver是自动监听并识别链接<br>Menu是手动点击油猴菜单进行识别"
 								),
 								UISelect(
 									"行为模式",

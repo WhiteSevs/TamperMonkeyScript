@@ -14,6 +14,8 @@ import { NetDiskPops } from "../pops/NetDiskPops";
 import { WebsiteRule } from "../website-rule/WebsiteRule";
 import { PopsPanel } from "@/setting/panel";
 import Qmsg from "qmsg";
+import { NetDiskWorkerInitError } from "./NetDiskWorkerInitError";
+import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
 
 /** Woker */
 export const NetDiskWorker = {
@@ -265,7 +267,8 @@ export const NetDiskWorker = {
 				typeof messageData === "object" &&
 				messageData?.["type"] === this.postMessageType
 			) {
-				let data = messageData.data;
+				let data: NetDiskInitErrorPostMessageObject = messageData.data;
+				that.registerWorkerInitErrorNeverTipToast(data.hostname);
 				NetDiskPops.confirm(
 					{
 						title: {
@@ -336,18 +339,7 @@ export const NetDiskWorker = {
 											btn: {
 												ok: {
 													callback(eventDetails, event) {
-														let neverToastWorkerError = GM_getValue<string[]>(
-															that.neverTipWorkerInitErrorKey,
-															[]
-														);
-														if (!Array.isArray(neverToastWorkerError)) {
-															neverToastWorkerError = [neverToastWorkerError];
-														}
-														neverToastWorkerError.push(data.hostname);
-														GM_setValue(
-															that.neverTipWorkerInitErrorKey,
-															neverToastWorkerError
-														);
+														NetDiskWorkerInitError.addHost(data.hostname);
 														eventDetails.close();
 													},
 												},
@@ -397,6 +389,46 @@ export const NetDiskWorker = {
 			},
 			"*"
 		);
+	},
+	/**
+	 * 注册油猴菜单-Worker初始化失败但是设置了不再提醒
+	 * @param hostname
+	 */
+	registerWorkerInitErrorNeverTipToast(hostname: string) {
+		let menuText = "💀 Worker初始化失败";
+		let menuTextDynamic = () => {
+			let flag = NetDiskWorkerInitError.findHost(hostname);
+			if (flag) {
+				return menuText + "（已设置不再提示）";
+			} else {
+				return menuText;
+			}
+		};
+		let menuOption: UtilsGMMenuOption = {
+			key: "workerInitErrorNeverTipToast-" + hostname,
+			text: menuTextDynamic(),
+			autoReload: false,
+			isStoreValue: false,
+			showText: menuTextDynamic,
+			callback: () => {
+				let findHostFlag = NetDiskWorkerInitError.findHost(hostname);
+				if (findHostFlag) {
+					let confirmFlag = confirm("是否允许弹出Worker初始化失败的弹窗提示？");
+					if (confirmFlag) {
+						let flag = NetDiskWorkerInitError.removeHost(hostname);
+						if (flag) {
+							Qmsg.success(`删除成功`);
+						} else {
+							Qmsg.error(`删除失败`);
+						}
+						GM_Menu.update(menuOption);
+					}
+				} else {
+					this.dispatchWorkerInitErrorDialog();
+				}
+			},
+		};
+		GM_Menu.update(menuOption);
 	},
 	/**
 	 * 传递数据给worker内进行处理匹配
@@ -938,7 +970,9 @@ export const NetDiskWorker = {
 				let findHostName = neverToastWorkerError.find(
 					(it) => it === window.location.hostname
 				);
-				if (!findHostName) {
+				if (findHostName) {
+					this.registerWorkerInitErrorNeverTipToast(findHostName);
+				} else {
 					// 弹出弹窗
 					this.dispatchWorkerInitErrorDialog();
 				}
