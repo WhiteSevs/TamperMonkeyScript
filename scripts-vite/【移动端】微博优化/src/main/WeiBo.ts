@@ -1,5 +1,4 @@
 import { PopsPanel } from "@/setting/setting";
-import { GM_addStyle } from "ViteGM";
 import blockAdsCSS from "./blockAds.css?raw";
 import { WeiBoHook } from "@/hook/WeiBoHook";
 import { WeiBoRouter } from "@/router/WeiBoRouter";
