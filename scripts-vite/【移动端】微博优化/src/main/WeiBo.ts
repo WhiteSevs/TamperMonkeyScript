@@ -24,7 +24,9 @@ const WeiBo = {
 		PopsPanel.execMenuOnce(
 			"weibo_hijack_navigator_service_worker_register",
 			() => {
-				WeiBoHook.hookServiceWorkerRegister();
+				if ("serviceWorker" in window.navigator) {
+					WeiBoHook.hookServiceWorkerRegister();
+				}
 			}
 		);
 		PopsPanel.execMenuOnce("weibo-common-clickImageToClosePreviewImage", () => {
