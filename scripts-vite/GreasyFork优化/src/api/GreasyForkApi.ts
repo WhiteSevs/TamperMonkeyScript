@@ -1,4 +1,5 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
+import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import i18next from "i18next";
 import Qmsg from "qmsg";
@@ -105,11 +106,13 @@ interface GreasyForkUserInfo {
 export const GreasyforkApi = {
 	/**
 	 * 获取脚本信息
-	 * @param scriptId
+	 * @param scriptId 脚本id
 	 */
 	async getScriptInfo(scriptId: string | number) {
 		let url = GreasyforkUrlUtils.getScriptInfoUrl(scriptId);
-		let response = await httpx.get(url, {});
+		let response = await httpx.get(url, {
+			// fetch: true,
+		});
 		if (!response.status) {
 			return;
 		}
@@ -120,10 +123,11 @@ export const GreasyforkApi = {
 	},
 	/**
 	 * 获取脚本统计数据
-	 * @param scriptId
+	 * @param scriptId 脚本id
 	 */
 	async getScriptStats(scriptId: string) {
 		let response = await httpx.get(`/scripts/${scriptId}/stats.json`, {
+			// fetch: true,
 			allowInterceptConfig: false,
 		});
 		log.info(response);
@@ -136,12 +140,11 @@ export const GreasyforkApi = {
 	},
 	/**
 	 * 解析并获取admin内的源代码同步的配置表单
-	 * @param scriptId
+	 * @param scriptId 脚本id
 	 */
-	async getSourceCodeSyncFormData(
-		scriptId: string
-	): Promise<FormData | undefined> {
+	async getSourceCodeSyncFormDataInfo(scriptId: string) {
 		let response = await httpx.get(`/scripts/${scriptId}/admin`, {
+			fetch: true,
 			allowInterceptConfig: false,
 		});
 		log.info(response);
@@ -150,26 +153,49 @@ export const GreasyforkApi = {
 			return;
 		}
 		let adminHTML = response.data.responseText;
-		let adminHTMLElement = DOMUtils.parseHTML(adminHTML, false, true);
-		let formElement =
-			adminHTMLElement.querySelector<HTMLFormElement>("form.edit_script");
-		if (!formElement) {
+		let $admin = DOMUtils.parseHTML(adminHTML, false, true);
+		let $form = $admin.querySelector<HTMLFormElement>(
+			"form.edit_script[action*='sync_update']"
+		);
+		if (!$form) {
 			Qmsg.error(i18next.t("解析admin的源代码同步表单失败"));
 			return;
 		}
-		let formData = new FormData(formElement);
-		return formData;
+		let formData = new FormData($form);
+		let $submit = $form.querySelector<HTMLInputElement>(
+			"input[type='submit'][name='update-and-sync']"
+		);
+		if ($submit) {
+			formData.append($submit.name, $submit.value);
+		}
+		return {
+			url: $form.action,
+			formData: formData,
+		};
 	},
 	/**
 	 * 进行源代码同步，要求先getSourceCodeSyncFormData
-	 * @param scriptId
-	 * @param data
+	 * @param scriptId 脚本id
+	 * @param data 同步的数据
+	 * @param syncUrl 同步的url
 	 */
-	async sourceCodeSync(scriptId: string, data: FormData) {
-		let response = await httpx.post(`/scripts/${scriptId}/sync_update`, {
-			data: data,
-			allowInterceptConfig: false,
-		});
+	async sourceCodeSync(scriptId: string, data: FormData, syncUrl?: string) {
+		let response = await httpx.post(
+			syncUrl || `/scripts/${scriptId}/sync_update`,
+			{
+				fetch: true,
+				data: data,
+				allowInterceptConfig: false,
+				headers: {
+					Accept:
+						"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+					"Content-Type": "application/x-www-form-urlencoded",
+					Origin: window.location.origin,
+					Referer: window.location.href,
+					"User-Agent": utils.getRandomPCUA(),
+				},
+			}
+		);
 		log.info(response);
 		if (!response.status) {
 			Qmsg.error(i18next.t("源代码同步失败"));
@@ -182,6 +208,7 @@ export const GreasyforkApi = {
 	 */
 	async getUserInfo(userId: string) {
 		let response = await httpx.get(`/users/${userId}.json`, {
+			// fetch: true,
 			allowInterceptConfig: false,
 		});
 		log.success(response);
@@ -199,6 +226,55 @@ export const GreasyforkApi = {
 				data["scriptLibraryList"].push(scriptInfo);
 			}
 		});
+		if (!data["scriptLibraryList"].length) {
+			// 现在的Api获取不到库的信息了
+			// 只能通过解析主页信息来获取库
+			let userHomeInfoResponse = await httpx.get(`/users/${userId}`, {
+				fetch: true,
+				allowInterceptConfig: false,
+			});
+			if (!userHomeInfoResponse.status) {
+				Qmsg.error(i18next.t("获取用户主页信息失败"));
+				return;
+			}
+			let userHomeHTML = userHomeInfoResponse.data.responseText;
+			let $userHomeDocument = DOMUtils.parseHTML(userHomeHTML, true, true);
+			let $userLibraryList = $userHomeDocument.querySelector<HTMLOListElement>(
+				"#user-library-script-list"
+			);
+			if ($userLibraryList) {
+				$userLibraryList.querySelectorAll("li").forEach(($li) => {
+					let scriptInfo = GreasyforkElementUtils.parseScriptListInfo($li);
+					let scriptLink =
+						$li.querySelector<HTMLAnchorElement>("a.script-link")!.href;
+					data["scriptLibraryList"].push({
+						id: scriptInfo.scriptId,
+						created_at: scriptInfo.scriptCreatedDate.toISOString(),
+						daily_installs: scriptInfo.scriptDailyInstalls,
+						total_installs: scriptInfo.scriptTotalInstalls,
+						code_updated_at: scriptInfo.scriptUpdatedDate.toISOString(),
+						support_url: null,
+						fan_score: scriptInfo.scriptRatingScore.toString(),
+						namespace: null,
+						contribution_url: null,
+						contribution_amount: null,
+						good_ratings: 0,
+						ok_ratings: 0,
+						bad_ratings: 0,
+						name: scriptInfo.scriptName,
+						description: scriptInfo.scriptDescription,
+						url: scriptLink,
+						code_url: scriptInfo.codeUrl,
+						license: null,
+						version: scriptInfo.scriptVersion,
+						locale: scriptInfo.scriptLanguage,
+						deleted: false,
+					});
+				});
+			} else {
+				log.error("解析用户主页的库列表失败", $userHomeDocument);
+			}
+		}
 		return data;
 	},
 	/**
@@ -226,17 +302,17 @@ export const GreasyforkApi = {
 			id: string;
 			name: string;
 		}[] = [];
-		userScriptSets.querySelectorAll("li").forEach((liElement) => {
-			let $ele = liElement.querySelector<HTMLAnchorElement>("a:last-child");
-			if (!$ele) {
+		userScriptSets.querySelectorAll("li").forEach(($li) => {
+			let $el = $li.querySelector<HTMLAnchorElement>("a:last-child");
+			if (!$el) {
 				return;
 			}
-			let setsUrl = $ele.href;
+			let setsUrl = $el.href;
 			if (setsUrl.includes("?fav=1")) {
 				/* 自带的收藏夹 */
 				return;
 			}
-			let setsName = liElement.querySelector<HTMLAnchorElement>("a")!.innerText;
+			let setsName = $li.querySelector<HTMLAnchorElement>("a")!.innerText;
 			let setsId = setsUrl.match(/\/sets\/([\d]+)\//)?.[1] as string;
 			scriptSetsIdList.push({
 				id: setsId,

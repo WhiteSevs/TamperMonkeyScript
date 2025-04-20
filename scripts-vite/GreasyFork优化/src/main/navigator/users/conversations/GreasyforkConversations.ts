@@ -1,6 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
 import beautifyContentCSS from "./css/beautifyContent.css?raw";
-import { addStyle, DOMUtils, log, utils } from "@/env";
+import { $$, addStyle, DOMUtils, log } from "@/env";
 import i18next from "i18next";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 
@@ -48,7 +48,7 @@ export const GreasyforkConversations = {
 			float: right;
 		}
 		`);
-		document.querySelectorAll("section.text-content ul li").forEach(($li) => {
+		$$("section.text-content ul li").forEach(($li) => {
 			// 私聊的用户
 			let $user = $li.querySelector<HTMLAnchorElement>(
 				'a[href*="conversations"]'

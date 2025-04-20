@@ -1,5 +1,5 @@
 import { GreasyforkApi } from "@/api/GreasyForkApi";
-import { GM_Menu, log, utils } from "@/env";
+import { $, $$, GM_Menu, log, utils } from "@/env";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import { PopsPanel } from "@/setting/setting";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
@@ -26,9 +26,7 @@ export const GreasyforkMenu = {
 	 * 获取当前登录用户的a标签元素
 	 */
 	getUserLinkElement() {
-		return document.querySelector<HTMLAnchorElement>(
-			"#nav-user-info span.user-profile-link a"
-		);
+		return $<HTMLAnchorElement>("#nav-user-info span.user-profile-link a");
 	},
 	/**
 	 * 更新脚本
@@ -65,13 +63,14 @@ export const GreasyforkMenu = {
 				log.success("更新：" + scriptUrl);
 				let scriptName = GreasyforkUrlUtils.getScriptName(scriptUrl) as string;
 				loading.setHTML(getLoadingHTML(scriptName, index + 1));
-				let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
-					scriptId
-				);
-				if (codeSyncFormData) {
+				let syncFormDataInfo =
+					await GreasyforkApi.getSourceCodeSyncFormDataInfo(scriptId);
+				if (syncFormDataInfo) {
+					const { formData: codeSyncFormData, url: syncUrl } = syncFormDataInfo;
 					let syncUpdateStatus = await GreasyforkApi.sourceCodeSync(
 						scriptId,
-						codeSyncFormData
+						codeSyncFormData,
+						syncUrl
 					);
 					if (syncUpdateStatus) {
 						Qmsg.success(i18next.t("源代码同步成功，3秒后更新下一个"));
@@ -127,15 +126,13 @@ export const GreasyforkMenu = {
 				return;
 			}
 			let scriptUrlList: string[] = [];
-			document
-				.querySelectorAll<HTMLAnchorElement>(
-					"#user-script-list-section li a.script-link"
-				)
-				.forEach((item) => {
-					scriptUrlList = scriptUrlList.concat(
-						GreasyforkUrlUtils.getAdminUrl(item.href)
-					);
-				});
+			$$<HTMLAnchorElement>(
+				"#user-script-list-section li a.script-link"
+			).forEach(($anchor) => {
+				scriptUrlList = scriptUrlList.concat(
+					GreasyforkUrlUtils.getAdminUrl($anchor.href)
+				);
+			});
 			GreasyforkMenu.updateScript(scriptUrlList);
 		} else if (
 			PopsPanel.getValue("goto_updateSettingsAndSynchronize_unlistedScriptList")
@@ -158,15 +155,13 @@ export const GreasyforkMenu = {
 				return;
 			}
 			let scriptUrlList: string[] = [];
-			document
-				.querySelectorAll<HTMLAnchorElement>(
-					"#user-unlisted-script-list li a.script-link"
-				)
-				.forEach((item) => {
-					scriptUrlList = scriptUrlList.concat(
-						GreasyforkUrlUtils.getAdminUrl(item.href)
-					);
-				});
+			$$<HTMLAnchorElement>(
+				"#user-unlisted-script-list li a.script-link"
+			).forEach(($anchor) => {
+				scriptUrlList = scriptUrlList.concat(
+					GreasyforkUrlUtils.getAdminUrl($anchor.href)
+				);
+			});
 			GreasyforkMenu.updateScript(scriptUrlList);
 		} else if (
 			PopsPanel.getValue("goto_updateSettingsAndSynchronize_libraryScriptList")
@@ -189,15 +184,13 @@ export const GreasyforkMenu = {
 				return;
 			}
 			let scriptUrlList: string[] = [];
-			document
-				.querySelectorAll<HTMLAnchorElement>(
-					"#user-library-script-list li a.script-link"
-				)
-				.forEach((item) => {
-					scriptUrlList = scriptUrlList.concat(
-						GreasyforkUrlUtils.getAdminUrl(item.href)
-					);
-				});
+			$$<HTMLAnchorElement>(
+				"#user-library-script-list li a.script-link"
+			).forEach(($anchor) => {
+				scriptUrlList = scriptUrlList.concat(
+					GreasyforkUrlUtils.getAdminUrl($anchor.href)
+				);
+			});
 			GreasyforkMenu.updateScript(scriptUrlList);
 		}
 	},

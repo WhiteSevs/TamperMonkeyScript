@@ -98,7 +98,7 @@ export const PopsPanelUISetting = {
 					.setAttribute("disabled", "true");
 			}
 
-			DOMUtils.on(buttonElement, "click", undefined, async function () {
+			DOMUtils.on(buttonElement, "click", async function () {
 				log.success("同步", scriptInfo);
 				let btn = buttonElement.querySelector("button") as HTMLButtonElement;
 				let span = buttonElement.querySelector(
@@ -119,30 +119,45 @@ export const PopsPanelUISetting = {
 				span.innerText = i18next.t("同步中...");
 				DOMUtils.before(span, iconElement);
 				let scriptId = scriptInfo?.["id"];
-				let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
-					scriptId.toString()
-				);
-				if (codeSyncFormData) {
+				let syncFormDataInfo =
+					await GreasyforkApi.getSourceCodeSyncFormDataInfo(
+						scriptId.toString()
+					);
+				if (syncFormDataInfo) {
+					const { formData: codeSyncFormData, url: syncUrl } = syncFormDataInfo;
 					const SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY =
 						"script[script_sync_type_id]";
-					if (codeSyncFormData.has(SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY)) {
-						/* 1是手动同步、2是自动同步、3是webhook同步 */
-						let syncTypeId = codeSyncFormData.get(
-							SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY
-						) as FormDataEntryValue;
+					const SCRIPT_SYNC_TYPE = "script[sync_type]";
+					if (
+						codeSyncFormData.has(SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY) ||
+						codeSyncFormData.has(SCRIPT_SYNC_TYPE)
+					) {
+						/**
+						 * 同步方式
+						 */
 						let syncMode = "";
-						if (syncTypeId.toString() === "1") {
-							syncMode = i18next.t("手动");
-						} else if (syncTypeId.toString() === "2") {
-							syncMode = i18next.t("自动");
-						} else if (syncTypeId.toString() === "3") {
-							syncMode = "webhook";
+						if (codeSyncFormData.has(SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY)) {
+							/* 1是手动同步、2是自动同步、3是webhook同步 */
+							// 旧版本是这样的
+							let syncTypeId = codeSyncFormData.get(
+								SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY
+							) as FormDataEntryValue;
+							if (syncTypeId.toString() === "1") {
+								syncMode = i18next.t("手动");
+							} else if (syncTypeId.toString() === "2") {
+								syncMode = i18next.t("自动");
+							} else if (syncTypeId.toString() === "3") {
+								syncMode = "webhook";
+							}
+						} else if (codeSyncFormData.has(SCRIPT_SYNC_TYPE)) {
+							// 新版本直接是 script[sync_type]
+							syncMode = codeSyncFormData.get(SCRIPT_SYNC_TYPE) as string;
 						}
-						let oldSyncTypeElement = liElement.querySelector(
+						let $oldSyncType = liElement.querySelector<HTMLLIElement>(
 							".w-script-sync-type"
-						) as HTMLElement;
-						if (oldSyncTypeElement) {
-							oldSyncTypeElement.querySelector("p")!.innerText = i18next.t(
+						)!;
+						if ($oldSyncType) {
+							$oldSyncType.querySelector("p")!.innerText = i18next.t(
 								"同步方式：{{syncMode}}",
 								{ syncMode }
 							);
@@ -160,7 +175,8 @@ export const PopsPanelUISetting = {
 						}
 						let syncUpdateResponse = await GreasyforkApi.sourceCodeSync(
 							scriptInfo["id"].toString(),
-							codeSyncFormData
+							codeSyncFormData,
+							syncUrl
 						);
 						if (syncUpdateResponse) {
 							Qmsg.success(i18next.t("同步成功"));

@@ -195,7 +195,7 @@ export const GreasyforkBeautify = {
 				result.push(addStyle(beautifyHomeCSS));
 			} else if (GreasyforkRouter.isScriptsFeedback()) {
 				result.push(addStyle(beautifyFeedbackCSS));
-				let $noRating = document.querySelector<HTMLElement>(
+				let $noRating = $<HTMLElement>(
 					'.radio-label[for*="discussion_rating_0"]'
 				);
 				if ($noRating) {
@@ -204,7 +204,7 @@ export const GreasyforkBeautify = {
 						'<span class="rating-icon rating-icon-none">不评分</span>'
 					);
 				}
-				let $badRating = document.querySelector<HTMLElement>(
+				let $badRating = $<HTMLElement>(
 					'.radio-label[for*="discussion_rating_2"]'
 				);
 				if ($badRating) {
@@ -213,7 +213,7 @@ export const GreasyforkBeautify = {
 						'<span class="rating-icon rating-icon-bad">差评</span>'
 					);
 				}
-				let $okRating = document.querySelector<HTMLElement>(
+				let $okRating = $<HTMLElement>(
 					'.radio-label[for*="discussion_rating_3"]'
 				);
 				if ($okRating) {
@@ -222,7 +222,7 @@ export const GreasyforkBeautify = {
 						'<span class="rating-icon rating-icon-ok">一般</span>'
 					);
 				}
-				let $goodRating = document.querySelector<HTMLElement>(
+				let $goodRating = $<HTMLElement>(
 					'.radio-label[for*="discussion_rating_4"]'
 				);
 				if ($goodRating) {
@@ -232,9 +232,7 @@ export const GreasyforkBeautify = {
 					);
 				}
 			} else if (GreasyforkRouter.isScriptAdmin()) {
-				if (
-					!document.querySelector('input[type="submit"][name="update-only"]')
-				) {
+				if (!$('input[type="submit"][name="update-only"]')) {
 					result.push(
 						addStyle(/*css*/ `
 					.indented{
@@ -299,8 +297,7 @@ export const GreasyforkBeautify = {
 					element.parentElement!.removeChild(element.nextElementSibling);
 				}
 			}
-			let $fileInputList =
-				document.querySelectorAll<HTMLInputElement>('input[type="file"]');
+			let $fileInputList = $$<HTMLInputElement>('input[type="file"]');
 
 			$fileInputList.forEach(($input) => {
 				if ($input.getAttribute("name") === "code_upload") {

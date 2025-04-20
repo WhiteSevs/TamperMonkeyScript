@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.4.14
+// @version            2025.4.20
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -600,7 +600,8 @@
     任一全词匹配: "Any full word match",
     请先在菜单中录入secret: "Please enter the secret in the menu first",
     请输入secret: "Please enter Secret",
-    "两步验证（2FA）": "Two-step verification (2FA)"
+    "两步验证（2FA）": "Two-step verification (2FA)",
+    获取用户主页信息失败: "Failed to obtain user homepage information"
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -1067,14 +1068,132 @@
       return url;
     }
   };
+  const GreasyforkElementUtils = {
+    /**
+     * 获取当前登录用户id
+     */
+    getCurrentLoginUserId() {
+      let $anchor = $("#nav-user-info .user-profile-link a");
+      if (!$anchor) {
+        return;
+      }
+      let userId = GreasyforkUrlUtils.getUserId($anchor.href);
+      if (userId == null) {
+        return;
+      }
+      return userId;
+    },
+    /**
+     * 解析出<li>元素上存储的脚本信息
+     * @param $script 元素
+     */
+    parseScriptListInfo($script) {
+      let dataset = $script.dataset;
+      const info = {
+        scriptId: parseInt(dataset.scriptId),
+        scriptName: dataset.scriptName,
+        scriptAuthors: [],
+        scriptDailyInstalls: parseInt(dataset.scriptDailyInstalls),
+        scriptTotalInstalls: parseInt(dataset.scriptTotalInstalls),
+        scriptRatingScore: parseFloat(dataset.scriptRatingScore),
+        scriptCreatedDate: new Date(dataset.scriptCreatedDate),
+        scriptUpdatedDate: new Date(dataset.scriptUpdatedDate),
+        scriptType: dataset.scriptType,
+        scriptVersion: dataset.scriptVersion,
+        sensitive: dataset.sensitive === "true",
+        scriptLanguage: dataset.scriptLanguage,
+        cssAvailableAsJs: dataset.cssAvailableAsJs === "true",
+        codeUrl: dataset.codeUrl,
+        scriptDescription: dataset.scriptDescription,
+        scriptAuthorId: parseInt(dataset.scriptAuthorId),
+        scriptAuthorName: dataset.scriptAuthorName
+      };
+      let scriptAuthorsObj = utils.toJSON(dataset.scriptAuthors);
+      Object.keys(scriptAuthorsObj).forEach((authorId) => {
+        let authorName = scriptAuthorsObj[authorId];
+        info.scriptAuthors.push({
+          authorId: parseInt(authorId),
+          authorName
+        });
+      });
+      if ((info.scriptAuthorName == null || isNaN(info.scriptAuthorId)) && info.scriptAuthors.length) {
+        info.scriptAuthorName = info.scriptAuthors[0].authorName;
+        info.scriptAuthorId = info.scriptAuthors[0].authorId;
+      }
+      if (info.scriptDescription == null) {
+        let $description = $script.querySelector(".script-description") || $script.querySelector(".description");
+        if ($description) {
+          info.scriptDescription = $description.innerText || $description.textContent;
+        }
+      }
+      return info;
+    },
+    /**
+     * 注册顶部导航菜单
+     */
+    registerTopNavMenu(config) {
+      domUtils.ready(() => {
+        let $nav = $("#site-nav nav");
+        let $subNav = $("#site-nav .with-submenu nav");
+        if (!$nav) {
+          log.error("元素#site-nav nav不存在");
+          return;
+        }
+        let $menuLink = domUtils.createElement("li", {
+          className: config.className,
+          innerHTML: (
+            /*html*/
+            `
+                <a href="javascript:;">${config.name}</a>
+                `
+          )
+        });
+        domUtils.on($menuLink, "click", (event) => {
+          utils.preventEvent(event);
+          config.clickEvent(event);
+        });
+        if ($subNav && $subNav.children.length) {
+          $subNav.appendChild($menuLink);
+        } else {
+          $nav.appendChild($menuLink);
+        }
+        let $mobileMenuLink = domUtils.createElement("li", {
+          className: config.className,
+          innerHTML: (
+            /*html*/
+            `
+                <a href="javascript:;">${config.name}</a>
+                `
+          )
+        });
+        domUtils.on($mobileMenuLink, "click", (event) => {
+          utils.preventEvent(event);
+          config.clickEvent(event);
+        });
+        let $mobileNav = $("#mobile-nav nav");
+        let $multiLinkNav = $("#mobile-nav nav .multi-link-nav");
+        if ($multiLinkNav) {
+          domUtils.before($multiLinkNav, $mobileMenuLink);
+        } else {
+          if ($mobileNav) {
+            domUtils.append($mobileNav, $mobileMenuLink);
+          } else {
+            log.error("元素#mobile-nav nav不存在");
+          }
+        }
+      });
+    }
+  };
   const GreasyforkApi = {
     /**
      * 获取脚本信息
-     * @param scriptId
+     * @param scriptId 脚本id
      */
     async getScriptInfo(scriptId) {
       let url = GreasyforkUrlUtils.getScriptInfoUrl(scriptId);
-      let response = await httpx.get(url, {});
+      let response = await httpx.get(url, {
+        // fetch: true,
+      });
       if (!response.status) {
         return;
       }
@@ -1085,10 +1204,11 @@
     },
     /**
      * 获取脚本统计数据
-     * @param scriptId
+     * @param scriptId 脚本id
      */
     async getScriptStats(scriptId) {
       let response = await httpx.get(`/scripts/${scriptId}/stats.json`, {
+        // fetch: true,
         allowInterceptConfig: false
       });
       log.info(response);
@@ -1101,10 +1221,11 @@
     },
     /**
      * 解析并获取admin内的源代码同步的配置表单
-     * @param scriptId
+     * @param scriptId 脚本id
      */
-    async getSourceCodeSyncFormData(scriptId) {
+    async getSourceCodeSyncFormDataInfo(scriptId) {
       let response = await httpx.get(`/scripts/${scriptId}/admin`, {
+        fetch: true,
         allowInterceptConfig: false
       });
       log.info(response);
@@ -1113,25 +1234,48 @@
         return;
       }
       let adminHTML = response.data.responseText;
-      let adminHTMLElement = domUtils.parseHTML(adminHTML, false, true);
-      let formElement = adminHTMLElement.querySelector("form.edit_script");
-      if (!formElement) {
+      let $admin = domUtils.parseHTML(adminHTML, false, true);
+      let $form = $admin.querySelector(
+        "form.edit_script[action*='sync_update']"
+      );
+      if (!$form) {
         Qmsg.error(i18next.t("解析admin的源代码同步表单失败"));
         return;
       }
-      let formData = new FormData(formElement);
-      return formData;
+      let formData = new FormData($form);
+      let $submit = $form.querySelector(
+        "input[type='submit'][name='update-and-sync']"
+      );
+      if ($submit) {
+        formData.append($submit.name, $submit.value);
+      }
+      return {
+        url: $form.action,
+        formData
+      };
     },
     /**
      * 进行源代码同步，要求先getSourceCodeSyncFormData
-     * @param scriptId
-     * @param data
+     * @param scriptId 脚本id
+     * @param data 同步的数据
+     * @param syncUrl 同步的url
      */
-    async sourceCodeSync(scriptId, data) {
-      let response = await httpx.post(`/scripts/${scriptId}/sync_update`, {
-        data,
-        allowInterceptConfig: false
-      });
+    async sourceCodeSync(scriptId, data, syncUrl) {
+      let response = await httpx.post(
+        syncUrl || `/scripts/${scriptId}/sync_update`,
+        {
+          fetch: true,
+          data,
+          allowInterceptConfig: false,
+          headers: {
+            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "Content-Type": "application/x-www-form-urlencoded",
+            Origin: window.location.origin,
+            Referer: window.location.href,
+            "User-Agent": utils.getRandomPCUA()
+          }
+        }
+      );
       log.info(response);
       if (!response.status) {
         Qmsg.error(i18next.t("源代码同步失败"));
@@ -1144,6 +1288,7 @@
      */
     async getUserInfo(userId) {
       let response = await httpx.get(`/users/${userId}.json`, {
+        // fetch: true,
         allowInterceptConfig: false
       });
       log.success(response);
@@ -1161,6 +1306,52 @@
           data["scriptLibraryList"].push(scriptInfo);
         }
       });
+      if (!data["scriptLibraryList"].length) {
+        let userHomeInfoResponse = await httpx.get(`/users/${userId}`, {
+          fetch: true,
+          allowInterceptConfig: false
+        });
+        if (!userHomeInfoResponse.status) {
+          Qmsg.error(i18next.t("获取用户主页信息失败"));
+          return;
+        }
+        let userHomeHTML = userHomeInfoResponse.data.responseText;
+        let $userHomeDocument = domUtils.parseHTML(userHomeHTML, true, true);
+        let $userLibraryList = $userHomeDocument.querySelector(
+          "#user-library-script-list"
+        );
+        if ($userLibraryList) {
+          $userLibraryList.querySelectorAll("li").forEach(($li) => {
+            let scriptInfo = GreasyforkElementUtils.parseScriptListInfo($li);
+            let scriptLink = $li.querySelector("a.script-link").href;
+            data["scriptLibraryList"].push({
+              id: scriptInfo.scriptId,
+              created_at: scriptInfo.scriptCreatedDate.toISOString(),
+              daily_installs: scriptInfo.scriptDailyInstalls,
+              total_installs: scriptInfo.scriptTotalInstalls,
+              code_updated_at: scriptInfo.scriptUpdatedDate.toISOString(),
+              support_url: null,
+              fan_score: scriptInfo.scriptRatingScore.toString(),
+              namespace: null,
+              contribution_url: null,
+              contribution_amount: null,
+              good_ratings: 0,
+              ok_ratings: 0,
+              bad_ratings: 0,
+              name: scriptInfo.scriptName,
+              description: scriptInfo.scriptDescription,
+              url: scriptLink,
+              code_url: scriptInfo.codeUrl,
+              license: null,
+              version: scriptInfo.scriptVersion,
+              locale: scriptInfo.scriptLanguage,
+              deleted: false
+            });
+          });
+        } else {
+          log.error("解析用户主页的库列表失败", $userHomeDocument);
+        }
+      }
       return data;
     },
     /**
@@ -1185,17 +1376,17 @@
         return;
       }
       let scriptSetsIdList = [];
-      userScriptSets.querySelectorAll("li").forEach((liElement) => {
+      userScriptSets.querySelectorAll("li").forEach(($li) => {
         var _a2;
-        let $ele = liElement.querySelector("a:last-child");
-        if (!$ele) {
+        let $el = $li.querySelector("a:last-child");
+        if (!$el) {
           return;
         }
-        let setsUrl = $ele.href;
+        let setsUrl = $el.href;
         if (setsUrl.includes("?fav=1")) {
           return;
         }
-        let setsName = liElement.querySelector("a").innerText;
+        let setsName = $li.querySelector("a").innerText;
         let setsId = (_a2 = setsUrl.match(/\/sets\/([\d]+)\//)) == null ? undefined : _a2[1];
         scriptSetsIdList.push({
           id: setsId,
@@ -1477,9 +1668,7 @@
      * 获取当前登录用户的a标签元素
      */
     getUserLinkElement() {
-      return document.querySelector(
-        "#nav-user-info span.user-profile-link a"
-      );
+      return $("#nav-user-info span.user-profile-link a");
     },
     /**
      * 更新脚本
@@ -1516,13 +1705,13 @@
           log.success("更新：" + scriptUrl);
           let scriptName = GreasyforkUrlUtils.getScriptName(scriptUrl);
           loading.setHTML(getLoadingHTML(scriptName, index + 1));
-          let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
-            scriptId
-          );
-          if (codeSyncFormData) {
+          let syncFormDataInfo = await GreasyforkApi.getSourceCodeSyncFormDataInfo(scriptId);
+          if (syncFormDataInfo) {
+            const { formData: codeSyncFormData, url: syncUrl } = syncFormDataInfo;
             let syncUpdateStatus = await GreasyforkApi.sourceCodeSync(
               scriptId,
-              codeSyncFormData
+              codeSyncFormData,
+              syncUrl
             );
             if (syncUpdateStatus) {
               Qmsg.success(i18next.t("源代码同步成功，3秒后更新下一个"));
@@ -1577,11 +1766,11 @@
           return;
         }
         let scriptUrlList = [];
-        document.querySelectorAll(
+        $$(
           "#user-script-list-section li a.script-link"
-        ).forEach((item) => {
+        ).forEach(($anchor) => {
           scriptUrlList = scriptUrlList.concat(
-            GreasyforkUrlUtils.getAdminUrl(item.href)
+            GreasyforkUrlUtils.getAdminUrl($anchor.href)
           );
         });
         GreasyforkMenu.updateScript(scriptUrlList);
@@ -1603,11 +1792,11 @@
           return;
         }
         let scriptUrlList = [];
-        document.querySelectorAll(
+        $$(
           "#user-unlisted-script-list li a.script-link"
-        ).forEach((item) => {
+        ).forEach(($anchor) => {
           scriptUrlList = scriptUrlList.concat(
-            GreasyforkUrlUtils.getAdminUrl(item.href)
+            GreasyforkUrlUtils.getAdminUrl($anchor.href)
           );
         });
         GreasyforkMenu.updateScript(scriptUrlList);
@@ -1629,11 +1818,11 @@
           return;
         }
         let scriptUrlList = [];
-        document.querySelectorAll(
+        $$(
           "#user-library-script-list li a.script-link"
-        ).forEach((item) => {
+        ).forEach(($anchor) => {
           scriptUrlList = scriptUrlList.concat(
-            GreasyforkUrlUtils.getAdminUrl(item.href)
+            GreasyforkUrlUtils.getAdminUrl($anchor.href)
           );
         });
         GreasyforkMenu.updateScript(scriptUrlList);
@@ -2064,8 +2253,8 @@
     shortOption: {
       "gf-quickReply": {
         target: () => {
-          let $commentText = document.querySelector("form textarea");
-          let $replyBtn = document.querySelector(
+          let $commentText = $("form textarea");
+          let $replyBtn = $(
             'input[name="commit"][type="submit"]'
           );
           if (!$commentText) {
@@ -2136,7 +2325,7 @@
      */
     async rememberReplyContent() {
       const TAG = "记住回复内容 -- ";
-      let $formList = document.querySelectorAll("form");
+      let $formList = $$("form");
       if (!$formList.length) {
         log.warn(TAG + "不存在表单");
         return;
@@ -2394,7 +2583,7 @@
           liElement.classList.add("w-script-deleted");
           buttonElement.querySelector("button").setAttribute("disabled", "true");
         }
-        domUtils.on(buttonElement, "click", undefined, async function() {
+        domUtils.on(buttonElement, "click", async function() {
           log.success("同步", scriptInfo);
           let btn = buttonElement.querySelector("button");
           let span = buttonElement.querySelector(
@@ -2415,28 +2604,34 @@
           span.innerText = i18next.t("同步中...");
           domUtils.before(span, iconElement);
           let scriptId = scriptInfo == null ? undefined : scriptInfo["id"];
-          let codeSyncFormData = await GreasyforkApi.getSourceCodeSyncFormData(
+          let syncFormDataInfo = await GreasyforkApi.getSourceCodeSyncFormDataInfo(
             scriptId.toString()
           );
-          if (codeSyncFormData) {
+          if (syncFormDataInfo) {
+            const { formData: codeSyncFormData, url: syncUrl } = syncFormDataInfo;
             const SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY = "script[script_sync_type_id]";
-            if (codeSyncFormData.has(SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY)) {
-              let syncTypeId = codeSyncFormData.get(
-                SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY
-              );
+            const SCRIPT_SYNC_TYPE = "script[sync_type]";
+            if (codeSyncFormData.has(SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY) || codeSyncFormData.has(SCRIPT_SYNC_TYPE)) {
               let syncMode = "";
-              if (syncTypeId.toString() === "1") {
-                syncMode = i18next.t("手动");
-              } else if (syncTypeId.toString() === "2") {
-                syncMode = i18next.t("自动");
-              } else if (syncTypeId.toString() === "3") {
-                syncMode = "webhook";
+              if (codeSyncFormData.has(SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY)) {
+                let syncTypeId = codeSyncFormData.get(
+                  SCRIPT_SYNC_TYPE_ID_FORMDATA_KEY
+                );
+                if (syncTypeId.toString() === "1") {
+                  syncMode = i18next.t("手动");
+                } else if (syncTypeId.toString() === "2") {
+                  syncMode = i18next.t("自动");
+                } else if (syncTypeId.toString() === "3") {
+                  syncMode = "webhook";
+                }
+              } else if (codeSyncFormData.has(SCRIPT_SYNC_TYPE)) {
+                syncMode = codeSyncFormData.get(SCRIPT_SYNC_TYPE);
               }
-              let oldSyncTypeElement = liElement.querySelector(
+              let $oldSyncType = liElement.querySelector(
                 ".w-script-sync-type"
               );
-              if (oldSyncTypeElement) {
-                oldSyncTypeElement.querySelector("p").innerText = i18next.t(
+              if ($oldSyncType) {
+                $oldSyncType.querySelector("p").innerText = i18next.t(
                   "同步方式：{{syncMode}}",
                   { syncMode }
                 );
@@ -2455,7 +2650,8 @@
               }
               let syncUpdateResponse = await GreasyforkApi.sourceCodeSync(
                 scriptInfo["id"].toString(),
-                codeSyncFormData
+                codeSyncFormData,
+                syncUrl
               );
               if (syncUpdateResponse) {
                 Qmsg.success(i18next.t("同步成功"));
@@ -2474,79 +2670,6 @@
         liElement.appendChild(buttonElement);
         rightContainerElement.appendChild(liElement);
       }
-    }
-  };
-  const GreasyforkElementUtils = {
-    /**
-     * 获取当前登录用户id
-     */
-    getCurrentLoginUserId() {
-      let $anchor = document.querySelector(
-        "#nav-user-info .user-profile-link a"
-      );
-      if (!$anchor) {
-        return;
-      }
-      let userId = GreasyforkUrlUtils.getUserId($anchor.href);
-      if (userId == null) {
-        return;
-      }
-      return userId;
-    },
-    /**
-     * 注册顶部导航菜单
-     */
-    registerTopNavMenu(config) {
-      domUtils.ready(() => {
-        let $nav = $("#site-nav nav");
-        let $subNav = $("#site-nav .with-submenu nav");
-        if (!$nav) {
-          log.error("元素#site-nav nav不存在");
-          return;
-        }
-        let $menuLink = domUtils.createElement("li", {
-          className: config.className,
-          innerHTML: (
-            /*html*/
-            `
-                <a href="javascript:;">${config.name}</a>
-                `
-          )
-        });
-        domUtils.on($menuLink, "click", (event) => {
-          utils.preventEvent(event);
-          config.clickEvent(event);
-        });
-        if ($subNav && $subNav.children.length) {
-          $subNav.appendChild($menuLink);
-        } else {
-          $nav.appendChild($menuLink);
-        }
-        let $mobileMenuLink = domUtils.createElement("li", {
-          className: config.className,
-          innerHTML: (
-            /*html*/
-            `
-                <a href="javascript:;">${config.name}</a>
-                `
-          )
-        });
-        domUtils.on($mobileMenuLink, "click", (event) => {
-          utils.preventEvent(event);
-          config.clickEvent(event);
-        });
-        let $mobileNav = $("#mobile-nav nav");
-        let $multiLinkNav = $("#mobile-nav nav .multi-link-nav");
-        if ($multiLinkNav) {
-          domUtils.before($multiLinkNav, $mobileMenuLink);
-        } else {
-          if ($mobileNav) {
-            domUtils.append($mobileNav, $mobileMenuLink);
-          } else {
-            log.error("元素#mobile-nav nav不存在");
-          }
-        }
-      });
     }
   };
   let isRegisdterMonacoEditorCSS = false;
@@ -2608,1623 +2731,6 @@
       });
     }
   };
-  const GreasyforkScriptsCode = {
-    init() {
-      PopsPanel.execMenuOnce("code-repairCodeLineNumber", () => {
-        this.repairCodeLineNumber();
-      });
-      PopsPanel.execMenuOnce("code-use-monaco-editor", () => {
-        this.coverEditorWithMonaco();
-      });
-    },
-    /**
-     * 修复代码的行号显示不够问题
-     * 超过1w行不会高亮代码
-     */
-    repairCodeLineNumber() {
-      log.info("修复代码的行号显示不够问题");
-      PopsPanel.execMenuOnce("beautifyGreasyforkBeautify", () => {
-        addStyle(
-          /*css*/
-          `
-				.code-container pre code .marker{
-					padding-left: 6px;
-				}	
-				`
-        );
-      });
-      utils.waitNode(
-        "#script-content div.code-container pre.prettyprint ol"
-      ).then(($prettyPrintOL) => {
-        if ($prettyPrintOL.childElementCount >= 1e3) {
-          log.success(
-            `当前代码行数${$prettyPrintOL.childElementCount}行，超过1000行，优化行号显示问题`
-          );
-          addStyle(
-            /*css*/
-            `
-                    pre.prettyprint{
-                        padding-left: 26px;
-                    }
-					`
-          );
-        }
-      });
-    },
-    /**
-     * 使用monacoEditor替换编辑器
-     */
-    coverEditorWithMonaco() {
-      log.info(`使用monacoEditor替换编辑器`);
-      addStyle(
-        /*css*/
-        `
-			.monaco-editor{
-				height: calc(100vh - 54px);
-			}
-			#script-info{
-				padding-bottom: 0px !important;
-			}
-		`
-      );
-      CommonUtil.addBlockCSS("#script-content .code-container > pre");
-      GreasyforkUtils.monacoEditor().then(async (monaco) => {
-        let scriptId = GreasyforkUrlUtils.getScriptId(window.location.href);
-        if (!scriptId) {
-          Qmsg.error("未解析出当前脚本ID", { consoleLogContent: true });
-          return;
-        }
-        let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
-        let code_url = scriptInfo == null ? undefined : scriptInfo.code_url;
-        if (!code_url) {
-          Qmsg.error("请求结果中未解析出脚本代码URL", {
-            consoleLogContent: true
-          });
-          return;
-        }
-        let searchParams = new URLSearchParams(window.location.search);
-        if (searchParams.has("version")) {
-          let version = searchParams.get("version");
-          code_url = code_url.replace(
-            new RegExp(`/${scriptId}(/[\\d]+|)`),
-            `/${scriptId}/${version}`
-          );
-          log.info(`当前是历史代码页面，请求的脚本代码URL为${code_url}`);
-        }
-        let code_text_response = await httpx.get(code_url, {
-          timeout: 2e4
-        });
-        if (!code_text_response.status) {
-          return;
-        }
-        let code_text = code_text_response.data.responseText;
-        domUtils.ready(async () => {
-          let $codeContainer = await utils.waitNode(
-            "#script-content .code-container > pre",
-            1e4
-          );
-          if (!$codeContainer) {
-            return;
-          }
-          let $monacoEditor = domUtils.createElement("div", {
-            className: "monaco-editor"
-          });
-          domUtils.after($codeContainer, $monacoEditor);
-          monaco.editor.create($monacoEditor, {
-            value: code_text,
-            minimap: { enabled: true },
-            // 小地图
-            automaticLayout: true,
-            // 自动布局,
-            codeLens: true,
-            colorDecorators: true,
-            contextmenu: true,
-            readOnly: true,
-            //是否只读
-            formatOnPaste: true,
-            overviewRulerBorder: true,
-            // 滚动条的边框
-            scrollBeyondLastLine: true,
-            theme: "vs-dark",
-            // 主题
-            fontSize: window.innerWidth > 600 ? 14 : 12,
-            // 字体
-            wordWrap: "off",
-            // 换行
-            language: "javascript",
-            // 语言
-            folding: true,
-            // 是否启用代码折叠
-            foldingStrategy: "indentation"
-            // 代码可分小段折叠
-          });
-        });
-      });
-    }
-  };
-  const beautifyVersionsPageCSS = 'ul.history_versions,\r\nul.history_versions li {\r\n	width: 100%;\r\n}\r\nul.history_versions li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	margin: 25px 0px;\r\n}\r\n.diff-controls input[type="radio"]:nth-child(2) {\r\n	margin-left: 5px;\r\n}\r\n.flex-align-item-center {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.script-tag {\r\n	margin-bottom: 8px;\r\n}\r\n.script-tag-version a {\r\n	color: #656d76;\r\n	fill: #656d76;\r\n	text-decoration: none;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n}\r\n.script-tag-version a:hover svg {\r\n	color: #00a3f5;\r\n	fill: #00a3f5;\r\n}\r\n.script-tag-version a > span {\r\n	margin-left: 0.25rem;\r\n}\r\n.script-note-box-body {\r\n	border-radius: 0.375rem;\r\n	border-style: solid;\r\n	border-width: max(1px, 0.0625rem);\r\n	border-color: #d0d7de;\r\n	color: #1f2328;\r\n	padding: 16px;\r\n	overflow-wrap: anywhere;\r\n}\r\n.script-note-box-body p {\r\n	margin-bottom: unset;\r\n}\r\n\r\n/* 安装按钮 */\r\n.install-link {\r\n	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;\r\n}\r\n';
-  const GreasyforkVersions = {
-    init() {
-      PopsPanel.execMenuOnce("beautifyHistoryVersionPage", () => {
-        return this.beautifyHistoryVersionPage();
-      });
-      PopsPanel.execMenuOnce("scripts-versions-addExtraTagButton", () => {
-        this.addExtraTagButton();
-      });
-      PopsPanel.execMenuOnce("scripts-versions-addCompareCodeButton", () => {
-        this.sourceDiffMonacoEditor();
-      });
-    },
-    /**
-     * 美化 历史版本 页面
-     */
-    beautifyHistoryVersionPage() {
-      log.info("美化 历史版本 页面");
-      let result = [];
-      result.push(addStyle(beautifyVersionsPageCSS));
-      result.push(
-        CommonUtil.addBlockCSS(
-          ".version-number",
-          ".version-date",
-          ".version-changelog"
-        )
-      );
-      domUtils.ready(function() {
-        let $historyVersion = document.querySelector(
-          "ul.history_versions"
-        );
-        if (!$historyVersion) {
-          Qmsg.error(i18next.t("未找到history_versions元素列表"));
-          return;
-        }
-        Array.from($historyVersion.children).forEach((liElement) => {
-          var _a2, _b;
-          let versionUrl = liElement.querySelector(".version-number a").href;
-          let versionNumber = liElement.querySelector(
-            ".version-number a"
-          ).innerText;
-          let versionDate = (_a2 = liElement.querySelector(".version-date")) == null ? undefined : _a2.getAttribute("datetime");
-          let updateNote = ((_b = liElement.querySelector(".version-changelog")) == null ? undefined : _b.innerHTML) || "";
-          let versionDateElement = domUtils.createElement("span", {
-            className: "script-version-date",
-            innerHTML: utils.formatTime(
-              versionDate,
-              i18next.t("yyyy年MM月dd日 HH:mm:ss")
-            )
-          });
-          let tagElement = domUtils.createElement("div", {
-            className: "script-tag",
-            innerHTML: (
-              /*html*/
-              `
-                    <div class="script-tag-version">
-                        <a href="${versionUrl}" class="flex-align-item-center">
-                        <svg aria-label="Tag" role="img" height="16" viewBox="0 0 16 16" version="1.1" width="16">
-                            <path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"></path>
-                        </svg>
-                        <span>${versionNumber}</span>
-                        </a>
-                    </div>`
-            )
-          });
-          let boxBodyElement = domUtils.createElement("div", {
-            className: "script-note-box-body",
-            innerHTML: updateNote
-          });
-          liElement.appendChild(versionDateElement);
-          liElement.appendChild(tagElement);
-          liElement.appendChild(boxBodyElement);
-        });
-      });
-      return result;
-    },
-    /**
-     * 添加额外的标签按钮
-     */
-    addExtraTagButton() {
-      log.info("添加额外的标签按钮");
-      domUtils.ready(() => {
-        document.querySelectorAll(".script-tag-version").forEach(($tagVersion) => {
-          var _a2, _b;
-          let $anchor = $tagVersion.querySelector("a");
-          if (!$anchor) {
-            return;
-          }
-          let urlObj = new URL($anchor.href);
-          let scriptId = (_a2 = urlObj.pathname.match(/\/scripts\/([\d]+)/)) == null ? undefined : _a2[1];
-          let scriptVersion = urlObj.searchParams.get("version");
-          let scriptName = (_b = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)) == null ? undefined : _b[1];
-          let installUrl = GreasyforkUrlUtils.getInstallUrl(
-            scriptId,
-            scriptVersion,
-            scriptName
-          );
-          let codeUrl = GreasyforkUrlUtils.getCodeUrl(scriptId, scriptVersion);
-          let $buttonTag = domUtils.createElement("div", {
-            className: "scripts-tag-install",
-            innerHTML: (
-              /*html*/
-              `
-						<a class="script-btn-install install-link" data-install-format="js" target="_blank" href="${installUrl}">${i18next.t(
-              "安装此脚本"
-            )}</a>
-						<a class="script-btn-see-code" target="_blank" href="${codeUrl}">${i18next.t(
-              "查看代码"
-            )}</a>
-						`
-            )
-          });
-          domUtils.after($tagVersion, $buttonTag);
-        });
-      });
-    },
-    /**
-     * 源码对比（monacoEditor）
-     */
-    sourceDiffMonacoEditor() {
-      log.info(`源码对比（monacoEditor）`);
-      GreasyforkUtils.monacoEditor().then((monaco) => {
-        domUtils.ready(() => {
-          $$(
-            `#script-content form[action*="/diff"] input[type="submit"]`
-          ).forEach(($submit) => {
-            let $compareButton = domUtils.createElement(
-              "input",
-              {
-                type: "button",
-                value: i18next.t("对比选中版本差异（monacoEditor）")
-              },
-              {
-                style: "margin-left: 10px;"
-              }
-            );
-            domUtils.after($submit, $compareButton);
-            domUtils.on($compareButton, "click", async (event) => {
-              utils.preventEvent(event);
-              let $form = $submit.closest("form");
-              let formData = new FormData($form);
-              let compareLeftVersion = formData.get("v1");
-              let compareRighttVersion = formData.get("v2");
-              if (compareLeftVersion === compareRighttVersion) {
-                Qmsg.warning(i18next.t("版本号相同，不需要比较源码"));
-                return;
-              }
-              let loading = Qmsg.loading(i18next.t("正在获取对比文本中..."));
-              let scriptId = GreasyforkUrlUtils.getScriptId();
-              let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
-              if (!scriptInfo) {
-                loading.close();
-                return;
-              }
-              let code_url = scriptInfo["code_url"];
-              let compareLeftUrl = code_url.replace(
-                new RegExp(`/${scriptId}(/[\\d]+|)`),
-                `/${scriptId}/${compareLeftVersion}`
-              );
-              let compareRightUrl = code_url.replace(
-                new RegExp(`/${scriptId}(/[\\d]+|)`),
-                `/${scriptId}/${compareRighttVersion}`
-              );
-              let compareLeftText = "";
-              let compareRightText = "";
-              let compareLeftResponse = await httpx.get(compareLeftUrl, {
-                timeout: 2e4
-              });
-              if (!compareLeftResponse.status) {
-                loading.close();
-                return;
-              }
-              compareLeftText = compareLeftResponse.data.responseText;
-              let compareRightResponse = await httpx.get(compareRightUrl, {
-                timeout: 2e4
-              });
-              if (!compareRightResponse.status) {
-                loading.close();
-                return;
-              }
-              compareRightText = compareRightResponse.data.responseText;
-              loading.close();
-              let { recovery } = CommonUtil.lockScroll();
-              let $alert = __pops.alert({
-                title: {
-                  text: i18next.t("代码对比"),
-                  html: false,
-                  position: "center"
-                },
-                content: {
-                  html: true,
-                  text: (
-                    /*html*/
-                    `
-								<div class="monaco-editor-diff-container">
-									<div class="monaco-editor-diff"></div>
-								</div>
-								`
-                  )
-                },
-                mask: {
-                  enable: true,
-                  clickEvent: {
-                    toClose: false,
-                    toHide: false
-                  }
-                },
-                btn: {
-                  ok: {
-                    enable: false
-                  },
-                  close: {
-                    callback(details, event2) {
-                      details.close();
-                      recovery();
-                    }
-                  }
-                },
-                zIndex() {
-                  let maxZIndex = utils.getMaxZIndex();
-                  let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-                  return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-                },
-                useShadowRoot: false,
-                width: "90vw",
-                height: "90vh",
-                drag: true,
-                style: (
-                  /*css*/
-                  `
-							.monaco-editor-diff-container{
-								width: 100%;
-								height: 100%;
-							}
-							.monaco-editor-diff{
-								width: 100%;
-								height: 100%;
-							}
-							.pops{
-								border-radius: 0px;
-							}
-							.pops[type-value="alert"] .pops-alert-title{
-								--container-title-height: 40px;
-							}
-						`
-                )
-              });
-              $alert.$shadowRoot.querySelector(
-                ".monaco-editor-diff-container"
-              );
-              let $monacoEditor = $alert.$shadowRoot.querySelector(
-                ".monaco-editor-diff"
-              );
-              let monacoEditor = monaco.editor.createDiffEditor($monacoEditor, {
-                hideUnchangedRegions: {
-                  enabled: true
-                },
-                minimap: { enabled: true },
-                // 小地图
-                automaticLayout: true,
-                // 自动布局,
-                codeLens: true,
-                colorDecorators: true,
-                contextmenu: false,
-                readOnly: true,
-                //是否只读
-                formatOnPaste: true,
-                overviewRulerBorder: true,
-                // 滚动条的边框
-                scrollBeyondLastLine: true,
-                theme: "vs-dark",
-                // 主题
-                fontSize: window.innerWidth > 600 ? 14 : 12,
-                // 字体
-                wordWrap: "off",
-                // 换行
-                language: "javascript"
-                // 语言
-              });
-              const originModel = monaco.editor.createModel(
-                compareRightText,
-                "javascript"
-              );
-              const modifyModel = monaco.editor.createModel(
-                compareLeftText,
-                "javascript"
-              );
-              monacoEditor.setModel({
-                original: originModel,
-                modified: modifyModel
-              });
-            });
-          });
-        });
-      });
-    }
-  };
-  const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
-      get width() {
-        return window.innerWidth < 550 ? "88vw" : "550px";
-      },
-      get height() {
-        return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
-      get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
-      },
-      get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
-      }
-    },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
-      get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
-      },
-      get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
-      }
-    }
-  };
-  let userCollection = [];
-  const GreasyforkScriptsCollectEvent = async function(scriptId) {
-    log.info("当前脚本id：" + scriptId);
-    if (!GreasyforkMenu.isLogin) {
-      log.error("请先登录账号");
-      Qmsg.error(i18next.t("请先登录账号"));
-      return;
-    }
-    let userId = GreasyforkUrlUtils.getUserId(
-      GreasyforkMenu.getUserLinkElement().href
-    );
-    if (userId == null) {
-      log.error("获取用户id失败");
-      Qmsg.error(i18next.t("获取用户id失败"));
-      return;
-    }
-    if (!userCollection.length) {
-      let loading = Qmsg.loading(i18next.t("获取收藏夹中..."));
-      userCollection = await GreasyforkApi.getUserCollection(userId) || [];
-      loading.close();
-      if (!userCollection.length) {
-        return;
-      }
-    }
-    let alertHTML = "";
-    const checkFavoriteFormInfo = (form, scriptId2) => {
-      let flag = false;
-      scriptId2 = scriptId2.toString().trim();
-      for (const [key, value] of form.entries()) {
-        if (key === "scripts-included[]" && value.toString().trim() === scriptId2) {
-          flag = true;
-          break;
-        }
-      }
-      return flag;
-    };
-    userCollection.forEach((userCollectInfo) => {
-      alertHTML += /*html*/
-      `
-		<li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${userCollectInfo.name}">
-			<div class="user-collect-name">${userCollectInfo.name}</div>
-			<div class="user-collect-btn-container">
-			<div class="pops-panel-button collect-add-script-id">
-				<button type="primary" data-icon="" data-righticon="">
-				<span>${i18next.t("添加")}</span>
-				</button>
-			</div>
-			<div class="pops-panel-button collect-delete-script-id">
-				<button type="danger" data-icon="" data-righticon="">
-				<span>${i18next.t("刪除")}</span>
-				</button>
-			</div>
-			</div>
-		</li>
-		  `;
-    });
-    let collectionDialog = __pops.alert({
-      title: {
-        text: i18next.t("收藏集"),
-        position: "center"
-      },
-      content: {
-        html: true,
-        text: (
-          /*html*/
-          `<ul>${alertHTML}</ul>`
-        )
-      },
-      mask: {
-        enable: true,
-        clickEvent: {
-          toClose: true
-        }
-      },
-      btn: {
-        ok: {
-          enable: false
-        }
-      },
-      width: __pops.isPhone() ? "92vw" : "500px",
-      height: "auto",
-      drag: true,
-      only: true,
-      style: (
-        /*css*/
-        `
-		.pops{
-			--content-max-height: 400px;
-			max-height: var(--content-max-height);
-		}
-		.pops[type-value=alert] .pops-alert-content {
-			max-height: calc(var(--content-max-height) - var(--container-title-height) - var(--container-bottom-btn-height));
-		}
-		.user-collect-item{
-			-webkit-user-select: none;
-			user-select: none;
-			padding: 5px 10px;
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			border-bottom: 1px dotted #c9c9c9;
-		}
-		.user-collect-name{
-
-		}
-		.user-collect-item:hover{
-			
-		}
-		.user-collect-btn-container{
-			margin-left: 10px;
-			display: flex;
-		}
-		`
-      )
-    });
-    domUtils.on(
-      collectionDialog.$shadowRoot,
-      "click",
-      ".collect-add-script-id",
-      async function(event) {
-        let $userCollectItem = event.target.closest(
-          ".user-collect-item"
-        );
-        let setsId = $userCollectItem.dataset.id;
-        $userCollectItem.dataset.name;
-        let loading = Qmsg.loading(i18next.t("添加中..."));
-        try {
-          let formData = await GreasyforkApi.getUserCollectionInfo(
-            userId,
-            setsId
-          );
-          if (!formData) {
-            return;
-          }
-          if (checkFavoriteFormInfo(formData, scriptId)) {
-            Qmsg.warning(i18next.t("该脚本已经在该收藏集中"));
-            return;
-          }
-          let editForm = utils.cloneFormData(formData);
-          let saveEditForm = utils.cloneFormData(formData);
-          editForm.set("add-script", scriptId.toString());
-          editForm.set("script-action", "i");
-          saveEditForm.append("scripts-included[]", scriptId.toString());
-          saveEditForm.set("save", "1");
-          let addFormDataSearchParams = new URLSearchParams(editForm);
-          let saveFormDataSearchParams = new URLSearchParams(saveEditForm);
-          let addData = Array.from(addFormDataSearchParams).map(
-            // @ts-ignore
-            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-          ).join("&");
-          let saveData = Array.from(saveFormDataSearchParams).map(
-            // @ts-ignore
-            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-          ).join("&");
-          log.info("添加的数据", addData);
-          log.info("保存的数据", saveData);
-          let changeResultDoc = await GreasyforkApi.updateUserSetsInfo(
-            userId,
-            setsId,
-            addData
-          );
-          if (!changeResultDoc) {
-            return;
-          }
-          let $changeScriptSet = changeResultDoc.querySelector(".change-script-set");
-          if (!$changeScriptSet) {
-            Qmsg.error(
-              i18next.t("添加失败，{{selector}}元素不存在", {
-                selector: ".change-script-set"
-              })
-            );
-            return;
-          }
-          let $section = $changeScriptSet.querySelector("section");
-          if (!$section) {
-            Qmsg.error(
-              i18next.t("添加失败，{{selector}}元素不存在", {
-                selector: "section"
-              })
-            );
-            return;
-          }
-          let $alertElement = $section.querySelector(".alert");
-          if ($alertElement) {
-            __pops.alert({
-              title: {
-                text: i18next.t("添加失败"),
-                position: "center"
-              },
-              content: {
-                text: $alertElement.innerHTML,
-                html: true
-              },
-              mask: {
-                enable: true,
-                clickEvent: {
-                  toClose: true
-                }
-              },
-              style: (
-                /*css*/
-                `
-						.pops-alert-content{
-							font-style: italic;
-							background-color: #ffc;
-							border: none;
-							border-left: 6px solid #FFEB3B;
-							padding: .5em;
-						}
-						`
-              ),
-              drag: true,
-              dragLimit: true,
-              width: PanelUISize.info.width,
-              height: PanelUISize.info.height
-            });
-            return;
-          }
-          let changeScriptForm = new FormData($changeScriptSet);
-          let changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
-          if (!changeFlag) {
-            log.error("添加失败，提交的添加请求中不包含该脚本id");
-            Qmsg.error(i18next.t("添加失败，表单数据中不包含该脚本"));
-            return;
-          }
-          await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
-          Qmsg.success(i18next.t("添加成功"));
-        } catch (error) {
-          console.error(error);
-        } finally {
-          loading.close();
-        }
-      }
-    );
-    domUtils.on(
-      collectionDialog.$shadowRoot,
-      "click",
-      ".collect-delete-script-id",
-      async function(event) {
-        let $collectItem = event.target.closest(
-          ".user-collect-item"
-        );
-        let setsId = $collectItem.dataset.id;
-        $collectItem.dataset.name;
-        let loading = Qmsg.loading(i18next.t("删除中..."));
-        try {
-          let formData = await GreasyforkApi.getUserCollectionInfo(
-            userId,
-            setsId
-          );
-          if (!formData) {
-            return;
-          }
-          if (!checkFavoriteFormInfo(formData, scriptId)) {
-            Qmsg.info(
-              i18next.t("已删除：{{scriptId}}", {
-                scriptId
-              })
-            );
-            return;
-          }
-          let editForm = utils.cloneFormData(formData, (key, value) => {
-            return key === "scripts-included[]" && typeof value === "string" && value.toString().trim() === scriptId.toString().trim();
-          });
-          let saveEditForm = utils.cloneFormData(editForm);
-          editForm.set("remove-scripts-included[]", scriptId.toString());
-          editForm.set("remove-selected-scripts", "i");
-          editForm.delete("script-action");
-          saveEditForm.set("save", "1");
-          let deleteFormDataSearchParams = new URLSearchParams(editForm);
-          let saveFormDataSearchParams = new URLSearchParams(saveEditForm);
-          let removeData = Array.from(deleteFormDataSearchParams).map(
-            // @ts-ignore
-            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-          ).join("&");
-          let saveData = Array.from(saveFormDataSearchParams).map(
-            // @ts-ignore
-            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
-          ).join("&");
-          log.info("删除的数据", removeData);
-          log.info("保存的数据", saveData);
-          let changeResultDoc = await GreasyforkApi.updateUserSetsInfo(
-            userId,
-            setsId,
-            removeData
-          );
-          if (!changeResultDoc) {
-            return;
-          }
-          let $changeScriptSet = changeResultDoc.querySelector(".change-script-set");
-          if (!$changeScriptSet) {
-            Qmsg.error(
-              i18next.t("删除失败，{{selector}}元素不存在", {
-                selector: ".change-script-set"
-              })
-            );
-            return;
-          }
-          let changeScriptForm = new FormData($changeScriptSet);
-          let changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
-          if (changeFlag) {
-            log.error("删除失败，提交的删除请求中包含该脚本id");
-            Qmsg.error(i18next.t("删除失败，表单数据中仍包含该脚本"));
-            return;
-          }
-          await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
-          Qmsg.success(i18next.t("删除成功"));
-        } catch (error) {
-          console.error(error);
-        } finally {
-          loading.close();
-        }
-      }
-    );
-  };
-  const GreasyforkScripts = {
-    init() {
-      if (GreasyforkRouter.isCode()) {
-        GreasyforkScriptsCode.init();
-      } else if (GreasyforkRouter.isVersion()) {
-        GreasyforkVersions.init();
-      }
-      if (GreasyforkRouter.isCodeStrict()) {
-        PopsPanel.execMenuOnce("fullScreenOptimization", () => {
-          this.fullScreenOptimization();
-        });
-        PopsPanel.execMenuOnce("addCopyCodeButton", () => {
-          this.addCopyCodeButton();
-        });
-      }
-      PopsPanel.execMenuOnce("addCollectionButton", () => {
-        this.addCollectionButton();
-      });
-      PopsPanel.execMenuOnce("addFindReferenceButton", () => {
-        this.setFindCodeSearchBtn();
-      });
-      domUtils.ready(() => {
-        PopsPanel.execMenuOnce("scriptHomepageAddedTodaySUpdate", () => {
-          this.scriptHomepageAddedTodaySUpdate();
-        });
-      });
-    },
-    /**
-     * 添加【收藏】按钮
-     */
-    addCollectionButton() {
-      log.info("添加收藏按钮");
-      utils.waitNode("ul#script-links li.current span").then(() => {
-        let $collectBtn = domUtils.createElement("li", {
-          innerHTML: `
-					<a href="javascript:;">
-						<span>${i18next.t("收藏")}</span>
-					</a>`
-        });
-        domUtils.append(
-          document.querySelector("ul#script-links"),
-          $collectBtn
-        );
-        domUtils.on($collectBtn, "click", () => {
-          let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
-          if (!scriptIdMatch) {
-            log.error(scriptIdMatch, window.location.pathname);
-            Qmsg.error(i18next.t("获取脚本id失败"));
-            return;
-          }
-          let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
-          GreasyforkScriptsCollectEvent(scriptId);
-        });
-      });
-    },
-    /**
-     * F11全屏，F键代码全屏
-     */
-    fullScreenOptimization() {
-      log.info("F11全屏，F键代码全屏");
-      addStyle(
-        /*css*/
-        `
-		.code-container:has(.code-wide-screen){
-			height: auto !important;
-		}
-        .code-wide-screen{
-			position: absolute !important;
-			top: 0 !important;
-			left: 0 !important;
-			right: 0 !important;
-			bottom: 0 !important;
-			margin: 0 !important;
-			padding: 0 !important;
-			width: 100% !important;
-			height: 100% !important;
-			min-width: 100% !important;
-			min-height: 100% !important;
-			max-width: 100% !important;
-			max-height: 100% !important;
-			z-index: 1000000 !important;
-        }
-        `
-      );
-      let isFullScreen = false;
-      domUtils.keydown(
-        _unsafeWindow,
-        function(event) {
-          if (event.key.toLowerCase() === "f") {
-            let $code = $(".monaco-editor") || $("#script-content div.code-container code");
-            if (event.altKey && event.shiftKey) {
-              log.info(`宽屏`);
-              utils.preventEvent(event);
-              if ($code.classList.contains("code-wide-screen")) {
-                $code.classList.remove("code-wide-screen");
-              } else {
-                $code.classList.add("code-wide-screen");
-              }
-            } else if (!event.altKey && !event.ctrlKey && !event.shiftKey && !event.metaKey) {
-              log.info(`全屏`);
-              utils.preventEvent(event);
-              if (isFullScreen) {
-                utils.exitFullScreen($code);
-                isFullScreen = false;
-              } else {
-                utils.enterFullScreen($code);
-                isFullScreen = true;
-              }
-            }
-          }
-        },
-        {
-          capture: true
-        }
-      );
-    },
-    /**
-     * 设置代码搜索按钮(对于库)
-     */
-    setFindCodeSearchBtn() {
-      log.info("设置代码搜索按钮(对于库)");
-      utils.waitNode("ul#script-links li.current span").then(() => {
-        let searchBtn = domUtils.createElement("li", {
-          innerHTML: `
-					<a href="javascript:;">
-						<span>${i18next.t("寻找引用")}</span>
-					</a>`
-        });
-        domUtils.append(
-          document.querySelector(
-            "ul#script-links"
-          ),
-          searchBtn
-        );
-        domUtils.on(searchBtn, "click", async function() {
-          let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
-          if (!scriptIdMatch) {
-            log.error(scriptIdMatch, window.location.pathname);
-            Qmsg.error(i18next.t("获取脚本id失败"));
-            return;
-          }
-          let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
-          window.location.href = GreasyforkUrlUtils.getCodeSearchUrl(
-            `/scripts/${scriptId}`
-          );
-        });
-      });
-    },
-    /**
-     * 脚本首页新增【今日检查】
-     */
-    async scriptHomepageAddedTodaySUpdate() {
-      if (!document.querySelector("#install-area")) {
-        return;
-      }
-      log.info("脚本首页新增【今日检查】");
-      let scriptStatsJSON = await GreasyforkApi.getScriptStats(
-        GreasyforkUrlUtils.getScriptId()
-      );
-      if (!scriptStatsJSON) {
-        return;
-      }
-      log.info("统计信息", scriptStatsJSON);
-      let todayStatsJSON = scriptStatsJSON[utils.formatTime(undefined, "yyyy-MM-dd")];
-      if (!todayStatsJSON) {
-        log.error("今日份的统计信息不存在");
-        return;
-      }
-      let update_checks = todayStatsJSON["update_checks"];
-      log.info("今日统计信息", todayStatsJSON);
-      domUtils.after(
-        "dd.script-show-daily-installs",
-        domUtils.createElement("dt", {
-          className: "script-show-daily-update_checks",
-          innerHTML: `<span>${i18next.t("今日检查")}</span>`
-        })
-      );
-      domUtils.after(
-        "dt.script-show-daily-update_checks",
-        domUtils.createElement("dd", {
-          className: "script-show-daily-update_checks",
-          innerHTML: "<span>" + update_checks + "</span>"
-        })
-      );
-    },
-    /**
-     * 添加复制代码按钮
-     */
-    addCopyCodeButton() {
-      log.info("添加复制代码按钮");
-      utils.waitNode("div#script-content div.code-container").then(($codeContainer) => {
-        let copyButton = domUtils.createElement(
-          "button",
-          {
-            textContent: i18next.t("复制代码")
-          },
-          {
-            style: "margin-bottom: 1em;"
-          }
-        );
-        domUtils.on(copyButton, "click", async function() {
-          let loading = Qmsg.loading(i18next.t("加载文件中..."));
-          let getResp = await httpx.get(
-            `/zh-CN/scripts/${GreasyforkUrlUtils.getScriptId()}.json`,
-            {
-              fetch: true,
-              responseType: "json"
-            }
-          );
-          if (!getResp.status) {
-            loading.close();
-            return;
-          }
-          let respJSON = utils.toJSON(getResp.data.responseText);
-          let code_url = respJSON["code_url"];
-          log.success("代码地址：", code_url);
-          let scriptJS = await httpx.get(code_url);
-          if (!scriptJS.status) {
-            loading.close();
-            return;
-          }
-          loading.close();
-          utils.setClip(scriptJS.data.responseText);
-          Qmsg.success(i18next.t("复制成功"));
-        });
-        domUtils.before($codeContainer, copyButton);
-      });
-    }
-  };
-  const beautifyCenterContentCSS = '.sidebarred-main-content {\r\n	max-width: unset;\r\n	flex: unset;\r\n}\r\nol.script-list {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	border: none;\r\n	gap: 20px;\r\n	background: transparent;\r\n	box-shadow: none;\r\n}\r\nol.script-list .script-description {\r\n	overflow-wrap: anywhere;\r\n}\r\nol.script-list li {\r\n	border: 1px solid rgb(221, 221, 221);\r\n	border-radius: 5px;\r\n	flex: 1 1 45%;\r\n	box-shadow: rgb(221, 221, 221) 0px 0px 5px 2px;\r\n}\r\n/* 收藏按钮 */\r\n.script-collect-btn {\r\n	color: #ffffff;\r\n	border-color: #409eff;\r\n	background-color: #409eff;\r\n}\r\n/* 评分按钮 */\r\n.script-list-rating-score[data-position="right"] {\r\n	display: inline-block;\r\n	min-width: 1em;\r\n	text-align: center;\r\n	padding: 0 0.25em;\r\n	border: 1px solid #dddddd;\r\n	border-radius: 10px;\r\n	width: fit-content;\r\n}\r\n/* 安装按钮 */\r\n.install-link {\r\n	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;\r\n}\r\n.install-link:has(+ .install-help-link) {\r\n	border-radius: 0.25rem 0 0 0.25rem !important;\r\n}\r\n/* 加载圆圈动画 */\r\n.install-link.lum-lightbox-loader {\r\n	position: relative;\r\n	min-width: 4rem;\r\n	min-height: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::before {\r\n	margin-left: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::after {\r\n	margin-right: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::before,\r\n.install-link.lum-lightbox-loader::after {\r\n	width: 1em;\r\n	height: 1em;\r\n	margin-top: -0.5em;\r\n	border-radius: 1em !important;\r\n	background: hsla(0, 0%, 100%, 0.5);\r\n}\r\n';
-  const GreasyforkCheckVersion = {
-    /** 获取 TamperMonkey 暴露在window下的函数 */
-    getTampermonkey: () => {
-      var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Tampermonkey;
-    },
-    /** 获取 Violentmonkey 暴露在window下的函数 */
-    getViolentmonkey: () => {
-      var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Violentmonkey;
-    },
-    /** 获取 ScriptCat 暴露在window下的函数 */
-    getScriptCat: () => {
-      var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Scriptcat;
-    },
-    /**
-     * 获取脚本容器启用状态
-     */
-    getScriptContainerStatus() {
-      var _a2, _b, _c;
-      let containerStatus = {
-        Tampermonkey: false,
-        Violentmonkey: false,
-        ScriptCat: false
-      };
-      if ((_a2 = _unsafeWindow.external) == null ? undefined : _a2.Tampermonkey) {
-        containerStatus.Tampermonkey = true;
-      }
-      if ((_b = _unsafeWindow.external) == null ? undefined : _b.Violentmonkey) {
-        containerStatus.Violentmonkey = true;
-      }
-      if ((_c = _unsafeWindow.external) == null ? undefined : _c.Scriptcat) {
-        containerStatus.ScriptCat = true;
-      }
-      return containerStatus;
-    },
-    /**
-     * 获取已注册的脚本容器名
-     */
-    getRegisterScriptContainerNameList() {
-      let allScriptContainerStatus = this.getScriptContainerStatus();
-      let isRegisterScriptContainer = allScriptContainerStatus;
-      let scriptContainerNameList = [];
-      Object.keys(isRegisterScriptContainer).forEach((containerName) => {
-        let containerEnable = Reflect.get(
-          isRegisterScriptContainer,
-          containerName
-        );
-        if (containerEnable) {
-          scriptContainerNameList.push(containerName);
-        }
-      });
-      return scriptContainerNameList;
-    },
-    /**
-     * 获取脚本安装的版本号
-     * @param name 脚本名
-     * @param namespace 脚本命名空间
-     */
-    getInstalledVersion(name, namespace) {
-      return new Promise((resolve, reject) => {
-        const tm = this.getTampermonkey();
-        if (tm) {
-          tm.isInstalled(name, namespace, function(data) {
-            if (data.installed) {
-              resolve(data.version);
-            } else {
-              resolve(null);
-            }
-          });
-          return;
-        }
-        const vm = this.getViolentmonkey();
-        if (vm) {
-          vm.isInstalled(name, namespace).then(resolve);
-          return;
-        }
-        const scriptCat = this.getScriptCat();
-        if (scriptCat) {
-          scriptCat.isInstalled(name, namespace, function(data) {
-            if (data.installed) {
-              resolve(data.version);
-            } else {
-              resolve(null);
-            }
-          });
-          return;
-        }
-        reject(new TypeError("获取脚本容器暴露的external信息失败"));
-      });
-    },
-    /**
-     * https://developer.mozilla.org/en/docs/Toolkit_version_format
-     *
-     * 比较版本号
-     * @param a 版本号
-     * @param b 版本号
-     * @returns
-     * + -1 该版本号低
-     * + 0 该版本号和比较的版本号相同
-     * + 1 该版本号高
-     */
-    compareVersions(a, b) {
-      if (a === b) {
-        return 0;
-      }
-      const aParts = a.split(".");
-      const bParts = b.split(".");
-      for (let i = 0; i < aParts.length; i++) {
-        const result = this.compareVersionPart(aParts[i], bParts[i]);
-        if (result !== 0) {
-          return result;
-        }
-      }
-      return 0;
-    },
-    compareVersionPart(partA, partB) {
-      const partAParts = this.parseVersionPart(partA);
-      const partBParts = this.parseVersionPart(partB);
-      for (let i = 0; i < partAParts.length; i++) {
-        if (partAParts[i].length > 0 && partBParts[i].length === 0) {
-          return -1;
-        }
-        if (partAParts[i].length === 0 && partBParts[i].length > 0) {
-          return 1;
-        }
-        if (partAParts[i] > partBParts[i]) {
-          return 1;
-        }
-        if (partAParts[i] < partBParts[i]) {
-          return -1;
-        }
-      }
-      return 0;
-    },
-    // It goes number, string, number, string. If it doesn't exist, then
-    // 0 for numbers, empty string for strings.
-    parseVersionPart(part) {
-      if (!part) {
-        return [0, "", 0, ""];
-      }
-      const partParts = /([0-9]*)([^0-9]*)([0-9]*)([^0-9]*)/.exec(part);
-      return [
-        partParts[1] ? parseInt(partParts[1]) : 0,
-        partParts[2],
-        partParts[3] ? parseInt(partParts[3]) : 0,
-        partParts[4]
-      ];
-    },
-    /**
-     *
-     * @param installButton 安装按钮
-     * 必须属性
-     * + data-update-label 按钮升级的文字
-     * + data-downgrade-label 按钮降级的文字
-     * + data-reinstall-label 按钮重装的文字
-     * @param installedVersion 安装版本
-     * @param version 版本号
-     * @returns
-     */
-    handleInstallResult(installButton, installedVersion, version) {
-      if (installedVersion == null) {
-        return;
-      }
-      installButton.removeAttribute("data-ping-url");
-      switch (this.compareVersions(installedVersion, version)) {
-        // Upgrade
-        case -1:
-          installButton.textContent = installButton.getAttribute("data-update-label");
-          break;
-        // Downgrade
-        case 1:
-          installButton.textContent = installButton.getAttribute(
-            "data-downgrade-label"
-          );
-          break;
-        // Equal
-        case 0:
-          installButton.textContent = installButton.getAttribute(
-            "data-reinstall-label"
-          );
-          break;
-      }
-    },
-    /**
-     * 检测js脚本的更新
-     * @param installButton 安装按钮
-     * 必须属性
-     * + data-script-name 脚本名
-     * + data-script-namespace 脚本命名空间
-     * + data-script-version 脚本当前版本号
-     * @param retry 重试
-     */
-    async checkForUpdatesJS(installButton, retry) {
-      const name = installButton.getAttribute("data-script-name");
-      const namespace = installButton.getAttribute("data-script-namespace");
-      const version = installButton.getAttribute("data-script-version");
-      try {
-        let installedVersion = await this.getInstalledVersion(name, namespace);
-        if (installedVersion == null) {
-          return false;
-        }
-        this.handleInstallResult(installButton, installedVersion, version);
-        return true;
-      } catch (error) {
-        if (retry) {
-          await utils.sleep(1e3);
-          try {
-            return await this.checkForUpdatesJS(installButton, false);
-          } catch (error2) {
-          }
-        }
-        return false;
-      }
-    },
-    /**
-     * 检测css脚本的更新
-     * @param installButton 安装按钮
-     * 必须属性
-     * + data-script-name 脚本名
-     * + data-script-namespace 脚本命名空间
-     */
-    checkForUpdatesCSS(installButton) {
-      const name = installButton.getAttribute("data-script-name");
-      const namespace = installButton.getAttribute("data-script-namespace");
-      postMessage(
-        { type: "style-version-query", name, namespace, url: location.href },
-        location.origin
-      );
-    }
-  };
-  const parseScriptListInfo = ($scriptList) => {
-    let dataset = $scriptList.dataset;
-    const info = {
-      scriptId: parseInt(dataset.scriptId),
-      scriptName: dataset.scriptName,
-      scriptAuthors: [],
-      scriptDailyInstalls: parseInt(dataset.scriptDailyInstalls),
-      scriptTotalInstalls: parseInt(dataset.scriptTotalInstalls),
-      scriptRatingScore: parseFloat(dataset.scriptRatingScore),
-      scriptCreatedDate: new Date(dataset.scriptCreatedDate),
-      scriptUpdatedDate: new Date(dataset.scriptUpdatedDate),
-      scriptType: dataset.scriptType,
-      scriptVersion: dataset.scriptVersion,
-      sensitive: dataset.sensitive === "true",
-      scriptLanguage: dataset.scriptLanguage,
-      cssAvailableAsJs: dataset.cssAvailableAsJs === "true",
-      codeUrl: dataset.codeUrl,
-      scriptDescription: dataset.scriptDescription,
-      scriptAuthorId: parseInt(dataset.scriptAuthorId),
-      scriptAuthorName: dataset.scriptAuthorName
-    };
-    let scriptAuthorsObj = utils.toJSON(dataset.scriptAuthors);
-    Object.keys(scriptAuthorsObj).forEach((authorId) => {
-      let authorName = scriptAuthorsObj[authorId];
-      info.scriptAuthors.push({
-        authorId: parseInt(authorId),
-        authorName
-      });
-    });
-    if ((info.scriptAuthorName == null || isNaN(info.scriptAuthorId)) && info.scriptAuthors.length) {
-      info.scriptAuthorName = info.scriptAuthors[0].authorName;
-      info.scriptAuthorId = info.scriptAuthors[0].authorId;
-    }
-    if (info.scriptDescription == null) {
-      let $description = $scriptList.querySelector(".script-description") || $scriptList.querySelector(".description");
-      if ($description) {
-        info.scriptDescription = $description.innerText || $description.textContent;
-      }
-    }
-    return info;
-  };
-  const GreasyforkScriptsList = {
-    init() {
-      PopsPanel.execMenuOnce("gf-scripts-filter-enable", () => {
-        GreasyforkScriptsFilter.init();
-      });
-      PopsPanel.execMenuOnce("beautifyCenterContent", () => {
-        return this.beautifyCenterContent();
-      });
-    },
-    /**
-     * 美化脚本列表
-     */
-    beautifyCenterContent() {
-      log.info("美化脚本列表-双列");
-      let result = [];
-      result.push(addStyle(beautifyCenterContentCSS));
-      const lodingClassName = "lum-lightbox-loader";
-      const noInstallBtnText = i18next.t("安装此脚本");
-      DOMUtils.ready(() => {
-        let allScriptContainerStatus = GreasyforkCheckVersion.getScriptContainerStatus();
-        let hasScriptContainer = Object.values(allScriptContainerStatus).find(
-          (item) => item
-        );
-        let isRegisterScriptContainerNameList = GreasyforkCheckVersion.getRegisterScriptContainerNameList();
-        let isForceUseNameSpace = PopsPanel.getValue(
-          "beautifyCenterContent-queryNameSpace"
-        );
-        if (!hasScriptContainer) {
-          log.error("脚本容器未暴露external信息", window.external);
-        } else {
-          log.info(
-            "当前暴露的external信息：" + isRegisterScriptContainerNameList.map((it) => `【${it}】`).join("、")
-          );
-        }
-        let lockFn = new utils.LockFunction(() => {
-          let allScriptsList = GreasyforkScriptsFilter.getElementList();
-          allScriptsList.forEach(($scriptList) => {
-            if ($scriptList.querySelector(".script-list-operation")) {
-              return;
-            }
-            let scriptInfo = parseScriptListInfo($scriptList);
-            let $inlineStats = $scriptList.querySelector(
-              ".inline-script-stats"
-            );
-            if (!$inlineStats) {
-              return;
-            }
-            let code_url = scriptInfo.codeUrl;
-            let $ratingScoreLeft = DOMUtils.createElement("dt", {
-              className: "script-list-rating-score",
-              innerHTML: `<span>${i18next.t("评分")}</span>`
-            });
-            let $ratingScoreRight = DOMUtils.createElement(
-              "dd",
-              {
-                className: "script-list-rating-score",
-                innerHTML: `<span>${scriptInfo.scriptRatingScore}</span>`
-              },
-              {
-                "data-position": "right"
-              }
-            );
-            let $goodRatingCount = $scriptList.querySelector(
-              "dd.script-list-ratings .good-rating-count"
-            );
-            let $okRatingCount = $scriptList.querySelector(
-              "dd.script-list-ratings .ok-rating-count"
-            );
-            let $badRatingCount = $scriptList.querySelector(
-              "dd.script-list-ratings .bad-rating-count"
-            );
-            if ($goodRatingCount && $okRatingCount && $badRatingCount) {
-              let goodRatingCount = parseInt($goodRatingCount.innerText);
-              let okRatingCount = parseInt($okRatingCount.innerText);
-              let badRatingCount = parseInt($badRatingCount.innerText);
-              let totalRatingCount = goodRatingCount + okRatingCount + badRatingCount;
-              if (totalRatingCount >= 10) {
-                if (goodRatingCount / totalRatingCount >= 0.6) {
-                  $ratingScoreRight.classList.add("good-rating-count");
-                } else {
-                  $ratingScoreRight.classList.add("bad-rating-count");
-                }
-              } else if (totalRatingCount == 0) {
-                $ratingScoreRight.classList.add("good-rating-count");
-              } else {
-                if (goodRatingCount > okRatingCount + badRatingCount) {
-                  $ratingScoreRight.classList.add("good-rating-count");
-                } else {
-                  $ratingScoreRight.classList.add("bad-rating-count");
-                }
-              }
-            }
-            let $versionLeft = DOMUtils.createElement("dt", {
-              className: "script-list-version",
-              innerHTML: (
-                /*html*/
-                `<span>${i18next.t("版本")}</span>`
-              )
-            });
-            let $versionRight = DOMUtils.createElement(
-              "dd",
-              {
-                className: "script-list-version",
-                innerHTML: (
-                  /*html*/
-                  `<span>${scriptInfo.scriptVersion}</span>`
-                )
-              },
-              {
-                "data-position": "right"
-              }
-            );
-            let $operationLeft = DOMUtils.createElement("dt", {
-              className: "script-list-operation",
-              innerHTML: `<span>${i18next.t("操作")}</span>`
-            });
-            let $operationRight = DOMUtils.createElement(
-              "dd",
-              {
-                className: "script-list-operation",
-                innerHTML: (
-                  /*html*/
-                  `
-						<a
-							target="_blank"
-							class="install-link"
-							data-install-format="js"
-							data-script-name="${scriptInfo.scriptName}"
-							data-script-namespace=""
-							data-script-version="${scriptInfo.scriptVersion}"
-							data-update-label="${i18next.t("更新到 {{version}} 版本", {
-                  version: scriptInfo.scriptVersion
-                })}"
-							data-downgrade-label="${i18next.t("降级到 {{version}} 版本", {
-                  version: scriptInfo.scriptVersion
-                })}"
-							data-reinstall-label="${i18next.t("重新安装 {{version}} 版本", {
-                  version: scriptInfo.scriptVersion
-                })}"
-							href="${code_url}"></a>
-						<button class="script-collect-btn">${i18next.t("收藏")}</button>
-						`
-                )
-              },
-              {
-                "data-position": "right",
-                style: "gap:10px;display: flex;flex-wrap: wrap;align-items: center;"
-              }
-            );
-            let $collect = $operationRight.querySelector(
-              ".script-collect-btn"
-            );
-            let $installLink = $operationRight.querySelector(".install-link");
-            $installLink["data-script-info"] = scriptInfo;
-            DOMUtils.addClass($installLink, lodingClassName);
-            if (scriptInfo.scriptType === "library") {
-              $installLink.remove();
-            }
-            DOMUtils.on($collect, "click", (event) => {
-              utils.preventEvent(event);
-              GreasyforkScriptsCollectEvent(scriptInfo.scriptId);
-            });
-            if (PopsPanel.getValue("gf-scripts-filter-enable")) {
-              let $filter = DOMUtils.createElement("button", {
-                className: "script-filter-btn",
-                innerHTML: i18next.t("过滤")
-              });
-              let attr_filter_key = "data-filter-key";
-              let attr_filter_value = "data-filter-value";
-              DOMUtils.on($filter, "click", (event) => {
-                utils.preventEvent(event);
-                let $dialog = __pops.alert({
-                  title: {
-                    text: i18next.t("选择需要过滤的选项"),
-                    position: "center"
-                  },
-                  content: {
-                    text: (
-                      /*html*/
-                      `
-									<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${scriptInfo.scriptId}$">${i18next.t("脚本id：{{text}}", {
-                      text: scriptInfo.scriptId
-                    })}</button>
-									<button ${attr_filter_key}="scriptName" ${attr_filter_value}="^${utils.parseStringToRegExpString(
-                      scriptInfo.scriptName
-                    )}$">${i18next.t("脚本名：{{text}}", {
-                      text: scriptInfo.scriptName
-                    })}</button>
-									`
-                    ),
-                    html: true
-                  },
-                  mask: {
-                    enable: true,
-                    clickEvent: {
-                      toClose: true
-                    }
-                  },
-                  width: "350px",
-                  height: "300px",
-                  drag: true,
-                  dragLimit: true,
-                  style: (
-                    /*css*/
-                    `
-								.pops-alert-content{
-									display: flex;
-									flex-direction: column;
-    								gap: 20px;
-								}
-								.pops-alert-content button{
-									text-wrap: wrap;
-									padding: 8px;
-									height: auto;
-									text-align: left;
-								}
-								`
-                  )
-                });
-                let $content = $dialog.$shadowRoot.querySelector(
-                  ".pops-alert-content"
-                );
-                scriptInfo.scriptAuthors.forEach((scriptAuthorInfo) => {
-                  let $authorIdButton = DOMUtils.createElement("button", {
-                    innerHTML: i18next.t("作者id：{{text}}", {
-                      text: scriptAuthorInfo.authorId
-                    })
-                  });
-                  $authorIdButton.setAttribute(attr_filter_key, "scriptAuthorId");
-                  $authorIdButton.setAttribute(
-                    attr_filter_value,
-                    "^" + scriptAuthorInfo.authorId + "$"
-                  );
-                  let $authorNameButton = DOMUtils.createElement("button", {
-                    innerHTML: i18next.t("作者名：{{text}}", {
-                      text: scriptAuthorInfo.authorName
-                    })
-                  });
-                  $authorNameButton.setAttribute(
-                    attr_filter_key,
-                    "scriptAuthorName"
-                  );
-                  $authorNameButton.setAttribute(
-                    attr_filter_value,
-                    "^" + utils.parseStringToRegExpString(
-                      scriptAuthorInfo.authorName
-                    ) + "$"
-                  );
-                  $content.appendChild($authorIdButton);
-                  $content.appendChild($authorNameButton);
-                });
-                DOMUtils.on(
-                  $dialog.$shadowRoot,
-                  "click",
-                  `button[${attr_filter_key}]`,
-                  (event2) => {
-                    utils.preventEvent(event2);
-                    let $click = event2.target;
-                    let key = $click.getAttribute(
-                      attr_filter_key
-                    );
-                    let value = $click.getAttribute(attr_filter_value);
-                    GreasyforkScriptsFilter.addValue(key, value);
-                    $dialog.close();
-                    GreasyforkScriptsFilter.filter();
-                    Qmsg.success(i18next.t("添加成功"));
-                  }
-                );
-              });
-              $operationRight.appendChild($filter);
-            }
-            $inlineStats.appendChild($ratingScoreLeft);
-            $inlineStats.appendChild($ratingScoreRight);
-            $inlineStats.appendChild($versionLeft);
-            $inlineStats.appendChild($versionRight);
-            $inlineStats.appendChild($operationLeft);
-            $inlineStats.appendChild($operationRight);
-          });
-        }, 100);
-        let lockFn2 = new utils.LockFunction(async () => {
-          let $installLinkList = Array.from(
-            $$(
-              ".install-link[data-install-format=js]:not([gm-is-check-install-status])"
-            )
-          );
-          for (let index = 0; index < $installLinkList.length; index++) {
-            const $installLink = $installLinkList[index];
-            $installLink.setAttribute("gm-is-check-install-status", "");
-            let scriptLocalInfo = Reflect.get(
-              $installLink,
-              "data-script-info"
-            );
-            if (hasScriptContainer) {
-              if (isForceUseNameSpace) {
-                let scriptInfo = await GreasyforkApi.getScriptInfo(
-                  scriptLocalInfo.scriptId
-                );
-                if (scriptInfo) {
-                  $installLink.setAttribute(
-                    "data-script-namespace",
-                    scriptInfo.namespace
-                  );
-                }
-              }
-              GreasyforkCheckVersion.checkForUpdatesJS($installLink, true).then(
-                (checkResult) => {
-                  DOMUtils.removeClass($installLink, lodingClassName);
-                  if (!checkResult) {
-                    DOMUtils.text($installLink, noInstallBtnText);
-                  }
-                }
-              );
-            } else {
-              DOMUtils.removeClass($installLink, lodingClassName);
-              DOMUtils.text($installLink, noInstallBtnText);
-            }
-          }
-        });
-        utils.mutationObserver(document, {
-          config: {
-            subtree: true,
-            childList: true
-          },
-          immediate: true,
-          callback: () => {
-            lockFn.run();
-            lockFn2.run();
-          }
-        });
-      });
-      return result;
-    }
-  };
   const GreasyforkScriptsFilter = {
     /** 存储的键 */
     key: "gf-shield-rule",
@@ -4265,7 +2771,7 @@
      */
     filter() {
       this.getElementList().forEach(($scriptList) => {
-        let data = parseScriptListInfo($scriptList);
+        let data = GreasyforkElementUtils.parseScriptListInfo($scriptList);
         let localValueSplit = this.getValue().split("\n");
         for (let index = 0; index < localValueSplit.length; index++) {
           let localRule = localValueSplit[index];
@@ -4546,7 +3052,7 @@
                         }
                       ];
                       domUtils.ready(() => {
-                        document.querySelectorAll(
+                        $$(
                           "select.language-selector-locale option"
                         ).forEach(($languageOption) => {
                           let value = $languageOption.getAttribute(
@@ -4926,7 +3432,7 @@
                         return;
                       }
                       let scriptUrlList = [];
-                      document.querySelectorAll(
+                      $$(
                         "#user-script-list-section li a.script-link"
                       ).forEach((item) => {
                         scriptUrlList = scriptUrlList.concat(
@@ -4959,7 +3465,7 @@
                         return;
                       }
                       let scriptUrlList = [];
-                      document.querySelectorAll(
+                      $$(
                         "#user-unlisted-script-list li a.script-link"
                       ).forEach((item) => {
                         scriptUrlList = scriptUrlList.concat(
@@ -4992,7 +3498,7 @@
                         return;
                       }
                       let scriptUrlList = [];
-                      document.querySelectorAll(
+                      $$(
                         "#user-library-script-list li a.script-link"
                       ).forEach((item) => {
                         scriptUrlList = scriptUrlList.concat(
@@ -5214,9 +3720,7 @@
     getElementList() {
       let discussionsListContainer = [];
       discussionsListContainer = discussionsListContainer.concat(
-        Array.from(
-          document.querySelectorAll(".discussion-list-container")
-        )
+        Array.from($$(".discussion-list-container"))
       );
       return discussionsListContainer;
     },
@@ -5738,6 +4242,41 @@
         });
         $webhookUrlInput.value = webhookUrlList.join("\n");
       });
+    }
+  };
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      get width() {
+        return window.innerWidth < 550 ? "88vw" : "550px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "70vh" : "450px";
+      }
+    },
+    /**
+     * 功能丰富，aside铺满了的设置界面，要稍微大一点
+     */
+    settingBig: {
+      get width() {
+        return window.innerWidth < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return window.innerHeight < 600 ? "80vh" : "600px";
+      }
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
     }
   };
   const SettingUIScriptSearch = {
@@ -6469,7 +5008,7 @@
           result.push(addStyle(beautifyHomeCSS));
         } else if (GreasyforkRouter.isScriptsFeedback()) {
           result.push(addStyle(beautifyFeedbackCSS));
-          let $noRating = document.querySelector(
+          let $noRating = $(
             '.radio-label[for*="discussion_rating_0"]'
           );
           if ($noRating) {
@@ -6478,7 +5017,7 @@
               '<span class="rating-icon rating-icon-none">不评分</span>'
             );
           }
-          let $badRating = document.querySelector(
+          let $badRating = $(
             '.radio-label[for*="discussion_rating_2"]'
           );
           if ($badRating) {
@@ -6487,7 +5026,7 @@
               '<span class="rating-icon rating-icon-bad">差评</span>'
             );
           }
-          let $okRating = document.querySelector(
+          let $okRating = $(
             '.radio-label[for*="discussion_rating_3"]'
           );
           if ($okRating) {
@@ -6496,7 +5035,7 @@
               '<span class="rating-icon rating-icon-ok">一般</span>'
             );
           }
-          let $goodRating = document.querySelector(
+          let $goodRating = $(
             '.radio-label[for*="discussion_rating_4"]'
           );
           if ($goodRating) {
@@ -6506,7 +5045,7 @@
             );
           }
         } else if (GreasyforkRouter.isScriptAdmin()) {
-          if (!document.querySelector('input[type="submit"][name="update-only"]')) {
+          if (!$('input[type="submit"][name="update-only"]')) {
             result.push(
               addStyle(
                 /*css*/
@@ -6574,7 +5113,7 @@
             element.parentElement.removeChild(element.nextElementSibling);
           }
         }
-        let $fileInputList = document.querySelectorAll('input[type="file"]');
+        let $fileInputList = $$('input[type="file"]');
         $fileInputList.forEach(($input) => {
           if ($input.getAttribute("name") === "code_upload") {
             return;
@@ -7065,6 +5604,1540 @@
       });
     }
   };
+  const GreasyforkScriptsCode = {
+    init() {
+      PopsPanel.execMenuOnce("code-repairCodeLineNumber", () => {
+        this.repairCodeLineNumber();
+      });
+      PopsPanel.execMenuOnce("code-use-monaco-editor", () => {
+        this.coverEditorWithMonaco();
+      });
+    },
+    /**
+     * 修复代码的行号显示不够问题
+     * 超过1w行不会高亮代码
+     */
+    repairCodeLineNumber() {
+      log.info("修复代码的行号显示不够问题");
+      PopsPanel.execMenuOnce("beautifyGreasyforkBeautify", () => {
+        addStyle(
+          /*css*/
+          `
+				.code-container pre code .marker{
+					padding-left: 6px;
+				}	
+				`
+        );
+      });
+      utils.waitNode(
+        "#script-content div.code-container pre.prettyprint ol"
+      ).then(($prettyPrintOL) => {
+        if ($prettyPrintOL.childElementCount >= 1e3) {
+          log.success(
+            `当前代码行数${$prettyPrintOL.childElementCount}行，超过1000行，优化行号显示问题`
+          );
+          addStyle(
+            /*css*/
+            `
+                    pre.prettyprint{
+                        padding-left: 26px;
+                    }
+					`
+          );
+        }
+      });
+    },
+    /**
+     * 使用monacoEditor替换编辑器
+     */
+    coverEditorWithMonaco() {
+      log.info(`使用monacoEditor替换编辑器`);
+      addStyle(
+        /*css*/
+        `
+			.monaco-editor{
+				height: calc(100vh - 54px);
+			}
+			#script-info{
+				padding-bottom: 0px !important;
+			}
+		`
+      );
+      CommonUtil.addBlockCSS("#script-content .code-container > pre");
+      GreasyforkUtils.monacoEditor().then(async (monaco) => {
+        let scriptId = GreasyforkUrlUtils.getScriptId(window.location.href);
+        if (!scriptId) {
+          Qmsg.error("未解析出当前脚本ID", { consoleLogContent: true });
+          return;
+        }
+        let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
+        let code_url = scriptInfo == null ? undefined : scriptInfo.code_url;
+        if (!code_url) {
+          Qmsg.error("请求结果中未解析出脚本代码URL", {
+            consoleLogContent: true
+          });
+          return;
+        }
+        let searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.has("version")) {
+          let version = searchParams.get("version");
+          code_url = code_url.replace(
+            new RegExp(`/${scriptId}(/[\\d]+|)`),
+            `/${scriptId}/${version}`
+          );
+          log.info(`当前是历史代码页面，请求的脚本代码URL为${code_url}`);
+        }
+        let code_text_response = await httpx.get(code_url, {
+          timeout: 2e4
+        });
+        if (!code_text_response.status) {
+          return;
+        }
+        let code_text = code_text_response.data.responseText;
+        domUtils.ready(async () => {
+          let $codeContainer = await utils.waitNode(
+            "#script-content .code-container > pre",
+            1e4
+          );
+          if (!$codeContainer) {
+            return;
+          }
+          let $monacoEditor = domUtils.createElement("div", {
+            className: "monaco-editor"
+          });
+          domUtils.after($codeContainer, $monacoEditor);
+          monaco.editor.create($monacoEditor, {
+            value: code_text,
+            minimap: { enabled: true },
+            // 小地图
+            automaticLayout: true,
+            // 自动布局,
+            codeLens: true,
+            colorDecorators: true,
+            contextmenu: true,
+            readOnly: true,
+            //是否只读
+            formatOnPaste: true,
+            overviewRulerBorder: true,
+            // 滚动条的边框
+            scrollBeyondLastLine: true,
+            theme: "vs-dark",
+            // 主题
+            fontSize: window.innerWidth > 600 ? 14 : 12,
+            // 字体
+            wordWrap: "off",
+            // 换行
+            language: "javascript",
+            // 语言
+            folding: true,
+            // 是否启用代码折叠
+            foldingStrategy: "indentation"
+            // 代码可分小段折叠
+          });
+        });
+      });
+    }
+  };
+  const beautifyVersionsPageCSS = 'ul.history_versions,\r\nul.history_versions li {\r\n	width: 100%;\r\n}\r\nul.history_versions li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	margin: 25px 0px;\r\n}\r\n.diff-controls input[type="radio"]:nth-child(2) {\r\n	margin-left: 5px;\r\n}\r\n.flex-align-item-center {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.script-tag {\r\n	margin-bottom: 8px;\r\n}\r\n.script-tag-version a {\r\n	color: #656d76;\r\n	fill: #656d76;\r\n	text-decoration: none;\r\n	width: fit-content;\r\n	width: -moz-fit-content;\r\n}\r\n.script-tag-version a:hover svg {\r\n	color: #00a3f5;\r\n	fill: #00a3f5;\r\n}\r\n.script-tag-version a > span {\r\n	margin-left: 0.25rem;\r\n}\r\n.script-note-box-body {\r\n	border-radius: 0.375rem;\r\n	border-style: solid;\r\n	border-width: max(1px, 0.0625rem);\r\n	border-color: #d0d7de;\r\n	color: #1f2328;\r\n	padding: 16px;\r\n	overflow-wrap: anywhere;\r\n}\r\n.script-note-box-body p {\r\n	margin-bottom: unset;\r\n}\r\n\r\n/* 安装按钮 */\r\n.install-link {\r\n	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;\r\n}\r\n';
+  const GreasyforkVersions = {
+    init() {
+      PopsPanel.execMenuOnce("beautifyHistoryVersionPage", () => {
+        return this.beautifyHistoryVersionPage();
+      });
+      PopsPanel.execMenuOnce("scripts-versions-addExtraTagButton", () => {
+        this.addExtraTagButton();
+      });
+      PopsPanel.execMenuOnce("scripts-versions-addCompareCodeButton", () => {
+        this.sourceDiffMonacoEditor();
+      });
+    },
+    /**
+     * 美化 历史版本 页面
+     */
+    beautifyHistoryVersionPage() {
+      log.info("美化 历史版本 页面");
+      let result = [];
+      result.push(addStyle(beautifyVersionsPageCSS));
+      result.push(
+        CommonUtil.addBlockCSS(
+          ".version-number",
+          ".version-date",
+          ".version-changelog"
+        )
+      );
+      domUtils.ready(function() {
+        let $historyVersion = $("ul.history_versions");
+        if (!$historyVersion) {
+          Qmsg.error(i18next.t("未找到history_versions元素列表"));
+          return;
+        }
+        Array.from($historyVersion.children).forEach((liElement) => {
+          var _a2, _b;
+          let versionUrl = liElement.querySelector(".version-number a").href;
+          let versionNumber = liElement.querySelector(
+            ".version-number a"
+          ).innerText;
+          let versionDate = (_a2 = liElement.querySelector(".version-date")) == null ? undefined : _a2.getAttribute("datetime");
+          let updateNote = ((_b = liElement.querySelector(".version-changelog")) == null ? undefined : _b.innerHTML) || "";
+          let versionDateElement = domUtils.createElement("span", {
+            className: "script-version-date",
+            innerHTML: utils.formatTime(
+              versionDate,
+              i18next.t("yyyy年MM月dd日 HH:mm:ss")
+            )
+          });
+          let tagElement = domUtils.createElement("div", {
+            className: "script-tag",
+            innerHTML: (
+              /*html*/
+              `
+                    <div class="script-tag-version">
+                        <a href="${versionUrl}" class="flex-align-item-center">
+                        <svg aria-label="Tag" role="img" height="16" viewBox="0 0 16 16" version="1.1" width="16">
+                            <path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"></path>
+                        </svg>
+                        <span>${versionNumber}</span>
+                        </a>
+                    </div>`
+            )
+          });
+          let boxBodyElement = domUtils.createElement("div", {
+            className: "script-note-box-body",
+            innerHTML: updateNote
+          });
+          liElement.appendChild(versionDateElement);
+          liElement.appendChild(tagElement);
+          liElement.appendChild(boxBodyElement);
+        });
+      });
+      return result;
+    },
+    /**
+     * 添加额外的标签按钮
+     */
+    addExtraTagButton() {
+      log.info("添加额外的标签按钮");
+      domUtils.ready(() => {
+        $$(".script-tag-version").forEach(($tagVersion) => {
+          var _a2, _b;
+          let $anchor = $tagVersion.querySelector("a");
+          if (!$anchor) {
+            return;
+          }
+          let urlObj = new URL($anchor.href);
+          let scriptId = (_a2 = urlObj.pathname.match(/\/scripts\/([\d]+)/)) == null ? undefined : _a2[1];
+          let scriptVersion = urlObj.searchParams.get("version");
+          let scriptName = (_b = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)) == null ? undefined : _b[1];
+          let installUrl = GreasyforkUrlUtils.getInstallUrl(
+            scriptId,
+            scriptVersion,
+            scriptName
+          );
+          let codeUrl = GreasyforkUrlUtils.getCodeUrl(scriptId, scriptVersion);
+          let $buttonTag = domUtils.createElement("div", {
+            className: "scripts-tag-install",
+            innerHTML: (
+              /*html*/
+              `
+						<a class="script-btn-install install-link" data-install-format="js" target="_blank" href="${installUrl}">${i18next.t(
+              "安装此脚本"
+            )}</a>
+						<a class="script-btn-see-code" target="_blank" href="${codeUrl}">${i18next.t(
+              "查看代码"
+            )}</a>
+						`
+            )
+          });
+          domUtils.after($tagVersion, $buttonTag);
+        });
+      });
+    },
+    /**
+     * 源码对比（monacoEditor）
+     */
+    sourceDiffMonacoEditor() {
+      log.info(`源码对比（monacoEditor）`);
+      GreasyforkUtils.monacoEditor().then((monaco) => {
+        domUtils.ready(() => {
+          $$(
+            `#script-content form[action*="/diff"] input[type="submit"]`
+          ).forEach(($submit) => {
+            let $compareButton = domUtils.createElement(
+              "input",
+              {
+                type: "button",
+                value: i18next.t("对比选中版本差异（monacoEditor）")
+              },
+              {
+                style: "margin-left: 10px;"
+              }
+            );
+            domUtils.after($submit, $compareButton);
+            domUtils.on($compareButton, "click", async (event) => {
+              utils.preventEvent(event);
+              let $form = $submit.closest("form");
+              let formData = new FormData($form);
+              let compareLeftVersion = formData.get("v1");
+              let compareRighttVersion = formData.get("v2");
+              if (compareLeftVersion === compareRighttVersion) {
+                Qmsg.warning(i18next.t("版本号相同，不需要比较源码"));
+                return;
+              }
+              let loading = Qmsg.loading(i18next.t("正在获取对比文本中..."));
+              let scriptId = GreasyforkUrlUtils.getScriptId();
+              let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
+              if (!scriptInfo) {
+                loading.close();
+                return;
+              }
+              let code_url = scriptInfo["code_url"];
+              let compareLeftUrl = code_url.replace(
+                new RegExp(`/${scriptId}(/[\\d]+|)`),
+                `/${scriptId}/${compareLeftVersion}`
+              );
+              let compareRightUrl = code_url.replace(
+                new RegExp(`/${scriptId}(/[\\d]+|)`),
+                `/${scriptId}/${compareRighttVersion}`
+              );
+              let compareLeftText = "";
+              let compareRightText = "";
+              let compareLeftResponse = await httpx.get(compareLeftUrl, {
+                timeout: 2e4
+              });
+              if (!compareLeftResponse.status) {
+                loading.close();
+                return;
+              }
+              compareLeftText = compareLeftResponse.data.responseText;
+              let compareRightResponse = await httpx.get(compareRightUrl, {
+                timeout: 2e4
+              });
+              if (!compareRightResponse.status) {
+                loading.close();
+                return;
+              }
+              compareRightText = compareRightResponse.data.responseText;
+              loading.close();
+              let { recovery } = CommonUtil.lockScroll();
+              let $alert = __pops.alert({
+                title: {
+                  text: i18next.t("代码对比"),
+                  html: false,
+                  position: "center"
+                },
+                content: {
+                  html: true,
+                  text: (
+                    /*html*/
+                    `
+								<div class="monaco-editor-diff-container">
+									<div class="monaco-editor-diff"></div>
+								</div>
+								`
+                  )
+                },
+                mask: {
+                  enable: true,
+                  clickEvent: {
+                    toClose: false,
+                    toHide: false
+                  }
+                },
+                btn: {
+                  ok: {
+                    enable: false
+                  },
+                  close: {
+                    callback(details, event2) {
+                      details.close();
+                      recovery();
+                    }
+                  }
+                },
+                zIndex() {
+                  let maxZIndex = utils.getMaxZIndex();
+                  let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+                  return utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+                },
+                useShadowRoot: false,
+                width: "90vw",
+                height: "90vh",
+                drag: true,
+                style: (
+                  /*css*/
+                  `
+							.monaco-editor-diff-container{
+								width: 100%;
+								height: 100%;
+							}
+							.monaco-editor-diff{
+								width: 100%;
+								height: 100%;
+							}
+							.pops{
+								border-radius: 0px;
+							}
+							.pops[type-value="alert"] .pops-alert-title{
+								--container-title-height: 40px;
+							}
+						`
+                )
+              });
+              $alert.$shadowRoot.querySelector(
+                ".monaco-editor-diff-container"
+              );
+              let $monacoEditor = $alert.$shadowRoot.querySelector(
+                ".monaco-editor-diff"
+              );
+              let monacoEditor = monaco.editor.createDiffEditor($monacoEditor, {
+                hideUnchangedRegions: {
+                  enabled: true
+                },
+                minimap: { enabled: true },
+                // 小地图
+                automaticLayout: true,
+                // 自动布局,
+                codeLens: true,
+                colorDecorators: true,
+                contextmenu: false,
+                readOnly: true,
+                //是否只读
+                formatOnPaste: true,
+                overviewRulerBorder: true,
+                // 滚动条的边框
+                scrollBeyondLastLine: true,
+                theme: "vs-dark",
+                // 主题
+                fontSize: window.innerWidth > 600 ? 14 : 12,
+                // 字体
+                wordWrap: "off",
+                // 换行
+                language: "javascript"
+                // 语言
+              });
+              const originModel = monaco.editor.createModel(
+                compareRightText,
+                "javascript"
+              );
+              const modifyModel = monaco.editor.createModel(
+                compareLeftText,
+                "javascript"
+              );
+              monacoEditor.setModel({
+                original: originModel,
+                modified: modifyModel
+              });
+            });
+          });
+        });
+      });
+    }
+  };
+  let userCollection = [];
+  const GreasyforkScriptsCollectEvent = async function(scriptId) {
+    log.info("当前脚本id：" + scriptId);
+    if (!GreasyforkMenu.isLogin) {
+      log.error("请先登录账号");
+      Qmsg.error(i18next.t("请先登录账号"));
+      return;
+    }
+    let userId = GreasyforkUrlUtils.getUserId(
+      GreasyforkMenu.getUserLinkElement().href
+    );
+    if (userId == null) {
+      log.error("获取用户id失败");
+      Qmsg.error(i18next.t("获取用户id失败"));
+      return;
+    }
+    if (!userCollection.length) {
+      let loading = Qmsg.loading(i18next.t("获取收藏夹中..."));
+      userCollection = await GreasyforkApi.getUserCollection(userId) || [];
+      loading.close();
+      if (!userCollection.length) {
+        return;
+      }
+    }
+    let alertHTML = "";
+    const checkFavoriteFormInfo = (form, scriptId2) => {
+      let flag = false;
+      scriptId2 = scriptId2.toString().trim();
+      for (const [key, value] of form.entries()) {
+        if (key === "scripts-included[]" && value.toString().trim() === scriptId2) {
+          flag = true;
+          break;
+        }
+      }
+      return flag;
+    };
+    userCollection.forEach((userCollectInfo) => {
+      alertHTML += /*html*/
+      `
+		<li class="user-collect-item" data-id="${userCollectInfo.id}" data-name="${userCollectInfo.name}">
+			<div class="user-collect-name">${userCollectInfo.name}</div>
+			<div class="user-collect-btn-container">
+			<div class="pops-panel-button collect-add-script-id">
+				<button type="primary" data-icon="" data-righticon="">
+				<span>${i18next.t("添加")}</span>
+				</button>
+			</div>
+			<div class="pops-panel-button collect-delete-script-id">
+				<button type="danger" data-icon="" data-righticon="">
+				<span>${i18next.t("刪除")}</span>
+				</button>
+			</div>
+			</div>
+		</li>
+		  `;
+    });
+    let collectionDialog = __pops.alert({
+      title: {
+        text: i18next.t("收藏集"),
+        position: "center"
+      },
+      content: {
+        html: true,
+        text: (
+          /*html*/
+          `<ul>${alertHTML}</ul>`
+        )
+      },
+      mask: {
+        enable: true,
+        clickEvent: {
+          toClose: true
+        }
+      },
+      btn: {
+        ok: {
+          enable: false
+        }
+      },
+      width: __pops.isPhone() ? "92vw" : "500px",
+      height: "auto",
+      drag: true,
+      only: true,
+      style: (
+        /*css*/
+        `
+		.pops{
+			--content-max-height: 400px;
+			max-height: var(--content-max-height);
+		}
+		.pops[type-value=alert] .pops-alert-content {
+			max-height: calc(var(--content-max-height) - var(--container-title-height) - var(--container-bottom-btn-height));
+		}
+		.user-collect-item{
+			-webkit-user-select: none;
+			user-select: none;
+			padding: 5px 10px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			border-bottom: 1px dotted #c9c9c9;
+		}
+		.user-collect-name{
+
+		}
+		.user-collect-item:hover{
+			
+		}
+		.user-collect-btn-container{
+			margin-left: 10px;
+			display: flex;
+		}
+		`
+      )
+    });
+    domUtils.on(
+      collectionDialog.$shadowRoot,
+      "click",
+      ".collect-add-script-id",
+      async function(event) {
+        let $userCollectItem = event.target.closest(
+          ".user-collect-item"
+        );
+        let setsId = $userCollectItem.dataset.id;
+        $userCollectItem.dataset.name;
+        let loading = Qmsg.loading(i18next.t("添加中..."));
+        try {
+          let formData = await GreasyforkApi.getUserCollectionInfo(
+            userId,
+            setsId
+          );
+          if (!formData) {
+            return;
+          }
+          if (checkFavoriteFormInfo(formData, scriptId)) {
+            Qmsg.warning(i18next.t("该脚本已经在该收藏集中"));
+            return;
+          }
+          let editForm = utils.cloneFormData(formData);
+          let saveEditForm = utils.cloneFormData(formData);
+          editForm.set("add-script", scriptId.toString());
+          editForm.set("script-action", "i");
+          saveEditForm.append("scripts-included[]", scriptId.toString());
+          saveEditForm.set("save", "1");
+          let addFormDataSearchParams = new URLSearchParams(editForm);
+          let saveFormDataSearchParams = new URLSearchParams(saveEditForm);
+          let addData = Array.from(addFormDataSearchParams).map(
+            // @ts-ignore
+            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+          ).join("&");
+          let saveData = Array.from(saveFormDataSearchParams).map(
+            // @ts-ignore
+            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+          ).join("&");
+          log.info("添加的数据", addData);
+          log.info("保存的数据", saveData);
+          let changeResultDoc = await GreasyforkApi.updateUserSetsInfo(
+            userId,
+            setsId,
+            addData
+          );
+          if (!changeResultDoc) {
+            return;
+          }
+          let $changeScriptSet = changeResultDoc.querySelector(".change-script-set");
+          if (!$changeScriptSet) {
+            Qmsg.error(
+              i18next.t("添加失败，{{selector}}元素不存在", {
+                selector: ".change-script-set"
+              })
+            );
+            return;
+          }
+          let $section = $changeScriptSet.querySelector("section");
+          if (!$section) {
+            Qmsg.error(
+              i18next.t("添加失败，{{selector}}元素不存在", {
+                selector: "section"
+              })
+            );
+            return;
+          }
+          let $alertElement = $section.querySelector(".alert");
+          if ($alertElement) {
+            __pops.alert({
+              title: {
+                text: i18next.t("添加失败"),
+                position: "center"
+              },
+              content: {
+                text: $alertElement.innerHTML,
+                html: true
+              },
+              mask: {
+                enable: true,
+                clickEvent: {
+                  toClose: true
+                }
+              },
+              style: (
+                /*css*/
+                `
+						.pops-alert-content{
+							font-style: italic;
+							background-color: #ffc;
+							border: none;
+							border-left: 6px solid #FFEB3B;
+							padding: .5em;
+						}
+						`
+              ),
+              drag: true,
+              dragLimit: true,
+              width: PanelUISize.info.width,
+              height: PanelUISize.info.height
+            });
+            return;
+          }
+          let changeScriptForm = new FormData($changeScriptSet);
+          let changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
+          if (!changeFlag) {
+            log.error("添加失败，提交的添加请求中不包含该脚本id");
+            Qmsg.error(i18next.t("添加失败，表单数据中不包含该脚本"));
+            return;
+          }
+          await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
+          Qmsg.success(i18next.t("添加成功"));
+        } catch (error) {
+          console.error(error);
+        } finally {
+          loading.close();
+        }
+      }
+    );
+    domUtils.on(
+      collectionDialog.$shadowRoot,
+      "click",
+      ".collect-delete-script-id",
+      async function(event) {
+        let $collectItem = event.target.closest(
+          ".user-collect-item"
+        );
+        let setsId = $collectItem.dataset.id;
+        $collectItem.dataset.name;
+        let loading = Qmsg.loading(i18next.t("删除中..."));
+        try {
+          let formData = await GreasyforkApi.getUserCollectionInfo(
+            userId,
+            setsId
+          );
+          if (!formData) {
+            return;
+          }
+          if (!checkFavoriteFormInfo(formData, scriptId)) {
+            Qmsg.info(
+              i18next.t("已删除：{{scriptId}}", {
+                scriptId
+              })
+            );
+            return;
+          }
+          let editForm = utils.cloneFormData(formData, (key, value) => {
+            return key === "scripts-included[]" && typeof value === "string" && value.toString().trim() === scriptId.toString().trim();
+          });
+          let saveEditForm = utils.cloneFormData(editForm);
+          editForm.set("remove-scripts-included[]", scriptId.toString());
+          editForm.set("remove-selected-scripts", "i");
+          editForm.delete("script-action");
+          saveEditForm.set("save", "1");
+          let deleteFormDataSearchParams = new URLSearchParams(editForm);
+          let saveFormDataSearchParams = new URLSearchParams(saveEditForm);
+          let removeData = Array.from(deleteFormDataSearchParams).map(
+            // @ts-ignore
+            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+          ).join("&");
+          let saveData = Array.from(saveFormDataSearchParams).map(
+            // @ts-ignore
+            ([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+          ).join("&");
+          log.info("删除的数据", removeData);
+          log.info("保存的数据", saveData);
+          let changeResultDoc = await GreasyforkApi.updateUserSetsInfo(
+            userId,
+            setsId,
+            removeData
+          );
+          if (!changeResultDoc) {
+            return;
+          }
+          let $changeScriptSet = changeResultDoc.querySelector(".change-script-set");
+          if (!$changeScriptSet) {
+            Qmsg.error(
+              i18next.t("删除失败，{{selector}}元素不存在", {
+                selector: ".change-script-set"
+              })
+            );
+            return;
+          }
+          let changeScriptForm = new FormData($changeScriptSet);
+          let changeFlag = checkFavoriteFormInfo(changeScriptForm, scriptId);
+          if (changeFlag) {
+            log.error("删除失败，提交的删除请求中包含该脚本id");
+            Qmsg.error(i18next.t("删除失败，表单数据中仍包含该脚本"));
+            return;
+          }
+          await GreasyforkApi.updateUserSetsInfo(userId, setsId, saveData);
+          Qmsg.success(i18next.t("删除成功"));
+        } catch (error) {
+          console.error(error);
+        } finally {
+          loading.close();
+        }
+      }
+    );
+  };
+  const GreasyforkScripts = {
+    init() {
+      if (GreasyforkRouter.isCode()) {
+        GreasyforkScriptsCode.init();
+      } else if (GreasyforkRouter.isVersion()) {
+        GreasyforkVersions.init();
+      }
+      if (GreasyforkRouter.isCodeStrict()) {
+        PopsPanel.execMenuOnce("fullScreenOptimization", () => {
+          this.fullScreenOptimization();
+        });
+        PopsPanel.execMenuOnce("addCopyCodeButton", () => {
+          this.addCopyCodeButton();
+        });
+      }
+      PopsPanel.execMenuOnce("addCollectionButton", () => {
+        this.addCollectionButton();
+      });
+      PopsPanel.execMenuOnce("addFindReferenceButton", () => {
+        this.setFindCodeSearchBtn();
+      });
+      domUtils.ready(() => {
+        PopsPanel.execMenuOnce("scriptHomepageAddedTodaySUpdate", () => {
+          this.scriptHomepageAddedTodaySUpdate();
+        });
+      });
+    },
+    /**
+     * 添加【收藏】按钮
+     */
+    addCollectionButton() {
+      log.info("添加收藏按钮");
+      utils.waitNode("ul#script-links li.current span").then(() => {
+        let $collectBtn = domUtils.createElement("li", {
+          innerHTML: `
+					<a href="javascript:;">
+						<span>${i18next.t("收藏")}</span>
+					</a>`
+        });
+        domUtils.append($("ul#script-links"), $collectBtn);
+        domUtils.on($collectBtn, "click", () => {
+          let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
+          if (!scriptIdMatch) {
+            log.error(scriptIdMatch, window.location.pathname);
+            Qmsg.error(i18next.t("获取脚本id失败"));
+            return;
+          }
+          let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
+          GreasyforkScriptsCollectEvent(scriptId);
+        });
+      });
+    },
+    /**
+     * F11全屏，F键代码全屏
+     */
+    fullScreenOptimization() {
+      log.info("F11全屏，F键代码全屏");
+      addStyle(
+        /*css*/
+        `
+		.code-container:has(.code-wide-screen){
+			height: auto !important;
+		}
+        .code-wide-screen{
+			position: absolute !important;
+			top: 0 !important;
+			left: 0 !important;
+			right: 0 !important;
+			bottom: 0 !important;
+			margin: 0 !important;
+			padding: 0 !important;
+			width: 100% !important;
+			height: 100% !important;
+			min-width: 100% !important;
+			min-height: 100% !important;
+			max-width: 100% !important;
+			max-height: 100% !important;
+			z-index: 1000000 !important;
+        }
+        `
+      );
+      let isFullScreen = false;
+      domUtils.keydown(
+        _unsafeWindow,
+        function(event) {
+          if (event.key.toLowerCase() === "f") {
+            let $code = $(".monaco-editor") || $("#script-content div.code-container code");
+            if (event.altKey && event.shiftKey) {
+              log.info(`宽屏`);
+              utils.preventEvent(event);
+              if ($code.classList.contains("code-wide-screen")) {
+                $code.classList.remove("code-wide-screen");
+              } else {
+                $code.classList.add("code-wide-screen");
+              }
+            } else if (!event.altKey && !event.ctrlKey && !event.shiftKey && !event.metaKey) {
+              log.info(`全屏`);
+              utils.preventEvent(event);
+              if (isFullScreen) {
+                utils.exitFullScreen($code);
+                isFullScreen = false;
+              } else {
+                utils.enterFullScreen($code);
+                isFullScreen = true;
+              }
+            }
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 设置代码搜索按钮(对于库)
+     */
+    setFindCodeSearchBtn() {
+      log.info("设置代码搜索按钮(对于库)");
+      utils.waitNode("ul#script-links li.current span").then(() => {
+        let searchBtn = domUtils.createElement("li", {
+          innerHTML: `
+					<a href="javascript:;">
+						<span>${i18next.t("寻找引用")}</span>
+					</a>`
+        });
+        domUtils.append(
+          $("ul#script-links"),
+          searchBtn
+        );
+        domUtils.on(searchBtn, "click", async function() {
+          let scriptIdMatch = window.location.pathname.match(/scripts\/([\d]+)/i);
+          if (!scriptIdMatch) {
+            log.error(scriptIdMatch, window.location.pathname);
+            Qmsg.error(i18next.t("获取脚本id失败"));
+            return;
+          }
+          let scriptId = scriptIdMatch[scriptIdMatch.length - 1];
+          window.location.href = GreasyforkUrlUtils.getCodeSearchUrl(
+            `/scripts/${scriptId}`
+          );
+        });
+      });
+    },
+    /**
+     * 脚本首页新增【今日检查】
+     */
+    async scriptHomepageAddedTodaySUpdate() {
+      if (!$("#install-area")) {
+        return;
+      }
+      log.info("脚本首页新增【今日检查】");
+      let scriptStatsJSON = await GreasyforkApi.getScriptStats(
+        GreasyforkUrlUtils.getScriptId()
+      );
+      if (!scriptStatsJSON) {
+        return;
+      }
+      log.info("统计信息", scriptStatsJSON);
+      let todayStatsJSON = scriptStatsJSON[utils.formatTime(undefined, "yyyy-MM-dd")];
+      if (!todayStatsJSON) {
+        log.error("今日份的统计信息不存在");
+        return;
+      }
+      let update_checks = todayStatsJSON["update_checks"];
+      log.info("今日统计信息", todayStatsJSON);
+      domUtils.after(
+        "dd.script-show-daily-installs",
+        domUtils.createElement("dt", {
+          className: "script-show-daily-update_checks",
+          innerHTML: `<span>${i18next.t("今日检查")}</span>`
+        })
+      );
+      domUtils.after(
+        "dt.script-show-daily-update_checks",
+        domUtils.createElement("dd", {
+          className: "script-show-daily-update_checks",
+          innerHTML: "<span>" + update_checks + "</span>"
+        })
+      );
+    },
+    /**
+     * 添加复制代码按钮
+     */
+    addCopyCodeButton() {
+      log.info("添加复制代码按钮");
+      utils.waitNode("div#script-content div.code-container").then(($codeContainer) => {
+        let copyButton = domUtils.createElement(
+          "button",
+          {
+            textContent: i18next.t("复制代码")
+          },
+          {
+            style: "margin-bottom: 1em;"
+          }
+        );
+        domUtils.on(copyButton, "click", async function() {
+          let loading = Qmsg.loading(i18next.t("加载文件中..."));
+          let getResp = await httpx.get(
+            `/zh-CN/scripts/${GreasyforkUrlUtils.getScriptId()}.json`,
+            {
+              fetch: true,
+              responseType: "json"
+            }
+          );
+          if (!getResp.status) {
+            loading.close();
+            return;
+          }
+          let respJSON = utils.toJSON(getResp.data.responseText);
+          let code_url = respJSON["code_url"];
+          log.success("代码地址：", code_url);
+          let scriptJS = await httpx.get(code_url);
+          if (!scriptJS.status) {
+            loading.close();
+            return;
+          }
+          loading.close();
+          utils.setClip(scriptJS.data.responseText);
+          Qmsg.success(i18next.t("复制成功"));
+        });
+        domUtils.before($codeContainer, copyButton);
+      });
+    }
+  };
+  const beautifyCenterContentCSS = '.sidebarred-main-content {\r\n	max-width: unset;\r\n	flex: unset;\r\n}\r\nol.script-list {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	border: none;\r\n	gap: 20px;\r\n	background: transparent;\r\n	box-shadow: none;\r\n}\r\nol.script-list .script-description {\r\n	overflow-wrap: anywhere;\r\n}\r\nol.script-list li {\r\n	border: 1px solid rgb(221, 221, 221);\r\n	border-radius: 5px;\r\n	flex: 1 1 45%;\r\n	box-shadow: rgb(221, 221, 221) 0px 0px 5px 2px;\r\n}\r\n/* 收藏按钮 */\r\n.script-collect-btn {\r\n	color: #ffffff;\r\n	border-color: #409eff;\r\n	background-color: #409eff;\r\n}\r\n/* 评分按钮 */\r\n.script-list-rating-score[data-position="right"] {\r\n	display: inline-block;\r\n	min-width: 1em;\r\n	text-align: center;\r\n	padding: 0 0.25em;\r\n	border: 1px solid #dddddd;\r\n	border-radius: 10px;\r\n	width: fit-content;\r\n}\r\n/* 安装按钮 */\r\n.install-link {\r\n	border-radius: 0.25rem 0.25rem 0.25rem 0.25rem !important;\r\n}\r\n.install-link:has(+ .install-help-link) {\r\n	border-radius: 0.25rem 0 0 0.25rem !important;\r\n}\r\n/* 加载圆圈动画 */\r\n.install-link.lum-lightbox-loader {\r\n	position: relative;\r\n	min-width: 4rem;\r\n	min-height: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::before {\r\n	margin-left: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::after {\r\n	margin-right: 1rem;\r\n}\r\n.install-link.lum-lightbox-loader::before,\r\n.install-link.lum-lightbox-loader::after {\r\n	width: 1em;\r\n	height: 1em;\r\n	margin-top: -0.5em;\r\n	border-radius: 1em !important;\r\n	background: hsla(0, 0%, 100%, 0.5);\r\n}\r\n';
+  const GreasyforkCheckVersion = {
+    /** 获取 TamperMonkey 暴露在window下的函数 */
+    getTampermonkey: () => {
+      var _a2;
+      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Tampermonkey;
+    },
+    /** 获取 Violentmonkey 暴露在window下的函数 */
+    getViolentmonkey: () => {
+      var _a2;
+      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Violentmonkey;
+    },
+    /** 获取 ScriptCat 暴露在window下的函数 */
+    getScriptCat: () => {
+      var _a2;
+      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Scriptcat;
+    },
+    /**
+     * 获取脚本容器启用状态
+     */
+    getScriptContainerStatus() {
+      var _a2, _b, _c;
+      let containerStatus = {
+        Tampermonkey: false,
+        Violentmonkey: false,
+        ScriptCat: false
+      };
+      if ((_a2 = _unsafeWindow.external) == null ? undefined : _a2.Tampermonkey) {
+        containerStatus.Tampermonkey = true;
+      }
+      if ((_b = _unsafeWindow.external) == null ? undefined : _b.Violentmonkey) {
+        containerStatus.Violentmonkey = true;
+      }
+      if ((_c = _unsafeWindow.external) == null ? undefined : _c.Scriptcat) {
+        containerStatus.ScriptCat = true;
+      }
+      return containerStatus;
+    },
+    /**
+     * 获取已注册的脚本容器名
+     */
+    getRegisterScriptContainerNameList() {
+      let allScriptContainerStatus = this.getScriptContainerStatus();
+      let isRegisterScriptContainer = allScriptContainerStatus;
+      let scriptContainerNameList = [];
+      Object.keys(isRegisterScriptContainer).forEach((containerName) => {
+        let containerEnable = Reflect.get(
+          isRegisterScriptContainer,
+          containerName
+        );
+        if (containerEnable) {
+          scriptContainerNameList.push(containerName);
+        }
+      });
+      return scriptContainerNameList;
+    },
+    /**
+     * 获取脚本安装的版本号
+     * @param name 脚本名
+     * @param namespace 脚本命名空间
+     */
+    getInstalledVersion(name, namespace) {
+      return new Promise((resolve, reject) => {
+        const tm = this.getTampermonkey();
+        if (tm) {
+          tm.isInstalled(name, namespace, function(data) {
+            if (data.installed) {
+              resolve(data.version);
+            } else {
+              resolve(null);
+            }
+          });
+          return;
+        }
+        const vm = this.getViolentmonkey();
+        if (vm) {
+          vm.isInstalled(name, namespace).then(resolve);
+          return;
+        }
+        const scriptCat = this.getScriptCat();
+        if (scriptCat) {
+          scriptCat.isInstalled(name, namespace, function(data) {
+            if (data.installed) {
+              resolve(data.version);
+            } else {
+              resolve(null);
+            }
+          });
+          return;
+        }
+        reject(new TypeError("获取脚本容器暴露的external信息失败"));
+      });
+    },
+    /**
+     * https://developer.mozilla.org/en/docs/Toolkit_version_format
+     *
+     * 比较版本号
+     * @param a 版本号
+     * @param b 版本号
+     * @returns
+     * + -1 该版本号低
+     * + 0 该版本号和比较的版本号相同
+     * + 1 该版本号高
+     */
+    compareVersions(a, b) {
+      if (a === b) {
+        return 0;
+      }
+      const aParts = a.split(".");
+      const bParts = b.split(".");
+      for (let i = 0; i < aParts.length; i++) {
+        const result = this.compareVersionPart(aParts[i], bParts[i]);
+        if (result !== 0) {
+          return result;
+        }
+      }
+      return 0;
+    },
+    compareVersionPart(partA, partB) {
+      const partAParts = this.parseVersionPart(partA);
+      const partBParts = this.parseVersionPart(partB);
+      for (let i = 0; i < partAParts.length; i++) {
+        if (partAParts[i].length > 0 && partBParts[i].length === 0) {
+          return -1;
+        }
+        if (partAParts[i].length === 0 && partBParts[i].length > 0) {
+          return 1;
+        }
+        if (partAParts[i] > partBParts[i]) {
+          return 1;
+        }
+        if (partAParts[i] < partBParts[i]) {
+          return -1;
+        }
+      }
+      return 0;
+    },
+    // It goes number, string, number, string. If it doesn't exist, then
+    // 0 for numbers, empty string for strings.
+    parseVersionPart(part) {
+      if (!part) {
+        return [0, "", 0, ""];
+      }
+      const partParts = /([0-9]*)([^0-9]*)([0-9]*)([^0-9]*)/.exec(part);
+      return [
+        partParts[1] ? parseInt(partParts[1]) : 0,
+        partParts[2],
+        partParts[3] ? parseInt(partParts[3]) : 0,
+        partParts[4]
+      ];
+    },
+    /**
+     *
+     * @param installButton 安装按钮
+     * 必须属性
+     * + data-update-label 按钮升级的文字
+     * + data-downgrade-label 按钮降级的文字
+     * + data-reinstall-label 按钮重装的文字
+     * @param installedVersion 安装版本
+     * @param version 版本号
+     * @returns
+     */
+    handleInstallResult(installButton, installedVersion, version) {
+      if (installedVersion == null) {
+        return;
+      }
+      installButton.removeAttribute("data-ping-url");
+      switch (this.compareVersions(installedVersion, version)) {
+        // Upgrade
+        case -1:
+          installButton.textContent = installButton.getAttribute("data-update-label");
+          break;
+        // Downgrade
+        case 1:
+          installButton.textContent = installButton.getAttribute(
+            "data-downgrade-label"
+          );
+          break;
+        // Equal
+        case 0:
+          installButton.textContent = installButton.getAttribute(
+            "data-reinstall-label"
+          );
+          break;
+      }
+    },
+    /**
+     * 检测js脚本的更新
+     * @param installButton 安装按钮
+     * 必须属性
+     * + data-script-name 脚本名
+     * + data-script-namespace 脚本命名空间
+     * + data-script-version 脚本当前版本号
+     * @param retry 重试
+     */
+    async checkForUpdatesJS(installButton, retry) {
+      const name = installButton.getAttribute("data-script-name");
+      const namespace = installButton.getAttribute("data-script-namespace");
+      const version = installButton.getAttribute("data-script-version");
+      try {
+        let installedVersion = await this.getInstalledVersion(name, namespace);
+        if (installedVersion == null) {
+          return false;
+        }
+        this.handleInstallResult(installButton, installedVersion, version);
+        return true;
+      } catch (error) {
+        if (retry) {
+          await utils.sleep(1e3);
+          try {
+            return await this.checkForUpdatesJS(installButton, false);
+          } catch (error2) {
+          }
+        }
+        return false;
+      }
+    },
+    /**
+     * 检测css脚本的更新
+     * @param installButton 安装按钮
+     * 必须属性
+     * + data-script-name 脚本名
+     * + data-script-namespace 脚本命名空间
+     */
+    checkForUpdatesCSS(installButton) {
+      const name = installButton.getAttribute("data-script-name");
+      const namespace = installButton.getAttribute("data-script-namespace");
+      postMessage(
+        { type: "style-version-query", name, namespace, url: location.href },
+        location.origin
+      );
+    }
+  };
+  const GreasyforkScriptsList = {
+    init() {
+      PopsPanel.execMenuOnce("gf-scripts-filter-enable", () => {
+        GreasyforkScriptsFilter.init();
+      });
+      PopsPanel.execMenuOnce("beautifyCenterContent", () => {
+        return this.beautifyCenterContent();
+      });
+    },
+    /**
+     * 美化脚本列表
+     */
+    beautifyCenterContent() {
+      log.info("美化脚本列表-双列");
+      let result = [];
+      result.push(addStyle(beautifyCenterContentCSS));
+      const lodingClassName = "lum-lightbox-loader";
+      const noInstallBtnText = i18next.t("安装此脚本");
+      DOMUtils.ready(() => {
+        let allScriptContainerStatus = GreasyforkCheckVersion.getScriptContainerStatus();
+        let hasScriptContainer = Object.values(allScriptContainerStatus).find(
+          (item) => item
+        );
+        let isRegisterScriptContainerNameList = GreasyforkCheckVersion.getRegisterScriptContainerNameList();
+        let isForceUseNameSpace = PopsPanel.getValue(
+          "beautifyCenterContent-queryNameSpace"
+        );
+        if (!hasScriptContainer) {
+          log.error("脚本容器未暴露external信息", window.external);
+        } else {
+          log.info(
+            "当前暴露的external信息：" + isRegisterScriptContainerNameList.map((it) => `【${it}】`).join("、")
+          );
+        }
+        let lockFn = new utils.LockFunction(() => {
+          let allScriptsList = GreasyforkScriptsFilter.getElementList();
+          allScriptsList.forEach(($scriptList) => {
+            if ($scriptList.querySelector(".script-list-operation")) {
+              return;
+            }
+            let scriptInfo = GreasyforkElementUtils.parseScriptListInfo($scriptList);
+            let $inlineStats = $scriptList.querySelector(
+              ".inline-script-stats"
+            );
+            if (!$inlineStats) {
+              return;
+            }
+            let code_url = scriptInfo.codeUrl;
+            let $ratingScoreLeft = DOMUtils.createElement("dt", {
+              className: "script-list-rating-score",
+              innerHTML: `<span>${i18next.t("评分")}</span>`
+            });
+            let $ratingScoreRight = DOMUtils.createElement(
+              "dd",
+              {
+                className: "script-list-rating-score",
+                innerHTML: `<span>${scriptInfo.scriptRatingScore}</span>`
+              },
+              {
+                "data-position": "right"
+              }
+            );
+            let $goodRatingCount = $scriptList.querySelector(
+              "dd.script-list-ratings .good-rating-count"
+            );
+            let $okRatingCount = $scriptList.querySelector(
+              "dd.script-list-ratings .ok-rating-count"
+            );
+            let $badRatingCount = $scriptList.querySelector(
+              "dd.script-list-ratings .bad-rating-count"
+            );
+            if ($goodRatingCount && $okRatingCount && $badRatingCount) {
+              let goodRatingCount = parseInt($goodRatingCount.innerText);
+              let okRatingCount = parseInt($okRatingCount.innerText);
+              let badRatingCount = parseInt($badRatingCount.innerText);
+              let totalRatingCount = goodRatingCount + okRatingCount + badRatingCount;
+              if (totalRatingCount >= 10) {
+                if (goodRatingCount / totalRatingCount >= 0.6) {
+                  $ratingScoreRight.classList.add("good-rating-count");
+                } else {
+                  $ratingScoreRight.classList.add("bad-rating-count");
+                }
+              } else if (totalRatingCount == 0) {
+                $ratingScoreRight.classList.add("good-rating-count");
+              } else {
+                if (goodRatingCount > okRatingCount + badRatingCount) {
+                  $ratingScoreRight.classList.add("good-rating-count");
+                } else {
+                  $ratingScoreRight.classList.add("bad-rating-count");
+                }
+              }
+            }
+            let $versionLeft = DOMUtils.createElement("dt", {
+              className: "script-list-version",
+              innerHTML: (
+                /*html*/
+                `<span>${i18next.t("版本")}</span>`
+              )
+            });
+            let $versionRight = DOMUtils.createElement(
+              "dd",
+              {
+                className: "script-list-version",
+                innerHTML: (
+                  /*html*/
+                  `<span>${scriptInfo.scriptVersion}</span>`
+                )
+              },
+              {
+                "data-position": "right"
+              }
+            );
+            let $operationLeft = DOMUtils.createElement("dt", {
+              className: "script-list-operation",
+              innerHTML: `<span>${i18next.t("操作")}</span>`
+            });
+            let $operationRight = DOMUtils.createElement(
+              "dd",
+              {
+                className: "script-list-operation",
+                innerHTML: (
+                  /*html*/
+                  `
+						<a
+							target="_blank"
+							class="install-link"
+							data-install-format="js"
+							data-script-name="${scriptInfo.scriptName}"
+							data-script-namespace=""
+							data-script-version="${scriptInfo.scriptVersion}"
+							data-update-label="${i18next.t("更新到 {{version}} 版本", {
+                  version: scriptInfo.scriptVersion
+                })}"
+							data-downgrade-label="${i18next.t("降级到 {{version}} 版本", {
+                  version: scriptInfo.scriptVersion
+                })}"
+							data-reinstall-label="${i18next.t("重新安装 {{version}} 版本", {
+                  version: scriptInfo.scriptVersion
+                })}"
+							href="${code_url}"></a>
+						<button class="script-collect-btn">${i18next.t("收藏")}</button>
+						`
+                )
+              },
+              {
+                "data-position": "right",
+                style: "gap:10px;display: flex;flex-wrap: wrap;align-items: center;"
+              }
+            );
+            let $collect = $operationRight.querySelector(
+              ".script-collect-btn"
+            );
+            let $installLink = $operationRight.querySelector(".install-link");
+            $installLink["data-script-info"] = scriptInfo;
+            DOMUtils.addClass($installLink, lodingClassName);
+            if (scriptInfo.scriptType === "library") {
+              $installLink.remove();
+            }
+            DOMUtils.on($collect, "click", (event) => {
+              utils.preventEvent(event);
+              GreasyforkScriptsCollectEvent(scriptInfo.scriptId);
+            });
+            if (PopsPanel.getValue("gf-scripts-filter-enable")) {
+              let $filter = DOMUtils.createElement("button", {
+                className: "script-filter-btn",
+                innerHTML: i18next.t("过滤")
+              });
+              let attr_filter_key = "data-filter-key";
+              let attr_filter_value = "data-filter-value";
+              DOMUtils.on($filter, "click", (event) => {
+                utils.preventEvent(event);
+                let $dialog = __pops.alert({
+                  title: {
+                    text: i18next.t("选择需要过滤的选项"),
+                    position: "center"
+                  },
+                  content: {
+                    text: (
+                      /*html*/
+                      `
+									<button ${attr_filter_key}="scriptId" ${attr_filter_value}="^${scriptInfo.scriptId}$">${i18next.t("脚本id：{{text}}", {
+                      text: scriptInfo.scriptId
+                    })}</button>
+									<button ${attr_filter_key}="scriptName" ${attr_filter_value}="^${utils.parseStringToRegExpString(
+                      scriptInfo.scriptName
+                    )}$">${i18next.t("脚本名：{{text}}", {
+                      text: scriptInfo.scriptName
+                    })}</button>
+									`
+                    ),
+                    html: true
+                  },
+                  mask: {
+                    enable: true,
+                    clickEvent: {
+                      toClose: true
+                    }
+                  },
+                  width: "350px",
+                  height: "300px",
+                  drag: true,
+                  dragLimit: true,
+                  style: (
+                    /*css*/
+                    `
+								.pops-alert-content{
+									display: flex;
+									flex-direction: column;
+    								gap: 20px;
+								}
+								.pops-alert-content button{
+									text-wrap: wrap;
+									padding: 8px;
+									height: auto;
+									text-align: left;
+								}
+								`
+                  )
+                });
+                let $content = $dialog.$shadowRoot.querySelector(
+                  ".pops-alert-content"
+                );
+                scriptInfo.scriptAuthors.forEach((scriptAuthorInfo) => {
+                  let $authorIdButton = DOMUtils.createElement("button", {
+                    innerHTML: i18next.t("作者id：{{text}}", {
+                      text: scriptAuthorInfo.authorId
+                    })
+                  });
+                  $authorIdButton.setAttribute(attr_filter_key, "scriptAuthorId");
+                  $authorIdButton.setAttribute(
+                    attr_filter_value,
+                    "^" + scriptAuthorInfo.authorId + "$"
+                  );
+                  let $authorNameButton = DOMUtils.createElement("button", {
+                    innerHTML: i18next.t("作者名：{{text}}", {
+                      text: scriptAuthorInfo.authorName
+                    })
+                  });
+                  $authorNameButton.setAttribute(
+                    attr_filter_key,
+                    "scriptAuthorName"
+                  );
+                  $authorNameButton.setAttribute(
+                    attr_filter_value,
+                    "^" + utils.parseStringToRegExpString(
+                      scriptAuthorInfo.authorName
+                    ) + "$"
+                  );
+                  $content.appendChild($authorIdButton);
+                  $content.appendChild($authorNameButton);
+                });
+                DOMUtils.on(
+                  $dialog.$shadowRoot,
+                  "click",
+                  `button[${attr_filter_key}]`,
+                  (event2) => {
+                    utils.preventEvent(event2);
+                    let $click = event2.target;
+                    let key = $click.getAttribute(
+                      attr_filter_key
+                    );
+                    let value = $click.getAttribute(attr_filter_value);
+                    GreasyforkScriptsFilter.addValue(key, value);
+                    $dialog.close();
+                    GreasyforkScriptsFilter.filter();
+                    Qmsg.success(i18next.t("添加成功"));
+                  }
+                );
+              });
+              $operationRight.appendChild($filter);
+            }
+            $inlineStats.appendChild($ratingScoreLeft);
+            $inlineStats.appendChild($ratingScoreRight);
+            $inlineStats.appendChild($versionLeft);
+            $inlineStats.appendChild($versionRight);
+            $inlineStats.appendChild($operationLeft);
+            $inlineStats.appendChild($operationRight);
+          });
+        }, 100);
+        let lockFn2 = new utils.LockFunction(async () => {
+          let $installLinkList = Array.from(
+            $$(
+              ".install-link[data-install-format=js]:not([gm-is-check-install-status])"
+            )
+          );
+          for (let index = 0; index < $installLinkList.length; index++) {
+            const $installLink = $installLinkList[index];
+            $installLink.setAttribute("gm-is-check-install-status", "");
+            let scriptLocalInfo = Reflect.get(
+              $installLink,
+              "data-script-info"
+            );
+            if (hasScriptContainer) {
+              if (isForceUseNameSpace) {
+                let scriptInfo = await GreasyforkApi.getScriptInfo(
+                  scriptLocalInfo.scriptId
+                );
+                if (scriptInfo) {
+                  $installLink.setAttribute(
+                    "data-script-namespace",
+                    scriptInfo.namespace
+                  );
+                }
+              }
+              GreasyforkCheckVersion.checkForUpdatesJS($installLink, true).then(
+                (checkResult) => {
+                  DOMUtils.removeClass($installLink, lodingClassName);
+                  if (!checkResult) {
+                    DOMUtils.text($installLink, noInstallBtnText);
+                  }
+                }
+              );
+            } else {
+              DOMUtils.removeClass($installLink, lodingClassName);
+              DOMUtils.text($installLink, noInstallBtnText);
+            }
+          }
+        });
+        utils.mutationObserver(document, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          immediate: true,
+          callback: () => {
+            lockFn.run();
+            lockFn2.run();
+          }
+        });
+      });
+      return result;
+    }
+  };
   const GreasyforkUsers = {
     init() {
       PopsPanel.execMenuOnce("users-changeConsoleToTopNavigator", () => {
@@ -7084,7 +7157,7 @@
       log.info("迁移【控制台】到顶部导航栏");
       CommonUtil.addBlockCSS("#about-user");
       domUtils.ready(() => {
-        let $aboutUser = document.querySelector("#about-user");
+        let $aboutUser = $("#about-user");
         if (!$aboutUser) {
           log.error("#about-user元素不存在");
           return;
@@ -7222,7 +7295,7 @@
 		}
 		`
       );
-      document.querySelectorAll("section.text-content ul li").forEach(($li) => {
+      $$("section.text-content ul li").forEach(($li) => {
         var _a2;
         let $user = $li.querySelector(
           'a[href*="conversations"]'
@@ -7483,7 +7556,7 @@
         let searchText = querySearchText();
         let allScriptsList = GreasyforkScriptsFilter.getElementList();
         allScriptsList.forEach(($scriptList) => {
-          let scriptInfo = parseScriptListInfo($scriptList);
+          let scriptInfo = GreasyforkElementUtils.parseScriptListInfo($scriptList);
           let fitlerFlagList = controlsConfig.map((controlsConfig2) => {
             if (searchText == "") {
               return false;
@@ -7757,13 +7830,13 @@
           viewIMG(imgList, imgIndex);
         }
       );
-      document.querySelectorAll(".user-screenshots").forEach((element) => {
-        let linkElement = element.querySelector("a");
+      $$(".user-screenshots").forEach(($screenhot) => {
+        let linkElement = $screenhot.querySelector("a");
         if (!linkElement) {
           return;
         }
         let imgSrc = linkElement.getAttribute("data-href") || linkElement.getAttribute("href");
-        let imgElement = element.querySelector("img");
+        let imgElement = $screenhot.querySelector("img");
         if (!imgElement) {
           return;
         }
@@ -7779,8 +7852,8 @@
      */
     overlayBedImageClickEvent() {
       log.info("覆盖图床图片的parentElement的a标签");
-      document.querySelectorAll(".user-content a>img").forEach((imgElement) => {
-        let $link = imgElement.parentElement;
+      $$(".user-content a>img").forEach(($img) => {
+        let $link = $img.parentElement;
         let url = $link.getAttribute("href");
         $link.setAttribute("data-href", url);
         $link.removeAttribute("href");
@@ -8083,11 +8156,9 @@
 		`
       );
       domUtils.ready(() => {
-        document.querySelector("#site-nav nav");
-        document.querySelector(
-          "#site-nav .with-submenu nav"
-        );
-        let $scriptsOptionGroups = document.querySelector("#script-list-option-groups") || document.querySelector(".list-option-groups");
+        $("#site-nav nav");
+        $("#site-nav .with-submenu nav");
+        let $scriptsOptionGroups = $("#script-list-option-groups") || $(".list-option-groups");
         if (!$scriptsOptionGroups) {
           log.warn("不存在右侧面板元素#script-list-option-groups");
           return;

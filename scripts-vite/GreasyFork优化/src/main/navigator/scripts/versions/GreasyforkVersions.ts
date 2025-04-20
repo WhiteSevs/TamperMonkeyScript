@@ -1,4 +1,4 @@
-import { $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
+import { $, $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import beautifyVersionsPageCSS from "./css/beautifyVersionsPage.css?raw";
 import { CommonUtil } from "@/utils/CommonUtil";
@@ -36,9 +36,7 @@ export const GreasyforkVersions = {
 			)
 		);
 		DOMUtils.ready(function () {
-			let $historyVersion = document.querySelector<HTMLUListElement>(
-				"ul.history_versions"
-			);
+			let $historyVersion = $<HTMLUListElement>("ul.history_versions");
 			if (!$historyVersion) {
 				Qmsg.error(i18next.t("未找到history_versions元素列表"));
 				return;
@@ -98,36 +96,34 @@ export const GreasyforkVersions = {
 	addExtraTagButton() {
 		log.info("添加额外的标签按钮");
 		DOMUtils.ready(() => {
-			document
-				.querySelectorAll<HTMLDivElement>(".script-tag-version")
-				.forEach(($tagVersion) => {
-					let $anchor = $tagVersion.querySelector<HTMLAnchorElement>("a");
-					if (!$anchor) {
-						return;
-					}
-					let urlObj = new URL($anchor.href);
-					let scriptId = urlObj.pathname.match(/\/scripts\/([\d]+)/)?.[1]!;
-					let scriptVersion = urlObj.searchParams.get("version")!;
-					let scriptName = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)?.[1]!;
-					let installUrl = GreasyforkUrlUtils.getInstallUrl(
-						scriptId,
-						scriptVersion,
-						scriptName
-					);
-					let codeUrl = GreasyforkUrlUtils.getCodeUrl(scriptId, scriptVersion);
-					let $buttonTag = DOMUtils.createElement("div", {
-						className: "scripts-tag-install",
-						innerHTML: /*html*/ `
+			$$<HTMLDivElement>(".script-tag-version").forEach(($tagVersion) => {
+				let $anchor = $tagVersion.querySelector<HTMLAnchorElement>("a");
+				if (!$anchor) {
+					return;
+				}
+				let urlObj = new URL($anchor.href);
+				let scriptId = urlObj.pathname.match(/\/scripts\/([\d]+)/)?.[1]!;
+				let scriptVersion = urlObj.searchParams.get("version")!;
+				let scriptName = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)?.[1]!;
+				let installUrl = GreasyforkUrlUtils.getInstallUrl(
+					scriptId,
+					scriptVersion,
+					scriptName
+				);
+				let codeUrl = GreasyforkUrlUtils.getCodeUrl(scriptId, scriptVersion);
+				let $buttonTag = DOMUtils.createElement("div", {
+					className: "scripts-tag-install",
+					innerHTML: /*html*/ `
 						<a class="script-btn-install install-link" data-install-format="js" target="_blank" href="${installUrl}">${i18next.t(
-							"安装此脚本"
-						)}</a>
+						"安装此脚本"
+					)}</a>
 						<a class="script-btn-see-code" target="_blank" href="${codeUrl}">${i18next.t(
-							"查看代码"
-						)}</a>
+						"查看代码"
+					)}</a>
 						`,
-					});
-					DOMUtils.after($tagVersion, $buttonTag);
 				});
+				DOMUtils.after($tagVersion, $buttonTag);
+			});
 		});
 	},
 	/**

@@ -7,7 +7,7 @@ import { GreasyforkMenu } from "@/main/GreasyforkMenu";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import i18next from "i18next";
 import { UISelect } from "../common-components/ui-select";
-import { DOMUtils, log, utils } from "@/env";
+import { $$, DOMUtils, log, utils } from "@/env";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UIButtonShortCut } from "../common-components/ui-button-shortcut";
 import { GreasyforkShortCut } from "@/main/GreasyforkShortCut";
@@ -242,23 +242,21 @@ export const SettingUICommon: PopsPanelContentConfig = {
 											},
 										];
 										DOMUtils.ready(() => {
-											document
-												.querySelectorAll<HTMLOptionElement>(
-													"select.language-selector-locale option"
-												)
-												.forEach(($languageOption) => {
-													let value = $languageOption.getAttribute(
-														"value"
-													) as string;
-													if (value === "help") {
-														return;
-													}
-													let text = DOMUtils.text($languageOption).trim();
-													result.push({
-														value: value,
-														text: text,
-													});
+											$$<HTMLOptionElement>(
+												"select.language-selector-locale option"
+											).forEach(($languageOption) => {
+												let value = $languageOption.getAttribute(
+													"value"
+												) as string;
+												if (value === "help") {
+													return;
+												}
+												let text = DOMUtils.text($languageOption).trim();
+												result.push({
+													value: value,
+													text: text,
 												});
+											});
 										});
 										return result;
 									})()
@@ -632,15 +630,13 @@ export const SettingUICommon: PopsPanelContentConfig = {
 											return;
 										}
 										let scriptUrlList: string[] = [];
-										document
-											.querySelectorAll<HTMLAnchorElement>(
-												"#user-script-list-section li a.script-link"
-											)
-											.forEach((item) => {
-												scriptUrlList = scriptUrlList.concat(
-													GreasyforkUrlUtils.getAdminUrl(item.href)
-												);
-											});
+										$$<HTMLAnchorElement>(
+											"#user-script-list-section li a.script-link"
+										).forEach((item) => {
+											scriptUrlList = scriptUrlList.concat(
+												GreasyforkUrlUtils.getAdminUrl(item.href)
+											);
+										});
 										GreasyforkMenu.updateScript(scriptUrlList);
 									}
 								),
@@ -668,15 +664,13 @@ export const SettingUICommon: PopsPanelContentConfig = {
 											return;
 										}
 										let scriptUrlList: string[] = [];
-										document
-											.querySelectorAll<HTMLAnchorElement>(
-												"#user-unlisted-script-list li a.script-link"
-											)
-											.forEach((item) => {
-												scriptUrlList = scriptUrlList.concat(
-													GreasyforkUrlUtils.getAdminUrl(item.href)
-												);
-											});
+										$$<HTMLAnchorElement>(
+											"#user-unlisted-script-list li a.script-link"
+										).forEach((item) => {
+											scriptUrlList = scriptUrlList.concat(
+												GreasyforkUrlUtils.getAdminUrl(item.href)
+											);
+										});
 										GreasyforkMenu.updateScript(scriptUrlList);
 									}
 								),
@@ -704,15 +698,13 @@ export const SettingUICommon: PopsPanelContentConfig = {
 											return;
 										}
 										let scriptUrlList: string[] = [];
-										document
-											.querySelectorAll<HTMLAnchorElement>(
-												"#user-library-script-list li a.script-link"
-											)
-											.forEach((item) => {
-												scriptUrlList = scriptUrlList.concat(
-													GreasyforkUrlUtils.getAdminUrl(item.href)
-												);
-											});
+										$$<HTMLAnchorElement>(
+											"#user-library-script-list li a.script-link"
+										).forEach((item) => {
+											scriptUrlList = scriptUrlList.concat(
+												GreasyforkUrlUtils.getAdminUrl(item.href)
+											);
+										});
 										GreasyforkMenu.updateScript(scriptUrlList);
 									}
 								),

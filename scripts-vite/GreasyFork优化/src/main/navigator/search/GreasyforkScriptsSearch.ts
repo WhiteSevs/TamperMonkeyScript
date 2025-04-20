@@ -1,10 +1,9 @@
-import { $, addStyle, DOMUtils, log, pops, utils } from "@/env";
+import { $, DOMUtils, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import i18next from "i18next";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { GreasyforkScriptsFilter } from "../scripts/GreasyforkScriptsFilter";
-import { parseScriptListInfo } from "../scripts/GreasyforkScriptsList";
-import Qmsg from "qmsg";
+import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 
 const GreasyforkScriptsSearchElement = {
 	/**
@@ -281,7 +280,8 @@ export const GreasyforkScriptsSearch = {
 			let allScriptsList = GreasyforkScriptsFilter.getElementList();
 			allScriptsList.forEach(($scriptList) => {
 				// 解析出脚本信息
-				let scriptInfo = parseScriptListInfo($scriptList);
+				let scriptInfo =
+					GreasyforkElementUtils.parseScriptListInfo($scriptList);
 				let fitlerFlagList = controlsConfig
 					.map((controlsConfig) => {
 						if (searchText == "") {

@@ -1,4 +1,4 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $$, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { indexedDB } from "@whitesev/utils/dist/types/src/indexedDB";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
@@ -41,7 +41,7 @@ export const GreasyforkRememberFormTextArea = {
 	 */
 	async rememberReplyContent() {
 		const TAG = "记住回复内容 -- ";
-		let $formList = document.querySelectorAll<HTMLFormElement>("form");
+		let $formList = $$<HTMLFormElement>("form");
 		if (!$formList.length) {
 			// 不存在表单
 			log.warn(TAG + "不存在表单");

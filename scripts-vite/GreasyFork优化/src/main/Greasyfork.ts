@@ -1,6 +1,6 @@
 import { PopsPanel } from "@/setting/setting";
 import "./css/OwnCSS.css";
-import { $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
+import { $, $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { GM_getResourceText, GM_getValue, GM_setValue } from "ViteGM";
@@ -244,15 +244,15 @@ const Greasyfork = {
 			}
 		);
 		/* 把上传的图片使用自定义图片预览 */
-		document.querySelectorAll(".user-screenshots").forEach((element) => {
-			let linkElement = element.querySelector<HTMLAnchorElement>("a");
+		$$(".user-screenshots").forEach(($screenhot) => {
+			let linkElement = $screenhot.querySelector<HTMLAnchorElement>("a");
 			if (!linkElement) {
 				return;
 			}
 			let imgSrc =
 				linkElement.getAttribute("data-href") ||
 				linkElement.getAttribute("href");
-			let imgElement = element.querySelector<HTMLImageElement>("img");
+			let imgElement = $screenhot.querySelector<HTMLImageElement>("img");
 			if (!imgElement) {
 				return;
 			}
@@ -270,29 +270,27 @@ const Greasyfork = {
 	 */
 	overlayBedImageClickEvent() {
 		log.info("覆盖图床图片的parentElement的a标签");
-		document
-			.querySelectorAll<HTMLImageElement>(".user-content a>img")
-			.forEach((imgElement) => {
-				let $link = imgElement.parentElement as HTMLAnchorElement;
-				let url = $link.getAttribute("href")!;
-				$link.setAttribute("data-href", url);
-				$link.removeAttribute("href");
-				if (url.startsWith("/rails/active_storage/blobs/redirect")) {
-					log.info(`该图片是上传到Greasyfork的图片，拦截默认行为，不做提示`);
-					return;
-				}
-				DOMUtils.on($link, "click", () => {
-					Qmsg.warning(
-						/*html*/ `<div style="overflow-wrap: anywhere;">${i18next.t(
-							"拦截跳转："
-						)}<a href="${url}" target="_blank">${url}</a></div>`,
-						{
-							html: true,
-							zIndex: utils.getMaxZIndex() + 105,
-						}
-					);
-				});
+		$$<HTMLImageElement>(".user-content a>img").forEach(($img) => {
+			let $link = $img.parentElement as HTMLAnchorElement;
+			let url = $link.getAttribute("href")!;
+			$link.setAttribute("data-href", url);
+			$link.removeAttribute("href");
+			if (url.startsWith("/rails/active_storage/blobs/redirect")) {
+				log.info(`该图片是上传到Greasyfork的图片，拦截默认行为，不做提示`);
+				return;
+			}
+			DOMUtils.on($link, "click", () => {
+				Qmsg.warning(
+					/*html*/ `<div style="overflow-wrap: anywhere;">${i18next.t(
+						"拦截跳转："
+					)}<a href="${url}" target="_blank">${url}</a></div>`,
+					{
+						html: true,
+						zIndex: utils.getMaxZIndex() + 105,
+					}
+				);
 			});
+		});
 	},
 	/**
 	 * 在Markdown右上角添加复制按钮
@@ -579,14 +577,12 @@ const Greasyfork = {
 		}	
 		`);
 		DOMUtils.ready(() => {
-			let $nav = document.querySelector<HTMLElement>("#site-nav nav");
-			let $subNav = document.querySelector<HTMLElement>(
-				"#site-nav .with-submenu nav"
-			);
+			let $nav = $<HTMLElement>("#site-nav nav");
+			let $subNav = $<HTMLElement>("#site-nav .with-submenu nav");
 			// 右侧的过滤菜单
 			let $scriptsOptionGroups =
-				document.querySelector<HTMLDivElement>("#script-list-option-groups")! ||
-				document.querySelector<HTMLDivElement>(".list-option-groups")!;
+				$<HTMLDivElement>("#script-list-option-groups")! ||
+				$<HTMLDivElement>(".list-option-groups")!;
 			if (!$scriptsOptionGroups) {
 				log.warn("不存在右侧面板元素#script-list-option-groups");
 				return;

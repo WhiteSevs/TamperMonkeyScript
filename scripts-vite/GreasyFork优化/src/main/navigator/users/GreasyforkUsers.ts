@@ -1,4 +1,4 @@
-import { DOMUtils, log, pops, utils } from "@/env";
+import { $, DOMUtils, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
 import i18next from "i18next";
@@ -26,7 +26,7 @@ export const GreasyforkUsers = {
 		log.info("迁移【控制台】到顶部导航栏");
 		CommonUtil.addBlockCSS("#about-user");
 		DOMUtils.ready(() => {
-			let $aboutUser = document.querySelector<HTMLElement>("#about-user");
+			let $aboutUser = $<HTMLElement>("#about-user");
 			if (!$aboutUser) {
 				log.error("#about-user元素不存在");
 				return;

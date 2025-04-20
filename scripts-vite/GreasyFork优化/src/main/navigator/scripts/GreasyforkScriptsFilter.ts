@@ -1,7 +1,7 @@
 import { $$, DOMUtils, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
-import { parseScriptListInfo } from "./GreasyforkScriptsList";
 import { GreasyforkUtils } from "@/utils/GreasyforkUtils";
+import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 
 export type ScriptFilterRule = {
 	/** 脚本代码链接 */
@@ -61,7 +61,7 @@ export const GreasyforkScriptsFilter = {
 	 */
 	filter() {
 		this.getElementList().forEach(($scriptList) => {
-			let data = parseScriptListInfo($scriptList);
+			let data = GreasyforkElementUtils.parseScriptListInfo($scriptList);
 
 			let localValueSplit = this.getValue().split("\n");
 			for (let index = 0; index < localValueSplit.length; index++) {

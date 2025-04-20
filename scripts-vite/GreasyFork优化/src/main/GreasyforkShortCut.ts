@@ -1,15 +1,13 @@
 import { ShortCut, type ShortCutOption } from "@/utils/ShortCut";
-import { Greasyfork } from "./Greasyfork";
-import { log } from "@/env";
+import { $, log } from "@/env";
 
 export const GreasyforkShortCut = {
 	shortCut: new ShortCut(),
 	shortOption: {
 		"gf-quickReply": {
 			target: () => {
-				let $commentText =
-					document.querySelector<HTMLButtonElement>("form textarea");
-				let $replyBtn = document.querySelector<HTMLButtonElement>(
+				let $commentText = $<HTMLButtonElement>("form textarea");
+				let $replyBtn = $<HTMLButtonElement>(
 					'input[name="commit"][type="submit"]'
 				);
 				if (!$commentText) {

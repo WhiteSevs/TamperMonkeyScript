@@ -395,10 +395,7 @@ export const GreasyforkScripts = {
 						<span>${i18next.t("收藏")}</span>
 					</a>`,
 				});
-				DOMUtils.append(
-					document.querySelector<HTMLUListElement>("ul#script-links")!,
-					$collectBtn
-				);
+				DOMUtils.append($<HTMLUListElement>("ul#script-links")!, $collectBtn);
 				DOMUtils.on($collectBtn, "click", () => {
 					let scriptIdMatch =
 						window.location.pathname.match(/scripts\/([\d]+)/i);
@@ -496,9 +493,7 @@ export const GreasyforkScripts = {
 					</a>`,
 				});
 				DOMUtils.append(
-					document.querySelector<HTMLUListElement>(
-						"ul#script-links"
-					) as HTMLUListElement,
+					$<HTMLUListElement>("ul#script-links") as HTMLUListElement,
 					searchBtn
 				);
 				DOMUtils.on(searchBtn, "click", async function () {
@@ -520,7 +515,7 @@ export const GreasyforkScripts = {
 	 * 脚本首页新增【今日检查】
 	 */
 	async scriptHomepageAddedTodaySUpdate() {
-		if (!document.querySelector("#install-area")) {
+		if (!$("#install-area")) {
 			return;
 		}
 		log.info("脚本首页新增【今日检查】");

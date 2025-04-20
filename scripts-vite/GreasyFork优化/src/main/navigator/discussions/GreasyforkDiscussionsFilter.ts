@@ -1,4 +1,4 @@
-import { addStyle, log, utils } from "@/env";
+import { $$, addStyle, log, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import i18next from "i18next";
@@ -63,9 +63,7 @@ export const GreasyforkDiscussionsFilter = {
 	getElementList() {
 		let discussionsListContainer: HTMLDivElement[] = [];
 		discussionsListContainer = discussionsListContainer.concat(
-			Array.from(
-				document.querySelectorAll<HTMLDivElement>(".discussion-list-container")
-			)
+			Array.from($$<HTMLDivElement>(".discussion-list-container"))
 		);
 		return discussionsListContainer;
 	},

@@ -1,4 +1,4 @@
-import { $$, addStyle, httpx, log, pops, utils } from "@/env";
+import { $$, addStyle, log, pops, utils } from "@/env";
 import {
 	GreasyforkScriptsFilter,
 	ScriptFilterRule,
@@ -10,61 +10,8 @@ import { GreasyforkScriptsCollectEvent } from "./GreasyforkScripts";
 import beautifyCenterContentCSS from "./css/beautifyCenterContent.css?raw";
 import Qmsg from "qmsg";
 import { GreasyforkCheckVersion } from "@/utils/GreasyforkCheckVersion";
-import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { GreasyforkApi } from "@/api/GreasyForkApi";
-
-/** 解析出<li>元素上存储的脚本信息 */
-export const parseScriptListInfo = ($scriptList: HTMLLIElement) => {
-	let dataset = $scriptList.dataset as any as GreasyforkScriptListInfoDataset;
-	const info = {
-		scriptId: parseInt(dataset.scriptId),
-		scriptName: dataset.scriptName,
-		scriptAuthors: [],
-		scriptDailyInstalls: parseInt(dataset.scriptDailyInstalls),
-		scriptTotalInstalls: parseInt(dataset.scriptTotalInstalls),
-		scriptRatingScore: parseFloat(dataset.scriptRatingScore),
-		scriptCreatedDate: new Date(dataset.scriptCreatedDate),
-		scriptUpdatedDate: new Date(dataset.scriptUpdatedDate),
-		scriptType: dataset.scriptType,
-		scriptVersion: dataset.scriptVersion,
-		sensitive: dataset.sensitive === "true",
-		scriptLanguage: dataset.scriptLanguage,
-		cssAvailableAsJs: dataset.cssAvailableAsJs === "true",
-		codeUrl: dataset.codeUrl,
-		scriptDescription: dataset.scriptDescription,
-		scriptAuthorId: parseInt(dataset.scriptAuthorId),
-		scriptAuthorName: dataset.scriptAuthorName,
-	} as GreasyforkScriptListInfo;
-
-	let scriptAuthorsObj = utils.toJSON(dataset.scriptAuthors);
-	Object.keys(scriptAuthorsObj).forEach((authorId) => {
-		let authorName = scriptAuthorsObj[authorId];
-		info.scriptAuthors.push({
-			authorId: parseInt(authorId),
-			authorName: authorName,
-		});
-	});
-	// scriptAuthorName可能是空的
-	// scriptAuthorId可能是空的
-	if (
-		(info.scriptAuthorName == null || isNaN(info.scriptAuthorId)) &&
-		info.scriptAuthors.length
-	) {
-		info.scriptAuthorName = info.scriptAuthors[0].authorName;
-		info.scriptAuthorId = info.scriptAuthors[0].authorId;
-	}
-	// scriptDescription可能是空的
-	if (info.scriptDescription == null) {
-		let $description =
-			$scriptList.querySelector<HTMLSpanElement>(".script-description")! ||
-			$scriptList.querySelector<HTMLSpanElement>(".description")!;
-		if ($description) {
-			info.scriptDescription =
-				$description.innerText || $description.textContent!;
-		}
-	}
-	return info;
-};
+import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 
 export const GreasyforkScriptsList = {
 	init() {
@@ -120,7 +67,8 @@ export const GreasyforkScriptsList = {
 						// 已经美化
 						return;
 					}
-					let scriptInfo = parseScriptListInfo($scriptList);
+					let scriptInfo =
+						GreasyforkElementUtils.parseScriptListInfo($scriptList);
 					let $inlineStats = $scriptList.querySelector<HTMLElement>(
 						".inline-script-stats"
 					);
