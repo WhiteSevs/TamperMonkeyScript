@@ -571,7 +571,7 @@ export const GreasyforkScripts = {
 					let getResp = await httpx.get(
 						`/zh-CN/scripts/${GreasyforkUrlUtils.getScriptId()}.json`,
 						{
-							fetch: true,
+							// fetch: true,
 							responseType: "json",
 						}
 					);
