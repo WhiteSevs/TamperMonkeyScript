@@ -42,10 +42,11 @@ body:
   - type: dropdown
     id: scriptruncontainer
     attributes:
-      label: 脚本运行的容器
-      description: "勾选运行脚本的环境"
+      label: 运行脚本的容器
+      description: "勾选运行脚本的容器"
       multiple: false
       options:
+        - 请选择符合的一项，不符合将关闭该issue
         - 扩展-暴力猴（Violentmonkey）
         - 扩展-暴力猴测试版（Violentmonkey BETA）
         - 扩展-篡改猴（TamperMonkey）
@@ -72,6 +73,7 @@ body:
       description: "勾选使用的脚本"
       multiple: false
       options:
+        - 请选择符合的一项，不符合将关闭该issue
         - 【移动端】百度系优化
         - 【移动端】微博优化
         - 【移动端】bilibili优化
@@ -87,28 +89,15 @@ body:
         - 网页调试
         - 模拟竖屏
         - CookieManager
-        - 其它(请在下方填写脚本名称)
-    validations:
-      required: true
-
-  - type: dropdown
-    id: browserType
-    attributes:
-      label: 浏览器
-      description: "勾选运行脚本的浏览器，如果脚本运行的容器勾选了其它或者是浏览器，那这里选其它就行"
-      multiple: false
-      options:
-        - Chrome
-        - Firefox
-        - Safari
-        - 其它(请在问题描述内填写浏览器名称)
+        - 其它(请在下方问题描述内填写脚本名称)
     validations:
       required: true
 
   - type: input
     attributes:
-      label: 浏览器内核版本
-      description: "请填写运行脚本的浏览器内核版本，如果是套壳浏览器，请填写webview的版本"
+      label: 浏览器 & 内核版本
+      description: "请填写运行脚本的浏览器及内核版本，如果是套壳浏览器，内核版本请填写webview的版本"
+      placeholder: "例如：Edge 135.0.3179.85（64位）"
     validations:
       required: true
 
