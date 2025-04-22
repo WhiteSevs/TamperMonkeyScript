@@ -1,6 +1,6 @@
 {
 	"name": "@whitesev/domutils",
-	"version": "1.5.2",
+	"version": "1.5.3",
 	"description": "使用js重新对jQuery的部分函数进行了仿写",
 	"main": "dist/index.cjs.js",
 	"module": "dist/index.esm.js",

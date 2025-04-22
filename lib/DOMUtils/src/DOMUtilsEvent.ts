@@ -271,19 +271,22 @@ export class DOMUtilsEvent {
 					let eventTarget = listenerOption.isComposedPath
 						? (event.composedPath()[0] as HTMLElement)
 						: (event.target as HTMLElement);
-					let totalParent = DOMUtilsCommonUtils.isWin(elementItem)
-						? DOMUtilsContext.windowApi.document.documentElement
-						: elementItem;
+					let totalParent =
+						DOMUtilsCommonUtils.isWin(elementItem) ||
+						// @ts-ignore
+						elementItem === DOMUtilsContext.windowApi.document
+							? DOMUtilsContext.windowApi.document.documentElement
+							: elementItem;
 					let findValue = selectorList.find((selectorItem) => {
 						// 判断目标元素是否匹配选择器
-						if (eventTarget.matches(selectorItem)) {
+						if (eventTarget?.matches(selectorItem)) {
 							/* 当前目标可以被selector所匹配到 */
 							return true;
 						}
 						/* 在上层与主元素之间寻找可以被selector所匹配到的 */
 						let $closestMatches =
-							eventTarget.closest<HTMLElement>(selectorItem);
-						if ($closestMatches && totalParent.contains($closestMatches)) {
+							eventTarget?.closest<HTMLElement>(selectorItem);
+						if ($closestMatches && totalParent?.contains($closestMatches)) {
 							eventTarget = $closestMatches;
 							return true;
 						}
