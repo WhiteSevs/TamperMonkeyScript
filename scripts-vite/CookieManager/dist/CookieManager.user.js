@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.4.11
+// @version      2025.4.23
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
 // @connect      *
 // @grant        GM_cookie
 // @grant        GM_deleteValue
@@ -2414,6 +2414,44 @@
       );
     }
   };
+  const CookieInfoTransform = {
+    /**
+     * 对编辑前的cookie信息进行值转换
+     */
+    beforeEdit(cookieInfo) {
+      const cookieManagerApiName = CookieManager.cookieManagerApiName;
+      if (cookieManagerApiName === "cookieStore") {
+        if (typeof cookieInfo.expires === "number") {
+          cookieInfo.expirationDate = cookieInfo.expires;
+        }
+      } else if (cookieManagerApiName === "GM_cookie") {
+        if (typeof cookieInfo.expirationDate === "number") {
+          cookieInfo.expirationDate = cookieInfo.expirationDate * 1e3;
+        }
+      }
+      return cookieInfo;
+    },
+    /**
+     * 对编辑后的cookie信息进行值转换
+     */
+    afterEdit(cookieInfo) {
+      const cookieManagerApiName = CookieManager.cookieManagerApiName;
+      if (cookieManagerApiName === "document.cookie") {
+        cookieInfo.domain = "";
+      } else if (cookieManagerApiName === "cookieStore") {
+        if (typeof cookieInfo.expirationDate === "number") {
+          cookieInfo.expires = cookieInfo.expirationDate;
+        }
+      } else if (cookieManagerApiName === "GM_cookie") {
+        if (typeof cookieInfo.expirationDate === "number") {
+          cookieInfo.expirationDate = Math.floor(
+            cookieInfo.expirationDate / 1e3
+          );
+        }
+      }
+      return cookieInfo;
+    }
+  };
   let edit_ui_input = (text, getValue, setValue, disabled) => {
     let config = {
       text,
@@ -2479,11 +2517,7 @@
         __cookieInfo__,
         true
       );
-      if (CookieManager.cookieManagerApiName === "cookieStore") {
-        if (cookieInfo.expires) {
-          cookieInfo.expirationDate = cookieInfo.expires;
-        }
-      }
+      cookieInfo = CookieInfoTransform.beforeEdit(cookieInfo);
       let $dialog = __pops.confirm({
         title: {
           text: isEdit ? "编辑Cookie" : "添加Cookie",
@@ -2504,13 +2538,7 @@
                 return;
               }
               cookieInfo.value = encodeURIComponent(cookieInfo.value);
-              if (CookieManager.cookieManagerApiName === "document.cookie") {
-                cookieInfo.domain = "";
-              } else if (CookieManager.cookieManagerApiName === "GM_cookie") {
-                cookieInfo.expirationDate = Math.floor(
-                  cookieInfo.expirationDate / 1e3
-                );
-              }
+              cookieInfo = CookieInfoTransform.afterEdit(cookieInfo);
               if (isEdit) {
                 let result = await CookieManager.updateCookie(cookieInfo);
                 if (result) {

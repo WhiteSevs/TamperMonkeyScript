@@ -1,0 +1,51 @@
+import { CookieManager } from "@/main/CookieManager";
+
+export const CookieInfoTransform = {
+	/**
+	 * 对编辑前的cookie信息进行值转换
+	 */
+	beforeEdit(cookieInfo: GMCookieInstance) {
+		const cookieManagerApiName = CookieManager.cookieManagerApiName;
+		if (cookieManagerApiName === "document.cookie") {
+		}
+		if (cookieManagerApiName === "cookieStore") {
+			// cookieStore的返回的值是expire不是expirationDate
+			// 所以赋值给expirationDate
+			// @ts-ignore
+			if (typeof cookieInfo.expires === "number") {
+				// @ts-ignore
+				cookieInfo.expirationDate = cookieInfo.expires;
+			}
+		} else if (cookieManagerApiName === "GM_cookie") {
+			// GM_cookie的expirationDate的格式是秒，需要转为秒用于编辑/添加
+			if (typeof cookieInfo.expirationDate === "number") {
+				cookieInfo.expirationDate = cookieInfo.expirationDate * 1000;
+			}
+		}
+		return cookieInfo;
+	},
+	/**
+	 * 对编辑后的cookie信息进行值转换
+	 */
+	afterEdit(cookieInfo: GMCookieInstance) {
+		const cookieManagerApiName = CookieManager.cookieManagerApiName;
+		if (cookieManagerApiName === "document.cookie") {
+			// document.cookie不设置domain，使用默认值留空
+			cookieInfo.domain = "";
+		} else if (cookieManagerApiName === "cookieStore") {
+			// 把 expirationDate 赋值给 expires
+			if (typeof cookieInfo.expirationDate === "number") {
+				// @ts-ignore
+				cookieInfo.expires = cookieInfo.expirationDate;
+			}
+		} else if (cookieManagerApiName === "GM_cookie") {
+			// GM_cookie的expirationDate的格式是秒，需要从毫秒转为秒
+			if (typeof cookieInfo.expirationDate === "number") {
+				cookieInfo.expirationDate = Math.floor(
+					cookieInfo.expirationDate / 1000
+				);
+			}
+		}
+		return cookieInfo;
+	},
+};

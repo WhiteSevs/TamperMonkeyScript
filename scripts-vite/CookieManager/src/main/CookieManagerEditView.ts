@@ -4,6 +4,7 @@ import type { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/compon
 import type { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/selectType";
 import { CookieManager } from "./CookieManager";
 import Qmsg from "qmsg";
+import { CookieInfoTransform } from "@/main/CookieInfoTransform";
 
 /**
  * 编辑UI-输入框
@@ -100,14 +101,7 @@ export const CookieManagerEditView = {
 			__cookieInfo__!,
 			true
 		);
-		if (CookieManager.cookieManagerApiName === "cookieStore") {
-			// cookieStore的返回的值是expire不是expirationDate
-			// @ts-ignore
-			if (cookieInfo.expires) {
-				// @ts-ignore
-				cookieInfo.expirationDate = cookieInfo.expires;
-			}
-		}
+		cookieInfo = CookieInfoTransform.beforeEdit(cookieInfo);
 		let $dialog = pops.confirm({
 			title: {
 				text: isEdit ? "编辑Cookie" : "添加Cookie",
@@ -129,15 +123,7 @@ export const CookieManagerEditView = {
 						}
 						// 把值进行编码
 						cookieInfo.value = encodeURIComponent(cookieInfo.value);
-						if (CookieManager.cookieManagerApiName === "document.cookie") {
-							// document.cookie不设置domain，使用默认值
-							cookieInfo.domain = "";
-						} else if (CookieManager.cookieManagerApiName === "GM_cookie") {
-							// expirationDate时间是秒，当前是毫秒，需要转换
-							cookieInfo.expirationDate = Math.floor(
-								cookieInfo.expirationDate! / 1000
-							);
-						}
+						cookieInfo = CookieInfoTransform.afterEdit(cookieInfo);
 						if (isEdit) {
 							// 编辑
 							let result = await CookieManager.updateCookie(cookieInfo);
