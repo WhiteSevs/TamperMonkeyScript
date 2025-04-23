@@ -71,7 +71,7 @@ export const DouYin = {
 				log.info(`Router:  笔记页面`);
 				DouYinNote.init();
 			} else {
-				log.error("未适配router: " + window.location.pathname);
+				log.warn("子router: " + window.location.href);
 			}
 		} else {
 			log.error("未适配router: " + window.location.href);

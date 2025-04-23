@@ -127,6 +127,31 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 			text: "",
 			forms: [
 				{
+					type: "own",
+					getLiElementCallBack(liElement) {
+						let $left = DOMUtils.createElement("div", {
+							className: "pops-panel-item-left-text",
+							innerHTML: /*html*/ `
+							<p class="pops-panel-item-left-main-text">WebGL</p>
+							<p class="pops-panel-item-left-desc-text"></p>
+							`,
+						});
+						let $leftDesc = $left.querySelector<HTMLElement>(
+							".pops-panel-item-left-desc-text"
+						)!;
+						let gpuInfo = "";
+						try {
+							gpuInfo = getGPU();
+						} catch (error: any) {
+							log.error(error);
+							gpuInfo = error.toString();
+						}
+						DOMUtils.text($leftDesc, gpuInfo);
+						DOMUtils.append(liElement, $left);
+						return liElement;
+					},
+				},
+				{
 					text: "功能",
 					type: "deepMenu",
 					forms: [
@@ -169,31 +194,6 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									void 0,
 									"阻止触发验证弹窗（maybe）"
 								),
-								{
-									type: "own",
-									getLiElementCallBack(liElement) {
-										let $left = DOMUtils.createElement("div", {
-											className: "pops-panel-item-left-text",
-											innerHTML: /*html*/ `
-											<p class="pops-panel-item-left-main-text">WebGL</p>
-											<p class="pops-panel-item-left-desc-text"></p>
-											`,
-										});
-										let $leftDesc = $left.querySelector<HTMLElement>(
-											".pops-panel-item-left-desc-text"
-										)!;
-										let gpuInfo = "";
-										try {
-											gpuInfo = getGPU();
-										} catch (error: any) {
-											log.error(error);
-											gpuInfo = error.toString();
-										}
-										DOMUtils.text($leftDesc, gpuInfo);
-										DOMUtils.append(liElement, $left);
-										return liElement;
-									},
-								},
 							],
 						},
 						{

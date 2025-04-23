@@ -535,38 +535,40 @@ export const DouYinVideoPlayer = {
 			pointer-events: none;
 		}
 		`);
-		// 让拖拽进度条的按钮拖拽时修改进度条高度
-		DOMUtils.on(
-			document,
-			"touchstart",
-			"xg-progress",
-			(event) => {
-				let $click = event.target as HTMLElement;
-				let $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
-				if ($xg_outer) {
-					$xg_outer.style.height = "6px";
+		DOMUtils.ready(() => {
+			// 让拖拽进度条的按钮拖拽时修改进度条高度
+			DOMUtils.on(
+				document.body,
+				"touchstart",
+				"xg-progress",
+				(event, selectorTarget) => {
+					let $click = selectorTarget;
+					let $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
+					if ($xg_outer) {
+						$xg_outer.style.height = "6px";
+					}
+				},
+				{
+					capture: true,
 				}
-			},
-			{
-				capture: true,
-			}
-		);
-		// 让拖拽进度条的按钮拖拽时修改进度条高度
-		DOMUtils.on(
-			document,
-			"touchend",
-			"xg-progress",
-			(event) => {
-				let $click = event.target as HTMLElement;
-				let $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
-				if ($xg_outer) {
-					$xg_outer.style.height = "";
+			);
+			// 让拖拽进度条的按钮拖拽时修改进度条高度
+			DOMUtils.on(
+				document.body,
+				"touchend",
+				"xg-progress",
+				(event, selectorTarget) => {
+					let $click = selectorTarget;
+					let $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
+					if ($xg_outer) {
+						$xg_outer.style.height = "";
+					}
+				},
+				{
+					capture: true,
 				}
-			},
-			{
-				capture: true,
-			}
-		);
+			);
+		});
 	},
 	/**
 	 * 修改视频背景颜色

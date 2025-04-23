@@ -65,7 +65,20 @@ export const DouYinAccount = {
 			userCanceled: false,
 			roomData: {},
 			shareQrcodeUrl: "",
-			shareInfo: void 0,
+			shareInfo: {
+				boolPersist: 1,
+				shareDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。",
+				shareImageUrl: {
+					uri: "",
+					url_list: [],
+				},
+				shareQrcodeUrl: {
+					uri: "",
+					url_list: [],
+				},
+				shareUrl: "",
+				shareWeiboDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。",
+			},
 			coverAndHeadImageInfo: {
 				profileCoverList: [],
 			},

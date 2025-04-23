@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.4.14
+// @version      2025.4.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
 // @connect      *
@@ -34,15 +34,15 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -128,7 +128,7 @@
     );
     let clickCallBack = (isOpen) => {
       var _a2;
-      (_a2 = container.sectionBodyContainer) == null ? undefined : _a2.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
+      (_a2 = container.sectionBodyContainer) == null ? void 0 : _a2.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
         let $input = $ele.querySelector(
           ".pops-panel-switch__input"
         );
@@ -261,14 +261,14 @@
                         text: "5"
                       }
                     ],
-                    undefined,
+                    void 0,
                     "限制Toast显示的数量"
                   ),
                   UISwitch(
                     "逆序弹出",
                     "qmsg-config-showreverse",
                     false,
-                    undefined,
+                    void 0,
                     "修改Toast弹出的顺序"
                   )
                 ]
@@ -282,6 +282,34 @@
         text: "",
         forms: [
           {
+            type: "own",
+            getLiElementCallBack(liElement) {
+              let $left = domUtils.createElement("div", {
+                className: "pops-panel-item-left-text",
+                innerHTML: (
+                  /*html*/
+                  `
+							<p class="pops-panel-item-left-main-text">WebGL</p>
+							<p class="pops-panel-item-left-desc-text"></p>
+							`
+                )
+              });
+              let $leftDesc = $left.querySelector(
+                ".pops-panel-item-left-desc-text"
+              );
+              let gpuInfo = "";
+              try {
+                gpuInfo = getGPU();
+              } catch (error) {
+                log.error(error);
+                gpuInfo = error.toString();
+              }
+              domUtils.text($leftDesc, gpuInfo);
+              domUtils.append(liElement, $left);
+              return liElement;
+            }
+          },
+          {
             text: "功能",
             type: "deepMenu",
             forms: [
@@ -293,65 +321,37 @@
                     "伪装登录",
                     "disguiseLogin",
                     false,
-                    undefined,
+                    void 0,
                     "使用随机UID进行伪装"
                   ),
                   UISwitch(
                     "initial-scale=1",
                     "dy-initialScale",
                     false,
-                    undefined,
+                    void 0,
                     "可配合手机模式放大页面"
                   ),
                   UISwitch(
                     "移除<meta> apple-itunes-app",
                     "dy-apple-removeMetaAppleItunesApp",
                     true,
-                    undefined,
+                    void 0,
                     "Safari使用，移除顶部横幅【Open in the 抖音 app】"
                   ),
                   UISwitch(
                     "监听Router改变",
                     "dy-common-listenRouterChange",
                     true,
-                    undefined,
+                    void 0,
                     "功能重载"
                   ),
                   UISwitch(
                     "移除某些Cookie",
                     "dy-cookie-remove__ac__",
                     false,
-                    undefined,
+                    void 0,
                     "阻止触发验证弹窗（maybe）"
-                  ),
-                  {
-                    type: "own",
-                    getLiElementCallBack(liElement) {
-                      let $left = domUtils.createElement("div", {
-                        className: "pops-panel-item-left-text",
-                        innerHTML: (
-                          /*html*/
-                          `
-											<p class="pops-panel-item-left-main-text">WebGL</p>
-											<p class="pops-panel-item-left-desc-text"></p>
-											`
-                        )
-                      });
-                      let $leftDesc = $left.querySelector(
-                        ".pops-panel-item-left-desc-text"
-                      );
-                      let gpuInfo = "";
-                      try {
-                        gpuInfo = getGPU();
-                      } catch (error) {
-                        log.error(error);
-                        gpuInfo = error.toString();
-                      }
-                      domUtils.text($leftDesc, gpuInfo);
-                      domUtils.append(liElement, $left);
-                      return liElement;
-                    }
-                  }
+                  )
                 ]
               },
               {
@@ -362,7 +362,7 @@
                     "重定向/home",
                     "douyin-redirect-url-home-to-root",
                     false,
-                    undefined,
+                    void 0,
                     "/home => /"
                   )
                 ]
@@ -382,161 +382,161 @@
                     "赞|取消赞",
                     "dy-keyboard-hook-likeOrDislike",
                     false,
-                    undefined,
+                    void 0,
                     "Z"
                   ),
                   UISwitch(
                     "评论",
                     "dy-keyboard-hook-comment",
                     false,
-                    undefined,
+                    void 0,
                     "X"
                   ),
                   UISwitch(
                     "开启/关闭弹幕",
                     "dy-keyboard-hook-danmaku-enable",
                     false,
-                    undefined,
+                    void 0,
                     "B"
                   ),
                   UISwitch(
                     "收藏/取消收藏",
                     "dy-keyboard-hook-collect-enable",
                     false,
-                    undefined,
+                    void 0,
                     "C"
                   ),
                   UISwitch(
                     "复制分享口令",
                     "dy-keyboard-hook-copyShareLink",
                     false,
-                    undefined,
+                    void 0,
                     "V"
                   ),
                   UISwitch(
                     "清屏",
                     "dy-keyboard-hook-clearScreen",
                     false,
-                    undefined,
+                    void 0,
                     "J"
                   ),
                   UISwitch(
                     "自动连播",
                     "dy-keyboard-hook-automaticBroadcast",
                     false,
-                    undefined,
+                    void 0,
                     "K"
                   ),
                   UISwitch(
                     "视频信息",
                     "dy-keyboard-hook-videoInfo",
                     false,
-                    undefined,
+                    void 0,
                     "I"
                   ),
                   UISwitch(
                     "不感兴趣",
                     "dy-keyboard-hook-notInterested",
                     false,
-                    undefined,
+                    void 0,
                     "R"
                   ),
                   UISwitch(
                     "进入作者主页",
                     "dy-keyboard-hook-enterAuthorHomePage",
                     false,
-                    undefined,
+                    void 0,
                     "F"
                   ),
                   UISwitch(
                     "关注/取消关注",
                     "dy-keyboard-hook-follow",
                     false,
-                    undefined,
+                    void 0,
                     "G"
                   ),
                   UISwitch(
                     "抖音搜索",
                     "dy-keyboard-hook-search",
                     false,
-                    undefined,
+                    void 0,
                     "Shift+F"
                   ),
                   UISwitch(
                     "一键关闭当前页",
                     "dy-keyboard-hook-closeTheCurrentPageWithOneClick",
                     false,
-                    undefined,
+                    void 0,
                     "Shift+Q"
                   ),
                   UISwitch(
                     "上下翻页",
                     "dy-keyboard-hook-pageUpAndDown",
                     false,
-                    undefined,
+                    void 0,
                     "↑↓"
                   ),
                   UISwitch(
                     "快进快退",
                     "dy-keyboard-hook-fastForwardAndFastBack",
                     false,
-                    undefined,
+                    void 0,
                     "← →"
                   ),
                   UISwitch(
                     "暂停",
                     "dy-keyboard-hook-pause",
                     false,
-                    undefined,
+                    void 0,
                     "空格"
                   ),
                   UISwitch(
                     "网页内全屏",
                     "dy-keyboard-hook-fullScreenInsideThePage",
                     false,
-                    undefined,
+                    void 0,
                     "Y"
                   ),
                   UISwitch(
                     "全屏",
                     "dy-keyboard-hook-fullScreen",
                     false,
-                    undefined,
+                    void 0,
                     "H"
                   ),
                   UISwitch(
                     "稍后再看",
                     "dy-keyboard-hook-watchItOutLater",
                     false,
-                    undefined,
+                    void 0,
                     "L"
                   ),
                   UISwitch(
                     "音量调整",
                     "dy-keyboard-hook-volumeAdjustment",
                     false,
-                    undefined,
+                    void 0,
                     "Shift + / Shift -"
                   ),
                   UISwitch(
                     "呼出快捷键列表",
                     "dy-keyboard-hook-listOfCallShortcutKeys",
                     false,
-                    undefined,
+                    void 0,
                     "?"
                   ),
                   UISwitch(
                     "关闭快捷键列表",
                     "dy-keyboard-hook-closeTheShortcutKeyList",
                     false,
-                    undefined,
+                    void 0,
                     "ESC"
                   ),
                   UISwitch(
                     "相关推荐",
                     "dy-keyboard-hook-relevantRecommendation",
                     false,
-                    undefined,
+                    void 0,
                     "N"
                   )
                 ]
@@ -562,14 +562,14 @@
                     "【屏蔽】登录弹窗",
                     "watchLoginDialogToClose",
                     true,
-                    undefined,
+                    void 0,
                     "屏蔽元素且自动等待元素出现并关闭登录弹窗"
                   ),
                   UISwitch(
                     "【屏蔽】底部？按钮",
                     "shieldBottomQuestionButton",
                     true,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   )
                 ]
@@ -589,140 +589,140 @@
                     "【屏蔽】左侧导航栏",
                     "shieldLeftNavigator",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】首页",
                     "shieldLeftNavigator-tab-home",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】推荐",
                     "shieldLeftNavigator-tab-recommend",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】关注",
                     "shieldLeftNavigator-tab-follow",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】朋友",
                     "shieldLeftNavigator-tab-friend",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】我的",
                     "shieldLeftNavigator-tab-user_self",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】喜欢",
                     "shieldLeftNavigator-tab-user_self_like",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】收藏",
                     "shieldLeftNavigator-tab-user_self_collection",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】观看历史",
                     "shieldLeftNavigator-tab-user_self_record",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】看奥运",
                     "shieldLeftNavigator-tab-olympics",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】直播",
                     "shieldLeftNavigator-tab-live",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】放映厅",
                     "shieldLeftNavigator-tab-vs",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】短剧",
                     "shieldLeftNavigator-tab-series",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】知识",
                     "shieldLeftNavigator-tab-channel_300203",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】游戏",
                     "shieldLeftNavigator-tab-channel_300205",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】二次元",
                     "shieldLeftNavigator-tab-channel_300206",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】音乐",
                     "shieldLeftNavigator-tab-channel_300209",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】美食",
                     "shieldLeftNavigator-tab-channel_300204",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】美好跨年季",
                     "shieldLeftNavigator-tab-activity_2644292",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】2025新春环游记",
                     "shieldLeftNavigator-tab-activity_2643710",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   )
                 ]
@@ -742,84 +742,84 @@
                     "【屏蔽】顶部导航栏",
                     "shieldTopNavigator",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】右侧菜单栏",
                     "shield-topNav-rightMenu",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】客户端提示",
                     "shieldClientTip",
                     true,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】充钻石",
                     "shieldFillingBricksAndStones",
                     true,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】客户端",
                     "shieldClient",
                     true,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】快捷访问",
                     "shieldQuickAccess",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】通知",
                     "shieldNotifitation",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】私信",
                     "shieldPrivateMessage",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】投稿",
                     "shieldSubmission",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】壁纸",
                     "shieldWallpaper",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】更多",
                     "shield-topNav-rightMenu-more",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】登录头像",
                     "shield-topNav-rightMenu-loginAvatar",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   )
                 ]
@@ -839,28 +839,28 @@
                     "【屏蔽】搜索框",
                     "shieldSearch",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】搜索框的提示",
                     "shieldSearchPlaceholder",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】猜你想搜",
                     "shieldSearchGuessYouWantToSearch",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】抖音热点",
                     "shieldSearchTiktokHotspot",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   )
                 ]
@@ -990,10 +990,10 @@
       );
       for (let messageIndex = 0; messageIndex < danmakuQueue.length; messageIndex++) {
         let $danmuItem = danmakuQueue[messageIndex];
-        let $messageIns = (_d = (_c = (_b = (_a2 = utils.getReactObj($danmuItem)) == null ? undefined : _a2.reactFiber) == null ? undefined : _b.return) == null ? undefined : _c.memoizedProps) == null ? undefined : _d.message;
-        let message = ((_e = $messageIns == null ? undefined : $messageIns.payload) == null ? undefined : _e.content) || ((_g = (_f = $messageIns == null ? undefined : $messageIns.payload) == null ? undefined : _f.common) == null ? undefined : _g.describe);
+        let $messageIns = (_d = (_c = (_b = (_a2 = utils.getReactObj($danmuItem)) == null ? void 0 : _a2.reactFiber) == null ? void 0 : _b.return) == null ? void 0 : _c.memoizedProps) == null ? void 0 : _d.message;
+        let message = ((_e = $messageIns == null ? void 0 : $messageIns.payload) == null ? void 0 : _e.content) || ((_g = (_f = $messageIns == null ? void 0 : $messageIns.payload) == null ? void 0 : _f.common) == null ? void 0 : _g.describe);
         let method = $messageIns.method;
-        let chat_by = (_h = $messageIns == null ? undefined : $messageIns.payload) == null ? undefined : _h.chat_by;
+        let chat_by = (_h = $messageIns == null ? void 0 : $messageIns.payload) == null ? void 0 : _h.chat_by;
         let flag = false;
         if (!flag) {
           if (method === "WebcastGiftMessage" && PopsPanel.getValue("live-danmu-shield-gift")) {
@@ -1322,7 +1322,7 @@
             return;
           }
           let { reactFiber } = utils.getReactObj($el);
-          let onClick = (_d = (_c = (_b = (_a2 = reactFiber == null ? undefined : reactFiber.memoizedProps) == null ? undefined : _a2.children) == null ? undefined : _b[1]) == null ? undefined : _c.props) == null ? undefined : _d.onClick;
+          let onClick = (_d = (_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.memoizedProps) == null ? void 0 : _a2.children) == null ? void 0 : _b[1]) == null ? void 0 : _c.props) == null ? void 0 : _d.onClick;
           if (typeof onClick === "function") {
             log.info(`调用屏蔽礼物特效按钮的onClick函数`);
             onClick();
@@ -1544,7 +1544,7 @@
     parseElementPlayerIns($ele) {
       var _a2, _b, _c, _d;
       let react = utils.getReactObj($ele);
-      return (_d = (_c = (_b = (_a2 = react == null ? undefined : react.reactFiber) == null ? undefined : _a2.child) == null ? undefined : _b.child) == null ? undefined : _c.memoizedProps) == null ? undefined : _d.playerInstance;
+      return (_d = (_c = (_b = (_a2 = react == null ? void 0 : react.reactFiber) == null ? void 0 : _a2.child) == null ? void 0 : _b.child) == null ? void 0 : _c.memoizedProps) == null ? void 0 : _d.playerInstance;
     },
     /**
      * 显示解析的信息弹窗
@@ -1552,8 +1552,8 @@
     showParseDialog() {
       var _a2, _b, _c, _d;
       log.info(["解析的信息：", this.$data.playerInstance]);
-      let blobSrc = ((_a2 = this.$data.playerInstance) == null ? undefined : _a2.url) || ((_b = this.$data.playerInstance) == null ? undefined : _b.src);
-      let pushSrc = (_c = this.$data.playerInstance) == null ? undefined : _c.config.url;
+      let blobSrc = ((_a2 = this.$data.playerInstance) == null ? void 0 : _a2.url) || ((_b = this.$data.playerInstance) == null ? void 0 : _b.src);
+      let pushSrc = (_c = this.$data.playerInstance) == null ? void 0 : _c.config.url;
       __pops.alert({
         title: {
           text: "解析信息",
@@ -1576,7 +1576,7 @@
                     </div>
                     <div class="live-dy-parse-item">
                         <div class="live-dy-parse-item-name">播放器版本：</div>
-                        <div class="live-dy-parse-item-value">${(_d = this.$data.playerInstance) == null ? undefined : _d.version}
+                        <div class="live-dy-parse-item-value">${(_d = this.$data.playerInstance) == null ? void 0 : _d.version}
                         </div>
                     </div>
                 </div>
@@ -1671,7 +1671,7 @@
     hasOptionValue(key) {
       if (this.hasOption(key)) {
         let option = this.getOption(key);
-        return !((option == null ? undefined : option.value) == null);
+        return !((option == null ? void 0 : option.value) == null);
       } else {
         return false;
       }
@@ -1862,7 +1862,7 @@
             if (that.isWaitPress) {
               return;
             }
-            if (config == null ? undefined : config.isPrevent) {
+            if (config == null ? void 0 : config.isPrevent) {
               utils.preventEvent(event);
             }
             localOptions = that.getLocalAllOptions();
@@ -1886,7 +1886,7 @@
             }
           },
           {
-            capture: Boolean(config == null ? undefined : config.capture)
+            capture: Boolean(config == null ? void 0 : config.capture)
           }
         );
       }
@@ -2045,7 +2045,7 @@
         {
           check(reactInstance) {
             var _a2;
-            return typeof ((_a2 = reactInstance == null ? undefined : reactInstance.memoizedProps) == null ? undefined : _a2.onClick) === "function";
+            return typeof ((_a2 = reactInstance == null ? void 0 : reactInstance.memoizedProps) == null ? void 0 : _a2.onClick) === "function";
           },
           set(reactInstance, $target) {
             log.success("自动进入网页全屏");
@@ -2065,7 +2065,7 @@
         {
           check(reactInstance) {
             var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
-            return typeof ((_d = (_c = (_b = (_a2 = reactInstance == null ? undefined : reactInstance.children) == null ? undefined : _a2.props) == null ? undefined : _b.children) == null ? undefined : _c.props) == null ? undefined : _d.qualityHandler) === "object" && typeof ((_i = (_h = (_g = (_f = (_e = reactInstance == null ? undefined : reactInstance.children) == null ? undefined : _e.props) == null ? undefined : _f.children) == null ? undefined : _g.props) == null ? undefined : _h.qualityHandler) == null ? undefined : _i.getCurrentQualityList) === "function";
+            return typeof ((_d = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _a2.props) == null ? void 0 : _b.children) == null ? void 0 : _c.props) == null ? void 0 : _d.qualityHandler) === "object" && typeof ((_i = (_h = (_g = (_f = (_e = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _e.props) == null ? void 0 : _f.children) == null ? void 0 : _g.props) == null ? void 0 : _h.qualityHandler) == null ? void 0 : _i.getCurrentQualityList) === "function";
           },
           set(reactInstance) {
             let qualityHandler = reactInstance.children.props.children.props.qualityHandler;
@@ -2148,10 +2148,10 @@
                   isFind: true,
                   data: obj["onClose"]
                 };
-              } else if (typeof ((_a3 = obj == null ? undefined : obj["memoizedProps"]) == null ? undefined : _a3["onClose"]) === "function") {
+              } else if (typeof ((_a3 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _a3["onClose"]) === "function") {
                 return {
                   isFind: true,
-                  data: (_b2 = obj == null ? undefined : obj["memoizedProps"]) == null ? undefined : _b2["onClose"]
+                  data: (_b2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _b2["onClose"]
                 };
               } else {
                 return {
@@ -2159,7 +2159,7 @@
                   data: obj["child"]
                 };
               }
-            }) || ((_f = (_e = (_d = (_c = (_b = (_a2 = $rect == null ? undefined : $rect.reactContainer) == null ? undefined : _a2.memoizedState) == null ? undefined : _b.element) == null ? undefined : _c.props) == null ? undefined : _d.children) == null ? undefined : _e.props) == null ? undefined : _f.onClose);
+            }) || ((_f = (_e = (_d = (_c = (_b = (_a2 = $rect == null ? void 0 : $rect.reactContainer) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.element) == null ? void 0 : _c.props) == null ? void 0 : _d.children) == null ? void 0 : _e.props) == null ? void 0 : _f.onClose);
             if (typeof closeDialogFn === "function") {
               Qmsg.success(`检测${from}：调用函数关闭弹窗`, {
                 consoleLogContent: true
@@ -2261,7 +2261,7 @@
       async (event) => {
         var _a2;
         let $click = event.target;
-        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? undefined : _a2.querySelector("span");
+        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
         if (shortCut.isWaitPress) {
           Qmsg.warning("请先执行当前的录入操作");
           return;
@@ -2331,49 +2331,49 @@
                         };
                       });
                     })(),
-                    undefined,
+                    void 0,
                     "自行选择清晰度"
                   ),
                   UISwitch(
                     "解锁画质选择",
                     "live-unlockImageQuality",
                     true,
-                    undefined,
+                    void 0,
                     "未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
                   ),
                   UISwitch(
                     "自动进入网页全屏",
                     "live-autoEnterElementFullScreen",
                     false,
-                    undefined,
+                    void 0,
                     "网页加载完毕后自动点击网页全屏按钮进入全屏"
                   ),
                   UISwitch(
                     "监听并关闭【长时间无操作，已暂停播放】弹窗",
                     "live-waitToRemovePauseDialog",
                     true,
-                    undefined,
+                    void 0,
                     "自动监听并检测弹窗"
                   ),
                   UISwitch(
                     "禁止自动播放",
                     "live-pauseVideo",
                     false,
-                    undefined,
+                    void 0,
                     "暂停直播播放"
                   ),
                   UISwitch(
                     "解析直播信息",
                     "live-parsePlayerInstance",
                     true,
-                    undefined,
+                    void 0,
                     "开启后将在油猴菜单中新增菜单【⚙ PlayerInstance】，可解析当前的直播信息"
                   ),
                   UISwitch(
                     "禁用双击点赞",
                     "dy-live-disableDoubleClickLike",
                     false,
-                    undefined,
+                    void 0,
                     "禁止直播视频区域双击点赞"
                   )
                 ]
@@ -2386,7 +2386,7 @@
                     "启用",
                     "live-bgColor-enable",
                     false,
-                    undefined,
+                    void 0,
                     "自定义视频背景色"
                   ),
                   {
@@ -2455,28 +2455,28 @@
                     "启用",
                     "live-danmu-shield-rule-enable",
                     false,
-                    undefined,
+                    void 0,
                     "启用自定义的弹幕过滤规则"
                   ),
                   UISwitch(
                     "【屏蔽】送礼信息",
                     "live-danmu-shield-gift",
                     false,
-                    undefined,
+                    void 0,
                     ""
                   ),
                   UISwitch(
                     "【屏蔽】福袋口令",
                     "live-danmu-shield-lucky-bag",
                     false,
-                    undefined,
+                    void 0,
                     ""
                   ),
                   UIButton(
                     "初始化规则",
                     "解析并重置规则",
                     "重置",
-                    undefined,
+                    void 0,
                     false,
                     false,
                     "primary",
@@ -2527,27 +2527,27 @@
                     "【屏蔽】聊天室",
                     "",
                     "dy-live-block-chatroom",
-                    undefined,
+                    void 0,
                     "点击录入快捷键",
-                    undefined,
+                    void 0,
                     DouYinLiveShortCut.shortCut
                   ),
                   UIButtonShortCut(
                     "【屏蔽】礼物特效",
                     "",
                     "dy-live-shieldGiftEffects",
-                    undefined,
+                    void 0,
                     "点击录入快捷键",
-                    undefined,
+                    void 0,
                     DouYinLiveShortCut.shortCut
                   ),
                   UIButtonShortCut(
                     "切换静音状态",
                     "切换video标签的muted属性",
                     "dy-live-shortcut-changeVideoMuted",
-                    undefined,
+                    void 0,
                     "点击录入快捷键",
-                    undefined,
+                    void 0,
                     DouYinLiveShortCut.shortCut
                   )
                 ]
@@ -2563,19 +2563,19 @@
                 type: "forms",
                 text: AutoOpenOrClose.text,
                 forms: [
-                  UISwitch("刷新", "dy-live-refresh", false, undefined, "E"),
+                  UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
                   UISwitch(
                     "屏幕旋转",
                     "dy-live-screenRotation",
                     false,
-                    undefined,
+                    void 0,
                     "D"
                   ),
                   UISwitch(
                     "开启小窗模式",
                     "dy-live-enableSmallWindowMode",
                     false,
-                    undefined,
+                    void 0,
                     "U"
                   )
                 ]
@@ -2601,42 +2601,42 @@
                     "【屏蔽】顶栏信息",
                     "live-shieldTopToolBarInfo",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素，包括直播作者、右侧的礼物展馆"
                   ),
                   UISwitch(
                     "【屏蔽】底部的礼物栏",
                     "live-shieldGiftColumn",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】礼物特效",
                     "live-shieldGiftEffects",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】福袋",
                     "live-shieldLucky",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】弹幕",
                     "live-shieldDanmuku",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】小黄车",
                     "live-shielYellowCar",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   )
                 ]
@@ -2649,7 +2649,7 @@
                     "【屏蔽】下载客户端",
                     "dy-live-blockVideoRightMenu-downloadClient",
                     true,
-                    undefined,
+                    void 0,
                     "屏蔽右键菜单项"
                   )
                 ]
@@ -2669,42 +2669,42 @@
                     "【屏蔽】聊天室",
                     "live-shieldChatRoom",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】贵宾席",
                     "live-shielChatRoomVipSeats",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】用户等级图标",
                     "dy-live-shieldUserLevelIcon",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】VIP图标",
                     "dy-live-shieldUserVIPIcon",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】粉丝牌",
                     "dy-live-shieldUserFansIcon",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】信息播报",
                     "dy-live-shieldMessage",
                     false,
-                    undefined,
+                    void 0,
                     "底部滚动播报的的xxx来了，xxx给主播点赞"
                   )
                 ]
@@ -3754,7 +3754,7 @@
           ($playbackSetting) => {
             var _a2, _b, _c, _d;
             let $container = utils.getReactObj($playbackSetting).reactContainer;
-            (_d = (_c = (_b = (_a2 = $container == null ? undefined : $container.memoizedState) == null ? undefined : _a2.element) == null ? undefined : _b.props) == null ? undefined : _c.xgCase) == null ? undefined : _d.updatePlayBackRatio();
+            (_d = (_c = (_b = (_a2 = $container == null ? void 0 : $container.memoizedState) == null ? void 0 : _a2.element) == null ? void 0 : _b.props) == null ? void 0 : _c.xgCase) == null ? void 0 : _d.updatePlayBackRatio();
           }
         );
       }
@@ -3822,7 +3822,7 @@
           let clickElement = event.target;
           let rectFiber = (_a2 = utils.getReactObj(
             clickElement.parentElement
-          )) == null ? undefined : _a2.reactFiber;
+          )) == null ? void 0 : _a2.reactFiber;
           if (!rectFiber) {
             log.error("获取rectFiber属性失败");
             Qmsg.error("获取rectFiber属性失败");
@@ -3923,36 +3923,38 @@
 		}
 		`
       );
-      domUtils.on(
-        document,
-        "touchstart",
-        "xg-progress",
-        (event) => {
-          let $click = event.target;
-          let $xg_outer = $click.querySelector("xg-outer");
-          if ($xg_outer) {
-            $xg_outer.style.height = "6px";
+      domUtils.ready(() => {
+        domUtils.on(
+          document.body,
+          ["touchstart", "mouseenter"],
+          "xg-progress",
+          (event, selectorTarget) => {
+            let $click = selectorTarget;
+            let $xg_outer = $click.querySelector("xg-outer");
+            if ($xg_outer) {
+              $xg_outer.style.height = "6px";
+            }
+          },
+          {
+            capture: true
           }
-        },
-        {
-          capture: true
-        }
-      );
-      domUtils.on(
-        document,
-        "touchend",
-        "xg-progress",
-        (event) => {
-          let $click = event.target;
-          let $xg_outer = $click.querySelector("xg-outer");
-          if ($xg_outer) {
-            $xg_outer.style.height = "";
+        );
+        domUtils.on(
+          document.body,
+          ["touchend", "mouseleave"],
+          "xg-progress",
+          (event, selectorTarget) => {
+            let $click = selectorTarget;
+            let $xg_outer = $click.querySelector("xg-outer");
+            if ($xg_outer) {
+              $xg_outer.style.height = "";
+            }
+          },
+          {
+            capture: true
           }
-        },
-        {
-          capture: true
-        }
-      );
+        );
+      });
     },
     /**
      * 修改视频背景颜色
@@ -4158,7 +4160,7 @@
         if ($close) {
           let rect = utils.getReactObj($close);
           if (rect) {
-            let fn = (_a2 = rect.reactProps) == null ? undefined : _a2.onClick;
+            let fn = (_a2 = rect.reactProps) == null ? void 0 : _a2.onClick;
             if (typeof fn === "function") {
               fn();
             } else {
@@ -4219,13 +4221,13 @@
           if (typeof $rect.reactProps === "object") {
             let closeDialogFn = utils.queryProperty($rect.reactProps, (obj) => {
               var _a2, _b;
-              if (typeof ((_a2 = obj == null ? undefined : obj["props"]) == null ? undefined : _a2["onClose"]) === "function") {
+              if (typeof ((_a2 = obj == null ? void 0 : obj["props"]) == null ? void 0 : _a2["onClose"]) === "function") {
                 return {
                   isFind: true,
                   data: obj["props"]["onClose"]
                 };
               } else {
-                let children = ((_b = obj == null ? undefined : obj["props"]) == null ? undefined : _b["children"]) ?? (obj == null ? undefined : obj["children"]);
+                let children = ((_b = obj == null ? void 0 : obj["props"]) == null ? void 0 : _b["children"]) ?? (obj == null ? void 0 : obj["children"]);
                 return {
                   isFind: false,
                   data: Array.isArray(children) ? children[0] : children
@@ -4529,7 +4531,7 @@
                     white-space: nowrap;
                 }
 
-                ${((_a2 = this.option) == null ? undefined : _a2.style) ?? ""}
+                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
             `
         ),
         width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
@@ -4671,7 +4673,7 @@
           reverse: false,
           position: "space-between",
           ok: {
-            enable: ((_c = (_b = (_a2 = this.option) == null ? undefined : _a2.bottomControls) == null ? undefined : _b.add) == null ? undefined : _c.enable) || true,
+            enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
             type: "primary",
             text: "添加",
             callback: async (event) => {
@@ -4689,12 +4691,12 @@
             }
           },
           cancel: {
-            enable: ((_f = (_e = (_d = this.option) == null ? undefined : _d.bottomControls) == null ? undefined : _e.filter) == null ? undefined : _f.enable) || false,
+            enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
             type: "default",
             text: "过滤",
             callback: (details, event) => {
               var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
-              if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.filter) == null ? undefined : _c2.callback) === "function") {
+              if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
                 this.option.bottomControls.filter.callback();
               }
               let getAllRuleElement = () => {
@@ -4712,8 +4714,8 @@
                 domUtils.text($button, "过滤");
               } else {
                 let ruleFilterView = new RuleFilterView({
-                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? undefined : _d2.filter) == null ? undefined : _e2.title) ?? "过滤规则",
-                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? undefined : _f2.filter) == null ? undefined : _g2.option) || [],
+                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
+                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
                   execFilterCallBack() {
                     domUtils.text($button, "取消过滤");
                   },
@@ -4731,7 +4733,7 @@
             }
           },
           other: {
-            enable: ((_i = (_h = (_g = this.option) == null ? undefined : _g.bottomControls) == null ? undefined : _h.clear) == null ? undefined : _i.enable) || true,
+            enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
             type: "xiaomi-primary",
             text: `清空所有(${(await this.option.data()).length})`,
             callback: (event) => {
@@ -4750,7 +4752,7 @@
                     callback: async (popsEvent) => {
                       var _a3, _b2, _c2;
                       log.success("清空所有");
-                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.clear) == null ? undefined : _c2.callback) === "function") {
+                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
                         this.option.bottomControls.clear.callback();
                       }
                       let data = await this.option.data();
@@ -5042,7 +5044,7 @@
      */
     async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
-      this.parseViewElement($shadowRoot);
+      const { $container } = this.parseViewElement($shadowRoot);
       let data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
@@ -5173,64 +5175,64 @@
      */
     parseAwemeInfoDictData(awemeInfo, showLog = false) {
       var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u;
-      let authorInfo = (awemeInfo == null ? undefined : awemeInfo["authorInfo"]) || // @ts-ignore
-      (awemeInfo == null ? undefined : awemeInfo["author"]);
-      let nickname = (_a2 = authorInfo == null ? undefined : authorInfo["nickname"]) == null ? undefined : _a2.toString();
-      let uid = (_b = authorInfo == null ? undefined : authorInfo["uid"]) == null ? undefined : _b.toString();
-      let desc = (_c = awemeInfo == null ? undefined : awemeInfo["desc"]) == null ? undefined : _c.toString();
-      let musicAlbum = (_d = awemeInfo == null ? undefined : awemeInfo["music"]) == null ? undefined : _d["album"];
-      let musicAuthor = (_e = awemeInfo == null ? undefined : awemeInfo["music"]) == null ? undefined : _e["author"];
-      let musicTitle = (_f = awemeInfo == null ? undefined : awemeInfo["music"]) == null ? undefined : _f["title"];
-      let collectCount = ((_g = awemeInfo == null ? undefined : awemeInfo["stats"]) == null ? undefined : _g["collectCount"]) || // @ts-ignore
-      ((_h = awemeInfo == null ? undefined : awemeInfo["statistics"]) == null ? undefined : _h["collect_count"]);
-      let commentCount = ((_i = awemeInfo == null ? undefined : awemeInfo["stats"]) == null ? undefined : _i["commentCount"]) || // @ts-ignore
-      ((_j = awemeInfo == null ? undefined : awemeInfo["statistics"]) == null ? undefined : _j["comment_count"]);
-      let diggCount = ((_k = awemeInfo == null ? undefined : awemeInfo["stats"]) == null ? undefined : _k["diggCount"]) || // @ts-ignore
-      ((_l = awemeInfo == null ? undefined : awemeInfo["statistics"]) == null ? undefined : _l["digg_count"]);
-      let shareCount = ((_m = awemeInfo == null ? undefined : awemeInfo["stats"]) == null ? undefined : _m["shareCount"]) || // @ts-ignore
-      ((_n = awemeInfo == null ? undefined : awemeInfo["statistics"]) == null ? undefined : _n["share_count"]);
-      let duration = (_o = awemeInfo == null ? undefined : awemeInfo["video"]) == null ? undefined : _o["duration"];
+      let authorInfo = (awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) || // @ts-ignore
+      (awemeInfo == null ? void 0 : awemeInfo["author"]);
+      let nickname = (_a2 = authorInfo == null ? void 0 : authorInfo["nickname"]) == null ? void 0 : _a2.toString();
+      let uid = (_b = authorInfo == null ? void 0 : authorInfo["uid"]) == null ? void 0 : _b.toString();
+      let desc = (_c = awemeInfo == null ? void 0 : awemeInfo["desc"]) == null ? void 0 : _c.toString();
+      let musicAlbum = (_d = awemeInfo == null ? void 0 : awemeInfo["music"]) == null ? void 0 : _d["album"];
+      let musicAuthor = (_e = awemeInfo == null ? void 0 : awemeInfo["music"]) == null ? void 0 : _e["author"];
+      let musicTitle = (_f = awemeInfo == null ? void 0 : awemeInfo["music"]) == null ? void 0 : _f["title"];
+      let collectCount = ((_g = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _g["collectCount"]) || // @ts-ignore
+      ((_h = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _h["collect_count"]);
+      let commentCount = ((_i = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _i["commentCount"]) || // @ts-ignore
+      ((_j = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _j["comment_count"]);
+      let diggCount = ((_k = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _k["diggCount"]) || // @ts-ignore
+      ((_l = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _l["digg_count"]);
+      let shareCount = ((_m = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _m["shareCount"]) || // @ts-ignore
+      ((_n = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _n["share_count"]);
+      let duration = (_o = awemeInfo == null ? void 0 : awemeInfo["video"]) == null ? void 0 : _o["duration"];
       let textExtraInstance = (
         // @ts-ignore
-        (awemeInfo == null ? undefined : awemeInfo["textExtra"]) || (awemeInfo == null ? undefined : awemeInfo["text_extra"])
+        (awemeInfo == null ? void 0 : awemeInfo["textExtra"]) || (awemeInfo == null ? void 0 : awemeInfo["text_extra"])
       );
       let textExtra = [];
       let isLive = false;
       let isAds = false;
       let isSeriesInfo = false;
       let isMixInfo = false;
-      let riskInfoContent = ((_p = awemeInfo == null ? undefined : awemeInfo["riskInfos"]) == null ? undefined : _p.content) || // @ts-ignore
-      ((_q = awemeInfo == null ? undefined : awemeInfo["risk_infos"]) == null ? undefined : _q.content);
-      let seriesInfoName = undefined;
+      let riskInfoContent = ((_p = awemeInfo == null ? void 0 : awemeInfo["riskInfos"]) == null ? void 0 : _p.content) || // @ts-ignore
+      ((_q = awemeInfo == null ? void 0 : awemeInfo["risk_infos"]) == null ? void 0 : _q.content);
+      let seriesInfoName = void 0;
       let seriesInfoContentTypes = [];
       let isPicture = (
         // @ts-ignore
-        (awemeInfo == null ? undefined : awemeInfo["aweme_type"]) === 68
+        (awemeInfo == null ? void 0 : awemeInfo["aweme_type"]) === 68
       );
       if (typeof textExtraInstance === "object" && Array.isArray(textExtraInstance)) {
-        textExtraInstance == null ? undefined : textExtraInstance.forEach((item) => {
-          let tagName = (item == null ? undefined : item["hashtagName"]) || (item == null ? undefined : item["hashtag_name"]);
+        textExtraInstance == null ? void 0 : textExtraInstance.forEach((item) => {
+          let tagName = (item == null ? void 0 : item["hashtagName"]) || (item == null ? void 0 : item["hashtag_name"]);
           if (typeof tagName === "string") {
             textExtra.push(tagName);
           }
         });
       }
-      let mixInfoName = undefined;
-      let mixInfoDesc = undefined;
+      let mixInfoName = void 0;
+      let mixInfoDesc = void 0;
       let videoTagInstance = (
         // @ts-ignore
-        (awemeInfo == null ? undefined : awemeInfo["videoTag"]) || (awemeInfo == null ? undefined : awemeInfo["video_tag"])
+        (awemeInfo == null ? void 0 : awemeInfo["videoTag"]) || (awemeInfo == null ? void 0 : awemeInfo["video_tag"])
       );
       let videoTag = [];
       let videoTagId = [];
       let awemeId = (
         // @ts-ignore
-        (awemeInfo == null ? undefined : awemeInfo["aweme_id"]) || (awemeInfo == null ? undefined : awemeInfo["awemeId"])
+        (awemeInfo == null ? void 0 : awemeInfo["aweme_id"]) || (awemeInfo == null ? void 0 : awemeInfo["awemeId"])
       );
       if (typeof videoTagInstance === "object" && Array.isArray(videoTagInstance)) {
         videoTagInstance.forEach((item) => {
-          let tagName = (item == null ? undefined : item["tagName"]) || (item == null ? undefined : item["tag_name"]);
-          let tagId = (item == null ? undefined : item["tagId"]) || (item == null ? undefined : item["tag_id"]);
+          let tagName = (item == null ? void 0 : item["tagName"]) || (item == null ? void 0 : item["tag_name"]);
+          let tagId = (item == null ? void 0 : item["tagId"]) || (item == null ? void 0 : item["tag_id"]);
           if (typeof tagName === "string") {
             videoTag.push(tagName);
           }
@@ -5260,12 +5262,12 @@
           log.success("广告：rawAdData is not null");
         }
       } else if (awemeInfo["webRawData"]) {
-        if ((_s = (_r = awemeInfo["webRawData"]) == null ? undefined : _r["brandAd"]) == null ? undefined : _s["is_ad"]) {
+        if ((_s = (_r = awemeInfo["webRawData"]) == null ? void 0 : _r["brandAd"]) == null ? void 0 : _s["is_ad"]) {
           isAds = true;
           if (showLog) {
             log.success("广告：webRawData.brandAd.is_ad is true");
           }
-        } else if ((_u = (_t = awemeInfo["webRawData"]) == null ? undefined : _t["insertInfo"]) == null ? undefined : _u["is_ad"]) {
+        } else if ((_u = (_t = awemeInfo["webRawData"]) == null ? void 0 : _t["insertInfo"]) == null ? void 0 : _u["is_ad"]) {
           isAds = true;
           if (showLog) {
             log.success("广告：webRawData.insertInfo.is_ad is true");
@@ -5275,30 +5277,30 @@
         if (typeof awemeInfo["web_raw_data"] === "string") ;
       }
       if (typeof riskInfoContent === "string" && riskInfoContent.trim() === "" || typeof riskInfoContent !== "string") {
-        riskInfoContent = undefined;
+        riskInfoContent = void 0;
       }
-      let series_info = (awemeInfo == null ? undefined : awemeInfo["seriesInfo"]) || // @ts-ignore
-      (awemeInfo == null ? undefined : awemeInfo["series_info"]);
+      let series_info = (awemeInfo == null ? void 0 : awemeInfo["seriesInfo"]) || // @ts-ignore
+      (awemeInfo == null ? void 0 : awemeInfo["series_info"]);
       if (typeof series_info === "object" && series_info != null) {
         isSeriesInfo = true;
-        seriesInfoName = (series_info == null ? undefined : series_info["seriesName"]) || // @ts-ignore
-        (series_info == null ? undefined : series_info["series_name"]);
-        let series_content_types = (series_info == null ? undefined : series_info["seriesContentTypes"]) || // @ts-ignore
-        (series_info == null ? undefined : series_info["series_content_types"]);
+        seriesInfoName = (series_info == null ? void 0 : series_info["seriesName"]) || // @ts-ignore
+        (series_info == null ? void 0 : series_info["series_name"]);
+        let series_content_types = (series_info == null ? void 0 : series_info["seriesContentTypes"]) || // @ts-ignore
+        (series_info == null ? void 0 : series_info["series_content_types"]);
         if (Array.isArray(series_content_types)) {
           series_content_types.forEach((it) => {
             seriesInfoContentTypes.push(it["name"]);
           });
         }
       }
-      let mixInfo = (awemeInfo == null ? undefined : awemeInfo["mixInfo"]) || // @ts-ignore
-      (awemeInfo == null ? undefined : awemeInfo["mix_info"]);
+      let mixInfo = (awemeInfo == null ? void 0 : awemeInfo["mixInfo"]) || // @ts-ignore
+      (awemeInfo == null ? void 0 : awemeInfo["mix_info"]);
       if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
-        mixInfoName = (mixInfo == null ? undefined : mixInfo["mixName"]) || (mixInfo == null ? undefined : mixInfo["mix_name"]);
-        mixInfoDesc = mixInfo == null ? undefined : mixInfo["desc"];
+        mixInfoName = (mixInfo == null ? void 0 : mixInfo["mixName"]) || (mixInfo == null ? void 0 : mixInfo["mix_name"]);
+        mixInfoDesc = mixInfo == null ? void 0 : mixInfo["desc"];
       }
       if (isPicture) {
-        duration = undefined;
+        duration = void 0;
       }
       return {
         awemeId,
@@ -5497,7 +5499,7 @@
         if (typeof deleteIndex === "number") {
           let item = videoList[deleteIndex];
           if (item != null && item instanceof Element) {
-            item == null ? undefined : item.remove();
+            item == null ? void 0 : item.remove();
           }
           videoList.splice(deleteIndex, 1);
         }
@@ -5511,56 +5513,6 @@
         this.__ajaxHooker = utils.ajaxHooker();
       }
       return this.__ajaxHooker;
-    },
-    init() {
-    },
-    /**
-     * 评论区的查看评论api
-     */
-    commentReply() {
-      this.ajaxHooker.hook((request) => {
-        let url = CommonUtil.fixUrl(request.url);
-        let urlInstance = new URL(url);
-        if (urlInstance.pathname.startsWith("/aweme/v1/web/comment/list/reply")) {
-          urlInstance.searchParams.delete("whale_cut_token");
-          urlInstance.searchParams.append("whale_cut_token", "");
-          request.url = urlInstance.toString();
-        }
-      });
-    },
-    /**
-     * 获取用户登录信息
-     */
-    userProfile() {
-      this.ajaxHooker.hook((request) => {
-        let url = CommonUtil.fixUrl(request.url);
-        let urlInstance = new URL(url);
-        if (urlInstance.pathname.startsWith("/aweme/v1/web/user/profile/self/") || urlInstance.pathname.startsWith(
-          "/aweme/v1/web/im/resource/list/aggregation"
-        ) || urlInstance.pathname.startsWith(
-          "/aweme/v1/web/im/user/active/update/"
-        ) || urlInstance.pathname.startsWith(
-          "/aweme/v1/web/im/user/active/config/get"
-        )) {
-          request.response = (response) => {
-            var _a2, _b, _c;
-            let data = utils.toJSON(response.responseText);
-            if (typeof data["status_code"] === "number" && data["status_code"] !== 0) {
-              data["status_code"] = 0;
-              if (typeof data["status_msg"] === "string") {
-                data["status_msg"] = "";
-              }
-            }
-            if (typeof ((_a2 = data == null ? undefined : data["user_collect_count"]) == null ? undefined : _a2["status_code"]) === "number" && ((_b = data == null ? undefined : data["user_collect_count"]) == null ? undefined : _b["status_code"]) !== 0) {
-              data["user_collect_count"]["status_code"] = 0;
-              if (typeof ((_c = data == null ? undefined : data["user_collect_count"]) == null ? undefined : _c["status_msg"]) === "string") {
-                data["user_collect_count"]["status_msg"] = "";
-              }
-            }
-            response.responseText = JSON.stringify(data);
-          };
-        }
-      });
     }
   };
   const PanelUISize = {
@@ -5585,17 +5537,6 @@
         } else {
           return "550px";
         }
-      }
-    },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
-      get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
-      },
-      get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
       }
     },
     /**
@@ -5746,8 +5687,8 @@
               for (let index = 0; index < aweme_list.length; index++) {
                 let awemeItem = aweme_list[index];
                 let awemeInfo = awemeItem["aweme"] || {};
-                if (typeof (awemeItem == null ? undefined : awemeItem["cell_room"]) === "object" && (awemeItem == null ? undefined : awemeItem["cell_room"]) != null) {
-                  awemeInfo["cell_room"] = awemeItem == null ? undefined : awemeItem["cell_room"];
+                if (typeof (awemeItem == null ? void 0 : awemeItem["cell_room"]) === "object" && (awemeItem == null ? void 0 : awemeItem["cell_room"]) != null) {
+                  awemeInfo["cell_room"] = awemeItem == null ? void 0 : awemeItem["cell_room"];
                 }
                 let filterResult = filterBase.checkAwemeInfoIsFilter(
                   filterOptionList,
@@ -5777,7 +5718,7 @@
             if (Array.isArray(cards)) {
               for (let index = 0; index < cards.length; index++) {
                 let awemeItem = cards[index];
-                let awemeInfo = utils.toJSON((awemeItem == null ? undefined : awemeItem["aweme"]) || "{}");
+                let awemeInfo = utils.toJSON((awemeItem == null ? void 0 : awemeItem["aweme"]) || "{}");
                 let filterResult = filterBase.checkAwemeInfoIsFilter(
                   filterOptionList,
                   awemeInfo
@@ -5807,9 +5748,9 @@
               for (let index = 0; index < aweme_list.length; index++) {
                 let awemeItem = aweme_list[index];
                 let awemeInfo = awemeItem["aweme_info"] || {};
-                let awemeMixInfo = awemeItem == null ? undefined : awemeItem["aweme_mix_info"];
+                let awemeMixInfo = awemeItem == null ? void 0 : awemeItem["aweme_mix_info"];
                 if (awemeInfo == null && typeof awemeMixInfo && awemeMixInfo != null) {
-                  let awemeMixInfoItems = awemeMixInfo == null ? undefined : awemeMixInfo["mix_items"];
+                  let awemeMixInfoItems = awemeMixInfo == null ? void 0 : awemeMixInfo["mix_items"];
                   if (Array.isArray(awemeMixInfoItems)) {
                     for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
                       let mixItem = awemeMixInfoItems[mixIndex];
@@ -5905,8 +5846,8 @@
       let awemeInfoClickCallBack = ($basePlayerContainer) => {
         var _a2, _b, _c, _d, _e, _f;
         let that = this;
-        let reactFiber = (_a2 = utils.getReactObj($basePlayerContainer)) == null ? undefined : _a2.reactFiber;
-        let awemeInfo = ((_c = (_b = reactFiber == null ? undefined : reactFiber.return) == null ? undefined : _b.memoizedProps) == null ? undefined : _c.awemeInfo) || ((_f = (_e = (_d = reactFiber == null ? undefined : reactFiber.return) == null ? undefined : _d.return) == null ? undefined : _e.memoizedProps) == null ? undefined : _f.awemeInfo);
+        let reactFiber = (_a2 = utils.getReactObj($basePlayerContainer)) == null ? void 0 : _a2.reactFiber;
+        let awemeInfo = ((_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.awemeInfo) || ((_f = (_e = (_d = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _d.return) == null ? void 0 : _e.memoizedProps) == null ? void 0 : _f.awemeInfo);
         if (awemeInfo == null) {
           Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
           return;
@@ -6107,7 +6048,7 @@
                 "name",
                 "",
                 "",
-                undefined,
+                void 0,
                 "必填"
               );
               Reflect.set(
@@ -6160,7 +6101,7 @@
                     value: "xhr-related"
                   }
                 ],
-                undefined,
+                void 0,
                 "选择需要在xxx上生效的作用域"
               );
               Reflect.set(
@@ -6210,7 +6151,7 @@
                       value: item
                     };
                   }),
-                  undefined,
+                  void 0,
                   "选择需要的属性名 "
                 );
                 Reflect.set(
@@ -6676,7 +6617,7 @@
         });
         domUtils.on($input, ["propertychange", "input"], (event2) => {
           var _a2;
-          if (!((_a2 = $input.files) == null ? undefined : _a2.length)) {
+          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
             return;
           }
           let uploadFile = $input.files[0];
@@ -6789,91 +6730,91 @@
                         value: 0
                       }
                     ],
-                    undefined,
+                    void 0,
                     "自行选择清晰度"
                   ),
                   UISwitch(
                     "沉浸模式",
                     "fullScreen",
                     false,
-                    undefined,
+                    void 0,
                     "移除右侧工具栏、底部信息栏等"
                   ),
                   UISwitch(
                     "手机模式",
                     "mobileMode",
                     false,
-                    undefined,
+                    void 0,
                     "放大文字和图标，自动启用【initial-scale=1】和【修复进度条】功能"
                   ),
                   UISwitch(
                     "修复进度条",
                     "repairProgressBar",
                     false,
-                    undefined,
+                    void 0,
                     "修复移动端不能点击拖拽和定位进度的问题（仅移动端使用）"
                   ),
                   UISwitch(
                     "禁用双击点赞",
                     "dy-video-disableDoubleClickLike",
                     false,
-                    undefined,
+                    void 0,
                     "禁止视频区域双击点赞"
                   ),
                   UISwitch(
                     "手势返回关闭评论区",
                     "dy-video-gestureBackCloseComment",
                     false,
-                    undefined,
+                    void 0,
                     "浏览器手势返回时关闭评论区"
                   ),
                   UISwitch(
                     "监听并关闭【长时间无操作，已暂停播放】弹窗",
                     "dy-video-waitToRemovePauseDialog",
                     true,
-                    undefined,
+                    void 0,
                     "自动监听并检测弹窗"
                   ),
                   UISwitch(
                     "视频解析",
                     "parseVideo",
                     true,
-                    undefined,
+                    void 0,
                     "分享->下载(灰色的也可点击)"
                   ),
                   UISwitch(
                     "评论区移到中间",
                     "changeCommentToBottom",
                     true,
-                    undefined,
+                    void 0,
                     "修改评论区为中间弹出而非右侧区域"
                   ),
                   UISwitch(
                     "↑自适应评论区位置",
                     "douyin-video-autoCheckChangeCommentToBottom",
                     true,
-                    undefined,
+                    void 0,
                     "根据window.screen.orientation.type自动判断是否开启【评论区移到中间】"
                   ),
                   UISwitch(
                     "自动进入网页全屏",
                     "autoEnterElementFullScreen",
                     false,
-                    undefined,
+                    void 0,
                     "网页加载完毕后自动点击网页全屏按钮进入全屏"
                   ),
                   UISwitch(
                     "双击进入网页全屏",
                     "dy-video-doubleClickEnterElementFullScreen",
                     false,
-                    undefined,
+                    void 0,
                     "双击视频自动进入网页全屏，检测间隔250ms"
                   ),
                   UISwitch(
                     "移除video的bottom偏移",
                     "dy-video-removeStyle-bottom",
                     false,
-                    undefined,
+                    void 0,
                     ""
                   )
                 ]
@@ -6886,7 +6827,7 @@
                     "启用",
                     "dy-video-bgColor-enable",
                     false,
-                    undefined,
+                    void 0,
                     "自定义视频背景色"
                   ),
                   {
@@ -6955,7 +6896,7 @@
                     "自动隐藏视频标题",
                     "dy-video-titleInfoAutoHide",
                     false,
-                    undefined,
+                    void 0,
                     "鼠标移入时自动显示，鼠标移除时自动隐藏"
                   ),
                   UISlider(
@@ -6964,7 +6905,7 @@
                     3e3,
                     0,
                     8e3,
-                    undefined,
+                    void 0,
                     (value) => {
                       return `${value}ms`;
                     },
@@ -6981,7 +6922,7 @@
                     "自动隐藏视频控件",
                     "dy-video-videoControlsAutoHide",
                     false,
-                    undefined,
+                    void 0,
                     "鼠标移入时自动显示，鼠标移除时自动隐藏"
                   ),
                   UISlider(
@@ -6990,7 +6931,7 @@
                     3e3,
                     0,
                     8e3,
-                    undefined,
+                    void 0,
                     (value) => {
                       return `${value}ms`;
                     },
@@ -7007,7 +6948,7 @@
                     "自动隐藏右侧工具栏",
                     "dy-video-rightToolBarAutoHide",
                     false,
-                    undefined,
+                    void 0,
                     "鼠标移入时自动显示，鼠标移除时自动隐藏"
                   ),
                   UISlider(
@@ -7016,7 +6957,7 @@
                     3e3,
                     0,
                     8e3,
-                    undefined,
+                    void 0,
                     (value) => {
                       return `${value}ms`;
                     },
@@ -7039,36 +6980,36 @@
                     "倍速 -> 小",
                     "视频倍速变小",
                     "dy-video-rate-low",
-                    undefined,
+                    void 0,
                     "点击录入快捷键",
-                    undefined,
+                    void 0,
                     DouYinVideoPlayerShortCut.shortCut
                   ),
                   UIButtonShortCut(
                     "倍速 -> 大",
                     "视频倍速变大",
                     "dy-video-rate-up",
-                    undefined,
+                    void 0,
                     "点击录入快捷键",
-                    undefined,
+                    void 0,
                     DouYinVideoPlayerShortCut.shortCut
                   ),
                   UIButtonShortCut(
                     "沉浸模式",
                     "移除右侧工具栏、底部信息栏等",
                     "dy-video-shortcut-immersionMode",
-                    undefined,
+                    void 0,
                     "点击录入快捷键",
-                    undefined,
+                    void 0,
                     DouYinVideoPlayerShortCut.shortCut
                   ),
                   UIButtonShortCut(
                     "切换静音状态",
                     "切换video标签的muted属性",
                     "dy-video-shortcut-changeVideoMuted",
-                    undefined,
+                    void 0,
                     "点击录入快捷键",
-                    undefined,
+                    void 0,
                     DouYinVideoPlayerShortCut.shortCut
                   )
                 ]
@@ -7088,28 +7029,28 @@
                     "上翻页",
                     "dy-keyboard-hook-arrowUp-w",
                     false,
-                    undefined,
+                    void 0,
                     "W"
                   ),
                   UISwitch(
                     "下翻页",
                     "dy-keyboard-hook-arrowDown-s",
                     false,
-                    undefined,
+                    void 0,
                     "S"
                   ),
                   UISwitch(
                     "快退",
                     "dy-keyboard-hook-videoRewind",
                     false,
-                    undefined,
+                    void 0,
                     "A"
                   ),
                   UISwitch(
                     "快进",
                     "dy-keyboard-hook-videoFastForward",
                     false,
-                    undefined,
+                    void 0,
                     "D"
                   )
                 ]
@@ -7128,28 +7069,28 @@
                     "启用",
                     "shieldVideo-exec-network-enable",
                     true,
-                    undefined,
+                    void 0,
                     "开启后以下功能才会生效"
                   ),
                   UISwitch(
                     "仅显示被过滤的视频",
                     "shieldVideo-only-show-filtered-video",
                     false,
-                    undefined,
+                    void 0,
                     "只会显示过滤规则命中的视频"
                   ),
                   UISwitch(
                     "新增 {...} 按钮",
                     "shieldVideo-add-parseVideoInfoButton",
                     false,
-                    undefined,
+                    void 0,
                     "在视频的底部的工具栏中显示 {...} 按钮，用于查看视频信息以便于进行添加过滤规则"
                   ),
                   UIButton(
                     "视频过滤规则",
                     "可过滤视频",
                     "自定义",
-                    undefined,
+                    void 0,
                     false,
                     false,
                     "primary",
@@ -7167,7 +7108,7 @@
                     "数据导入",
                     "导入自定义规则数据",
                     "导入",
-                    undefined,
+                    void 0,
                     false,
                     false,
                     "primary",
@@ -7179,7 +7120,7 @@
                     "数据导出",
                     "导出自定义规则数据",
                     "导出",
-                    undefined,
+                    void 0,
                     false,
                     false,
                     "primary",
@@ -7212,56 +7153,56 @@
                     "【屏蔽】切换播放",
                     "shieldPlaySwitchButton",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素，在右侧作者头像上方或者是在右侧区域"
                   ),
                   UISwitch(
                     "【屏蔽】作者头像",
                     "shieldAuthorAvatar",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】点赞",
                     "shieldLikeButton",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】评论",
                     "shieldCommentButton",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】收藏",
                     "shieldCollectionButton",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】分享",
                     "shieldSharenButton",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】看相关",
                     "shieldRelatedRecommendationsButton",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】更多",
                     "shieldMoreButton",
                     false,
-                    undefined,
+                    void 0,
                     "...按钮，屏蔽元素"
                   )
                 ]
@@ -7274,21 +7215,21 @@
                     "【屏蔽】底部视频工具栏",
                     "shieldBottomVideoToolBar",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】弹幕容器",
                     "shieldBottomVideoToolbarDanmuContainer",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素（不包括屏蔽弹幕）"
                   ),
                   UISwitch(
                     "【屏蔽】视频信息",
                     "dy-video-bottom-shieldVideoInfoWrap",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素，可代替【清屏】功能"
                   )
                 ]
@@ -7301,28 +7242,28 @@
                     "【屏蔽】右侧的展开评论按钮",
                     "shieldRightExpandCommentButton",
                     true,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】搜索悬浮栏",
                     "shieldSearchFloatingBar",
                     true,
-                    undefined,
+                    void 0,
                     "屏蔽元素，一般出现在左上角"
                   ),
                   UISwitch(
                     "【屏蔽】网页全屏关闭按钮",
                     "shieldCloseFullScreenButton",
                     true,
-                    undefined,
+                    void 0,
                     "屏蔽元素，一般开启网页全屏后出现在左上角"
                   ),
                   UISwitch(
                     "【屏蔽】购物信息",
                     "dy-video-blockShopInfo",
                     true,
-                    undefined,
+                    void 0,
                     "屏蔽元素，该元素出现在视频底部的用户名、标题信息的上面"
                   )
                 ]
@@ -7342,14 +7283,14 @@
                     "【屏蔽】评论工具栏",
                     "dy-video-shieldUserCommentToolBar",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】大家都在搜",
                     "dy-video-shieldUserCommentEveryOneAllSearch",
                     false,
-                    undefined,
+                    void 0,
                     "在评论区的顶部出现"
                   )
                 ]
@@ -7380,7 +7321,7 @@
                     "禁止点击视频区域进入全屏",
                     "dy-search-disableClickToEnterFullScreen",
                     false,
-                    undefined,
+                    void 0,
                     "禁止点击视频区域时会触发自动进入全屏功能"
                   ),
                   UISelect(
@@ -7401,7 +7342,7 @@
                         value: 0
                       }
                     ],
-                    undefined,
+                    void 0,
                     "网页加载完毕后自动点击网页全屏按钮进入全屏"
                   ),
                   UISelect(
@@ -7422,7 +7363,7 @@
                         value: "double"
                       }
                     ],
-                    undefined,
+                    void 0,
                     "自定义搜索结果，按视频筛选的结果项的显示样式"
                   )
                 ]
@@ -7448,7 +7389,7 @@
                     "【屏蔽】相关搜索",
                     "douyin-search-shieldReleatedSearches",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽右边的相关搜索"
                   )
                 ]
@@ -7481,7 +7422,7 @@
                         value: 0
                       }
                     ],
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISelect(
@@ -7502,7 +7443,7 @@
                         value: 0
                       }
                     ],
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   )
                 ]
@@ -7534,14 +7475,14 @@
                     "视频合集",
                     "m-dy-share-user-coverPlayletList",
                     true,
-                    undefined,
+                    void 0,
                     "正确跳转视频合集页面"
                   ),
                   UISwitch(
                     "视频列表",
                     "m-dy-share-user-coverPostListContainer",
                     true,
-                    undefined,
+                    void 0,
                     "正确跳转视频页面"
                   )
                 ]
@@ -7573,7 +7514,7 @@
                     "全局点击",
                     "m-dy-share-video-coverGlobalClick",
                     true,
-                    undefined,
+                    void 0,
                     "阻止跳转至下载页"
                   )
                 ]
@@ -7605,35 +7546,35 @@
                     "精彩图文",
                     "m-dy-share-note-coverExcitingGraphicsAndText",
                     true,
-                    undefined,
+                    void 0,
                     "正确跳转笔记页面"
                   ),
                   UISwitch(
                     "用户",
                     "m-dy-share-note-coverUser",
                     true,
-                    undefined,
+                    void 0,
                     "正确跳转用户主页"
                   ),
                   UISwitch(
                     "话题",
                     "m-dy-share-note-coverHashTag",
                     true,
-                    undefined,
+                    void 0,
                     "正确跳转相关话题"
                   ),
                   UISwitch(
                     "音乐",
                     "m-dy-share-note-coverMusic",
                     true,
-                    undefined,
+                    void 0,
                     "正确跳转相关音乐"
                   ),
                   UISwitch(
                     "相关推荐",
                     "m-dy-share-note-coverRecommend",
                     true,
-                    undefined,
+                    void 0,
                     "正确跳转笔记页面"
                   )
                 ]
@@ -7652,21 +7593,21 @@
                     "【屏蔽】评论",
                     "m-dy-share-note-blockComment",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】相关推荐",
                     "m-dy-share-note-blockRecommend",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   ),
                   UISwitch(
                     "【屏蔽】底部工具栏",
                     "m-dy-share-note-blockFooterToobar",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽元素"
                   )
                 ]
@@ -7698,14 +7639,14 @@
                     "顶部区域",
                     "m-dy-share-challenge-coverTopJump",
                     true,
-                    undefined,
+                    void 0,
                     "阻止跳转至下载页面"
                   ),
                   UISwitch(
                     "视频卡片",
                     "m-dy-share-challenge-coverVideoCard",
                     true,
-                    undefined,
+                    void 0,
                     "正确跳转视频页面"
                   )
                 ]
@@ -7737,7 +7678,7 @@
                     "视频卡片",
                     "m-dy-share-music-coverVideoCard",
                     true,
-                    undefined,
+                    void 0,
                     "正确跳转视频页面"
                   )
                 ]
@@ -7760,7 +7701,7 @@
             "显示UID",
             "dy-user-addShowUserUID",
             true,
-            undefined,
+            void 0,
             "在用户信息区域下方显示当前用户的uid"
           )
         ]
@@ -7963,7 +7904,7 @@
       Reflect.deleteProperty(locaData, key);
       _GM_setValue(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
+        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
       }
     },
     /**
@@ -8071,7 +8012,7 @@
       } else {
         runKeyList.push(key);
       }
-      let value = undefined;
+      let value = void 0;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
@@ -8191,7 +8132,7 @@
         let childValue = that.getValue(childKey2);
         if (typeof replaceValueFn === "function") {
           let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue !== undefined) {
+          if (changedMainValue !== void 0) {
             return changedMainValue;
           }
         }
@@ -8315,7 +8256,7 @@
   const __pops = pops;
   const console$1 = _unsafeWindow.console || _monkeyWindow.console;
   const log = new utils.Log(_GM_info, console$1);
-  let SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
+  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
   log.config({
     debug: false,
     logMaxCount: 100,
@@ -8356,7 +8297,7 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.interceptors.response.use(undefined, (data) => {
+  httpx.interceptors.response.use(void 0, (data) => {
     log.error(["拦截器-请求错误", data]);
     if (data.type === "onabort") {
       Qmsg.warning("请求取消");
@@ -8568,7 +8509,7 @@
               let isFind = false;
               document.querySelectorAll('li.semi-dropdown-item[role="menuitem"]').forEach(($ele) => {
                 var _a2;
-                if ((_a2 = $ele.textContent) == null ? undefined : _a2.includes("快捷访问")) {
+                if ((_a2 = $ele.textContent) == null ? void 0 : _a2.includes("快捷访问")) {
                   isFind = true;
                   log.success("搜索-更多-快捷访问 移除元素");
                   $ele.remove();
@@ -9125,7 +9066,7 @@
      * @param handler 如果mainCoreData匹配上，则调用此回调函数，替换的话把传入的值进行处理后再返回它就行
      */
     window_webpack(webpackName = "webpackJsonp", mainCoreData, handler) {
-      let originObject = undefined;
+      let originObject = void 0;
       _unsafeWindow.Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
           return originObject;
@@ -9401,7 +9342,7 @@
       Hook.element_addEventListener((target, eventName, listener, option) => {
         var _a2;
         const listenerStr = listener.toString();
-        if (eventName === "click" && target instanceof HTMLElement && ((_a2 = target == null ? undefined : target.classList) == null ? undefined : _a2.contains("xgplayer")) && listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) {
+        if (eventName === "click" && target instanceof HTMLElement && ((_a2 = target == null ? void 0 : target.classList) == null ? void 0 : _a2.contains("xgplayer")) && listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) {
           return function(...eventArgs) {
             let currentClickTime = Date.now();
             if (currentClickTime - latestClickTime <= 288) {
@@ -9525,7 +9466,20 @@
         userCanceled: false,
         roomData: {},
         shareQrcodeUrl: "",
-        shareInfo: undefined,
+        shareInfo: {
+          boolPersist: 1,
+          shareDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。",
+          shareImageUrl: {
+            uri: "",
+            url_list: []
+          },
+          shareQrcodeUrl: {
+            uri: "",
+            url_list: []
+          },
+          shareUrl: "",
+          shareWeiboDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。"
+        },
         coverAndHeadImageInfo: {
           profileCoverList: []
         },
@@ -9545,26 +9499,26 @@
         var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D;
         let userInfoList = [];
         let reactInstance = utils.getReactObj(element);
-        let reactFiber = reactInstance == null ? undefined : reactInstance.reactFiber;
-        reactInstance == null ? undefined : reactInstance.reactProps;
-        if ((_c = (_b = (_a2 = reactFiber == null ? undefined : reactFiber.alternate) == null ? undefined : _a2.return) == null ? undefined : _b.memoizedProps) == null ? undefined : _c.userInfo) {
+        let reactFiber = reactInstance == null ? void 0 : reactInstance.reactFiber;
+        reactInstance == null ? void 0 : reactInstance.reactProps;
+        if ((_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.userInfo) {
           userInfoList.push(
-            (_f = (_e = (_d = reactFiber == null ? undefined : reactFiber.alternate) == null ? undefined : _d.return) == null ? undefined : _e.memoizedProps) == null ? undefined : _f.userInfo
+            (_f = (_e = (_d = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _d.return) == null ? void 0 : _e.memoizedProps) == null ? void 0 : _f.userInfo
           );
         }
-        if ((_j = (_i = (_h = (_g = reactFiber == null ? undefined : reactFiber.alternate) == null ? undefined : _g.return) == null ? undefined : _h.memoizedProps) == null ? undefined : _i.userInfo) == null ? undefined : _j.userInfo) {
+        if ((_j = (_i = (_h = (_g = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _g.return) == null ? void 0 : _h.memoizedProps) == null ? void 0 : _i.userInfo) == null ? void 0 : _j.userInfo) {
           userInfoList.push(
-            (_m = (_l = (_k = reactFiber == null ? undefined : reactFiber.alternate) == null ? undefined : _k.return) == null ? undefined : _l.memoizedProps) == null ? undefined : _m.userInfo.userInfo
+            (_m = (_l = (_k = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _k.return) == null ? void 0 : _l.memoizedProps) == null ? void 0 : _m.userInfo.userInfo
           );
         }
-        if ((_q = (_p = (_o = (_n = reactFiber == null ? undefined : reactFiber.alternate) == null ? undefined : _n.return) == null ? undefined : _o.return) == null ? undefined : _p.memoizedProps) == null ? undefined : _q.userInfo) {
+        if ((_q = (_p = (_o = (_n = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _n.return) == null ? void 0 : _o.return) == null ? void 0 : _p.memoizedProps) == null ? void 0 : _q.userInfo) {
           userInfoList.push(
-            (_u = (_t = (_s = (_r = reactFiber == null ? undefined : reactFiber.alternate) == null ? undefined : _r.return) == null ? undefined : _s.return) == null ? undefined : _t.memoizedProps) == null ? undefined : _u.userInfo
+            (_u = (_t = (_s = (_r = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _r.return) == null ? void 0 : _s.return) == null ? void 0 : _t.memoizedProps) == null ? void 0 : _u.userInfo
           );
         }
-        if ((_z = (_y = (_x = (_w = (_v = reactFiber == null ? undefined : reactFiber.alternate) == null ? undefined : _v.return) == null ? undefined : _w.return) == null ? undefined : _x.memoizedProps) == null ? undefined : _y.userInfo) == null ? undefined : _z.userInfo) {
+        if ((_z = (_y = (_x = (_w = (_v = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _v.return) == null ? void 0 : _w.return) == null ? void 0 : _x.memoizedProps) == null ? void 0 : _y.userInfo) == null ? void 0 : _z.userInfo) {
           userInfoList.push(
-            (_D = (_C = (_B = (_A = reactFiber == null ? undefined : reactFiber.alternate) == null ? undefined : _A.return) == null ? undefined : _B.return) == null ? undefined : _C.memoizedProps) == null ? undefined : _D.userInfo.userInfo
+            (_D = (_C = (_B = (_A = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _A.return) == null ? void 0 : _B.return) == null ? void 0 : _C.memoizedProps) == null ? void 0 : _D.userInfo.userInfo
           );
         }
         return userInfoList;
@@ -9624,12 +9578,12 @@
         let setUserInfoBySearch = function($ele) {
           var _a2, _b, _c, _d, _e, _f, _g;
           let $react = utils.getReactObj($ele);
-          $react == null ? undefined : $react.reactFiber;
-          let reactProps = $react == null ? undefined : $react.reactProps;
-          if (typeof ((_d = (_c = (_b = (_a2 = reactProps == null ? undefined : reactProps.children) == null ? undefined : _a2[1]) == null ? undefined : _b.props) == null ? undefined : _c.userInfo) == null ? undefined : _d.isLogin) === "boolean") {
+          $react == null ? void 0 : $react.reactFiber;
+          let reactProps = $react == null ? void 0 : $react.reactProps;
+          if (typeof ((_d = (_c = (_b = (_a2 = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _a2[1]) == null ? void 0 : _b.props) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean") {
             Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
           }
-          if (typeof ((_g = (_f = (_e = reactProps == null ? undefined : reactProps.children) == null ? undefined : _e[1]) == null ? undefined : _f.props) == null ? undefined : _g.isClient) === "boolean") {
+          if (typeof ((_g = (_f = (_e = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _e[1]) == null ? void 0 : _f.props) == null ? void 0 : _g.isClient) === "boolean") {
             Reflect.set(reactProps.children[1].props, "isClient", true);
           }
         };
@@ -9682,7 +9636,7 @@
               );
               if ($loginDialogCloseBtn) {
                 let reactInstance = utils.getReactObj($loginDialogCloseBtn);
-                let onClick = (_a2 = reactInstance == null ? undefined : reactInstance.reactProps) == null ? undefined : _a2.onClick;
+                let onClick = (_a2 = reactInstance == null ? void 0 : reactInstance.reactProps) == null ? void 0 : _a2.onClick;
                 if (typeof onClick === "function") {
                   onClick(new Event("click"));
                 } else {
@@ -9850,7 +9804,7 @@
           var _a2;
           utils.preventEvent(event);
           let $click = event.target;
-          let $parent = (_a2 = $click.parentElement) == null ? undefined : _a2.parentElement;
+          let $parent = (_a2 = $click.parentElement) == null ? void 0 : _a2.parentElement;
           let $video = $parent.querySelector("video");
           if ($video) {
             if ($video.paused) {
@@ -10222,11 +10176,11 @@
           msg: "显示UID",
           check(reactInstance) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = reactInstance == null ? undefined : reactInstance.return) == null ? undefined : _a2.memoizedProps) == null ? undefined : _b.userInfo) == null ? undefined : _c.uid) === "string";
+            return typeof ((_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedProps) == null ? void 0 : _b.userInfo) == null ? void 0 : _c.uid) === "string";
           },
           set(reactInstance, $target) {
             var _a2, _b, _c;
-            let uid = (_c = (_b = (_a2 = reactInstance == null ? undefined : reactInstance.return) == null ? undefined : _a2.memoizedProps) == null ? undefined : _b.userInfo) == null ? undefined : _c.uid;
+            let uid = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedProps) == null ? void 0 : _b.userInfo) == null ? void 0 : _c.uid;
             domUtils.remove(
               $target.querySelectorAll(".gm-user-uid")
             );
@@ -10315,7 +10269,7 @@
           log.info(`Router:  笔记页面`);
           DouYinNote.init();
         } else {
-          log.error("未适配router: " + window.location.pathname);
+          log.warn("子router: " + window.location.href);
         }
       } else {
         log.error("未适配router: " + window.location.href);
@@ -10473,18 +10427,18 @@
           var _a2, _b, _c, _d;
           utils.preventEvent(event);
           let $click = event.target;
-          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? undefined : _a2.reactFiber;
-          let key = reactFiber == null ? undefined : reactFiber.key;
+          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
+          let key = reactFiber == null ? void 0 : reactFiber.key;
           if (key == null) {
             Qmsg.error("获取视频合集key失败");
             return;
           }
-          let index = reactFiber == null ? undefined : reactFiber.index;
+          let index = reactFiber == null ? void 0 : reactFiber.index;
           if (index == null) {
             Qmsg.error("获取视频合集index失败");
             return;
           }
-          let playletList = (_d = (_c = (_b = reactFiber == null ? undefined : reactFiber.return) == null ? undefined : _b.return) == null ? undefined : _c.pendingProps) == null ? undefined : _d.playletList;
+          let playletList = (_d = (_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.return) == null ? void 0 : _c.pendingProps) == null ? void 0 : _d.playletList;
           if (playletList == null) {
             Qmsg.error("获取视频合集playletList失败");
             return;
@@ -10510,9 +10464,9 @@
           var _a2, _b, _c, _d, _e;
           utils.preventEvent(event);
           let $click = event.target;
-          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? undefined : _a2.reactFiber;
-          if ((_c = (_b = reactFiber == null ? undefined : reactFiber.return) == null ? undefined : _b.memoizedProps) == null ? undefined : _c.productionUrl) {
-            let url = (_e = (_d = reactFiber == null ? undefined : reactFiber.return) == null ? undefined : _d.memoizedProps) == null ? undefined : _e.productionUrl;
+          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
+          if ((_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.productionUrl) {
+            let url = (_e = (_d = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.productionUrl;
             window.open(url, "_blank");
           } else {
             Qmsg.error("获取视频链接失败");
