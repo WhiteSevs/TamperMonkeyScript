@@ -38,11 +38,16 @@ export const Component_Sign: PopsPanelContentConfig = {
 				UISwitch("使用fetch请求", "mt-auto-sign-useFetch", false, void 0, ""),
 				UIButton(
 					"签到信息",
-					`上次签到时间：${
-						MTAutoSignIn.getSignTime() == null
-							? "尚未签到"
-							: Utils.formatTime(MTAutoSignIn.getSignTime())
-					}`,
+					`上次签到时间：${(() => {
+						let signInfo = MTAutoSignIn.getHostNameSignInfo(
+							window.location.hostname
+						);
+						if (signInfo) {
+							return Utils.formatTime(signInfo.time);
+						} else {
+							return "尚未签到";
+						}
+					})()}`,
 					"清空信息",
 					void 0,
 					void 0,
@@ -66,15 +71,20 @@ export const Component_Sign: PopsPanelContentConfig = {
 								ok: {
 									enable: true,
 									callback: (event) => {
-										MTAutoSignIn.clearSignTime();
+										let hostName = window.location.hostname;
+										MTAutoSignIn.clearSignInfo(hostName);
 										Qmsg.success("删除成功");
 										DOMUtils.text(
 											$desc,
-											`上次签到时间：${
-												MTAutoSignIn.getSignTime() == null
-													? "尚未签到"
-													: Utils.formatTime(MTAutoSignIn.getSignTime())
-											}`
+											`上次签到时间：${(() => {
+												let signInfo =
+													MTAutoSignIn.getHostNameSignInfo(hostName);
+												if (signInfo) {
+													return Utils.formatTime(signInfo.time);
+												} else {
+													return "尚未签到";
+												}
+											})()}`
 										);
 										event.close();
 									},
