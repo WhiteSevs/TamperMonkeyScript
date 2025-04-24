@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.23
+// @version      2025.4.24
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
@@ -46,7 +46,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-CD18RKQ9.js"(exports, module) {
+    "entrance-BpBaOiID.js"(exports, module) {
       var _a;
       var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
@@ -1490,7 +1490,7 @@
       };
       const MTAutoSignIn = {
         $key: {
-          signTime: "mt-sign-time"
+          sign: "mt-sign-time"
         },
         init() {
           this.sign();
@@ -1498,33 +1498,75 @@
         /**
          * 判断今日是否已签到
          */
-        todayIsSign() {
-          let signTime = this.getSignTime();
-          if (signTime == null) {
-            return false;
+        checkSignInfo() {
+          let signInfo = this.getSignInfo();
+          let findValue = signInfo.find((it) => {
+            return it.hostName === window.location.hostname;
+          });
+          if (findValue) {
+            if (utils.formatTime(Date.now(), "yyyyMMdd") !== utils.formatTime(findValue.time, "yyyyMMdd")) {
+              return false;
+            }
+            return true;
           }
-          if (utils.formatTime(Date.now(), "yyyyMMdd") !== utils.formatTime(signTime, "yyyyMMdd")) {
-            return false;
-          }
-          return true;
+          return false;
         },
         /**
-         * 设置签到时间
+         * 设置签到信息
          */
-        setSignTime() {
-          _GM_setValue(this.$key.signTime, Date.now());
+        setSignInfo() {
+          let signInfo = {
+            hostName: window.location.hostname,
+            time: Date.now()
+          };
+          let localSignInfo = this.getSignInfo();
+          let findIndex = localSignInfo.findIndex((it) => {
+            return it.hostName === signInfo.hostName;
+          });
+          if (findIndex !== -1) {
+            localSignInfo.splice(findIndex, 1);
+          }
+          localSignInfo.push(signInfo);
+          _GM_setValue(this.$key.sign, localSignInfo);
         },
         /**
-         * 获取签到时间
+         * 获取签到信息
          */
-        getSignTime() {
-          return _GM_getValue(this.$key.signTime);
+        getSignInfo() {
+          let localSignInfo = _GM_getValue(this.$key.sign, []);
+          if (!Array.isArray(localSignInfo)) {
+            this.clearSignInfo();
+            return [];
+          }
+          return localSignInfo;
+        },
+        /**
+         * 获取域名的签到信息
+         * @param hostName 域名
+         */
+        getHostNameSignInfo(hostName = window.location.hostname) {
+          let localSignInfo = this.getSignInfo();
+          return localSignInfo.find((it) => {
+            return it.hostName === hostName;
+          });
         },
         /**
          * 清空签到信息
+         * @param hostName 域名
          */
-        clearSignTime() {
-          _GM_deleteValue(this.$key.signTime);
+        clearSignInfo(hostName) {
+          if (typeof hostName === "string") {
+            let signInfo = this.getSignInfo();
+            let findIndex = signInfo.findIndex((it) => {
+              return it.hostName === hostName;
+            });
+            if (findIndex !== -1) {
+              signInfo.splice(findIndex, 1);
+            }
+            _GM_setValue(this.$key.sign, signInfo);
+          } else {
+            _GM_deleteValue(this.$key.sign);
+          }
         },
         /**
          * 检测是否登录
@@ -1551,23 +1593,23 @@
               return;
             }
             log.error("自动签到：获取账号formhash失败");
-            _GM_deleteValue("mt_sign");
+            this.clearSignInfo(window.location.hostname);
             Qmsg.error({
               content: "自动签到：获取账号formhash失败"
             });
             return;
           }
-          if (this.todayIsSign()) {
+          if (this.checkSignInfo()) {
             log.info("今日已签到");
             return;
           }
           let useFetch = Boolean(PopsPanel.getValue("mt-auto-sign-useFetch"));
           let userAgent = utils.getRandomPCUA();
           let signSuccessCallBack = () => {
-            this.setSignTime();
+            this.setSignInfo();
           };
           let signFailedCallBack = () => {
-            this.clearSignTime();
+            this.clearSignInfo(window.location.hostname);
           };
           let unknownSignContentCallback = (content) => {
             let $alert = pops.alert({
@@ -1950,7 +1992,16 @@
                       ),
                       UIButton(
                         "签到信息",
-                        `上次签到时间：${MTAutoSignIn.getSignTime() == null ? "尚未签到" : Utils.formatTime(MTAutoSignIn.getSignTime())}`,
+                        `上次签到时间：${(() => {
+                        let signInfo = MTAutoSignIn.getHostNameSignInfo(
+                          window.location.hostname
+                        );
+                        if (signInfo) {
+                          return Utils.formatTime(signInfo.time);
+                        } else {
+                          return "尚未签到";
+                        }
+                      })()}`,
                         "清空信息",
                         void 0,
                         void 0,
@@ -1974,11 +2025,19 @@
                               ok: {
                                 enable: true,
                                 callback: (event2) => {
-                                  MTAutoSignIn.clearSignTime();
+                                  let hostName = window.location.hostname;
+                                  MTAutoSignIn.clearSignInfo(hostName);
                                   Qmsg.success("删除成功");
                                   domUtils.text(
                                     $desc,
-                                    `上次签到时间：${MTAutoSignIn.getSignTime() == null ? "尚未签到" : Utils.formatTime(MTAutoSignIn.getSignTime())}`
+                                    `上次签到时间：${(() => {
+                                    let signInfo = MTAutoSignIn.getHostNameSignInfo(hostName);
+                                    if (signInfo) {
+                                      return Utils.formatTime(signInfo.time);
+                                    } else {
+                                      return "尚未签到";
+                                    }
+                                  })()}`
                                   );
                                   event2.close();
                                 }
@@ -3454,7 +3513,7 @@
               pathName: "/uc_server/avatar.php"
             }
           ];
-          function viewIMG(imgList = [], index = 0) {
+          function viewerViewImage(imgList = [], index = 0) {
             let viewerULNodeHTML = "";
             imgList.forEach((item) => {
               viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
@@ -3511,7 +3570,7 @@
                     let viewImageIndex = totalImageList.findIndex((imgUrl) => {
                       return imgUrl == currentImageUrl;
                     });
-                    viewIMG(totalImageList, viewImageIndex);
+                    viewerViewImage(totalImageList, viewImageIndex);
                   },
                   { capture: true }
                 );

@@ -5,9 +5,20 @@ import pops from "@whitesev/pops";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 
+interface MTSignInfo {
+	/**
+	 * 签到的域名
+	 */
+	hostName: string;
+	/**
+	 * 签到的时间
+	 */
+	time: number;
+}
+
 export const MTAutoSignIn = {
 	$key: {
-		signTime: "mt-sign-time",
+		sign: "mt-sign-time",
 	},
 	init() {
 		this.sign();
@@ -15,37 +26,81 @@ export const MTAutoSignIn = {
 	/**
 	 * 判断今日是否已签到
 	 */
-	todayIsSign() {
-		let signTime = this.getSignTime();
-		if (signTime == null) {
-			return false;
+	checkSignInfo() {
+		let signInfo = this.getSignInfo();
+		let findValue = signInfo.find((it) => {
+			return it.hostName === window.location.hostname;
+		});
+		if (findValue) {
+			// 存储的时间和当前时间不是同一天的话那就是未签到
+			// 否则为签到
+			if (
+				utils.formatTime(Date.now(), "yyyyMMdd") !==
+				utils.formatTime(findValue.time, "yyyyMMdd")
+			) {
+				return false;
+			}
+			return true;
 		}
-		if (
-			utils.formatTime(Date.now(), "yyyyMMdd") !==
-			utils.formatTime(signTime, "yyyyMMdd")
-		) {
-			return false;
-		}
-
-		return true;
+		// 没有签到信息，说明没有签到
+		return false;
 	},
 	/**
-	 * 设置签到时间
+	 * 设置签到信息
 	 */
-	setSignTime() {
-		GM_setValue(this.$key.signTime, Date.now());
+	setSignInfo() {
+		let signInfo: MTSignInfo = {
+			hostName: window.location.hostname,
+			time: Date.now(),
+		};
+		let localSignInfo = this.getSignInfo();
+		let findIndex = localSignInfo.findIndex((it) => {
+			return it.hostName === signInfo.hostName;
+		});
+		if (findIndex !== -1) {
+			localSignInfo.splice(findIndex, 1);
+		}
+		localSignInfo.push(signInfo);
+		GM_setValue(this.$key.sign, localSignInfo);
 	},
 	/**
-	 * 获取签到时间
+	 * 获取签到信息
 	 */
-	getSignTime() {
-		return GM_getValue<number | undefined>(this.$key.signTime);
+	getSignInfo() {
+		let localSignInfo = GM_getValue<MTSignInfo[]>(this.$key.sign, []);
+		if (!Array.isArray(localSignInfo)) {
+			this.clearSignInfo();
+			return [];
+		}
+		return localSignInfo;
+	},
+	/**
+	 * 获取域名的签到信息
+	 * @param hostName 域名
+	 */
+	getHostNameSignInfo(hostName: string = window.location.hostname) {
+		let localSignInfo = this.getSignInfo();
+		return localSignInfo.find((it) => {
+			return it.hostName === hostName;
+		});
 	},
 	/**
 	 * 清空签到信息
+	 * @param hostName 域名
 	 */
-	clearSignTime() {
-		GM_deleteValue(this.$key.signTime);
+	clearSignInfo(hostName?: string) {
+		if (typeof hostName === "string") {
+			let signInfo = this.getSignInfo();
+			let findIndex = signInfo.findIndex((it) => {
+				return it.hostName === hostName;
+			});
+			if (findIndex !== -1) {
+				signInfo.splice(findIndex, 1);
+			}
+			GM_setValue(this.$key.sign, signInfo);
+		} else {
+			GM_deleteValue(this.$key.sign);
+		}
 	},
 	/**
 	 * 检测是否登录
@@ -75,13 +130,13 @@ export const MTAutoSignIn = {
 				return;
 			}
 			log.error("自动签到：获取账号formhash失败");
-			GM_deleteValue("mt_sign");
+			this.clearSignInfo(window.location.hostname);
 			Qmsg.error({
 				content: "自动签到：获取账号formhash失败",
 			});
 			return;
 		}
-		if (this.todayIsSign()) {
+		if (this.checkSignInfo()) {
 			log.info("今日已签到");
 			return;
 		}
@@ -90,11 +145,11 @@ export const MTAutoSignIn = {
 
 		/** 签到成功的回调 */
 		let signSuccessCallBack = () => {
-			this.setSignTime();
+			this.setSignInfo();
 		};
 		/** 签到失败的回调 */
 		let signFailedCallBack = () => {
-			this.clearSignTime();
+			this.clearSignInfo(window.location.hostname);
 		};
 		/** 签到的未知的内容的回调 */
 		let unknownSignContentCallback = (content: string) => {
