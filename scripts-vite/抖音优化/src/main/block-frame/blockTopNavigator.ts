@@ -62,6 +62,9 @@ export const BlockTopNavigator = {
 		PopsPanel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
 			return this.shieldRightMenuLoginAvatar();
 		});
+		PopsPanel.execMenuOnce("shield-topNav-ai-search", () => {
+			return this.shieldAISearch();
+		});
 	},
 	/**
 	 * 【屏蔽】顶部导航栏
@@ -412,6 +415,15 @@ export const BlockTopNavigator = {
 			`#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M6.484 43.177c4.765-5.408 11.743-8.821 19.517-8.821 7.775 0 14.753 3.413 19.517 8.821C40.754 48.587 33.776 52 26.001 52c-7.774 0-14.752-3.413-19.517-8.822zM35.287 21.356a9.286 9.286 0 1 1-18.571 0 9.286 9.286 0 0 1 18.571 0z"])`,
 			// 已登录
 			`#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has([data-e2e="live-avatar"])`
+		);
+	},
+	/**
+	 * 【屏蔽】AI搜索
+	 */
+	shieldAISearch() {
+		log.info(`【屏蔽】AI搜索`);
+		return CommonUtil.addBlockCSS(
+			`#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`
 		);
 	},
 };

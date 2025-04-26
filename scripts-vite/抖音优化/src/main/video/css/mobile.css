@@ -38,6 +38,49 @@
 		width: 100vw;
 		width: 100dvw;
 	}
+	/* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */
+	#search-content-area > div,
+	#search-content-area > div div:has(+ #search-result-container),
+	#search-content-area > div #search-result-container {
+		width: 100%;
+		width: -webkit-fill-available;
+	}
+	/* 搜索页面 视频右侧的工具栏缩小 */
+	#search-content-area .basePlayerContainer .positionBox {
+		bottom: 28px !important;
+		transform: scale3d(0.6, 0.6, 0.6) !important;
+	}
+	/* 搜索页面 搜索出的用户信息换行 */
+	#search-content-area
+		#search-result-container
+		ul[data-e2e="scroll-list"]
+		li
+		.search-result-card
+		> div
+		> div {
+		flex-wrap: wrap;
+	}
+	/* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */
+	#search-content-area div:has(> div > div > span[data-key="general"]) {
+		overflow: auto;
+		gap: 10px;
+	}
+	/* 搜索页面 搜索结果筛选选项 */
+	#search-content-area div:has(> span[data-key="general"]) {
+		gap: 10px;
+	}
+	/* 搜索页面 搜索结果筛选选项弹窗修复 */
+	#search-content-area div:has(> div > span[data-key="general"]) {
+		position: unset !important;
+	}
+	/* 搜索页面 搜索结果筛选选项 */
+	#search-content-area div:has(> span[data-key="general"]) > * {
+		white-space: nowrap !important;
+		width: auto !important;
+		width: fit-content !important;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
 	/* 去除设置min-width超出浏览器宽度的问题 */
 	body {
 		min-width: 100% !important;

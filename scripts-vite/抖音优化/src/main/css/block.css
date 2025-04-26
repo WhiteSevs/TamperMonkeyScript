@@ -12,6 +12,9 @@ div:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-conta
 /* 客户端登录访问更便捷 */
 div:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),
 /* 前往电脑客户端，即享下载视频 */
-[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child {
+[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,
+/* so.douyin.com的广告item */
+.card-item:has(.h5-ad-video-card),
+.card-item:has([data-is-ad="true"]) {
 	display: none !important;
 }
