@@ -440,3 +440,112 @@ ul li:has(> .task-list-item-checkbox)::marker {
 .markdown-alert[data-type="CAUTION"] {
 	--fgColor-accent: #d1242f;
 }
+
+/* 深色模式 */
+@media (prefers-color-scheme: dark) {
+	html body {
+		color: #ccc;
+		background-color: #24292e;
+	}
+
+	html body h1,
+	html body h2,
+	html body h3,
+	html body h4,
+	html body h5,
+	html body h6 {
+		color: #fff;
+	}
+
+	html body h6 {
+		color: #a3a3a3;
+	}
+
+	html body strong {
+		color: #fff;
+	}
+
+	html body del {
+		color: #a3a3a3;
+	}
+
+	html body a:not([href]) {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	html body a {
+		color: #08c;
+		text-decoration: none;
+	}
+
+	html body a:hover {
+		color: #00a3f5;
+		text-decoration: none;
+	}
+
+	html body blockquote {
+		color: #a3a3a3;
+		background-color: #363d45;
+		border-left: 4px solid #48525c;
+	}
+
+	html body hr {
+		background-color: #48525c;
+	}
+
+	html body table th {
+		color: #fff;
+	}
+
+	html body table td,
+	html body table th {
+		border: 1px solid #48525c;
+	}
+
+	html body code {
+		font-size: 0.85em;
+		color: #fff;
+		background-color: #363d45;
+	}
+
+	html body .highlight pre,
+	html body pre {
+		border: #48525c;
+	}
+
+	html body kbd {
+		color: #fff;
+		border: 1px solid #48525c;
+		border-bottom: 2px solid #3a424b;
+		background-color: #363d45;
+	}
+
+	@media print {
+		html body {
+			background-color: #24292e;
+		}
+
+		html body h1,
+		html body h2,
+		html body h3,
+		html body h4,
+		html body h5,
+		html body h6 {
+			color: #fff;
+		}
+
+		html body blockquote {
+			color: #a3a3a3;
+		}
+	}
+
+	/* 表格每隔1行的背景色 */
+	table tr:nth-child(2n) {
+		background: #1c1e1f;
+	}
+	.user-content {
+		background: #0a0a0a !important;
+		border-left-color: #0a0a0a !important;
+	}
+}

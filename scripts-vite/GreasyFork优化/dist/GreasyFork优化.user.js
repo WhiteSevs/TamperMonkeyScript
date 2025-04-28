@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.4.20.16
+// @version            2025.4.28
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -14,7 +14,7 @@
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
@@ -65,15 +65,15 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const zh_CN_language = {
     GreasyFork优化: "GreasyFork优化",
@@ -796,7 +796,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -844,7 +844,7 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx(_GM_xmlhttpRequest);
-  httpx.interceptors.response.use(undefined, (data) => {
+  httpx.interceptors.response.use(void 0, (data) => {
     log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning(i18next.t("请求取消"));
@@ -1013,9 +1013,9 @@
      */
     getScriptId(text) {
       var _a2, _b;
-      return (_b = (_a2 = text || window.location.pathname) == null ? undefined : _a2.match(
+      return (_b = (_a2 = text || window.location.pathname) == null ? void 0 : _a2.match(
         /\/scripts\/([\d]+)/i
-      )) == null ? undefined : _b[1];
+      )) == null ? void 0 : _b[1];
     },
     /**
      * 从字符串中提取用户id
@@ -1024,7 +1024,7 @@
      */
     getUserId(text) {
       var _a2;
-      return (_a2 = (text || window.location.pathname).match(/\/users\/([\d]+)/i)) == null ? undefined : _a2[1];
+      return (_a2 = (text || window.location.pathname).match(/\/users\/([\d]+)/i)) == null ? void 0 : _a2[1];
     },
     /**
      * 获取举报地址
@@ -1387,7 +1387,7 @@
           return;
         }
         let setsName = $li.querySelector("a").innerText;
-        let setsId = (_a2 = setsUrl.match(/\/sets\/([\d]+)\//)) == null ? undefined : _a2[1];
+        let setsId = (_a2 = setsUrl.match(/\/sets\/([\d]+)\//)) == null ? void 0 : _a2[1];
         scriptSetsIdList.push({
           id: setsId,
           name: setsName
@@ -1499,7 +1499,7 @@
      */
     isCode() {
       var _a2;
-      return Boolean((_a2 = window.location.pathname.split("/")) == null ? undefined : _a2.includes("code"));
+      return Boolean((_a2 = window.location.pathname.split("/")) == null ? void 0 : _a2.includes("code"));
     },
     /**
      * 代码页面
@@ -1886,7 +1886,7 @@
       async (event) => {
         var _a2;
         let $click = event.target;
-        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? undefined : _a2.querySelector("span");
+        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
         if (shortCut.isWaitPress) {
           Qmsg.warning("请先执行当前的录入操作");
           return;
@@ -1986,7 +1986,7 @@
     hasOptionValue(key) {
       if (this.hasOption(key)) {
         let option = this.getOption(key);
-        return !((option == null ? undefined : option.value) == null);
+        return !((option == null ? void 0 : option.value) == null);
       } else {
         return false;
       }
@@ -2177,7 +2177,7 @@
             if (that.isWaitPress) {
               return;
             }
-            if (config == null ? undefined : config.isPrevent) {
+            if (config == null ? void 0 : config.isPrevent) {
               utils.preventEvent(event);
             }
             localOptions = that.getLocalAllOptions();
@@ -2201,7 +2201,7 @@
             }
           },
           {
-            capture: Boolean(config == null ? undefined : config.capture)
+            capture: Boolean(config == null ? void 0 : config.capture)
           }
         );
       }
@@ -2512,7 +2512,7 @@
       }
       let userLinkElement = GreasyforkMenu.getUserLinkElement();
       let userLink = userLinkElement.href;
-      let userId = (_c = (_b = (_a2 = userLink == null ? undefined : userLink.split("/")) == null ? undefined : _a2.pop()) == null ? undefined : _b.match(/([0-9]+)/)) == null ? undefined : _c[0];
+      let userId = (_c = (_b = (_a2 = userLink == null ? void 0 : userLink.split("/")) == null ? void 0 : _a2.pop()) == null ? void 0 : _b.match(/([0-9]+)/)) == null ? void 0 : _c[0];
       let loading = __pops.loading({
         mask: {
           enable: true
@@ -2557,7 +2557,7 @@
 				<div class="w-script-update-time">
 					<p>${i18next.t("更新：")}${utils.getDaysDifference(
             new Date(scriptInfo["code_updated_at"]).getTime(),
-            undefined,
+            void 0,
             "auto"
           )}前</p>
 				</div>
@@ -2603,7 +2603,7 @@
           btn.setAttribute("data-icon", "true");
           span.innerText = i18next.t("同步中...");
           domUtils.before(span, iconElement);
-          let scriptId = scriptInfo == null ? undefined : scriptInfo["id"];
+          let scriptId = scriptInfo == null ? void 0 : scriptInfo["id"];
           let syncFormDataInfo = await GreasyforkApi.getSourceCodeSyncFormDataInfo(
             scriptId.toString()
           );
@@ -2917,14 +2917,14 @@
                         text: "5"
                       }
                     ],
-                    undefined,
+                    void 0,
                     i18next.t("限制Toast显示的数量")
                   ),
                   UISwitch(
                     i18next.t("逆序弹出"),
                     "qmsg-config-showreverse",
                     false,
-                    undefined,
+                    void 0,
                     i18next.t("修改Toast弹出的顺序")
                   )
                 ]
@@ -2968,16 +2968,16 @@
                     i18next.t("账号"),
                     "user",
                     "",
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     i18next.t("请输入账号")
                   ),
                   UIInput(
                     i18next.t("密码"),
                     "pwd",
                     "",
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     i18next.t("请输入密码"),
                     false,
                     true
@@ -2987,7 +2987,7 @@
                     "secret",
                     "",
                     "两步验证（2FA）",
-                    undefined,
+                    void 0,
                     i18next.t("请输入secret"),
                     false,
                     true
@@ -3002,15 +3002,15 @@
                     i18next.t("自动登录"),
                     "autoLogin",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("自动登录当前保存的账号")
                   ),
                   UIButton(
                     i18next.t("清空账号/密码"),
-                    undefined,
+                    void 0,
                     i18next.t("点击清空"),
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     false,
                     "default",
                     (event) => {
@@ -3075,35 +3075,35 @@
                     i18next.t("修复图片宽度显示问题"),
                     "fixImageWidth",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("修复图片在移动端宽度超出浏览器宽度问题")
                   ),
                   UISwitch(
                     i18next.t("优化图片浏览"),
                     "optimizeImageBrowsing",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("使用Viewer浏览图片")
                   ),
                   UISwitch(
                     i18next.t("覆盖图床图片跳转"),
                     "overlayBedImageClickEvent",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("配合上面的【优化图片浏览】更优雅浏览图片")
                   ),
                   UISwitch(
                     i18next.t("添加【操作面板】按钮"),
                     "scripts-addOperationPanelBtnWithNavigator",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在脚本列表页面时为顶部导航栏添加【操作面板】按钮")
                   ),
                   UISwitch(
                     i18next.t("给Markdown添加【复制】按钮"),
                     "addMarkdownCopyButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t(
                       "在Markdown内容右上角添加【复制】按钮，点击一键复制Markdown内容"
                     )
@@ -3118,7 +3118,7 @@
                     i18next.t("启用"),
                     "checkPage",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t(
                       "检测Greasyfork页面是否正常加载，如加载失败则自动刷新页面"
                     )
@@ -3137,7 +3137,7 @@
                       }
                       return result;
                     })(),
-                    undefined,
+                    void 0,
                     i18next.t(
                       "设置检测上次刷新页面的间隔时间，当距离上次刷新页面的时间超过设置的值，将不再刷新页面"
                     )
@@ -3158,7 +3158,7 @@
                     i18next.t("记住回复内容"),
                     "rememberReplyContent",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t(
                       "监听表单内的textarea内容改变并存储到indexDB中，提交表单将清除保存的数据，误刷新页面时可动态恢复"
                     )
@@ -3207,7 +3207,7 @@
                         value: 180
                       }
                     ],
-                    undefined,
+                    void 0,
                     i18next.t("根据设置的间隔时间自动清理保存的回复内容")
                   ),
                   UIButton(
@@ -3216,9 +3216,9 @@
                     }),
                     i18next.t("当前存储的数据所占用的空间大小"),
                     i18next.t("清空"),
-                    undefined,
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
+                    void 0,
                     "default",
                     async () => {
                       let isClear = await GreasyforkRememberFormTextArea.clearAllRememberReplyContent();
@@ -3265,28 +3265,28 @@
                     i18next.t("美化页面元素"),
                     "beautifyPage",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("如button、input、textarea")
                   ),
                   UISwitch(
                     i18next.t("美化上传图片按钮"),
                     "beautifyUploadImage",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("放大上传区域")
                   ),
                   UISwitch(
                     i18next.t("美化顶部导航栏"),
                     "beautifyTopNavigationBar",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("可能会跟Greasyfork Beautify脚本有冲突")
                   ),
                   UISwitch(
                     i18next.t("美化Greasyfork Beautify脚本"),
                     "beautifyGreasyforkBeautify",
                     false,
-                    undefined,
+                    void 0,
                     i18next.t(
                       '需安装Greasyfork Beautify脚本，<a href="https://greasyfork.org/zh-CN/scripts/446849-greasyfork-beautify" target="_blank">🖐点我安装</a>'
                     )
@@ -3301,14 +3301,14 @@
                     i18next.t("美化脚本列表"),
                     "beautifyCenterContent",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("双列显示且添加脚本卡片操作项（安装、收藏）")
                   ),
                   UISwitch(
                     "↑" + i18next.t("使用namespace查询脚本信息"),
                     "beautifyCenterContent-queryNameSpace",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("开启后检测已安装的脚本信息更准确，但是速度会更慢")
                   )
                 ]
@@ -3335,7 +3335,7 @@
                       ohterCodeList: ["ctrl"]
                     },
                     i18next.t("点击录入快捷键"),
-                    undefined,
+                    void 0,
                     GreasyforkShortCut.shortCut
                   )
                 ]
@@ -3356,7 +3356,7 @@
                     i18next.t("启用"),
                     "gf-scripts-filter-enable",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("作用域：脚本、脚本搜索、用户主页")
                   ),
                   {
@@ -3382,7 +3382,7 @@
                       domUtils.on(
                         $textarea,
                         ["input", "propertychange"],
-                        undefined,
+                        void 0,
                         utils.debounce(function(event) {
                           GreasyforkScriptsFilter.setValue($textarea.value);
                         }, 200)
@@ -3411,10 +3411,10 @@
                 forms: [
                   UIButton(
                     i18next.t("源代码同步【脚本列表】"),
-                    undefined,
+                    void 0,
                     i18next.t("一键同步"),
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     false,
                     "primary",
                     (event) => {
@@ -3444,10 +3444,10 @@
                   ),
                   UIButton(
                     i18next.t("源代码同步【未上架的脚本】"),
-                    undefined,
+                    void 0,
                     i18next.t("一键同步"),
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     false,
                     "primary",
                     (event) => {
@@ -3477,10 +3477,10 @@
                   ),
                   UIButton(
                     i18next.t("源代码同步【库】"),
-                    undefined,
+                    void 0,
                     i18next.t("一键同步"),
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     false,
                     "primary",
                     (event) => {
@@ -3558,28 +3558,28 @@
                     i18next.t("添加复制代码按钮"),
                     "addCopyCodeButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("更优雅的复制")
                   ),
                   UISwitch(
                     i18next.t("快捷键"),
                     "fullScreenOptimization",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("【F】键全屏、【Alt+Shift+F】键宽屏")
                   ),
                   UISwitch(
                     i18next.t("修复代码行号显示"),
                     "code-repairCodeLineNumber",
                     false,
-                    undefined,
+                    void 0,
                     i18next.t("修复代码行数超过1k行号显示不全问题")
                   ),
                   UISwitch(
                     "monacoEditor",
                     "code-use-monaco-editor",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("使用Monaco编辑器")
                   )
                 ]
@@ -3598,14 +3598,14 @@
                     i18next.t("添加额外的标签按钮"),
                     "scripts-versions-addExtraTagButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在版本下面添加【安装】、【查看代码】按钮")
                   ),
                   UISwitch(
                     i18next.t("添加代码对比按钮"),
                     "scripts-versions-addCompareCodeButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("monacoEditor")
                   )
                 ]
@@ -3618,7 +3618,7 @@
                     i18next.t("美化历史版本页面"),
                     "beautifyHistoryVersionPage",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("更直观的查看版本迭代")
                   )
                 ]
@@ -3643,21 +3643,21 @@
                     i18next.t("添加【寻找引用】按钮"),
                     "addFindReferenceButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在脚本栏添加按钮，一般用于搜索引用该库的相关脚本")
                   ),
                   UISwitch(
                     i18next.t("添加【收藏】按钮"),
                     "addCollectionButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在脚本栏添加按钮，一般用于快捷收藏该脚本/库")
                   ),
                   UISwitch(
                     i18next.t("添加【今日检查】信息块"),
                     "scriptHomepageAddedTodaySUpdate",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在脚本信息栏添加【今日检查】信息块")
                   )
                 ]
@@ -3798,12 +3798,12 @@
         /** 脚本主页地址 */
         scriptUrl: (_a2 = $listContainer.querySelector(
           ".discussion-meta-item-script-name a"
-        )) == null ? undefined : _a2.href,
+        )) == null ? void 0 : _a2.href,
         /** 脚本id */
         scriptId: GreasyforkUrlUtils.getScriptId(
           (_b = $listContainer.querySelector(
             ".discussion-meta-item-script-name a"
-          )) == null ? undefined : _b.href
+          )) == null ? void 0 : _b.href
         ),
         /** 发布的用户名 */
         postUserName: $listContainer.querySelector("a.user-link").innerText,
@@ -3822,15 +3822,15 @@
         /** 发布的地址*/
         snippetUrl: discussionUrl,
         /** 发布的内容片段*/
-        snippet: ((_c = $listContainer.querySelector("span.discussion-snippet")) == null ? undefined : _c.innerText) || "",
+        snippet: ((_c = $listContainer.querySelector("span.discussion-snippet")) == null ? void 0 : _c.innerText) || "",
         /** （如果有）回复的用户名*/
-        replyUserName: undefined,
+        replyUserName: void 0,
         /** （如果有）回复的用户主页地址*/
-        replyUserHomeUrl: undefined,
+        replyUserHomeUrl: void 0,
         /** （如果有）回复的用户id*/
-        replyUserId: undefined,
+        replyUserId: void 0,
         /** （如果有）回复的时间 */
-        replyTimeStamp: undefined
+        replyTimeStamp: void 0
       };
       if ($listContainer.querySelector(
         ".discussion-meta-item .discussion-meta-item"
@@ -3845,7 +3845,7 @@
         info.replyTimeStamp = new Date(
           (_d = $listContainer.querySelector(
             ".discussion-meta-item .discussion-meta-item relative-time"
-          )) == null ? undefined : _d.getAttribute("datetime")
+          )) == null ? void 0 : _d.getAttribute("datetime")
         );
       }
       return info;
@@ -3971,7 +3971,7 @@
                     i18next.t("添加【过滤】按钮"),
                     "discussions-addShortcutOperationButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t(
                       "在每一行讨论的最后面添加【过滤】按钮，需开启过滤功能才会生效"
                     )
@@ -3980,7 +3980,7 @@
                     i18next.t("添加【举报】按钮"),
                     "discussions-addReportButton",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("在每一行讨论的最后面添加【举报】按钮")
                   )
                 ]
@@ -4001,14 +4001,14 @@
                     i18next.t("启用"),
                     "greasyfork-discussions-filter-enable",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("开启后下面的过滤功能才会生效")
                   ),
                   UISwitch(
                     i18next.t("过滤重复的评论"),
                     "greasyfork-discussions-filter-duplicate-comments",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("过滤掉重复的评论数量(≥2)")
                   ),
                   {
@@ -4034,7 +4034,7 @@
                       domUtils.on(
                         $textarea,
                         ["input", "propertychange"],
-                        undefined,
+                        void 0,
                         utils.debounce(function(event) {
                           GreasyforkDiscussionsFilter.setValue($textarea.value);
                         }, 200)
@@ -4072,7 +4072,7 @@
                     i18next.t("迁移【控制台】到顶部导航栏"),
                     "users-changeConsoleToTopNavigator",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("将【控制台】按钮移动到顶部导航栏，节省空间")
                   )
                 ]
@@ -4091,7 +4091,7 @@
                     i18next.t("美化私信页面"),
                     "conversations-beautifyDialogBox",
                     true,
-                    undefined,
+                    void 0,
                     i18next.t("美化为左右对话模式")
                   ),
                   UISwitch(
@@ -4291,7 +4291,7 @@
             i18next.t("新增【关键词】搜索框"),
             "gf-script-search-addFilterSearchInput",
             true,
-            undefined,
+            void 0,
             i18next.t("输入自定义关键词后自动执行过滤")
           ),
           UISwitch(
@@ -4300,7 +4300,7 @@
             }),
             "gf-script-search-filterScriptTitleWholeWordMatching",
             true,
-            undefined,
+            void 0,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           ),
           UISwitch(
@@ -4309,7 +4309,7 @@
             }),
             "gf-script-search-filterScriptDescWholeWordMatching",
             true,
-            undefined,
+            void 0,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           ),
           UISwitch(
@@ -4318,7 +4318,7 @@
             }),
             "gf-script-search-filterScriptTitleOrDescWholeWordMatching",
             true,
-            undefined,
+            void 0,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           ),
           UISwitch(
@@ -4327,7 +4327,7 @@
             }),
             "gf-script-search-filterScriptAuthorNameWholeWordMatching",
             true,
-            undefined,
+            void 0,
             i18next.t("该Checkbox按钮开启后，自动过滤出包含搜索关键词的脚本")
           )
         ]
@@ -4528,7 +4528,7 @@
       Reflect.deleteProperty(locaData, key);
       _GM_setValue(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
+        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
       }
     },
     /**
@@ -4615,7 +4615,7 @@
       } else {
         runKeyList.push(key);
       }
-      let value = undefined;
+      let value = void 0;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
@@ -4733,7 +4733,7 @@
         let childValue = that.getValue(childKey2);
         if (typeof replaceValueFn === "function") {
           let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue !== undefined) {
+          if (changedMainValue !== void 0) {
             return changedMainValue;
           }
         }
@@ -4821,7 +4821,7 @@
       return configList;
     }
   };
-  const beautifyMarkdownCSS = ':root {\r\n	--borderColor-muted: #d1d9e0b3;\r\n	--markdown-pre-color: #000;\r\n	--markdown-pre-bg-color: #f5f5f5;\r\n	--markdown-code-color: #000;\r\n	--markdown-code-bg-color: #f0f0f0;\r\n}\r\ncode {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: var(--markdown-code-color);\r\n	background-color: var(--markdown-code-bg-color);\r\n	border-radius: 3px;\r\n	padding: 0.2em 0;\r\n	border: 0;\r\n}\r\ntable {\r\n	text-indent: initial;\r\n}\r\ntable {\r\n	margin: 10px 0 15px 0;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	display: block;\r\n	width: 100%;\r\n	overflow: auto;\r\n	word-break: normal;\r\n	word-break: keep-all;\r\n}\r\ncode,\r\npre {\r\n	color: var(--markdown-pre-color);\r\n	background: 0 0;\r\n	font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;\r\n	text-align: left;\r\n	white-space: pre;\r\n	word-spacing: normal;\r\n	word-break: normal;\r\n	word-wrap: normal;\r\n	line-height: 1.4;\r\n	-moz-tab-size: 8;\r\n	-o-tab-size: 8;\r\n	tab-size: 8;\r\n	-webkit-hyphens: none;\r\n	-moz-hyphens: none;\r\n	-ms-hyphens: none;\r\n	hyphens: none;\r\n}\r\npre {\r\n	padding: 0.8em;\r\n	overflow: auto;\r\n	border-radius: 3px;\r\n	background: var(--markdown-pre-bg-color);\r\n}\r\n:not(pre) > code {\r\n	padding: 0.1em;\r\n	border-radius: 0.3em;\r\n	white-space: normal;\r\n	background: var(--markdown-pre-bg-color);\r\n}\r\nhtml body {\r\n	font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans,\r\n		sans-serif;\r\n	font-size: 16px;\r\n	line-height: 1.6;\r\n	color: #333;\r\n	background-color: #fff;\r\n	overflow: initial;\r\n	box-sizing: border-box;\r\n	word-wrap: break-word;\r\n}\r\nhtml body > :first-child {\r\n	margin-top: 0;\r\n}\r\nhtml body h1,\r\nhtml body h2,\r\nhtml body h3,\r\nhtml body h4,\r\nhtml body h5,\r\nhtml body h6 {\r\n	line-height: 1.2;\r\n	margin-top: 1em;\r\n	margin-bottom: 16px;\r\n	color: #000;\r\n}\r\nhtml body h1 {\r\n	font-size: 2.25em;\r\n	font-weight: 300;\r\n	padding-bottom: 0.3em;\r\n}\r\nhtml body h2 {\r\n	font-size: 1.75em;\r\n	font-weight: 400;\r\n	padding-bottom: 0.3em;\r\n}\r\nhtml body h3 {\r\n	font-size: 1.5em;\r\n	font-weight: 500;\r\n}\r\nhtml body h4 {\r\n	font-size: 1.25em;\r\n	font-weight: 600;\r\n}\r\nhtml body h5 {\r\n	font-size: 1.1em;\r\n	font-weight: 600;\r\n}\r\nhtml body h6 {\r\n	font-size: 1em;\r\n	font-weight: 600;\r\n}\r\nhtml body h1,\r\nhtml body h2,\r\nhtml body h3,\r\nhtml body h4,\r\nhtml body h5 {\r\n	font-weight: 600;\r\n}\r\nhtml body h5 {\r\n	font-size: 1em;\r\n}\r\nhtml body h6 {\r\n	color: #5c5c5c;\r\n}\r\nhtml body strong {\r\n	color: #000;\r\n}\r\nhtml body del {\r\n	color: #5c5c5c;\r\n}\r\nhtml body a:not([href]) {\r\n	color: inherit;\r\n}\r\nhtml body a {\r\n	text-decoration: underline;\r\n	text-underline-offset: 0.2rem;\r\n}\r\nhtml body a:hover {\r\n	color: #00a3f5;\r\n}\r\nhtml body img {\r\n	max-width: 100%;\r\n}\r\nhtml body > p {\r\n	margin-top: 0;\r\n	margin-bottom: 16px;\r\n	word-wrap: break-word;\r\n}\r\nhtml body > ol,\r\nhtml body > ul {\r\n	margin-bottom: 16px;\r\n}\r\nhtml body ol,\r\nhtml body ul {\r\n	padding-left: 2em;\r\n}\r\nhtml body ol.no-list,\r\nhtml body ul.no-list {\r\n	padding: 0;\r\n	list-style-type: none;\r\n}\r\nhtml body ol ol,\r\nhtml body ol ul,\r\nhtml body ul ol,\r\nhtml body ul ul {\r\n	margin-top: 0;\r\n	margin-bottom: 0;\r\n}\r\nhtml body li {\r\n	margin-bottom: 0;\r\n}\r\nhtml body li.task-list-item {\r\n	list-style: none;\r\n}\r\nhtml body li > p {\r\n	margin-top: 0;\r\n	margin-bottom: 0;\r\n}\r\nhtml body .task-list-item-checkbox {\r\n	margin: 0 0.2em 0.25em -1.8em;\r\n	vertical-align: middle;\r\n}\r\nhtml body .task-list-item-checkbox:hover {\r\n	cursor: pointer;\r\n}\r\nhtml body blockquote {\r\n	margin: 16px 0;\r\n	font-size: inherit;\r\n	padding: 0 15px;\r\n	color: #5c5c5c;\r\n	background-color: #f0f0f0;\r\n	border-left: 4px solid #d6d6d6 !important;\r\n}\r\nhtml body blockquote > :first-child {\r\n	margin-top: 0;\r\n}\r\nhtml body blockquote > :last-child {\r\n	margin-bottom: 0;\r\n}\r\nhtml body hr {\r\n	height: 4px;\r\n	margin: 32px 0;\r\n	background-color: #d6d6d6;\r\n	border: 0 none;\r\n}\r\nhtml body table {\r\n	margin: 10px 0 15px 0;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	display: block;\r\n	width: 100%;\r\n	overflow: auto;\r\n	word-break: normal;\r\n	word-break: keep-all;\r\n}\r\nhtml body table th {\r\n	font-weight: 700;\r\n	color: #000;\r\n}\r\nhtml body table td,\r\nhtml body table th {\r\n	border: 1px solid #d6d6d6;\r\n	padding: 6px 13px;\r\n}\r\nhtml body dl {\r\n	padding: 0;\r\n}\r\nhtml body dl dt {\r\n	padding: 0;\r\n	margin-top: 16px;\r\n	font-size: 1em;\r\n	font-style: italic;\r\n	font-weight: 700;\r\n}\r\nhtml body dl dd {\r\n	padding: 0 16px;\r\n	margin-bottom: 16px;\r\n}\r\nhtml body code {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: #000;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n	padding: 0.2em 0;\r\n}\r\nhtml body code::after,\r\nhtml body code::before {\r\n	letter-spacing: -0.2em;\r\n	content: "\\00a0";\r\n}\r\nhtml body pre {\r\n	background: #f6f8fa;\r\n}\r\nhtml body pre > code {\r\n	padding: 0;\r\n	margin: 0;\r\n	word-break: normal;\r\n	white-space: pre;\r\n	background: 0 0;\r\n	border: 0;\r\n}\r\nhtml body .highlight {\r\n	margin-bottom: 16px;\r\n}\r\nhtml body .highlight pre,\r\nhtml body pre {\r\n	padding: 1em;\r\n	overflow: auto;\r\n	line-height: 1.45;\r\n	border: #d6d6d6;\r\n	border-radius: 3px;\r\n}\r\nhtml body .highlight pre {\r\n	margin-bottom: 0;\r\n	word-break: normal;\r\n}\r\nhtml body pre code,\r\nhtml body pre tt {\r\n	display: inline;\r\n	max-width: initial;\r\n	padding: 0;\r\n	margin: 0;\r\n	overflow: initial;\r\n	line-height: inherit;\r\n	word-wrap: normal;\r\n	background-color: transparent;\r\n	border: 0;\r\n}\r\nhtml body pre code:after,\r\nhtml body pre code:before,\r\nhtml body pre tt:after,\r\nhtml body pre tt:before {\r\n	content: normal;\r\n}\r\nhtml body blockquote,\r\nhtml body dl,\r\nhtml body ol,\r\nhtml body p,\r\nhtml body pre,\r\nhtml body ul {\r\n	margin-top: 0;\r\n	margin-bottom: 16px;\r\n}\r\nhtml body kbd {\r\n	color: #000;\r\n	border: 1px solid #d6d6d6;\r\n	border-bottom: 2px solid #c7c7c7;\r\n	padding: 2px 4px;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n}\r\n@media print {\r\n	html body {\r\n		background-color: #fff;\r\n	}\r\n	html body h1,\r\n	html body h2,\r\n	html body h3,\r\n	html body h4,\r\n	html body h5,\r\n	html body h6 {\r\n		color: #000;\r\n		page-break-after: avoid;\r\n	}\r\n	html body blockquote {\r\n		color: #5c5c5c;\r\n	}\r\n	html body pre {\r\n		page-break-inside: avoid;\r\n	}\r\n	html body table {\r\n		display: table;\r\n	}\r\n	html body img {\r\n		display: block;\r\n		max-width: 100%;\r\n		max-height: 100%;\r\n	}\r\n	html body code,\r\n	html body pre {\r\n		word-wrap: break-word;\r\n		white-space: pre;\r\n	}\r\n}\r\n/* 强制换行 */\r\ncode {\r\n	text-wrap: wrap !important;\r\n}\r\n\r\n.scrollbar-style::-webkit-scrollbar {\r\n	width: 8px;\r\n}\r\n.scrollbar-style::-webkit-scrollbar-track {\r\n	border-radius: 10px;\r\n	background-color: transparent;\r\n}\r\n.scrollbar-style::-webkit-scrollbar-thumb {\r\n	border-radius: 5px;\r\n	background-color: rgba(150, 150, 150, 0.66);\r\n	border: 4px solid rgba(150, 150, 150, 0.66);\r\n	background-clip: content-box;\r\n}\r\n\r\n/* 表格每隔1行的背景色 */\r\ntable tr:nth-child(2n) {\r\n	background: #f6f8fa;\r\n}\r\n/* 上面是通用 */\r\n\r\n/* 下面是自定义 */\r\n.user-content {\r\n	background: #ffffff !important;\r\n	border-left-color: #ffffff !important;\r\n}\r\n.user-content a {\r\n	color: #0969da;\r\n}\r\n.user-content h1 {\r\n	padding-bottom: 0.3em;\r\n	font-size: 2em;\r\n	border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));\r\n}\r\n.user-content h2 {\r\n	padding-bottom: 0.3em;\r\n	font-size: 1.5em;\r\n	border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));\r\n}\r\n/* 任务列表样式 */\r\n.task-list-item-checkbox {\r\n	margin: 0 0.2em 0.25em -1.4em;\r\n	vertical-align: middle;\r\n}\r\n/* 隐藏标记框 */\r\nul li:has(> .task-list-item-checkbox)::marker {\r\n	content: "";\r\n}\r\n\r\n/* 警告列表 */\r\n.markdown-alert {\r\n	--borderColor-default: #d1d9e0;\r\n	padding: 0.5rem 1rem;\r\n	margin-bottom: 1rem;\r\n	color: inherit;\r\n	border-left: 0.25em solid var(--borderColor-default);\r\n	border-left-color: var(--fgColor-accent);\r\n}\r\n.markdown-alert-title {\r\n	display: flex;\r\n	font-weight: 500;\r\n	align-items: center;\r\n	line-height: 1;\r\n	color: var(--fgColor-accent);\r\n}\r\n.markdown-alert > :last-child {\r\n	margin-bottom: 0;\r\n}\r\n.markdown-alert-title .octicon {\r\n	display: inline-block;\r\n	overflow: visible !important;\r\n	vertical-align: text-bottom;\r\n	fill: currentColor;\r\n}\r\n.markdown-alert-title .mr-2 {\r\n	margin-right: 0.5rem !important;\r\n}\r\n.markdown-alert[data-type="NOTE"] {\r\n	--fgColor-accent: #0969da;\r\n}\r\n\r\n.markdown-alert[data-type="TIP"] {\r\n	--fgColor-accent: #1a7f37;\r\n}\r\n.markdown-alert[data-type="IMPORTANT"] {\r\n	--fgColor-accent: #8250df;\r\n}\r\n.markdown-alert[data-type="WARNING"] {\r\n	--fgColor-accent: #9a6700;\r\n}\r\n.markdown-alert[data-type="CAUTION"] {\r\n	--fgColor-accent: #d1242f;\r\n}\r\n';
+  const beautifyMarkdownCSS = ':root {\r\n	--borderColor-muted: #d1d9e0b3;\r\n	--markdown-pre-color: #000;\r\n	--markdown-pre-bg-color: #f5f5f5;\r\n	--markdown-code-color: #000;\r\n	--markdown-code-bg-color: #f0f0f0;\r\n}\r\ncode {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: var(--markdown-code-color);\r\n	background-color: var(--markdown-code-bg-color);\r\n	border-radius: 3px;\r\n	padding: 0.2em 0;\r\n	border: 0;\r\n}\r\ntable {\r\n	text-indent: initial;\r\n}\r\ntable {\r\n	margin: 10px 0 15px 0;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	display: block;\r\n	width: 100%;\r\n	overflow: auto;\r\n	word-break: normal;\r\n	word-break: keep-all;\r\n}\r\ncode,\r\npre {\r\n	color: var(--markdown-pre-color);\r\n	background: 0 0;\r\n	font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;\r\n	text-align: left;\r\n	white-space: pre;\r\n	word-spacing: normal;\r\n	word-break: normal;\r\n	word-wrap: normal;\r\n	line-height: 1.4;\r\n	-moz-tab-size: 8;\r\n	-o-tab-size: 8;\r\n	tab-size: 8;\r\n	-webkit-hyphens: none;\r\n	-moz-hyphens: none;\r\n	-ms-hyphens: none;\r\n	hyphens: none;\r\n}\r\npre {\r\n	padding: 0.8em;\r\n	overflow: auto;\r\n	border-radius: 3px;\r\n	background: var(--markdown-pre-bg-color);\r\n}\r\n:not(pre) > code {\r\n	padding: 0.1em;\r\n	border-radius: 0.3em;\r\n	white-space: normal;\r\n	background: var(--markdown-pre-bg-color);\r\n}\r\nhtml body {\r\n	font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans,\r\n		sans-serif;\r\n	font-size: 16px;\r\n	line-height: 1.6;\r\n	color: #333;\r\n	background-color: #fff;\r\n	overflow: initial;\r\n	box-sizing: border-box;\r\n	word-wrap: break-word;\r\n}\r\nhtml body > :first-child {\r\n	margin-top: 0;\r\n}\r\nhtml body h1,\r\nhtml body h2,\r\nhtml body h3,\r\nhtml body h4,\r\nhtml body h5,\r\nhtml body h6 {\r\n	line-height: 1.2;\r\n	margin-top: 1em;\r\n	margin-bottom: 16px;\r\n	color: #000;\r\n}\r\nhtml body h1 {\r\n	font-size: 2.25em;\r\n	font-weight: 300;\r\n	padding-bottom: 0.3em;\r\n}\r\nhtml body h2 {\r\n	font-size: 1.75em;\r\n	font-weight: 400;\r\n	padding-bottom: 0.3em;\r\n}\r\nhtml body h3 {\r\n	font-size: 1.5em;\r\n	font-weight: 500;\r\n}\r\nhtml body h4 {\r\n	font-size: 1.25em;\r\n	font-weight: 600;\r\n}\r\nhtml body h5 {\r\n	font-size: 1.1em;\r\n	font-weight: 600;\r\n}\r\nhtml body h6 {\r\n	font-size: 1em;\r\n	font-weight: 600;\r\n}\r\nhtml body h1,\r\nhtml body h2,\r\nhtml body h3,\r\nhtml body h4,\r\nhtml body h5 {\r\n	font-weight: 600;\r\n}\r\nhtml body h5 {\r\n	font-size: 1em;\r\n}\r\nhtml body h6 {\r\n	color: #5c5c5c;\r\n}\r\nhtml body strong {\r\n	color: #000;\r\n}\r\nhtml body del {\r\n	color: #5c5c5c;\r\n}\r\nhtml body a:not([href]) {\r\n	color: inherit;\r\n}\r\nhtml body a {\r\n	text-decoration: underline;\r\n	text-underline-offset: 0.2rem;\r\n}\r\nhtml body a:hover {\r\n	color: #00a3f5;\r\n}\r\nhtml body img {\r\n	max-width: 100%;\r\n}\r\nhtml body > p {\r\n	margin-top: 0;\r\n	margin-bottom: 16px;\r\n	word-wrap: break-word;\r\n}\r\nhtml body > ol,\r\nhtml body > ul {\r\n	margin-bottom: 16px;\r\n}\r\nhtml body ol,\r\nhtml body ul {\r\n	padding-left: 2em;\r\n}\r\nhtml body ol.no-list,\r\nhtml body ul.no-list {\r\n	padding: 0;\r\n	list-style-type: none;\r\n}\r\nhtml body ol ol,\r\nhtml body ol ul,\r\nhtml body ul ol,\r\nhtml body ul ul {\r\n	margin-top: 0;\r\n	margin-bottom: 0;\r\n}\r\nhtml body li {\r\n	margin-bottom: 0;\r\n}\r\nhtml body li.task-list-item {\r\n	list-style: none;\r\n}\r\nhtml body li > p {\r\n	margin-top: 0;\r\n	margin-bottom: 0;\r\n}\r\nhtml body .task-list-item-checkbox {\r\n	margin: 0 0.2em 0.25em -1.8em;\r\n	vertical-align: middle;\r\n}\r\nhtml body .task-list-item-checkbox:hover {\r\n	cursor: pointer;\r\n}\r\nhtml body blockquote {\r\n	margin: 16px 0;\r\n	font-size: inherit;\r\n	padding: 0 15px;\r\n	color: #5c5c5c;\r\n	background-color: #f0f0f0;\r\n	border-left: 4px solid #d6d6d6 !important;\r\n}\r\nhtml body blockquote > :first-child {\r\n	margin-top: 0;\r\n}\r\nhtml body blockquote > :last-child {\r\n	margin-bottom: 0;\r\n}\r\nhtml body hr {\r\n	height: 4px;\r\n	margin: 32px 0;\r\n	background-color: #d6d6d6;\r\n	border: 0 none;\r\n}\r\nhtml body table {\r\n	margin: 10px 0 15px 0;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	display: block;\r\n	width: 100%;\r\n	overflow: auto;\r\n	word-break: normal;\r\n	word-break: keep-all;\r\n}\r\nhtml body table th {\r\n	font-weight: 700;\r\n	color: #000;\r\n}\r\nhtml body table td,\r\nhtml body table th {\r\n	border: 1px solid #d6d6d6;\r\n	padding: 6px 13px;\r\n}\r\nhtml body dl {\r\n	padding: 0;\r\n}\r\nhtml body dl dt {\r\n	padding: 0;\r\n	margin-top: 16px;\r\n	font-size: 1em;\r\n	font-style: italic;\r\n	font-weight: 700;\r\n}\r\nhtml body dl dd {\r\n	padding: 0 16px;\r\n	margin-bottom: 16px;\r\n}\r\nhtml body code {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: #000;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n	padding: 0.2em 0;\r\n}\r\nhtml body code::after,\r\nhtml body code::before {\r\n	letter-spacing: -0.2em;\r\n	content: "\\00a0";\r\n}\r\nhtml body pre {\r\n	background: #f6f8fa;\r\n}\r\nhtml body pre > code {\r\n	padding: 0;\r\n	margin: 0;\r\n	word-break: normal;\r\n	white-space: pre;\r\n	background: 0 0;\r\n	border: 0;\r\n}\r\nhtml body .highlight {\r\n	margin-bottom: 16px;\r\n}\r\nhtml body .highlight pre,\r\nhtml body pre {\r\n	padding: 1em;\r\n	overflow: auto;\r\n	line-height: 1.45;\r\n	border: #d6d6d6;\r\n	border-radius: 3px;\r\n}\r\nhtml body .highlight pre {\r\n	margin-bottom: 0;\r\n	word-break: normal;\r\n}\r\nhtml body pre code,\r\nhtml body pre tt {\r\n	display: inline;\r\n	max-width: initial;\r\n	padding: 0;\r\n	margin: 0;\r\n	overflow: initial;\r\n	line-height: inherit;\r\n	word-wrap: normal;\r\n	background-color: transparent;\r\n	border: 0;\r\n}\r\nhtml body pre code:after,\r\nhtml body pre code:before,\r\nhtml body pre tt:after,\r\nhtml body pre tt:before {\r\n	content: normal;\r\n}\r\nhtml body blockquote,\r\nhtml body dl,\r\nhtml body ol,\r\nhtml body p,\r\nhtml body pre,\r\nhtml body ul {\r\n	margin-top: 0;\r\n	margin-bottom: 16px;\r\n}\r\nhtml body kbd {\r\n	color: #000;\r\n	border: 1px solid #d6d6d6;\r\n	border-bottom: 2px solid #c7c7c7;\r\n	padding: 2px 4px;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n}\r\n@media print {\r\n	html body {\r\n		background-color: #fff;\r\n	}\r\n	html body h1,\r\n	html body h2,\r\n	html body h3,\r\n	html body h4,\r\n	html body h5,\r\n	html body h6 {\r\n		color: #000;\r\n		page-break-after: avoid;\r\n	}\r\n	html body blockquote {\r\n		color: #5c5c5c;\r\n	}\r\n	html body pre {\r\n		page-break-inside: avoid;\r\n	}\r\n	html body table {\r\n		display: table;\r\n	}\r\n	html body img {\r\n		display: block;\r\n		max-width: 100%;\r\n		max-height: 100%;\r\n	}\r\n	html body code,\r\n	html body pre {\r\n		word-wrap: break-word;\r\n		white-space: pre;\r\n	}\r\n}\r\n/* 强制换行 */\r\ncode {\r\n	text-wrap: wrap !important;\r\n}\r\n\r\n.scrollbar-style::-webkit-scrollbar {\r\n	width: 8px;\r\n}\r\n.scrollbar-style::-webkit-scrollbar-track {\r\n	border-radius: 10px;\r\n	background-color: transparent;\r\n}\r\n.scrollbar-style::-webkit-scrollbar-thumb {\r\n	border-radius: 5px;\r\n	background-color: rgba(150, 150, 150, 0.66);\r\n	border: 4px solid rgba(150, 150, 150, 0.66);\r\n	background-clip: content-box;\r\n}\r\n\r\n/* 表格每隔1行的背景色 */\r\ntable tr:nth-child(2n) {\r\n	background: #f6f8fa;\r\n}\r\n/* 上面是通用 */\r\n\r\n/* 下面是自定义 */\r\n.user-content {\r\n	background: #ffffff !important;\r\n	border-left-color: #ffffff !important;\r\n}\r\n.user-content a {\r\n	color: #0969da;\r\n}\r\n.user-content h1 {\r\n	padding-bottom: 0.3em;\r\n	font-size: 2em;\r\n	border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));\r\n}\r\n.user-content h2 {\r\n	padding-bottom: 0.3em;\r\n	font-size: 1.5em;\r\n	border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));\r\n}\r\n/* 任务列表样式 */\r\n.task-list-item-checkbox {\r\n	margin: 0 0.2em 0.25em -1.4em;\r\n	vertical-align: middle;\r\n}\r\n/* 隐藏标记框 */\r\nul li:has(> .task-list-item-checkbox)::marker {\r\n	content: "";\r\n}\r\n\r\n/* 警告列表 */\r\n.markdown-alert {\r\n	--borderColor-default: #d1d9e0;\r\n	padding: 0.5rem 1rem;\r\n	margin-bottom: 1rem;\r\n	color: inherit;\r\n	border-left: 0.25em solid var(--borderColor-default);\r\n	border-left-color: var(--fgColor-accent);\r\n}\r\n.markdown-alert-title {\r\n	display: flex;\r\n	font-weight: 500;\r\n	align-items: center;\r\n	line-height: 1;\r\n	color: var(--fgColor-accent);\r\n}\r\n.markdown-alert > :last-child {\r\n	margin-bottom: 0;\r\n}\r\n.markdown-alert-title .octicon {\r\n	display: inline-block;\r\n	overflow: visible !important;\r\n	vertical-align: text-bottom;\r\n	fill: currentColor;\r\n}\r\n.markdown-alert-title .mr-2 {\r\n	margin-right: 0.5rem !important;\r\n}\r\n.markdown-alert[data-type="NOTE"] {\r\n	--fgColor-accent: #0969da;\r\n}\r\n\r\n.markdown-alert[data-type="TIP"] {\r\n	--fgColor-accent: #1a7f37;\r\n}\r\n.markdown-alert[data-type="IMPORTANT"] {\r\n	--fgColor-accent: #8250df;\r\n}\r\n.markdown-alert[data-type="WARNING"] {\r\n	--fgColor-accent: #9a6700;\r\n}\r\n.markdown-alert[data-type="CAUTION"] {\r\n	--fgColor-accent: #d1242f;\r\n}\r\n\r\n/* 深色模式 */\r\n@media (prefers-color-scheme: dark) {\r\n	html body {\r\n		color: #ccc;\r\n		background-color: #24292e;\r\n	}\r\n\r\n	html body h1,\r\n	html body h2,\r\n	html body h3,\r\n	html body h4,\r\n	html body h5,\r\n	html body h6 {\r\n		color: #fff;\r\n	}\r\n\r\n	html body h6 {\r\n		color: #a3a3a3;\r\n	}\r\n\r\n	html body strong {\r\n		color: #fff;\r\n	}\r\n\r\n	html body del {\r\n		color: #a3a3a3;\r\n	}\r\n\r\n	html body a:not([href]) {\r\n		color: inherit;\r\n		text-decoration: none;\r\n	}\r\n\r\n	html body a {\r\n		color: #08c;\r\n		text-decoration: none;\r\n	}\r\n\r\n	html body a:hover {\r\n		color: #00a3f5;\r\n		text-decoration: none;\r\n	}\r\n\r\n	html body blockquote {\r\n		color: #a3a3a3;\r\n		background-color: #363d45;\r\n		border-left: 4px solid #48525c;\r\n	}\r\n\r\n	html body hr {\r\n		background-color: #48525c;\r\n	}\r\n\r\n	html body table th {\r\n		color: #fff;\r\n	}\r\n\r\n	html body table td,\r\n	html body table th {\r\n		border: 1px solid #48525c;\r\n	}\r\n\r\n	html body code {\r\n		font-size: 0.85em;\r\n		color: #fff;\r\n		background-color: #363d45;\r\n	}\r\n\r\n	html body .highlight pre,\r\n	html body pre {\r\n		border: #48525c;\r\n	}\r\n\r\n	html body kbd {\r\n		color: #fff;\r\n		border: 1px solid #48525c;\r\n		border-bottom: 2px solid #3a424b;\r\n		background-color: #363d45;\r\n	}\r\n\r\n	@media print {\r\n		html body {\r\n			background-color: #24292e;\r\n		}\r\n\r\n		html body h1,\r\n		html body h2,\r\n		html body h3,\r\n		html body h4,\r\n		html body h5,\r\n		html body h6 {\r\n			color: #fff;\r\n		}\r\n\r\n		html body blockquote {\r\n			color: #a3a3a3;\r\n		}\r\n	}\r\n\r\n	/* 表格每隔1行的背景色 */\r\n	table tr:nth-child(2n) {\r\n		background: #1c1e1f;\r\n	}\r\n	.user-content {\r\n		background: #0a0a0a !important;\r\n		border-left-color: #0a0a0a !important;\r\n	}\r\n}\r\n';
   const beautifyButtonCSS = '/* 美化按钮 */\r\ninput[type="submit"],\r\ninput[type="button"],\r\nbutton {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	line-height: 1;\r\n	height: 32px;\r\n	white-space: nowrap;\r\n	cursor: pointer;\r\n	/* color: #606266; */\r\n	text-align: center;\r\n	box-sizing: border-box;\r\n	outline: none;\r\n	transition: 0.1s;\r\n	font-weight: 500;\r\n	user-select: none;\r\n	vertical-align: middle;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	background-color: #ffffff;\r\n	border: 1px solid #dcdfe6;\r\n	border-color: #dcdfe6;\r\n	padding: 8px 15px;\r\n	font-size: 14px;\r\n	border-radius: 4px;\r\n}\r\n\r\ninput[type="submit"]:hover,\r\ninput[type="submit"]:focus,\r\ninput[type="button"]:hover,\r\ninput[type="button"]:focus,\r\nbutton:hover,\r\nbutton:focus {\r\n	color: #409eff;\r\n	border-color: #c6e2ff;\r\n	background-color: #ecf5ff;\r\n	outline: none;\r\n}\r\n\r\ninput[type="url"] {\r\n	position: relative;\r\n	font-size: 14px;\r\n	display: inline-flex;\r\n	line-height: 32px;\r\n	box-sizing: border-box;\r\n	vertical-align: middle;\r\n	appearance: none;\r\n	-webkit-appearance: none;\r\n	/* color: #606266; */\r\n	padding: 0;\r\n	outline: none;\r\n	border: none;\r\n	background: none;\r\n	flex-grow: 1;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 1px 11px;\r\n	background-color: #ffffff;\r\n	background-image: none;\r\n	border-radius: 4px;\r\n	cursor: text;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	transform: translateZ(0);\r\n	box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n\r\n	width: 100%;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n}\r\n\r\ninput[type="url"]::placeholder {\r\n	color: #a8abb2;\r\n}\r\n\r\ninput[type="url"]:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n\r\ninput[type="url"]:focus {\r\n	box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n';
   const beautifyRadioCSS = 'label.radio-label {\r\n	font-weight: 500;\r\n	position: relative;\r\n	cursor: pointer;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	white-space: normal;\r\n	outline: none;\r\n	font-size: 14px;\r\n	user-select: none;\r\n	margin-right: 32px;\r\n	height: 32px;\r\n	padding: 4px;\r\n	border-radius: 4px;\r\n	box-sizing: border-box;\r\n}\r\nlabel:has(input[type="radio"]:checked),\r\nlabel:has(input[type="radio"]:checked) a {\r\n	color: #409eff;\r\n}\r\nlabel.radio-label input[type="radio"] {\r\n	margin-right: 4px;\r\n	width: 14px;\r\n	height: 14px;\r\n}\r\nlabel.radio-label input[type="radio"]:checked {\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	border-radius: 50%;\r\n	width: 14px;\r\n	height: 14px;\r\n	outline: none;\r\n	border: 4px solid #409eff;\r\n	cursor: pointer;\r\n}\r\nlabel.radio-label input[type="radio"]:checked + span {\r\n	color: #409eff;\r\n}\r\n';
   const beautifyInputCSS = 'input[type="search"],\r\ninput[type="text"],\r\ninput[type="password"] {\r\n	justify-content: center;\r\n	align-items: center;\r\n	/* line-height: 1; */\r\n	/* height: 32px; */\r\n	white-space: nowrap;\r\n	cursor: text;\r\n	text-align: center;\r\n	box-sizing: border-box;\r\n	outline: 0;\r\n	transition: 0.1s;\r\n	/* font-weight: 500; */\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	vertical-align: middle;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	background-color: transparent;\r\n	border: 0;\r\n	padding: 8px 8px;\r\n	/* font-size: 14px; */\r\n	text-align: start;\r\n	/* width: 100%; */\r\n	flex: 1;\r\n	border: 1px solid #dcdfe6;\r\n	border-radius: 4px;\r\n}\r\ninput[type="search"]:hover,\r\ninput[type="text"]:hover,\r\ninput[type="password"]:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc;\r\n}\r\ninput[type="search"]:focus,\r\ninput[type="text"]:focus,\r\ninput[type="password"]:focus {\r\n	outline: 0;\r\n	border: 1px solid #409eff;\r\n	border-radius: 4px;\r\n	box-shadow: none;\r\n}\r\n';
@@ -4882,8 +4882,8 @@
         $$(".user-content ul li").forEach(($li) => {
           var _a2, _b;
           let $first = $li.firstChild;
-          if (($first == null ? undefined : $first.nodeName) === "#text") {
-            if ((_a2 = $first.textContent) == null ? undefined : _a2.startsWith("[x] ")) {
+          if (($first == null ? void 0 : $first.nodeName) === "#text") {
+            if ((_a2 = $first.textContent) == null ? void 0 : _a2.startsWith("[x] ")) {
               $first.textContent = $first.textContent.replace("[x] ", "");
               domUtils.prepend(
                 $li,
@@ -4892,7 +4892,7 @@
 							<input type="checkbox" disabled="" class="task-list-item-checkbox" checked="">
 						`
               );
-            } else if ((_b = $first.textContent) == null ? undefined : _b.startsWith("[ ] ")) {
+            } else if ((_b = $first.textContent) == null ? void 0 : _b.startsWith("[ ] ")) {
               $first.textContent = $first.textContent.replace("[ ] ", "");
               domUtils.prepend(
                 $li,
@@ -4992,7 +4992,7 @@
               }
             );
             while ($markdownAlertTitle.nextSibling) {
-              if ((_b = (_a2 = $markdownAlertTitle.nextSibling) == null ? undefined : _a2.classList) == null ? undefined : _b.contains("markdown-alert-title")) {
+              if ((_b = (_a2 = $markdownAlertTitle.nextSibling) == null ? void 0 : _a2.classList) == null ? void 0 : _b.contains("markdown-alert-title")) {
                 break;
               }
               domUtils.append(
@@ -5431,13 +5431,13 @@
             ".pops-alert-content"
           );
           if (discussionInfo.scriptId == null) {
-            (_a2 = $content.querySelector(`button[${attr_filter_key}="scriptId"]`)) == null ? undefined : _a2.remove();
+            (_a2 = $content.querySelector(`button[${attr_filter_key}="scriptId"]`)) == null ? void 0 : _a2.remove();
           }
           if (discussionInfo.scriptName == null) {
-            (_b = $content.querySelector(`button[${attr_filter_key}="scriptName"]`)) == null ? undefined : _b.remove();
+            (_b = $content.querySelector(`button[${attr_filter_key}="scriptName"]`)) == null ? void 0 : _b.remove();
           }
           if (discussionInfo.postUserId == null) {
-            (_c = $content.querySelector(`button[${attr_filter_key}="postUserId"]`)) == null ? undefined : _c.remove();
+            (_c = $content.querySelector(`button[${attr_filter_key}="postUserId"]`)) == null ? void 0 : _c.remove();
           }
           if (discussionInfo.replyUserId != null) {
             let $replyUserIdButton = domUtils.createElement("button", {
@@ -5671,7 +5671,7 @@
           return;
         }
         let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
-        let code_url = scriptInfo == null ? undefined : scriptInfo.code_url;
+        let code_url = scriptInfo == null ? void 0 : scriptInfo.code_url;
         if (!code_url) {
           Qmsg.error("请求结果中未解析出脚本代码URL", {
             consoleLogContent: true
@@ -5777,8 +5777,8 @@
           let versionNumber = liElement.querySelector(
             ".version-number a"
           ).innerText;
-          let versionDate = (_a2 = liElement.querySelector(".version-date")) == null ? undefined : _a2.getAttribute("datetime");
-          let updateNote = ((_b = liElement.querySelector(".version-changelog")) == null ? undefined : _b.innerHTML) || "";
+          let versionDate = (_a2 = liElement.querySelector(".version-date")) == null ? void 0 : _a2.getAttribute("datetime");
+          let updateNote = ((_b = liElement.querySelector(".version-changelog")) == null ? void 0 : _b.innerHTML) || "";
           let versionDateElement = domUtils.createElement("span", {
             className: "script-version-date",
             innerHTML: utils.formatTime(
@@ -5825,9 +5825,9 @@
             return;
           }
           let urlObj = new URL($anchor.href);
-          let scriptId = (_a2 = urlObj.pathname.match(/\/scripts\/([\d]+)/)) == null ? undefined : _a2[1];
+          let scriptId = (_a2 = urlObj.pathname.match(/\/scripts\/([\d]+)/)) == null ? void 0 : _a2[1];
           let scriptVersion = urlObj.searchParams.get("version");
-          let scriptName = (_b = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)) == null ? undefined : _b[1];
+          let scriptName = (_b = urlObj.pathname.match(/\/scripts\/[\d]+-(.+)/)) == null ? void 0 : _b[1];
           let installUrl = GreasyforkUrlUtils.getInstallUrl(
             scriptId,
             scriptVersion,
@@ -6506,7 +6506,7 @@
         return;
       }
       log.info("统计信息", scriptStatsJSON);
-      let todayStatsJSON = scriptStatsJSON[utils.formatTime(undefined, "yyyy-MM-dd")];
+      let todayStatsJSON = scriptStatsJSON[utils.formatTime(void 0, "yyyy-MM-dd")];
       if (!todayStatsJSON) {
         log.error("今日份的统计信息不存在");
         return;
@@ -6577,17 +6577,17 @@
     /** 获取 TamperMonkey 暴露在window下的函数 */
     getTampermonkey: () => {
       var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Tampermonkey;
+      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Tampermonkey;
     },
     /** 获取 Violentmonkey 暴露在window下的函数 */
     getViolentmonkey: () => {
       var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Violentmonkey;
+      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Violentmonkey;
     },
     /** 获取 ScriptCat 暴露在window下的函数 */
     getScriptCat: () => {
       var _a2;
-      return (_a2 = _unsafeWindow.external) == null ? undefined : _a2.Scriptcat;
+      return (_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Scriptcat;
     },
     /**
      * 获取脚本容器启用状态
@@ -6599,13 +6599,13 @@
         Violentmonkey: false,
         ScriptCat: false
       };
-      if ((_a2 = _unsafeWindow.external) == null ? undefined : _a2.Tampermonkey) {
+      if ((_a2 = _unsafeWindow.external) == null ? void 0 : _a2.Tampermonkey) {
         containerStatus.Tampermonkey = true;
       }
-      if ((_b = _unsafeWindow.external) == null ? undefined : _b.Violentmonkey) {
+      if ((_b = _unsafeWindow.external) == null ? void 0 : _b.Violentmonkey) {
         containerStatus.Violentmonkey = true;
       }
-      if ((_c = _unsafeWindow.external) == null ? undefined : _c.Scriptcat) {
+      if ((_c = _unsafeWindow.external) == null ? void 0 : _c.Scriptcat) {
         containerStatus.ScriptCat = true;
       }
       return containerStatus;
@@ -7301,7 +7301,7 @@
           'a[href*="conversations"]'
         );
         let chatUrl = $user.href;
-        let userName = (_a2 = $user.textContent) == null ? undefined : _a2.split(" ")[1];
+        let userName = (_a2 = $user.textContent) == null ? void 0 : _a2.split(" ")[1];
         let $latestMsgUser = $li.querySelector("a.user-link");
         let latestSendMsgUser = null;
         let latestSendMsgUserHomeUrl = null;
@@ -7346,7 +7346,7 @@
         if (!$el) {
           return;
         }
-        let shadowRoot2 = $el == null ? undefined : $el.shadowRoot;
+        let shadowRoot2 = $el == null ? void 0 : $el.shadowRoot;
         if (!shadowRoot2) {
           return;
         }
@@ -7549,7 +7549,7 @@
           return $ownSearchInput.value;
         }
         let searchParams = new URLSearchParams(window.location.search);
-        let searchText = ((_a2 = searchParams.get("q")) == null ? undefined : _a2.trim()) || ((_b = searchParams.get("c")) == null ? undefined : _b.trim()) || "";
+        let searchText = ((_a2 = searchParams.get("q")) == null ? void 0 : _a2.trim()) || ((_b = searchParams.get("c")) == null ? void 0 : _b.trim()) || "";
         return searchText;
       };
       let execTotalFilter = () => {
@@ -7633,11 +7633,11 @@
                 let $switch = $pops.querySelector(selector);
                 if ($switch) {
                   let $input = $switch.querySelector("input");
-                  if ($input == null ? undefined : $input.checked) {
+                  if ($input == null ? void 0 : $input.checked) {
                     let $core = $switch.querySelector(
                       ".pops-panel-switch__core"
                     );
-                    $core == null ? undefined : $core.click();
+                    $core == null ? void 0 : $core.click();
                   }
                 }
               });
@@ -7787,7 +7787,7 @@
         function(event) {
           var _a2;
           let $img = event.target;
-          if (((_a2 = $img.parentElement) == null ? undefined : _a2.localName) === "a" && $img.hasAttribute("data-screenshots")) {
+          if (((_a2 = $img.parentElement) == null ? void 0 : _a2.localName) === "a" && $img.hasAttribute("data-screenshots")) {
             return;
           }
           if ($img.closest(".viewer-container")) {
@@ -7813,7 +7813,7 @@
               imgElementList.push(childImgElement);
               let imgSrc = getImgElementSrc(childImgElement);
               let $parent = childImgElement.parentElement;
-              if (($parent == null ? undefined : $parent.localName) === "a") {
+              if (($parent == null ? void 0 : $parent.localName) === "a") {
                 imgSrc = $parent.getAttribute("data-href") || $parent.href;
               }
               imgList.push(imgSrc);
