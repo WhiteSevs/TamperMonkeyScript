@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.4.17
+// @version      2025.5.1
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -94,35 +94,35 @@
     }
   });
   var _data, _U2Ghash, _G2Uhash, _defaultDetails, _LOG_DETAILS, _dbName, _storeName, _dbVersion, _slqVersion, _indexedDB, _db, _store, _statusCode, _flag, _delayTime, _callback, _context2, _disable, _console, _logCount, _details, _msgColorDetails, _config, _ctx, _width, _height, _a;
-  var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : undefined)();
-  var _GM_addElement = /* @__PURE__ */ (() => typeof GM_addElement != "undefined" ? GM_addElement : undefined)();
-  var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : undefined)();
-  var _GM_addValueChangeListener = /* @__PURE__ */ (() => typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : undefined)();
-  var _GM_cookie = /* @__PURE__ */ (() => typeof GM_cookie != "undefined" ? GM_cookie : undefined)();
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
-  var _GM_deleteValues = /* @__PURE__ */ (() => typeof GM_deleteValues != "undefined" ? GM_deleteValues : undefined)();
-  var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : undefined)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
-  var _GM_getResourceURL = /* @__PURE__ */ (() => typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : undefined)();
-  var _GM_getTab = /* @__PURE__ */ (() => typeof GM_getTab != "undefined" ? GM_getTab : undefined)();
-  var _GM_getTabs = /* @__PURE__ */ (() => typeof GM_getTabs != "undefined" ? GM_getTabs : undefined)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
-  var _GM_getValues = /* @__PURE__ */ (() => typeof GM_getValues != "undefined" ? GM_getValues : undefined)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
-  var _GM_listValues = /* @__PURE__ */ (() => typeof GM_listValues != "undefined" ? GM_listValues : undefined)();
-  var _GM_log = /* @__PURE__ */ (() => typeof GM_log != "undefined" ? GM_log : undefined)();
-  var _GM_notification = /* @__PURE__ */ (() => typeof GM_notification != "undefined" ? GM_notification : undefined)();
-  var _GM_openInTab = /* @__PURE__ */ (() => typeof GM_openInTab != "undefined" ? GM_openInTab : undefined)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
-  var _GM_removeValueChangeListener = /* @__PURE__ */ (() => typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : undefined)();
-  var _GM_saveTab = /* @__PURE__ */ (() => typeof GM_saveTab != "undefined" ? GM_saveTab : undefined)();
-  var _GM_setClipboard = /* @__PURE__ */ (() => typeof GM_setClipboard != "undefined" ? GM_setClipboard : undefined)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
-  var _GM_setValues = /* @__PURE__ */ (() => typeof GM_setValues != "undefined" ? GM_setValues : undefined)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
-  var _GM_webRequest = /* @__PURE__ */ (() => typeof GM_webRequest != "undefined" ? GM_webRequest : undefined)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
+  var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
+  var _GM_addElement = /* @__PURE__ */ (() => typeof GM_addElement != "undefined" ? GM_addElement : void 0)();
+  var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
+  var _GM_addValueChangeListener = /* @__PURE__ */ (() => typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_cookie = /* @__PURE__ */ (() => typeof GM_cookie != "undefined" ? GM_cookie : void 0)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_deleteValues = /* @__PURE__ */ (() => typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0)();
+  var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getResourceURL = /* @__PURE__ */ (() => typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0)();
+  var _GM_getTab = /* @__PURE__ */ (() => typeof GM_getTab != "undefined" ? GM_getTab : void 0)();
+  var _GM_getTabs = /* @__PURE__ */ (() => typeof GM_getTabs != "undefined" ? GM_getTabs : void 0)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_getValues = /* @__PURE__ */ (() => typeof GM_getValues != "undefined" ? GM_getValues : void 0)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_listValues = /* @__PURE__ */ (() => typeof GM_listValues != "undefined" ? GM_listValues : void 0)();
+  var _GM_log = /* @__PURE__ */ (() => typeof GM_log != "undefined" ? GM_log : void 0)();
+  var _GM_notification = /* @__PURE__ */ (() => typeof GM_notification != "undefined" ? GM_notification : void 0)();
+  var _GM_openInTab = /* @__PURE__ */ (() => typeof GM_openInTab != "undefined" ? GM_openInTab : void 0)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = /* @__PURE__ */ (() => typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_saveTab = /* @__PURE__ */ (() => typeof GM_saveTab != "undefined" ? GM_saveTab : void 0)();
+  var _GM_setClipboard = /* @__PURE__ */ (() => typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_setValues = /* @__PURE__ */ (() => typeof GM_setValues != "undefined" ? GM_setValues : void 0)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_webRequest = /* @__PURE__ */ (() => typeof GM_webRequest != "undefined" ? GM_webRequest : void 0)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   function CompatibleProcessing() {
     try {
@@ -446,7 +446,7 @@
        * 主元素
        */
       __publicField(this, "$Qmsg");
-      this.timeId = undefined;
+      this.timeId = void 0;
       this.startTime = Date.now();
       this.endTime = null;
       this.setting = QmsgUtils.toDynamicObject(QmsgConfig.DEFAULT, option, QmsgConfig.INS_DEFAULT);
@@ -556,7 +556,7 @@
       this.$Qmsg.classList.add(QmsgUtils.getNameSpacify("item"));
       this.$Qmsg.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.uuid);
       let $shadowContainer = document.querySelector(".qmsg-shadow-container");
-      let $shadowRoot = $shadowContainer == null ? undefined : $shadowContainer.shadowRoot;
+      let $shadowRoot = $shadowContainer == null ? void 0 : $shadowContainer.shadowRoot;
       if (!$shadowContainer) {
         $shadowContainer = document.createElement("div");
         $shadowContainer.className = "qmsg-shadow-container";
@@ -626,7 +626,7 @@
           this.startTime = null;
           this.endTime = null;
           QmsgUtils.clearTimeout(this.timeId);
-          this.timeId = undefined;
+          this.timeId = void 0;
         };
         let leaveEvent = (event) => {
           if (this.timeId != null) {
@@ -767,13 +767,13 @@
       return nextNumber;
     };
   };
-  const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER === undefined ? 9007199254740991 : Number.MAX_SAFE_INTEGER;
+  const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER === void 0 ? 9007199254740991 : Number.MAX_SAFE_INTEGER;
   const TWO_TO_THE_POWER_OF_TWENTY_NINE = 536870912;
   const TWO_TO_THE_POWER_OF_THIRTY = TWO_TO_THE_POWER_OF_TWENTY_NINE * 2;
   const createGenerateUniqueNumber = (cache2, lastNumberWeakMap) => {
     return (collection) => {
       const lastNumber = lastNumberWeakMap.get(collection);
-      let nextNumber = lastNumber === undefined ? collection.size : lastNumber < TWO_TO_THE_POWER_OF_THIRTY ? lastNumber + 1 : 0;
+      let nextNumber = lastNumber === void 0 ? collection.size : lastNumber < TWO_TO_THE_POWER_OF_THIRTY ? lastNumber + 1 : 0;
       if (!collection.has(nextNumber)) {
         return cache2(collection, nextNumber);
       }
@@ -812,7 +812,7 @@
     disconnect: ({ call }) => {
       return async (port) => {
         const portId = PORT_MAP.get(port);
-        if (portId === undefined) {
+        if (portId === void 0) {
           throw new Error("The given port is not connected.");
         }
         await call("disconnect", { portId });
@@ -840,7 +840,7 @@
         if (id !== null && ongoingRequests.has(id)) {
           const { reject, resolve } = ongoingRequests.get(id);
           ongoingRequests.delete(id);
-          if (message.error === undefined) {
+          if (message.error === void 0) {
             resolve(message.result);
           } else {
             reject(new Error(message.error.message));
@@ -906,7 +906,7 @@
           timerType: "interval"
         }).then(() => {
           const state = scheduledIntervalsState.get(timerId);
-          if (state === undefined) {
+          if (state === void 0) {
             throw new Error("The timer is in an undefined state.");
           }
           if (state === symbol) {
@@ -932,7 +932,7 @@
           timerType: "timeout"
         }).then(() => {
           const state = scheduledTimeoutsState.get(timerId);
-          if (state === undefined) {
+          if (state === void 0) {
             throw new Error("The timer is in an undefined state.");
           }
           if (state === symbol) {
@@ -1030,7 +1030,7 @@
       let findQmsgItemInfo = QmsgInstanceStorage.QmsgList.find((item) => {
         return item.config === optionString;
       });
-      let QmsgInstance = findQmsgItemInfo == null ? undefined : findQmsgItemInfo.instance;
+      let QmsgInstance = findQmsgItemInfo == null ? void 0 : findQmsgItemInfo.instance;
       if (QmsgInstance == null) {
         let uuid = QmsgUtils.getUUID();
         let QmsgItemInfo = {
@@ -1061,7 +1061,7 @@
         QmsgInstance.setMsgCount();
       }
       if (QmsgInstance) {
-        QmsgInstance.$Qmsg.setAttribute("data-count", QmsgInstance == null ? undefined : QmsgInstance.getRepeatNum().toString());
+        QmsgInstance.$Qmsg.setAttribute("data-count", QmsgInstance == null ? void 0 : QmsgInstance.getRepeatNum().toString());
       } else {
         throw new TypeError("QmsgInstance is null");
       }
@@ -1416,7 +1416,7 @@
       if (typeof unsafeWindow !== "undefined" && target === unsafeWindow) {
         return true;
       }
-      if (((_a2 = target == null ? undefined : target.Math) == null ? undefined : _a2.toString()) !== "[object Math]") {
+      if (((_a2 = target == null ? void 0 : target.Math) == null ? void 0 : _a2.toString()) !== "[object Math]") {
         return false;
       }
       return true;
@@ -1516,13 +1516,14 @@
         function domUtilsEventCallBack(event) {
           if (selectorList.length) {
             let eventTarget = listenerOption.isComposedPath ? event.composedPath()[0] : event.target;
-            let totalParent = DOMUtilsCommonUtils.isWin(elementItem) ? DOMUtilsContext.windowApi.document.documentElement : elementItem;
+            let totalParent = DOMUtilsCommonUtils.isWin(elementItem) || // @ts-ignore
+            elementItem === DOMUtilsContext.windowApi.document ? DOMUtilsContext.windowApi.document.documentElement : elementItem;
             let findValue = selectorList.find((selectorItem) => {
-              if (eventTarget.matches(selectorItem)) {
+              if (eventTarget == null ? void 0 : eventTarget.matches(selectorItem)) {
                 return true;
               }
-              let $closestMatches = eventTarget.closest(selectorItem);
-              if ($closestMatches && totalParent.contains($closestMatches)) {
+              let $closestMatches = eventTarget == null ? void 0 : eventTarget.closest(selectorItem);
+              if ($closestMatches && (totalParent == null ? void 0 : totalParent.contains($closestMatches))) {
                 eventTarget = $closestMatches;
                 return true;
               }
@@ -2140,7 +2141,7 @@
         selector = selector.replace(/:empty$/gi, "");
         return Array.from(context2.windowApi.document.querySelectorAll(selector)).filter(($ele) => {
           var _a2;
-          return ((_a2 = $ele == null ? undefined : $ele.innerHTML) == null ? undefined : _a2.trim()) === "";
+          return ((_a2 = $ele == null ? void 0 : $ele.innerHTML) == null ? void 0 : _a2.trim()) === "";
         });
       } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
         let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
@@ -2148,7 +2149,7 @@
         selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
         return Array.from(context2.windowApi.document.querySelectorAll(selector)).filter(($ele) => {
           var _a2;
-          return (_a2 = ($ele == null ? undefined : $ele.textContent) || ($ele == null ? undefined : $ele.innerText)) == null ? undefined : _a2.includes(text);
+          return (_a2 = ($ele == null ? void 0 : $ele.textContent) || ($ele == null ? void 0 : $ele.innerText)) == null ? void 0 : _a2.includes(text);
         });
       } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
         let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
@@ -2163,7 +2164,7 @@
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
         return Array.from(context2.windowApi.document.querySelectorAll(selector)).filter(($ele) => {
           var _a2;
-          return Boolean((_a2 = ($ele == null ? undefined : $ele.textContent) || ($ele == null ? undefined : $ele.innerText)) == null ? undefined : _a2.match(regexp));
+          return Boolean((_a2 = ($ele == null ? void 0 : $ele.textContent) || ($ele == null ? void 0 : $ele.innerText)) == null ? void 0 : _a2.match(regexp));
         });
       } else {
         return Array.from(context2.windowApi.document.querySelectorAll(selector));
@@ -2177,7 +2178,7 @@
     constructor(option) {
       super(option);
       /** 版本号 */
-      __publicField(this, "version", "2025.4.8");
+      __publicField(this, "version", "2025.4.23");
     }
     attr(element, attrName, attrValue) {
       let DOMUtilsContext = this;
@@ -2397,7 +2398,7 @@
       }
       let elementTransform = DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).transform;
       if (elementTransform != null && elementTransform !== "none" && elementTransform !== "") {
-        let elementTransformSplit = (_a2 = elementTransform.match(/\((.+)\)/)) == null ? undefined : _a2[1].split(",");
+        let elementTransformSplit = (_a2 = elementTransform.match(/\((.+)\)/)) == null ? void 0 : _a2[1].split(",");
         if (elementTransformSplit) {
           transform_left = Math.abs(parseInt(elementTransformSplit[4]));
           transform_top = Math.abs(parseInt(elementTransformSplit[5]));
@@ -2637,7 +2638,7 @@
         }
         return flag;
       }
-      if (!(element == null ? undefined : element.classList)) {
+      if (!(element == null ? void 0 : element.classList)) {
         return false;
       }
       if (!Array.isArray(className)) {
@@ -3022,10 +3023,10 @@
       if (typeof duration !== "number" || duration <= 0) {
         throw new TypeError("duration must be a positive number");
       }
-      if (typeof callback2 !== "function" && callback2 !== undefined) {
+      if (typeof callback2 !== "function" && callback2 !== void 0) {
         throw new TypeError("callback must be a function or null");
       }
-      if (typeof styles !== "object" || styles === undefined) {
+      if (typeof styles !== "object" || styles === void 0) {
         throw new TypeError("styles must be an object");
       }
       if (Object.keys(styles).length === 0) {
@@ -3507,7 +3508,7 @@
       fakeClone.style.height = height + "px";
       DOMUtilsContext.windowApi.document.body.appendChild(fakeClone);
       var returnValue = fakeRange.getBoundingClientRect();
-      (_a2 = fakeClone == null ? undefined : fakeClone.parentNode) == null ? undefined : _a2.removeChild(fakeClone);
+      (_a2 = fakeClone == null ? void 0 : fakeClone.parentNode) == null ? void 0 : _a2.removeChild(fakeClone);
       return returnValue;
       function appendPart(start, end) {
         var span = DOMUtilsContext.windowApi.document.createElement("span");
@@ -3683,7 +3684,7 @@
           const codePoint = val.codePointAt(i2);
           const code = String.fromCodePoint(codePoint);
           let key = codePoint.toString(16);
-          key.length != 4 && (key = (_a2 = ("000" + key).match(/....$/)) == null ? undefined : _a2[0]);
+          key.length != 4 && (key = (_a2 = ("000" + key).match(/....$/)) == null ? void 0 : _a2[0]);
           i2 += code.length - 1;
           if (that.isAscii(codePoint)) {
             result2 += encodeURIComponent(code);
@@ -3751,7 +3752,7 @@
         throw new TypeError("Utils.GMCookie.get 参数cookieName 必须为字符串");
       }
       let cookies = this.getCookiesList();
-      let findValue = undefined;
+      let findValue = void 0;
       for (const cookieItem of cookies) {
         let item = cookieItem.trim();
         let itemSplit = item.split("=");
@@ -5149,7 +5150,7 @@
          */
         getMenuOption(menuKey) {
           var _a2;
-          return (_a2 = this.$data.data.find((item) => item.data.key === menuKey)) == null ? undefined : _a2.data;
+          return (_a2 = this.$data.data.find((item) => item.data.key === menuKey)) == null ? void 0 : _a2.data;
         },
         /**
          * 获取目标菜单处理后的配置
@@ -5157,7 +5158,7 @@
          */
         getMenuHandledOption(menuKey) {
           var _a2;
-          return (_a2 = this.$data.data.find((item) => item.handleData.key === menuKey)) == null ? undefined : _a2.handleData;
+          return (_a2 = this.$data.data.find((item) => item.handleData.key === menuKey)) == null ? void 0 : _a2.handleData;
         }
       });
       this.GM_Api.getValue = details.GM_getValue;
@@ -5170,7 +5171,7 @@
           throw new Error(`Utils.GM_Menu 请在脚本开头加上 @grant  ${keyName}，且传入该对象`);
         }
       }
-      this.add((details == null ? undefined : details.data) || []);
+      this.add((details == null ? void 0 : details.data) || []);
     }
     /**
      * 新增菜单数据
@@ -5182,13 +5183,13 @@
           const option = menuOption[index];
           this.MenuHandle.$data.data.push({
             data: option,
-            id: undefined
+            id: void 0
           });
         }
       } else {
         this.MenuHandle.$data.data.push({
           data: menuOption,
-          id: undefined
+          id: void 0
         });
       }
     }
@@ -5292,7 +5293,7 @@
      */
     getAccessKey(menuKey) {
       var _a2;
-      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? undefined : _a2.accessKey;
+      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? void 0 : _a2.accessKey;
     }
     /**
      * 根据键值获取autoClose值
@@ -5300,7 +5301,7 @@
      */
     getAutoClose(menuKey) {
       var _a2;
-      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? undefined : _a2.autoClose;
+      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? void 0 : _a2.autoClose;
     }
     /**
      * 根据键值获取autoReload值
@@ -5308,7 +5309,7 @@
      */
     getAutoReload(menuKey) {
       var _a2;
-      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? undefined : _a2.autoReload;
+      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? void 0 : _a2.autoReload;
     }
     /**
      * 根据键值获取callback函数
@@ -5316,7 +5317,7 @@
      */
     getCallBack(menuKey) {
       var _a2;
-      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? undefined : _a2.callback;
+      return (_a2 = this.MenuHandle.getMenuHandledOption(menuKey)) == null ? void 0 : _a2.callback;
     }
     /**
      * 获取当enable为true时默认显示在菜单中前面的emoji图标
@@ -5446,7 +5447,7 @@
   }
   const GenerateUUID = function() {
     var _a2;
-    if (typeof ((_a2 = window == null ? undefined : window.crypto) == null ? undefined : _a2.randomUUID) === "function") {
+    if (typeof ((_a2 = window == null ? void 0 : window.crypto) == null ? void 0 : _a2.randomUUID) === "function") {
       return window.crypto.randomUUID();
     } else {
       return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(charStr) {
@@ -5733,10 +5734,10 @@
             if (typeof userRequestOption.headers === "object") {
               Object.keys(userRequestOption.headers).forEach((keyName, index) => {
                 var _a2, _b;
-                if (keyName in requestOption.headers && ((_a2 = userRequestOption.headers) == null ? undefined : _a2[keyName]) == null) {
+                if (keyName in requestOption.headers && ((_a2 = userRequestOption.headers) == null ? void 0 : _a2[keyName]) == null) {
                   Reflect.deleteProperty(requestOption.headers, keyName);
                 } else {
-                  requestOption.headers[keyName] = (_b = userRequestOption == null ? undefined : userRequestOption.headers) == null ? undefined : _b[keyName];
+                  requestOption.headers[keyName] = (_b = userRequestOption == null ? void 0 : userRequestOption.headers) == null ? void 0 : _b[keyName];
                 }
               });
             }
@@ -6162,13 +6163,13 @@
               status: fetchResponse.status,
               statusText: fetchResponse.statusText,
               // @ts-ignore
-              response: undefined,
+              response: void 0,
               responseFetchHeaders: fetchResponse.headers,
               responseHeaders: "",
               // @ts-ignore
-              responseText: undefined,
+              responseText: void 0,
               responseType: option.responseType,
-              responseXML: undefined
+              responseXML: void 0
             };
             Object.assign(httpxResponse, option.context || {});
             for (const [key, value] of fetchResponse.headers.entries()) {
@@ -6190,7 +6191,7 @@
             let arrayBuffer = await fetchResponse.arrayBuffer();
             let encoding = "utf-8";
             if (fetchResponse.headers.has("Content-Type")) {
-              let charsetMatched = (_a2 = fetchResponse.headers.get("Content-Type")) == null ? undefined : _a2.match(/charset=(.+)/);
+              let charsetMatched = (_a2 = fetchResponse.headers.get("Content-Type")) == null ? void 0 : _a2.match(/charset=(.+)/);
               if (charsetMatched) {
                 encoding = charsetMatched[1];
                 encoding = encoding.toLowerCase();
@@ -6251,30 +6252,30 @@
        * 默认配置
        */
       __privateAdd(this, _defaultDetails, {
-        url: undefined,
+        url: void 0,
         timeout: 5e3,
         async: false,
-        responseType: undefined,
-        headers: undefined,
-        data: undefined,
-        redirect: undefined,
-        cookie: undefined,
-        cookiePartition: undefined,
-        binary: undefined,
-        nocache: undefined,
-        revalidate: undefined,
-        context: undefined,
-        overrideMimeType: undefined,
-        anonymous: undefined,
-        fetch: undefined,
-        fetchInit: undefined,
+        responseType: void 0,
+        headers: void 0,
+        data: void 0,
+        redirect: void 0,
+        cookie: void 0,
+        cookiePartition: void 0,
+        binary: void 0,
+        nocache: void 0,
+        revalidate: void 0,
+        context: void 0,
+        overrideMimeType: void 0,
+        anonymous: void 0,
+        fetch: void 0,
+        fetchInit: void 0,
         allowInterceptConfig: {
           beforeRequest: true,
           afterResponseSuccess: true,
           afterResponseError: true
         },
-        user: undefined,
-        password: undefined,
+        user: void 0,
+        password: void 0,
         onabort() {
         },
         onerror() {
@@ -6662,14 +6663,14 @@
               success: false,
               code: __privateGet(that, _statusCode).getFailed.code,
               msg: __privateGet(that, _statusCode).getFailed.msg,
-              data: undefined
+              data: void 0
             });
           } else {
             let request = idbStore.get(key);
             request.onsuccess = function(event) {
               let target = event.target;
               let result2 = target.result;
-              let data = result2 ? result2.value : undefined;
+              let data = result2 ? result2.value : void 0;
               if (data == null) {
                 resolve({
                   success: true,
@@ -6695,7 +6696,7 @@
                 success: false,
                 code: __privateGet(that, _statusCode).getFailed.code,
                 msg: __privateGet(that, _statusCode).getFailed.msg,
-                data: undefined,
+                data: void 0,
                 event
               });
             };
@@ -6918,7 +6919,7 @@
       var _a2;
       if (typeof __GM_info === "string") {
         this.tag = __GM_info;
-      } else if (typeof __GM_info === "object" && typeof ((_a2 = __GM_info == null ? undefined : __GM_info.script) == null ? undefined : _a2.name) === "string") {
+      } else if (typeof __GM_info === "object" && typeof ((_a2 = __GM_info == null ? void 0 : __GM_info.script) == null ? void 0 : _a2.name) === "string") {
         this.tag = __GM_info.script.name;
       }
       __privateSet(this, _console, console2);
@@ -7238,11 +7239,11 @@
         callbackFunction = callback2;
         context = __context__ || this;
         let result2 = executeTryCatch(callbackFunction, handleError, context);
-        return result2 !== undefined ? result2 : TryCatchCore;
+        return result2 !== void 0 ? result2 : TryCatchCore;
       }
     };
     function executeTryCatch(callback, handleErrorFunc, funcThis) {
-      let result = undefined;
+      let result = void 0;
       try {
         if (typeof callback === "string") {
           (function() {
@@ -7254,7 +7255,7 @@
       } catch (error) {
         if (defaultDetails.log) {
           callback = callback;
-          console.log(`%c ${(callback == null ? undefined : callback.name) ? callback == null ? undefined : callback.name : callback + "出现错误"} `, "color: #f20000");
+          console.log(`%c ${(callback == null ? void 0 : callback.name) ? callback == null ? void 0 : callback.name : callback + "出现错误"} `, "color: #f20000");
           console.log(`%c 错误原因：${error}`, "color: #f20000");
           console.trace(callback);
         }
@@ -7305,7 +7306,7 @@
      */
     getStartsWith(key) {
       let allKeys = this.keys();
-      let result2 = undefined;
+      let result2 = void 0;
       for (const keyName of allKeys) {
         if (String(keyName).startsWith(String(key))) {
           result2 = this.get(keyName);
@@ -7320,7 +7321,7 @@
      * @param val 值，默认为""
      */
     set(key, val) {
-      if (key === undefined) {
+      if (key === void 0) {
         throw new Error("Utils.Dictionary().set 参数 key 不能为空");
       }
       Reflect.set(this.items, key, val);
@@ -7517,7 +7518,7 @@
         return this.fn();
       } finally {
         if (typeof cb === "function") {
-          cb(undefined);
+          cb(void 0);
         }
       }
     }
@@ -7883,7 +7884,7 @@ ${err.stack}`);
      * @internal
      */
     detectEntrypoint() {
-      if (this.target[this.entrypoint] != undefined) {
+      if (this.target[this.entrypoint] != void 0) {
         return;
       }
       if (this.strict) {
@@ -7960,7 +7961,7 @@ ${windowObjects.join(", ")}`);
       }
       modules.forEach((key) => {
         const module = this.modules[key.toString()];
-        if (module === undefined)
+        if (module === void 0)
           return;
         try {
           if (typeof query === "string") {
@@ -8512,9 +8513,9 @@ ${err.stack}`);
       }
       let clickEvent = UtilsContext.windowApi.window.event;
       let touchEvent = UtilsContext.windowApi.window.event;
-      let $click = (_a2 = clickEvent == null ? undefined : clickEvent.composedPath()) == null ? undefined : _a2[0];
-      let clickPosX = (clickEvent == null ? undefined : clickEvent.clientX) != null ? clickEvent.clientX : touchEvent.touches[0].clientX;
-      let clickPosY = (clickEvent == null ? undefined : clickEvent.clientY) != null ? clickEvent.clientY : touchEvent.touches[0].clientY;
+      let $click = (_a2 = clickEvent == null ? void 0 : clickEvent.composedPath()) == null ? void 0 : _a2[0];
+      let clickPosX = (clickEvent == null ? void 0 : clickEvent.clientX) != null ? clickEvent.clientX : touchEvent.touches[0].clientX;
+      let clickPosY = (clickEvent == null ? void 0 : clickEvent.clientY) != null ? clickEvent.clientY : touchEvent.touches[0].clientY;
       let {
         /* 要检测的元素的相对屏幕的横坐标最左边 */
         left: elementPosXLeft,
@@ -8570,8 +8571,8 @@ ${err.stack}`);
     }
     deepClone(obj) {
       let UtilsContext = this;
-      if (obj === undefined)
-        return undefined;
+      if (obj === void 0)
+        return void 0;
       if (obj === null)
         return null;
       let clone = obj instanceof Array ? [] : {};
@@ -9441,7 +9442,7 @@ ${err.stack}`);
       let checkList = [...args2];
       for (const objItem of checkList) {
         let itemResult = false;
-        if (objItem === null || objItem === undefined) {
+        if (objItem === null || objItem === void 0) {
           itemResult = true;
         } else {
           switch (typeof objItem) {
@@ -9599,36 +9600,36 @@ ${err.stack}`);
            * + true 监听以 target 为根节点的整个子树。包括子树中所有节点的属性，而不仅仅是针对 target
            * + false (默认) 不生效
            */
-          subtree: undefined,
+          subtree: void 0,
           /**
            * + true 监听 target 节点中发生的节点的新增与删除（同时，如果 subtree 为 true，会针对整个子树生效）
            * + false (默认) 不生效
            */
-          childList: undefined,
+          childList: void 0,
           /**
            * + true 观察所有监听的节点属性值的变化。默认值为 true，当声明了 attributeFilter 或 attributeOldValue
            * + false (默认) 不生效
            */
-          attributes: undefined,
+          attributes: void 0,
           /**
            * 一个用于声明哪些属性名会被监听的数组。如果不声明该属性，所有属性的变化都将触发通知
            */
-          attributeFilter: undefined,
+          attributeFilter: void 0,
           /**
            * + true 记录上一次被监听的节点的属性变化；可查阅 MutationObserver 中的 Monitoring attribute values 了解关于观察属性变化和属性值记录的详情
            * + false (默认) 不生效
            */
-          attributeOldValue: undefined,
+          attributeOldValue: void 0,
           /**
            * + true 监听声明的 target 节点上所有字符的变化。默认值为 true，如果声明了 characterDataOldValue
            * + false (默认) 不生效
            */
-          characterData: undefined,
+          characterData: void 0,
           /**
            * + true 记录前一个被监听的节点中发生的文本变化
            * + false (默认) 不生效
            */
-          characterDataOldValue: undefined
+          characterDataOldValue: void 0
         },
         immediate: false
       };
@@ -9862,9 +9863,9 @@ ${err.stack}`);
     }
     preventEvent(element, eventNameList = [], capture) {
       function stopEvent(event) {
-        event == null ? undefined : event.preventDefault();
-        event == null ? undefined : event.stopPropagation();
-        event == null ? undefined : event.stopImmediatePropagation();
+        event == null ? void 0 : event.preventDefault();
+        event == null ? void 0 : event.stopPropagation();
+        event == null ? void 0 : event.stopImmediatePropagation();
         return false;
       }
       if (arguments.length === 1) {
@@ -10011,15 +10012,15 @@ ${err.stack}`);
           return __privateGet(this, _copyDataType).includes("text");
         }
         hasClipboard() {
-          return (navigator == null ? undefined : navigator.clipboard) != null;
+          return (navigator == null ? void 0 : navigator.clipboard) != null;
         }
         hasClipboardWrite() {
           var _a2;
-          return ((_a2 = navigator == null ? undefined : navigator.clipboard) == null ? undefined : _a2.write) != null;
+          return ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.write) != null;
         }
         hasClipboardWriteText() {
           var _a2;
-          return ((_a2 = navigator == null ? undefined : navigator.clipboard) == null ? undefined : _a2.writeText) != null;
+          return ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.writeText) != null;
         }
         /**
          * 使用textarea和document.execCommand("copy")来复制文字
@@ -10126,7 +10127,7 @@ ${err.stack}`);
       }
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve(undefined);
+          resolve(void 0);
         }, delayTime);
       });
     }
@@ -10404,7 +10405,7 @@ ${err.stack}`);
           callback(mutations, __observer__) {
             let result2 = checkFn();
             if (result2.success) {
-              if (typeof (__observer__ == null ? undefined : __observer__.disconnect) === "function") {
+              if (typeof (__observer__ == null ? void 0 : __observer__.disconnect) === "function") {
                 __observer__.disconnect();
               }
               resolve(result2.data);
@@ -10413,7 +10414,7 @@ ${err.stack}`);
         });
         if (__timeout__ > 0) {
           setTimeout(() => {
-            if (typeof (observer == null ? undefined : observer.disconnect) === "function") {
+            if (typeof (observer == null ? void 0 : observer.disconnect) === "function") {
               observer.disconnect();
             }
             resolve(null);
@@ -10422,7 +10423,7 @@ ${err.stack}`);
       });
     }
     waitNode(...args2) {
-      args2 = args2.filter((arg) => arg !== undefined);
+      args2 = args2.filter((arg) => arg !== void 0);
       let UtilsContext = this;
       let selector = args2[0];
       let parent = UtilsContext.windowApi.document;
@@ -10490,7 +10491,7 @@ ${err.stack}`);
       }, timeout, parent);
     }
     waitAnyNode(...args2) {
-      args2 = args2.filter((arg) => arg !== undefined);
+      args2 = args2.filter((arg) => arg !== void 0);
       let UtilsContext = this;
       let selectorList = args2[0];
       let parent = UtilsContext.windowApi.document;
@@ -10530,7 +10531,7 @@ ${err.stack}`);
       return Promise.any(promiseList);
     }
     waitNodeList(...args2) {
-      args2 = args2.filter((arg) => arg !== undefined);
+      args2 = args2.filter((arg) => arg !== void 0);
       let UtilsContext = this;
       let selector = args2[0];
       let parent = UtilsContext.windowApi.document;
@@ -10599,7 +10600,7 @@ ${err.stack}`);
       }, timeout, parent);
     }
     waitAnyNodeList(...args2) {
-      args2 = args2.filter((arg) => arg !== undefined);
+      args2 = args2.filter((arg) => arg !== void 0);
       let UtilsContext = this;
       let selectorList = args2[0];
       let parent = UtilsContext.windowApi.document;
@@ -10847,12 +10848,6 @@ ${err.stack}`);
   }
   let utils$1 = new Utils();
   const SymbolEvents = Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).substring(1));
-  const PopsCoreDefaultEnv = {
-    document,
-    window,
-    globalThis,
-    self
-  };
   const PopsCoreEnv = {
     document,
     window,
@@ -10860,12 +10855,6 @@ ${err.stack}`);
     self
   };
   const PopsCore = {
-    init(option) {
-      if (!option) {
-        option = Object.assign({}, PopsCoreDefaultEnv);
-      }
-      Object.assign(PopsCoreEnv, option);
-    },
     get document() {
       return PopsCoreEnv.document;
     },
@@ -10901,18 +10890,18 @@ ${err.stack}`);
       return this;
     }
     emit(t3, i2, s2) {
-      undefined !== this.__interceptor ? this.__interceptor(t3, () => {
+      void 0 !== this.__interceptor ? this.__interceptor(t3, () => {
         this.__emit(t3, i2), s2 && s2();
       }) : (this.__emit(t3, i2), s2 && s2());
     }
     __emit(t3, i2) {
       const s2 = this.__map[t3];
-      if (Array.isArray(s2) && (null == s2 ? undefined : s2.length)) for (const _ of s2) _(i2, t3);
+      if (Array.isArray(s2) && (null == s2 ? void 0 : s2.length)) for (const _ of s2) _(i2, t3);
       this.event = i2;
     }
     off(t3, i2) {
       const s2 = this.__map[t3];
-      if (undefined !== s2) if (undefined === i2) delete this.__map[t3];
+      if (void 0 !== s2) if (void 0 === i2) delete this.__map[t3];
       else {
         const t4 = s2.findIndex((t5) => t5 === i2);
         s2.splice(t4, 1);
@@ -10928,7 +10917,7 @@ ${err.stack}`);
   }
   function b(n2, e2, t3) {
     const c2 = { 1: { 0: { move: 4 }, 4: { move: 5, end: 1, cancel: 3 }, 5: { move: 5, end: 1, cancel: 3 } }, 0: { 4: { move: 2, end: 1, cancel: 3 }, 5: { start: 2, move: 2, end: 1, cancel: 3 } } }[Number(n2)][e2];
-    return undefined !== c2 && c2[t3] || 0;
+    return void 0 !== c2 && c2[t3] || 0;
   }
   function g$1(n2) {
     [1, 3, 2].includes(n2.state) && (n2.state = 0);
@@ -10948,7 +10937,7 @@ ${err.stack}`);
   function r$3() {
     let t3, o2, i2, r2, a2 = 0;
     return function(u2) {
-      if (t3 = o2, undefined !== u2) {
+      if (t3 = o2, void 0 !== u2) {
         a2 = Number.MAX_SAFE_INTEGER > a2 ? ++a2 : 1;
         const h2 = function(t4, o3) {
           const { phase: i3, points: r3, changedPoints: a3, nativeEvent: u3 } = t4, h3 = r3.length, p3 = c$3 === i3, g3 = u$3 === i3 && 0 === h3 || s$1 === i3, l3 = Date.now(), { x: d2, y: m2 } = c$2(r3) || c$2(a3), { currentTarget: v2 } = u3;
@@ -10959,7 +10948,7 @@ ${err.stack}`);
         }(u2, a2);
         o2 = h2;
         const { isStart: p2, pointLength: g2 } = h2;
-        return p2 && (i2 = h2, t3 = undefined, r2 = 1 < g2 ? h2 : undefined), Object.assign(Object.assign({}, h2), { prevInput: t3, startMultiInput: r2, startInput: i2 });
+        return p2 && (i2 = h2, t3 = void 0, r2 = 1 < g2 ? h2 : void 0), Object.assign(Object.assign({}, h2), { prevInput: t3, startMultiInput: r2, startInput: i2 });
       }
     };
   }
@@ -10978,7 +10967,7 @@ ${err.stack}`);
     const o2 = {};
     for (const t4 in n2) ["target", "currentTarget", "type"].includes(t4) || (o2[t4] = n2[t4]);
     let i2;
-    return document.createEvent ? (i2 = document.createEvent("HTMLEvents"), i2.initEvent(t3, null == s2 ? undefined : s2.bubbles, null == s2 ? undefined : s2.cancelable)) : i2 = new Event(t3, s2), Object.assign(i2, o2, { match: () => n2.targets && 0 < n2.targets.length && n2.targets.every((t4) => i2.currentTarget.contains(t4)) }), e2.dispatchEvent(i2);
+    return document.createEvent ? (i2 = document.createEvent("HTMLEvents"), i2.initEvent(t3, null == s2 ? void 0 : s2.bubbles, null == s2 ? void 0 : s2.cancelable)) : i2 = new Event(t3, s2), Object.assign(i2, o2, { match: () => n2.targets && 0 < n2.targets.length && n2.targets.every((t4) => i2.currentTarget.contains(t4)) }), e2.dispatchEvent(i2);
   }
   function u$2(t3, e2) {
     const { preventDefault: n2 } = e2;
@@ -11001,7 +10990,7 @@ ${err.stack}`);
         return function(n3) {
           const s3 = [], o2 = [];
           Array.from(n3.touches).forEach(({ clientX: e4, clientY: n4, target: i3 }) => {
-            (null == t4 ? undefined : t4.contains(i3)) && (s3.push(i3), o2.push({ clientX: e4, clientY: n4, target: i3 }));
+            (null == t4 ? void 0 : t4.contains(i3)) && (s3.push(i3), o2.push({ clientX: e4, clientY: n4, target: i3 }));
           });
           const i2 = Array.from(n3.changedTouches).map(({ clientX: t5, clientY: e4, target: n4 }) => ({ clientX: t5, clientY: e4, target: n4 }));
           return e3({ phase: n3.type.replace("touch", ""), changedPoints: i2, points: o2, nativeEvent: n3, target: n3.target, targets: s3 });
@@ -11018,13 +11007,13 @@ ${err.stack}`);
             "mousemove" === c2 ? h2 = "move" : "mouseup" === c2 && (p2 = [], h2 = "end", e3 = false);
           }
           const g2 = t4 || [{ clientX: i2, clientY: r2, target: u2 }];
-          if (t4 = [{ clientX: i2, clientY: r2, target: u2 }], undefined !== h2) return s3({ phase: h2, changedPoints: g2, points: p2, target: n3, targets: [n3], nativeEvent: o2 });
+          if (t4 = [{ clientX: i2, clientY: r2, target: u2 }], void 0 !== h2) return s3({ phase: h2, changedPoints: g2, points: p2, target: n3, targets: [n3], nativeEvent: o2 });
         };
       }();
       if (this.__inputCreatorMap = { touchstart: n2, touchmove: n2, touchend: n2, touchcancel: n2, mousedown: s2, mousemove: s2, mouseup: s2 }, this.on("at:after", (t4) => {
         const { target: e3, __type: n3 } = t4, { domEvents: s3 } = this.__options;
-        s3 && undefined !== this.el && e3 && (a$1(n3, e3, t4, s3), a$1("at:after", e3, t4, s3));
-      }), undefined !== t3) {
+        s3 && void 0 !== this.el && e3 && (a$1(n3, e3, t4, s3), a$1("at:after", e3, t4, s3));
+      }), void 0 !== t3) {
         t3.style.webkitTapHighlightColor = "rgba(0,0,0,0)";
         let e3 = false;
         try {
@@ -11055,7 +11044,7 @@ ${err.stack}`);
     }
     catchEvent(t3) {
       const e2 = this.__inputCreatorMap[t3.type](t3);
-      if (undefined !== e2) {
+      if (void 0 !== e2) {
         const n2 = () => t3.stopPropagation(), s2 = () => t3.stopImmediatePropagation(), o2 = () => t3.preventDefault();
         if (u$2(t3, this.__options)) o2();
         else if ("touchstart" === t3.type ? this.__isIgnoreMouse = true : "touchmove" === t3.type && (this.__isIgnoreMouse = false), this.__isIgnoreMouse && t3.type.startsWith("mouse")) return void ("mouseup" === t3.type && (this.__isIgnoreMouse = false));
@@ -11063,7 +11052,7 @@ ${err.stack}`);
         const i2 = {};
         this.__computeFunctionList.forEach((t4) => {
           const n3 = t4(e2, i2);
-          if (undefined !== n3) for (const t5 in n3) i2[t5] = n3[t5];
+          if (void 0 !== n3) for (const t5 in n3) i2[t5] = n3[t5];
         }), this.emit("computed", Object.assign(Object.assign(Object.assign({}, e2), i2), { stopPropagation: n2, stopImmediatePropagation: s2, preventDefault: o2 }));
       }
     }
@@ -11074,7 +11063,7 @@ ${err.stack}`);
     beforeEach(t3) {
       super.beforeEach((e2, n2) => {
         var s2;
-        (null === (s2 = this.c) || undefined === s2 ? undefined : s2.name) ? t3(e2, n2) : n2();
+        (null === (s2 = this.c) || void 0 === s2 ? void 0 : s2.name) ? t3(e2, n2) : n2();
       });
     }
     get(t3) {
@@ -11114,7 +11103,7 @@ ${err.stack}`);
     return function(t3) {
       const { prevInput: e2 } = t3;
       let o$12 = 0, r2 = 0, i2 = 0;
-      if (undefined !== e2 && (o$12 = t3.x - e2.x, r2 = t3.y - e2.y, 0 !== o$12 || 0 !== r2)) {
+      if (void 0 !== e2 && (o$12 = t3.x - e2.x, r2 = t3.y - e2.y, 0 !== o$12 || 0 !== r2)) {
         const t4 = Math.sqrt(Math.pow(o$12, 2) + Math.pow(r2, 2));
         i2 = Math.round(o(Math.acos(Math.abs(o$12) / t4)));
       }
@@ -11139,7 +11128,7 @@ ${err.stack}`);
   function f() {
     let t$12, n2, e2 = 0, r2 = 0, i2 = 0, a2 = 0;
     return function(c2) {
-      if (undefined !== c2) {
+      if (void 0 !== c2) {
         n2 = n2 || c2.startInput;
         const u2 = c2.timestamp - n2.timestamp;
         if (t < u2) {
@@ -11164,7 +11153,7 @@ ${err.stack}`);
     let t3, n2, e2;
     return function(o2) {
       const { prevInput: r2, startMultiInput: i2 } = o2;
-      return undefined !== i2 && undefined !== r2 && o2.id !== i2.id && 1 < r2.pointLength && 1 < o2.pointLength ? (t3 = v(i2), n2 = v(r2), e2 = v(o2)) : e2 = undefined, { startVecotr: t3, prevVecotr: n2, activeVecotr: e2 };
+      return void 0 !== i2 && void 0 !== r2 && o2.id !== i2.id && 1 < r2.pointLength && 1 < o2.pointLength ? (t3 = v(i2), n2 = v(r2), e2 = v(o2)) : e2 = void 0, { startVecotr: t3, prevVecotr: n2, activeVecotr: e2 };
     };
   }
   const m = { name: "tap", pointLength: 1, tapTimes: 1, waitNextTapTime: 300, maxDistance: 2, maxDistanceFromPrevTap: 9, maxPressTime: 250 };
@@ -11172,7 +11161,7 @@ ${err.stack}`);
     const c2 = O(m, s2);
     let p2, u2, x$1, T = 0;
     function f2() {
-      T = 0, p2 = undefined, u2 = undefined;
+      T = 0, p2 = void 0, u2 = void 0;
     }
     return r2.compute([h$1, M], (t3) => {
       if (j(c2)) return;
@@ -11181,14 +11170,14 @@ ${err.stack}`);
         const { startInput: e2, pointLength: n2, timestamp: a2 } = t3, i3 = a2 - e2.timestamp, { distance: o3, maxPointLength: m3 } = t3;
         return m3 === c2.pointLength && 0 === n2 && c2.maxDistance >= o3 && c2.maxPressTime > i3;
       }() ? (f2(), c2.state = 2) : (clearTimeout(x$1), function(t4, e2) {
-        if (undefined !== p2) {
+        if (void 0 !== p2) {
           const n2 = x({ x: t4.x - p2.x, y: t4.y - p2.y });
           return p2 = t4, e2.maxDistanceFromPrevTap >= n2;
         }
         return p2 = t4, true;
       }({ x: o2, y: m2 }, c2) && function(t4) {
         const e2 = performance.now();
-        if (undefined === u2) return u2 = e2, true;
+        if (void 0 === u2) return u2 = e2, true;
         {
           const n2 = e2 - u2;
           return u2 = e2, n2 < t4;
@@ -11339,7 +11328,7 @@ ${err.stack}`);
       if (typeof unsafeWindow !== "undefined" && target === unsafeWindow) {
         return true;
       }
-      if (((_a2 = target == null ? undefined : target.Math) == null ? undefined : _a2.toString()) !== "[object Math]") {
+      if (((_a2 = target == null ? void 0 : target.Math) == null ? void 0 : _a2.toString()) !== "[object Math]") {
         return false;
       }
       return true;
@@ -11406,7 +11395,7 @@ ${err.stack}`);
      */
     getRandomGUID() {
       var _a2, _b;
-      if (typeof ((_b = (_a2 = PopsCore.globalThis) == null ? undefined : _a2.crypto) == null ? undefined : _b.randomUUID) === "function") {
+      if (typeof ((_b = (_a2 = PopsCore.globalThis) == null ? void 0 : _a2.crypto) == null ? void 0 : _b.randomUUID) === "function") {
         return PopsCore.globalThis.crypto.randomUUID();
       } else {
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(charStr) {
@@ -11581,7 +11570,7 @@ ${err.stack}`);
         passive: false
       };
       if (typeof selector === "function") {
-        _selector_ = undefined;
+        _selector_ = void 0;
         _callback_ = selector;
         _option_ = getOption(args2, 3, _option_);
       } else {
@@ -11667,7 +11656,7 @@ ${err.stack}`);
         capture: false
       };
       if (typeof selector === "function") {
-        _selector_ = undefined;
+        _selector_ = void 0;
         _callback_ = selector;
         _option_ = getOption(args2, 3, _option_);
       } else {
@@ -12048,9 +12037,9 @@ ${err.stack}`);
     }
     preventEvent(element, eventNameList = [], capture) {
       function stopEvent(event) {
-        event == null ? undefined : event.preventDefault();
-        event == null ? undefined : event.stopPropagation();
-        event == null ? undefined : event.stopImmediatePropagation();
+        event == null ? void 0 : event.preventDefault();
+        event == null ? void 0 : event.stopPropagation();
+        event == null ? void 0 : event.stopImmediatePropagation();
         return false;
       }
       if (arguments.length === 1) {
@@ -12096,7 +12085,7 @@ ${err.stack}`);
     offset(element, calcScroll = true) {
       let rect = element.getBoundingClientRect();
       let win = element.ownerDocument.defaultView;
-      let resultRect = new DOMRect(calcScroll ? parseFloat((rect.left + ((win == null ? undefined : win.pageXOffset) || 0)).toString()) : rect.left, calcScroll ? parseFloat((rect.top + ((win == null ? undefined : win.pageYOffset) || 0)).toString()) : rect.top, rect.width, rect.height);
+      let resultRect = new DOMRect(calcScroll ? parseFloat((rect.left + ((win == null ? void 0 : win.pageXOffset) || 0)).toString()) : rect.left, calcScroll ? parseFloat((rect.top + ((win == null ? void 0 : win.pageYOffset) || 0)).toString()) : rect.top, rect.width, rect.height);
       return resultRect;
     }
     width(element, isShow = false, parent) {
@@ -12816,10 +12805,10 @@ ${err.stack}`);
         if (typeof layerCommonConfig.beforeRemoveCallBack === "function") {
           layerCommonConfig.beforeRemoveCallBack(layerCommonConfig);
         }
-        (_a2 = layerCommonConfig == null ? undefined : layerCommonConfig.animElement) == null ? undefined : _a2.remove();
-        (_b = layerCommonConfig == null ? undefined : layerCommonConfig.popsElement) == null ? undefined : _b.remove();
-        (_c = layerCommonConfig == null ? undefined : layerCommonConfig.maskElement) == null ? undefined : _c.remove();
-        (_d = layerCommonConfig == null ? undefined : layerCommonConfig.$shadowContainer) == null ? undefined : _d.remove();
+        (_a2 = layerCommonConfig == null ? void 0 : layerCommonConfig.animElement) == null ? void 0 : _a2.remove();
+        (_b = layerCommonConfig == null ? void 0 : layerCommonConfig.popsElement) == null ? void 0 : _b.remove();
+        (_c = layerCommonConfig == null ? void 0 : layerCommonConfig.maskElement) == null ? void 0 : _c.remove();
+        (_d = layerCommonConfig == null ? void 0 : layerCommonConfig.$shadowContainer) == null ? void 0 : _d.remove();
       }
       moreLayerConfigList.forEach((layerConfigList) => {
         layerConfigList.forEach((layerConfigItem, index) => {
@@ -12970,13 +12959,13 @@ ${err.stack}`);
           if (event.propertyName !== "transform") {
             return;
           }
-          popsDOMUtils.off(popsElement, popsDOMUtils.getTransitionEndNameList(), undefined, closeCallBack);
+          popsDOMUtils.off(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
           PopsInstanceUtils.removeInstance([layerConfigList], guid);
         }
         popsDOMUtils.on(popsElement, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
         let popsTransForm = getComputedStyle(popsElement).transform;
         if (popsTransForm !== "none") {
-          popsDOMUtils.trigger(popsElement, popsDOMUtils.getTransitionEndNameList(), undefined, true);
+          popsDOMUtils.trigger(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, true);
           return;
         }
         if (["top"].includes(drawerConfig.direction)) {
@@ -13036,7 +13025,7 @@ ${err.stack}`);
         let transform_top = 0;
         let elementTransform = PopsCore.globalThis.getComputedStyle(element).transform;
         if (elementTransform !== "none" && elementTransform != null && elementTransform !== "") {
-          let elementTransformSplit = (_a2 = elementTransform.match(/\((.+)\)/)) == null ? undefined : _a2[1].split(",");
+          let elementTransformSplit = (_a2 = elementTransform.match(/\((.+)\)/)) == null ? void 0 : _a2[1].split(",");
           transform_left = Math.abs(parseInt(elementTransformSplit[4]));
           transform_top = Math.abs(parseInt(elementTransformSplit[5]));
         }
@@ -13139,7 +13128,7 @@ ${err.stack}`);
       if (options.triggerClick) {
         anyTouchElement.on(["tap"], function(event) {
           event.changedPoints.forEach((item) => {
-            popsDOMUtils.trigger(item.target, "click", undefined, true);
+            popsDOMUtils.trigger(item.target, "click", void 0, true);
           });
         });
       }
@@ -13285,7 +13274,10 @@ ${err.stack}`);
       if (style.startsWith(";")) {
         style = style.replace(";", "");
       }
-      return `<div class="pops-mask" data-guid="${guid}" style="z-index:${zIndex};${style}"></div>`;
+      return (
+        /*html*/
+        `<div class="pops-mask" data-guid="${guid}" style="z-index:${zIndex};${style}"></div>`
+      );
     },
     /**
      * 获取动画层HTML
@@ -13315,21 +13307,8 @@ ${err.stack}`);
       return (
         /*html*/
         `
-		<div 
-			class="pops-anim"
-			anim="${__config.animation || ""}"
-			style="${popsAnimStyle}"
-			data-guid="${guid}">
-            ${config.style != null ? `<style tyle="text/css">${config.style}</style>` : ""}
-			<div
-				class="pops ${config.class || ""}"
-				data-bottom-btn="${hasBottomBtn}"
-				type-value="${type}"
-				style="${popsStyle}"
-				position="${popsPosition}"
-				data-guid="${guid}">
-				${html}
-			</div>
+		<div class="pops-anim" anim="${__config.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${config.style != null ? `<style tyle="text/css">${config.style}</style>` : ""}
+			<div class="pops ${config.class || ""}" data-bottom-btn="${hasBottomBtn}" type-value="${type}" style="${popsStyle}" position="${popsPosition}" data-guid="${guid}">${html}</div>
 		</div>`
       );
     },
@@ -13344,31 +13323,32 @@ ${err.stack}`);
         return "";
       }
       let __config_confirm = config;
-      if (type !== "iframe" && !((_b = (_a2 = __config_confirm.btn) == null ? undefined : _a2.close) == null ? undefined : _b.enable)) {
+      if (type !== "iframe" && !((_b = (_a2 = __config_confirm.btn) == null ? void 0 : _a2.close) == null ? void 0 : _b.enable)) {
         return "";
       }
       let resultHTML = "";
       let closeHTML = "";
       let __config_iframe = config;
-      if (type === "iframe" && ((_c = __config_iframe.topRightButton) == null ? undefined : _c.trim()) !== "") {
+      if (type === "iframe" && ((_c = __config_iframe.topRightButton) == null ? void 0 : _c.trim()) !== "") {
         let topRightButtonHTML = "";
         __config_iframe.topRightButton.split("|").forEach((item) => {
           item = item.toLowerCase();
-          topRightButtonHTML += `
+          topRightButtonHTML += /*html*/
+          `
                 <button class="pops-header-control" type="${item}">
                     <i class="pops-icon">${pops.config.iconSVG[item]}</i>
                 </button>`;
         });
-        resultHTML = `
-            <div class="pops-header-controls" data-margin>
-                ${topRightButtonHTML}
-            </div>`;
+        resultHTML = /*html*/
+        `
+            <div class="pops-header-controls" data-margin>${topRightButtonHTML}</div>`;
       } else {
-        if ((_e = (_d = __config_confirm.btn) == null ? undefined : _d.close) == null ? undefined : _e.enable) {
-          closeHTML = `
+        if ((_e = (_d = __config_confirm.btn) == null ? void 0 : _d.close) == null ? void 0 : _e.enable) {
+          closeHTML = /*html*/
+          `
                 <div class="pops-header-controls">
                     <button class="pops-header-control" type="close" data-header>
-                    <i class="pops-icon">${pops.config.iconSVG["close"]}</i>
+                    	<i class="pops-icon">${pops.config.iconSVG["close"]}</i>
                     </button>
                 </div>`;
         }
@@ -13387,7 +13367,7 @@ ${err.stack}`);
         return "";
       }
       let __config_confirm = config;
-      if (!(((_b = (_a2 = config.btn) == null ? undefined : _a2.ok) == null ? undefined : _b.enable) || ((_d = (_c = __config_confirm.btn) == null ? undefined : _c.cancel) == null ? undefined : _d.enable) || ((_f = (_e = __config_confirm.btn) == null ? undefined : _e.other) == null ? undefined : _f.enable))) {
+      if (!(((_b = (_a2 = config.btn) == null ? void 0 : _a2.ok) == null ? void 0 : _b.enable) || ((_d = (_c = __config_confirm.btn) == null ? void 0 : _c.cancel) == null ? void 0 : _d.enable) || ((_f = (_e = __config_confirm.btn) == null ? void 0 : _e.other) == null ? void 0 : _f.enable))) {
         return "";
       }
       let btnStyle = "";
@@ -13401,7 +13381,7 @@ ${err.stack}`);
       if (__config_confirm.btn.reverse) {
         btnStyle += "flex-direction: row-reverse;";
       }
-      if ((_h = (_g = config.btn) == null ? undefined : _g.ok) == null ? undefined : _h.enable) {
+      if ((_h = (_g = config.btn) == null ? void 0 : _g.ok) == null ? void 0 : _h.enable) {
         let okButtonSizeClassName = "";
         if (config.btn.ok.size === "large") {
           okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
@@ -13418,23 +13398,20 @@ ${err.stack}`);
             iconHTML = okIcon;
           }
           iconHTML = iconHTML || "";
-          okIconHTML = `
-                <i class="pops-bottom-icon" is-loading="${config.btn.ok.iconIsLoading}">
-                    ${iconHTML}
-                </i>`;
+          okIconHTML = /*html*/
+          `<i class="pops-bottom-icon" is-loading="${config.btn.ok.iconIsLoading}">${iconHTML}</i>`;
         }
-        okHTML = `
+        okHTML = /*html*/
+        `
             <button 
                     class="pops-${type}-btn-ok ${okButtonSizeClassName}"
-                    type="${(_i = __config_confirm.btn.ok) == null ? undefined : _i.type}"
+                    type="${(_i = __config_confirm.btn.ok) == null ? void 0 : _i.type}"
 					data-has-icon="${(__config_confirm.btn.ok.icon || "") !== ""}"
-                    data-rightIcon="${(_j = __config_confirm.btn.ok) == null ? undefined : _j.rightIcon}"
-            >
-            ${okIconHTML}
-                <span>${config.btn.ok.text}</span>
+                    data-rightIcon="${(_j = __config_confirm.btn.ok) == null ? void 0 : _j.rightIcon}"
+            >${okIconHTML}<span>${config.btn.ok.text}</span>
             </button>`;
       }
-      if ((_l = (_k = __config_confirm.btn) == null ? undefined : _k.cancel) == null ? undefined : _l.enable) {
+      if ((_l = (_k = __config_confirm.btn) == null ? void 0 : _k.cancel) == null ? void 0 : _l.enable) {
         let cancelButtonSizeClassName = "";
         if (__config_confirm.btn.cancel.size === "large") {
           cancelButtonSizeClassName = "pops-button-" + __config_confirm.btn.cancel.size;
@@ -13451,23 +13428,20 @@ ${err.stack}`);
             iconHTML = cancelIcon;
           }
           iconHTML = iconHTML || "";
-          cancelIconHTML = `
-                <i class="pops-bottom-icon" is-loading="${__config_confirm.btn.cancel.iconIsLoading}">
-                    ${iconHTML}
-                </i>`;
+          cancelIconHTML = /*html*/
+          `<i class="pops-bottom-icon" is-loading="${__config_confirm.btn.cancel.iconIsLoading}">${iconHTML}</i>`;
         }
-        cancelHTML = `
+        cancelHTML = /*html*/
+        `
             <button
                     class="pops-${type}-btn-cancel ${cancelButtonSizeClassName}"
                     type="${__config_confirm.btn.cancel.type}"
 					data-has-icon="${(__config_confirm.btn.cancel.icon || "") !== ""}"
                     data-rightIcon="${__config_confirm.btn.cancel.rightIcon}"
-            >
-            ${cancelIconHTML}
-                <span>${__config_confirm.btn.cancel.text}</span>
+            >${cancelIconHTML}<span>${__config_confirm.btn.cancel.text}</span>
             </button>`;
       }
-      if ((_n = (_m = __config_confirm.btn) == null ? undefined : _m.other) == null ? undefined : _n.enable) {
+      if ((_n = (_m = __config_confirm.btn) == null ? void 0 : _m.other) == null ? void 0 : _n.enable) {
         let otherButtonSizeClassName = "";
         if (__config_confirm.btn.other.size === "large") {
           otherButtonSizeClassName = "pops-button-" + __config_confirm.btn.other.size;
@@ -13482,20 +13456,17 @@ ${err.stack}`);
             iconHTML = pops.config.iconSVG[otherIcon];
           }
           iconHTML = iconHTML || "";
-          otherIconHTML = `
-                <i class="pops-bottom-icon" is-loading="${__config_confirm.btn.other.iconIsLoading}">
-                    ${iconHTML}
-                </i>`;
+          otherIconHTML = /*html*/
+          `<i class="pops-bottom-icon" is-loading="${__config_confirm.btn.other.iconIsLoading}">${iconHTML}</i>`;
         }
-        ohterHTML = `
+        ohterHTML = /*html*/
+        `
             <button
                     class="pops-${type}-btn-other ${otherButtonSizeClassName}"
                     type="${__config_confirm.btn.other.type}"
 					data-has-icon="${(__config_confirm.btn.other.icon || "") !== ""}"
                     data-rightIcon="${__config_confirm.btn.other.rightIcon}"
-            >
-            ${otherIconHTML}
-                <span>${__config_confirm.btn.other.text}</span>
+            >${otherIconHTML}<span>${__config_confirm.btn.other.text}</span>
             </button>`;
       }
       if (__config_confirm.btn.merge) {
@@ -13505,50 +13476,41 @@ ${err.stack}`);
         } else {
           flexStyle += "flex-direction: row;";
         }
-        resultHTML = `
-            <div class="pops-${type}-btn" style="${btnStyle}">
-                ${ohterHTML}
-                <div 
+        resultHTML = /*html*/
+        `
+            <div class="pops-${type}-btn" style="${btnStyle}">${ohterHTML}<div 
                     class="pops-${type}-btn-merge"
-                    style="${flexStyle}">
-                    ${okHTML}
-                    ${cancelHTML}
-                </div>
+                    style="${flexStyle}">${okHTML}${cancelHTML}</div>
             </div>
             `;
       } else {
-        resultHTML = `
-            <div class="pops-${type}-btn" style="${btnStyle}">
-                ${okHTML}
-                ${cancelHTML}
-                ${ohterHTML}
-            </div>
-            `;
+        resultHTML = /*html*/
+        `<div class="pops-${type}-btn" style="${btnStyle}">${okHTML}${cancelHTML}${ohterHTML}</div>`;
       }
       return resultHTML;
     },
     /**
      * 获取标题style
-     * @param type
-     * @param config
+     * @param type 弹窗类型
+     * @param config 弹窗配置
      */
     getHeaderStyle(type, config) {
       var _a2, _b, _c, _d;
       return {
-        headerStyle: ((_a2 = config == null ? undefined : config.title) == null ? undefined : _a2.html) ? ((_b = config == null ? undefined : config.title) == null ? undefined : _b.style) || "" : "",
-        headerPStyle: ((_c = config == null ? undefined : config.title) == null ? undefined : _c.html) ? "" : ((_d = config == null ? undefined : config.title) == null ? undefined : _d.style) || ""
+        headerStyle: ((_a2 = config == null ? void 0 : config.title) == null ? void 0 : _a2.html) ? ((_b = config == null ? void 0 : config.title) == null ? void 0 : _b.style) || "" : "",
+        headerPStyle: ((_c = config == null ? void 0 : config.title) == null ? void 0 : _c.html) ? "" : ((_d = config == null ? void 0 : config.title) == null ? void 0 : _d.style) || ""
       };
     },
     /**
      * 获取内容style
-     * @param type
-     * @param config
+     * @param type 弹窗类型
+     * @param config 弹窗配置
      */
     getContentStyle(type, config) {
       var _a2, _b, _c, _d;
       return {
-        contentStyle: ((_a2 = config == null ? undefined : config.content) == null ? undefined : _a2.html) ? ((_b = config == null ? undefined : config.content) == null ? undefined : _b.style) || "" : "",
-        contentPStyle: ((_c = config == null ? undefined : config.content) == null ? undefined : _c.html) ? "" : ((_d = config == null ? undefined : config.content) == null ? undefined : _d.style) || ""
+        contentStyle: ((_a2 = config == null ? void 0 : config.content) == null ? void 0 : _a2.html) ? ((_b = config == null ? void 0 : config.content) == null ? void 0 : _b.style) || "" : "",
+        contentPStyle: ((_c = config == null ? void 0 : config.content) == null ? void 0 : _c.html) ? "" : ((_d = config == null ? void 0 : config.content) == null ? void 0 : _d.style) || ""
       };
     },
     /**
@@ -13633,19 +13595,19 @@ ${err.stack}`);
       if (details.config.mask.clickEvent.toClose || details.config.mask.clickEvent.toHide) {
         let isAnimElement2 = function(element) {
           var _a2;
-          return Boolean(((_a2 = element == null ? undefined : element.localName) == null ? undefined : _a2.toLowerCase()) === "div" && element.className && element.className === "pops-anim" && element.hasAttribute("anim"));
+          return Boolean(((_a2 = element == null ? void 0 : element.localName) == null ? void 0 : _a2.toLowerCase()) === "div" && element.className && element.className === "pops-anim" && element.hasAttribute("anim"));
         };
-        popsDOMUtils.on(details.animElement, ["touchstart", "mousedown"], undefined, (event) => {
+        popsDOMUtils.on(details.animElement, ["touchstart", "mousedown"], void 0, (event) => {
           let $click = event.composedPath()[0];
           isMaskClick = isAnimElement2($click);
         });
-        popsDOMUtils.on(details.animElement, "click", undefined, (event) => {
+        popsDOMUtils.on(details.animElement, "click", void 0, (event) => {
           let $click = event.composedPath()[0];
           if (isAnimElement2($click) && isMaskClick) {
             return clickEvent(event);
           }
         });
-        popsDOMUtils.on(result2.maskElement, "click", undefined, (event) => {
+        popsDOMUtils.on(result2.maskElement, "click", void 0, (event) => {
           isMaskClick = true;
           clickEvent(event);
         });
@@ -13973,9 +13935,9 @@ ${err.stack}`);
       btn: {
         position: "flex-end",
         ok: {
-          size: undefined,
+          size: void 0,
           enable: true,
-          icon: undefined,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "确定",
@@ -14050,17 +14012,8 @@ ${err.stack}`);
         config,
         /*html*/
         `
-			<div 
-				class="pops-alert-title"
-				style="text-align: ${config.title.position};
-				${headerStyle}">
-				${config.title.html ? config.title.text : `<p pops style="${headerPStyle}">${config.title.text}</p>`}
-				${headerBtnHTML}
-			</div>
-			<div class="pops-alert-content" style="${contentStyle}">
-				${config.content.html ? config.content.text : `<p pops style="${contentPStyle}">${config.content.text}</p>`}
-			</div>
-			${bottomBtnHTML}`,
+			<div class="pops-alert-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
+			<div class="pops-alert-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
         bottomBtnHTML,
         zIndex
       );
@@ -14130,8 +14083,8 @@ ${err.stack}`);
         position: "flex-end",
         ok: {
           enable: true,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "确定",
@@ -14142,8 +14095,8 @@ ${err.stack}`);
         },
         cancel: {
           enable: true,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "关闭",
@@ -14154,8 +14107,8 @@ ${err.stack}`);
         },
         other: {
           enable: false,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "其它按钮",
@@ -14230,18 +14183,8 @@ ${err.stack}`);
         config,
         /*html*/
         `
-            <div class="pops-confirm-title" style="text-align: ${config.title.position};${headerStyle}">
-                            ${config.title.html ? config.title.text : `<p pops style="${headerPStyle}">${config.title.text}</p>`}
-                ${headerBtnHTML}
-                        </div>
-                        <div class="pops-confirm-content" style="${contentStyle}">
-                ${config.content.html ? config.content.text : `<p pops style="${contentPStyle}">${config.content.text}</p>`}
-                
-                        </div>
-
-						
-                        ${bottomBtnHTML}
-            `,
+            <div class="pops-confirm-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
+                        <div class="pops-confirm-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
         bottomBtnHTML,
         zIndex
       );
@@ -14317,8 +14260,8 @@ ${err.stack}`);
         position: "flex-end",
         ok: {
           enable: true,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "确定",
@@ -14329,8 +14272,8 @@ ${err.stack}`);
         },
         cancel: {
           enable: true,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "关闭",
@@ -14341,8 +14284,8 @@ ${err.stack}`);
         },
         other: {
           enable: false,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "其它按钮",
@@ -14417,15 +14360,8 @@ ${err.stack}`);
         config,
         /*html*/
         `
-            <div class="pops-prompt-title" style="text-align: ${config.title.position};${headerStyle}">
-            ${config.title.html ? config.title.text : `<p pops style="${headerPStyle}">${config.title.text}</p>`}
-            ${headerBtnHTML}
-            </div>
-            <div class="pops-prompt-content" style="${contentPStyle}">
-            ${config.content.row ? '<textarea pops="" placeholder="' + config.content.placeholder + '"></textarea>' : '<input pops="" placeholder="' + config.content.placeholder + '" type="' + (config.content.password ? "password" : "text") + '">'}
-            </div>
-        	${bottomBtnHTML}
-            `,
+            <div class="pops-prompt-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
+            <div class="pops-prompt-content" style="${contentPStyle}">${config.content.row ? '<textarea pops="" placeholder="' + config.content.placeholder + '"></textarea>' : '<input pops="" placeholder="' + config.content.placeholder + '" type="' + (config.content.password ? "password" : "text") + '">'}</div>${bottomBtnHTML}`,
         bottomBtnHTML,
         zIndex
       );
@@ -14527,19 +14463,20 @@ ${err.stack}`);
         config,
         /*html*/
         `
-            <div class="pops-loading-content">
-                ${config.addIndexCSS ? `
+            <div class="pops-loading-content">${config.addIndexCSS ? (
+        /*html*/
+        `
                 <style data-model-name="index">${pops.config.cssText.index}</style>
                 <style data-model-name="anim">${pops.config.cssText.anim}</style>
                 <style data-model-name="common">${pops.config.cssText.common}</style>
-                ` : ""}
+                `
+      ) : ""}
                 <style data-model-name="loadingCSS">
                     ${pops.config.cssText.loadingCSS}
                 </style>
             ${config.style != null ? `<style>${config.style}</style>` : ""}
-            <p pops style="${contentPStyle}">${config.content.text}</p>
-            </div>
-            `,
+            	<p pops style="${contentPStyle}">${config.content.text}</p>
+            </div>`,
         "",
         zIndex
       );
@@ -14674,23 +14611,12 @@ ${err.stack}`);
         config,
         /*html*/
         `
-            <div 
-                class="pops-iframe-title"
-                style="text-align: ${config.title.position};${headerStyle}"
-            >
-                ${config.title.html ? titleText : `<p pops style="${headerPStyle}">${titleText}</p>`}
-                ${headerBtnHTML}
-            </div>
-                        <div class="pops-iframe-content">
+            <div class="pops-iframe-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? titleText : `<p pops style="${headerPStyle}">${titleText}</p>`}${headerBtnHTML}</div>
+			<div class="pops-iframe-content">
                 <div class="pops-iframe-content-global-loading"></div>
-                <iframe
-                        src="${config.url}"
-                        pops
-                        ${config.sandbox ? "sandbox='allow-forms allow-same-origin allow-scripts'" : ""}>
+                <iframe src="${config.url}" pops ${config.sandbox ? "sandbox='allow-forms allow-same-origin allow-scripts'" : ""}>
                 </iframe>
-                </div>
-                ${config.loading.enable ? iframeLoadingHTML : ""}
-            `,
+			</div>${config.loading.enable ? iframeLoadingHTML : ""}`,
         "",
         zIndex
       );
@@ -14723,7 +14649,7 @@ ${err.stack}`);
         $anim.style.height = "0%";
       });
       popsDOMUtils.on($iframe, "load", () => {
-        loadingElement == null ? undefined : loadingElement.remove();
+        loadingElement == null ? void 0 : loadingElement.remove();
         $contentLoading.style.animation = "iframeLoadingChange_85 0.3s forwards";
         popsDOMUtils.on($contentLoading, popsDOMUtils.getAnimationEndNameList(), () => {
           $contentLoading.remove();
@@ -14768,7 +14694,7 @@ ${err.stack}`);
         headerControlsElement.setAttribute("type", "min");
         headerMaxBtnElement.style.setProperty("display", "none");
         headerMiseBtnElement.style.setProperty("display", "");
-        if (typeof ((_b = (_a3 = config == null ? undefined : config.btn) == null ? undefined : _a3.min) == null ? undefined : _b.callback) === "function") {
+        if (typeof ((_b = (_a3 = config == null ? void 0 : config.btn) == null ? void 0 : _a3.min) == null ? void 0 : _b.callback) === "function") {
           config.btn.min.callback(eventDetails, event);
         }
       }, {
@@ -14795,13 +14721,13 @@ ${err.stack}`);
         headerControlsElement.setAttribute("type", "max");
         headerMaxBtnElement.style.setProperty("display", "none");
         headerMiseBtnElement.style.setProperty("display", "");
-        if (typeof ((_b = (_a3 = config == null ? undefined : config.btn) == null ? undefined : _a3.max) == null ? undefined : _b.callback) === "function") {
+        if (typeof ((_b = (_a3 = config == null ? void 0 : config.btn) == null ? void 0 : _a3.max) == null ? void 0 : _b.callback) === "function") {
           config.btn.max.callback(eventDetails, event);
         }
       }, {
         capture: true
       });
-      (_a2 = headerMiseBtnElement == null ? undefined : headerMiseBtnElement.style) == null ? undefined : _a2.setProperty("display", "none");
+      (_a2 = headerMiseBtnElement == null ? void 0 : headerMiseBtnElement.style) == null ? void 0 : _a2.setProperty("display", "none");
       popsDOMUtils.on(headerMiseBtnElement, "click", (event) => {
         var _a3, _b;
         event.preventDefault();
@@ -14828,7 +14754,7 @@ ${err.stack}`);
           headerMaxBtnElement.style.setProperty("display", "");
           headerMiseBtnElement.style.setProperty("display", "none");
         }
-        if (typeof ((_b = (_a3 = config == null ? undefined : config.btn) == null ? undefined : _a3.mise) == null ? undefined : _b.callback) === "function") {
+        if (typeof ((_b = (_a3 = config == null ? void 0 : config.btn) == null ? void 0 : _a3.mise) == null ? void 0 : _b.callback) === "function") {
           config.btn.mise.callback(eventDetails, event);
         }
       }, {
@@ -14839,7 +14765,7 @@ ${err.stack}`);
         event.preventDefault();
         event.stopPropagation();
         PopsInstanceUtils.removeInstance([pops.config.layer.iframe], guid, false);
-        if (typeof ((_b = (_a3 = config == null ? undefined : config.btn) == null ? undefined : _a3.close) == null ? undefined : _b.callback) === "function") {
+        if (typeof ((_b = (_a3 = config == null ? void 0 : config.btn) == null ? void 0 : _a3.close) == null ? void 0 : _b.callback) === "function") {
           config.btn.close.callback(eventDetails, event);
         }
       }, {
@@ -14878,8 +14804,8 @@ ${err.stack}`);
         position: "flex-end",
         ok: {
           enable: true,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "确定",
@@ -14890,8 +14816,8 @@ ${err.stack}`);
         },
         cancel: {
           enable: true,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "关闭",
@@ -14902,8 +14828,8 @@ ${err.stack}`);
         },
         other: {
           enable: false,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "其它按钮",
@@ -14974,24 +14900,15 @@ ${err.stack}`);
         config,
         /*html*/
         `
-            ${config.title.enable ? `
-            <div class="pops-${PopsType}-title" style="${headerStyle}">
-                ${config.title.html ? config.title.text : `<p 
-                            pops
-                            style="
-                                width: 100%;
-                                text-align: ${config.title.position};
-                                ${headerPStyle}">${config.title.text}</p>`}
-                ${headerBtnHTML}
-            </div>
-            ` : ""}
-            
-            <div class="pops-${PopsType}-content" style="${contentStyle}">
-                ${config.content.html ? config.content.text : `<p pops style="${contentPStyle}">${config.content.text}</p>`}
-            </div>
-
-            ${bottomBtnHTML}
-            `,
+            ${config.title.enable ? (
+        /*html*/
+        `
+            <div class="pops-${PopsType}-title" style="${headerStyle}">${config.title.html ? config.title.text : (
+          /*html*/
+          `<p pops style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
+        )}${headerBtnHTML}</div>`
+      ) : ""}
+            <div class="pops-${PopsType}-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
         bottomBtnHTML,
         zIndex
       );
@@ -15166,8 +15083,8 @@ ${err.stack}`);
         position: "flex-end",
         ok: {
           enable: true,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "确定",
@@ -15178,8 +15095,8 @@ ${err.stack}`);
         },
         cancel: {
           enable: true,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "关闭",
@@ -15190,8 +15107,8 @@ ${err.stack}`);
         },
         other: {
           enable: false,
-          size: undefined,
-          icon: undefined,
+          size: void 0,
+          icon: void 0,
           rightIcon: false,
           iconIsLoading: false,
           text: "其它按钮",
@@ -15326,7 +15243,7 @@ ${err.stack}`);
       androidIconList.forEach((keyName) => {
         Folder_ICON[keyName] = Folder_ICON.apk;
       });
-      if (details == null ? undefined : details.folder) {
+      if (details == null ? void 0 : details.folder) {
         config.folder = details.folder;
       }
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
@@ -15334,12 +15251,14 @@ ${err.stack}`);
       let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
       let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
       let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(PopsType, config);
-      let animHTML = PopsElementHandler.getAnimHTML(guid, PopsType, config, `
-            <div class="pops-folder-title" style="text-align: ${config.title.position};${headerStyle}">
-                            ${config.title.html ? config.title.text : `<p pops style="${headerPStyle}">${config.title.text}</p>`}
-                ${headerBtnHTML}
-                        </div>
-                        <div class="pops-folder-content ${pops.isPhone() ? "pops-mobile-folder-content" : ""}">
+      let animHTML = PopsElementHandler.getAnimHTML(
+        guid,
+        PopsType,
+        config,
+        /*html*/
+        `
+            <div class="pops-folder-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
+			<div class="pops-folder-content ${pops.isPhone() ? "pops-mobile-folder-content" : ""}">
                 <div class="pops-folder-list">
                     <div class="pops-folder-file-list-breadcrumb">
                     <div class="pops-folder-file-list-breadcrumb-primary">
@@ -15351,7 +15270,6 @@ ${err.stack}`);
                     <div class="pops-folder-list-table__header-div">
                     <table class="pops-folder-list-table__header">
                         <colgroup>
-                        <!-- <col width="8%"> --!>
                         <col width="52%">
                         <col width="24%">
                         <col width="16%">
@@ -15422,7 +15340,6 @@ ${err.stack}`);
                     <div class="pops-folder-list-table__body-div">
                     <table class="pops-folder-list-table__body">
                         <colgroup>
-                        <!-- <col width="8%"> --!>
                         ${pops.isPhone() ? `<col width="100%">` : `
                             <col width="52%">
                             <col width="24%">
@@ -15435,9 +15352,10 @@ ${err.stack}`);
                     </table>
                     </div>
                 </div>
-            </div>
-            ${bottomBtnHTML}
-            `, bottomBtnHTML, zIndex);
+            </div>${bottomBtnHTML}`,
+        bottomBtnHTML,
+        zIndex
+      );
       let $anim = PopsElementHandler.parseElement(animHTML);
       let {
         popsElement: $pops,
@@ -15612,9 +15530,7 @@ ${err.stack}`);
 				<div class="pops-folder-list-file-name pops-mobile-folder-list-file-name cursor-p">
 					<img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
 					<div>
-						<a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">
-							${fileName}
-						</a>
+						<a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">${fileName}</a>
 						<span>${latestTime} ${fileSize}</span>
 					</div>
 				</div>
@@ -15707,9 +15623,9 @@ ${err.stack}`);
       }
       function setFileClickEvent(targetElement, _config_) {
         popsDOMUtils.on(targetElement, "click", async function(event) {
-          event == null ? undefined : event.preventDefault();
-          event == null ? undefined : event.stopPropagation();
-          event == null ? undefined : event.stopImmediatePropagation();
+          event == null ? void 0 : event.preventDefault();
+          event == null ? void 0 : event.stopPropagation();
+          event == null ? void 0 : event.stopImmediatePropagation();
           let linkElement = targetElement.querySelector("a");
           if (typeof _config_.clickEvent === "function") {
             let downloadInfo = await _config_.clickEvent(event, _config_);
@@ -15886,12 +15802,12 @@ ${err.stack}`);
       }, {
         capture: true
       });
-      popsDOMUtils.on(folderListSortLatestTimeElement.closest("th"), "click", undefined, function(event) {
+      popsDOMUtils.on(folderListSortLatestTimeElement.closest("th"), "click", void 0, function(event) {
         arrowSortClickEvent(folderListSortLatestTimeElement, event, "latestTime");
       }, {
         capture: true
       });
-      popsDOMUtils.on(folderListSortFileSizeElement.closest("th"), "click", undefined, function(event) {
+      popsDOMUtils.on(folderListSortFileSizeElement.closest("th"), "click", void 0, function(event) {
         arrowSortClickEvent(folderListSortFileSizeElement, event, "fileSize");
       }, {
         capture: true
@@ -16507,7 +16423,7 @@ ${err.stack}`);
         if ($asideDefaultItemElement) {
           $asideDefaultItemElement.click();
           if (isScrollToDefaultView) {
-            $asideDefaultItemElement == null ? undefined : $asideDefaultItemElement.scrollIntoView();
+            $asideDefaultItemElement == null ? void 0 : $asideDefaultItemElement.scrollIntoView();
           }
         } else {
           console.error("pops.panel：左侧容器没有项");
@@ -16520,7 +16436,7 @@ ${err.stack}`);
         var _a2;
         PopsSafeUtils.setSafeHTML(this.sectionContainerHeaderULElement, "");
         PopsSafeUtils.setSafeHTML(this.sectionContainerULElement, "");
-        (_a2 = this.$el.$content) == null ? undefined : _a2.querySelectorAll("section.pops-panel-deepMenu-container").forEach((ele) => ele.remove());
+        (_a2 = this.$el.$content) == null ? void 0 : _a2.querySelectorAll("section.pops-panel-deepMenu-container").forEach((ele) => ele.remove());
       },
       /**
        * 清空左侧容器已访问记录
@@ -16632,9 +16548,7 @@ ${err.stack}`);
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-					${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-switch">
 					<input class="pops-panel-switch__input" type="checkbox">
 					<span class="pops-panel-switch__core">
@@ -16662,7 +16576,7 @@ ${err.stack}`);
           },
           setClickEvent() {
             let that = this;
-            popsDOMUtils.on(this.$ele.core, "click", undefined, function(event) {
+            popsDOMUtils.on(this.$ele.core, "click", void 0, function(event) {
               if (that.$ele.input.disabled || that.$ele.switch.hasAttribute("data-disabled")) {
                 return;
               }
@@ -16734,9 +16648,7 @@ ${err.stack}`);
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-					${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-slider">
 					<input type="range" min="${formConfig.min}" max="${formConfig.max}">
 				</div>
@@ -16768,7 +16680,7 @@ ${err.stack}`);
           position: "top",
           arrowDistance: 10
         });
-        popsDOMUtils.on(rangeInputElement, ["input", "propertychange"], undefined, function(event) {
+        popsDOMUtils.on(rangeInputElement, ["input", "propertychange"], void 0, function(event) {
           tooltip.toolTip.changeContent(getToolTipContent(rangeInputElement.value));
           if (typeof formConfig.callback === "function") {
             formConfig.callback(event, event.target.value);
@@ -16797,9 +16709,7 @@ ${err.stack}`);
           /*html*/
           `
 				<div class="pops-panel-item-left-text" style="flex: 1;">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-					${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-slider pops-slider-width">
 					<div class="pops-slider__runway">
 						<div class="pops-slider__bar" style="width: 0%; left: 0%"></div>
@@ -16905,7 +16815,7 @@ ${err.stack}`);
             this.$interval.isCheck = true;
             let isSuccess = false;
             let oldTotalWidth = this.$data.totalWidth;
-            let timer = undefined;
+            let timer = void 0;
             let interval = setInterval(() => {
               if (isSuccess) {
                 this.$interval.isCheck = false;
@@ -17116,7 +17026,7 @@ ${err.stack}`);
            * 设置进度条点击定位的事件
            */
           setRunAwayClickEvent() {
-            popsDOMUtils.on(this.$ele.runAway, "click", undefined, (event) => {
+            popsDOMUtils.on(this.$ele.runAway, "click", void 0, (event) => {
               if (event.target !== this.$ele.runAway && event.target !== this.$ele.bar) {
                 return;
               }
@@ -17315,9 +17225,7 @@ ${err.stack}`);
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-input pops-user-select-none">
 					<input type="${inputType}" placeholder="${formConfig.placeholder}">
 				</div>
@@ -17425,7 +17333,7 @@ ${err.stack}`);
            * 添加图标按钮的点击事件
            */
           setCircleIconClickEvent() {
-            popsDOMUtils.on(this.$ele.icon, "click", undefined, () => {
+            popsDOMUtils.on(this.$ele.icon, "click", void 0, () => {
               if (this.isDisabled()) {
                 return;
               }
@@ -17451,7 +17359,7 @@ ${err.stack}`);
            * 监听输入框内容改变
            */
           setInputChangeEvent() {
-            popsDOMUtils.on(this.$ele.input, ["input", "propertychange"], undefined, (event) => {
+            popsDOMUtils.on(this.$ele.input, ["input", "propertychange"], void 0, (event) => {
               this.$data.value = this.$ele.input.value;
               if (!formConfig.isPassword) {
                 if (this.$ele.input.value !== "" && this.$ele.icon.innerHTML === "") {
@@ -17495,12 +17403,9 @@ ${err.stack}`);
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-textarea">
-					<textarea placeholder="${formConfig.placeholder ?? ""}">
-				</textarea>
+					<textarea placeholder="${formConfig.placeholder ?? ""}"></textarea>
 				</div>
 			`
         );
@@ -17538,7 +17443,7 @@ ${err.stack}`);
            * 监听选择内容改变
            */
           setChangeEvent() {
-            popsDOMUtils.on(this.$ele.textarea, ["input", "propertychange"], undefined, (event) => {
+            popsDOMUtils.on(this.$ele.textarea, ["input", "propertychange"], void 0, (event) => {
               this.$data.value = event.target.value;
               if (typeof formConfig.callback === "function") {
                 formConfig.callback(event, event.target.value);
@@ -17572,9 +17477,7 @@ ${err.stack}`);
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-select pops-user-select-none">
 					<select></select>
 				</div>
@@ -17700,7 +17603,7 @@ ${err.stack}`);
            * 监听选择内容改变
            */
           setChangeEvent() {
-            popsDOMUtils.on(this.$ele.select, "change", undefined, (event) => {
+            popsDOMUtils.on(this.$ele.select, "change", void 0, (event) => {
               let $isSelectedElement = event.target[event.target.selectedIndex];
               let selectInfo = this.getSelectOptionInfo($isSelectedElement);
               this.setSelectOptionsDisableStatus();
@@ -17730,7 +17633,7 @@ ${err.stack}`);
            * 监听点击事件
            */
           setClickEvent() {
-            popsDOMUtils.on(this.$ele.select, "click", undefined, (event) => {
+            popsDOMUtils.on(this.$ele.select, "click", void 0, (event) => {
               this.setSelectOptionsDisableStatus();
               if (typeof formConfig.clickCallBack === "function") {
                 formConfig.clickCallBack(event, this.$ele.select);
@@ -17763,9 +17666,7 @@ ${err.stack}`);
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-select-multiple">
 					<div class="el-select__wrapper">
 						<div class="el-select__selection">
@@ -17793,19 +17694,19 @@ ${err.stack}`);
           [Symbol.toStringTag]: "PopsPanelSelectMultiple",
           $el: {
             /** 容器 */
-            $container: undefined,
+            $container: void 0,
             /** 包括的容器 */
-            $wrapper: undefined,
+            $wrapper: void 0,
             /** 内容区域 */
-            $section: undefined,
+            $section: void 0,
             /** 手动输入 */
-            $selectedInputWrapper: undefined,
+            $selectedInputWrapper: void 0,
             /** 灰色提示语 */
-            $selectedPlaceHolderWrapper: undefined,
+            $selectedPlaceHolderWrapper: void 0,
             /** 下拉箭头区域 */
-            $suffix: undefined,
+            $suffix: void 0,
             /** 下拉箭头图标 */
-            $suffixIcon: undefined
+            $suffixIcon: void 0
           },
           $data: {
             /** 默认值 */
@@ -18011,9 +17912,7 @@ ${err.stack}`);
                   className: "select-item",
                   innerHTML: (
                     /*html*/
-                    `
-									<span>${dataInfo.text}</span>
-								`
+                    `<span>${dataInfo.text}</span>`
                   )
                 });
                 Reflect.set($item, "data-info", dataInfo);
@@ -18264,9 +18163,7 @@ ${err.stack}`);
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-					${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-button">
 					<button class="pops-panel-button_inner">
 						<i class="pops-bottom-icon"></i>
@@ -18380,7 +18277,7 @@ ${err.stack}`);
             PopsSafeUtils.setSafeHTML(this.$ele.spanText, text);
           },
           setClickEvent() {
-            popsDOMUtils.on(this.$ele.button, "click", undefined, (event) => {
+            popsDOMUtils.on(this.$ele.button, "click", void 0, (event) => {
               if (typeof formConfig.callback === "function") {
                 formConfig.callback(event);
               }
@@ -18422,13 +18319,8 @@ ${err.stack}`);
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-					${leftDescriptionText}
-				</div>
-				<div class="pops-panel-deepMenu">
-					${rightText}
-					${arrowRightIconHTML}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+				<div class="pops-panel-deepMenu">${rightText}${arrowRightIconHTML}</div>
 				`
         );
         const PopsPanelDeepMenu = {
@@ -18541,16 +18433,16 @@ ${err.stack}`);
               className: "pops-panel-deepMenu-container-left-arrow-icon",
               innerHTML: pops.config.iconSVG.arrowLeft
             });
-            popsDOMUtils.on($headerLeftArrow, "click", undefined, (event2) => {
-              event2 == null ? undefined : event2.preventDefault();
-              event2 == null ? undefined : event2.stopPropagation();
+            popsDOMUtils.on($headerLeftArrow, "click", void 0, (event2) => {
+              event2 == null ? void 0 : event2.preventDefault();
+              event2 == null ? void 0 : event2.stopPropagation();
               let $prev = $deepMenuContainer.previousElementSibling;
               popsDOMUtils.cssShow($prev);
               $deepMenuContainer.remove();
             }, {
               once: true
             });
-            (_a2 = $header.firstElementChild) == null ? undefined : _a2.insertAdjacentElement("beforebegin", $headerLeftArrow);
+            (_a2 = $header.firstElementChild) == null ? void 0 : _a2.insertAdjacentElement("beforebegin", $headerLeftArrow);
             $deepMenuHeaderUL.appendChild($header);
             $deepMenuContainer.appendChild($deepMenuHeaderUL);
             $deepMenuContainer.appendChild($deepMenuBodyUL);
@@ -18560,7 +18452,7 @@ ${err.stack}`);
                 this.initFormItem($deepMenuBodyUL, formItemConfig);
               }
             }
-            (_b = that.$el.$content) == null ? undefined : _b.appendChild($deepMenuContainer);
+            (_b = that.$el.$content) == null ? void 0 : _b.appendChild($deepMenuContainer);
             if (typeof formConfig.afterEnterDeepMenuCallBack === "function") {
               formConfig.afterEnterDeepMenuCallBack(formConfig, {
                 sectionContainer: $deepMenuContainer,
@@ -18572,7 +18464,7 @@ ${err.stack}`);
           },
           /** 设置项的点击事件 */
           setLiClickEvent() {
-            popsDOMUtils.on($li, "click", undefined, async (event) => {
+            popsDOMUtils.on($li, "click", void 0, async (event) => {
               if (typeof formConfig.clickCallBack === "function") {
                 let result2 = await formConfig.clickCallBack(event, formConfig);
                 if (result2) {
@@ -18727,7 +18619,7 @@ ${err.stack}`);
        */
       setAsideItemClickEvent(asideLiElement, asideConfig) {
         const that = this;
-        popsDOMUtils.on(asideLiElement, "click", undefined, (event) => {
+        popsDOMUtils.on(asideLiElement, "click", void 0, (event) => {
           this.clearContainer();
           popsDOMUtils.cssShow(that.$el.$contentSectionContainer);
           this.clearAsideItemIsVisited();
@@ -18781,13 +18673,7 @@ ${err.stack}`);
         config,
         /*html*/
         `
-			<div 
-				class="pops-${PopsType}-title"
-				style="text-align: ${config.title.position};
-				${headerStyle}">
-				${config.title.html ? config.title.text : `<p pops style="${headerPStyle}">${config.title.text}</p>`}
-				${headerBtnHTML}
-			</div>
+			<div class="pops-${PopsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
 			<div class="pops-${PopsType}-content">
 				<aside class="pops-${PopsType}-aside">
 					<ul></ul>
@@ -19051,13 +18937,13 @@ ${err.stack}`);
          * 添加全局点击检测事件
          */
         addWindowCheckClickListener() {
-          popsDOMUtils.on(globalThis, "click touchstart", undefined, PopsContextMenu.windowCheckClickEvent, {
+          popsDOMUtils.on(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
             capture: true
           });
           if (config.target instanceof Node) {
             const $shadowRoot2 = config.target.getRootNode();
             if ($shadowRoot2 instanceof ShadowRoot) {
-              popsDOMUtils.on($shadowRoot2, "click touchstart", undefined, PopsContextMenu.shadowRootCheckClickEvent, {
+              popsDOMUtils.on($shadowRoot2, "click touchstart", void 0, PopsContextMenu.shadowRootCheckClickEvent, {
                 capture: true
               });
             }
@@ -19067,13 +18953,13 @@ ${err.stack}`);
          * 移除全局点击检测事件
          */
         removeWindowCheckClickListener() {
-          popsDOMUtils.off(globalThis, "click touchstart", undefined, PopsContextMenu.windowCheckClickEvent, {
+          popsDOMUtils.off(globalThis, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
             capture: true
           });
           if (config.target instanceof Node) {
             const $shadowRoot2 = config.target.getRootNode();
             if ($shadowRoot2 instanceof ShadowRoot) {
-              popsDOMUtils.off($shadowRoot2, "click touchstart", undefined, PopsContextMenu.windowCheckClickEvent, {
+              popsDOMUtils.off($shadowRoot2, "click touchstart", void 0, PopsContextMenu.windowCheckClickEvent, {
                 capture: true
               });
             }
@@ -19128,13 +19014,13 @@ ${err.stack}`);
          */
         animationCloseMenu(element) {
           function transitionEndEvent(event) {
-            popsDOMUtils.off(element, popsDOMUtils.getTransitionEndNameList(), undefined, transitionEndEvent, {
+            popsDOMUtils.off(element, popsDOMUtils.getTransitionEndNameList(), void 0, transitionEndEvent, {
               capture: true
             });
             element.remove();
           }
           if (element.classList.contains(`pops-${PopsType}-anim-show`)) {
-            popsDOMUtils.on(element, popsDOMUtils.getTransitionEndNameList(), undefined, transitionEndEvent, {
+            popsDOMUtils.on(element, popsDOMUtils.getTransitionEndNameList(), void 0, transitionEndEvent, {
               capture: true
             });
             element.classList.remove(`pops-${PopsType}-anim-show`);
@@ -19151,8 +19037,8 @@ ${err.stack}`);
           if (rootElement == null) {
             return;
           }
-          if ((_a2 = rootElement == null ? undefined : rootElement["__menuData__"]) == null ? undefined : _a2.root) {
-            rootElement = (_b = rootElement == null ? undefined : rootElement["__menuData__"]) == null ? undefined : _b.root;
+          if ((_a2 = rootElement == null ? void 0 : rootElement["__menuData__"]) == null ? void 0 : _a2.root) {
+            rootElement = (_b = rootElement == null ? void 0 : rootElement["__menuData__"]) == null ? void 0 : _b.root;
           }
           let childMenuList = rootElement["__menuData__"].child;
           childMenuList.forEach((childMenuElement) => {
@@ -19293,7 +19179,10 @@ ${err.stack}`);
             let menuLiElement = popsUtils.parseTextToDOM(`<li></li>`);
             if (typeof item.icon === "string" && item.icon.trim() !== "") {
               let iconSVGHTML = pops.config.iconSVG[item.icon] ?? item.icon;
-              let iconElement = popsUtils.parseTextToDOM(`<i class="pops-${PopsType}-icon" is-loading="${item.iconIsLoading}">${iconSVGHTML}</i>`);
+              let iconElement = popsUtils.parseTextToDOM(
+                /*html*/
+                `<i class="pops-${PopsType}-icon" is-loading="${item.iconIsLoading}">${iconSVGHTML}</i>`
+              );
               menuLiElement.appendChild(iconElement);
             }
             menuLiElement.insertAdjacentHTML("beforeend", PopsSafeUtils.getSafeHTML(`<span>${item.text}</span>`));
@@ -19309,7 +19198,7 @@ ${err.stack}`);
                 function removeElement(element) {
                   element.querySelectorAll("ul li").forEach((ele) => {
                     var _a2;
-                    if ((_a2 = ele == null ? undefined : ele.__menuData__) == null ? undefined : _a2.child) {
+                    if ((_a2 = ele == null ? void 0 : ele.__menuData__) == null ? void 0 : _a2.child) {
                       removeElement(ele.__menuData__.child);
                     }
                   });
@@ -19354,8 +19243,8 @@ ${err.stack}`);
               });
               PopsContextMenu.closeAllMenu(rootElement);
             }
-            popsDOMUtils.on(menuLiElement, "mouseenter touchstart", undefined, liElementHoverEvent);
-            popsDOMUtils.on(menuLiElement, "click", undefined, liElementClickEvent);
+            popsDOMUtils.on(menuLiElement, "mouseenter touchstart", void 0, liElementHoverEvent);
+            popsDOMUtils.on(menuLiElement, "click", void 0, liElementClickEvent);
             menuULElement.appendChild(menuLiElement);
           });
         }
@@ -19510,9 +19399,7 @@ ${err.stack}`);
 						<style data-dynamic="true">
 							${this.getDynamicCSS()}
 						</style>
-						<ul class="pops-${PopsType}-search-suggestion-hint">
-							${config.toSearhNotResultHTML}
-						</ul>
+						<ul class="pops-${PopsType}-search-suggestion-hint">${config.toSearhNotResultHTML}</ul>
          				 `
             )
           }, {
@@ -19595,10 +19482,7 @@ ${err.stack}`);
             className: `pops-${PopsType}-search-suggestion-hint-item pops-flex-items-center pops-flex-y-center`,
             "data-index": index,
             "data-value": SearchSuggestion.getItemDataValue(data),
-            innerHTML: `
-          			${config.getItemHTML(data)}
-          			${config.deleteIcon.enable ? SearchSuggestion.getDeleteIconHTML() : ""}
-          			`
+            innerHTML: `${config.getItemHTML(data)}${config.deleteIcon.enable ? SearchSuggestion.getDeleteIconHTML() : ""}`
           });
         },
         /**
@@ -19613,7 +19497,7 @@ ${err.stack}`);
          * @param liElement
          */
         setSearchItemClickEvent(liElement) {
-          popsDOMUtils.on(liElement, "click", undefined, (event) => {
+          popsDOMUtils.on(liElement, "click", void 0, (event) => {
             popsDOMUtils.preventEvent(event);
             let $click = event.target;
             if ($click.closest(`.pops-${PopsType}-delete-icon`)) {
@@ -19646,7 +19530,7 @@ ${err.stack}`);
             return;
           }
           config.inputTarget.setAttribute("autocomplete", "off");
-          popsDOMUtils.on(config.inputTarget, "input", undefined, async (event) => {
+          popsDOMUtils.on(config.inputTarget, "input", void 0, async (event) => {
             let getListResult = await config.getData(event.target.value);
             SearchSuggestion.update(getListResult);
           }, option);
@@ -19657,7 +19541,7 @@ ${err.stack}`);
         removeInputChangeEvent(option = {
           capture: true
         }) {
-          popsDOMUtils.off(config.inputTarget, "input", undefined, undefined, option);
+          popsDOMUtils.off(config.inputTarget, "input", void 0, void 0, option);
         },
         /**
          * 显示搜索建议框的事件
@@ -19683,11 +19567,11 @@ ${err.stack}`);
           capture: true
         }) {
           if (config.followPosition === "target") {
-            popsDOMUtils.on([config.target], ["focus", "click"], undefined, SearchSuggestion.showEvent, option);
+            popsDOMUtils.on([config.target], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
           } else if (config.followPosition === "input") {
-            popsDOMUtils.on([config.inputTarget], ["focus", "click"], undefined, SearchSuggestion.showEvent, option);
+            popsDOMUtils.on([config.inputTarget], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
           } else if (config.followPosition === "inputCursor") {
-            popsDOMUtils.on([config.inputTarget], ["focus", "click", "input"], undefined, SearchSuggestion.showEvent, option);
+            popsDOMUtils.on([config.inputTarget], ["focus", "click", "input"], void 0, SearchSuggestion.showEvent, option);
           } else {
             throw new TypeError("未知followPosition：" + config.followPosition);
           }
@@ -19698,8 +19582,8 @@ ${err.stack}`);
         removeShowEvent(option = {
           capture: true
         }) {
-          popsDOMUtils.off([config.target, config.inputTarget], ["focus", "click"], undefined, SearchSuggestion.showEvent, option);
-          popsDOMUtils.off([config.inputTarget], ["input"], undefined, SearchSuggestion.showEvent, option);
+          popsDOMUtils.off([config.target, config.inputTarget], ["focus", "click"], void 0, SearchSuggestion.showEvent, option);
+          popsDOMUtils.off([config.inputTarget], ["input"], void 0, SearchSuggestion.showEvent, option);
         },
         /**
          * 隐藏搜索建议框的事件
@@ -19727,10 +19611,10 @@ ${err.stack}`);
         }) {
           if (Array.isArray(SearchSuggestion.selfDocument)) {
             SearchSuggestion.selfDocument.forEach(($checkParent) => {
-              popsDOMUtils.on($checkParent, ["click", "touchstart"], undefined, SearchSuggestion.hideEvent, option);
+              popsDOMUtils.on($checkParent, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
             });
           } else {
-            popsDOMUtils.on(SearchSuggestion.selfDocument, ["click", "touchstart"], undefined, SearchSuggestion.hideEvent, option);
+            popsDOMUtils.on(SearchSuggestion.selfDocument, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
           }
         },
         /**
@@ -19741,10 +19625,10 @@ ${err.stack}`);
         }) {
           if (Array.isArray(SearchSuggestion.selfDocument)) {
             SearchSuggestion.selfDocument.forEach(($checkParent) => {
-              popsDOMUtils.off($checkParent, ["click", "touchstart"], undefined, SearchSuggestion.hideEvent, option);
+              popsDOMUtils.off($checkParent, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
             });
           } else {
-            popsDOMUtils.off(SearchSuggestion.selfDocument, ["click", "touchstart"], undefined, SearchSuggestion.hideEvent, option);
+            popsDOMUtils.off(SearchSuggestion.selfDocument, ["click", "touchstart"], void 0, SearchSuggestion.hideEvent, option);
           }
         },
         /**
@@ -19796,7 +19680,7 @@ ${err.stack}`);
          */
         removePromptsInSearch() {
           var _a2;
-          (_a2 = SearchSuggestion.$el.$hintULContainer.querySelector(`li.pops-${PopsType}-search-suggestion-hint-searching-item`)) == null ? undefined : _a2.remove();
+          (_a2 = SearchSuggestion.$el.$hintULContainer.querySelector(`li.pops-${PopsType}-search-suggestion-hint-searching-item`)) == null ? void 0 : _a2.remove();
         },
         /**
          * 清空所有的搜索结果
@@ -20378,7 +20262,7 @@ ${err.stack}`);
       /** 配置 */
       __publicField(this, "config", {
         /** 版本号 */
-        version: "2025.3.2",
+        version: "2025.5.1",
         cssText: {
           /** 主CSS */
           index: indexCSS,
@@ -20896,7 +20780,7 @@ ${err.stack}`);
                 tag: "error"
               };
             } finally {
-              $page_test == null ? undefined : $page_test.remove();
+              $page_test == null ? void 0 : $page_test.remove();
             }
           }),
           UIInfo(() => {
@@ -20949,7 +20833,7 @@ ${err.stack}`);
                 tag: "error"
               };
             } finally {
-              $page_test == null ? undefined : $page_test.remove();
+              $page_test == null ? void 0 : $page_test.remove();
             }
           })
         );
@@ -21062,8 +20946,8 @@ ${err.stack}`);
                 tag: "error"
               };
             } finally {
-              $test == null ? undefined : $test.remove();
-              $testCSS == null ? undefined : $testCSS.remove();
+              $test == null ? void 0 : $test.remove();
+              $testCSS == null ? void 0 : $testCSS.remove();
             }
           })
         );
@@ -21157,8 +21041,8 @@ ${err.stack}`);
                     false
                   );
                   domUtils.after(container.$leftContainer, $button);
-                  let timeoutId = undefined;
-                  let listenerId = undefined;
+                  let timeoutId = void 0;
+                  let listenerId = void 0;
                   let tagTextList = [];
                   domUtils.on($button, "click", (event) => {
                     utils.preventEvent(event);
@@ -21249,6 +21133,41 @@ ${err.stack}`);
       return result2;
     }
   }
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      get width() {
+        return window.innerWidth < 550 ? "88vw" : "550px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "70vh" : "450px";
+      }
+    },
+    /**
+     * 功能丰富，aside铺满了的设置界面，要稍微大一点
+     */
+    settingBig: {
+      get width() {
+        return window.innerWidth < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return window.innerHeight < 600 ? "80vh" : "600px";
+      }
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
+    }
+  };
   class ApiTest_cookie extends ApiAsyncTestBase {
     isSupport() {
       return (typeof _GM_cookie === "object" || typeof _GM_cookie === "function") && _GM_cookie != null;
@@ -21385,12 +21304,188 @@ ${err.stack}`);
         );
       }
       if (this.isSupport()) {
+        let newCookieInfo = {
+          name: "test",
+          value: "1",
+          expirationDate: (Date.now() + 24 * 60 * 60 * 1e3) / 1e3
+        };
         result2["forms"][1].forms.push(
           UIInfo(() => {
             try {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
-                tag: "info"
+                text: CommonUtil.escapeHtml("测试list获取所有Cookie"),
+                tag: "info",
+                description: "点击按钮进行测试",
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击执行</span>
+										</button>
+									</div>
+									`,
+                    false,
+                    false
+                  );
+                  domUtils.on($button, "click", (event) => {
+                    try {
+                      utils.preventEvent(event);
+                      _GM_cookie.list({}, (cookies, error2) => {
+                        console.log(cookies);
+                        if (error2) {
+                          qmsg.error(error2);
+                        } else {
+                          if (Array.isArray(cookies)) {
+                            let $alert = __pops.alert({
+                              title: {
+                                text: "GM_cookie.list",
+                                position: "center"
+                              },
+                              content: {
+                                text: "",
+                                html: true
+                              },
+                              drag: true,
+                              mask: {
+                                enable: true
+                              },
+                              width: PanelUISize.setting.width,
+                              height: PanelUISize.setting.height,
+                              style: (
+                                /*css*/
+                                `
+															.pops-alert-content{
+																white-space: pre-wrap;
+															}
+														`
+                              )
+                            });
+                            let $content = $alert.popsElement.querySelector(
+                              ".pops-alert-content"
+                            );
+                            domUtils.text(
+                              $content,
+                              JSON.stringify(cookies, null, 4)
+                            );
+                          } else {
+                            alert("获取的cookie信息不是数组");
+                          }
+                        }
+                      });
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), {
+                        consoleLogContent: true
+                      });
+                    }
+                  });
+                  domUtils.after(container.$leftContainer, $button);
+                }
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          }),
+          UIInfo(() => {
+            try {
+              return {
+                text: CommonUtil.escapeHtml("测试set新增Cookie"),
+                tag: "info",
+                description: JSON.stringify(newCookieInfo),
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击执行</span>
+										</button>
+									</div>
+									`,
+                    false,
+                    false
+                  );
+                  domUtils.on($button, "click", (event) => {
+                    try {
+                      utils.preventEvent(event);
+                      _GM_cookie.set(newCookieInfo, (error2) => {
+                        if (error2) {
+                          qmsg.error(error2, {
+                            consoleLogContent: true
+                          });
+                        } else {
+                          qmsg.success("set cookie success");
+                        }
+                      });
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), {
+                        consoleLogContent: true
+                      });
+                    }
+                  });
+                  domUtils.after(container.$leftContainer, $button);
+                }
+              };
+            } catch (error2) {
+              console.error(error2);
+              return {
+                text: "执行错误 " + error2,
+                tag: "error"
+              };
+            } finally {
+            }
+          }),
+          UIInfo(() => {
+            try {
+              let deleteCookieInfo = {
+                name: "test"
+              };
+              return {
+                text: CommonUtil.escapeHtml("测试delete删除Cookie"),
+                tag: "info",
+                description: JSON.stringify(deleteCookieInfo),
+                afterRender(container) {
+                  let $button = domUtils.parseHTML(
+                    /*html*/
+                    `
+									<div class="pops-panel-button pops-panel-button-no-icon">
+										<button class="pops-panel-button_inner" type="default">
+											<i class="pops-bottom-icon" is-loading="false"></i>
+											<span class="pops-panel-button-text">点击执行</span>
+										</button>
+									</div>
+									`,
+                    false,
+                    false
+                  );
+                  domUtils.on($button, "click", (event) => {
+                    try {
+                      utils.preventEvent(event);
+                      _GM_cookie.delete(deleteCookieInfo, (error2) => {
+                        if (error2) {
+                          qmsg.error(error2, {
+                            consoleLogContent: true
+                          });
+                        } else {
+                          qmsg.success("delete cookie success");
+                        }
+                      });
+                    } catch (error2) {
+                      qmsg.error(error2.toString(), {
+                        consoleLogContent: true
+                      });
+                    }
+                  });
+                  domUtils.after(container.$leftContainer, $button);
+                }
               };
             } catch (error2) {
               console.error(error2);
@@ -21711,7 +21806,7 @@ ${err.stack}`);
               tag: "info",
               afterRender(container) {
                 var _a2;
-                (_a2 = container.target) == null ? undefined : _a2.querySelector(".support-info");
+                (_a2 = container.target) == null ? void 0 : _a2.querySelector(".support-info");
               }
             };
           })
@@ -22242,7 +22337,7 @@ ${err.stack}`);
             },
             {
               key: "Test GM_getValue undefined",
-              value: undefined,
+              value: void 0,
               text: function() {
                 return `存储undefined类型并读取`;
               },
@@ -22674,32 +22769,32 @@ ${err.stack}`);
         result2["forms"][1].forms.push(
           ...[
             {
-              value: _GM_info == null ? undefined : _GM_info.scriptHandler,
+              value: _GM_info == null ? void 0 : _GM_info.scriptHandler,
               type: "string",
               text: "GM_info.scriptHandler"
             },
             {
-              value: _GM_info == null ? undefined : _GM_info.scriptMetaStr,
+              value: _GM_info == null ? void 0 : _GM_info.scriptMetaStr,
               type: "string",
               text: "GM_info.scriptMetaStr"
             },
             {
-              value: _GM_info == null ? undefined : _GM_info.version,
+              value: _GM_info == null ? void 0 : _GM_info.version,
               type: "string",
               text: "GM_info.version"
             },
             {
-              value: _GM_info == null ? undefined : _GM_info.script,
+              value: _GM_info == null ? void 0 : _GM_info.script,
               type: "object",
               text: "GM_info.script"
             },
             {
-              value: (_a2 = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a2.name,
+              value: (_a2 = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a2.name,
               type: "string",
               text: "GM_info.script.name"
             },
             {
-              value: (_b = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _b.version,
+              value: (_b = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _b.version,
               type: "string",
               text: "GM_info.script.version"
             }
@@ -24238,7 +24333,7 @@ ${err.stack}`);
             },
             {
               key: "Test GM_setValue undefined",
-              value: undefined,
+              value: void 0,
               text: function() {
                 return `存储undefined类型`;
               },
@@ -24541,7 +24636,7 @@ ${err.stack}`);
       return "unsafeWindow";
     }
     getAsyncApiOption() {
-      return undefined;
+      return void 0;
     }
     isSupport() {
       return typeof _unsafeWindow === "object" && _unsafeWindow != null;
@@ -24780,13 +24875,13 @@ ${err.stack}`);
       return "GM";
     }
     getAsyncApiOption() {
-      return undefined;
+      return void 0;
     }
     isSupport() {
       return typeof _GM === "object" && _GM != null;
     }
     getUIOption() {
-      return undefined;
+      return void 0;
     }
   }
   const GMTotal = {
@@ -24892,7 +24987,7 @@ ${err.stack}`);
   const domUtils = domUtils$1.noConflict();
   const __pops = pops;
   const log = new utils.Log(_GM_info, window.console);
-  const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -25118,7 +25213,7 @@ ${err.stack}`);
             container.formHeaderDivElement.style.color = "rgb(216, 30, 6)";
             container.formHeaderDivElement.style.fontWeight = "600";
             if (notSupportApiNameList.length === 0) {
-              (_a2 = container.formContainerListElement) == null ? undefined : _a2.remove();
+              (_a2 = container.formContainerListElement) == null ? void 0 : _a2.remove();
             }
           },
           forms: [
@@ -25146,7 +25241,7 @@ ${err.stack}`);
             var _a2;
             container.formHeaderDivElement.style.fontWeight = "600";
             if (supportApiNameList.length === 0) {
-              (_a2 = container.formContainerListElement) == null ? undefined : _a2.remove();
+              (_a2 = container.formContainerListElement) == null ? void 0 : _a2.remove();
             }
           },
           forms: [
@@ -25170,47 +25265,12 @@ ${err.stack}`);
       ]
     };
   };
-  const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
-      get width() {
-        return window.innerWidth < 550 ? "88vw" : "550px";
-      },
-      get height() {
-        return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
-      get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
-      },
-      get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
-      }
-    },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
-      get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
-      },
-      get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
-      }
-    }
-  };
   class GrantTest_onurlchange extends ApiTestBase {
     getApiName() {
       return "window.onurlchange ";
     }
     getAsyncApiOption() {
-      return undefined;
+      return void 0;
     }
     isSupport() {
       return true;
@@ -25309,7 +25369,7 @@ ${err.stack}`);
       return "window.close ";
     }
     getAsyncApiOption() {
-      return undefined;
+      return void 0;
     }
     isSupport() {
       return true;
@@ -25386,7 +25446,7 @@ ${err.stack}`);
       return "window.focus ";
     }
     getAsyncApiOption() {
-      return undefined;
+      return void 0;
     }
     isSupport() {
       return true;
@@ -25663,7 +25723,7 @@ ${err.stack}`);
       Reflect.deleteProperty(locaData, key);
       StorageApi.set(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
+        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
       }
     },
     /**
@@ -25751,7 +25811,7 @@ ${err.stack}`);
       } else {
         runKeyList.push(key);
       }
-      let value = undefined;
+      let value = void 0;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
