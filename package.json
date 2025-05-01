@@ -21,7 +21,7 @@
 		"@types/crypto-js": "^4.2.2",
 		"@types/md5": "^2.3.5",
 		"@whitesev/domutils": "^1.5.3",
-		"@whitesev/pops": "^2.0.2",
+		"@whitesev/pops": "^2.0.3",
 		"@whitesev/utils": "^2.6.5",
 		"artplayer": "^5.2.2",
 		"artplayer-plugin-danmuku": "^5.1.5",
