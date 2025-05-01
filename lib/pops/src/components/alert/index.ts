@@ -2,11 +2,11 @@ import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
-import type { PopsMode } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsAlertConfig } from "./config";
+import type { PopsMode } from "../../types/main";
 import type { PopsAlertDetails } from "./indexType";
 
 export class PopsAlert {
@@ -48,25 +48,18 @@ export class PopsAlert {
 			PopsType,
 			config,
 			/*html*/ `
-			<div 
-				class="pops-alert-title"
-				style="text-align: ${config.title.position};
-				${headerStyle}">
-				${
-					config.title.html
-						? config.title.text
-						: `<p pops style="${headerPStyle}">${config.title.text}</p>`
-				}
-				${headerBtnHTML}
-			</div>
-			<div class="pops-alert-content" style="${contentStyle}">
-				${
-					config.content.html
-						? config.content.text
-						: `<p pops style="${contentPStyle}">${config.content.text}</p>`
-				}
-			</div>
-			${bottomBtnHTML}`,
+			<div class="pops-alert-title" style="text-align: ${
+				config.title.position
+			};${headerStyle}">${
+				config.title.html
+					? config.title.text
+					: `<p pops style="${headerPStyle}">${config.title.text}</p>`
+			}${headerBtnHTML}</div>
+			<div class="pops-alert-content" style="${contentStyle}">${
+				config.content.html
+					? config.content.text
+					: `<p pops style="${contentPStyle}">${config.content.text}</p>`
+			}</div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex
 		);

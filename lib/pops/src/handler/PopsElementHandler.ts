@@ -27,7 +27,7 @@ export const PopsElementHandler = {
 		if (style.startsWith(";")) {
 			style = style.replace(";", "");
 		}
-		return `<div class="pops-mask" data-guid="${guid}" style="z-index:${zIndex};${style}"></div>`;
+		return /*html*/ `<div class="pops-mask" data-guid="${guid}" style="z-index:${zIndex};${style}"></div>`;
 	},
 	/**
 	 * 获取动画层HTML
@@ -62,25 +62,16 @@ export const PopsElementHandler = {
 		}
 		let hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
 		return /*html*/ `
-		<div 
-			class="pops-anim"
-			anim="${__config.animation || ""}"
-			style="${popsAnimStyle}"
-			data-guid="${guid}">
-            ${
-							config.style != null
-								? `<style tyle="text/css">${config.style}</style>`
-								: ""
-						}
-			<div
-				class="pops ${config.class || ""}"
-				data-bottom-btn="${hasBottomBtn}"
-				type-value="${type}"
-				style="${popsStyle}"
-				position="${popsPosition}"
-				data-guid="${guid}">
-				${html}
-			</div>
+		<div class="pops-anim" anim="${
+			__config.animation || ""
+		}" style="${popsAnimStyle}" data-guid="${guid}">${
+			config.style != null
+				? `<style tyle="text/css">${config.style}</style>`
+				: ""
+		}
+			<div class="pops ${
+				config.class || ""
+			}" data-bottom-btn="${hasBottomBtn}" type-value="${type}" style="${popsStyle}" position="${popsPosition}" data-guid="${guid}">${html}</div>
 		</div>`;
 	},
 	/**
@@ -108,23 +99,21 @@ export const PopsElementHandler = {
 			let topRightButtonHTML = "";
 			__config_iframe.topRightButton.split("|").forEach((item: string) => {
 				item = item.toLowerCase();
-				topRightButtonHTML += `
+				topRightButtonHTML += /*html*/ `
                 <button class="pops-header-control" type="${item}">
                     <i class="pops-icon">${
 											(pops.config.iconSVG as any)[item]
 										}</i>
                 </button>`;
 			});
-			resultHTML = `
-            <div class="pops-header-controls" data-margin>
-                ${topRightButtonHTML}
-            </div>`;
+			resultHTML = /*html*/ `
+            <div class="pops-header-controls" data-margin>${topRightButtonHTML}</div>`;
 		} else {
 			if (__config_confirm.btn?.close?.enable) {
-				closeHTML = `
+				closeHTML = /*html*/ `
                 <div class="pops-header-controls">
                     <button class="pops-header-control" type="close" data-header>
-                    <i class="pops-icon">${pops.config.iconSVG["close"]}</i>
+                    	<i class="pops-icon">${pops.config.iconSVG["close"]}</i>
                     </button>
                 </div>`;
 			}
@@ -189,20 +178,15 @@ export const PopsElementHandler = {
 					iconHTML = okIcon;
 				}
 				iconHTML = iconHTML || "";
-				okIconHTML = `
-                <i class="pops-bottom-icon" is-loading="${config.btn.ok.iconIsLoading}">
-                    ${iconHTML}
-                </i>`;
+				okIconHTML = /*html*/ `<i class="pops-bottom-icon" is-loading="${config.btn.ok.iconIsLoading}">${iconHTML}</i>`;
 			}
-			okHTML = `
+			okHTML = /*html*/ `
             <button 
                     class="pops-${type}-btn-ok ${okButtonSizeClassName}"
                     type="${__config_confirm.btn.ok?.type}"
 					data-has-icon="${(__config_confirm.btn.ok!.icon || "") !== ""}"
                     data-rightIcon="${__config_confirm.btn.ok?.rightIcon}"
-            >
-            ${okIconHTML}
-                <span>${config.btn.ok.text}</span>
+            >${okIconHTML}<span>${config.btn.ok.text}</span>
             </button>`;
 		}
 
@@ -228,20 +212,15 @@ export const PopsElementHandler = {
 					iconHTML = cancelIcon;
 				}
 				iconHTML = iconHTML || "";
-				cancelIconHTML = `
-                <i class="pops-bottom-icon" is-loading="${__config_confirm.btn.cancel.iconIsLoading}">
-                    ${iconHTML}
-                </i>`;
+				cancelIconHTML = /*html*/ `<i class="pops-bottom-icon" is-loading="${__config_confirm.btn.cancel.iconIsLoading}">${iconHTML}</i>`;
 			}
-			cancelHTML = `
+			cancelHTML = /*html*/ `
             <button
                     class="pops-${type}-btn-cancel ${cancelButtonSizeClassName}"
                     type="${__config_confirm.btn.cancel.type}"
 					data-has-icon="${(__config_confirm.btn.cancel.icon || "") !== ""}"
                     data-rightIcon="${__config_confirm.btn.cancel.rightIcon}"
-            >
-            ${cancelIconHTML}
-                <span>${__config_confirm.btn.cancel.text}</span>
+            >${cancelIconHTML}<span>${__config_confirm.btn.cancel.text}</span>
             </button>`;
 		}
 
@@ -267,20 +246,15 @@ export const PopsElementHandler = {
 					otherIcon;
 				}
 				iconHTML = iconHTML || "";
-				otherIconHTML = `
-                <i class="pops-bottom-icon" is-loading="${__config_confirm.btn.other.iconIsLoading}">
-                    ${iconHTML}
-                </i>`;
+				otherIconHTML = /*html*/ `<i class="pops-bottom-icon" is-loading="${__config_confirm.btn.other.iconIsLoading}">${iconHTML}</i>`;
 			}
-			ohterHTML = `
+			ohterHTML = /*html*/ `
             <button
                     class="pops-${type}-btn-other ${otherButtonSizeClassName}"
                     type="${__config_confirm.btn.other.type}"
 					data-has-icon="${(__config_confirm.btn.other.icon || "") !== ""}"
                     data-rightIcon="${__config_confirm.btn.other.rightIcon}"
-            >
-            ${otherIconHTML}
-                <span>${__config_confirm.btn.other.text}</span>
+            >${otherIconHTML}<span>${__config_confirm.btn.other.text}</span>
             </button>`;
 		}
 
@@ -291,34 +265,22 @@ export const PopsElementHandler = {
 			} else {
 				flexStyle += "flex-direction: row;";
 			}
-			resultHTML = `
-            <div class="pops-${type}-btn" style="${btnStyle}">
-                ${ohterHTML}
-                <div 
+			resultHTML = /*html*/ `
+            <div class="pops-${type}-btn" style="${btnStyle}">${ohterHTML}<div 
                     class="pops-${type}-btn-merge"
-                    style="${flexStyle}">
-                    ${okHTML}
-                    ${cancelHTML}
-                </div>
+                    style="${flexStyle}">${okHTML}${cancelHTML}</div>
             </div>
             `;
 		} else {
-			resultHTML = `
-            <div class="pops-${type}-btn" style="${btnStyle}">
-                ${okHTML}
-                ${cancelHTML}
-                ${ohterHTML}
-            </div>
-            `;
+			resultHTML = /*html*/ `<div class="pops-${type}-btn" style="${btnStyle}">${okHTML}${cancelHTML}${ohterHTML}</div>`;
 		}
 		return resultHTML;
 	},
 	/**
 	 * 获取标题style
-	 * @param type
-	 * @param config
+	 * @param type 弹窗类型
+	 * @param config 弹窗配置
 	 */
-
 	getHeaderStyle(
 		type: PopsTypeSupportHeaderTitle,
 		config: PopsSupportHeaderTitle[keyof PopsSupportHeaderTitle]
@@ -331,10 +293,9 @@ export const PopsElementHandler = {
 	},
 	/**
 	 * 获取内容style
-	 * @param type
-	 * @param config
+	 * @param type 弹窗类型
+	 * @param config 弹窗配置
 	 */
-
 	getContentStyle(
 		type: PopsTypeSupportContent,
 		config: PopsSupportContent[keyof PopsSupportContent]

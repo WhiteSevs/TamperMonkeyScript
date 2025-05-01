@@ -50,26 +50,16 @@ export class PopsConfirm {
 			/*html*/ `
             <div class="pops-confirm-title" style="text-align: ${
 							config.title.position
-						};${headerStyle}">
-                            ${
-															config.title.html
-																? config.title.text
-																: `<p pops style="${headerPStyle}">${config.title.text}</p>`
-														}
-                ${headerBtnHTML}
-                        </div>
-                        <div class="pops-confirm-content" style="${contentStyle}">
-                ${
-									config.content.html
-										? config.content.text
-										: `<p pops style="${contentPStyle}">${config.content.text}</p>`
-								}
-                
-                        </div>
-
-						
-                        ${bottomBtnHTML}
-            `,
+						};${headerStyle}">${
+				config.title.html
+					? config.title.text
+					: `<p pops style="${headerPStyle}">${config.title.text}</p>`
+			}${headerBtnHTML}</div>
+                        <div class="pops-confirm-content" style="${contentStyle}">${
+				config.content.html
+					? config.content.text
+					: `<p pops style="${contentPStyle}">${config.content.text}</p>`
+			}</div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex
 		);

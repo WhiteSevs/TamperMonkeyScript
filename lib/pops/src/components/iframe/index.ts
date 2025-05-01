@@ -57,31 +57,22 @@ export class PopsIframe {
 			PopsType,
 			config,
 			/*html*/ `
-            <div 
-                class="pops-iframe-title"
-                style="text-align: ${config.title.position};${headerStyle}"
-            >
-                ${
-									config.title.html
-										? titleText
-										: `<p pops style="${headerPStyle}">${titleText}</p>`
-								}
-                ${headerBtnHTML}
-            </div>
-                        <div class="pops-iframe-content">
+            <div class="pops-iframe-title" style="text-align: ${
+							config.title.position
+						};${headerStyle}">${
+				config.title.html
+					? titleText
+					: `<p pops style="${headerPStyle}">${titleText}</p>`
+			}${headerBtnHTML}</div>
+			<div class="pops-iframe-content">
                 <div class="pops-iframe-content-global-loading"></div>
-                <iframe
-                        src="${config.url}"
-                        pops
-                        ${
-													config.sandbox
-														? "sandbox='allow-forms allow-same-origin allow-scripts'"
-														: ""
-												}>
+                <iframe src="${config.url}" pops ${
+				config.sandbox
+					? "sandbox='allow-forms allow-same-origin allow-scripts'"
+					: ""
+			}>
                 </iframe>
-                </div>
-                ${config.loading.enable ? iframeLoadingHTML : ""}
-            `,
+			</div>${config.loading.enable ? iframeLoadingHTML : ""}`,
 			"",
 			zIndex
 		);

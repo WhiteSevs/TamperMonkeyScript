@@ -120,20 +120,17 @@ export class PopsFolder {
 			guid,
 			PopsType,
 			config,
-			`
+			/*html*/ `
             <div class="pops-folder-title" style="text-align: ${
 							config.title.position
-						};${headerStyle}">
-                            ${
-															config.title.html
-																? config.title.text
-																: `<p pops style="${headerPStyle}">${config.title.text}</p>`
-														}
-                ${headerBtnHTML}
-                        </div>
-                        <div class="pops-folder-content ${
-													pops.isPhone() ? "pops-mobile-folder-content" : ""
-												}">
+						};${headerStyle}">${
+				config.title.html
+					? config.title.text
+					: `<p pops style="${headerPStyle}">${config.title.text}</p>`
+			}${headerBtnHTML}</div>
+			<div class="pops-folder-content ${
+				pops.isPhone() ? "pops-mobile-folder-content" : ""
+			}">
                 <div class="pops-folder-list">
                     <div class="pops-folder-file-list-breadcrumb">
                     <div class="pops-folder-file-list-breadcrumb-primary">
@@ -145,7 +142,6 @@ export class PopsFolder {
                     <div class="pops-folder-list-table__header-div">
                     <table class="pops-folder-list-table__header">
                         <colgroup>
-                        <!-- <col width="8%"> --!>
                         <col width="52%">
                         <col width="24%">
                         <col width="16%">
@@ -216,7 +212,6 @@ export class PopsFolder {
                     <div class="pops-folder-list-table__body-div">
                     <table class="pops-folder-list-table__body">
                         <colgroup>
-                        <!-- <col width="8%"> --!>
                         ${
 													pops.isPhone()
 														? `<col width="100%">`
@@ -233,9 +228,7 @@ export class PopsFolder {
                     </table>
                     </div>
                 </div>
-            </div>
-            ${bottomBtnHTML}
-            `,
+            </div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex
 		);
@@ -495,9 +488,7 @@ export class PopsFolder {
 				<div class="pops-folder-list-file-name pops-mobile-folder-list-file-name cursor-p">
 					<img src="${fileIcon}" alt="${fileType}" class="pops-folder-list-file-icon u-file-icon u-file-icon--list">
 					<div>
-						<a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">
-							${fileName}
-						</a>
+						<a title="${fileName}" class="pops-folder-list-file-name-title-text inline-block-v-middle text-ellip list-name-text">${fileName}</a>
 						<span>${latestTime} ${fileSize}</span>
 					</div>
 				</div>

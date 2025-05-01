@@ -30,23 +30,21 @@ export class PopsLoading {
 			PopsType,
 			config,
 			/*html*/ `
-            <div class="pops-loading-content">
-                ${
-									config.addIndexCSS
-										? `
+            <div class="pops-loading-content">${
+							config.addIndexCSS
+								? /*html*/ `
                 <style data-model-name="index">${pops.config.cssText.index}</style>
                 <style data-model-name="anim">${pops.config.cssText.anim}</style>
                 <style data-model-name="common">${pops.config.cssText.common}</style>
                 `
-										: ""
-								}
+								: ""
+						}
                 <style data-model-name="loadingCSS">
                     ${pops.config.cssText.loadingCSS}
                 </style>
             ${config.style != null ? `<style>${config.style}</style>` : ""}
-            <p pops style="${contentPStyle}">${config.content.text}</p>
-            </div>
-            `,
+            	<p pops style="${contentPStyle}">${config.content.text}</p>
+            </div>`,
 			"",
 			zIndex
 		);

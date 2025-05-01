@@ -2,10 +2,10 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import type { PopsSearchSuggestionDetails } from "./indexType";
 import { searchSuggestionConfig as PopsSearchSuggestionConfig } from "./config";
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
+import type { PopsSearchSuggestionDetails } from "./indexType";
 
 export class PopsSearchSuggestion {
 	constructor(details: PopsSearchSuggestionDetails) {
@@ -105,9 +105,9 @@ export class PopsSearchSuggestion {
 						<style data-dynamic="true">
 							${this.getDynamicCSS()}
 						</style>
-						<ul class="pops-${PopsType}-search-suggestion-hint">
-							${config.toSearhNotResultHTML}
-						</ul>
+						<ul class="pops-${PopsType}-search-suggestion-hint">${
+							config.toSearhNotResultHTML
+						}</ul>
          				 `,
 					},
 					{
@@ -188,14 +188,9 @@ export class PopsSearchSuggestion {
 					className: `pops-${PopsType}-search-suggestion-hint-item pops-flex-items-center pops-flex-y-center`,
 					"data-index": index,
 					"data-value": SearchSuggestion.getItemDataValue(data),
-					innerHTML: `
-          			${config.getItemHTML(data)}
-          			${
-									config.deleteIcon.enable
-										? SearchSuggestion.getDeleteIconHTML()
-										: ""
-								}
-          			`,
+					innerHTML: `${config.getItemHTML(data)}${
+						config.deleteIcon.enable ? SearchSuggestion.getDeleteIconHTML() : ""
+					}`,
 				});
 			},
 			/**
@@ -514,7 +509,7 @@ export class PopsSearchSuggestion {
 			 */
 			removePromptsInSearch() {
 				SearchSuggestion.$el.$hintULContainer
-					.querySelector(
+					.querySelector<HTMLLIElement>(
 						`li.pops-${PopsType}-search-suggestion-hint-searching-item`
 					)
 					?.remove();

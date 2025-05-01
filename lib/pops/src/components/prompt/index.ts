@@ -51,29 +51,22 @@ export class PopsPrompt {
 			/*html*/ `
             <div class="pops-prompt-title" style="text-align: ${
 							config.title.position
-						};${headerStyle}">
-            ${
-							config.title.html
-								? config.title.text
-								: `<p pops style="${headerPStyle}">${config.title.text}</p>`
-						}
-            ${headerBtnHTML}
-            </div>
-            <div class="pops-prompt-content" style="${contentPStyle}">
-            ${
-							config.content.row
-								? '<textarea pops="" placeholder="' +
-								  config.content.placeholder +
-								  '"></textarea>'
-								: '<input pops="" placeholder="' +
-								  config.content.placeholder +
-								  '" type="' +
-								  (config.content.password ? "password" : "text") +
-								  '">'
-						}
-            </div>
-        	${bottomBtnHTML}
-            `,
+						};${headerStyle}">${
+				config.title.html
+					? config.title.text
+					: `<p pops style="${headerPStyle}">${config.title.text}</p>`
+			}${headerBtnHTML}</div>
+            <div class="pops-prompt-content" style="${contentPStyle}">${
+				config.content.row
+					? '<textarea pops="" placeholder="' +
+					  config.content.placeholder +
+					  '"></textarea>'
+					: '<input pops="" placeholder="' +
+					  config.content.placeholder +
+					  '" type="' +
+					  (config.content.password ? "password" : "text") +
+					  '">'
+			}</div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex
 		);

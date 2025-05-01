@@ -31,8 +31,8 @@ export declare const PopsElementHandler: {
     getBottomBtnHTML(type: PopsTypeSupportBottomBtn, config: Omit<PopsSupportBottomBtn[keyof PopsSupportBottomBtn], "content">): string;
     /**
      * 获取标题style
-     * @param type
-     * @param config
+     * @param type 弹窗类型
+     * @param config 弹窗配置
      */
     getHeaderStyle(type: PopsTypeSupportHeaderTitle, config: PopsSupportHeaderTitle[keyof PopsSupportHeaderTitle]): {
         headerStyle: string;
@@ -40,8 +40,8 @@ export declare const PopsElementHandler: {
     };
     /**
      * 获取内容style
-     * @param type
-     * @param config
+     * @param type 弹窗类型
+     * @param config 弹窗配置
      */
     getContentStyle(type: PopsTypeSupportContent, config: PopsSupportContent[keyof PopsSupportContent]): {
         contentStyle: string;

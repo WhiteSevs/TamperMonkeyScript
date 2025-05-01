@@ -49,34 +49,19 @@ export class PopsDrawer {
 			/*html*/ `
             ${
 							config.title.enable
-								? `
-            <div class="pops-${PopsType}-title" style="${headerStyle}">
-                ${
-									config.title.html
-										? config.title.text
-										: `<p 
-                            pops
-                            style="
-                                width: 100%;
-                                text-align: ${config.title.position};
-                                ${headerPStyle}">${config.title.text}</p>`
-								}
-                ${headerBtnHTML}
-            </div>
-            `
+								? /*html*/ `
+            <div class="pops-${PopsType}-title" style="${headerStyle}">${
+										config.title.html
+											? config.title.text
+											: /*html*/ `<p pops style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
+								  }${headerBtnHTML}</div>`
 								: ""
 						}
-            
-            <div class="pops-${PopsType}-content" style="${contentStyle}">
-                ${
-									config.content.html
-										? config.content.text
-										: `<p pops style="${contentPStyle}">${config.content.text}</p>`
-								}
-            </div>
-
-            ${bottomBtnHTML}
-            `,
+            <div class="pops-${PopsType}-content" style="${contentStyle}">${
+				config.content.html
+					? config.content.text
+					: `<p pops style="${contentPStyle}">${config.content.text}</p>`
+			}</div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex
 		);

@@ -258,9 +258,7 @@ export const PanelHandleContentDetails = () => {
 				liElement,
 				/*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-					${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-switch">
 					<input class="pops-panel-switch__input" type="checkbox">
 					<span class="pops-panel-switch__core">
@@ -380,9 +378,7 @@ export const PanelHandleContentDetails = () => {
 				liElement,
 				/*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-					${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-slider">
 					<input type="range" min="${formConfig.min}" max="${formConfig.max}">
 				</div>
@@ -458,9 +454,7 @@ export const PanelHandleContentDetails = () => {
 				liElement,
 				/*html*/ `
 				<div class="pops-panel-item-left-text" style="flex: 1;">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-					${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-slider pops-slider-width">
 					<div class="pops-slider__runway">
 						<div class="pops-slider__bar" style="width: 0%; left: 0%"></div>
@@ -1053,9 +1047,7 @@ export const PanelHandleContentDetails = () => {
 				liElement,
 				/*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-input pops-user-select-none">
 					<input type="${inputType}" placeholder="${formConfig.placeholder}">
 				</div>
@@ -1270,12 +1262,11 @@ export const PanelHandleContentDetails = () => {
 				liElement,
 				/*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${
+						formConfig.text
+					}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-textarea">
-					<textarea placeholder="${formConfig.placeholder ?? ""}">
-				</textarea>
+					<textarea placeholder="${formConfig.placeholder ?? ""}"></textarea>
 				</div>
 			`
 			);
@@ -1365,9 +1356,7 @@ export const PanelHandleContentDetails = () => {
 				liElement,
 				/*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-select pops-user-select-none">
 					<select></select>
 				</div>
@@ -1601,9 +1590,7 @@ export const PanelHandleContentDetails = () => {
 				liElement,
 				/*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-				${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-select-multiple">
 					<div class="el-select__wrapper">
 						<div class="el-select__selection">
@@ -1931,9 +1918,7 @@ export const PanelHandleContentDetails = () => {
 						function createSelectItemElement(dataInfo: { text: string }) {
 							let $item = popsDOMUtils.createElement("li", {
 								className: "select-item",
-								innerHTML: /*html*/ `
-									<span>${dataInfo.text}</span>
-								`,
+								innerHTML: /*html*/ `<span>${dataInfo.text}</span>`,
 							});
 							Reflect.set($item, "data-info", dataInfo);
 							return $item;
@@ -2231,9 +2216,7 @@ export const PanelHandleContentDetails = () => {
 				liElement,
 				/*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-					${leftDescriptionText}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-button">
 					<button class="pops-panel-button_inner">
 						<i class="pops-bottom-icon"></i>
@@ -2409,13 +2392,8 @@ export const PanelHandleContentDetails = () => {
 				$li,
 				/*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>
-					${leftDescriptionText}
-				</div>
-				<div class="pops-panel-deepMenu">
-					${rightText}
-					${arrowRightIconHTML}
-				</div>
+					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+				<div class="pops-panel-deepMenu">${rightText}${arrowRightIconHTML}</div>
 				`
 			);
 			const PopsPanelDeepMenu = {

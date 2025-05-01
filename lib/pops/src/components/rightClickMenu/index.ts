@@ -2,11 +2,11 @@ import { OriginPrototype } from "../../Core";
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { pops } from "../../Pops";
-import type { PopsIcon } from "../../types/icon";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { rightClickMenuConfig as PopsRightClickMenuConfig } from "./config";
+import type { PopsIcon } from "../../types/icon";
 import type {
 	PopsRightClickMenuDataDetails,
 	PopsRightClickMenuDetails,
@@ -447,7 +447,7 @@ export class PopsRightClickMenu {
 						let iconSVGHTML =
 							pops.config.iconSVG[item.icon as PopsIcon] ?? item.icon;
 						let iconElement = popsUtils.parseTextToDOM(
-							`<i class="pops-${PopsType}-icon" is-loading="${item.iconIsLoading}">${iconSVGHTML}</i>`
+							/*html*/ `<i class="pops-${PopsType}-icon" is-loading="${item.iconIsLoading}">${iconSVGHTML}</i>`
 						);
 						menuLiElement.appendChild(iconElement);
 					}
@@ -473,11 +473,13 @@ export class PopsRightClickMenu {
 								return;
 							}
 							function removeElement(element: HTMLElement) {
-								element.querySelectorAll("ul li").forEach((ele) => {
-									if ((ele as any)?.__menuData__?.child) {
-										removeElement((ele as any).__menuData__.child);
-									}
-								});
+								element
+									.querySelectorAll<HTMLLIElement>("ul li")
+									.forEach((ele) => {
+										if ((ele as any)?.__menuData__?.child) {
+											removeElement((ele as any).__menuData__.child);
+										}
+									});
 								element.remove();
 							}
 							/* 遍历根元素的上的__menuData__.child，判断 */
