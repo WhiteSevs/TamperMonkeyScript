@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.4.10
+// @version      2025.5.2
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,14 +13,14 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
-// @require      https://fastly.jsdelivr.net/npm/artplayer@5.2.2/dist/artplayer.js
+// @require      https://fastly.jsdelivr.net/npm/artplayer@5.2.3/dist/artplayer.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@aca6fb3795ea03b9614cd32613e2588e60470524/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
@@ -2046,6 +2046,13 @@
                     true,
                     void 0,
                     "一般用于处理楼层的回复弹窗内无法选中复制问题"
+                  ),
+                  UISwitch(
+                    "跳过【观看高清流畅视频】弹窗",
+                    "bili-close-wake-app-dialog",
+                    true,
+                    void 0,
+                    "监听页面加载并关闭该弹窗"
                   )
                   // UISwitch(
                   // 	"自动删除Cookie buvid3",
@@ -2065,18 +2072,34 @@
                 type: "forms",
                 forms: [
                   UISwitch(
+                    "noCallApp",
+                    "bili-noCallApp",
+                    true,
+                    void 0,
+                    "$store.state.common.noCallApp=true"
+                  ),
+                  UISwitch(
                     "isLogin",
                     "bili-setLogin",
                     true,
                     void 0,
-                    "$store.state.common.noCallApp=true<br>$store.state.common.userInfo.isLogin=true<br>$store.state.loginInfo.isLogin=true"
+                    [
+                      "$store.state.common.userInfo.isLogin=true",
+                      "$store.state.loginInfo.isLogin=true"
+                    ].join("<br>")
                   ),
                   UISwitch(
                     "isClient",
                     "bili-setIsClient",
                     true,
                     void 0,
-                    "$store.state.video.isClient=true<br>$store.state.opus.isClient=true<br>$store.state.playlist.isClient=true<br>$store.state.ver.bili=true<br>$store.state.ver.biliVer=2333"
+                    [
+                      "$store.state.video.isClient=true",
+                      "$store.state.opus.isClient=true",
+                      "$store.state.playlist.isClient=true",
+                      "$store.state.ver.bili=true",
+                      "$store.state.ver.biliVer=2333"
+                    ].join("<br>")
                   )
                   // UISwitch(
                   // 	"tinyApp",
@@ -4754,7 +4777,7 @@
     }
   };
   const artPlayerCSS$1 = ".artplayer-container {\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	overflow: hidden;\r\n}";
-  const artPlayerCommonCSS = "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n	display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n	max-width: 100px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: linear-gradient(to bottom, #000, transparent);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n	width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n	/* 放在右边 */\r\n	right: 0;\r\n	left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
+  const artPlayerCommonCSS = "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n	display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n	max-width: 100px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n	/* 修正小屏下宽度溢出 */\r\n	.art-controls .art-control {\r\n		max-width: 60px;\r\n		white-space: pre-wrap;\r\n	}\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: linear-gradient(to bottom, #000, transparent);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n	width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n	/* 放在右边 */\r\n	right: 0;\r\n	left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
   const BilibiliApiRequestCheck = {
     /**
      * 合并并检查是否传入aid或者bvid
@@ -6091,7 +6114,7 @@
          */
         addSetting(selectorList) {
           let settingOption = this.getSettingOption();
-          if (selectorList) {
+          if (selectorList && selectorList.length) {
             settingOption.selector.push(...selectorList);
             let firstSubTitle = settingOption.selector[0];
             let currentSelectSubTitle = {
@@ -6121,7 +6144,7 @@
             SubTitleData.currentSelectIndex = currentSelectSubTitle.index;
           }
           if (this.isAddSetting()) {
-            console.log(TAG$3 + "更新字幕菜单", selectorList);
+            console.log(TAG$3 + "更新字幕菜单", selectorList ?? []);
             that.art.setting.update(settingOption);
           } else {
             that.art.setting.add(settingOption);
@@ -6554,13 +6577,59 @@
     constructor(art, from) {
       __publicField(this, "art");
       __publicField(this, "from");
+      __publicField(this, "$key", {
+        SETTING_KEY: "video-playback-codeid"
+      });
       this.art = art;
       this.from = from;
+      this.updateSetting();
     }
     /**
-     * 添加设置界面
+     * 更新设置菜单
+     * @param codeIdConfig 配置
      */
-    addSetting() {
+    updateSetting(codeIdConfig) {
+      let setting = this.getSetting();
+      if (Array.isArray(codeIdConfig == null ? void 0 : codeIdConfig.acceptCodeIdList)) {
+        for (let index = 0; index < setting.selector.length; index++) {
+          const selectorItem = setting.selector[index];
+          let findIndex = codeIdConfig.acceptCodeIdList.findIndex(
+            (item) => item.toString() === selectorItem.value.toString()
+          );
+          if (findIndex === -1) {
+            setting.selector.splice(index, 1);
+            index--;
+          }
+        }
+        let hasDefault = setting.selector.find((it) => it.default);
+        if (!hasDefault && setting.selector.length) {
+          if (typeof (codeIdConfig == null ? void 0 : codeIdConfig.defaultCodeId) === "number") {
+            let findDefaultIndex = setting.selector.findIndex(
+              (it) => it.value === codeIdConfig.defaultCodeId
+            );
+            if (findDefaultIndex !== -1) {
+              setting.selector[findDefaultIndex].default = true;
+              setting.tooltip = setting.selector[findDefaultIndex].html;
+            } else {
+              setting.selector[0].default = true;
+              setting.tooltip = setting.selector[0].html;
+            }
+          } else {
+            setting.selector[0].default = true;
+            setting.tooltip = setting.selector[0].html;
+          }
+        }
+      }
+      if (this.art.setting.find(this.$key.SETTING_KEY)) {
+        this.art.setting.update(setting);
+      } else {
+        this.art.setting.add(setting);
+      }
+    }
+    /**
+     * 获取设置界面的配置
+     */
+    getSetting() {
       const that = this;
       let userChooseVideoCodingCode = this.getUserChooseVideoCodingCode();
       let selectorList = [
@@ -6583,14 +6652,17 @@
       );
       let findValue = selectorList.find((it) => it.default);
       if (!findValue) {
-        selectorList = selectorList.map((it) => {
-          it.default = it.value === VideoCodingCodeMap.AV1;
+        selectorList = selectorList.map((it, index) => {
+          it.default = index === 0;
           return it;
         });
+        console.warn(
+          TAG$1 + "没有找到用户选择对应的画质编码，将使用排序第一个的画质：" + selectorList[0].html
+        );
       }
       let tooltip = selectorList.find((it) => it.default);
-      this.art.setting.add({
-        name: "video-playback-codeid",
+      return {
+        name: this.$key.SETTING_KEY,
         html: "播放策略",
         tooltip: tooltip.html,
         icon: `<svg t="1727413004405" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3183" width="24" height="24"><path d="M170.666667 256h682.666666c23.466667 0 42.666667 19.2 42.666667 42.666667v170.666666h85.333333V256c0-46.933333-38.4-85.333333-85.333333-85.333333H128c-46.933333 0-85.333333 38.4-85.333333 85.333333v512c0 46.933333 38.4 85.333333 85.333333 85.333333h384v-85.333333H170.666667c-23.466667 0-42.666667-19.2-42.666667-42.666667V298.666667c0-23.466667 19.2-42.666667 42.666667-42.666667z" p-id="3184"></path><path d="M640 512L384 341.333333v341.333334zM968.96 786.346667c1.28-12.373333 1.706667-24.746667 0.426667-36.693334l45.653333-36.266666c4.266667-3.413333 5.12-8.96 2.56-13.653334l-43.946667-76.373333c-2.56-4.693333-8.106667-6.4-13.226666-4.693333l-54.613334 21.333333a146.773333 146.773333 0 0 0-32-17.92l-8.533333-58.026667a10.624 10.624 0 0 0-10.666667-9.386666h-88.32c-5.12 0-9.813333 3.84-10.666666 8.96l-8.533334 58.026666c-11.093333 4.693333-21.76 11.093333-31.573333 17.92l-54.613333-21.333333c-5.12-2.133333-10.666667 0-13.226667 4.693333l-43.946667 76.373334c-2.56 4.693333-1.706667 10.24 2.56 13.653333l45.653334 36.693333c-1.28 12.373333-1.706667 24.746667-0.426667 36.693334l-45.653333 36.266666c-4.266667 3.413333-5.12 8.96-2.56 13.653334l43.946666 76.373333c2.56 4.693333 8.106667 6.4 13.226667 4.693333l54.186667-21.333333c9.813333 7.253333 20.48 13.226667 32 17.92l8.533333 58.026667c0.853333 5.12 5.12 8.96 10.666667 8.96h88.32c5.12 0 9.813333-3.84 10.666666-8.96l8.533334-58.026667c11.093333-4.693333 21.76-11.093333 31.573333-17.92l54.613333 21.333333c5.12 2.133333 10.666667 0 13.226667-4.693333l43.946667-76.373333c2.56-4.693333 1.706667-10.24-2.56-13.653334l-45.226667-36.266666zM810.666667 832c-35.413333 0-64-28.586667-64-64s28.586667-64 64-64 64 28.586667 64 64-28.586667 64-64 64z" p-id="3185"></path></svg>`,
@@ -6601,7 +6673,7 @@
           that.onSettingSelect(videoCodingCode);
           return item.html;
         }
-      });
+      };
     }
     /**
      * 菜单选项选中后的回调
@@ -6635,15 +6707,19 @@
     constructor(art, from) {
       super(art, from);
       __publicField(this, "$data", {
+        /** 请求到的视频画质信息数据 */
         qualityOption: null,
         /** 处理后的画质列表 */
         qualityOptionList: [],
+        /** 请求到的视频的画质编码列表 */
+        qualityCodeIdList: [],
+        /** 当前的画质编码id */
+        currentQualityCodecId: VideoCodingCodeMap["AV1"],
         /** 当前选中的画质信息 */
         currentSelectQualityInfo: null,
         /** 当前选中的画质配置  */
         currentQualityOption: null
       });
-      super.addSetting();
     }
     /**
      * 设置当前画质配置数据
@@ -6664,12 +6740,18 @@
     update(option) {
       this.$data.qualityOption = null;
       this.$data.qualityOption = option;
-      this.$data.currentSelectQualityInfo = null;
       this.$data.qualityOptionList = [];
+      this.$data.qualityCodeIdList = [];
+      this.$data.currentSelectQualityInfo = null;
+      this.$data.currentQualityCodecId = void 0;
       this.setCurrentQualityOption();
       if (option.qualityList.length) {
-        let currentSelectQualityInfo = this.updateQualityInfo();
+        let currentSelectQualityInfo = this.getQualityInfo();
         this.addControls();
+        super.updateSetting({
+          acceptCodeIdList: this.$data.qualityCodeIdList,
+          defaultCodeId: this.$data.currentQualityCodecId
+        });
         this.art.url = currentSelectQualityInfo.url;
       } else {
         this.removeControls();
@@ -6739,19 +6821,32 @@
     /**
      * 更新画质信息
      */
-    updateQualityInfo() {
+    getQualityInfo() {
       let userChooseVideoCodingCode = this.getUserChooseVideoCodingCode();
       let qualityList = this.$data.qualityOption.qualityList.filter(
         (item) => item.codecid === userChooseVideoCodingCode
       );
-      if (qualityList.length === 0) {
-        qualityList = this.$data.qualityOption.qualityList;
-      }
       qualityList.sort((leftItem, rightItem) => {
         return rightItem.quality - leftItem.quality;
       });
+      const qualityListMap = {};
+      for (let index = 0; index < this.$data.qualityOption.qualityList.length; index++) {
+        const qualityItem = this.$data.qualityOption.qualityList[index];
+        const qualityMapValue = qualityListMap[qualityItem.codecid] || [];
+        qualityMapValue.push(qualityItem);
+        qualityListMap[qualityItem.codecid] = qualityMapValue;
+      }
+      if (qualityList.length === 0) {
+        qualityList = Object.values(qualityListMap)[0];
+        this.$data.currentQualityCodecId = qualityList[0].codecid;
+        console.warn(
+          TAG$1 + "该画质：" + userChooseVideoCodingCode + "不存在，将使用第一个画质",
+          qualityList
+        );
+      }
       this.$data.qualityOptionList = [];
       this.$data.qualityOptionList = qualityList;
+      this.$data.qualityCodeIdList = Object.keys(qualityListMap);
       let firstQualityInfo = qualityList[0];
       const storageKey = this.getStorageKey(this.$data.qualityOption.from);
       const storageQualityInfo = this.art.storage.get(
@@ -6759,9 +6854,9 @@
       );
       let currentSelectQualityInfo = {
         index: 0,
-        html: firstQualityInfo.html,
+        html: firstQualityInfo == null ? void 0 : firstQualityInfo.html,
         /** 播放的地址 */
-        url: firstQualityInfo.url
+        url: firstQualityInfo == null ? void 0 : firstQualityInfo.url
       };
       this.setCurrentQualityOption(qualityList[0]);
       if (storageQualityInfo) {
@@ -6809,8 +6904,12 @@
       return Reflect.has(this.art.controls, ArtPlayer_PLUGIN_QUALITY_KEY);
     }
     onSettingSelect(selectValue) {
-      this.updateQualityInfo();
+      this.getQualityInfo();
       this.updateQualityControls();
+      this.updateSetting({
+        acceptCodeIdList: this.$data.qualityCodeIdList,
+        defaultCodeId: this.$data.currentQualityCodecId
+      });
       if (this.$data.currentSelectQualityInfo) {
         this.art.url = this.$data.currentSelectQualityInfo.url;
       }
@@ -9860,78 +9959,75 @@
      */
     addCommentModule() {
       log.info(`新增评论模块`);
-      if (this.$data.isInitCommentModule) {
-        let $commentModuleWrapper = $(
-          "#comment-module-wrapper"
+      if (!this.$data.isInitCommentModule) {
+        this.$data.isInitCommentModule = true;
+        CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
+        addStyle(MobileCommentModuleStyle);
+        addStyle(
+          /*css*/
+          `
+				.comment-container{
+					position: relative;
+				}
+				.comment-container .reply-header{
+					position: sticky;
+					top: 0;
+					z-index: 999;
+					left: 0;
+					right: 0;
+					background: #fff;
+				}
+				#comment-module-wrapper{
+					position: fixed;
+					top: 0;
+					left: 0;
+					z-index: 2000;
+					display: none;
+					width: 100vw;
+					height: 100vh;
+					background-color: #fff;
+					overflow-x: hidden;
+				}
+				.close-comment-module-btn{
+					position: fixed;
+					right: 20px;
+					bottom: 20px;
+					z-index: 2001;
+					display: none;
+					justify-content: center;
+					align-items: center;
+					width: 40px;
+					height: 40px;
+					color: #fff;
+					border-radius: 100%;
+					background-color: var(--bili-color);
+				}
+			`
         );
-        domutils.empty($commentModuleWrapper);
-        MobileCommentModule.init($commentModuleWrapper);
-        return;
+        addStyle(
+          /*css*/
+          `
+				.comment-module-show-btn{
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					margin: 0 12px 20px 12px;
+					height: 40px;
+					color: #fff;
+					border-radius: 4px;
+					background-color: var(--bili-color);
+				}
+			`
+        );
       }
-      this.$data.isInitCommentModule = true;
-      CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
-      addStyle(MobileCommentModuleStyle);
-      addStyle(
-        /*css*/
-        `
-			.comment-container{
-				position: relative;
-			}
-			.comment-container .reply-header{
-				position: sticky;
-				top: 0;
-				z-index: 999;
-				left: 0;
-				right: 0;
-				background: #fff;
-			}
-			#comment-module-wrapper{
-				position: fixed;
-				top: 0;
-				left: 0;
-				z-index: 2000;
-				display: none;
-				width: 100vw;
-				height: 100vh;
-				background-color: #fff;
-				overflow-x: hidden;
-			}
-			.close-comment-module-btn{
-				position: fixed;
-				right: 20px;
-				bottom: 20px;
-				z-index: 2001;
-				display: none;
-				justify-content: center;
-				align-items: center;
-				width: 40px;
-				height: 40px;
-				color: #fff;
-				border-radius: 100%;
-				background-color: var(--bili-color);
-			}
-		`
-      );
-      addStyle(
-        /*css*/
-        `
-			.comment-module-show-btn{
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				margin: 0 12px 20px 12px;
-				height: 40px;
-				color: #fff;
-				border-radius: 4px;
-				background-color: var(--bili-color);
-			}
-		`
-      );
       utils.waitNode(".m-video-info", 1e4).then(($videoInfo) => {
         if (!$videoInfo) {
           log.error(`获取视频信息元素失败`);
           return;
         }
+        domutils.remove(".comment-module-show-btn");
+        domutils.remove(".close-comment-module-btn");
+        domutils.remove("#comment-module-wrapper");
         const history_hash = "comment-module";
         let gestureBack = new GestureBack({
           hash: history_hash,
@@ -10895,7 +10991,7 @@
     }
   };
   function handleDashVideoQualityInfo(dashInfo) {
-    let result = [];
+    let acceptVideoQualityInfoList = [];
     dashInfo.video.forEach((dashVideoInfo) => {
       if (!dashInfo.accept_quality.includes(dashVideoInfo.id)) {
         return;
@@ -10911,7 +11007,7 @@
       );
       videoUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(videoUrl);
       let qualityName = findSupportFormat == null ? void 0 : findSupportFormat.new_description;
-      result.push({
+      acceptVideoQualityInfoList.push({
         name: qualityName,
         url: videoUrl,
         type: dashVideoInfo.mimeType,
@@ -10925,7 +11021,7 @@
         codecs: dashVideoInfo.codecs
       });
     });
-    return result;
+    return acceptVideoQualityInfoList;
   }
   const GenerateVideoTitle = (ep_id, title) => {
     return `第${ep_id}话 ${title}`;
@@ -13461,12 +13557,33 @@
   };
   const BilibiliVueProp = {
     init() {
+      PopsPanel.execMenu("bili-noCallApp", () => {
+        this.noCallApp();
+      });
       PopsPanel.execMenu("bili-setLogin", () => {
         this.setLogin();
       });
       PopsPanel.execMenu("bili-setIsClient", () => {
         this.setIsClient();
       });
+    },
+    /**
+     * 禁止调用app
+     */
+    noCallApp() {
+      VueUtils.waitVuePropToSet("#app", [
+        {
+          msg: "设置参数 $store.state.common.noCallApp",
+          check(vueIns) {
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.noCallApp) === "boolean";
+          },
+          set(vueIns) {
+            log.success("成功设置参数 $store.state.common.noCallApp=true");
+            vueIns.$store.state.common.noCallApp = true;
+          }
+        }
+      ]);
     },
     /**
      * 设置登录
@@ -13496,17 +13613,6 @@
         );
       }
       VueUtils.waitVuePropToSet("#app", [
-        {
-          msg: "设置参数 $store.state.common.noCallApp",
-          check(vueIns) {
-            var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.noCallApp) === "boolean";
-          },
-          set(vueIns) {
-            log.success("成功设置参数 $store.state.common.noCallApp=true");
-            vueIns.$store.state.common.noCallApp = true;
-          }
-        },
         {
           msg: "设置参数 $store.state.common.userInfo.isLogin",
           check(vueObj) {
@@ -13555,46 +13661,46 @@
         },
         {
           msg: "设置参数 $store.state.opus.isClient=true",
-          check(vueObj) {
+          check(vueIns) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.opus) == null ? void 0 : _c.isClient) === "boolean";
+            return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.opus) == null ? void 0 : _c.isClient) === "boolean";
           },
-          set(vueObj) {
+          set(vueIns) {
             log.success("成功设置参数 $store.state.opus.isClient");
-            vueObj.$store.state.opus.isClient = true;
+            vueIns.$store.state.opus.isClient = true;
           }
         },
         {
           msg: "设置参数 $store.state.playlist.isClient",
-          check(vueObj) {
+          check(vueIns) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.playlist) == null ? void 0 : _c.isClient) === "boolean";
+            return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.playlist) == null ? void 0 : _c.isClient) === "boolean";
           },
-          set(vueObj) {
+          set(vueIns) {
             log.success("成功设置参数 $store.state.playlist.isClient=true");
-            vueObj.$store.state.playlist.isClient = true;
+            vueIns.$store.state.playlist.isClient = true;
           }
         },
         {
           msg: "设置参数 $store.state.ver.bili",
-          check(vueObj) {
+          check(vueIns) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.bili) === "boolean";
+            return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.bili) === "boolean";
           },
-          set(vueObj) {
+          set(vueIns) {
             log.success("成功设置参数 $store.state.ver.bili=true");
-            vueObj.$store.state.ver.bili = true;
+            vueIns.$store.state.ver.bili = true;
           }
         },
         {
           msg: "设置参数 $store.state.ver.biliVer",
-          check(vueObj) {
+          check(vueIns) {
             var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.biliVer) === "number";
+            return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.biliVer) === "number";
           },
-          set(vueObj) {
+          set(vueIns) {
             log.success("成功设置参数 $store.state.ver.biliVer=2333333");
-            vueObj.$store.state.ver.biliVer = 2333333;
+            vueIns.$store.state.ver.biliVer = 2333333;
           }
         }
       ]);
@@ -14543,6 +14649,9 @@
         log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
       domutils.ready(() => {
+        PopsPanel.execMenuOnce("bili-close-wake-app-dialog", () => {
+          return this.watchCloseWakeAppDialog();
+        });
       });
     },
     /**
@@ -14622,6 +14731,41 @@
           );
         }
       });
+    },
+    /**
+     * 自动观察并关闭 观看高清流畅视频 的弹窗
+     */
+    watchCloseWakeAppDialog() {
+      log.info(`自动观察并关闭 观看高清流畅视频 的弹窗`);
+      let lockFn = new utils.LockFunction(() => {
+        let $dialog = $(".v-dialog");
+        if ($dialog && domutils.text($dialog).includes("观看高清流畅视频")) {
+          let $iconClose = $dialog.querySelector(".icon-close") || $dialog.querySelector(".btn.cancel");
+          if ($iconClose) {
+            $iconClose.click();
+            log.success(`出现【观看高清流畅视频】弹窗，关闭成功！`);
+          } else {
+            log.error($dialog);
+            Qmsg.error("【观看高清流畅视频】弹窗关闭失败", {
+              consoleLogContent: true
+            });
+          }
+        }
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        }
+      });
+      return CommonUtil.addBlockCSS(
+        ".open-app-dialog.v-dialog",
+        ".v-dialog:has(m-open-app)"
+      );
     }
   };
   PopsPanel.init();

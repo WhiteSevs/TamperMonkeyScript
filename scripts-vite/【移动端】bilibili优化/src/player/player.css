@@ -27,6 +27,15 @@
 	overflow: hidden;
 }
 
+/* 竖屏 宽度小于400px */
+@media (orientation: portrait) and (max-width: 400px) {
+	/* 修正小屏下宽度溢出 */
+	.art-controls .art-control {
+		max-width: 60px;
+		white-space: pre-wrap;
+	}
+}
+
 /* 竖屏 宽度小于550px */
 @media (orientation: portrait) and (max-width: 550px) {
 	/* 隐藏 弹幕设置按钮 */

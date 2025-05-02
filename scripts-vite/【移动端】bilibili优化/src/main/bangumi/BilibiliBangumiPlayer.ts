@@ -52,7 +52,7 @@ function handleDashVideoQualityInfo(dashInfo: {
 	support_formats: BilibiliTypeBangumiVideoPlayeInfo["support_formats"];
 	video: BilibiliTypeBangumiVideoPlayeInfo["dash"]["video"];
 }) {
-	let result: VideoQualityInfo[] = [];
+	let acceptVideoQualityInfoList: VideoQualityInfo[] = [];
 	dashInfo.video.forEach((dashVideoInfo) => {
 		if (!dashInfo.accept_quality.includes(dashVideoInfo.id)) {
 			// 必须是允许的画质
@@ -73,7 +73,7 @@ function handleDashVideoQualityInfo(dashInfo: {
 		videoUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(videoUrl);
 		// 视频画质名称
 		let qualityName = findSupportFormat?.new_description!;
-		result.push({
+		acceptVideoQualityInfoList.push({
 			name: qualityName,
 			url: videoUrl,
 			type: dashVideoInfo.mimeType,
@@ -88,7 +88,7 @@ function handleDashVideoQualityInfo(dashInfo: {
 		});
 	});
 
-	return result;
+	return acceptVideoQualityInfoList;
 }
 
 /**
@@ -188,6 +188,7 @@ const handleQueryVideoQualityData = (
 			});
 		});
 	}
+
 	return qualityInfoList;
 };
 

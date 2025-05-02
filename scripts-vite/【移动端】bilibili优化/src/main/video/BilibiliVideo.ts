@@ -816,74 +816,71 @@ export const BilibiliVideo = {
 	 */
 	addCommentModule() {
 		log.info(`新增评论模块`);
-		if (this.$data.isInitCommentModule) {
-			// 重新初始化评论模块
-			let $commentModuleWrapper = $<HTMLTableRowElement>(
-				"#comment-module-wrapper"
-			)!;
-			// 清空
-			DOMUtils.empty($commentModuleWrapper);
-			MobileCommentModule.init($commentModuleWrapper);
-			return;
+		if (!this.$data.isInitCommentModule) {
+			this.$data.isInitCommentModule = true;
+			CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
+			addStyle(MobileCommentModuleStyle);
+			addStyle(/*css*/ `
+				.comment-container{
+					position: relative;
+				}
+				.comment-container .reply-header{
+					position: sticky;
+					top: 0;
+					z-index: 999;
+					left: 0;
+					right: 0;
+					background: #fff;
+				}
+				#comment-module-wrapper{
+					position: fixed;
+					top: 0;
+					left: 0;
+					z-index: 2000;
+					display: none;
+					width: 100vw;
+					height: 100vh;
+					background-color: #fff;
+					overflow-x: hidden;
+				}
+				.close-comment-module-btn{
+					position: fixed;
+					right: 20px;
+					bottom: 20px;
+					z-index: 2001;
+					display: none;
+					justify-content: center;
+					align-items: center;
+					width: 40px;
+					height: 40px;
+					color: #fff;
+					border-radius: 100%;
+					background-color: var(--bili-color);
+				}
+			`);
+			addStyle(/*css*/ `
+				.comment-module-show-btn{
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					margin: 0 12px 20px 12px;
+					height: 40px;
+					color: #fff;
+					border-radius: 4px;
+					background-color: var(--bili-color);
+				}
+			`);
 		}
-		this.$data.isInitCommentModule = true;
-		CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
-		addStyle(MobileCommentModuleStyle);
-		addStyle(/*css*/ `
-			.comment-container{
-				position: relative;
-			}
-			.comment-container .reply-header{
-				position: sticky;
-				top: 0;
-				z-index: 999;
-				left: 0;
-				right: 0;
-				background: #fff;
-			}
-			#comment-module-wrapper{
-				position: fixed;
-				top: 0;
-				left: 0;
-				z-index: 2000;
-				display: none;
-				width: 100vw;
-				height: 100vh;
-				background-color: #fff;
-				overflow-x: hidden;
-			}
-			.close-comment-module-btn{
-				position: fixed;
-				right: 20px;
-				bottom: 20px;
-				z-index: 2001;
-				display: none;
-				justify-content: center;
-				align-items: center;
-				width: 40px;
-				height: 40px;
-				color: #fff;
-				border-radius: 100%;
-				background-color: var(--bili-color);
-			}
-		`);
-		addStyle(/*css*/ `
-			.comment-module-show-btn{
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				margin: 0 12px 20px 12px;
-				height: 40px;
-				color: #fff;
-				border-radius: 4px;
-				background-color: var(--bili-color);
-			}
-		`);
 		utils.waitNode<HTMLElement>(".m-video-info", 10000).then(($videoInfo) => {
 			if (!$videoInfo) {
 				log.error(`获取视频信息元素失败`);
 				return;
 			}
+			// 移除旧的
+			DOMUtils.remove(".comment-module-show-btn");
+			DOMUtils.remove(".close-comment-module-btn");
+			DOMUtils.remove("#comment-module-wrapper");
+
 			const history_hash = "comment-module";
 			// 手势模式
 			let gestureBack = new GestureBack({

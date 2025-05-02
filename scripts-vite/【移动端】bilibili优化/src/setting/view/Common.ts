@@ -52,6 +52,13 @@ const SettingUICommon: PopsPanelContentConfig = {
 									void 0,
 									"一般用于处理楼层的回复弹窗内无法选中复制问题"
 								),
+								UISwitch(
+									"跳过【观看高清流畅视频】弹窗",
+									"bili-close-wake-app-dialog",
+									true,
+									void 0,
+									"监听页面加载并关闭该弹窗"
+								),
 								// UISwitch(
 								// 	"自动删除Cookie buvid3",
 								// 	"common_auto_delete_cookie_buvid3",
@@ -70,18 +77,34 @@ const SettingUICommon: PopsPanelContentConfig = {
 							type: "forms",
 							forms: [
 								UISwitch(
+									"noCallApp",
+									"bili-noCallApp",
+									true,
+									void 0,
+									"$store.state.common.noCallApp=true"
+								),
+								UISwitch(
 									"isLogin",
 									"bili-setLogin",
 									true,
 									void 0,
-									"$store.state.common.noCallApp=true<br>$store.state.common.userInfo.isLogin=true<br>$store.state.loginInfo.isLogin=true"
+									[
+										"$store.state.common.userInfo.isLogin=true",
+										"$store.state.loginInfo.isLogin=true",
+									].join("<br>")
 								),
 								UISwitch(
 									"isClient",
 									"bili-setIsClient",
 									true,
 									void 0,
-									"$store.state.video.isClient=true<br>$store.state.opus.isClient=true<br>$store.state.playlist.isClient=true<br>$store.state.ver.bili=true<br>$store.state.ver.biliVer=2333"
+									[
+										"$store.state.video.isClient=true",
+										"$store.state.opus.isClient=true",
+										"$store.state.playlist.isClient=true",
+										"$store.state.ver.bili=true",
+										"$store.state.ver.biliVer=2333",
+									].join("<br>")
 								),
 								// UISwitch(
 								// 	"tinyApp",

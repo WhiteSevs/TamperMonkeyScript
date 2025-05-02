@@ -216,7 +216,7 @@ const SubTitle = {
 			 */
 			addSetting(selectorList?: Setting[]) {
 				let settingOption = this.getSettingOption();
-				if (selectorList) {
+				if (selectorList && selectorList.length) {
 					settingOption.selector!.push(...selectorList);
 
 					// 处理菜单中的默认选项
@@ -254,7 +254,7 @@ const SubTitle = {
 					SubTitleData.currentSelectIndex = currentSelectSubTitle.index;
 				}
 				if (this.isAddSetting()) {
-					console.log(TAG + "更新字幕菜单", selectorList);
+					console.log(TAG + "更新字幕菜单", selectorList ?? []);
 					that.art.setting.update(settingOption);
 				} else {
 					// 添加菜单

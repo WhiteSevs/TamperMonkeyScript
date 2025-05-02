@@ -7,6 +7,9 @@ import { BilibiliRouter } from "@/router/BilibiliRouter";
 
 export const BilibiliVueProp = {
 	init() {
+		PopsPanel.execMenu("bili-noCallApp", () => {
+			this.noCallApp();
+		});
 		PopsPanel.execMenu("bili-setLogin", () => {
 			this.setLogin();
 		});
@@ -24,7 +27,23 @@ export const BilibiliVueProp = {
 		// 	});
 		// });
 	},
-
+	/**
+	 * 禁止调用app
+	 */
+	noCallApp() {
+		VueUtils.waitVuePropToSet("#app", [
+			{
+				msg: "设置参数 $store.state.common.noCallApp",
+				check(vueIns: Vue2Instance) {
+					return typeof vueIns?.$store?.state?.common?.noCallApp === "boolean";
+				},
+				set(vueIns: Vue2Instance) {
+					log.success("成功设置参数 $store.state.common.noCallApp=true");
+					vueIns.$store.state.common.noCallApp = true;
+				},
+			},
+		]);
+	},
 	/**
 	 * 设置登录
 	 *
@@ -54,16 +73,6 @@ export const BilibiliVueProp = {
 		}
 
 		VueUtils.waitVuePropToSet("#app", [
-			{
-				msg: "设置参数 $store.state.common.noCallApp",
-				check(vueIns: Vue2Instance) {
-					return typeof vueIns?.$store?.state?.common?.noCallApp === "boolean";
-				},
-				set(vueIns: Vue2Instance) {
-					log.success("成功设置参数 $store.state.common.noCallApp=true");
-					vueIns.$store.state.common.noCallApp = true;
-				},
-			},
 			{
 				msg: "设置参数 $store.state.common.userInfo.isLogin",
 				check(vueObj: Vue2Instance) {
@@ -114,42 +123,42 @@ export const BilibiliVueProp = {
 			},
 			{
 				msg: "设置参数 $store.state.opus.isClient=true",
-				check(vueObj: Vue2Instance) {
-					return typeof vueObj?.$store?.state?.opus?.isClient === "boolean";
+				check(vueIns: Vue2Instance) {
+					return typeof vueIns?.$store?.state?.opus?.isClient === "boolean";
 				},
-				set(vueObj: Vue2Instance) {
+				set(vueIns: Vue2Instance) {
 					log.success("成功设置参数 $store.state.opus.isClient");
-					vueObj.$store.state.opus.isClient = true;
+					vueIns.$store.state.opus.isClient = true;
 				},
 			},
 			{
 				msg: "设置参数 $store.state.playlist.isClient",
-				check(vueObj: Vue2Instance) {
-					return typeof vueObj?.$store?.state?.playlist?.isClient === "boolean";
+				check(vueIns: Vue2Instance) {
+					return typeof vueIns?.$store?.state?.playlist?.isClient === "boolean";
 				},
-				set(vueObj: Vue2Instance) {
+				set(vueIns: Vue2Instance) {
 					log.success("成功设置参数 $store.state.playlist.isClient=true");
-					vueObj.$store.state.playlist.isClient = true;
+					vueIns.$store.state.playlist.isClient = true;
 				},
 			},
 			{
 				msg: "设置参数 $store.state.ver.bili",
-				check(vueObj: Vue2Instance) {
-					return typeof vueObj?.$store?.state?.ver?.bili === "boolean";
+				check(vueIns: Vue2Instance) {
+					return typeof vueIns?.$store?.state?.ver?.bili === "boolean";
 				},
-				set(vueObj: Vue2Instance) {
+				set(vueIns: Vue2Instance) {
 					log.success("成功设置参数 $store.state.ver.bili=true");
-					vueObj.$store.state.ver.bili = true;
+					vueIns.$store.state.ver.bili = true;
 				},
 			},
 			{
 				msg: "设置参数 $store.state.ver.biliVer",
-				check(vueObj: Vue2Instance) {
-					return typeof vueObj?.$store?.state?.ver?.biliVer === "number";
+				check(vueIns: Vue2Instance) {
+					return typeof vueIns?.$store?.state?.ver?.biliVer === "number";
 				},
-				set(vueObj: Vue2Instance) {
+				set(vueIns: Vue2Instance) {
 					log.success("成功设置参数 $store.state.ver.biliVer=2333333");
-					vueObj.$store.state.ver.biliVer = 2333333;
+					vueIns.$store.state.ver.biliVer = 2333333;
 				},
 			},
 		]);
@@ -169,14 +178,14 @@ export const BilibiliVueProp = {
 				set(vueIns) {
 					vueIns.$store.state.common.tinyApp = true;
 					log.success("成功设置参数 $store.state.common.tinyApp=true");
-					PopsPanel.onceExec("bili-tinyApp-init-css",()=>{
+					PopsPanel.onceExec("bili-tinyApp-init-css", () => {
 						// 开启tinyApp后会隐藏输入框
 						addStyle(/*css*/ `
 							.tiny-app .reply-input,.tiny-app .reply-item .info .name .right,.tiny-app .reply-item .info .toolbar,.tiny-app .sub-reply-input {
 								display: block;
 							}
 						`);
-					})
+					});
 				},
 			},
 		]);
