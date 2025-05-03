@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.4.24
+// @version      2025.5.3
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -46,7 +46,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var require_entrance_001 = __commonJS({
-    "entrance-BpBaOiID.js"(exports, module) {
+    "entrance-DtSFiA_o.js"(exports, module) {
       var _a;
       var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
@@ -1631,7 +1631,7 @@
           };
           let sign_plugin = [
             {
-              id: "k_misign",
+              checkPluginEnableUrl: "/plugin.php?id=k_misign:sign",
               async sign() {
                 let searchParamsData = {
                   operation: "qiandao",
@@ -1721,7 +1721,7 @@
               }
             },
             {
-              id: "dsu_paulsign",
+              checkPluginEnableUrl: "/plugin.php?id=dsu_paulsign:sign",
               async sign() {
                 let searchParamsData = {
                   id: "dsu_paulsign:sign",
@@ -1771,26 +1771,26 @@
           ];
           for (let index = 0; index < sign_plugin.length; index++) {
             const signPluginItem = sign_plugin[index];
-            let checkResponse = await httpx.get(
-              `/plugin.php?id=${signPluginItem.id}:sign`,
-              {
-                headers: {
-                  "User-Agent": utils.getRandomPCUA()
-                },
-                allowInterceptConfig: false
-              }
-            );
+            let checkResponse = await httpx.get(signPluginItem.checkPluginEnableUrl, {
+              fetch: useFetch,
+              headers: {
+                "User-Agent": utils.getRandomPCUA()
+              },
+              allowInterceptConfig: false
+            });
             if (!checkResponse.status) {
               log.error("签到：检查签到插件是否启用的请求失败", checkResponse);
               continue;
             }
-            let checkDoc = domUtils.parseHTML(
+            let pluginDoc = domUtils.parseHTML(
               checkResponse.data.responseText,
               true,
               true
             );
-            if (checkDoc.querySelector("#messagetext")) {
-              log.error(`插件：${signPluginItem.id} 未启用或不存在`);
+            if (pluginDoc.querySelector("#messagetext")) {
+              log.error(
+                `插件：${signPluginItem.checkPluginEnableUrl} 未启用或不存在`
+              );
               continue;
             }
             await signPluginItem.sign();

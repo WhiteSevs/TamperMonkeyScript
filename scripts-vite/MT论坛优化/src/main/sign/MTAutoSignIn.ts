@@ -175,7 +175,7 @@ export const MTAutoSignIn = {
 		 */
 		let sign_plugin = [
 			{
-				id: "k_misign",
+				checkPluginEnableUrl: "/plugin.php?id=k_misign:sign",
 				async sign() {
 					let searchParamsData = {
 						operation: "qiandao",
@@ -283,7 +283,7 @@ export const MTAutoSignIn = {
 				},
 			},
 			{
-				id: "dsu_paulsign",
+				checkPluginEnableUrl: "/plugin.php?id=dsu_paulsign:sign",
 				async sign() {
 					let searchParamsData = {
 						id: "dsu_paulsign:sign",
@@ -336,27 +336,27 @@ export const MTAutoSignIn = {
 
 		for (let index = 0; index < sign_plugin.length; index++) {
 			const signPluginItem = sign_plugin[index];
-			let checkResponse = await httpx.get(
-				`/plugin.php?id=${signPluginItem.id}:sign`,
-				{
-					headers: {
-						"User-Agent": utils.getRandomPCUA(),
-					},
-					allowInterceptConfig: false,
-				}
-			);
+			let checkResponse = await httpx.get(signPluginItem.checkPluginEnableUrl, {
+				fetch: useFetch,
+				headers: {
+					"User-Agent": utils.getRandomPCUA(),
+				},
+				allowInterceptConfig: false,
+			});
 			if (!checkResponse.status) {
 				log.error("签到：检查签到插件是否启用的请求失败", checkResponse);
 				continue;
 			}
-			let checkDoc = DOMUtils.parseHTML(
+			let pluginDoc = DOMUtils.parseHTML(
 				checkResponse.data.responseText,
 				true,
 				true
 			);
-			if (checkDoc.querySelector("#messagetext")) {
+			if (pluginDoc.querySelector("#messagetext")) {
 				// 插件未启用或不存在
-				log.error(`插件：${signPluginItem.id} 未启用或不存在`);
+				log.error(
+					`插件：${signPluginItem.checkPluginEnableUrl} 未启用或不存在`
+				);
 				continue;
 			}
 			await signPluginItem.sign();
