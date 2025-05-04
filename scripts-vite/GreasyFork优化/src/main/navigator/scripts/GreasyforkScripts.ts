@@ -568,19 +568,13 @@ export const GreasyforkScripts = {
 				);
 				DOMUtils.on(copyButton, "click", async function () {
 					let loading = Qmsg.loading(i18next.t("加载文件中..."));
-					let getResp = await httpx.get(
-						`/zh-CN/scripts/${GreasyforkUrlUtils.getScriptId()}.json`,
-						{
-							// fetch: true,
-							responseType: "json",
-						}
-					);
-					if (!getResp.status) {
+					let scriptId = GreasyforkUrlUtils.getScriptId();
+					let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId!);
+					if (!scriptInfo) {
 						loading.close();
 						return;
 					}
-					let respJSON = utils.toJSON(getResp.data.responseText);
-					let code_url = respJSON["code_url"];
+					let code_url = scriptInfo["code_url"];
 					log.success("代码地址：", code_url);
 					let scriptJS = await httpx.get(code_url);
 					if (!scriptJS.status) {

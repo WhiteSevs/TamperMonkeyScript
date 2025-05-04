@@ -105,16 +105,82 @@ interface GreasyForkUserInfo {
 
 export const GreasyforkApi = {
 	/**
-	 * 获取脚本信息
+	 * 根据脚本id获取脚本信息json
 	 * @param scriptId 脚本id
 	 */
 	async getScriptInfo(scriptId: string | number) {
 		let url = GreasyforkUrlUtils.getScriptInfoUrl(scriptId);
 		let response = await httpx.get(url, {
 			// fetch: true,
+			allowInterceptConfig: false,
+			responseType: "json",
 		});
 		if (!response.status) {
-			return;
+			// 脚本不存在配置信息json
+			let scriptHomeUrl = GreasyforkUrlUtils.getScriptHomeUrl(scriptId);
+			let scriptHomeResponse = await httpx.get(scriptHomeUrl, {
+				fetch: true,
+			});
+			if (!scriptHomeResponse.status) {
+				return;
+			}
+			let $scriptHomeDoc = DOMUtils.parseHTML(
+				scriptHomeResponse.data.responseText,
+				true,
+				true
+			);
+			let $installLink =
+				$scriptHomeDoc.querySelector<HTMLElement>(".install-link")!;
+			let $createAt = $scriptHomeDoc.querySelector<HTMLElement>(
+				"dd.script-show-created-date relative-time[datetime]"
+			);
+			let $dailyInstalls = $scriptHomeDoc.querySelector<HTMLElement>(
+				"dd.script-show-daily-installs"
+			);
+			let $totalInstalls = $scriptHomeDoc.querySelector<HTMLElement>(
+				"dd.script-show-total-installs"
+			);
+			let $updateAt = $scriptHomeDoc.querySelector<HTMLElement>(
+				"dd.script-show-updated-date relative-time[datetime]"
+			);
+			let $description = $scriptHomeDoc.querySelector<HTMLElement>(
+				"#script-description"
+			);
+			let $goodRatingCount =
+				$scriptHomeDoc.querySelector<HTMLElement>(".good-rating-count");
+			let $okRatingCount =
+				$scriptHomeDoc.querySelector<HTMLElement>(".ok-rating-count");
+			let $badRatingCount =
+				$scriptHomeDoc.querySelector<HTMLElement>(".bad-rating-count");
+
+			let $license = $scriptHomeDoc.querySelector<HTMLElement>(
+				"dd.script-show-license"
+			);
+			let scriptHomeInfo: GreasyforkScriptUrlInfo = {
+				id: Number(scriptId),
+				created_at: $createAt?.getAttribute("datetime")!,
+				daily_installs: Number(DOMUtils.text($dailyInstalls!) || "0"),
+				total_installs: Number(DOMUtils.text($totalInstalls!) || "0"),
+				code_updated_at: $updateAt?.getAttribute("datetime")!,
+				support_url: "",
+				fan_score: "",
+				namespace: $installLink.getAttribute("data-script-namespace")!,
+				contribution_url: null,
+				contribution_amount: null,
+				good_ratings: Number(DOMUtils.text($goodRatingCount!) || "0"),
+				ok_ratings: Number(DOMUtils.text($okRatingCount!) || "0"),
+				bad_ratings: Number(DOMUtils.text($badRatingCount!) || "0"),
+				users: [],
+				name: $installLink.getAttribute("data-script-name")!,
+				description: DOMUtils.text($description!),
+				url: url,
+				code_url: $installLink.getAttribute("href")!,
+				license: DOMUtils.text($license!) || null,
+				version: $installLink.getAttribute("data-script-version")!,
+				locale: "",
+				deleted: false,
+			};
+			return scriptHomeInfo;
 		}
 		let data = utils.toJSON<GreasyforkScriptUrlInfo>(
 			response.data.responseText

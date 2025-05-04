@@ -4,6 +4,7 @@ import { PopsPanel } from "@/setting/setting";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { GreasyforkUtils } from "@/utils/GreasyforkUtils";
+import i18next from "i18next";
 import Qmsg from "qmsg";
 
 export const GreasyforkScriptsCode = {
@@ -61,14 +62,15 @@ export const GreasyforkScriptsCode = {
 			}
 		`);
 		CommonUtil.addBlockCSS("#script-content .code-container > pre");
-
-		GreasyforkUtils.monacoEditor().then(async (monaco) => {
-			let scriptId = GreasyforkUrlUtils.getScriptId(window.location.href);
-			if (!scriptId) {
-				Qmsg.error("未解析出当前脚本ID", { consoleLogContent: true });
-				return;
-			}
-			let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
+		let scriptId = GreasyforkUrlUtils.getScriptId(window.location.href);
+		if (!scriptId) {
+			Qmsg.error("未解析出当前脚本ID", { consoleLogContent: true });
+			return;
+		}
+		Promise.all([
+			GreasyforkUtils.monacoEditor(),
+			GreasyforkApi.getScriptInfo(scriptId),
+		]).then(async ([monaco, scriptInfo]) => {
 			let code_url = scriptInfo?.code_url;
 			if (!code_url) {
 				Qmsg.error("请求结果中未解析出脚本代码URL", {

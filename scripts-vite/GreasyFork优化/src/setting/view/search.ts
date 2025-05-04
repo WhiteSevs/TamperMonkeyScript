@@ -1,6 +1,6 @@
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import i18next from "i18next";
-import { UISwitch } from "../common-components/ui-switch";
+import { UISwitch } from "../components/ui-switch";
 
 export const SettingUIScriptSearch: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-script-search",

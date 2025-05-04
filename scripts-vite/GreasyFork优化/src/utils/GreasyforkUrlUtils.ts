@@ -52,6 +52,14 @@ export const GreasyforkUrlUtils = {
 		return `/scripts/${scriptId}.json`;
 	},
 	/**
+	 * 获取脚本主页地址
+	 *
+	 * @param scriptId
+	 */
+	getScriptHomeUrl(scriptId: string | number) {
+		return `/scripts/${scriptId}`;
+	},
+	/**
 	 * 获取管理地址
 	 * @param url
 	 */

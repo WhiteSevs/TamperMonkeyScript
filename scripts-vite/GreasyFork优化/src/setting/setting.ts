@@ -7,9 +7,9 @@ import {
 	KEY,
 } from "@/setting/config";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { SettingUICommon } from "./components/common";
-import { SettingUIScripts } from "./components/scripts";
-import { SettingUIDiscuessions } from "./components/discussions";
+import { SettingUICommon } from "./view/common";
+import { SettingUIScripts } from "./view/scripts";
+import { SettingUIDiscuessions } from "./view/discussions";
 import UIScriptListCSS from "@/main/css/UIScriptListCSS.css?raw";
 import i18next from "i18next";
 import {
@@ -17,11 +17,11 @@ import {
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
-import { SettingUIUsers } from "./components/users";
+import { SettingUIUsers } from "./view/users";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { GithubUrl2WebhookUrl } from "@/main/GithubUrl2WebhookUrl";
 import { PanelUISize } from "./panel-ui-size";
-import { SettingUIScriptSearch } from "./components/search";
+import { SettingUIScriptSearch } from "./view/search";
 import Utils from "@whitesev/utils";
 
 type PosPanelListenerData = {

@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.4.28
+// @version            2025.5.5
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -15,10 +15,10 @@
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.3/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@24.2.3/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@25.0.2/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.0/dist/otpauth.umd.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
@@ -601,7 +601,8 @@
     请先在菜单中录入secret: "Please enter the secret in the menu first",
     请输入secret: "Please enter Secret",
     "两步验证（2FA）": "Two-step verification (2FA)",
-    获取用户主页信息失败: "Failed to obtain user homepage information"
+    获取用户主页信息失败: "Failed to obtain user homepage information",
+    "monaco-editor加载中...": "monaco-editor loading..."
   };
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -1000,6 +1001,14 @@
       return `/scripts/${scriptId}.json`;
     },
     /**
+     * 获取脚本主页地址
+     *
+     * @param scriptId
+     */
+    getScriptHomeUrl(scriptId) {
+      return `/scripts/${scriptId}`;
+    },
+    /**
      * 获取管理地址
      * @param url
      */
@@ -1186,16 +1195,76 @@
   };
   const GreasyforkApi = {
     /**
-     * 获取脚本信息
+     * 根据脚本id获取脚本信息json
      * @param scriptId 脚本id
      */
     async getScriptInfo(scriptId) {
       let url = GreasyforkUrlUtils.getScriptInfoUrl(scriptId);
       let response = await httpx.get(url, {
         // fetch: true,
+        allowInterceptConfig: false,
+        responseType: "json"
       });
       if (!response.status) {
-        return;
+        let scriptHomeUrl = GreasyforkUrlUtils.getScriptHomeUrl(scriptId);
+        let scriptHomeResponse = await httpx.get(scriptHomeUrl, {
+          fetch: true
+        });
+        if (!scriptHomeResponse.status) {
+          return;
+        }
+        let $scriptHomeDoc = domUtils.parseHTML(
+          scriptHomeResponse.data.responseText,
+          true,
+          true
+        );
+        let $installLink = $scriptHomeDoc.querySelector(".install-link");
+        let $createAt = $scriptHomeDoc.querySelector(
+          "dd.script-show-created-date relative-time[datetime]"
+        );
+        let $dailyInstalls = $scriptHomeDoc.querySelector(
+          "dd.script-show-daily-installs"
+        );
+        let $totalInstalls = $scriptHomeDoc.querySelector(
+          "dd.script-show-total-installs"
+        );
+        let $updateAt = $scriptHomeDoc.querySelector(
+          "dd.script-show-updated-date relative-time[datetime]"
+        );
+        let $description = $scriptHomeDoc.querySelector(
+          "#script-description"
+        );
+        let $goodRatingCount = $scriptHomeDoc.querySelector(".good-rating-count");
+        let $okRatingCount = $scriptHomeDoc.querySelector(".ok-rating-count");
+        let $badRatingCount = $scriptHomeDoc.querySelector(".bad-rating-count");
+        let $license = $scriptHomeDoc.querySelector(
+          "dd.script-show-license"
+        );
+        let scriptHomeInfo = {
+          id: Number(scriptId),
+          created_at: $createAt == null ? void 0 : $createAt.getAttribute("datetime"),
+          daily_installs: Number(domUtils.text($dailyInstalls) || "0"),
+          total_installs: Number(domUtils.text($totalInstalls) || "0"),
+          code_updated_at: $updateAt == null ? void 0 : $updateAt.getAttribute("datetime"),
+          support_url: "",
+          fan_score: "",
+          namespace: $installLink.getAttribute("data-script-namespace"),
+          contribution_url: null,
+          contribution_amount: null,
+          good_ratings: Number(domUtils.text($goodRatingCount) || "0"),
+          ok_ratings: Number(domUtils.text($okRatingCount) || "0"),
+          bad_ratings: Number(domUtils.text($badRatingCount) || "0"),
+          users: [],
+          name: $installLink.getAttribute("data-script-name"),
+          description: domUtils.text($description),
+          url,
+          code_url: $installLink.getAttribute("href"),
+          license: domUtils.text($license) || null,
+          version: $installLink.getAttribute("data-script-version"),
+          locale: "",
+          deleted: false
+        };
+        return scriptHomeInfo;
       }
       let data = utils.toJSON(
         response.data.responseText
@@ -2689,41 +2758,46 @@
      * 加载monaco编辑器
      */
     monacoEditor() {
-      const MonacoVersion = "0.52.2";
-      const readyEventType = "monaco-editor-ready";
-      log.info(`网络加载monaco编辑器中，请稍后...`);
-      if (!isRegisdterMonacoEditorCSS) {
-        isRegisdterMonacoEditorCSS = true;
-        addStyle(
-          /*css*/
-          `
-				@font-face {
-					font-family: 'codicon';
-					src: url('https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
-				}
-			`
-        );
-      }
-      let $monacoScript = domUtils.createElement("script", {
-        type: "module",
-        defer: true,
-        innerHTML: (
-          /*js*/
-          `
+      return new Promise((resolve) => {
+        const MonacoVersion = "0.52.2";
+        const readyEventType = "monaco-editor-ready";
+        if (!isRegisdterMonacoEditorCSS) {
+          isRegisdterMonacoEditorCSS = true;
+          addStyle(
+            /*css*/
+            `
+					@font-face {
+						font-family: 'codicon';
+						src: url('https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
+					}
+				`
+          );
+        }
+        if (_unsafeWindow.monaco) {
+          resolve(_unsafeWindow.monaco);
+          return;
+        }
+        let $loading = Qmsg.loading(i18next.t("monaco-editor加载中..."));
+        let $monacoScript = domUtils.createElement("script", {
+          type: "module",
+          defer: true,
+          innerHTML: (
+            /*js*/
+            `
 					import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/+esm";
 					window.monaco = monaco;
 					window.dispatchEvent(new CustomEvent("${readyEventType}"));
 				`
-        )
-      });
-      domUtils.append(document.head || document.documentElement, $monacoScript);
-      return new Promise((resolve) => {
+          )
+        });
+        domUtils.append(document.head || document.documentElement, $monacoScript);
         domUtils.on(
           _unsafeWindow,
           readyEventType,
           () => {
             let monaco = _unsafeWindow.monaco;
             log.success(`网络加载monaco编辑器成功`);
+            $loading.close();
             resolve(monaco);
           },
           { once: true }
@@ -5664,13 +5738,15 @@
 		`
       );
       CommonUtil.addBlockCSS("#script-content .code-container > pre");
-      GreasyforkUtils.monacoEditor().then(async (monaco) => {
-        let scriptId = GreasyforkUrlUtils.getScriptId(window.location.href);
-        if (!scriptId) {
-          Qmsg.error("未解析出当前脚本ID", { consoleLogContent: true });
-          return;
-        }
-        let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
+      let scriptId = GreasyforkUrlUtils.getScriptId(window.location.href);
+      if (!scriptId) {
+        Qmsg.error("未解析出当前脚本ID", { consoleLogContent: true });
+        return;
+      }
+      Promise.all([
+        GreasyforkUtils.monacoEditor(),
+        GreasyforkApi.getScriptInfo(scriptId)
+      ]).then(async ([monaco, scriptInfo]) => {
         let code_url = scriptInfo == null ? void 0 : scriptInfo.code_url;
         if (!code_url) {
           Qmsg.error("请求结果中未解析出脚本代码URL", {
@@ -5901,23 +5977,20 @@
               );
               let compareLeftText = "";
               let compareRightText = "";
-              let compareLeftResponse = await httpx.get(compareLeftUrl, {
-                timeout: 2e4
-              });
-              if (!compareLeftResponse.status) {
-                loading.close();
+              const [compareLeftResponse, compareRightResponse] = await Promise.all([
+                httpx.get(compareLeftUrl, {
+                  timeout: 2e4
+                }),
+                httpx.get(compareRightUrl, {
+                  timeout: 2e4
+                })
+              ]);
+              loading.close();
+              if (!compareLeftResponse.status || !compareRightResponse.status) {
                 return;
               }
               compareLeftText = compareLeftResponse.data.responseText;
-              let compareRightResponse = await httpx.get(compareRightUrl, {
-                timeout: 2e4
-              });
-              if (!compareRightResponse.status) {
-                loading.close();
-                return;
-              }
               compareRightText = compareRightResponse.data.responseText;
-              loading.close();
               let { recovery } = CommonUtil.lockScroll();
               let $alert = __pops.alert({
                 title: {
@@ -6545,19 +6618,13 @@
         );
         domUtils.on(copyButton, "click", async function() {
           let loading = Qmsg.loading(i18next.t("加载文件中..."));
-          let getResp = await httpx.get(
-            `/zh-CN/scripts/${GreasyforkUrlUtils.getScriptId()}.json`,
-            {
-              // fetch: true,
-              responseType: "json"
-            }
-          );
-          if (!getResp.status) {
+          let scriptId = GreasyforkUrlUtils.getScriptId();
+          let scriptInfo = await GreasyforkApi.getScriptInfo(scriptId);
+          if (!scriptInfo) {
             loading.close();
             return;
           }
-          let respJSON = utils.toJSON(getResp.data.responseText);
-          let code_url = respJSON["code_url"];
+          let code_url = scriptInfo["code_url"];
           log.success("代码地址：", code_url);
           let scriptJS = await httpx.get(code_url);
           if (!scriptJS.status) {

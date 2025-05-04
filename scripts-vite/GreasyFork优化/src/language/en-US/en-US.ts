@@ -345,4 +345,5 @@ export const en_US_language = {
 	请输入secret: "Please enter Secret",
 	"两步验证（2FA）": "Two-step verification (2FA)",
 	获取用户主页信息失败: "Failed to obtain user homepage information",
+	"monaco-editor加载中...": "monaco-editor loading...",
 };

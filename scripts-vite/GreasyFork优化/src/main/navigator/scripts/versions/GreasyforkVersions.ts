@@ -175,23 +175,21 @@ export const GreasyforkVersions = {
 						);
 						let compareLeftText = "";
 						let compareRightText = "";
-						let compareLeftResponse = await httpx.get(compareLeftUrl, {
-							timeout: 20000,
-						});
-						if (!compareLeftResponse.status) {
-							loading.close();
+						const [compareLeftResponse, compareRightResponse] =
+							await Promise.all([
+								httpx.get(compareLeftUrl, {
+									timeout: 20000,
+								}),
+								httpx.get(compareRightUrl, {
+									timeout: 20000,
+								}),
+							]);
+						loading.close();
+						if (!compareLeftResponse.status || !compareRightResponse.status) {
 							return;
 						}
 						compareLeftText = compareLeftResponse.data.responseText;
-						let compareRightResponse = await httpx.get(compareRightUrl, {
-							timeout: 20000,
-						});
-						if (!compareRightResponse.status) {
-							loading.close();
-							return;
-						}
 						compareRightText = compareRightResponse.data.responseText;
-						loading.close();
 						let { recovery } = CommonUtil.lockScroll();
 						let $alert = pops.alert({
 							title: {
