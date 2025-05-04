@@ -37,6 +37,7 @@ import {
 	NetDiskUserRuleReplaceParam_matchRange_text,
 } from "./user-rule/NetDiskUserRuleReplaceParam";
 import { NetDiskRule_115pan } from "./netdisk/115pan/rule";
+import { NetDiskRule_ed2k } from "./netdisk/ed2k/rule";
 
 /** 匹配范围 */
 export type NetDiskRuleSettingConfigurationInterface_MatchRange = {
@@ -167,6 +168,7 @@ export const NetDiskRule = {
 			NetDiskRule_chengtong,
 			NetDiskRule_kuake,
 			NetDiskRule_magnet,
+			NetDiskRule_ed2k,
 			NetDiskRule_jianguoyun,
 			NetDiskRule_onedrive,
 			NetDiskRule_uc,

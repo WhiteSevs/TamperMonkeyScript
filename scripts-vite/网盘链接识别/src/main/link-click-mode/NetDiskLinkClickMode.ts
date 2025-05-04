@@ -1,4 +1,4 @@
-import { $, httpx, log, utils } from "@/env";
+import { $, DOMUtils, httpx, log, utils } from "@/env";
 import { NetDiskParse } from "../parse/NetDiskParse";
 import Qmsg from "qmsg";
 import { NetDiskAutoFillAccessCode } from "../auto-fill-accesscode/NetDiskAutoFillAccessCode";
@@ -235,9 +235,18 @@ export const NetDiskLinkClickMode = {
 				});
 			} else {
 				// 新标签页打开（自动获取焦点）
-				let blankWindow = window.open(url, "_blank");
-				if (blankWindow) {
-					blankWindow.focus();
+				try {
+					let blankWindow = window.open(url, "_blank");
+					if (blankWindow) {
+						blankWindow.focus();
+					}
+				} catch (error) {
+					log.error(error, url);
+					let $blank = DOMUtils.createElement("a");
+					$blank.setAttribute("href", url);
+					$blank.setAttribute("target", "_blank");
+					$blank.click();
+					$blank.remove();
 				}
 			}
 		};

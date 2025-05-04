@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.4.17
+// @version      2025.5.5
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -11,8 +11,8 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@11f749fc58f5674c1b4db129731403b77d97f7eb/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -83,16 +83,16 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : undefined)();
-  var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : undefined)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
-  var _GM_openInTab = /* @__PURE__ */ (() => typeof GM_openInTab != "undefined" ? GM_openInTab : undefined)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : void 0)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_openInTab = /* @__PURE__ */ (() => typeof GM_openInTab != "undefined" ? GM_openInTab : void 0)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const HttpxCookieManager = {
     $data: {
@@ -501,10 +501,10 @@
       }
       function checkClipboardApi() {
         var _a2, _b;
-        if (typeof ((_a2 = navigator == null ? undefined : navigator.clipboard) == null ? undefined : _a2.readText) !== "function") {
+        if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
           return false;
         }
-        if (typeof ((_b = navigator == null ? undefined : navigator.permissions) == null ? undefined : _b.query) !== "function") {
+        if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
           return false;
         }
         return true;
@@ -696,7 +696,7 @@
                 "name",
                 "",
                 "",
-                undefined,
+                void 0,
                 "必填"
               );
               Reflect.set(
@@ -712,7 +712,7 @@
                 "url",
                 "",
                 "",
-                undefined,
+                void 0,
                 "必填，可正则"
               );
               Reflect.set(
@@ -741,7 +741,7 @@
                 "regExpFlag",
                 "ig",
                 "",
-                undefined,
+                void 0,
                 "i:不区分大小写  g:全局"
               );
               Reflect.set(
@@ -757,7 +757,7 @@
                 "searchValue",
                 "",
                 "",
-                undefined,
+                void 0,
                 "必填，可正则"
               );
               Reflect.set(
@@ -773,7 +773,7 @@
                 "replaceValue",
                 "",
                 "",
-                undefined,
+                void 0,
                 ""
               );
               Reflect.set(
@@ -1160,7 +1160,7 @@
     handleShareCode(netDiskName, netDiskIndex, matchText) {
       var _a2;
       let netDiskMatchRegular = NetDisk.$rule.matchRule[netDiskName][netDiskIndex];
-      let shareCodeMatch = (_a2 = matchText.match(netDiskMatchRegular.shareCode)) == null ? undefined : _a2.filter((item) => utils.isNotNull(item));
+      let shareCodeMatch = (_a2 = matchText.match(netDiskMatchRegular.shareCode)) == null ? void 0 : _a2.filter((item) => utils.isNotNull(item));
       if (utils.isNull(shareCodeMatch)) {
         log.error(`匹配shareCode为空`, {
           匹配的文本: matchText,
@@ -1179,7 +1179,7 @@
         );
       }
       let shareCodeNotMatch = netDiskMatchRegular.shareCodeNotMatch;
-      if (shareCodeNotMatch != undefined && shareCode.match(shareCodeNotMatch)) {
+      if (shareCodeNotMatch != void 0 && shareCode.match(shareCodeNotMatch)) {
         log.error(`不可能的shareCode => ${shareCode}`);
         return;
       }
@@ -1218,7 +1218,7 @@
       let accessCodeMatch = matchText.match(netDiskMatchRegular.checkAccessCode);
       if (accessCodeMatch) {
         let accessCodeMatchValue = accessCodeMatch[accessCodeMatch.length - 1];
-        let accessCodeMatchArray = (_a2 = accessCodeMatchValue.match(netDiskMatchRegular.accessCode)) == null ? undefined : _a2.filter((item) => utils.isNotNull(item));
+        let accessCodeMatchArray = (_a2 = accessCodeMatchValue.match(netDiskMatchRegular.accessCode)) == null ? void 0 : _a2.filter((item) => utils.isNotNull(item));
         if (utils.isNull(accessCodeMatchArray)) {
           return "";
         }
@@ -1280,7 +1280,7 @@
      */
     handleLinkShow(netDiskName, netDiskIndex, shareCode, accessCode, matchText) {
       let netDiskMatchRegular = NetDisk.$rule.matchRule[netDiskName][netDiskIndex];
-      if (netDiskMatchRegular == undefined) {
+      if (netDiskMatchRegular == void 0) {
         Qmsg.error("BUG: 获取uiLink规则失败");
         log.error(
           "BUG: 分析参数",
@@ -1310,7 +1310,7 @@
       }
       if (netDiskMatchRegular.paramMatch) {
         let currentDict = NetDisk.$match.matchedInfo.get(netDiskName).get(shareCode);
-        matchText = matchText ?? (currentDict == null ? undefined : currentDict.matchText);
+        matchText = matchText ?? (currentDict == null ? void 0 : currentDict.matchText);
         if (utils.isNotNull(matchText)) {
           let paramMatchArray = matchText.match(netDiskMatchRegular.paramMatch);
           let replaceParamData = {};
@@ -1579,7 +1579,7 @@
         Qmsg.success("自动填入访问码");
         $ele.value = netDiskInfo.accessCode;
         utils.dispatchEvent($ele, "input");
-        (_a2 = document.querySelector("div.verify-form #submitBtn")) == null ? undefined : _a2.click();
+        (_a2 = document.querySelector("div.verify-form #submitBtn")) == null ? void 0 : _a2.click();
       });
     }
     if (window.location.hostname === "pan.baidu.com" && window.location.pathname === "/wap/init" && window.location.search.startsWith("?surl=")) {
@@ -1597,7 +1597,7 @@
         utils.dispatchEvent($input, "input");
         (_a2 = document.querySelector(
           "div.extractWrap div.extract-content button.m-button"
-        )) == null ? undefined : _a2.click();
+        )) == null ? void 0 : _a2.click();
       });
     }
   };
@@ -1615,8 +1615,8 @@
         utils.dispatchEvent($input, "input");
         (_a2 = document.querySelector(
           "#passwddiv div.passwddiv-input > div"
-        ) || $input.nextElementSibling) == null ? undefined : _a2.click();
-        (_b = document.querySelector("#sub")) == null ? undefined : _b.click();
+        ) || $input.nextElementSibling) == null ? void 0 : _a2.click();
+        (_b = document.querySelector("#sub")) == null ? void 0 : _b.click();
       });
       utils.waitNode("#f_pwd").then((element) => {
         utils.mutationObserver(element, {
@@ -1636,7 +1636,7 @@
             Qmsg.success("自动填入访问码");
             inputElement.value = netDiskInfo.accessCode;
             utils.dispatchEvent(inputElement, "input");
-            (_a2 = document.querySelector("#f_pwd #sub")) == null ? undefined : _a2.click();
+            (_a2 = document.querySelector("#f_pwd #sub")) == null ? void 0 : _a2.click();
           }
         });
       });
@@ -1801,7 +1801,7 @@
         ReactUtils.waitReactPropsToSet(element, "reactFiber", {
           check(reactInstance) {
             var _a2;
-            return typeof ((_a2 = reactInstance == null ? undefined : reactInstance.memoizedProps) == null ? undefined : _a2.onChange) === "function";
+            return typeof ((_a2 = reactInstance == null ? void 0 : reactInstance.memoizedProps) == null ? void 0 : _a2.onChange) === "function";
           },
           set(reactInstance) {
             reactInstance.memoizedProps.onChange({
@@ -1822,7 +1822,7 @@
         ReactUtils.waitReactPropsToSet(element, "reactFiber", {
           check(reactInstance) {
             var _a2;
-            return typeof ((_a2 = reactInstance == null ? undefined : reactInstance.memoizedProps) == null ? undefined : _a2.onChange) === "function";
+            return typeof ((_a2 = reactInstance == null ? void 0 : reactInstance.memoizedProps) == null ? void 0 : _a2.onChange) === "function";
           },
           set(reactInstance) {
             reactInstance.memoizedProps.onChange({
@@ -1846,7 +1846,7 @@
         Qmsg.success("自动填入访问码");
         ReactUtils.waitReactPropsToSet(element, "reactProps", {
           check(reactInstance) {
-            return typeof (reactInstance == null ? undefined : reactInstance.onChange) === "function";
+            return typeof (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
           },
           set(reactInstance) {
             reactInstance.onChange({
@@ -1857,7 +1857,7 @@
           }
         });
         let $next = element.nextSibling;
-        $next == null ? undefined : $next.click();
+        $next == null ? void 0 : $next.click();
       });
       utils.waitNode("#app .appinput input.ant-input[type=text]").then((element) => {
         if (!utils.isVisible(element)) {
@@ -1867,7 +1867,7 @@
         Qmsg.success("自动填入访问码");
         ReactUtils.waitReactPropsToSet(element, "reactProps", {
           check(reactInstance) {
-            return typeof (reactInstance == null ? undefined : reactInstance.onChange) === "function";
+            return typeof (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
           },
           set(reactInstance) {
             reactInstance.onChange({
@@ -1878,7 +1878,7 @@
           }
         });
         let $next = element.nextSibling;
-        $next == null ? undefined : $next.click();
+        $next == null ? void 0 : $next.click();
       });
     }
   };
@@ -1965,7 +1965,7 @@
         Qmsg.success("自动填入访问码");
         ReactUtils.waitReactPropsToSet(element, "reactProps", {
           check(reactInstance) {
-            return (reactInstance == null ? undefined : reactInstance.onChange) === "function";
+            return (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
           },
           set(reactInstance) {
             reactInstance.onChange({
@@ -1977,7 +1977,7 @@
         });
         ReactUtils.waitReactPropsToSet(element, "reactEventHandlers", {
           check(reactInstance) {
-            return (reactInstance == null ? undefined : reactInstance.onChange) === "function";
+            return (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
           },
           set(reactInstance) {
             reactInstance.onChange({
@@ -2693,7 +2693,7 @@
           return false;
         }
         let HasPwd = g_initialProps.res.data.HasPwd;
-        if (HasPwd && (that.accessCode == undefined || that.accessCode === "")) {
+        if (HasPwd && (that.accessCode == void 0 || that.accessCode === "")) {
           Qmsg.error("密码缺失!");
           NetDiskUI.newAccessCodeView(
             "密码缺失",
@@ -2750,7 +2750,7 @@
         return infoList;
       } else if (json_data["code"] === 5103) {
         NetDiskUI.newAccessCodeView(
-          undefined,
+          void 0,
           "_123pan",
           that.netDiskIndex,
           that.shareCode,
@@ -2848,7 +2848,7 @@
                 } else if (downloadInfo && downloadInfo["code"] === 401) {
                   Qmsg.error("请登录后下载");
                 } else {
-                  Qmsg.error((downloadInfo == null ? undefined : downloadInfo["message"]) || "获取下载链接失败");
+                  Qmsg.error((downloadInfo == null ? void 0 : downloadInfo["message"]) || "获取下载链接失败");
                 }
               } else {
                 let downloadUrl = item.DownloadUrl;
@@ -2942,8 +2942,8 @@
      */
     getFileDownloadAuth() {
       function encry_time(param) {
-        var param_time, param_other = arguments["length"] > 2 && undefined !== arguments[2] ? arguments[2] : 8;
-        if (0 === arguments["length"]) return undefined;
+        var param_time, param_other = arguments["length"] > 2 && void 0 !== arguments[2] ? arguments[2] : 8;
+        if (0 === arguments["length"]) return void 0;
         "object" === typeof param ? param_time = param : (10 === ("" + param)["length"] && (param = 1e3 * parseInt(param)), param_time = new Date(param));
         var param_timezoneoffset = param + 6e4 * new Date(param)["getTimezoneOffset"](), param_time_n = param_timezoneoffset + 36e5 * param_other;
         return param_time = new Date(param_time_n), {
@@ -2955,7 +2955,7 @@
         };
       }
       function encry_join(param) {
-        for (var a = arguments["length"] > 1 && undefined !== arguments[1] ? arguments[1] : 10, funcRun = function() {
+        for (var a = arguments["length"] > 1 && void 0 !== arguments[1] ? arguments[1] : 10, funcRun = function() {
           for (var b, c = [], d = 0; d < 256; d++) {
             b = d;
             for (var index = 0; index < 8; index++)
@@ -3076,7 +3076,7 @@
         domUtils.on(
           $QmsgErrorTip.$Qmsg.querySelector("a[href]"),
           "click",
-          undefined,
+          void 0,
           (event) => {
             utils.preventEvent(event);
             NetDiskLinkClickMode.openBlankUrl(
@@ -3345,7 +3345,7 @@
         return crypto.getRandomValues(new Uint8Array(16));
       }
       var alipan_c = function(args_e) {
-        var second_arg = arguments.length > 1 && undefined !== arguments[1] ? arguments[1] : 0, devices_id_string = (alipan_s[args_e[second_arg + 0]] + alipan_s[args_e[second_arg + 1]] + alipan_s[args_e[second_arg + 2]] + alipan_s[args_e[second_arg + 3]] + "-" + alipan_s[args_e[second_arg + 4]] + alipan_s[args_e[second_arg + 5]] + "-" + alipan_s[args_e[second_arg + 6]] + alipan_s[args_e[second_arg + 7]] + "-" + alipan_s[args_e[second_arg + 8]] + alipan_s[args_e[second_arg + 9]] + "-" + alipan_s[args_e[second_arg + 10]] + alipan_s[args_e[second_arg + 11]] + alipan_s[args_e[second_arg + 12]] + alipan_s[args_e[second_arg + 13]] + alipan_s[args_e[second_arg + 14]] + alipan_s[args_e[second_arg + 15]]).toLowerCase();
+        var second_arg = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : 0, devices_id_string = (alipan_s[args_e[second_arg + 0]] + alipan_s[args_e[second_arg + 1]] + alipan_s[args_e[second_arg + 2]] + alipan_s[args_e[second_arg + 3]] + "-" + alipan_s[args_e[second_arg + 4]] + alipan_s[args_e[second_arg + 5]] + "-" + alipan_s[args_e[second_arg + 6]] + alipan_s[args_e[second_arg + 7]] + "-" + alipan_s[args_e[second_arg + 8]] + alipan_s[args_e[second_arg + 9]] + "-" + alipan_s[args_e[second_arg + 10]] + alipan_s[args_e[second_arg + 11]] + alipan_s[args_e[second_arg + 12]] + alipan_s[args_e[second_arg + 13]] + alipan_s[args_e[second_arg + 14]] + alipan_s[args_e[second_arg + 15]]).toLowerCase();
         if (!function(e) {
           return "string" == typeof e && alipan_device_id_pattern.test(e);
         }(devices_id_string))
@@ -3376,11 +3376,11 @@
       let enableCopy = _GM_getValue("baidu-baiduwp-php-copy-url");
       if (!url) {
         Qmsg.error("请先在设置中配置百度网盘-网址");
-        return undefined;
+        return void 0;
       }
       if (!postForm) {
         Qmsg.error("请先在设置中配置百度网盘-表单参数");
-        return undefined;
+        return void 0;
       }
       postForm = NetDiskRuleUtils.replaceParam(postForm, {
         shareCode,
@@ -3509,7 +3509,7 @@
                     detail.hide();
                     NetDiskUI.suspension.show();
                   } else {
-                    NetDiskUI.Alias.uiLinkAlias = undefined;
+                    NetDiskUI.Alias.uiLinkAlias = void 0;
                     detail.close();
                   }
                 }
@@ -3575,7 +3575,7 @@
               domUtils.on(
                 launchIcon,
                 "click",
-                undefined,
+                void 0,
                 function() {
                   domUtils.addClass(launchIcon, "pops-hide-important");
                   domUtils.removeClass(shrinkIcon, "pops-hide-important");
@@ -3590,7 +3590,7 @@
               domUtils.on(
                 shrinkIcon,
                 "click",
-                undefined,
+                void 0,
                 function() {
                   domUtils.removeClass(launchIcon, "pops-hide-important");
                   domUtils.addClass(shrinkIcon, "pops-hide-important");
@@ -3705,7 +3705,7 @@
               },
               close: {
                 callback(event) {
-                  NetDiskUI.Alias.uiLinkAlias = undefined;
+                  NetDiskUI.Alias.uiLinkAlias = void 0;
                   event.close();
                 }
               }
@@ -3713,7 +3713,7 @@
             mask: {
               clickCallBack(originalRun) {
                 originalRun();
-                NetDiskUI.Alias.uiLinkAlias = undefined;
+                NetDiskUI.Alias.uiLinkAlias = void 0;
               }
             },
             class: "whitesevPop",
@@ -4127,9 +4127,9 @@
      * 设置点击图标按钮导航至该网盘链接所在网页中位置
      */
     registerIconGotoPagePosition(targetElement) {
-      let findGenerator = undefined;
-      let iterator = undefined;
-      let prevSearchShareCode = undefined;
+      let findGenerator = void 0;
+      let iterator = void 0;
+      let prevSearchShareCode = void 0;
       domUtils.on(
         targetElement,
         "click",
@@ -4144,24 +4144,24 @@
             Qmsg.error("获取data-sharecode属性失败");
             return;
           }
-          if (prevSearchShareCode == undefined) {
+          if (prevSearchShareCode == void 0) {
             prevSearchShareCode = dataSharecode;
           } else if (prevSearchShareCode !== dataSharecode) {
             log.info(
               `上一个搜索：${prevSearchShareCode}，切换至：${dataSharecode}`
             );
-            findGenerator = undefined;
-            iterator = undefined;
+            findGenerator = void 0;
+            iterator = void 0;
             prevSearchShareCode = dataSharecode;
           }
-          if (findGenerator == undefined) {
+          if (findGenerator == void 0) {
             findGenerator = utils.findElementsWithText(
               document.documentElement,
               dataSharecode
             );
             iterator = findGenerator.next();
           }
-          if (iterator == null ? undefined : iterator.value) {
+          if (iterator == null ? void 0 : iterator.value) {
             log.success("定位元素", iterator);
             if (iterator.value.nodeType === Node.ELEMENT_NODE && iterator.value.getClientRects().length) {
               iterator.value.scrollIntoView({
@@ -4171,9 +4171,9 @@
               });
               if (NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].value) {
                 let elementText = iterator.value.innerText || iterator.value.textContent;
-                let childTextNode = undefined;
-                let startIndex = undefined;
-                let endIndex = undefined;
+                let childTextNode = void 0;
+                let startIndex = void 0;
+                let endIndex = void 0;
                 if (elementText.includes(dataSharecode)) {
                   let textNodeList = Array.from(
                     iterator.value.childNodes
@@ -4271,8 +4271,8 @@
               Qmsg.info("已经定位至最后一个元素了");
               return;
             }
-            findGenerator = undefined;
-            iterator = undefined;
+            findGenerator = void 0;
+            iterator = void 0;
           }
         }
       );
@@ -4451,7 +4451,7 @@
       formData.append("pd", that.accessCode);
       let requestDetails = {
         url: `https://www.jianguoyun.com/p/${that.shareCode}`,
-        data: that.accessCode === "" ? undefined : `pd=${that.accessCode}`,
+        data: that.accessCode === "" ? void 0 : `pd=${that.accessCode}`,
         responseType: "html",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -4459,7 +4459,7 @@
           Referer: `https://www.jianguoyun.com/p/${that.shareCode}`
         }
       };
-      let requestResp = undefined;
+      let requestResp = void 0;
       if (that.accessCode === "") {
         requestResp = await httpx.get(requestDetails);
       } else {
@@ -4489,7 +4489,7 @@
         log.success("hash ===> " + fileHash);
         log.success("name ===> " + fileName);
         log.success("size ===> " + fileSize);
-        if (fileNeedsPassword && (that.accessCode == undefined || that.accessCode === "")) {
+        if (fileNeedsPassword && (that.accessCode == void 0 || that.accessCode === "")) {
           Qmsg.error("密码不正确!");
           NetDiskUI.newAccessCodeView(
             "密码缺失",
@@ -4506,7 +4506,7 @@
         if (fileErrorCode === "AuthenticationFailed") {
           Qmsg.error("密码错误");
           NetDiskUI.newAccessCodeView(
-            undefined,
+            void 0,
             "jianguoyun",
             that.netDiskIndex,
             that.shareCode,
@@ -4517,12 +4517,12 @@
           );
           return;
         }
-        if (fileHash === "" || fileHash == undefined) {
+        if (fileHash === "" || fileHash == void 0) {
           log.error("hash为空，可能文件被撤销分享了");
           Qmsg.error(`文件分享已被撤销`);
           return;
         }
-        if (fileSize == undefined && isdir == false) {
+        if (fileSize == void 0 && isdir == false) {
           log.error("无size，可能文件被删除了");
           Qmsg.error(`“${fileName}”文件已被拥有者（“${fileOwner}”）删除`);
           return;
@@ -4542,7 +4542,7 @@
       } else if (respData.responseText.match("对不起，您的某些输入不正确。")) {
         log.error("可能该链接不需要访问码或者访问码有问题");
         NetDiskUI.newAccessCodeView(
-          undefined,
+          void 0,
           "jianguoyun",
           that.netDiskIndex,
           that.shareCode,
@@ -4577,7 +4577,7 @@
         }
       });
       if (!getResp.status) {
-        if (utils.isNotNull((_a2 = getResp.data) == null ? undefined : _a2.responseText)) {
+        if (utils.isNotNull((_a2 = getResp.data) == null ? void 0 : _a2.responseText)) {
           let errorData = utils.toJSON(getResp.data.responseText);
           log.error("坚果云", errorData);
           if (errorData["errorCode"] === "UnAuthorized") {
@@ -4625,7 +4625,7 @@
         }
       });
       if (!getResp.status) {
-        if (utils.isNotNull((_a2 = getResp.data) == null ? undefined : _a2.responseText)) {
+        if (utils.isNotNull((_a2 = getResp.data) == null ? void 0 : _a2.responseText)) {
           let errorData = utils.toJSON(getResp.data.responseText);
           log.error("坚果云", errorData);
           if (errorData["errorCode"] === "UnAuthorized") {
@@ -4904,7 +4904,7 @@
         Qmsg.error("请求失败，请重试");
         return;
       }
-      if (respData.responseText == undefined) {
+      if (respData.responseText == void 0) {
         log.error(respData);
         Qmsg.error("获取网页内容为空");
         return;
@@ -4930,19 +4930,19 @@
           let iframeUrl = pageIframeElement.getAttribute("src");
           log.error("该链接需要重新通过iframe地址访问获取信息", iframeUrl);
           Qmsg.info("正在请求下载信息");
-          let fileName = ((_a2 = pageDOM.querySelector("body div.d > div")) == null ? undefined : _a2.innerText) || ((_b = pageDOM.querySelector("#filenajax")) == null ? undefined : _b.innerText) || ((_d = (_c = pageDOM.querySelector("title")) == null ? undefined : _c.textContent) == null ? undefined : _d.replace(/ - 蓝奏云$/i, ""));
+          let fileName = ((_a2 = pageDOM.querySelector("body div.d > div")) == null ? void 0 : _a2.innerText) || ((_b = pageDOM.querySelector("#filenajax")) == null ? void 0 : _b.innerText) || ((_d = (_c = pageDOM.querySelector("title")) == null ? void 0 : _c.textContent) == null ? void 0 : _d.replace(/ - 蓝奏云$/i, ""));
           let fileSize = pageText.match(/文件大小：<\/span>(.+?)<br>/i) || ((_e = pageDOM.querySelector(
             "div.n_box div.n_file div.n_filesize"
-          )) == null ? undefined : _e.innerText) || ((_f = pageDOM.querySelector(
+          )) == null ? void 0 : _e.innerText) || ((_f = pageDOM.querySelector(
             ".d2 table tr td .fileinfo:nth-child(1) .fileinforight"
-          )) == null ? undefined : _f.innerText);
+          )) == null ? void 0 : _f.innerText);
           let fileUploadTime = pageText.match(/上传时间：<\/span>(.+?)<br>/i) || ((_g = pageDOM.querySelector(
             "#file[class=''] .n_file_info span.n_file_infos"
-          )) == null ? undefined : _g.innerText) || ((_h = pageDOM.querySelector(
+          )) == null ? void 0 : _g.innerText) || ((_h = pageDOM.querySelector(
             ".d2 table tr td .fileinfo:nth-child(3) .fileinforight"
-          )) == null ? undefined : _h.innerText) || ((_i = pageDOM.querySelector(
+          )) == null ? void 0 : _h.innerText) || ((_i = pageDOM.querySelector(
             "#file[class='filter'] .n_file_info span.n_file_infos"
-          )) == null ? undefined : _i.innerText);
+          )) == null ? void 0 : _i.innerText);
           if (fileSize) {
             if (Array.isArray(fileSize)) {
               fileSize = fileSize[fileSize.length - 1];
@@ -4959,7 +4959,7 @@
             }
             if (fileUploadTime.toString().toLowerCase().startsWith("android")) {
               log.error("解析出的文件上传时间信息是Android/xxxx开头");
-              fileUploadTime = undefined;
+              fileUploadTime = void 0;
             }
           } else {
             log.error("解析文件上传时间信息失败");
@@ -5038,7 +5038,7 @@
     async getLink(response) {
       const that = this;
       let pageText = response.responseText;
-      if (pageText == undefined) {
+      if (pageText == void 0) {
         log.error("shareCode错误，重新从页面中获取");
         await that.getFileLink(true);
         return;
@@ -5092,7 +5092,7 @@
           if ("密码不正确".indexOf(json_data["inf"]) != -1) {
             Qmsg.error("密码不正确!");
             NetDiskUI.newAccessCodeView(
-              undefined,
+              void 0,
               "lanzou",
               that.netDiskIndex,
               that.shareCode,
@@ -5272,7 +5272,7 @@
       if ("密码不正确".indexOf(jsonData["inf"]) != -1) {
         Qmsg.error("密码不正确!");
         NetDiskUI.newAccessCodeView(
-          undefined,
+          void 0,
           "lanzou",
           that.netDiskIndex,
           that.shareCode,
@@ -5407,7 +5407,7 @@
       } else if ("密码不正确".indexOf(info) !== -1) {
         Qmsg.error("密码不正确!");
         NetDiskUI.newAccessCodeView(
-          undefined,
+          void 0,
           "lanzou",
           that.netDiskIndex,
           that.shareCode,
@@ -5447,7 +5447,7 @@
           fileSize,
           fileUploadTime,
           msg: `解析失败，${getResp.msg}`,
-          downloadUrl: undefined
+          downloadUrl: void 0
         };
       }
       let respData = getResp.data;
@@ -5461,7 +5461,7 @@
           fileSize,
           fileUploadTime,
           msg: `解析iframe链接失败`,
-          downloadUrl: undefined
+          downloadUrl: void 0
         };
       }
       let iframeUrl = pageIframeElement.getAttribute("src");
@@ -5494,7 +5494,7 @@
           fileSize,
           fileUploadTime,
           msg: `获取下载链接失败`,
-          downloadUrl: undefined
+          downloadUrl: void 0
         };
       }
     }
@@ -5659,8 +5659,8 @@
       if (!linkInfo["list"].length) {
         return;
       }
-      if ((_b = (_a2 = linkInfo["list"][0]) == null ? undefined : _a2["map"]) == null ? undefined : _b["userId"]) {
-        that.userId = (_d = (_c = linkInfo["list"][0]) == null ? undefined : _c["map"]) == null ? undefined : _d["userId"];
+      if ((_b = (_a2 = linkInfo["list"][0]) == null ? void 0 : _a2["map"]) == null ? void 0 : _b["userId"]) {
+        that.userId = (_d = (_c = linkInfo["list"][0]) == null ? void 0 : _c["map"]) == null ? void 0 : _d["userId"];
       } else {
         Qmsg.error("解析获取【userId】为空");
         return;
@@ -6051,7 +6051,7 @@
         log.info("递归完毕");
         NetDiskUI.staticView.moreFile("奶牛快传文件解析", folderInfoList);
       } else {
-        let downloadUrl = undefined;
+        let downloadUrl = void 0;
         if (checkLinkValidityInfo["zipDownload"]) {
           downloadUrl = await that.getZipFileDownloadUrl(
             that.shareCode,
@@ -6136,7 +6136,7 @@
               resultJSON["data"]["firstFolder"]["updated_at"]
             )
           };
-        } else if (resultJSON["data"]["firstFile"] == undefined) {
+        } else if (resultJSON["data"]["firstFile"] == void 0) {
           Qmsg.success("该链接为文件夹类型");
           return {
             isFolder: true,
@@ -6517,7 +6517,7 @@
       if (shareInfoData["needAccessCode"] && utils.isNull(that.accessCode)) {
         Qmsg.error("密码不正确!");
         NetDiskUI.newAccessCodeView(
-          undefined,
+          void 0,
           "tianyiyun",
           that.netDiskIndex,
           that.shareCode,
@@ -6549,15 +6549,15 @@
         let folderInfo = await that.listShareDir(
           shareCode,
           accessCode,
-          undefined,
-          undefined,
+          void 0,
+          void 0,
           fileId,
           fileId,
-          undefined,
+          void 0,
           this.shareId,
-          undefined,
-          undefined,
-          undefined
+          void 0,
+          void 0,
+          void 0
         );
         if (!folderInfo) {
           QmsgLoading.close();
@@ -6896,11 +6896,11 @@
               100,
               folderInfo["id"],
               folderInfo["id"],
-              undefined,
+              void 0,
               that.shareId,
-              undefined,
-              undefined,
-              undefined
+              void 0,
+              void 0,
+              void 0
             );
             if (!_folderInfo_) {
               return [];
@@ -7810,16 +7810,25 @@
       if (NetDiskFilterScheme.isForwardBlankLink(netDiskName)) {
         url = NetDiskFilterScheme.parseDataToSchemeUri(netDiskName, url);
       }
-      (_a2 = $("meta[name='referrer']")) == null ? undefined : _a2.setAttribute("content", "no-referrer");
+      (_a2 = $("meta[name='referrer']")) == null ? void 0 : _a2.setAttribute("content", "no-referrer");
       let openUrl = () => {
         if (isOpenInBackEnd) {
           _GM_openInTab(url, {
             active: false
           });
         } else {
-          let blankWindow = window.open(url, "_blank");
-          if (blankWindow) {
-            blankWindow.focus();
+          try {
+            let blankWindow = window.open(url, "_blank");
+            if (blankWindow) {
+              blankWindow.focus();
+            }
+          } catch (error) {
+            log.error(error, url);
+            let $blank = domUtils.createElement("a");
+            $blank.setAttribute("href", url);
+            $blank.setAttribute("target", "_blank");
+            $blank.click();
+            $blank.remove();
           }
         }
       };
@@ -8126,7 +8135,7 @@
           ...NetDiskCheckLinkValidity.status.failed,
           data
         };
-      } else if (data["file_count"] === 0 || ((_a2 = data["file_infos"]) == null ? undefined : _a2.length) === 0) {
+      } else if (data["file_count"] === 0 || ((_a2 = data["file_infos"]) == null ? void 0 : _a2.length) === 0) {
         return {
           ...NetDiskCheckLinkValidity.status.failed,
           data
@@ -8657,7 +8666,7 @@
         ...NetDiskCheckLinkValidityRequestOption
       });
       if (!response.status) {
-        let status = (_b = (_a2 = response.data) == null ? undefined : _a2.status) == null ? undefined : _b.toString();
+        let status = (_b = (_a2 = response.data) == null ? void 0 : _a2.status) == null ? void 0 : _b.toString();
         if (status === "429") {
           return {
             ...NetDiskCheckLinkValidity.status.error,
@@ -9161,7 +9170,7 @@
       domUtils.on(
         $ele,
         "click",
-        undefined,
+        void 0,
         () => {
           const $netDiskUrlDiv = $ele.closest(".netdisk-url-div");
           const $netDiskLink = $netDiskUrlDiv.querySelector(".netdisk-link");
@@ -9903,7 +9912,7 @@
      * @param rule
      */
     getFormatRule(rule) {
-      return JSON.stringify(rule || this.getAllRule(), undefined, 4);
+      return JSON.stringify(rule || this.getAllRule(), void 0, 4);
     }
   };
   const NetDiskRule_baidu = {
@@ -10083,7 +10092,7 @@
                   NetDiskParse_Lanzou_Config.MENU_KEY,
                   NetDiskParse_Lanzou_Config.DEFAULT_HOST_NAME,
                   "",
-                  undefined,
+                  void 0,
                   `例如：${NetDiskParse_Lanzou_Config.DEFAULT_HOST_NAME}`
                 )
               ]
@@ -10714,7 +10723,7 @@
                 "chengtong-parse-file-api-host",
                 "https://ctfile.qinlili.bid",
                 "解析站配置，暂时只支持file，非file为新标签页打开",
-                undefined,
+                void 0,
                 ""
               )
             ]
@@ -11096,6 +11105,43 @@
       }
     }
   };
+  const NetDiskRule_ed2k = {
+    /** 规则 */
+    rule: [
+      {
+        link_innerText: `ed2k://\\|file\\|[^\\|]+\\|\\d+\\|[a-fA-F0-9]{32}\\|`,
+        link_innerHTML: `ed2k://\\|file\\|[^\\|]+\\|\\d+\\|[a-fA-F0-9]{32}\\|`,
+        shareCode: /ed2k:\/\/\\|file\\|[^\\|]+\\|\\d+\\|([a-fA-F0-9]{32})\|/gi,
+        shareCodeNeedRemoveStr: / /gi,
+        checkAccessCode: /(提取码|密码|访问码)[\s\S]+/gi,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        paramMatch: /ed2k:\/\/\|file\|([^\|]+)\|(\d+)\|([a-fA-F0-9]{32})\|/i,
+        uiLinkShow: "ed2k://|file|{#$1#}|{#$2#}|{#$3#}|/",
+        blank: "ed2k://|file|{#$1#}|{#$2#}|{#$3#}|/",
+        copyUrl: "ed2k://|file|{#$1#}|{#$2#}|{#$3#}|/"
+      }
+    ],
+    /** 设置项 */
+    setting: {
+      name: "ed2k",
+      key: "ed2k",
+      configurationInterface: {
+        function: {
+          enable: true,
+          linkClickMode: {
+            openBlank: {
+              default: true
+            }
+          }
+        },
+        schemeUri: {
+          enable: false,
+          isForwardBlankLink: true,
+          uri: ""
+        }
+      }
+    }
+  };
   const NetDiskRule = {
     /** 规则存储的数据 */
     dataKey: "ruleData",
@@ -11128,6 +11174,7 @@
         NetDiskRule_chengtong,
         NetDiskRule_kuake,
         NetDiskRule_magnet,
+        NetDiskRule_ed2k,
         NetDiskRule_jianguoyun,
         NetDiskRule_onedrive,
         NetDiskRule_uc
@@ -11298,7 +11345,7 @@
               NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
               default_value,
               selectData,
-              undefined,
+              void 0,
               "点击匹配到的链接的执行的动作"
             )
           );
@@ -11318,7 +11365,7 @@
               "验证链接有效性",
               NetDiskRuleDataKEY.function.checkLinkValidity(ruleKey),
               default_value,
-              undefined,
+              void 0,
               "自动请求链接，判断该链接是否有效，在大/小窗内显示验证结果图标"
             )
           );
@@ -11331,7 +11378,7 @@
               "验证链接有效性-悬停提示",
               NetDiskRuleDataKEY.function.checkLinkValidityHoverTip(ruleKey),
               default_value,
-              undefined,
+              void 0,
               "当鼠标悬停在验证结果图标上时会显示相关验证信息"
             )
           );
@@ -11355,7 +11402,7 @@
                 ruleKey
               ),
               default_value,
-              undefined,
+              void 0,
               "当点击动作是【新标签页打开】时且存在访问码，那就会复制访问码到剪贴板"
             )
           );
@@ -11380,7 +11427,7 @@
               "启用",
               NetDiskRuleDataKEY.schemeUri.enable(ruleKey),
               default_value,
-              undefined,
+              void 0,
               "开启后可进行scheme uri转发"
             )
           );
@@ -11393,7 +11440,7 @@
               "转发新标签页链接",
               NetDiskRuleDataKEY.schemeUri.isForwardBlankLink(ruleKey),
               default_value,
-              undefined,
+              void 0,
               "对新标签页打开的链接进行scheme转换"
             )
           );
@@ -11406,7 +11453,7 @@
               "转发直链",
               NetDiskRuleDataKEY.schemeUri.isForwardLinearChain(ruleKey),
               default_value,
-              undefined,
+              void 0,
               "对解析的直链进行scheme转换"
             )
           );
@@ -11420,7 +11467,7 @@
               NetDiskRuleDataKEY.schemeUri.uri(ruleKey),
               default_value,
               "自定义的Scheme的Uri链接",
-              undefined,
+              void 0,
               "jumpwsv://go?package=xx&activity=xx&intentAction=xx&intentData=xx&intentExtra=xx"
             )
           );
@@ -11446,8 +11493,8 @@
               default_value,
               0,
               100,
-              undefined,
-              undefined,
+              void 0,
+              void 0,
               "提取码间隔前的字符长度"
             )
           );
@@ -11462,8 +11509,8 @@
               default_value,
               0,
               100,
-              undefined,
-              undefined,
+              void 0,
+              void 0,
               "提取码间隔后的字符长度"
             )
           );
@@ -11488,8 +11535,8 @@
               default_value,
               0,
               100,
-              undefined,
-              undefined,
+              void 0,
+              void 0,
               "提取码间隔前的字符长度"
             )
           );
@@ -11504,8 +11551,8 @@
               default_value,
               0,
               100,
-              undefined,
-              undefined,
+              void 0,
+              void 0,
               "提取码间隔后的字符长度"
             )
           );
@@ -11540,7 +11587,7 @@
      */
     handleShareCode(matchText, regular, logCallBack) {
       var _a2;
-      let shareCodeMatch = (_a2 = matchText.match(regular.shareCode)) == null ? undefined : _a2.filter((item) => utils.isNotNull(item));
+      let shareCodeMatch = (_a2 = matchText.match(regular.shareCode)) == null ? void 0 : _a2.filter((item) => utils.isNotNull(item));
       logCallBack({
         status: true,
         msg: [
@@ -11574,7 +11621,7 @@
         });
       }
       let shareCodeNotMatch = regular.shareCodeNotMatch;
-      if (shareCodeNotMatch != undefined && shareCode.match(shareCodeNotMatch)) {
+      if (shareCodeNotMatch != void 0 && shareCode.match(shareCodeNotMatch)) {
         log.error(`不可能的shareCode => ${shareCode}`);
         logCallBack({
           status: false,
@@ -11660,7 +11707,7 @@
           status: true,
           msg: "取最后一个值: " + accessCodeMatchValue
         });
-        let accessCodeMatchArray = (_a2 = accessCodeMatchValue.match(regular.accessCode)) == null ? undefined : _a2.filter((item) => utils.isNotNull(item));
+        let accessCodeMatchArray = (_a2 = accessCodeMatchValue.match(regular.accessCode)) == null ? void 0 : _a2.filter((item) => utils.isNotNull(item));
         logCallBack({
           status: true,
           msg: [
@@ -11789,7 +11836,7 @@
             msg: [
               `正则: paramMatch`,
               `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
-              `参数: ` + JSON.stringify(replaceParamData, undefined, 4),
+              `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
               `结果: ${uiLink}`
             ]
           });
@@ -11865,7 +11912,7 @@
             msg: [
               `正则: paramMatch`,
               `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
-              `参数: ` + JSON.stringify(replaceParamData, undefined, 4),
+              `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
               `结果: ${blankUrl}`
             ]
           });
@@ -11941,7 +11988,7 @@
             msg: [
               `正则: paramMatch`,
               `作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
-              `参数: ` + JSON.stringify(replaceParamData, undefined, 4),
+              `参数: ` + JSON.stringify(replaceParamData, void 0, 4),
               `结果: ${copyUrl}`
             ]
           });
@@ -12012,7 +12059,7 @@
      */
     getPageText(target = document.documentElement, isCheckShadowRoot) {
       let strList = [];
-      strList.push((target == null ? undefined : target.textContent) || (target == null ? undefined : target.innerText) || "");
+      strList.push((target == null ? void 0 : target.textContent) || (target == null ? void 0 : target.innerText) || "");
       if (isCheckShadowRoot) {
         let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
         if (queryShadowRootAllNodeInfo.length) {
@@ -12113,7 +12160,7 @@
     /**
      * 分页
      */
-    dataPaging: undefined,
+    dataPaging: void 0,
     /**
      * 显示弹窗
      */
@@ -12153,13 +12200,13 @@
               enable: true,
               callback(event) {
                 event.close();
-                NetDiskUI.Alias.historyAlias = undefined;
+                NetDiskUI.Alias.historyAlias = void 0;
               }
             },
             close: {
               callback(event) {
                 event.close();
-                NetDiskUI.Alias.historyAlias = undefined;
+                NetDiskUI.Alias.historyAlias = void 0;
               }
             },
             cancel: {
@@ -12381,9 +12428,9 @@
           });
           let clickNode = event.target;
           let dataJSON = clickNode.getAttribute("data-json");
-          (_a2 = clickNode.closest("li")) == null ? undefined : _a2.remove();
+          (_a2 = clickNode.closest("li")) == null ? void 0 : _a2.remove();
           that.deleteStorageData(dataJSON);
-          deleteLoading == null ? undefined : deleteLoading.close();
+          deleteLoading == null ? void 0 : deleteLoading.close();
           let totalNumberText = domUtils.text(
             target.querySelector(
               ".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
@@ -12465,7 +12512,7 @@
      */
     setSearchEvent() {
       let isSeaching = false;
-      let searchLoading = undefined;
+      let searchLoading = void 0;
       let that = this;
       function searchEvent() {
         if (isSeaching) {
@@ -12504,7 +12551,7 @@
             ),
             historyDataHTML
           );
-          searchLoading == null ? undefined : searchLoading.close();
+          searchLoading == null ? void 0 : searchLoading.close();
           isSeaching = false;
           that.setDataPaging(data);
           return;
@@ -12538,8 +12585,8 @@
             ".whitesevPopNetDiskHistoryMatch .netdiskrecord-page > *"
           )
         );
-        searchLoading == null ? undefined : searchLoading.close();
-        searchLoading = undefined;
+        searchLoading == null ? void 0 : searchLoading.close();
+        searchLoading = void 0;
         isSeaching = false;
       }
       domUtils.listenKeyboard(
@@ -12845,7 +12892,7 @@
     /** worker的Blob链接 */
     blobUrl: "",
     /** worker对象 */
-    GM_matchWorker: undefined,
+    GM_matchWorker: void 0,
     init() {
       this.listenWorkerInitErrorDialog();
       this.initWorkerBlobUrl();
@@ -13038,7 +13085,7 @@
       const that = this;
       domUtils.on(window, "message", (event) => {
         let messageData = event.data;
-        if (typeof messageData === "object" && (messageData == null ? undefined : messageData["type"]) === this.postMessageType) {
+        if (typeof messageData === "object" && (messageData == null ? void 0 : messageData["type"]) === this.postMessageType) {
           let data = messageData.data;
           that.registerWorkerInitErrorNeverTipToast(data.hostname);
           NetDiskPops.confirm(
@@ -13078,9 +13125,9 @@
                     websiteRuleView.showEditView(
                       false,
                       ruleOption,
-                      undefined,
-                      undefined,
-                      undefined,
+                      void 0,
+                      void 0,
+                      void 0,
                       () => {
                         Qmsg.success("添加成功");
                       }
@@ -13150,7 +13197,7 @@
      * 主动触发Worker初始化失败的弹窗
      */
     dispatchWorkerInitErrorDialog() {
-      top == null ? undefined : top.postMessage(
+      top == null ? void 0 : top.postMessage(
         {
           type: this.postMessageType,
           data: {
@@ -13502,7 +13549,7 @@
           let clipboardText = NetDisk.$data.clipboardText;
           toMatchedTextList.push(clipboardText);
         }
-        {
+        if (NetDiskGlobalData.match.allowMatchLocationHref) {
           let decodeComponentUrl = NetDiskRuleUtils.getDecodeComponentUrl();
           toMatchedTextList.push(decodeComponentUrl);
         }
@@ -13558,14 +13605,14 @@
             return;
           }
         }
-        {
+        if (NetDiskGlobalData.match.toBeMatchedWithInputElementValue) {
           let inputValueList = NetDiskWorkerUtils.getInputElementValue(
             document.documentElement,
             isDepthAcquisitionWithShadowRoot
           );
           toMatchedTextList.push(...inputValueList);
         }
-        {
+        if (NetDiskGlobalData.match.toBeMatchedTextAreaElementValue) {
           let textAreaValueList = NetDiskWorkerUtils.getTextAreaElementValue(
             document.documentElement,
             isDepthAcquisitionWithShadowRoot
@@ -13688,7 +13735,7 @@
           text += "\n";
         }
         if (typeof item !== "string") {
-          text += JSON.stringify(item, undefined, 4);
+          text += JSON.stringify(item, void 0, 4);
         } else {
           text += item;
         }
@@ -13960,7 +14007,7 @@
           that.setLog(error.toString());
         }
       }
-      domUtils.on(that.$el.$button, "click", undefined, debugRunClickEvent);
+      domUtils.on(that.$el.$button, "click", void 0, debugRunClickEvent);
     }
   };
   const dialogCSS = '.pops[type-value="confirm"] .pops-confirm-content {\r\n	overflow: hidden;\r\n}\r\n/* textarea美化 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea {\r\n	width: 100%;\r\n	height: 100%;\r\n	border: none;\r\n	outline: none;\r\n	padding: 0;\r\n	margin: 0;\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	background-image: none;\r\n	background-color: transparent;\r\n\r\n	display: inline-block;\r\n	resize: vertical;\r\n	padding: 5px 15px;\r\n	line-height: normal;\r\n	box-sizing: border-box;\r\n	border: 1px solid #dcdfe6;\r\n	transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	appearance: none;\r\n	resize: none;\r\n}\r\n/* 获得焦点 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea:focus {\r\n	outline: none;\r\n	border-color: #3677f0;\r\n}\r\n/* 提示文字 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea::placeholder {\r\n	color: #c0c4cc;\r\n}\r\n/* 鼠标hover */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea:hover {\r\n	border-color: #c0c4cc;\r\n}\r\n';
@@ -14084,7 +14131,7 @@
       let $panel = NetDiskPops.panel(
         {
           title: {
-            text: `${((_a2 = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a2.name) || SCRIPT_NAME}-设置`,
+            text: `${((_a2 = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a2.name) || SCRIPT_NAME}-设置`,
             position: "center"
           },
           content,
@@ -14093,14 +14140,14 @@
               enable: true,
               callback(event) {
                 event.close();
-                NetDiskUI.Alias.settingAlias = undefined;
+                NetDiskUI.Alias.settingAlias = void 0;
               }
             }
           },
           mask: {
             clickCallBack(originalRun) {
               originalRun();
-              NetDiskUI.Alias.settingAlias = undefined;
+              NetDiskUI.Alias.settingAlias = void 0;
             }
           },
           class: "whitesevPopSetting",
@@ -14159,7 +14206,7 @@
                     } else if ($next) {
                       $next.click();
                     }
-                    asideElement == null ? undefined : asideElement.remove();
+                    asideElement == null ? void 0 : asideElement.remove();
                     Qmsg.success("删除成功");
                     okEvent.close();
                   } else {
@@ -14307,7 +14354,7 @@
     setSuspensionEvent() {
       let needDragElement = NetDiskUI.suspension.suspensionNode;
       let dragNode = new AnyTouch(needDragElement);
-      let netDiskLinkViewTimer = undefined;
+      let netDiskLinkViewTimer = void 0;
       let moveFlag = false;
       let isDouble = false;
       let clickElementLeftOffset = 0;
@@ -14375,7 +14422,7 @@
       });
       dragNode.on("tap", function(event) {
         clearTimeout(netDiskLinkViewTimer);
-        netDiskLinkViewTimer = undefined;
+        netDiskLinkViewTimer = void 0;
         if (isDouble) {
           isDouble = false;
           NetDiskGlobalSettingView.show();
@@ -14419,7 +14466,7 @@
      * 设置window的resize事件监听，来重新设置悬浮按钮的位置
      */
     setResizeEventListener() {
-      DOMUtils.on(globalThis, "resize", undefined, () => {
+      DOMUtils.on(globalThis, "resize", void 0, () => {
         let activeElement = document.activeElement;
         if (utils.isPhone()) {
           if (["input", "textarea"].includes(activeElement.localName)) {
@@ -14639,14 +14686,14 @@
                 netDiskIndex,
                 shareCode,
                 userInputAccessCode,
-                undefined
+                void 0
               );
               let currentItemSelector = `.netdisk-url a[data-netdisk='${netDiskName}'][data-sharecode='${shareCode}']`;
               let currentHistoryItemSelector = `.netdiskrecord-link a[data-netdisk='${netDiskName}'][data-sharecode='${shareCode}']`;
-              let currentItemElement = (_b = (_a2 = NetDiskUI.Alias.uiLinkAlias) == null ? undefined : _a2.$shadowRoot) == null ? undefined : _b.querySelector(
+              let currentItemElement = (_b = (_a2 = NetDiskUI.Alias.uiLinkAlias) == null ? void 0 : _a2.$shadowRoot) == null ? void 0 : _b.querySelector(
                 currentItemSelector
               );
-              let currentHistoryItemElement = (_d = (_c = NetDiskUI.Alias.historyAlias) == null ? undefined : _c.$shadowRoot) == null ? undefined : _d.querySelector(
+              let currentHistoryItemElement = (_d = (_c = NetDiskUI.Alias.historyAlias) == null ? void 0 : _c.$shadowRoot) == null ? void 0 : _d.querySelector(
                 currentHistoryItemSelector
               );
               if (currentItemElement) {
@@ -14753,9 +14800,9 @@
               text: "识别",
               callback() {
                 var _a2, _b;
-                let inputText = ((_b = (_a2 = popsConfirm.popsElement) == null ? undefined : _a2.querySelector(
+                let inputText = ((_b = (_a2 = popsConfirm.popsElement) == null ? void 0 : _a2.querySelector(
                   ".netdisk-match-paste-text"
-                )) == null ? undefined : _b.value) || "";
+                )) == null ? void 0 : _b.value) || "";
                 if (inputText.trim() !== "") {
                   inputText = NetDiskRuleUtils.replaceChinese(inputText);
                   NetDiskWorker.postMessage({
@@ -14804,15 +14851,15 @@
       /**
        * 链接弹窗的对象
        */
-      uiLinkAlias: undefined,
+      uiLinkAlias: void 0,
       /**
        * 历史匹配记录弹窗的对象
        */
-      historyAlias: undefined,
+      historyAlias: void 0,
       /**
        * 设置弹窗的对象
        */
-      settingAlias: undefined
+      settingAlias: void 0
     },
     /**
      * 已匹配到的网盘图标字典
@@ -14893,7 +14940,7 @@
      * @param element
      */
     setGlobalRightClickMenu(element) {
-      NetDiskUI.view.registerContextMenu(element, undefined, [
+      NetDiskUI.view.registerContextMenu(element, void 0, [
         {
           text: "设置",
           callback() {
@@ -15123,7 +15170,7 @@
           callback: function(event, contextMenuEvent, liElement) {
             let $link = contextMenuEvent.target;
             let $boxAll = $link.closest(".netdisk-url-box-all");
-            NetDiskView.praseElementAttributeRuleInfo($link);
+            const { netDiskName, netDiskIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($link);
             NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
               netDiskItem.clear();
             });
@@ -15359,7 +15406,7 @@
                     white-space: nowrap;
                 }
 
-                ${((_a2 = this.option) == null ? undefined : _a2.style) ?? ""}
+                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
             `
         ),
         width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
@@ -15501,7 +15548,7 @@
           reverse: false,
           position: "space-between",
           ok: {
-            enable: ((_c = (_b = (_a2 = this.option) == null ? undefined : _a2.bottomControls) == null ? undefined : _b.add) == null ? undefined : _c.enable) || true,
+            enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
             type: "primary",
             text: "添加",
             callback: async (event) => {
@@ -15519,12 +15566,12 @@
             }
           },
           cancel: {
-            enable: ((_f = (_e = (_d = this.option) == null ? undefined : _d.bottomControls) == null ? undefined : _e.filter) == null ? undefined : _f.enable) || false,
+            enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
             type: "default",
             text: "过滤",
             callback: (details, event) => {
               var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
-              if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.filter) == null ? undefined : _c2.callback) === "function") {
+              if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
                 this.option.bottomControls.filter.callback();
               }
               let getAllRuleElement = () => {
@@ -15542,8 +15589,8 @@
                 domUtils.text($button, "过滤");
               } else {
                 let ruleFilterView = new RuleFilterView({
-                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? undefined : _d2.filter) == null ? undefined : _e2.title) ?? "过滤规则",
-                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? undefined : _f2.filter) == null ? undefined : _g2.option) || [],
+                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
+                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
                   execFilterCallBack() {
                     domUtils.text($button, "取消过滤");
                   },
@@ -15561,7 +15608,7 @@
             }
           },
           other: {
-            enable: ((_i = (_h = (_g = this.option) == null ? undefined : _g.bottomControls) == null ? undefined : _h.clear) == null ? undefined : _i.enable) || true,
+            enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
             type: "xiaomi-primary",
             text: `清空所有(${(await this.option.data()).length})`,
             callback: (event) => {
@@ -15580,7 +15627,7 @@
                     callback: async (popsEvent) => {
                       var _a3, _b2, _c2;
                       log.success("清空所有");
-                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? undefined : _a3.bottomControls) == null ? undefined : _b2.clear) == null ? undefined : _c2.callback) === "function") {
+                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
                         this.option.bottomControls.clear.callback();
                       }
                       let data = await this.option.data();
@@ -15872,7 +15919,7 @@
      */
     async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
-      this.parseViewElement($shadowRoot);
+      const { $container } = this.parseViewElement($shadowRoot);
       let data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
@@ -16140,7 +16187,7 @@
                 "name",
                 "",
                 "",
-                undefined,
+                void 0,
                 "必填"
               );
               Reflect.set(
@@ -16156,7 +16203,7 @@
                 "url",
                 "",
                 "",
-                undefined,
+                void 0,
                 "必填，可正则"
               );
               Reflect.set(
@@ -16171,7 +16218,7 @@
                 "覆盖设置",
                 "",
                 "自定义",
-                undefined,
+                void 0,
                 false,
                 false,
                 "primary",
@@ -16183,7 +16230,7 @@
                   let newPanelContentConfig = deepCopy(originPanelContentConfig);
                   function iterativeTraversal(configList) {
                     configList.forEach((configItem) => {
-                      if (typeof (configItem == null ? undefined : configItem.props) === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
+                      if (typeof (configItem == null ? void 0 : configItem.props) === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
                         let panelStorageApi = generatePanelStorageApi(data.uuid);
                         Reflect.set(
                           configItem.props,
@@ -16202,7 +16249,7 @@
                     if (!leftContentConfigItem.forms) {
                       continue;
                     }
-                    if (typeof leftContentConfigItem.afterRender === "function" && (leftContentConfigItem == null ? undefined : leftContentConfigItem.id.toString().startsWith("netdisk-panel-config-"))) {
+                    if (typeof leftContentConfigItem.afterRender === "function" && (leftContentConfigItem == null ? void 0 : leftContentConfigItem.id.toString().startsWith("netdisk-panel-config-"))) {
                       leftContentConfigItem.afterRender = (__data) => {
                         let ruleKey = __data.asideConfig.attributes["data-key"];
                         let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
@@ -16220,9 +16267,9 @@
                           ruleKey
                         ),
                         false,
-                        undefined,
+                        void 0,
                         "启用后将允许执行下面的功能",
-                        undefined
+                        void 0
                       );
                       Reflect.set(
                         custom_accessCode_enable_template.props,
@@ -16234,7 +16281,7 @@
                         WebsiteRuleDataKey.features.customAccessCode(ruleKey),
                         "",
                         "让获取的到的链接的访问码都为自定义的访问码",
-                        undefined,
+                        void 0,
                         "请输入自定义访问码",
                         false,
                         false
@@ -16312,7 +16359,7 @@
                     NetDiskUI.popsStyle.settingView
                   );
                 },
-                undefined
+                void 0
               );
               let $coverSetting_template = popsPanelContentUtils.createSectionContainerItem_button(
                 coverSetting_template
@@ -16448,7 +16495,7 @@
     getRuleData(uuid) {
       var _a2;
       if (typeof uuid === "string") {
-        return (_a2 = this.getRule(uuid)) == null ? undefined : _a2.data;
+        return (_a2 = this.getRule(uuid)) == null ? void 0 : _a2.data;
       } else {
         return uuid.data;
       }
@@ -16893,7 +16940,7 @@
          * @returns {number|null}
          */
         getAttributeWithPageId: (node) => {
-          return (node == null ? undefined : node.getAttribute("page-id")) ? (
+          return (node == null ? void 0 : node.getAttribute("page-id")) ? (
             // @ts-ignore
             parseInt(node.getAttribute("page-id"))
           ) : null;
@@ -17410,7 +17457,7 @@
     append(parentNode) {
       var _a2;
       let that = this;
-      (_a2 = that.DOM_CONFIG.dataPagingNode.dom) == null ? undefined : _a2.remove();
+      (_a2 = that.DOM_CONFIG.dataPagingNode.dom) == null ? void 0 : _a2.remove();
       that.DOM_CONFIG.dataPagingNode.dom = null;
       parentNode.appendChild(that.getDataPagingNode());
     }
@@ -17452,13 +17499,13 @@
   const Cryptojs = CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS;
   const __DataPaging = (
     // @ts-ignore
-    DataPaging
+    DataPaging ?? window.DataPaging ?? _unsafeWindow.DataPaging
   );
   const log = new utils.Log(
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
   const AnyTouch = pops.config.Utils.AnyTouch();
   log.config({
     debug: isDebug,
@@ -17510,7 +17557,7 @@
     HttpxCookieManager.handle(data);
     return data;
   });
-  httpx.interceptors.response.use(undefined, (data) => {
+  httpx.interceptors.response.use(void 0, (data) => {
     log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning("请求取消");
@@ -17562,7 +17609,7 @@
         var _a2;
         utils.preventEvent(event);
         let $click = event.target;
-        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? undefined : _a2.querySelector("span");
+        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
         if (shortCut.isWaitPress) {
           Qmsg.warning("请先执行当前的录入操作");
           return;
@@ -17662,7 +17709,7 @@
     hasOptionValue(key) {
       if (this.hasOption(key)) {
         let option = this.getOption(key);
-        return !((option == null ? undefined : option.value) == null);
+        return !((option == null ? void 0 : option.value) == null);
       } else {
         return false;
       }
@@ -17853,7 +17900,7 @@
             if (that.isWaitPress) {
               return;
             }
-            if (config == null ? undefined : config.isPrevent) {
+            if (config == null ? void 0 : config.isPrevent) {
               utils.preventEvent(event);
             }
             localOptions = that.getLocalAllOptions();
@@ -17877,7 +17924,7 @@
             }
           },
           {
-            capture: Boolean(config == null ? undefined : config.capture)
+            capture: Boolean(config == null ? void 0 : config.capture)
           }
         );
       }
@@ -18076,7 +18123,7 @@
                         text: "右下角"
                       }
                     ],
-                    undefined,
+                    void 0,
                     `Toast显示在九宫格的位置，默认: ${NetDiskGlobalData.toast.position.default}`
                   ),
                   UISelect(
@@ -18105,14 +18152,14 @@
                         text: "5"
                       }
                     ],
-                    undefined,
+                    void 0,
                     `默认: ${NetDiskGlobalData.toast.maxnums.default}`
                   ),
                   UISwitch(
                     "逆序弹出",
                     NetDiskGlobalData.toast.showreverse.KEY,
                     NetDiskGlobalData.toast.showreverse.value,
-                    undefined,
+                    void 0,
                     "默认是自上往下显示Toast，逆序则是自下往上显示Toast"
                   )
                 ]
@@ -18198,35 +18245,35 @@
                         text: "gather"
                       }
                     ],
-                    undefined,
+                    void 0,
                     `显示/关闭的动画效果，默认: ${NetDiskGlobalData.pops.popsAnimation.default}`
                   ),
                   UISwitch(
                     "点击弹窗遮罩层关闭弹窗",
                     NetDiskGlobalData.pops.clickMaskToCloseDialog.KEY,
                     NetDiskGlobalData.pops.clickMaskToCloseDialog.default,
-                    undefined,
+                    void 0,
                     "点击遮罩层触发关闭弹窗事件"
                   ),
                   UISwitch(
                     "窗口拖拽",
                     NetDiskGlobalData.pops.pcDrag.KEY,
                     NetDiskGlobalData.pops.pcDrag.default,
-                    undefined,
+                    void 0,
                     "长按标题栏可拖拽移动弹窗"
                   ),
                   UISwitch(
                     "限制拖拽距离",
                     NetDiskGlobalData.pops.pcDragLimit.KEY,
                     NetDiskGlobalData.pops.pcDragLimit.default,
-                    undefined,
+                    void 0,
                     "只能在浏览器的可视窗口内拖动"
                   ),
                   UISwitch(
                     "亚克力效果",
                     NetDiskGlobalData.pops.popsAcrylic.KEY,
                     NetDiskGlobalData.pops.popsAcrylic.default,
-                    undefined,
+                    void 0,
                     ""
                   )
                 ]
@@ -18260,7 +18307,7 @@
                         text: "大小"
                       }
                     ],
-                    undefined,
+                    void 0,
                     "当前的规则"
                   ),
                   UISelect(
@@ -18277,7 +18324,7 @@
                         text: "降序"
                       }
                     ],
-                    undefined,
+                    void 0,
                     "当前的规则"
                   )
                 ]
@@ -18331,7 +18378,7 @@
                         });
                       }
                     },
-                    undefined,
+                    void 0,
                     "值越小越透明，默认: " + NetDiskGlobalData.suspension.opacity.default,
                     0.1
                   ),
@@ -18341,7 +18388,7 @@
                     NetDiskGlobalData.suspension["randbg-time"].default,
                     0,
                     1e4,
-                    undefined,
+                    void 0,
                     (value) => {
                       return `${value}ms`;
                     },
@@ -18354,7 +18401,7 @@
                     NetDiskGlobalData.suspension["randbg-show-time"].default,
                     0,
                     1e4,
-                    undefined,
+                    void 0,
                     (value) => {
                       return `${value}ms`;
                     },
@@ -18365,7 +18412,7 @@
                     "吸附边缘",
                     NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].KEY,
                     NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].default,
-                    undefined,
+                    void 0,
                     "移动悬浮按钮松开后自动吸附边缘"
                   ),
                   UIInput(
@@ -18399,7 +18446,7 @@
                     NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].default,
                     50,
                     domUtils.width(window),
-                    undefined,
+                    void 0,
                     (value) => {
                       return `${value}px`;
                     },
@@ -18412,7 +18459,7 @@
                     NetDiskGlobalData.smallWindow["netdisk-ui-small-window-max-height"].default,
                     50,
                     domUtils.height(window),
-                    undefined,
+                    void 0,
                     (value) => {
                       return `${value}px`;
                     },
@@ -18470,7 +18517,7 @@
                         value: "Menu"
                       }
                     ],
-                    undefined,
+                    void 0,
                     "MutationObserver是自动监听并识别链接<br>Menu是手动点击油猴菜单进行识别"
                   ),
                   UISelect(
@@ -18491,14 +18538,14 @@
                         value: "smallwindow"
                       }
                     ],
-                    undefined,
+                    void 0,
                     "匹配到链接时触发的UI执行"
                   ),
                   UISwitch(
                     "自动输入访问码",
                     NetDiskGlobalData.features.autoFillAccessCode.KEY,
                     NetDiskGlobalData.features.autoFillAccessCode.default,
-                    undefined,
+                    void 0,
                     "通过主动点击链接跳转时，会自动输入网盘访问码"
                   )
                 ]
@@ -18527,9 +18574,9 @@
                         text: "超文本"
                       }
                     ],
-                    undefined,
+                    void 0,
                     "执行的文本匹配规则",
-                    undefined,
+                    void 0,
                     {
                       height: "auto"
                     }
@@ -18538,35 +18585,35 @@
                     "深入ShadowRoot获取匹配文本",
                     NetDiskGlobalData.match.depthQueryWithShadowRoot.KEY,
                     NetDiskGlobalData.match.depthQueryWithShadowRoot.default,
-                    undefined,
+                    void 0,
                     "遍历ShadowRoot，获取匹配的内容"
                   ),
                   UISwitch(
                     "匹配剪贴板",
                     NetDiskGlobalData.match.readClipboard.KEY,
                     NetDiskGlobalData.match.readClipboard.default,
-                    undefined,
+                    void 0,
                     "Api兼容性查看：<a href='https://caniuse.com/mdn-api_permissions_permission_clipboard-read' target='_blank'>读取剪贴板权限申请</a>、<a href='https://caniuse.com/mdn-api_clipboard_readtext' target='_blank'>直接读取剪贴板</a>"
                   ),
                   UISwitch(
                     "匹配当前URL",
                     NetDiskGlobalData.match.allowMatchLocationHref.KEY,
                     NetDiskGlobalData.match.allowMatchLocationHref.default,
-                    undefined,
+                    void 0,
                     "提取window.location.href进行匹配"
                   ),
                   UISwitch(
                     "匹配input标签的内容",
                     NetDiskGlobalData.match.toBeMatchedWithInputElementValue.KEY,
                     NetDiskGlobalData.match.toBeMatchedWithInputElementValue.default,
-                    undefined,
+                    void 0,
                     "提取页面中的&lt;input&gt;的内容进行匹配"
                   ),
                   UISwitch(
                     "匹配textarea标签的内容",
                     NetDiskGlobalData.match.toBeMatchedTextAreaElementValue.KEY,
                     NetDiskGlobalData.match.toBeMatchedTextAreaElementValue.default,
-                    undefined,
+                    void 0,
                     "提取页面中的&lt;textarea&gt;的内容进行匹配"
                   )
                 ]
@@ -18581,7 +18628,7 @@
                     NetDiskGlobalData.match.delaytime.default,
                     0,
                     5,
-                    undefined,
+                    void 0,
                     (value) => {
                       return `${value}s`;
                     },
@@ -18592,28 +18639,28 @@
                     "添加元素时进行匹配",
                     NetDiskGlobalData.match.isAddedNodesToMatch.KEY,
                     NetDiskGlobalData.match.isAddedNodesToMatch.default,
-                    undefined,
+                    void 0,
                     "当监听到页面添加元素时才进行匹配文本"
                   ),
                   UISwitch(
                     "观察器：childList",
                     NetDiskGlobalData.match["mutationObserver-childList"].KEY,
                     NetDiskGlobalData.match["mutationObserver-childList"].default,
-                    undefined,
+                    void 0,
                     "子节点的变动（新增、删除或者更改）"
                   ),
                   UISwitch(
                     "观察器：characterData",
                     NetDiskGlobalData.match["mutationObserver-characterData"].KEY,
                     NetDiskGlobalData.match["mutationObserver-characterData"].default,
-                    undefined,
+                    void 0,
                     "节点内容或节点文本的变动"
                   ),
                   UISwitch(
                     "观察器：subtree",
                     NetDiskGlobalData.match["mutationObserver-subtree"].KEY,
                     NetDiskGlobalData.match["mutationObserver-subtree"].default,
-                    undefined,
+                    void 0,
                     "是否将观察器应用于该节点的所有后代节点"
                   )
                 ]
@@ -18632,21 +18679,21 @@
                     "点击定位分享码",
                     NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].KEY,
                     NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].default,
-                    undefined,
+                    void 0,
                     "自动滚动页面至包含分享码的元素"
                   ),
                   UISwitch(
                     "选中分享码",
                     NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].KEY,
                     NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"].default,
-                    undefined,
+                    void 0,
                     "使用光标选中分享码/元素"
                   ),
                   UISwitch(
                     "循环定位",
                     NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"].KEY,
                     NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"].default,
-                    undefined,
+                    void 0,
                     "关闭则是每一个元素只定位一次"
                   )
                 ]
@@ -18666,14 +18713,14 @@
                     "保存匹配记录",
                     NetDiskGlobalData.historyMatch.saveMatchNetDisk.KEY,
                     NetDiskGlobalData.historyMatch.saveMatchNetDisk.default,
-                    undefined,
+                    void 0,
                     "将匹配到的链接信息进行本地存储，可点击【油猴菜单-⚙ 历史匹配记录】进行查看"
                   ),
                   UISwitch(
                     "合并相同链接",
                     NetDiskGlobalData.historyMatch["netdisk-history-match-merge-same-link"].KEY,
                     NetDiskGlobalData.historyMatch["netdisk-history-match-merge-same-link"].default,
-                    undefined,
+                    void 0,
                     "将合并匹配到的相同链接，并更新它最后一次匹配到的更新时间、网址信息"
                   ),
                   UISelect(
@@ -18703,8 +18750,8 @@
                     "修复存储记录",
                     "如果【匹配记录】弹窗打不开，可能是存储的数据缺失某些字段，可尝试点击此处进行修复",
                     "修复",
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     false,
                     "primary",
                     (event) => {
@@ -18738,7 +18785,7 @@
                     "排除分享码",
                     NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.KEY,
                     NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.default,
-                    undefined,
+                    void 0,
                     "启用后会根据【相同系数】排除掉匹配到的分享码"
                   ),
                   UISlider(
@@ -18747,7 +18794,7 @@
                     NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient.default,
                     0,
                     1,
-                    undefined,
+                    void 0,
                     (value) => {
                       return value.toString();
                     },
@@ -18771,7 +18818,7 @@
                     "允许查询历史匹配记录",
                     NetDiskGlobalData.accessCode.allowQueryHistoryMatchingAccessCode.KEY,
                     NetDiskGlobalData.accessCode.allowQueryHistoryMatchingAccessCode.default,
-                    undefined,
+                    void 0,
                     "当访问码为空时，访问码将从历史匹配记录中查询，优先级：页面匹配 < 历史匹配记录 < 网站规则 < 黑名单"
                   )
                 ]
@@ -18792,7 +18839,7 @@
                     "【打开】⚙ 设置",
                     "",
                     "netdisk-keyboard-open-setting",
-                    undefined,
+                    void 0,
                     "暂无快捷键",
                     "default",
                     NetDiskShortcut.shortCut
@@ -18801,7 +18848,7 @@
                     "【打开】⚙ 历史匹配记录",
                     "",
                     "netdisk-keyboard-open-history-matching-records",
-                    undefined,
+                    void 0,
                     "暂无快捷键",
                     "default",
                     NetDiskShortcut.shortCut
@@ -18810,7 +18857,7 @@
                     "【打开】⚙ 访问码规则",
                     "",
                     "netdisk-keyboard-open-accesscode-rule",
-                    undefined,
+                    void 0,
                     "暂无快捷键",
                     "default",
                     NetDiskShortcut.shortCut
@@ -18819,7 +18866,7 @@
                     "【打开】⚙ 添加链接识别规则",
                     "",
                     "netdisk-keyboard-open-user-rule",
-                    undefined,
+                    void 0,
                     "暂无快捷键",
                     "default",
                     NetDiskShortcut.shortCut
@@ -18828,7 +18875,7 @@
                     "【打开】⚙ 网站规则",
                     "",
                     "netdisk-keyboard-website-rule",
-                    undefined,
+                    void 0,
                     "暂无快捷键",
                     "default",
                     NetDiskShortcut.shortCut
@@ -18837,7 +18884,7 @@
                     "【打开】⚙ 字符映射规则",
                     "",
                     "netdisk-keyboard-character-mapping",
-                    undefined,
+                    void 0,
                     "暂无快捷键",
                     "default",
                     NetDiskShortcut.shortCut
@@ -18846,7 +18893,7 @@
                     "【打开】⚙ 识别文本",
                     "",
                     "netdisk-keyboard-open-proactively-recognize-text",
-                    undefined,
+                    void 0,
                     "暂无快捷键",
                     "default",
                     NetDiskShortcut.shortCut
@@ -18855,7 +18902,7 @@
                     "执行文本匹配",
                     "",
                     "netdisk-keyboard-performPageTextMatchingManually",
-                    undefined,
+                    void 0,
                     "暂无快捷键",
                     "default",
                     NetDiskShortcut.shortCut
@@ -19113,7 +19160,7 @@
       Reflect.deleteProperty(locaData, key);
       _GM_setValue(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
+        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
       }
     },
     /**
@@ -19200,7 +19247,7 @@
       } else {
         runKeyList.push(key);
       }
-      let value = undefined;
+      let value = void 0;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
@@ -19318,7 +19365,7 @@
         let childValue = that.getValue(childKey2);
         if (typeof replaceValueFn === "function") {
           let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue !== undefined) {
+          if (changedMainValue !== void 0) {
             return changedMainValue;
           }
         }
