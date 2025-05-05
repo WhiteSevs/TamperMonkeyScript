@@ -31,16 +31,16 @@ export const GreasyforkUtils = {
 			/** 版本号 */
 			const MonacoVersion = "0.52.2";
 			const readyEventType = "monaco-editor-ready";
-			if (!isRegisdterMonacoEditorCSS) {
-				isRegisdterMonacoEditorCSS = true;
-				// 字体资源
-				addStyle(/*css*/ `
-					@font-face {
-						font-family: 'codicon';
-						src: url('https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
-					}
-				`);
-			}
+			// if (!isRegisdterMonacoEditorCSS) {
+			// 	isRegisdterMonacoEditorCSS = true;
+			// 	// 字体资源
+			// 	addStyle(/*css*/ `
+			// 		@font-face {
+			// 			font-family: 'codicon';
+			// 			src: url('https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
+			// 		}
+			// 	`);
+			// }
 			// @ts-ignore
 			if (unsafeWindow.monaco) {
 				// @ts-ignore
@@ -52,7 +52,8 @@ export const GreasyforkUtils = {
 				type: "module",
 				defer: true,
 				innerHTML: /*js*/ `
-					import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/+esm";
+					// import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/+esm";
+					import {  monaco } from "https://fastly.jsdelivr.net/npm/@live-codes/monaco-editor/monaco.js";
 					window.monaco = monaco;
 					window.dispatchEvent(new CustomEvent("${readyEventType}"));
 				`,

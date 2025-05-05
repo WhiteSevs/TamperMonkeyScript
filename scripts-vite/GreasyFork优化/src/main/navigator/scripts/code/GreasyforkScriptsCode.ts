@@ -117,7 +117,7 @@ export const GreasyforkScriptsCode = {
 					readOnly: true, //是否只读
 					formatOnPaste: true,
 					overviewRulerBorder: true, // 滚动条的边框
-					scrollBeyondLastLine: true,
+					scrollBeyondLastLine: false, // 底部留空白
 					theme: "vs-dark", // 主题
 					fontSize: window.innerWidth > 600 ? 14 : 12, // 字体
 					wordWrap: "off", // 换行

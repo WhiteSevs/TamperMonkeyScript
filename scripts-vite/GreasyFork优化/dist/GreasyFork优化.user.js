@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.5.5
+// @version            2025.5.5.10
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -2741,7 +2741,6 @@
       }
     }
   };
-  let isRegisdterMonacoEditorCSS = false;
   const GreasyforkUtils = {
     /**
      * 判断是否是当前已登录账户的主页
@@ -2761,18 +2760,6 @@
       return new Promise((resolve) => {
         const MonacoVersion = "0.52.2";
         const readyEventType = "monaco-editor-ready";
-        if (!isRegisdterMonacoEditorCSS) {
-          isRegisdterMonacoEditorCSS = true;
-          addStyle(
-            /*css*/
-            `
-					@font-face {
-						font-family: 'codicon';
-						src: url('https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/min/vs/base/browser/ui/codicons/codicon/codicon.ttf') format('truetype');
-					}
-				`
-          );
-        }
         if (_unsafeWindow.monaco) {
           resolve(_unsafeWindow.monaco);
           return;
@@ -2784,7 +2771,8 @@
           innerHTML: (
             /*js*/
             `
-					import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/+esm";
+					// import * as monaco from "https://fastly.jsdelivr.net/npm/monaco-editor@${MonacoVersion}/+esm";
+					import {  monaco } from "https://fastly.jsdelivr.net/npm/@live-codes/monaco-editor/monaco.js";
 					window.monaco = monaco;
 					window.dispatchEvent(new CustomEvent("${readyEventType}"));
 				`
@@ -5796,7 +5784,8 @@
             formatOnPaste: true,
             overviewRulerBorder: true,
             // 滚动条的边框
-            scrollBeyondLastLine: true,
+            scrollBeyondLastLine: false,
+            // 底部留空白
             theme: "vs-dark",
             // 主题
             fontSize: window.innerWidth > 600 ? 14 : 12,
@@ -6078,7 +6067,8 @@
                 formatOnPaste: true,
                 overviewRulerBorder: true,
                 // 滚动条的边框
-                scrollBeyondLastLine: true,
+                scrollBeyondLastLine: false,
+                // 底部留空白
                 theme: "vs-dark",
                 // 主题
                 fontSize: window.innerWidth > 600 ? 14 : 12,
