@@ -1,6 +1,5 @@
 import { $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import { UIInput } from "@/setting/components/ui-input";
-import { UISelect } from "@/setting/components/ui-select";
 import { UISelectMultiple } from "@/setting/components/ui-select-multiple";
 import { UISwitch } from "@/setting/components/ui-switch";
 import {
@@ -13,6 +12,7 @@ import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import {
 	DouYinVideoFilterBase,
+	type DouYinVideoAwemeInfo,
 	type DouYinVideoHandlerInfo,
 } from "./DouYinVideoFilterBase";
 import { PopsPanel } from "@/setting/setting";
@@ -36,14 +36,17 @@ type DouYinVideoFilterOptionScope =
 	| "xhr-mix"
 	| "xhr-related";
 
+/** 过滤器规则-动态属性 */
 export type DouYinVideoFilterDynamicOption = {
 	/** 属性名 */
-	ruleName: keyof DouYinVideoHandlerInfo;
+	ruleName: DouYinVideoFilterOption["data"]["ruleName"];
 	/** 属性值 */
-	ruleValue: string;
+	ruleValue: DouYinVideoFilterOption["data"]["ruleValue"];
 	/** 备注 */
-	remarks: string;
+	remarks: DouYinVideoFilterOption["data"]["remarks"];
 };
+
+/** 过滤器规则 */
 export type DouYinVideoFilterOption = {
 	/** 是否启用 */
 	enable: boolean;
@@ -58,7 +61,7 @@ export type DouYinVideoFilterOption = {
 		/** 是否自动发送不感兴趣的请求 */
 		// autoSendDisLikeRequest: boolean;
 		/** 属性名 */
-		ruleName: keyof DouYinVideoHandlerInfo;
+		ruleName: keyof DouYinVideoHandlerInfo | (keyof DouYinVideoHandlerInfo)[];
 		/** 属性值 */
 		ruleValue: string;
 		/** 备注 */
@@ -78,6 +81,18 @@ export const DouYinVideoFilter = {
 		isFilterAwemeInfoList: new Utils.Dictionary<
 			string,
 			DouYinVideoFilterOption[]
+		>(),
+		/**
+		 * 网络接口的视频信息字典
+		 */
+		awemeInfoMap: new Utils.Dictionary<
+			string,
+			{
+				/** 网络接口的原始视频信息 */
+				awemeInfo: DouYinVideoAwemeInfo;
+				/** 解析出的所需的信息 */
+				transformAwemeInfo: DouYinVideoHandlerInfo;
+			}
 		>(),
 		/**
 		 * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
@@ -142,30 +157,44 @@ export const DouYinVideoFilter = {
 				);
 				return matchedFilterOptionList;
 			};
-			/** 经判断为过滤的回调 */
-			let isFilterCallBack = (
-				filterResult: ReturnType<
+			/** 获取接口信息后的回调 */
+			let checkFilterCallBack = (
+				awemeFilterInfoResult: ReturnType<
 					(typeof DouYinVideoFilterBase)["prototype"]["checkAwemeInfoIsFilter"]
 				>
 			) => {
 				// 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
 				// 并添加记录
 				if (that.$data.isReverse) {
-					filterResult.isFilter = !filterResult.isFilter;
+					awemeFilterInfoResult.isFilter = !awemeFilterInfoResult.isFilter;
 					if (
-						typeof filterResult.transformAwemeInfo.awemeId === "string" &&
-						filterResult.matchedFilterOption
+						typeof awemeFilterInfoResult.transformAwemeInfo.awemeId ===
+							"string" &&
+						awemeFilterInfoResult.matchedFilterOption
 					) {
 						let filterOptionList: DouYinVideoFilterOption[] =
 							that.$data.isFilterAwemeInfoList.get(
-								filterResult.transformAwemeInfo.awemeId
+								awemeFilterInfoResult.transformAwemeInfo.awemeId
 							) || [];
-						filterOptionList.push(filterResult.matchedFilterOption);
+						filterOptionList.push(awemeFilterInfoResult.matchedFilterOption);
 						that.$data.isFilterAwemeInfoList.set(
-							filterResult.transformAwemeInfo.awemeId,
+							awemeFilterInfoResult.transformAwemeInfo.awemeId,
 							filterOptionList
 						);
 					}
+				}
+
+				// 添加映射
+				if (
+					typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string"
+				) {
+					DouYinVideoFilter.$data.awemeInfoMap.set(
+						awemeFilterInfoResult.transformAwemeInfo.awemeId,
+						{
+							awemeInfo: awemeFilterInfoResult.awemeInfo,
+							transformAwemeInfo: awemeFilterInfoResult.transformAwemeInfo,
+						}
+					);
 				}
 			};
 			/**
@@ -189,7 +218,7 @@ export const DouYinVideoFilter = {
 								filterOptionList,
 								awemeInfo
 							);
-							isFilterCallBack(filterResult);
+							checkFilterCallBack(filterResult);
 							if (filterResult.isFilter) {
 								filterBase.sendDislikeVideo(
 									filterResult.matchedFilterOption!,
@@ -235,7 +264,7 @@ export const DouYinVideoFilter = {
 								filterOptionList,
 								awemeInfo
 							);
-							isFilterCallBack(filterResult);
+							checkFilterCallBack(filterResult);
 							if (filterResult.isFilter) {
 								filterBase.sendDislikeVideo(
 									filterResult.matchedFilterOption!,
@@ -274,7 +303,7 @@ export const DouYinVideoFilter = {
 								filterOptionList,
 								awemeInfo
 							);
-							isFilterCallBack(filterResult);
+							checkFilterCallBack(filterResult);
 							if (filterResult.isFilter) {
 								filterBase.sendDislikeVideo(
 									filterResult.matchedFilterOption!,
@@ -328,7 +357,7 @@ export const DouYinVideoFilter = {
 											filterOptionList,
 											mixItem
 										);
-										isFilterCallBack(filterResult);
+										checkFilterCallBack(filterResult);
 										if (filterResult.isFilter) {
 											filterBase.sendDislikeVideo(
 												filterResult.matchedFilterOption!,
@@ -348,7 +377,7 @@ export const DouYinVideoFilter = {
 									filterOptionList,
 									awemeInfo
 								);
-								isFilterCallBack(filterResult);
+								checkFilterCallBack(filterResult);
 								if (filterResult.isFilter) {
 									filterBase.sendDislikeVideo(
 										filterResult.matchedFilterOption!,
@@ -508,22 +537,40 @@ export const DouYinVideoFilter = {
 				});
 				return;
 			}
-			let awemeInfoParsedData = filterBase.parseAwemeInfoDictData(
+			let transformAwemeInfo: DouYinVideoHandlerInfo;
+			let transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(
 				awemeInfo,
 				false
 			);
-			log.info(["视频awemeInfo：", awemeInfo, awemeInfoParsedData]);
+			log.info(["视频页面原始awemeInfo：", awemeInfo]);
+			log.info([
+				"视频页面解析出的transformAwemeInfo：",
+				transformAwemeInfoWithPage,
+			]);
+			if (
+				typeof transformAwemeInfoWithPage.awemeId === "string" &&
+				DouYinVideoFilter.$data.awemeInfoMap.has(
+					transformAwemeInfoWithPage.awemeId
+				)
+			) {
+				let awemeInfoMapData = DouYinVideoFilter.$data.awemeInfoMap.get(
+					transformAwemeInfoWithPage.awemeId
+				);
+				transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
+				log.info([`视频网络接口解析出的Info：`, awemeInfoMapData]);
+			} else {
+				transformAwemeInfo = transformAwemeInfoWithPage;
+			}
 			/** 命中的规则 */
 			let targetFilterOption =
-				that.$data.isFilterAwemeInfoList.get(awemeInfoParsedData.awemeId!) ||
-				[];
+				that.$data.isFilterAwemeInfoList.get(transformAwemeInfo.awemeId!) || [];
 			pops.confirm({
 				title: {
 					text: "视频awemeInfo",
 					position: "center",
 				},
 				content: {
-					text: JSON.stringify(awemeInfoParsedData, null, 4).trim(),
+					text: JSON.stringify(transformAwemeInfo, null, 4).trim(),
 					html: false,
 				},
 				drag: true,
@@ -806,9 +853,12 @@ export const DouYinVideoFilter = {
 							"textExtra",
 							"videoTag",
 							"videoTagId",
+							"suggestWord",
 							"musicAlbum",
 							"musicAuthor",
 							"musicTitle",
+							"authorCustomVerify",
+							"authorEnterpriseVerifyReason",
 							"riskInfoContent",
 							"seriesInfoName",
 							"seriesInfoContentTypes",
@@ -820,9 +870,6 @@ export const DouYinVideoFilter = {
 							"shareCount",
 							"duration",
 						];
-						// 属性名的默认值
-						let ruleNameDefaultValue: DouYinVideoFilterOption["data"]["ruleName"] =
-							"nickname";
 
 						/**
 						 * 获取动态的元素
@@ -830,7 +877,12 @@ export const DouYinVideoFilter = {
 						 */
 						let getDynamicProp = (storageData: any) => {
 							// 属性名
-							let ruleName_template = UISelect<keyof DouYinVideoHandlerInfo>(
+							let ruleNameDefaultValue = Array.isArray(storageData["ruleName"])
+								? storageData["ruleName"]
+								: [storageData["ruleName"]];
+							let ruleName_template = UISelectMultiple<
+								keyof DouYinVideoHandlerInfo
+							>(
 								"属性名",
 								"ruleName",
 								ruleNameDefaultValue,
@@ -851,7 +903,7 @@ export const DouYinVideoFilter = {
 
 							// 属性值
 							let $ruleName =
-								popsPanelContentUtils.createSectionContainerItem_select(
+								popsPanelContentUtils.createSectionContainerItem_select_multiple_new(
 									ruleName_template
 								);
 
@@ -925,7 +977,7 @@ export const DouYinVideoFilter = {
 						 */
 						let addDynamicElementItem = (
 							dynamicData: DouYinVideoFilterDynamicOption = {
-								ruleName: ruleNameDefaultValue,
+								ruleName: [],
 								ruleValue: "",
 								remarks: "",
 							}
@@ -1072,13 +1124,13 @@ export const DouYinVideoFilter = {
 							};
 						}
 						if (data.data.scope.length === 0) {
-							Qmsg.error("作用域不能为空");
+							Qmsg.error("请选择作用域");
 							return {
 								success: false,
 								data: data,
 							};
 						}
-						if (data.data.ruleName.trim() === "") {
+						if (data.data.ruleName.length === 0) {
 							Qmsg.error("请选择属性名");
 							return {
 								success: false,

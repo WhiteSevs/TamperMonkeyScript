@@ -22,12 +22,18 @@ export interface DouYinVideoHandlerInfo {
 	videoTag: string[];
 	/** 视频标签的id */
 	videoTagId: string[];
+	/** 建议关键词 */
+	suggestWord: string[];
 	/** 视频的背景音乐专辑名 */
 	musicAlbum?: string;
 	/** 视频的背景音乐作者 */
 	musicAuthor?: string;
 	/** 视频的背景音乐标题名称 */
 	musicTitle?: string;
+	/**  */
+	authorCustomVerify: string;
+	/** 作者的企业认证信息 */
+	authorEnterpriseVerifyReason: string;
 	/** 风险提示内容 */
 	riskInfoContent?: string;
 	/** 系列名称 */
@@ -474,7 +480,7 @@ export class DouYinVideoFilterBase {
 		) {
 			textExtraInstance?.forEach((item) => {
 				let tagName = item?.["hashtagName"] || item?.["hashtag_name"];
-				if (typeof tagName === "string") {
+				if (typeof tagName === "string" && tagName.trim() != "") {
 					textExtra.push(tagName);
 				}
 			});
@@ -503,11 +509,14 @@ export class DouYinVideoFilterBase {
 			videoTagInstance.forEach((item) => {
 				let tagName = item?.["tagName"] || item?.["tag_name"];
 				let tagId = item?.["tagId"] || item?.["tag_id"];
-				if (typeof tagName === "string") {
+				if (typeof tagName === "string" && tagName.trim() != "") {
 					videoTag.push(tagName);
 				}
 				if (typeof tagId === "number" || typeof tagId === "string") {
-					videoTagId.push(tagId.toString());
+					let tagTdStr = tagId.toString();
+					if (tagTdStr.trim() != "" && tagTdStr != "0") {
+						videoTagId.push(tagTdStr);
+					}
 				}
 			});
 		}
@@ -588,7 +597,8 @@ export class DouYinVideoFilterBase {
 				series_info?.["series_content_types"];
 			if (Array.isArray(series_content_types)) {
 				series_content_types.forEach((it) => {
-					seriesInfoContentTypes.push(it["name"]);
+					let seriesInfoName = it["name"];
+					seriesInfoContentTypes.push(seriesInfoName);
 				});
 			}
 		}
@@ -606,6 +616,47 @@ export class DouYinVideoFilterBase {
 		if (isPicture) {
 			duration = void 0;
 		}
+
+		/** 建议关键词 */
+		let suggestWord: string[] = [];
+
+		let suggestWords =
+			// @ts-ignore
+			awemeInfo?.["suggest_words"] ||
+			// @ts-ignore
+			awemeInfo?.["suggest_words"]?.["suggest_words"] ||
+			awemeInfo?.["suggestWords"];
+		if (Array.isArray(suggestWords)) {
+			suggestWords.forEach((suggestWordItem) => {
+				let words = suggestWordItem?.["words"];
+				if (Array.isArray(words)) {
+					words.forEach((wordItem) => {
+						let word = wordItem?.["word"];
+						if (typeof word === "string" && word.trim() !== "") {
+							suggestWord.push(word);
+						}
+					});
+				}
+			});
+		}
+		// 去重
+		suggestWord = [...new Set(suggestWord)];
+
+		let authorCustomVerify =
+			// @ts-ignore
+			awemeInfo?.["author"]?.["custom_verify"] ||
+			// @ts-ignore
+			awemeInfo?.["authorInfo"]?.["customVerify"] ||
+			"";
+
+		/** 作者的企业认证信息 */
+		let authorEnterpriseVerifyReason =
+			// @ts-ignore
+			awemeInfo?.["author"]?.["enterprise_verify_reason"] ||
+			// @ts-ignore
+			awemeInfo?.["authorInfo"]?.["enterpriseVerifyReason"] ||
+			"";
+
 		return {
 			awemeId,
 			nickname,
@@ -614,9 +665,12 @@ export class DouYinVideoFilterBase {
 			textExtra,
 			videoTag,
 			videoTagId,
+			suggestWord,
 			musicAlbum,
 			musicAuthor,
 			musicTitle,
+			authorCustomVerify,
+			authorEnterpriseVerifyReason,
 			riskInfoContent,
 			seriesInfoName,
 			seriesInfoContentTypes,
@@ -739,82 +793,95 @@ export class DouYinVideoFilterBase {
 		let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
 		let flag = false;
 		let matchedFilterOption: DouYinVideoFilterOption | null = null;
-		for (let index = 0; index < rule.length; index++) {
+		outerLoop: for (let index = 0; index < rule.length; index++) {
 			const filterOption = rule[index];
-			if (!Reflect.has(transformAwemeInfo, filterOption.data.ruleName)) {
-				continue;
-			}
-			/** 解析出的标签的名字 */
-			let tagKey = filterOption.data.ruleName;
-			/** 解析出的标签的值 */
-			let tagValue =
-				transformAwemeInfo[tagKey as keyof typeof transformAwemeInfo];
-			/** 配置 */
-			let details = {
-				videoInfoKey: tagKey,
-				videoInfoValue: tagValue,
-				ruleKey: filterOption.data.ruleName,
-				ruleValue: filterOption.data.ruleValue,
-			} as CheckRuleDetail;
-			flag = this.checkFilterWithRule(details);
-			if (flag) {
-				if (
-					Array.isArray(filterOption.dynamicData) &&
-					filterOption.dynamicData.length
-				) {
-					// & 动态规则
-					let dynamicDetailsList = [];
-					for (
-						let dynamicIndex = 0;
-						dynamicIndex < filterOption.dynamicData.length;
-						dynamicIndex++
+			const ruleNameList = Array.isArray(filterOption.data.ruleName)
+				? filterOption.data.ruleName
+				: [filterOption.data.ruleName];
+			for (
+				let ruleNameIndex = 0;
+				ruleNameIndex < ruleNameList.length;
+				ruleNameIndex++
+			) {
+				// 属性名
+				const ruleName = ruleNameList[ruleNameIndex];
+				if (!Reflect.has(transformAwemeInfo, ruleName)) {
+					continue;
+				}
+				/** 解析出的标签的名字 */
+				let tagKey = ruleName;
+				/** 解析出的标签的值 */
+				let tagValue =
+					transformAwemeInfo[tagKey as keyof typeof transformAwemeInfo];
+				/** 配置 */
+				let details = {
+					videoInfoKey: tagKey,
+					videoInfoValue: tagValue,
+					ruleKey: filterOption.data.ruleName,
+					ruleValue: filterOption.data.ruleValue,
+				} as CheckRuleDetail;
+				flag = this.checkFilterWithRule(details);
+				if (flag) {
+					if (
+						Array.isArray(filterOption.dynamicData) &&
+						filterOption.dynamicData.length
 					) {
-						const dynamicOption = filterOption.dynamicData[dynamicIndex];
-						/** 解析出的标签的名字 */
-						let dynamicTagKey = dynamicOption.ruleName;
-						/** 解析出的标签的值 */
-						let dynamicTagValue =
-							transformAwemeInfo[
-								dynamicTagKey as keyof typeof transformAwemeInfo
-							];
-						/** 配置 */
-						let dynamicDetails = {
-							videoInfoKey: dynamicTagKey,
-							videoInfoValue: dynamicTagValue,
-							ruleKey: dynamicOption.ruleName,
-							ruleValue: dynamicOption.ruleValue,
-						} as CheckRuleDetail;
-						dynamicDetailsList.push(dynamicDetails);
-						let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
-						flag = flag && dynamicCheckFlag;
-						if (!flag) {
-							// 多组的话有一个不成立就退出
-							break;
+						// & 动态规则
+						let dynamicDetailsList: CheckRuleDetail[] = [];
+						for (
+							let dynamicIndex = 0;
+							dynamicIndex < filterOption.dynamicData.length;
+							dynamicIndex++
+						) {
+							const dynamicOption = filterOption.dynamicData[dynamicIndex];
+							/** 解析出的标签的名字 */
+							let dynamicTagKey = dynamicOption.ruleName;
+							/** 解析出的标签的值 */
+							let dynamicTagValue =
+								transformAwemeInfo[
+									dynamicTagKey as keyof typeof transformAwemeInfo
+								];
+							/** 配置 */
+							let dynamicDetails = {
+								videoInfoKey: dynamicTagKey,
+								videoInfoValue: dynamicTagValue,
+								ruleKey: dynamicOption.ruleName,
+								ruleValue: dynamicOption.ruleValue,
+							} as CheckRuleDetail;
+							dynamicDetailsList.push(dynamicDetails);
+							let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
+							flag = flag && dynamicCheckFlag;
+							if (!flag) {
+								// 多组的话有一个不成立就退出
+								break;
+							}
 						}
-					}
-					if (flag) {
+						if (flag) {
+							log.success([
+								`视频过滤器-多组 ==> ${filterOption.name}`,
+								transformAwemeInfo,
+								details,
+								dynamicDetailsList,
+								awemeInfo,
+								filterOption,
+							]);
+						}
+					} else {
 						log.success([
-							`视频过滤器-多组 ==> ${filterOption.name}`,
+							`视频过滤器 ==> ${filterOption.name}`,
 							transformAwemeInfo,
 							details,
-							dynamicDetailsList,
 							awemeInfo,
 							filterOption,
 						]);
 					}
-				} else {
-					log.success([
-						`视频过滤器 ==> ${filterOption.name}`,
-						transformAwemeInfo,
-						details,
-						awemeInfo,
-						filterOption,
-					]);
 				}
-			}
-			if (flag) {
-				matchedFilterOption = filterOption;
-				break;
+				if (flag) {
+					// 存在命中屏蔽规则
+					// 推出循环
+					matchedFilterOption = filterOption;
+					break outerLoop;
+				}
 			}
 		}
 
@@ -825,6 +892,8 @@ export class DouYinVideoFilterBase {
 			matchedFilterOption: matchedFilterOption,
 			/** 解析出的视频信息 */
 			transformAwemeInfo: transformAwemeInfo,
+			/** 原始视频信息 */
+			awemeInfo: awemeInfo,
 		};
 	}
 	/**

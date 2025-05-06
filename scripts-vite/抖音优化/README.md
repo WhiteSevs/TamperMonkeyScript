@@ -39,33 +39,36 @@
 
 ## 屏蔽规则
 
-| 属性名             | 类型    | 描述                                 | 备注                                 |
-| ------------------ | ------- | ------------------------------------ | ------------------------------------ |
-| awemeId            | String  | 视频 id                              |                                      |
-| nickname           | String  | 作者名称                             | 发布的视频的作者                     |
-| uid                | String  | 作者的 uid                           | 发布的视频的作者的 uid               |
-| desc               | String  | 视频文案                             | 发布的视频的文案                     |
-| textExtra          | String  | 话题                                 | 发布的视频的话题，类似`#话题`这种    |
-| videoTag           | String  | 视频标签                             |                                      |
-| videoTagId         | String  | 视频标签的 id                        |                                      |
-| musicAlbum         | String  | 视频的背景音乐专辑名                 |                                      |
-| musicAuthor        | String  | 视频的背景音乐作者                   |                                      |
-| musicTitle         | String  | 视频的背景音乐标题名称               |                                      |
-| riskInfoContent    | String  | 风险提示内容                         | 例如：`作者声明：虚构演绎，仅供娱乐` |
-| seriesName         | String  | 系列信息的名称                       | 例如：`短剧 · 当xxxx`                |
-| seriesContentTypes | String  | 系列信息的内容类型                   | 例如：`搞笑`、`喜剧`                 |
-| mixInfoName        | String  | 混合信息的名称                       | 例如：`当xxxx`                       |
-| mixInfoDesc        | String  | 混合信息的描述                       |                                      |
-| collectCount       | Number  | 收藏数量                             | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
-| commentCount       | Number  | 评论数量                             | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
-| diggCount          | Number  | 点赞数量                             | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
-| shareCount         | Number  | 分享数量                             | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
-| duration           | Number  | 视频时长(ms)                         | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
-| isLive             | Boolean | 是否是直播                           | 填入的值为`true`或`false`            |
-| isAds              | Boolean | 是否是广告                           | 填入的值为`true`或`false`            |
-| isSeriesInfo       | Boolean | 是否是系列信息，例如：`短剧`         | 填入的值为`true`或`false`            |
-| isMixInfo          | Boolean | 是否是混合信息，例如：`合集`、`短剧` | 填入的值为`true`或`false`            |
-| isPicture          | Boolean | 是否是图文                           | 填入的值为`true`或`false`            |
+| 属性名                       | 类型    | 描述                                 | 备注                                 |
+| ---------------------------- | ------- | ------------------------------------ | ------------------------------------ |
+| awemeId                      | String  | 视频 id                              |                                      |
+| nickname                     | String  | 作者名称                             | 发布的视频的作者                     |
+| uid                          | String  | 作者的 uid                           | 发布的视频的作者的 uid               |
+| desc                         | String  | 视频文案                             | 发布的视频的文案                     |
+| textExtra                    | String  | 话题                                 | 发布的视频的话题，类似`#话题`这种    |
+| videoTag                     | String  | 视频标签                             |                                      |
+| videoTagId                   | String  | 视频标签的 id                        |                                      |
+| suggestWord                  | String  | 建议关键词                           |                                      |
+| musicAlbum                   | String  | 视频的背景音乐专辑名                 |                                      |
+| musicAuthor                  | String  | 视频的背景音乐作者                   |                                      |
+| musicTitle                   | String  | 视频的背景音乐标题名称               |                                      |
+| authorCustomVerify           | String  |                                      |                                      |
+| authorEnterpriseVerifyReason | String  | 作者的企业认证信息                   | 例如：`腾讯视频动漫官方账号`         |
+| riskInfoContent              | String  | 风险提示内容                         | 例如：`作者声明：虚构演绎，仅供娱乐` |
+| seriesName                   | String  | 系列信息的名称                       | 例如：`短剧 · 当xxxx`                |
+| seriesContentTypes           | String  | 系列信息的内容类型                   | 例如：`搞笑`、`喜剧`                 |
+| mixInfoName                  | String  | 混合信息的名称                       | 例如：`当xxxx`                       |
+| mixInfoDesc                  | String  | 混合信息的描述                       |                                      |
+| collectCount                 | Number  | 收藏数量                             | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| commentCount                 | Number  | 评论数量                             | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| diggCount                    | Number  | 点赞数量                             | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| shareCount                   | Number  | 分享数量                             | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| duration                     | Number  | 视频时长(ms)                         | 比较方式`>`、`>=`、`=`、`<=`、`<`    |
+| isLive                       | Boolean | 是否是直播                           | 填入的值为`true`或`false`            |
+| isAds                        | Boolean | 是否是广告                           | 填入的值为`true`或`false`            |
+| isSeriesInfo                 | Boolean | 是否是系列信息，例如：`短剧`         | 填入的值为`true`或`false`            |
+| isMixInfo                    | Boolean | 是否是混合信息，例如：`合集`、`短剧` | 填入的值为`true`或`false`            |
+| isPicture                    | Boolean | 是否是图文                           | 填入的值为`true`或`false`            |
 
 **注意某些字符需要进行转义，如`_`、`+`等**
 
