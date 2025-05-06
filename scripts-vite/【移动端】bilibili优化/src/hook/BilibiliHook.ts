@@ -1,4 +1,4 @@
-import { $$, OriginPrototype, log, utils } from "@/env";
+import { $$, OriginPrototype, Qmsg, log, utils } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { VueUtils } from "@/utils/VueUtils";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
@@ -10,6 +10,7 @@ export const BilibiliHook = {
 		hookWebpackJsonp_openApp: false,
 		overRideLaunchAppBtn_Vue_openApp: false,
 		overRideBiliOpenApp: false,
+		overRideWxTaghandleClick: false,
 	},
 	$data: {
 		setTimeout: <(string | RegExp)[]>[],
@@ -71,7 +72,7 @@ export const BilibiliHook = {
 			log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
 			return;
 		}
-		(unsafeWindow as any).setTimeout = function (...args: any[]): any {
+		unsafeWindow.setTimeout = function (...args: any[]): any {
 			let callBackString = args[0].toString();
 			if (callBackString.match(matchStr)) {
 				log.success("劫持setTimeout的函数", callBackString);
@@ -111,6 +112,7 @@ export const BilibiliHook = {
 				childList: true,
 				attributes: true,
 			},
+			immediate: true,
 			callback() {
 				document
 					.querySelectorAll<HTMLDivElement>(".launch-app-btn")
@@ -146,6 +148,7 @@ export const BilibiliHook = {
 				childList: true,
 				attributes: true,
 			},
+			immediate: true,
 			callback() {
 				[
 					...Array.from($$<HTMLDivElement>("bili-open-app")),
@@ -169,6 +172,52 @@ export const BilibiliHook = {
 							}
 						});
 						$biliOpenApp.setAttribute("data-inject-opener-open", "true");
+					}
+				});
+			},
+		});
+	},
+	/**
+	 * 覆盖页面上的className为wx-tag的元素的点击事件
+	 */
+	overRideWxTaghandleClick() {
+		if (this.$isHook.overRideWxTaghandleClick) {
+			return;
+		}
+		this.$isHook.overRideWxTaghandleClick = true;
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+				attributes: true,
+			},
+			immediate: true,
+			callback() {
+				[...Array.from($$<HTMLDivElement>(".wx-tag"))].forEach(($el) => {
+					if ($el.hasAttribute("data-inject-vueins-handle-click")) {
+						return;
+					}
+					let vueIns = VueUtils.getVue($el);
+					if (vueIns) {
+						if (typeof vueIns?.handleClick === "function") {
+							vueIns.handleClick = function () {
+								if (typeof vueIns["goToVideo"] === "function") {
+									vueIns.goToVideo();
+								} else {
+									Qmsg.error(".wx-tag不存在goToVideo函数", {
+										consoleLogContent: true,
+									});
+								}
+							};
+							$el.setAttribute("data-inject-vueins-handle-click", "true");
+						}
+						if (
+							Array.isArray(vueIns?.$children) &&
+							vueIns.$children.length &&
+							typeof vueIns.$children[0].handleClick === "function"
+						) {
+							vueIns.$children[0].handleClick = vueIns.handleClick;
+						}
 					}
 				});
 			},

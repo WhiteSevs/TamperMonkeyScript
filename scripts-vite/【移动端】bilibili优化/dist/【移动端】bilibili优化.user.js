@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.2
+// @version      2025.5.6
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -2046,13 +2046,6 @@
                     true,
                     void 0,
                     "一般用于处理楼层的回复弹窗内无法选中复制问题"
-                  ),
-                  UISwitch(
-                    "跳过【观看高清流畅视频】弹窗",
-                    "bili-close-wake-app-dialog",
-                    true,
-                    void 0,
-                    "监听页面加载并关闭该弹窗"
                   )
                   // UISwitch(
                   // 	"自动删除Cookie buvid3",
@@ -2133,6 +2126,13 @@
                     true,
                     void 0,
                     "覆盖bili-open-app/m-open-app元素上的opener.open函数，可阻止点击唤醒/下载App，如果存在有效链接，会自动跳转"
+                  ),
+                  UISwitch(
+                    "覆盖.wx-tag的handleClick",
+                    "bili-cover-wx-tag-handleClick",
+                    true,
+                    void 0,
+                    "覆盖.wx-tag元素上的点击事件，让它直接打开视频"
                   ),
                   UISwitch(
                     "劫持setTimeout-autoOpenApp",
@@ -12591,7 +12591,8 @@
       windowPlayerAgent: false,
       hookWebpackJsonp_openApp: false,
       overRideLaunchAppBtn_Vue_openApp: false,
-      overRideBiliOpenApp: false
+      overRideBiliOpenApp: false,
+      overRideWxTaghandleClick: false
     },
     $data: {
       setTimeout: []
@@ -12679,6 +12680,7 @@
           childList: true,
           attributes: true
         },
+        immediate: true,
         callback() {
           document.querySelectorAll(".launch-app-btn").forEach(($launchAppBtn) => {
             let vueObj = VueUtils.getVue($launchAppBtn);
@@ -12711,6 +12713,7 @@
           childList: true,
           attributes: true
         },
+        immediate: true,
         callback() {
           [
             ...Array.from($$("bili-open-app")),
@@ -12734,6 +12737,48 @@
                 }
               });
               $biliOpenApp.setAttribute("data-inject-opener-open", "true");
+            }
+          });
+        }
+      });
+    },
+    /**
+     * 覆盖页面上的className为wx-tag的元素的点击事件
+     */
+    overRideWxTaghandleClick() {
+      if (this.$isHook.overRideWxTaghandleClick) {
+        return;
+      }
+      this.$isHook.overRideWxTaghandleClick = true;
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+          attributes: true
+        },
+        immediate: true,
+        callback() {
+          [...Array.from($$(".wx-tag"))].forEach(($el) => {
+            if ($el.hasAttribute("data-inject-vueins-handle-click")) {
+              return;
+            }
+            let vueIns = VueUtils.getVue($el);
+            if (vueIns) {
+              if (typeof (vueIns == null ? void 0 : vueIns.handleClick) === "function") {
+                vueIns.handleClick = function() {
+                  if (typeof vueIns["goToVideo"] === "function") {
+                    vueIns.goToVideo();
+                  } else {
+                    Qmsg.error(".wx-tag不存在goToVideo函数", {
+                      consoleLogContent: true
+                    });
+                  }
+                };
+                $el.setAttribute("data-inject-vueins-handle-click", "true");
+              }
+              if (Array.isArray(vueIns == null ? void 0 : vueIns.$children) && vueIns.$children.length && typeof vueIns.$children[0].handleClick === "function") {
+                vueIns.$children[0].handleClick = vueIns.handleClick;
+              }
             }
           });
         }
@@ -14606,6 +14651,10 @@
         log.info(`覆盖元素bili-open-app上的opener.open`);
         BilibiliHook.overRideBiliOpenApp();
       });
+      PopsPanel.execMenuOnce("bili-cover-wx-tag-handleClick", () => {
+        log.info(`覆盖元素.wx-tag的handleClick函数`);
+        BilibiliHook.overRideWxTaghandleClick();
+      });
       PopsPanel.execMenuOnce("bili-head-beautify", () => {
         log.info("添加美化CSS");
         return addStyle(BilibiliBeautifyCSS);
@@ -14649,9 +14698,6 @@
         log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
       domutils.ready(() => {
-        PopsPanel.execMenuOnce("bili-close-wake-app-dialog", () => {
-          return this.watchCloseWakeAppDialog();
-        });
       });
     },
     /**
@@ -14731,41 +14777,6 @@
           );
         }
       });
-    },
-    /**
-     * 自动观察并关闭 观看高清流畅视频 的弹窗
-     */
-    watchCloseWakeAppDialog() {
-      log.info(`自动观察并关闭 观看高清流畅视频 的弹窗`);
-      let lockFn = new utils.LockFunction(() => {
-        let $dialog = $(".v-dialog");
-        if ($dialog && domutils.text($dialog).includes("观看高清流畅视频")) {
-          let $iconClose = $dialog.querySelector(".icon-close") || $dialog.querySelector(".btn.cancel");
-          if ($iconClose) {
-            $iconClose.click();
-            log.success(`出现【观看高清流畅视频】弹窗，关闭成功！`);
-          } else {
-            log.error($dialog);
-            Qmsg.error("【观看高清流畅视频】弹窗关闭失败", {
-              consoleLogContent: true
-            });
-          }
-        }
-      });
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        }
-      });
-      return CommonUtil.addBlockCSS(
-        ".open-app-dialog.v-dialog",
-        ".v-dialog:has(m-open-app)"
-      );
     }
   };
   PopsPanel.init();

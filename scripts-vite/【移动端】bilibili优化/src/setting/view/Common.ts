@@ -52,13 +52,6 @@ const SettingUICommon: PopsPanelContentConfig = {
 									void 0,
 									"一般用于处理楼层的回复弹窗内无法选中复制问题"
 								),
-								UISwitch(
-									"跳过【观看高清流畅视频】弹窗",
-									"bili-close-wake-app-dialog",
-									true,
-									void 0,
-									"监听页面加载并关闭该弹窗"
-								),
 								// UISwitch(
 								// 	"自动删除Cookie buvid3",
 								// 	"common_auto_delete_cookie_buvid3",
@@ -138,6 +131,13 @@ const SettingUICommon: PopsPanelContentConfig = {
 									true,
 									void 0,
 									"覆盖bili-open-app/m-open-app元素上的opener.open函数，可阻止点击唤醒/下载App，如果存在有效链接，会自动跳转"
+								),
+								UISwitch(
+									"覆盖.wx-tag的handleClick",
+									"bili-cover-wx-tag-handleClick",
+									true,
+									void 0,
+									"覆盖.wx-tag元素上的点击事件，让它直接打开视频"
 								),
 								UISwitch(
 									"劫持setTimeout-autoOpenApp",

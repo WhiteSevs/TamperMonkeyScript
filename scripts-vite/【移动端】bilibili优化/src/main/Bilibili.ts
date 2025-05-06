@@ -3,7 +3,7 @@ import "./css/common.css";
 import BilibiliBeautifyCSS from "./css/beautify.css?raw";
 import { BilibiliPCRouter, BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
-import { $, addStyle, DOMUtils, GMCookie, log, Qmsg, utils } from "@/env";
+import { $, $$, addStyle, DOMUtils, GMCookie, log, Qmsg, utils } from "@/env";
 import { PopsPanel } from "@/setting/panel";
 import { BilibiliBangumi } from "./bangumi/BilibiliBangumi";
 import { BilibiliSearch } from "./search/BilibiliSearch";
@@ -51,6 +51,10 @@ const Bilibili = {
 		PopsPanel.execMenuOnce("bili-cover-bili-open-app-open", () => {
 			log.info(`覆盖元素bili-open-app上的opener.open`);
 			BilibiliHook.overRideBiliOpenApp();
+		});
+		PopsPanel.execMenuOnce("bili-cover-wx-tag-handleClick", () => {
+			log.info(`覆盖元素.wx-tag的handleClick函数`);
+			BilibiliHook.overRideWxTaghandleClick();
 		});
 		PopsPanel.execMenuOnce("bili-head-beautify", () => {
 			log.info("添加美化CSS");
@@ -119,9 +123,6 @@ const Bilibili = {
 			// 		);
 			// 	}, 1000);
 			// });
-			PopsPanel.execMenuOnce("bili-close-wake-app-dialog", () => {
-				return this.watchCloseWakeAppDialog();
-			});
 		});
 	},
 	/**
@@ -226,43 +227,6 @@ const Bilibili = {
 				);
 			},
 		});
-	},
-	/**
-	 * 自动观察并关闭 观看高清流畅视频 的弹窗
-	 */
-	watchCloseWakeAppDialog() {
-		log.info(`自动观察并关闭 观看高清流畅视频 的弹窗`);
-		let lockFn = new utils.LockFunction(() => {
-			let $dialog = $<HTMLElement>(".v-dialog");
-			if ($dialog && DOMUtils.text($dialog).includes("观看高清流畅视频")) {
-				let $iconClose =
-					$dialog.querySelector<HTMLElement>(".icon-close") ||
-					$dialog.querySelector<HTMLElement>(".btn.cancel");
-				if ($iconClose) {
-					$iconClose.click();
-					log.success(`出现【观看高清流畅视频】弹窗，关闭成功！`);
-				} else {
-					log.error($dialog);
-					Qmsg.error("【观看高清流畅视频】弹窗关闭失败", {
-						consoleLogContent: true,
-					});
-				}
-			}
-		});
-		utils.mutationObserver(document, {
-			config: {
-				subtree: true,
-				childList: true,
-			},
-			immediate: true,
-			callback: () => {
-				lockFn.run();
-			},
-		});
-		return CommonUtil.addBlockCSS(
-			".open-app-dialog.v-dialog",
-			".v-dialog:has(m-open-app)"
-		);
 	},
 };
 
