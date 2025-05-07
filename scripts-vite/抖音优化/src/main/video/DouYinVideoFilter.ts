@@ -857,6 +857,7 @@ export const DouYinVideoFilter = {
 							"musicAlbum",
 							"musicAuthor",
 							"musicTitle",
+							"authorAccountCertInfo",
 							"authorCustomVerify",
 							"authorEnterpriseVerifyReason",
 							"riskInfoContent",

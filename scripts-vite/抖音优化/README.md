@@ -52,6 +52,7 @@
 | musicAlbum                   | String  | 视频的背景音乐专辑名                 |                                      |
 | musicAuthor                  | String  | 视频的背景音乐作者                   |                                      |
 | musicTitle                   | String  | 视频的背景音乐标题名称               |                                      |
+| authorAccountCertInfo        | String  | 作者的认证信息                       | 例如：`剧情创作者、娱乐视频自媒体`   |
 | authorCustomVerify           | String  |                                      |                                      |
 | authorEnterpriseVerifyReason | String  | 作者的企业认证信息                   | 例如：`腾讯视频动漫官方账号`         |
 | riskInfoContent              | String  | 风险提示内容                         | 例如：`作者声明：虚构演绎，仅供娱乐` |

@@ -30,6 +30,8 @@ export interface DouYinVideoHandlerInfo {
 	musicAuthor?: string;
 	/** 视频的背景音乐标题名称 */
 	musicTitle?: string;
+	/** 作者的认证信息 */
+	authorAccountCertInfo: string;
 	/**  */
 	authorCustomVerify: string;
 	/** 作者的企业认证信息 */
@@ -76,6 +78,11 @@ export type DouYinVideoAwemeInfo = {
 		nickname: string;
 		/** 视频创作者uid */
 		uid: string;
+		/** 认证信息 */
+		accountCertInfo: {
+			labelStyle: number;
+			labelText: string;
+		};
 	};
 	/** 视频id */
 	awemeId: string;
@@ -642,6 +649,26 @@ export class DouYinVideoFilterBase {
 		// 去重
 		suggestWord = [...new Set(suggestWord)];
 
+		/** 作者的认证信息 */
+		let authorAccountCertInfo = "";
+		let authorAccountCertInfoInsStr =
+			// @ts-ignore
+			awemeInfo?.["author"]?.["account_cert_info"];
+		if (typeof authorAccountCertInfoInsStr === "string") {
+			let authorAccountCertInfoJSON = utils.toJSON(authorAccountCertInfoInsStr);
+			if (typeof authorAccountCertInfoJSON["label_text"] === "string") {
+				authorAccountCertInfo = authorAccountCertInfoJSON["label_text"];
+			}
+		} else {
+			if (
+				typeof awemeInfo?.["authorInfo"]?.["accountCertInfo"]?.["labelText"] ===
+				"string"
+			) {
+				authorAccountCertInfo =
+					awemeInfo?.["authorInfo"]?.["accountCertInfo"]?.["labelText"];
+			}
+		}
+
 		let authorCustomVerify =
 			// @ts-ignore
 			awemeInfo?.["author"]?.["custom_verify"] ||
@@ -669,6 +696,7 @@ export class DouYinVideoFilterBase {
 			musicAlbum,
 			musicAuthor,
 			musicTitle,
+			authorAccountCertInfo,
 			authorCustomVerify,
 			authorEnterpriseVerifyReason,
 			riskInfoContent,

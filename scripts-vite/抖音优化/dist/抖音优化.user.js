@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.6
+// @version      2025.5.7
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5181,7 +5181,7 @@
      * @param showLog 是否显示日志输出
      */
     parseAwemeInfoDictData(awemeInfo, showLog = false) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
+      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E;
       let authorInfo = (awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) || // @ts-ignore
       (awemeInfo == null ? void 0 : awemeInfo["author"]);
       let nickname = (_a2 = authorInfo == null ? void 0 : authorInfo["nickname"]) == null ? void 0 : _a2.toString();
@@ -5333,15 +5333,30 @@
         });
       }
       suggestWord = [...new Set(suggestWord)];
+      let authorAccountCertInfo = "";
+      let authorAccountCertInfoInsStr = (
+        // @ts-ignore
+        (_w = awemeInfo == null ? void 0 : awemeInfo["author"]) == null ? void 0 : _w["account_cert_info"]
+      );
+      if (typeof authorAccountCertInfoInsStr === "string") {
+        let authorAccountCertInfoJSON = utils.toJSON(authorAccountCertInfoInsStr);
+        if (typeof authorAccountCertInfoJSON["label_text"] === "string") {
+          authorAccountCertInfo = authorAccountCertInfoJSON["label_text"];
+        }
+      } else {
+        if (typeof ((_y = (_x = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _x["accountCertInfo"]) == null ? void 0 : _y["labelText"]) === "string") {
+          authorAccountCertInfo = (_A = (_z = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _z["accountCertInfo"]) == null ? void 0 : _A["labelText"];
+        }
+      }
       let authorCustomVerify = (
         // @ts-ignore
-        ((_w = awemeInfo == null ? void 0 : awemeInfo["author"]) == null ? void 0 : _w["custom_verify"]) || // @ts-ignore
-        ((_x = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _x["customVerify"]) || ""
+        ((_B = awemeInfo == null ? void 0 : awemeInfo["author"]) == null ? void 0 : _B["custom_verify"]) || // @ts-ignore
+        ((_C = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _C["customVerify"]) || ""
       );
       let authorEnterpriseVerifyReason = (
         // @ts-ignore
-        ((_y = awemeInfo == null ? void 0 : awemeInfo["author"]) == null ? void 0 : _y["enterprise_verify_reason"]) || // @ts-ignore
-        ((_z = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _z["enterpriseVerifyReason"]) || ""
+        ((_D = awemeInfo == null ? void 0 : awemeInfo["author"]) == null ? void 0 : _D["enterprise_verify_reason"]) || // @ts-ignore
+        ((_E = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _E["enterpriseVerifyReason"]) || ""
       );
       return {
         awemeId,
@@ -5355,6 +5370,7 @@
         musicAlbum,
         musicAuthor,
         musicTitle,
+        authorAccountCertInfo,
         authorCustomVerify,
         authorEnterpriseVerifyReason,
         riskInfoContent,
@@ -6208,6 +6224,7 @@
                 "musicAlbum",
                 "musicAuthor",
                 "musicTitle",
+                "authorAccountCertInfo",
                 "authorCustomVerify",
                 "authorEnterpriseVerifyReason",
                 "riskInfoContent",
