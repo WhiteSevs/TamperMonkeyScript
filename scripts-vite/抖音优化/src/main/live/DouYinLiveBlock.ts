@@ -123,8 +123,8 @@ export const DouYinLiveBlock = {
 		log.info("【屏蔽】底部的礼物栏");
 		return [
 			CommonUtil.addBlockCSS(
-				// 2025.2.18
-				'div[data-e2e="living-container"] [id^="living_room_player_container"] > :last-child:has(>.gitBarOptimizeEnabled )',
+				// 2025.5.9
+				'div[data-e2e="living-container"] [id^="living_room_player_container"] > :last-child:has(.gitBarOptimizeEnabled )',
 				// Firefox上的CSS，多了个pace-island
 				'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
 				// 全屏状态下的
