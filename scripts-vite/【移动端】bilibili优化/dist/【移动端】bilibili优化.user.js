@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.6
+// @version      2025.5.10
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -16,7 +16,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
@@ -8476,6 +8476,13 @@
           ".comment-container .reply-header .nav-sort"
         );
         navSortElement.innerHTML = `<div class="selected-sort">精选评论</div>`;
+      }
+      if (currentSortType === sortTypeConstant.HOT) {
+        currentSortType = sortTypeConstant.LATEST;
+        firstPaginationData.top_replies = await getPaginationData(1).then(
+          (result) => result.data.top_replies
+        );
+        currentSortType = sortTypeConstant.HOT;
       }
       if (firstPaginationData.top_replies && firstPaginationData.top_replies.length !== 0) {
         const topReplyData = firstPaginationData.top_replies[0];

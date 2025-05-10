@@ -5,6 +5,7 @@ import { b2a } from "./b2a";
 import { unsafeWindow } from "ViteGM";
 /*
  * Comment module for https://greasyfork.org/scripts/497732
+ * @version v0.0.1.20250408145554
  */
 export const MobileCommentModule = (function () {
 	"use strict";
@@ -196,6 +197,15 @@ export const MobileCommentModule = (function () {
 				".comment-container .reply-header .nav-sort"
 			);
 			navSortElement.innerHTML = `<div class="selected-sort">精选评论</div>`;
+		}
+
+		// get top reply data from latest sort mode
+		if (currentSortType === sortTypeConstant.HOT) {
+			currentSortType = sortTypeConstant.LATEST;
+			firstPaginationData.top_replies = await getPaginationData(1).then(
+				(result) => result.data.top_replies
+			);
+			currentSortType = sortTypeConstant.HOT;
 		}
 
 		// load the top reply if it exists
