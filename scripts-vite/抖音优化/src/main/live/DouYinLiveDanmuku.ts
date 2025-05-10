@@ -34,17 +34,11 @@ export const DouYinDanmuFilter = {
 	 * 通知弹幕改变(可能是新增)
 	 */
 	change() {
-		let danmakuQueue = Array.from(
-			$$<HTMLDivElement>(
-				"xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
-			)
+		let danmakuQueue = $$<HTMLDivElement>(
+			"xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
 		);
-		for (
-			let messageIndex = 0;
-			messageIndex < danmakuQueue.length;
-			messageIndex++
-		) {
-			let $danmuItem = danmakuQueue[messageIndex];
+		for (let index = 0; index < danmakuQueue.length; index++) {
+			let $danmuItem = danmakuQueue[index];
 			// 获取弹幕对象
 			let $messageIns =
 				utils.getReactObj($danmuItem)?.reactFiber?.return?.memoizedProps
@@ -52,51 +46,60 @@ export const DouYinDanmuFilter = {
 			let message =
 				$messageIns?.payload?.content || $messageIns?.payload?.common?.describe;
 
-			// WebcastChatMessage
-			// WebcastGiftMessage
-			// WebcastRoomMessage
-			// WebcastFansclubMessage
+			/**
+			 * 弹幕类型
+			 *
+			 * + WebcastChatMessage 普通弹幕
+			 * + WebcastGiftMessage 礼物弹幕
+			 * + WebcastRoomMessage
+			 * + WebcastFansclubMessage
+			 */
 			let method = $messageIns.method;
 			let chat_by: undefined | string = $messageIns?.payload?.chat_by;
 			let flag = false;
 			if (!flag) {
-				if (
-					method === "WebcastGiftMessage" &&
-					PopsPanel.getValue("live-danmu-shield-gift")
-				) {
-					// 送礼信息
-					flag = true;
+				if (method === "WebcastGiftMessage") {
+					// 礼物弹幕
+					if (PopsPanel.getValue("live-danmu-shield-gift")) {
+						flag = true;
+					}
 				} else if (method === "WebcastChatMessage") {
 					// 普通弹幕
 					if (chat_by === "0") {
 						//
-					} else if (
-						chat_by === "9" &&
-						PopsPanel.getValue("live-danmu-shield-lucky-bag")
-					) {
+					} else if (chat_by === "9") {
 						// 来自福袋一键发送
 						// 福袋口令
-						flag = true;
+						if (PopsPanel.getValue("live-danmu-shield-lucky-bag")) {
+							flag = true;
+						}
 					} else {
-						// log.info("未知的弹幕chat_by：" + chat_by, $messageIns);
+						if (import.meta.env.DEV) {
+							log.info("未知的弹幕chat_by：" + chat_by, $messageIns);
+						}
 					}
+				} else if (method === "WebcastRoomMessage") {
+					//
+				} else if (method === "WebcastFansclubMessage") {
+					//
 				} else {
-					// log.info("未知的弹幕方法：" + method, $messageIns);
+					if (import.meta.env.DEV) {
+						log.info("未知的弹幕类型：" + method, $messageIns);
+					}
 				}
 			}
 			if (!flag) {
+				// 自定义弹幕过滤器
+				this.$data.rule.some;
 				flag =
 					flag &&
-					Boolean(
-						this.$data.rule.find((ruleItem) => {
-							if (typeof message === "string") {
-								if (message.match(ruleItem)) {
-									log.info("过滤弹幕: " + message);
-									return true;
-								}
-							}
-						})
-					);
+					typeof message === "string" &&
+					this.$data.rule.some((ruleItem) => {
+						if (message.match(ruleItem)) {
+							log.info("过滤弹幕: " + message);
+							return true;
+						}
+					});
 			}
 
 			if (flag) {
@@ -127,7 +130,7 @@ export const DouYinLiveDanmuku = {
 				}
 				log.success("弹幕过滤");
 				DouYinDanmuFilter.init();
-				utils.mutationObserver($danmu as HTMLDivElement, {
+				utils.mutationObserver($danmu, {
 					config: {
 						childList: true,
 						subtree: true,

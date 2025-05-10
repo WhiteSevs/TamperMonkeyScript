@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.9
+// @version      2025.5.11
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -990,39 +990,38 @@
      */
     change() {
       var _a2, _b, _c, _d, _e, _f, _g, _h;
-      let danmakuQueue = Array.from(
-        $$(
-          "xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
-        )
+      let danmakuQueue = $$(
+        "xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
       );
-      for (let messageIndex = 0; messageIndex < danmakuQueue.length; messageIndex++) {
-        let $danmuItem = danmakuQueue[messageIndex];
+      for (let index = 0; index < danmakuQueue.length; index++) {
+        let $danmuItem = danmakuQueue[index];
         let $messageIns = (_d = (_c = (_b = (_a2 = utils.getReactObj($danmuItem)) == null ? void 0 : _a2.reactFiber) == null ? void 0 : _b.return) == null ? void 0 : _c.memoizedProps) == null ? void 0 : _d.message;
         let message = ((_e = $messageIns == null ? void 0 : $messageIns.payload) == null ? void 0 : _e.content) || ((_g = (_f = $messageIns == null ? void 0 : $messageIns.payload) == null ? void 0 : _f.common) == null ? void 0 : _g.describe);
         let method = $messageIns.method;
         let chat_by = (_h = $messageIns == null ? void 0 : $messageIns.payload) == null ? void 0 : _h.chat_by;
         let flag = false;
         if (!flag) {
-          if (method === "WebcastGiftMessage" && PopsPanel.getValue("live-danmu-shield-gift")) {
-            flag = true;
+          if (method === "WebcastGiftMessage") {
+            if (PopsPanel.getValue("live-danmu-shield-gift")) {
+              flag = true;
+            }
           } else if (method === "WebcastChatMessage") {
             if (chat_by === "0") ;
-            else if (chat_by === "9" && PopsPanel.getValue("live-danmu-shield-lucky-bag")) {
-              flag = true;
+            else if (chat_by === "9") {
+              if (PopsPanel.getValue("live-danmu-shield-lucky-bag")) {
+                flag = true;
+              }
             } else ;
           } else ;
         }
         if (!flag) {
-          flag = flag && Boolean(
-            this.$data.rule.find((ruleItem) => {
-              if (typeof message === "string") {
-                if (message.match(ruleItem)) {
-                  log.info("过滤弹幕: " + message);
-                  return true;
-                }
-              }
-            })
-          );
+          this.$data.rule.some;
+          flag = flag && typeof message === "string" && this.$data.rule.some((ruleItem) => {
+            if (message.match(ruleItem)) {
+              log.info("过滤弹幕: " + message);
+              return true;
+            }
+          });
         }
         if (flag) {
           $danmuItem.setAttribute("data-is-filter", "true");
@@ -1481,9 +1480,9 @@
         CommonUtil.addBlockCSS(
           "#chatroom .webcast-chatroom___bottom-message",
           // 上面的滚动播报，xxx加入了直播间
-          "#chatroom >div:nth-child(2)>div>div:nth-child(3)",
+          `#chatroom >div:nth-child(2)>div>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`,
           // Firefox的，多了个pace-island
-          "#chatroom >pace-island>div>div:first-child>div:nth-child(3)"
+          `#chatroom >pace-island>div>div:first-child>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`
         )
       ];
     }

@@ -230,9 +230,9 @@ export const DouYinLiveChatRoomBlock = {
 			CommonUtil.addBlockCSS(
 				"#chatroom .webcast-chatroom___bottom-message",
 				// 上面的滚动播报，xxx加入了直播间
-				"#chatroom >div:nth-child(2)>div>div:nth-child(3)",
+				`#chatroom >div:nth-child(2)>div>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`,
 				// Firefox的，多了个pace-island
-				"#chatroom >pace-island>div>div:first-child>div:nth-child(3)"
+				`#chatroom >pace-island>div>div:first-child>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`
 			),
 		];
 	},
