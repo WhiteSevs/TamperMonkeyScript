@@ -216,7 +216,7 @@ export class QmsgMsg {
 				QmsgUtils.setSafeHTML(__$ownStyle__, this.setting.style);
 				$contentContainer.insertAdjacentElement("afterend", __$ownStyle__);
 			}
-			document.body.appendChild($shadowContainer);
+			(document.body || document.documentElement).appendChild($shadowContainer);
 		}
 		if ($shadowRoot == null) {
 			throw new TypeError(QmsgConfig.PLUGIN_NAME + " $shadowRoot is null");
