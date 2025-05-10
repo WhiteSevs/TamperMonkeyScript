@@ -16,7 +16,7 @@
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.3/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@25.0.2/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.0/dist/otpauth.umd.js
