@@ -1,4 +1,4 @@
-import { DOMUtils, httpx, log, utils } from "@/env";
+import { $, DOMUtils, httpx, log, utils } from "@/env";
 import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import i18next from "i18next";
@@ -129,8 +129,10 @@ export const GreasyforkApi = {
 				true,
 				true
 			);
+			// 如果是脚本库
+			// 那是没有脚本安装按钮的
 			let $installLink =
-				$scriptHomeDoc.querySelector<HTMLElement>(".install-link")!;
+				$scriptHomeDoc.querySelector<HTMLElement>(".install-link");
 			let $createAt = $scriptHomeDoc.querySelector<HTMLElement>(
 				"dd.script-show-created-date relative-time[datetime]"
 			);
@@ -158,28 +160,46 @@ export const GreasyforkApi = {
 			);
 			let scriptHomeInfo: GreasyforkScriptUrlInfo = {
 				id: Number(scriptId),
-				created_at: $createAt?.getAttribute("datetime")!,
+				created_at: $createAt?.getAttribute("datetime") || "",
 				daily_installs: Number(DOMUtils.text($dailyInstalls!) || "0"),
 				total_installs: Number(DOMUtils.text($totalInstalls!) || "0"),
-				code_updated_at: $updateAt?.getAttribute("datetime")!,
+				code_updated_at: $updateAt?.getAttribute("datetime") || "",
 				support_url: "",
 				fan_score: "",
-				namespace: $installLink.getAttribute("data-script-namespace")!,
+				namespace: $installLink?.getAttribute("data-script-namespace") || "",
 				contribution_url: null,
 				contribution_amount: null,
 				good_ratings: Number(DOMUtils.text($goodRatingCount!) || "0"),
 				ok_ratings: Number(DOMUtils.text($okRatingCount!) || "0"),
 				bad_ratings: Number(DOMUtils.text($badRatingCount!) || "0"),
 				users: [],
-				name: $installLink.getAttribute("data-script-name")!,
+				name:
+					$installLink?.getAttribute("data-script-name") ||
+					DOMUtils.text($scriptHomeDoc.querySelector("title")!),
 				description: DOMUtils.text($description!),
 				url: url,
-				code_url: $installLink.getAttribute("href")!,
+				code_url: $installLink?.getAttribute("href") || "",
 				license: DOMUtils.text($license!) || null,
-				version: $installLink.getAttribute("data-script-version")!,
+				version:
+					$installLink?.getAttribute("data-script-version") ||
+					$scriptHomeDoc.querySelector<HTMLElement>("dd.script-show-version")
+						?.innerText ||
+					"",
 				locale: "",
 				deleted: false,
 			};
+			if (utils.isNull(scriptHomeInfo.code_url) && !$installLink) {
+				// 可能是脚本库
+				let $requireCodeText = $scriptHomeDoc.querySelector<HTMLElement>(
+					"#script-content code"
+				);
+				if ($requireCodeText) {
+					scriptHomeInfo.code_url = DOMUtils.text($requireCodeText)
+						.trim()
+						.replace(/^\/\/[\s]*@require[\s]*/gi, "")
+						.trim();
+				}
+			}
 			return scriptHomeInfo;
 		}
 		let data = utils.toJSON<GreasyforkScriptUrlInfo>(

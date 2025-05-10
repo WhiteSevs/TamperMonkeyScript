@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.5.5.10
+// @version            2025.5.10
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -1199,6 +1199,7 @@
      * @param scriptId 脚本id
      */
     async getScriptInfo(scriptId) {
+      var _a2;
       let url = GreasyforkUrlUtils.getScriptInfoUrl(scriptId);
       let response = await httpx.get(url, {
         // fetch: true,
@@ -1242,28 +1243,36 @@
         );
         let scriptHomeInfo = {
           id: Number(scriptId),
-          created_at: $createAt == null ? void 0 : $createAt.getAttribute("datetime"),
+          created_at: ($createAt == null ? void 0 : $createAt.getAttribute("datetime")) || "",
           daily_installs: Number(domUtils.text($dailyInstalls) || "0"),
           total_installs: Number(domUtils.text($totalInstalls) || "0"),
-          code_updated_at: $updateAt == null ? void 0 : $updateAt.getAttribute("datetime"),
+          code_updated_at: ($updateAt == null ? void 0 : $updateAt.getAttribute("datetime")) || "",
           support_url: "",
           fan_score: "",
-          namespace: $installLink.getAttribute("data-script-namespace"),
+          namespace: ($installLink == null ? void 0 : $installLink.getAttribute("data-script-namespace")) || "",
           contribution_url: null,
           contribution_amount: null,
           good_ratings: Number(domUtils.text($goodRatingCount) || "0"),
           ok_ratings: Number(domUtils.text($okRatingCount) || "0"),
           bad_ratings: Number(domUtils.text($badRatingCount) || "0"),
           users: [],
-          name: $installLink.getAttribute("data-script-name"),
+          name: ($installLink == null ? void 0 : $installLink.getAttribute("data-script-name")) || domUtils.text($scriptHomeDoc.querySelector("title")),
           description: domUtils.text($description),
           url,
-          code_url: $installLink.getAttribute("href"),
+          code_url: ($installLink == null ? void 0 : $installLink.getAttribute("href")) || "",
           license: domUtils.text($license) || null,
-          version: $installLink.getAttribute("data-script-version"),
+          version: ($installLink == null ? void 0 : $installLink.getAttribute("data-script-version")) || ((_a2 = $scriptHomeDoc.querySelector("dd.script-show-version")) == null ? void 0 : _a2.innerText) || "",
           locale: "",
           deleted: false
         };
+        if (utils.isNull(scriptHomeInfo.code_url) && !$installLink) {
+          let $requireCodeText = $scriptHomeDoc.querySelector(
+            "#script-content code"
+          );
+          if ($requireCodeText) {
+            scriptHomeInfo.code_url = domUtils.text($requireCodeText).trim().replace(/^\/\/[\s]*@require[\s]*/gi, "").trim();
+          }
+        }
         return scriptHomeInfo;
       }
       let data = utils.toJSON(
