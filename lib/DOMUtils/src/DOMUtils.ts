@@ -20,7 +20,7 @@ class DOMUtils extends DOMUtilsEvent {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2025.4.23";
+	version = "2025.5.12";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -284,7 +284,10 @@ class DOMUtils extends DOMUtilsEvent {
 			propertyName: string,
 			propertyValue: string | number
 		) => {
-			if (propertyValue === "string" && propertyValue.includes("!important")) {
+			if (
+				typeof propertyValue === "string" &&
+				propertyValue.trim().endsWith("!important")
+			) {
 				propertyValue = propertyValue
 					.trim()
 					.replace(/!important$/gi, "")
