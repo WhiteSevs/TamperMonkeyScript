@@ -26,7 +26,7 @@ export interface PopsMaskDetails {
 	 */
 	clickCallBack?:
 		| ((
-				originalRun: () => void,
+				originalRun: () => void | Promise<void>,
 				config:
 					| PopsAlertDetails
 					| PopsDrawerDetails

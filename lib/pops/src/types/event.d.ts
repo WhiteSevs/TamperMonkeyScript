@@ -48,9 +48,9 @@ export interface PopsEventDetails {
 	/** 当前弹窗类型 */
 	mode: mode;
 	guid: guid;
-	close: () => void;
-	hide: () => void;
-	show: () => void;
+	close: () => Promise<void>;
+	hide: () => Promise<void>;
+	show: () => Promise<void>;
 }
 
 /**

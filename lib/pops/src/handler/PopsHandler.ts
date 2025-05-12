@@ -99,9 +99,7 @@ export const PopsHandler = {
 			animElement: HTMLElement;
 			maskHTML: string;
 		}
-	): {
-		maskElement: HTMLDivElement;
-	} {
+	) {
 		let result = {
 			maskElement: popsUtils.parseTextToDOM<HTMLDivElement>(details.maskHTML),
 		};
@@ -117,7 +115,7 @@ export const PopsHandler = {
 			function originalRun() {
 				if (details.config.mask!.clickEvent!.toClose) {
 					/* 关闭 */
-					PopsInstanceUtils.close(
+					return PopsInstanceUtils.close(
 						details.type,
 						targetLayer,
 						details.guid,
@@ -126,7 +124,7 @@ export const PopsHandler = {
 					);
 				} else if (details.config.mask!.clickEvent!.toHide) {
 					/* 隐藏 */
-					PopsInstanceUtils.hide(
+					return PopsInstanceUtils.hide(
 						details.type,
 						targetLayer,
 						details.guid,
@@ -400,7 +398,7 @@ export const PopsHandler = {
 			mode: mode,
 			guid: guid,
 			close() {
-				PopsInstanceUtils.close(
+				return PopsInstanceUtils.close(
 					mode,
 					pops.config.layer[mode],
 					guid,
@@ -409,7 +407,7 @@ export const PopsHandler = {
 				);
 			},
 			hide() {
-				PopsInstanceUtils.hide(
+				return PopsInstanceUtils.hide(
 					mode,
 					pops.config.layer[mode],
 					guid,
@@ -419,7 +417,7 @@ export const PopsHandler = {
 				);
 			},
 			show() {
-				PopsInstanceUtils.show(
+				return PopsInstanceUtils.show(
 					mode,
 					pops.config.layer[mode],
 					guid,
@@ -463,7 +461,7 @@ export const PopsHandler = {
 			mode: mode,
 			guid: guid,
 			close() {
-				PopsInstanceUtils.close(
+				return PopsInstanceUtils.close(
 					mode,
 					pops.config.layer[mode],
 					guid,
@@ -472,7 +470,7 @@ export const PopsHandler = {
 				);
 			},
 			hide() {
-				PopsInstanceUtils.hide(
+				return PopsInstanceUtils.hide(
 					mode,
 					pops.config.layer[mode],
 					guid,
@@ -482,7 +480,7 @@ export const PopsHandler = {
 				);
 			},
 			show() {
-				PopsInstanceUtils.show(
+				return PopsInstanceUtils.show(
 					mode,
 					pops.config.layer[mode],
 					guid,

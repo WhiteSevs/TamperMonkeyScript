@@ -79,6 +79,9 @@ export class PopsLoading {
 				maskHTML: maskHTML,
 			});
 			$mask = _handleMask_.maskElement;
+			// 遮罩层必须是跟随主内容
+			// 即设置主内容position: relative，mask：position: absolute
+			popsDOMUtils.css($mask, "position", "absolute !important");
 			elementList.push($mask);
 		}
 		let eventDetails = PopsHandler.handleLoadingEventDetails(

@@ -46,7 +46,7 @@ export interface PopsSearchSuggestionDetails<T = any>
 	 */
 	className?: string;
 	/**
-	 * position是否使用absolut
+	 * position是否使用absolut，否则是relative
 	 * @default true
 	 */
 	isAbsolute?: boolean;

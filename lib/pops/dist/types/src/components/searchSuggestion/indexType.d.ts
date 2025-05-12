@@ -40,7 +40,7 @@ export interface PopsSearchSuggestionDetails<T = any> extends Pick<PopsCommonCon
      */
     className?: string;
     /**
-     * position是否使用absolut
+     * position是否使用absolut，否则是relative
      * @default true
      */
     isAbsolute?: boolean;

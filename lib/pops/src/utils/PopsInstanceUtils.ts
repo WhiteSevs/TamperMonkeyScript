@@ -268,24 +268,29 @@ export const PopsInstanceUtils = {
 		animElement: HTMLElement,
 		maskElement: HTMLElement
 	) {
-		let popsElement =
-			animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
-		if (popsType === "drawer") {
-			let drawerConfig = config as Required<PopsDrawerDetails>;
-			setTimeout(() => {
-				maskElement.style.setProperty("display", "none");
-				if (["top", "bottom"].includes(drawerConfig.direction)) {
-					popsElement.style.setProperty("height", "0");
-				} else if (["left", "right"].includes(drawerConfig.direction)) {
-					popsElement.style.setProperty("width", "0");
-				} else {
-					console.error("未知direction：", drawerConfig.direction);
-				}
-			}, drawerConfig.closeDelay);
-		} else {
-			layerConfigList.forEach((layerConfigItem) => {
-				if (layerConfigItem.guid === guid) {
+		return new Promise<void>((resolve) => {
+			let popsElement =
+				animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
+			if (popsType === "drawer") {
+				let drawerConfig = config as Required<PopsDrawerDetails>;
+				setTimeout(() => {
+					maskElement.style.setProperty("display", "none");
+					if (["top", "bottom"].includes(drawerConfig.direction)) {
+						popsElement.style.setProperty("height", "0");
+					} else if (["left", "right"].includes(drawerConfig.direction)) {
+						popsElement.style.setProperty("width", "0");
+					} else {
+						console.error("未知direction：", drawerConfig.direction);
+					}
+					resolve();
+				}, drawerConfig.closeDelay);
+			} else {
+				let findLayerIns = layerConfigList.find(
+					(layerConfigItem) => layerConfigItem.guid === guid
+				);
+				if (findLayerIns) {
 					/* 存在动画 */
+					let layerConfigItem = findLayerIns;
 					layerConfigItem.animElement.style.width = "100%";
 					layerConfigItem.animElement.style.height = "100%";
 					(layerConfigItem.animElement.style as any)["animation-name"] =
@@ -295,6 +300,9 @@ export const PopsInstanceUtils = {
 							(layerConfigItem.animElement.style as any)["animation-name"]
 						)
 					) {
+						/**
+						 * 动画结束的回调
+						 */
 						function animationendCallBack() {
 							layerConfigItem.animElement.style.display = "none";
 							if (layerConfigItem.maskElement) {
@@ -308,6 +316,7 @@ export const PopsInstanceUtils = {
 									capture: true,
 								}
 							);
+							resolve();
 						}
 						popsDOMUtils.on(
 							layerConfigItem.animElement,
@@ -322,14 +331,13 @@ export const PopsInstanceUtils = {
 						if (layerConfigItem.maskElement) {
 							layerConfigItem.maskElement.style.display = "none";
 						}
+
+						resolve();
 					}
-
-					return;
 				}
-			});
-		}
+			}
+		});
 	},
-
 	/**
 	 * 显示
 	 * @param popsType
@@ -353,27 +361,32 @@ export const PopsInstanceUtils = {
 			| PopsPanelDetails
 			| PopsFolderDetails,
 		animElement: HTMLElement,
-		maskElement: HTMLElement
+		maskElement?: HTMLElement
 	) {
-		let popsElement =
-			animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
-		if (popsType === "drawer") {
-			let drawerConfig = config as PopsDrawerDetails;
-			setTimeout(() => {
-				maskElement.style.setProperty("display", "");
-				let direction = drawerConfig.direction!;
-				let size = drawerConfig.size!.toString();
-				if (["top", "bottom"].includes(direction)) {
-					popsElement.style.setProperty("height", size);
-				} else if (["left", "right"].includes(direction)) {
-					popsElement.style.setProperty("width", size);
-				} else {
-					console.error("未知direction：", direction);
-				}
-			}, drawerConfig.openDelay);
-		} else {
-			layerConfigList.forEach((layerConfigItem) => {
-				if (layerConfigItem.guid === guid) {
+		return new Promise<void>((resolve) => {
+			let popsElement =
+				animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
+			if (popsType === "drawer") {
+				let drawerConfig = config as PopsDrawerDetails;
+				setTimeout(() => {
+					popsDOMUtils.css(maskElement!, "display", "");
+					let direction = drawerConfig.direction!;
+					let size = drawerConfig.size!.toString();
+					if (["top", "bottom"].includes(direction)) {
+						popsElement.style.setProperty("height", size);
+					} else if (["left", "right"].includes(direction)) {
+						popsElement.style.setProperty("width", size);
+					} else {
+						console.error("未知direction：", direction);
+					}
+					resolve();
+				}, drawerConfig.openDelay);
+			} else {
+				let findLayerIns = layerConfigList.find(
+					(layerConfigItem) => layerConfigItem.guid === guid
+				);
+				if (findLayerIns) {
+					let layerConfigItem = findLayerIns;
 					layerConfigItem.animElement.style.width = "";
 					layerConfigItem.animElement.style.height = "";
 					(layerConfigItem.animElement.style as any)["animation-name"] =
@@ -385,10 +398,9 @@ export const PopsInstanceUtils = {
 							(layerConfigItem.animElement.style as any)["animation-name"]
 						)
 					) {
-						layerConfigItem.animElement.style.display = "";
-						if (layerConfigItem.maskElement) {
-							layerConfigItem.maskElement.style.display = "";
-						}
+						/**
+						 * 动画结束的回调
+						 */
 						function animationendCallBack() {
 							popsDOMUtils.off(
 								layerConfigItem.animElement,
@@ -398,6 +410,11 @@ export const PopsInstanceUtils = {
 									capture: true,
 								}
 							);
+							resolve();
+						}
+						layerConfigItem.animElement.style.display = "";
+						if (layerConfigItem.maskElement) {
+							layerConfigItem.maskElement.style.display = "";
 						}
 						popsDOMUtils.on(
 							layerConfigItem.animElement,
@@ -412,11 +429,11 @@ export const PopsInstanceUtils = {
 						if (layerConfigItem.maskElement) {
 							layerConfigItem.maskElement.style.display = "";
 						}
+						resolve();
 					}
 				}
-				return;
-			});
-		}
+			}
+		});
 	},
 	/**
 	 * 关闭
@@ -441,61 +458,68 @@ export const PopsInstanceUtils = {
 			| PopsFolderDetails,
 		animElement: HTMLElement
 	) {
-		let popsElement =
-			animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
-		let drawerConfig = config as Required<PopsDrawerDetails>;
-		/**
-		 * 动画结束事件
-		 */
-		function transitionendEvent() {
-			function closeCallBack(event: Event) {
-				if ((event as TransitionEvent).propertyName !== "transform") {
-					return;
+		return new Promise<void>((resolve) => {
+			let popsElement =
+				animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
+			let drawerConfig = config as Required<PopsDrawerDetails>;
+			/**
+			 * 动画结束事件
+			 */
+			function transitionendEvent() {
+				/**
+				 * 弹窗已关闭的回调
+				 */
+				function closeCallBack(event: Event) {
+					if ((event as TransitionEvent).propertyName !== "transform") {
+						return;
+					}
+					popsDOMUtils.off(
+						popsElement,
+						popsDOMUtils.getTransitionEndNameList(),
+						void 0,
+						closeCallBack
+					);
+					PopsInstanceUtils.removeInstance([layerConfigList], guid);
+					resolve();
 				}
-				popsDOMUtils.off(
+				/* 监听过渡结束 */
+				popsDOMUtils.on(
 					popsElement,
 					popsDOMUtils.getTransitionEndNameList(),
-					void 0,
 					closeCallBack
 				);
-				PopsInstanceUtils.removeInstance([layerConfigList], guid);
+				let popsTransForm = getComputedStyle(popsElement).transform;
+				if (popsTransForm !== "none") {
+					popsDOMUtils.trigger(
+						popsElement,
+						popsDOMUtils.getTransitionEndNameList(),
+						void 0,
+						true
+					);
+					return;
+				}
+				if (["top"].includes(drawerConfig.direction)) {
+					popsElement.style.setProperty("transform", "translateY(-100%)");
+				} else if (["bottom"].includes(drawerConfig.direction)) {
+					popsElement.style.setProperty("transform", "translateY(100%)");
+				} else if (["left"].includes(drawerConfig.direction)) {
+					popsElement.style.setProperty("transform", "translateX(-100%)");
+				} else if (["right"].includes(drawerConfig.direction)) {
+					popsElement.style.setProperty("transform", "translateX(100%)");
+				} else {
+					console.error("未知direction：", drawerConfig.direction);
+				}
 			}
-			/* 监听过渡结束 */
-			popsDOMUtils.on(
-				popsElement,
-				popsDOMUtils.getTransitionEndNameList(),
-				closeCallBack
-			);
-			let popsTransForm = getComputedStyle(popsElement).transform;
-			if (popsTransForm !== "none") {
-				popsDOMUtils.trigger(
-					popsElement,
-					popsDOMUtils.getTransitionEndNameList(),
-					void 0,
-					true
-				);
-				return;
-			}
-			if (["top"].includes(drawerConfig.direction)) {
-				popsElement.style.setProperty("transform", "translateY(-100%)");
-			} else if (["bottom"].includes(drawerConfig.direction)) {
-				popsElement.style.setProperty("transform", "translateY(100%)");
-			} else if (["left"].includes(drawerConfig.direction)) {
-				popsElement.style.setProperty("transform", "translateX(-100%)");
-			} else if (["right"].includes(drawerConfig.direction)) {
-				popsElement.style.setProperty("transform", "translateX(100%)");
-			} else {
-				console.error("未知direction：", drawerConfig.direction);
-			}
-		}
 
-		if (popsType === "drawer") {
-			setTimeout(() => {
-				transitionendEvent();
-			}, drawerConfig.closeDelay);
-		} else {
-			PopsInstanceUtils.removeInstance([layerConfigList], guid);
-		}
+			if (popsType === "drawer") {
+				setTimeout(() => {
+					transitionendEvent();
+				}, drawerConfig.closeDelay);
+			} else {
+				PopsInstanceUtils.removeInstance([layerConfigList], guid);
+				resolve();
+			}
+		});
 	},
 	/**
 	 * 拖拽元素
