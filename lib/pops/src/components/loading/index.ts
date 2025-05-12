@@ -54,6 +54,9 @@ export class PopsLoading {
 		 */
 
 		let $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
+		// 遮罩层必须是跟随主内容
+		// 即设置主内容position: relative，mask：position: absolute
+		popsDOMUtils.css($anim, "position", "absolute !important");
 
 		let { popsElement: $pops } = PopsHandler.handleQueryElement(
 			$anim,
