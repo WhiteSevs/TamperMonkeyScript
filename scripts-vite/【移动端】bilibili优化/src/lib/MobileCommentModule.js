@@ -264,7 +264,18 @@ export const MobileCommentModule = (function () {
 			// prepare offset data of next pagination
 			if (fetchResult.code === 0) {
 				const nextOffset = fetchResult.data.cursor.pagination_reply.next_offset;
-				const cursor = nextOffset ? JSON.parse(nextOffset).Data.cursor : -1;
+				let nextOffsetObject = null;
+				try {
+					// 例如这个视频下的评论区获取到的next_offset不是一个对象字符串，而是一个普通的字符串，进行序列化会发生错误
+					// https://m.bilibili.com/video/BV1tf5NzEE5r
+					nextOffset = JSON.parse(nextOffset);
+				} catch (error) {
+					console.warn(
+						"MobileCommentModule next_offset serialize error",
+						error
+					);
+				}
+				const cursor = nextOffset ? nextOffsetObject?.Data?.cursor : -1;
 				timeSortOffsets[
 					paginationNumber + 1
 				] = `{"offset":"{\\"type\\":3,\\"data\\":{\\"cursor\\":${cursor}}}"}`;
