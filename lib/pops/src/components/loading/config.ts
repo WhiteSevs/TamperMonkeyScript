@@ -22,7 +22,7 @@ export const PopsLoadingConfig = (): DeepRequired<PopsLoadingDetails> => {
 		},
 		animation: "pops-anim-fadein-zoom",
 		forbiddenScroll: false,
-
+		isAbsolute: false,
 		style: null,
 		addIndexCSS: true,
 	};

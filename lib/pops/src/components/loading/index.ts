@@ -54,9 +54,6 @@ export class PopsLoading {
 		 */
 
 		let $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
-		// 遮罩层必须是跟随主内容
-		// 即设置主内容position: relative，mask：position: absolute
-		popsDOMUtils.css($anim, "position", "absolute !important");
 
 		let { popsElement: $pops } = PopsHandler.handleQueryElement(
 			$anim,
@@ -82,9 +79,6 @@ export class PopsLoading {
 				maskHTML: maskHTML,
 			});
 			$mask = _handleMask_.maskElement;
-			// 遮罩层必须是跟随主内容
-			// 即设置主内容position: relative，mask：position: absolute
-			popsDOMUtils.css($mask, "position", "absolute !important");
 			elementList.push($mask);
 		}
 		let eventDetails = PopsHandler.handleLoadingEventDetails(
@@ -106,6 +100,12 @@ export class PopsLoading {
 			maskElement: $mask!,
 		} as any);
 
+		if (config.isAbsolute) {
+			// 遮罩层必须是跟随主内容
+			// 即设置主内容position: relative，mask：position: absolute
+			popsDOMUtils.css($anim, "position", "absolute !important");
+			$mask && popsDOMUtils.css($mask, "position", "absolute !important");
+		}
 		return PopsHandler.handleResultDetails(eventDetails);
 	}
 }
