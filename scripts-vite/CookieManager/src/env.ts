@@ -9,6 +9,7 @@ import {
 	GM_addStyle,
 	GM_getResourceText,
 	GM_xmlhttpRequest,
+	GM_cookie,
 } from "ViteGM";
 import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
@@ -236,7 +237,24 @@ const MountVue = async function (targetApp: any, plugin: any[] = []) {
 	CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
 };
 
+/**
+ * 让对象内的函数属性的this指向固定为该对象
+ */
+let applyObjectThis = (obj: any) => {
+	Object.keys(obj).forEach((key) => {
+		// @ts-ignore
+		if (typeof obj[key] === "function") {
+			// @ts-ignore
+			obj[key] = obj[key].bind(obj);
+		}
+	});
+};
+
 const utilsCookieManager = new Utils.GM_Cookie();
+applyObjectThis(utilsCookieManager);
+
+const __GM_cookie__ = GM_cookie;
+applyObjectThis(__GM_cookie__);
 
 export {
 	utils,
@@ -253,4 +271,5 @@ export {
 	MountVue,
 	VUE_ELE_NAME_ID,
 	utilsCookieManager,
+	__GM_cookie__ as GM_cookie,
 };

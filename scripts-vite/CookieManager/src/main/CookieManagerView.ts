@@ -1,5 +1,4 @@
 import { DOMUtils, GM_Menu, log, pops, utils } from "@/env";
-import { unsafeWindow } from "ViteGM";
 import { CookieManager, type CookieManagerApiName } from "./CookieManager";
 import { PopsPanel } from "@/setting/panel";
 import { PanelUISize } from "@/setting/panel-ui-size";

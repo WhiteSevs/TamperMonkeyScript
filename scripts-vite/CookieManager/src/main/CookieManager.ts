@@ -1,6 +1,5 @@
-import { log, utilsCookieManager } from "@/env";
-import { CookieManagerView } from "./CookieManagerView";
-import { GM_cookie, unsafeWindow } from "ViteGM";
+import { GM_cookie, log, utilsCookieManager } from "@/env";
+import { unsafeWindow } from "ViteGM";
 import { PopsPanel } from "@/setting/panel";
 import Qmsg from "qmsg";
 

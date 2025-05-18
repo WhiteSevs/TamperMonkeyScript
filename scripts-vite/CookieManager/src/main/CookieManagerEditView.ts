@@ -1,4 +1,4 @@
-import { DOMUtils, log, pops, utils } from "@/env";
+import { DOMUtils, pops, utils } from "@/env";
 import { PanelUISize } from "@/setting/panel-ui-size";
 import type { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/inputType";
 import type { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/selectType";
