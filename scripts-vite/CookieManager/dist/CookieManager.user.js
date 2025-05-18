@@ -185,11 +185,13 @@
   document.querySelector.bind(document);
   document.querySelectorAll.bind(document);
   let applyObjectThis = (obj) => {
-    Object.keys(obj).forEach((key) => {
-      if (typeof obj[key] === "function") {
-        obj[key] = obj[key].bind(obj);
-      }
-    });
+    if (typeof obj === "object" && obj != null || typeof obj === "function") {
+      Object.keys(obj).forEach((key) => {
+        if (typeof obj[key] === "function") {
+          obj[key] = obj[key].bind(obj);
+        }
+      });
+    }
   };
   const utilsCookieManager = new Utils.GM_Cookie();
   applyObjectThis(utilsCookieManager);

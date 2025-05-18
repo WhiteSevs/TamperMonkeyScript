@@ -241,13 +241,13 @@ const MountVue = async function (targetApp: any, plugin: any[] = []) {
  * 让对象内的函数属性的this指向固定为该对象
  */
 let applyObjectThis = (obj: any) => {
-	Object.keys(obj).forEach((key) => {
-		// @ts-ignore
-		if (typeof obj[key] === "function") {
-			// @ts-ignore
-			obj[key] = obj[key].bind(obj);
-		}
-	});
+	if ((typeof obj === "object" && obj != null) || typeof obj === "function") {
+		Object.keys(obj).forEach((key) => {
+			if (typeof obj[key] === "function") {
+				obj[key] = obj[key].bind(obj);
+			}
+		});
+	}
 };
 
 const utilsCookieManager = new Utils.GM_Cookie();
