@@ -1007,7 +1007,7 @@
             }
           } else if (method === "WebcastChatMessage") {
             if (chat_by === "0") ;
-            else if (chat_by === "9") {
+            else if (chat_by === "9" || chat_by === "10") {
               if (PopsPanel.getValue("live-danmu-shield-lucky-bag")) {
                 flag = true;
               }
