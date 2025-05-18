@@ -103,10 +103,10 @@ export const BlockLeftNavigator = {
 		return result;
 	},
 	/**
-	 * 【屏蔽】首页
+	 * 【屏蔽】精选
 	 */
 	block_tab_home() {
-		log.info("【屏蔽】首页");
+		log.info("【屏蔽】精选");
 		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)'
 		);

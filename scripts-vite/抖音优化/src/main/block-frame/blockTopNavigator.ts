@@ -62,9 +62,9 @@ export const BlockTopNavigator = {
 		PopsPanel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
 			return this.shieldRightMenuLoginAvatar();
 		});
-		PopsPanel.execMenuOnce("shield-topNav-ai-search", () => {
-			return this.shieldAISearch();
-		});
+		// PopsPanel.execMenuOnce("shield-topNav-ai-search", () => {
+		// 	return this.shieldAISearch();
+		// });
 	},
 	/**
 	 * 【屏蔽】顶部导航栏

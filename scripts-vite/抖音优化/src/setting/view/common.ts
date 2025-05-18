@@ -438,7 +438,7 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									"屏蔽元素"
 								),
 								UISwitch(
-									"【屏蔽】首页",
+									"【屏蔽】精选",
 									"shieldLeftNavigator-tab-home",
 									false,
 									void 0,
@@ -668,13 +668,13 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽元素"
 								),
-								UISwitch(
-									"【屏蔽】AI搜索",
-									"shield-topNav-ai-search",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
+								// UISwitch(
+								// 	"【屏蔽】AI搜索",
+								// 	"shield-topNav-ai-search",
+								// 	false,
+								// 	void 0,
+								// 	"屏蔽元素"
+								// ),
 							],
 						},
 					],
