@@ -1,7 +1,7 @@
 import { $$, DOMUtils, GM_Menu, addStyle, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
-import { DouYinLiveDanmuku } from "./DouYinLiveMessage";
+import { DouYinLiveMessage } from "./DouYinLiveMessage";
 import Qmsg from "qmsg";
 import { ReactUtils } from "@/utils/ReactUtils";
 import { DouYinLiveBlock } from "./DouYinLiveBlock";
@@ -62,7 +62,7 @@ export const DouYinLive = {
 		DouYinLiveBlock.init();
 		DouYinLiveShortCut.init();
 		PopsPanel.execMenuOnce("live-danmu-shield-rule-enable", () => {
-			DouYinLiveDanmuku.filterMessage();
+			DouYinLiveMessage.filterMessage();
 		});
 		PopsPanel.execMenu("live-unlockImageQuality", () => {
 			this.unlockImageQuality();

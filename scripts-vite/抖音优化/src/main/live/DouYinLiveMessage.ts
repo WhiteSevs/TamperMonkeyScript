@@ -172,7 +172,7 @@ export const DouYinMessageFilter = {
 	},
 };
 
-export const DouYinLiveDanmuku = {
+export const DouYinLiveMessage = {
 	/**
 	 * 消息过滤
 	 */

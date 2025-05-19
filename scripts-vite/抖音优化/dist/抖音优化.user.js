@@ -1179,7 +1179,7 @@
       return _GM_getValue(this.key, "");
     }
   };
-  const DouYinLiveDanmuku = {
+  const DouYinLiveMessage = {
     /**
      * 消息过滤
      */
@@ -2155,7 +2155,7 @@
       DouYinLiveBlock.init();
       DouYinLiveShortCut.init();
       PopsPanel.execMenuOnce("live-danmu-shield-rule-enable", () => {
-        DouYinLiveDanmuku.filterMessage();
+        DouYinLiveMessage.filterMessage();
       });
       PopsPanel.execMenu("live-unlockImageQuality", () => {
         this.unlockImageQuality();
