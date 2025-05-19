@@ -1,6 +1,6 @@
 import { DOMUtils, log, utils } from "@/env";
 import { UISwitch } from "../components/ui-switch";
-import { DouYinDanmuFilter } from "@/main/live/DouYinLiveDanmuku";
+import { DouYinMessageFilter } from "@/main/live/DouYinLiveMessage";
 import { PopsPanel } from "../setting";
 import { UISelect } from "../components/ui-select";
 import { VideoQualityMap } from "@/main/live/DouYinLive";
@@ -155,8 +155,9 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "弹幕过滤器",
+					text: "消息过滤器",
 					type: "deepMenu",
+					description: "包括：弹幕、聊天室",
 					forms: [
 						{
 							text: "",
@@ -183,19 +184,32 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									""
 								),
-								UIButton(
-									"初始化规则",
-									"解析并重置规则",
-									"重置",
+							],
+						},
+						{
+							type: "forms",
+							text: "聊天室",
+							forms: [
+								UISwitch(
+									"【屏蔽】xxx 为主播加了 xx分",
+									"live-message-shield-biz_scene-common_text_game_score",
+									false,
 									void 0,
-									false,
-									false,
-									"primary",
-									() => {
-										DouYinDanmuFilter.init();
-										Qmsg.success("更新完毕");
-									}
+									""
 								),
+								UISwitch(
+									"【屏蔽】emoji",
+									"live-message-shield-method-emoji-chat",
+									false,
+									void 0,
+									""
+								),
+							],
+						},
+						{
+							type: "forms",
+							text: "",
+							forms: [
 								{
 									type: "own",
 									getLiElementCallBack(liElement: HTMLLIElement) {
@@ -210,12 +224,13 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 											}
 										);
 										let textarea = textareaDiv.querySelector("textarea")!;
-										textarea.value = DouYinDanmuFilter.get();
+										textarea.value = DouYinMessageFilter.get();
 										DOMUtils.on(
 											textarea,
 											["input", "propertychange"],
 											utils.debounce(function () {
-												DouYinDanmuFilter.set(textarea.value);
+												DouYinMessageFilter.set(textarea.value);
+												DouYinMessageFilter.init();
 											}, 1000)
 										);
 										liElement.appendChild(textareaDiv);

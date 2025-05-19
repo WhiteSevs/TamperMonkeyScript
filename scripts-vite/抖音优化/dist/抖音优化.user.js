@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.18
+// @version      2025.5.19
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -957,7 +957,103 @@
       }
     ]
   };
-  const DouYinDanmuFilter = {
+  const DouYinRouter = {
+    /**
+     * 直播
+     */
+    isLive() {
+      return window.location.hostname === "live.douyin.com" || this.isFollowLive() || this.isRootLive();
+    },
+    /**
+     * 关注-直播
+     *
+     * + /follow/live/
+     */
+    isFollowLive() {
+      return this.isIndex() && window.location.pathname.startsWith("/follow/live/");
+    },
+    /**
+     * 刷视频时的点击进去的直播
+     *
+     * + /root/live/
+     */
+    isRootLive() {
+      return this.isIndex() && window.location.pathname.startsWith("/root/live/");
+    },
+    /**
+     * 是否是抖音主站
+     */
+    isIndex() {
+      return window.location.hostname === "www.douyin.com";
+    },
+    /**
+     * 推荐视频
+     *
+     * + /?recommend=1
+     */
+    isRecommend() {
+      let searchParams = new URLSearchParams(window.location.search);
+      return this.isIndex() && searchParams.has("recommend");
+    },
+    /**
+     * 搜索
+     *
+     * + /search/
+     * + /root/search/
+     */
+    isSearch() {
+      return this.isIndex() && (window.location.pathname.startsWith("/search/") || this.isRootSearch());
+    },
+    /**
+     * 其它地方进去的搜索
+     *
+     * + /root/search/
+     */
+    isRootSearch() {
+      return this.isIndex() && window.location.pathname.startsWith("/root/search/");
+    },
+    /**
+     * 例如：知识、二次元、游戏、美食等
+     *
+     * + /channel/
+     */
+    isChannel() {
+      return this.isIndex() && window.location.pathname.startsWith("/channel/");
+    },
+    /**
+     * 精选
+     *
+     * + /discover/
+     */
+    isDiscover() {
+      return this.isIndex() && window.location.pathname.startsWith("/discover/");
+    },
+    /**
+     * 用户主页
+     *
+     * + /user/
+     */
+    isUser() {
+      return this.isIndex() && window.location.pathname.startsWith("/user/");
+    },
+    /**
+     * 单个视频，一般是分享的视频链接
+     *
+     * + /video/
+     */
+    isVideo() {
+      return this.isIndex() && window.location.pathname.startsWith("/video/");
+    },
+    /**
+     * 笔记图文
+     *
+     * + /note/
+     */
+    isNote() {
+      return this.isIndex() && window.location.pathname.startsWith("/note/");
+    }
+  };
+  const DouYinMessageFilter = {
     key: "douyin-live-danmu-rule",
     $data: {
       rule: []
@@ -989,16 +1085,49 @@
      * 通知弹幕改变(可能是新增)
      */
     change() {
-      var _a2, _b, _c, _d, _e, _f, _g, _h;
-      let danmakuQueue = $$(
-        "xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
+      this.execMessageFilter(
+        Array.from(
+          $$(
+            "xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
+          )
+        ),
+        "弹幕"
       );
-      for (let index = 0; index < danmakuQueue.length; index++) {
-        let $danmuItem = danmakuQueue[index];
-        let $messageIns = (_d = (_c = (_b = (_a2 = utils.getReactObj($danmuItem)) == null ? void 0 : _a2.reactFiber) == null ? void 0 : _b.return) == null ? void 0 : _c.memoizedProps) == null ? void 0 : _d.message;
-        let message = ((_e = $messageIns == null ? void 0 : $messageIns.payload) == null ? void 0 : _e.content) || ((_g = (_f = $messageIns == null ? void 0 : $messageIns.payload) == null ? void 0 : _f.common) == null ? void 0 : _g.describe);
-        let method = $messageIns.method;
-        let chat_by = (_h = $messageIns == null ? void 0 : $messageIns.payload) == null ? void 0 : _h.chat_by;
+      this.execMessageFilter(
+        Array.from(
+          $$(
+            "#chatroom .webcast-chatroom .webcast-chatroom___item:not([data-is-filter])"
+          )
+        ),
+        "聊天室"
+      );
+      if (PopsPanel.getValue("live-message-shield-emoji-chat")) {
+        domUtils.hide(
+          $$(
+            "xg-danmu.xgplayer-danmu > div:has(>img):not([data-is-filter])"
+          ),
+          false
+        );
+      }
+    },
+    /**
+     * 执行过滤
+     * @param messageQueue 消息元素队列
+     * @param from 来自
+     */
+    execMessageFilter(messageQueue, from) {
+      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
+      for (let index = 0; index < messageQueue.length; index++) {
+        let $danmu = messageQueue[index];
+        let react = utils.getReactObj($danmu);
+        let messageIns = ((_c = (_b = (_a2 = react == null ? void 0 : react.reactFiber) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.message) || ((_i = (_h = (_g = (_f = (_e = (_d = react == null ? void 0 : react.reactFiber) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.children) == null ? void 0 : _f.props) == null ? void 0 : _g.children) == null ? void 0 : _h.props) == null ? void 0 : _i.message);
+        if (typeof messageIns !== "object" || messageIns == null) {
+          continue;
+        }
+        let message = ((_j = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _j.content) || ((_l = (_k = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _k.common) == null ? void 0 : _l.describe);
+        let method = messageIns.method;
+        let chat_by = (_m = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _m.chat_by;
+        let biz_scene = (_n = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _n.biz_scene;
         let flag = false;
         if (!flag) {
           if (method === "WebcastGiftMessage") {
@@ -1012,20 +1141,34 @@
                 flag = true;
               }
             } else ;
+          } else if (method === "WebcastRoomMessage") ;
+          else if (method === "WebcastFansclubMessage") ;
+          else if (method === "WebcastEmojiChatMessage") {
+            if (PopsPanel.getValue("live-message-shield-emoji-chat")) {
+              flag = true;
+            }
           } else ;
         }
+        if (!flag && typeof biz_scene === "string") {
+          if (biz_scene === "common_text_game_score") {
+            if (PopsPanel.getValue(
+              "live-message-shield-biz_scene-common_text_game_score"
+            )) {
+              flag = true;
+            }
+          }
+        }
         if (!flag) {
-          this.$data.rule.some;
-          flag = flag && typeof message === "string" && this.$data.rule.some((ruleItem) => {
-            if (message.match(ruleItem)) {
-              log.info("过滤弹幕: " + message);
+          flag = typeof message === "string" && this.$data.rule.some((ruleText) => {
+            if (message.match(ruleText)) {
+              log.info("自定义规则过滤 " + from + " 消息: " + message);
               return true;
             }
           });
         }
         if (flag) {
-          $danmuItem.setAttribute("data-is-filter", "true");
-          domUtils.hide($danmuItem);
+          $danmu.setAttribute("data-is-filter", "true");
+          domUtils.hide($danmu, false);
         }
       }
     },
@@ -1038,24 +1181,26 @@
   };
   const DouYinLiveDanmuku = {
     /**
-     * 弹幕过滤
+     * 消息过滤
      */
-    filterDanmu() {
-      utils.waitNode("xg-danmu.xgplayer-danmu", 1e5).then(($danmu) => {
-        if (!$danmu) {
-          log.error("xg-danmu.xgplayer-danmu获取失败");
+    filterMessage() {
+      let lockFn = new utils.LockFunction(() => {
+        if (!DouYinRouter.isLive()) {
           return;
         }
-        log.success("弹幕过滤");
-        DouYinDanmuFilter.init();
-        utils.mutationObserver($danmu, {
+        DouYinMessageFilter.change();
+      });
+      domUtils.ready(() => {
+        log.success("消息过滤");
+        DouYinMessageFilter.init();
+        utils.mutationObserver(document.body, {
           config: {
             childList: true,
             subtree: true
           },
           immediate: true,
           callback: () => {
-            DouYinDanmuFilter.change();
+            lockFn.run();
           }
         });
       });
@@ -2009,8 +2154,8 @@
     init() {
       DouYinLiveBlock.init();
       DouYinLiveShortCut.init();
-      PopsPanel.execMenu("live-danmu-shield-rule-enable", () => {
-        DouYinLiveDanmuku.filterDanmu();
+      PopsPanel.execMenuOnce("live-danmu-shield-rule-enable", () => {
+        DouYinLiveDanmuku.filterMessage();
       });
       PopsPanel.execMenu("live-unlockImageQuality", () => {
         this.unlockImageQuality();
@@ -2450,8 +2595,9 @@
             ]
           },
           {
-            text: "弹幕过滤器",
+            text: "消息过滤器",
             type: "deepMenu",
+            description: "包括：弹幕、聊天室",
             forms: [
               {
                 text: "",
@@ -2477,20 +2623,33 @@
                     false,
                     void 0,
                     ""
-                  ),
-                  UIButton(
-                    "初始化规则",
-                    "解析并重置规则",
-                    "重置",
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "聊天室",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】xxx 为主播加了 xx分",
+                    "live-message-shield-biz_scene-common_text_game_score",
+                    false,
                     void 0,
-                    false,
-                    false,
-                    "primary",
-                    () => {
-                      DouYinDanmuFilter.init();
-                      Qmsg.success("更新完毕");
-                    }
+                    ""
                   ),
+                  UISwitch(
+                    "【屏蔽】emoji",
+                    "live-message-shield-method-emoji-chat",
+                    false,
+                    void 0,
+                    ""
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "",
+                forms: [
                   {
                     type: "own",
                     getLiElementCallBack(liElement) {
@@ -2505,12 +2664,13 @@
                         }
                       );
                       let textarea = textareaDiv.querySelector("textarea");
-                      textarea.value = DouYinDanmuFilter.get();
+                      textarea.value = DouYinMessageFilter.get();
                       domUtils.on(
                         textarea,
                         ["input", "propertychange"],
                         utils.debounce(function() {
-                          DouYinDanmuFilter.set(textarea.value);
+                          DouYinMessageFilter.set(textarea.value);
+                          DouYinMessageFilter.init();
                         }, 1e3)
                       );
                       liElement.appendChild(textareaDiv);
@@ -2731,102 +2891,6 @@
      */
     isVerticalScreen() {
       return !window.screen.orientation.type.includes("landscape");
-    }
-  };
-  const DouYinRouter = {
-    /**
-     * 直播
-     */
-    isLive() {
-      return window.location.hostname === "live.douyin.com" || this.isFollowLive() || this.isRootLive();
-    },
-    /**
-     * 关注-直播
-     *
-     * + /follow/live/
-     */
-    isFollowLive() {
-      return this.isIndex() && window.location.pathname.startsWith("/follow/live/");
-    },
-    /**
-     * 刷视频时的点击进去的直播
-     *
-     * + /root/live/
-     */
-    isRootLive() {
-      return this.isIndex() && window.location.pathname.startsWith("/root/live/");
-    },
-    /**
-     * 是否是抖音主站
-     */
-    isIndex() {
-      return window.location.hostname === "www.douyin.com";
-    },
-    /**
-     * 推荐视频
-     *
-     * + /?recommend=1
-     */
-    isRecommend() {
-      let searchParams = new URLSearchParams(window.location.search);
-      return this.isIndex() && searchParams.has("recommend");
-    },
-    /**
-     * 搜索
-     *
-     * + /search/
-     * + /root/search/
-     */
-    isSearch() {
-      return this.isIndex() && (window.location.pathname.startsWith("/search/") || this.isRootSearch());
-    },
-    /**
-     * 其它地方进去的搜索
-     *
-     * + /root/search/
-     */
-    isRootSearch() {
-      return this.isIndex() && window.location.pathname.startsWith("/root/search/");
-    },
-    /**
-     * 例如：知识、二次元、游戏、美食等
-     *
-     * + /channel/
-     */
-    isChannel() {
-      return this.isIndex() && window.location.pathname.startsWith("/channel/");
-    },
-    /**
-     * 精选
-     *
-     * + /discover/
-     */
-    isDiscover() {
-      return this.isIndex() && window.location.pathname.startsWith("/discover/");
-    },
-    /**
-     * 用户主页
-     *
-     * + /user/
-     */
-    isUser() {
-      return this.isIndex() && window.location.pathname.startsWith("/user/");
-    },
-    /**
-     * 单个视频，一般是分享的视频链接
-     *
-     * + /video/
-     */
-    isVideo() {
-      return this.isIndex() && window.location.pathname.startsWith("/video/");
-    },
-    /**
-     * 笔记图文
-     *
-     * + /note/
-     */
-    isNote() {
-      return this.isIndex() && window.location.pathname.startsWith("/note/");
     }
   };
   const MobileCSS$1 = '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		bottom: 80px !important;\r\n		padding-right: 5px !important;\r\n		scale: unset !important;\r\n		transform: scale3d(1.12, 1.12, 1.12) !important;\r\n	}\r\n	/* 右侧工具栏的svg再放大 */\r\n	.basePlayerContainer .positionBox svg {\r\n		transform: scale3d(1.12, 1.12, 1.12);\r\n	}\r\n	/* 重置关注按钮的scale */\r\n	.basePlayerContainer\r\n		.positionBox\r\n		.dy-tip-container\r\n		div[data-e2e="feed-follow-icon"]\r\n		svg {\r\n		scale: unset !important;\r\n	}\r\n\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n		flex: 1;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100vw;\r\n		width: 100dvw;\r\n	}\r\n	/* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n	#search-content-area > div,\r\n	#search-content-area > div div:has(+ #search-result-container),\r\n	#search-content-area > div #search-result-container {\r\n		width: 100%;\r\n		width: -webkit-fill-available;\r\n	}\r\n	/* 搜索页面 视频右侧的工具栏缩小 */\r\n	#search-content-area .basePlayerContainer .positionBox {\r\n		bottom: 28px !important;\r\n		transform: scale3d(0.6, 0.6, 0.6) !important;\r\n	}\r\n	/* 搜索页面 搜索出的用户信息换行 */\r\n	#search-content-area\r\n		#search-result-container\r\n		ul[data-e2e="scroll-list"]\r\n		li\r\n		.search-result-card\r\n		> div\r\n		> div {\r\n		flex-wrap: wrap;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n	#search-content-area div:has(> div > div > span[data-key="general"]) {\r\n		overflow: auto;\r\n		gap: 10px;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项 */\r\n	#search-content-area div:has(> span[data-key="general"]) {\r\n		gap: 10px;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n	#search-content-area div:has(> div > span[data-key="general"]) {\r\n		position: unset !important;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项 */\r\n	#search-content-area div:has(> span[data-key="general"]) > * {\r\n		white-space: nowrap !important;\r\n		width: auto !important;\r\n		width: fit-content !important;\r\n		margin-left: 0px !important;\r\n		margin-right: 0px !important;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100vw !important;\r\n	}\r\n\r\n	/* 设置视频区域的高度 */\r\n	#slidelist {\r\n		width: 100vw;\r\n		height: calc(100vh - var(--header-height)) !important;\r\n	}\r\n	/* 修正网页全屏下的视频高度 */\r\n	#slidelist[class*="isCssFullScreen"] {\r\n		height: 100vh !important;\r\n	}\r\n	/* 去除视频区域右侧偏移 */\r\n	.is-mobile-pc div[data-e2e="slideList"] {\r\n		padding-right: 0px !important;\r\n		height: 100% !important;\r\n		min-height: 100% !important;\r\n	}\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n	/* 右侧工具栏缩小 */\r\n	.basePlayerContainer .positionBox {\r\n		transform: scale(0.95) !important;\r\n		bottom: 42px !important;\r\n		padding-right: 10px !important;\r\n	}\r\n	/* 右侧工具栏的svg再缩小 */\r\n	.basePlayerContainer .positionBox svg {\r\n		transform: scale3d(0.95, 0.95, 0.95);\r\n	}\r\n	/* 修复全屏下不显示视频底部的控制栏 */\r\n	.isCssFullScreen [data-e2e="slideList"] {\r\n		min-height: auto !important;\r\n	}\r\n}\r\n';
