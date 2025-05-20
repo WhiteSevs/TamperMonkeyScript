@@ -29,8 +29,8 @@ export const DouYinNetWorkHook = {
 	 */
 	hookUserNoLoginResponse() {
 		this.ajaxHooker.hook((request) => {
-			let url = CommonUtil.fixUrl(request.url);
-			let urlIns = new URL(url);
+			// let url = CommonUtil.fixUrl(request.url);
+			// let urlIns = new URL(url);
 			// if (
 			// 	(true &&
 			// 		urlIns.pathname.startsWith("/aweme/v1/web/user/profile/self/")) ||
