@@ -34,13 +34,14 @@ export const VueUtils = {
 	 * 获取vue2实例
 	 * @param element
 	 */
-	getVue(element: Element | null | EventTarget | HTMLElement) {
+	getVue(
+		element: Element | null | EventTarget | HTMLElement
+	): Vue2Instance | undefined {
 		if (element == null) {
 			return;
 		}
-		return ((element as NestedObjectWithToString)["__vue__"] ||
-			(element as NestedObjectWithToString)["__Ivue__"] ||
-			(element as NestedObjectWithToString)["__IVue__"]) as Vue2Instance;
+		// @ts-ignore
+		return element["__vue__"] || element["__Ivue__"] || element["__IVue__"];
 	},
 	/**
 	 * 获取vue3实例
@@ -50,7 +51,8 @@ export const VueUtils = {
 		if (element == null) {
 			return;
 		}
-		return (element as any)["__vueParentComponent"];
+		// @ts-ignore
+		return element["__vueParentComponent"];
 	},
 	/**
 	 * 等待vue属性并进行设置
