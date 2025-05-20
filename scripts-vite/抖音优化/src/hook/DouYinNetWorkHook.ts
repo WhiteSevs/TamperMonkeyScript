@@ -9,9 +9,7 @@ export const DouYinNetWorkHook = {
 		}
 		return this.__ajaxHooker;
 	},
-	init() {
-		// this.userProfile();
-	},
+	init() {},
 	/**
 	 * 评论区的查看评论api
 	 */
@@ -27,49 +25,47 @@ export const DouYinNetWorkHook = {
 		});
 	},
 	/**
-	 * 获取用户登录信息
+	 * 篡改未登录时的响应结果
 	 */
-	userProfile() {
+	hookUserNoLoginResponse() {
 		this.ajaxHooker.hook((request) => {
 			let url = CommonUtil.fixUrl(request.url);
-			let urlInstance = new URL(url);
-			if (
-				urlInstance.pathname.startsWith("/aweme/v1/web/user/profile/self/") ||
-				urlInstance.pathname.startsWith(
-					"/aweme/v1/web/im/resource/list/aggregation"
-				) ||
-				urlInstance.pathname.startsWith(
-					"/aweme/v1/web/im/user/active/update/"
-				) ||
-				urlInstance.pathname.startsWith(
-					"/aweme/v1/web/im/user/active/config/get"
-				)
-			) {
-				request.response = (response) => {
-					let data = utils.toJSON(response.responseText);
-					if (
-						typeof data["status_code"] === "number" &&
-						data["status_code"] !== 0
-					) {
-						data["status_code"] = 0;
-						if (typeof data["status_msg"] === "string") {
-							data["status_msg"] = "";
-						}
+			let urlIns = new URL(url);
+			// if (
+			// 	(true &&
+			// 		urlIns.pathname.startsWith("/aweme/v1/web/user/profile/self/")) ||
+			// 	urlIns.pathname.startsWith(
+			// 		"/aweme/v1/web/im/resource/list/aggregation"
+			// 	) ||
+			// 	urlIns.pathname.startsWith("/aweme/v1/web/im/user/active/update/") ||
+			// 	urlIns.pathname.startsWith("/aweme/v1/web/im/user/active/config/get")
+			// ) {
+			// }
+
+			request.response = (response) => {
+				let data = utils.toJSON(response.responseText);
+				if (
+					typeof data["status_code"] === "number" &&
+					data["status_code"] !== 0
+				) {
+					data["status_code"] = 0;
+					if (typeof data["status_msg"] === "string") {
+						data["status_msg"] = "";
 					}
+				}
+				if (
+					typeof data?.["user_collect_count"]?.["status_code"] === "number" &&
+					data?.["user_collect_count"]?.["status_code"] !== 0
+				) {
+					data["user_collect_count"]["status_code"] = 0;
 					if (
-						typeof data?.["user_collect_count"]?.["status_code"] === "number" &&
-						data?.["user_collect_count"]?.["status_code"] !== 0
+						typeof data?.["user_collect_count"]?.["status_msg"] === "string"
 					) {
-						data["user_collect_count"]["status_code"] = 0;
-						if (
-							typeof data?.["user_collect_count"]?.["status_msg"] === "string"
-						) {
-							data["user_collect_count"]["status_msg"] = "";
-						}
+						data["user_collect_count"]["status_msg"] = "";
 					}
-					response.responseText = JSON.stringify(data);
-				};
-			}
+				}
+				response.responseText = JSON.stringify(data);
+			};
 		});
 	},
 };

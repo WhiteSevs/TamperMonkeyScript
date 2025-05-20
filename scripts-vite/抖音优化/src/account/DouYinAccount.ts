@@ -1,9 +1,9 @@
 import { $, log, utils } from "@/env";
 import { DouYinElement } from "../utils/DouYinElement";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { DouYinUtils } from "@/utils/DouYinUtils";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { PopsPanel } from "@/setting/setting";
+import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 
 export const DouYinAccount = {
 	/**
@@ -11,6 +11,7 @@ export const DouYinAccount = {
 	 */
 	disguiseLogin() {
 		log.info("伪装登录");
+		DouYinNetWorkHook.hookUserNoLoginResponse();
 		const WAIT_TIME = 20000;
 		// let uid = parseInt((Math.random() * 1000000).toString());
 		let uid = 114514;

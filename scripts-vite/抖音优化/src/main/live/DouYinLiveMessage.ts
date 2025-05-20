@@ -9,13 +9,13 @@ export const DouYinMessageFilter = {
 		rule: <RegExp[]>[],
 	},
 	init() {
-		this.resetRule();
 		this.initRule();
 	},
 	/**
 	 * 初始化解析规则
 	 */
 	initRule() {
+		this.$data.rule = [];
 		let localRule = this.get().trim();
 		let localRuleSplit = localRule.split("\n");
 		localRuleSplit.forEach((item: string) => {
@@ -24,12 +24,6 @@ export const DouYinMessageFilter = {
 			let itemRegExp = new RegExp(item.trim());
 			this.$data.rule.push(itemRegExp);
 		});
-	},
-	/**
-	 * 重置规则数据
-	 */
-	resetRule() {
-		this.$data.rule = [];
 	},
 	/**
 	 * 通知弹幕改变(可能是新增)

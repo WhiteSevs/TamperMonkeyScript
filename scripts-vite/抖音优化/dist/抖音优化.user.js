@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.19
+// @version      2025.5.20
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1059,13 +1059,13 @@
       rule: []
     },
     init() {
-      this.resetRule();
       this.initRule();
     },
     /**
      * 初始化解析规则
      */
     initRule() {
+      this.$data.rule = [];
       let localRule = this.get().trim();
       let localRuleSplit = localRule.split("\n");
       localRuleSplit.forEach((item) => {
@@ -1074,12 +1074,6 @@
         let itemRegExp = new RegExp(item.trim());
         this.$data.rule.push(itemRegExp);
       });
-    },
-    /**
-     * 重置规则数据
-     */
-    resetRule() {
-      this.$data.rule = [];
     },
     /**
      * 通知弹幕改变(可能是新增)
@@ -5642,6 +5636,48 @@
         this.__ajaxHooker = utils.ajaxHooker();
       }
       return this.__ajaxHooker;
+    },
+    init() {
+    },
+    /**
+     * 评论区的查看评论api
+     */
+    commentReply() {
+      this.ajaxHooker.hook((request) => {
+        let url = CommonUtil.fixUrl(request.url);
+        let urlInstance = new URL(url);
+        if (urlInstance.pathname.startsWith("/aweme/v1/web/comment/list/reply")) {
+          urlInstance.searchParams.delete("whale_cut_token");
+          urlInstance.searchParams.append("whale_cut_token", "");
+          request.url = urlInstance.toString();
+        }
+      });
+    },
+    /**
+     * 篡改未登录时的响应结果
+     */
+    hookUserNoLoginResponse() {
+      this.ajaxHooker.hook((request) => {
+        let url = CommonUtil.fixUrl(request.url);
+        new URL(url);
+        request.response = (response) => {
+          var _a2, _b, _c;
+          let data = utils.toJSON(response.responseText);
+          if (typeof data["status_code"] === "number" && data["status_code"] !== 0) {
+            data["status_code"] = 0;
+            if (typeof data["status_msg"] === "string") {
+              data["status_msg"] = "";
+            }
+          }
+          if (typeof ((_a2 = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _a2["status_code"]) === "number" && ((_b = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _b["status_code"]) !== 0) {
+            data["user_collect_count"]["status_code"] = 0;
+            if (typeof ((_c = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _c["status_msg"]) === "string") {
+              data["user_collect_count"]["status_msg"] = "";
+            }
+          }
+          response.responseText = JSON.stringify(data);
+        };
+      });
     }
   };
   const PanelUISize = {
@@ -9573,6 +9609,7 @@
      */
     disguiseLogin() {
       log.info("伪装登录");
+      DouYinNetWorkHook.hookUserNoLoginResponse();
       const WAIT_TIME = 2e4;
       let uid = 114514;
       let info = {
