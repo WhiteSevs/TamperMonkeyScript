@@ -1,4 +1,4 @@
-import { DOMUtils, log, pops, utils } from "@/env";
+import { DOMUtils, httpx, log, pops, utils } from "@/env";
 import { PanelUISize } from "@/setting/panel-ui-size";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { RuleFilterView, type RuleFilterViewOption } from "./RuleFilterView";

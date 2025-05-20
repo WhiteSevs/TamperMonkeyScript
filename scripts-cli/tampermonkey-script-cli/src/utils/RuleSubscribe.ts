@@ -405,6 +405,48 @@ export class RuleSubscribe<
 			Qmsg.success(`共 ${data.length} 条订阅，新增 ${addNewData.length} 条`);
 			importEndCallBack?.();
 		};
+		/**
+		 * @param subscribeText 订阅文件文本
+		 */
+		let importFile = (subscribeText: string) => {
+			return new Promise<boolean>((resolve) => {
+				let data = utils.toJSON<RuleSubscribeOption<T>>(subscribeText);
+				if (!Array.isArray(data)) {
+					log.error(data);
+					Qmsg.error("导入失败，格式不符合（不是数组）", {
+						consoleLogContent: true,
+					});
+					resolve(false);
+					return;
+				}
+				if (!data.length) {
+					Qmsg.error("导入失败，解析出的数据为空", {
+						consoleLogContent: true,
+					});
+					resolve(false);
+					return;
+				}
+				let demoFirst = data[0] as RuleSubscribeOption<T>;
+				if (
+					!(
+						typeof demoFirst.data === "object" &&
+						demoFirst.data != null &&
+						typeof demoFirst.subscribeData === "object" &&
+						demoFirst.subscribeData != null &&
+						typeof demoFirst.uuid === "string"
+					)
+				) {
+					Qmsg.error("导入失败，解析的格式不符合", {
+						consoleLogContent: true,
+					});
+					resolve(false);
+					return;
+				}
+
+				updateRuleToStorage(data);
+				resolve(true);
+			});
+		};
 		// 本地导入
 		DOMUtils.on($local, "click", (event) => {
 			utils.preventEvent(event);
@@ -420,13 +462,7 @@ export class RuleSubscribe<
 				let uploadFile = $input.files![0];
 				let fileReader = new FileReader();
 				fileReader.onload = () => {
-					let data = utils.toJSON(fileReader.result as string);
-					if (!Array.isArray(data)) {
-						log.error(data);
-						Qmsg.error("不是正确的订阅文件", { consoleLogContent: true });
-						return;
-					}
-					updateRuleToStorage(data);
+					importFile(fileReader.result as string);
 				};
 				fileReader.readAsText(uploadFile, "UTF-8");
 			});
@@ -471,13 +507,10 @@ export class RuleSubscribe<
 								Qmsg.error("获取配置失败", { consoleLogContent: true });
 								return;
 							}
-							let data = utils.toJSON(response.data.responseText);
-							if (!Array.isArray(data)) {
-								log.error([response, data]);
-								Qmsg.error("不是正确的规则文件", { consoleLogContent: true });
+							let flag = await importFile(response.data.responseText);
+							if (!flag) {
 								return;
 							}
-							updateRuleToStorage(data);
 							eventDetails.close();
 						},
 					},
