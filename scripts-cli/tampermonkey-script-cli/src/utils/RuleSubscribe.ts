@@ -17,8 +17,12 @@ type RuleSubscribeConstructOption = {
 
 export class RuleSubscribe<
 	T extends {
+		/** 唯一键 */
 		uuid: string;
+		/** 订阅的uuid */
 		subscribeUUID: string | null;
+		/** 是否启用 */
+		enable: boolean;
 	}
 > {
 	option;
@@ -39,12 +43,17 @@ export class RuleSubscribe<
 	}
 	/**
 	 * 获取所有订阅内的所有的规则
+	 * @param [filterUnEnable=false] 是否过滤掉未启用的规则（包括订阅）
 	 */
-	getAllSubscribeRule() {
+	getAllSubscribeRule(filterUnEnable = false) {
 		let allSubscribe = this.getAllSubscribe();
 		let allSubscribeRule: T[] = [];
 		for (let index = 0; index < allSubscribe.length; index++) {
 			const subscribeItem = allSubscribe[index];
+			if (filterUnEnable && !subscribeItem.data.enable) {
+				// 未启用
+				continue;
+			}
 			for (
 				let subscribeIndex = 0;
 				subscribeIndex < subscribeItem.subscribeData.ruleData.length;
@@ -52,6 +61,10 @@ export class RuleSubscribe<
 			) {
 				const subscribeRuleData =
 					subscribeItem.subscribeData.ruleData[subscribeIndex];
+				if (filterUnEnable && !subscribeRuleData.enable) {
+					// 未启用
+					continue;
+				}
 				// 赋值订阅的uuid
 				subscribeRuleData.subscribeUUID = subscribeItem.uuid;
 				allSubscribeRule.push(subscribeRuleData);
