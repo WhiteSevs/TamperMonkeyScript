@@ -1800,6 +1800,12 @@ declare class Utils {
      */
     toUrl(text: string): URL;
     /**
+     * 覆盖对象中的函数this指向
+     * @param target 需要覆盖的对象
+     * @param [objectThis] 覆盖的this指向，如果为传入，则默认为对象本身
+     */
+    coverObjectFunctionThis(target: any, objectThis?: any): void;
+    /**
      * 生成uuid
      * @example
      * Utils.generateUUID()

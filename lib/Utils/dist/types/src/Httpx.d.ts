@@ -1,4 +1,4 @@
-import type { HttpxHookErrorData, HttpxRequestOption, HttpxRequestOptionConfig, HttpxResponse, HttpxResponseData, HttpxPromise } from "./types/Httpx";
+import type { HttpxHookErrorData, HttpxRequestOption, HttpxResponse, HttpxResponseData, HttpxPromise, HttpxInitOption } from "./types/Httpx";
 declare class Httpx {
     #private;
     private GM_Api;
@@ -8,15 +8,15 @@ declare class Httpx {
     private HttpxCallBack;
     private HttpxRequest;
     /**
-     * 实例化，可传入GM_xmlhttpRequest，未传入则使用window.fetch
-     * @param xmlHttpRequest
+     * 实例化
+     * @param option 初始化配置
      */
-    constructor(xmlHttpRequest?: Function);
+    constructor(option?: Partial<HttpxInitOption>);
     /**
-     * 覆盖全局配置
-     * @param details 配置
+     * 覆盖当前配置
+     * @param option
      */
-    config(details?: Partial<HttpxRequestOptionConfig>): void;
+    config(option?: Partial<HttpxInitOption>): void;
     /**
      * 拦截器
      */

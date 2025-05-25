@@ -3,10 +3,10 @@ import type {
 	HttpxHookErrorData,
 	HttpxMethod,
 	HttpxRequestOption,
-	HttpxRequestOptionConfig,
 	HttpxResponse,
 	HttpxResponseData,
 	HttpxPromise,
+	HttpxInitOption,
 } from "./types/Httpx";
 import { Utils } from "./Utils";
 import { GenerateUUID } from "./UtilsCommon";
@@ -239,9 +239,9 @@ class Httpx {
 	private HttpxRequestOption = {
 		context: this,
 		/**
-		 * 根据传入的参数处理获取details配置
+		 * 对请求的参数进行合并处理
 		 */
-		handleBeforeRequestOption(...args: (HttpxRequestOption | string)[]) {
+		handleBeforeRequestOptionArgs(...args: (HttpxRequestOption | string)[]) {
 			let option: HttpxRequestOption = {};
 			if (typeof args[0] === "string") {
 				/* 传入的是url，转为配置 */
@@ -249,13 +249,14 @@ class Httpx {
 				option.url = url;
 				if (typeof args[1] === "object") {
 					/* 处理第二个参数details */
-					let details = args[1];
-					option = details;
+					let optionArg = args[1];
+					Utils.assign(option, optionArg, true);
 					option.url = url;
 				}
 			} else {
 				/* 传入的是配置 */
-				option = args[0];
+				let optionArg = args[0];
+				Utils.assign(option, optionArg, true);
 			}
 			return option;
 		},
@@ -273,58 +274,82 @@ class Httpx {
 			reject: (...args: any[]) => void
 		) {
 			let that = this;
+			let url = userRequestOption.url || this.context.#defaultRequestOption.url;
+			if (typeof url === "string") {
+				// 去除左右空格
+				url = url.trim();
+				if (url.startsWith("http://") || url.startsWith("https://")) {
+					// 标准的http请求
+				} else {
+					if (typeof this.context.#defaultInitOption.baseURL === "string") {
+						// 设置了基础域
+						url = this.context.#defaultInitOption.baseURL + url;
+					}
+				}
+			}
 			let requestOption = <Required<HttpxRequestOption>>{
-				url: userRequestOption.url || this.context.#defaultDetails.url,
+				url: url,
 				method: (method || "GET").toString().toUpperCase().trim(),
 				timeout:
-					userRequestOption.timeout || this.context.#defaultDetails.timeout,
+					userRequestOption.timeout ||
+					this.context.#defaultRequestOption.timeout,
 				responseType:
 					userRequestOption.responseType ||
-					this.context.#defaultDetails.responseType,
+					this.context.#defaultRequestOption.responseType,
 				/* 对象使用深拷贝 */
-				headers: Utils.deepClone(this.context.#defaultDetails.headers),
-				data: userRequestOption.data || this.context.#defaultDetails.data,
+				headers: Utils.deepClone(this.context.#defaultRequestOption.headers),
+				data: userRequestOption.data || this.context.#defaultRequestOption.data,
 				redirect:
-					userRequestOption.redirect || this.context.#defaultDetails.redirect,
-				cookie: userRequestOption.cookie || this.context.#defaultDetails.cookie,
+					userRequestOption.redirect ||
+					this.context.#defaultRequestOption.redirect,
+				cookie:
+					userRequestOption.cookie || this.context.#defaultRequestOption.cookie,
 				cookiePartition:
 					userRequestOption.cookiePartition ||
-					this.context.#defaultDetails.cookiePartition,
-				binary: userRequestOption.binary || this.context.#defaultDetails.binary,
+					this.context.#defaultRequestOption.cookiePartition,
+				binary:
+					userRequestOption.binary || this.context.#defaultRequestOption.binary,
 				nocache:
-					userRequestOption.nocache || this.context.#defaultDetails.nocache,
+					userRequestOption.nocache ||
+					this.context.#defaultRequestOption.nocache,
 				revalidate:
 					userRequestOption.revalidate ||
-					this.context.#defaultDetails.revalidate,
+					this.context.#defaultRequestOption.revalidate,
 				/* 对象使用深拷贝 */
 				context: Utils.deepClone(
-					userRequestOption.context || this.context.#defaultDetails.context
+					userRequestOption.context ||
+						this.context.#defaultRequestOption.context
 				),
 				overrideMimeType:
 					userRequestOption.overrideMimeType ||
-					this.context.#defaultDetails.overrideMimeType,
+					this.context.#defaultRequestOption.overrideMimeType,
 				anonymous:
-					userRequestOption.anonymous || this.context.#defaultDetails.anonymous,
-				fetch: userRequestOption.fetch || this.context.#defaultDetails.fetch,
+					userRequestOption.anonymous ||
+					this.context.#defaultRequestOption.anonymous,
+				fetch:
+					userRequestOption.fetch || this.context.#defaultRequestOption.fetch,
 				/* 对象使用深拷贝 */
-				fetchInit: Utils.deepClone(this.context.#defaultDetails.fetchInit),
+				fetchInit: Utils.deepClone(
+					this.context.#defaultRequestOption.fetchInit
+				),
 				allowInterceptConfig: {
 					beforeRequest: (
-						this.context.#defaultDetails
+						this.context.#defaultRequestOption
 							.allowInterceptConfig as HttpxAllowInterceptConfig
 					).beforeRequest,
 					afterResponseSuccess: (
-						this.context.#defaultDetails
+						this.context.#defaultRequestOption
 							.allowInterceptConfig as HttpxAllowInterceptConfig
 					).afterResponseSuccess,
 					afterResponseError: (
-						this.context.#defaultDetails
+						this.context.#defaultRequestOption
 							.allowInterceptConfig as HttpxAllowInterceptConfig
 					).afterResponseError,
 				},
-				user: userRequestOption.user || this.context.#defaultDetails.user,
+				user: userRequestOption.user || this.context.#defaultRequestOption.user,
 				password:
-					userRequestOption.password || this.context.#defaultDetails.password,
+					userRequestOption.password ||
+					this.context.#defaultRequestOption.password,
 				onabort(...args) {
 					that.context.HttpxCallBack.onAbort(
 						userRequestOption as Required<HttpxRequestOption>,
@@ -688,8 +713,8 @@ class Httpx {
 			// console.log(argsResult);
 			if ("onabort" in details) {
 				details.onabort.apply(this, argsResult);
-			} else if ("onabort" in this.context.#defaultDetails) {
-				this.context.#defaultDetails!.onabort!.apply(this, argsResult);
+			} else if ("onabort" in this.context.#defaultRequestOption) {
+				this.context.#defaultRequestOption!.onabort!.apply(this, argsResult);
 			}
 			let response = argsResult;
 			if (response.length) {
@@ -731,8 +756,8 @@ class Httpx {
 			// console.log(argsResult);
 			if ("onerror" in details) {
 				details.onerror.apply(this, argsResult);
-			} else if ("onerror" in this.context.#defaultDetails) {
-				this.context.#defaultDetails!.onerror!.apply(this, argsResult);
+			} else if ("onerror" in this.context.#defaultRequestOption) {
+				this.context.#defaultRequestOption!.onerror!.apply(this, argsResult);
 			}
 			let response = argsResult;
 			if (response.length) {
@@ -774,8 +799,8 @@ class Httpx {
 			// console.log(argsResult);
 			if ("ontimeout" in details) {
 				details.ontimeout.apply(this, argsResult);
-			} else if ("ontimeout" in this.context.#defaultDetails) {
-				this.context.#defaultDetails!.ontimeout!.apply(this, argsResult);
+			} else if ("ontimeout" in this.context.#defaultRequestOption) {
+				this.context.#defaultRequestOption!.ontimeout!.apply(this, argsResult);
 			}
 			let response = argsResult;
 			if (response.length) {
@@ -811,8 +836,11 @@ class Httpx {
 			// console.log(argsResult);
 			if ("onloadstart" in details) {
 				details.onloadstart.apply(this, argsResult);
-			} else if ("onloadstart" in this.context.#defaultDetails) {
-				this.context.#defaultDetails!.onloadstart!.apply(this, argsResult);
+			} else if ("onloadstart" in this.context.#defaultRequestOption) {
+				this.context.#defaultRequestOption!.onloadstart!.apply(
+					this,
+					argsResult
+				);
 			}
 		},
 		/**
@@ -949,8 +977,8 @@ class Httpx {
 			// console.log(argsResult);
 			if ("onprogress" in details) {
 				details.onprogress.apply(this, argsResult);
-			} else if ("onprogress" in this.context.#defaultDetails) {
-				this.context.#defaultDetails!.onprogress!.apply(this, argsResult);
+			} else if ("onprogress" in this.context.#defaultRequestOption) {
+				this.context.#defaultRequestOption!.onprogress!.apply(this, argsResult);
 			}
 		},
 		/**
@@ -965,8 +993,8 @@ class Httpx {
 			// console.log(argsResult);
 			if ("onreadystatechange" in details) {
 				details.onreadystatechange.apply(this, argsResult);
-			} else if ("onreadystatechange" in this.context.#defaultDetails) {
-				this.context.#defaultDetails!.onreadystatechange!.apply(
+			} else if ("onreadystatechange" in this.context.#defaultRequestOption) {
+				this.context.#defaultRequestOption!.onreadystatechange!.apply(
 					this,
 					argsResult
 				);
@@ -980,7 +1008,7 @@ class Httpx {
 		 * @param details
 		 */
 		async request(details: Required<HttpxRequestOption>) {
-			if (this.context.#LOG_DETAILS) {
+			if (this.context.#defaultInitOption.logDetails) {
 				console.log("[Httpx-HttpxRequest.request] 请求前的配置👇", details);
 			}
 			if (
@@ -1165,7 +1193,7 @@ class Httpx {
 	/**
 	 * 默认配置
 	 */
-	#defaultDetails = <HttpxRequestOption>{
+	#defaultRequestOption = <HttpxRequestOption>{
 		url: void 0,
 		timeout: 5000,
 		async: false,
@@ -1197,39 +1225,44 @@ class Httpx {
 		onreadystatechange() {},
 		onprogress() {},
 	};
+	#defaultInitOption = {
+		/**
+		 * `baseURL` 将自动加在 `url` 前面，除非 `url` 是一个绝对 URL。
+		 */
+		baseURL: void 0 as undefined | string,
+		/**
+		 * 当前使用请求时，输出请求的配置，一般用于DEBUG|DEV
+		 */
+		logDetails: false,
+	};
 	/**
-	 * 当前使用请求时，输出请求的配置
+	 * 实例化
+	 * @param option 初始化配置
 	 */
-	#LOG_DETAILS = false;
-	/**
-	 * 实例化，可传入GM_xmlhttpRequest，未传入则使用window.fetch
-	 * @param xmlHttpRequest
-	 */
-	constructor(xmlHttpRequest?: Function) {
-		if (typeof xmlHttpRequest !== "function") {
+	constructor(option: Partial<HttpxInitOption> = {}) {
+		if (typeof option.xmlHttpRequest !== "function") {
 			console.warn(
 				"[Httpx-constructor] 未传入GM_xmlhttpRequest函数或传入的GM_xmlhttpRequest不是Function，将默认使用window.fetch"
 			);
 		}
+		Utils.coverObjectFunctionThis(this);
 		this.interceptors.request.context = this;
 		this.interceptors.response.context = this;
-		this.GM_Api.xmlHttpRequest = xmlHttpRequest;
+		this.config(option);
 	}
-
-	/**
-	 * 覆盖全局配置
-	 * @param details 配置
-	 */
-	config(details?: Partial<HttpxRequestOptionConfig>): void;
 	/**
 	 * 覆盖当前配置
-	 * @param details
+	 * @param option
 	 */
-	config(details: HttpxRequestOptionConfig = {}) {
-		if ("logDetails" in details && typeof details["logDetails"] === "boolean") {
-			this.#LOG_DETAILS = details["logDetails"];
+	config(option: Partial<HttpxInitOption> = {}) {
+		if (typeof option.xmlHttpRequest === "function") {
+			this.GM_Api.xmlHttpRequest = option.xmlHttpRequest;
 		}
-		this.#defaultDetails = Utils.assign(this.#defaultDetails, details);
+		this.#defaultRequestOption = Utils.assign(
+			this.#defaultRequestOption,
+			option
+		);
+		this.#defaultInitOption = Utils.assign(this.#defaultInitOption, option);
 	}
 	/**
 	 * 拦截器
@@ -1323,15 +1356,13 @@ class Httpx {
 	 * @param url 网址
 	 */
 	get<T extends HttpxRequestOption>(
-		url: string // @ts-ignore
+		url: string
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * GET 请求
 	 * @param details 配置
 	 */
-	get<T extends HttpxRequestOption>(
-		details: T // @ts-ignore
-	): HttpxPromise<HttpxResponse<T>>;
+	get<T extends HttpxRequestOption>(details: T): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * GET 请求
 	 * @param url 网址
@@ -1339,7 +1370,7 @@ class Httpx {
 	 */
 	get<T extends HttpxRequestOption>(
 		url: string,
-		details: T // @ts-ignore
+		details: T
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * GET 请求
@@ -1347,11 +1378,10 @@ class Httpx {
 	 * @param details 配置
 	 */
 	get(
-		...args: (string | HttpxRequestOption)[] // @ts-ignore
+		...args: (string | HttpxRequestOption)[]
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
-			...args
-		);
+		let useRequestOption =
+			this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
 		useRequestOption.method = "GET";
 		return this.request(useRequestOption, (option) => {
 			Reflect.deleteProperty(option, "onprogress");
@@ -1362,7 +1392,7 @@ class Httpx {
 	 * @param details 配置
 	 */
 	post<T extends HttpxRequestOption>(
-		details: T // @ts-ignore
+		details: T
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * POST 请求
@@ -1370,8 +1400,7 @@ class Httpx {
 	 */
 	post<T extends HttpxRequestOption>(
 		url: string
-	): // @ts-ignore
-	HttpxPromise<HttpxResponse<T>>;
+	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * POST 请求
 	 * @param url 网址
@@ -1379,17 +1408,16 @@ class Httpx {
 	 */
 	post<T extends HttpxRequestOption>(
 		url: string,
-		details: T // @ts-ignore
+		details: T
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * POST 请求
 	 */
 	post(
-		...args: (HttpxRequestOption | string)[] // @ts-ignore
+		...args: (HttpxRequestOption | string)[]
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
-			...args
-		);
+		let useRequestOption =
+			this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
 		useRequestOption.method = "POST";
 		return this.request(useRequestOption);
 	}
@@ -1398,14 +1426,14 @@ class Httpx {
 	 * @param details 配置
 	 */
 	head<T extends HttpxRequestOption>(
-		details: T // @ts-ignore
+		details: T
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * HEAD 请求
 	 * @param url 网址
 	 */
 	head<T extends HttpxRequestOption>(
-		url: string // @ts-ignore
+		url: string
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * HEAD 请求
@@ -1414,17 +1442,16 @@ class Httpx {
 	 */
 	head<T extends HttpxRequestOption>(
 		url: string,
-		details: T // @ts-ignore
+		details: T
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * HEAD 请求
 	 */
 	head(
-		...args: (HttpxRequestOption | string)[] // @ts-ignore
+		...args: (HttpxRequestOption | string)[]
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
-			...args
-		);
+		let useRequestOption =
+			this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
 		useRequestOption.method = "HEAD";
 		return this.request(useRequestOption, (option) => {
 			Reflect.deleteProperty(option, "onprogress");
@@ -1435,14 +1462,14 @@ class Httpx {
 	 * @param details 配置
 	 */
 	options<T extends HttpxRequestOption>(
-		details: T // @ts-ignore
+		details: T
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * OPTIONS 请求
 	 * @param url 网址
 	 */
 	options<T extends HttpxRequestOption>(
-		url: string // @ts-ignore
+		url: string
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * OPTIONS 请求
@@ -1451,17 +1478,16 @@ class Httpx {
 	 */
 	options<T extends HttpxRequestOption>(
 		url: string,
-		details: T // @ts-ignore
+		details: T
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * OPTIONS 请求
 	 */
 	options(
-		...args: (HttpxRequestOption | string)[] // @ts-ignore
+		...args: (HttpxRequestOption | string)[]
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
-			...args
-		);
+		let useRequestOption =
+			this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
 		useRequestOption.method = "OPTIONS";
 		return this.request(useRequestOption, (option) => {
 			Reflect.deleteProperty(option, "onprogress");
@@ -1473,14 +1499,14 @@ class Httpx {
 	 * @param details 配置
 	 */
 	delete<T extends HttpxRequestOption>(
-		details: T // @ts-ignore
+		details: T
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * DELETE 请求
 	 * @param url 网址
 	 */
 	delete<T extends HttpxRequestOption>(
-		url: string // @ts-ignore
+		url: string
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * DELETE 请求
@@ -1489,17 +1515,16 @@ class Httpx {
 	 */
 	delete<T extends HttpxRequestOption>(
 		url: string,
-		details: T // @ts-ignore
+		details: T
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * DELETE 请求
 	 */
 	delete(
-		...args: (HttpxRequestOption | string)[] // @ts-ignore
+		...args: (HttpxRequestOption | string)[]
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
-			...args
-		);
+		let useRequestOption =
+			this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
 		useRequestOption.method = "DELETE";
 		return this.request(useRequestOption, (option) => {
 			Reflect.deleteProperty(option, "onprogress");
@@ -1510,15 +1535,13 @@ class Httpx {
 	 * PUT 请求
 	 * @param details 配置
 	 */
-	put<T extends HttpxRequestOption>(
-		details: T // @ts-ignore
-	): HttpxPromise<HttpxResponse<T>>;
+	put<T extends HttpxRequestOption>(details: T): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * PUT 请求
 	 * @param url 网址
 	 */
 	put<T extends HttpxRequestOption>(
-		url: string // @ts-ignore
+		url: string
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * PUT 请求
@@ -1527,17 +1550,16 @@ class Httpx {
 	 */
 	put<T extends HttpxRequestOption>(
 		url: string,
-		details: T // @ts-ignore
+		details: T
 	): HttpxPromise<HttpxResponse<T>>;
 	/**
 	 * PUT 请求
 	 */
 	put(
-		...args: (HttpxRequestOption | string)[] // @ts-ignore
+		...args: (HttpxRequestOption | string)[]
 	): HttpxPromise<HttpxResponse<HttpxRequestOption>> {
-		let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(
-			...args
-		);
+		let userRequestOption =
+			this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
 		userRequestOption.method = "PUT";
 		return this.request(userRequestOption);
 	}
@@ -1552,7 +1574,7 @@ class Httpx {
 		beforeRequestOption?: (option: Required<T>) => void
 	): HttpxPromise<HttpxResponse<T>> {
 		let useRequestOption =
-			this.HttpxRequestOption.handleBeforeRequestOption(details);
+			this.HttpxRequestOption.handleBeforeRequestOptionArgs(details);
 		/** 取消请求 */
 		let abortFn: Function | null = null;
 		let promise = new globalThis.Promise<HttpxResponse<HttpxRequestOption>>(

@@ -5198,6 +5198,22 @@ class Utils {
 		return new URL(text);
 	}
 	/**
+	 * 覆盖对象中的函数this指向
+	 * @param target 需要覆盖的对象
+	 * @param [objectThis] 覆盖的this指向，如果为传入，则默认为对象本身
+	 */
+	coverObjectFunctionThis(target: any, objectThis?: any) {
+		if (typeof target !== "object" || target === null) {
+			throw new Error("target must be object");
+		}
+		objectThis = objectThis || target;
+		Object.keys(target).forEach((key) => {
+			if (typeof target[key] === "function") {
+				target[key] = target[key].bind(objectThis);
+			}
+		});
+	}
+	/**
 	 * 生成uuid
 	 * @example
 	 * Utils.generateUUID()

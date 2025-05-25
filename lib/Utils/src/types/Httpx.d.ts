@@ -1210,12 +1210,7 @@ export declare interface HttpxRequestOption {
 /**
  * 自定义的配置请求
  */
-export declare interface HttpxRequestOptionConfig extends HttpxRequestOption {
-	/**
-	 * （可选）是否输出请求配置
-	 */
-	logDetails?: boolean;
-}
+export declare interface HttpxRequestOptionConfig extends HttpxInitOption {}
 /**
  * 响应的数据的data
  */
@@ -1333,4 +1328,27 @@ export declare interface HttpxHookErrorData {
  */
 export declare interface HttpxPromise<T> extends Promise<T> {
 	abort: () => void;
+}
+
+/**
+ * httpx的初始化配置
+ */
+export declare interface HttpxInitOption extends HttpxRequestOption {
+	/**
+	 * 实例化，可传入GM_xmlhttpRequest，未传入则使用window.fetch
+	 */
+	xmlHttpRequest?: Function;
+	/**
+	 * `baseURL` 将自动加在 `url` 前面，除非 `url` 是一个绝对 URL。
+	 */
+	baseURL?: string | undefined;
+	/**
+	 * 重试次数
+	 * @default 0
+	 */
+	retry?: number;
+	/**
+	 * （可选）是否输出请求配置
+	 */
+	logDetails?: boolean;
 }
