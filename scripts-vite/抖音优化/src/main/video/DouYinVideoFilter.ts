@@ -39,11 +39,11 @@ type DouYinVideoFilterOptionScope =
 /** 过滤器规则-动态属性 */
 export type DouYinVideoFilterDynamicOption = {
 	/** 属性名 */
-	ruleName: DouYinVideoFilterOption["data"]["ruleName"];
+	ruleName: keyof DouYinVideoHandlerInfo | (keyof DouYinVideoHandlerInfo)[];
 	/** 属性值 */
-	ruleValue: DouYinVideoFilterOption["data"]["ruleValue"];
+	ruleValue: string;
 	/** 备注 */
-	remarks: DouYinVideoFilterOption["data"]["remarks"];
+	remarks: string;
 };
 
 /** 过滤器规则 */
@@ -60,13 +60,7 @@ export type DouYinVideoFilterOption = {
 		scope: DouYinVideoFilterOptionScope[];
 		/** 是否自动发送不感兴趣的请求 */
 		// autoSendDisLikeRequest: boolean;
-		/** 属性名 */
-		ruleName: keyof DouYinVideoHandlerInfo | (keyof DouYinVideoHandlerInfo)[];
-		/** 属性值 */
-		ruleValue: string;
-		/** 备注 */
-		remarks: string;
-	};
+	} & DouYinVideoFilterDynamicOption;
 	/** 动态添加的数据 */
 	dynamicData?: DouYinVideoFilterDynamicOption[];
 };
@@ -1083,12 +1077,13 @@ export const DouYinVideoFilter = {
 							let value = storageApi.get(key, defaultValue);
 							if (Reflect.has(data, key)) {
 								Reflect.set(data, key, value);
-							} else if (Reflect.has(data["data"], key)) {
-								Reflect.set(data["data"], key, value);
+							} else if (Reflect.has(data.data, key)) {
+								Reflect.set(data.data, key, value);
 							} else {
 								log.error(`${key}不在数据中`);
 							}
 						});
+						// 添加的动态属性
 						$form
 							.querySelectorAll<HTMLLIElement>(
 								".rule-form-ulist-dynamic__inner-container"

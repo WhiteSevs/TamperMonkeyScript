@@ -70,7 +70,16 @@ const GM_Menu = new utils.GM_Menu({
 	GM_unregisterMenuCommand,
 });
 
-const httpx = new utils.Httpx(GM_xmlhttpRequest);
+const httpx = new utils.Httpx({
+	xmlHttpRequest: GM_xmlhttpRequest,
+	logDetails: import.meta.env.DEV ? true : false,
+});
+
+// 开发测试使用
+if (import.meta.env.DEV) {
+	// @ts-ignore
+	unsafeWindow.httpx = httpx;
+}
 
 // 添加响应拦截器
 httpx.interceptors.response.use(void 0, (data) => {
@@ -129,15 +138,6 @@ const MountVue = async function (targetApp: any, plugin: any[] = []) {
 	});
 	CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
 };
-
-// 开发测试使用
-if (import.meta.env.DEV) {
-	// @ts-ignore
-	unsafeWindow.httpx = httpx;
-	httpx.config({
-		logDetails: true,
-	});
-}
 
 let cookieManager = new utils.GM_Cookie();
 export {

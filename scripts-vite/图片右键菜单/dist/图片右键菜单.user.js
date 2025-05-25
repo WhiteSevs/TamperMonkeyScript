@@ -91,7 +91,8 @@
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
   const httpx = new utils.Httpx({
-    xmlHttpRequest: _GM_xmlhttpRequest
+    xmlHttpRequest: _GM_xmlhttpRequest,
+    logDetails: DEBUG
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -108,9 +109,6 @@
       Qmsg.error("其它错误");
     }
     return data;
-  });
-  httpx.config({
-    logDetails: DEBUG
   });
   ({
     Object: {
