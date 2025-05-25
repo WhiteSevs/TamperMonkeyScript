@@ -133,7 +133,9 @@ const GM_Menu = new utils.GM_Menu({
 	GM_unregisterMenuCommand,
 });
 
-const httpx = new utils.Httpx(GM_xmlhttpRequest);
+const httpx = new utils.Httpx({
+	xmlHttpRequest: GM_xmlhttpRequest,
+});
 
 // 添加请求拦截器
 httpx.interceptors.request.use((data) => {
@@ -174,16 +176,16 @@ const OriginPrototype = {
 	setTimeout: unsafeWindow.setTimeout,
 };
 
-/** 
+/**
  * 添加样式
  */
 const addStyle = utils.addStyle.bind(utils);
 
-/** 
+/**
  * 元素选择器
  */
 const $ = document.querySelector.bind(document);
-/** 
+/**
  * 多组元素选择器
  */
 const $$ = document.querySelectorAll.bind(document);

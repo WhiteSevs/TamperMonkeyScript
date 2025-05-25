@@ -1665,8 +1665,11 @@ export class RulePanelView<T> {
 							));
 					}
 				} else {
+					// if (isEdit) {
+					// 	Qmsg.error("修改失败");
+					// }
 					if (isEdit) {
-						Qmsg.error("修改失败");
+						log.error("修改失败");
 					}
 				}
 				return result;
