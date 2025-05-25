@@ -8,8 +8,8 @@ import { popsUtils } from "../../utils/PopsUtils";
 import { PopsConfirmConfig } from "./config";
 import type { PopsConfirmDetails } from "./indexType";
 
-export class PopsConfirm {
-	constructor(details: PopsConfirmDetails) {
+export const PopsConfirm = {
+	init(details: PopsConfirmDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
 		const PopsType = "confirm";
@@ -164,6 +164,7 @@ export class PopsConfirm {
 				endCallBack: config.dragEndCallBack,
 			});
 		}
-		return PopsHandler.handleResultDetails(eventDetails);
-	}
-}
+		let result = PopsHandler.handleResultDetails(eventDetails);
+		return result;
+	},
+};

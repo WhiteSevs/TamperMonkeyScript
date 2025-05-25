@@ -171,7 +171,55 @@ export type PopsTooltipResult<T extends PopsToolTipDetails> = {
     $shadowRoot: ShadowRoot;
     toolTip: typeof ToolTip.prototype;
 };
-export declare class PopsTooltip {
-    constructor(details: PopsToolTipDetails);
-}
+export declare const PopsTooltip: {
+    init(details: PopsToolTipDetails): {
+        guid: string;
+        config: {
+            target: HTMLElement;
+            content: string | (() => string);
+            position: import("./indexType").PopsTooltipPosition;
+            className: string;
+            isFixed: boolean;
+            alwaysShow: boolean;
+            delayCloseTime: number;
+            triggerShowEventName: string;
+            triggerCloseEventName: string;
+            eventOption: {
+                once: boolean;
+                passive: boolean;
+                signal: {
+                    readonly aborted: boolean;
+                    onabort: ((this: AbortSignal, ev: Event) => any) | null;
+                    readonly reason: any;
+                    throwIfAborted: () => void;
+                    addEventListener: {
+                        <K extends keyof AbortSignalEventMap>(type: K, listener: (this: AbortSignal, ev: AbortSignalEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+                        (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+                    };
+                    removeEventListener: {
+                        <K extends keyof AbortSignalEventMap>(type: K, listener: (this: AbortSignal, ev: AbortSignalEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+                        (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+                    };
+                    dispatchEvent: (event: Event) => boolean;
+                };
+                capture: boolean;
+            };
+            showBeforeCallBack: ($toolTip: HTMLElement) => false | void;
+            showAfterCallBack: ($toolTip: HTMLElement) => void;
+            closeBeforeCallBack: ($toolTip: HTMLElement) => false | void;
+            closeAfterCallBack: ($toolTip: HTMLElement) => void;
+            showArrow: boolean;
+            arrowDistance: number;
+            otherDistance: number;
+            useShadowRoot: boolean;
+            only: boolean;
+            zIndex: number | (() => number);
+            style: string | null;
+            beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
+        };
+        $shadowContainer: HTMLDivElement;
+        $shadowRoot: HTMLDivElement | ShadowRoot;
+        toolTip: ToolTip;
+    };
+};
 export {};

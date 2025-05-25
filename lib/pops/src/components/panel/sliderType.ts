@@ -6,17 +6,18 @@ import type { PopsPanelCommonDetails } from "./commonType";
 export interface PopsPanelSliderDetails
 	extends PopsPanelCommonDetails<PopsPanelSliderDetails> {
 	/**
-	 * （可选）className属性
+	 * className属性
+	 * @default ""
 	 */
 	className?: string;
 	/**
-	 * （可选）自定义元素属性
+	 * 自定义元素属性
 	 */
 	attributes?: {
 		[key: string]: any;
 	};
 	/**
-	 * （可选）自定义属性
+	 * 自定义属性
 	 */
 	props?: {
 		[K in keyof HTMLElement]?: HTMLElement[K];
@@ -27,16 +28,24 @@ export interface PopsPanelSliderDetails
 	text: string;
 	/**
 	 * （可选）左边的文字下面的描述
+	 * @default ""
 	 */
 	description?: string;
 	/**
 	 * 类型
+	 * @default "slider"
 	 */
 	type: "slider";
 	/**
 	 * （可选）是否禁用
+	 * @default false
 	 */
-	disabled?: false;
+	disabled?: boolean | (() => boolean);
+	/**
+	 * 是否显示滑块的hover提示
+	 * @default true
+	 */
+	isShowHoverTip?: boolean | (() => boolean);
 	/**
 	 * 获取该项的值的回调函数
 	 */
@@ -59,6 +68,7 @@ export interface PopsPanelSliderDetails
 	max: number;
 	/**
 	 * （可选）每次滑动的间隔值
+	 * @default 1
 	 */
 	step?: number;
 }

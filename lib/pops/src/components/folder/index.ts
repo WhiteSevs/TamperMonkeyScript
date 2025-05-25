@@ -10,8 +10,8 @@ import { PopsFolderConfig } from "./config";
 import { Folder_ICON } from "./folderIcon";
 import type { PopsFolderDataConfig, PopsFolderDetails } from "./indexType";
 
-export class PopsFolder {
-	constructor(details: PopsFolderDetails) {
+export const PopsFolder = {
+	init(details: PopsFolderDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
 		const PopsType = "folder";
@@ -1034,6 +1034,7 @@ export class PopsFolder {
 			$shadowContainer: $shadowContainer,
 			$shadowRoot: $shadowRoot,
 		});
-		return PopsHandler.handleResultDetails(eventDetails);
-	}
-}
+		let result = PopsHandler.handleResultDetails(eventDetails);
+		return result;
+	},
+};

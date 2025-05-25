@@ -12,8 +12,8 @@ import type {
 	PopsRightClickMenuDetails,
 } from "./indexType";
 
-export class PopsRightClickMenu {
-	constructor(details: PopsRightClickMenuDetails) {
+export const PopsRightClickMenu = {
+	init(details: PopsRightClickMenuDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
 		const PopsType = "rightClickMenu";
@@ -570,7 +570,6 @@ export class PopsRightClickMenu {
 		PopsContextMenu.addContextMenuEvent(config.target, config.targetSelector!);
 		// 添加全局点击检测
 		PopsContextMenu.addWindowCheckClickListener();
-
 		return {
 			guid: guid,
 			config: config,
@@ -580,5 +579,5 @@ export class PopsRightClickMenu {
 			removeContextMenuEvent: PopsContextMenu.removeContextMenuEvent,
 			addContextMenuEvent: PopsContextMenu.addContextMenuEvent,
 		};
-	}
-}
+	},
+};

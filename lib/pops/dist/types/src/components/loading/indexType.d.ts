@@ -5,8 +5,9 @@ import type { PopsCommonConfig, PopsContentConfig } from "../../types/components
 export interface PopsLoadingDetails extends Omit<PopsCommonConfig, "width" | "height" | "position" | "beforeAppendToPageCallBack"> {
     /**
      * 父元素，默认为document.body
+     * @default document.body
      */
-    parent: HTMLElement;
+    parent?: HTMLElement;
     /**
      * 内容配置
      */
@@ -18,6 +19,7 @@ export interface PopsLoadingDetails extends Omit<PopsCommonConfig, "width" | "he
     };
     /**
      * （可选）添加主CSS，默认为true，当页面中存在anim覆盖时，可能会有一些样式问题，取消添加该CSS即可解决
+     * @default true
      */
     addIndexCSS?: boolean;
     /**

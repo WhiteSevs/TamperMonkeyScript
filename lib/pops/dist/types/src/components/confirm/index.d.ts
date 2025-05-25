@@ -1,4 +1,4 @@
 import type { PopsConfirmDetails } from "./indexType";
-export declare class PopsConfirm {
-    constructor(details: PopsConfirmDetails);
-}
+export declare const PopsConfirm: {
+    init(details: PopsConfirmDetails): Omit<import("../../types/event").PopsEventDetails, "function" | "type">;
+};

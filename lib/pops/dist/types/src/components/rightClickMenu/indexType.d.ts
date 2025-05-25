@@ -37,9 +37,10 @@ export interface PopsRightClickMenuDataDetails {
  */
 export interface PopsRightClickMenuDetails extends Pick<PopsCommonConfig, "useShadowRoot" | "beforeAppendToPageCallBack" | "zIndex" | "style" | "only"> {
     /**
-     * 目标，默认为document.documentElement G
+     * 目标元素
+     * @default document.documentElement
      */
-    target?: HTMLElement | (typeof globalThis & Window) | Window | EventTarget | Node;
+    target?: HTMLElement | Window | EventTarget | Node;
     /**
      * 目标的子元素选择器，默认为空
      */
@@ -50,14 +51,17 @@ export interface PopsRightClickMenuDetails extends Pick<PopsCommonConfig, "useSh
     data: PopsRightClickMenuDataDetails[];
     /**
      * 自定义className，默认为空
+     * @default ""
      */
     className?: string;
     /**
      * 是否启用动画，默认true
+     * @default true
      */
     isAnimation?: boolean;
     /**
      * 是否阻止默认contextmenu事件
+     * @default false
      */
     preventDefault?: boolean;
 }

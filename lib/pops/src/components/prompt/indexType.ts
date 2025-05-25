@@ -44,6 +44,7 @@ export interface PopsPromptDetails
 		select?: boolean;
 		/**
 		 * 输入框内的提示文字
+		 * @default ""
 		 */
 		placeholder?: string;
 		/**

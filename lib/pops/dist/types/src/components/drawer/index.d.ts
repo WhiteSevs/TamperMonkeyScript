@@ -1,4 +1,4 @@
 import type { PopsDrawerDetails } from "./indexType";
-export declare class PopsDrawer {
-    constructor(details: PopsDrawerDetails);
-}
+export declare const PopsDrawer: {
+    init(details: PopsDrawerDetails): Omit<import("../../types/event").PopsEventDetails, "function" | "type">;
+};

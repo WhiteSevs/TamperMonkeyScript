@@ -8,8 +8,8 @@ import { popsUtils } from "../../utils/PopsUtils";
 import { PopsPromptConfig } from "./config";
 import type { PopsPromptDetails } from "./indexType";
 
-export class PopsPrompt {
-	constructor(details: PopsPromptDetails) {
+export const PopsPrompt = {
+	init(details: PopsPromptDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
 		const PopsType = "prompt";
@@ -194,6 +194,7 @@ export class PopsPrompt {
 		if (config.content.select) {
 			$input.select();
 		}
-		return PopsHandler.handleResultDetails(eventDetails);
-	}
-}
+		let result = PopsHandler.handleResultDetails(eventDetails);
+		return result;
+	},
+};

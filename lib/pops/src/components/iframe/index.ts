@@ -10,8 +10,8 @@ import { popsUtils } from "../../utils/PopsUtils";
 import { PopsIframeConfig } from "./config";
 import type { PopsIframeDetails } from "./indexType";
 
-export class PopsIframe {
-	constructor(details: PopsIframeDetails) {
+export const PopsIframe = {
+	init(details: PopsIframeDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
 		const PopsType = "iframe";
@@ -331,5 +331,5 @@ export class PopsIframe {
 
 		let result = PopsHandler.handleResultDetails(eventDetails);
 		return result;
-	}
-}
+	},
+};

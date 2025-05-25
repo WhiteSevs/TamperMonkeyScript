@@ -79,10 +79,13 @@ export interface PopsFolderDetails
 		name: "fileName" | "fileSize" | "latestTime";
 		/**
 		 * 是否降序，默认false（升序）
+		 * @default false
 		 */
 		isDesc: boolean;
 		/**
-		 * 触发排序的回调，如果返回true，则中止内部的排序
+		 * 触发排序的回调
+		 * @returns
+		 * + true 中止内部的排序
 		 */
 		callback?: (
 			targert: HTMLElement,

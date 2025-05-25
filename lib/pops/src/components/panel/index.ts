@@ -9,8 +9,8 @@ import { PopsPanelConfig } from "./config";
 import { PanelHandleContentDetails } from "./PanelHandleContentDetails";
 import { GlobalConfig } from "../../GlobalConfig";
 
-export class PopsPanel {
-	constructor(details: PopsPanelDetails) {
+export const PopsPanel = {
+	init(details: PopsPanelDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
 		const PopsType = "panel";
@@ -166,6 +166,7 @@ export class PopsPanel {
 				endCallBack: config.dragEndCallBack,
 			});
 		}
-		return PopsHandler.handleResultDetails(eventDetails);
-	}
-}
+		let result = PopsHandler.handleResultDetails(eventDetails);
+		return result;
+	},
+};

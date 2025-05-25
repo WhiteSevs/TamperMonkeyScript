@@ -5,8 +5,7 @@ import { PopsMathFloatUtils } from "../../utils/PopsMathUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import type { PopsAlertDetails } from "../alert/indexType";
-import type { PopsTooltipResult } from "../tooltip";
-import type { PopsToolTipDetails } from "../tooltip/indexType";
+import type { PopsTooltip } from "../tooltip";
 import type { PopsPanelButtonDetails } from "./buttonType";
 import type { PopsPanelRightAsideContainerOptions } from "./commonType";
 import type { PopsPanelDeepMenuDetails } from "./deepMenuType";
@@ -441,7 +440,8 @@ export const PanelHandleContentDetails = () => {
 		 */
 		createSectionContainerItem_slider_new(formConfig: PopsPanelSliderDetails) {
 			let liElement = document.createElement("li");
-			(liElement as any)["__formConfig__"] = formConfig;
+			// @ts-ignore
+			liElement["__formConfig__"] = formConfig;
 			this.setElementClassName(liElement, formConfig.className);
 			this.setElementAttributes(liElement, formConfig.attributes);
 			this.setElementProps(liElement, formConfig.props);
@@ -533,40 +533,40 @@ export const PanelHandleContentDetails = () => {
 							percent: number;
 						}
 					>(),
-					tooltip: null as any as PopsTooltipResult<PopsToolTipDetails>,
+					tooltip: null as any as ReturnType<typeof PopsTooltip.init>,
 				},
 				$ele: {
-					slider: liElement.querySelector<HTMLDivElement>(".pops-slider")!,
-					runAway: liElement.querySelector<HTMLDivElement>(
+					slider: liElement.querySelector<HTMLElement>(".pops-slider")!,
+					runAway: liElement.querySelector<HTMLElement>(
 						".pops-slider__runway"
 					)!,
-					bar: liElement.querySelector<HTMLDivElement>(".pops-slider__bar")!,
-					buttonWrapper: liElement.querySelector<HTMLDivElement>(
+					bar: liElement.querySelector<HTMLElement>(".pops-slider__bar")!,
+					buttonWrapper: liElement.querySelector<HTMLElement>(
 						".pops-slider__button-wrapper"
 					)!,
-					button: liElement.querySelector<HTMLDivElement>(
-						".pops-slider__button"
-					)!,
+					button: liElement.querySelector<HTMLElement>(".pops-slider__button")!,
 				},
 				$interval: {
 					isCheck: false,
 				},
-				$tooltip: null as any,
+				$tooltip: null as any as ReturnType<
+					typeof popsUtils.AnyTouch
+				>["prototype"],
 				init() {
 					this.initEleData();
 					this.setToolTipEvent();
 					this.setPanEvent();
 					this.setRunAwayClickEvent();
 					this.intervalInit();
-					if (formConfig.disabled) {
+					if (this.isFormConfigDisabledDrag()) {
 						this.disableDrag();
 					}
 				},
 				/**
 				 * 10s内循环获取slider的宽度等信息
 				 * 获取到了就可以初始化left的值
-				 * @param {number} [checkStepTime=200] 每次检测的间隔时间
-				 * @param {number} [maxTime=10000] 最大的检测时间
+				 * @param [checkStepTime=200] 每次检测的间隔时间
+				 * @param [maxTime=10000] 最大的检测时间
 				 */
 				intervalInit(checkStepTime = 200, maxTime = 10000) {
 					if (this.$interval.isCheck) {
@@ -610,10 +610,14 @@ export const PanelHandleContentDetails = () => {
 					this.$ele.slider.setAttribute("data-max", this.max.toString());
 					this.$ele.slider.setAttribute("data-value", this.value.toString());
 					this.$ele.slider.setAttribute("data-step", this.step.toString());
-					(this.$ele.slider as any)["data-min"] = this.min;
-					(this.$ele.slider as any)["data-max"] = this.max;
-					(this.$ele.slider as any)["data-value"] = this.value;
-					(this.$ele.slider as any)["data-step"] = this.step;
+					// @ts-ignore
+					this.$ele.slider["data-min"] = this.min;
+					// @ts-ignore
+					this.$ele.slider["data-max"] = this.max;
+					// @ts-ignore
+					this.$ele.slider["data-value"] = this.value;
+					// @ts-ignore
+					this.$ele.slider["data-step"] = this.step;
 				},
 				/**
 				 * 初始化滑块的总长度的数据(px)
@@ -733,7 +737,6 @@ export const PanelHandleContentDetails = () => {
 				/**
 				 * 判断数字是否是浮点数
 				 * @param num
-				 * @returns
 				 */
 				isFloat(num: number) {
 					return Number(num) === num && num % 1 !== 0;
@@ -750,6 +753,7 @@ export const PanelHandleContentDetails = () => {
 				},
 				/**
 				 * 根据拖拽距离获取滑块应该在的区间和值
+				 * @param dragX
 				 */
 				getDragInfo(dragX: number) {
 					let result = this.$data.stepBlockMap.get(0);
@@ -766,7 +770,7 @@ export const PanelHandleContentDetails = () => {
 				},
 				/**
 				 * 获取滑块的当前脱拖拽占据的百分比
-				 * @param {number} dragWidth
+				 * @param dragWidth
 				 */
 				getSliderPositonPercent(dragWidth: number) {
 					return dragWidth / this.$data.totalWidth;
@@ -820,6 +824,23 @@ export const PanelHandleContentDetails = () => {
 					);
 				},
 				/**
+				 * 判断当前滑块是否被禁用（配置中判断）
+				 */
+				isFormConfigDisabledDrag() {
+					if (
+						typeof formConfig.disabled === "function" ||
+						typeof formConfig.disabled === "boolean"
+					) {
+						let isDisabled =
+							typeof formConfig.disabled === "function"
+								? formConfig.disabled()
+								: formConfig.disabled;
+						return isDisabled;
+					} else {
+						return false;
+					}
+				},
+				/**
 				 * 设置进度条点击定位的事件
 				 */
 				setRunAwayClickEvent() {
@@ -849,8 +870,15 @@ export const PanelHandleContentDetails = () => {
 				 */
 				dragStartCallBack() {
 					if (!this.$data.isMove) {
-						if (this.isDisabledDrag()) {
+						if (this.isFormConfigDisabledDrag()) {
+							// 禁止
+							this.disableDrag();
 							return false;
+						} else {
+							// 允许
+							if (this.isDisabledDrag()) {
+								this.allowDrag();
+							}
 						}
 						this.$data.isMove = true;
 					}
@@ -862,11 +890,7 @@ export const PanelHandleContentDetails = () => {
 				 * @param dragX 当前拖拽的距离
 				 * @param oldValue 旧的值
 				 */
-				dragMoveCallBack(
-					event: MouseEvent | TouchEvent,
-					dragX: number,
-					oldValue: number
-				) {
+				dragMoveCallBack(event: any, dragX: number, oldValue: number) {
 					let dragPercent = 0;
 					if (dragX <= 0) {
 						dragPercent = 0;
@@ -915,7 +939,7 @@ export const PanelHandleContentDetails = () => {
 					 */
 					let currentDragX = 0;
 					/* 监听拖拽 */
-					this.$tooltip.on("at:move", (event: any) => {
+					this.$tooltip.on("at:move", (event) => {
 						if (!this.dragStartCallBack()) {
 							return;
 						}
@@ -933,7 +957,7 @@ export const PanelHandleContentDetails = () => {
 						this.dragMoveCallBack(event, currentDragX, oldValue);
 					});
 					/* 监听触点离开，处理某些情况下，拖拽松开，但是未触发pan事件，可以通过设置这个来关闭tooltip */
-					this.$tooltip.on("at:end", (event: any) => {
+					this.$tooltip.on("at:end", (event) => {
 						this.dragEndCallBack(currentDragX);
 					});
 				},
@@ -998,6 +1022,15 @@ export const PanelHandleContentDetails = () => {
 							passive: true,
 						},
 						showBeforeCallBack: () => {
+							let isShowHoverTip =
+								typeof formConfig.isShowHoverTip === "function"
+									? formConfig.isShowHoverTip()
+									: typeof formConfig.isShowHoverTip === "boolean"
+									? formConfig.isShowHoverTip
+									: true;
+							if (!isShowHoverTip) {
+								return false;
+							}
 							this.intervalInit();
 						},
 						showAfterCallBack: (toolTipNode) => {

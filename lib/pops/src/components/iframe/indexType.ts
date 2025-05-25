@@ -123,6 +123,7 @@ export interface PopsIframeDetails
 	};
 	/**
 	 * 加载的地址，默认为window.location.href
+	 * @default window.location.href
 	 */
 	url?: string;
 	/**
@@ -131,6 +132,7 @@ export interface PopsIframeDetails
 	topRightButton: "min|max|mise|close";
 	/**
 	 * 是否启用沙箱，默认false
+	 * @default false
 	 */
 	sandbox?: boolean;
 	/**

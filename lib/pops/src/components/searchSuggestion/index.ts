@@ -7,8 +7,8 @@ import { GlobalConfig } from "../../GlobalConfig";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import type { PopsSearchSuggestionDetails } from "./indexType";
 
-export class PopsSearchSuggestion {
-	constructor(details: PopsSearchSuggestionDetails) {
+export const PopsSearchSuggestion = {
+	init(details: PopsSearchSuggestionDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
 		const PopsType = "searchSuggestion";
@@ -675,5 +675,5 @@ export class PopsSearchSuggestion {
 			},
 		};
 		return SearchSuggestion;
-	}
-}
+	},
+};

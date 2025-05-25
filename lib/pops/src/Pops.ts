@@ -63,28 +63,24 @@ import { PopsDrawer } from "./components/drawer";
 import type { PopsDrawerDetails } from "./components/drawer/indexType";
 import type { PopsFolderDetails } from "./components/folder/indexType";
 import { PopsFolder } from "./components/folder";
-import type { PopsEventDetails } from "./types/event";
 import type { PopsPanelDetails } from "./components/panel/indexType";
 import { PopsPanel } from "./components/panel";
 import { PopsRightClickMenu } from "./components/rightClickMenu";
 import type { PopsRightClickMenuDetails } from "./components/rightClickMenu/indexType";
 import type { PopsIcon } from "./types/icon";
-import type {
-	PopsSearchSuggestionDetails,
-	PopsSearchSuggestionResult,
-} from "./components/searchSuggestion/indexType";
+import type { PopsSearchSuggestionDetails } from "./components/searchSuggestion/indexType";
 import { PopsSearchSuggestion } from "./components/searchSuggestion";
 import { PopsMathFloatUtils } from "./utils/PopsMathUtils";
 import { PanelHandleContentDetails } from "./components/panel/PanelHandleContentDetails";
 import { GlobalConfig } from "./GlobalConfig";
-import { PopsTooltip, type PopsTooltipResult } from "./components/tooltip";
+import { PopsTooltip } from "./components/tooltip";
 import { PopsSafeUtils } from "./utils/PopsSafeUtils";
 
 class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2025.5.12",
+		version: "2025.5.25",
 		cssText: {
 			/** 主CSS */
 			index: indexCSS,
@@ -240,7 +236,8 @@ class Pops {
 	 * @param details 配置
 	 */
 	alert = (details: PopsAlertDetails) => {
-		return new PopsAlert(details) as PopsEventDetails;
+		let dialog = PopsAlert.init(details);
+		return dialog;
 	};
 
 	/**
@@ -248,7 +245,8 @@ class Pops {
 	 * @param details 配置
 	 */
 	confirm = (details: PopsConfirmDetails) => {
-		return new PopsConfirm(details) as PopsEventDetails;
+		let dialog = PopsConfirm.init(details);
+		return dialog;
 	};
 
 	/**
@@ -256,7 +254,8 @@ class Pops {
 	 * @param details 配置
 	 */
 	prompt = (details: PopsPromptDetails) => {
-		return new PopsPrompt(details) as PopsEventDetails;
+		let dialog = PopsPrompt.init(details);
+		return dialog;
 	};
 
 	/**
@@ -264,10 +263,8 @@ class Pops {
 	 * @param details 配置
 	 */
 	loading = (details: PopsLoadingDetails) => {
-		return new PopsLoading(details) as Omit<
-			PopsEventDetails,
-			"$shadowContainer" | "$shadowRoot"
-		>;
+		let popsLoading = PopsLoading.init(details);
+		return popsLoading;
 	};
 
 	/**
@@ -275,17 +272,16 @@ class Pops {
 	 * @param details 配置
 	 */
 	iframe = (details: PopsIframeDetails) => {
-		return new PopsIframe(details) as PopsEventDetails & {
-			iframeElement: HTMLIFrameElement;
-		};
+		let dialog = PopsIframe.init(details);
+		return dialog;
 	};
 
 	/**
 	 * 提示框
 	 * @param details 配置
 	 */
-	tooltip = <T extends PopsToolTipDetails = PopsToolTipDetails>(details: T) => {
-		let popsTooltip = new PopsTooltip(details) as PopsTooltipResult<T>;
+	tooltip = (details: PopsToolTipDetails) => {
+		let popsTooltip = PopsTooltip.init(details);
 		return popsTooltip;
 	};
 
@@ -294,7 +290,8 @@ class Pops {
 	 * @param details 配置
 	 */
 	drawer = (details: PopsDrawerDetails) => {
-		return new PopsDrawer(details) as PopsEventDetails;
+		let dialog = PopsDrawer.init(details);
+		return dialog;
 	};
 
 	/**
@@ -302,7 +299,8 @@ class Pops {
 	 * @param details 配置
 	 */
 	folder = (details: PopsFolderDetails) => {
-		return new PopsFolder(details) as PopsEventDetails;
+		let dialog = PopsFolder.init(details);
+		return dialog;
 	};
 
 	/**
@@ -310,7 +308,8 @@ class Pops {
 	 * @param details 配置
 	 */
 	panel = (details: PopsPanelDetails) => {
-		return new PopsPanel(details) as PopsEventDetails;
+		let dialog = PopsPanel.init(details);
+		return dialog;
 	};
 
 	/**
@@ -318,7 +317,8 @@ class Pops {
 	 * @param details 配置
 	 */
 	rightClickMenu = (details: PopsRightClickMenuDetails) => {
-		return new PopsRightClickMenu(details) as PopsEventDetails;
+		let popsRightClickMenu = PopsRightClickMenu.init(details);
+		return popsRightClickMenu;
 	};
 
 	/**
@@ -326,7 +326,8 @@ class Pops {
 	 * @param details 配置
 	 */
 	searchSuggestion = <T = any>(details: PopsSearchSuggestionDetails<T>) => {
-		return new PopsSearchSuggestion(details) as PopsSearchSuggestionResult<T>;
+		let popsSearchSuggestion = PopsSearchSuggestion.init(details);
+		return popsSearchSuggestion;
 	};
 }
 

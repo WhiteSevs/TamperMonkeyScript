@@ -7,8 +7,8 @@ import { popsUtils } from "../../utils/PopsUtils";
 import { PopsDrawerConfig } from "./config";
 import type { PopsDrawerDetails } from "./indexType";
 
-export class PopsDrawer {
-	constructor(details: PopsDrawerDetails) {
+export const PopsDrawer = {
+	init(details: PopsDrawerDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
 		const PopsType = "drawer";
@@ -233,6 +233,7 @@ export class PopsDrawer {
 			$shadowContainer: $shadowContainer,
 			$shadowRoot: $shadowRoot,
 		});
-		return PopsHandler.handleResultDetails(eventDetails);
-	}
-}
+		let result = PopsHandler.handleResultDetails(eventDetails);
+		return result;
+	},
+};

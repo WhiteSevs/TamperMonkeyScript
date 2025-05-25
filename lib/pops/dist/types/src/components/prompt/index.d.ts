@@ -1,4 +1,4 @@
 import type { PopsPromptDetails } from "./indexType";
-export declare class PopsPrompt {
-    constructor(details: PopsPromptDetails);
-}
+export declare const PopsPrompt: {
+    init(details: PopsPromptDetails): Omit<import("../../types/event").PopsEventDetails, "function" | "type">;
+};

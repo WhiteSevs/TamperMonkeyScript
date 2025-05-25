@@ -101,6 +101,7 @@ export interface PopsPanelDetails extends PopsTitleConfig, PopsDragConfig, PopsC
      * 是否强制是移动端，默认false
      * + true 强制为移动端
      * + false 自动根据UA判断是否是移动端
+     * @default false
      */
     isMobile?: boolean;
 }

@@ -544,8 +544,8 @@ export type PopsTooltipResult<T extends PopsToolTipDetails> = {
 	toolTip: typeof ToolTip.prototype;
 };
 
-export class PopsTooltip {
-	constructor(details: PopsToolTipDetails) {
+export const PopsTooltip = {
+	init(details: PopsToolTipDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
 		const PopsType = "tooltip";
@@ -579,11 +579,11 @@ export class PopsTooltip {
 		}
 
 		return {
-			guid: guid,
-			config: config,
-			$shadowContainer: $shadowContainer,
-			$shadowRoot: $shadowRoot,
-			toolTip: toolTip,
+			guid,
+			config,
+			$shadowContainer,
+			$shadowRoot,
+			toolTip,
 		};
-	}
-}
+	},
+};

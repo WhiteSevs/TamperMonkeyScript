@@ -9,8 +9,8 @@ import { PopsAlertConfig } from "./config";
 import type { PopsMode } from "../../types/main";
 import type { PopsAlertDetails } from "./indexType";
 
-export class PopsAlert {
-	constructor(details: PopsAlertDetails) {
+export const PopsAlert = {
+	init(details: PopsAlertDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
 		const PopsType: PopsMode = "alert";
@@ -154,6 +154,7 @@ export class PopsAlert {
 			});
 		}
 
-		return PopsHandler.handleResultDetails(eventDetails);
-	}
-}
+		let result = PopsHandler.handleResultDetails(eventDetails);
+		return result;
+	},
+};

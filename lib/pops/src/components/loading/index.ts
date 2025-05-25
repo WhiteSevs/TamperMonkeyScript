@@ -7,8 +7,8 @@ import { popsUtils } from "../../utils/PopsUtils";
 import { PopsLoadingConfig } from "./config";
 import type { PopsLoadingDetails } from "./indexType";
 
-export class PopsLoading {
-	constructor(details: PopsLoadingDetails) {
+export const PopsLoading = {
+	init(details: PopsLoadingDetails) {
 		let config = PopsLoadingConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
@@ -106,6 +106,7 @@ export class PopsLoading {
 			popsDOMUtils.css($anim, "position", "absolute !important");
 			$mask && popsDOMUtils.css($mask, "position", "absolute !important");
 		}
-		return PopsHandler.handleResultDetails(eventDetails);
-	}
-}
+		let result = PopsHandler.handleResultDetails(eventDetails);
+		return result;
+	},
+};
