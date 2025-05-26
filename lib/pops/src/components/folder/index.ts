@@ -713,12 +713,12 @@ export const PopsFolder = {
 
 									downloadIframeLinkElement.src = downloadInfo.url;
 									downloadIframeLinkElement.onload = function () {
-										setTimeout(() => {
+										popsUtils.setTimeout(() => {
 											downloadIframeLinkElement.remove();
 										}, 1000);
 									};
 									$shadowRoot.appendChild(downloadIframeLinkElement);
-									setTimeout(() => {
+									popsUtils.setTimeout(() => {
 										downloadIframeLinkElement.remove();
 									}, 3 * 60 * 1000);
 								} else {

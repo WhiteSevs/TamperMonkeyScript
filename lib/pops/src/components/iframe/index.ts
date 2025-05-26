@@ -20,7 +20,7 @@ export const PopsIframe = {
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (config.url == null) {
-			throw "config.url不能为空";
+			throw new Error("config.url不能为空");
 		}
 		config = PopsHandler.handleOnly(PopsType, config);
 

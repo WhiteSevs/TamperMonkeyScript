@@ -79,6 +79,10 @@ declare class Pops {
             formatTime(text?: string | number | Date, formatType?: "yyyy-MM-dd HH:mm:ss" | "yyyy/MM/dd HH:mm:ss" | "yyyy_MM_dd_HH_mm_ss" | "yyyy\u5E74MM\u6708dd\u65E5 HH\u65F6mm\u5206ss\u79D2" | "yyyy\u5E74MM\u6708dd\u65E5 hh:mm:ss" | "yyyy\u5E74MM\u6708dd\u65E5 HH:mm:ss" | "yyyy-MM-dd" | "yyyyMMdd" | "HH:mm:ss"): string;
             formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T | undefined): T extends true ? string : number;
             AnyTouch: () => typeof import("any-touch").default;
+            setTimeout(callback: Function, timeout?: number): number;
+            clearTimeout(timeId: number | undefined): void;
+            setInterval(callback: Function, timeout?: number): number;
+            clearInterval(timeId: number | undefined): void;
         };
         /** pops使用的DOM工具类 */
         DOMUtils: {
@@ -365,7 +369,7 @@ declare class Pops {
                 dispatchEvent: (event: Event) => boolean;
                 removeEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean) => void;
             } | {
-                [x: number]: any;
+                [x: number]: /*elided*/ any;
                 readonly clientInformation: {
                     readonly clipboard: {
                         read: () => Promise<ClipboardItems>;
@@ -513,7 +517,7 @@ declare class Pops {
                         [x: number]: {
                             readonly description: string;
                             readonly enabledPlugin: {
-                                [x: number]: any;
+                                [x: number]: /*elided*/ any;
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -531,7 +535,12 @@ declare class Pops {
                     readonly pdfViewerEnabled: boolean;
                     readonly plugins: {
                         [x: number]: {
-                            [x: number]: any;
+                            [x: number]: {
+                                readonly description: string;
+                                readonly enabledPlugin: /*elided*/ any;
+                                readonly suffixes: string;
+                                readonly type: string;
+                            };
                             readonly description: string;
                             readonly filename: string;
                             readonly length: number;
@@ -603,7 +612,7 @@ declare class Pops {
                     IsSearchProviderInstalled: () => void;
                 };
                 readonly frameElement: Element | null;
-                readonly frames: any;
+                readonly frames: /*elided*/ any;
                 readonly history: {
                     readonly length: number;
                     scrollRestoration: ScrollRestoration;
@@ -792,7 +801,7 @@ declare class Pops {
                         [x: number]: {
                             readonly description: string;
                             readonly enabledPlugin: {
-                                [x: number]: any;
+                                [x: number]: /*elided*/ any;
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -810,7 +819,12 @@ declare class Pops {
                     readonly pdfViewerEnabled: boolean;
                     readonly plugins: {
                         [x: number]: {
-                            [x: number]: any;
+                            [x: number]: {
+                                readonly description: string;
+                                readonly enabledPlugin: /*elided*/ any;
+                                readonly suffixes: string;
+                                readonly type: string;
+                            };
                             readonly description: string;
                             readonly filename: string;
                             readonly length: number;
@@ -841,7 +855,7 @@ declare class Pops {
                 readonly outerWidth: number;
                 readonly pageXOffset: number;
                 readonly pageYOffset: number;
-                readonly parent: any;
+                readonly parent: /*elided*/ any;
                 readonly personalbar: {
                     readonly visible: boolean;
                 };
@@ -878,7 +892,7 @@ declare class Pops {
                     readonly visible: boolean;
                 };
                 readonly self: {
-                    [x: number]: any;
+                    [x: number]: /*elided*/ any;
                     clientInformation: {
                         readonly clipboard: {
                             read: () => Promise<ClipboardItems>;
@@ -1026,7 +1040,7 @@ declare class Pops {
                             [x: number]: {
                                 readonly description: string;
                                 readonly enabledPlugin: {
-                                    [x: number]: any;
+                                    [x: number]: /*elided*/ any;
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -1044,7 +1058,12 @@ declare class Pops {
                         readonly pdfViewerEnabled: boolean;
                         readonly plugins: {
                             [x: number]: {
-                                [x: number]: any;
+                                [x: number]: {
+                                    readonly description: string;
+                                    readonly enabledPlugin: /*elided*/ any;
+                                    readonly suffixes: string;
+                                    readonly type: string;
+                                };
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -1116,7 +1135,7 @@ declare class Pops {
                         IsSearchProviderInstalled: () => void;
                     };
                     frameElement: Element | null;
-                    frames: any;
+                    frames: /*elided*/ any;
                     history: {
                         readonly length: number;
                         scrollRestoration: ScrollRestoration;
@@ -1305,7 +1324,7 @@ declare class Pops {
                             [x: number]: {
                                 readonly description: string;
                                 readonly enabledPlugin: {
-                                    [x: number]: any;
+                                    [x: number]: /*elided*/ any;
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -1323,7 +1342,12 @@ declare class Pops {
                         readonly pdfViewerEnabled: boolean;
                         readonly plugins: {
                             [x: number]: {
-                                [x: number]: any;
+                                [x: number]: {
+                                    readonly description: string;
+                                    readonly enabledPlugin: /*elided*/ any;
+                                    readonly suffixes: string;
+                                    readonly type: string;
+                                };
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -1354,7 +1378,7 @@ declare class Pops {
                     outerWidth: number;
                     pageXOffset: number;
                     pageYOffset: number;
-                    parent: any;
+                    parent: /*elided*/ any;
                     personalbar: {
                         readonly visible: boolean;
                     };
@@ -1390,7 +1414,7 @@ declare class Pops {
                     scrollbars: {
                         readonly visible: boolean;
                     };
-                    self: any;
+                    self: /*elided*/ any;
                     speechSynthesis: {
                         onvoiceschanged: ((this: SpeechSynthesis, ev: Event) => any) | null;
                         readonly paused: boolean;
@@ -1418,7 +1442,7 @@ declare class Pops {
                     toolbar: {
                         readonly visible: boolean;
                     };
-                    top: any | null;
+                    top: /*elided*/ any | null;
                     visualViewport: {
                         readonly height: number;
                         readonly offsetLeft: number;
@@ -1439,7 +1463,7 @@ declare class Pops {
                         };
                         dispatchEvent: (event: Event) => boolean;
                     } | null;
-                    window: any;
+                    window: /*elided*/ any;
                     alert: ((message?: any) => void) & typeof alert;
                     blur: (() => void) & typeof blur;
                     cancelIdleCallback: ((handle: number) => void) & typeof cancelIdleCallback;
@@ -1597,7 +1621,9 @@ declare class Pops {
                     onoffline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     ononline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpagehide: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
+                    onpagereveal: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpageshow: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
+                    onpageswap: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpopstate: (((this: WindowEventHandlers, ev: PopStateEvent) => any) & ((this: Window, ev: PopStateEvent) => any)) | null;
                     onrejectionhandled: (((this: WindowEventHandlers, ev: PromiseRejectionEvent) => any) & ((this: Window, ev: PromiseRejectionEvent) => any)) | null;
                     onstorage: (((this: WindowEventHandlers, ev: StorageEvent) => any) & ((this: Window, ev: StorageEvent) => any)) | null;
@@ -1623,7 +1649,7 @@ declare class Pops {
                     crypto: {
                         readonly subtle: {
                             decrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
-                            deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length: number) => Promise<ArrayBuffer>;
+                            deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length?: number | null) => Promise<ArrayBuffer>;
                             deriveKey: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>;
                             digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
                             encrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
@@ -1633,7 +1659,9 @@ declare class Pops {
                                 (format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey>;
                             };
                             generateKey: {
-                                (algorithm: "Ed25519", extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
+                                (algorithm: "Ed25519" | {
+                                    name: "Ed25519";
+                                }, extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
                                 (algorithm: RsaHashedKeyGenParams | EcKeyGenParams, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKeyPair>;
                                 (algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKey>;
                                 (algorithm: AlgorithmIdentifier, extractable: boolean, keyUsages: KeyUsage[]): Promise<CryptoKeyPair | CryptoKey>;
@@ -1742,7 +1770,7 @@ declare class Pops {
                         setItem: (key: string, value: string) => void;
                     };
                     readonly globalThis: {
-                        readonly globalThis: any;
+                        readonly globalThis: /*elided*/ any;
                         eval: typeof eval;
                         parseInt: typeof parseInt;
                         parseFloat: typeof parseFloat;
@@ -1806,6 +1834,7 @@ declare class Pops {
                             trunc: (x: number) => number;
                             fround: (x: number) => number;
                             cbrt: (x: number) => number;
+                            f16round: (x: number) => number;
                             readonly [Symbol.toStringTag]: string;
                         };
                         Date: DateConstructor;
@@ -1984,9 +2013,23 @@ declare class Pops {
                             prototype: AudioContext;
                             new (contextOptions?: AudioContextOptions): AudioContext;
                         };
+                        AudioData: {
+                            prototype: AudioData;
+                            new (init: AudioDataInit): AudioData;
+                        };
+                        AudioDecoder: {
+                            prototype: AudioDecoder;
+                            new (init: AudioDecoderInit): AudioDecoder;
+                            isConfigSupported(config: AudioDecoderConfig): Promise<AudioDecoderSupport>;
+                        };
                         AudioDestinationNode: {
                             prototype: AudioDestinationNode;
                             new (): AudioDestinationNode;
+                        };
+                        AudioEncoder: {
+                            prototype: AudioEncoder;
+                            new (init: AudioEncoderInit): AudioEncoder;
+                            isConfigSupported(config: AudioEncoderConfig): Promise<AudioEncoderSupport>;
                         };
                         AudioListener: {
                             prototype: AudioListener;
@@ -2172,6 +2215,10 @@ declare class Pops {
                             prototype: CSSNamespaceRule;
                             new (): CSSNamespaceRule;
                         };
+                        CSSNestedDeclarations: {
+                            prototype: CSSNestedDeclarations;
+                            new (): CSSNestedDeclarations;
+                        };
                         CSSNumericArray: {
                             prototype: CSSNumericArray;
                             new (): CSSNumericArray;
@@ -2292,6 +2339,10 @@ declare class Pops {
                             prototype: CSSVariableReferenceValue;
                             new (variable: string, fallback?: CSSUnparsedValue | null): CSSVariableReferenceValue;
                         };
+                        CSSViewTransitionRule: {
+                            prototype: CSSViewTransitionRule;
+                            new (): CSSViewTransitionRule;
+                        };
                         Cache: {
                             prototype: Cache;
                             new (): Cache;
@@ -2315,6 +2366,10 @@ declare class Pops {
                         CanvasRenderingContext2D: {
                             prototype: CanvasRenderingContext2D;
                             new (): CanvasRenderingContext2D;
+                        };
+                        CaretPosition: {
+                            prototype: CaretPosition;
+                            new (): CaretPosition;
                         };
                         ChannelMergerNode: {
                             prototype: ChannelMergerNode;
@@ -2559,6 +2614,10 @@ declare class Pops {
                             prototype: ElementInternals;
                             new (): ElementInternals;
                         };
+                        EncodedAudioChunk: {
+                            prototype: EncodedAudioChunk;
+                            new (init: EncodedAudioChunkInit): EncodedAudioChunk;
+                        };
                         EncodedVideoChunk: {
                             prototype: EncodedVideoChunk;
                             new (init: EncodedVideoChunkInit): EncodedVideoChunk;
@@ -2651,11 +2710,11 @@ declare class Pops {
                         };
                         FontFace: {
                             prototype: FontFace;
-                            new (family: string, source: string | BinaryData, descriptors?: FontFaceDescriptors): FontFace;
+                            new (family: string, source: string | BufferSource, descriptors?: FontFaceDescriptors): FontFace;
                         };
                         FontFaceSet: {
                             prototype: FontFaceSet;
-                            new (initialFaces: FontFace[]): FontFaceSet;
+                            new (): FontFaceSet;
                         };
                         FontFaceSetLoadEvent: {
                             prototype: FontFaceSetLoadEvent;
@@ -2668,6 +2727,10 @@ declare class Pops {
                         FormDataEvent: {
                             prototype: FormDataEvent;
                             new (type: string, eventInitDict: FormDataEventInit): FormDataEvent;
+                        };
+                        FragmentDirective: {
+                            prototype: FragmentDirective;
+                            new (): FragmentDirective;
                         };
                         GainNode: {
                             prototype: GainNode;
@@ -3115,6 +3178,19 @@ declare class Pops {
                             new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
                             new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                         };
+                        ImageDecoder: {
+                            prototype: ImageDecoder;
+                            new (init: ImageDecoderInit): ImageDecoder;
+                            isTypeSupported(type: string): Promise<boolean>;
+                        };
+                        ImageTrack: {
+                            prototype: ImageTrack;
+                            new (): ImageTrack;
+                        };
+                        ImageTrackList: {
+                            prototype: ImageTrackList;
+                            new (): ImageTrackList;
+                        };
                         InputDeviceInfo: {
                             prototype: InputDeviceInfo;
                             new (): InputDeviceInfo;
@@ -3129,7 +3205,7 @@ declare class Pops {
                         };
                         IntersectionObserverEntry: {
                             prototype: IntersectionObserverEntry;
-                            new (intersectionObserverEntryInit: IntersectionObserverEntryInit): IntersectionObserverEntry;
+                            new (): IntersectionObserverEntry;
                         };
                         KeyboardEvent: {
                             prototype: KeyboardEvent;
@@ -3325,13 +3401,6 @@ declare class Pops {
                             prototype: MouseEvent;
                             new (type: string, eventInitDict?: MouseEventInit): MouseEvent;
                         };
-                        MutationEvent: {
-                            prototype: MutationEvent;
-                            new (): MutationEvent;
-                            readonly MODIFICATION: 1;
-                            readonly ADDITION: 2;
-                            readonly REMOVAL: 3;
-                        };
                         MutationObserver: {
                             prototype: MutationObserver;
                             new (callback: MutationCallback): MutationObserver;
@@ -3343,6 +3412,14 @@ declare class Pops {
                         NamedNodeMap: {
                             prototype: NamedNodeMap;
                             new (): NamedNodeMap;
+                        };
+                        NavigationActivation: {
+                            prototype: NavigationActivation;
+                            new (): NavigationActivation;
+                        };
+                        NavigationHistoryEntry: {
+                            prototype: NavigationHistoryEntry;
+                            new (): NavigationHistoryEntry;
                         };
                         NavigationPreloadManager: {
                             prototype: NavigationPreloadManager;
@@ -3413,6 +3490,14 @@ declare class Pops {
                             prototype: OverconstrainedError;
                             new (constraint: string, message?: string): OverconstrainedError;
                         };
+                        PageRevealEvent: {
+                            prototype: PageRevealEvent;
+                            new (type: string, eventInitDict?: PageRevealEventInit): PageRevealEvent;
+                        };
+                        PageSwapEvent: {
+                            prototype: PageSwapEvent;
+                            new (type: string, eventInitDict?: PageSwapEventInit): PageSwapEvent;
+                        };
                         PageTransitionEvent: {
                             prototype: PageTransitionEvent;
                             new (type: string, eventInitDict?: PageTransitionEventInit): PageTransitionEvent;
@@ -3425,13 +3510,17 @@ declare class Pops {
                             prototype: Path2D;
                             new (path?: Path2D | string): Path2D;
                         };
+                        PaymentAddress: {
+                            prototype: PaymentAddress;
+                            new (): PaymentAddress;
+                        };
                         PaymentMethodChangeEvent: {
                             prototype: PaymentMethodChangeEvent;
                             new (type: string, eventInitDict?: PaymentMethodChangeEventInit): PaymentMethodChangeEvent;
                         };
                         PaymentRequest: {
                             prototype: PaymentRequest;
-                            new (methodData: PaymentMethodData[], details: PaymentDetailsInit): PaymentRequest;
+                            new (methodData: PaymentMethodData[], details: PaymentDetailsInit, options?: PaymentOptions): PaymentRequest;
                         };
                         PaymentRequestUpdateEvent: {
                             prototype: PaymentRequestUpdateEvent;
@@ -3549,8 +3638,11 @@ declare class Pops {
                         PublicKeyCredential: {
                             prototype: PublicKeyCredential;
                             new (): PublicKeyCredential;
+                            getClientCapabilities(): Promise<PublicKeyCredentialClientCapabilities>;
                             isConditionalMediationAvailable(): Promise<boolean>;
                             isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean>;
+                            parseCreationOptionsFromJSON(options: PublicKeyCredentialCreationOptionsJSON): PublicKeyCredentialCreationOptions;
+                            parseRequestOptionsFromJSON(options: PublicKeyCredentialRequestOptionsJSON): PublicKeyCredentialRequestOptions;
                         };
                         PushManager: {
                             prototype: PushManager;
@@ -3686,7 +3778,7 @@ declare class Pops {
                         };
                         ReadableStreamBYOBReader: {
                             prototype: ReadableStreamBYOBReader;
-                            new (stream: ReadableStream): ReadableStreamBYOBReader;
+                            new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
                         };
                         ReadableStreamBYOBRequest: {
                             prototype: ReadableStreamBYOBRequest;
@@ -4494,6 +4586,10 @@ declare class Pops {
                         ViewTransition: {
                             prototype: ViewTransition;
                             new (): ViewTransition;
+                        };
+                        ViewTransitionTypeSet: {
+                            prototype: ViewTransitionTypeSet;
+                            new (): ViewTransitionTypeSet;
                         };
                         VisualViewport: {
                             prototype: VisualViewport;
@@ -5834,7 +5930,7 @@ declare class Pops {
                                 [x: number]: {
                                     readonly description: string;
                                     readonly enabledPlugin: {
-                                        [x: number]: any;
+                                        [x: number]: /*elided*/ any;
                                         readonly description: string;
                                         readonly filename: string;
                                         readonly length: number;
@@ -5852,7 +5948,12 @@ declare class Pops {
                             readonly pdfViewerEnabled: boolean;
                             readonly plugins: {
                                 [x: number]: {
-                                    [x: number]: any;
+                                    [x: number]: {
+                                        readonly description: string;
+                                        readonly enabledPlugin: /*elided*/ any;
+                                        readonly suffixes: string;
+                                        readonly type: string;
+                                    };
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -5924,7 +6025,7 @@ declare class Pops {
                             IsSearchProviderInstalled: () => void;
                         };
                         frameElement: Element | null;
-                        frames: any;
+                        frames: /*elided*/ any;
                         history: {
                             readonly length: number;
                             scrollRestoration: ScrollRestoration;
@@ -6112,7 +6213,7 @@ declare class Pops {
                                 [x: number]: {
                                     readonly description: string;
                                     readonly enabledPlugin: {
-                                        [x: number]: any;
+                                        [x: number]: /*elided*/ any;
                                         readonly description: string;
                                         readonly filename: string;
                                         readonly length: number;
@@ -6130,7 +6231,12 @@ declare class Pops {
                             readonly pdfViewerEnabled: boolean;
                             readonly plugins: {
                                 [x: number]: {
-                                    [x: number]: any;
+                                    [x: number]: {
+                                        readonly description: string;
+                                        readonly enabledPlugin: /*elided*/ any;
+                                        readonly suffixes: string;
+                                        readonly type: string;
+                                    };
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -6161,7 +6267,7 @@ declare class Pops {
                         outerWidth: number;
                         pageXOffset: number;
                         pageYOffset: number;
-                        parent: any;
+                        parent: /*elided*/ any;
                         personalbar: {
                             readonly visible: boolean;
                         };
@@ -6197,7 +6303,7 @@ declare class Pops {
                         scrollbars: {
                             readonly visible: boolean;
                         };
-                        self: any;
+                        self: /*elided*/ any;
                         speechSynthesis: {
                             onvoiceschanged: ((this: SpeechSynthesis, ev: Event) => any) | null;
                             readonly paused: boolean;
@@ -6225,7 +6331,7 @@ declare class Pops {
                         toolbar: {
                             readonly visible: boolean;
                         };
-                        top: any | null;
+                        top: /*elided*/ any | null;
                         visualViewport: {
                             readonly height: number;
                             readonly offsetLeft: number;
@@ -6246,7 +6352,7 @@ declare class Pops {
                             };
                             dispatchEvent: (event: Event) => boolean;
                         } | null;
-                        window: any;
+                        window: /*elided*/ any;
                         onabort: ((this: Window, ev: UIEvent) => any) | null;
                         onanimationcancel: ((this: Window, ev: AnimationEvent) => any) | null;
                         onanimationend: ((this: Window, ev: AnimationEvent) => any) | null;
@@ -6357,7 +6463,9 @@ declare class Pops {
                         onoffline: ((this: Window, ev: Event) => any) | null;
                         ononline: ((this: Window, ev: Event) => any) | null;
                         onpagehide: ((this: Window, ev: PageTransitionEvent) => any) | null;
+                        onpagereveal: ((this: Window, ev: Event) => any) | null;
                         onpageshow: ((this: Window, ev: PageTransitionEvent) => any) | null;
+                        onpageswap: ((this: Window, ev: Event) => any) | null;
                         onpopstate: ((this: Window, ev: PopStateEvent) => any) | null;
                         onrejectionhandled: ((this: Window, ev: PromiseRejectionEvent) => any) | null;
                         onstorage: ((this: Window, ev: StorageEvent) => any) | null;
@@ -6383,7 +6491,7 @@ declare class Pops {
                         crypto: {
                             readonly subtle: {
                                 decrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
-                                deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length: number) => Promise<ArrayBuffer>;
+                                deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length?: number | null) => Promise<ArrayBuffer>;
                                 deriveKey: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>;
                                 digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
                                 encrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
@@ -6393,7 +6501,9 @@ declare class Pops {
                                     (format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey>;
                                 };
                                 generateKey: {
-                                    (algorithm: "Ed25519", extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
+                                    (algorithm: "Ed25519" | {
+                                        name: "Ed25519";
+                                    }, extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
                                     (algorithm: RsaHashedKeyGenParams | EcKeyGenParams, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKeyPair>;
                                     (algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKey>;
                                     (algorithm: AlgorithmIdentifier, extractable: boolean, keyUsages: KeyUsage[]): Promise<CryptoKeyPair | CryptoKey>;
@@ -6511,49 +6621,49 @@ declare class Pops {
                         SharedArrayBuffer: SharedArrayBufferConstructor;
                         Atomics: {
                             add: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             and: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             compareExchange: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, expectedValue: number, replacementValue: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, expectedValue: number, replacementValue: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
                             };
                             exchange: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             isLockFree: (size: number) => boolean;
                             load: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number): bigint;
                             };
                             or: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             store: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             sub: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             wait: {
-                                (typedArray: Int32Array, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
-                                (typedArray: BigInt64Array, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
+                                (typedArray: Int32Array<ArrayBufferLike>, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
+                                (typedArray: BigInt64Array<ArrayBufferLike>, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
                             };
                             notify: {
-                                (typedArray: Int32Array, index: number, count?: number): number;
-                                (typedArray: BigInt64Array, index: number, count?: number): number;
+                                (typedArray: Int32Array<ArrayBufferLike>, index: number, count?: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike>, index: number, count?: number): number;
                             };
                             xor: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             waitAsync: {
                                 (typedArray: Int32Array, index: number, value: number, timeout?: number): {
@@ -6582,7 +6692,8 @@ declare class Pops {
                         SuppressedError: SuppressedErrorConstructor;
                         DisposableStack: DisposableStackConstructor;
                         AsyncDisposableStack: AsyncDisposableStackConstructor;
-                        unsafeWindow: any;
+                        Float16Array: Float16ArrayConstructor;
+                        unsafeWindow: /*elided*/ any;
                         undefined: undefined;
                     };
                     eval: typeof eval;
@@ -6648,6 +6759,7 @@ declare class Pops {
                         trunc: (x: number) => number;
                         fround: (x: number) => number;
                         cbrt: (x: number) => number;
+                        f16round: (x: number) => number;
                         readonly [Symbol.toStringTag]: string;
                     };
                     Date: DateConstructor;
@@ -6786,9 +6898,23 @@ declare class Pops {
                         prototype: AudioContext;
                         new (contextOptions?: AudioContextOptions): AudioContext;
                     };
+                    AudioData: {
+                        prototype: AudioData;
+                        new (init: AudioDataInit): AudioData;
+                    };
+                    AudioDecoder: {
+                        prototype: AudioDecoder;
+                        new (init: AudioDecoderInit): AudioDecoder;
+                        isConfigSupported(config: AudioDecoderConfig): Promise<AudioDecoderSupport>;
+                    };
                     AudioDestinationNode: {
                         prototype: AudioDestinationNode;
                         new (): AudioDestinationNode;
+                    };
+                    AudioEncoder: {
+                        prototype: AudioEncoder;
+                        new (init: AudioEncoderInit): AudioEncoder;
+                        isConfigSupported(config: AudioEncoderConfig): Promise<AudioEncoderSupport>;
                     };
                     AudioListener: {
                         prototype: AudioListener;
@@ -6974,6 +7100,10 @@ declare class Pops {
                         prototype: CSSNamespaceRule;
                         new (): CSSNamespaceRule;
                     };
+                    CSSNestedDeclarations: {
+                        prototype: CSSNestedDeclarations;
+                        new (): CSSNestedDeclarations;
+                    };
                     CSSNumericArray: {
                         prototype: CSSNumericArray;
                         new (): CSSNumericArray;
@@ -7094,6 +7224,10 @@ declare class Pops {
                         prototype: CSSVariableReferenceValue;
                         new (variable: string, fallback?: CSSUnparsedValue | null): CSSVariableReferenceValue;
                     };
+                    CSSViewTransitionRule: {
+                        prototype: CSSViewTransitionRule;
+                        new (): CSSViewTransitionRule;
+                    };
                     Cache: {
                         prototype: Cache;
                         new (): Cache;
@@ -7117,6 +7251,10 @@ declare class Pops {
                     CanvasRenderingContext2D: {
                         prototype: CanvasRenderingContext2D;
                         new (): CanvasRenderingContext2D;
+                    };
+                    CaretPosition: {
+                        prototype: CaretPosition;
+                        new (): CaretPosition;
                     };
                     ChannelMergerNode: {
                         prototype: ChannelMergerNode;
@@ -7361,6 +7499,10 @@ declare class Pops {
                         prototype: ElementInternals;
                         new (): ElementInternals;
                     };
+                    EncodedAudioChunk: {
+                        prototype: EncodedAudioChunk;
+                        new (init: EncodedAudioChunkInit): EncodedAudioChunk;
+                    };
                     EncodedVideoChunk: {
                         prototype: EncodedVideoChunk;
                         new (init: EncodedVideoChunkInit): EncodedVideoChunk;
@@ -7453,11 +7595,11 @@ declare class Pops {
                     };
                     FontFace: {
                         prototype: FontFace;
-                        new (family: string, source: string | BinaryData, descriptors?: FontFaceDescriptors): FontFace;
+                        new (family: string, source: string | BufferSource, descriptors?: FontFaceDescriptors): FontFace;
                     };
                     FontFaceSet: {
                         prototype: FontFaceSet;
-                        new (initialFaces: FontFace[]): FontFaceSet;
+                        new (): FontFaceSet;
                     };
                     FontFaceSetLoadEvent: {
                         prototype: FontFaceSetLoadEvent;
@@ -7470,6 +7612,10 @@ declare class Pops {
                     FormDataEvent: {
                         prototype: FormDataEvent;
                         new (type: string, eventInitDict: FormDataEventInit): FormDataEvent;
+                    };
+                    FragmentDirective: {
+                        prototype: FragmentDirective;
+                        new (): FragmentDirective;
                     };
                     GainNode: {
                         prototype: GainNode;
@@ -7917,6 +8063,19 @@ declare class Pops {
                         new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
                         new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                     };
+                    ImageDecoder: {
+                        prototype: ImageDecoder;
+                        new (init: ImageDecoderInit): ImageDecoder;
+                        isTypeSupported(type: string): Promise<boolean>;
+                    };
+                    ImageTrack: {
+                        prototype: ImageTrack;
+                        new (): ImageTrack;
+                    };
+                    ImageTrackList: {
+                        prototype: ImageTrackList;
+                        new (): ImageTrackList;
+                    };
                     InputDeviceInfo: {
                         prototype: InputDeviceInfo;
                         new (): InputDeviceInfo;
@@ -7931,7 +8090,7 @@ declare class Pops {
                     };
                     IntersectionObserverEntry: {
                         prototype: IntersectionObserverEntry;
-                        new (intersectionObserverEntryInit: IntersectionObserverEntryInit): IntersectionObserverEntry;
+                        new (): IntersectionObserverEntry;
                     };
                     KeyboardEvent: {
                         prototype: KeyboardEvent;
@@ -8127,13 +8286,6 @@ declare class Pops {
                         prototype: MouseEvent;
                         new (type: string, eventInitDict?: MouseEventInit): MouseEvent;
                     };
-                    MutationEvent: {
-                        prototype: MutationEvent;
-                        new (): MutationEvent;
-                        readonly MODIFICATION: 1;
-                        readonly ADDITION: 2;
-                        readonly REMOVAL: 3;
-                    };
                     MutationObserver: {
                         prototype: MutationObserver;
                         new (callback: MutationCallback): MutationObserver;
@@ -8145,6 +8297,14 @@ declare class Pops {
                     NamedNodeMap: {
                         prototype: NamedNodeMap;
                         new (): NamedNodeMap;
+                    };
+                    NavigationActivation: {
+                        prototype: NavigationActivation;
+                        new (): NavigationActivation;
+                    };
+                    NavigationHistoryEntry: {
+                        prototype: NavigationHistoryEntry;
+                        new (): NavigationHistoryEntry;
                     };
                     NavigationPreloadManager: {
                         prototype: NavigationPreloadManager;
@@ -8215,6 +8375,14 @@ declare class Pops {
                         prototype: OverconstrainedError;
                         new (constraint: string, message?: string): OverconstrainedError;
                     };
+                    PageRevealEvent: {
+                        prototype: PageRevealEvent;
+                        new (type: string, eventInitDict?: PageRevealEventInit): PageRevealEvent;
+                    };
+                    PageSwapEvent: {
+                        prototype: PageSwapEvent;
+                        new (type: string, eventInitDict?: PageSwapEventInit): PageSwapEvent;
+                    };
                     PageTransitionEvent: {
                         prototype: PageTransitionEvent;
                         new (type: string, eventInitDict?: PageTransitionEventInit): PageTransitionEvent;
@@ -8227,13 +8395,17 @@ declare class Pops {
                         prototype: Path2D;
                         new (path?: Path2D | string): Path2D;
                     };
+                    PaymentAddress: {
+                        prototype: PaymentAddress;
+                        new (): PaymentAddress;
+                    };
                     PaymentMethodChangeEvent: {
                         prototype: PaymentMethodChangeEvent;
                         new (type: string, eventInitDict?: PaymentMethodChangeEventInit): PaymentMethodChangeEvent;
                     };
                     PaymentRequest: {
                         prototype: PaymentRequest;
-                        new (methodData: PaymentMethodData[], details: PaymentDetailsInit): PaymentRequest;
+                        new (methodData: PaymentMethodData[], details: PaymentDetailsInit, options?: PaymentOptions): PaymentRequest;
                     };
                     PaymentRequestUpdateEvent: {
                         prototype: PaymentRequestUpdateEvent;
@@ -8351,8 +8523,11 @@ declare class Pops {
                     PublicKeyCredential: {
                         prototype: PublicKeyCredential;
                         new (): PublicKeyCredential;
+                        getClientCapabilities(): Promise<PublicKeyCredentialClientCapabilities>;
                         isConditionalMediationAvailable(): Promise<boolean>;
                         isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean>;
+                        parseCreationOptionsFromJSON(options: PublicKeyCredentialCreationOptionsJSON): PublicKeyCredentialCreationOptions;
+                        parseRequestOptionsFromJSON(options: PublicKeyCredentialRequestOptionsJSON): PublicKeyCredentialRequestOptions;
                     };
                     PushManager: {
                         prototype: PushManager;
@@ -8488,7 +8663,7 @@ declare class Pops {
                     };
                     ReadableStreamBYOBReader: {
                         prototype: ReadableStreamBYOBReader;
-                        new (stream: ReadableStream): ReadableStreamBYOBReader;
+                        new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
                     };
                     ReadableStreamBYOBRequest: {
                         prototype: ReadableStreamBYOBRequest;
@@ -9296,6 +9471,10 @@ declare class Pops {
                     ViewTransition: {
                         prototype: ViewTransition;
                         new (): ViewTransition;
+                    };
+                    ViewTransitionTypeSet: {
+                        prototype: ViewTransitionTypeSet;
+                        new (): ViewTransitionTypeSet;
                     };
                     VisualViewport: {
                         prototype: VisualViewport;
@@ -10513,49 +10692,49 @@ declare class Pops {
                     SharedArrayBuffer: SharedArrayBufferConstructor;
                     Atomics: {
                         add: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         and: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         compareExchange: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, expectedValue: number, replacementValue: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, expectedValue: number, replacementValue: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
                         };
                         exchange: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         isLockFree: (size: number) => boolean;
                         load: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number): bigint;
                         };
                         or: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         store: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         sub: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         wait: {
-                            (typedArray: Int32Array, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
-                            (typedArray: BigInt64Array, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
+                            (typedArray: Int32Array<ArrayBufferLike>, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
+                            (typedArray: BigInt64Array<ArrayBufferLike>, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
                         };
                         notify: {
-                            (typedArray: Int32Array, index: number, count?: number): number;
-                            (typedArray: BigInt64Array, index: number, count?: number): number;
+                            (typedArray: Int32Array<ArrayBufferLike>, index: number, count?: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike>, index: number, count?: number): number;
                         };
                         xor: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         waitAsync: {
                             (typedArray: Int32Array, index: number, value: number, timeout?: number): {
@@ -10584,7 +10763,8 @@ declare class Pops {
                     SuppressedError: SuppressedErrorConstructor;
                     DisposableStack: DisposableStackConstructor;
                     AsyncDisposableStack: AsyncDisposableStackConstructor;
-                    unsafeWindow: any;
+                    Float16Array: Float16ArrayConstructor;
+                    unsafeWindow: /*elided*/ any;
                     undefined: undefined;
                 };
                 readonly speechSynthesis: {
@@ -10614,7 +10794,7 @@ declare class Pops {
                 readonly toolbar: {
                     readonly visible: boolean;
                 };
-                readonly top: any | null;
+                readonly top: /*elided*/ any | null;
                 readonly visualViewport: {
                     readonly height: number;
                     readonly offsetLeft: number;
@@ -10636,7 +10816,7 @@ declare class Pops {
                     dispatchEvent: (event: Event) => boolean;
                 } | null;
                 readonly window: {
-                    [x: number]: any;
+                    [x: number]: /*elided*/ any;
                     clientInformation: {
                         readonly clipboard: {
                             read: () => Promise<ClipboardItems>;
@@ -10784,7 +10964,7 @@ declare class Pops {
                             [x: number]: {
                                 readonly description: string;
                                 readonly enabledPlugin: {
-                                    [x: number]: any;
+                                    [x: number]: /*elided*/ any;
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -10802,7 +10982,12 @@ declare class Pops {
                         readonly pdfViewerEnabled: boolean;
                         readonly plugins: {
                             [x: number]: {
-                                [x: number]: any;
+                                [x: number]: {
+                                    readonly description: string;
+                                    readonly enabledPlugin: /*elided*/ any;
+                                    readonly suffixes: string;
+                                    readonly type: string;
+                                };
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -10874,7 +11059,7 @@ declare class Pops {
                         IsSearchProviderInstalled: () => void;
                     };
                     frameElement: Element | null;
-                    frames: any;
+                    frames: /*elided*/ any;
                     history: {
                         readonly length: number;
                         scrollRestoration: ScrollRestoration;
@@ -11063,7 +11248,7 @@ declare class Pops {
                             [x: number]: {
                                 readonly description: string;
                                 readonly enabledPlugin: {
-                                    [x: number]: any;
+                                    [x: number]: /*elided*/ any;
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -11081,7 +11266,12 @@ declare class Pops {
                         readonly pdfViewerEnabled: boolean;
                         readonly plugins: {
                             [x: number]: {
-                                [x: number]: any;
+                                [x: number]: {
+                                    readonly description: string;
+                                    readonly enabledPlugin: /*elided*/ any;
+                                    readonly suffixes: string;
+                                    readonly type: string;
+                                };
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -11112,7 +11302,7 @@ declare class Pops {
                     outerWidth: number;
                     pageXOffset: number;
                     pageYOffset: number;
-                    parent: any;
+                    parent: /*elided*/ any;
                     personalbar: {
                         readonly visible: boolean;
                     };
@@ -11148,7 +11338,7 @@ declare class Pops {
                     scrollbars: {
                         readonly visible: boolean;
                     };
-                    self: any;
+                    self: /*elided*/ any;
                     speechSynthesis: {
                         onvoiceschanged: ((this: SpeechSynthesis, ev: Event) => any) | null;
                         readonly paused: boolean;
@@ -11176,7 +11366,7 @@ declare class Pops {
                     toolbar: {
                         readonly visible: boolean;
                     };
-                    top: any | null;
+                    top: /*elided*/ any | null;
                     visualViewport: {
                         readonly height: number;
                         readonly offsetLeft: number;
@@ -11197,7 +11387,7 @@ declare class Pops {
                         };
                         dispatchEvent: (event: Event) => boolean;
                     } | null;
-                    window: any;
+                    window: /*elided*/ any;
                     alert: ((message?: any) => void) & typeof alert;
                     blur: (() => void) & typeof blur;
                     cancelIdleCallback: ((handle: number) => void) & typeof cancelIdleCallback;
@@ -11355,7 +11545,9 @@ declare class Pops {
                     onoffline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     ononline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpagehide: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
+                    onpagereveal: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpageshow: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
+                    onpageswap: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpopstate: (((this: WindowEventHandlers, ev: PopStateEvent) => any) & ((this: Window, ev: PopStateEvent) => any)) | null;
                     onrejectionhandled: (((this: WindowEventHandlers, ev: PromiseRejectionEvent) => any) & ((this: Window, ev: PromiseRejectionEvent) => any)) | null;
                     onstorage: (((this: WindowEventHandlers, ev: StorageEvent) => any) & ((this: Window, ev: StorageEvent) => any)) | null;
@@ -11381,7 +11573,7 @@ declare class Pops {
                     crypto: {
                         readonly subtle: {
                             decrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
-                            deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length: number) => Promise<ArrayBuffer>;
+                            deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length?: number | null) => Promise<ArrayBuffer>;
                             deriveKey: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>;
                             digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
                             encrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
@@ -11391,7 +11583,9 @@ declare class Pops {
                                 (format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey>;
                             };
                             generateKey: {
-                                (algorithm: "Ed25519", extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
+                                (algorithm: "Ed25519" | {
+                                    name: "Ed25519";
+                                }, extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
                                 (algorithm: RsaHashedKeyGenParams | EcKeyGenParams, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKeyPair>;
                                 (algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKey>;
                                 (algorithm: AlgorithmIdentifier, extractable: boolean, keyUsages: KeyUsage[]): Promise<CryptoKeyPair | CryptoKey>;
@@ -11500,7 +11694,7 @@ declare class Pops {
                         setItem: (key: string, value: string) => void;
                     };
                     readonly globalThis: {
-                        readonly globalThis: any;
+                        readonly globalThis: /*elided*/ any;
                         eval: typeof eval;
                         parseInt: typeof parseInt;
                         parseFloat: typeof parseFloat;
@@ -11564,6 +11758,7 @@ declare class Pops {
                             trunc: (x: number) => number;
                             fround: (x: number) => number;
                             cbrt: (x: number) => number;
+                            f16round: (x: number) => number;
                             readonly [Symbol.toStringTag]: string;
                         };
                         Date: DateConstructor;
@@ -11742,9 +11937,23 @@ declare class Pops {
                             prototype: AudioContext;
                             new (contextOptions?: AudioContextOptions): AudioContext;
                         };
+                        AudioData: {
+                            prototype: AudioData;
+                            new (init: AudioDataInit): AudioData;
+                        };
+                        AudioDecoder: {
+                            prototype: AudioDecoder;
+                            new (init: AudioDecoderInit): AudioDecoder;
+                            isConfigSupported(config: AudioDecoderConfig): Promise<AudioDecoderSupport>;
+                        };
                         AudioDestinationNode: {
                             prototype: AudioDestinationNode;
                             new (): AudioDestinationNode;
+                        };
+                        AudioEncoder: {
+                            prototype: AudioEncoder;
+                            new (init: AudioEncoderInit): AudioEncoder;
+                            isConfigSupported(config: AudioEncoderConfig): Promise<AudioEncoderSupport>;
                         };
                         AudioListener: {
                             prototype: AudioListener;
@@ -11930,6 +12139,10 @@ declare class Pops {
                             prototype: CSSNamespaceRule;
                             new (): CSSNamespaceRule;
                         };
+                        CSSNestedDeclarations: {
+                            prototype: CSSNestedDeclarations;
+                            new (): CSSNestedDeclarations;
+                        };
                         CSSNumericArray: {
                             prototype: CSSNumericArray;
                             new (): CSSNumericArray;
@@ -12050,6 +12263,10 @@ declare class Pops {
                             prototype: CSSVariableReferenceValue;
                             new (variable: string, fallback?: CSSUnparsedValue | null): CSSVariableReferenceValue;
                         };
+                        CSSViewTransitionRule: {
+                            prototype: CSSViewTransitionRule;
+                            new (): CSSViewTransitionRule;
+                        };
                         Cache: {
                             prototype: Cache;
                             new (): Cache;
@@ -12073,6 +12290,10 @@ declare class Pops {
                         CanvasRenderingContext2D: {
                             prototype: CanvasRenderingContext2D;
                             new (): CanvasRenderingContext2D;
+                        };
+                        CaretPosition: {
+                            prototype: CaretPosition;
+                            new (): CaretPosition;
                         };
                         ChannelMergerNode: {
                             prototype: ChannelMergerNode;
@@ -12317,6 +12538,10 @@ declare class Pops {
                             prototype: ElementInternals;
                             new (): ElementInternals;
                         };
+                        EncodedAudioChunk: {
+                            prototype: EncodedAudioChunk;
+                            new (init: EncodedAudioChunkInit): EncodedAudioChunk;
+                        };
                         EncodedVideoChunk: {
                             prototype: EncodedVideoChunk;
                             new (init: EncodedVideoChunkInit): EncodedVideoChunk;
@@ -12409,11 +12634,11 @@ declare class Pops {
                         };
                         FontFace: {
                             prototype: FontFace;
-                            new (family: string, source: string | BinaryData, descriptors?: FontFaceDescriptors): FontFace;
+                            new (family: string, source: string | BufferSource, descriptors?: FontFaceDescriptors): FontFace;
                         };
                         FontFaceSet: {
                             prototype: FontFaceSet;
-                            new (initialFaces: FontFace[]): FontFaceSet;
+                            new (): FontFaceSet;
                         };
                         FontFaceSetLoadEvent: {
                             prototype: FontFaceSetLoadEvent;
@@ -12426,6 +12651,10 @@ declare class Pops {
                         FormDataEvent: {
                             prototype: FormDataEvent;
                             new (type: string, eventInitDict: FormDataEventInit): FormDataEvent;
+                        };
+                        FragmentDirective: {
+                            prototype: FragmentDirective;
+                            new (): FragmentDirective;
                         };
                         GainNode: {
                             prototype: GainNode;
@@ -12873,6 +13102,19 @@ declare class Pops {
                             new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
                             new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                         };
+                        ImageDecoder: {
+                            prototype: ImageDecoder;
+                            new (init: ImageDecoderInit): ImageDecoder;
+                            isTypeSupported(type: string): Promise<boolean>;
+                        };
+                        ImageTrack: {
+                            prototype: ImageTrack;
+                            new (): ImageTrack;
+                        };
+                        ImageTrackList: {
+                            prototype: ImageTrackList;
+                            new (): ImageTrackList;
+                        };
                         InputDeviceInfo: {
                             prototype: InputDeviceInfo;
                             new (): InputDeviceInfo;
@@ -12887,7 +13129,7 @@ declare class Pops {
                         };
                         IntersectionObserverEntry: {
                             prototype: IntersectionObserverEntry;
-                            new (intersectionObserverEntryInit: IntersectionObserverEntryInit): IntersectionObserverEntry;
+                            new (): IntersectionObserverEntry;
                         };
                         KeyboardEvent: {
                             prototype: KeyboardEvent;
@@ -13083,13 +13325,6 @@ declare class Pops {
                             prototype: MouseEvent;
                             new (type: string, eventInitDict?: MouseEventInit): MouseEvent;
                         };
-                        MutationEvent: {
-                            prototype: MutationEvent;
-                            new (): MutationEvent;
-                            readonly MODIFICATION: 1;
-                            readonly ADDITION: 2;
-                            readonly REMOVAL: 3;
-                        };
                         MutationObserver: {
                             prototype: MutationObserver;
                             new (callback: MutationCallback): MutationObserver;
@@ -13101,6 +13336,14 @@ declare class Pops {
                         NamedNodeMap: {
                             prototype: NamedNodeMap;
                             new (): NamedNodeMap;
+                        };
+                        NavigationActivation: {
+                            prototype: NavigationActivation;
+                            new (): NavigationActivation;
+                        };
+                        NavigationHistoryEntry: {
+                            prototype: NavigationHistoryEntry;
+                            new (): NavigationHistoryEntry;
                         };
                         NavigationPreloadManager: {
                             prototype: NavigationPreloadManager;
@@ -13171,6 +13414,14 @@ declare class Pops {
                             prototype: OverconstrainedError;
                             new (constraint: string, message?: string): OverconstrainedError;
                         };
+                        PageRevealEvent: {
+                            prototype: PageRevealEvent;
+                            new (type: string, eventInitDict?: PageRevealEventInit): PageRevealEvent;
+                        };
+                        PageSwapEvent: {
+                            prototype: PageSwapEvent;
+                            new (type: string, eventInitDict?: PageSwapEventInit): PageSwapEvent;
+                        };
                         PageTransitionEvent: {
                             prototype: PageTransitionEvent;
                             new (type: string, eventInitDict?: PageTransitionEventInit): PageTransitionEvent;
@@ -13183,13 +13434,17 @@ declare class Pops {
                             prototype: Path2D;
                             new (path?: Path2D | string): Path2D;
                         };
+                        PaymentAddress: {
+                            prototype: PaymentAddress;
+                            new (): PaymentAddress;
+                        };
                         PaymentMethodChangeEvent: {
                             prototype: PaymentMethodChangeEvent;
                             new (type: string, eventInitDict?: PaymentMethodChangeEventInit): PaymentMethodChangeEvent;
                         };
                         PaymentRequest: {
                             prototype: PaymentRequest;
-                            new (methodData: PaymentMethodData[], details: PaymentDetailsInit): PaymentRequest;
+                            new (methodData: PaymentMethodData[], details: PaymentDetailsInit, options?: PaymentOptions): PaymentRequest;
                         };
                         PaymentRequestUpdateEvent: {
                             prototype: PaymentRequestUpdateEvent;
@@ -13307,8 +13562,11 @@ declare class Pops {
                         PublicKeyCredential: {
                             prototype: PublicKeyCredential;
                             new (): PublicKeyCredential;
+                            getClientCapabilities(): Promise<PublicKeyCredentialClientCapabilities>;
                             isConditionalMediationAvailable(): Promise<boolean>;
                             isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean>;
+                            parseCreationOptionsFromJSON(options: PublicKeyCredentialCreationOptionsJSON): PublicKeyCredentialCreationOptions;
+                            parseRequestOptionsFromJSON(options: PublicKeyCredentialRequestOptionsJSON): PublicKeyCredentialRequestOptions;
                         };
                         PushManager: {
                             prototype: PushManager;
@@ -13444,7 +13702,7 @@ declare class Pops {
                         };
                         ReadableStreamBYOBReader: {
                             prototype: ReadableStreamBYOBReader;
-                            new (stream: ReadableStream): ReadableStreamBYOBReader;
+                            new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
                         };
                         ReadableStreamBYOBRequest: {
                             prototype: ReadableStreamBYOBRequest;
@@ -14252,6 +14510,10 @@ declare class Pops {
                         ViewTransition: {
                             prototype: ViewTransition;
                             new (): ViewTransition;
+                        };
+                        ViewTransitionTypeSet: {
+                            prototype: ViewTransitionTypeSet;
+                            new (): ViewTransitionTypeSet;
                         };
                         VisualViewport: {
                             prototype: VisualViewport;
@@ -15592,7 +15854,7 @@ declare class Pops {
                                 [x: number]: {
                                     readonly description: string;
                                     readonly enabledPlugin: {
-                                        [x: number]: any;
+                                        [x: number]: /*elided*/ any;
                                         readonly description: string;
                                         readonly filename: string;
                                         readonly length: number;
@@ -15610,7 +15872,12 @@ declare class Pops {
                             readonly pdfViewerEnabled: boolean;
                             readonly plugins: {
                                 [x: number]: {
-                                    [x: number]: any;
+                                    [x: number]: {
+                                        readonly description: string;
+                                        readonly enabledPlugin: /*elided*/ any;
+                                        readonly suffixes: string;
+                                        readonly type: string;
+                                    };
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -15682,7 +15949,7 @@ declare class Pops {
                             IsSearchProviderInstalled: () => void;
                         };
                         frameElement: Element | null;
-                        frames: any;
+                        frames: /*elided*/ any;
                         history: {
                             readonly length: number;
                             scrollRestoration: ScrollRestoration;
@@ -15870,7 +16137,7 @@ declare class Pops {
                                 [x: number]: {
                                     readonly description: string;
                                     readonly enabledPlugin: {
-                                        [x: number]: any;
+                                        [x: number]: /*elided*/ any;
                                         readonly description: string;
                                         readonly filename: string;
                                         readonly length: number;
@@ -15888,7 +16155,12 @@ declare class Pops {
                             readonly pdfViewerEnabled: boolean;
                             readonly plugins: {
                                 [x: number]: {
-                                    [x: number]: any;
+                                    [x: number]: {
+                                        readonly description: string;
+                                        readonly enabledPlugin: /*elided*/ any;
+                                        readonly suffixes: string;
+                                        readonly type: string;
+                                    };
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -15919,7 +16191,7 @@ declare class Pops {
                         outerWidth: number;
                         pageXOffset: number;
                         pageYOffset: number;
-                        parent: any;
+                        parent: /*elided*/ any;
                         personalbar: {
                             readonly visible: boolean;
                         };
@@ -15955,7 +16227,7 @@ declare class Pops {
                         scrollbars: {
                             readonly visible: boolean;
                         };
-                        self: any;
+                        self: /*elided*/ any;
                         speechSynthesis: {
                             onvoiceschanged: ((this: SpeechSynthesis, ev: Event) => any) | null;
                             readonly paused: boolean;
@@ -15983,7 +16255,7 @@ declare class Pops {
                         toolbar: {
                             readonly visible: boolean;
                         };
-                        top: any | null;
+                        top: /*elided*/ any | null;
                         visualViewport: {
                             readonly height: number;
                             readonly offsetLeft: number;
@@ -16004,7 +16276,7 @@ declare class Pops {
                             };
                             dispatchEvent: (event: Event) => boolean;
                         } | null;
-                        window: any;
+                        window: /*elided*/ any;
                         onabort: ((this: Window, ev: UIEvent) => any) | null;
                         onanimationcancel: ((this: Window, ev: AnimationEvent) => any) | null;
                         onanimationend: ((this: Window, ev: AnimationEvent) => any) | null;
@@ -16115,7 +16387,9 @@ declare class Pops {
                         onoffline: ((this: Window, ev: Event) => any) | null;
                         ononline: ((this: Window, ev: Event) => any) | null;
                         onpagehide: ((this: Window, ev: PageTransitionEvent) => any) | null;
+                        onpagereveal: ((this: Window, ev: Event) => any) | null;
                         onpageshow: ((this: Window, ev: PageTransitionEvent) => any) | null;
+                        onpageswap: ((this: Window, ev: Event) => any) | null;
                         onpopstate: ((this: Window, ev: PopStateEvent) => any) | null;
                         onrejectionhandled: ((this: Window, ev: PromiseRejectionEvent) => any) | null;
                         onstorage: ((this: Window, ev: StorageEvent) => any) | null;
@@ -16141,7 +16415,7 @@ declare class Pops {
                         crypto: {
                             readonly subtle: {
                                 decrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
-                                deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length: number) => Promise<ArrayBuffer>;
+                                deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length?: number | null) => Promise<ArrayBuffer>;
                                 deriveKey: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>;
                                 digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
                                 encrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
@@ -16151,7 +16425,9 @@ declare class Pops {
                                     (format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey>;
                                 };
                                 generateKey: {
-                                    (algorithm: "Ed25519", extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
+                                    (algorithm: "Ed25519" | {
+                                        name: "Ed25519";
+                                    }, extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
                                     (algorithm: RsaHashedKeyGenParams | EcKeyGenParams, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKeyPair>;
                                     (algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKey>;
                                     (algorithm: AlgorithmIdentifier, extractable: boolean, keyUsages: KeyUsage[]): Promise<CryptoKeyPair | CryptoKey>;
@@ -16269,49 +16545,49 @@ declare class Pops {
                         SharedArrayBuffer: SharedArrayBufferConstructor;
                         Atomics: {
                             add: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             and: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             compareExchange: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, expectedValue: number, replacementValue: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, expectedValue: number, replacementValue: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
                             };
                             exchange: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             isLockFree: (size: number) => boolean;
                             load: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number): bigint;
                             };
                             or: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             store: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             sub: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             wait: {
-                                (typedArray: Int32Array, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
-                                (typedArray: BigInt64Array, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
+                                (typedArray: Int32Array<ArrayBufferLike>, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
+                                (typedArray: BigInt64Array<ArrayBufferLike>, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
                             };
                             notify: {
-                                (typedArray: Int32Array, index: number, count?: number): number;
-                                (typedArray: BigInt64Array, index: number, count?: number): number;
+                                (typedArray: Int32Array<ArrayBufferLike>, index: number, count?: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike>, index: number, count?: number): number;
                             };
                             xor: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             waitAsync: {
                                 (typedArray: Int32Array, index: number, value: number, timeout?: number): {
@@ -16340,7 +16616,8 @@ declare class Pops {
                         SuppressedError: SuppressedErrorConstructor;
                         DisposableStack: DisposableStackConstructor;
                         AsyncDisposableStack: AsyncDisposableStackConstructor;
-                        unsafeWindow: any;
+                        Float16Array: Float16ArrayConstructor;
+                        unsafeWindow: /*elided*/ any;
                         undefined: undefined;
                     };
                     eval: typeof eval;
@@ -16406,6 +16683,7 @@ declare class Pops {
                         trunc: (x: number) => number;
                         fround: (x: number) => number;
                         cbrt: (x: number) => number;
+                        f16round: (x: number) => number;
                         readonly [Symbol.toStringTag]: string;
                     };
                     Date: DateConstructor;
@@ -16544,9 +16822,23 @@ declare class Pops {
                         prototype: AudioContext;
                         new (contextOptions?: AudioContextOptions): AudioContext;
                     };
+                    AudioData: {
+                        prototype: AudioData;
+                        new (init: AudioDataInit): AudioData;
+                    };
+                    AudioDecoder: {
+                        prototype: AudioDecoder;
+                        new (init: AudioDecoderInit): AudioDecoder;
+                        isConfigSupported(config: AudioDecoderConfig): Promise<AudioDecoderSupport>;
+                    };
                     AudioDestinationNode: {
                         prototype: AudioDestinationNode;
                         new (): AudioDestinationNode;
+                    };
+                    AudioEncoder: {
+                        prototype: AudioEncoder;
+                        new (init: AudioEncoderInit): AudioEncoder;
+                        isConfigSupported(config: AudioEncoderConfig): Promise<AudioEncoderSupport>;
                     };
                     AudioListener: {
                         prototype: AudioListener;
@@ -16732,6 +17024,10 @@ declare class Pops {
                         prototype: CSSNamespaceRule;
                         new (): CSSNamespaceRule;
                     };
+                    CSSNestedDeclarations: {
+                        prototype: CSSNestedDeclarations;
+                        new (): CSSNestedDeclarations;
+                    };
                     CSSNumericArray: {
                         prototype: CSSNumericArray;
                         new (): CSSNumericArray;
@@ -16852,6 +17148,10 @@ declare class Pops {
                         prototype: CSSVariableReferenceValue;
                         new (variable: string, fallback?: CSSUnparsedValue | null): CSSVariableReferenceValue;
                     };
+                    CSSViewTransitionRule: {
+                        prototype: CSSViewTransitionRule;
+                        new (): CSSViewTransitionRule;
+                    };
                     Cache: {
                         prototype: Cache;
                         new (): Cache;
@@ -16875,6 +17175,10 @@ declare class Pops {
                     CanvasRenderingContext2D: {
                         prototype: CanvasRenderingContext2D;
                         new (): CanvasRenderingContext2D;
+                    };
+                    CaretPosition: {
+                        prototype: CaretPosition;
+                        new (): CaretPosition;
                     };
                     ChannelMergerNode: {
                         prototype: ChannelMergerNode;
@@ -17119,6 +17423,10 @@ declare class Pops {
                         prototype: ElementInternals;
                         new (): ElementInternals;
                     };
+                    EncodedAudioChunk: {
+                        prototype: EncodedAudioChunk;
+                        new (init: EncodedAudioChunkInit): EncodedAudioChunk;
+                    };
                     EncodedVideoChunk: {
                         prototype: EncodedVideoChunk;
                         new (init: EncodedVideoChunkInit): EncodedVideoChunk;
@@ -17211,11 +17519,11 @@ declare class Pops {
                     };
                     FontFace: {
                         prototype: FontFace;
-                        new (family: string, source: string | BinaryData, descriptors?: FontFaceDescriptors): FontFace;
+                        new (family: string, source: string | BufferSource, descriptors?: FontFaceDescriptors): FontFace;
                     };
                     FontFaceSet: {
                         prototype: FontFaceSet;
-                        new (initialFaces: FontFace[]): FontFaceSet;
+                        new (): FontFaceSet;
                     };
                     FontFaceSetLoadEvent: {
                         prototype: FontFaceSetLoadEvent;
@@ -17228,6 +17536,10 @@ declare class Pops {
                     FormDataEvent: {
                         prototype: FormDataEvent;
                         new (type: string, eventInitDict: FormDataEventInit): FormDataEvent;
+                    };
+                    FragmentDirective: {
+                        prototype: FragmentDirective;
+                        new (): FragmentDirective;
                     };
                     GainNode: {
                         prototype: GainNode;
@@ -17675,6 +17987,19 @@ declare class Pops {
                         new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
                         new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                     };
+                    ImageDecoder: {
+                        prototype: ImageDecoder;
+                        new (init: ImageDecoderInit): ImageDecoder;
+                        isTypeSupported(type: string): Promise<boolean>;
+                    };
+                    ImageTrack: {
+                        prototype: ImageTrack;
+                        new (): ImageTrack;
+                    };
+                    ImageTrackList: {
+                        prototype: ImageTrackList;
+                        new (): ImageTrackList;
+                    };
                     InputDeviceInfo: {
                         prototype: InputDeviceInfo;
                         new (): InputDeviceInfo;
@@ -17689,7 +18014,7 @@ declare class Pops {
                     };
                     IntersectionObserverEntry: {
                         prototype: IntersectionObserverEntry;
-                        new (intersectionObserverEntryInit: IntersectionObserverEntryInit): IntersectionObserverEntry;
+                        new (): IntersectionObserverEntry;
                     };
                     KeyboardEvent: {
                         prototype: KeyboardEvent;
@@ -17885,13 +18210,6 @@ declare class Pops {
                         prototype: MouseEvent;
                         new (type: string, eventInitDict?: MouseEventInit): MouseEvent;
                     };
-                    MutationEvent: {
-                        prototype: MutationEvent;
-                        new (): MutationEvent;
-                        readonly MODIFICATION: 1;
-                        readonly ADDITION: 2;
-                        readonly REMOVAL: 3;
-                    };
                     MutationObserver: {
                         prototype: MutationObserver;
                         new (callback: MutationCallback): MutationObserver;
@@ -17903,6 +18221,14 @@ declare class Pops {
                     NamedNodeMap: {
                         prototype: NamedNodeMap;
                         new (): NamedNodeMap;
+                    };
+                    NavigationActivation: {
+                        prototype: NavigationActivation;
+                        new (): NavigationActivation;
+                    };
+                    NavigationHistoryEntry: {
+                        prototype: NavigationHistoryEntry;
+                        new (): NavigationHistoryEntry;
                     };
                     NavigationPreloadManager: {
                         prototype: NavigationPreloadManager;
@@ -17973,6 +18299,14 @@ declare class Pops {
                         prototype: OverconstrainedError;
                         new (constraint: string, message?: string): OverconstrainedError;
                     };
+                    PageRevealEvent: {
+                        prototype: PageRevealEvent;
+                        new (type: string, eventInitDict?: PageRevealEventInit): PageRevealEvent;
+                    };
+                    PageSwapEvent: {
+                        prototype: PageSwapEvent;
+                        new (type: string, eventInitDict?: PageSwapEventInit): PageSwapEvent;
+                    };
                     PageTransitionEvent: {
                         prototype: PageTransitionEvent;
                         new (type: string, eventInitDict?: PageTransitionEventInit): PageTransitionEvent;
@@ -17985,13 +18319,17 @@ declare class Pops {
                         prototype: Path2D;
                         new (path?: Path2D | string): Path2D;
                     };
+                    PaymentAddress: {
+                        prototype: PaymentAddress;
+                        new (): PaymentAddress;
+                    };
                     PaymentMethodChangeEvent: {
                         prototype: PaymentMethodChangeEvent;
                         new (type: string, eventInitDict?: PaymentMethodChangeEventInit): PaymentMethodChangeEvent;
                     };
                     PaymentRequest: {
                         prototype: PaymentRequest;
-                        new (methodData: PaymentMethodData[], details: PaymentDetailsInit): PaymentRequest;
+                        new (methodData: PaymentMethodData[], details: PaymentDetailsInit, options?: PaymentOptions): PaymentRequest;
                     };
                     PaymentRequestUpdateEvent: {
                         prototype: PaymentRequestUpdateEvent;
@@ -18109,8 +18447,11 @@ declare class Pops {
                     PublicKeyCredential: {
                         prototype: PublicKeyCredential;
                         new (): PublicKeyCredential;
+                        getClientCapabilities(): Promise<PublicKeyCredentialClientCapabilities>;
                         isConditionalMediationAvailable(): Promise<boolean>;
                         isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean>;
+                        parseCreationOptionsFromJSON(options: PublicKeyCredentialCreationOptionsJSON): PublicKeyCredentialCreationOptions;
+                        parseRequestOptionsFromJSON(options: PublicKeyCredentialRequestOptionsJSON): PublicKeyCredentialRequestOptions;
                     };
                     PushManager: {
                         prototype: PushManager;
@@ -18246,7 +18587,7 @@ declare class Pops {
                     };
                     ReadableStreamBYOBReader: {
                         prototype: ReadableStreamBYOBReader;
-                        new (stream: ReadableStream): ReadableStreamBYOBReader;
+                        new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
                     };
                     ReadableStreamBYOBRequest: {
                         prototype: ReadableStreamBYOBRequest;
@@ -19054,6 +19395,10 @@ declare class Pops {
                     ViewTransition: {
                         prototype: ViewTransition;
                         new (): ViewTransition;
+                    };
+                    ViewTransitionTypeSet: {
+                        prototype: ViewTransitionTypeSet;
+                        new (): ViewTransitionTypeSet;
                     };
                     VisualViewport: {
                         prototype: VisualViewport;
@@ -20271,49 +20616,49 @@ declare class Pops {
                     SharedArrayBuffer: SharedArrayBufferConstructor;
                     Atomics: {
                         add: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         and: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         compareExchange: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, expectedValue: number, replacementValue: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, expectedValue: number, replacementValue: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
                         };
                         exchange: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         isLockFree: (size: number) => boolean;
                         load: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number): bigint;
                         };
                         or: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         store: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         sub: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         wait: {
-                            (typedArray: Int32Array, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
-                            (typedArray: BigInt64Array, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
+                            (typedArray: Int32Array<ArrayBufferLike>, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
+                            (typedArray: BigInt64Array<ArrayBufferLike>, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
                         };
                         notify: {
-                            (typedArray: Int32Array, index: number, count?: number): number;
-                            (typedArray: BigInt64Array, index: number, count?: number): number;
+                            (typedArray: Int32Array<ArrayBufferLike>, index: number, count?: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike>, index: number, count?: number): number;
                         };
                         xor: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         waitAsync: {
                             (typedArray: Int32Array, index: number, value: number, timeout?: number): {
@@ -20342,7 +20687,8 @@ declare class Pops {
                     SuppressedError: SuppressedErrorConstructor;
                     DisposableStack: DisposableStackConstructor;
                     AsyncDisposableStack: AsyncDisposableStackConstructor;
-                    unsafeWindow: any;
+                    Float16Array: Float16ArrayConstructor;
+                    unsafeWindow: /*elided*/ any;
                     undefined: undefined;
                 };
                 alert: (message?: any) => void;
@@ -20502,7 +20848,9 @@ declare class Pops {
                 onoffline: ((this: WindowEventHandlers, ev: Event) => any) | null;
                 ononline: ((this: WindowEventHandlers, ev: Event) => any) | null;
                 onpagehide: ((this: WindowEventHandlers, ev: PageTransitionEvent) => any) | null;
+                onpagereveal: ((this: WindowEventHandlers, ev: Event) => any) | null;
                 onpageshow: ((this: WindowEventHandlers, ev: PageTransitionEvent) => any) | null;
+                onpageswap: ((this: WindowEventHandlers, ev: Event) => any) | null;
                 onpopstate: ((this: WindowEventHandlers, ev: PopStateEvent) => any) | null;
                 onrejectionhandled: ((this: WindowEventHandlers, ev: PromiseRejectionEvent) => any) | null;
                 onstorage: ((this: WindowEventHandlers, ev: StorageEvent) => any) | null;
@@ -20528,7 +20876,7 @@ declare class Pops {
                 readonly crypto: {
                     readonly subtle: {
                         decrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
-                        deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length: number) => Promise<ArrayBuffer>;
+                        deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length?: number | null) => Promise<ArrayBuffer>;
                         deriveKey: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>;
                         digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
                         encrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
@@ -20538,7 +20886,9 @@ declare class Pops {
                             (format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey>;
                         };
                         generateKey: {
-                            (algorithm: "Ed25519", extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
+                            (algorithm: "Ed25519" | {
+                                name: "Ed25519";
+                            }, extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
                             (algorithm: RsaHashedKeyGenParams | EcKeyGenParams, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKeyPair>;
                             (algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKey>;
                             (algorithm: AlgorithmIdentifier, extractable: boolean, keyUsages: KeyUsage[]): Promise<CryptoKeyPair | CryptoKey>;
@@ -20653,7 +21003,7 @@ declare class Pops {
                 iconIsLoading: boolean;
                 text: string | (() => string);
                 callback: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement) => boolean | void | Promise<boolean | void>;
-                item: any[] | null;
+                item: /*elided*/ any[] | null;
             }[];
             className: string;
             isAnimation: boolean;

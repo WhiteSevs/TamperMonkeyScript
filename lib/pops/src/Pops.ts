@@ -80,7 +80,7 @@ class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2025.5.25",
+		version: "2025.5.26",
 		cssText: {
 			/** 主CSS */
 			index: indexCSS,
@@ -197,7 +197,7 @@ class Pops {
 			this.config.animation = PopsInstanceUtils.getKeyFrames(
 				animationStyle.sheet!
 			);
-			setTimeout(() => {
+			popsUtils.setTimeout(() => {
 				animationStyle.remove();
 			}, 50);
 		}

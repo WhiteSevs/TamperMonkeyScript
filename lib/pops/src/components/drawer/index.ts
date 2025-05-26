@@ -215,8 +215,8 @@ export const PopsDrawer = {
 		}
 
 		popsDOMUtils.appendBody($shadowContainer);
-		setTimeout(() => {
-			setTimeout(() => {
+		popsUtils.setTimeout(() => {
+			popsUtils.setTimeout(() => {
 				$pops.style.setProperty("transform", "");
 			}, config.openDelay);
 		}, 50);

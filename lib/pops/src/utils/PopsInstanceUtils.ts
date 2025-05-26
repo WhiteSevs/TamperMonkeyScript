@@ -273,7 +273,7 @@ export const PopsInstanceUtils = {
 				animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
 			if (popsType === "drawer") {
 				let drawerConfig = config as Required<PopsDrawerDetails>;
-				setTimeout(() => {
+				popsUtils.setTimeout(() => {
 					maskElement.style.setProperty("display", "none");
 					if (["top", "bottom"].includes(drawerConfig.direction)) {
 						popsElement.style.setProperty("height", "0");
@@ -368,7 +368,7 @@ export const PopsInstanceUtils = {
 				animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
 			if (popsType === "drawer") {
 				let drawerConfig = config as PopsDrawerDetails;
-				setTimeout(() => {
+				popsUtils.setTimeout(() => {
 					popsDOMUtils.css(maskElement!, "display", "");
 					let direction = drawerConfig.direction!;
 					let size = drawerConfig.size!.toString();
@@ -380,7 +380,7 @@ export const PopsInstanceUtils = {
 						console.error("未知direction：", direction);
 					}
 					resolve();
-				}, drawerConfig.openDelay);
+				}, drawerConfig.openDelay ?? 0);
 			} else {
 				let findLayerIns = layerConfigList.find(
 					(layerConfigItem) => layerConfigItem.guid === guid
@@ -512,7 +512,7 @@ export const PopsInstanceUtils = {
 			}
 
 			if (popsType === "drawer") {
-				setTimeout(() => {
+				popsUtils.setTimeout(() => {
 					transitionendEvent();
 				}, drawerConfig.closeDelay);
 			} else {
@@ -786,10 +786,10 @@ export const PopsInstanceUtils = {
 		sortByDesc = true
 	) {
 		if (typeof sortByDesc !== "boolean") {
-			throw "参数 sortByDesc 必须为boolean类型";
+			throw new TypeError("参数 sortByDesc 必须为boolean类型");
 		}
 		if (getBeforeValueFun == null || getAfterValueFun == null) {
-			throw "获取前面的值或后面的值的方法不能为空";
+			throw new Error("获取前面的值或后面的值的方法不能为空");
 		}
 		return function (after_obj: T, before_obj: T) {
 			var beforeValue = getBeforeValueFun(before_obj); /*  前 */

@@ -1,6 +1,6 @@
 import type { PopsCommonConfig } from "../../types/components";
 /** tooltip的出现位置 */
-export type PopsTooltipPosition = "top" | "right" | "bottom" | "left";
+export type PopsTooltipPosition = "top" | "right" | "bottom" | "left" | "follow";
 /**
  * pops.tooltip
  */
@@ -15,18 +15,19 @@ export interface PopsToolTipDetails extends Pick<PopsCommonConfig, "useShadowRoo
     content: string | (() => string);
     /**
      * 位置
+     * + `follow` 跟随鼠标|触摸位置移动
      * @default "top"
      */
     position?: PopsTooltipPosition;
     /**
      * 自定义className
      *
-     * + github-tooltip github的样式
+     * + `github-tooltip` github的样式
      * @default ""
      */
     className?: string;
     /**
-     * 是否使用fixed定位，默认是absolute
+     * 是否使用fixed定位，false则是absolute定位
      *
      * @default false
      */
@@ -35,7 +36,7 @@ export interface PopsToolTipDetails extends Pick<PopsCommonConfig, "useShadowRoo
      * 是否总是显示，默认为false
      * + true 设置的triggerShowEventName、triggerCloseEventName将无效
      *        返回提供show和close函数，取消on和off
-     * + false 不添加事件，只显示
+     * + false 事件触发才显示
      */
     alwaysShow?: boolean;
     /**
@@ -98,6 +99,7 @@ export interface PopsToolTipDetails extends Pick<PopsCommonConfig, "useShadowRoo
      * 其它的距离(px)
      * + 当position为left或者right，这个距离是上、下距离
      * + 当position为top或者bottom，这个距离是左、右距离
+     * + 当position为follow，这个距离是上、左距离
      * @default 0
      */
     otherDistance?: number;

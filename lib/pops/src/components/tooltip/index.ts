@@ -146,6 +146,7 @@ export class ToolTip {
 	}
 	/**
 	 * 计算 提示框的位置
+	 * @param event 触发的事件
 	 * @param targetElement 目标元素
 	 * @param arrowDistance 箭头和目标元素的距离
 	 * @param otherDistance 其它位置的偏移
@@ -153,7 +154,8 @@ export class ToolTip {
 	calcToolTipPosition(
 		targetElement: HTMLElement,
 		arrowDistance: number,
-		otherDistance: number
+		otherDistance: number,
+		event?: MouseEvent | TouchEvent | PointerEvent
 	) {
 		let offsetInfo = popsDOMUtils.offset(
 			targetElement,
@@ -180,6 +182,30 @@ export class ToolTip {
 		/* 目标元素的Y轴的中间位置 */
 		let targetElement_Y_center_pos =
 			targetElement_top + targetElement_height / 2 - toolTipElement_height / 2;
+
+		let mouseX = 0;
+		let mouseY = 0;
+		if (event != null) {
+			if (event instanceof MouseEvent || event instanceof PointerEvent) {
+				mouseX = event.pageX;
+				mouseY = event.y;
+			} else if (event instanceof TouchEvent) {
+				let touchEvent = event.touches[0];
+				mouseX = touchEvent.pageX;
+				mouseY = touchEvent.pageY;
+			} else {
+				// @ts-ignore
+				if (typeof event.clientX === "number") {
+					// @ts-ignore
+					mouseX = event.clientX;
+				}
+				// @ts-ignore
+				if (typeof event.clientY === "number") {
+					// @ts-ignore
+					mouseY = event.clientY;
+				}
+			}
+		}
 		return {
 			TOP: {
 				left: targetElement_X_center_pos - otherDistance,
@@ -205,19 +231,26 @@ export class ToolTip {
 				arrow: "right",
 				motion: "fadeInLeft",
 			},
+			FOLLOW: {
+				left: mouseX + otherDistance,
+				top: mouseY + otherDistance,
+				arrow: "follow",
+				motion: "",
+			},
 		};
 	}
 	/**
 	 * 动态修改tooltip的位置
 	 */
-	changePosition() {
+	changePosition(event?: MouseEvent | TouchEvent | PointerEvent) {
 		let positionInfo = this.calcToolTipPosition(
 			this.$data.config.target,
 			this.$data.config.arrowDistance,
-			this.$data.config.otherDistance
+			this.$data.config.otherDistance,
+			event
 		);
-		let positionKey =
-			this.$data.config.position.toUpperCase() as any as keyof typeof positionInfo;
+		let positionKey = this.$data.config.position.toUpperCase() as any as
+			| keyof typeof positionInfo;
 		let positionDetail = positionInfo[positionKey];
 		if (positionDetail) {
 			this.$el.$toolTip.style.left = positionDetail.left + "px";
@@ -276,12 +309,12 @@ export class ToolTip {
 			if (typeof timeId === "number") {
 				// 只清除一个
 				if (timeId == currentTimeId) {
-					clearTimeout(timeId);
+					popsUtils.clearTimeout(timeId);
 					timeIdList.splice(index, 1);
 					break;
 				}
 			} else {
-				clearTimeout(currentTimeId);
+				popsUtils.clearTimeout(currentTimeId);
 				timeIdList.splice(index, 1);
 				index--;
 			}
@@ -322,7 +355,7 @@ export class ToolTip {
 		// 更新内容
 		this.changeContent();
 		// 更新tip的位置
-		this.changePosition();
+		this.changePosition(event);
 		if (typeof this.$data.config.showAfterCallBack === "function") {
 			this.$data.config.showAfterCallBack(this.$el.$toolTip);
 		}
@@ -380,19 +413,26 @@ export class ToolTip {
 		) {
 			this.$data.config.delayCloseTime = 100;
 		}
-		let timeId = setTimeout(() => {
+		let timeId = popsUtils.setTimeout(() => {
 			// 设置属性触发关闭动画
 			this.clearCloseTimeoutId(eventType, timeId);
 			if (this.$el.$toolTip == null) {
 				// 已清除了
 				return;
 			}
-			this.$el.$toolTip.setAttribute(
-				"data-motion",
-				this.$el.$toolTip
-					.getAttribute("data-motion")!
-					.replace("fadeIn", "fadeOut")
-			);
+			let motion = this.$el.$toolTip.getAttribute("data-motion");
+			if (motion == null || motion.trim() === "") {
+				// 没有动画
+				this.toolTipAnimationFinishEvent();
+			} else {
+				// 修改data-motion触发动画关闭
+				this.$el.$toolTip.setAttribute(
+					"data-motion",
+					this.$el.$toolTip
+						.getAttribute("data-motion")!
+						.replace("fadeIn", "fadeOut")
+				);
+			}
 		}, this.$data.config.delayCloseTime);
 		this.addCloseTimeoutId(eventType, timeId);
 		if (typeof this.$data.config.closeAfterCallBack === "function") {
@@ -554,7 +594,7 @@ export const PopsTooltip = {
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (!(config.target instanceof HTMLElement)) {
-			throw "config.target 必须是HTMLElement类型";
+			throw new TypeError("config.target 必须是HTMLElement类型");
 		}
 		config = PopsHandler.handleOnly(PopsType, config);
 

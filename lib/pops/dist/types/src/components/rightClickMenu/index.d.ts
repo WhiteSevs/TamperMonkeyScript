@@ -9,7 +9,7 @@ export declare const PopsRightClickMenu: {
                 dispatchEvent: (event: Event) => boolean;
                 removeEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean) => void;
             } | {
-                [x: number]: any;
+                [x: number]: /*elided*/ any;
                 readonly clientInformation: {
                     readonly clipboard: {
                         read: () => Promise<ClipboardItems>;
@@ -157,7 +157,7 @@ export declare const PopsRightClickMenu: {
                         [x: number]: {
                             readonly description: string;
                             readonly enabledPlugin: {
-                                [x: number]: any;
+                                [x: number]: /*elided*/ any;
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -175,7 +175,12 @@ export declare const PopsRightClickMenu: {
                     readonly pdfViewerEnabled: boolean;
                     readonly plugins: {
                         [x: number]: {
-                            [x: number]: any;
+                            [x: number]: {
+                                readonly description: string;
+                                readonly enabledPlugin: /*elided*/ any;
+                                readonly suffixes: string;
+                                readonly type: string;
+                            };
                             readonly description: string;
                             readonly filename: string;
                             readonly length: number;
@@ -247,7 +252,7 @@ export declare const PopsRightClickMenu: {
                     IsSearchProviderInstalled: () => void;
                 };
                 readonly frameElement: Element | null;
-                readonly frames: any;
+                readonly frames: /*elided*/ any;
                 readonly history: {
                     readonly length: number;
                     scrollRestoration: ScrollRestoration;
@@ -436,7 +441,7 @@ export declare const PopsRightClickMenu: {
                         [x: number]: {
                             readonly description: string;
                             readonly enabledPlugin: {
-                                [x: number]: any;
+                                [x: number]: /*elided*/ any;
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -454,7 +459,12 @@ export declare const PopsRightClickMenu: {
                     readonly pdfViewerEnabled: boolean;
                     readonly plugins: {
                         [x: number]: {
-                            [x: number]: any;
+                            [x: number]: {
+                                readonly description: string;
+                                readonly enabledPlugin: /*elided*/ any;
+                                readonly suffixes: string;
+                                readonly type: string;
+                            };
                             readonly description: string;
                             readonly filename: string;
                             readonly length: number;
@@ -485,7 +495,7 @@ export declare const PopsRightClickMenu: {
                 readonly outerWidth: number;
                 readonly pageXOffset: number;
                 readonly pageYOffset: number;
-                readonly parent: any;
+                readonly parent: /*elided*/ any;
                 readonly personalbar: {
                     readonly visible: boolean;
                 };
@@ -522,7 +532,7 @@ export declare const PopsRightClickMenu: {
                     readonly visible: boolean;
                 };
                 readonly self: {
-                    [x: number]: any;
+                    [x: number]: /*elided*/ any;
                     clientInformation: {
                         readonly clipboard: {
                             read: () => Promise<ClipboardItems>;
@@ -670,7 +680,7 @@ export declare const PopsRightClickMenu: {
                             [x: number]: {
                                 readonly description: string;
                                 readonly enabledPlugin: {
-                                    [x: number]: any;
+                                    [x: number]: /*elided*/ any;
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -688,7 +698,12 @@ export declare const PopsRightClickMenu: {
                         readonly pdfViewerEnabled: boolean;
                         readonly plugins: {
                             [x: number]: {
-                                [x: number]: any;
+                                [x: number]: {
+                                    readonly description: string;
+                                    readonly enabledPlugin: /*elided*/ any;
+                                    readonly suffixes: string;
+                                    readonly type: string;
+                                };
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -760,7 +775,7 @@ export declare const PopsRightClickMenu: {
                         IsSearchProviderInstalled: () => void;
                     };
                     frameElement: Element | null;
-                    frames: any;
+                    frames: /*elided*/ any;
                     history: {
                         readonly length: number;
                         scrollRestoration: ScrollRestoration;
@@ -949,7 +964,7 @@ export declare const PopsRightClickMenu: {
                             [x: number]: {
                                 readonly description: string;
                                 readonly enabledPlugin: {
-                                    [x: number]: any;
+                                    [x: number]: /*elided*/ any;
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -967,7 +982,12 @@ export declare const PopsRightClickMenu: {
                         readonly pdfViewerEnabled: boolean;
                         readonly plugins: {
                             [x: number]: {
-                                [x: number]: any;
+                                [x: number]: {
+                                    readonly description: string;
+                                    readonly enabledPlugin: /*elided*/ any;
+                                    readonly suffixes: string;
+                                    readonly type: string;
+                                };
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -998,7 +1018,7 @@ export declare const PopsRightClickMenu: {
                     outerWidth: number;
                     pageXOffset: number;
                     pageYOffset: number;
-                    parent: any;
+                    parent: /*elided*/ any;
                     personalbar: {
                         readonly visible: boolean;
                     };
@@ -1034,7 +1054,7 @@ export declare const PopsRightClickMenu: {
                     scrollbars: {
                         readonly visible: boolean;
                     };
-                    self: any;
+                    self: /*elided*/ any;
                     speechSynthesis: {
                         onvoiceschanged: ((this: SpeechSynthesis, ev: Event) => any) | null;
                         readonly paused: boolean;
@@ -1062,7 +1082,7 @@ export declare const PopsRightClickMenu: {
                     toolbar: {
                         readonly visible: boolean;
                     };
-                    top: any | null;
+                    top: /*elided*/ any | null;
                     visualViewport: {
                         readonly height: number;
                         readonly offsetLeft: number;
@@ -1083,7 +1103,7 @@ export declare const PopsRightClickMenu: {
                         };
                         dispatchEvent: (event: Event) => boolean;
                     } | null;
-                    window: any;
+                    window: /*elided*/ any;
                     alert: ((message?: any) => void) & typeof alert;
                     blur: (() => void) & typeof blur;
                     cancelIdleCallback: ((handle: number) => void) & typeof cancelIdleCallback;
@@ -1241,7 +1261,9 @@ export declare const PopsRightClickMenu: {
                     onoffline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     ononline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpagehide: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
+                    onpagereveal: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpageshow: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
+                    onpageswap: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpopstate: (((this: WindowEventHandlers, ev: PopStateEvent) => any) & ((this: Window, ev: PopStateEvent) => any)) | null;
                     onrejectionhandled: (((this: WindowEventHandlers, ev: PromiseRejectionEvent) => any) & ((this: Window, ev: PromiseRejectionEvent) => any)) | null;
                     onstorage: (((this: WindowEventHandlers, ev: StorageEvent) => any) & ((this: Window, ev: StorageEvent) => any)) | null;
@@ -1267,7 +1289,7 @@ export declare const PopsRightClickMenu: {
                     crypto: {
                         readonly subtle: {
                             decrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
-                            deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length: number) => Promise<ArrayBuffer>;
+                            deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length?: number | null) => Promise<ArrayBuffer>;
                             deriveKey: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>;
                             digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
                             encrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
@@ -1277,7 +1299,9 @@ export declare const PopsRightClickMenu: {
                                 (format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey>;
                             };
                             generateKey: {
-                                (algorithm: "Ed25519", extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
+                                (algorithm: "Ed25519" | {
+                                    name: "Ed25519";
+                                }, extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
                                 (algorithm: RsaHashedKeyGenParams | EcKeyGenParams, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKeyPair>;
                                 (algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKey>;
                                 (algorithm: AlgorithmIdentifier, extractable: boolean, keyUsages: KeyUsage[]): Promise<CryptoKeyPair | CryptoKey>;
@@ -1386,7 +1410,7 @@ export declare const PopsRightClickMenu: {
                         setItem: (key: string, value: string) => void;
                     };
                     readonly globalThis: {
-                        readonly globalThis: any;
+                        readonly globalThis: /*elided*/ any;
                         eval: typeof eval;
                         parseInt: typeof parseInt;
                         parseFloat: typeof parseFloat;
@@ -1450,6 +1474,7 @@ export declare const PopsRightClickMenu: {
                             trunc: (x: number) => number;
                             fround: (x: number) => number;
                             cbrt: (x: number) => number;
+                            f16round: (x: number) => number;
                             readonly [Symbol.toStringTag]: string;
                         };
                         Date: DateConstructor;
@@ -1628,9 +1653,23 @@ export declare const PopsRightClickMenu: {
                             prototype: AudioContext;
                             new (contextOptions?: AudioContextOptions): AudioContext;
                         };
+                        AudioData: {
+                            prototype: AudioData;
+                            new (init: AudioDataInit): AudioData;
+                        };
+                        AudioDecoder: {
+                            prototype: AudioDecoder;
+                            new (init: AudioDecoderInit): AudioDecoder;
+                            isConfigSupported(config: AudioDecoderConfig): Promise<AudioDecoderSupport>;
+                        };
                         AudioDestinationNode: {
                             prototype: AudioDestinationNode;
                             new (): AudioDestinationNode;
+                        };
+                        AudioEncoder: {
+                            prototype: AudioEncoder;
+                            new (init: AudioEncoderInit): AudioEncoder;
+                            isConfigSupported(config: AudioEncoderConfig): Promise<AudioEncoderSupport>;
                         };
                         AudioListener: {
                             prototype: AudioListener;
@@ -1816,6 +1855,10 @@ export declare const PopsRightClickMenu: {
                             prototype: CSSNamespaceRule;
                             new (): CSSNamespaceRule;
                         };
+                        CSSNestedDeclarations: {
+                            prototype: CSSNestedDeclarations;
+                            new (): CSSNestedDeclarations;
+                        };
                         CSSNumericArray: {
                             prototype: CSSNumericArray;
                             new (): CSSNumericArray;
@@ -1936,6 +1979,10 @@ export declare const PopsRightClickMenu: {
                             prototype: CSSVariableReferenceValue;
                             new (variable: string, fallback?: CSSUnparsedValue | null): CSSVariableReferenceValue;
                         };
+                        CSSViewTransitionRule: {
+                            prototype: CSSViewTransitionRule;
+                            new (): CSSViewTransitionRule;
+                        };
                         Cache: {
                             prototype: Cache;
                             new (): Cache;
@@ -1959,6 +2006,10 @@ export declare const PopsRightClickMenu: {
                         CanvasRenderingContext2D: {
                             prototype: CanvasRenderingContext2D;
                             new (): CanvasRenderingContext2D;
+                        };
+                        CaretPosition: {
+                            prototype: CaretPosition;
+                            new (): CaretPosition;
                         };
                         ChannelMergerNode: {
                             prototype: ChannelMergerNode;
@@ -2203,6 +2254,10 @@ export declare const PopsRightClickMenu: {
                             prototype: ElementInternals;
                             new (): ElementInternals;
                         };
+                        EncodedAudioChunk: {
+                            prototype: EncodedAudioChunk;
+                            new (init: EncodedAudioChunkInit): EncodedAudioChunk;
+                        };
                         EncodedVideoChunk: {
                             prototype: EncodedVideoChunk;
                             new (init: EncodedVideoChunkInit): EncodedVideoChunk;
@@ -2295,11 +2350,11 @@ export declare const PopsRightClickMenu: {
                         };
                         FontFace: {
                             prototype: FontFace;
-                            new (family: string, source: string | BinaryData, descriptors?: FontFaceDescriptors): FontFace;
+                            new (family: string, source: string | BufferSource, descriptors?: FontFaceDescriptors): FontFace;
                         };
                         FontFaceSet: {
                             prototype: FontFaceSet;
-                            new (initialFaces: FontFace[]): FontFaceSet;
+                            new (): FontFaceSet;
                         };
                         FontFaceSetLoadEvent: {
                             prototype: FontFaceSetLoadEvent;
@@ -2312,6 +2367,10 @@ export declare const PopsRightClickMenu: {
                         FormDataEvent: {
                             prototype: FormDataEvent;
                             new (type: string, eventInitDict: FormDataEventInit): FormDataEvent;
+                        };
+                        FragmentDirective: {
+                            prototype: FragmentDirective;
+                            new (): FragmentDirective;
                         };
                         GainNode: {
                             prototype: GainNode;
@@ -2759,6 +2818,19 @@ export declare const PopsRightClickMenu: {
                             new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
                             new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                         };
+                        ImageDecoder: {
+                            prototype: ImageDecoder;
+                            new (init: ImageDecoderInit): ImageDecoder;
+                            isTypeSupported(type: string): Promise<boolean>;
+                        };
+                        ImageTrack: {
+                            prototype: ImageTrack;
+                            new (): ImageTrack;
+                        };
+                        ImageTrackList: {
+                            prototype: ImageTrackList;
+                            new (): ImageTrackList;
+                        };
                         InputDeviceInfo: {
                             prototype: InputDeviceInfo;
                             new (): InputDeviceInfo;
@@ -2773,7 +2845,7 @@ export declare const PopsRightClickMenu: {
                         };
                         IntersectionObserverEntry: {
                             prototype: IntersectionObserverEntry;
-                            new (intersectionObserverEntryInit: IntersectionObserverEntryInit): IntersectionObserverEntry;
+                            new (): IntersectionObserverEntry;
                         };
                         KeyboardEvent: {
                             prototype: KeyboardEvent;
@@ -2969,13 +3041,6 @@ export declare const PopsRightClickMenu: {
                             prototype: MouseEvent;
                             new (type: string, eventInitDict?: MouseEventInit): MouseEvent;
                         };
-                        MutationEvent: {
-                            prototype: MutationEvent;
-                            new (): MutationEvent;
-                            readonly MODIFICATION: 1;
-                            readonly ADDITION: 2;
-                            readonly REMOVAL: 3;
-                        };
                         MutationObserver: {
                             prototype: MutationObserver;
                             new (callback: MutationCallback): MutationObserver;
@@ -2987,6 +3052,14 @@ export declare const PopsRightClickMenu: {
                         NamedNodeMap: {
                             prototype: NamedNodeMap;
                             new (): NamedNodeMap;
+                        };
+                        NavigationActivation: {
+                            prototype: NavigationActivation;
+                            new (): NavigationActivation;
+                        };
+                        NavigationHistoryEntry: {
+                            prototype: NavigationHistoryEntry;
+                            new (): NavigationHistoryEntry;
                         };
                         NavigationPreloadManager: {
                             prototype: NavigationPreloadManager;
@@ -3057,6 +3130,14 @@ export declare const PopsRightClickMenu: {
                             prototype: OverconstrainedError;
                             new (constraint: string, message?: string): OverconstrainedError;
                         };
+                        PageRevealEvent: {
+                            prototype: PageRevealEvent;
+                            new (type: string, eventInitDict?: PageRevealEventInit): PageRevealEvent;
+                        };
+                        PageSwapEvent: {
+                            prototype: PageSwapEvent;
+                            new (type: string, eventInitDict?: PageSwapEventInit): PageSwapEvent;
+                        };
                         PageTransitionEvent: {
                             prototype: PageTransitionEvent;
                             new (type: string, eventInitDict?: PageTransitionEventInit): PageTransitionEvent;
@@ -3069,13 +3150,17 @@ export declare const PopsRightClickMenu: {
                             prototype: Path2D;
                             new (path?: Path2D | string): Path2D;
                         };
+                        PaymentAddress: {
+                            prototype: PaymentAddress;
+                            new (): PaymentAddress;
+                        };
                         PaymentMethodChangeEvent: {
                             prototype: PaymentMethodChangeEvent;
                             new (type: string, eventInitDict?: PaymentMethodChangeEventInit): PaymentMethodChangeEvent;
                         };
                         PaymentRequest: {
                             prototype: PaymentRequest;
-                            new (methodData: PaymentMethodData[], details: PaymentDetailsInit): PaymentRequest;
+                            new (methodData: PaymentMethodData[], details: PaymentDetailsInit, options?: PaymentOptions): PaymentRequest;
                         };
                         PaymentRequestUpdateEvent: {
                             prototype: PaymentRequestUpdateEvent;
@@ -3193,8 +3278,11 @@ export declare const PopsRightClickMenu: {
                         PublicKeyCredential: {
                             prototype: PublicKeyCredential;
                             new (): PublicKeyCredential;
+                            getClientCapabilities(): Promise<PublicKeyCredentialClientCapabilities>;
                             isConditionalMediationAvailable(): Promise<boolean>;
                             isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean>;
+                            parseCreationOptionsFromJSON(options: PublicKeyCredentialCreationOptionsJSON): PublicKeyCredentialCreationOptions;
+                            parseRequestOptionsFromJSON(options: PublicKeyCredentialRequestOptionsJSON): PublicKeyCredentialRequestOptions;
                         };
                         PushManager: {
                             prototype: PushManager;
@@ -3330,7 +3418,7 @@ export declare const PopsRightClickMenu: {
                         };
                         ReadableStreamBYOBReader: {
                             prototype: ReadableStreamBYOBReader;
-                            new (stream: ReadableStream): ReadableStreamBYOBReader;
+                            new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
                         };
                         ReadableStreamBYOBRequest: {
                             prototype: ReadableStreamBYOBRequest;
@@ -4138,6 +4226,10 @@ export declare const PopsRightClickMenu: {
                         ViewTransition: {
                             prototype: ViewTransition;
                             new (): ViewTransition;
+                        };
+                        ViewTransitionTypeSet: {
+                            prototype: ViewTransitionTypeSet;
+                            new (): ViewTransitionTypeSet;
                         };
                         VisualViewport: {
                             prototype: VisualViewport;
@@ -5478,7 +5570,7 @@ export declare const PopsRightClickMenu: {
                                 [x: number]: {
                                     readonly description: string;
                                     readonly enabledPlugin: {
-                                        [x: number]: any;
+                                        [x: number]: /*elided*/ any;
                                         readonly description: string;
                                         readonly filename: string;
                                         readonly length: number;
@@ -5496,7 +5588,12 @@ export declare const PopsRightClickMenu: {
                             readonly pdfViewerEnabled: boolean;
                             readonly plugins: {
                                 [x: number]: {
-                                    [x: number]: any;
+                                    [x: number]: {
+                                        readonly description: string;
+                                        readonly enabledPlugin: /*elided*/ any;
+                                        readonly suffixes: string;
+                                        readonly type: string;
+                                    };
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -5568,7 +5665,7 @@ export declare const PopsRightClickMenu: {
                             IsSearchProviderInstalled: () => void;
                         };
                         frameElement: Element | null;
-                        frames: any;
+                        frames: /*elided*/ any;
                         history: {
                             readonly length: number;
                             scrollRestoration: ScrollRestoration;
@@ -5756,7 +5853,7 @@ export declare const PopsRightClickMenu: {
                                 [x: number]: {
                                     readonly description: string;
                                     readonly enabledPlugin: {
-                                        [x: number]: any;
+                                        [x: number]: /*elided*/ any;
                                         readonly description: string;
                                         readonly filename: string;
                                         readonly length: number;
@@ -5774,7 +5871,12 @@ export declare const PopsRightClickMenu: {
                             readonly pdfViewerEnabled: boolean;
                             readonly plugins: {
                                 [x: number]: {
-                                    [x: number]: any;
+                                    [x: number]: {
+                                        readonly description: string;
+                                        readonly enabledPlugin: /*elided*/ any;
+                                        readonly suffixes: string;
+                                        readonly type: string;
+                                    };
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -5805,7 +5907,7 @@ export declare const PopsRightClickMenu: {
                         outerWidth: number;
                         pageXOffset: number;
                         pageYOffset: number;
-                        parent: any;
+                        parent: /*elided*/ any;
                         personalbar: {
                             readonly visible: boolean;
                         };
@@ -5841,7 +5943,7 @@ export declare const PopsRightClickMenu: {
                         scrollbars: {
                             readonly visible: boolean;
                         };
-                        self: any;
+                        self: /*elided*/ any;
                         speechSynthesis: {
                             onvoiceschanged: ((this: SpeechSynthesis, ev: Event) => any) | null;
                             readonly paused: boolean;
@@ -5869,7 +5971,7 @@ export declare const PopsRightClickMenu: {
                         toolbar: {
                             readonly visible: boolean;
                         };
-                        top: any | null;
+                        top: /*elided*/ any | null;
                         visualViewport: {
                             readonly height: number;
                             readonly offsetLeft: number;
@@ -5890,7 +5992,7 @@ export declare const PopsRightClickMenu: {
                             };
                             dispatchEvent: (event: Event) => boolean;
                         } | null;
-                        window: any;
+                        window: /*elided*/ any;
                         onabort: ((this: Window, ev: UIEvent) => any) | null;
                         onanimationcancel: ((this: Window, ev: AnimationEvent) => any) | null;
                         onanimationend: ((this: Window, ev: AnimationEvent) => any) | null;
@@ -6001,7 +6103,9 @@ export declare const PopsRightClickMenu: {
                         onoffline: ((this: Window, ev: Event) => any) | null;
                         ononline: ((this: Window, ev: Event) => any) | null;
                         onpagehide: ((this: Window, ev: PageTransitionEvent) => any) | null;
+                        onpagereveal: ((this: Window, ev: Event) => any) | null;
                         onpageshow: ((this: Window, ev: PageTransitionEvent) => any) | null;
+                        onpageswap: ((this: Window, ev: Event) => any) | null;
                         onpopstate: ((this: Window, ev: PopStateEvent) => any) | null;
                         onrejectionhandled: ((this: Window, ev: PromiseRejectionEvent) => any) | null;
                         onstorage: ((this: Window, ev: StorageEvent) => any) | null;
@@ -6027,7 +6131,7 @@ export declare const PopsRightClickMenu: {
                         crypto: {
                             readonly subtle: {
                                 decrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
-                                deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length: number) => Promise<ArrayBuffer>;
+                                deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length?: number | null) => Promise<ArrayBuffer>;
                                 deriveKey: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>;
                                 digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
                                 encrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
@@ -6037,7 +6141,9 @@ export declare const PopsRightClickMenu: {
                                     (format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey>;
                                 };
                                 generateKey: {
-                                    (algorithm: "Ed25519", extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
+                                    (algorithm: "Ed25519" | {
+                                        name: "Ed25519";
+                                    }, extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
                                     (algorithm: RsaHashedKeyGenParams | EcKeyGenParams, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKeyPair>;
                                     (algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKey>;
                                     (algorithm: AlgorithmIdentifier, extractable: boolean, keyUsages: KeyUsage[]): Promise<CryptoKeyPair | CryptoKey>;
@@ -6155,49 +6261,49 @@ export declare const PopsRightClickMenu: {
                         SharedArrayBuffer: SharedArrayBufferConstructor;
                         Atomics: {
                             add: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             and: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             compareExchange: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, expectedValue: number, replacementValue: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, expectedValue: number, replacementValue: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
                             };
                             exchange: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             isLockFree: (size: number) => boolean;
                             load: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number): bigint;
                             };
                             or: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             store: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             sub: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             wait: {
-                                (typedArray: Int32Array, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
-                                (typedArray: BigInt64Array, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
+                                (typedArray: Int32Array<ArrayBufferLike>, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
+                                (typedArray: BigInt64Array<ArrayBufferLike>, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
                             };
                             notify: {
-                                (typedArray: Int32Array, index: number, count?: number): number;
-                                (typedArray: BigInt64Array, index: number, count?: number): number;
+                                (typedArray: Int32Array<ArrayBufferLike>, index: number, count?: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike>, index: number, count?: number): number;
                             };
                             xor: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             waitAsync: {
                                 (typedArray: Int32Array, index: number, value: number, timeout?: number): {
@@ -6226,7 +6332,8 @@ export declare const PopsRightClickMenu: {
                         SuppressedError: SuppressedErrorConstructor;
                         DisposableStack: DisposableStackConstructor;
                         AsyncDisposableStack: AsyncDisposableStackConstructor;
-                        unsafeWindow: any;
+                        Float16Array: Float16ArrayConstructor;
+                        unsafeWindow: /*elided*/ any;
                         undefined: undefined;
                     };
                     eval: typeof eval;
@@ -6292,6 +6399,7 @@ export declare const PopsRightClickMenu: {
                         trunc: (x: number) => number;
                         fround: (x: number) => number;
                         cbrt: (x: number) => number;
+                        f16round: (x: number) => number;
                         readonly [Symbol.toStringTag]: string;
                     };
                     Date: DateConstructor;
@@ -6430,9 +6538,23 @@ export declare const PopsRightClickMenu: {
                         prototype: AudioContext;
                         new (contextOptions?: AudioContextOptions): AudioContext;
                     };
+                    AudioData: {
+                        prototype: AudioData;
+                        new (init: AudioDataInit): AudioData;
+                    };
+                    AudioDecoder: {
+                        prototype: AudioDecoder;
+                        new (init: AudioDecoderInit): AudioDecoder;
+                        isConfigSupported(config: AudioDecoderConfig): Promise<AudioDecoderSupport>;
+                    };
                     AudioDestinationNode: {
                         prototype: AudioDestinationNode;
                         new (): AudioDestinationNode;
+                    };
+                    AudioEncoder: {
+                        prototype: AudioEncoder;
+                        new (init: AudioEncoderInit): AudioEncoder;
+                        isConfigSupported(config: AudioEncoderConfig): Promise<AudioEncoderSupport>;
                     };
                     AudioListener: {
                         prototype: AudioListener;
@@ -6618,6 +6740,10 @@ export declare const PopsRightClickMenu: {
                         prototype: CSSNamespaceRule;
                         new (): CSSNamespaceRule;
                     };
+                    CSSNestedDeclarations: {
+                        prototype: CSSNestedDeclarations;
+                        new (): CSSNestedDeclarations;
+                    };
                     CSSNumericArray: {
                         prototype: CSSNumericArray;
                         new (): CSSNumericArray;
@@ -6738,6 +6864,10 @@ export declare const PopsRightClickMenu: {
                         prototype: CSSVariableReferenceValue;
                         new (variable: string, fallback?: CSSUnparsedValue | null): CSSVariableReferenceValue;
                     };
+                    CSSViewTransitionRule: {
+                        prototype: CSSViewTransitionRule;
+                        new (): CSSViewTransitionRule;
+                    };
                     Cache: {
                         prototype: Cache;
                         new (): Cache;
@@ -6761,6 +6891,10 @@ export declare const PopsRightClickMenu: {
                     CanvasRenderingContext2D: {
                         prototype: CanvasRenderingContext2D;
                         new (): CanvasRenderingContext2D;
+                    };
+                    CaretPosition: {
+                        prototype: CaretPosition;
+                        new (): CaretPosition;
                     };
                     ChannelMergerNode: {
                         prototype: ChannelMergerNode;
@@ -7005,6 +7139,10 @@ export declare const PopsRightClickMenu: {
                         prototype: ElementInternals;
                         new (): ElementInternals;
                     };
+                    EncodedAudioChunk: {
+                        prototype: EncodedAudioChunk;
+                        new (init: EncodedAudioChunkInit): EncodedAudioChunk;
+                    };
                     EncodedVideoChunk: {
                         prototype: EncodedVideoChunk;
                         new (init: EncodedVideoChunkInit): EncodedVideoChunk;
@@ -7097,11 +7235,11 @@ export declare const PopsRightClickMenu: {
                     };
                     FontFace: {
                         prototype: FontFace;
-                        new (family: string, source: string | BinaryData, descriptors?: FontFaceDescriptors): FontFace;
+                        new (family: string, source: string | BufferSource, descriptors?: FontFaceDescriptors): FontFace;
                     };
                     FontFaceSet: {
                         prototype: FontFaceSet;
-                        new (initialFaces: FontFace[]): FontFaceSet;
+                        new (): FontFaceSet;
                     };
                     FontFaceSetLoadEvent: {
                         prototype: FontFaceSetLoadEvent;
@@ -7114,6 +7252,10 @@ export declare const PopsRightClickMenu: {
                     FormDataEvent: {
                         prototype: FormDataEvent;
                         new (type: string, eventInitDict: FormDataEventInit): FormDataEvent;
+                    };
+                    FragmentDirective: {
+                        prototype: FragmentDirective;
+                        new (): FragmentDirective;
                     };
                     GainNode: {
                         prototype: GainNode;
@@ -7561,6 +7703,19 @@ export declare const PopsRightClickMenu: {
                         new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
                         new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                     };
+                    ImageDecoder: {
+                        prototype: ImageDecoder;
+                        new (init: ImageDecoderInit): ImageDecoder;
+                        isTypeSupported(type: string): Promise<boolean>;
+                    };
+                    ImageTrack: {
+                        prototype: ImageTrack;
+                        new (): ImageTrack;
+                    };
+                    ImageTrackList: {
+                        prototype: ImageTrackList;
+                        new (): ImageTrackList;
+                    };
                     InputDeviceInfo: {
                         prototype: InputDeviceInfo;
                         new (): InputDeviceInfo;
@@ -7575,7 +7730,7 @@ export declare const PopsRightClickMenu: {
                     };
                     IntersectionObserverEntry: {
                         prototype: IntersectionObserverEntry;
-                        new (intersectionObserverEntryInit: IntersectionObserverEntryInit): IntersectionObserverEntry;
+                        new (): IntersectionObserverEntry;
                     };
                     KeyboardEvent: {
                         prototype: KeyboardEvent;
@@ -7771,13 +7926,6 @@ export declare const PopsRightClickMenu: {
                         prototype: MouseEvent;
                         new (type: string, eventInitDict?: MouseEventInit): MouseEvent;
                     };
-                    MutationEvent: {
-                        prototype: MutationEvent;
-                        new (): MutationEvent;
-                        readonly MODIFICATION: 1;
-                        readonly ADDITION: 2;
-                        readonly REMOVAL: 3;
-                    };
                     MutationObserver: {
                         prototype: MutationObserver;
                         new (callback: MutationCallback): MutationObserver;
@@ -7789,6 +7937,14 @@ export declare const PopsRightClickMenu: {
                     NamedNodeMap: {
                         prototype: NamedNodeMap;
                         new (): NamedNodeMap;
+                    };
+                    NavigationActivation: {
+                        prototype: NavigationActivation;
+                        new (): NavigationActivation;
+                    };
+                    NavigationHistoryEntry: {
+                        prototype: NavigationHistoryEntry;
+                        new (): NavigationHistoryEntry;
                     };
                     NavigationPreloadManager: {
                         prototype: NavigationPreloadManager;
@@ -7859,6 +8015,14 @@ export declare const PopsRightClickMenu: {
                         prototype: OverconstrainedError;
                         new (constraint: string, message?: string): OverconstrainedError;
                     };
+                    PageRevealEvent: {
+                        prototype: PageRevealEvent;
+                        new (type: string, eventInitDict?: PageRevealEventInit): PageRevealEvent;
+                    };
+                    PageSwapEvent: {
+                        prototype: PageSwapEvent;
+                        new (type: string, eventInitDict?: PageSwapEventInit): PageSwapEvent;
+                    };
                     PageTransitionEvent: {
                         prototype: PageTransitionEvent;
                         new (type: string, eventInitDict?: PageTransitionEventInit): PageTransitionEvent;
@@ -7871,13 +8035,17 @@ export declare const PopsRightClickMenu: {
                         prototype: Path2D;
                         new (path?: Path2D | string): Path2D;
                     };
+                    PaymentAddress: {
+                        prototype: PaymentAddress;
+                        new (): PaymentAddress;
+                    };
                     PaymentMethodChangeEvent: {
                         prototype: PaymentMethodChangeEvent;
                         new (type: string, eventInitDict?: PaymentMethodChangeEventInit): PaymentMethodChangeEvent;
                     };
                     PaymentRequest: {
                         prototype: PaymentRequest;
-                        new (methodData: PaymentMethodData[], details: PaymentDetailsInit): PaymentRequest;
+                        new (methodData: PaymentMethodData[], details: PaymentDetailsInit, options?: PaymentOptions): PaymentRequest;
                     };
                     PaymentRequestUpdateEvent: {
                         prototype: PaymentRequestUpdateEvent;
@@ -7995,8 +8163,11 @@ export declare const PopsRightClickMenu: {
                     PublicKeyCredential: {
                         prototype: PublicKeyCredential;
                         new (): PublicKeyCredential;
+                        getClientCapabilities(): Promise<PublicKeyCredentialClientCapabilities>;
                         isConditionalMediationAvailable(): Promise<boolean>;
                         isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean>;
+                        parseCreationOptionsFromJSON(options: PublicKeyCredentialCreationOptionsJSON): PublicKeyCredentialCreationOptions;
+                        parseRequestOptionsFromJSON(options: PublicKeyCredentialRequestOptionsJSON): PublicKeyCredentialRequestOptions;
                     };
                     PushManager: {
                         prototype: PushManager;
@@ -8132,7 +8303,7 @@ export declare const PopsRightClickMenu: {
                     };
                     ReadableStreamBYOBReader: {
                         prototype: ReadableStreamBYOBReader;
-                        new (stream: ReadableStream): ReadableStreamBYOBReader;
+                        new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
                     };
                     ReadableStreamBYOBRequest: {
                         prototype: ReadableStreamBYOBRequest;
@@ -8940,6 +9111,10 @@ export declare const PopsRightClickMenu: {
                     ViewTransition: {
                         prototype: ViewTransition;
                         new (): ViewTransition;
+                    };
+                    ViewTransitionTypeSet: {
+                        prototype: ViewTransitionTypeSet;
+                        new (): ViewTransitionTypeSet;
                     };
                     VisualViewport: {
                         prototype: VisualViewport;
@@ -10157,49 +10332,49 @@ export declare const PopsRightClickMenu: {
                     SharedArrayBuffer: SharedArrayBufferConstructor;
                     Atomics: {
                         add: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         and: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         compareExchange: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, expectedValue: number, replacementValue: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, expectedValue: number, replacementValue: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
                         };
                         exchange: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         isLockFree: (size: number) => boolean;
                         load: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number): bigint;
                         };
                         or: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         store: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         sub: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         wait: {
-                            (typedArray: Int32Array, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
-                            (typedArray: BigInt64Array, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
+                            (typedArray: Int32Array<ArrayBufferLike>, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
+                            (typedArray: BigInt64Array<ArrayBufferLike>, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
                         };
                         notify: {
-                            (typedArray: Int32Array, index: number, count?: number): number;
-                            (typedArray: BigInt64Array, index: number, count?: number): number;
+                            (typedArray: Int32Array<ArrayBufferLike>, index: number, count?: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike>, index: number, count?: number): number;
                         };
                         xor: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         waitAsync: {
                             (typedArray: Int32Array, index: number, value: number, timeout?: number): {
@@ -10228,7 +10403,8 @@ export declare const PopsRightClickMenu: {
                     SuppressedError: SuppressedErrorConstructor;
                     DisposableStack: DisposableStackConstructor;
                     AsyncDisposableStack: AsyncDisposableStackConstructor;
-                    unsafeWindow: any;
+                    Float16Array: Float16ArrayConstructor;
+                    unsafeWindow: /*elided*/ any;
                     undefined: undefined;
                 };
                 readonly speechSynthesis: {
@@ -10258,7 +10434,7 @@ export declare const PopsRightClickMenu: {
                 readonly toolbar: {
                     readonly visible: boolean;
                 };
-                readonly top: any | null;
+                readonly top: /*elided*/ any | null;
                 readonly visualViewport: {
                     readonly height: number;
                     readonly offsetLeft: number;
@@ -10280,7 +10456,7 @@ export declare const PopsRightClickMenu: {
                     dispatchEvent: (event: Event) => boolean;
                 } | null;
                 readonly window: {
-                    [x: number]: any;
+                    [x: number]: /*elided*/ any;
                     clientInformation: {
                         readonly clipboard: {
                             read: () => Promise<ClipboardItems>;
@@ -10428,7 +10604,7 @@ export declare const PopsRightClickMenu: {
                             [x: number]: {
                                 readonly description: string;
                                 readonly enabledPlugin: {
-                                    [x: number]: any;
+                                    [x: number]: /*elided*/ any;
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -10446,7 +10622,12 @@ export declare const PopsRightClickMenu: {
                         readonly pdfViewerEnabled: boolean;
                         readonly plugins: {
                             [x: number]: {
-                                [x: number]: any;
+                                [x: number]: {
+                                    readonly description: string;
+                                    readonly enabledPlugin: /*elided*/ any;
+                                    readonly suffixes: string;
+                                    readonly type: string;
+                                };
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -10518,7 +10699,7 @@ export declare const PopsRightClickMenu: {
                         IsSearchProviderInstalled: () => void;
                     };
                     frameElement: Element | null;
-                    frames: any;
+                    frames: /*elided*/ any;
                     history: {
                         readonly length: number;
                         scrollRestoration: ScrollRestoration;
@@ -10707,7 +10888,7 @@ export declare const PopsRightClickMenu: {
                             [x: number]: {
                                 readonly description: string;
                                 readonly enabledPlugin: {
-                                    [x: number]: any;
+                                    [x: number]: /*elided*/ any;
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -10725,7 +10906,12 @@ export declare const PopsRightClickMenu: {
                         readonly pdfViewerEnabled: boolean;
                         readonly plugins: {
                             [x: number]: {
-                                [x: number]: any;
+                                [x: number]: {
+                                    readonly description: string;
+                                    readonly enabledPlugin: /*elided*/ any;
+                                    readonly suffixes: string;
+                                    readonly type: string;
+                                };
                                 readonly description: string;
                                 readonly filename: string;
                                 readonly length: number;
@@ -10756,7 +10942,7 @@ export declare const PopsRightClickMenu: {
                     outerWidth: number;
                     pageXOffset: number;
                     pageYOffset: number;
-                    parent: any;
+                    parent: /*elided*/ any;
                     personalbar: {
                         readonly visible: boolean;
                     };
@@ -10792,7 +10978,7 @@ export declare const PopsRightClickMenu: {
                     scrollbars: {
                         readonly visible: boolean;
                     };
-                    self: any;
+                    self: /*elided*/ any;
                     speechSynthesis: {
                         onvoiceschanged: ((this: SpeechSynthesis, ev: Event) => any) | null;
                         readonly paused: boolean;
@@ -10820,7 +11006,7 @@ export declare const PopsRightClickMenu: {
                     toolbar: {
                         readonly visible: boolean;
                     };
-                    top: any | null;
+                    top: /*elided*/ any | null;
                     visualViewport: {
                         readonly height: number;
                         readonly offsetLeft: number;
@@ -10841,7 +11027,7 @@ export declare const PopsRightClickMenu: {
                         };
                         dispatchEvent: (event: Event) => boolean;
                     } | null;
-                    window: any;
+                    window: /*elided*/ any;
                     alert: ((message?: any) => void) & typeof alert;
                     blur: (() => void) & typeof blur;
                     cancelIdleCallback: ((handle: number) => void) & typeof cancelIdleCallback;
@@ -10999,7 +11185,9 @@ export declare const PopsRightClickMenu: {
                     onoffline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     ononline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpagehide: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
+                    onpagereveal: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpageshow: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
+                    onpageswap: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpopstate: (((this: WindowEventHandlers, ev: PopStateEvent) => any) & ((this: Window, ev: PopStateEvent) => any)) | null;
                     onrejectionhandled: (((this: WindowEventHandlers, ev: PromiseRejectionEvent) => any) & ((this: Window, ev: PromiseRejectionEvent) => any)) | null;
                     onstorage: (((this: WindowEventHandlers, ev: StorageEvent) => any) & ((this: Window, ev: StorageEvent) => any)) | null;
@@ -11025,7 +11213,7 @@ export declare const PopsRightClickMenu: {
                     crypto: {
                         readonly subtle: {
                             decrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
-                            deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length: number) => Promise<ArrayBuffer>;
+                            deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length?: number | null) => Promise<ArrayBuffer>;
                             deriveKey: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>;
                             digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
                             encrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
@@ -11035,7 +11223,9 @@ export declare const PopsRightClickMenu: {
                                 (format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey>;
                             };
                             generateKey: {
-                                (algorithm: "Ed25519", extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
+                                (algorithm: "Ed25519" | {
+                                    name: "Ed25519";
+                                }, extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
                                 (algorithm: RsaHashedKeyGenParams | EcKeyGenParams, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKeyPair>;
                                 (algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKey>;
                                 (algorithm: AlgorithmIdentifier, extractable: boolean, keyUsages: KeyUsage[]): Promise<CryptoKeyPair | CryptoKey>;
@@ -11144,7 +11334,7 @@ export declare const PopsRightClickMenu: {
                         setItem: (key: string, value: string) => void;
                     };
                     readonly globalThis: {
-                        readonly globalThis: any;
+                        readonly globalThis: /*elided*/ any;
                         eval: typeof eval;
                         parseInt: typeof parseInt;
                         parseFloat: typeof parseFloat;
@@ -11208,6 +11398,7 @@ export declare const PopsRightClickMenu: {
                             trunc: (x: number) => number;
                             fround: (x: number) => number;
                             cbrt: (x: number) => number;
+                            f16round: (x: number) => number;
                             readonly [Symbol.toStringTag]: string;
                         };
                         Date: DateConstructor;
@@ -11386,9 +11577,23 @@ export declare const PopsRightClickMenu: {
                             prototype: AudioContext;
                             new (contextOptions?: AudioContextOptions): AudioContext;
                         };
+                        AudioData: {
+                            prototype: AudioData;
+                            new (init: AudioDataInit): AudioData;
+                        };
+                        AudioDecoder: {
+                            prototype: AudioDecoder;
+                            new (init: AudioDecoderInit): AudioDecoder;
+                            isConfigSupported(config: AudioDecoderConfig): Promise<AudioDecoderSupport>;
+                        };
                         AudioDestinationNode: {
                             prototype: AudioDestinationNode;
                             new (): AudioDestinationNode;
+                        };
+                        AudioEncoder: {
+                            prototype: AudioEncoder;
+                            new (init: AudioEncoderInit): AudioEncoder;
+                            isConfigSupported(config: AudioEncoderConfig): Promise<AudioEncoderSupport>;
                         };
                         AudioListener: {
                             prototype: AudioListener;
@@ -11574,6 +11779,10 @@ export declare const PopsRightClickMenu: {
                             prototype: CSSNamespaceRule;
                             new (): CSSNamespaceRule;
                         };
+                        CSSNestedDeclarations: {
+                            prototype: CSSNestedDeclarations;
+                            new (): CSSNestedDeclarations;
+                        };
                         CSSNumericArray: {
                             prototype: CSSNumericArray;
                             new (): CSSNumericArray;
@@ -11694,6 +11903,10 @@ export declare const PopsRightClickMenu: {
                             prototype: CSSVariableReferenceValue;
                             new (variable: string, fallback?: CSSUnparsedValue | null): CSSVariableReferenceValue;
                         };
+                        CSSViewTransitionRule: {
+                            prototype: CSSViewTransitionRule;
+                            new (): CSSViewTransitionRule;
+                        };
                         Cache: {
                             prototype: Cache;
                             new (): Cache;
@@ -11717,6 +11930,10 @@ export declare const PopsRightClickMenu: {
                         CanvasRenderingContext2D: {
                             prototype: CanvasRenderingContext2D;
                             new (): CanvasRenderingContext2D;
+                        };
+                        CaretPosition: {
+                            prototype: CaretPosition;
+                            new (): CaretPosition;
                         };
                         ChannelMergerNode: {
                             prototype: ChannelMergerNode;
@@ -11961,6 +12178,10 @@ export declare const PopsRightClickMenu: {
                             prototype: ElementInternals;
                             new (): ElementInternals;
                         };
+                        EncodedAudioChunk: {
+                            prototype: EncodedAudioChunk;
+                            new (init: EncodedAudioChunkInit): EncodedAudioChunk;
+                        };
                         EncodedVideoChunk: {
                             prototype: EncodedVideoChunk;
                             new (init: EncodedVideoChunkInit): EncodedVideoChunk;
@@ -12053,11 +12274,11 @@ export declare const PopsRightClickMenu: {
                         };
                         FontFace: {
                             prototype: FontFace;
-                            new (family: string, source: string | BinaryData, descriptors?: FontFaceDescriptors): FontFace;
+                            new (family: string, source: string | BufferSource, descriptors?: FontFaceDescriptors): FontFace;
                         };
                         FontFaceSet: {
                             prototype: FontFaceSet;
-                            new (initialFaces: FontFace[]): FontFaceSet;
+                            new (): FontFaceSet;
                         };
                         FontFaceSetLoadEvent: {
                             prototype: FontFaceSetLoadEvent;
@@ -12070,6 +12291,10 @@ export declare const PopsRightClickMenu: {
                         FormDataEvent: {
                             prototype: FormDataEvent;
                             new (type: string, eventInitDict: FormDataEventInit): FormDataEvent;
+                        };
+                        FragmentDirective: {
+                            prototype: FragmentDirective;
+                            new (): FragmentDirective;
                         };
                         GainNode: {
                             prototype: GainNode;
@@ -12517,6 +12742,19 @@ export declare const PopsRightClickMenu: {
                             new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
                             new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                         };
+                        ImageDecoder: {
+                            prototype: ImageDecoder;
+                            new (init: ImageDecoderInit): ImageDecoder;
+                            isTypeSupported(type: string): Promise<boolean>;
+                        };
+                        ImageTrack: {
+                            prototype: ImageTrack;
+                            new (): ImageTrack;
+                        };
+                        ImageTrackList: {
+                            prototype: ImageTrackList;
+                            new (): ImageTrackList;
+                        };
                         InputDeviceInfo: {
                             prototype: InputDeviceInfo;
                             new (): InputDeviceInfo;
@@ -12531,7 +12769,7 @@ export declare const PopsRightClickMenu: {
                         };
                         IntersectionObserverEntry: {
                             prototype: IntersectionObserverEntry;
-                            new (intersectionObserverEntryInit: IntersectionObserverEntryInit): IntersectionObserverEntry;
+                            new (): IntersectionObserverEntry;
                         };
                         KeyboardEvent: {
                             prototype: KeyboardEvent;
@@ -12727,13 +12965,6 @@ export declare const PopsRightClickMenu: {
                             prototype: MouseEvent;
                             new (type: string, eventInitDict?: MouseEventInit): MouseEvent;
                         };
-                        MutationEvent: {
-                            prototype: MutationEvent;
-                            new (): MutationEvent;
-                            readonly MODIFICATION: 1;
-                            readonly ADDITION: 2;
-                            readonly REMOVAL: 3;
-                        };
                         MutationObserver: {
                             prototype: MutationObserver;
                             new (callback: MutationCallback): MutationObserver;
@@ -12745,6 +12976,14 @@ export declare const PopsRightClickMenu: {
                         NamedNodeMap: {
                             prototype: NamedNodeMap;
                             new (): NamedNodeMap;
+                        };
+                        NavigationActivation: {
+                            prototype: NavigationActivation;
+                            new (): NavigationActivation;
+                        };
+                        NavigationHistoryEntry: {
+                            prototype: NavigationHistoryEntry;
+                            new (): NavigationHistoryEntry;
                         };
                         NavigationPreloadManager: {
                             prototype: NavigationPreloadManager;
@@ -12815,6 +13054,14 @@ export declare const PopsRightClickMenu: {
                             prototype: OverconstrainedError;
                             new (constraint: string, message?: string): OverconstrainedError;
                         };
+                        PageRevealEvent: {
+                            prototype: PageRevealEvent;
+                            new (type: string, eventInitDict?: PageRevealEventInit): PageRevealEvent;
+                        };
+                        PageSwapEvent: {
+                            prototype: PageSwapEvent;
+                            new (type: string, eventInitDict?: PageSwapEventInit): PageSwapEvent;
+                        };
                         PageTransitionEvent: {
                             prototype: PageTransitionEvent;
                             new (type: string, eventInitDict?: PageTransitionEventInit): PageTransitionEvent;
@@ -12827,13 +13074,17 @@ export declare const PopsRightClickMenu: {
                             prototype: Path2D;
                             new (path?: Path2D | string): Path2D;
                         };
+                        PaymentAddress: {
+                            prototype: PaymentAddress;
+                            new (): PaymentAddress;
+                        };
                         PaymentMethodChangeEvent: {
                             prototype: PaymentMethodChangeEvent;
                             new (type: string, eventInitDict?: PaymentMethodChangeEventInit): PaymentMethodChangeEvent;
                         };
                         PaymentRequest: {
                             prototype: PaymentRequest;
-                            new (methodData: PaymentMethodData[], details: PaymentDetailsInit): PaymentRequest;
+                            new (methodData: PaymentMethodData[], details: PaymentDetailsInit, options?: PaymentOptions): PaymentRequest;
                         };
                         PaymentRequestUpdateEvent: {
                             prototype: PaymentRequestUpdateEvent;
@@ -12951,8 +13202,11 @@ export declare const PopsRightClickMenu: {
                         PublicKeyCredential: {
                             prototype: PublicKeyCredential;
                             new (): PublicKeyCredential;
+                            getClientCapabilities(): Promise<PublicKeyCredentialClientCapabilities>;
                             isConditionalMediationAvailable(): Promise<boolean>;
                             isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean>;
+                            parseCreationOptionsFromJSON(options: PublicKeyCredentialCreationOptionsJSON): PublicKeyCredentialCreationOptions;
+                            parseRequestOptionsFromJSON(options: PublicKeyCredentialRequestOptionsJSON): PublicKeyCredentialRequestOptions;
                         };
                         PushManager: {
                             prototype: PushManager;
@@ -13088,7 +13342,7 @@ export declare const PopsRightClickMenu: {
                         };
                         ReadableStreamBYOBReader: {
                             prototype: ReadableStreamBYOBReader;
-                            new (stream: ReadableStream): ReadableStreamBYOBReader;
+                            new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
                         };
                         ReadableStreamBYOBRequest: {
                             prototype: ReadableStreamBYOBRequest;
@@ -13896,6 +14150,10 @@ export declare const PopsRightClickMenu: {
                         ViewTransition: {
                             prototype: ViewTransition;
                             new (): ViewTransition;
+                        };
+                        ViewTransitionTypeSet: {
+                            prototype: ViewTransitionTypeSet;
+                            new (): ViewTransitionTypeSet;
                         };
                         VisualViewport: {
                             prototype: VisualViewport;
@@ -15236,7 +15494,7 @@ export declare const PopsRightClickMenu: {
                                 [x: number]: {
                                     readonly description: string;
                                     readonly enabledPlugin: {
-                                        [x: number]: any;
+                                        [x: number]: /*elided*/ any;
                                         readonly description: string;
                                         readonly filename: string;
                                         readonly length: number;
@@ -15254,7 +15512,12 @@ export declare const PopsRightClickMenu: {
                             readonly pdfViewerEnabled: boolean;
                             readonly plugins: {
                                 [x: number]: {
-                                    [x: number]: any;
+                                    [x: number]: {
+                                        readonly description: string;
+                                        readonly enabledPlugin: /*elided*/ any;
+                                        readonly suffixes: string;
+                                        readonly type: string;
+                                    };
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -15326,7 +15589,7 @@ export declare const PopsRightClickMenu: {
                             IsSearchProviderInstalled: () => void;
                         };
                         frameElement: Element | null;
-                        frames: any;
+                        frames: /*elided*/ any;
                         history: {
                             readonly length: number;
                             scrollRestoration: ScrollRestoration;
@@ -15514,7 +15777,7 @@ export declare const PopsRightClickMenu: {
                                 [x: number]: {
                                     readonly description: string;
                                     readonly enabledPlugin: {
-                                        [x: number]: any;
+                                        [x: number]: /*elided*/ any;
                                         readonly description: string;
                                         readonly filename: string;
                                         readonly length: number;
@@ -15532,7 +15795,12 @@ export declare const PopsRightClickMenu: {
                             readonly pdfViewerEnabled: boolean;
                             readonly plugins: {
                                 [x: number]: {
-                                    [x: number]: any;
+                                    [x: number]: {
+                                        readonly description: string;
+                                        readonly enabledPlugin: /*elided*/ any;
+                                        readonly suffixes: string;
+                                        readonly type: string;
+                                    };
                                     readonly description: string;
                                     readonly filename: string;
                                     readonly length: number;
@@ -15563,7 +15831,7 @@ export declare const PopsRightClickMenu: {
                         outerWidth: number;
                         pageXOffset: number;
                         pageYOffset: number;
-                        parent: any;
+                        parent: /*elided*/ any;
                         personalbar: {
                             readonly visible: boolean;
                         };
@@ -15599,7 +15867,7 @@ export declare const PopsRightClickMenu: {
                         scrollbars: {
                             readonly visible: boolean;
                         };
-                        self: any;
+                        self: /*elided*/ any;
                         speechSynthesis: {
                             onvoiceschanged: ((this: SpeechSynthesis, ev: Event) => any) | null;
                             readonly paused: boolean;
@@ -15627,7 +15895,7 @@ export declare const PopsRightClickMenu: {
                         toolbar: {
                             readonly visible: boolean;
                         };
-                        top: any | null;
+                        top: /*elided*/ any | null;
                         visualViewport: {
                             readonly height: number;
                             readonly offsetLeft: number;
@@ -15648,7 +15916,7 @@ export declare const PopsRightClickMenu: {
                             };
                             dispatchEvent: (event: Event) => boolean;
                         } | null;
-                        window: any;
+                        window: /*elided*/ any;
                         onabort: ((this: Window, ev: UIEvent) => any) | null;
                         onanimationcancel: ((this: Window, ev: AnimationEvent) => any) | null;
                         onanimationend: ((this: Window, ev: AnimationEvent) => any) | null;
@@ -15759,7 +16027,9 @@ export declare const PopsRightClickMenu: {
                         onoffline: ((this: Window, ev: Event) => any) | null;
                         ononline: ((this: Window, ev: Event) => any) | null;
                         onpagehide: ((this: Window, ev: PageTransitionEvent) => any) | null;
+                        onpagereveal: ((this: Window, ev: Event) => any) | null;
                         onpageshow: ((this: Window, ev: PageTransitionEvent) => any) | null;
+                        onpageswap: ((this: Window, ev: Event) => any) | null;
                         onpopstate: ((this: Window, ev: PopStateEvent) => any) | null;
                         onrejectionhandled: ((this: Window, ev: PromiseRejectionEvent) => any) | null;
                         onstorage: ((this: Window, ev: StorageEvent) => any) | null;
@@ -15785,7 +16055,7 @@ export declare const PopsRightClickMenu: {
                         crypto: {
                             readonly subtle: {
                                 decrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
-                                deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length: number) => Promise<ArrayBuffer>;
+                                deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length?: number | null) => Promise<ArrayBuffer>;
                                 deriveKey: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>;
                                 digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
                                 encrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
@@ -15795,7 +16065,9 @@ export declare const PopsRightClickMenu: {
                                     (format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey>;
                                 };
                                 generateKey: {
-                                    (algorithm: "Ed25519", extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
+                                    (algorithm: "Ed25519" | {
+                                        name: "Ed25519";
+                                    }, extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
                                     (algorithm: RsaHashedKeyGenParams | EcKeyGenParams, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKeyPair>;
                                     (algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKey>;
                                     (algorithm: AlgorithmIdentifier, extractable: boolean, keyUsages: KeyUsage[]): Promise<CryptoKeyPair | CryptoKey>;
@@ -15913,49 +16185,49 @@ export declare const PopsRightClickMenu: {
                         SharedArrayBuffer: SharedArrayBufferConstructor;
                         Atomics: {
                             add: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             and: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             compareExchange: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, expectedValue: number, replacementValue: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, expectedValue: number, replacementValue: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
                             };
                             exchange: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             isLockFree: (size: number) => boolean;
                             load: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number): bigint;
                             };
                             or: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             store: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             sub: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             wait: {
-                                (typedArray: Int32Array, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
-                                (typedArray: BigInt64Array, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
+                                (typedArray: Int32Array<ArrayBufferLike>, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
+                                (typedArray: BigInt64Array<ArrayBufferLike>, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
                             };
                             notify: {
-                                (typedArray: Int32Array, index: number, count?: number): number;
-                                (typedArray: BigInt64Array, index: number, count?: number): number;
+                                (typedArray: Int32Array<ArrayBufferLike>, index: number, count?: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike>, index: number, count?: number): number;
                             };
                             xor: {
-                                (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                                (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                                (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                                (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                             };
                             waitAsync: {
                                 (typedArray: Int32Array, index: number, value: number, timeout?: number): {
@@ -15984,7 +16256,8 @@ export declare const PopsRightClickMenu: {
                         SuppressedError: SuppressedErrorConstructor;
                         DisposableStack: DisposableStackConstructor;
                         AsyncDisposableStack: AsyncDisposableStackConstructor;
-                        unsafeWindow: any;
+                        Float16Array: Float16ArrayConstructor;
+                        unsafeWindow: /*elided*/ any;
                         undefined: undefined;
                     };
                     eval: typeof eval;
@@ -16050,6 +16323,7 @@ export declare const PopsRightClickMenu: {
                         trunc: (x: number) => number;
                         fround: (x: number) => number;
                         cbrt: (x: number) => number;
+                        f16round: (x: number) => number;
                         readonly [Symbol.toStringTag]: string;
                     };
                     Date: DateConstructor;
@@ -16188,9 +16462,23 @@ export declare const PopsRightClickMenu: {
                         prototype: AudioContext;
                         new (contextOptions?: AudioContextOptions): AudioContext;
                     };
+                    AudioData: {
+                        prototype: AudioData;
+                        new (init: AudioDataInit): AudioData;
+                    };
+                    AudioDecoder: {
+                        prototype: AudioDecoder;
+                        new (init: AudioDecoderInit): AudioDecoder;
+                        isConfigSupported(config: AudioDecoderConfig): Promise<AudioDecoderSupport>;
+                    };
                     AudioDestinationNode: {
                         prototype: AudioDestinationNode;
                         new (): AudioDestinationNode;
+                    };
+                    AudioEncoder: {
+                        prototype: AudioEncoder;
+                        new (init: AudioEncoderInit): AudioEncoder;
+                        isConfigSupported(config: AudioEncoderConfig): Promise<AudioEncoderSupport>;
                     };
                     AudioListener: {
                         prototype: AudioListener;
@@ -16376,6 +16664,10 @@ export declare const PopsRightClickMenu: {
                         prototype: CSSNamespaceRule;
                         new (): CSSNamespaceRule;
                     };
+                    CSSNestedDeclarations: {
+                        prototype: CSSNestedDeclarations;
+                        new (): CSSNestedDeclarations;
+                    };
                     CSSNumericArray: {
                         prototype: CSSNumericArray;
                         new (): CSSNumericArray;
@@ -16496,6 +16788,10 @@ export declare const PopsRightClickMenu: {
                         prototype: CSSVariableReferenceValue;
                         new (variable: string, fallback?: CSSUnparsedValue | null): CSSVariableReferenceValue;
                     };
+                    CSSViewTransitionRule: {
+                        prototype: CSSViewTransitionRule;
+                        new (): CSSViewTransitionRule;
+                    };
                     Cache: {
                         prototype: Cache;
                         new (): Cache;
@@ -16519,6 +16815,10 @@ export declare const PopsRightClickMenu: {
                     CanvasRenderingContext2D: {
                         prototype: CanvasRenderingContext2D;
                         new (): CanvasRenderingContext2D;
+                    };
+                    CaretPosition: {
+                        prototype: CaretPosition;
+                        new (): CaretPosition;
                     };
                     ChannelMergerNode: {
                         prototype: ChannelMergerNode;
@@ -16763,6 +17063,10 @@ export declare const PopsRightClickMenu: {
                         prototype: ElementInternals;
                         new (): ElementInternals;
                     };
+                    EncodedAudioChunk: {
+                        prototype: EncodedAudioChunk;
+                        new (init: EncodedAudioChunkInit): EncodedAudioChunk;
+                    };
                     EncodedVideoChunk: {
                         prototype: EncodedVideoChunk;
                         new (init: EncodedVideoChunkInit): EncodedVideoChunk;
@@ -16855,11 +17159,11 @@ export declare const PopsRightClickMenu: {
                     };
                     FontFace: {
                         prototype: FontFace;
-                        new (family: string, source: string | BinaryData, descriptors?: FontFaceDescriptors): FontFace;
+                        new (family: string, source: string | BufferSource, descriptors?: FontFaceDescriptors): FontFace;
                     };
                     FontFaceSet: {
                         prototype: FontFaceSet;
-                        new (initialFaces: FontFace[]): FontFaceSet;
+                        new (): FontFaceSet;
                     };
                     FontFaceSetLoadEvent: {
                         prototype: FontFaceSetLoadEvent;
@@ -16872,6 +17176,10 @@ export declare const PopsRightClickMenu: {
                     FormDataEvent: {
                         prototype: FormDataEvent;
                         new (type: string, eventInitDict: FormDataEventInit): FormDataEvent;
+                    };
+                    FragmentDirective: {
+                        prototype: FragmentDirective;
+                        new (): FragmentDirective;
                     };
                     GainNode: {
                         prototype: GainNode;
@@ -17319,6 +17627,19 @@ export declare const PopsRightClickMenu: {
                         new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
                         new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                     };
+                    ImageDecoder: {
+                        prototype: ImageDecoder;
+                        new (init: ImageDecoderInit): ImageDecoder;
+                        isTypeSupported(type: string): Promise<boolean>;
+                    };
+                    ImageTrack: {
+                        prototype: ImageTrack;
+                        new (): ImageTrack;
+                    };
+                    ImageTrackList: {
+                        prototype: ImageTrackList;
+                        new (): ImageTrackList;
+                    };
                     InputDeviceInfo: {
                         prototype: InputDeviceInfo;
                         new (): InputDeviceInfo;
@@ -17333,7 +17654,7 @@ export declare const PopsRightClickMenu: {
                     };
                     IntersectionObserverEntry: {
                         prototype: IntersectionObserverEntry;
-                        new (intersectionObserverEntryInit: IntersectionObserverEntryInit): IntersectionObserverEntry;
+                        new (): IntersectionObserverEntry;
                     };
                     KeyboardEvent: {
                         prototype: KeyboardEvent;
@@ -17529,13 +17850,6 @@ export declare const PopsRightClickMenu: {
                         prototype: MouseEvent;
                         new (type: string, eventInitDict?: MouseEventInit): MouseEvent;
                     };
-                    MutationEvent: {
-                        prototype: MutationEvent;
-                        new (): MutationEvent;
-                        readonly MODIFICATION: 1;
-                        readonly ADDITION: 2;
-                        readonly REMOVAL: 3;
-                    };
                     MutationObserver: {
                         prototype: MutationObserver;
                         new (callback: MutationCallback): MutationObserver;
@@ -17547,6 +17861,14 @@ export declare const PopsRightClickMenu: {
                     NamedNodeMap: {
                         prototype: NamedNodeMap;
                         new (): NamedNodeMap;
+                    };
+                    NavigationActivation: {
+                        prototype: NavigationActivation;
+                        new (): NavigationActivation;
+                    };
+                    NavigationHistoryEntry: {
+                        prototype: NavigationHistoryEntry;
+                        new (): NavigationHistoryEntry;
                     };
                     NavigationPreloadManager: {
                         prototype: NavigationPreloadManager;
@@ -17617,6 +17939,14 @@ export declare const PopsRightClickMenu: {
                         prototype: OverconstrainedError;
                         new (constraint: string, message?: string): OverconstrainedError;
                     };
+                    PageRevealEvent: {
+                        prototype: PageRevealEvent;
+                        new (type: string, eventInitDict?: PageRevealEventInit): PageRevealEvent;
+                    };
+                    PageSwapEvent: {
+                        prototype: PageSwapEvent;
+                        new (type: string, eventInitDict?: PageSwapEventInit): PageSwapEvent;
+                    };
                     PageTransitionEvent: {
                         prototype: PageTransitionEvent;
                         new (type: string, eventInitDict?: PageTransitionEventInit): PageTransitionEvent;
@@ -17629,13 +17959,17 @@ export declare const PopsRightClickMenu: {
                         prototype: Path2D;
                         new (path?: Path2D | string): Path2D;
                     };
+                    PaymentAddress: {
+                        prototype: PaymentAddress;
+                        new (): PaymentAddress;
+                    };
                     PaymentMethodChangeEvent: {
                         prototype: PaymentMethodChangeEvent;
                         new (type: string, eventInitDict?: PaymentMethodChangeEventInit): PaymentMethodChangeEvent;
                     };
                     PaymentRequest: {
                         prototype: PaymentRequest;
-                        new (methodData: PaymentMethodData[], details: PaymentDetailsInit): PaymentRequest;
+                        new (methodData: PaymentMethodData[], details: PaymentDetailsInit, options?: PaymentOptions): PaymentRequest;
                     };
                     PaymentRequestUpdateEvent: {
                         prototype: PaymentRequestUpdateEvent;
@@ -17753,8 +18087,11 @@ export declare const PopsRightClickMenu: {
                     PublicKeyCredential: {
                         prototype: PublicKeyCredential;
                         new (): PublicKeyCredential;
+                        getClientCapabilities(): Promise<PublicKeyCredentialClientCapabilities>;
                         isConditionalMediationAvailable(): Promise<boolean>;
                         isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean>;
+                        parseCreationOptionsFromJSON(options: PublicKeyCredentialCreationOptionsJSON): PublicKeyCredentialCreationOptions;
+                        parseRequestOptionsFromJSON(options: PublicKeyCredentialRequestOptionsJSON): PublicKeyCredentialRequestOptions;
                     };
                     PushManager: {
                         prototype: PushManager;
@@ -17890,7 +18227,7 @@ export declare const PopsRightClickMenu: {
                     };
                     ReadableStreamBYOBReader: {
                         prototype: ReadableStreamBYOBReader;
-                        new (stream: ReadableStream): ReadableStreamBYOBReader;
+                        new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
                     };
                     ReadableStreamBYOBRequest: {
                         prototype: ReadableStreamBYOBRequest;
@@ -18698,6 +19035,10 @@ export declare const PopsRightClickMenu: {
                     ViewTransition: {
                         prototype: ViewTransition;
                         new (): ViewTransition;
+                    };
+                    ViewTransitionTypeSet: {
+                        prototype: ViewTransitionTypeSet;
+                        new (): ViewTransitionTypeSet;
                     };
                     VisualViewport: {
                         prototype: VisualViewport;
@@ -19915,49 +20256,49 @@ export declare const PopsRightClickMenu: {
                     SharedArrayBuffer: SharedArrayBufferConstructor;
                     Atomics: {
                         add: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         and: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         compareExchange: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, expectedValue: number, replacementValue: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, expectedValue: number, replacementValue: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, expectedValue: bigint, replacementValue: bigint): bigint;
                         };
                         exchange: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         isLockFree: (size: number) => boolean;
                         load: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number): bigint;
                         };
                         or: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         store: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         sub: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         wait: {
-                            (typedArray: Int32Array, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
-                            (typedArray: BigInt64Array, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
+                            (typedArray: Int32Array<ArrayBufferLike>, index: number, value: number, timeout?: number): "ok" | "not-equal" | "timed-out";
+                            (typedArray: BigInt64Array<ArrayBufferLike>, index: number, value: bigint, timeout?: number): "ok" | "not-equal" | "timed-out";
                         };
                         notify: {
-                            (typedArray: Int32Array, index: number, count?: number): number;
-                            (typedArray: BigInt64Array, index: number, count?: number): number;
+                            (typedArray: Int32Array<ArrayBufferLike>, index: number, count?: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike>, index: number, count?: number): number;
                         };
                         xor: {
-                            (typedArray: Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array, index: number, value: number): number;
-                            (typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;
+                            (typedArray: Int8Array<ArrayBufferLike> | Uint8Array<ArrayBufferLike> | Int16Array<ArrayBufferLike> | Uint16Array<ArrayBufferLike> | Int32Array<ArrayBufferLike> | Uint32Array<ArrayBufferLike>, index: number, value: number): number;
+                            (typedArray: BigInt64Array<ArrayBufferLike> | BigUint64Array<ArrayBufferLike>, index: number, value: bigint): bigint;
                         };
                         waitAsync: {
                             (typedArray: Int32Array, index: number, value: number, timeout?: number): {
@@ -19986,7 +20327,8 @@ export declare const PopsRightClickMenu: {
                     SuppressedError: SuppressedErrorConstructor;
                     DisposableStack: DisposableStackConstructor;
                     AsyncDisposableStack: AsyncDisposableStackConstructor;
-                    unsafeWindow: any;
+                    Float16Array: Float16ArrayConstructor;
+                    unsafeWindow: /*elided*/ any;
                     undefined: undefined;
                 };
                 alert: (message?: any) => void;
@@ -20146,7 +20488,9 @@ export declare const PopsRightClickMenu: {
                 onoffline: ((this: WindowEventHandlers, ev: Event) => any) | null;
                 ononline: ((this: WindowEventHandlers, ev: Event) => any) | null;
                 onpagehide: ((this: WindowEventHandlers, ev: PageTransitionEvent) => any) | null;
+                onpagereveal: ((this: WindowEventHandlers, ev: Event) => any) | null;
                 onpageshow: ((this: WindowEventHandlers, ev: PageTransitionEvent) => any) | null;
+                onpageswap: ((this: WindowEventHandlers, ev: Event) => any) | null;
                 onpopstate: ((this: WindowEventHandlers, ev: PopStateEvent) => any) | null;
                 onrejectionhandled: ((this: WindowEventHandlers, ev: PromiseRejectionEvent) => any) | null;
                 onstorage: ((this: WindowEventHandlers, ev: StorageEvent) => any) | null;
@@ -20172,7 +20516,7 @@ export declare const PopsRightClickMenu: {
                 readonly crypto: {
                     readonly subtle: {
                         decrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
-                        deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length: number) => Promise<ArrayBuffer>;
+                        deriveBits: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length?: number | null) => Promise<ArrayBuffer>;
                         deriveKey: (algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params, extractable: boolean, keyUsages: KeyUsage[]) => Promise<CryptoKey>;
                         digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
                         encrypt: (algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams, key: CryptoKey, data: BufferSource) => Promise<ArrayBuffer>;
@@ -20182,7 +20526,9 @@ export declare const PopsRightClickMenu: {
                             (format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey>;
                         };
                         generateKey: {
-                            (algorithm: "Ed25519", extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
+                            (algorithm: "Ed25519" | {
+                                name: "Ed25519";
+                            }, extractable: boolean, keyUsages: ReadonlyArray<"sign" | "verify">): Promise<CryptoKeyPair>;
                             (algorithm: RsaHashedKeyGenParams | EcKeyGenParams, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKeyPair>;
                             (algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params, extractable: boolean, keyUsages: ReadonlyArray<KeyUsage>): Promise<CryptoKey>;
                             (algorithm: AlgorithmIdentifier, extractable: boolean, keyUsages: KeyUsage[]): Promise<CryptoKeyPair | CryptoKey>;
@@ -20297,7 +20643,7 @@ export declare const PopsRightClickMenu: {
                 iconIsLoading: boolean;
                 text: string | (() => string);
                 callback: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement) => boolean | void | Promise<boolean | void>;
-                item: any[] | null;
+                item: /*elided*/ any[] | null;
             }[];
             className: string;
             isAnimation: boolean;

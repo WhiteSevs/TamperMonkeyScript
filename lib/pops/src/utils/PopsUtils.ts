@@ -1,6 +1,12 @@
 import { PopsCore } from "../Core";
 import type { PopsUtilsOwnObject } from "../types/main";
 import { popsDOMUtils } from "./PopsDOMUtils";
+import {
+	clearInterval as WorkerClearInterval,
+	clearTimeout as WorkerClearTimeout,
+	setInterval as WorkerSetInterval,
+	setTimeout as WorkerSetTimeout,
+} from "worker-timers";
 import AnyTouch from "any-touch";
 
 class PopsUtils {
@@ -349,7 +355,7 @@ class PopsUtils {
 	formatByteToSize(byteSize: number | string, addType = true) {
 		byteSize = parseInt(byteSize.toString());
 		if (isNaN(byteSize)) {
-			throw new Error("Utils.formatByteToSize 参数 byteSize 格式不正确");
+			throw new TypeError("Utils.formatByteToSize 参数 byteSize 格式不正确");
 		}
 		let result = 0;
 		let resultType = "KB";
@@ -383,6 +389,52 @@ class PopsUtils {
 	AnyTouch = () => {
 		return AnyTouch;
 	};
+	/**
+	 * 自动使用 Worker 执行 setTimeout
+	 */
+	setTimeout(callback: Function, timeout: number = 0) {
+		try {
+			return WorkerSetTimeout(callback, timeout);
+		} catch (error) {
+			return globalThis.setTimeout(callback, timeout);
+		}
+	}
+	/**
+	 * 配合 .setTimeout 使用
+	 */
+	clearTimeout(timeId: number | undefined) {
+		try {
+			if (timeId != null) {
+				WorkerClearTimeout(timeId);
+			}
+		} catch (error) {
+		} finally {
+			globalThis.clearTimeout(timeId);
+		}
+	}
+	/**
+	 * 自动使用 Worker 执行 setInterval
+	 */
+	setInterval(callback: Function, timeout: number = 0) {
+		try {
+			return WorkerSetInterval(callback, timeout);
+		} catch (error) {
+			return globalThis.setInterval(callback, timeout);
+		}
+	}
+	/**
+	 * 配合 .setInterval 使用
+	 */
+	clearInterval(timeId: number | undefined) {
+		try {
+			if (timeId != null) {
+				WorkerClearInterval(timeId);
+			}
+		} catch (error) {
+		} finally {
+			globalThis.clearInterval(timeId);
+		}
+	}
 }
 
 const popsUtils = new PopsUtils();

@@ -576,11 +576,11 @@ export const PanelHandleContentDetails = () => {
 					let isSuccess = false;
 					let oldTotalWidth = this.$data.totalWidth;
 					let timer: number | undefined = void 0;
-					let interval = setInterval(() => {
+					let interval = popsUtils.setInterval(() => {
 						if (isSuccess) {
 							this.$interval.isCheck = false;
-							clearTimeout(timer);
-							clearInterval(interval);
+							popsUtils.clearTimeout(timer);
+							popsUtils.clearInterval(interval);
 						} else {
 							this.initTotalWidth();
 							if (this.$data.totalWidth !== 0) {
@@ -598,8 +598,8 @@ export const PanelHandleContentDetails = () => {
 						}
 					}, checkStepTime);
 					/* 最长检测时间是10s */
-					timer = setTimeout(() => {
-						clearInterval(interval);
+					timer = popsUtils.setTimeout(() => {
+						popsUtils.clearInterval(interval);
 					}, maxTime);
 				},
 				/**
@@ -981,16 +981,16 @@ export const PanelHandleContentDetails = () => {
 						return;
 					}
 					this.$data.isCheckingStopDragMove = true;
-					let interval = setInterval(() => {
+					let interval = popsUtils.setInterval(() => {
 						if (!this.$data.isMove) {
 							this.$data.isCheckingStopDragMove = false;
 							this.closeToolTip();
-							clearInterval(interval);
+							popsUtils.clearInterval(interval);
 						}
 					}, 200);
-					setTimeout(() => {
+					popsUtils.setTimeout(() => {
 						this.$data.isCheckingStopDragMove = false;
-						clearInterval(interval);
+						popsUtils.clearInterval(interval);
 					}, 2000);
 				},
 				/**

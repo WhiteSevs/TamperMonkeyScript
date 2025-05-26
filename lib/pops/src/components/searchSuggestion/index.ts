@@ -17,7 +17,7 @@ export const PopsSearchSuggestion = {
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
 		if (config.target == null) {
-			throw new TypeError("config.target 不能为空");
+			throw new Error("config.target 不能为空");
 		}
 		/* 做下兼容处理 */
 		if (config.inputTarget == null) {
@@ -352,7 +352,7 @@ export const PopsSearchSuggestion = {
 						option
 					);
 				} else {
-					throw new TypeError("未知followPosition：" + config.followPosition);
+					throw new Error("未知followPosition：" + config.followPosition);
 				}
 			},
 			/**

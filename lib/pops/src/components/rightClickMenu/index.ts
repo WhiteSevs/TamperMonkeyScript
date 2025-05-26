@@ -23,7 +23,7 @@ export const PopsRightClickMenu = {
 		config = popsUtils.assign(config, details);
 		config = PopsHandler.handleOnly(PopsType, config);
 		if (config.target == null) {
-			throw "config.target 不能为空";
+			throw new Error("config.target 不能为空");
 		}
 		if (details.data) {
 			// @ts-ignore

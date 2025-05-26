@@ -119,6 +119,22 @@ declare class PopsUtils {
      **/
     formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T): T extends true ? string : number;
     AnyTouch: () => typeof AnyTouch;
+    /**
+     * 自动使用 Worker 执行 setTimeout
+     */
+    setTimeout(callback: Function, timeout?: number): number;
+    /**
+     * 配合 .setTimeout 使用
+     */
+    clearTimeout(timeId: number | undefined): void;
+    /**
+     * 自动使用 Worker 执行 setInterval
+     */
+    setInterval(callback: Function, timeout?: number): number;
+    /**
+     * 配合 .setInterval 使用
+     */
+    clearInterval(timeId: number | undefined): void;
 }
 declare const popsUtils: PopsUtils;
 export { popsUtils };

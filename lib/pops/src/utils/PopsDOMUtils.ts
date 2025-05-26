@@ -680,7 +680,7 @@ class PopsDOMUtilsEvent {
 		}
 		if (checkDOMReadyState()) {
 			/* 检查document状态 */
-			setTimeout(callback);
+			popsUtils.setTimeout(callback, 0);
 		} else {
 			/* 添加监听 */
 			addDomReadyListener();
