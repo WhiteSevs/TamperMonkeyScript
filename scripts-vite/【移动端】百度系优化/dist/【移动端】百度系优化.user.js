@@ -2080,6 +2080,7 @@ match-attr##srcid##sp_purc_atom
           this.option.btn || {},
           true
         ),
+        drag: true,
         mask: {
           enable: true
         },
@@ -2187,6 +2188,7 @@ match-attr##srcid##sp_purc_atom
             type: "default"
           }
         },
+        drag: true,
         mask: {
           enable: true
         },
@@ -2378,13 +2380,17 @@ match-attr##srcid##sp_purc_atom
                     enable: true
                   }
                 },
-                mask: { enable: true },
+                drag: true,
+                mask: {
+                  enable: true
+                },
                 width: "300px",
                 height: "200px"
               });
             }
           }
         },
+        drag: true,
         mask: {
           enable: true
         },
@@ -2703,6 +2709,7 @@ match-attr##srcid##sp_purc_atom
                 enable: true
               }
             },
+            drag: true,
             mask: {
               enable: true
             },

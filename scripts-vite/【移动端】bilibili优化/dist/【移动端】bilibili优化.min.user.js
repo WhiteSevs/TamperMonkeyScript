@@ -65,7 +65,7 @@
                         </ul>
                         <input type="submit" style="display: none;" />
                     </form>
-                    `,html:true},btn:d.assign({ok:{callback:async()=>{await a();}}},this.option.btn||{},true),mask:{enable:true},style:`
+                    `,html:true},btn:d.assign({ok:{callback:async()=>{await a();}}},this.option.btn||{},true),drag:true,mask:{enable:true},style:`
                 ${Z.config.cssText.panelCSS}
                 
                 .rule-form-container {
@@ -120,7 +120,7 @@
                 ${((o=this.option)==null?void 0:o.style)??""}
             `,width:typeof this.option.width=="function"?this.option.width():window.innerWidth>500?"500px":"88vw",height:typeof this.option.height=="function"?this.option.height():window.innerHeight>500?"500px":"80vh"}),r=e.$shadowRoot.querySelector(".rule-form-container");e.$shadowRoot.querySelector("input[type=submit]");let n=e.$shadowRoot.querySelector(".rule-form-ulist"),i=await this.option.getView(await this.option.data());n.appendChild(i);const a=async()=>{(await this.option.onsubmit(r,await this.option.data())).success&&(e.close(),await this.option.dialogCloseCallBack(true));};}}class vr{constructor(e){rt(this,"option");this.option=e;}showView(){let e=Z.alert({title:{text:this.option.title,position:"center"},content:{text:`
                 <div class="filter-container"></div>
-                `},btn:{ok:{text:"关闭",type:"default"}},mask:{enable:true},width:window.innerWidth>500?"350px":"80vw",height:window.innerHeight>500?"300px":"70vh",style:`
+                `},btn:{ok:{text:"关闭",type:"default"}},drag:true,mask:{enable:true},width:window.innerWidth>500?"350px":"80vw",height:window.innerHeight>500?"300px":"70vh",style:`
             .filter-container{
                 height: 100%;
                 display: flex;

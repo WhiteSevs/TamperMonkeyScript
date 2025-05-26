@@ -82,6 +82,7 @@ export class RuleEditView<T> {
 				this.option.btn || {},
 				true
 			),
+			drag: true,
 			mask: {
 				enable: true,
 			},

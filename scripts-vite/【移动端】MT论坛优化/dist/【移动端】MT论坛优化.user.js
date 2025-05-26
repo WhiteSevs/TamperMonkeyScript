@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://greasyfork.org/zh-CN/scripts/401359
-// @version      2025.5.3
+// @version      2025.5.26
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,10 +11,10 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
@@ -49,7 +49,7 @@
   };
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var require_entrance_001 = __commonJS({
-    "entrance-BmVTmbrW.js"(exports, module) {
+    "entrance-C5dvDAMa.js"(exports, module) {
       var _a;
       var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
@@ -894,7 +894,10 @@
         GM_registerMenuCommand: _GM_registerMenuCommand,
         GM_unregisterMenuCommand: _GM_unregisterMenuCommand
       });
-      const httpx = new utils.Httpx(_GM_xmlhttpRequest);
+      const httpx = new utils.Httpx({
+        xmlHttpRequest: _GM_xmlhttpRequest,
+        logDetails: DEBUG
+      });
       httpx.interceptors.request.use((data) => {
         HttpxCookieManager.handle(data);
         return data;
@@ -911,9 +914,6 @@
           Qmsg.error("其它错误");
         }
         return data;
-      });
-      httpx.config({
-        logDetails: DEBUG
       });
       pops.GlobalConfig.setGlobalConfig({
         mask: {
@@ -10946,6 +10946,7 @@
               this.option.btn || {},
               true
             ),
+            drag: true,
             mask: {
               enable: true
             },
@@ -10964,6 +10965,26 @@
                     padding: 5px 20px;
                     gap: 10px;
                 }
+				.rule-form-ulist-dynamic{
+					--button-margin-top: 0px;
+					--button-margin-right: 0px;
+					--button-margin-bottom: 0px;
+					--button-margin-left: 0px;
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					padding: 5px 0px 5px 20px;
+				}
+				.rule-form-ulist-dynamic__inner{
+					width: 100%;
+				}
+				.rule-form-ulist-dynamic__inner-container{
+					display: flex;
+					align-items: center;
+				}
+				.dynamic-forms{
+					width: 100%;
+				}
                 .pops-panel-item-left-main-text{
                     max-width: 150px;
                 }
@@ -10976,6 +10997,12 @@
                     overflow: hidden;
                     white-space: nowrap;
                 }
+				.pops-panel-item-left-desc-text{
+					line-height: normal;
+					margin-top: 6px;
+					font-size: 0.8em;
+					color: rgb(108, 108, 108);
+				}
 
                 ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
             `
@@ -11027,6 +11054,7 @@
                 type: "default"
               }
             },
+            drag: true,
             mask: {
               enable: true
             },
@@ -11300,6 +11328,92 @@
           }
         }
         /**
+         * 显示编辑视图
+         * @param isEdit 是否是编辑状态
+         * @param editData 编辑的数据
+         * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
+         * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
+         * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
+         * @param submitCallBack （可选）添加/修改提交的回调
+         */
+        showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+          let dialogCloseCallBack = async (isSubmit) => {
+            if (isSubmit) {
+              if (typeof submitCallBack === "function") {
+                let newData = await this.option.getData(editData);
+                submitCallBack(newData);
+              }
+            } else {
+              if (!isEdit) {
+                await this.option.deleteData(editData);
+              }
+              if (typeof updateDataCallBack === "function") {
+                let newData = await this.option.getData(editData);
+                updateDataCallBack(newData);
+              }
+            }
+          };
+          let editView = new RuleEditView({
+            title: isEdit ? "编辑" : "添加",
+            data: () => {
+              return editData;
+            },
+            dialogCloseCallBack,
+            getView: async (data) => {
+              return await this.option.itemControls.edit.getView(data, isEdit);
+            },
+            btn: {
+              ok: {
+                enable: true,
+                text: isEdit ? "修改" : "添加"
+              },
+              cancel: {
+                callback: async (detail, event) => {
+                  detail.close();
+                  await dialogCloseCallBack(false);
+                }
+              },
+              close: {
+                callback: async (detail, event) => {
+                  detail.close();
+                  await dialogCloseCallBack(false);
+                }
+              }
+            },
+            onsubmit: async ($form, data) => {
+              let result = await this.option.itemControls.edit.onsubmit(
+                $form,
+                isEdit,
+                data
+              );
+              if (result.success) {
+                if (isEdit) {
+                  Qmsg.success("修改成功");
+                  $parentShadowRoot && await this.updateRuleItemElement(
+                    result.data,
+                    $editRuleItemElement,
+                    $parentShadowRoot
+                  );
+                } else {
+                  $parentShadowRoot && await this.appendRuleItemElement(
+                    $parentShadowRoot,
+                    result.data
+                  );
+                }
+              } else {
+                if (isEdit) {
+                  log.error("修改失败");
+                }
+              }
+              return result;
+            },
+            style: this.option.itemControls.edit.style,
+            width: this.option.itemControls.edit.width,
+            height: this.option.itemControls.edit.height
+          });
+          editView.showView();
+        }
+        /**
          * 解析弹窗内的各个元素
          */
         parseViewElement($shadowRoot) {
@@ -11528,84 +11642,6 @@
         async updateDeleteAllBtnText($shadowRoot) {
           let data = await this.option.data();
           this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
-        }
-        /**
-         * 显示编辑视图
-         * @param isEdit 是否是编辑状态
-         * @param editData 编辑的数据
-         */
-        showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack) {
-          let dialogCloseCallBack = async (isSubmit) => {
-            if (isSubmit) ;
-            else {
-              if (!isEdit) {
-                await this.option.deleteData(editData);
-              }
-              if (typeof updateDataCallBack === "function") {
-                let newData = await this.option.getData(editData);
-                updateDataCallBack(newData);
-              }
-            }
-          };
-          let editView = new RuleEditView({
-            title: isEdit ? "编辑" : "添加",
-            data: () => {
-              return editData;
-            },
-            dialogCloseCallBack,
-            getView: async (data) => {
-              return await this.option.itemControls.edit.getView(data, isEdit);
-            },
-            btn: {
-              ok: {
-                enable: true,
-                text: isEdit ? "修改" : "添加"
-              },
-              cancel: {
-                callback: async (detail, event) => {
-                  detail.close();
-                  await dialogCloseCallBack(false);
-                }
-              },
-              close: {
-                callback: async (detail, event) => {
-                  detail.close();
-                  await dialogCloseCallBack(false);
-                }
-              }
-            },
-            onsubmit: async ($form, data) => {
-              let result = await this.option.itemControls.edit.onsubmit(
-                $form,
-                isEdit,
-                data
-              );
-              if (result.success) {
-                if (isEdit) {
-                  Qmsg.success("修改成功");
-                  $parentShadowRoot && await this.updateRuleItemElement(
-                    result.data,
-                    $editRuleItemElement,
-                    $parentShadowRoot
-                  );
-                } else {
-                  $parentShadowRoot && await this.appendRuleItemElement(
-                    $parentShadowRoot,
-                    result.data
-                  );
-                }
-              } else {
-                if (isEdit) {
-                  Qmsg.error("修改失败");
-                }
-              }
-              return result;
-            },
-            style: this.option.itemControls.edit.style,
-            width: this.option.itemControls.edit.width,
-            height: this.option.itemControls.edit.height
-          });
-          editView.showView();
         }
       }
       const MTOwnBlock = {

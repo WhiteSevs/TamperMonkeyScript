@@ -367,8 +367,10 @@ export class RuleSubscribe<
 					},
 				},
 			},
-			mask: { enable: true },
 			drag: true,
+			mask: {
+				enable: true,
+			},
 			width: PanelUISize.info.width,
 			height: PanelUISize.info.height,
 			style: /*css*/ `
@@ -531,8 +533,10 @@ export class RuleSubscribe<
 						enable: false,
 					},
 				},
-				mask: { enable: true },
 				drag: true,
+				mask: {
+					enable: true,
+				},
 				width: PanelUISize.info.width,
 				height: "auto",
 			});
@@ -588,8 +592,10 @@ export class RuleSubscribe<
 					},
 				},
 			},
-			mask: { enable: true },
 			drag: true,
+			mask: {
+				enable: true,
+			},
 			width: PanelUISize.info.width,
 			height: PanelUISize.info.height,
 			style: /*css*/ `
