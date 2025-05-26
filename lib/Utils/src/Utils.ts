@@ -23,6 +23,12 @@ import {
 	type UtilsOwnObject,
 } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
+import {
+	clearInterval as WorkerClearInterval,
+	clearTimeout as WorkerClearTimeout,
+	setInterval as WorkerSetInterval,
+	setTimeout as WorkerSetTimeout,
+} from "worker-timers";
 import { ModuleRaid } from "./ModuleRaid";
 
 class Utils {
@@ -31,7 +37,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2025.4.11";
+	version = "2025.5.26";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -421,11 +427,11 @@ class Utils {
 	): (...args: A) => void;
 	debounce<A extends any[], R>(fn: (...args: A) => R, delay = 0) {
 		let timer: any = null as any;
-		const context = this;
+		let UtilsContext = this;
 		return function (...args: A) {
-			clearTimeout(timer);
-			timer = setTimeout(function () {
-				fn.apply(context, args);
+			UtilsContext.workerClearTimeout(timer);
+			timer = UtilsContext.workerSetTimeout(function () {
+				fn.apply(UtilsContext, args);
 			}, delay);
 		};
 	}
@@ -519,6 +525,7 @@ class Utils {
 		eventName: DOMUtils_EventType | DOMUtils_EventType[] | string,
 		details?: any
 	) {
+		// let UtilsContext = this;
 		let eventNameList: string[] = [];
 		if (typeof eventName === "string") {
 			eventNameList = [eventName];
@@ -548,6 +555,7 @@ class Utils {
 		isIFrame?: boolean
 	): void;
 	downloadBase64(base64Data: string, fileName: string, isIFrame = false) {
+		let UtilsContext = this;
 		if (typeof base64Data !== "string") {
 			throw new Error(
 				"Utils.downloadBase64 参数 base64Data 必须为 string 类型"
@@ -562,7 +570,7 @@ class Utils {
 			iframeElement.style.display = "none";
 			iframeElement.src = base64Data;
 			this.windowApi.document.body.appendChild(iframeElement);
-			setTimeout(() => {
+			UtilsContext.workerSetTimeout(() => {
 				iframeElement!.contentWindow!.document.execCommand(
 					"SaveAs",
 					true,
@@ -3507,7 +3515,7 @@ class Utils {
 			throw new TypeError("Utils.setTimeout 参数 delayTime 必须为 number 类型");
 		}
 		return new Promise((resolve) => {
-			setTimeout(() => {
+			UtilsContext.workerSetTimeout(() => {
 				resolve(UtilsContext.tryCatch().run(callback));
 			}, delayTime);
 		});
@@ -3520,11 +3528,12 @@ class Utils {
 	 **/
 	sleep(delayTime?: number): Promise<void>;
 	sleep(delayTime: number = 0): Promise<void> {
+		let UtilsContext = this;
 		if (typeof delayTime !== "number") {
 			throw new Error("Utils.sleep 参数 delayTime 必须为 number 类型");
 		}
 		return new Promise((resolve) => {
-			setTimeout(() => {
+			UtilsContext.workerSetTimeout(() => {
 				resolve(void 0);
 			}, delayTime);
 		});
@@ -4188,7 +4197,7 @@ class Utils {
 				}
 			);
 			if (__timeout__ > 0) {
-				setTimeout(() => {
+				UtilsContext.workerSetTimeout(() => {
 					// 取消观察器
 					if (typeof observer?.disconnect === "function") {
 						observer.disconnect();
@@ -4913,12 +4922,13 @@ class Utils {
 		intervalTimer: number = 250,
 		maxTime: number = -1
 	): Promise<T> {
+		let UtilsContext = this;
 		if (checkObj == null) {
 			throw new TypeError("checkObj 不能为空对象 ");
 		}
 		let isResolve = false;
 		return new Promise((resolve, reject) => {
-			let interval = setInterval(() => {
+			let interval = UtilsContext.workerSetInterval(() => {
 				let obj = checkObj;
 				if (typeof checkObj === "function") {
 					obj = checkObj();
@@ -4934,14 +4944,14 @@ class Utils {
 					Reflect.has(obj, checkPropertyName as string)
 				) {
 					isResolve = true;
-					clearInterval(interval);
+					UtilsContext.workerClearInterval(interval);
 					resolve((obj as any)[checkPropertyName as string]);
 				}
 			}, intervalTimer);
 			if (maxTime !== -1) {
-				setTimeout(() => {
+				UtilsContext.workerSetTimeout(() => {
 					if (!isResolve) {
-						clearInterval(interval);
+						UtilsContext.workerClearInterval(interval);
 						reject();
 					}
 				}, maxTime);
@@ -5233,6 +5243,58 @@ class Utils {
 	 */
 	Vue = Vue;
 	ModuleRaid = ModuleRaid;
+	/**
+	 * 自动使用 Worker 执行 setTimeout
+	 * @param callback 回调函数
+	 * @param [timeout=0] 延迟时间，默认为0
+	 */
+	workerSetTimeout(callback: Function, timeout: number = 0) {
+		try {
+			return WorkerSetTimeout(callback, timeout);
+		} catch (error) {
+			return globalThis.setTimeout(callback, timeout);
+		}
+	}
+	/**
+	 * 配合 .setTimeout 使用
+	 * @param timeId setTimeout 返回的`id`
+	 */
+	workerClearTimeout(timeId: number | undefined) {
+		try {
+			if (timeId != null) {
+				WorkerClearTimeout(timeId);
+			}
+		} catch (error) {
+		} finally {
+			globalThis.clearTimeout(timeId);
+		}
+	}
+	/**
+	 * 自动使用 Worker 执行 setInterval
+	 * @param callback 回调函数
+	 * @param timeout 间隔时间，默认为0
+	 */
+	workerSetInterval(callback: Function, timeout: number = 0) {
+		try {
+			return WorkerSetInterval(callback, timeout);
+		} catch (error) {
+			return globalThis.setInterval(callback, timeout);
+		}
+	}
+	/**
+	 * 配合 .setInterval 使用
+	 * @param timeId setInterval 返回的`id`
+	 */
+	workerClearInterval(timeId: number | undefined) {
+		try {
+			if (timeId != null) {
+				WorkerClearInterval(timeId);
+			}
+		} catch (error) {
+		} finally {
+			globalThis.clearInterval(timeId);
+		}
+	}
 }
 
 let utils = new Utils();

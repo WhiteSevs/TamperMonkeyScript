@@ -40,7 +40,7 @@ class LockFunction<K extends (...args: any[]) => any | Promise<any> | void> {
 		 * 解锁
 		 */
 		this.unlock = function () {
-			setTimeout(() => {
+			Utils.workerSetTimeout(() => {
 				that.#flag = false;
 			}, that.#delayTime);
 		};

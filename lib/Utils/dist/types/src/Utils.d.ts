@@ -1825,6 +1825,28 @@ declare class Utils {
      */
     Vue: typeof Vue;
     ModuleRaid: typeof ModuleRaid;
+    /**
+     * 自动使用 Worker 执行 setTimeout
+     * @param callback 回调函数
+     * @param [timeout=0] 延迟时间，默认为0
+     */
+    workerSetTimeout(callback: Function, timeout?: number): number;
+    /**
+     * 配合 .setTimeout 使用
+     * @param timeId setTimeout 返回的`id`
+     */
+    workerClearTimeout(timeId: number | undefined): void;
+    /**
+     * 自动使用 Worker 执行 setInterval
+     * @param callback 回调函数
+     * @param timeout 间隔时间，默认为0
+     */
+    workerSetInterval(callback: Function, timeout?: number): number;
+    /**
+     * 配合 .setInterval 使用
+     * @param timeId setInterval 返回的`id`
+     */
+    workerClearInterval(timeId: number | undefined): void;
 }
 declare let utils: Utils;
 export { utils as Utils };

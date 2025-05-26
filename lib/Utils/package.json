@@ -1,6 +1,6 @@
 {
 	"name": "@whitesev/utils",
-	"version": "2.6.6",
+	"version": "2.6.7",
 	"description": "一个常用的工具库",
 	"main": "dist/index.cjs.js",
 	"module": "dist/index.esm.js",
@@ -44,7 +44,8 @@
 		"@rollup/plugin-node-resolve": "^15.2.3",
 		"@rollup/plugin-typescript": "^11.1.6",
 		"rollup-plugin-clear": "^2.0.7",
-		"tslib": "^2.6.3"
+		"tslib": "^2.6.3",
+		"worker-timers": "^8.0.21"
 	},
 	"devDependencies": {
 		"typescript": "^5.5.4"
