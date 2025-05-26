@@ -106,7 +106,16 @@ const GM_Menu = new utils.GM_Menu({
 	GM_unregisterMenuCommand,
 });
 
-const httpx = new utils.Httpx(GM_xmlhttpRequest);
+const httpx = new utils.Httpx({
+	xmlHttpRequest: GM_xmlhttpRequest,
+	logDetails: import.meta.env.DEV ? true : DEBUG,
+});
+
+// 开发测试使用
+if (import.meta.env.DEV) {
+	// @ts-ignore
+	unsafeWindow.httpx = httpx;
+}
 
 // 添加请求拦截器
 httpx.interceptors.request.use((data) => {
@@ -127,10 +136,6 @@ httpx.interceptors.response.use(void 0, (data) => {
 		Qmsg.error("其它错误");
 	}
 	return data;
-});
-
-httpx.config({
-	logDetails: DEBUG,
 });
 
 const OriginPrototype = {
@@ -189,15 +194,6 @@ const MountVue = async function (targetApp: any, plugin: any[] = []) {
 	});
 	CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.ElementPlus);
 };
-
-// 开发测试使用
-if (import.meta.env.DEV) {
-	// @ts-ignore
-	unsafeWin.httpx = httpx;
-	httpx.config({
-		logDetails: true,
-	});
-}
 
 /** 复制 */
 const copy = GM_setClipboard || utils.setClip.bind(utils);
