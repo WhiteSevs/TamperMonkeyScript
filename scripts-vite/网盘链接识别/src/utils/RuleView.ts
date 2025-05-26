@@ -352,11 +352,9 @@ export class RuleView<T> {
 	/**
 	 * 解析弹窗内的各个元素
 	 */
-	parseViewElement($shadowRoot: ShadowRoot | HTMLElement) {
-		let $container = $shadowRoot.querySelector<HTMLElement>(
-			".rule-view-container"
-		)!;
-		let $deleteBtn = $shadowRoot.querySelector<HTMLButtonElement>(
+	parseViewElement($el: ShadowRoot | HTMLElement) {
+		let $container = $el.querySelector<HTMLElement>(".rule-view-container")!;
+		let $deleteBtn = $el.querySelector<HTMLButtonElement>(
 			".pops-confirm-btn button.pops-confirm-btn-other"
 		)!;
 		return {
@@ -692,8 +690,11 @@ export class RuleView<T> {
 							));
 					}
 				} else {
+					// if (isEdit) {
+					// 	Qmsg.error("修改失败");
+					// }
 					if (isEdit) {
-						Qmsg.error("修改失败");
+						log.error("修改失败");
 					}
 				}
 				return result;

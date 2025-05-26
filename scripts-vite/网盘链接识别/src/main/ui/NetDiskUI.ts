@@ -18,9 +18,8 @@ import {
 } from "../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
-import { CharacterMapping } from "../character-mapping/CharacterMapping";
-import { WebsiteRule } from "../website-rule/WebsiteRule";
 import DOMUtils from "@whitesev/domutils";
+import { NetDiskRuleManager } from "../NetDiskRuleManager";
 
 /** 弹窗UI界面 */
 export const NetDiskUI = {
@@ -143,17 +142,10 @@ export const NetDiskUI = {
 				},
 			},
 			{
-				text: "网站规则",
+				text: "规则管理器",
 				callback() {
 					log.info("右键菜单-打开-" + this.text);
-					WebsiteRule.show();
-				},
-			},
-			{
-				text: "字符映射规则",
-				callback() {
-					log.info("右键菜单-打开-" + this.text);
-					CharacterMapping.show();
+					NetDiskRuleManager.showView();
 				},
 			},
 			{

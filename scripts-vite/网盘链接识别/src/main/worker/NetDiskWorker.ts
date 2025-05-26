@@ -16,6 +16,8 @@ import { PopsPanel } from "@/setting/panel";
 import Qmsg from "qmsg";
 import { NetDiskWorkerInitError } from "./NetDiskWorkerInitError";
 import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
+import { NetDiskRuleManager } from "../NetDiskRuleManager";
+import { RulePanelView } from "@/utils/RulePanelView";
 
 /** Woker */
 export const NetDiskWorker = {
@@ -302,8 +304,16 @@ export const NetDiskWorker = {
 										NetDiskGlobalData.features["netdisk-match-mode"].KEY
 									] =
 										"Menu" as (typeof NetDiskGlobalData.features)["netdisk-match-mode"]["value"];
-									let websiteRuleView = WebsiteRule.getRuleView(ruleOption);
-									websiteRuleView.showEditView(
+
+									let rulePanelView = new RulePanelView<WebsiteRuleOption>({
+										title() {
+											return "规则管理器";
+										},
+										contentConfig: [WebsiteRule.getRulePanelViewOption(ruleOption)],
+									});
+									rulePanelView.showEditView(
+										rulePanelView.option.contentConfig[0].ruleOption,
+										void 0,
 										false,
 										ruleOption,
 										void 0,
@@ -318,8 +328,8 @@ export const NetDiskWorker = {
 							cancel: {
 								text: "网站规则",
 								callback(details, event) {
-									let websiteRuleView = WebsiteRule.getRuleView();
-									websiteRuleView.showView();
+									let rulePanelView = NetDiskRuleManager.getPanelView(0);
+									rulePanelView.showView();
 								},
 							},
 							other: {

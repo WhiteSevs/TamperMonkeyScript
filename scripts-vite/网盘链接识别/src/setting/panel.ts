@@ -18,8 +18,7 @@ import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskRule } from "@/main/rule/NetDiskRule";
 import { NetDiskUserRuleUI } from "@/main/rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskGlobalSettingView } from "@/main/view/global-setting/NetDiskGlobalSettingView";
-import { CharacterMapping } from "@/main/character-mapping/CharacterMapping";
-import { WebsiteRule } from "@/main/website-rule/WebsiteRule";
+import { NetDiskRuleManager } from "@/main/NetDiskRuleManager";
 
 type PosPanelListenerData = {
 	id: number;
@@ -132,27 +131,15 @@ export const PopsPanel = {
 				},
 			},
 			{
-				key: "websiteRule",
-				text: "⚙ 网站规则",
+				key: "ruleManager",
+				text: "⚙ 规则管理器",
 				autoReload: false,
 				isStoreValue: false,
 				showText(text) {
 					return text;
 				},
 				callback() {
-					WebsiteRule.show();
-				},
-			},
-			{
-				key: "charater-mapping",
-				text: "⚙ 字符映射规则",
-				autoReload: false,
-				isStoreValue: false,
-				showText(text) {
-					return text;
-				},
-				callback() {
-					CharacterMapping.show();
+					NetDiskRuleManager.showView();
 				},
 			},
 			{

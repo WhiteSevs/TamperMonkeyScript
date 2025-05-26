@@ -1,11 +1,17 @@
 /**
  * 网站规则配置
  */
-export interface WebsiteRuleOption {
+declare interface WebsiteRuleOption {
 	/**
 	 * 规则的uuid
 	 */
 	uuid: string;
+	/**
+	 * 来自订阅的uuid
+	 *
+	 * 如果不是来自订阅，则为null
+	 */
+	subscribeUUID: string | null;
 	/**
 	 * 是否启用该规则
 	 */

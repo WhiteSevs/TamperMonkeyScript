@@ -107,9 +107,7 @@ export const NetDisk = {
 		});
 
 		// 这里是输出信息用的，无其它的作用
-		let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule().filter(
-			(item) => item.enable
-		);
+		let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
 		if (matchedUrlRuleList.length) {
 			log.info("成功命中网站规则 ==> ", matchedUrlRuleList);
 			GM_Menu.add({
@@ -132,9 +130,7 @@ export const NetDisk = {
 				},
 			});
 		}
-		let characterMapping = CharacterMapping.getUrlMatchedRule().filter(
-			(item) => item.enable
-		);
+		let characterMapping = CharacterMapping.getUrlMatchedRule();
 		if (characterMapping.length) {
 			log.info("成功命中字符规则 ==> ", characterMapping);
 			GM_Menu.add({

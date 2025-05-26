@@ -4,13 +4,14 @@ import { UISwitch } from "../components/ui-switch";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { UISlider } from "../components/ui-slider";
-import { DOMUtils, utils } from "@/env";
+import { utils } from "@/env";
 import Qmsg from "qmsg";
 import { UIButtonShortCut } from "../components/ui-button-shortcut";
 import { NetDiskShortcut } from "@/main/shortcut/NetDiskShortcut";
 import { UIButton } from "../components/ui-button";
 import { UISelectMultiple } from "../components/ui-select-multiple";
 import { UIInput } from "../components/ui-input";
+import DOMUtils from "@whitesev/domutils";
 
 export const PanelUI_allSetting: PopsPanelContentConfig = {
 	id: "netdisk-panel-config-all-setting",
@@ -534,7 +535,7 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 							text: "文本匹配范围",
 							forms: [
 								UISelectMultiple<
-									ExtractElementType<NetDiskWorkerOptions["matchTextRange"]>
+									ArrayElementType<NetDiskWorkerOptions["matchTextRange"]>
 								>(
 									"匹配规则类型",
 									NetDiskGlobalData.match.pageMatchRange.KEY,

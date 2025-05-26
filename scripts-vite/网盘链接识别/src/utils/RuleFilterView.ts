@@ -59,8 +59,7 @@ export class RuleFilterView<T> {
 			},
 			btn: {
 				ok: {
-					text: "关闭",
-					type: "default",
+					enable: false,
 				},
 			},
 			mask: {

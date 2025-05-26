@@ -9,6 +9,7 @@ import { NetDiskAuthorization } from "./main/authorization/NetDiskAuthorization"
 import { NetDiskWorker } from "./main/worker/NetDiskWorker";
 import { NetDiskUserRule } from "./main/rule/user-rule/NetDiskUserRule";
 import { WebsiteRule } from "./main/website-rule/WebsiteRule";
+import { NetDiskRuleManager } from "./main/NetDiskRuleManager";
 
 Object.assign(
 	NetDiskUI.src.icon,
@@ -34,4 +35,6 @@ DOMUtils.ready(() => {
 	NetDiskAuthorization.init();
 	// 初始化匹配处理
 	NetDiskWorker.init();
+	// 规则管理器初始化处理
+	NetDiskRuleManager.init();
 });

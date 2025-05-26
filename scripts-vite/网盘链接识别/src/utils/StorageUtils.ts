@@ -19,6 +19,13 @@ export class StorageUtils {
 	 * @param key
 	 */
 	constructor(key: string) {
+		Object.keys(this).forEach((key) => {
+			// @ts-ignore
+			if (typeof this[key] === "function") {
+				// @ts-ignore
+				this[key] = this[key].bind(this);
+			}
+		});
 		if (typeof key === "string") {
 			let trimKey = key.trim();
 			if (trimKey == "") {

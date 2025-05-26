@@ -5,6 +5,7 @@ import { NetDiskGlobalSettingView } from "../view/global-setting/NetDiskGlobalSe
 import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskWorker } from "../worker/NetDiskWorker";
 import { CharacterMapping } from "../character-mapping/CharacterMapping";
+import { NetDiskRuleManager } from "../NetDiskRuleManager";
 
 export const NetDiskShortcut = {
 	shortCut: new ShortCut("GM_shortcut"),
@@ -52,7 +53,7 @@ export const NetDiskShortcut = {
 				target: "window",
 				callback() {
 					log.info("快捷键 ==> 【打开】⚙ 字符映射规则");
-					CharacterMapping.show();
+					NetDiskRuleManager.showView(1);
 				},
 			},
 		};
