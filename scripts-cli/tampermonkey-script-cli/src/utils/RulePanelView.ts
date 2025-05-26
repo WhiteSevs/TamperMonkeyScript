@@ -507,6 +507,10 @@ export class RulePanelView<T> {
 																	},
 																},
 															},
+															drag: true,
+															mask: {
+																enable: true,
+															},
 															width: PanelUISize.setting.width,
 															height: "auto",
 															style: /*css*/ `
@@ -663,6 +667,10 @@ export class RulePanelView<T> {
 											},
 										},
 									},
+									drag: true,
+									mask: {
+										enable: true,
+									},
 									width: PanelUISize.info.width,
 									height: "auto",
 								});
@@ -771,7 +779,13 @@ export class RulePanelView<T> {
 					},
 				},
 			},
-			mask: { clickEvent: { toClose: false } },
+			drag: true,
+			mask: {
+				enable: true,
+				clickEvent: {
+					toClose: false,
+				},
+			},
 			class: this.option.className || "rule-panel-view",
 			width: PanelUISize.settingBig.width,
 			height: PanelUISize.settingBig.height,
@@ -1088,7 +1102,10 @@ export class RulePanelView<T> {
 							enable: true,
 						},
 					},
-					mask: { enable: true },
+					drag: true,
+					mask: {
+						enable: true,
+					},
 					width: "300px",
 					height: "200px",
 				});
@@ -1425,6 +1442,7 @@ export class RulePanelView<T> {
 							enable: true,
 						},
 					},
+					drag: true,
 					mask: {
 						enable: true,
 					},
