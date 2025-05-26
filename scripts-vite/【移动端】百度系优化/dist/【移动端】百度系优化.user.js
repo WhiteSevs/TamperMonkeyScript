@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.26
+// @version      2025.5.26.12
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -7042,19 +7042,6 @@ div[class^="new-summary-container_"] {\r
             };
           }
           return webpackExports;
-        }
-      );
-      this.windowWebPack(
-        "webpackChunktb_smallapp",
-        [573],
-        function(webpackExports) {
-          var _a3, _b, _c, _d, _e, _f;
-          if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof ((_b = (_a3 = webpackExports == null ? void 0 : webpackExports.exports) == null ? void 0 : _a3.A) == null ? void 0 : _b.setup) === "function" && ((_f = (_e = (_d = (_c = webpackExports == null ? void 0 : webpackExports.exports) == null ? void 0 : _c.A) == null ? void 0 : _d.setup) == null ? void 0 : _e.toString()) == null ? void 0 : _f.includes("wappass.baidu.com"))) {
-            webpackExports.exports.A.setup = function(...args) {
-              log.success([`成功阻止跳转登录组件的初始化`, args]);
-              return {};
-            };
-          }
         }
       );
     },

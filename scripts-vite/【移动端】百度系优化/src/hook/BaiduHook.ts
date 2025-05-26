@@ -457,7 +457,7 @@ const BaiduHook = {
 	windowWebPack(
 		webpackName = "webpackJsonp",
 		mainCoreData: string[] | number[],
-		checkCallBack: (arg: any) => void
+		checkCallBack: (arg: any) => any
 	) {
 		let originObject = void 0;
 		OriginPrototype.Object.defineProperty(unsafeWindow, webpackName, {
@@ -555,28 +555,41 @@ const BaiduHook = {
 		);
 		// https://tb3.bdstatic.com/tb/wise/wise-main-core/static/uni/static/js/pages-uni-pb-uni-pb.a7cc87d6.js
 		// 78006
-		this.windowWebPack(
-			"webpackChunktb_smallapp",
-			[573],
-			function (webpackExports: {
-				[x: string]: any;
-				id: number;
-				exports: any;
-			}) {
-				if (
-					typeof webpackExports?.exports === "object" &&
-					typeof webpackExports?.exports?.A?.setup === "function" &&
-					webpackExports?.exports?.A?.setup
-						?.toString()
-						?.includes("wappass.baidu.com")
-				) {
-					webpackExports.exports.A.setup = function (...args: any[]) {
-						log.success([`成功阻止跳转登录组件的初始化`, args]);
-						return {};
-					};
-				}
-			}
-		);
+		// 会出现 连接服务器超时，点击屏幕重试这个问题
+		// this.windowWebPack(
+		// 	"webpackChunktb_smallapp",
+		// 	[573],
+		// 	function (webpackExports: {
+		// 		[x: string]: any;
+		// 		id: number;
+		// 		exports: any;
+		// 	}) {
+		// 		if (
+		// 			typeof webpackExports?.exports === "object" &&
+		// 			typeof webpackExports?.exports?.A?.setup === "function" &&
+		// 			webpackExports?.exports?.A?.setup
+		// 				?.toString()
+		// 				?.includes("wappass.baidu.com")
+		// 		) {
+		// 			let originSetup: Function = webpackExports.exports.A.setup;
+		// 			log.success("成功劫持A.setup函数");
+		// 			webpackExports.exports.A.setup = function (...args: any[]) {
+		// 				let result = originSetup.apply(this, args);
+		// 				if (
+		// 					typeof result === "object" &&
+		// 					result != null &&
+		// 					typeof result?.toLogin === "function"
+		// 				) {
+		// 					result.toLogin = function (...args2: any[]) {
+		// 						log.error([`阻止跳转登录组件的初始化`, args2]);
+		// 					};
+		// 				}
+		// 				return result;
+		// 			};
+		// 		}
+		// 		return webpackExports;
+		// 	}
+		// );
 	},
 	/**
 	 * 劫持百度好看视频的window.webpackJsonp
