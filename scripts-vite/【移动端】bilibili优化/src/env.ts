@@ -88,7 +88,18 @@ const GM_Menu = new utils.GM_Menu({
 	GM_unregisterMenuCommand,
 });
 
-const httpx = new utils.Httpx(GM_xmlhttpRequest);
+const httpx = new utils.Httpx({
+	xmlHttpRequest: GM_xmlhttpRequest,
+	logDetails: import.meta.env.DEV ? true : DEBUG,
+});
+
+// 开发测试使用
+if (import.meta.env.DEV) {
+	// @ts-ignore
+	unsafeWindow.httpx = httpx;
+	// @ts-ignore
+	unsafeWindow.PopsPanel = PopsPanel;
+}
 
 // 添加请求拦截器
 httpx.interceptors.request.use((data) => {
@@ -109,10 +120,6 @@ httpx.interceptors.response.use(void 0, (data) => {
 		Qmsg.error("其它错误");
 	}
 	return data;
-});
-
-httpx.config({
-	logDetails: DEBUG,
 });
 
 const OriginPrototype = {
@@ -174,14 +181,6 @@ const addStyle = utils.addStyle.bind(utils);
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
-if (import.meta.hot) {
-	Reflect.set(unsafeWindow, "httpx", httpx);
-	Object.defineProperty(unsafeWindow, "PopsPanel", {
-		get() {
-			return PopsPanel;
-		},
-	});
-}
 pops.GlobalConfig.setGlobalConfig({
 	mask: {
 		enable: true,
