@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.18
+// @version      2025.5.26
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -9,11 +9,12 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
 // @connect      *
+// @grant        GM.cookie
 // @grant        GM_cookie
 // @grant        GM_deleteValue
 // @grant        GM_getValue
@@ -33,6 +34,7 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
   var _a;
+  var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
   var _GM_cookie = /* @__PURE__ */ (() => typeof GM_cookie != "undefined" ? GM_cookie : void 0)();
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -148,7 +150,10 @@
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
-  const httpx = new utils.Httpx(_GM_xmlhttpRequest);
+  const httpx = new utils.Httpx({
+    xmlHttpRequest: _GM_xmlhttpRequest,
+    logDetails: DEBUG
+  });
   httpx.interceptors.request.use((data) => {
     return data;
   });
@@ -522,10 +527,10 @@
           this.option.btn || {},
           true
         ),
+        drag: true,
         mask: {
           enable: true
         },
-        drag: true,
         style: (
           /*css*/
           `
@@ -541,6 +546,26 @@
                     padding: 5px 20px;
                     gap: 10px;
                 }
+				.rule-form-ulist-dynamic{
+					--button-margin-top: 0px;
+					--button-margin-right: 0px;
+					--button-margin-bottom: 0px;
+					--button-margin-left: 0px;
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					padding: 5px 0px 5px 20px;
+				}
+				.rule-form-ulist-dynamic__inner{
+					width: 100%;
+				}
+				.rule-form-ulist-dynamic__inner-container{
+					display: flex;
+					align-items: center;
+				}
+				.dynamic-forms{
+					width: 100%;
+				}
                 .pops-panel-item-left-main-text{
                     max-width: 150px;
                 }
@@ -553,6 +578,12 @@
                     overflow: hidden;
                     white-space: nowrap;
                 }
+				.pops-panel-item-left-desc-text{
+					line-height: normal;
+					margin-top: 6px;
+					font-size: 0.8em;
+					color: rgb(108, 108, 108);
+				}
 
                 ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
             `
@@ -604,6 +635,7 @@
             type: "default"
           }
         },
+        drag: true,
         mask: {
           enable: true
         },
@@ -795,17 +827,20 @@
                     enable: true
                   }
                 },
-                mask: { enable: true },
+                drag: true,
+                mask: {
+                  enable: true
+                },
                 width: "300px",
                 height: "200px"
               });
             }
           }
         },
+        drag: true,
         mask: {
           enable: true
         },
-        drag: true,
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
         style: (
@@ -952,7 +987,7 @@
             }
           } else {
             if (isEdit) {
-              Qmsg.error("修改失败");
+              log.error("修改失败");
             }
           }
           return result;
@@ -1121,6 +1156,7 @@
                 enable: true
               }
             },
+            drag: true,
             mask: {
               enable: true
             },
@@ -2278,7 +2314,45 @@
     },
     get cookieManager() {
       if (this.cookieManagerApiName === "GM_cookie") {
-        return __GM_cookie__;
+        return {
+          list(options, callback) {
+            __GM_cookie__.list(options, (result) => {
+              callback(result);
+            });
+          },
+          set(cookieInfo, callback) {
+            __GM_cookie__.set(cookieInfo, (result) => {
+              callback(result);
+            });
+          },
+          delete(cookieInfo, callback) {
+            __GM_cookie__.delete(cookieInfo, (result) => {
+              callback(result);
+            });
+          }
+        };
+      } else if (this.cookieManagerApiName === "GM.cookie") {
+        return {
+          list(options, callback) {
+            _GM.cookie.list().then((result) => {
+              callback(result);
+            });
+          },
+          set(cookieInfo, callback) {
+            _GM.cookie.set(cookieInfo).then((result) => {
+              callback(result);
+            }).catch((reason) => {
+              callback(reason);
+            });
+          },
+          delete(cookieInfo, callback) {
+            _GM.cookie.delete(cookieInfo).then((result) => {
+              callback(result);
+            }).catch((reason) => {
+              callback(reason);
+            });
+          }
+        };
       } else if (this.cookieManagerApiName === "cookieStore") {
         let cookieStore = _unsafeWindow.cookieStore;
         return {
@@ -2436,7 +2510,7 @@
         if (typeof cookieInfo.expires === "number") {
           cookieInfo.expirationDate = cookieInfo.expires;
         }
-      } else if (cookieManagerApiName === "GM_cookie") {
+      } else if (cookieManagerApiName === "GM_cookie" || cookieManagerApiName === "GM.cookie") {
         if (typeof cookieInfo.expirationDate === "number") {
           cookieInfo.expirationDate = cookieInfo.expirationDate * 1e3;
         }
@@ -2454,7 +2528,7 @@
         if (typeof cookieInfo.expirationDate === "number") {
           cookieInfo.expires = cookieInfo.expirationDate;
         }
-      } else if (cookieManagerApiName === "GM_cookie") {
+      } else if (cookieManagerApiName === "GM_cookie" || cookieManagerApiName === "GM.cookie") {
         if (typeof cookieInfo.expirationDate === "number") {
           cookieInfo.expirationDate = Math.floor(
             cookieInfo.expirationDate / 1e3
@@ -2778,7 +2852,7 @@
         )
       );
       domUtils.append($editContent, [$name, $value]);
-      if (CookieManager.cookieManagerApiName === "GM_cookie") {
+      if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
         domUtils.append($editContent, [
           $domain,
           $path,
@@ -3004,7 +3078,7 @@
             rightText: PopsPanel.getValue("decode-cookie-value") ? decodeURIComponent(cookieInfo.value) : encodeURIComponent(cookieInfo.value)
           }
         ];
-        if (CookieManager.cookieManagerApiName === "GM_cookie") {
+        if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
           cookieInfo = cookieInfo;
           cookieProperty.push(
             {
@@ -3383,6 +3457,10 @@
               {
                 text: "GM_cookie",
                 value: "GM_cookie"
+              },
+              {
+                text: "GM.cookie",
+                value: "GM.cookie"
               }
             ],
             () => {
@@ -3496,7 +3574,7 @@
                     cookieInfo.expires = expireTime + checkTime;
                     updateFlag = true;
                   }
-                } else if (CookieManager.cookieManagerApiName === "GM_cookie") {
+                } else if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
                   let expireTime = cookieInfo.expirationDate;
                   if (typeof expireTime === "number" && expireTime * 1e3 - currentTime < checkTime) {
                     cookieInfo.expirationDate = expireTime + checkTime / 1e3;

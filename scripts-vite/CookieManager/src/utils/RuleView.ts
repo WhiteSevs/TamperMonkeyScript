@@ -268,17 +268,20 @@ export class RuleView<T> {
 									enable: true,
 								},
 							},
-							mask: { enable: true },
+							drag: true,
+							mask: {
+								enable: true,
+							},
 							width: "300px",
 							height: "200px",
 						});
 					},
 				},
 			},
+			drag: true,
 			mask: {
 				enable: true,
 			},
-			drag: true,
 			width: window.innerWidth > 500 ? "500px" : "88vw",
 			height: window.innerHeight > 500 ? "500px" : "80vh",
 			style: /*css*/ `
@@ -437,8 +440,11 @@ export class RuleView<T> {
 							));
 					}
 				} else {
+					// if (isEdit) {
+					// 	Qmsg.error("修改失败");
+					// }
 					if (isEdit) {
-						Qmsg.error("修改失败");
+						log.error("修改失败");
 					}
 				}
 				return result;
@@ -620,6 +626,7 @@ export class RuleView<T> {
 							enable: true,
 						},
 					},
+					drag: true,
 					mask: {
 						enable: true,
 					},

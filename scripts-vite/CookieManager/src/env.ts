@@ -134,7 +134,16 @@ const GM_Menu = new utils.GM_Menu({
 	GM_unregisterMenuCommand,
 });
 
-const httpx = new utils.Httpx(GM_xmlhttpRequest);
+const httpx = new utils.Httpx({
+	xmlHttpRequest: GM_xmlhttpRequest,
+	logDetails: import.meta.env.DEV ? true : DEBUG,
+});
+
+// 开发测试使用
+if (import.meta.env.DEV) {
+	// @ts-ignore
+	unsafeWindow.httpx = httpx;
+}
 
 // 添加请求拦截器
 httpx.interceptors.request.use((data) => {

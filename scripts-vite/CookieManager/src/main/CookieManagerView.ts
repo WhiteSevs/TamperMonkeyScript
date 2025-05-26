@@ -205,7 +205,10 @@ export const CookieManagerView = {
 						: encodeURIComponent(cookieInfo.value),
 				},
 			];
-			if (CookieManager.cookieManagerApiName === "GM_cookie") {
+			if (
+				CookieManager.cookieManagerApiName === "GM_cookie" ||
+				CookieManager.cookieManagerApiName === "GM.cookie"
+			) {
 				cookieInfo = cookieInfo as GMCookieInstance;
 				cookieProperty.push(
 					{
@@ -618,6 +621,10 @@ export const CookieManagerView = {
 							{
 								text: "GM_cookie",
 								value: "GM_cookie",
+							},
+							{
+								text: "GM.cookie",
+								value: "GM.cookie",
 							},
 						],
 						() => {

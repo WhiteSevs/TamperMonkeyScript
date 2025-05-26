@@ -21,7 +21,13 @@ declare type IPromise<T> = T | Promise<T>;
 /**
  * 提取数组中的元素类型
  */
-declare type ExtractElementType<T> = T extends Array<infer U> ? U : never;
+declare type ArrayElementType<T> = T extends Array<infer U> ? U : never;
+
+/**
+ * 让对象的某个属性必选
+ */
+declare type RequiredProperty<T, K extends keyof T> = Omit<T, K> &
+	Required<Pick<T, K>>;
 
 /**
  * 修复无法识别.vue文件的问题
@@ -42,6 +48,24 @@ declare interface GMCookieInstance {
 	partitionKey?: {
 		topLevelSite?: string;
 	};
+	hostOnly: boolean;
+	httpOnly: boolean;
+	name: string;
+	path: string;
+	sameSite: string;
+	secure: boolean;
+	session: boolean;
+	value: string;
+}
+
+declare interface GmPartitionKeyType {
+	topLevelSite?: string;
+}
+declare interface GmCallbackCookie {
+	domain: string;
+	expirationDate?: number;
+	firstPartyDomain?: string;
+	partitionKey?: GmPartitionKeyType;
 	hostOnly: boolean;
 	httpOnly: boolean;
 	name: string;

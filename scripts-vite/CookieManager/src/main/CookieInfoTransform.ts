@@ -16,7 +16,10 @@ export const CookieInfoTransform = {
 				// @ts-ignore
 				cookieInfo.expirationDate = cookieInfo.expires;
 			}
-		} else if (cookieManagerApiName === "GM_cookie") {
+		} else if (
+			cookieManagerApiName === "GM_cookie" ||
+			cookieManagerApiName === "GM.cookie"
+		) {
 			// GM_cookie的expirationDate的格式是秒，需要转为秒用于编辑/添加
 			if (typeof cookieInfo.expirationDate === "number") {
 				cookieInfo.expirationDate = cookieInfo.expirationDate * 1000;
@@ -38,7 +41,10 @@ export const CookieInfoTransform = {
 				// @ts-ignore
 				cookieInfo.expires = cookieInfo.expirationDate;
 			}
-		} else if (cookieManagerApiName === "GM_cookie") {
+		} else if (
+			cookieManagerApiName === "GM_cookie" ||
+			cookieManagerApiName === "GM.cookie"
+		) {
 			// GM_cookie的expirationDate的格式是秒，需要从毫秒转为秒
 			if (typeof cookieInfo.expirationDate === "number") {
 				cookieInfo.expirationDate = Math.floor(

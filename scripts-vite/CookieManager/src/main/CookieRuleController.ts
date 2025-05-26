@@ -79,7 +79,10 @@ export const CookieRuleController = {
 										expireTime + checkTime;
 									updateFlag = true;
 								}
-							} else if (CookieManager.cookieManagerApiName === "GM_cookie") {
+							} else if (
+								CookieManager.cookieManagerApiName === "GM_cookie" ||
+								CookieManager.cookieManagerApiName === "GM.cookie"
+							) {
 								let expireTime = (cookieInfo as GMCookieInstance)
 									.expirationDate;
 								// 秒级

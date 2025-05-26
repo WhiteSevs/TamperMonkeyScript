@@ -82,10 +82,10 @@ export class RuleEditView<T> {
 				this.option.btn || {},
 				true
 			),
+			drag: true,
 			mask: {
 				enable: true,
 			},
-			drag: true,
 			style: /*css*/ `
                 ${pops.config.cssText.panelCSS}
                 
@@ -99,6 +99,26 @@ export class RuleEditView<T> {
                     padding: 5px 20px;
                     gap: 10px;
                 }
+				.rule-form-ulist-dynamic{
+					--button-margin-top: 0px;
+					--button-margin-right: 0px;
+					--button-margin-bottom: 0px;
+					--button-margin-left: 0px;
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					padding: 5px 0px 5px 20px;
+				}
+				.rule-form-ulist-dynamic__inner{
+					width: 100%;
+				}
+				.rule-form-ulist-dynamic__inner-container{
+					display: flex;
+					align-items: center;
+				}
+				.dynamic-forms{
+					width: 100%;
+				}
                 .pops-panel-item-left-main-text{
                     max-width: 150px;
                 }
@@ -111,6 +131,12 @@ export class RuleEditView<T> {
                     overflow: hidden;
                     white-space: nowrap;
                 }
+				.pops-panel-item-left-desc-text{
+					line-height: normal;
+					margin-top: 6px;
+					font-size: 0.8em;
+					color: rgb(108, 108, 108);
+				}
 
                 ${this.option?.style ?? ""}
             `,

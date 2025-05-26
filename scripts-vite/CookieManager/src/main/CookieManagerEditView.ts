@@ -351,7 +351,10 @@ export const CookieManagerEditView = {
 			)
 		);
 		DOMUtils.append($editContent, [$name, $value]);
-		if (CookieManager.cookieManagerApiName === "GM_cookie") {
+		if (
+			CookieManager.cookieManagerApiName === "GM_cookie" ||
+			CookieManager.cookieManagerApiName === "GM.cookie"
+		) {
 			DOMUtils.append($editContent, [
 				$domain,
 				$path,

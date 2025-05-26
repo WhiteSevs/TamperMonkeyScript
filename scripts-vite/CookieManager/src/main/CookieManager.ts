@@ -1,11 +1,12 @@
 import { GM_cookie, log, utilsCookieManager } from "@/env";
-import { unsafeWindow } from "ViteGM";
+import { GM, unsafeWindow } from "ViteGM";
 import { PopsPanel } from "@/setting/panel";
 import Qmsg from "qmsg";
 
 export type CookieManagerApiName =
 	| "document.cookie"
 	| "GM_cookie"
+	| "GM.cookie"
 	| "cookieStore";
 
 export const CookieManager = {
@@ -18,7 +19,73 @@ export const CookieManager = {
 	},
 	get cookieManager() {
 		if (this.cookieManagerApiName === "GM_cookie") {
-			return GM_cookie;
+			return {
+				list(
+					options: {},
+					callback: (cookieListResult: GmCallbackCookie[]) => void
+				) {
+					GM_cookie.list(options, (result) => {
+						callback(result);
+					});
+				},
+				set(
+					cookieInfo: GMCookieInstance,
+					callback: (error?: string | null) => void
+				) {
+					// @ts-ignore
+					GM_cookie.set(cookieInfo, (result) => {
+						callback(result);
+					});
+				},
+				delete(
+					cookieInfo: GMCookieInstance,
+					callback: (error?: string | null) => void
+				) {
+					GM_cookie.delete(cookieInfo, (result) => {
+						callback(result);
+					});
+				},
+			};
+		} else if (this.cookieManagerApiName === "GM.cookie") {
+			return {
+				list(
+					options: {},
+					callback: (cookieListResult: GmCallbackCookie[]) => void
+				) {
+					GM.cookie.list().then((result) => {
+						callback(result);
+					});
+				},
+				set(
+					cookieInfo: GMCookieInstance,
+					callback: (error?: Error | undefined | null) => void
+				) {
+					GM.cookie
+						// @ts-ignore
+						.set(cookieInfo)
+						.then((result) => {
+							// @ts-ignore
+							callback(result);
+						})
+						.catch((reason) => {
+							callback(reason);
+						});
+				},
+				delete(
+					cookieInfo: GMCookieInstance,
+					callback: (error?: Error | undefined | null) => void
+				) {
+					GM.cookie
+						.delete(cookieInfo)
+						.then((result) => {
+							// @ts-ignore
+							callback(result);
+						})
+						.catch((reason) => {
+							callback(reason);
+						});
+				},
+			};
 		} else if (this.cookieManagerApiName === "cookieStore") {
 			let cookieStore = unsafeWindow.cookieStore;
 			return {
