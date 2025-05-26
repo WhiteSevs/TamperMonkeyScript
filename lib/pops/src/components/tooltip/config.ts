@@ -6,6 +6,7 @@ export const PopsTooltipConfig = (): DeepRequired<PopsToolTipDetails> => {
 		useShadowRoot: true,
 		target: null as any,
 		content: "默认文字",
+		isDiffContent: false,
 		position: "top",
 		className: "",
 		isFixed: false,

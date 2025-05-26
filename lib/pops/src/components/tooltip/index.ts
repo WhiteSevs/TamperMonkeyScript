@@ -128,6 +128,19 @@ export class ToolTip {
 		if (text == null) {
 			text = this.getContent();
 		}
+		if (this.$data.config.isDiffContent) {
+			let contentPropKey = "data-content";
+			// @ts-ignore
+			let originContentText: string = this.$el.$content[contentPropKey];
+			if (typeof originContentText === "string") {
+				if (originContentText === text) {
+					// 内容未改变，不修改避免渲染
+					return;
+				}
+			}
+			// @ts-ignore
+			this.$el.$content[contentPropKey] = text;
+		}
 		PopsSafeUtils.setSafeHTML(this.$el.$content, text);
 	}
 	/**

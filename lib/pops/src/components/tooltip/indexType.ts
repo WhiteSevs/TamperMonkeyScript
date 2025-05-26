@@ -25,6 +25,13 @@ export interface PopsToolTipDetails
 	 */
 	content: string | (() => string);
 	/**
+	 * 是否比较获取到的content的内容是否改变
+	 *
+	 * 如果未改变，则在触发.show时不修改内容
+	 * @default false
+	 */
+	isDiffContent?: boolean;
+	/**
 	 * 位置
 	 * + `follow` 跟随鼠标|触摸位置移动
 	 * @default "top"

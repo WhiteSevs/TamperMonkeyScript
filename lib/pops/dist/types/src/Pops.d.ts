@@ -298,6 +298,7 @@ declare class Pops {
         config: {
             target: HTMLElement;
             content: string | (() => string);
+            isDiffContent: boolean;
             position: import("./components/tooltip/indexType").PopsTooltipPosition;
             className: string;
             isFixed: boolean;

@@ -184,6 +184,7 @@ export declare const PopsTooltip: {
         config: {
             target: HTMLElement;
             content: string | (() => string);
+            isDiffContent: boolean;
             position: import("./indexType").PopsTooltipPosition;
             className: string;
             isFixed: boolean;
