@@ -62,6 +62,7 @@ export class RuleFilterView<T> {
 					type: "default",
 				},
 			},
+			drag: true,
 			mask: {
 				enable: true,
 			},

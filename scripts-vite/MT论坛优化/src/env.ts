@@ -91,7 +91,16 @@ const GM_Menu = new utils.GM_Menu({
 	GM_unregisterMenuCommand,
 });
 
-const httpx = new utils.Httpx(GM_xmlhttpRequest);
+const httpx = new utils.Httpx({
+	xmlHttpRequest: GM_xmlhttpRequest,
+	logDetails: import.meta.env.DEV ? true : DEBUG,
+});
+
+// 开发测试使用
+if (import.meta.env.DEV) {
+	// @ts-ignore
+	unsafeWindow.httpx = httpx;
+}
 
 // 添加请求拦截器
 httpx.interceptors.request.use((data) => {
@@ -101,7 +110,7 @@ httpx.interceptors.request.use((data) => {
 
 // 添加响应拦截器
 httpx.interceptors.response.use(void 0, (data) => {
-	log.error(["拦截器-请求错误", data]);
+	log.error("拦截器-请求错误", data);
 	if (data.type === "onabort") {
 		Qmsg.warning("请求取消");
 	} else if (data.type === "onerror") {
@@ -112,10 +121,6 @@ httpx.interceptors.response.use(void 0, (data) => {
 		Qmsg.error("其它错误");
 	}
 	return data;
-});
-
-httpx.config({
-	logDetails: DEBUG,
 });
 
 pops.GlobalConfig.setGlobalConfig({
