@@ -72,7 +72,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.css("a.xx","display");
      * > "none"
      * */
-    css(element: DOMUtilsTargetElementType, property: keyof CSSStyleDeclaration): string;
+    css(element: DOMUtilsTargetElementType, property: keyof Omit<CSSStyleDeclaration, "zIndex"> | "z-index"): string;
     /**
      * 获取元素的样式属性值
      * @param element 目标元素
@@ -100,7 +100,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.css(document.querySelector("a.xx"),"top","10px");
      * DOMUtils.css(document.querySelector("a.xx"),"top",10);
      * */
-    css(element: DOMUtilsTargetElementType, property: keyof CSSStyleDeclaration & string, value: string | number): string;
+    css(element: DOMUtilsTargetElementType, property: (keyof Omit<CSSStyleDeclaration, "zIndex"> | "z-index") & string, value: string | number): string;
     /**
      * 设置元素的样式属性
      * @param element 目标元素
@@ -116,7 +116,9 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.css(document.querySelector("a.xx"),{ top: 10 });
      * */
     css(element: DOMUtilsTargetElementType, property: {
-        [P in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[P];
+        [P in keyof Omit<CSSStyleDeclaration, "zIndex">]?: CSSStyleDeclaration[P];
+    } | {
+        "z-index": string | number;
     } | {
         [key: string]: string | number;
     }): string;

@@ -155,7 +155,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * */
 	css(
 		element: DOMUtilsTargetElementType,
-		property: keyof CSSStyleDeclaration
+		property: keyof Omit<CSSStyleDeclaration, "zIndex"> | "z-index"
 	): string;
 	/**
 	 * 获取元素的样式属性值
@@ -186,7 +186,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * */
 	css(
 		element: DOMUtilsTargetElementType,
-		property: keyof CSSStyleDeclaration & string,
+		property: (keyof Omit<CSSStyleDeclaration, "zIndex"> | "z-index") & string,
 		value: string | number
 	): string;
 	/**
@@ -207,7 +207,13 @@ class DOMUtils extends DOMUtilsEvent {
 		element: DOMUtilsTargetElementType,
 		property:
 			| {
-					[P in keyof CSSStyleDeclaration]?: CSSStyleDeclaration[P];
+					[P in keyof Omit<
+						CSSStyleDeclaration,
+						"zIndex"
+					>]?: CSSStyleDeclaration[P];
+			  }
+			| {
+					"z-index": string | number;
 			  }
 			| {
 					[key: string]: string | number;
@@ -216,10 +222,10 @@ class DOMUtils extends DOMUtilsEvent {
 	css(
 		element: DOMUtilsTargetElementType,
 		property:
-			| keyof CSSStyleDeclaration
+			| keyof Omit<CSSStyleDeclaration, "zIndex">
 			| string
 			| {
-					[P in keyof CSSStyleDeclaration]?:
+					[P in keyof Omit<CSSStyleDeclaration, "zIndex">]?:
 						| string
 						| number
 						| CSSStyleDeclaration[P];
