@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         m3u8内容过滤器
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.2.12
+// @version      2025.5.26
 // @author       WhiteSevs
 // @description  自定义规则对网页中的m3u8的请求内容进行过滤
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.4.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@1.9.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
@@ -1000,7 +1000,10 @@
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
-  const httpx = new utils.Httpx(_GM_xmlhttpRequest);
+  const httpx = new utils.Httpx({
+    xmlHttpRequest: _GM_xmlhttpRequest,
+    logDetails: DEBUG
+  });
   httpx.interceptors.request.use((data) => {
     HttpxCookieManager.handle(data);
     return data;
@@ -1017,9 +1020,6 @@
       Qmsg.error("其它错误");
     }
     return data;
-  });
-  httpx.config({
-    logDetails: DEBUG
   });
   ({
     Object: {
@@ -1142,6 +1142,7 @@
           this.option.btn || {},
           true
         ),
+        drag: true,
         mask: {
           enable: true
         },
@@ -1160,6 +1161,26 @@
                     padding: 5px 20px;
                     gap: 10px;
                 }
+				.rule-form-ulist-dynamic{
+					--button-margin-top: 0px;
+					--button-margin-right: 0px;
+					--button-margin-bottom: 0px;
+					--button-margin-left: 0px;
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					padding: 5px 0px 5px 20px;
+				}
+				.rule-form-ulist-dynamic__inner{
+					width: 100%;
+				}
+				.rule-form-ulist-dynamic__inner-container{
+					display: flex;
+					align-items: center;
+				}
+				.dynamic-forms{
+					width: 100%;
+				}
                 .pops-panel-item-left-main-text{
                     max-width: 150px;
                 }
@@ -1172,6 +1193,12 @@
                     overflow: hidden;
                     white-space: nowrap;
                 }
+				.pops-panel-item-left-desc-text{
+					line-height: normal;
+					margin-top: 6px;
+					font-size: 0.8em;
+					color: rgb(108, 108, 108);
+				}
 
                 ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
             `
@@ -1223,6 +1250,7 @@
             type: "default"
           }
         },
+        drag: true,
         mask: {
           enable: true
         },
@@ -1496,6 +1524,92 @@
       }
     }
     /**
+     * 显示编辑视图
+     * @param isEdit 是否是编辑状态
+     * @param editData 编辑的数据
+     * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
+     * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
+     * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
+     * @param submitCallBack （可选）添加/修改提交的回调
+     */
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+      let dialogCloseCallBack = async (isSubmit) => {
+        if (isSubmit) {
+          if (typeof submitCallBack === "function") {
+            let newData = await this.option.getData(editData);
+            submitCallBack(newData);
+          }
+        } else {
+          if (!isEdit) {
+            await this.option.deleteData(editData);
+          }
+          if (typeof updateDataCallBack === "function") {
+            let newData = await this.option.getData(editData);
+            updateDataCallBack(newData);
+          }
+        }
+      };
+      let editView = new RuleEditView({
+        title: isEdit ? "编辑" : "添加",
+        data: () => {
+          return editData;
+        },
+        dialogCloseCallBack,
+        getView: async (data) => {
+          return await this.option.itemControls.edit.getView(data, isEdit);
+        },
+        btn: {
+          ok: {
+            enable: true,
+            text: isEdit ? "修改" : "添加"
+          },
+          cancel: {
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
+            }
+          },
+          close: {
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
+            }
+          }
+        },
+        onsubmit: async ($form, data) => {
+          let result = await this.option.itemControls.edit.onsubmit(
+            $form,
+            isEdit,
+            data
+          );
+          if (result.success) {
+            if (isEdit) {
+              Qmsg.success("修改成功");
+              $parentShadowRoot && await this.updateRuleItemElement(
+                result.data,
+                $editRuleItemElement,
+                $parentShadowRoot
+              );
+            } else {
+              $parentShadowRoot && await this.appendRuleItemElement(
+                $parentShadowRoot,
+                result.data
+              );
+            }
+          } else {
+            if (isEdit) {
+              log.error("修改失败");
+            }
+          }
+          return result;
+        },
+        style: this.option.itemControls.edit.style,
+        width: this.option.itemControls.edit.width,
+        height: this.option.itemControls.edit.height
+      });
+      editView.showView();
+    }
+    /**
      * 解析弹窗内的各个元素
      */
     parseViewElement($shadowRoot) {
@@ -1724,84 +1838,6 @@
     async updateDeleteAllBtnText($shadowRoot) {
       let data = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
-    }
-    /**
-     * 显示编辑视图
-     * @param isEdit 是否是编辑状态
-     * @param editData 编辑的数据
-     */
-    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack) {
-      let dialogCloseCallBack = async (isSubmit) => {
-        if (isSubmit) ;
-        else {
-          if (!isEdit) {
-            await this.option.deleteData(editData);
-          }
-          if (typeof updateDataCallBack === "function") {
-            let newData = await this.option.getData(editData);
-            updateDataCallBack(newData);
-          }
-        }
-      };
-      let editView = new RuleEditView({
-        title: isEdit ? "编辑" : "添加",
-        data: () => {
-          return editData;
-        },
-        dialogCloseCallBack,
-        getView: async (data) => {
-          return await this.option.itemControls.edit.getView(data, isEdit);
-        },
-        btn: {
-          ok: {
-            enable: true,
-            text: isEdit ? "修改" : "添加"
-          },
-          cancel: {
-            callback: async (detail, event) => {
-              detail.close();
-              await dialogCloseCallBack(false);
-            }
-          },
-          close: {
-            callback: async (detail, event) => {
-              detail.close();
-              await dialogCloseCallBack(false);
-            }
-          }
-        },
-        onsubmit: async ($form, data) => {
-          let result = await this.option.itemControls.edit.onsubmit(
-            $form,
-            isEdit,
-            data
-          );
-          if (result.success) {
-            if (isEdit) {
-              Qmsg.success("修改成功");
-              $parentShadowRoot && await this.updateRuleItemElement(
-                result.data,
-                $editRuleItemElement,
-                $parentShadowRoot
-              );
-            } else {
-              $parentShadowRoot && await this.appendRuleItemElement(
-                $parentShadowRoot,
-                result.data
-              );
-            }
-          } else {
-            if (isEdit) {
-              Qmsg.error("修改失败");
-            }
-          }
-          return result;
-        },
-        style: this.option.itemControls.edit.style,
-        width: this.option.itemControls.edit.width,
-        height: this.option.itemControls.edit.height
-      });
-      editView.showView();
     }
   }
   const M3U8Util = {

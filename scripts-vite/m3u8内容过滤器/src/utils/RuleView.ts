@@ -1,7 +1,7 @@
 import { DOMUtils, log, pops, utils } from "@/env";
-import Qmsg from "qmsg";
 import { RuleEditView } from "./RuleEditView";
 import { RuleFilterView, type RuleFilterViewOption } from "./RuleFilterView";
+import Qmsg from "qmsg";
 
 /**
  * 规则视图配置
@@ -349,6 +349,109 @@ export class RuleView<T> {
 		}
 	}
 	/**
+	 * 显示编辑视图
+	 * @param isEdit 是否是编辑状态
+	 * @param editData 编辑的数据
+	 * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
+	 * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
+	 * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
+	 * @param submitCallBack （可选）添加/修改提交的回调
+	 */
+	showEditView(
+		isEdit: boolean,
+		editData: T,
+		$parentShadowRoot?: ShadowRoot | HTMLElement,
+		$editRuleItemElement?: HTMLDivElement,
+		updateDataCallBack?: (data: T) => void,
+		submitCallBack?: (data: T) => void
+	) {
+		let dialogCloseCallBack = async (isSubmit: boolean) => {
+			if (isSubmit) {
+				if (typeof submitCallBack === "function") {
+					let newData = await this.option.getData(editData!);
+					submitCallBack(newData);
+				}
+			} else {
+				if (!isEdit) {
+					// 添加规则，关闭时清理掉规则
+					await this.option.deleteData(editData!);
+				}
+				if (typeof updateDataCallBack === "function") {
+					let newData = await this.option.getData(editData!);
+					updateDataCallBack(newData);
+				}
+			}
+		};
+		let editView = new RuleEditView<T>({
+			title: isEdit ? "编辑" : "添加",
+			data: () => {
+				return editData!;
+			},
+			dialogCloseCallBack: dialogCloseCallBack,
+			getView: async (data) => {
+				return await this.option.itemControls.edit.getView(data, isEdit);
+			},
+			btn: {
+				ok: {
+					enable: true,
+					text: isEdit ? "修改" : "添加",
+				},
+				cancel: {
+					callback: async (detail, event) => {
+						detail.close();
+						await dialogCloseCallBack(false);
+					},
+				},
+				close: {
+					callback: async (detail, event) => {
+						detail.close();
+						await dialogCloseCallBack(false);
+					},
+				},
+			},
+			onsubmit: async ($form, data) => {
+				let result = await this.option.itemControls.edit.onsubmit(
+					$form,
+					isEdit,
+					data
+				);
+				if (result.success) {
+					if (isEdit) {
+						Qmsg.success("修改成功");
+						// 当前是编辑规则
+						// 给外面的弹窗更新元素
+						$parentShadowRoot &&
+							(await this.updateRuleItemElement(
+								result.data,
+								$editRuleItemElement!,
+								$parentShadowRoot
+							));
+					} else {
+						// 当前是添加规则
+						// 给外面的弹窗添加元素
+						$parentShadowRoot &&
+							(await this.appendRuleItemElement(
+								$parentShadowRoot,
+								result.data
+							));
+					}
+				} else {
+					// if (isEdit) {
+					// 	Qmsg.error("修改失败");
+					// }
+					if (isEdit) {
+						log.error("修改失败");
+					}
+				}
+				return result;
+			},
+			style: this.option.itemControls.edit.style,
+			width: this.option.itemControls.edit.width,
+			height: this.option.itemControls.edit.height,
+		});
+		editView.showView();
+	}
+	/**
 	 * 解析弹窗内的各个元素
 	 */
 	parseViewElement($shadowRoot: ShadowRoot | HTMLElement) {
@@ -602,96 +705,5 @@ export class RuleView<T> {
 	async updateDeleteAllBtnText($shadowRoot: ShadowRoot | HTMLElement) {
 		let data = await this.option.data();
 		this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
-	}
-	/**
-	 * 显示编辑视图
-	 * @param isEdit 是否是编辑状态
-	 * @param editData 编辑的数据
-	 */
-	showEditView(
-		isEdit: boolean,
-		editData: T,
-		$parentShadowRoot?: ShadowRoot | HTMLElement,
-		$editRuleItemElement?: HTMLDivElement,
-		updateDataCallBack?: (data: T) => void
-	) {
-		let dialogCloseCallBack = async (isSubmit: boolean) => {
-			if (isSubmit) {
-			} else {
-				if (!isEdit) {
-					// 添加规则，关闭时清理掉规则
-					await this.option.deleteData(editData!);
-				}
-				if (typeof updateDataCallBack === "function") {
-					let newData = await this.option.getData(editData!);
-					updateDataCallBack(newData);
-				}
-			}
-		};
-		let editView = new RuleEditView<T>({
-			title: isEdit ? "编辑" : "添加",
-			data: () => {
-				return editData!;
-			},
-			dialogCloseCallBack: dialogCloseCallBack,
-			getView: async (data) => {
-				return await this.option.itemControls.edit.getView(data, isEdit);
-			},
-			btn: {
-				ok: {
-					enable: true,
-					text: isEdit ? "修改" : "添加",
-				},
-				cancel: {
-					callback: async (detail, event) => {
-						detail.close();
-						await dialogCloseCallBack(false);
-					},
-				},
-				close: {
-					callback: async (detail, event) => {
-						detail.close();
-						await dialogCloseCallBack(false);
-					},
-				},
-			},
-			onsubmit: async ($form, data) => {
-				let result = await this.option.itemControls.edit.onsubmit(
-					$form,
-					isEdit,
-					data
-				);
-				if (result.success) {
-					if (isEdit) {
-						Qmsg.success("修改成功");
-						// 当前是编辑规则
-						// 给外面的弹窗更新元素
-						$parentShadowRoot &&
-							(await this.updateRuleItemElement(
-								result.data,
-								$editRuleItemElement!,
-								$parentShadowRoot
-							));
-					} else {
-						// 当前是添加规则
-						// 给外面的弹窗添加元素
-						$parentShadowRoot &&
-							(await this.appendRuleItemElement(
-								$parentShadowRoot,
-								result.data
-							));
-					}
-				} else {
-					if (isEdit) {
-						Qmsg.error("修改失败");
-					}
-				}
-				return result;
-			},
-			style: this.option.itemControls.edit.style,
-			width: this.option.itemControls.edit.width,
-			height: this.option.itemControls.edit.height,
-		});
-		editView.showView();
 	}
 }
