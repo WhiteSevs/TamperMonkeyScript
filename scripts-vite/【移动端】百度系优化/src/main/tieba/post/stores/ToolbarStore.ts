@@ -1,9 +1,7 @@
-//定义关于counter的store
 import { defineStore } from "pinia";
 
 //defineStore 是返回一个函数 函数命名最好有use前缀，根据函数来进行下一步操作
-const useToolbarStore = defineStore({
-	id: "ToolbarStore",
+const useToolbarStore = defineStore("ToolbarStore", {
 	state: () => ({
 		/** 提示文字 */
 		placeholder: "发帖千百度 文明第一步",

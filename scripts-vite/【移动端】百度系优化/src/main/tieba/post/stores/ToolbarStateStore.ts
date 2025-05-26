@@ -3,8 +3,7 @@ import { defineStore } from "pinia";
 /**
  * Toolbar的组件状态通知
  */
-const useToolbarStateStore = defineStore({
-	id: "ToolbarState",
+const useToolbarStateStore = defineStore("ToolbarState", {
 	state: () => ({
 		/** 是否显示小工具栏 */
 		isShowSmallToolbar: true,

@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 
-const usePlaceHolder = defineStore({
-	id: "placeholder",
+const usePlaceHolder = defineStore("placeholder", {
 	state: () => ({
 		/**
 		 * 内容为空时的placeholder

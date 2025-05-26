@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.9
+// @version      2025.5.26
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
-// @icon         https://www.baidu.com/favicon.ico
+// @icon         data:image/png;base64,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
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.baidu.com/*
 // @match        *://www.tieba.com/*
@@ -13,18 +13,18 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
-// @require      https://fastly.jsdelivr.net/npm/pinia@2.3.1/dist/pinia.iife.prod.js
-// @require      https://fastly.jsdelivr.net/npm/vue-router@4.5.0/dist/vue-router.global.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@f53ed3fdb3da5a9a45f05b301172fdb1b42d0035/lib/Element-Plus/index.js
+// @require      https://fastly.jsdelivr.net/npm/pinia@3.0.2/dist/pinia.iife.prod.js
+// @require      https://fastly.jsdelivr.net/npm/vue-router@4.5.1/dist/vue-router.global.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@907d1122cd0a8bc3092a2906f2c5ec4556f5c9f0/lib/Element-Plus/index.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js
-// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.9.4/dist/index.min.css
+// @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.9.9/dist/index.min.css
 // @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      www.baidu.com

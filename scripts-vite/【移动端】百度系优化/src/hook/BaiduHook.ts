@@ -555,28 +555,28 @@ const BaiduHook = {
 		);
 		// https://tb3.bdstatic.com/tb/wise/wise-main-core/static/uni/static/js/pages-uni-pb-uni-pb.a7cc87d6.js
 		// 78006
-		// this.windowWebPack(
-		// 	"webpackChunktb_smallapp",
-		// 	[573],
-		// 	function (webpackExports: {
-		// 		[x: string]: any;
-		// 		id: number;
-		// 		exports: any;
-		// 	}) {
-		// 		if (
-		// 			typeof webpackExports?.exports === "object" &&
-		// 			typeof webpackExports?.exports?.A?.setup === "function" &&
-		// 			webpackExports?.exports?.A?.setup
-		// 				?.toString()
-		// 				?.includes("wappass.baidu.com")
-		// 		) {
-		// 			webpackExports.exports.A.setup = function (...args: any[]) {
-		// 				log.success([`成功阻止跳转登录组件的初始化`, args]);
-		// 				return {};
-		// 			};
-		// 		}
-		// 	}
-		// );
+		this.windowWebPack(
+			"webpackChunktb_smallapp",
+			[573],
+			function (webpackExports: {
+				[x: string]: any;
+				id: number;
+				exports: any;
+			}) {
+				if (
+					typeof webpackExports?.exports === "object" &&
+					typeof webpackExports?.exports?.A?.setup === "function" &&
+					webpackExports?.exports?.A?.setup
+						?.toString()
+						?.includes("wappass.baidu.com")
+				) {
+					webpackExports.exports.A.setup = function (...args: any[]) {
+						log.success([`成功阻止跳转登录组件的初始化`, args]);
+						return {};
+					};
+				}
+			}
+		);
 	},
 	/**
 	 * 劫持百度好看视频的window.webpackJsonp

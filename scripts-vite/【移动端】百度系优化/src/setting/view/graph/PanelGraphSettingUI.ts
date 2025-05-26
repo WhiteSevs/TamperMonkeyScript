@@ -20,7 +20,7 @@ const PanelGraphSettingUI: PopsPanelContentConfig = {
 					"baidu-graph-repairHomeRecognitionPicture",
 					true,
 					void 0,
-					"重构主页的识图一下，就可以直接点击上传图片进行搜索"
+					"重构主页的识图一下，就可以直接点击上传图片进行搜索（Api已失效）"
 				),
 				UISwitch(
 					"【重构】搜索按钮",
