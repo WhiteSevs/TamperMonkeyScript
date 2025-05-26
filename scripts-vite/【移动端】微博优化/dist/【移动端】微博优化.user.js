@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.4.19
+// @version      2025.5.26
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.5/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
 // @connect      *
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -39,14 +39,14 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : undefined)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : undefined)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : undefined)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : undefined)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : undefined)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : undefined)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : undefined)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : undefined)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const HttpxCookieManager = {
     $data: {
@@ -272,7 +272,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? undefined : _GM_info.script) == null ? undefined : _a.name) || _SCRIPT_NAME_;
+  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -319,12 +319,15 @@
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
-  const httpx = new utils.Httpx(_GM_xmlhttpRequest);
+  const httpx = new utils.Httpx({
+    xmlHttpRequest: _GM_xmlhttpRequest,
+    logDetails: DEBUG
+  });
   httpx.interceptors.request.use((data) => {
     HttpxCookieManager.handle(data);
     return data;
   });
-  httpx.interceptors.response.use(undefined, (data) => {
+  httpx.interceptors.response.use(void 0, (data) => {
     log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
       Qmsg.warning("请求取消");
@@ -336,9 +339,6 @@
       Qmsg.error("其它错误");
     }
     return data;
-  });
-  httpx.config({
-    logDetails: DEBUG
   });
   ({
     Object: {
@@ -507,7 +507,7 @@
       return new Promise((resolve) => {
         VueUtils.waitVuePropToSet($target, {
           check(vueInstance) {
-            return typeof (vueInstance == null ? undefined : vueInstance.$watch) === "function";
+            return typeof (vueInstance == null ? void 0 : vueInstance.$watch) === "function";
           },
           set(vueInstance) {
             let removeWatch = null;
@@ -778,10 +778,10 @@
                 {
                   check(vueObj) {
                     var _a2, _b, _c;
-                    if (typeof ((_a2 = vueObj == null ? undefined : vueObj.item) == null ? undefined : _a2.type) === "string" && ((_b = vueObj == null ? undefined : vueObj.item) == null ? undefined : _b.type) !== "video") {
+                    if (typeof ((_a2 = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _a2.type) === "string" && ((_b = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _b.type) !== "video") {
                       return true;
                     }
-                    return typeof ((_c = vueObj == null ? undefined : vueObj.item) == null ? undefined : _c.object_id) === "string";
+                    return typeof ((_c = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _c.object_id) === "string";
                   },
                   failWait() {
                     resolve();
@@ -1053,14 +1053,14 @@
                         text: "5"
                       }
                     ],
-                    undefined,
+                    void 0,
                     "限制Toast显示的数量"
                   ),
                   UISwitch(
                     "逆序弹出",
                     "qmsg-config-showreverse",
                     false,
-                    undefined,
+                    void 0,
                     "修改Toast弹出的顺序"
                   )
                 ]
@@ -1079,22 +1079,22 @@
                     "启用",
                     "httpx-use-cookie-enable",
                     false,
-                    undefined,
+                    void 0,
                     "启用后，将根据下面的配置进行添加cookie"
                   ),
                   UISwitch(
                     "使用document.cookie",
                     "httpx-use-document-cookie",
                     false,
-                    undefined,
+                    void 0,
                     "自动根据请求的域名来获取对应的cookie"
                   ),
                   UITextArea(
                     "weibo.com",
                     "httpx-cookie-weibo.com",
                     "",
-                    undefined,
-                    undefined,
+                    void 0,
+                    void 0,
                     "Cookie格式：xxx=xxxx;xxx=xxxx"
                   )
                 ]
@@ -1136,21 +1136,21 @@
                         return result;
                       })()
                     ],
-                    undefined,
+                    void 0,
                     "设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
                   ),
                   UISwitch(
                     "解锁更多清晰度",
                     "weibo-common-unlockVideoHigherQuality",
                     true,
-                    undefined,
+                    void 0,
                     "自动请求PC端的视频清晰度，如果请求成功，将解锁更多的清晰度，如1080p、2K、2K-60、4K-60"
                   ),
                   UISwitch(
                     "点击图片关闭预览",
                     "weibo-common-clickImageToClosePreviewImage",
                     false,
-                    undefined,
+                    void 0,
                     "当点击图片进入预览模式时，再点击当前预览的图片可退出预览"
                   )
                 ]
@@ -1163,7 +1163,7 @@
                     "navigator.serviceWorker.register",
                     "weibo_hijack_navigator_service_worker_register",
                     true,
-                    undefined,
+                    void 0,
                     "禁止注册serviceWorker"
                   )
                 ]
@@ -1182,14 +1182,14 @@
                     "【屏蔽】广告",
                     "weibo_remove_ads",
                     true,
-                    undefined,
+                    void 0,
                     "包括【登录/注册按钮】、【小程序横幅推荐】"
                   ),
                   UISwitch(
                     "【屏蔽】底部工具栏",
                     "weibo_shield_bottom_bar",
                     false,
-                    undefined,
+                    void 0,
                     "屏蔽聊天/关注按钮"
                   )
                 ]
@@ -1213,56 +1213,56 @@
                     "点赞",
                     "weibo_apply_likes_update",
                     true,
-                    undefined,
+                    void 0,
                     "未登录时，拦截点赞跳转登录"
                   ),
                   UISwitch(
                     "评论",
                     "weibo_apply_comments_create",
                     true,
-                    undefined,
+                    void 0,
                     "未登录时，拦截评论跳转登录"
                   ),
                   UISwitch(
                     "关注",
                     "weibo_apply_friendships_create",
                     true,
-                    undefined,
+                    void 0,
                     "未登录时，拦截关注跳转登录"
                   ),
                   UISwitch(
                     "转发",
                     "weibo_apply_statuses_repostTimeline",
                     true,
-                    undefined,
+                    void 0,
                     "未登录时，拦截查看转发数据"
                   ),
                   UISwitch(
                     "回复",
                     "weibo_apply_comments_reply",
                     true,
-                    undefined,
+                    void 0,
                     "未登录时，拦截回复跳转登录"
                   ),
                   UISwitch(
                     "优化跳转主页",
                     "weibo_apply_profile_info",
                     true,
-                    undefined,
+                    void 0,
                     "未登录时，正确跳转至用户主页"
                   ),
                   UISwitch(
                     "下拉加载更多评论",
                     "weibo_apply_comments_hotflow",
                     true,
-                    undefined,
+                    void 0,
                     "未登录时，拦截下拉加载更多评论跳转登录"
                   ),
                   UISwitch(
                     "楼中楼下拉加载更多评论",
                     "weibo_apply_comments_hotFlowChild",
                     true,
-                    undefined,
+                    void 0,
                     "未登录时，拦截下拉加载更多评论跳转登录"
                   )
                 ]
@@ -1281,21 +1281,21 @@
                     "/api/config",
                     "weibo_request_api_config",
                     true,
-                    undefined,
+                    void 0,
                     "Api为获取用户数据，未登录时伪装为已登录"
                   ),
                   UISwitch(
                     "/comments/hot",
                     "weibo_request_comments_hot",
                     true,
-                    undefined,
+                    void 0,
                     "Api为获取评论数据，未登录时伪装为成功获取评论数据"
                   ),
                   UISwitch(
                     "/status/push",
                     "weibo_request_status_push",
                     true,
-                    undefined,
+                    void 0,
                     "Api为获取顶部的热点新闻信息流，这里是直接清空json"
                   )
                 ]
@@ -1314,14 +1314,14 @@
                     "监听路由改变",
                     "weibo-listenRouterChange",
                     true,
-                    undefined,
+                    void 0,
                     "监听路由改变，动态加载功能"
                   ),
                   UISwitch(
                     "修复用户主页正确跳转",
                     "weibo_router_profile_to_user_home",
                     true,
-                    undefined,
+                    void 0,
                     "可以正确跳转至用户主页"
                   )
                 ]
@@ -1344,7 +1344,7 @@
             "伪装微博客户端",
             "huati_weibo_masquerade_weibo_client_app",
             true,
-            undefined,
+            void 0,
             "可以隐藏底部的【在微博内打开】"
           )
         ]
@@ -1357,7 +1357,7 @@
             "/ajax/super/starschedule",
             "huati_weibo_get_more_celebrity_calendar_information",
             true,
-            undefined,
+            void 0,
             "Api为获取日程数据，开启后可获取正常日程数据"
           )
         ]
@@ -1398,14 +1398,14 @@
                 text: "超清1080p"
               }
             ],
-            undefined,
+            void 0,
             "设置视频清晰度，默认自动，其它的清晰度将自动被删除(强制固定选择的清晰度)"
           ),
           UISwitch(
             "解锁1080p",
             "weibo-video-unlockVideo1080p",
             true,
-            undefined,
+            void 0,
             "请求PC端的视频1080p链接，开启该功能↑选择的1080p才会生效"
           )
         ]
@@ -1431,7 +1431,7 @@
             "gotoApp",
             "weibo_video_webpack_gotoApp",
             true,
-            undefined,
+            void 0,
             "开启后阻止唤醒Scheme"
           )
         ]
@@ -1450,7 +1450,7 @@
             "修改发布时间显示为绝对时间",
             "weibo-detail-setArticleAbsoluteTime",
             false,
-            undefined,
+            void 0,
             "该功能全局生效包括但不限于微博正文、首页等"
           )
         ]
@@ -1465,12 +1465,12 @@
         text: "功能",
         type: "forms",
         forms: [
-          UISwitch("自动聚焦搜索框", "weibo-search-autoFocusSearchInput", undefined),
+          UISwitch("自动聚焦搜索框", "weibo-search-autoFocusSearchInput", void 0),
           UISwitch(
             "新增【新标签页打开】按钮",
             "weibo-search-addOpenBlankBtn",
             false,
-            undefined,
+            void 0,
             "在每个card下面的按钮区域添加该按钮，方便快速在新标签页中打开"
           )
         ]
@@ -1489,14 +1489,14 @@
             "自动展开全文",
             "card_weibo_com__autoExpandFullArticle",
             true,
-            undefined,
+            void 0,
             "自动展开全文，屏蔽展开按钮"
           ),
           UISwitch(
             "修复文章作者主页正确跳转",
             "card_weibo_com__repairArticleUserHomeJump",
             true,
-            undefined,
+            void 0,
             "避免跳转至用户主页时需登录"
           )
         ]
@@ -1509,7 +1509,7 @@
             "【屏蔽】评论",
             "card_weibo_com__blockComment",
             false,
-            undefined,
+            void 0,
             "屏蔽评论区"
           )
         ]
@@ -1528,14 +1528,14 @@
             "新增超话Tab",
             "weibo-home-addSupertalkTab",
             false,
-            undefined,
+            void 0,
             "在首页添加超话Tab，方便快速查看超话"
           ),
           UISwitch(
             "新增【新标签页打开】按钮",
             "weibo-home-addOpenBlankBtn",
             false,
-            undefined,
+            void 0,
             "在每个card下面的按钮区域添加该按钮，方便快速在新标签页中打开"
           )
         ]
@@ -1548,7 +1548,7 @@
             "过滤掉信息流广告",
             "weibo-request-blockArticleAds",
             true,
-            undefined,
+            void 0,
             '夹杂在文章中间的"微博广告"'
           )
         ]
@@ -1561,7 +1561,7 @@
             "屏蔽消息数量",
             "weibo-home-blockMessageCount",
             false,
-            undefined,
+            void 0,
             "即登录后右上角的消息提示数"
           )
         ]
@@ -1580,7 +1580,7 @@
             "新标签页打开",
             "weibo-hot-search-openBlank",
             false,
-            undefined,
+            void 0,
             "新标签页打开链接"
           )
         ]
@@ -1597,28 +1597,6 @@
       },
       get height() {
         return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
-      get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
-      },
-      get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
-      }
-    },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
-      get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
-      },
-      get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
       }
     }
   };
@@ -1806,7 +1784,7 @@
       Reflect.deleteProperty(locaData, key);
       _GM_setValue(KEY, locaData);
       if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, undefined);
+        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
       }
     },
     /**
@@ -1888,7 +1866,7 @@
       } else {
         runKeyList.push(key);
       }
-      let value = undefined;
+      let value = void 0;
       for (let index = 0; index < runKeyList.length; index++) {
         const runKey = runKeyList[index];
         if (!this.$data.data.has(runKey)) {
@@ -2006,7 +1984,7 @@
         let childValue = that.getValue(childKey2);
         if (typeof replaceValueFn === "function") {
           let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue !== undefined) {
+          if (changedMainValue !== void 0) {
             return changedMainValue;
           }
         }
@@ -2133,7 +2111,7 @@
           return Reflect.apply(target, this, args);
         }
         const ApiPath = args[1][0];
-        const ApiSearchParams = (_b = (_a2 = args[1]) == null ? undefined : _a2[1]) == null ? undefined : _b["params"];
+        const ApiSearchParams = (_b = (_a2 = args[1]) == null ? void 0 : _a2[1]) == null ? void 0 : _b["params"];
         if (ApiPath === "api/attitudes/create" && PopsPanel.getValue("weibo_apply_attitudes_create")) {
           log.success("拦截跳转登录");
           return new Promise((resolve) => {
@@ -2275,12 +2253,12 @@
             if (Array.isArray(cards)) {
               for (let index = 0; index < cards.length; index++) {
                 const card = cards[index];
-                let mblog = card == null ? undefined : card.mblog;
+                let mblog = card == null ? void 0 : card.mblog;
                 if (mblog) {
                   let id = mblog.id;
-                  let ad_state = mblog == null ? undefined : mblog.ad_state;
-                  let cardText = mblog == null ? undefined : mblog.text;
-                  (_a2 = mblog == null ? undefined : mblog.page_info) == null ? undefined : _a2.page_title;
+                  let ad_state = mblog == null ? void 0 : mblog.ad_state;
+                  let cardText = mblog == null ? void 0 : mblog.text;
+                  (_a2 = mblog == null ? void 0 : mblog.page_info) == null ? void 0 : _a2.page_title;
                   if (ad_state) {
                     cards.splice(index, 1);
                     index--;
@@ -2302,7 +2280,7 @@
      * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
      */
     hookWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
-      let originObject = undefined;
+      let originObject = void 0;
       Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
           return originObject;
@@ -2337,7 +2315,7 @@
           msg: "等待获取属性 __vue__.$router",
           check(vueIns) {
             var _a2;
-            return typeof ((_a2 = vueIns == null ? undefined : vueIns.$router) == null ? undefined : _a2.push) === "function";
+            return typeof ((_a2 = vueIns == null ? void 0 : vueIns.$router) == null ? void 0 : _a2.push) === "function";
           },
           set(vueIns) {
             log.success("拦截Vue路由跳转");
@@ -2345,7 +2323,7 @@
               var _a2;
               if (to.name === "profile") {
                 if (PopsPanel.getValue("weibo_router_profile_to_user_home")) {
-                  let uid = (_a2 = to == null ? undefined : to.params) == null ? undefined : _a2.uid;
+                  let uid = (_a2 = to == null ? void 0 : to.params) == null ? void 0 : _a2.uid;
                   if (uid == null) {
                     log.error("获取uid失败");
                     Qmsg.error("获取uid失败");
@@ -2356,7 +2334,7 @@
                   window.location.href = uidHomeUrl;
                   return;
                 }
-              } else if ((to == null ? undefined : to.name) === "detail") ;
+              } else if ((to == null ? void 0 : to.name) === "detail") ;
               next();
             };
             vueIns.$router.beforeEach(beforeEachFn);
@@ -2546,7 +2524,7 @@
     hookWebpack() {
       log.info("劫持webpack");
       WeiBoHook.hookWebpack("webpackJsonp", "chunk-common", (webpackExports) => {
-        if (typeof (webpackExports == null ? undefined : webpackExports.exports) === "object" && typeof webpackExports.exports["a"] === "object" && typeof webpackExports.exports["a"]["gotoApp"] === "function" && PopsPanel.getValue("weibo_video_webpack_gotoApp")) {
+        if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof webpackExports.exports["a"] === "object" && typeof webpackExports.exports["a"]["gotoApp"] === "function" && PopsPanel.getValue("weibo_video_webpack_gotoApp")) {
           log.success("成功劫持webpack调用函数", webpackExports);
           webpackExports.exports["a"]["gotoApp"] = function(...args) {
             log.info("阻止唤醒App：", args);
@@ -2622,7 +2600,7 @@
               if (!cardVueIns) {
                 return;
               }
-              let createTime = (_a2 = cardVueIns == null ? undefined : cardVueIns.item) == null ? undefined : _a2.created_at;
+              let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
               if (typeof createTime !== "string") {
                 return;
               }
@@ -2642,7 +2620,7 @@
             let $litePageWrap = $(".lite-page-wrap");
             let litePageWrapVueIns = VueUtils.getVue($litePageWrap);
             if (litePageWrapVueIns) {
-              let curWeiboData = litePageWrapVueIns == null ? undefined : litePageWrapVueIns.curWeiboData;
+              let curWeiboData = litePageWrapVueIns == null ? void 0 : litePageWrapVueIns.curWeiboData;
               let $timeList = Array.from(
                 $$(
                   ".lite-page-comment .card .card-main .m-box .time"
@@ -2694,7 +2672,7 @@
               if (!cardVueIns) {
                 return;
               }
-              let createTime = (_a2 = cardVueIns == null ? undefined : cardVueIns.item) == null ? undefined : _a2.created_at;
+              let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
               if (typeof createTime !== "string") {
                 return;
               }
@@ -2703,7 +2681,7 @@
                 createTimeObj,
                 "yyyy-MM-dd HH:mm:ss"
               );
-              $time.innerText = `${formatCreateTime} ${((_b = cardVueIns == null ? undefined : cardVueIns.item) == null ? undefined : _b.source) || ""}`;
+              $time.innerText = `${formatCreateTime} ${((_b = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _b.source) || ""}`;
               $time.setAttribute("data-gm-absolute-time", "true");
             });
           }
@@ -2807,7 +2785,7 @@
                 Qmsg.error("没有找到对应的Vue实例");
                 return;
               }
-              let id = (_a2 = vueIns == null ? undefined : vueIns.item) == null ? undefined : _a2.id;
+              let id = (_a2 = vueIns == null ? void 0 : vueIns.item) == null ? void 0 : _a2.id;
               if (typeof id !== "string") {
                 Qmsg.error("没有找到对应的id");
                 return;
@@ -2922,12 +2900,12 @@
     addSupertalkTab() {
       VueUtils.waitVuePropToSet(".main-top", {
         check(vueObj) {
-          return Array.isArray(vueObj == null ? undefined : vueObj.tabs);
+          return Array.isArray(vueObj == null ? void 0 : vueObj.tabs);
         },
         set(vueObj) {
           var _a2;
           log.success(`添加顶部Tab - 超话`);
-          (_a2 = vueObj == null ? undefined : vueObj.tabs) == null ? undefined : _a2.push({
+          (_a2 = vueObj == null ? void 0 : vueObj.tabs) == null ? void 0 : _a2.push({
             children: [
               {
                 api: "api/container/getIndex?containerid=100803",
@@ -2982,7 +2960,7 @@
                 Qmsg.error("没有找到对应的Vue实例");
                 return;
               }
-              let id = (_a2 = vueIns == null ? undefined : vueIns.item) == null ? undefined : _a2.id;
+              let id = (_a2 = vueIns == null ? void 0 : vueIns.item) == null ? void 0 : _a2.id;
               if (typeof id !== "string") {
                 Qmsg.error("没有找到对应的id");
                 return;
@@ -3024,8 +3002,8 @@
             Qmsg.error("没有找到对应的Vue实例");
             return;
           }
-          let carddata = vueIns == null ? undefined : vueIns.carddata;
-          if (typeof (carddata == null ? undefined : carddata.scheme) !== "string") {
+          let carddata = vueIns == null ? void 0 : vueIns.carddata;
+          if (typeof (carddata == null ? void 0 : carddata.scheme) !== "string") {
             log.error("没有找到对应的scheme", vueIns);
             Qmsg.error("没有找到对应的scheme");
             return;
