@@ -1,4 +1,4 @@
-import { unsafeWindow } from "ViteGM";
+import { GM_download, unsafeWindow } from "ViteGM";
 import { $, $$, DOMUtils, addStyle, log, pops, utils } from "@/env";
 import { PopsPanel } from "@/setting/setting";
 import { DouYinUtils } from "@/utils/DouYinUtils";
@@ -368,19 +368,89 @@ export const DouYinVideoPlayer = {
 	 */
 	parseVideo() {
 		log.info("让下载按钮变成解析视频");
+		type parseVideoDownloadInfo = {
+			/**
+			 * 视频链接
+			 */
+			url: string;
+			/**
+			 * 视频宽度
+			 */
+			width: number;
+			/**
+			 * 视频高度
+			 */
+			height: number;
+			/**
+			 * 视频帧率
+			 */
+			fps: number;
+			/**
+			 * 视频格式
+			 */
+			format: string;
+			/**
+			 * 视频大小
+			 */
+			dataSize: number;
+			/**
+			 * 备用视频下载链接
+			 */
+			backUrl: string[];
+		};
 		/**
 		 * 显示弹窗
-		 * @param srcList 资源列表
+		 * @param downloadFileName 视频下载名
+		 * @param downloadUrlInfoList 资源列表
 		 */
-		function showParseInfoDialog(srcList: string[]) {
+		function showParseInfoDialog(
+			downloadFileName: string,
+			downloadUrlInfoList: parseVideoDownloadInfo[]
+		) {
 			let contentHTML = "";
-			srcList.forEach((url) => {
+			downloadUrlInfoList.forEach((downloadInfo) => {
+				let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
 				contentHTML += /*html*/ `
-          		<div class="douyin-video-link-item"><a href="${url}" target="_blank">${url}</a></div>
+          		<div class="douyin-video-link-item">
+					<div class="dy-video-name">
+						<span>清晰度信息：</span>
+						<span>${videoQualityInfo}</span>
+					</div>
+					<div class="dy-video-size">
+						<span>视频大小：</span>
+						<span>${utils.formatByteToSize(downloadInfo.dataSize)}</span>
+					</div>
+					<div class="dy-video-download-uri">
+						<span>下载地址：</span>
+						<a href="${
+							downloadInfo.url
+						}" data-file-name="${downloadFileName} - ${videoQualityInfo}.${
+					downloadInfo.format
+				}">${downloadInfo.url}</a>
+					</div>
+					${
+						downloadInfo.backUrl.length
+							? /*html*/ `
+						<div class="dy-video-back-uri">
+							<span>备用地址：</span>
+							${downloadInfo.backUrl
+								.map((url, index) => {
+									return /*html*/ `
+									<a href="${url}" data-file-name="${downloadFileName} - ${videoQualityInfo}.${
+										downloadInfo.format
+									}">地址${index + 1}</a>
+								`;
+								})
+								.join("，")}
+						</div>
+					`
+							: ""
+					}
+				</div>
             	`;
 			});
 			contentHTML = /*html*/ `<div class="douyin-video-link-container">${contentHTML}</div>`;
-			pops.alert({
+			let $dialog = pops.alert({
 				title: {
 					text: "视频解析",
 					position: "center",
@@ -400,8 +470,10 @@ export const DouYinVideoPlayer = {
 				drag: true,
 				dragLimit: true,
 				style: /*css*/ `
-                .douyin-video-link-container{
-
+                .douyin-video-link-container a{
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
                 .douyin-video-link-item{
                     white-space: nowrap;
@@ -409,11 +481,117 @@ export const DouYinVideoPlayer = {
                     text-overflow: ellipsis;
                     margin: 10px;
                 }
-                .douyin-video-link-item a{
-
-                }
+				.dy-video-download-uri{
+					display: flex;
+				}
+				.dy-video-back-uri{
+					display: flex;
+				}
                 `,
 			});
+			DOMUtils.on(
+				$dialog.popsElement,
+				"click",
+				"a",
+				(event, selectorTarget) => {
+					utils.preventEvent(event);
+					let url = selectorTarget.getAttribute("href")!;
+					let fileName = selectorTarget.getAttribute("data-file-name")!;
+					/**
+					 * 测试是否支持GM_download
+					 */
+					let isSupport_GM_download = function () {
+						try {
+							return typeof GM_download === "function";
+						} catch (error) {
+							console.error(error);
+							return false;
+						}
+					};
+					if (!isSupport_GM_download()) {
+						log.error("当前脚本环境不支持API 【GM_download】");
+						window.open(url, "_blank");
+						return;
+					}
+					Qmsg.info(`调用【GM_download】下载视频`);
+					/** 取消下载函数 */
+					let abortDownload: null | Function = null;
+					/** 是否成功下载 */
+					let isSuccessDownload = false;
+					/** 是否下载完成 */
+					let isDownloadEnd = false;
+					let downloadingQmsg = Qmsg.loading("下载中...", {
+						showClose: true,
+						onClose() {
+							if (!isSuccessDownload && typeof abortDownload === "function") {
+								abortDownload();
+							}
+						},
+					});
+					let result = GM_download({
+						url: url,
+						name: fileName,
+						headers: {
+							Referer: window.location.href,
+						},
+						onload() {
+							isSuccessDownload = true;
+							downloadingQmsg.close();
+							Qmsg.success(`下载 ${fileName} 已完成`, {
+								consoleLogContent: true,
+							});
+						},
+						onprogress(details) {
+							if (
+								typeof details === "object" &&
+								"loaded" in details &&
+								"total" in details &&
+								!isDownloadEnd
+							) {
+								let progressNum = details.loaded / details.total;
+								let formatProgressNum = (progressNum * 100).toFixed(2);
+								downloadingQmsg.setText(`下载中...${formatProgressNum}%`);
+								if (details.loaded === details.total) {
+									isDownloadEnd = true;
+								}
+							}
+						},
+						onerror(error) {
+							downloadingQmsg.close();
+							log.error("下载失败error👉", error);
+							if (typeof error === "object" && error["error"]) {
+								Qmsg.error(
+									`下载 ${fileName} 失败或已取消 原因：${error["error"]}`,
+									{
+										timeout: 6000,
+										consoleLogContent: true,
+									}
+								);
+							} else {
+								Qmsg.error(`下载 ${fileName} 失败或已取消`, {
+									consoleLogContent: true,
+								});
+							}
+						},
+						ontimeout() {
+							downloadingQmsg.close();
+							Qmsg.error(`下载 ${fileName} 请求超时`, {
+								consoleLogContent: true,
+							});
+						},
+					});
+					if (
+						typeof result === "object" &&
+						result != null &&
+						"abort" in result
+					) {
+						abortDownload = result["abort"];
+					}
+				},
+				{
+					capture: true,
+				}
+			);
 		}
 		DOMUtils.on<MouseEvent | PointerEvent>(
 			document,
@@ -438,38 +616,64 @@ export const DouYinVideoPlayer = {
 					}
 					log.info([`解析的awemeInfo: `, awemeInfo]);
 					// 收集到的全部的下载地址
-					let videoDownloadUrlList: string[] = [];
+					let videoDownloadUrlList: parseVideoDownloadInfo[] = [];
 
-					// video.playAddr
-					let playAddr = awemeInfo.video.playAddr as { src: string }[] | null;
-					if (playAddr != null && Array.isArray(playAddr)) {
-						videoDownloadUrlList = videoDownloadUrlList.concat(
-							playAddr.map((item) => item.src)
-						);
-					}
-					// video.playAddrH265
-					let playAddrH265 = awemeInfo.video.playAddrH265 as
-						| { src: string }[]
+					// video.bitRateList
+					let bitRateList = awemeInfo?.video?.bitRateList as
+						| {
+								uri: string;
+								dataSize: number;
+								width: number;
+								height: number;
+								playAddr: {
+									src: string;
+								}[];
+								playApi: string;
+								isH265: 0 | 1;
+								qualityType: number;
+								bitRate: 3915557;
+								videoFormat: string;
+								gearName: string;
+								fps: number;
+								playerAccessKey: string;
+								featureId: string;
+								format: string;
+								fileId: string;
+								pktOffsetMap: {
+									time: number;
+									offset: number;
+								}[];
+								realBitrate: number;
+								manualOnly: number;
+								mvmaf: {};
+								ufq: {};
+						  }[]
 						| null;
-					if (playAddrH265 != null && Array.isArray(playAddrH265)) {
+					if (bitRateList != null && Array.isArray(bitRateList)) {
 						videoDownloadUrlList = videoDownloadUrlList.concat(
-							playAddrH265.map((item) => item.src)
+							bitRateList
+								.map((item) => {
+									let result = {
+										url: item.playApi,
+										width: item.width,
+										height: item.height,
+										format: item.format,
+										fps: 0,
+										dataSize: item.dataSize,
+										backUrl: [],
+									} as parseVideoDownloadInfo;
+									if (typeof item.fps === "number") {
+										result.fps = item.fps;
+									}
+									if (Array.isArray(item.playAddr)) {
+										result.backUrl = result.backUrl.concat(
+											item.playAddr.map((it) => it.src)
+										);
+									}
+									return result;
+								})
+								.filter((it) => it != null)
 						);
-					}
-					// video.playApi
-					let playApi = awemeInfo.video.playApi as string | null;
-					if (typeof playApi === "string") {
-						videoDownloadUrlList.push(playApi);
-					}
-					// video.playApiH265
-					let playApiH265 = awemeInfo.video.playApiH265 as string | null;
-					if (typeof playApiH265 === "string") {
-						videoDownloadUrlList.push(playApiH265);
-					}
-					// download.urlList
-					let download = awemeInfo?.download?.urlList as string[] | null;
-					if (download != null && Array.isArray(download)) {
-						videoDownloadUrlList = videoDownloadUrlList.concat(download);
 					}
 					if (!videoDownloadUrlList.length) {
 						log.error("未获取到视频的有效链接信息");
@@ -477,25 +681,48 @@ export const DouYinVideoPlayer = {
 						return;
 					}
 					// 去重
-					let uniqueVideoDownloadUrlList = [...new Set(videoDownloadUrlList)];
-					if (
-						uniqueVideoDownloadUrlList.length != videoDownloadUrlList.length
-					) {
-						log.info("去重前视频链接数量: " + videoDownloadUrlList.length);
-						log.info(
-							"去重后视频链接数量: " + uniqueVideoDownloadUrlList.length
+					let uniqueVideoDownloadUrlList: parseVideoDownloadInfo[] = [];
+					for (let index = 0; index < videoDownloadUrlList.length; index++) {
+						const videoDownloadInfo = videoDownloadUrlList[index];
+						let findIndex = uniqueVideoDownloadUrlList.findIndex(
+							(it) =>
+								it.width === videoDownloadInfo.width &&
+								it.height === videoDownloadInfo.height &&
+								it.fps === videoDownloadInfo.fps
 						);
+						if (findIndex != -1) {
+							// 存在重复，比较文件大小
+							let findValue = uniqueVideoDownloadUrlList[findIndex];
+							if (findValue.dataSize < videoDownloadInfo.dataSize) {
+								uniqueVideoDownloadUrlList.splice(
+									findIndex,
+									1,
+									videoDownloadInfo
+								);
+							}
+						} else {
+							uniqueVideoDownloadUrlList.push(videoDownloadInfo);
+						}
 					}
 					// 处理一下http的protocol，如果是http的话，点击会跳转到播放而不是下载
 					uniqueVideoDownloadUrlList = uniqueVideoDownloadUrlList.map(
 						(item) => {
-							if (item.startsWith("http:")) {
-								item = item.replace("http:", "");
+							if (item.url.startsWith("http:")) {
+								item.url = item.url.replace("http:", "");
 							}
 							return item;
 						}
 					);
-					showParseInfoDialog(uniqueVideoDownloadUrlList);
+					// 按视频大小排序（降序）
+					utils.sortListByProperty(
+						uniqueVideoDownloadUrlList,
+						(it) => it.width
+					);
+					let downloadFileName =
+						(awemeInfo?.authorInfo?.nickname || "未知作者") +
+						" - " +
+						(awemeInfo?.desc || "未知视频文案");
+					showParseInfoDialog(downloadFileName, uniqueVideoDownloadUrlList);
 				} catch (error) {
 					log.error(["解析视频失败", error]);
 					Qmsg.error("解析视频失败");
