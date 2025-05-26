@@ -1,4 +1,10 @@
 import { WindowApi } from "./WindowApi";
+import {
+	clearInterval as WorkerClearInterval,
+	clearTimeout as WorkerClearTimeout,
+	setInterval as WorkerSetInterval,
+	setTimeout as WorkerSetTimeout,
+} from "worker-timers";
 
 /** 通用工具类 */
 const DOMUtilsCommonUtils = {
@@ -130,6 +136,52 @@ const DOMUtilsCommonUtils = {
 			Reflect.deleteProperty(target, propName);
 		} else {
 			delete target[propName];
+		}
+	},
+	/**
+	 * 自动使用 Worker 执行 setTimeout
+	 */
+	setTimeout(callback: Function, timeout: number = 0) {
+		try {
+			return WorkerSetTimeout(callback, timeout);
+		} catch (error) {
+			return globalThis.setTimeout(callback, timeout);
+		}
+	},
+	/**
+	 * 配合 .setTimeout 使用
+	 */
+	clearTimeout(timeId: number | undefined) {
+		try {
+			if (timeId != null) {
+				WorkerClearTimeout(timeId);
+			}
+		} catch (error) {
+		} finally {
+			globalThis.clearTimeout(timeId);
+		}
+	},
+	/**
+	 * 自动使用 Worker 执行 setInterval
+	 */
+	setInterval(callback: Function, timeout: number = 0) {
+		try {
+			return WorkerSetInterval(callback, timeout);
+		} catch (error) {
+			return globalThis.setInterval(callback, timeout);
+		}
+	},
+	/**
+	 * 配合 .setInterval 使用
+	 */
+	clearInterval(timeId: number | undefined) {
+		try {
+			if (timeId != null) {
+				WorkerClearInterval(timeId);
+			}
+		} catch (error) {
+		} finally {
+			globalThis.clearInterval(timeId);
 		}
 	},
 };

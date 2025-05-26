@@ -44,5 +44,21 @@ declare const DOMUtilsCommonUtils: {
      * @param propName
      */
     delete(target: any, propName: any): void;
+    /**
+     * 自动使用 Worker 执行 setTimeout
+     */
+    setTimeout(callback: Function, timeout?: number): number;
+    /**
+     * 配合 .setTimeout 使用
+     */
+    clearTimeout(timeId: number | undefined): void;
+    /**
+     * 自动使用 Worker 执行 setInterval
+     */
+    setInterval(callback: Function, timeout?: number): number;
+    /**
+     * 配合 .setInterval 使用
+     */
+    clearInterval(timeId: number | undefined): void;
 };
 export { DOMUtilsCommonUtils };

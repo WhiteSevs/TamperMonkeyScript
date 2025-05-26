@@ -20,7 +20,7 @@ class DOMUtils extends DOMUtilsEvent {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2025.5.12";
+	version = "2025.5.26";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -1456,7 +1456,7 @@ class DOMUtils extends DOMUtilsEvent {
 				DOMUtilsContext.windowApi.globalThis.getComputedStyle(element)[prop];
 			to[prop] = styles[prop];
 		}
-		let timer = setInterval(function () {
+		let timer = DOMUtilsCommonUtils.setInterval(function () {
 			let timePassed = performance.now() - start;
 			let progress = timePassed / duration;
 			if (progress > 1) {
@@ -1467,7 +1467,7 @@ class DOMUtils extends DOMUtilsEvent {
 					from[prop] + (to[prop] - from[prop]) * progress + "px";
 			}
 			if (progress === 1) {
-				clearInterval(timer);
+				DOMUtilsCommonUtils.clearInterval(timer);
 				if (callback) {
 					callback();
 				}

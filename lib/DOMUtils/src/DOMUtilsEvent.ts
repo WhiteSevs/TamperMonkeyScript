@@ -765,7 +765,7 @@ export class DOMUtilsEvent {
 		}
 		if (checkDOMReadyState()) {
 			/* 检查document状态 */
-			setTimeout(callback);
+			DOMUtilsCommonUtils.setTimeout(callback);
 		} else {
 			/* 添加监听 */
 			addDomReadyListener();
