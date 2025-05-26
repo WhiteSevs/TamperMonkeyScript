@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.1
+// @version      2025.5.26
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -93,7 +93,7 @@
       return __privateGet(obj, member, getter);
     }
   });
-  var _data, _U2Ghash, _G2Uhash, _defaultDetails, _LOG_DETAILS, _dbName, _storeName, _dbVersion, _slqVersion, _indexedDB, _db, _store, _statusCode, _flag, _delayTime, _callback, _context2, _disable, _console, _logCount, _details, _msgColorDetails, _config, _ctx, _width, _height, _a;
+  var _data, _U2Ghash, _G2Uhash, _defaultRequestOption, _defaultInitOption, _dbName, _storeName, _dbVersion, _slqVersion, _indexedDB, _db, _store, _statusCode, _flag, _delayTime, _callback, _context2, _disable, _console, _logCount, _details, _msgColorDetails, _config, _ctx, _width, _height, _a;
   var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
   var _GM_addElement = /* @__PURE__ */ (() => typeof GM_addElement != "undefined" ? GM_addElement : void 0)();
   var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
@@ -573,7 +573,7 @@
           QmsgUtils.setSafeHTML(__$ownStyle__, this.setting.style);
           $contentContainer.insertAdjacentElement("afterend", __$ownStyle__);
         }
-        document.body.appendChild($shadowContainer);
+        (document.body || document.documentElement).appendChild($shadowContainer);
       }
       if ($shadowRoot == null) {
         throw new TypeError(QmsgConfig.PLUGIN_NAME + " $shadowRoot is null");
@@ -1203,7 +1203,7 @@
        */
       __publicField(this, "$eventUtils");
       this.$data = {
-        version: "2025.4.12",
+        version: "2025.5.10",
         config: QmsgConfig,
         icon: QmsgIcon,
         instanceStorage: QmsgInstanceStorage
@@ -2178,7 +2178,7 @@
     constructor(option) {
       super(option);
       /** 版本号 */
-      __publicField(this, "version", "2025.4.23");
+      __publicField(this, "version", "2025.5.12");
     }
     attr(element, attrName, attrValue) {
       let DOMUtilsContext = this;
@@ -2299,7 +2299,7 @@
         return;
       }
       let setStyleProperty = (propertyName, propertyValue) => {
-        if (propertyValue === "string" && propertyValue.includes("!important")) {
+        if (typeof propertyValue === "string" && propertyValue.trim().endsWith("!important")) {
           propertyValue = propertyValue.trim().replace(/!important$/gi, "").trim();
           element.style.setProperty(propertyName, propertyValue, "important");
         } else {
@@ -5458,10 +5458,10 @@
   };
   class Httpx {
     /**
-     * 实例化，可传入GM_xmlhttpRequest，未传入则使用window.fetch
-     * @param xmlHttpRequest
+     * 实例化
+     * @param option 初始化配置
      */
-    constructor(xmlHttpRequest) {
+    constructor(option = {}) {
       __publicField(this, "GM_Api", {
         xmlHttpRequest: null
       });
@@ -5637,20 +5637,21 @@
       __publicField(this, "HttpxRequestOption", {
         context: this,
         /**
-         * 根据传入的参数处理获取details配置
+         * 对请求的参数进行合并处理
          */
-        handleBeforeRequestOption(...args2) {
+        handleBeforeRequestOptionArgs(...args2) {
           let option = {};
           if (typeof args2[0] === "string") {
             let url = args2[0];
             option.url = url;
             if (typeof args2[1] === "object") {
-              let details = args2[1];
-              option = details;
+              let optionArg = args2[1];
+              utils$1.assign(option, optionArg, true);
               option.url = url;
             }
           } else {
-            option = args2[0];
+            let optionArg = args2[0];
+            utils$1.assign(option, optionArg, true);
           }
           return option;
         },
@@ -5663,34 +5664,44 @@
          */
         getRequestOption(method, userRequestOption, resolve, reject) {
           let that = this;
+          let url = userRequestOption.url || __privateGet(this.context, _defaultRequestOption).url;
+          if (typeof url === "string") {
+            url = url.trim();
+            if (url.startsWith("http://") || url.startsWith("https://")) ;
+            else {
+              if (typeof __privateGet(this.context, _defaultInitOption).baseURL === "string") {
+                url = __privateGet(this.context, _defaultInitOption).baseURL + url;
+              }
+            }
+          }
           let requestOption = {
-            url: userRequestOption.url || __privateGet(this.context, _defaultDetails).url,
+            url,
             method: (method || "GET").toString().toUpperCase().trim(),
-            timeout: userRequestOption.timeout || __privateGet(this.context, _defaultDetails).timeout,
-            responseType: userRequestOption.responseType || __privateGet(this.context, _defaultDetails).responseType,
+            timeout: userRequestOption.timeout || __privateGet(this.context, _defaultRequestOption).timeout,
+            responseType: userRequestOption.responseType || __privateGet(this.context, _defaultRequestOption).responseType,
             /* 对象使用深拷贝 */
-            headers: utils$1.deepClone(__privateGet(this.context, _defaultDetails).headers),
-            data: userRequestOption.data || __privateGet(this.context, _defaultDetails).data,
-            redirect: userRequestOption.redirect || __privateGet(this.context, _defaultDetails).redirect,
-            cookie: userRequestOption.cookie || __privateGet(this.context, _defaultDetails).cookie,
-            cookiePartition: userRequestOption.cookiePartition || __privateGet(this.context, _defaultDetails).cookiePartition,
-            binary: userRequestOption.binary || __privateGet(this.context, _defaultDetails).binary,
-            nocache: userRequestOption.nocache || __privateGet(this.context, _defaultDetails).nocache,
-            revalidate: userRequestOption.revalidate || __privateGet(this.context, _defaultDetails).revalidate,
+            headers: utils$1.deepClone(__privateGet(this.context, _defaultRequestOption).headers),
+            data: userRequestOption.data || __privateGet(this.context, _defaultRequestOption).data,
+            redirect: userRequestOption.redirect || __privateGet(this.context, _defaultRequestOption).redirect,
+            cookie: userRequestOption.cookie || __privateGet(this.context, _defaultRequestOption).cookie,
+            cookiePartition: userRequestOption.cookiePartition || __privateGet(this.context, _defaultRequestOption).cookiePartition,
+            binary: userRequestOption.binary || __privateGet(this.context, _defaultRequestOption).binary,
+            nocache: userRequestOption.nocache || __privateGet(this.context, _defaultRequestOption).nocache,
+            revalidate: userRequestOption.revalidate || __privateGet(this.context, _defaultRequestOption).revalidate,
             /* 对象使用深拷贝 */
-            context: utils$1.deepClone(userRequestOption.context || __privateGet(this.context, _defaultDetails).context),
-            overrideMimeType: userRequestOption.overrideMimeType || __privateGet(this.context, _defaultDetails).overrideMimeType,
-            anonymous: userRequestOption.anonymous || __privateGet(this.context, _defaultDetails).anonymous,
-            fetch: userRequestOption.fetch || __privateGet(this.context, _defaultDetails).fetch,
+            context: utils$1.deepClone(userRequestOption.context || __privateGet(this.context, _defaultRequestOption).context),
+            overrideMimeType: userRequestOption.overrideMimeType || __privateGet(this.context, _defaultRequestOption).overrideMimeType,
+            anonymous: userRequestOption.anonymous || __privateGet(this.context, _defaultRequestOption).anonymous,
+            fetch: userRequestOption.fetch || __privateGet(this.context, _defaultRequestOption).fetch,
             /* 对象使用深拷贝 */
-            fetchInit: utils$1.deepClone(__privateGet(this.context, _defaultDetails).fetchInit),
+            fetchInit: utils$1.deepClone(__privateGet(this.context, _defaultRequestOption).fetchInit),
             allowInterceptConfig: {
-              beforeRequest: __privateGet(this.context, _defaultDetails).allowInterceptConfig.beforeRequest,
-              afterResponseSuccess: __privateGet(this.context, _defaultDetails).allowInterceptConfig.afterResponseSuccess,
-              afterResponseError: __privateGet(this.context, _defaultDetails).allowInterceptConfig.afterResponseError
+              beforeRequest: __privateGet(this.context, _defaultRequestOption).allowInterceptConfig.beforeRequest,
+              afterResponseSuccess: __privateGet(this.context, _defaultRequestOption).allowInterceptConfig.afterResponseSuccess,
+              afterResponseError: __privateGet(this.context, _defaultRequestOption).allowInterceptConfig.afterResponseError
             },
-            user: userRequestOption.user || __privateGet(this.context, _defaultDetails).user,
-            password: userRequestOption.password || __privateGet(this.context, _defaultDetails).password,
+            user: userRequestOption.user || __privateGet(this.context, _defaultRequestOption).user,
+            password: userRequestOption.password || __privateGet(this.context, _defaultRequestOption).password,
             onabort(...args2) {
               that.context.HttpxCallBack.onAbort(userRequestOption, resolve, reject, args2);
             },
@@ -5913,8 +5924,8 @@
         async onAbort(details, resolve, reject, argsResult) {
           if ("onabort" in details) {
             details.onabort.apply(this, argsResult);
-          } else if ("onabort" in __privateGet(this.context, _defaultDetails)) {
-            __privateGet(this.context, _defaultDetails).onabort.apply(this, argsResult);
+          } else if ("onabort" in __privateGet(this.context, _defaultRequestOption)) {
+            __privateGet(this.context, _defaultRequestOption).onabort.apply(this, argsResult);
           }
           let response = argsResult;
           if (response.length) {
@@ -5947,8 +5958,8 @@
         async onError(details, resolve, reject, argsResult) {
           if ("onerror" in details) {
             details.onerror.apply(this, argsResult);
-          } else if ("onerror" in __privateGet(this.context, _defaultDetails)) {
-            __privateGet(this.context, _defaultDetails).onerror.apply(this, argsResult);
+          } else if ("onerror" in __privateGet(this.context, _defaultRequestOption)) {
+            __privateGet(this.context, _defaultRequestOption).onerror.apply(this, argsResult);
           }
           let response = argsResult;
           if (response.length) {
@@ -5981,8 +5992,8 @@
         async onTimeout(details, resolve, reject, argsResult) {
           if ("ontimeout" in details) {
             details.ontimeout.apply(this, argsResult);
-          } else if ("ontimeout" in __privateGet(this.context, _defaultDetails)) {
-            __privateGet(this.context, _defaultDetails).ontimeout.apply(this, argsResult);
+          } else if ("ontimeout" in __privateGet(this.context, _defaultRequestOption)) {
+            __privateGet(this.context, _defaultRequestOption).ontimeout.apply(this, argsResult);
           }
           let response = argsResult;
           if (response.length) {
@@ -6013,8 +6024,8 @@
         onLoadStart(details, argsResult) {
           if ("onloadstart" in details) {
             details.onloadstart.apply(this, argsResult);
-          } else if ("onloadstart" in __privateGet(this.context, _defaultDetails)) {
-            __privateGet(this.context, _defaultDetails).onloadstart.apply(this, argsResult);
+          } else if ("onloadstart" in __privateGet(this.context, _defaultRequestOption)) {
+            __privateGet(this.context, _defaultRequestOption).onloadstart.apply(this, argsResult);
           }
         },
         /**
@@ -6099,8 +6110,8 @@
         onProgress(details, argsResult) {
           if ("onprogress" in details) {
             details.onprogress.apply(this, argsResult);
-          } else if ("onprogress" in __privateGet(this.context, _defaultDetails)) {
-            __privateGet(this.context, _defaultDetails).onprogress.apply(this, argsResult);
+          } else if ("onprogress" in __privateGet(this.context, _defaultRequestOption)) {
+            __privateGet(this.context, _defaultRequestOption).onprogress.apply(this, argsResult);
           }
         },
         /**
@@ -6111,8 +6122,8 @@
         onReadyStateChange(details, argsResult) {
           if ("onreadystatechange" in details) {
             details.onreadystatechange.apply(this, argsResult);
-          } else if ("onreadystatechange" in __privateGet(this.context, _defaultDetails)) {
-            __privateGet(this.context, _defaultDetails).onreadystatechange.apply(this, argsResult);
+          } else if ("onreadystatechange" in __privateGet(this.context, _defaultRequestOption)) {
+            __privateGet(this.context, _defaultRequestOption).onreadystatechange.apply(this, argsResult);
           }
         }
       });
@@ -6123,7 +6134,7 @@
          * @param details
          */
         async request(details) {
-          if (__privateGet(this.context, _LOG_DETAILS)) {
+          if (__privateGet(this.context, _defaultInitOption).logDetails) {
             console.log("[Httpx-HttpxRequest.request] 请求前的配置👇", details);
           }
           if (typeof this.context.HttpxRequestHook.beforeRequestCallBack === "function") {
@@ -6251,7 +6262,7 @@
       /**
        * 默认配置
        */
-      __privateAdd(this, _defaultDetails, {
+      __privateAdd(this, _defaultRequestOption, {
         url: void 0,
         timeout: 5e3,
         async: false,
@@ -6289,10 +6300,16 @@
         onprogress() {
         }
       });
-      /**
-       * 当前使用请求时，输出请求的配置
-       */
-      __privateAdd(this, _LOG_DETAILS, false);
+      __privateAdd(this, _defaultInitOption, {
+        /**
+         * `baseURL` 将自动加在 `url` 前面，除非 `url` 是一个绝对 URL。
+         */
+        baseURL: void 0,
+        /**
+         * 当前使用请求时，输出请求的配置，一般用于DEBUG|DEV
+         */
+        logDetails: false
+      });
       /**
        * 拦截器
        */
@@ -6361,22 +6378,24 @@
           }
         }
       });
-      if (typeof xmlHttpRequest !== "function") {
+      if (typeof option.xmlHttpRequest !== "function") {
         console.warn("[Httpx-constructor] 未传入GM_xmlhttpRequest函数或传入的GM_xmlhttpRequest不是Function，将默认使用window.fetch");
       }
+      utils$1.coverObjectFunctionThis(this);
       this.interceptors.request.context = this;
       this.interceptors.response.context = this;
-      this.GM_Api.xmlHttpRequest = xmlHttpRequest;
+      this.config(option);
     }
     /**
      * 覆盖当前配置
-     * @param details
+     * @param option
      */
-    config(details = {}) {
-      if ("logDetails" in details && typeof details["logDetails"] === "boolean") {
-        __privateSet(this, _LOG_DETAILS, details["logDetails"]);
+    config(option = {}) {
+      if (typeof option.xmlHttpRequest === "function") {
+        this.GM_Api.xmlHttpRequest = option.xmlHttpRequest;
       }
-      __privateSet(this, _defaultDetails, utils$1.assign(__privateGet(this, _defaultDetails), details));
+      __privateSet(this, _defaultRequestOption, utils$1.assign(__privateGet(this, _defaultRequestOption), option));
+      __privateSet(this, _defaultInitOption, utils$1.assign(__privateGet(this, _defaultInitOption), option));
     }
     /**
      * 修改xmlHttpRequest
@@ -6391,7 +6410,7 @@
      * @param details 配置
      */
     get(...args2) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
       useRequestOption.method = "GET";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
@@ -6401,7 +6420,7 @@
      * POST 请求
      */
     post(...args2) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
       useRequestOption.method = "POST";
       return this.request(useRequestOption);
     }
@@ -6409,7 +6428,7 @@
      * HEAD 请求
      */
     head(...args2) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
       useRequestOption.method = "HEAD";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
@@ -6419,7 +6438,7 @@
      * OPTIONS 请求
      */
     options(...args2) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
       useRequestOption.method = "OPTIONS";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
@@ -6429,7 +6448,7 @@
      * DELETE 请求
      */
     delete(...args2) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
       useRequestOption.method = "DELETE";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
@@ -6439,7 +6458,7 @@
      * PUT 请求
      */
     put(...args2) {
-      let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(...args2);
+      let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
       userRequestOption.method = "PUT";
       return this.request(userRequestOption);
     }
@@ -6449,7 +6468,7 @@
      * @param beforeRequestOption 处理请求前的配置
      */
     request(details, beforeRequestOption) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOption(details);
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(details);
       let abortFn = null;
       let promise = new globalThis.Promise(async (resolve, reject) => {
         let requestOption = this.HttpxRequestOption.getRequestOption(useRequestOption.method, useRequestOption, resolve, reject);
@@ -6470,8 +6489,8 @@
       return promise;
     }
   }
-  _defaultDetails = new WeakMap();
-  _LOG_DETAILS = new WeakMap();
+  _defaultRequestOption = new WeakMap();
+  _defaultInitOption = new WeakMap();
   class indexedDB {
     /**
      * @param dbName 数据存储名，默认为：default_db
@@ -10845,6 +10864,22 @@ ${err.stack}`);
       }
       return new URL(text);
     }
+    /**
+     * 覆盖对象中的函数this指向
+     * @param target 需要覆盖的对象
+     * @param [objectThis] 覆盖的this指向，如果为传入，则默认为对象本身
+     */
+    coverObjectFunctionThis(target, objectThis) {
+      if (typeof target !== "object" || target === null) {
+        throw new Error("target must be object");
+      }
+      objectThis = objectThis || target;
+      Object.keys(target).forEach((key) => {
+        if (typeof target[key] === "function") {
+          target[key] = target[key].bind(objectThis);
+        }
+      });
+    }
   }
   let utils$1 = new Utils();
   const SymbolEvents = Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).substring(1));
@@ -12277,25 +12312,25 @@ ${err.stack}`);
       if (element == null) {
         return;
       }
+      let setStyleProperty = (propertyName, propertyValue) => {
+        if (typeof propertyValue === "string" && propertyValue.trim().endsWith("!important")) {
+          propertyValue = propertyValue.trim().replace(/!important$/gi, "").trim();
+          element.style.setProperty(propertyName, propertyValue, "important");
+        } else {
+          propertyValue = handlePixe(propertyName, propertyValue);
+          element.style.setProperty(propertyName, propertyValue);
+        }
+      };
       if (typeof property === "string") {
         if (value == null) {
           return getComputedStyle(element).getPropertyValue(property);
         } else {
-          if (value === "string" && value.includes("!important")) {
-            element.style.setProperty(property, value, "important");
-          } else {
-            value = handlePixe(property, value);
-            element.style.setProperty(property, value);
-          }
+          setStyleProperty(property, value);
         }
       } else if (typeof property === "object") {
         for (let prop in property) {
-          if (typeof property[prop] === "string" && property[prop].includes("!important")) {
-            element.style.setProperty(prop, property[prop], "important");
-          } else {
-            property[prop] = handlePixe(prop, property[prop]);
-            element.style.setProperty(prop, property[prop]);
-          }
+          let value2 = property[prop];
+          setStyleProperty(prop, value2);
         }
       }
     }
@@ -12845,22 +12880,25 @@ ${err.stack}`);
      * @param maskElement
      */
     hide(popsType, layerConfigList, guid, config, animElement, maskElement) {
-      let popsElement = animElement.querySelector(".pops[type-value]");
-      if (popsType === "drawer") {
-        let drawerConfig = config;
-        setTimeout(() => {
-          maskElement.style.setProperty("display", "none");
-          if (["top", "bottom"].includes(drawerConfig.direction)) {
-            popsElement.style.setProperty("height", "0");
-          } else if (["left", "right"].includes(drawerConfig.direction)) {
-            popsElement.style.setProperty("width", "0");
-          } else {
-            console.error("未知direction：", drawerConfig.direction);
-          }
-        }, drawerConfig.closeDelay);
-      } else {
-        layerConfigList.forEach((layerConfigItem) => {
-          if (layerConfigItem.guid === guid) {
+      return new Promise((resolve) => {
+        let popsElement = animElement.querySelector(".pops[type-value]");
+        if (popsType === "drawer") {
+          let drawerConfig = config;
+          setTimeout(() => {
+            maskElement.style.setProperty("display", "none");
+            if (["top", "bottom"].includes(drawerConfig.direction)) {
+              popsElement.style.setProperty("height", "0");
+            } else if (["left", "right"].includes(drawerConfig.direction)) {
+              popsElement.style.setProperty("width", "0");
+            } else {
+              console.error("未知direction：", drawerConfig.direction);
+            }
+            resolve();
+          }, drawerConfig.closeDelay);
+        } else {
+          let findLayerIns = layerConfigList.find((layerConfigItem) => layerConfigItem.guid === guid);
+          if (findLayerIns) {
+            let layerConfigItem = findLayerIns;
             layerConfigItem.animElement.style.width = "100%";
             layerConfigItem.animElement.style.height = "100%";
             layerConfigItem.animElement.style["animation-name"] = layerConfigItem.animElement.getAttribute("anim") + "-reverse";
@@ -12873,6 +12911,7 @@ ${err.stack}`);
                 popsDOMUtils.off(layerConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
                   capture: true
                 });
+                resolve();
               };
               popsDOMUtils.on(layerConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
                 capture: true
@@ -12882,11 +12921,11 @@ ${err.stack}`);
               if (layerConfigItem.maskElement) {
                 layerConfigItem.maskElement.style.display = "none";
               }
+              resolve();
             }
-            return;
           }
-        });
-      }
+        }
+      });
     },
     /**
      * 显示
@@ -12898,24 +12937,27 @@ ${err.stack}`);
      * @param maskElement
      */
     show(popsType, layerConfigList, guid, config, animElement, maskElement) {
-      let popsElement = animElement.querySelector(".pops[type-value]");
-      if (popsType === "drawer") {
-        let drawerConfig = config;
-        setTimeout(() => {
-          maskElement.style.setProperty("display", "");
-          let direction = drawerConfig.direction;
-          let size = drawerConfig.size.toString();
-          if (["top", "bottom"].includes(direction)) {
-            popsElement.style.setProperty("height", size);
-          } else if (["left", "right"].includes(direction)) {
-            popsElement.style.setProperty("width", size);
-          } else {
-            console.error("未知direction：", direction);
-          }
-        }, drawerConfig.openDelay);
-      } else {
-        layerConfigList.forEach((layerConfigItem) => {
-          if (layerConfigItem.guid === guid) {
+      return new Promise((resolve) => {
+        let popsElement = animElement.querySelector(".pops[type-value]");
+        if (popsType === "drawer") {
+          let drawerConfig = config;
+          setTimeout(() => {
+            popsDOMUtils.css(maskElement, "display", "");
+            let direction = drawerConfig.direction;
+            let size = drawerConfig.size.toString();
+            if (["top", "bottom"].includes(direction)) {
+              popsElement.style.setProperty("height", size);
+            } else if (["left", "right"].includes(direction)) {
+              popsElement.style.setProperty("width", size);
+            } else {
+              console.error("未知direction：", direction);
+            }
+            resolve();
+          }, drawerConfig.openDelay);
+        } else {
+          let findLayerIns = layerConfigList.find((layerConfigItem) => layerConfigItem.guid === guid);
+          if (findLayerIns) {
+            let layerConfigItem = findLayerIns;
             layerConfigItem.animElement.style.width = "";
             layerConfigItem.animElement.style.height = "";
             layerConfigItem.animElement.style["animation-name"] = layerConfigItem.animElement.getAttribute("anim").replace("-reverse", "");
@@ -12924,6 +12966,7 @@ ${err.stack}`);
                 popsDOMUtils.off(layerConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
                   capture: true
                 });
+                resolve();
               };
               layerConfigItem.animElement.style.display = "";
               if (layerConfigItem.maskElement) {
@@ -12937,11 +12980,11 @@ ${err.stack}`);
               if (layerConfigItem.maskElement) {
                 layerConfigItem.maskElement.style.display = "";
               }
+              resolve();
             }
           }
-          return;
-        });
-      }
+        }
+      });
     },
     /**
      * 关闭
@@ -12952,41 +12995,45 @@ ${err.stack}`);
      * @param animElement
      */
     close(popsType, layerConfigList, guid, config, animElement) {
-      let popsElement = animElement.querySelector(".pops[type-value]");
-      let drawerConfig = config;
-      function transitionendEvent() {
-        function closeCallBack(event) {
-          if (event.propertyName !== "transform") {
+      return new Promise((resolve) => {
+        let popsElement = animElement.querySelector(".pops[type-value]");
+        let drawerConfig = config;
+        function transitionendEvent() {
+          function closeCallBack(event) {
+            if (event.propertyName !== "transform") {
+              return;
+            }
+            popsDOMUtils.off(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
+            PopsInstanceUtils.removeInstance([layerConfigList], guid);
+            resolve();
+          }
+          popsDOMUtils.on(popsElement, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
+          let popsTransForm = getComputedStyle(popsElement).transform;
+          if (popsTransForm !== "none") {
+            popsDOMUtils.trigger(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, true);
             return;
           }
-          popsDOMUtils.off(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
-          PopsInstanceUtils.removeInstance([layerConfigList], guid);
+          if (["top"].includes(drawerConfig.direction)) {
+            popsElement.style.setProperty("transform", "translateY(-100%)");
+          } else if (["bottom"].includes(drawerConfig.direction)) {
+            popsElement.style.setProperty("transform", "translateY(100%)");
+          } else if (["left"].includes(drawerConfig.direction)) {
+            popsElement.style.setProperty("transform", "translateX(-100%)");
+          } else if (["right"].includes(drawerConfig.direction)) {
+            popsElement.style.setProperty("transform", "translateX(100%)");
+          } else {
+            console.error("未知direction：", drawerConfig.direction);
+          }
         }
-        popsDOMUtils.on(popsElement, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
-        let popsTransForm = getComputedStyle(popsElement).transform;
-        if (popsTransForm !== "none") {
-          popsDOMUtils.trigger(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, true);
-          return;
-        }
-        if (["top"].includes(drawerConfig.direction)) {
-          popsElement.style.setProperty("transform", "translateY(-100%)");
-        } else if (["bottom"].includes(drawerConfig.direction)) {
-          popsElement.style.setProperty("transform", "translateY(100%)");
-        } else if (["left"].includes(drawerConfig.direction)) {
-          popsElement.style.setProperty("transform", "translateX(-100%)");
-        } else if (["right"].includes(drawerConfig.direction)) {
-          popsElement.style.setProperty("transform", "translateX(100%)");
+        if (popsType === "drawer") {
+          setTimeout(() => {
+            transitionendEvent();
+          }, drawerConfig.closeDelay);
         } else {
-          console.error("未知direction：", drawerConfig.direction);
+          PopsInstanceUtils.removeInstance([layerConfigList], guid);
+          resolve();
         }
-      }
-      if (popsType === "drawer") {
-        setTimeout(() => {
-          transitionendEvent();
-        }, drawerConfig.closeDelay);
-      } else {
-        PopsInstanceUtils.removeInstance([layerConfigList], guid);
-      }
+      });
     },
     /**
      * 拖拽元素
@@ -13580,9 +13627,9 @@ ${err.stack}`);
         let targetLayer = pops.config.layer[details.type];
         function originalRun() {
           if (details.config.mask.clickEvent.toClose) {
-            PopsInstanceUtils.close(details.type, targetLayer, details.guid, details.config, details.animElement);
+            return PopsInstanceUtils.close(details.type, targetLayer, details.guid, details.config, details.animElement);
           } else if (details.config.mask.clickEvent.toHide) {
-            PopsInstanceUtils.hide(details.type, targetLayer, details.guid, details.config, details.animElement, result2.maskElement);
+            return PopsInstanceUtils.hide(details.type, targetLayer, details.guid, details.config, details.animElement, result2.maskElement);
           }
         }
         if (typeof details.config.mask.clickCallBack === "function") {
@@ -13745,13 +13792,13 @@ ${err.stack}`);
         mode,
         guid,
         close() {
-          PopsInstanceUtils.close(mode, pops.config.layer[mode], guid, config, animElement);
+          return PopsInstanceUtils.close(mode, pops.config.layer[mode], guid, config, animElement);
         },
         hide() {
-          PopsInstanceUtils.hide(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.hide(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
         },
         show() {
-          PopsInstanceUtils.show(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.show(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
         }
       };
     },
@@ -13773,13 +13820,13 @@ ${err.stack}`);
         mode,
         guid,
         close() {
-          PopsInstanceUtils.close(mode, pops.config.layer[mode], guid, config, animElement);
+          return PopsInstanceUtils.close(mode, pops.config.layer[mode], guid, config, animElement);
         },
         hide() {
-          PopsInstanceUtils.hide(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.hide(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
         },
         show() {
-          PopsInstanceUtils.show(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.show(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
         }
       };
     },
@@ -13982,8 +14029,8 @@ ${err.stack}`);
       }
     };
   };
-  class PopsAlert {
-    constructor(details) {
+  const PopsAlert = {
+    init(details) {
       const guid = popsUtils.getRandomGUID();
       const PopsType = "alert";
       let config = PopsAlertConfig();
@@ -14060,9 +14107,10 @@ ${err.stack}`);
           endCallBack: config.dragEndCallBack
         });
       }
-      return PopsHandler.handleResultDetails(eventDetails);
+      let result2 = PopsHandler.handleResultDetails(eventDetails);
+      return result2;
     }
-  }
+  };
   const PopsConfirmConfig = () => {
     return {
       title: {
@@ -14153,8 +14201,8 @@ ${err.stack}`);
       }
     };
   };
-  class PopsConfirm {
-    constructor(details) {
+  const PopsConfirm = {
+    init(details) {
       const guid = popsUtils.getRandomGUID();
       const PopsType = "confirm";
       let config = PopsConfirmConfig();
@@ -14233,9 +14281,10 @@ ${err.stack}`);
           endCallBack: config.dragEndCallBack
         });
       }
-      return PopsHandler.handleResultDetails(eventDetails);
+      let result2 = PopsHandler.handleResultDetails(eventDetails);
+      return result2;
     }
-  }
+  };
   const PopsPromptConfig = () => {
     return {
       title: {
@@ -14330,8 +14379,8 @@ ${err.stack}`);
       }
     };
   };
-  class PopsPrompt {
-    constructor(details) {
+  const PopsPrompt = {
+    init(details) {
       const guid = popsUtils.getRandomGUID();
       const PopsType = "prompt";
       let config = PopsPromptConfig();
@@ -14417,9 +14466,10 @@ ${err.stack}`);
       if (config.content.select) {
         $input.select();
       }
-      return PopsHandler.handleResultDetails(eventDetails);
+      let result2 = PopsHandler.handleResultDetails(eventDetails);
+      return result2;
     }
-  }
+  };
   const PopsLoadingConfig = () => {
     return {
       parent: document.body,
@@ -14442,12 +14492,13 @@ ${err.stack}`);
       },
       animation: "pops-anim-fadein-zoom",
       forbiddenScroll: false,
+      isAbsolute: false,
       style: null,
       addIndexCSS: true
     };
   };
-  class PopsLoading {
-    constructor(details) {
+  const PopsLoading = {
+    init(details) {
       let config = PopsLoadingConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
@@ -14506,9 +14557,14 @@ ${err.stack}`);
         popsElement: $pops,
         maskElement: $mask
       });
-      return PopsHandler.handleResultDetails(eventDetails);
+      if (config.isAbsolute) {
+        popsDOMUtils.css($anim, "position", "absolute !important");
+        $mask && popsDOMUtils.css($mask, "position", "absolute !important");
+      }
+      let result2 = PopsHandler.handleResultDetails(eventDetails);
+      return result2;
     }
-  }
+  };
   const PopsIframeConfig = () => {
     return {
       title: {
@@ -14574,8 +14630,8 @@ ${err.stack}`);
       }
     };
   };
-  class PopsIframe {
-    constructor(details) {
+  const PopsIframe = {
+    init(details) {
       var _a2;
       const guid = popsUtils.getRandomGUID();
       const PopsType = "iframe";
@@ -14782,7 +14838,7 @@ ${err.stack}`);
       let result2 = PopsHandler.handleResultDetails(eventDetails);
       return result2;
     }
-  }
+  };
   const PopsDrawerConfig = () => {
     return {
       title: {
@@ -14870,8 +14926,8 @@ ${err.stack}`);
       forbiddenScroll: false
     };
   };
-  class PopsDrawer {
-    constructor(details) {
+  const PopsDrawer = {
+    init(details) {
       const guid = popsUtils.getRandomGUID();
       const PopsType = "drawer";
       let config = PopsDrawerConfig();
@@ -15015,9 +15071,10 @@ ${err.stack}`);
         $shadowContainer,
         $shadowRoot
       });
-      return PopsHandler.handleResultDetails(eventDetails);
+      let result2 = PopsHandler.handleResultDetails(eventDetails);
+      return result2;
     }
-  }
+  };
   const PopsFolderConfig = () => {
     return {
       title: {
@@ -15177,8 +15234,8 @@ ${err.stack}`);
     psd: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABdUExURUxpcUOv/0uw/zer/123/0+x/1q2/jOp/zSm+Uew/zKp/zys/1O0/1e1/0Ku/0+z/1q2/0mx//7//164/vf8/9vw/+r2/yie86HX/sno/7Dd/5TR/W6//H/H/Eyv911ykpAAAAAKdFJOUwB7Pf+fHN2g/p8jQekrAAACx0lEQVRYw+2Y7WKrIAyG12JXJn4xEQG193+ZJwnYOdedE7r9O74qBQyPARNb+/Jy6NChQ2ydT8W3OufjLkX/N71ecnmvff+rxC/+dT8jXnB8162sLhK7T/As4glgHR1xT0Vs0iW6PGKxYXxo35FBJGC9B37p4BOLdXhd42e9QdaxXecRi5opLpEN5BITsKL9oao8YkGoqkpIrJAIRY2azuFR8IB31bvPXQuY5zzgA8hOJwbwbTWevY3yof+GV3Hm/NZG29ab9yhjrOsq6E57C2Ub9zcWMEoP7x8yvqPOalOicoANAu0AsuCqce0j5QJNmPt+cQMQ7fwzoI7AaURNdueizgRq3CJQKiXl6GH2Xn/QyIAN1BqsdQS6BmvSAXDQO6ERF6hX4BSrAYGNnp3HqJw1eYhlDlCRh1TtcA2DmixFJkTl3ct8IE65whC3S49YSzG0PAt8H1wIAaPGeFxI46cJmiY8DYS0M4YyZZawkGaGIJpDmJs8YANbAqZk9ouUOPFwgyAapWySEQvYRBHQrI+bUSoKb+unVkoVTXTDA9LFCWiG4JxbejnKppG0mHiTa4JpKHM9TKk3Iq+RcvKDoRvUJptngBJFU1RyvM3BU14/AxQEVI1aByNxHG/OYtb8ALiqcq5SAlYTgW0+UO2BkHjWzbqZTPRQsYEwS4Xzi0BFY2Gb4R5jFGEawlMNjOAcDxgFgWzspO6S0xC/tYwNcJsQp9Q1B7h4COgNEHLOD9YO3kUeigO8rgB5629SbYljvSzLfBtH8QxQYJBsgfhdEKP8zssCAlEKsQViD4V5arGBQgmBKEGVeNBwkZpCxS4hWECRoWyg+m3gb3lYRvPyXpapsjlRZnlYpm2tf7pEmcqSBzyVDyUe9nJ+wZ73gx+jolivAdeSLc6M4f1WcnmS+S51Yfp45b+RXk7Xf+r0xL8Zhw4d+n/1B13vfAhtdKi2AAAAAElFTkSuQmCC",
     dwg: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAAAC5zwKfAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABaUExURUxpcXvGVIbNYXvHVHzJWYbNYXbDTWu9QHrGU4jOZHLBSW+/RYDJWmy+QoXMYHzHVYjOZHfET2m7P4LLXf3/+/T+7u3+5MXrsaXbiVyuMZjUeNb2xOP81bPjmuZ7vy0AAAAKdFJOUwA9z1wc33ign591Bg7OAAACdUlEQVRYw+2Yi3KjIBRAm51UI4gKxMei+f/f3PsQNU3SXtzOdGfWo0W4wBGFau3b28HBwYGYU1a85JSuOxfNZ/w6p/rem895TzQWTfOtxjP1qWCDtJoLK1WyMcM+VUUu1pJ3ls6nSDEW1UpTvSLBWFRf0iQZXwn93jFuhd7fK/2SJhgL9Hh0ecp5P4tn3xzwYmPhX0En2SL7nXkirEIPNA/xspAIL9Cw9CUmsV85dG3bBcjNgSUjeVJcykeG9nrtAmX9/MNJtk9Yk7B5cqbLvymsdwjr2LOmBIVtU3OMQ9xGJIQOQHSFGzBegR5zoV4Qj7DeQiumbVGIx26gEXICpAvr4bqlHe5r04WWhB1BQvsdwo5uX4/GvxCGgejBMv4mJpwZjoY0IY7C9nSZNB+jI1DY8tXfsJGVCi3Rt8tUjBoDelrn5mbBJxVi29qqG60XXDLtqFjYXudQd1N8VqEQUUNPTNA/jhCyE0cHRUNMEiq+cbiwV2E3cFTvGKHjqQ34bB0Jespy1NlkIQwR0aG7I2iOJwmVje1BG6atbwpQxbUqZYRq3ej9NIJ1GjGHwk21SKgiFndL7xQU0jvFLlWERJhHE3ehuQnTNI2WZmOxUQuhcDsK44xzJCx5vdyRJFzRYQShf6xQ+U8J9VOh3inU4NMAaTULccWUmopUrRQ3kAkfqQJgn1TsFBpaO+77hHp+xOwXmo9DhNVoOLipMlKh0dibd8waLq7HWDBGJDQJ/IgwM3zHIm5JlpQ33CV/wZ6wj1t7UT4KaLY5R4noMyB3EXN32BRiRHLF8H2rnRAt/JY65zJfLv8iPWf5l2Q7/ptxcHDw//IHYWiLelDcDu8AAAAASUVORK5CYII="
   };
-  class PopsFolder {
-    constructor(details) {
+  const PopsFolder = {
+    init(details) {
       const guid = popsUtils.getRandomGUID();
       const PopsType = "folder";
       let config = PopsFolderConfig();
@@ -15842,9 +15899,10 @@ ${err.stack}`);
         $shadowContainer,
         $shadowRoot
       });
-      return PopsHandler.handleResultDetails(eventDetails);
+      let result2 = PopsHandler.handleResultDetails(eventDetails);
+      return result2;
     }
-  }
+  };
   const PopsPanelConfig = () => {
     return {
       title: {
@@ -16798,15 +16856,15 @@ ${err.stack}`);
             this.setPanEvent();
             this.setRunAwayClickEvent();
             this.intervalInit();
-            if (formConfig.disabled) {
+            if (this.isFormConfigDisabledDrag()) {
               this.disableDrag();
             }
           },
           /**
            * 10s内循环获取slider的宽度等信息
            * 获取到了就可以初始化left的值
-           * @param {number} [checkStepTime=200] 每次检测的间隔时间
-           * @param {number} [maxTime=10000] 最大的检测时间
+           * @param [checkStepTime=200] 每次检测的间隔时间
+           * @param [maxTime=10000] 最大的检测时间
            */
           intervalInit(checkStepTime = 200, maxTime = 1e4) {
             if (this.$interval.isCheck) {
@@ -16943,7 +17001,6 @@ ${err.stack}`);
           /**
            * 判断数字是否是浮点数
            * @param num
-           * @returns
            */
           isFloat(num) {
             return Number(num) === num && num % 1 !== 0;
@@ -16960,6 +17017,7 @@ ${err.stack}`);
           },
           /**
            * 根据拖拽距离获取滑块应该在的区间和值
+           * @param dragX
            */
           getDragInfo(dragX) {
             let result2 = this.$data.stepBlockMap.get(0);
@@ -16973,7 +17031,7 @@ ${err.stack}`);
           },
           /**
            * 获取滑块的当前脱拖拽占据的百分比
-           * @param {number} dragWidth
+           * @param dragWidth
            */
           getSliderPositonPercent(dragWidth) {
             return dragWidth / this.$data.totalWidth;
@@ -17023,6 +17081,17 @@ ${err.stack}`);
             return this.$ele.runAway.classList.contains("pops-slider-is-disabled");
           },
           /**
+           * 判断当前滑块是否被禁用（配置中判断）
+           */
+          isFormConfigDisabledDrag() {
+            if (typeof formConfig.disabled === "function" || typeof formConfig.disabled === "boolean") {
+              let isDisabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+              return isDisabled;
+            } else {
+              return false;
+            }
+          },
+          /**
            * 设置进度条点击定位的事件
            */
           setRunAwayClickEvent() {
@@ -17043,8 +17112,13 @@ ${err.stack}`);
            */
           dragStartCallBack() {
             if (!this.$data.isMove) {
-              if (this.isDisabledDrag()) {
+              if (this.isFormConfigDisabledDrag()) {
+                this.disableDrag();
                 return false;
+              } else {
+                if (this.isDisabledDrag()) {
+                  this.allowDrag();
+                }
               }
               this.$data.isMove = true;
             }
@@ -17177,6 +17251,10 @@ ${err.stack}`);
                 passive: true
               },
               showBeforeCallBack: () => {
+                let isShowHoverTip = typeof formConfig.isShowHoverTip === "function" ? formConfig.isShowHoverTip() : typeof formConfig.isShowHoverTip === "boolean" ? formConfig.isShowHoverTip : true;
+                if (!isShowHoverTip) {
+                  return false;
+                }
                 this.intervalInit();
               },
               showAfterCallBack: (toolTipNode) => {
@@ -18642,8 +18720,8 @@ ${err.stack}`);
       }
     };
   };
-  let PopsPanel$1 = class PopsPanel2 {
-    constructor(details) {
+  const PopsPanel$1 = {
+    init(details) {
       const guid = popsUtils.getRandomGUID();
       const PopsType = "panel";
       let config = PopsPanelConfig();
@@ -18740,7 +18818,8 @@ ${err.stack}`);
           endCallBack: config.dragEndCallBack
         });
       }
-      return PopsHandler.handleResultDetails(eventDetails);
+      let result2 = PopsHandler.handleResultDetails(eventDetails);
+      return result2;
     }
   };
   const rightClickMenuConfig = () => {
@@ -18868,8 +18947,8 @@ ${err.stack}`);
       }
     };
   };
-  class PopsRightClickMenu {
-    constructor(details) {
+  const PopsRightClickMenu = {
+    init(details) {
       const guid = popsUtils.getRandomGUID();
       const PopsType = "rightClickMenu";
       let config = rightClickMenuConfig();
@@ -19260,7 +19339,7 @@ ${err.stack}`);
         addContextMenuEvent: PopsContextMenu.addContextMenuEvent
       };
     }
-  }
+  };
   const searchSuggestionConfig = () => {
     return {
       // @ts-ignore
@@ -19317,8 +19396,8 @@ ${err.stack}`);
       style: ""
     };
   };
-  class PopsSearchSuggestion {
-    constructor(details) {
+  const PopsSearchSuggestion = {
+    init(details) {
       const guid = popsUtils.getRandomGUID();
       const PopsType = "searchSuggestion";
       let config = searchSuggestionConfig();
@@ -19802,7 +19881,7 @@ ${err.stack}`);
       };
       return SearchSuggestion;
     }
-  }
+  };
   const PopsTooltipConfig = () => {
     return {
       useShadowRoot: true,
@@ -20223,8 +20302,8 @@ ${err.stack}`);
       popsDOMUtils.off(this.$el.$toolTip, "mouseleave touchend", this.toolTipMouseLeaveEvent, this.$data.config.eventOption);
     }
   }
-  class PopsTooltip {
-    constructor(details) {
+  const PopsTooltip = {
+    init(details) {
       const guid = popsUtils.getRandomGUID();
       const PopsType = "tooltip";
       let config = PopsTooltipConfig();
@@ -20256,13 +20335,13 @@ ${err.stack}`);
         toolTip
       };
     }
-  }
+  };
   class Pops {
     constructor() {
       /** 配置 */
       __publicField(this, "config", {
         /** 版本号 */
-        version: "2025.5.1",
+        version: "2025.5.25",
         cssText: {
           /** 主CSS */
           index: indexCSS,
@@ -20371,42 +20450,47 @@ ${err.stack}`);
        * @param details 配置
        */
       __publicField(this, "alert", (details) => {
-        return new PopsAlert(details);
+        let dialog = PopsAlert.init(details);
+        return dialog;
       });
       /**
        * 询问框
        * @param details 配置
        */
       __publicField(this, "confirm", (details) => {
-        return new PopsConfirm(details);
+        let dialog = PopsConfirm.init(details);
+        return dialog;
       });
       /**
        * 输入框
        * @param details 配置
        */
       __publicField(this, "prompt", (details) => {
-        return new PopsPrompt(details);
+        let dialog = PopsPrompt.init(details);
+        return dialog;
       });
       /**
        * 加载层
        * @param details 配置
        */
       __publicField(this, "loading", (details) => {
-        return new PopsLoading(details);
+        let popsLoading = PopsLoading.init(details);
+        return popsLoading;
       });
       /**
        * iframe层
        * @param details 配置
        */
       __publicField(this, "iframe", (details) => {
-        return new PopsIframe(details);
+        let dialog = PopsIframe.init(details);
+        return dialog;
       });
       /**
        * 提示框
        * @param details 配置
        */
       __publicField(this, "tooltip", (details) => {
-        let popsTooltip = new PopsTooltip(details);
+        let popsTooltip = PopsTooltip.init(details);
         return popsTooltip;
       });
       /**
@@ -20414,35 +20498,40 @@ ${err.stack}`);
        * @param details 配置
        */
       __publicField(this, "drawer", (details) => {
-        return new PopsDrawer(details);
+        let dialog = PopsDrawer.init(details);
+        return dialog;
       });
       /**
        * 文件夹
        * @param details 配置
        */
       __publicField(this, "folder", (details) => {
-        return new PopsFolder(details);
+        let dialog = PopsFolder.init(details);
+        return dialog;
       });
       /**
        * 配置面板
        * @param details 配置
        */
       __publicField(this, "panel", (details) => {
-        return new PopsPanel$1(details);
+        let dialog = PopsPanel$1.init(details);
+        return dialog;
       });
       /**
        * 右键菜单
        * @param details 配置
        */
       __publicField(this, "rightClickMenu", (details) => {
-        return new PopsRightClickMenu(details);
+        let popsRightClickMenu = PopsRightClickMenu.init(details);
+        return popsRightClickMenu;
       });
       /**
        * 搜索建议
        * @param details 配置
        */
       __publicField(this, "searchSuggestion", (details) => {
-        return new PopsSearchSuggestion(details);
+        let popsSearchSuggestion = PopsSearchSuggestion.init(details);
+        return popsSearchSuggestion;
       });
     }
     init() {
@@ -21339,13 +21428,13 @@ ${err.stack}`);
                           qmsg.error(error2);
                         } else {
                           if (Array.isArray(cookies)) {
-                            let $alert = __pops.alert({
+                            __pops.alert({
                               title: {
                                 text: "GM_cookie.list",
                                 position: "center"
                               },
                               content: {
-                                text: "",
+                                text: JSON.stringify(cookies, null, 4),
                                 html: true
                               },
                               drag: true,
@@ -21363,13 +21452,6 @@ ${err.stack}`);
 														`
                               )
                             });
-                            let $content = $alert.popsElement.querySelector(
-                              ".pops-alert-content"
-                            );
-                            domUtils.text(
-                              $content,
-                              JSON.stringify(cookies, null, 4)
-                            );
                           } else {
                             alert("获取的cookie信息不是数组");
                           }
