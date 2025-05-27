@@ -3,6 +3,7 @@ import type { RuleSubscribeOption } from "./RulePanelView";
 import { StorageUtils } from "./StorageUtils";
 import { PanelUISize } from "@/setting/panel-ui-size";
 import Qmsg from "qmsg";
+import { CommonUtil } from "./CommonUtil";
 
 type RuleSubscribeConstructOption = {
 	/**
@@ -355,6 +356,7 @@ export class RuleSubscribe<
 				text: /*html*/ `
                     <div class="btn-control" data-mode="local">本地导入</div>
                     <div class="btn-control" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
                 `,
 				html: true,
 			},
@@ -396,6 +398,10 @@ export class RuleSubscribe<
 		/** 网络导入 */
 		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(
 			".btn-control[data-mode='network']"
+		)!;
+		/** 剪贴板导入 */
+		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".btn-control[data-mode='clipboard']"
 		)!;
 		/**
 		 * 将获取到的规则更新至存储
@@ -566,6 +572,20 @@ export class RuleSubscribe<
 				}
 			);
 			utils.dispatchEvent($promptInput, "input");
+		});
+		// 剪贴板导入
+		DOMUtils.on($clipboard, "click", async (event) => {
+			utils.preventEvent(event);
+			$alert.close();
+			let clipboardText = await CommonUtil.getClipboardText();
+			if (clipboardText.trim() === "") {
+				Qmsg.warning("获取到的剪贴板内容为空");
+				return;
+			}
+			let flag = await importFile(clipboardText);
+			if (!flag) {
+				return;
+			}
 		});
 	}
 	/**
