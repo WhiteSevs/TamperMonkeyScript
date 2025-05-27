@@ -1,4 +1,4 @@
-import { DOMUtils, httpx, log, pops, utils } from "@/env";
+import { DOMUtils, log, pops, utils } from "@/env";
 import { PanelUISize } from "@/setting/panel-ui-size";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { RuleFilterView, type RuleFilterViewOption } from "./RuleFilterView";
@@ -50,8 +50,16 @@ type RulePanelBtnControlsOption<T> = {
 		enable: boolean;
 		/**
 		 * 点击回调
+		 * @returns
+		 * + false 不执行显示添加弹窗
 		 */
-		callback?: () => void;
+		callback?: (
+			this: (typeof RulePanelView<T>)["prototype"],
+			option: {
+				event: MouseEvent | PointerEvent;
+				$section: HTMLElement;
+			}
+		) => IPromise<boolean | void>;
 	};
 	/**
 	 * 过滤按钮
@@ -68,8 +76,10 @@ type RulePanelBtnControlsOption<T> = {
 		option: RuleFilterViewOption<T>["filterOption"];
 		/**
 		 * 点击回调
+		 * @returns
+		 * + false 阻止默认行为
 		 */
-		callback?: () => void;
+		callback?: () => IPromise<void | boolean>;
 	};
 	/**
 	 * 清空所有按钮
@@ -80,8 +90,10 @@ type RulePanelBtnControlsOption<T> = {
 		 * 点击清空按钮弹出弹窗后点击确定的回调函数
 		 *
 		 * 在里面执行清空操作
+		 * @returns
+		 * + false 阻止默认行为
 		 */
-		callback?: () => void;
+		callback?: () => IPromise<void | boolean>;
 	};
 	/**
 	 * 导入按钮
@@ -90,11 +102,13 @@ type RulePanelBtnControlsOption<T> = {
 		enable: boolean;
 		/**
 		 * 点击按钮的回调函数
+		 * @returns
+		 * + false 阻止默认行为
 		 */
 		callback?: (
 			/** 更新视图 */
 			updateView: () => void
-		) => IPromise<void>;
+		) => IPromise<void | boolean>;
 	};
 	/**
 	 * 导出按钮
@@ -102,9 +116,13 @@ type RulePanelBtnControlsOption<T> = {
 	export?: {
 		enable: boolean;
 		/**
-		 * 点击按钮的回调函数
+		 * 点击回调
+		 * @returns
+		 * + false 阻止默认行为
 		 */
-		callback?: () => void;
+		callback?: (option: {
+			event: MouseEvent | PointerEvent;
+		}) => IPromise<void | boolean>;
 	};
 	/**
 	 * 规则的开启/关闭按钮
@@ -133,11 +151,20 @@ type RulePanelBtnControlsOption<T> = {
 		 * + false 不执行显示编辑弹窗
 		 */
 		callback?: (option: {
+			/** this环境 */
+			context: (typeof RulePanelView<T>)["prototype"];
+			/** 点击事件 */
 			event: MouseEvent | PointerEvent;
+			/** 配置 */
 			option: RulePanelAnyOption<T>;
+			/** 订阅配置 */
 			subscribeOption: RulePanelSubscribeOption<T> | undefined;
+			/** 当前编辑的数据 */
 			ruleData: T & RuleSubscribeOption<T>;
+			/** 当前的容器元素 */
 			$section: HTMLElement;
+			/** 当前的规则元素 */
+			$ruleItem: HTMLElement;
 			enterDeepMenu: <T2>(option: {
 				/**
 				 * 标题文字
@@ -975,7 +1002,13 @@ export class RulePanelView<T> {
 			DOMUtils.on($ruleControlAdd, "click", async (event) => {
 				utils.preventEvent(event);
 				// 添加
-				option.btnControls?.add?.callback?.();
+				let result = await option.btnControls?.add?.callback?.call(this, {
+					event,
+					$section: $rightContainer,
+				});
+				if (typeof result === "boolean" && !result) {
+					return;
+				}
 				await addButtonCallBack?.();
 			});
 			DOMUtils.append($ruleControls, $ruleControlAdd);
@@ -995,17 +1028,20 @@ export class RulePanelView<T> {
 					"data-righticon": "false",
 				}
 			);
-			DOMUtils.on($ruleControlFilter, "click", (event) => {
+			DOMUtils.on($ruleControlFilter, "click", async (event) => {
 				utils.preventEvent(event);
 				// 过滤
 
-				btnControlsOption?.filter?.callback?.();
+				let result = await btnControlsOption?.filter?.callback?.();
+				if (typeof result === "boolean" && !result) {
+					return;
+				}
 				/**
 				 * 获取所有的规则元素
 				 */
 				let getAllRuleElement = () => {
 					return Array.from(
-						$rightContainer.querySelectorAll<HTMLDivElement>(
+						$rightContainer.querySelectorAll<HTMLElement>(
 							".rule-view-container .rule-item"
 						)
 					);
@@ -1083,8 +1119,10 @@ export class RulePanelView<T> {
 							enable: true,
 							callback: async (popsEvent) => {
 								log.success("清空所有");
-								btnControlsOption?.clearAll?.callback?.();
-
+								let result = await btnControlsOption?.clearAll?.callback?.();
+								if (typeof result === "boolean" && !result) {
+									return;
+								}
 								let data = await option?.data();
 								if (!data || data.length) {
 									Qmsg.error("清理失败");
@@ -1132,9 +1170,12 @@ export class RulePanelView<T> {
 			DOMUtils.on($ruleControlImport, "click", async (event) => {
 				utils.preventEvent(event);
 				// 导入
-				btnControlsOption?.import?.callback?.(() => {
+				let result = await btnControlsOption?.import?.callback?.(() => {
 					this.updateRuleContaienrElement(option, void 0, $rightContainer);
 				});
+				if (typeof result === "boolean" && !result) {
+					return;
+				}
 			});
 			DOMUtils.append($ruleControls, $ruleControlImport);
 		}
@@ -1154,10 +1195,15 @@ export class RulePanelView<T> {
 					"data-righticon": "false",
 				}
 			);
-			DOMUtils.on($ruleControlExport, "click", (event) => {
+			DOMUtils.on($ruleControlExport, "click", async (event) => {
 				utils.preventEvent(event);
 				// 导出
-				btnControlsOption?.export?.callback?.();
+				let result = await btnControlsOption?.export?.callback?.({
+					event,
+				});
+				if (typeof result === "boolean" && !result) {
+					return;
+				}
 			});
 			DOMUtils.append($ruleControls, $ruleControlExport);
 		}
@@ -1342,6 +1388,7 @@ export class RulePanelView<T> {
 				utils.preventEvent(event);
 				if (typeof option.btnControls?.ruleEdit?.callback === "function") {
 					let result = option.btnControls?.ruleEdit?.callback({
+						context: this,
 						event,
 						// @ts-ignore
 						option,
@@ -1350,6 +1397,7 @@ export class RulePanelView<T> {
 						// @ts-ignore
 						ruleData,
 						$section: $el as HTMLElement,
+						$ruleItem: $ruleItem,
 						enterDeepMenu: async (deepMenuOption) => {
 							let deepMenuElementInfo = this.enterDeepMenu(
 								$el as HTMLElement,
@@ -1521,7 +1569,7 @@ export class RulePanelView<T> {
 		option: RulePanelAnyOption<T>,
 		subscribeOption: RulePanelSubscribeOption<T> | undefined,
 		data: T | RuleSubscribeOption<T>,
-		$oldRule: HTMLDivElement,
+		$oldRule: HTMLElement,
 		$el: ShadowRoot | HTMLElement
 	) {
 		let $newRule = await this.createRuleElement(
@@ -1532,6 +1580,7 @@ export class RulePanelView<T> {
 		);
 		$oldRule.after($newRule);
 		$oldRule.remove();
+		return $newRule;
 	}
 	/**
 	 * 清空内容
@@ -1593,7 +1642,7 @@ export class RulePanelView<T> {
 		isEdit: boolean,
 		editData: T | RuleSubscribeOption<T>,
 		$parent?: ShadowRoot | HTMLElement,
-		$ruleItem?: HTMLDivElement,
+		$ruleItem?: HTMLElement,
 		updateDataCallBack?: (data: T | RuleSubscribeOption<T>) => void,
 		submitCallBack?: (data: T | RuleSubscribeOption<T>) => void
 	) {
