@@ -37,7 +37,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2025.5.26";
+	version = "2025.5.28";
 
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
@@ -5294,6 +5294,86 @@ class Utils {
 		} finally {
 			globalThis.clearInterval(timeId);
 		}
+	}
+	/**
+	 * 获取剪贴板信息
+	 */
+	async getClipboardInfo() {
+		return new Promise<{
+			/**
+			 * 错误信息，如果为null，则表示读取成功
+			 */
+			error: Error | null;
+			/**
+			 * 剪贴板内容
+			 */
+			content: string;
+		}>((resolve) => {
+			/** 读取剪贴板 */
+			function readClipboardText() {
+				navigator.clipboard
+					.readText()
+					.then((clipboardText) => {
+						resolve({
+							error: null,
+							content: clipboardText,
+						});
+					})
+					.catch((error: TypeError) => {
+						resolve({
+							error: error,
+							content: "",
+						});
+					});
+			}
+			/** 申请读取剪贴板的权限 */
+			function requestPermissionsWithClipboard() {
+				navigator.permissions
+					.query({
+						// @ts-ignore
+						name: "clipboard-read",
+					})
+					.then((permissionStatus) => {
+						readClipboardText();
+					})
+					.catch((error: TypeError) => {
+						/* 该权限申请Api可能在该环境下不生效，尝试直接读取剪贴板 */
+						readClipboardText();
+					});
+			}
+			/**
+			 * 检查当前环境是否支持读取剪贴板Api
+			 */
+			function checkClipboardApi() {
+				if (typeof navigator?.clipboard?.readText !== "function") {
+					return false;
+				}
+				if (typeof navigator?.permissions?.query !== "function") {
+					return false;
+				}
+				return true;
+			}
+			if (!checkClipboardApi()) {
+				resolve({
+					error: new Error("当前环境不支持读取剪贴板Api"),
+					content: "",
+				});
+				return;
+			}
+			if (document.hasFocus()) {
+				requestPermissionsWithClipboard();
+			} else {
+				window.addEventListener(
+					"focus",
+					() => {
+						requestPermissionsWithClipboard();
+					},
+					{
+						once: true,
+					}
+				);
+			}
+		});
 	}
 }
 

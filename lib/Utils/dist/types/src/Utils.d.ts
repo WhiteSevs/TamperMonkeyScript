@@ -1847,6 +1847,19 @@ declare class Utils {
      * @param timeId setInterval 返回的`id`
      */
     workerClearInterval(timeId: number | undefined): void;
+    /**
+     * 获取剪贴板信息
+     */
+    getClipboardInfo(): Promise<{
+        /**
+         * 错误信息，如果为null，则表示读取成功
+         */
+        error: Error | null;
+        /**
+         * 剪贴板内容
+         */
+        content: string;
+    }>;
 }
 declare let utils: Utils;
 export { utils as Utils };
