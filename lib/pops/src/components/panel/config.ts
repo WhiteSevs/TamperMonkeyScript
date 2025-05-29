@@ -233,40 +233,66 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 								value: "select-1",
 								text: "单选1",
 								isHTML: false,
-								disable() {
-									return false;
+								disable(value, allSelectedInfo) {
+									return (
+										allSelectedInfo.findIndex((it) =>
+											["select-5"].includes(it.value)
+										) !== -1
+									);
 								},
 							},
 							{
 								value: "select-2",
 								text: "单选2",
 								isHTML: false,
-								disable() {
-									return false;
+								disable(value, allSelectedInfo) {
+									return (
+										allSelectedInfo.findIndex((it) =>
+											["select-5"].includes(it.value)
+										) !== -1
+									);
 								},
 							},
 							{
 								value: "select-3",
 								text: "单选3",
 								isHTML: false,
-								disable() {
-									return false;
+								disable(value, allSelectedInfo) {
+									return (
+										allSelectedInfo.findIndex((it) =>
+											["select-2", "select-5"].includes(it.value)
+										) !== -1
+									);
 								},
 							},
 							{
 								value: "select-4",
 								text: "单选4",
 								isHTML: false,
-								disable() {
-									return false;
+								disable(value, allSelectedInfo) {
+									return (
+										allSelectedInfo.findIndex((it) =>
+											["select-3", "select-5"].includes(it.value)
+										) !== -1
+									);
 								},
 							},
 							{
 								value: "select-5",
-								text: "单选5",
+								text(value, allSelectedInfo) {
+									return allSelectedInfo.findIndex((it) =>
+										["select-4"].includes(it.value)
+									) !== -1
+										? "单选5-禁用"
+										: "单选5";
+								},
 								isHTML: false,
-								disable() {
-									return false;
+								disable(value, allSelectedInfo) {
+									return (
+										allSelectedInfo.findIndex((it) =>
+											["select-4"].includes(it.value)
+										) !== -1
+									);
 								},
 							},
 						],

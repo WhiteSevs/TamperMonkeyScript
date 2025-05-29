@@ -8,9 +8,14 @@ export interface PopsPanelSelectMultipleDataOption<T> {
     /**
      * 显示的文字
      */
-    text: string;
+    text: string | ((
+    /** 当前的值 */
+    value: T, 
+    /** 所有选中的配置信息 */
+    allSelectedInfo: PopsPanelSelectMultipleDataOption<T>[]) => string);
     /**
      * 显示的文字是否是html
+     * @default false
      */
     isHTML?: boolean;
     /**
@@ -18,8 +23,10 @@ export interface PopsPanelSelectMultipleDataOption<T> {
      * 触发条件：
      * + 点击select元素
      * + select元素触发change事件
+     * @param value 当前的值
+     * @param allSelectedInfo 所有选中的配置信息
      */
-    disable?(value: T): boolean;
+    disable?(value: T, allSelectedInfo: PopsPanelSelectMultipleDataOption<T>[]): boolean;
 }
 /**
  * pops.panel的 select
@@ -77,12 +84,7 @@ export interface PopsPanelSelectMultipleDetails<T = any> extends PopsPanelCommon
      */
     callback?(
     /** 当前已选中的信息 */
-    isSelectedInfo: {
-        /** 值 */
-        value: T;
-        /** 显示的文字 */
-        text: string;
-    }[]): void;
+    isSelectedInfo: PopsPanelSelectMultipleDataOption<any>[]): void;
     /**
      * 点击某个项的元素触发该回调
      * @param event 点击事件
@@ -91,12 +93,7 @@ export interface PopsPanelSelectMultipleDetails<T = any> extends PopsPanelCommon
      */
     clickCallBack?(event: PointerEvent | MouseEvent, 
     /** 当前已选中的信息 */
-    isSelectedInfo: {
-        /** 值 */
-        value: T;
-        /** 显示的文字 */
-        text: string;
-    }[]): void | boolean;
+    isSelectedInfo: PopsPanelSelectMultipleDataOption<any>[]): void | boolean;
     /**
      * 点击标签tag的关闭图标触发该回调
      * 如果返回boolean类型且为false，则阻止默认的事件
@@ -109,7 +106,7 @@ export interface PopsPanelSelectMultipleDetails<T = any> extends PopsPanelCommon
         /** 值 */
         value: T;
         /** 显示的文字 */
-        text: string;
+        text: PopsPanelSelectMultipleDataOption<T>["text"];
     }) => void | boolean;
     /**
      * 选择器内的数据组

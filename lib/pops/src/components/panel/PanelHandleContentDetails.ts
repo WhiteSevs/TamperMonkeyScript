@@ -1664,6 +1664,8 @@ export const PanelHandleContentDetails = () => {
 					$suffix: void 0 as any as HTMLElement,
 					/** 下拉箭头图标 */
 					$suffixIcon: void 0 as any as HTMLElement,
+					/** 下拉列表弹窗的下拉列表容器 */
+					$selectContainer: void 0 as any as HTMLElement | null,
 				},
 				$data: {
 					/** 默认值 */
@@ -1675,7 +1677,7 @@ export const PanelHandleContentDetails = () => {
 					this.initDefault();
 					this.inintEl();
 					this.initPlaceHolder();
-					this.updateTagElement();
+					this.initTagElement();
 					this.setSelectContainerClickEvent();
 				},
 				/** 初始化默认值 */
@@ -1687,7 +1689,7 @@ export const PanelHandleContentDetails = () => {
 								text: dataItem.text,
 								value: dataItem.value,
 								isHTML: Boolean(dataItem.isHTML),
-								disable: dataItem.disable,
+								disable: dataItem.disable?.bind(dataItem),
 							});
 						}
 					});
@@ -1735,20 +1737,17 @@ export const PanelHandleContentDetails = () => {
 					});
 					this.$el.$selectedPlaceHolderWrapper.appendChild($placeholder);
 				},
-				/** 初始化tag */
-				updateTagElement() {
+				/** 初始化tag元素 */
+				initTagElement() {
 					// 遍历数据，寻找对应的值
 					formConfig.data.forEach((dataItem) => {
 						let findValue = this.$data.selectInfo.find(
 							(item) => item.value === dataItem.value
 						);
 						if (findValue) {
-							// 选中的值和获取的所有的值相同
-							let selectedInfo = this.createSelectedItem({
-								text: dataItem.text,
-								isHTML: dataItem.isHTML,
-							});
-							this.addSelectedItem(selectedInfo.$tag);
+							// 存在对应的值
+							let selectedInfo = this.createSelectedTagItem(dataItem);
+							this.addSelectedTagItem(selectedInfo.$tag);
 							this.setSelectedItemCloseIconClickEvent({
 								$tag: selectedInfo.$tag,
 								$closeIcon: selectedInfo.$closeIcon,
@@ -1763,11 +1762,7 @@ export const PanelHandleContentDetails = () => {
 				 * 生成一个tag项
 				 * @param data 配置
 				 */
-				createSelectedItem(data: {
-					/** tag的文本 */
-					text: string;
-					isHTML?: boolean;
-				}) {
+				createSelectedTagItem(data: PopsPanelSelectMultipleDataOption<any>) {
 					const $selectedItem = popsDOMUtils.createElement("div", {
 						className: "el-select__selected-item el-select__choose_tag",
 						innerHTML: /*html*/ `
@@ -1792,10 +1787,14 @@ export const PanelHandleContentDetails = () => {
 					const $closeIcon = $selectedItem.querySelector<HTMLElement>(
 						".el-icon.el-tag__close"
 					)!;
+					let text =
+						typeof data.text === "function"
+							? data.text(data, this.$data.selectInfo)
+							: data.text;
 					if (data.isHTML) {
-						PopsSafeUtils.setSafeHTML($tagText, data.text);
+						PopsSafeUtils.setSafeHTML($tagText, text);
 					} else {
-						$tagText.innerText = data.text;
+						$tagText.innerText = text;
 					}
 
 					return {
@@ -1805,9 +1804,10 @@ export const PanelHandleContentDetails = () => {
 					};
 				},
 				/**
-				 * 添加选中项元素
+				 * 添加选中项的tag元素
+				 * @param $tag 添加的元素
 				 */
-				addSelectedItem($ele: HTMLElement) {
+				addSelectedTagItem($tag: HTMLElement) {
 					// 往前添加
 					// 去除前面的空白
 					this.setSectionIsNear();
@@ -1815,10 +1815,10 @@ export const PanelHandleContentDetails = () => {
 						let $prev = this.$el.$selectedInputWrapper.previousElementSibling;
 						if ($prev) {
 							// 存在前一个元素，添加到前面的元素的后面
-							popsDOMUtils.after($prev, $ele);
+							popsDOMUtils.after($prev, $tag);
 						} else {
 							// 不存在前一个元素，添加到最前面
-							popsDOMUtils.before(this.$el.$selectedInputWrapper, $ele);
+							popsDOMUtils.before(this.$el.$selectedInputWrapper, $tag);
 						}
 					} else if (
 						this.$el.$section.contains(this.$el.$selectedPlaceHolderWrapper)
@@ -1827,13 +1827,13 @@ export const PanelHandleContentDetails = () => {
 							this.$el.$selectedPlaceHolderWrapper.previousElementSibling;
 						if ($prev) {
 							// 存在前一个元素，添加到前面的元素的后面
-							popsDOMUtils.after($prev, $ele);
+							popsDOMUtils.after($prev, $tag);
 						} else {
 							// 不存在前一个元素，添加到最前面
-							popsDOMUtils.before(this.$el.$selectedPlaceHolderWrapper, $ele);
+							popsDOMUtils.before(this.$el.$selectedPlaceHolderWrapper, $tag);
 						}
 					} else {
-						this.$el.$section.appendChild($ele);
+						this.$el.$section.appendChild($tag);
 					}
 					// 隐藏元素
 					this.hideInputWrapper();
@@ -1846,161 +1846,271 @@ export const PanelHandleContentDetails = () => {
 						.forEach(($ele) => {
 							$ele.remove();
 						});
-					this.updateTagElement();
+					this.initTagElement();
 				},
 				/**
 				 * 选中的值改变的回调
-				 * @param currentSelectInfo 当前的选中信息
+				 * @param selectedDataList 当前的选中信息
 				 */
 				selectValueChangeCallBack(
-					currentSelectInfo?: PopsPanelSelectMultipleDataOption<any>[]
+					selectedDataList?: PopsPanelSelectMultipleDataOption<any>[]
 				) {
+					// 动态更新禁用状态
+					this.updateSelectItem();
 					if (typeof formConfig.callback === "function") {
-						formConfig.callback(currentSelectInfo || this.$data.selectInfo);
+						formConfig.callback(selectedDataList || this.$data.selectInfo);
 					}
 				},
-				/** 设置下拉列表的点击事件 */
+				/**
+				 * 更新选项弹窗内的所有选项元素的状态
+				 *
+				 * + 更新禁用状态
+				 * + 更新选中状态
+				 */
+				updateSelectItem() {
+					this.getAllSelectItemInfo(false).forEach(($selectInfo) => {
+						const { data, $select } = $selectInfo;
+						// 更新文字
+						this.setSelectItemText(data, $selectInfo.$select);
+						// 更新禁用状态
+						if (
+							typeof data.disable === "function" &&
+							data.disable(data.value, this.$data.selectInfo)
+						) {
+							// 禁用
+							this.setSelectItemDisabled($select);
+							// 移除选中信息
+							this.removeSelectedInfo(data, false);
+							// 移除选中状态
+							this.removeSelectItemSelected($select);
+						} else {
+							// 取消禁用
+							this.removeSelectItemDisabled($select);
+						}
+						// 更新选中状态
+						let findValue = this.$data.selectInfo.find(
+							(it) => it.value === data.value
+						);
+						if (findValue) {
+							this.setSelectItemSelected($select);
+						} else {
+							this.removeSelectItemSelected($select);
+						}
+					});
+				},
+				/**
+				 * 设置选项元素选中
+				 * @param $select 选项元素
+				 */
+				setSelectItemSelected($select: HTMLElement) {
+					if (this.isSelectItemSelected($select)) return;
+					$select.classList.add("select-item-is-selected");
+				},
+				/**
+				 * 移除选项元素选中
+				 * @param $select 选项元素
+				 */
+				removeSelectItemSelected($select: HTMLElement) {
+					$select.classList.remove("select-item-is-selected");
+				},
+				/**
+				 * 判断选项元素是否选中
+				 * @param $select
+				 */
+				isSelectItemSelected($select: HTMLElement): boolean {
+					return $select.classList.contains("select-item-is-selected");
+				},
+				/**
+				 * 添加选中信息
+				 * @param dataList 选择项列表的数据
+				 * @param $select 选项元素
+				 */
+				addSelectedItemInfo(
+					dataList: PopsPanelSelectMultipleDataOption<any>[],
+					$select: HTMLElement
+				) {
+					let info = this.getSelectedItemInfo($select);
+					let findValue = dataList.find((item) => item.value === info.value);
+					if (!findValue) {
+						dataList.push({
+							value: info.value,
+							text: info.text,
+							isHTML: Boolean(info.isHTML),
+							disable: info.disable?.bind(info),
+						});
+					}
+					this.selectValueChangeCallBack(dataList);
+				},
+				/**
+				 * 获取选中的项的信息
+				 * @param $select 选项元素
+				 */
+				getSelectedItemInfo($select: HTMLElement) {
+					return Reflect.get(
+						$select,
+						"data-info"
+					) as PopsPanelSelectMultipleDataOption<any>;
+				},
+				/**
+				 * 移除选中信息
+				 * @param dataList 选择项的数据
+				 * @param $select 选项元素
+				 */
+				removeSelectedItemInfo(
+					dataList: PopsPanelSelectMultipleDataOption<any>[],
+					$select: HTMLElement
+				) {
+					let info = this.getSelectedItemInfo($select);
+					let findIndex = dataList.findIndex(
+						(item) => item.value === info.value
+					);
+					if (findIndex !== -1) {
+						dataList.splice(findIndex, 1);
+					}
+					this.selectValueChangeCallBack(dataList);
+				},
+				/**
+				 * 获取所有选项的信息
+				 * @param [onlySelected=true] 是否仅获取选中的项的信息
+				 * + true （默认）仅获取选中项的信息
+				 * + false 获取所有选择项的信息
+				 */
+				getAllSelectItemInfo(onlySelected: boolean = true) {
+					return Array.from(
+						this.$el.$selectContainer?.querySelectorAll<HTMLElement>(
+							".select-item"
+						) ?? []
+					)
+						.map(($select) => {
+							let data = this.getSelectedItemInfo($select);
+							let result = {
+								/** 选项信息数据 */
+								data: data,
+								/** 选项元素 */
+								$select: $select,
+							};
+							if (onlySelected) {
+								// 仅选中
+								let isSelected = this.isSelectItemSelected($select);
+								if (isSelected) {
+									return result;
+								}
+								return;
+							} else {
+								return result;
+							}
+						})
+						.filter((item) => {
+							return item != null;
+						});
+				},
+				/**
+				 * 创建一个选择项元素
+				 * @param data 选择项的数据
+				 */
+				createSelectItemElement(data: PopsPanelSelectMultipleDataOption<any>) {
+					let $select = popsDOMUtils.createElement("li", {
+						className: "select-item",
+						innerHTML: /*html*/ `
+							<span class="select-item-text"></span>
+						`,
+					});
+					this.setSelectItemText(data, $select);
+					Reflect.set($select, "data-info", data);
+					return $select;
+				},
+				/**
+				 * 设置选择项的文字
+				 * @param data 选择项的数据
+				 * @param $select 选择项元素
+				 */
+				setSelectItemText(
+					data: PopsPanelSelectMultipleDataOption<any>,
+					$select: HTMLElement
+				) {
+					let text =
+						typeof data.text === "function"
+							? data.text(data.value, this.$data.selectInfo)
+							: data.text;
+					let $selectSpan =
+						$select.querySelector<HTMLElement>(".select-item-text")!;
+					if (data.isHTML) {
+						PopsSafeUtils.setSafeHTML($selectSpan, text);
+					} else {
+						$selectSpan.innerText = text;
+					}
+				},
+				/**
+				 * 设置选择项的禁用状态
+				 * @param $select 选择项元素
+				 */
+				setSelectItemDisabled($select: HTMLElement) {
+					$select.setAttribute("aria-disabled", "true");
+					$select.setAttribute("disabled", "true");
+				},
+				/**
+				 * 移除选择项的禁用状态
+				 * @param $select 选择项元素
+				 */
+				removeSelectItemDisabled($select: HTMLElement) {
+					$select.removeAttribute("aria-disabled");
+					$select.removeAttribute("disabled");
+				},
+				/**
+				 * 判断选择项是否禁用
+				 * @param $select 选择项元素
+				 */
+				isSelectItemDisabled($select: HTMLElement) {
+					return $select.hasAttribute("disabled") || $select.ariaDisabled;
+				},
+				/**
+				 * 设置选择项的点击事件
+				 * @param dataList 选中的信息列表
+				 * @param $select 选择项元素
+				 */
+				setSelectElementClickEvent(
+					dataList: PopsPanelSelectMultipleDataOption<any>[],
+					$select: HTMLElement
+				) {
+					popsDOMUtils.on<PointerEvent | MouseEvent>(
+						$select,
+						"click",
+						(event) => {
+							popsDOMUtils.preventEvent(event);
+							if (this.isSelectItemDisabled($select)) {
+								return;
+							}
+							if (typeof formConfig.clickCallBack === "function") {
+								let allSelectedInfo = this.getAllSelectItemInfo().map(
+									(it) => it.data
+								);
+								let clickResult = formConfig.clickCallBack(
+									event,
+									allSelectedInfo
+								);
+								if (typeof clickResult === "boolean" && !clickResult) {
+									return;
+								}
+							}
+							// 修改选中状态
+							if (this.isSelectItemSelected($select)) {
+								this.removeSelectItemSelected($select);
+								this.removeSelectedItemInfo(dataList, $select);
+							} else {
+								this.setSelectItemSelected($select);
+								this.addSelectedItemInfo(dataList, $select);
+							}
+						}
+					);
+				},
+				/**
+				 * 设置下拉列表的点击事件
+				 */
 				setSelectContainerClickEvent() {
 					const that = this;
 					popsDOMUtils.on(this.$el.$container, "click", (event) => {
 						/** 弹窗的选中的值 */
-						let selectedInfo: PopsPanelSelectMultipleDataOption<any>[] = [];
-						selectedInfo = selectedInfo.concat(that.$data.selectInfo);
-						/**
-						 * 设置项选中
-						 * @param $ele
-						 */
-						function setItemSelected($ele: HTMLElement) {
-							$ele.classList.add("select-item-is-selected");
-						}
-						/**
-						 * 设置项取消选中
-						 * @param $ele
-						 */
-						function removeItemSelected($ele: HTMLElement) {
-							$ele.classList.remove("select-item-is-selected");
-						}
-						/**
-						 * 添加选中信息
-						 */
-						function addSelectedInfo($ele: HTMLElement) {
-							let info = getSelectedInfo($ele);
-							let findValue = selectedInfo.find(
-								(item) => item.value === info.value
-							);
-							if (!findValue) {
-								selectedInfo.push({
-									value: info.value,
-									text: info.text,
-									isHTML: Boolean(info.isHTML),
-									disable: info.disable,
-								});
-							}
-							that.selectValueChangeCallBack(selectedInfo);
-						}
-						/**
-						 * 移除选中信息
-						 */
-						function removeSelectedInfo($ele: HTMLElement) {
-							let info = getSelectedInfo($ele);
-							let findIndex = selectedInfo.findIndex(
-								(item) => item.value === info.value
-							);
-							if (findIndex !== -1) {
-								selectedInfo.splice(findIndex, 1);
-							}
-							that.selectValueChangeCallBack(selectedInfo);
-						}
-						/**
-						 * 判断该项是否选中
-						 * @param $ele
-						 */
-						function isSelected($ele: HTMLElement): boolean {
-							return $ele.classList.contains("select-item-is-selected");
-						}
-						/**
-						 * 获取选中的项的信息
-						 */
-						function getSelectedInfo($ele: HTMLElement) {
-							return Reflect.get($ele, "data-info") as {
-								value: any;
-								text: string;
-								isHTML?: boolean;
-								disable?(value: any): boolean;
-							};
-						}
-						/**
-						 * 获取所有选中的项的信息
-						 */
-						function getAllSelectedInfo() {
-							return Array.from(
-								$selectContainer.querySelectorAll<HTMLElement>(".select-item")
-							)
-								.map(($ele) => {
-									if (isSelected($ele)) {
-										return getSelectedInfo($ele);
-									}
-								})
-								.filter((item) => {
-									return item != null;
-								});
-						}
-						/**
-						 * 创建一个选择项元素
-						 */
-						function createSelectItemElement(dataInfo: { text: string }) {
-							let $item = popsDOMUtils.createElement("li", {
-								className: "select-item",
-								innerHTML: /*html*/ `<span>${dataInfo.text}</span>`,
-							});
-							Reflect.set($item, "data-info", dataInfo);
-							return $item;
-						}
-						/**
-						 * 设置选择项的禁用状态
-						 */
-						function setSelectItemDisabled($el: HTMLElement) {
-							$el.setAttribute("aria-disabled", "true");
-						}
-						/**
-						 * 移除选择项的禁用状态
-						 */
-						function removeSelectItemDisabled($el: HTMLElement) {
-							$el.removeAttribute("aria-disabled");
-							$el.removeAttribute("disabled");
-						}
-						/**
-						 * 设置选择项的点击事件
-						 */
-						function setSelectElementClickEvent($ele: HTMLElement) {
-							popsDOMUtils.on<PointerEvent | MouseEvent>(
-								$ele,
-								"click",
-								(event) => {
-									popsDOMUtils.preventEvent(event);
-									if ($ele.hasAttribute("disabled") || $ele.ariaDisabled) {
-										return;
-									}
-									if (typeof formConfig.clickCallBack === "function") {
-										let clickResult = formConfig.clickCallBack(
-											event,
-											getAllSelectedInfo()
-										);
-										if (typeof clickResult === "boolean" && !clickResult) {
-											return;
-										}
-									}
-									// 修改选中状态
-									if (isSelected($ele)) {
-										removeItemSelected($ele);
-										removeSelectedInfo($ele);
-									} else {
-										setItemSelected($ele);
-										addSelectedInfo($ele);
-									}
-								}
-							);
-						}
+						let selectedInfo = that.$data.selectInfo;
 						let { style, ...userConfirmDetails } =
 							formConfig.selectConfirmDialogDetails || {};
 						let confirmDetails = popsUtils.assign(
@@ -2024,6 +2134,7 @@ export const PanelHandleContentDetails = () => {
 										callback(details, event) {
 											that.$data.selectInfo = [...selectedInfo];
 											that.updateSelectTagItem();
+											that.$el.$selectContainer = null;
 											details.close();
 										},
 									},
@@ -2034,6 +2145,7 @@ export const PanelHandleContentDetails = () => {
 										originalRun();
 										that.$data.selectInfo = [...selectedInfo];
 										that.updateSelectTagItem();
+										that.$el.$selectContainer = null;
 									},
 									clickEvent: {
 										toClose: true,
@@ -2104,43 +2216,32 @@ export const PanelHandleContentDetails = () => {
 							$dialog.$shadowRoot.querySelector<HTMLUListElement>(
 								".select-container"
 							)!;
+						this.$el.$selectContainer = $selectContainer;
 						// 配置选项元素
 						formConfig.data.forEach((item) => {
-							let $select = createSelectItemElement(item);
+							let $select = this.createSelectItemElement(item);
 							// 添加到confirm中
 							$selectContainer.appendChild($select);
 							// 设置每一项的点击事件
-							setSelectElementClickEvent($select);
-							// 设置禁用状态
-							if (
-								typeof item.disable === "function" &&
-								item.disable(item.value)
-							) {
-								setSelectItemDisabled($select);
-								// 后续不设置元素的选中状态
-								return;
-							}
-							// 移除禁用状态
-							removeSelectItemDisabled($select);
-							let findValue = selectedInfo.find(
-								(value) => value.value === item.value
-							);
-							if (findValue) {
-								setItemSelected($select);
-							}
+							this.setSelectElementClickEvent(selectedInfo, $select);
 						});
+						// 动态更新禁用状态
+						this.updateSelectItem();
 					});
 				},
-				/** 设置关闭图标的点击事件 */
+				/**
+				 * 设置关闭图标的点击事件
+				 * @param data 选中的信息
+				 */
 				setSelectedItemCloseIconClickEvent(data: {
 					/** 关闭图标的元素 */
 					$closeIcon: HTMLElement;
 					/** tag元素 */
 					$tag: HTMLElement;
 					/** 值 */
-					value: any;
+					value: PopsPanelSelectMultipleDataOption<any>["value"];
 					/** 显示的文字 */
-					text: string;
+					text: PopsPanelSelectMultipleDataOption<any>["text"];
 				}) {
 					popsDOMUtils.on<PointerEvent | MouseEvent>(
 						data.$closeIcon,
@@ -2152,13 +2253,16 @@ export const PanelHandleContentDetails = () => {
 									$tag: data.$tag,
 									$closeIcon: data.$closeIcon,
 									value: data.value,
-									text: data.text,
+									text:
+										typeof data.text === "function"
+											? data.text.bind(data)
+											: data.text,
 								});
 								if (typeof result === "boolean" && !result) {
 									return;
 								}
 							}
-							this.removeSelectedItem(data.$tag);
+							this.removeSelectedTagItem(data.$tag);
 							this.removeSelectedInfo({
 								value: data.value,
 								text: data.text,
@@ -2182,13 +2286,24 @@ export const PanelHandleContentDetails = () => {
 						this.removeSectionIsNear();
 					}
 				},
-				/** 移除选中项元素 */
-				removeSelectedItem($ele: HTMLElement) {
-					$ele.remove();
+				/**
+				 * 移除选中项元素
+				 */
+				removeSelectedTagItem($tag: HTMLElement) {
+					$tag.remove();
 					this.checkTagEmpty();
 				},
-				/** 移除选中的信息 */
-				removeSelectedInfo(data: { value: any; text: string }) {
+				/**
+				 * 从保存的已选中的信息列表中移除目标信息
+				 * @param data 需要移除的信息
+				 * @param [triggerValueChangeCallBack=true] 是否触发值改变的回调
+				 * + true （默认）触发值改变的回调
+				 * + false 不触发值改变的回调
+				 */
+				removeSelectedInfo(
+					data: PopsPanelSelectMultipleDataOption<any>,
+					triggerValueChangeCallBack: boolean = true
+				) {
 					for (let index = 0; index < this.$data.selectInfo.length; index++) {
 						const selectInfo = this.$data.selectInfo[index];
 						if (selectInfo.value === data.value) {
@@ -2196,7 +2311,7 @@ export const PanelHandleContentDetails = () => {
 							break;
 						}
 					}
-					this.selectValueChangeCallBack();
+					triggerValueChangeCallBack && this.selectValueChangeCallBack();
 				},
 				/** 显示输入框 */
 				showInputWrapper() {
@@ -2679,7 +2794,7 @@ export const PanelHandleContentDetails = () => {
 				);
 			} else if (formType === "select-multiple") {
 				return this.createSectionContainerItem_select_multiple_new(
-					formConfig as PopsPanelSelectMultipleDetails
+					formConfig as PopsPanelSelectMultipleDetails<any>
 				);
 			} else if (formType === "button") {
 				return this.createSectionContainerItem_button(
