@@ -1,4 +1,4 @@
-import { $, log, utils } from "@/env";
+import { $, addStyle, log, utils } from "@/env";
 import { DouYinElement } from "../utils/DouYinElement";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { CommonUtil } from "@/utils/CommonUtil";
@@ -163,6 +163,7 @@ export const DouYinAccount = {
 				});
 			})
 			.catch((err) => {});
+		this.watchCommentDialogToClose();
 		/* 直播的顶部live */
 		if (DouYinRouter.isLive()) {
 			log.info("伪装登录：live");
@@ -273,5 +274,46 @@ export const DouYinAccount = {
 		});
 
 		return result;
+	},
+	/**
+	 * 关闭评论区的登录遮罩层
+	 */
+	watchCommentDialogToClose() {
+		let lockFn = new utils.LockFunction(() => {
+			// 评论区的登录屏蔽罩
+			let $cardLoginGuide = $<HTMLElement>(
+				'[id^="related-video-card-login-guide"]'
+			);
+			if (!$cardLoginGuide) {
+				return;
+			}
+			let $close = $cardLoginGuide.querySelector<HTMLElement>(
+				".related-video-card-login-guide__footer-close"
+			);
+			if (!$close) {
+				log.error("监听到评论区的登录遮罩层但是未获取到关闭按钮");
+				return;
+			}
+			$close.click();
+		});
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			immediate: true,
+			callback: () => {
+				lockFn.run();
+			},
+		});
+		return [
+			CommonUtil.addBlockCSS('[id^="related-video-card-login-guide"]'),
+			addStyle(/*css*/ `
+			/* 去除遮罩层 */
+			[id^="related-video-card-login-guide"]+div{
+				filter: none !important;
+			}
+		`),
+		];
 	},
 };

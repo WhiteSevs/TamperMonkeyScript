@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.26
+// @version      2025.5.29
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.10/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
@@ -5837,8 +5837,10 @@
      */
     hookUserNoLoginResponse() {
       this.ajaxHooker.hook((request) => {
+        let originResponse = request.response;
         request.response = (response) => {
           var _a2, _b, _c;
+          originResponse && originResponse(response);
           let data = utils.toJSON(response.responseText);
           if (typeof data["status_code"] === "number" && data["status_code"] !== 0) {
             data["status_code"] = 0;
@@ -6471,7 +6473,13 @@
                     text: "相关推荐",
                     value: "xhr-related"
                   }
-                ],
+                ].map((it) => {
+                  let result = {
+                    ...it,
+                    value: it.value
+                  };
+                  return result;
+                }),
                 void 0,
                 "选择需要在xxx上生效的作用域"
               );
@@ -9946,6 +9954,7 @@
         });
       }).catch((err) => {
       });
+      this.watchCommentDialogToClose();
       if (DouYinRouter.isLive()) {
         log.info("伪装登录：live");
         utils.waitNode(
@@ -10044,6 +10053,49 @@
         });
       });
       return result;
+    },
+    /**
+     * 关闭评论区的登录遮罩层
+     */
+    watchCommentDialogToClose() {
+      let lockFn = new utils.LockFunction(() => {
+        let $cardLoginGuide = $(
+          '[id^="related-video-card-login-guide"]'
+        );
+        if (!$cardLoginGuide) {
+          return;
+        }
+        let $close = $cardLoginGuide.querySelector(
+          ".related-video-card-login-guide__footer-close"
+        );
+        if (!$close) {
+          log.error("监听到评论区的登录遮罩层但是未获取到关闭按钮");
+          return;
+        }
+        $close.click();
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        }
+      });
+      return [
+        CommonUtil.addBlockCSS('[id^="related-video-card-login-guide"]'),
+        addStyle(
+          /*css*/
+          `
+			/* 去除遮罩层 */
+			[id^="related-video-card-login-guide"]+div{
+				filter: none !important;
+			}
+		`
+        )
+      ];
     }
   };
   const DouYinRedirect = {

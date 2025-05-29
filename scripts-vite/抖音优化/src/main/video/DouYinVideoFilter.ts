@@ -23,6 +23,7 @@ import { UITextArea } from "@/setting/components/ui-textarea";
 import Utils from "@whitesev/utils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
+import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/selectMultipleType";
 
 type DouYinVideoFilterOptionScope =
 	| "all"
@@ -765,44 +766,60 @@ export const DouYinVideoFilter = {
 							"作用域",
 							"scope",
 							[],
-							[
-								{
-									text: "所有",
-									value: "all",
-								},
-								{
-									text: "精选",
-									value: "xhr-module",
-								},
-								{
-									text: "推荐",
-									value: "xhr-tab",
-								},
-								{
-									text: "关注",
-									value: "xhr-follow",
-								},
-								{
-									text: "朋友",
-									value: "xhr-familiar",
-								},
-								{
-									text: "搜索",
-									value: "xhr-search",
-								},
-								{
-									text: "用户主页",
-									value: "xhr-userHome",
-								},
-								{
-									text: "混合信息",
-									value: "xhr-mix",
-								},
-								{
-									text: "相关推荐",
-									value: "xhr-related",
-								},
-							],
+							(
+								[
+									{
+										text: "所有",
+										value: "all",
+									},
+									{
+										text: "精选",
+										value: "xhr-module",
+									},
+									{
+										text: "推荐",
+										value: "xhr-tab",
+									},
+									{
+										text: "关注",
+										value: "xhr-follow",
+									},
+									{
+										text: "朋友",
+										value: "xhr-familiar",
+									},
+									{
+										text: "搜索",
+										value: "xhr-search",
+									},
+									{
+										text: "用户主页",
+										value: "xhr-userHome",
+									},
+									{
+										text: "混合信息",
+										value: "xhr-mix",
+									},
+									{
+										text: "相关推荐",
+										value: "xhr-related",
+									},
+								] as PopsPanelSelectMultipleDetails<DouYinVideoFilterOptionScope>["data"]
+							).map((it) => {
+								let result: PopsPanelSelectMultipleDetails<DouYinVideoFilterOptionScope>["data"]["0"] =
+									{
+										...it,
+										value: it.value as DouYinVideoFilterOptionScope,
+									};
+								if (result.value !== "all") {
+									// result.disable = function (value, allSelectedInfo) {
+									// 	return allSelectedInfo.some(
+									// 		(selectInfo) => selectInfo.value === "all"
+									// 	);
+									// };
+								}
+								return result;
+							}),
 							void 0,
 							"选择需要在xxx上生效的作用域"
 						);
