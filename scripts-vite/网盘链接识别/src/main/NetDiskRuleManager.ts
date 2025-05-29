@@ -1,17 +1,16 @@
-import { RulePanelView } from "@/utils/RulePanelView";
+import { RulePanelView, type RulePanelOption } from "@/utils/RulePanelView";
 import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { CharacterMapping } from "./character-mapping/CharacterMapping";
 import { WebsiteSubscribeRule } from "./website-rule/WebsiteSubscribeRule";
 import { CharacterMappingSubscribe } from "./character-mapping/CharacterMappingSubscribe";
+import { NetDiskUserRule } from "./rule/user-rule/NetDiskUserRule";
+import { NetDiskUserRuleSubscribeRule } from "./rule/user-rule/NetDiskUserRuleSubscribeRule";
 
 /**
  * 规则管理器
  */
 export const NetDiskRuleManager = {
 	init() {
-		if (import.meta.env.DEV) {
-			NetDiskRuleManager.showView();
-		}
 		this.updateAllSubscribe();
 	},
 	/**
@@ -19,9 +18,10 @@ export const NetDiskRuleManager = {
 	 * @param defaultTab 左侧默认的选项卡
 	 */
 	getPanelView(defaultTab: number = 0) {
-		let option: typeof RulePanelView.prototype.option = {
+		let option: RulePanelOption<any> = {
 			title: "规则管理器",
 			contentConfig: [
+				NetDiskUserRule.getRulePanelViewOption(),
 				WebsiteRule.getRulePanelViewOption(),
 				CharacterMapping.getRulePanelViewOption(),
 			],
@@ -31,7 +31,7 @@ export const NetDiskRuleManager = {
 			return it;
 		});
 		let rulePanelView = new RulePanelView<
-			WebsiteRuleOption | CharacterMappingOption
+			NetDiskUserCustomRule | WebsiteRuleOption | CharacterMappingOption
 		>(option);
 		return rulePanelView;
 	},
@@ -47,6 +47,7 @@ export const NetDiskRuleManager = {
 	 * 更新所有订阅
 	 */
 	updateAllSubscribe() {
+		NetDiskUserRuleSubscribeRule.updateAllSubscribe();
 		WebsiteSubscribeRule.updateAllSubscribe();
 		CharacterMappingSubscribe.updateAllSubscribe();
 	},

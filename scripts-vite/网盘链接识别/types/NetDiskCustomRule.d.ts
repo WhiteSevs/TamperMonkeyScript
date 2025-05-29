@@ -4,6 +4,7 @@
  * 通过this.xxx访问
  */
 declare interface NetDiskUserCustomRuleContext {
+	subscribeUUID: string | null;
 	/**
 	 * 当前的规则
 	 */
@@ -296,6 +297,12 @@ declare interface NetDiskUserCustomRuleSetting {
  */
 declare interface NetDiskUserCustomRule {
 	/**
+	 * 订阅的uuid
+	 *
+	 * 这里不需要填，规则导出时会自动生成
+	 */
+	subscribeUUID?: string | null;
+	/**
 	 * 这是需要识别的网盘的唯一key，如果和脚本里的key重复的话会覆盖，如果用户自定义中存在相同的key，将会合并，即一个key匹配多种网盘链接
 	 */
 	key: string;
@@ -363,4 +370,15 @@ declare interface NetDiskUserCustomRule {
 	 * return this;
 	 */
 	parseFunction?: string;
+	/**
+	 * （可选）渲染后的链接元素触发的回调
+	 *
+	 * @example
+	 *
+	 * this.DOMUtils.on(option.$urlBox, "click", (evt) => {
+	 *     this.utils.preventDefault(evt);
+	 * 	   // ...
+	 * })
+	 */
+	afterRenderUrlBox?: string;
 }

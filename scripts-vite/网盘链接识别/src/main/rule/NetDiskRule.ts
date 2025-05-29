@@ -28,7 +28,6 @@ import { UIInput } from "@/setting/components/ui-input";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { pops, utils } from "@/env";
 import { UISelect } from "@/setting/components/ui-select";
-import { NetDiskRuleSettingConfigurationInterface_linkClickMode } from "../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskRuleDataKEY } from "../data/NetDiskRuleDataKey";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDiskRuleUtils } from "./NetDiskRuleUtils";
@@ -38,102 +37,6 @@ import {
 } from "./user-rule/NetDiskUserRuleReplaceParam";
 import { NetDiskRule_115pan } from "./netdisk/115pan/rule";
 import { NetDiskRule_ed2k } from "./netdisk/ed2k/rule";
-
-/** 匹配范围 */
-export type NetDiskRuleSettingConfigurationInterface_MatchRange = {
-	/** 间隔前 */
-	before?: number;
-	/** 间隔后 */
-	after?: number;
-};
-/** 功能 */
-export type NetDiskRuleSettingConfigurationInterface_Function = {
-	/** 是否启用 */
-	enable?: boolean;
-	/**
-	 * 链接点击动作
-	 *
-	 * 默认启用复制和新标签页打开
-	 *
-	 * 默认选择复制到剪贴板
-	 * @default {
-	 * "copy": {
-	 *         "default": true,
-	 *         "enable": true,
-	 *         "text": "复制到剪贴板",
-	 *     }
-	 * },
-	 * "openBlank": {
-	 *         "enable": true,
-	 *         "text": "新标签页打开",
-	 *     }
-	 * }
-	 */
-	linkClickMode?: {
-		[key in NetDiskRuleSettingConfigurationInterface_linkClickMode]?: {
-			/** 是否是默认值 */
-			default?: boolean;
-			/** 是否启用 */
-			enable?: boolean;
-			/** 显示的文字 */
-			text?: string;
-		};
-	};
-	/** 验证链接有效性 */
-	checkLinkValidity?: boolean;
-	/** 验证链接有效性-鼠标悬停提示 */
-	checkLinkValidityHoverTip?: boolean;
-};
-/** 点击动作-新标签页打开 */
-export type NetDiskRuleSettingConfigurationInterface_linkClickMode_openBlank = {
-	/** 跳转时复制访问码 */
-	openBlankWithCopyAccessCode?: boolean;
-};
-/** Scheme转发 */
-export type NetDiskRuleSettingConfigurationInterface_SchemeUri = {
-	/** 是否启用 */
-	enable?: boolean;
-	/** 转发直链（解析出的链接） */
-	isForwardLinearChain?: boolean;
-	/** 转发新标签页链接 */
-	isForwardBlankLink?: boolean;
-	/** Uri链接 */
-	uri?: string;
-};
-/** 自定义配置列表 */
-export type NetDiskRuleSettingConfigurationInterface_OwnFormList = (
-	| PopsPanelFormsDetails
-	| PopsPanelFormsTotalDetails
-)[];
-export type NetDiskRuleSetting = {
-	/** 规则名 */
-	name: string;
-	/** 规则的键名 */
-	key: string;
-	/** 配置界面，其中如果填入这个键就有这个配置项，值就是它的默认值 */
-	configurationInterface?: {
-		/** 提取码文本匹配Text */
-		matchRange_text?: NetDiskRuleSettingConfigurationInterface_MatchRange;
-		/** 提取码文本匹配HTML */
-		matchRange_html?: NetDiskRuleSettingConfigurationInterface_MatchRange;
-		/** 功能 */
-		function?: NetDiskRuleSettingConfigurationInterface_Function;
-		linkClickMode_openBlank?: NetDiskRuleSettingConfigurationInterface_linkClickMode_openBlank;
-		/** Scheme Uri转发 */
-		schemeUri?: NetDiskRuleSettingConfigurationInterface_SchemeUri;
-		/** 自定义其它的规则 */
-		ownFormList?: NetDiskRuleSettingConfigurationInterface_OwnFormList;
-	};
-};
-
-export type NetDiskRuleConfig = {
-	/** 规则 */
-	rule: NetDiskMatchRuleOption[];
-	/** 是否是用户规则 */
-	isUserRule?: boolean;
-	/** 设置 */
-	setting: NetDiskRuleSetting;
-};
 
 export const NetDiskRule = {
 	/** 规则存储的数据 */
@@ -180,10 +83,10 @@ export const NetDiskRule = {
 		// 遍历所有的规则、生成pops界面的配置
 		[...defaultRuleList, ...userRuleList].forEach((netDiskRuleConfig) => {
 			if (typeof netDiskRuleConfig.setting.key !== "string") {
-				throw new TypeError("规则未设置key");
+				throw new Error("规则未设置key");
 			}
 			if (netDiskRuleConfig.rule == null) {
-				throw new TypeError("规则未设置rule");
+				throw new Error("规则未设置rule");
 			}
 			/** 键名，一般是英文 */
 			const ruleKey = netDiskRuleConfig.setting.key;
@@ -237,8 +140,29 @@ export const NetDiskRule = {
 			let headerTitleText = ruleName;
 			if (netDiskRuleConfig.isUserRule) {
 				// 如果是用户自定义的规则，那么在头部添加修改、删除按钮图标
-				headerTitleText += /*html*/ `<div class="netdisk-custom-rule-edit" data-key="${ruleKey}" data-type="${netDiskRuleConfig.setting.name}">${pops.config.iconSVG.edit}</div>`;
-				headerTitleText += /*html*/ `<div class="netdisk-custom-rule-delete" data-key="${ruleKey}" data-type="${netDiskRuleConfig.setting.name}">${pops.config.iconSVG.delete}</div>`;
+				headerTitleText += /*html*/ `
+					<div 
+						class="netdisk-custom-rule-edit" 
+						data-key="${ruleKey}" 
+						data-type="${netDiskRuleConfig.setting.name}"
+						${
+							typeof netDiskRuleConfig.subscribeUUID === "string"
+								? `data-subscribe-uuid="${netDiskRuleConfig.subscribeUUID}"`
+								: ""
+						}"
+						
+					>${pops.config.iconSVG.edit}</div>`;
+				headerTitleText += /*html*/ `
+					<div
+						class="netdisk-custom-rule-delete"
+						data-key="${ruleKey}"
+						data-type="${netDiskRuleConfig.setting.name}"
+						${
+							typeof netDiskRuleConfig.subscribeUUID === "string"
+								? `data-subscribe-uuid="${netDiskRuleConfig.subscribeUUID}"`
+								: ""
+						}"
+					>${pops.config.iconSVG.delete}</div>`;
 			}
 			// 存储解析完毕的配置
 			this.$data.ruleContent.push({

@@ -1,5 +1,3 @@
-import type { NetDiskRuleConfig, NetDiskRuleSetting } from "../../NetDiskRule";
-
 export const NetDiskRule_baidu: NetDiskRuleConfig = {
 	/** 规则 */
 	rule: <NetDiskMatchRuleOption[]>[

@@ -1,4 +1,12 @@
-import { Cryptojs, DOMUtils, httpx, log, pops, utils } from "@/env";
+import {
+	Cryptojs,
+	DOMUtils,
+	httpx,
+	log,
+	pops,
+	SCRIPT_NAME,
+	utils,
+} from "@/env";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { NetDiskAutoFillAccessCode } from "../../auto-fill-accesscode/NetDiskAutoFillAccessCode";
@@ -7,8 +15,6 @@ import { NetDiskCheckLinkValidity } from "../../check-valid/NetDiskCheckLinkVali
 import { NetDiskParse } from "../../parse/NetDiskParse";
 import { NetDiskRequire } from "./NetDiskRequire";
 import { NetDiskUI } from "../../ui/NetDiskUI";
-import { NetDiskRuleConfig } from "../NetDiskRule";
-import { type NetDiskRuleSettingConfigurationInterface_linkClickMode } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskRuleDataKEY } from "@/main/data/NetDiskRuleDataKey";
 import { StorageUtils } from "@/utils/StorageUtils";
 import { NetDiskRuleUtils } from "../NetDiskRuleUtils";
@@ -17,13 +23,29 @@ import {
 	NetDiskUserRuleReplaceParam_matchRange_text,
 } from "./NetDiskUserRuleReplaceParam";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
+import type {
+	RulePanelContentOption,
+	RuleSubscribeOption,
+} from "@/utils/RulePanelView";
+import { NetDiskUserRuleUI } from "./NetDiskUserRuleUI";
+import { PanelUISize } from "@/setting/panel-ui-size";
+import { NetDiskPops } from "@/main/pops/NetDiskPops";
+import { PROPS_STORAGE_API } from "@/setting/panel-config";
+import { UIInput } from "@/setting/components/ui-input";
+import { NetDiskUserRuleSubscribeRule } from "./NetDiskUserRuleSubscribeRule";
+
+const NetDiskUserRuleStorageApi = new StorageUtils("userRule");
+
+/** 用户规则上下文存储的数据 */
+const NetDiskUserRuleBindContextStorageApi = new StorageUtils(
+	"userRuleBindContext"
+);
 
 /** 网盘-链接识别规则 */
 export const NetDiskUserRule = {
-	KEY: "userRule",
-	/** 用户规则上下文存储的数据 */
-	userRuleContextDataKey: "userRuleContextData",
 	$data: {
+		STORAGE_KEY: "rule",
+		EXPORT_CONFIG_KEY: "rule-export-config",
 		__userRule: null as any as UtilsDictionary<string, NetDiskRuleConfig>,
 		get userRule() {
 			if (this.__userRule == null) {
@@ -36,8 +58,19 @@ export const NetDiskUserRule = {
 	 * 初始化
 	 */
 	init() {
+		// 把旧的数据转换
+		let oldUserRule = GM_getValue("userRule");
+		if (Array.isArray(oldUserRule)) {
+			GM_deleteValue("userRule");
+			this.setRule(oldUserRule);
+		}
 		// 先把本地规则进行转换
 		let userRule = this.parseRule(this.getAllRule());
+		// 再把订阅规则进行转换
+		let subscribeRule = this.parseRule(
+			NetDiskUserRuleSubscribeRule.getAllSubscribeRule()
+		);
+		userRule = userRule.concat(subscribeRule);
 		userRule.forEach((item) => {
 			this.$data.userRule.set(item.setting.key, item);
 		});
@@ -199,8 +232,6 @@ export const NetDiskUserRule = {
 	 * @param rule
 	 */
 	getBindContext(rule: NetDiskUserCustomRule) {
-		let storageUtils = new StorageUtils(NetDiskUserRule.userRuleContextDataKey);
-
 		return {
 			rule: rule,
 			NetDiskRequire: NetDiskRequire,
@@ -214,9 +245,15 @@ export const NetDiskUserRule = {
 			log: log,
 			Qmsg: Qmsg,
 			pops: pops,
-			setValue: storageUtils.set.bind(storageUtils),
-			getValue: storageUtils.get.bind(storageUtils),
-			deleteValue: storageUtils.delete.bind(storageUtils),
+			setValue: NetDiskUserRuleBindContextStorageApi.set.bind(
+				NetDiskUserRuleBindContextStorageApi
+			),
+			getValue: NetDiskUserRuleBindContextStorageApi.get.bind(
+				NetDiskUserRuleBindContextStorageApi
+			),
+			deleteValue: NetDiskUserRuleBindContextStorageApi.delete.bind(
+				NetDiskUserRuleBindContextStorageApi
+			),
 		};
 	},
 	/**
@@ -306,7 +343,8 @@ export const NetDiskUserRule = {
 		// 遍历传入的规则
 		for (const userRuleItemConfig of localRule) {
 			// 得配置全初始项
-			let netDiskRuleConfig = {
+			let netDiskRuleConfig: NetDiskRuleConfig = {
+				subscribeUUID: userRuleItemConfig.subscribeUUID,
 				rule: [],
 				setting: {
 					name: userRuleItemConfig.setting.name,
@@ -323,7 +361,8 @@ export const NetDiskUserRule = {
 					},
 				},
 				isUserRule: true,
-			} as NetDiskRuleConfig;
+				afterRenderUrlBox: void 0,
+			};
 			// 规则
 			const userRuleList = userRuleItemConfig.regexp;
 			// 唯一键
@@ -575,6 +614,19 @@ export const NetDiskUserRule = {
 				}
 			}
 
+			if (typeof userRuleItemConfig.afterRenderUrlBox === "string") {
+				// 渲染后的链接元素触发的回调
+				try {
+					netDiskRuleConfig.afterRenderUrlBox = new AsyncFunction(
+						"netDiskInfo",
+						userRuleItemConfig.afterRenderUrlBox
+						// 绑定作用域
+					).bind(this.getBindContext(userRuleItemConfig));
+				} catch (error) {
+					log.error(error);
+				}
+			}
+
 			// 检测已处理的规则中是否存在重复key的规则
 			// 存在 => 追加新的rule
 			let findValue = netDiskRuleConfigList.find(
@@ -607,7 +659,7 @@ export const NetDiskUserRule = {
 	/**
 	 * 获取模板规则
 	 */
-	getTemplateRule(): string {
+	getTemplateRule() {
 		let templateRule = <NetDiskUserCustomRule>{
 			key: "规则名",
 			icon: "图标链接字符串或图片的base64字符串",
@@ -629,7 +681,409 @@ export const NetDiskUserRule = {
 				openBlankWithCopyAccessCode: true,
 			},
 		};
-		return this.getFormatRule(templateRule);
+		return templateRule;
+	},
+	/**
+	 * 获取规则面板视图的配置
+	 * @param quickAddData 用于快速添加数据
+	 */
+	getRulePanelViewOption(quickAddData?: NetDiskUserCustomRule) {
+		const that = this;
+		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let addData = () => {
+			return quickAddData ?? this.getTemplateRule();
+		};
+		/**
+		 * 自定义存储api的配置
+		 * @param uuid
+		 */
+		let generateStorageApi = function (data: any) {
+			return {
+				get(key: string, defaultValue: any) {
+					return data[key] ?? defaultValue;
+				},
+				set(key: string, value: any) {
+					data[key] = value;
+				},
+			};
+		};
+
+		let rulePanelViewOption: RulePanelContentOption<NetDiskUserCustomRule> = {
+			id: "user-rule",
+			title: "链接识别",
+			headerTitle: "链接识别规则",
+			subscribe: {
+				enable: true,
+				data() {
+					return NetDiskUserRuleSubscribeRule.getAllSubscribe();
+				},
+				getData: (data) => {
+					let findValue = NetDiskUserRuleSubscribeRule.getSubscribe(data.uuid);
+					return findValue ?? data;
+				},
+				getDataItemName(subscribeOption) {
+					return /*html*/ `
+						<style>
+							.subscribe-rule-title-info-wrapper{
+								display: flex;
+								flex-direction: column;
+								gap: 4px;
+							}
+							.subscribe-rule-title-info-wrapper .rule-name-text{
+								white-space: nowrap;
+								text-overflow: ellipsis;
+								overflow: hidden;
+								font-weight: 600;
+								font-size: 16px;
+								line-height: 24px;
+							}
+							.subscribe-rule-title-info-wrapper .subscribe-rule-small-span-text{
+								font-size: 14px;
+								line-height: 16px;
+								white-space: pre-wrap;
+							}
+						</style>
+						<div class="subscribe-rule-title-info-wrapper">
+							<div class="rule-name-text" style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden;font-size: 16px;font-weight: 600;line-height: 24px;">${
+								subscribeOption.data.title ||
+								subscribeOption.subscribeData.title ||
+								subscribeOption.data.url
+							}</div>
+								<div class="subscribe-rule-small-span-text">${
+									subscribeOption.subscribeData.ruleData.length
+								} 条规则，更新于：${utils.formatTime(
+						subscribeOption.data.latestUpdateTime,
+						"yyyy年MM月dd日 HH:mm:ss"
+					)}${
+						typeof subscribeOption.data.updateFailedTime === "number"
+							? `，<span style="color: red;">更新失败于：${utils.formatTime(
+									subscribeOption.data.updateFailedTime,
+									"yyyy年MM月dd日 HH:mm:ss"
+							  )}</span>`
+							: ``
+					}</div>
+								${
+									subscribeOption.subscribeData.homePage
+										? `<a href="${subscribeOption.subscribeData.homePage}" class="subscribe-rule-small-span-text" target="_blank" style="color:#67b279;">转到主页</a>`
+										: ""
+								}
+								<a href="${
+									subscribeOption.data.url
+								}" class="subscribe-rule-small-span-text" target="_blank" style="color:#67b279;">订阅地址</a>
+						</div>`;
+				},
+				addData: (data) => {
+					return NetDiskUserRuleSubscribeRule.addSubscribe(data);
+				},
+				updateData: (data) => {
+					return NetDiskUserRuleSubscribeRule.updateSubscribe(data);
+				},
+				deleteData: (data) => {
+					return NetDiskUserRuleSubscribeRule.deleteSubscribe(data);
+				},
+				btnControls: {
+					add: {
+						enable: true,
+					},
+					filter: {
+						enable: true,
+						title: "过滤订阅",
+						option: [
+							{
+								name: "过滤【已启用】的订阅",
+								filterCallBack(data) {
+									return data.data.enable;
+								},
+							},
+							{
+								name: "过滤【未启用】的订阅",
+								filterCallBack(data) {
+									return !data.data.enable;
+								},
+							},
+						],
+					},
+					clearAll: {
+						enable: true,
+						callback: () => {
+							NetDiskUserRuleSubscribeRule.deleteAllSubscribe();
+						},
+					},
+					ruleEnable: {
+						enable: true,
+						getEnable(data) {
+							return data.data.enable;
+						},
+						async callback(data, enable) {
+							data.data.enable = enable;
+							NetDiskUserRuleSubscribeRule.updateSubscribe(data);
+						},
+					},
+					ruleEdit: {
+						enable: true,
+						callback: (option) => {
+							let subscribeUUID = option.ruleData.uuid;
+							option.enterDeepMenu<NetDiskUserCustomRule>({
+								headerTitle:
+									// 自己重新命名的
+									option.ruleData.data.title ||
+									// 订阅的规则自带的
+									option.ruleData.subscribeData.title ||
+									// 订阅的链接
+									option.ruleData.data.url,
+								data() {
+									let currentData =
+										NetDiskUserRuleSubscribeRule.getSubscribe(subscribeUUID);
+									return (
+										currentData?.subscribeData?.ruleData ??
+										option.ruleData.subscribeData.ruleData
+									);
+								},
+								getData(data) {
+									let currentData =
+										NetDiskUserRuleSubscribeRule.getSubscribeRule(
+											subscribeUUID,
+											data.key
+										);
+									return currentData ?? data;
+								},
+								getDataItemName(data) {
+									return data.setting.name;
+								},
+								addData(data) {
+									// TODO
+									return true;
+								},
+								updateData(data) {
+									return NetDiskUserRuleSubscribeRule.updateSubscribeRule(
+										subscribeUUID,
+										data
+									);
+								},
+								deleteData(data) {
+									return NetDiskUserRuleSubscribeRule.deleteSubscribeRule(
+										subscribeUUID,
+										data
+									);
+								},
+								btnControls: {
+									filter: {
+										enable: true,
+										option: [
+											{
+												name: "过滤【已启用】的规则",
+												filterCallBack(data) {
+													return data.setting.enable;
+												},
+											},
+											{
+												name: "过滤【未启用】的规则",
+												filterCallBack(data) {
+													return !data.setting.enable;
+												},
+											},
+										],
+									},
+									clearAll: {
+										enable: true,
+										callback: () => {
+											NetDiskUserRuleSubscribeRule.clearSubscribe(
+												subscribeUUID
+											);
+										},
+									},
+									// ruleEnable: {
+									// 	enable: true,
+									// 	getEnable(data) {
+									// 		return data.setting.enable;
+									// 	},
+									// 	callback(data, enable) {
+									// 		data.setting.enable = enable;
+									// 		NetDiskUserRuleSubscribeRule.updateSubscribeRule(
+									// 			subscribeUUID,
+									// 			data
+									// 		);
+									// 	},
+									// },
+									ruleEdit: {
+										enable: true,
+										callback(option) {
+											NetDiskUserRuleUI.showSubscribe(
+												subscribeUUID,
+												option.ruleData.key,
+												async (subscribeRule) => {
+													// 更新视图
+													let $ruleItem =
+														await option.context.updateRuleItemElement(
+															option.option,
+															option.subscribeOption,
+															subscribeRule,
+															option.$ruleItem,
+															option.$section
+														);
+													option.$ruleItem = $ruleItem;
+												}
+											);
+											return false;
+										},
+									},
+									ruleDelete: {
+										enable: true,
+										deleteCallBack(data) {
+											return NetDiskUserRuleSubscribeRule.deleteSubscribeRule(
+												subscribeUUID,
+												data
+											);
+										},
+									},
+								},
+							});
+							return false;
+						},
+					},
+					ruleDelete: {
+						enable: true,
+						deleteCallBack: (data) => {
+							return NetDiskUserRuleSubscribeRule.deleteSubscribe(data);
+						},
+					},
+					import: {
+						enable: true,
+						callback(updateView) {
+							NetDiskUserRuleSubscribeRule.importSubscribe(() => {
+								updateView();
+							});
+						},
+					},
+					export: {
+						enable: true,
+						callback() {
+							NetDiskUserRuleSubscribeRule.exportSubscribe(
+								SCRIPT_NAME + "-网站规则-订阅.json"
+							);
+						},
+					},
+				},
+				getSubscribeInfo: NetDiskUserRuleSubscribeRule.getSubscribeInfo.bind(
+					NetDiskUserRuleSubscribeRule
+				),
+			},
+			ruleOption: {
+				btnControls: {
+					add: {
+						enable: true,
+						callback(option) {
+							NetDiskUserRuleUI.show(false, void 0, (rule) => {
+								this.updateRuleContaienrElement(
+									rulePanelViewOption.ruleOption,
+									void 0,
+									option.$section
+								);
+							});
+							return false;
+						},
+					},
+					filter: {
+						enable: true,
+						title: "过滤规则",
+						option: [
+							{
+								name: "过滤【已启用】的规则",
+								filterCallBack(data) {
+									return data.setting.enable;
+								},
+							},
+							{
+								name: "过滤【未启用】的规则",
+								filterCallBack(data) {
+									return !data.setting.enable;
+								},
+							},
+						],
+					},
+					clearAll: {
+						enable: true,
+						callback: () => {
+							that.clearRule();
+						},
+					},
+					import: {
+						enable: true,
+						callback: (updateView) => {
+							that.importRule(() => {
+								updateView();
+							});
+						},
+					},
+					export: {
+						enable: true,
+						callback: () => {
+							that.exportRule(
+								SCRIPT_NAME + "-链接识别规则.json",
+								SCRIPT_NAME + "-链接识别规则-订阅模式.json"
+							);
+						},
+					},
+					// ruleEnable: {
+					// 	enable: false,
+					// 	getEnable(data) {
+					// 		return data.setting.enable;
+					// 	},
+					// 	callback: (data, enable) => {
+					// 		data.setting.enable = enable;
+					// 		that.updateRule(data.key, data);
+					// 	},
+					// },
+					ruleEdit: {
+						enable: true,
+						callback(option) {
+							NetDiskUserRuleUI.show(
+								true,
+								option.ruleData.key,
+								async (rule) => {
+									let $ruleItem = await option.context.updateRuleItemElement(
+										option.option,
+										option.subscribeOption,
+										rule,
+										option.$ruleItem,
+										option.$section
+									);
+									option.$ruleItem = $ruleItem;
+								}
+							);
+							return false;
+						},
+					},
+					ruleDelete: {
+						enable: true,
+						deleteCallBack: (data) => {
+							return that.deleteRule(data.key);
+						},
+					},
+				},
+				data: () => {
+					return this.getAllRule();
+				},
+				getAddData: () => {
+					return addData();
+				},
+				getData: (data) => {
+					let allData = this.getAllRule();
+					let findValue = allData.find((item) => item.key === data.key);
+					return findValue ?? data;
+				},
+				getDataItemName: (data) => {
+					return data.setting.name;
+				},
+				updateData: (data) => {
+					return this.updateRule(data.key, data);
+				},
+				deleteData: (data) => {
+					return this.deleteRule(data.key);
+				},
+			},
+		};
+		return rulePanelViewOption;
 	},
 	/**
 	 * 添加规则
@@ -638,34 +1092,29 @@ export const NetDiskUserRule = {
 	addRule(userRule: NetDiskUserCustomRule) {
 		let localRule = this.getAllRule();
 		localRule.push(userRule);
-		GM_setValue(NetDiskUserRule.KEY, localRule);
+		this.setRule(localRule);
 	},
 	/**
 	 * 设置规则到本地
 	 * @param oldRuleKey 旧规则的键名
 	 * @param userRule
 	 */
-	setRule(
-		oldRuleKey: string,
-		userRule: NetDiskUserCustomRule[] | NetDiskUserCustomRule
-	) {
-		if (Array.isArray(userRule)) {
-			GM_setValue(NetDiskUserRule.KEY, userRule);
+	setRule(userRule: NetDiskUserCustomRule[] | NetDiskUserCustomRule) {
+		userRule = Array.isArray(userRule) ? userRule : [userRule];
+		NetDiskUserRuleStorageApi.set(this.$data.STORAGE_KEY, userRule);
+	},
+	/**
+	 * 更新规则
+	 */
+	updateRule(key: string, rule: NetDiskUserCustomRule) {
+		let localRule = this.getAllRule();
+		let findRuleIndex = localRule.findIndex((item) => item.key === key);
+		if (findRuleIndex !== -1) {
+			localRule.splice(findRuleIndex, 1, rule);
+			this.setRule(localRule);
+			return true;
 		} else {
-			let localRule = this.getAllRule();
-			let findRuleIndex = localRule.findIndex(
-				(item) => item.key === oldRuleKey
-			);
-			if (findRuleIndex !== -1) {
-				// @ts-ignore
-				localRule[findRuleIndex] = null;
-				localRule[findRuleIndex] = userRule;
-			} else {
-				log.error("覆盖规则失败", userRule);
-				Qmsg.error("覆盖规则失败");
-				return false;
-			}
-			this.setRule(oldRuleKey, localRule);
+			return false;
 		}
 	},
 	/**
@@ -677,7 +1126,7 @@ export const NetDiskUserRule = {
 		let findIndex = localRule.findIndex((rule) => rule.key === ruleKey);
 		if (findIndex !== -1) {
 			localRule.splice(findIndex, 1);
-			this.setRule(ruleKey, localRule);
+			this.setRule(localRule);
 			return true;
 		} else {
 			return false;
@@ -687,14 +1136,14 @@ export const NetDiskUserRule = {
 	 * 清空规则
 	 */
 	clearRule() {
-		GM_deleteValue(NetDiskUserRule.KEY);
+		NetDiskUserRuleStorageApi.delete(this.$data.STORAGE_KEY);
 	},
 	/**
 	 * 获取本地所有的规则
 	 */
 	getAllRule() {
-		let result = GM_getValue<(NetDiskUserCustomRule | NetDiskUserCustomRule)[]>(
-			NetDiskUserRule.KEY,
+		let result = NetDiskUserRuleStorageApi.get<NetDiskUserCustomRule[]>(
+			this.$data.STORAGE_KEY,
 			[]
 		);
 		return result;
@@ -703,9 +1152,7 @@ export const NetDiskUserRule = {
 	 * 获取规则
 	 */
 	getRule(key: string) {
-		let localRule = GM_getValue<
-			(NetDiskUserCustomRule | NetDiskUserCustomRule)[]
-		>(NetDiskUserRule.KEY, []);
+		let localRule = this.getAllRule();
 		return localRule.find((item) => item.key === key);
 	},
 	/**
@@ -714,5 +1161,483 @@ export const NetDiskUserRule = {
 	 */
 	getFormatRule(rule?: NetDiskUserCustomRule) {
 		return JSON.stringify(rule || this.getAllRule(), void 0, 4);
+	},
+	/**
+	 * 导出规则
+	 */
+	exportRule(
+		fileName = "rule.json",
+		subscribeFileName = "rule-subscribe.json"
+	) {
+		let $alert = NetDiskPops.alert({
+			title: {
+				text: "请选择导出方式",
+				position: "center",
+			},
+			content: {
+				text: /*html*/ `
+                    <div class="btn-control" data-mode="only-export-rule-list">导出规则</div>
+                    <div class="btn-control" data-mode="export-to-subscribe">导出订阅规则</div>
+                `,
+				html: true,
+			},
+			btn: {
+				ok: { enable: false },
+				close: {
+					enable: true,
+					callback(details, event) {
+						details.close();
+					},
+				},
+			},
+			mask: { enable: true },
+			drag: true,
+			width: PanelUISize.info.width,
+			height: PanelUISize.info.height,
+			style: /*css*/ `
+                .btn-control{
+                    display: inline-block;
+                    margin: 10px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+				.btn-control:hover{
+					color: #409eff;
+					border-color: #c6e2ff;
+					background-color: #ecf5ff;
+				}
+            `,
+		});
+		/** 仅导出规则 */
+		let $onlyExportRuleList = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".btn-control[data-mode='only-export-rule-list']"
+		)!;
+		/** 导出为订阅规则 */
+		let $exportToSubscribe = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".btn-control[data-mode='export-to-subscribe']"
+		)!;
+		/**
+		 * 导出文件
+		 */
+		let exportFile = (__fileName__: string, __data__: any) => {
+			let blob = new Blob([JSON.stringify(__data__, null, 4)]);
+			let blobUrl = window.URL.createObjectURL(blob);
+			let $a = document.createElement("a");
+			$a.href = blobUrl;
+			$a.download = __fileName__;
+			$a.click();
+			setTimeout(() => {
+				window.URL.revokeObjectURL(blobUrl);
+			}, 1500);
+		};
+		// 仅导出规则
+		DOMUtils.on($onlyExportRuleList, "click", (event) => {
+			utils.preventEvent(event);
+			try {
+				let allRule = this.getAllRule();
+				if (allRule.length === 0) {
+					Qmsg.warning("规则为空，无需导出");
+					return;
+				}
+				exportFile(fileName, allRule);
+				$alert.close();
+			} catch (error: any) {
+				Qmsg.error(error.toString(), { consoleLogContent: true });
+			}
+		});
+		// 导出为订阅规则
+		DOMUtils.on($exportToSubscribe, "click", (event) => {
+			utils.preventEvent(event);
+			const that = this;
+			$alert.close();
+			try {
+				let allRule = this.getAllRule();
+				if (allRule.length === 0) {
+					Qmsg.warning("规则为空，无需导出");
+					return;
+				}
+				let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+				/**
+				 * 自定义存储api的配置
+				 * @param uuid
+				 */
+				let generateStorageApi = function (data: any) {
+					return {
+						get(key: string, defaultValue: any) {
+							return data[key] ?? defaultValue;
+						},
+						set(key: string, value: any) {
+							data[key] = value;
+							NetDiskUserRuleStorageApi.set(that.$data.EXPORT_CONFIG_KEY, data);
+						},
+					};
+				};
+				/**
+				 * 按下导出的按钮的回调
+				 */
+				let exportCallBack = () => {
+					let configData = NetDiskUserRuleStorageApi.get<
+						Partial<RuleSubscribeOption<NetDiskUserCustomRule>["subscribeData"]>
+					>(this.$data.EXPORT_CONFIG_KEY, {});
+					if (configData?.title === "" || configData.title == null) {
+						Qmsg.error("订阅标题不能为空");
+						return;
+					}
+					if (configData.version == null) {
+						Qmsg.error("版本号不能为空");
+						return;
+					} else {
+						configData.version = Number(configData.version);
+					}
+					if (configData.homePage == null) {
+						configData.homePage = void 0;
+					}
+					configData.lastModified = Date.now();
+					configData.ruleData = this.getAllRule();
+
+					exportFile(subscribeFileName, configData);
+					$exportSubscribeDialog.close();
+				};
+				let $exportSubscribeDialog = NetDiskPops.alert({
+					title: {
+						text: "请填写导出配置",
+						position: "center",
+					},
+					content: {
+						text: /*html*/ `
+							
+						`,
+						html: true,
+					},
+					btn: {
+						ok: {
+							enable: true,
+							text: "导出",
+							callback(details, event) {
+								exportCallBack();
+							},
+						},
+						close: {
+							enable: true,
+							callback(details, event) {
+								details.close();
+							},
+						},
+					},
+					mask: {
+						enable: true,
+					},
+					drag: true,
+					width: PanelUISize.info.width,
+					height: PanelUISize.info.height,
+					style: /*css*/ `
+						${pops.config.cssText.panelCSS}
+
+						.pops-alert-content li{
+							list-style-type: none;
+							display: flex;
+							align-items: center;
+							justify-content: space-between;
+							margin: 10px;
+						}
+					`,
+				});
+				let $content =
+					$exportSubscribeDialog.$shadowRoot.querySelector<HTMLElement>(
+						".pops-alert-content"
+					)!;
+				let configData = NetDiskUserRuleStorageApi.get<
+					Partial<RuleSubscribeOption<NetDiskUserCustomRule>["subscribeData"]>
+				>(this.$data.EXPORT_CONFIG_KEY, {});
+				// 订阅名称
+				let title_template = UIInput("订阅标题", "title", "", "", void 0, "");
+				Reflect.set(
+					title_template.props!,
+					PROPS_STORAGE_API,
+					generateStorageApi(configData)
+				);
+				let $title =
+					popsPanelContentUtils.createSectionContainerItem_input(
+						title_template
+					);
+
+				// 版本号
+				let version_template = UIInput(
+					"版本号",
+					"version",
+					"",
+					"",
+					void 0,
+					"",
+					true
+				);
+				Reflect.set(
+					version_template.props!,
+					PROPS_STORAGE_API,
+					generateStorageApi(configData)
+				);
+				let $version =
+					popsPanelContentUtils.createSectionContainerItem_input(
+						version_template
+					);
+
+				// 主页地址
+				let homePage_template = UIInput(
+					"主页地址",
+					"homePage",
+					"",
+					"",
+					void 0,
+					"选填"
+				);
+				Reflect.set(
+					homePage_template.props!,
+					PROPS_STORAGE_API,
+					generateStorageApi(configData)
+				);
+				let $homePage =
+					popsPanelContentUtils.createSectionContainerItem_input(
+						homePage_template
+					);
+
+				DOMUtils.append($content, $title);
+				DOMUtils.append($content, $version);
+				DOMUtils.append($content, $homePage);
+			} catch (error: any) {
+				Qmsg.error(error.toString(), { consoleLogContent: true });
+			}
+		});
+	},
+	/**
+	 * 导入规则
+	 * @param importEndCallBack 导入完毕后的回调
+	 */
+	importRule(importEndCallBack?: () => void) {
+		let $alert = NetDiskPops.alert({
+			title: {
+				text: "请选择导入方式",
+				position: "center",
+			},
+			content: {
+				text: /*html*/ `
+                    <div class="btn-control" data-mode="local">本地导入</div>
+                    <div class="btn-control" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
+                `,
+				html: true,
+			},
+			btn: {
+				ok: { enable: false },
+				close: {
+					enable: true,
+					callback(details, event) {
+						details.close();
+					},
+				},
+			},
+			mask: { enable: true },
+			drag: true,
+			width: PanelUISize.info.width,
+			height: PanelUISize.info.height,
+			style: /*css*/ `
+                .btn-control{
+                    display: inline-block;
+                    margin: 10px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+				.btn-control:hover{
+					color: #409eff;
+					border-color: #c6e2ff;
+					background-color: #ecf5ff;
+				}
+            `,
+		});
+		/** 本地导入 */
+		let $local = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".btn-control[data-mode='local']"
+		)!;
+		/** 网络导入 */
+		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".btn-control[data-mode='network']"
+		)!;
+		/** 剪贴板导入 */
+		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".btn-control[data-mode='clipboard']"
+		)!;
+		/**
+		 * 将获取到的规则更新至存储
+		 */
+		let updateRuleToStorage = (data: any[]) => {
+			let allData = this.getAllRule();
+			let addNewData: typeof allData = [];
+			for (let index = 0; index < data.length; index++) {
+				const dataItem = data[index];
+				let findIndex = allData.findIndex((it) => it.key === dataItem.key);
+				if (findIndex !== -1) {
+					// 存在相同的规则
+					// 不做处理
+				} else {
+					// 追加
+					addNewData.push(dataItem);
+				}
+			}
+			allData = allData.concat(addNewData);
+			NetDiskUserRuleStorageApi.set(this.$data.STORAGE_KEY, allData);
+
+			Qmsg.success(`共 ${data.length} 条规则，新增 ${addNewData.length} 条`);
+			importEndCallBack?.();
+		};
+		/**
+		 * @param subscribeText 订阅文件文本
+		 */
+		let importFile = (subscribeText: string) => {
+			return new Promise<boolean>((resolve) => {
+				let data = utils.toJSON(subscribeText);
+				if (!Array.isArray(data)) {
+					log.error(data);
+					Qmsg.error("导入失败，格式不符合（不是数组）", {
+						consoleLogContent: true,
+					});
+					resolve(false);
+					return;
+				}
+				if (!data.length) {
+					Qmsg.error("导入失败，解析出的数据为空", {
+						consoleLogContent: true,
+					});
+					resolve(false);
+					return;
+				}
+
+				updateRuleToStorage(data);
+				resolve(true);
+			});
+		};
+		// 本地导入
+		DOMUtils.on($local, "click", (event) => {
+			utils.preventEvent(event);
+			$alert.close();
+			let $input = DOMUtils.createElement("input", {
+				type: "file",
+				accept: ".json",
+			});
+			DOMUtils.on($input, ["propertychange", "input"], (event) => {
+				if (!$input.files?.length) {
+					return;
+				}
+				let uploadFile = $input.files![0];
+				let fileReader = new FileReader();
+				fileReader.onload = () => {
+					importFile(fileReader.result as string);
+				};
+				fileReader.readAsText(uploadFile, "UTF-8");
+			});
+			$input.click();
+		});
+		// 网络导入
+		DOMUtils.on($network, "click", (event) => {
+			utils.preventEvent(event);
+			$alert.close();
+			let $prompt = NetDiskPops.prompt({
+				title: {
+					text: "网络导入",
+					position: "center",
+				},
+				content: {
+					text: "",
+					placeholder: "请填写URL",
+					focus: true,
+				},
+				btn: {
+					close: {
+						enable: true,
+						callback(details, event) {
+							details.close();
+						},
+					},
+					ok: {
+						text: "导入",
+						callback: async (eventDetails, event) => {
+							let url = eventDetails.text;
+							if (utils.isNull(url)) {
+								Qmsg.error("请填入完整的url");
+								return;
+							}
+							let $loading = Qmsg.loading("正在获取配置...");
+							let response = await httpx.get(url, {
+								allowInterceptConfig: false,
+							});
+							$loading.close();
+							if (!response.status) {
+								log.error(response);
+								Qmsg.error("获取配置失败", { consoleLogContent: true });
+								return;
+							}
+							let flag = await importFile(response.data.responseText);
+							if (!flag) {
+								return;
+							}
+							eventDetails.close();
+						},
+					},
+					cancel: {
+						enable: false,
+					},
+				},
+				mask: { enable: true },
+				drag: true,
+				width: PanelUISize.info.width,
+				height: "auto",
+			});
+			let $promptInput =
+				$prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+			let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(
+				".pops-prompt-btn-ok"
+			)!;
+			DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
+				let value = DOMUtils.val($promptInput);
+				if (value === "") {
+					DOMUtils.attr($promptOk, "disabled", "true");
+				} else {
+					DOMUtils.removeAttr($promptOk, "disabled");
+				}
+			});
+			DOMUtils.listenKeyboard(
+				$promptInput,
+				"keydown",
+				(keyName, keyValue, otherCodeList) => {
+					if (keyName === "Enter" && otherCodeList.length === 0) {
+						let value = DOMUtils.val($promptInput);
+						if (value !== "") {
+							utils.dispatchEvent($promptOk, "click");
+						}
+					}
+				}
+			);
+			utils.dispatchEvent($promptInput, "input");
+		});
+		// 剪贴板导入
+		DOMUtils.on($clipboard, "click", async (event) => {
+			utils.preventEvent(event);
+			$alert.close();
+			let clipboardInfo = await utils.getClipboardInfo();
+			if (clipboardInfo.error != null) {
+				Qmsg.error(clipboardInfo.error.toString());
+				return;
+			}
+			if (clipboardInfo.content.trim() === "") {
+				Qmsg.warning("获取到的剪贴板内容为空");
+				return;
+			}
+			let flag = await importFile(clipboardInfo.content);
+			if (!flag) {
+				return;
+			}
+		});
 	},
 };

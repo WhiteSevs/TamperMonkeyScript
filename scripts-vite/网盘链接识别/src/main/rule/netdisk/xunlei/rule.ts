@@ -1,5 +1,3 @@
-import { NetDiskRuleConfig, NetDiskRuleSetting } from "../../NetDiskRule";
-
 export const NetDiskRule_xunlei: NetDiskRuleConfig = {
 	/** 规则 */
 	rule: <NetDiskMatchRuleOption[]>[

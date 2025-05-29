@@ -1,5 +1,4 @@
 import { log, utils } from "@/env";
-import type { NetDiskRuleSettingConfigurationInterface_Function } from "./NetDiskRule";
 
 /**
  * 规则的工具

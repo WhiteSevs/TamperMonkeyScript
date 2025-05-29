@@ -1,6 +1,3 @@
-import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
-import type { NetDiskRuleConfig, NetDiskRuleSetting } from "../../NetDiskRule";
-
 export const NetDiskRule_aliyun: NetDiskRuleConfig = {
 	/** 规则 */
 	rule: <NetDiskMatchRuleOption[]>[

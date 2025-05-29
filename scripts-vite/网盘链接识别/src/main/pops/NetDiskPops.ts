@@ -1,15 +1,11 @@
-import { GM_getValue, GM_setValue } from "ViteGM";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { pops, utils } from "@/env";
 import type { PopsPanelDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import type { PopsCallResult } from "@whitesev/pops/dist/types/src/types/main";
 import { PopsLoadingDetails } from "@whitesev/pops/dist/types/src/components/loading/indexType";
 import { PopsConfirmDetails } from "@whitesev/pops/dist/types/src/components/confirm/indexType";
 import { PopsFolderDetails } from "@whitesev/pops/dist/types/src/components/folder/indexType";
 import { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/indexType";
 import { PopsPromptDetails } from "@whitesev/pops/dist/types/src/components/prompt/indexType";
-import { PopsAnimation } from "@whitesev/pops/dist/types/src/types/animation";
-import { PopsPanel } from "@/setting/panel";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { PopsRightClickMenuDetails } from "@whitesev/pops/dist/types/src/components/rightClickMenu/indexType";
 

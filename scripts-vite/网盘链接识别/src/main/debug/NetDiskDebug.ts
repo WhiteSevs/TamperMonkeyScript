@@ -7,9 +7,9 @@ import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 export const NetDiskDebug = {
 	/**
 	 * 对传入的url进行处理，返回shareCode
-	 * @param {string} matchText 正在进行匹配的文本
-	 * @param {NetDiskMatchRuleOption} regular 当前执行的规则
-	 * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
+	 * @param matchText 正在进行匹配的文本
+	 * @param regular 当前执行的规则
+	 * @param logCallBack 日志回调
 	 */
 	handleShareCode(
 		matchText: string,
@@ -117,9 +117,9 @@ export const NetDiskDebug = {
 	},
 	/**
 	 * 对传入的url进行处理，返回accessCode
-	 * @param {string} matchText 正在进行匹配的文本
-	 * @param {NetDiskMatchRuleOption} regular 当前执行的规则
-	 * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
+	 * @param matchText 正在进行匹配的文本
+	 * @param regular 当前执行的规则
+	 * @param logCallBack 日志回调
 	 */
 	handleAccessCode(
 		matchText: string,
@@ -233,11 +233,11 @@ export const NetDiskDebug = {
 	},
 	/**
 	 * 获取在弹窗中显示出的链接
-	 * @param {string} matchText 匹配到的文本
-	 * @param {NetDiskMatchRuleOption} regular 当前执行的规则
-	 * @param {string} shareCode 分享码
-	 * @param {string} accessCode 访问码
-	 * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
+	 * @param matchText 匹配到的文本
+	 * @param regular 当前执行的规则
+	 * @param shareCode 分享码
+	 * @param accessCode 访问码
+	 * @param logCallBack 日志回调
 	 */
 	handleLinkShow(
 		matchText: string,
@@ -319,11 +319,11 @@ export const NetDiskDebug = {
 	},
 	/**
 	 * 获取新标签页打开的URL
-	 * @param {string} matchText 匹配到的文本
-	 * @param {NetDiskMatchRuleOption} regular 当前执行的规则
-	 * @param {string} shareCode 分享码
-	 * @param {string} accessCode 访问码
-	 * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
+	 * @param matchText 匹配到的文本
+	 * @param regular 当前执行的规则
+	 * @param shareCode 分享码
+	 * @param accessCode 访问码
+	 * @param logCallBack 日志回调
 	 */
 	handleBlank(
 		matchText: string,
@@ -404,11 +404,11 @@ export const NetDiskDebug = {
 	},
 	/**
 	 * 获取复制到剪贴板的字符串
-	 * @param {string} matchText 匹配到的文本
-	 * @param {NetDiskMatchRuleOption} regular 当前执行的规则
-	 * @param {string} shareCode 分享码
-	 * @param {string} accessCode 访问码
-	 * @param {(logData: NetDiskDebugLogData)=>void} logCallBack 日志回调
+	 * @param matchText 匹配到的文本
+	 * @param regular 当前执行的规则
+	 * @param shareCode 分享码
+	 * @param accessCode 访问码
+	 * @param logCallBack 日志回调
 	 */
 	handleCopyUrl(
 		matchText: string,

@@ -1,5 +1,3 @@
-import { UISwitch } from "@/setting/components/ui-switch";
-import type { NetDiskRuleConfig, NetDiskRuleSetting } from "../../NetDiskRule";
 import { UIInput } from "@/setting/components/ui-input";
 
 export const NetDiskRule_chengtong: NetDiskRuleConfig = {

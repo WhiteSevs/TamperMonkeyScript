@@ -3,7 +3,6 @@ import { GM_Menu, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { NetDiskRuleUtils } from "./rule/NetDiskRuleUtils";
-import { NetDiskRuleConfig, type NetDiskRuleSetting } from "./rule/NetDiskRule";
 import Utils from "@whitesev/utils";
 import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { WebsiteRuleDataKey } from "./data/NetDiskRuleDataKey";

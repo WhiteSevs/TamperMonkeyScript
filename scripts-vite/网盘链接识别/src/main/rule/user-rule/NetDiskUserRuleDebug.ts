@@ -29,8 +29,8 @@ export const NetDiskUserRuleDebug = {
 	},
 	/**
 	 * 设置日志输出
-	 * @param {"info"|"error"|"success"|"warn"} tag 日志等级
-	 * @param {...any[]} args
+	 * @param tag 日志等级
+	 * @param args
 	 */
 	setLog(tag: "info" | "error" | "success" | "warn", ...args: any[]) {
 		let text = "";
@@ -204,7 +204,7 @@ export const NetDiskUserRuleDebug = {
 		});
 		/**
 		 * 日志回调
-		 * @param {NetDiskDebugLogData} logData
+		 * @param logData
 		 */
 		function logCallBack(logData: NetDiskDebugLogData) {
 			if (Array.isArray(logData.msg)) {

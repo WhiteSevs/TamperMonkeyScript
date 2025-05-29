@@ -1,10 +1,10 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
-import type { RuleSubscribeOption } from "./RulePanelView";
-import { StorageUtils } from "./StorageUtils";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { PanelUISize } from "@/setting/panel-ui-size";
+import type { RuleSubscribeOption } from "@/utils/RulePanelView";
+import { StorageUtils } from "@/utils/StorageUtils";
 import Qmsg from "qmsg";
-import { CommonUtil } from "./CommonUtil";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 type RuleSubscribeConstructOption = {
 	/**
@@ -17,16 +17,7 @@ type RuleSubscribeConstructOption = {
 	STORAGE_KEY: string;
 };
 
-export class RuleSubscribe<
-	T extends {
-		/** 唯一键 */
-		uuid: string;
-		/** 订阅的uuid */
-		subscribeUUID?: string | null;
-		/** 是否启用 */
-		enable: boolean;
-	}
-> {
+class RuleSubscribe<T extends NetDiskUserCustomRule> {
 	option;
 	storageApi;
 	constructor(option: RuleSubscribeConstructOption) {
@@ -63,11 +54,12 @@ export class RuleSubscribe<
 			) {
 				const subscribeRuleData =
 					subscribeItem.subscribeData.ruleData[subscribeIndex];
-				if (filterUnEnable && !subscribeRuleData.enable) {
+				if (filterUnEnable && !subscribeRuleData.setting.enable) {
 					// 未启用
 					continue;
 				}
 				// 赋值订阅的uuid
+				// @ts-ignore
 				subscribeRuleData.subscribeUUID = subscribeItem.uuid;
 				allSubscribeRule.push(subscribeRuleData);
 			}
@@ -87,13 +79,13 @@ export class RuleSubscribe<
 	/**
 	 * 获取某个订阅的规则
 	 * @param subscribeUUID 订阅的uuid
-	 * @param uuid 规则的uuid
+	 * @param key 规则的键
 	 */
-	getSubscribeRule(subscribeUUID: string, uuid: string) {
+	getSubscribeRule(subscribeUUID: string, key: string) {
 		let findSubscribe = this.getSubscribe(subscribeUUID);
 		if (findSubscribe) {
 			let findRule = findSubscribe.subscribeData.ruleData.find(
-				(rule) => rule.uuid === uuid
+				(rule) => rule.key === key
 			);
 			return findRule;
 		}
@@ -194,7 +186,7 @@ export class RuleSubscribe<
 		if (targetSubscribe) {
 			// 找到目标订阅
 			let findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex(
-				(ruleItem) => ruleItem.uuid === rule.uuid
+				(ruleItem) => ruleItem.key === rule.key
 			);
 			if (findRuleIndex !== -1) {
 				// 找到目标规则
@@ -210,13 +202,14 @@ export class RuleSubscribe<
 	/**
 	 * 删除某个订阅内的某个规则
 	 * @param  subscribeUUID 订阅的uuid
-	 * @param  rule 规则
+	 * @param  rule 规则|规则的键
 	 */
 	deleteSubscribeRule(
 		subscribeUUID: string,
-		rule: RuleSubscribeOption<T>["subscribeData"]["ruleData"]["0"]
+		rule: RuleSubscribeOption<T>["subscribeData"]["ruleData"]["0"] | string
 	) {
 		let flag = false;
+		let key = typeof rule === "string" ? rule : rule.key;
 		let allSubscribe = this.getAllSubscribe();
 		let findIndex = allSubscribe.findIndex(
 			(subscribeItem) => subscribeItem.uuid === subscribeUUID
@@ -224,7 +217,7 @@ export class RuleSubscribe<
 		if (findIndex !== -1) {
 			let targetSubscribe = allSubscribe[findIndex];
 			let findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex(
-				(ruleItem) => ruleItem.uuid === rule.uuid
+				(ruleItem) => ruleItem.key === key
 			);
 			if (findRuleIndex !== -1) {
 				allSubscribe[findIndex].subscribeData.ruleData.splice(findRuleIndex, 1);
@@ -668,3 +661,8 @@ export class RuleSubscribe<
 		});
 	}
 }
+
+export const NetDiskUserRuleSubscribeRule = new RuleSubscribe({
+	STORAGE_API_KEY: "userRule",
+	STORAGE_KEY: "rule-subscribe",
+});

@@ -1,5 +1,3 @@
-import type { NetDiskRuleConfig, NetDiskRuleSetting } from "../../NetDiskRule";
-
 const _123pan_Link_Host_Pattern =
 	"(123pan|123865|123684|123652|123912).(com|cn)";
 

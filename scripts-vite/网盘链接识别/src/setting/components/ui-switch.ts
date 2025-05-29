@@ -4,8 +4,8 @@ import {
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
 } from "../panel-config";
-import { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/switchType";
 import { GM_getValue, GM_setValue } from "ViteGM";
+import type { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/switchType";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
 

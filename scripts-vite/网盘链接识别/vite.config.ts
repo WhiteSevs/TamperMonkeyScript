@@ -85,6 +85,7 @@ const MonkeyOption: Partial<__MonkeyOption__> = {
 			"uc.cn",
 			"ctfile.com",
 			"sharepoint.com",
+			"whatslink.info",
 		],
 		// 脚本描述
 		description:

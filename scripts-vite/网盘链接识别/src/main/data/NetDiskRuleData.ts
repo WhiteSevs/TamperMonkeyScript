@@ -1,4 +1,3 @@
-import { NetDiskRuleSettingConfigurationInterface_linkClickMode } from "../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskRuleDataKEY } from "./NetDiskRuleDataKey";
 import { GeneratePanelData } from "./NetDiskDataUtils";
 

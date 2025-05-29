@@ -13,7 +13,6 @@ import { NetDiskSuspensionConfig } from "./suspension/NetDiskSuspensionView";
 import {
 	NetDiskLinkClickMode,
 	NetDiskLinkClickModeUtils,
-	type NetDiskRuleSettingConfigurationInterface_linkClickMode,
 } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import indexCSS from "./index.css?raw";
@@ -62,34 +61,7 @@ export const NetDiskView = {
 				} | null>("netdisk-ui-small-window-position", null),
 			},
 		};
-		let viewAddHTML = "";
-		// 根据匹配到的链接生成视图
-		NetDiskUI.isMatchedNetDiskIconMap.forEach((netDiskName) => {
-			let netDiskDict = NetDisk.$match.matchedInfo.get(netDiskName);
-			netDiskDict.forEach((netDiskData, shareCode) => {
-				let uiLink = NetDisk.handleLinkShow(
-					netDiskName,
-					netDiskData["netDiskIndex"]!,
-					shareCode,
-					netDiskData["accessCode"],
-					netDiskData["matchText"]
-				);
-				viewAddHTML =
-					viewAddHTML +
-					this.createViewBoxElementInfo(
-						NetDiskUI.src.icon[netDiskName],
-						netDiskName,
-						netDiskData["netDiskIndex"]!,
-						shareCode,
-						netDiskData["accessCode"],
-						uiLink
-					).html;
-			});
-		});
-		let viewHTML = /*html*/ `
-            <div class="netdisk-url-box-all">
-                ${viewAddHTML}
-            </div>`;
+		const boxAllHTML = /*html*/ `<div class="netdisk-url-box-all"></div>`;
 		if (
 			NetDiskGlobalData.features["netdisk-behavior-mode"].value
 				.toLowerCase()
@@ -103,7 +75,7 @@ export const NetDiskView = {
 						position: "center",
 					},
 					content: {
-						text: viewHTML,
+						text: boxAllHTML,
 						html: true,
 					},
 					btn: {
@@ -320,7 +292,7 @@ export const NetDiskView = {
 						position: "center",
 					},
 					content: {
-						text: viewHTML,
+						text: boxAllHTML,
 						html: true,
 					},
 					btn: {
@@ -359,7 +331,35 @@ export const NetDiskView = {
 				NetDiskUI.popsStyle.mainView
 			);
 		}
+		let $urlBoxAll =
+			NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector<HTMLElement>(
+				".netdisk-url-box-all"
+			)!;
 
+		// 把匹配到的添加到视图中
+		NetDiskUI.isMatchedNetDiskIconMap.forEach((netDiskName) => {
+			let netDiskDict = NetDisk.$match.matchedInfo.get(netDiskName);
+			let documentFragment = document.createDocumentFragment();
+			netDiskDict.forEach((netDiskData, shareCode) => {
+				let uiLink = NetDisk.handleLinkShow(
+					netDiskName,
+					netDiskData["netDiskIndex"]!,
+					shareCode,
+					netDiskData["accessCode"],
+					netDiskData["matchText"]
+				);
+				let boxViewInfo = this.createViewBoxElementInfo(
+					NetDiskUI.src.icon[netDiskName],
+					netDiskName,
+					netDiskData["netDiskIndex"]!,
+					shareCode,
+					netDiskData["accessCode"],
+					uiLink
+				);
+				documentFragment.appendChild(boxViewInfo.$viewBox);
+			});
+			$urlBoxAll.appendChild(documentFragment);
+		});
 		// 链接视图的z-index
 		let netDiskLinkViewZIndex =
 			NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].value;
@@ -532,7 +532,24 @@ export const NetDiskView = {
 			},
 			[$iconImg, $link]
 		);
-
+		// 触发规则的渲染函数
+		NetDisk.$rule.rule.forEach((ruleConfig) => {
+			if (
+				ruleConfig.setting.key === netDiskName &&
+				typeof ruleConfig.afterRenderUrlBox === "function"
+			) {
+				ruleConfig.afterRenderUrlBox({
+					$viewBox,
+					$urlDiv,
+					$url,
+					$link,
+					netDiskName,
+					netDiskIndex,
+					shareCode,
+					accessCode,
+				});
+			}
+		});
 		return {
 			$viewBox,
 			$urlDiv,
@@ -541,7 +558,6 @@ export const NetDiskView = {
 			$checkValidStatus,
 			$url,
 			$link,
-			html: $viewBox.outerHTML,
 		};
 	},
 	/**
@@ -778,7 +794,7 @@ export const NetDiskView = {
 			accessCode,
 			matchText
 		);
-		let insertDOM = this.createViewBoxElementInfo(
+		let boxViewInfo = this.createViewBoxElementInfo(
 			icon,
 			netDiskName,
 			netDiskIndex,
@@ -788,10 +804,10 @@ export const NetDiskView = {
 		);
 		/** box容器 */
 		let $urlBoxAll =
-			NetDiskUI.Alias.uiLinkAlias.popsElement.querySelector<HTMLElement>(
+			NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector<HTMLElement>(
 				".netdisk-url-box-all"
 			)!;
-		DOMUtils.append($urlBoxAll, insertDOM.$viewBox);
+		DOMUtils.append($urlBoxAll, boxViewInfo.$viewBox);
 		/* 按顺序来，最后一个 */
 		let $urlBox = $urlBoxAll.children[
 			$urlBoxAll.children.length - 1

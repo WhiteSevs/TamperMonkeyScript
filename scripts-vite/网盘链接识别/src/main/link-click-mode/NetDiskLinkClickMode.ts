@@ -9,16 +9,6 @@ import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { GM_openInTab } from "ViteGM";
 
-/** 点击动作 */
-export type NetDiskRuleSettingConfigurationInterface_linkClickMode =
-	| "copy"
-	| "openBlank"
-	| "parseFile"
-	| "copy-closePopup"
-	| "openBlank-closePopup"
-	| "parseFile-closePopup"
-	| "own";
-
 export const NetDiskLinkClickModeUtils = {
 	/**
 	 * 获取用于跳转的url

@@ -53,7 +53,7 @@ export const NetDiskShortcut = {
 				target: "window",
 				callback() {
 					log.info("快捷键 ==> 【打开】⚙ 字符映射规则");
-					NetDiskRuleManager.showView(1);
+					NetDiskRuleManager.showView(2);
 				},
 			},
 		};

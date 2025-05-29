@@ -27,6 +27,7 @@ import {
 import { WebsiteSubscribeRule } from "./WebsiteSubscribeRule";
 import { PanelUISize } from "@/setting/panel-ui-size";
 import { StorageUtils } from "@/utils/StorageUtils";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 /** 深拷贝 */
 function deepCopy<T>(obj: T): T {
@@ -1565,6 +1566,7 @@ export const WebsiteRule = {
 				text: /*html*/ `
                     <div class="btn-control" data-mode="local">本地导入</div>
                     <div class="btn-control" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
                 `,
 				html: true,
 			},
@@ -1604,6 +1606,10 @@ export const WebsiteRule = {
 		/** 网络导入 */
 		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(
 			".btn-control[data-mode='network']"
+		)!;
+		/** 剪贴板导入 */
+		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".btn-control[data-mode='clipboard']"
 		)!;
 		/**
 		 * 将获取到的规则更新至存储
@@ -1756,6 +1762,24 @@ export const WebsiteRule = {
 				}
 			);
 			utils.dispatchEvent($promptInput, "input");
+		});
+		// 剪贴板导入
+		DOMUtils.on($clipboard, "click", async (event) => {
+			utils.preventEvent(event);
+			$alert.close();
+			let clipboardInfo = await utils.getClipboardInfo();
+			if (clipboardInfo.error != null) {
+				Qmsg.error(clipboardInfo.error.toString());
+				return;
+			}
+			if (clipboardInfo.content.trim() === "") {
+				Qmsg.warning("获取到的剪贴板内容为空");
+				return;
+			}
+			let flag = await importFile(clipboardInfo.content);
+			if (!flag) {
+				return;
+			}
 		});
 	},
 };

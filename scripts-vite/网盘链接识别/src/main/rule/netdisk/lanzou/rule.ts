@@ -1,4 +1,3 @@
-import { NetDiskRuleConfig, NetDiskRuleSetting } from "../../NetDiskRule";
 import { UIInput } from "@/setting/components/ui-input";
 import { NetDiskParse_Lanzou_Config } from "./parse";
 

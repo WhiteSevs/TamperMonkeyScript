@@ -23,31 +23,14 @@ export const UISelectMultiple = function <T>(
 	key: string,
 	defaultValue: T[],
 	data:
-		| {
-				value: T;
-				text: string;
-				disable?(value: T): boolean;
-		  }[]
-		| (() => {
-				value: T;
-				text: string;
-				disable?(value: T): boolean;
-		  }[]),
-	callback?: (
-		selectInfo: {
-			value: T;
-			text: string;
-		}[]
-	) => void,
+		| PopsPanelSelectMultipleDetails<T>["data"]
+		| (() => PopsPanelSelectMultipleDetails<T>["data"]),
+	callback?: (selectInfo: PopsPanelSelectMultipleDetails<T>["data"]) => void,
 	description?: string,
 	placeholder = "请至少选择一个选项",
 	selectConfirmDialogDetails?: Partial<PopsAlertDetails>
 ): PopsPanelSelectMultipleDetails<T> {
-	let selectData: {
-		value: T;
-		text: string;
-		disable?(value: T): boolean;
-	}[] = [];
+	let selectData: PopsPanelSelectMultipleDetails<T>["data"] = [];
 	if (typeof data === "function") {
 		selectData = data();
 	} else {

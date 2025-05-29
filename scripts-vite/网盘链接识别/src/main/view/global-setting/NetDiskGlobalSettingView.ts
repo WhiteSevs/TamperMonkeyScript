@@ -8,6 +8,7 @@ import { GM_info } from "ViteGM";
 import { NetDiskRule } from "@/main/rule/NetDiskRule";
 import { NetDiskUserRuleUI } from "@/main/rule/user-rule/NetDiskUserRuleUI";
 import indexCSS from "./index.css?raw";
+import { NetDiskUserRuleSubscribeRule } from "@/main/rule/user-rule/NetDiskUserRuleSubscribeRule";
 
 export const NetDiskGlobalSettingView = {
 	show() {
@@ -53,7 +54,6 @@ export const NetDiskGlobalSettingView = {
 		NetDiskUI.Alias.settingAlias = $panel;
 		this.setRuleHeaderControlsClickEvent($panel.$shadowRoot);
 	},
-	showPanel(details = {}) {},
 	/**
 	 * 设置规则顶部的编辑|删除的点击事件
 	 */
@@ -66,7 +66,19 @@ export const NetDiskGlobalSettingView = {
 				let $click = event.target as HTMLElement;
 				let ruleKey = $click.getAttribute("data-key")!;
 				let ruleName = $click.getAttribute("data-type")!;
-				NetDiskUserRuleUI.show(true, ruleKey);
+				let subscribeUUID = $click.getAttribute("data-subscribe-uuid");
+				if (typeof subscribeUUID === "string" && subscribeUUID.trim() !== "") {
+					// 来自订阅的规则
+					NetDiskUserRuleUI.showSubscribe(
+						subscribeUUID,
+						ruleKey,
+						function (rule) {
+							NetDiskUserRule.updateRule(ruleKey, rule);
+						}
+					);
+				} else {
+					NetDiskUserRuleUI.show(true, ruleKey);
+				}
 			}
 		);
 
@@ -78,6 +90,7 @@ export const NetDiskGlobalSettingView = {
 				let $click = event.target as HTMLElement;
 				let ruleKey = $click.getAttribute("data-key")!;
 				let ruleName = $click.getAttribute("data-type")!;
+				let subscribeUUID = $click.getAttribute("data-subscribe-uuid");
 				NetDiskPops.alert({
 					title: {
 						text: "提示",
@@ -89,8 +102,20 @@ export const NetDiskGlobalSettingView = {
 					btn: {
 						ok: {
 							callback(okEvent) {
-								let deleteStatus = NetDiskUserRule.deleteRule(ruleKey);
-								if (deleteStatus) {
+								let flag;
+								if (
+									typeof subscribeUUID === "string" &&
+									subscribeUUID.trim() !== ""
+								) {
+									// 来自订阅的规则
+									flag = NetDiskUserRuleSubscribeRule.deleteSubscribeRule(
+										subscribeUUID,
+										ruleKey
+									);
+								} else {
+									flag = NetDiskUserRule.deleteRule(ruleKey);
+								}
+								if (flag) {
 									let asideElement =
 										NetDiskUI.Alias.settingAlias.$shadowRoot.querySelector<HTMLLIElement>(
 											`.pops-panel-aside > ul > li[data-key="${ruleKey}"]`

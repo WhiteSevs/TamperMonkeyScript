@@ -18,6 +18,7 @@ import { NetDiskWorkerInitError } from "./NetDiskWorkerInitError";
 import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
 import { NetDiskRuleManager } from "../NetDiskRuleManager";
 import { RulePanelView } from "@/utils/RulePanelView";
+import { CommonUtil } from "@/utils/CommonUtil";
 
 /** Woker */
 export const NetDiskWorker = {
@@ -309,7 +310,9 @@ export const NetDiskWorker = {
 										title() {
 											return "规则管理器";
 										},
-										contentConfig: [WebsiteRule.getRulePanelViewOption(ruleOption)],
+										contentConfig: [
+											WebsiteRule.getRulePanelViewOption(ruleOption),
+										],
 									});
 									rulePanelView.showEditView(
 										rulePanelView.option.contentConfig[0].ruleOption,
@@ -826,8 +829,10 @@ export const NetDiskWorker = {
 			const startTime = Date.now();
 			if (readClipboard) {
 				try {
-					NetDisk.$data.clipboardText =
-						await NetDiskHandlerUtil.getClipboardText();
+					let clipboardInfo = await utils.getClipboardInfo();
+					if (clipboardInfo.error != null) {
+						NetDisk.$data.clipboardText = clipboardInfo.content;
+					}
 				} catch (error) {
 					// 获取剪贴板内容失败
 				}
