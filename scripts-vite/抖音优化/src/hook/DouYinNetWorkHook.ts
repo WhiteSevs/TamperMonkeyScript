@@ -41,8 +41,10 @@ export const DouYinNetWorkHook = {
 			// 	urlIns.pathname.startsWith("/aweme/v1/web/im/user/active/config/get")
 			// ) {
 			// }
-
+			// 其它hook的参数会被覆盖
+			let originResponse = request.response;
 			request.response = (response) => {
+				originResponse && originResponse(response);
 				let data = utils.toJSON(response.responseText);
 				if (
 					typeof data["status_code"] === "number" &&
