@@ -452,6 +452,13 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 									"屏蔽元素"
 								),
 								UISwitch(
+									"【屏蔽】AI搜索",
+									"shieldLeftNavigator-tab-ai-search",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
 									"【屏蔽】关注",
 									"shieldLeftNavigator-tab-follow",
 									false,
@@ -489,13 +496,6 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 								UISwitch(
 									"【屏蔽】观看历史",
 									"shieldLeftNavigator-tab-user_self_record",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】看奥运",
-									"shieldLeftNavigator-tab-olympics",
 									false,
 									void 0,
 									"屏蔽元素"
@@ -552,20 +552,6 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 								UISwitch(
 									"【屏蔽】美食",
 									"shieldLeftNavigator-tab-channel_300204",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】美好跨年季",
-									"shieldLeftNavigator-tab-activity_2644292",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】2025新春环游记",
-									"shieldLeftNavigator-tab-activity_2643710",
 									false,
 									void 0,
 									"屏蔽元素"

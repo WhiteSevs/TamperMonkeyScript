@@ -52,9 +52,6 @@ export const BlockLeftNavigator = {
 		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-user_self_record", () => {
 			return this.block_tab_user_self_record();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-olympics", () => {
-			return this.block_tab_olympics();
-		});
 		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
 			return this.block_tab_live();
 		});
@@ -63,6 +60,9 @@ export const BlockLeftNavigator = {
 		});
 		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
 			return this.block_tab_series();
+		});
+		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
+			return this.block_tab_ai_search();
 		});
 		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300203", () => {
 			return this.block_tab_channel_300203();
@@ -78,12 +78,6 @@ export const BlockLeftNavigator = {
 		});
 		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
 			return this.block_tab_channel_300204();
-		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-activity_2644292", () => {
-			return this.block_tab_activity_2644292();
-		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-activity_2643710", () => {
-			return this.block_tab_activity_2643710();
 		});
 	},
 	/**
@@ -175,15 +169,6 @@ export const BlockLeftNavigator = {
 		);
 	},
 	/**
-	 * 【屏蔽】看奥运
-	 */
-	block_tab_olympics() {
-		log.info("【屏蔽】看奥运");
-		return CommonUtil.addBlockCSS(
-			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-olympics)'
-		);
-	},
-	/**
 	 * 【屏蔽】直播
 	 */
 	block_tab_live() {
@@ -208,6 +193,15 @@ export const BlockLeftNavigator = {
 		log.info(`短剧`);
 		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)'
+		);
+	},
+	/**
+	 * 【屏蔽】AI搜索
+	 */
+	block_tab_ai_search() {
+		log.info(`【屏蔽】AI搜索`);
+		return CommonUtil.addBlockCSS(
+			'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
 		);
 	},
 	/**
@@ -253,24 +247,6 @@ export const BlockLeftNavigator = {
 		log.info("【屏蔽】美食");
 		return CommonUtil.addBlockCSS(
 			'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)'
-		);
-	},
-	/**
-	 * 【屏蔽】美好跨年季
-	 */
-	block_tab_activity_2644292() {
-		log.info(`【屏蔽】美好跨年季`);
-		return CommonUtil.addBlockCSS(
-			'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"] img[alt="抖音美好跨年季"])'
-		);
-	},
-	/**
-	 * 【屏蔽】2025新春环游记
-	 */
-	block_tab_activity_2643710() {
-		log.info(`【屏蔽】2025新春环游记`);
-		return CommonUtil.addBlockCSS(
-			'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-activity_"] img[alt="2025新春环游记"])'
 		);
 	},
 };
