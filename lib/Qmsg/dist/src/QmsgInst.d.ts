@@ -77,6 +77,18 @@ export declare class QmsgMsg {
      */
     setMsgCount(): void;
     /**
+     * 清除旧的自动关闭定时器
+     */
+    clearAutoCloseTimer(): void;
+    /**
+     * 开始自动关闭定时器
+     */
+    startAutoCloseTimer(): void;
+    /**
+     * 重置自动关闭定时器（会自动清理旧的定时器）
+     */
+    resetAutoCloseTimer(): void;
+    /**
      * 关闭Qmsg（会触发动画）
      */
     close(): void;
@@ -84,6 +96,10 @@ export declare class QmsgMsg {
      * 销毁Qmsg
      */
     destroy(): void;
+    /**
+     * 获取内容元素
+     */
+    get $content(): HTMLSpanElement;
     /**
      * 设置内容文本
      */

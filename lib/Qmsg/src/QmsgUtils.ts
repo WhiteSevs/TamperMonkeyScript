@@ -170,7 +170,7 @@ export const QmsgUtils = {
 				});
 				$el.innerHTML = policy.createHTML(text);
 			} else {
-				throw new Error("trustedTypes is not defined");
+				throw new Error("QmsgUtils trustedTypes is not defined");
 			}
 		}
 	},

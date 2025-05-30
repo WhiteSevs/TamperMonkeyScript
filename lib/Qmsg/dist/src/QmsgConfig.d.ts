@@ -28,10 +28,17 @@ export interface QmsgConfig {
      */
     animation?: boolean;
     /**
-     * 是否自动关闭，注意在type为loading的时候该值为false
+     * 是否自动关闭
+     *
+     * 注意：在`type`为`loading`时，强制该值为`false`
      * @default true
      */
     autoClose?: boolean;
+    /**
+     * 通过监听事件来判断是否(鼠标悬停|触摸进入)时暂停自动关闭，当(鼠标离开|触摸离开)时会自动重启自动关闭定时器
+     * @default true
+     */
+    listenEventToPauseAutoClose?: boolean;
     /**
      * 显示的内容
      */

@@ -56,7 +56,7 @@ export function QmsgInstHandler(
 			QmsgInstance?.getRepeatNum().toString()
 		);
 	} else {
-		throw new Error("QmsgInstance is null");
+		throw new Error("QmsgInst is null");
 	}
 
 	return QmsgInstance;

@@ -12,7 +12,7 @@ export class QmsgMsg {
 	/**
 	 * setTimeout的id
 	 */
-	timeId: number | undefined;
+	timeId: number | undefined = void 0;
 	/**
 	 * 启动时间
 	 */
@@ -225,7 +225,9 @@ export class QmsgMsg {
 			this.setting.parent.appendChild($shadowContainer);
 		}
 		if ($shadowRoot == null) {
-			throw new Error(QmsgDefaultConfig.PLUGIN_NAME + " $shadowRoot is null");
+			throw new Error(
+				"QmsgInst " + QmsgDefaultConfig.PLUGIN_NAME + " $shadowRoot is null"
+			);
 		}
 		$wrapper = $shadowRoot.querySelector<HTMLElement>(
 			`.${QmsgDefaultConfig.NAMESPACE}.${$positionClassName}`
@@ -284,48 +286,49 @@ export class QmsgMsg {
 			);
 		});
 
-		if (this.setting.autoClose) {
-			/* 自动关闭 */
-			// 获取时间戳
-			this.timeId = QmsgUtils.setTimeout(() => {
-				this.close();
-			}, this.setting.timeout);
-			let enterEvent = (event: MouseEvent) => {
-				/* 鼠标滑入，清除定时器，清除开始时间和结束时间 */
-				this.startTime = null;
-				this.endTime = null;
-				QmsgUtils.clearTimeout(this.timeId);
-				this.timeId = void 0;
+		/* 自动关闭 */
+		if (this.setting.autoClose && this.setting.listenEventToPauseAutoClose) {
+			// 鼠标|触摸滑入时，清除自动关闭的定时器
+			// 鼠标|触摸滑出时，重新设置定时器
+			this.resetAutoCloseTimer();
+			/**
+			 * 鼠标滑入
+			 *
+			 * + 清除定时器
+			 * + 清除开始时间
+			 * + 清除结束时间
+			 */
+			let enterEvent = (event: MouseEvent | TouchEvent) => {
+				this.clearAutoCloseTimer();
 			};
+			/** 鼠标滑出，重启定时器，创建新的开始时间和timeId */
 			let leaveEvent = (event: MouseEvent | TouchEvent) => {
-				/* 鼠标滑出，重启定时器，创建新的开始时间和timeId */
 				if (this.timeId != null) {
 					// 似乎enterEvent函数未正确调用？
 					console.warn(
-						"timeId is not null，mouseenter may be not first trigger"
+						"QmsgInst timeId is not null，mouseenter may be not first trigger，timeId：" +
+							this.timeId
 					);
 					return;
 				}
-				this.startTime = Date.now();
-				this.timeId = QmsgUtils.setTimeout(() => {
-					this.close();
-				}, this.setting.timeout);
+				this.startAutoCloseTimer();
 			};
-			this.$Qmsg.addEventListener(
-				"touchstart",
-				() => {
-					// 由于移动端不支持mouseout且会触发mouseenter
-					// 那么需要移除该监听
-					this.$Qmsg.removeEventListener("mouseenter", enterEvent);
-					this.$Qmsg.removeEventListener("mouseout", leaveEvent);
-				},
-				{
-					capture: true,
-					once: true,
-				}
-			);
+			let isRemoveMouseEvent = false;
 			this.$Qmsg.addEventListener("mouseenter", enterEvent);
-			this.$Qmsg.addEventListener("mouseout", leaveEvent);
+			this.$Qmsg.addEventListener("mouseleave", leaveEvent);
+
+			this.$Qmsg.addEventListener("touchstart", (evt) => {
+				// 由于移动端不支持mouseout且会触发mouseenter
+				// 那么需要移除该监听
+				if (!isRemoveMouseEvent) {
+					isRemoveMouseEvent = true;
+					this.$Qmsg.removeEventListener("mouseenter", enterEvent);
+					this.$Qmsg.removeEventListener("mouseleave", leaveEvent);
+				}
+				enterEvent(evt);
+			});
+			this.$Qmsg.addEventListener("touchend", leaveEvent);
+			this.$Qmsg.addEventListener("touchcancel", leaveEvent);
 		}
 	}
 	/**
@@ -391,7 +394,7 @@ export class QmsgMsg {
 		)} [class^="qmsg-content-"]`;
 		let $content = this.$Qmsg.querySelector<HTMLElement>(wrapperClassName);
 		if (!$content) {
-			throw new Error("$content is null");
+			throw new Error("QmsgInst $content is null");
 		}
 		let $count = $content.querySelector<HTMLElement>("." + countClassName);
 		if (!$count) {
@@ -404,13 +407,36 @@ export class QmsgMsg {
 		QmsgUtils.setSafeHTML($count, repeatNum.toString());
 		QmsgAnimation.setStyleAnimationName($count);
 		QmsgAnimation.setStyleAnimationName($count, "MessageShake");
+		this.resetAutoCloseTimer();
+	}
+	/**
+	 * 清除旧的自动关闭定时器
+	 */
+	clearAutoCloseTimer() {
 		/* 重置定时器 */
 		QmsgUtils.clearTimeout(this.timeId);
-		if (this.setting.autoClose) {
-			this.timeId = QmsgUtils.setTimeout(function () {
-				QmsgContext.close();
+		this.timeId = void 0;
+		this.startTime = null;
+		this.endTime = null;
+	}
+	/**
+	 * 开始自动关闭定时器
+	 */
+	startAutoCloseTimer() {
+		if (this.setting.autoClose && this.setting.listenEventToPauseAutoClose) {
+			this.startTime = Date.now();
+			this.endTime = null;
+			this.timeId = QmsgUtils.setTimeout(() => {
+				this.close();
 			}, this.setting.timeout);
 		}
+	}
+	/**
+	 * 重置自动关闭定时器（会自动清理旧的定时器）
+	 */
+	resetAutoCloseTimer() {
+		this.clearAutoCloseTimer();
+		this.startAutoCloseTimer();
 	}
 	/**
 	 * 关闭Qmsg（会触发动画）
@@ -437,33 +463,34 @@ export class QmsgMsg {
 		this.$Qmsg.remove();
 		QmsgUtils.clearTimeout(this.timeId);
 		QmsgInstStorage.remove(this.uuid);
+		this.timeId = void 0;
+	}
+	/**
+	 * 获取内容元素
+	 */
+	get $content() {
+		let $content = this.$Qmsg.querySelector<HTMLSpanElement>(
+			"div[class^=qmsg-content-] > span"
+		);
+		if (!$content) {
+			throw new Error("QmsgInst $content is null");
+		}
+		return $content;
 	}
 	/**
 	 * 设置内容文本
 	 */
 	setText(text: string) {
-		let $content = this.$Qmsg.querySelector<HTMLSpanElement>(
-			"div[class^=qmsg-content-] > span"
-		);
-		if ($content) {
-			$content.innerText = text;
-			this.setting.content = text;
-		} else {
-			throw new Error("$content is null");
-		}
+		let $content = this.$content;
+		$content.innerText = text;
+		this.setting.content = text;
 	}
 	/**
 	 * 设置内容超文本
 	 */
 	setHTML(text: string) {
-		let $content = this.$Qmsg.querySelector<HTMLSpanElement>(
-			"div[class^=qmsg-content-] > span"
-		);
-		if ($content) {
-			QmsgUtils.setSafeHTML($content, text);
-			this.setting.content = text;
-		} else {
-			throw new Error("$content is null");
-		}
+		let $content = this.$content;
+		QmsgUtils.setSafeHTML($content, text);
+		this.setting.content = text;
 	}
 }

@@ -44,7 +44,7 @@ export const QmsgEvent = {
 					QmsgEvent.visibilitychange.eventConfig.option
 				);
 			} else {
-				console.error("visibilityState not support");
+				console.error("Qmsg addEvent visibilityState not support");
 			}
 		},
 		removeEvent() {

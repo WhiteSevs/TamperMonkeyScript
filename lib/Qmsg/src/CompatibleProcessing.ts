@@ -21,7 +21,7 @@ function CompatibleProcessing() {
 			};
 		}
 	} catch (error) {
-		console.warn(error);
+		console.warn("Qmsg CompatibleProcessing Object.assign error", error);
 	}
 
 	/* 'classList' 兼容处理，add，remove不支持传入多个cls参数 */
@@ -72,7 +72,10 @@ function CompatibleProcessing() {
 			});
 		}
 	} catch (error) {
-		console.warn(error);
+		console.warn(
+			"Qmsg CompatibleProcessing HTMLElement.prototype.classList warning",
+			error
+		);
 	}
 }
 

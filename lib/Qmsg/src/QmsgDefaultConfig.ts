@@ -18,6 +18,7 @@ export const QmsgDefaultConfig = {
 			shadowRootMode: "open",
 			animation: true,
 			autoClose: true,
+			listenEventToPauseAutoClose: true,
 			content: "",
 			html: false,
 			isHTML: false,
