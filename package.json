@@ -20,7 +20,7 @@
 		"@mgdn/bvid": "^0.3.0",
 		"@types/crypto-js": "^4.2.2",
 		"@types/md5": "^2.3.5",
-		"@whitesev/domutils": "^1.5.6",
+		"@whitesev/domutils": "^1.5.8",
 		"@whitesev/pops": "^2.0.10",
 		"@whitesev/utils": "^2.6.8",
 		"artplayer": "^5.2.3",
@@ -41,7 +41,7 @@
 		"vue-router": "^4.5.1"
 	},
 	"devDependencies": {
-		"@types/node": "^22.15.24",
+		"@types/node": "^22.15.27",
 		"@vitejs/plugin-vue": "^5.2.4",
 		"element-plus": "^2.9.11",
 		"typescript": "^5.8.3",
