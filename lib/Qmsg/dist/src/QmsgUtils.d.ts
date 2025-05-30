@@ -1,10 +1,4 @@
-import { QmsgOption } from "./Qmsg";
-import { QmsgMsg } from "./QmsgInstance";
-export interface QmsgItemInfo {
-    config: string;
-    instance: QmsgMsg;
-    uuid: string;
-}
+import type { QmsgConfig } from "./QmsgConfig";
 export declare const QmsgUtils: {
     /**
      * 生成带插件名的名称
@@ -25,12 +19,7 @@ export declare const QmsgUtils: {
      * @param content 文本内容
      * @param config 配置
      */
-    mergeArgs(content?: any, config?: object): QmsgOption;
-    /**
-     * 通过配置信息 来判断是否为同一条消息,并返回消息实例
-     * @param option 配置项
-     */
-    judgeReMsg(option: QmsgOption): QmsgMsg;
+    mergeArgs(content?: any, config?: object): QmsgConfig;
     /**
      * 转换为动态对象
      * @param obj 需要配置的对象

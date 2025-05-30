@@ -1,4 +1,4 @@
-import { QmsgConfig } from "./QmsgConfig";
+import { QmsgDefaultConfig } from "./QmsgDefaultConfig";
 import { QmsgUtils } from "./QmsgUtils";
 
 export const QmsgCSS = {
@@ -68,7 +68,7 @@ export const QmsgCSS = {
 	getStyleElement() {
 		let $style = document.createElement("style");
 		$style.setAttribute("type", "text/css");
-		$style.setAttribute("data-type", QmsgConfig.PLUGIN_NAME);
+		$style.setAttribute("data-type", QmsgDefaultConfig.PLUGIN_NAME);
 		QmsgUtils.setSafeHTML($style, this.css);
 		return $style;
 	},

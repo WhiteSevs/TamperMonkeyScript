@@ -31,6 +31,20 @@ export const QmsgAnimation = {
 		],
 	},
 	/**
+	 * 是否支持动画属性
+	 * @private
+	 */
+	__CAN_ANIMATION__: void 0 as Boolean | undefined,
+	/**
+	 * 是否支持动画属性
+	 */
+	get CAN_ANIMATION() {
+		this.__CAN_ANIMATION__ =
+			this.__CAN_ANIMATION__ ??
+			this.getStyleAnimationNameValue(document.createElement("div")) != null;
+		return this.__CAN_ANIMATION__;
+	},
+	/**
 	 * 获取元素上的animationName属性
 	 * @param element
 	 */

@@ -1,5 +1,5 @@
-import { QmsgOption } from "./Qmsg";
-import { QmsgAnimationState } from "./QmsgAnimation";
+import { type QmsgAnimationState } from "./QmsgAnimation";
+import type { QmsgConfig } from "./QmsgConfig";
 /**
  * 每条消息的构造函数
  */
@@ -19,7 +19,7 @@ export declare class QmsgMsg {
     /**
      * Qmsg的配置
      */
-    setting: Required<QmsgOption>;
+    setting: Required<QmsgConfig>;
     /**
      * uuid
      */
@@ -35,13 +35,13 @@ export declare class QmsgMsg {
     /**
      * 主元素
      */
-    $Qmsg: HTMLDivElement;
-    constructor(option: QmsgOption, uuid: string);
+    $Qmsg: HTMLElement;
+    constructor(config: QmsgConfig, uuid: string);
     /**
      * 获取当前配置
      * @returns
      */
-    getSetting(): Required<QmsgOption>;
+    getSetting(): Required<QmsgConfig>;
     /**
      * 获取当前相同的数量
      * @returns

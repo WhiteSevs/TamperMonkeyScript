@@ -1,42 +1,139 @@
-import { QmsgOption } from "./Qmsg";
-import { QmsgAnimation } from "./QmsgAnimation";
+import type { QmsgMsg } from "./QmsgInst";
 
-export const QmsgConfig = {
-	/** 声明插件名称 */
-	PLUGIN_NAME: "qmsg",
-	/** 命名空间，用于css和事件 */
-	NAMESPACE: "qmsg",
-	/** 实例配置的固定的默认值 */
-	INS_DEFAULT: {},
-	/** 固定的默认值 */
-	DEFAULT: {
-		animation: true,
-		autoClose: true,
-		content: "",
-		html: false,
-		isHTML: false,
-		position: "top",
-		showClose: false,
-		maxNums: 5,
-		onClose: null,
-		showIcon: true,
-		showMoreContent: false,
-		showReverse: false,
-		timeout: 2500,
-		type: "info",
-		zIndex: 50000,
-		style: "",
-		customClass: "",
-		isLimitWidth: false,
-		limitWidthNum: 200,
-		limitWidthWrap: "no-wrap",
-		consoleLogContent: false,
-	} as Required<QmsgOption>,
+/** 实例所在的位置 */
+export type QmsgPosition =
+	| "topleft"
+	| "top"
+	| "topright"
+	| "left"
+	| "center"
+	| "right"
+	| "bottomleft"
+	| "bottom"
+	| "bottomright";
+
+/** 实例类型 */
+export type QmsgType = "info" | "warning" | "success" | "error" | "loading";
+
+/** 实例内容超出宽度时的处理方式 */
+export type QmsgLimitWidthWrap = "no-wrap" | "wrap" | "ellipsis";
+
+/** 实例配置 */
+export interface QmsgConfig {
 	/**
-	 * 是否支持动画属性
+	 * 实例插入到页面的父元素
+	 * @default document.body || document.documentElement
 	 */
-	CAN_ANIMATION: Boolean(
-		QmsgAnimation.getStyleAnimationNameValue(document.createElement("div")) !=
-			null
-	),
-};
+	parent?: HTMLElement | Document | DocumentFragment | Node;
+	/**
+	 * 是否使用shadowRoot（内部插入实例元素）
+	 * @default true
+	 */
+	useShadowRoot?: boolean;
+	/**
+	 * shadowRoot模式
+	 * @default "open"
+	 */
+	shadowRootMode?: ShadowRootMode;
+	/**
+	 * 是否使用动画
+	 * @default true
+	 */
+	animation?: boolean;
+	/**
+	 * 是否自动关闭，注意在type为loading的时候该值为false
+	 * @default true
+	 */
+	autoClose?: boolean;
+	/**
+	 * 显示的内容
+	 */
+	content?: string;
+	/**
+	 * 内容是否是html
+	 * @default false
+	 * @deprecated 建议使用isHTML
+	 */
+	html?: boolean;
+	/**
+	 * 显示的内容是否是html
+	 * @default false
+	 */
+	isHTML?: boolean;
+	/**
+	 * 弹出的位置
+	 * @default "center"
+	 */
+	position?: QmsgPosition;
+	/**
+	 * 是否在最右边显示关闭图标
+	 * @default false
+	 */
+	showClose?: boolean;
+	/**
+	 * Qmsg最大显示的数量
+	 * @default 5
+	 */
+	maxNums?: number;
+	/**
+	 * 关闭Qmsg时触发的回调函数
+	 */
+	onClose?: (<T extends QmsgMsg>(this: T) => void) | null;
+	/**
+	 * 是否显示左边的icon图标
+	 * @default true
+	 */
+	showIcon?: boolean;
+	/**
+	 * 是否使内容进行换行显示
+	 * @default false
+	 */
+	showMoreContent?: boolean;
+	/**
+	 * 弹出顺序是否逆反
+	 * @default false
+	 */
+	showReverse?: boolean;
+	/**
+	 * 最大显示的时长(ms)
+	 * @default 2500
+	 */
+	timeout?: number;
+	/**
+	 * 弹出类型
+	 */
+	type: QmsgType;
+	/**
+	 * 元素层级
+	 * @default 50000
+	 */
+	zIndex?: number | (() => number);
+	/**
+	 * 自定义的style
+	 */
+	style?: string;
+	/**
+	 * 自定义类名
+	 */
+	customClass?: string;
+	/**
+	 * 是否限制宽度
+	 * @default false
+	 */
+	isLimitWidth?: boolean;
+	/**
+	 * 限制宽度的数值
+	 * @default 200
+	 */
+	limitWidthNum?: number | string;
+	/**
+	 * 当超出限制宽度时，是否换行还是显示为省略号
+	 * @default "wrap"
+	 */
+	limitWidthWrap?: "no-wrap" | "wrap" | "ellipsis";
+	/**
+	 * 是否在控制台打印content信息
+	 * @default false
+	 */
+	consoleLogContent?: boolean;
+}

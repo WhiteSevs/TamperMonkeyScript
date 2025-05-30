@@ -14,6 +14,15 @@ export declare const QmsgAnimation: {
         endNameList: string[];
     };
     /**
+     * 是否支持动画属性
+     * @private
+     */
+    __CAN_ANIMATION__: Boolean | undefined;
+    /**
+     * 是否支持动画属性
+     */
+    readonly CAN_ANIMATION: Boolean;
+    /**
      * 获取元素上的animationName属性
      * @param element
      */

@@ -1,9 +1,9 @@
-import { QmsgOption } from "./Qmsg";
-import { QmsgAnimation, QmsgAnimationState } from "./QmsgAnimation";
+import { QmsgAnimation, type QmsgAnimationState } from "./QmsgAnimation";
 import { QmsgCSS } from "./QmsgCSS";
-import { QmsgConfig } from "./QmsgConfig";
+import { QmsgDefaultConfig } from "./QmsgDefaultConfig";
 import { QmsgIcon, QmsgHeaderCloseIcon } from "./QmsgIcon";
-import { QmsgInstanceStorage } from "./QmsgInstanceStorage";
+import { QmsgInstStorage } from "./QmsgInstStorage";
+import type { QmsgConfig } from "./QmsgConfig";
 import { QmsgUtils } from "./QmsgUtils";
 /**
  * 每条消息的构造函数
@@ -24,7 +24,7 @@ export class QmsgMsg {
 	/**
 	 * Qmsg的配置
 	 */
-	setting: Required<QmsgOption>;
+	setting: Required<QmsgConfig>;
 	/**
 	 * uuid
 	 */
@@ -40,16 +40,16 @@ export class QmsgMsg {
 	/**
 	 * 主元素
 	 */
-	$Qmsg: HTMLDivElement;
-	constructor(option: QmsgOption, uuid: string) {
+	$Qmsg: HTMLElement;
+	constructor(config: QmsgConfig, uuid: string) {
 		this.timeId = void 0;
 		this.startTime = Date.now();
 		this.endTime = null;
 		// this.#setting = Object.assign({}, QmsgStore.DEFAULT, this.option);
 		this.setting = QmsgUtils.toDynamicObject(
-			QmsgConfig.DEFAULT,
-			option,
-			QmsgConfig.INS_DEFAULT
+			QmsgDefaultConfig.config,
+			config,
+			QmsgDefaultConfig.INS_DEFAULT
 		);
 		this.uuid = uuid;
 		this.state = "opening";
@@ -126,7 +126,7 @@ export class QmsgMsg {
 		let $closeIcon = "";
 		if (this.setting.showClose) {
 			/* 显示右上角的关闭图标按钮 */
-			$closeIcon = `<i class="qmsg-icon qmsg-icon-close ${extraCloseIconClassName}">${$closeSvg}</i>`;
+			$closeIcon = /*html*/ `<i class="qmsg-icon qmsg-icon-close ${extraCloseIconClassName}">${$closeSvg}</i>`;
 		}
 		/* 内容 */
 		let $content = document.createElement("span");
@@ -183,30 +183,35 @@ export class QmsgMsg {
 		);
 		/** 内容容器 */
 		let $contentContainer =
-			this.$Qmsg.querySelector<HTMLDivElement>(".qmsg-content")!;
+			this.$Qmsg.querySelector<HTMLElement>(".qmsg-content")!;
 
 		this.$Qmsg.classList.add(QmsgUtils.getNameSpacify("item"));
 		this.$Qmsg.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.uuid);
-		// 获取页面中的shadowRoot的容器元素
-		let $shadowContainer = document.querySelector<HTMLDivElement>(
+		/** 总根元素 */
+		let $shadowContainer: HTMLElement | null;
+		/** 根元素 */
+		let $shadowRoot: ShadowRoot | null | undefined | HTMLElement;
+		/** 容器包裹的元素 */
+		let $wrapper: HTMLElement | null;
+		$shadowContainer = document.querySelector<HTMLElement>(
 			".qmsg-shadow-container"
 		);
-		let $shadowRoot = $shadowContainer?.shadowRoot;
+		$shadowRoot = this.setting.useShadowRoot
+			? $shadowContainer?.shadowRoot
+			: $shadowContainer;
 		if (!$shadowContainer) {
 			// 页面中不存在ShadowRoot容器元素
 			// 添加新增的ShadowRoot容器元素
 			$shadowContainer = document.createElement("div");
 			$shadowContainer.className = "qmsg-shadow-container";
-			$shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
-			let __$wrapper__ = document.createElement("div");
-			__$wrapper__.classList.add(
-				QmsgConfig.NAMESPACE,
-				QmsgUtils.getNameSpacify("wrapper"),
-				QmsgUtils.getNameSpacify("is-initialized")
-			);
-			__$wrapper__.classList.add($positionClassName);
+			if (this.setting.useShadowRoot) {
+				$shadowRoot = $shadowContainer.attachShadow({
+					mode: this.setting.shadowRootMode,
+				});
+			} else {
+				$shadowRoot = $shadowContainer;
+			}
 			$shadowRoot.appendChild(QmsgCSS.getStyleElement());
-			$shadowRoot.appendChild(__$wrapper__);
 			if (this.setting.style != null) {
 				// 插入自定义的style
 				// 这里需要插入到每一条的Qmsg内，以便移除实例时把style也移除
@@ -216,22 +221,23 @@ export class QmsgMsg {
 				QmsgUtils.setSafeHTML(__$ownStyle__, this.setting.style);
 				$contentContainer.insertAdjacentElement("afterend", __$ownStyle__);
 			}
-			(document.body || document.documentElement).appendChild($shadowContainer);
+
+			this.setting.parent.appendChild($shadowContainer);
 		}
 		if ($shadowRoot == null) {
-			throw new TypeError(QmsgConfig.PLUGIN_NAME + " $shadowRoot is null");
+			throw new Error(QmsgDefaultConfig.PLUGIN_NAME + " $shadowRoot is null");
 		}
-		let $wrapper = $shadowRoot.querySelector<HTMLDivElement>(
-			`.${QmsgConfig.NAMESPACE}.${$positionClassName}`
+		$wrapper = $shadowRoot.querySelector<HTMLElement>(
+			`.${QmsgDefaultConfig.NAMESPACE}.${$positionClassName}`
 		);
 		if (!$wrapper) {
 			$wrapper = document.createElement("div");
 			$wrapper.classList.add(
-				QmsgConfig.NAMESPACE,
+				QmsgDefaultConfig.NAMESPACE,
 				QmsgUtils.getNameSpacify("wrapper"),
-				QmsgUtils.getNameSpacify("is-initialized")
+				QmsgUtils.getNameSpacify("is-initialized"),
+				$positionClassName
 			);
-			$wrapper.classList.add($positionClassName);
 			$shadowRoot.appendChild($wrapper);
 		}
 		if (this.setting.showReverse) {
@@ -250,9 +256,10 @@ export class QmsgMsg {
 		this.setState(this.$Qmsg, "opening");
 		if (this.setting.showClose) {
 			/* 关闭按钮绑定点击事件 */
-			let $closeIcon = this.$Qmsg.querySelector(".qmsg-icon-close");
+			let $closeIcon =
+				this.$Qmsg.querySelector<HTMLElement>(".qmsg-icon-close");
 			if ($closeIcon) {
-				$closeIcon.addEventListener("click", function () {
+				$closeIcon.addEventListener("click", (evt) => {
 					QmsgContext.close();
 				});
 			}
@@ -334,7 +341,7 @@ export class QmsgMsg {
 			this.setting.timeout = parseInt(this.setting.timeout);
 		}
 		if (isNaN(this.setting.timeout)) {
-			this.setting.timeout = QmsgConfig.DEFAULT.timeout;
+			this.setting.timeout = QmsgDefaultConfig.config.timeout;
 		}
 		if (
 			!(
@@ -343,7 +350,7 @@ export class QmsgMsg {
 				parseInt(this.setting.timeout.toString()) <= Number.MAX_VALUE
 			)
 		) {
-			this.setting.timeout = QmsgConfig.DEFAULT.timeout;
+			this.setting.timeout = QmsgDefaultConfig.config.timeout;
 		}
 
 		if (typeof this.setting.zIndex === "function") {
@@ -357,9 +364,9 @@ export class QmsgMsg {
 		}
 		if (isNaN(this.setting.zIndex)) {
 			this.setting.zIndex =
-				typeof QmsgConfig.DEFAULT.zIndex === "function"
-					? QmsgConfig.DEFAULT.zIndex()
-					: QmsgConfig.DEFAULT.zIndex;
+				typeof QmsgDefaultConfig.config.zIndex === "function"
+					? QmsgDefaultConfig.config.zIndex()
+					: QmsgDefaultConfig.config.zIndex;
 		}
 	}
 	/**
@@ -367,7 +374,7 @@ export class QmsgMsg {
 	 * @param QmsgMsg
 	 * @param state
 	 */
-	private setState(element: HTMLDivElement, state: keyof QmsgAnimationState) {
+	private setState(element: HTMLElement, state: keyof QmsgAnimationState) {
 		if (!state || !QmsgAnimation.$state[state]) return;
 		this.state = state;
 		QmsgAnimation.setStyleAnimationName(element, QmsgAnimation.$state[state]);
@@ -382,17 +389,19 @@ export class QmsgMsg {
 			"data-position",
 			this.setting.position.toLowerCase()
 		)} [class^="qmsg-content-"]`;
-		let $content = this.$Qmsg.querySelector(wrapperClassName);
+		let $content = this.$Qmsg.querySelector<HTMLElement>(wrapperClassName);
 		if (!$content) {
-			throw new TypeError("$content is null");
+			throw new Error("$content is null");
 		}
-		let $count = $content.querySelector("." + countClassName) as HTMLElement;
+		let $count = $content.querySelector<HTMLElement>("." + countClassName);
 		if (!$count) {
 			$count = document.createElement("span");
 			$count.classList.add(countClassName);
 			$content.appendChild($count);
 		}
-		QmsgUtils.setSafeHTML($count, this.getRepeatNum().toString());
+		// 获取重复显示内容的实例数量
+		let repeatNum = this.getRepeatNum();
+		QmsgUtils.setSafeHTML($count, repeatNum.toString());
 		QmsgAnimation.setStyleAnimationName($count);
 		QmsgAnimation.setStyleAnimationName($count, "MessageShake");
 		/* 重置定时器 */
@@ -408,9 +417,9 @@ export class QmsgMsg {
 	 */
 	close() {
 		this.setState(this.$Qmsg, "closing");
-		if (QmsgConfig.CAN_ANIMATION) {
+		if (QmsgAnimation.CAN_ANIMATION) {
 			/* 支持动画 */
-			QmsgInstanceStorage.remove(this.uuid);
+			QmsgInstStorage.remove(this.uuid);
 		} else {
 			/* 不支持动画 */
 			this.destroy();
@@ -427,34 +436,34 @@ export class QmsgMsg {
 		this.endTime = Date.now();
 		this.$Qmsg.remove();
 		QmsgUtils.clearTimeout(this.timeId);
-		QmsgInstanceStorage.remove(this.uuid);
+		QmsgInstStorage.remove(this.uuid);
 	}
 	/**
 	 * 设置内容文本
 	 */
 	setText(text: string) {
-		let $content = this.$Qmsg.querySelector(
+		let $content = this.$Qmsg.querySelector<HTMLSpanElement>(
 			"div[class^=qmsg-content-] > span"
-		) as HTMLSpanElement | null;
+		);
 		if ($content) {
 			$content.innerText = text;
 			this.setting.content = text;
 		} else {
-			throw new TypeError("$content is null");
+			throw new Error("$content is null");
 		}
 	}
 	/**
 	 * 设置内容超文本
 	 */
 	setHTML(text: string) {
-		let $content = this.$Qmsg.querySelector(
+		let $content = this.$Qmsg.querySelector<HTMLSpanElement>(
 			"div[class^=qmsg-content-] > span"
-		) as HTMLSpanElement | null;
+		);
 		if ($content) {
 			QmsgUtils.setSafeHTML($content, text);
 			this.setting.content = text;
 		} else {
-			throw new TypeError("$content is null");
+			throw new Error("$content is null");
 		}
 	}
 }
