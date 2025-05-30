@@ -17,15 +17,17 @@ export const QmsgEvent = {
 						index < QmsgInstStorage.insInfoList.length;
 						index++
 					) {
-						let QmsgInstance = QmsgInstStorage.insInfoList[index];
+						let qmsgInst = QmsgInstStorage.insInfoList[index];
 						if (
-							QmsgInstance.instance.endTime == null &&
-							QmsgInstance.instance.startTime != null &&
-							Date.now() - QmsgInstance.instance.startTime >=
-								QmsgInstance.instance.getSetting().timeout
+							// loading类型不被自动关闭
+							qmsgInst.instance.setting.type !== "loading" &&
+							qmsgInst.instance.endTime == null &&
+							qmsgInst.instance.startTime != null &&
+							Date.now() - qmsgInst.instance.startTime >=
+								qmsgInst.instance.getSetting().timeout
 						) {
 							// 超出时间，关闭
-							QmsgInstance.instance.close();
+							qmsgInst.instance.close();
 						}
 					}
 				} else {
