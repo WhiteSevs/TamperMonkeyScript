@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.29.17
+// @version      2025.5.30
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,9 +11,9 @@
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.5/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
 // @grant        GM_download
@@ -3504,7 +3504,10 @@
         return this.fullScreen();
       });
       PopsPanel.execMenuOnce("parseVideo", () => {
-        DouYinVideoPlayer.parseVideo();
+        DouYinVideoPlayer.hookDownloadButtonToParseVideo();
+      });
+      PopsPanel.execMenuOnce("dy-video-hookCopyLinkButton", () => {
+        DouYinVideoPlayer.hookCopyLinkButton();
       });
       PopsPanel.execInheritMenuOnce(
         "autoEnterElementFullScreen",
@@ -3813,10 +3816,10 @@
       setRate(rate);
     },
     /**
-     * 让下载按钮变成解析视频
+     * 修改页面的分享-下载按钮变成解析视频
      */
-    parseVideo() {
-      log.info("让下载按钮变成解析视频");
+    hookDownloadButtonToParseVideo() {
+      log.info("修改页面的分享-下载按钮变成解析视频");
       function showParseInfoDialog(downloadFileName, downloadUrlInfoList) {
         let contentHTML = "";
         downloadUrlInfoList.forEach((downloadInfo) => {
@@ -3994,20 +3997,19 @@
         'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
         function(event) {
           var _a2, _b, _c;
+          utils.preventEvent(event);
           let clickElement = event.target;
           let rectFiber = (_a2 = utils.getReactObj(
             clickElement.parentElement
           )) == null ? void 0 : _a2.reactFiber;
           if (!rectFiber) {
-            log.error("获取rectFiber属性失败");
-            Qmsg.error("获取rectFiber属性失败");
+            Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
             return;
           }
           try {
             let awemeInfo = rectFiber.return.memoizedProps.awemeInfo;
             if (!awemeInfo) {
-              log.error("获取awemeInfo属性失败");
-              Qmsg.error("获取awemeInfo属性失败");
+              Qmsg.error("获取awemeInfo属性失败", { consoleLogContent: true });
               return;
             }
             log.info([`解析的awemeInfo: `, awemeInfo]);
@@ -4038,8 +4040,9 @@
               );
             }
             if (!videoDownloadUrlList.length) {
-              log.error("未获取到视频的有效链接信息");
-              Qmsg.error("未获取到视频的有效链接信息");
+              Qmsg.error("未获取到视频的有效链接信息", {
+                consoleLogContent: true
+              });
               return;
             }
             let uniqueVideoDownloadUrlList = [];
@@ -4076,13 +4079,66 @@
             let downloadFileName = (((_c = awemeInfo == null ? void 0 : awemeInfo.authorInfo) == null ? void 0 : _c.nickname) || "未知作者") + " - " + ((awemeInfo == null ? void 0 : awemeInfo.desc) || "未知视频文案");
             showParseInfoDialog(downloadFileName, uniqueVideoDownloadUrlList);
           } catch (error) {
-            log.error(["解析视频失败", error]);
-            Qmsg.error("解析视频失败");
+            log.error(error);
+            Qmsg.error("解析视频失败", { consoleLogContent: true });
           }
         },
         {
           capture: true
         }
+      );
+    },
+    /**
+     * 修改页面的分享-复制链接
+     */
+    hookCopyLinkButton() {
+      log.info("修改页面的分享-复制链接");
+      domUtils.on(
+        document,
+        "click",
+        'div[data-e2e="video-share-container"] div[data-inuser="false"] button:contains("复制链接")',
+        (event) => {
+          var _a2, _b, _c, _d, _e;
+          utils.preventEvent(event);
+          let clickElement = event.target;
+          let rectFiber = (_a2 = utils.getReactObj(
+            clickElement.parentElement
+          )) == null ? void 0 : _a2.reactFiber;
+          if (!rectFiber) {
+            Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
+            return;
+          }
+          let awemeInfo = (_d = (_c = (_b = rectFiber == null ? void 0 : rectFiber.return) == null ? void 0 : _b.return) == null ? void 0 : _c.memoizedProps) == null ? void 0 : _d.awemeInfo;
+          if (awemeInfo == null || typeof awemeInfo !== "object") {
+            Qmsg.error("获取awemeInfo属性失败", { consoleLogContent: true });
+            return;
+          }
+          log.info(`视频awemeInfo：`, awemeInfo);
+          let shareUrl = (_e = awemeInfo == null ? void 0 : awemeInfo.shareInfo) == null ? void 0 : _e.shareUrl;
+          if (typeof shareUrl !== "string") {
+            Qmsg.error("获取shareUrl属性失败", { consoleLogContent: true });
+            return;
+          }
+          log.info(`视频链接：` + shareUrl);
+          utils.setClip(shareUrl).then((copyFlag) => {
+            var _a3, _b2, _c2;
+            let toast = (_c2 = (_b2 = (_a3 = rectFiber == null ? void 0 : rectFiber.return) == null ? void 0 : _a3.return) == null ? void 0 : _b2.memoizedProps) == null ? void 0 : _c2.toast;
+            if (copyFlag) {
+              if (typeof toast === "function") {
+                toast("已复制链接");
+              } else {
+                Qmsg.success("已复制链接");
+              }
+            } else {
+              if (typeof toast === "function") {
+                toast("复制链接失败");
+              } else {
+                Qmsg.error("复制链接失败");
+              }
+            }
+          });
+        },
+        { capture: true }
       );
     },
     /**
@@ -7149,7 +7205,14 @@
                     "parseVideo",
                     true,
                     void 0,
-                    "分享->下载(灰色的也可点击)"
+                    "分享->下载（灰色的也可点击）"
+                  ),
+                  UISwitch(
+                    "修改复制链接内容",
+                    "dy-video-hookCopyLinkButton",
+                    true,
+                    void 0,
+                    "分享->复制链接，复制的内容仅为链接，不包含其它"
                   ),
                   UISwitch(
                     "评论区移到中间",

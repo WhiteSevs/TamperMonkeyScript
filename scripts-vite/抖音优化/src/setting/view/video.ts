@@ -112,7 +112,14 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									"parseVideo",
 									true,
 									void 0,
-									"分享->下载(灰色的也可点击)"
+									"分享->下载（灰色的也可点击）"
+								),
+								UISwitch(
+									"修改复制链接内容",
+									"dy-video-hookCopyLinkButton",
+									true,
+									void 0,
+									"分享->复制链接，复制的内容仅为链接，不包含其它"
 								),
 								UISwitch(
 									"评论区移到中间",

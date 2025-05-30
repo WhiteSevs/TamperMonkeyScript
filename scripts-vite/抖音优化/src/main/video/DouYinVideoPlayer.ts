@@ -12,6 +12,7 @@ import { GestureBack } from "@/utils/GestureBack";
 import { DouYinGestureBackHashConfig } from "../DouYinGestureBackConfig";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
 import { CommonUtil } from "@/utils/CommonUtil";
+import type { DouYinVideoAwemeInfo } from "./DouYinVideoFilterBase";
 
 /**
  * 视频播放器的播放速度
@@ -39,7 +40,10 @@ export const DouYinVideoPlayer = {
 			return this.fullScreen();
 		});
 		PopsPanel.execMenuOnce("parseVideo", () => {
-			DouYinVideoPlayer.parseVideo();
+			DouYinVideoPlayer.hookDownloadButtonToParseVideo();
+		});
+		PopsPanel.execMenuOnce("dy-video-hookCopyLinkButton", () => {
+			DouYinVideoPlayer.hookCopyLinkButton();
 		});
 		PopsPanel.execInheritMenuOnce(
 			"autoEnterElementFullScreen",
@@ -364,10 +368,10 @@ export const DouYinVideoPlayer = {
 		setRate(rate);
 	},
 	/**
-	 * 让下载按钮变成解析视频
+	 * 修改页面的分享-下载按钮变成解析视频
 	 */
-	parseVideo() {
-		log.info("让下载按钮变成解析视频");
+	hookDownloadButtonToParseVideo() {
+		log.info("修改页面的分享-下载按钮变成解析视频");
 		type parseVideoDownloadInfo = {
 			/**
 			 * 视频链接
@@ -598,20 +602,19 @@ export const DouYinVideoPlayer = {
 			"click",
 			'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
 			function (event) {
+				utils.preventEvent(event);
 				let clickElement = event.target as HTMLDivElement;
 				let rectFiber = utils.getReactObj(
 					clickElement.parentElement as HTMLElement
 				)?.reactFiber;
 				if (!rectFiber) {
-					log.error("获取rectFiber属性失败");
-					Qmsg.error("获取rectFiber属性失败");
+					Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
 					return;
 				}
 				try {
 					let awemeInfo = rectFiber.return.memoizedProps.awemeInfo;
 					if (!awemeInfo) {
-						log.error("获取awemeInfo属性失败");
-						Qmsg.error("获取awemeInfo属性失败");
+						Qmsg.error("获取awemeInfo属性失败", { consoleLogContent: true });
 						return;
 					}
 					log.info([`解析的awemeInfo: `, awemeInfo]);
@@ -676,8 +679,9 @@ export const DouYinVideoPlayer = {
 						);
 					}
 					if (!videoDownloadUrlList.length) {
-						log.error("未获取到视频的有效链接信息");
-						Qmsg.error("未获取到视频的有效链接信息");
+						Qmsg.error("未获取到视频的有效链接信息", {
+							consoleLogContent: true,
+						});
 						return;
 					}
 					// 去重
@@ -724,13 +728,65 @@ export const DouYinVideoPlayer = {
 						(awemeInfo?.desc || "未知视频文案");
 					showParseInfoDialog(downloadFileName, uniqueVideoDownloadUrlList);
 				} catch (error) {
-					log.error(["解析视频失败", error]);
-					Qmsg.error("解析视频失败");
+					log.error(error);
+					Qmsg.error("解析视频失败", { consoleLogContent: true });
 				}
 			},
 			{
 				capture: true,
 			}
+		);
+	},
+	/**
+	 * 修改页面的分享-复制链接
+	 */
+	hookCopyLinkButton() {
+		log.info("修改页面的分享-复制链接");
+		DOMUtils.on(
+			document,
+			"click",
+			'div[data-e2e="video-share-container"] div[data-inuser="false"] button:contains("复制链接")',
+			(event) => {
+				utils.preventEvent(event);
+				let clickElement = event.target as HTMLDivElement;
+				let rectFiber = utils.getReactObj(
+					clickElement.parentElement as HTMLElement
+				)?.reactFiber;
+				if (!rectFiber) {
+					Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
+					return;
+				}
+				let awemeInfo = rectFiber?.return?.return?.memoizedProps
+					?.awemeInfo as DouYinVideoAwemeInfo | null;
+				if (awemeInfo == null || typeof awemeInfo !== "object") {
+					Qmsg.error("获取awemeInfo属性失败", { consoleLogContent: true });
+					return;
+				}
+				log.info(`视频awemeInfo：`, awemeInfo);
+				let shareUrl = awemeInfo?.shareInfo?.shareUrl;
+				if (typeof shareUrl !== "string") {
+					Qmsg.error("获取shareUrl属性失败", { consoleLogContent: true });
+					return;
+				}
+				log.info(`视频链接：` + shareUrl);
+				utils.setClip(shareUrl).then((copyFlag) => {
+					let toast = rectFiber?.return?.return?.memoizedProps?.toast;
+					if (copyFlag) {
+						if (typeof toast === "function") {
+							toast("已复制链接");
+						} else {
+							Qmsg.success("已复制链接");
+						}
+					} else {
+						if (typeof toast === "function") {
+							toast("复制链接失败");
+						} else {
+							Qmsg.error("复制链接失败");
+						}
+					}
+				});
+			},
+			{ capture: true }
 		);
 	},
 	/**
