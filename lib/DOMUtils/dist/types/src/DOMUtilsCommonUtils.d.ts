@@ -60,5 +60,10 @@ declare const DOMUtilsCommonUtils: {
      * 配合 .setInterval 使用
      */
     clearInterval(timeId: number | undefined): void;
+    /**
+     * 判断是否是元素列表
+     * @param $ele
+     */
+    isNodeList($ele: any): $ele is any[] | NodeList;
 };
 export { DOMUtilsCommonUtils };

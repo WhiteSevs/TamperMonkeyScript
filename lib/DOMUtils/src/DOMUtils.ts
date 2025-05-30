@@ -7,20 +7,12 @@ import {
 } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 
-/**
- * 判断是否是元素列表
- * @param $ele
- */
-export const isNodeList = ($ele: any): $ele is any[] | NodeList => {
-	return Array.isArray($ele) || $ele instanceof NodeList;
-};
-
 class DOMUtils extends DOMUtilsEvent {
 	constructor(option?: WindowApiOption) {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2025.5.26";
+	version = "2025.5.30";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -55,7 +47,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			if (attrValue == null) {
 				// 获取属性
 				return DOMUtilsContext.attr(
@@ -264,7 +256,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			if (typeof property === "string") {
 				if (value == null) {
 					// 获取属性
@@ -356,7 +348,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			if (text == null) {
 				// 获取
 				return DOMUtilsContext.text(element[0] as HTMLElement);
@@ -417,7 +409,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			if (html == null) {
 				// 获取
 				return DOMUtilsContext.html(element[0] as HTMLElement);
@@ -556,7 +548,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			if (value == null) {
 				// 获取
 				return DOMUtilsContext.val(element[0] as HTMLInputElement);
@@ -626,7 +618,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			if (propValue == null) {
 				// 获取
 				return DOMUtilsContext.prop(element[0] as HTMLElement, propName);
@@ -665,7 +657,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.removeAttr($ele as HTMLElement, attrName);
@@ -694,7 +686,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.removeClass($ele as HTMLElement, className);
@@ -730,7 +722,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.removeProp($ele as HTMLElement, propName);
@@ -759,7 +751,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.replaceWith($ele as HTMLElement, newElement);
@@ -788,7 +780,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.addClass($ele as HTMLElement, className);
@@ -821,7 +813,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return false;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			let flag = true;
 			for (let index = 0; index < element.length; index++) {
 				const $ele = element[index] as HTMLElement;
@@ -868,7 +860,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.append($ele as HTMLElement, content);
@@ -917,7 +909,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.prepend($ele as HTMLElement, content);
@@ -955,7 +947,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.after($ele as HTMLElement, content);
@@ -995,7 +987,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.before($ele as HTMLElement, content);
@@ -1033,7 +1025,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			element.forEach(($ele) => {
 				DOMUtilsContext.remove($ele as HTMLElement);
 			});
@@ -1057,7 +1049,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.empty($ele as HTMLElement);
@@ -1425,7 +1417,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.animate(
@@ -1496,7 +1488,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.wrap($ele as HTMLElement, wrapperHTML);
@@ -1636,7 +1628,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			let resultArray: HTMLElement[] = [];
 			element.forEach(($ele) => {
 				resultArray.push(DOMUtilsContext.parent($ele as HTMLElement));
@@ -1860,7 +1852,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.fadeIn($ele as HTMLElement, duration, callback);
@@ -1913,7 +1905,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.fadeOut($ele as HTMLElement, duration, callback);
@@ -1957,7 +1949,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (isNodeList(element)) {
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
 				DOMUtilsContext.toggle($ele as HTMLElement);

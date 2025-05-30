@@ -2,11 +2,6 @@ import { DOMUtilsEvent } from "./DOMUtilsEvent";
 import type { DOMUtilsCreateElementAttributesMap } from "./types/DOMUtilsEvent";
 import { ParseHTMLReturnType, type DOMUtilsTargetElementType } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
-/**
- * 判断是否是元素列表
- * @param $ele
- */
-export declare const isNodeList: ($ele: any) => $ele is any[] | NodeList;
 declare class DOMUtils extends DOMUtilsEvent {
     constructor(option?: WindowApiOption);
     /** 版本号 */

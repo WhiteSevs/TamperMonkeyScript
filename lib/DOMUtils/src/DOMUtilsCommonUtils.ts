@@ -184,5 +184,12 @@ const DOMUtilsCommonUtils = {
 			globalThis.clearInterval(timeId);
 		}
 	},
+	/**
+	 * 判断是否是元素列表
+	 * @param $ele
+	 */
+	isNodeList($ele: any): $ele is any[] | NodeList {
+		return Array.isArray($ele) || $ele instanceof NodeList;
+	},
 };
 export { DOMUtilsCommonUtils };
