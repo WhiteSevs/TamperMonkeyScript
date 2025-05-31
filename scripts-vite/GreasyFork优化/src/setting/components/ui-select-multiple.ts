@@ -1,11 +1,11 @@
+import { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/selectMultipleType";
+import { log } from "@/env";
+import type { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/indexType";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
 } from "../config";
-import { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/selectMultipleType";
-import { log } from "@/env";
-import type { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/indexType";
 import { PopsPanel } from "../setting";
 
 /**
@@ -14,40 +14,23 @@ import { PopsPanel } from "../setting";
  * @param key 键
  * @param defaultValue 默认值
  * @param data 下拉列表的数据
- * @param callback 选择列表的某一项的回调
- * @param description 左边的文字下面的描述
- * @param selectConfirmDialogDetails 弹窗配置
+ * @param callback （可选）选择列表的某一项的回调
+ * @param description （可选）左边的文字下面的描述
+ * @param selectConfirmDialogDetails （可选）弹窗配置
  */
 export const UISelectMultiple = function <T>(
 	text: string,
 	key: string,
 	defaultValue: T[],
 	data:
-		| {
-				value: T;
-				text: string;
-				disable?(value: T): boolean;
-		  }[]
-		| (() => {
-				value: T;
-				text: string;
-				disable?(value: T): boolean;
-		  }[]),
-	callback?: (
-		selectInfo: {
-			value: T;
-			text: string;
-		}[]
-	) => void,
+		| PopsPanelSelectMultipleDetails<T>["data"]
+		| (() => PopsPanelSelectMultipleDetails<T>["data"]),
+	callback?: (selectInfo: PopsPanelSelectMultipleDetails<T>["data"]) => void,
 	description?: string,
 	placeholder = "请至少选择一个选项",
 	selectConfirmDialogDetails?: Partial<PopsAlertDetails>
 ): PopsPanelSelectMultipleDetails<T> {
-	let selectData: {
-		value: T;
-		text: string;
-		disable?(value: T): boolean;
-	}[] = [];
+	let selectData: PopsPanelSelectMultipleDetails<T>["data"] = [];
 	if (typeof data === "function") {
 		selectData = data();
 	} else {
