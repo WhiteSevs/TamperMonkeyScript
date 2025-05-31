@@ -46,7 +46,7 @@ class Qmsg {
 	 */
 	constructor(config?: QmsgConfigPartial) {
 		this.$data = {
-			version: "2025.5.30",
+			version: "2025.5.31",
 			config: QmsgDefaultConfig,
 			icon: QmsgIcon,
 			instanceStorage: QmsgInstStorage,

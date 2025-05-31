@@ -38,6 +38,7 @@ export const QmsgDefaultConfig = {
 			limitWidthNum: 200,
 			limitWidthWrap: "no-wrap",
 			consoleLogContent: false,
+			afterRender: null,
 		} as Required<QmsgConfig>;
 	},
 };

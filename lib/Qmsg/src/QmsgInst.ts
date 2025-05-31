@@ -59,9 +59,17 @@ export class QmsgMsg {
 		this.detectionType();
 		this.init();
 
-		if (this.setting.consoleLogContent) {
+		let consoleLogContent =
+			typeof this.setting.consoleLogContent === "function"
+				? this.setting.consoleLogContent(this)
+				: this.setting.consoleLogContent;
+		if (consoleLogContent) {
 			// 控制台输出content
 			console.log(this.setting.content);
+		}
+
+		if (typeof this.setting.afterRender === "function") {
+			this.setting.afterRender(this);
 		}
 	}
 	/**

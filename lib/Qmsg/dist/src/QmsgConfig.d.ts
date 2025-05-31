@@ -129,5 +129,17 @@ export interface QmsgConfig {
      * 是否在控制台打印content信息
      * @default false
      */
-    consoleLogContent?: boolean;
+    consoleLogContent?: boolean | ((
+    /**
+     * 配置项
+     */
+    qmsgInst: typeof QmsgMsg.prototype) => boolean);
+    /**
+     * 在实例初始化完毕后自动调用该函数
+     */
+    afterRender?: ((
+    /**
+     * 配置项
+     */
+    qmsgInst: typeof QmsgMsg.prototype) => void) | null | undefined;
 }

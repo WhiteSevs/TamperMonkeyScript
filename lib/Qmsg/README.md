@@ -80,7 +80,8 @@ Qmsg.config({
 | isLimitWidth                | Boolean                                             | 是否限制宽度                                                                                               | false                                       |
 | limitWidthNum               | Number                                              | 限制宽度的数值                                                                                             | 200                                         |
 | limitWidthWrap              | "no-wrap" \| "wrap"\| "ellipsis"                    | 当超出限制宽度时，是否换行还是显示为省略号                                                                 | "no-wrap"                                   |
-| consoleLogContent           | Boolean                                             | 是否在控制台打印信息                                                                                       | false                                       |
+| consoleLogContent           | Boolean \| Function                                 | 是否在控制台打印信息                                                                                       | false                                       |
+| afterRender                 | Funtion                                             | 在实例初始化完毕后自动调用该函数                                                                           | null                                        |
 
 **Qmsg 支持的方法**
 
