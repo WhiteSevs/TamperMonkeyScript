@@ -12,23 +12,23 @@ type OkCallBackOption = {
 	/** 是否成功同步至历史匹配记录 */
 	isUpdatedHistoryMatched: boolean;
 	/** 新的访问码 */
-	accessCode: string;
+	accessCode: AccessCodeType;
 };
 /**
  * 需要重新输入新密码的弹窗
  * @param title 标题
- * @param netDiskName 网盘名称
- * @param netDiskIndex 网盘名称索引下标
+ * @param ruleKeyName 规则键名
+ * @param ruleIndex 规则的索引下标
  * @param shareCode 分享码
  * @param accessCode 访问码
  * @param okCallBack 成功的回调
  */
 export const NetDiskNewAccessCodeView = function (
 	title: string = "密码错误",
-	netDiskName: string = "",
-	netDiskIndex: number,
+	ruleKeyName: string = "",
+	ruleIndex: number,
 	shareCode: string,
-	accessCode: string | null | undefined,
+	accessCode: AccessCodeType,
 	okCallBack: (option: OkCallBackOption) => void = () => {}
 ) {
 	const accessCodeConfirm = NetDiskPops.prompt(
@@ -53,14 +53,14 @@ export const NetDiskNewAccessCodeView = function (
 						let userInputAccessCode = event.text.replace(/[\s]*/gi, "");
 						/* 处理已显示的链接 */
 						let uiLink = NetDisk.handleLinkShow(
-							netDiskName,
-							netDiskIndex,
+							ruleKeyName,
+							ruleIndex,
 							shareCode,
 							userInputAccessCode,
 							void 0
 						);
-						let currentItemSelector = `.netdisk-url a[data-netdisk='${netDiskName}'][data-sharecode='${shareCode}']`;
-						let currentHistoryItemSelector = `.netdiskrecord-link a[data-netdisk='${netDiskName}'][data-sharecode='${shareCode}']`;
+						let currentItemSelector = `.netdisk-url a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
+						let currentHistoryItemSelector = `.netdiskrecord-link a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
 						let currentItemElement =
 							NetDiskUI.Alias.uiLinkAlias?.$shadowRoot?.querySelector<HTMLElement>(
 								currentItemSelector
@@ -85,7 +85,7 @@ export const NetDiskNewAccessCodeView = function (
 							DOMUtils.html(currentHistoryItemElement, uiLink);
 						}
 
-						log.info(`${netDiskName} 重新输入的密码：${userInputAccessCode}`);
+						log.info(`${ruleKeyName} 重新输入的密码：${userInputAccessCode}`);
 
 						let callbackOption: OkCallBackOption = {
 							/** 该分享码是否在已匹配的字典中 */
@@ -99,7 +99,7 @@ export const NetDiskNewAccessCodeView = function (
 						};
 						// 更新已匹配到的字典
 						// 如果来自历史匹配记录，那字典肯定是空的
-						let netDiskDict = NetDisk.$match.matchedInfo.get(netDiskName);
+						let netDiskDict = NetDisk.$match.matchedInfo.get(ruleKeyName);
 						if (netDiskDict.has(shareCode)) {
 							callbackOption.isFindInMatchedDict = true;
 							callbackOption.isUpdatedMatchedDict = true;
@@ -107,9 +107,9 @@ export const NetDiskNewAccessCodeView = function (
 							let currentDict = netDiskDict.get(shareCode);
 							netDiskDict.set(
 								shareCode,
-								NetDisk.getLinkDickObj(
+								NetDisk.getLinkStorageInst(
 									userInputAccessCode,
-									netDiskIndex,
+									ruleIndex,
 									true,
 									currentDict.matchText
 								)
@@ -118,8 +118,8 @@ export const NetDiskNewAccessCodeView = function (
 						// 同步新的访问码到历史匹配记录
 						callbackOption.isUpdatedHistoryMatched =
 							NetDiskHistoryMatchView.syncAccessCode(
-								netDiskName,
-								netDiskIndex,
+								ruleKeyName,
+								ruleIndex,
 								shareCode,
 								userInputAccessCode
 							);

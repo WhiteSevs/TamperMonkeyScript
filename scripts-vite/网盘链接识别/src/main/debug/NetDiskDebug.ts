@@ -8,16 +8,16 @@ export const NetDiskDebug = {
 	/**
 	 * 对传入的url进行处理，返回shareCode
 	 * @param matchText 正在进行匹配的文本
-	 * @param regular 当前执行的规则
+	 * @param ruleConfig 当前执行的规则
 	 * @param logCallBack 日志回调
 	 */
 	handleShareCode(
 		matchText: string,
-		regular: NetDiskMatchRuleOption,
+		ruleConfig: NetDiskMatchRuleConfig,
 		logCallBack: (logData: NetDiskDebugLogData) => void
 	) {
 		let shareCodeMatch = matchText
-			.match(regular.shareCode)
+			.match(ruleConfig.shareCode)
 			?.filter((item) => utils.isNotNull(item));
 		logCallBack({
 			status: true,
@@ -41,9 +41,9 @@ export const NetDiskDebug = {
 			status: true,
 			msg: [`取第一个值: ` + shareCode],
 		});
-		if (regular.shareCodeNeedRemoveStr) {
+		if (ruleConfig.shareCodeNeedRemoveStr) {
 			/* 删除ShareCode前面不需要的字符串 */
-			shareCode = shareCode.replace(regular.shareCodeNeedRemoveStr, "");
+			shareCode = shareCode.replace(ruleConfig.shareCodeNeedRemoveStr, "");
 			logCallBack({
 				status: true,
 				msg: [
@@ -53,7 +53,7 @@ export const NetDiskDebug = {
 				],
 			});
 		}
-		let shareCodeNotMatch = regular.shareCodeNotMatch;
+		let shareCodeNotMatch = ruleConfig.shareCodeNotMatch;
 		if (shareCodeNotMatch != void 0 && shareCode.match(shareCodeNotMatch)) {
 			log.error(`不可能的shareCode => ${shareCode}`);
 			logCallBack({
@@ -118,16 +118,16 @@ export const NetDiskDebug = {
 	/**
 	 * 对传入的url进行处理，返回accessCode
 	 * @param matchText 正在进行匹配的文本
-	 * @param regular 当前执行的规则
+	 * @param ruleOption 当前执行的规则
 	 * @param logCallBack 日志回调
 	 */
 	handleAccessCode(
 		matchText: string,
-		regular: NetDiskMatchRuleOption,
+		ruleOption: NetDiskMatchRuleConfig,
 		logCallBack: (logData: NetDiskDebugLogData) => void
 	) {
 		let accessCode = "";
-		if (!regular.checkAccessCode) {
+		if (!ruleOption.checkAccessCode) {
 			/* 不存在匹配提取码的正则 */
 			logCallBack({
 				status: true,
@@ -135,7 +135,7 @@ export const NetDiskDebug = {
 			});
 			return "";
 		}
-		let accessCodeMatch = matchText.match(regular.checkAccessCode);
+		let accessCodeMatch = matchText.match(ruleOption.checkAccessCode);
 		logCallBack({
 			status: true,
 			msg: [
@@ -154,7 +154,7 @@ export const NetDiskDebug = {
 			});
 			/* 进去提取码匹配，且过滤掉null或undefined或空字符串 */
 			let accessCodeMatchArray = accessCodeMatchValue
-				.match(regular.accessCode)
+				.match(ruleOption.accessCode)
 				?.filter((item) => utils.isNotNull(item));
 			logCallBack({
 				status: true,
@@ -210,8 +210,8 @@ export const NetDiskDebug = {
 				}
 			}
 			if (
-				regular.acceesCodeNotMatch &&
-				accessCode.match(regular.acceesCodeNotMatch)
+				ruleOption.acceesCodeNotMatch &&
+				accessCode.match(ruleOption.acceesCodeNotMatch)
 			) {
 				accessCode = "";
 				logCallBack({
@@ -234,19 +234,19 @@ export const NetDiskDebug = {
 	/**
 	 * 获取在弹窗中显示出的链接
 	 * @param matchText 匹配到的文本
-	 * @param regular 当前执行的规则
+	 * @param ruleConfig 当前执行的规则
 	 * @param shareCode 分享码
 	 * @param accessCode 访问码
 	 * @param logCallBack 日志回调
 	 */
 	handleLinkShow(
 		matchText: string,
-		regular: NetDiskMatchRuleOption,
+		ruleConfig: NetDiskMatchRuleConfig,
 		shareCode: string,
-		accessCode: string,
+		accessCode: AccessCodeType,
 		logCallBack: (logData: NetDiskDebugLogData) => void
 	) {
-		let uiLink = NetDiskRuleUtils.replaceParam(regular["uiLinkShow"], {
+		let uiLink = NetDiskRuleUtils.replaceParam(ruleConfig.uiLinkShow, {
 			shareCode: shareCode,
 		});
 		logCallBack({
@@ -286,9 +286,9 @@ export const NetDiskDebug = {
 				],
 			});
 		}
-		if (regular.paramMatch) {
+		if (ruleConfig.paramMatch) {
 			if (utils.isNotNull(matchText)) {
-				let paramMatchArray = matchText.match(regular.paramMatch);
+				let paramMatchArray = matchText.match(ruleConfig.paramMatch);
 				let replaceParamData: {
 					[key: string]: string;
 				} = {};
@@ -320,19 +320,19 @@ export const NetDiskDebug = {
 	/**
 	 * 获取新标签页打开的URL
 	 * @param matchText 匹配到的文本
-	 * @param regular 当前执行的规则
+	 * @param ruleConfig 当前执行的规则
 	 * @param shareCode 分享码
 	 * @param accessCode 访问码
 	 * @param logCallBack 日志回调
 	 */
 	handleBlank(
 		matchText: string,
-		regular: NetDiskMatchRuleOption,
+		ruleConfig: NetDiskMatchRuleConfig,
 		shareCode: string,
-		accessCode: string,
+		accessCode: AccessCodeType,
 		logCallBack: (logData: NetDiskDebugLogData) => void
 	) {
-		let blankUrl = NetDiskRuleUtils.replaceParam(regular["blank"], {
+		let blankUrl = NetDiskRuleUtils.replaceParam(ruleConfig.blank, {
 			shareCode: shareCode,
 		});
 		logCallBack({
@@ -372,9 +372,9 @@ export const NetDiskDebug = {
 				],
 			});
 		}
-		if (regular.paramMatch) {
+		if (ruleConfig.paramMatch) {
 			if (utils.isNotNull(matchText)) {
-				let paramMatchArray = matchText.match(regular.paramMatch);
+				let paramMatchArray = matchText.match(ruleConfig.paramMatch);
 				let replaceParamData: {
 					[key: string]: string;
 				} = {};
@@ -405,19 +405,19 @@ export const NetDiskDebug = {
 	/**
 	 * 获取复制到剪贴板的字符串
 	 * @param matchText 匹配到的文本
-	 * @param regular 当前执行的规则
+	 * @param ruleConfig 当前执行的规则
 	 * @param shareCode 分享码
 	 * @param accessCode 访问码
 	 * @param logCallBack 日志回调
 	 */
 	handleCopyUrl(
 		matchText: string,
-		regular: NetDiskMatchRuleOption,
+		ruleConfig: NetDiskMatchRuleConfig,
 		shareCode: string,
-		accessCode: string,
+		accessCode: AccessCodeType,
 		logCallBack: (logData: NetDiskDebugLogData) => void
 	) {
-		let copyUrl = NetDiskRuleUtils.replaceParam(regular["copyUrl"], {
+		let copyUrl = NetDiskRuleUtils.replaceParam(ruleConfig.copyUrl, {
 			shareCode: shareCode,
 		});
 		logCallBack({
@@ -457,9 +457,9 @@ export const NetDiskDebug = {
 				],
 			});
 		}
-		if (regular.paramMatch) {
+		if (ruleConfig.paramMatch) {
 			if (utils.isNotNull(matchText)) {
-				let paramMatchArray = matchText.match(regular.paramMatch);
+				let paramMatchArray = matchText.match(ruleConfig.paramMatch);
 				let replaceParamData: {
 					[key: string]: string;
 				} = {};

@@ -12,19 +12,19 @@ import { GM_openInTab } from "ViteGM";
 export const NetDiskLinkClickModeUtils = {
 	/**
 	 * 获取用于跳转的url
-	 * @param netDiskName
-	 * @param netDiskIndex
+	 * @param ruleKeyName
+	 * @param ruleIndex
 	 * @param shareCode
 	 * @param accessCode
 	 */
 	getBlankUrl(
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string
+		accessCode: AccessCodeType
 	) {
-		let regularOption = NetDisk.$rule.matchRule[netDiskName][netDiskIndex];
-		let blankUrl = regularOption.blank;
+		let ruleConfig = NetDisk.$rule.ruleOption[ruleKeyName][ruleIndex];
+		let blankUrl = ruleConfig.blank;
 		if (shareCode) {
 			blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, {
 				shareCode: shareCode,
@@ -45,12 +45,10 @@ export const NetDiskLinkClickModeUtils = {
 		 * 当前字典
 		 */
 		let currentDict = NetDisk.$match.matchedInfo
-			.get(netDiskName)
+			.get(ruleKeyName)
 			.get(shareCode);
-		if (regularOption.paramMatch) {
-			let paramMatchArray = currentDict.matchText.match(
-				regularOption.paramMatch
-			)!;
+		if (ruleConfig.paramMatch) {
+			let paramMatchArray = currentDict.matchText.match(ruleConfig.paramMatch)!;
 			let replaceParamData: {
 				[key: string]: string;
 			} = {};
@@ -63,19 +61,19 @@ export const NetDiskLinkClickModeUtils = {
 	},
 	/**
 	 * 获取用于复制到剪贴板的网盘信息
-	 * @param netDiskName
-	 * @param netDiskIndex
+	 * @param ruleKeyName
+	 * @param ruleIndex
 	 * @param shareCode
 	 * @param accessCode
 	 */
 	getCopyUrlInfo(
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string
+		accessCode: AccessCodeType
 	) {
-		let regularOption = NetDisk.$rule.matchRule[netDiskName][netDiskIndex];
-		let copyUrl = regularOption["copyUrl"];
+		let ruleConfig = NetDisk.$rule.ruleOption[ruleKeyName][ruleIndex];
+		let copyUrl = ruleConfig["copyUrl"];
 		if (shareCode) {
 			copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, {
 				shareCode: shareCode,
@@ -96,12 +94,10 @@ export const NetDiskLinkClickModeUtils = {
 		 * 当前字典
 		 */
 		let currentDict = NetDisk.$match.matchedInfo
-			.get(netDiskName)
+			.get(ruleKeyName)
 			.get(shareCode);
-		if (regularOption.paramMatch) {
-			let paramMatchArray = currentDict.matchText.match(
-				regularOption.paramMatch
-			)!;
+		if (ruleConfig.paramMatch) {
+			let paramMatchArray = currentDict.matchText.match(ruleConfig.paramMatch)!;
 			let replaceParamData: {
 				[key: string]: string;
 			} = {};
@@ -118,24 +114,24 @@ export const NetDiskLinkClickModeUtils = {
 export const NetDiskLinkClickMode = {
 	/**
 	 * 复制到剪贴板
-	 * @param netDiskName 网盘名
-	 * @param netDiskIndex 网盘索引
+	 * @param ruleKeyName 规则键名
+	 * @param ruleIndex 规则的索引下标
 	 * @param shareCode 分享码
 	 * @param accessCode 提取码
 	 * @param toastText 复制成功的提示的文字
 	 */
 	copy(
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string,
+		accessCode: AccessCodeType,
 		toastText: string = "已复制"
 	) {
 		utils
 			.setClip(
 				NetDiskLinkClickModeUtils.getCopyUrlInfo(
-					netDiskName,
-					netDiskIndex,
+					ruleKeyName,
+					ruleIndex,
 					shareCode,
 					accessCode
 				)
@@ -144,72 +140,74 @@ export const NetDiskLinkClickMode = {
 				if (status) {
 					Qmsg.success(toastText);
 				} else {
-					Qmsg.error("执行复制失败");
+					Qmsg.error("执行复制失败", { consoleLogContent: true });
 				}
 			})
 			.catch(() => {
-				Qmsg.error("执行复制失败");
+				Qmsg.error("执行复制失败", { consoleLogContent: true });
 			});
 	},
 	/**
-	 * 网盘链接解析
-	 * @param netDiskName 网盘名称
-	 * @param netDiskIndex 网盘名称索引下标
+	 * 链接解析
+	 * @param ruleKeyName 规则键名
+	 * @param ruleIndex 规则的索引下标
 	 * @param shareCode 分享码
 	 * @param accessCode 提取码
 	 */
 	async parseFile(
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string
+		accessCode: AccessCodeType
 	) {
-		// Qmsg.info("正在获取直链");
-		if (
-			NetDiskParse.netDisk[netDiskName as keyof typeof NetDiskParse.netDisk]
-		) {
-			let parseObj = new NetDiskParse.netDisk[
-				netDiskName as keyof typeof NetDiskParse.netDisk
+		log.success(`链接解析：`, [...arguments]);
+		if (NetDiskParse.rule[ruleKeyName as keyof typeof NetDiskParse.rule]) {
+			let parseObj = new NetDiskParse.rule[
+				ruleKeyName as keyof typeof NetDiskParse.rule
 			]();
-			await parseObj.init(netDiskIndex, shareCode, accessCode);
+			await parseObj.init(ruleIndex, shareCode, accessCode);
 		} else {
-			log.error(`${netDiskName} 未配置解析函数`);
+			log.error(`${ruleKeyName} 未配置解析函数`, [
+				ruleKeyName,
+				ruleIndex,
+				shareCode,
+				accessCode,
+			]);
 			Qmsg.error("该链接未配置解析函数");
 		}
 	},
 	/**
 	 * 新标签页打开
 	 * @param url 跳转的网址
-	 * @param netDiskName 网盘名称
-	 * @param netDiskIndex 网盘索引
+	 * @param ruleKeyName 规则键名
+	 * @param ruleIndex 规则的索引下标
 	 * @param shareCode 分享码
 	 * @param accessCode 提取码
 	 * @param isOpenInBackEnd 是否使用后台打开，默认false
 	 */
 	openBlankUrl(
 		url: string,
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string,
+		accessCode: AccessCodeType,
 		isOpenInBackEnd: boolean = false
 	) {
-		log.success(
-			`新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`,
-			arguments
-		);
+		log.success(`新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`, [
+			...arguments,
+		]);
 		if (NetDiskAutoFillAccessCode.$data.enable) {
 			NetDiskAutoFillAccessCode.addValue({
 				url: url,
-				netDiskName: netDiskName,
-				netDiskIndex: netDiskIndex,
+				ruleKeyName: ruleKeyName,
+				ruleIndex: ruleIndex,
 				shareCode: shareCode,
-				accessCode: accessCode,
+				accessCode: accessCode!,
 				time: Date.now(),
 			});
 		}
-		if (NetDiskFilterScheme.isForwardBlankLink(netDiskName)) {
-			url = NetDiskFilterScheme.parseDataToSchemeUri(netDiskName, url);
+		if (NetDiskFilterScheme.isForwardBlankLink(ruleKeyName)) {
+			url = NetDiskFilterScheme.parseDataToSchemeUri(ruleKeyName, url);
 		}
 		/* 百度网盘会拒绝referrer不安全访问 */
 		$("meta[name='referrer']")?.setAttribute("content", "no-referrer");
@@ -243,7 +241,7 @@ export const NetDiskLinkClickMode = {
 		if (
 			utils.isNotNull(accessCode) &&
 			NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-				netDiskName
+				ruleKeyName
 			)
 		) {
 			/* 等待复制完毕再跳转 */
@@ -256,25 +254,25 @@ export const NetDiskLinkClickMode = {
 	},
 	/**
 	 * 将链接转为Scheme格式并打开
-	 * @param netDiskName 网盘名称
-	 * @param netDiskIndex 网盘名称索引下标
+	 * @param ruleKeyName 规则键名
+	 * @param ruleIndex 规则的索引下标
 	 * @param shareCode
 	 * @param accessCode
 	 */
 	openBlankWithScheme(
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string
+		accessCode: AccessCodeType
 	) {
-		log.success("scheme新标签页打开", arguments);
+		log.success("scheme新标签页打开", [...arguments]);
 		let url = NetDiskLinkClickModeUtils.getBlankUrl(
-			netDiskName,
-			netDiskIndex,
+			ruleKeyName,
+			ruleIndex,
 			shareCode,
 			accessCode
 		);
-		url = NetDiskFilterScheme.parseDataToSchemeUri(netDiskName, url);
+		url = NetDiskFilterScheme.parseDataToSchemeUri(ruleKeyName, url);
 		window.open(url, "_blank");
 	},
 };

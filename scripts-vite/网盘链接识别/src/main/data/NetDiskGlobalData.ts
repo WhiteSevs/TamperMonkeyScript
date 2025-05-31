@@ -185,7 +185,7 @@ export const NetDiskGlobalData = {
 				| "suspension_window"
 				| "smallwindow"
 		),
-		/** 自动输入访问码 */
+		/** 自动填充访问码 */
 		autoFillAccessCode: GeneratePanelData("autoFillAccessCode", true),
 	},
 	/** 分享码相关 */

@@ -29,7 +29,7 @@ PopsPanel.init();
 NetDisk.init();
 NetDiskShortcut.init();
 DOMUtils.ready(() => {
-	// 初始化自动填写访问码
+	// 初始化自动填充访问码
 	NetDiskAutoFillAccessCode.init();
 	// 初始化鉴权处理
 	NetDiskAuthorization.init();

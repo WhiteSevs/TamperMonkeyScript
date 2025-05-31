@@ -1,3 +1,5 @@
+import { DOMUtils } from "@/env";
+
 export const NetDiskWorkerUtils = {
 	/**
 	 * 检索目标元素内所有可访问的ShadowRoot的所有节点的信息
@@ -197,6 +199,29 @@ export const NetDiskWorkerUtils = {
 						}
 					}
 				});
+			}
+		}
+		return result;
+	},
+	/**
+	 * 获取光标选中的内容
+	 *
+	 * 获取两种：纯文本和超文本
+	 */
+	getSelectContent() {
+		let result = {
+			text: "",
+			html: "",
+		};
+		let selection = window.getSelection();
+		if (selection) {
+			result.text = selection.toString();
+			let $tempDiv = DOMUtils.createElement("div");
+			if (!selection.isCollapsed) {
+				// Range 转 DocumentFragment
+				const docFragment = selection.getRangeAt(0).cloneContents();
+				$tempDiv.appendChild(docFragment);
+				result.html = DOMUtils.html($tempDiv);
 			}
 		}
 		return result;

@@ -516,7 +516,7 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									"匹配到链接时触发的UI执行"
 								),
 								UISwitch(
-									"自动输入访问码",
+									"自动填充访问码",
 									NetDiskGlobalData.features.autoFillAccessCode.KEY,
 									NetDiskGlobalData.features.autoFillAccessCode.default,
 									void 0,
@@ -907,6 +907,15 @@ export const PanelUI_allSetting: PopsPanelContentConfig = {
 									"执行文本匹配",
 									"",
 									"netdisk-keyboard-performPageTextMatchingManually",
+									void 0,
+									"暂无快捷键",
+									"default",
+									NetDiskShortcut.shortCut
+								),
+								UIButtonShortCut(
+									"识别选中内容",
+									"",
+									"netdisk-keyboard-identifyTheSelectedContent",
 									void 0,
 									"暂无快捷键",
 									"default",

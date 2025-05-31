@@ -1,3 +1,16 @@
+declare interface NetDiskWorkerHandleObject {
+	/** 分享码 */
+	shareCode: string;
+	/** 访问码 */
+	accessCode: AccessCodeType;
+	/** 规则名 */
+	ruleKeyName: string;
+	/** 下标 */
+	ruleIndex: number;
+	/** 匹配的文本 */
+	matchText: string;
+}
+
 /** worker的传递的数据 */
 declare interface NetDiskWorkerOptions {
 	/** 字符映射规则 */
@@ -16,7 +29,7 @@ declare interface NetDiskWorkerOptions {
 	/**
 	 * 匹配的规则
 	 */
-	regular: NetDiskMatchRule;
+	matchedRuleOption: NetDiskMatchedRuleOption;
 	/**
 	 * 开始时间
 	 */
@@ -30,13 +43,14 @@ declare interface NetDiskWorkerOptions {
 		| "FirstLoad-HTML-DOMChange"
 		| "DOMChange"
 		| "PasteText"
-		| "Debug";
+		| "Debug"
+		| "ShortCut-Select-Content";
 }
 declare interface NetDiskWorkerMatchOption {
 	/** 匹配的网盘规则的名 */
-	netDiskName?: string;
+	ruleKeyName?: string;
 	/** 匹配的网盘规则的下标 */
-	netDiskIndex?: number;
+	ruleIndex?: number;
 	/** 匹配到的数据(字符串数组) */
 	data: RegExpMatchArray;
 }

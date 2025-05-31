@@ -1,19 +1,21 @@
 import { log, utils } from "@/env";
 import { GM_getValue, GM_setValue } from "ViteGM";
-import { NetDiskAutoFillAccessCode_baidu } from "../rule/netdisk/baidu/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_lanzou } from "../rule/netdisk/lanzou/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_tianyiyun } from "../rule/netdisk/tianyiyun/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_hecaiyun } from "../rule/netdisk/hecaiyun/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_aliyun } from "../rule/netdisk/aliyun/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_123pan } from "../rule/netdisk/123pan/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_weiyun } from "../rule/netdisk/weiyun/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_xunlei } from "../rule/netdisk/xunlei/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_kuake } from "../rule/netdisk/kuake/autoFillAccessCode";
-import { NetDiskAutoFillAccessCode_chengtong } from "../rule/netdisk/chengtong/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_baidu } from "../rule/default-rule/baidu/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_lanzou } from "../rule/default-rule/lanzou/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_tianyiyun } from "../rule/default-rule/tianyiyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_hecaiyun } from "../rule/default-rule/hecaiyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_aliyun } from "../rule/default-rule/aliyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_123pan } from "../rule/default-rule/123pan/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_weiyun } from "../rule/default-rule/weiyun/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_xunlei } from "../rule/default-rule/xunlei/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_kuake } from "../rule/default-rule/kuake/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_chengtong } from "../rule/default-rule/chengtong/autoFillAccessCode";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
-import { NetDiskAutoFillAccessCode_115pan } from "../rule/netdisk/115pan/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_115pan } from "../rule/default-rule/115pan/autoFillAccessCode";
+import { NetDiskAutoFillAccessCode_360yunpan } from "../rule/default-rule/360yunpan/autoFillAccessCode";
+import { NetDiskRuleData } from "../data/NetDiskRuleData";
 
-/** 网盘-自动填入访问码 */
+/** 网盘-自动填充访问码 */
 export const NetDiskAutoFillAccessCode = {
 	key: "tempNetDiskInfo",
 	$data: {
@@ -22,7 +24,7 @@ export const NetDiskAutoFillAccessCode = {
 		 */
 		netDiskInfo: null as any as NetDiskAutoFillAccessCodeOption[],
 		/**
-		 * 自动输入访问码是否开启
+		 * 自动填充访问码是否开启
 		 */
 		get enable() {
 			return NetDiskGlobalData.features.autoFillAccessCode.value;
@@ -32,7 +34,7 @@ export const NetDiskAutoFillAccessCode = {
 	 * 初始化
 	 */
 	init() {
-		// 判定是否开启了自动填入访问码
+		// 判定是否开启了自动填充访问码
 		if (!this.$data.enable) {
 			return;
 		}
@@ -41,6 +43,13 @@ export const NetDiskAutoFillAccessCode = {
 		let flag = false;
 		for (let index = 0; index < this.$data.netDiskInfo.length; index++) {
 			const fillAccessCodeNetDiskInfo = this.$data.netDiskInfo[index];
+			let autoFillAccessCodeEnable =
+				NetDiskRuleData.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
+					fillAccessCodeNetDiskInfo.ruleKeyName
+				);
+			if (!autoFillAccessCodeEnable) {
+				continue;
+			}
 			let accessCode = fillAccessCodeNetDiskInfo.accessCode;
 			if (
 				accessCode == null ||
@@ -53,28 +62,28 @@ export const NetDiskAutoFillAccessCode = {
 			// 百度如果shareCode第一位是1的话，新版本会在href中去除这个1
 			// 那么这里需要把这个1处理掉，再进行分享码匹配
 			if (
-				fillAccessCodeNetDiskInfo.netDiskName === "baidu" &&
+				fillAccessCodeNetDiskInfo.ruleKeyName === "baidu" &&
 				shareCode.startsWith("1")
 			) {
 				shareCode = shareCode.slice(1, shareCode.length);
 			}
-			/** 链接地址是否匹配到分享码，从而触发自动填入 */
+			/** 链接地址是否匹配到分享码，从而触发自动填充 */
 			let isMatchedFillShareCode = window.location.href.includes(shareCode);
 			if (isMatchedFillShareCode) {
 				let autoFillFn =
 					NetDiskAutoFillAccessCode.netDisk[
-						fillAccessCodeNetDiskInfo.netDiskName
+						fillAccessCodeNetDiskInfo.ruleKeyName
 					];
 				if (typeof autoFillFn === "function") {
 					log.success(
-						`成功匹配到对应的自动填入访问码的网盘信息：`,
+						`成功匹配到对应的自动填充访问码的网盘信息：`,
 						fillAccessCodeNetDiskInfo
 					);
 					autoFillFn(fillAccessCodeNetDiskInfo);
 				} else {
 					log.warn(
-						"自动填写访问码失败：" +
-							fillAccessCodeNetDiskInfo.netDiskName +
+						"自动填充访问码失败：" +
+							fillAccessCodeNetDiskInfo.ruleKeyName +
 							"，原因：该网盘未适配"
 					);
 				}
@@ -84,7 +93,7 @@ export const NetDiskAutoFillAccessCode = {
 		}
 		if (!flag) {
 			log.error(
-				"未触发自动填入访问码，原因：未找到对应的网盘信息：👇",
+				"未触发自动填充访问码，原因：未找到对应的网盘信息：👇",
 				this.$data.netDiskInfo
 			);
 		}
@@ -158,6 +167,10 @@ export const NetDiskAutoFillAccessCode = {
 		 * 暂时没找到有密码的链接
 		 */
 		onedrive: () => {},
+		/**
+		 * 360云盘
+		 */
+		"360yunpan": NetDiskAutoFillAccessCode_360yunpan,
 	},
 	/**
 	 * 设置值
@@ -183,7 +196,7 @@ export const NetDiskAutoFillAccessCode = {
 		localValue = localValue.filter((it) => {
 			// 排除掉相同的链接
 			if (
-				it.netDiskName === netDiskFillOption.netDiskName &&
+				it.ruleKeyName === netDiskFillOption.ruleKeyName &&
 				it.shareCode === netDiskFillOption.shareCode
 			) {
 				return false;

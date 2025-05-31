@@ -6,6 +6,9 @@ import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskWorker } from "../worker/NetDiskWorker";
 import { CharacterMapping } from "../character-mapping/CharacterMapping";
 import { NetDiskRuleManager } from "../NetDiskRuleManager";
+import { NetDiskWorkerUtils } from "../worker/NetDiskWorkerUtils";
+import { NetDisk } from "../NetDisk";
+import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 
 export const NetDiskShortcut = {
 	shortCut: new ShortCut("GM_shortcut"),
@@ -54,6 +57,23 @@ export const NetDiskShortcut = {
 				callback() {
 					log.info("快捷键 ==> 【打开】⚙ 字符映射规则");
 					NetDiskRuleManager.showView(2);
+				},
+			},
+			"netdisk-keyboard-identifyTheSelectedContent": {
+				target: "window",
+				callback() {
+					log.info(`快捷键 ==> 识别选中内容`);
+					const { text, html } = NetDiskWorkerUtils.getSelectContent();
+					log.info(`选中的内容信息：`, [text, html]);
+					NetDiskWorker.postMessage({
+						characterMapping: [],
+						textList: [text, html],
+						matchTextRange: NetDiskGlobalData.match.pageMatchRange.value,
+						// 剪贴板匹配的话直接使用全部规则来进行匹配
+						matchedRuleOption: NetDisk.$rule.ruleOption,
+						startTime: Date.now(),
+						from: "ShortCut-Select-Content",
+					});
 				},
 			},
 		};

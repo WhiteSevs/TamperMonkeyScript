@@ -1,41 +1,16 @@
 /** 存储的访问码的值 */
 declare interface NetDiskDictData {
-	/** 访问码 */
-	accessCode: string;
 	/** 匹配规则的下标 */
-	netDiskIndex?: number;
+	ruleIndex?: number;
+	/** 访问码 */
+	accessCode: AccessCodeType;
 	/** 匹配的文本 */
 	matchText: string;
-	/** 是否锁定访问码不允许修改，默认false */
+	/**
+	 * 是否锁定访问码不允许修改，默认false
+	 * @default false
+	 */
 	isForceAccessCode?: boolean;
-}
-
-declare interface NetDiskHandleObject {
-	/** 分享码 */
-	shareCode: string;
-	/** 访问码 */
-	accessCode: string;
-	/** 规则名 */
-	netDiskName: string;
-	/** 下标 */
-	netDiskIndex: number;
-	/** 匹配的文本 */
-	matchText: string;
-}
-
-declare interface NetDiskAutoFillAccessCodeOption {
-	/** 链接 */
-	url: string;
-	/** 规则名 */
-	netDiskName: string;
-	/** 规则下标 */
-	netDiskIndex: number;
-	/** 分享码 */
-	shareCode: string;
-	/** 访问码 */
-	accessCode: string;
-	/** 存储时间 */
-	time: number;
 }
 
 declare interface NetDiskSettingMenuDetails
@@ -74,13 +49,7 @@ declare interface NetDiskSettingMenuDetails
 	ownFormList?: any[];
 }
 
-interface NetDiskDebugLogData {
-	/**
-	 * 状态
-	 * + true 执行成功
-	 * + false 执行失败
-	 */
-	status: boolean;
-	/** 日志消息 */
-	msg: string | string[];
-}
+/**
+ * 访问码类型
+ */
+declare type AccessCodeType = string | null | undefined;

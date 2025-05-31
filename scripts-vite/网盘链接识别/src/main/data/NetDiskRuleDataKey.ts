@@ -22,6 +22,8 @@ export const NetDiskRuleDataKEY = {
 	},
 	/** 点击动作 新标签页打开 */
 	linkClickMode_openBlank: {
+		openBlankAutoFilleAccessCode: (key: string) =>
+			`${key}-open-blank-auto-fill-accesscode`,
 		openBlankWithCopyAccessCode: (key: string) =>
 			`${key}-open-blank-with-copy-accesscode`,
 	},

@@ -1,5 +1,5 @@
-import { NetDiskAuthorization_Lanzouyx } from "../rule/netdisk/lanzouyx/authorization";
-import { NetDiskAuthorization_123pan } from "../rule/netdisk/123pan/authorization";
+import { NetDiskAuthorization_Lanzouyx } from "../rule/default-rule/lanzouyx/authorization";
+import { NetDiskAuthorization_123pan } from "../rule/default-rule/123pan/authorization";
 
 /** 网盘-直链鉴权获取处理 */
 export const NetDiskAuthorization = {

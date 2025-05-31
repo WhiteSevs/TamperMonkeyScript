@@ -1,23 +1,24 @@
 import { DOMUtils, log, pops, utils } from "@/env";
-import { NetDiskCheckLinkValidity_baidu } from "../rule/netdisk/baidu/checkLinkValidity";
-import { NetDiskCheckLinkValidity_lanzou } from "../rule/netdisk/lanzou/checkLinkValidity";
-import { NetDiskCheckLinkValidity_lanzouyx } from "../rule/netdisk/lanzouyx/checkLinkValidity";
-import { NetDiskCheckLinkValidity_tianyiyun } from "../rule/netdisk/tianyiyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_aliyun } from "../rule/netdisk/aliyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_wenshushu } from "../rule/netdisk/wenshushu/checkLinkValidity";
-import { NetDiskCheckLinkValidity_nainiu } from "../rule/netdisk/nainiu/checkLinkValidity";
-import { NetDiskCheckLinkValidity_123pan } from "../rule/netdisk/123pan/checkLinkValidity";
-import { NetDiskCheckLinkValidity_weiyun } from "../rule/netdisk/weiyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_xunlei } from "../rule/netdisk/xunlei/checkLinkValidity";
-import { NetDiskCheckLinkValidity_chengtong } from "../rule/netdisk/chengtong/checkLinkValidity";
-import { NetDiskCheckLinkValidity_kuake } from "../rule/netdisk/kuake/checkLinkValidity";
-import { NetDiskCheckLinkValidity_jianguoyun } from "../rule/netdisk/jianguoyun/checkLinkValidity";
-import { NetDiskCheckLinkValidity_onedrive } from "../rule/netdisk/onedrive/checkLinkValidity";
-import { NetDiskCheckLinkValidity_uc } from "../rule/netdisk/uc/checkLinkValidity";
+import { NetDiskCheckLinkValidity_baidu } from "../rule/default-rule/baidu/checkLinkValidity";
+import { NetDiskCheckLinkValidity_lanzou } from "../rule/default-rule/lanzou/checkLinkValidity";
+import { NetDiskCheckLinkValidity_lanzouyx } from "../rule/default-rule/lanzouyx/checkLinkValidity";
+import { NetDiskCheckLinkValidity_tianyiyun } from "../rule/default-rule/tianyiyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_aliyun } from "../rule/default-rule/aliyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_wenshushu } from "../rule/default-rule/wenshushu/checkLinkValidity";
+import { NetDiskCheckLinkValidity_nainiu } from "../rule/default-rule/nainiu/checkLinkValidity";
+import { NetDiskCheckLinkValidity_123pan } from "../rule/default-rule/123pan/checkLinkValidity";
+import { NetDiskCheckLinkValidity_weiyun } from "../rule/default-rule/weiyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_xunlei } from "../rule/default-rule/xunlei/checkLinkValidity";
+import { NetDiskCheckLinkValidity_chengtong } from "../rule/default-rule/chengtong/checkLinkValidity";
+import { NetDiskCheckLinkValidity_kuake } from "../rule/default-rule/kuake/checkLinkValidity";
+import { NetDiskCheckLinkValidity_jianguoyun } from "../rule/default-rule/jianguoyun/checkLinkValidity";
+import { NetDiskCheckLinkValidity_onedrive } from "../rule/default-rule/onedrive/checkLinkValidity";
+import { NetDiskCheckLinkValidity_uc } from "../rule/default-rule/uc/checkLinkValidity";
 import { NetDiskView } from "../view/NetDiskView";
-import { NetDiskCheckLinkValidity_115pan } from "../rule/netdisk/115pan/checkLinkValidity";
+import { NetDiskCheckLinkValidity_115pan } from "../rule/default-rule/115pan/checkLinkValidity";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
+import { NetDiskCheckLinkValidity_360yunpan } from "../rule/default-rule/360yunpan/checkLinkValidity";
 
 /**
  * 校验码状态
@@ -241,7 +242,7 @@ export const NetDiskCheckLinkValidityStatus = {
 };
 
 // 配置的需要校验的网盘
-const NetDiskCheckLinkValidityNetDisk: NetDiskCheckLinkValidityEntrance = {
+const AllCheckLinkValidityFunction: NetDiskCheckLinkValidityEntrance = {
 	baidu: NetDiskCheckLinkValidity_baidu,
 	lanzou: NetDiskCheckLinkValidity_lanzou,
 	lanzouyx: NetDiskCheckLinkValidity_lanzouyx,
@@ -260,6 +261,7 @@ const NetDiskCheckLinkValidityNetDisk: NetDiskCheckLinkValidityEntrance = {
 	jianguoyun: NetDiskCheckLinkValidity_jianguoyun,
 	onedrive: NetDiskCheckLinkValidity_onedrive,
 	uc: NetDiskCheckLinkValidity_uc,
+	"360yunpan": NetDiskCheckLinkValidity_360yunpan,
 };
 
 /**
@@ -290,26 +292,26 @@ export const NetDiskCheckLinkValidity = {
 	/**
 	 * 所有的规则的校验函数
 	 */
-	netDisk: NetDiskCheckLinkValidityNetDisk,
+	ruleCheckValidFunction: AllCheckLinkValidityFunction,
 	/**
 	 * 校验链接的有效性，这里是用于订阅-消费
-	 * @param netDiskViewBox
-	 * @param netDiskName
-	 * @param netDiskIndex
+	 * @param $urlBox
+	 * @param ruleKeyName
+	 * @param ruleIndex
 	 * @param shareCode
 	 * @param accessCode
 	 */
 	async check(
-		netDiskViewBox: HTMLElement,
-		netDiskName: string,
-		netDiskIndex: number,
+		$urlBox: HTMLElement,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string
+		accessCode: AccessCodeType
 	) {
 		this.$data.subscribe.push({
-			netDiskViewBox,
-			netDiskName,
-			netDiskIndex,
+			$urlBox,
+			ruleKeyName,
+			ruleIndex,
 			shareCode,
 			accessCode,
 		});
@@ -336,21 +338,20 @@ export const NetDiskCheckLinkValidity = {
 		checkInfo: NetDiskCheckLinkValidityOption,
 		isForceCheck: boolean
 	) {
-		let $netDiskStatus =
-			checkInfo.netDiskViewBox.querySelector<HTMLDivElement>(
-				".netdisk-status"
-			)!;
-		if (this.isViewCheckValid($netDiskStatus) && !isForceCheck) {
+		const { $checkValidStatus } = NetDiskView.parseViewBoxElementInfo(
+			checkInfo.$urlBox
+		);
+		if (this.isViewCheckValid($checkValidStatus) && !isForceCheck) {
 			return;
 		}
 		this.setCheckStatusElementToolTip(checkInfo);
 		// 网盘键
-		let netDiskName = checkInfo.netDiskName;
-		if (!NetDiskRuleData.function.checkLinkValidity(netDiskName)) {
+		let ruleKeyName = checkInfo.ruleKeyName;
+		if (!NetDiskRuleData.function.checkLinkValidity(ruleKeyName)) {
 			log.error("未开启checkLinkValidity功能", checkInfo);
 			return;
 		}
-		let netDiskCheck = this.netDisk[checkInfo.netDiskName];
+		let netDiskCheck = this.ruleCheckValidFunction[checkInfo.ruleKeyName];
 		if (
 			!netDiskCheck ||
 			(netDiskCheck && typeof netDiskCheck.init !== "function")
@@ -359,10 +360,10 @@ export const NetDiskCheckLinkValidity = {
 			log.error("没有配置该网盘的校验有效性", checkInfo);
 			return;
 		}
-		this.status.loading.setView($netDiskStatus, checkInfo);
+		this.status.loading.setView($checkValidStatus, checkInfo);
 
 		let checkStatusResult = await netDiskCheck.init(
-			checkInfo.netDiskIndex,
+			checkInfo.ruleIndex,
 			checkInfo.shareCode,
 			checkInfo.accessCode
 		);
@@ -371,14 +372,14 @@ export const NetDiskCheckLinkValidity = {
 			return;
 		}
 		checkStatusResult.setView(
-			$netDiskStatus,
+			$checkValidStatus,
 			checkInfo,
 			checkStatusResult.tipMsg
 		);
 		if (checkStatusResult.data) {
 			// 设置属性
 			Reflect.set(
-				$netDiskStatus,
+				$checkValidStatus,
 				"data-httpx-response",
 				checkStatusResult.data
 			);
@@ -398,17 +399,14 @@ export const NetDiskCheckLinkValidity = {
 			"click",
 			void 0,
 			() => {
-				const $netDiskUrlDiv = $ele.closest<HTMLElement>(".netdisk-url-div")!;
-				const $netDiskLink =
-					$netDiskUrlDiv.querySelector<HTMLElement>(".netdisk-link")!;
+				const { $urlBox, $link } = NetDiskView.parseViewBoxElementInfo($ele);
 				// 解析出元素上的数据
-				const ruleInfo =
-					NetDiskView.praseElementAttributeRuleInfo($netDiskLink);
+				const ruleInfo = NetDiskView.praseElementAttributeRuleInfo($link);
 				// 设置新的检测数据
 				let newCheckInfo: NetDiskCheckLinkValidityOption = {
-					netDiskViewBox: $netDiskUrlDiv,
-					netDiskName: ruleInfo.netDiskName,
-					netDiskIndex: ruleInfo.netDiskIndex,
+					$urlBox: $urlBox,
+					ruleKeyName: ruleInfo.ruleKeyName,
+					ruleIndex: ruleInfo.ruleIndex,
 					shareCode: ruleInfo.shareCode,
 					accessCode: ruleInfo.accessCode,
 				};
@@ -423,13 +421,13 @@ export const NetDiskCheckLinkValidity = {
 	 * 简而言之。验证成功的图标点击后将不触发验证请求
 	 * + true 已验证(成功/需要密码)
 	 * + false 尚未验证/验证超时/验证网络异常
-	 * @param ele
+	 * @param $ele
 	 */
-	isViewCheckValid(ele: HTMLElement) {
-		if (!ele.hasAttribute("data-check-valid")) {
+	isViewCheckValid($ele: HTMLElement) {
+		if (!$ele.hasAttribute("data-check-valid")) {
 			return false;
 		}
-		if (ele.getAttribute("data-check-valid") === "error") {
+		if ($ele.getAttribute("data-check-valid") === "error") {
 			return false;
 		}
 		return true;
@@ -484,7 +482,7 @@ export const NetDiskCheckLinkValidity = {
 	 */
 	setCheckStatusElementToolTip(checkInfo: NetDiskCheckLinkValidityOption) {
 		if (
-			!NetDiskRuleData.function.checkLinlValidityHoverTip(checkInfo.netDiskName)
+			!NetDiskRuleData.function.checkLinlValidityHoverTip(checkInfo.ruleKeyName)
 		) {
 			return;
 		}
@@ -492,9 +490,10 @@ export const NetDiskCheckLinkValidity = {
 		 * 获取网盘校验状态
 		 */
 		function getNetDiskStatus() {
-			return checkInfo.netDiskViewBox.querySelector<HTMLDivElement>(
-				".netdisk-status"
-			)!;
+			const { $checkValidStatus } = NetDiskView.parseViewBoxElementInfo(
+				checkInfo.$urlBox
+			);
+			return $checkValidStatus;
 		}
 		let $netDiskStatus = getNetDiskStatus();
 

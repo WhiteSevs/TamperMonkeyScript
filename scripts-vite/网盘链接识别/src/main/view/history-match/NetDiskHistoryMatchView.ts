@@ -159,8 +159,8 @@ export const NetDiskHistoryMatchView = {
 	getTableHTML(data: NetDiskHistoryDataOption) {
 		/** 获取处理后的显示的链接 */
 		let netDiskURL = NetDisk.handleLinkShow(
-			data.netDiskName,
-			data.netDiskIndex,
+			data.ruleKeyName,
+			data.ruleIndex,
 			data.shareCode,
 			data.accessCode,
 			data.matchText
@@ -226,8 +226,8 @@ export const NetDiskHistoryMatchView = {
 			$features!.querySelector<HTMLButtonElement>(".btn-delete")!;
 		NetDiskView.handleElementAttributeRuleInfo(
 			{
-				netDisk: data.netDiskName,
-				netDiskIndex: data.netDiskIndex,
+				ruleKeyName: data.ruleKeyName,
+				ruleIndex: data.ruleIndex,
 				shareCode: data.shareCode,
 				accessCode: data.accessCode,
 			},
@@ -235,7 +235,7 @@ export const NetDiskHistoryMatchView = {
 		);
 
 		$iconImg.style.cssText = `background: url(${
-			NetDiskUI.src.icon[data.netDiskName]
+			NetDiskUI.src.icon[data.ruleKeyName]
 		}) no-repeat;background-size:100%`;
 
 		if (data.url !== data.topURL) {
@@ -442,8 +442,8 @@ export const NetDiskHistoryMatchView = {
 			let isFindHTML = ""; /* 找到的链接文本 */
 			data.forEach((item) => {
 				let netDiskURL = NetDisk.handleLinkShow(
-					item.netDiskName,
-					item.netDiskIndex,
+					item.ruleKeyName,
+					item.ruleIndex,
 					item.shareCode,
 					item.accessCode,
 					item.matchText
@@ -517,18 +517,18 @@ export const NetDiskHistoryMatchView = {
 	},
 	/**
 	 * 查询访问码
-	 * @param netDiskName
+	 * @param ruleKeyName
 	 * @param shareCode
 	 * @param isNotNull 查询的访问码是否不为空
 	 * + true 不能是空的
 	 * + false 允许为空
 	 */
-	queryAccessCode(netDiskName: string, shareCode: string, isNotNull: boolean) {
+	queryAccessCode(ruleKeyName: string, shareCode: string, isNotNull: boolean) {
 		let storageDataList = this.getStorageData();
 		for (let index = 0; index < storageDataList.length; index++) {
 			const localData = storageDataList[index];
 			if (
-				localData.netDiskName === netDiskName &&
+				localData.ruleKeyName === ruleKeyName &&
 				localData.shareCode === shareCode
 			) {
 				if (isNotNull && utils.isNotNull(localData.accessCode)) {
@@ -541,21 +541,21 @@ export const NetDiskHistoryMatchView = {
 	},
 	/**
 	 * 同步访问码
-	 * @param netDiskName 网盘名称
-	 * @param netDiskIndex 网盘名称索引下标
+	 * @param ruleKeyName 规则名称
+	 * @param ruleIndex 规则的索引下标
 	 * @param shareCode 分享码
 	 * @param accessCode 新的访问码
 	 */
 	syncAccessCode(
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string
+		accessCode: AccessCodeType
 	) {
 		if (NetDiskGlobalData.historyMatch.saveMatchNetDisk.value) {
 			let flag = NetDiskHistoryMatchView.changeMatchedDataAccessCode(
-				netDiskName,
-				netDiskIndex,
+				ruleKeyName,
+				ruleIndex,
 				shareCode,
 				accessCode
 			);
@@ -570,24 +570,24 @@ export const NetDiskHistoryMatchView = {
 	},
 	/**
 	 * 修改存储的数据的访问码
-	 * @param netDiskName 网盘名称
-	 * @param netDiskIndex 网盘名称索引下标
+	 * @param ruleKeyName 规则名称
+	 * @param ruleIndex 规则的索引下标
 	 * @param shareCode 分享码
 	 * @param accessCode 新的访问码
 	 */
 	changeMatchedDataAccessCode(
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string
+		accessCode: AccessCodeType
 	) {
 		let storageDataList = this.getStorageData();
 		let flag = false;
 		for (let index = 0; index < storageDataList.length; index++) {
 			const localData = storageDataList[index];
 			if (
-				localData.netDiskName === netDiskName &&
-				String(localData.netDiskIndex) === String(netDiskIndex) &&
+				localData.ruleKeyName === ruleKeyName &&
+				String(localData.ruleIndex) === String(ruleIndex) &&
 				localData.shareCode === shareCode
 			) {
 				flag = true;
@@ -603,17 +603,17 @@ export const NetDiskHistoryMatchView = {
 	},
 	/**
 	 * 存储匹配到的链接
-	 * @param netDiskName 网盘名称
-	 * @param netDiskIndex 网盘名称索引下标
+	 * @param ruleKeyName 规则名称
+	 * @param ruleIndex 规则的索引下标
 	 * @param shareCode 分享码
 	 * @param accessCode 访问码
 	 * @param matchText 匹配到的文本
 	 */
 	changeMatchedData(
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string,
+		accessCode: AccessCodeType,
 		matchText: string
 	) {
 		if (!NetDiskGlobalData.historyMatch.saveMatchNetDisk.value) {
@@ -628,9 +628,9 @@ export const NetDiskHistoryMatchView = {
 			const localData = storageDataList[index];
 			// 按照匹配的网址的区分的
 			if (
-				localData.netDiskName === netDiskName &&
+				localData.ruleKeyName === ruleKeyName &&
 				shareCode.startsWith(localData.shareCode) &&
-				localData.netDiskIndex === netDiskIndex
+				localData.ruleIndex === ruleIndex
 			) {
 				if (
 					NetDiskGlobalData.historyMatch[
@@ -684,8 +684,8 @@ export const NetDiskHistoryMatchView = {
 				{
 					url: window.location.href,
 					topURL: top!.window.location.href,
-					netDiskName: netDiskName,
-					netDiskIndex: netDiskIndex,
+					ruleKeyName: ruleKeyName,
+					ruleIndex: ruleIndex,
 					shareCode: shareCode,
 					accessCode,
 					addTime: time,
@@ -706,11 +706,35 @@ export const NetDiskHistoryMatchView = {
 		let data = GM_getValue<NetDiskHistoryDataOption[]>(this.storageKey);
 		if (Array.isArray(data)) {
 			for (let index = 0; index < data.length; index++) {
+				let repairFlag = false;
 				const itemData = data[index];
-				if (typeof itemData["matchText"] !== "string") {
-					itemData["matchText"] = "";
-					repairCount++;
+				if (typeof itemData.matchText !== "string") {
+					itemData.matchText = "";
+					repairFlag = true;
 				}
+				if (
+					typeof itemData.ruleKeyName !== "string" &&
+					// @ts-ignore
+					typeof itemData.netDiskName === "string"
+				) {
+					// @ts-ignore
+					itemData.ruleKeyName = itemData.netDiskName;
+					// @ts-ignore
+					delete itemData.netDiskName;
+					repairFlag = true;
+				}
+				if (
+					typeof itemData.ruleIndex !== "number" &&
+					// @ts-ignore
+					typeof itemData.netDiskIndex === "number"
+				) {
+					// @ts-ignore
+					itemData.ruleIndex = itemData.netDiskIndex;
+					// @ts-ignore
+					delete itemData.netDiskIndex;
+					repairFlag = true;
+				}
+				repairFlag && repairCount++;
 			}
 		} else {
 			data = [];

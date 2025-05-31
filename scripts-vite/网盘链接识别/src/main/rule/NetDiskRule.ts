@@ -3,23 +3,23 @@ import type {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
 } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { NetDiskRule_baidu } from "./netdisk/baidu/rule";
-import { NetDiskRule_lanzou } from "./netdisk/lanzou/rule";
-import { NetDiskRule_lanzouyx } from "./netdisk/lanzouyx/rule";
-import { NetDiskRule_tianyiyun } from "./netdisk/tianyiyun/rule";
-import { NetDiskRule_hecaiyun } from "./netdisk/hecaiyun/rule";
-import { NetDiskRule_aliyun } from "./netdisk/aliyun/rule";
-import { NetDiskRule_wenshushu } from "./netdisk/wenshushu/rule";
-import { NetDiskRule_nainiu } from "./netdisk/nainiu/rule";
-import { NetDiskRule_123pan } from "./netdisk/123pan/rule";
-import { NetDiskRule_weiyun } from "./netdisk/weiyun/rule";
-import { NetDiskRule_xunlei } from "./netdisk/xunlei/rule";
-import { NetDiskRule_chengtong } from "./netdisk/chengtong/rule";
-import { NetDiskRule_kuake } from "./netdisk/kuake/rule";
-import { NetDiskRule_magnet } from "./netdisk/magnet/rule";
-import { NetDiskRule_jianguoyun } from "./netdisk/jianguoyun/rule";
-import { NetDiskRule_onedrive } from "./netdisk/onedrive/rule";
-import { NetDiskRule_uc } from "./netdisk/uc/rule";
+import { NetDiskRule_baidu } from "./default-rule/baidu/rule";
+import { NetDiskRule_lanzou } from "./default-rule/lanzou/rule";
+import { NetDiskRule_lanzouyx } from "./default-rule/lanzouyx/rule";
+import { NetDiskRule_tianyiyun } from "./default-rule/tianyiyun/rule";
+import { NetDiskRule_hecaiyun } from "./default-rule/hecaiyun/rule";
+import { NetDiskRule_aliyun } from "./default-rule/aliyun/rule";
+import { NetDiskRule_wenshushu } from "./default-rule/wenshushu/rule";
+import { NetDiskRule_nainiu } from "./default-rule/nainiu/rule";
+import { NetDiskRule_123pan } from "./default-rule/123pan/rule";
+import { NetDiskRule_weiyun } from "./default-rule/weiyun/rule";
+import { NetDiskRule_xunlei } from "./default-rule/xunlei/rule";
+import { NetDiskRule_chengtong } from "./default-rule/chengtong/rule";
+import { NetDiskRule_kuake } from "./default-rule/kuake/rule";
+import { NetDiskRule_magnet } from "./default-rule/magnet/rule";
+import { NetDiskRule_jianguoyun } from "./default-rule/jianguoyun/rule";
+import { NetDiskRule_onedrive } from "./default-rule/onedrive/rule";
+import { NetDiskRule_uc } from "./default-rule/uc/rule";
 import { NetDisk } from "../NetDisk";
 import { NetDiskUserRule } from "./user-rule/NetDiskUserRule";
 import { UISlider } from "@/setting/components/ui-slider";
@@ -35,8 +35,9 @@ import {
 	NetDiskUserRuleReplaceParam_matchRange_html,
 	NetDiskUserRuleReplaceParam_matchRange_text,
 } from "./user-rule/NetDiskUserRuleReplaceParam";
-import { NetDiskRule_115pan } from "./netdisk/115pan/rule";
-import { NetDiskRule_ed2k } from "./netdisk/ed2k/rule";
+import { NetDiskRule_115pan } from "./default-rule/115pan/rule";
+import { NetDiskRule_ed2k } from "./default-rule/ed2k/rule";
+import { NetDiskRule_360yunpan } from "./default-rule/360yunpan/rule";
 
 export const NetDiskRule = {
 	/** 规则存储的数据 */
@@ -50,14 +51,12 @@ export const NetDiskRule = {
 	},
 	/**
 	 * 初始化规则的内容
-	 * 1. 动态添加rule到NetDisk.regular
-	 * 2. 生成pops.panel适用的配置
 	 */
 	initRule() {
 		// 默认的规则
-		let defaultRuleList: NetDiskRuleConfig[] = [
+		let defaultRuleList: (NetDiskRuleOption | (() => NetDiskRuleOption))[] = [
 			NetDiskRule_baidu,
-			NetDiskRule_lanzou(),
+			NetDiskRule_lanzou,
 			NetDiskRule_lanzouyx,
 			NetDiskRule_tianyiyun,
 			NetDiskRule_hecaiyun,
@@ -75,13 +74,17 @@ export const NetDiskRule = {
 			NetDiskRule_jianguoyun,
 			NetDiskRule_onedrive,
 			NetDiskRule_uc,
+			NetDiskRule_360yunpan,
 		];
 		// 用户规则
-		let userRuleList: NetDiskRuleConfig[] =
+		let userRuleList: NetDiskRuleOption[] =
 			NetDiskUserRule.getNetDiskRuleConfig();
 
 		// 遍历所有的规则、生成pops界面的配置
 		[...defaultRuleList, ...userRuleList].forEach((netDiskRuleConfig) => {
+			if (typeof netDiskRuleConfig === "function") {
+				netDiskRuleConfig = netDiskRuleConfig();
+			}
 			if (typeof netDiskRuleConfig.setting.key !== "string") {
 				throw new Error("规则未设置key");
 			}
@@ -96,10 +99,10 @@ export const NetDiskRule = {
 			const netDiskRule = netDiskRuleConfig.rule;
 
 			// 添加规则
-			if (Reflect.has(NetDisk.$rule.matchRule, ruleKey)) {
+			if (Reflect.has(NetDisk.$rule.ruleOption, ruleKey)) {
 				/* 如果规则已存在(已内置)，自定义的链接识别规则先放在前面匹配 */
 				/* 即用户自定义的规则优先级最高 */
-				let commonRule = NetDisk.$rule.matchRule[ruleKey];
+				let commonRule = NetDisk.$rule.ruleOption[ruleKey];
 				if (netDiskRuleConfig.isUserRule) {
 					// 是用户规则，放在最前面
 					commonRule = [...netDiskRule, ...commonRule];
@@ -113,7 +116,7 @@ export const NetDiskRule = {
 				findValue!.rule = commonRule;
 			} else {
 				// 不存在，直接新增新的
-				Reflect.set(NetDisk.$rule.matchRule, ruleKey, netDiskRuleConfig.rule);
+				Reflect.set(NetDisk.$rule.ruleOption, ruleKey, netDiskRuleConfig.rule);
 				NetDisk.$rule.rule.push(netDiskRuleConfig);
 			}
 			// 添加设置值
@@ -190,14 +193,14 @@ export const NetDiskRule = {
 	 * 1. 替换字符串类型的内部关键字
 	 */
 	parseRuleMatchRule(netDiskRuleConfig: {
-		rule: NetDiskMatchRuleOption[];
+		rule: NetDiskMatchRuleConfig[];
 		setting: NetDiskRuleSetting;
 		isUserRule?: boolean;
 	}) {
 		// 旧的匹配规则
 		let netDiskMatchRule = netDiskRuleConfig.rule;
 		// 新的匹配规则
-		let netDiskMatchRuleHandler = <NetDiskMatchRuleOption[]>[];
+		let netDiskMatchRuleHandler = <NetDiskMatchRuleConfig[]>[];
 		//  网盘键
 		let ruleKey = netDiskRuleConfig.setting.key;
 
@@ -232,7 +235,7 @@ export const NetDiskRule = {
 	 * @param netDiskRuleConfig 规则配置
 	 */
 	parseRuleSetting(netDiskRuleConfig: {
-		rule: NetDiskMatchRuleOption[];
+		rule: NetDiskMatchRuleConfig[];
 		setting: NetDiskRuleSetting;
 		isUserRule?: boolean;
 	}): (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[] {
@@ -377,6 +380,31 @@ export const NetDiskRule = {
 		if (settingConfig.linkClickMode_openBlank) {
 			// 点击动作-新标签页打开
 			let linkClickMode_openBlank_form: PopsPanelFormsTotalDetails[] = [];
+			if (
+				"openBlankAutoFilleAccessCode" in settingConfig.linkClickMode_openBlank
+			) {
+				const default_value =
+					typeof settingConfig.linkClickMode_openBlank
+						.openBlankAutoFilleAccessCode === "boolean"
+						? settingConfig.linkClickMode_openBlank.openBlankAutoFilleAccessCode
+						: true;
+				linkClickMode_openBlank_form.push(
+					UISwitch(
+						"自动填充访问码",
+						NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
+							ruleKey
+						),
+						default_value,
+						void 0,
+						"当点击动作是【新标签页打开】时且存在访问码，那就会自动填充访问码"
+					)
+				);
+				// 覆盖默认值
+				settingConfig.linkClickMode_openBlank.openBlankAutoFilleAccessCode =
+					NetDiskRuleData.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
+						ruleKey
+					);
+			}
 			if (
 				"openBlankWithCopyAccessCode" in settingConfig.linkClickMode_openBlank
 			) {

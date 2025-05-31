@@ -2,15 +2,15 @@ declare interface NetDiskCheckLinkValidityOption {
 	/**
 	 * .netdisk-url-box元素项
 	 */
-	netDiskViewBox: HTMLElement;
+	$urlBox: HTMLElement;
 	/**
 	 * 规则名
 	 */
-	netDiskName: string;
+	ruleKeyName: string;
 	/**
 	 * 规则下标
 	 */
-	netDiskIndex: number;
+	ruleIndex: number;
 	/**
 	 * 分享码
 	 */
@@ -18,7 +18,7 @@ declare interface NetDiskCheckLinkValidityOption {
 	/**
 	 * 访问码
 	 */
-	accessCode: string;
+	accessCode: AccessCodeType;
 }
 declare interface NetDiskCheckLinkValidityStatusInstance {
 	/**
@@ -49,15 +49,15 @@ declare interface NetDiskCheckLinkValidityStatusInstance {
 declare interface NetDiskCheckLinkValidityEntranceInstance {
 	/**
 	 * 入口函数
-	 * @param netDiskIndex 网盘名称索引下标
+	 * @param ruleIndex 规则的索引下标
 	 * @param shareCode 分享码
 	 * @param accessCode 访问码
 	 * @returns
 	 */
 	init: (
-		netDiskIndex: number,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string
+		accessCode: AccessCodeType
 	) => IPromise<
 		NetDiskCheckLinkValidityStatusInstance & {
 			/**

@@ -173,11 +173,11 @@ export const NetDiskUI = {
 				text: "复制链接",
 				callback: function (event, contextMenuEvent, liElement) {
 					let $link = contextMenuEvent.target as HTMLElement;
-					const { netDiskName, netDiskIndex, shareCode, accessCode } =
+					const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 						NetDiskView.praseElementAttributeRuleInfo($link);
 					NetDiskLinkClickMode.copy(
-						netDiskName,
-						netDiskIndex,
+						ruleKeyName,
+						ruleIndex,
 						shareCode,
 						accessCode
 					);
@@ -187,18 +187,18 @@ export const NetDiskUI = {
 				text: "访问链接",
 				callback: function (event, contextMenuEvent, liElement) {
 					let $link = contextMenuEvent.target as HTMLElement;
-					const { netDiskName, netDiskIndex, shareCode, accessCode } =
+					const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 						NetDiskView.praseElementAttributeRuleInfo($link);
 					let url = NetDiskLinkClickModeUtils.getBlankUrl(
-						netDiskName,
-						netDiskIndex,
+						ruleKeyName,
+						ruleIndex,
 						shareCode,
 						accessCode
 					);
 					NetDiskLinkClickMode.openBlankUrl(
 						url,
-						netDiskName,
-						netDiskIndex,
+						ruleKeyName,
+						ruleIndex,
 						shareCode,
 						accessCode
 					);
@@ -208,18 +208,18 @@ export const NetDiskUI = {
 				text: "后台打开",
 				callback: function (event, contextMenuEvent, liElement) {
 					let $link = contextMenuEvent.target as HTMLElement;
-					const { netDiskName, netDiskIndex, shareCode, accessCode } =
+					const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 						NetDiskView.praseElementAttributeRuleInfo($link);
 					let url = NetDiskLinkClickModeUtils.getBlankUrl(
-						netDiskName,
-						netDiskIndex,
+						ruleKeyName,
+						ruleIndex,
 						shareCode,
 						accessCode
 					);
 					NetDiskLinkClickMode.openBlankUrl(
 						url,
-						netDiskName,
-						netDiskIndex,
+						ruleKeyName,
+						ruleIndex,
 						shareCode,
 						accessCode,
 						true
@@ -227,17 +227,44 @@ export const NetDiskUI = {
 				},
 			},
 			{
+				text: "复制访问码",
+				callback: function (event, contextMenuEvent, liElement) {
+					let $link = contextMenuEvent.target as HTMLElement;
+					const { ruleKeyName, ruleIndex, shareCode, accessCode } =
+						NetDiskView.praseElementAttributeRuleInfo($link);
+					if (
+						accessCode == null ||
+						(typeof accessCode === "string" && accessCode.trim() === "")
+					) {
+						Qmsg.warning("无访问码");
+						return;
+					}
+					utils
+						.setClip(accessCode)
+						.then((status) => {
+							if (status) {
+								Qmsg.success("已复制");
+							} else {
+								Qmsg.error("执行复制失败", { consoleLogContent: true });
+							}
+						})
+						.catch(() => {
+							Qmsg.error("执行复制失败", { consoleLogContent: true });
+						});
+				},
+			},
+			{
 				text: "修改访问码",
 				callback: function (event, contextMenuEvent, liElement) {
 					let eventTarget = event.target as HTMLElement;
 					let $link = contextMenuEvent.target as HTMLElement;
-					const { netDiskName, netDiskIndex, shareCode, accessCode } =
+					const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 						NetDiskView.praseElementAttributeRuleInfo($link);
 
 					NetDiskUI.newAccessCodeView(
 						this.text as string,
-						netDiskName,
-						netDiskIndex,
+						ruleKeyName,
+						ruleIndex,
 						shareCode,
 						accessCode,
 						(option) => {
@@ -249,7 +276,7 @@ export const NetDiskUI = {
 										.closest("li")!
 										.querySelector<HTMLElement>(".netdiskrecord-update-time")!;
 									DOMUtils.text($updateTime, utils.formatTime(currentTime));
-									$link.setAttribute("data-accesscode", option.accessCode);
+									DOMUtils.attr($link, "data-accesscode", option.accessCode!);
 									Qmsg.success(
 										/*html*/ `
 										<div style="text-align: left;">旧: ${accessCode}</div>
@@ -262,7 +289,11 @@ export const NetDiskUI = {
 									Qmsg.error("修改失败");
 								}
 							} else {
-								eventTarget.setAttribute("data-accesscode", option.accessCode);
+								DOMUtils.attr(
+									eventTarget,
+									"data-accesscode",
+									option.accessCode!
+								);
 								if (option.isUpdatedMatchedDict) {
 									Qmsg.success(
 										/*html*/ `
@@ -296,12 +327,12 @@ export const NetDiskUI = {
 					$boxAll
 						.querySelectorAll<HTMLElement>(selector)
 						.forEach(($linkItem) => {
-							const { netDiskName, netDiskIndex, shareCode, accessCode } =
+							const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 								NetDiskView.praseElementAttributeRuleInfo($linkItem);
 							// 复制的文本
 							let copyUrlText = NetDiskLinkClickModeUtils.getCopyUrlInfo(
-								netDiskName,
-								netDiskIndex,
+								ruleKeyName,
+								ruleIndex,
 								shareCode,
 								accessCode
 							);
@@ -331,11 +362,11 @@ export const NetDiskUI = {
 				callback: function (event, contextMenuEvent, liElement) {
 					let $link = contextMenuEvent.target as HTMLElement;
 					let $box = $link.closest<HTMLElement>(".netdisk-url-box")!;
-					const { netDiskName, netDiskIndex, shareCode, accessCode } =
+					const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 						NetDiskView.praseElementAttributeRuleInfo($link);
 					let flag = false;
 					NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
-						if (netDiskKeyName !== netDiskName) {
+						if (netDiskKeyName !== ruleKeyName) {
 							return;
 						}
 						netDiskItem.forEach((matchedInfo, matchedShareCode) => {
@@ -365,7 +396,7 @@ export const NetDiskUI = {
 				callback: function (event, contextMenuEvent, liElement) {
 					let $link = contextMenuEvent.target as HTMLElement;
 					let $boxAll = $link.closest<HTMLElement>(".netdisk-url-box-all")!;
-					const { netDiskName, netDiskIndex, shareCode, accessCode } =
+					const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 						NetDiskView.praseElementAttributeRuleInfo($link);
 					NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
 						netDiskItem.clear();

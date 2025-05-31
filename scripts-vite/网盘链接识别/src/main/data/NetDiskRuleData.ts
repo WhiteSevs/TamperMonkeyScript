@@ -115,6 +115,18 @@ export const NetDiskRuleData = {
 	},
 	linkClickMode_openBlank: {
 		/**
+		 * 跳转时自动填充访问码（如果有的话）
+		 * @param key 规则键名
+		 * @param [defaultValue=true] 默认值: true
+		 */
+		openBlankAutoFilleAccessCode(key: string, defaultValue: boolean = true) {
+			const panelData = GeneratePanelData(
+				NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(key),
+				defaultValue
+			);
+			return Boolean(panelData.value);
+		},
+		/**
 		 * 跳转时复制访问码
 		 * @param key 规则键名
 		 * @param defaultValue

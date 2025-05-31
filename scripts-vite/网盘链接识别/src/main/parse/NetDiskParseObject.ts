@@ -1,19 +1,19 @@
-export abstract class NetDiskParseObject {
+export abstract class ParseFileAbstract {
 	/** 所在规则的下标 */
-	netDiskIndex: number = 0;
+	ruleIndex: number = 0;
 	/** 分享码 */
 	shareCode: string = "";
 	/** 提取码 */
-	accessCode: string = "";
+	accessCode: AccessCodeType = "";
 	/**
 	 * 入口
-	 * @param netDiskIndex 网盘名称索引下标
-	 * @param shareCode
-	 * @param accessCode
+	 * @param ruleIndex 规则下标
+	 * @param shareCode 分享码
+	 * @param accessCode 访问码
 	 */
 	abstract init(
-		netDiskIndex: number,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string
+		accessCode: AccessCodeType
 	): IPromise<void>;
 }

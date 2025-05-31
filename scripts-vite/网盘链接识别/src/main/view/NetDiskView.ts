@@ -23,10 +23,44 @@ import { NetDiskFilterScheme } from "../scheme/NetDiskFilterScheme";
  * 传递给生成需要的网盘参数数据
  */
 type NetDiskElementRuleData = {
-	netDisk: string;
+	/**
+	 * 规则键名
+	 */
+	ruleKeyName: string;
+	/**
+	 * 规则下标
+	 */
+	ruleIndex: number | string;
+	/**
+	 * 分享码
+	 */
 	shareCode: string;
-	accessCode: string | undefined | null;
-	netDiskIndex: number | string;
+	/**
+	 * 访问码
+	 */
+	accessCode: AccessCodeType;
+};
+
+/**
+ * 元素的attribute上存储的匹配到的规则信息
+ */
+type RuleElementAttr = {
+	/**
+	 * 规则键名
+	 */
+	ruleKeyName: string;
+	/**
+	 * 规则下标
+	 */
+	ruleIndex: number;
+	/**
+	 * 分享码
+	 */
+	shareCode: string;
+	/**
+	 * 访问码
+	 */
+	accessCode: AccessCodeType;
 };
 
 /**
@@ -36,6 +70,7 @@ export type RegisterContextMenuShowTextOption = Pick<
 	PopsRightClickMenuDataDetails,
 	"text" | "callback"
 >;
+
 export const NetDiskView = {
 	show() {
 		if (NetDiskUI.Alias.uiLinkAlias == null) {
@@ -337,21 +372,21 @@ export const NetDiskView = {
 			)!;
 
 		// 把匹配到的添加到视图中
-		NetDiskUI.isMatchedNetDiskIconMap.forEach((netDiskName) => {
-			let netDiskDict = NetDisk.$match.matchedInfo.get(netDiskName);
+		NetDiskUI.isMatchedNetDiskIconMap.forEach((ruleKeyName) => {
+			let netDiskDict = NetDisk.$match.matchedInfo.get(ruleKeyName);
 			let documentFragment = document.createDocumentFragment();
 			netDiskDict.forEach((netDiskData, shareCode) => {
 				let uiLink = NetDisk.handleLinkShow(
-					netDiskName,
-					netDiskData["netDiskIndex"]!,
+					ruleKeyName,
+					netDiskData["ruleIndex"]!,
 					shareCode,
 					netDiskData["accessCode"],
 					netDiskData["matchText"]
 				);
 				let boxViewInfo = this.createViewBoxElementInfo(
-					NetDiskUI.src.icon[netDiskName],
-					netDiskName,
-					netDiskData["netDiskIndex"]!,
+					NetDiskUI.src.icon[ruleKeyName],
+					ruleKeyName,
+					netDiskData["ruleIndex"]!,
 					shareCode,
 					netDiskData["accessCode"],
 					uiLink
@@ -372,13 +407,13 @@ export const NetDiskView = {
 			.querySelectorAll<HTMLElement>(".netdisk-url-box-all .netdisk-url-box")
 			.forEach(($netDiskBox) => {
 				// 网盘链接验证
-				let netDiskName = $netDiskBox
+				let ruleKeyName = $netDiskBox
 					.querySelector<HTMLElement>(".netdisk-link")!
-					.getAttribute("data-netdisk")!;
-				let netDiskIndex = parseInt(
+					.getAttribute("data-rule-key")!;
+				let ruleIndex = parseInt(
 					$netDiskBox
 						.querySelector<HTMLElement>(".netdisk-link")!
-						.getAttribute("data-netdisk-index")!
+						.getAttribute("data-rule-index")!
 				);
 				let shareCode = $netDiskBox
 					.querySelector<HTMLElement>(".netdisk-link")!
@@ -388,8 +423,8 @@ export const NetDiskView = {
 					.getAttribute("data-accesscode")!;
 				NetDiskCheckLinkValidity.check(
 					$netDiskBox,
-					netDiskName,
-					netDiskIndex,
+					ruleKeyName,
+					ruleIndex,
 					shareCode,
 					accessCode
 				);
@@ -424,9 +459,9 @@ export const NetDiskView = {
 	createElementAttributeRuleInfoJSON(data: NetDiskElementRuleData) {
 		return {
 			/** 网盘 */
-			"data-netdisk": data.netDisk,
+			"data-rule-key": data.ruleKeyName,
 			/** 网盘索引 */
-			"data-netdisk-index": data.netDiskIndex,
+			"data-rule-index": data.ruleIndex,
 			/** 访问码 */
 			"data-sharecode": data.shareCode,
 			/** 访问码 */
@@ -456,39 +491,36 @@ export const NetDiskView = {
 	},
 	/**
 	 * 解析创建在元素属性上的attribute的数据
+	 * @param $ele 元素
 	 */
 	praseElementAttributeRuleInfo($ele: HTMLElement) {
-		let result = {
-			/** 网盘名称 */
-			netDiskName: $ele.getAttribute("data-netdisk")!,
-			/** 网盘索引 */
-			netDiskIndex: parseInt($ele.getAttribute("data-netdisk-index")!),
-			/** 分享码 */
+		let result: RuleElementAttr = {
+			ruleKeyName: $ele.getAttribute("data-rule-key")!,
+			ruleIndex: parseInt($ele.getAttribute("data-rule-index")!),
 			shareCode: $ele.getAttribute("data-sharecode")!,
-			/** 提取码 */
-			accessCode: $ele.getAttribute("data-accesscode")!,
+			accessCode: $ele.getAttribute("data-accesscode"),
 		};
-		if (isNaN(result.netDiskIndex)) {
-			log.warn("元素上的netDiskIndex的值是NaN", $ele);
-			result.netDiskIndex = 0;
+		if (isNaN(result.ruleIndex)) {
+			log.warn("元素上的 ruleIndex 的值是NaN，调整为默认值0", $ele);
+			result.ruleIndex = 0;
 		}
 		return result;
 	},
 	/**
 	 * 创建每一项的网盘元素信息
-	 * @param netDiskImgSrc 网盘图标src
-	 * @param netDiskName 网盘名称
-	 * @param netDiskIndex 网盘名称索引下标
-	 * @param shareCode
-	 * @param accessCode
+	 * @param ruleImgSrc 规则图标src
+	 * @param ruleKeyName 规则键名
+	 * @param ruleIndex 规则的索引下标
+	 * @param shareCode 分享码
+	 * @param accessCode 访问码
 	 * @param uiLinkText 显示出来的链接文本
 	 */
 	createViewBoxElementInfo(
-		netDiskImgSrc: string,
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleImgSrc: string,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string,
+		accessCode: AccessCodeType,
 		uiLinkText: string
 	) {
 		let $viewBox = DOMUtils.createElement("div", {
@@ -508,25 +540,18 @@ export const NetDiskView = {
             </div>
 			`,
 		});
-
-		let $urlDiv = $viewBox.querySelector<HTMLDivElement>(".netdisk-url-div")!;
-		let $icon = $viewBox.querySelector<HTMLDivElement>(".netdisk-icon")!;
-		let $iconImg = $viewBox.querySelector<HTMLDivElement>(".netdisk-icon-img")!;
-		/** 校验有效性 */
-		let $checkValidStatus =
-			$viewBox.querySelector<HTMLDivElement>(".netdisk-status")!;
-		let $url = $viewBox.querySelector<HTMLDivElement>(".netdisk-url")!;
-		let $link = $viewBox.querySelector<HTMLDivElement>(".netdisk-link")!;
+		const { $urlDiv, $icon, $iconImg, $checkValidStatus, $url, $link } =
+			this.parseViewBoxElementInfo($viewBox);
 		// 设置网盘图标（设置为背景图片）
-		$iconImg.style.cssText = `background: url(${netDiskImgSrc}) no-repeat;background-size: 100%;`;
+		$iconImg.style.cssText = `background: url(${ruleImgSrc}) no-repeat;background-size: 100%;`;
 		// 设置显示的网盘链接
 		DOMUtils.html($link, uiLinkText);
 
 		// 将数据信息添加到元素attr上
 		this.handleElementAttributeRuleInfo(
 			{
-				netDisk: netDiskName,
-				netDiskIndex: netDiskIndex,
+				ruleKeyName: ruleKeyName,
+				ruleIndex: ruleIndex,
 				shareCode: shareCode,
 				accessCode: accessCode,
 			},
@@ -535,7 +560,7 @@ export const NetDiskView = {
 		// 触发规则的渲染函数
 		NetDisk.$rule.rule.forEach((ruleConfig) => {
 			if (
-				ruleConfig.setting.key === netDiskName &&
+				ruleConfig.setting.key === ruleKeyName &&
 				typeof ruleConfig.afterRenderUrlBox === "function"
 			) {
 				ruleConfig.afterRenderUrlBox({
@@ -543,8 +568,8 @@ export const NetDiskView = {
 					$urlDiv,
 					$url,
 					$link,
-					netDiskName,
-					netDiskIndex,
+					ruleKeyName,
+					ruleIndex,
 					shareCode,
 					accessCode,
 				});
@@ -552,6 +577,32 @@ export const NetDiskView = {
 		});
 		return {
 			$viewBox,
+			$urlDiv,
+			$icon,
+			$iconImg,
+			$checkValidStatus,
+			$url,
+			$link,
+		};
+	},
+	/**
+	 * 解析元素上的各个元素
+	 * @param $viewBox 元素
+	 */
+	parseViewBoxElementInfo($viewBox: HTMLElement) {
+		let $urlBox = $viewBox.matches(".netdisk-url-box")
+			? $viewBox
+			: $viewBox.closest<HTMLElement>(".netdisk-url-box")!;
+		let $urlDiv = $urlBox.querySelector<HTMLDivElement>(".netdisk-url-div")!;
+		let $icon = $urlBox.querySelector<HTMLDivElement>(".netdisk-icon")!;
+		let $iconImg = $urlBox.querySelector<HTMLDivElement>(".netdisk-icon-img")!;
+		/** 校验有效性 */
+		let $checkValidStatus =
+			$urlBox.querySelector<HTMLDivElement>(".netdisk-status")!;
+		let $url = $urlBox.querySelector<HTMLDivElement>(".netdisk-url")!;
+		let $link = $urlBox.querySelector<HTMLDivElement>(".netdisk-link")!;
+		return {
+			$urlBox,
 			$urlDiv,
 			$icon,
 			$iconImg,
@@ -610,15 +661,15 @@ export const NetDiskView = {
 				// 解析数据
 				const data = NetDiskView.praseElementAttributeRuleInfo($click);
 				let url = NetDiskLinkClickModeUtils.getBlankUrl(
-					data.netDiskName,
-					data.netDiskIndex,
+					data.ruleKeyName,
+					data.ruleIndex,
 					data.shareCode,
 					data.accessCode
 				);
 				NetDiskLinkClickMode.openBlankUrl(
 					url,
-					data.netDiskName,
-					data.netDiskIndex,
+					data.ruleKeyName,
+					data.ruleIndex,
 					data.shareCode,
 					data.accessCode,
 					true
@@ -631,22 +682,17 @@ export const NetDiskView = {
 	 * @param option
 	 */
 	netDiskUrlClickEvent(option: {
-		data: {
-			netDiskName: string;
-			netDiskIndex: number;
-			shareCode: string;
-			accessCode: string;
-		};
+		data: RuleElementAttr;
 		/** 自定义的点击动作，优先级最高 */
 		clickMode?: NetDiskRuleSettingConfigurationInterface_linkClickMode;
 		/** 点击的元素 */
 		$click?: HTMLElement;
 	}) {
-		const { netDiskName, netDiskIndex, shareCode, accessCode } = option.data;
+		const { ruleKeyName, ruleIndex, shareCode, accessCode } = option.data;
 		// 获取对应的点击动作
 		let linkClickMode =
 			option.clickMode ??
-			NetDiskRuleData.function.linkClickMode(option.data.netDiskName);
+			NetDiskRuleData.function.linkClickMode(option.data.ruleKeyName);
 		/** 关闭弹窗 */
 		let closePopup = () => {
 			if (option.$click) {
@@ -661,12 +707,7 @@ export const NetDiskView = {
 		};
 		if (linkClickMode === "copy" || linkClickMode === "copy-closePopup") {
 			// 复制
-			NetDiskLinkClickMode.copy(
-				netDiskName,
-				netDiskIndex,
-				shareCode,
-				accessCode
-			);
+			NetDiskLinkClickMode.copy(ruleKeyName, ruleIndex, shareCode, accessCode);
 			if (linkClickMode === "copy-closePopup") {
 				// 关闭弹窗
 				closePopup();
@@ -677,19 +718,19 @@ export const NetDiskView = {
 		) {
 			// 新页打开
 			let url = NetDiskLinkClickModeUtils.getBlankUrl(
-				netDiskName,
-				netDiskIndex,
+				ruleKeyName,
+				ruleIndex,
 				shareCode,
 				accessCode
 			);
 			// 判断scheme转发新标签页链接是否开启
 			let isForwardBlankUrl =
-				NetDiskFilterScheme.isForwardBlankLink(netDiskName);
+				NetDiskFilterScheme.isForwardBlankLink(ruleKeyName);
 			if (isForwardBlankUrl) {
 				// 用scheme处理的进行新标签打开
 				NetDiskLinkClickMode.openBlankWithScheme(
-					netDiskName,
-					netDiskIndex,
+					ruleKeyName,
+					ruleIndex,
 					shareCode,
 					accessCode
 				);
@@ -697,8 +738,8 @@ export const NetDiskView = {
 				// 否则用原链接打开
 				NetDiskLinkClickMode.openBlankUrl(
 					url,
-					netDiskName,
-					netDiskIndex,
+					ruleKeyName,
+					ruleIndex,
 					shareCode,
 					accessCode
 				);
@@ -713,8 +754,8 @@ export const NetDiskView = {
 		) {
 			// 文件解析
 			NetDiskLinkClickMode.parseFile(
-				netDiskName,
-				netDiskIndex,
+				ruleKeyName,
+				ruleIndex,
 				shareCode,
 				accessCode
 			).then(() => {
@@ -762,22 +803,22 @@ export const NetDiskView = {
 	},
 	/**
 	 * 添加新的链接
-	 * @param netDiskName 网盘名称
-	 * @param netDiskIndex 网盘名称索引下标
+	 * @param ruleKeyName 规则名称
+	 * @param ruleIndex 规则的索引下标
 	 * @param shareCode 分享码
 	 * @param accessCode 访问码
 	 * @param matchText 匹配到的文本
 	 */
 	addLinkView(
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string,
+		accessCode: AccessCodeType,
 		matchText: string
 	) {
 		NetDiskUI.netDiskHistoryMatch.changeMatchedData(
-			netDiskName,
-			netDiskIndex,
+			ruleKeyName,
+			ruleIndex,
 			shareCode,
 			accessCode,
 			matchText
@@ -785,19 +826,19 @@ export const NetDiskView = {
 		if (!NetDiskUI.Alias.uiLinkAlias) {
 			return;
 		}
-		log.info(netDiskName, netDiskIndex, shareCode, accessCode);
-		let icon = NetDiskUI.src.icon[netDiskName];
+		log.info(ruleKeyName, ruleIndex, shareCode, accessCode);
+		let icon = NetDiskUI.src.icon[ruleKeyName];
 		let uiLink = NetDisk.handleLinkShow(
-			netDiskName,
-			netDiskIndex,
+			ruleKeyName,
+			ruleIndex,
 			shareCode,
 			accessCode,
 			matchText
 		);
 		let boxViewInfo = this.createViewBoxElementInfo(
 			icon,
-			netDiskName,
-			netDiskIndex,
+			ruleKeyName,
+			ruleIndex,
 			shareCode,
 			accessCode,
 			uiLink
@@ -814,30 +855,30 @@ export const NetDiskView = {
 		] as HTMLElement;
 		NetDiskCheckLinkValidity.check(
 			$urlBox,
-			netDiskName,
-			netDiskIndex,
+			ruleKeyName,
+			ruleIndex,
 			shareCode,
 			accessCode
 		);
 	},
 	/**
 	 * 修改已存在的view
-	 * @param netDiskName 网盘名称
-	 * @param netDiskIndex 网盘名称索引下标
+	 * @param ruleKeyName 规则名称
+	 * @param ruleIndex 规则的索引下标
 	 * @param shareCode 分享码
 	 * @param accessCode 访问码
 	 * @param matchText 匹配到的文本
 	 */
 	changeLinkView(
-		netDiskName: string,
-		netDiskIndex: number,
+		ruleKeyName: string,
+		ruleIndex: number,
 		shareCode: string,
-		accessCode: string,
+		accessCode: AccessCodeType,
 		matchText: string
 	) {
 		NetDiskUI.netDiskHistoryMatch.changeMatchedData(
-			netDiskName,
-			netDiskIndex,
+			ruleKeyName,
+			ruleIndex,
 			shareCode,
 			accessCode,
 			matchText
@@ -846,19 +887,19 @@ export const NetDiskView = {
 			return;
 		}
 		let uiLink = NetDisk.handleLinkShow(
-			netDiskName,
-			netDiskIndex,
+			ruleKeyName,
+			ruleIndex,
 			shareCode,
 			accessCode,
 			matchText
 		);
 		let needChangeDOM =
 			NetDiskUI.Alias.uiLinkAlias.popsElement.querySelector<HTMLElement>(
-				`.netdisk-url a[data-sharecode='${shareCode}'][data-netdisk-index='${netDiskIndex}']`
+				`.netdisk-url a[data-sharecode='${shareCode}'][data-rule-index='${ruleIndex}']`
 			)!;
 		log.info("修改网盘链接视图");
 		log.info(needChangeDOM);
-		needChangeDOM.setAttribute("data-accesscode", accessCode);
+		needChangeDOM.setAttribute("data-accesscode", accessCode!);
 		DOMUtils.html(needChangeDOM, uiLink);
 	},
 	/**

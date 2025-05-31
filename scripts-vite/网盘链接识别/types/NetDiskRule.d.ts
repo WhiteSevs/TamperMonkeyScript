@@ -30,11 +30,26 @@ declare type NetDiskRuleSettingConfigurationInterface_Function = {
 	 */
 	linkClickMode?: {
 		[key in NetDiskRuleSettingConfigurationInterface_linkClickMode]?: {
-			/** 是否是默认值 */
+			/**
+			 * 是否是默认值
+			 * @default false
+			 */
 			default?: boolean;
-			/** 是否启用 */
+			/**
+			 * 是否启用
+			 *
+			 * 部分默认开启
+			 * + `copy`
+			 * + `copy-closePopup`
+			 * + `openBlank`
+			 * + `openBlank-closePopup`
+			 *
+			 */
 			enable?: boolean;
-			/** 显示的文字 */
+			/**
+			 * 显示的文字
+			 * @default "..."
+			 */
 			text?: string;
 		};
 	};
@@ -48,6 +63,8 @@ declare type NetDiskRuleSettingConfigurationInterface_linkClickMode_openBlank =
 	{
 		/** 跳转时复制访问码 */
 		openBlankWithCopyAccessCode?: boolean;
+		/** 自动填写访问码 */
+		openBlankAutoFilleAccessCode?: boolean;
 	};
 /** Scheme转发 */
 declare type NetDiskRuleSettingConfigurationInterface_SchemeUri = {
@@ -90,7 +107,42 @@ declare type NetDiskRuleSetting = {
 	};
 };
 
-declare type NetDiskRuleConfig = {
+declare type NetDiskRuleAfterRenderUrlBoxOption = {
+	/**
+	 * 链接元素容器
+	 */
+	$viewBox: HTMLElement;
+	/**
+	 * 链接元素的父DIV
+	 */
+	$urlDiv: HTMLElement;
+	/**
+	 * 超链接元素的父元素
+	 */
+	$url: HTMLElement;
+	/**
+	 * 超链接元素
+	 */
+	$link: HTMLElement;
+	/**
+	 * 规则的键
+	 */
+	ruleKeyName: string;
+	/**
+	 * 匹配到的规则的所在的下标
+	 */
+	ruleIndex: number;
+	/**
+	 * 分享码
+	 */
+	shareCode: string;
+	/**
+	 * 访问码
+	 */
+	accessCode: AccessCodeType;
+};
+
+declare type NetDiskRuleOption = {
 	/**
 	 * 订阅的uuid
 	 *
@@ -98,7 +150,7 @@ declare type NetDiskRuleConfig = {
 	 */
 	subscribeUUID?: string | null;
 	/** 规则 */
-	rule: NetDiskMatchRuleOption[];
+	rule: NetDiskMatchRuleConfig[];
 	/** 是否是用户规则 */
 	isUserRule?: boolean;
 	/** 设置 */
@@ -106,38 +158,7 @@ declare type NetDiskRuleConfig = {
 	/**
 	 * 渲染后的链接元素触发的回调
 	 */
-	afterRenderUrlBox?: (option: {
-		/**
-		 * 链接元素容器
-		 */
-		$viewBox: HTMLElement;
-		/**
-		 * 链接元素的父DIV
-		 */
-		$urlDiv: HTMLElement;
-		/**
-		 * 超链接元素的父元素
-		 */
-		$url: HTMLElement;
-		/**
-		 * 超链接元素
-		 */
-		$link: HTMLElement;
-		/**
-		 * 规则的键
-		 */
-		netDiskName: string;
-		/**
-		 * 匹配到的规则的所在的下标
-		 */
-		netDiskIndex: number;
-		/**
-		 * 分享码
-		 */
-		shareCode: string;
-		/**
-		 * 访问码
-		 */
-		accessCode: string;
-	}) => IPromise<void>;
+	afterRenderUrlBox?: (
+		option: NetDiskRuleAfterRenderUrlBoxOption
+	) => IPromise<void>;
 };

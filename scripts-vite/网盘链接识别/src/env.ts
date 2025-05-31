@@ -23,7 +23,7 @@ import DataPaging from "@lib/DataPaging/index.esm";
 /* 脚本名 */
 const _SCRIPT_NAME_ = "网盘链接识别";
 /** 是否是调试模式 */
-const isDebug = false;
+const DEBUG = false;
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
 const __pops = pops;
@@ -40,7 +40,7 @@ const AnyTouch = pops.config.Utils.AnyTouch();
 
 /* 配置控制台日志 */
 log.config({
-	debug: isDebug,
+	debug: DEBUG,
 	logMaxCount: 1000,
 	autoClearConsole: true,
 	tag: true,
@@ -52,6 +52,7 @@ Qmsg.config(
 			html: true,
 			autoClose: true,
 			showClose: false,
+			timeout: 3500,
 		},
 		{
 			position: {
@@ -94,7 +95,7 @@ const httpx = new utils.Httpx({
 	headers: {
 		"User-Agent": utils.getRandomPCUA(),
 	},
-	logDetails: import.meta.env.DEV ? true : isDebug,
+	logDetails: import.meta.env.DEV ? true : DEBUG,
 });
 
 // 开发测试使用
@@ -198,7 +199,7 @@ export {
 	$$,
 	MountVue,
 	VUE_ELE_NAME_ID,
-	isDebug,
+	DEBUG,
 	__DataPaging as DataPaging,
 	AnyTouch,
 };

@@ -1,7 +1,7 @@
 /**
  * 网盘匹配规则配置
  */
-declare interface NetDiskMatchRuleOption {
+declare interface NetDiskMatchRuleConfig {
 	/**
 	 * 当设置中匹配类型为文本，使用该规则
 	 *
@@ -77,6 +77,6 @@ declare interface NetDiskMatchRuleOption {
 /**
  * 网盘匹配规则
  */
-declare interface NetDiskMatchRule {
-	[key: string]: NetDiskMatchRuleOption[];
+declare interface NetDiskMatchedRuleOption {
+	[key: string]: NetDiskMatchRuleConfig[];
 }

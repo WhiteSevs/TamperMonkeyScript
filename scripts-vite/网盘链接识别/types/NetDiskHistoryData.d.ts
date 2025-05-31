@@ -9,14 +9,18 @@ declare interface NetDiskHistoryDataOption {
 	updateTime: number;
 	/** 匹配的网址的标题 */
 	title: string;
-	/** 规则名 */
-	netDiskName: string;
-	/** 规则下标 */
-	netDiskIndex: number;
+	/**
+	 * 规则名
+	 */
+	ruleKeyName: string;
+	/**
+	 * 规则下标
+	 */
+	ruleIndex: number;
 	/** 分享码 */
 	shareCode: string;
 	/** 访问码 */
-	accessCode: string;
+	accessCode: AccessCodeType;
 	/** 匹配到的文本(2024.3.15版本新增) */
 	matchText: string;
 }

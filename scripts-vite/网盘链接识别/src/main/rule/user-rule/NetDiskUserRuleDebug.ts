@@ -5,7 +5,6 @@ import Qmsg from "qmsg";
 import { NetDiskUserRule } from "./NetDiskUserRule";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskWorker } from "@/main/worker/NetDiskWorker";
-import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { CharacterMapping } from "@/main/character-mapping/CharacterMapping";
 
 /**
@@ -228,21 +227,21 @@ export const NetDiskUserRuleDebug = {
 				/* 清空日志 */
 				that.clearLog();
 				/** 网盘名 */
-				let netDiskName = ruleJSON.key;
+				let ruleKeyName = ruleJSON.key;
 				/** 网盘索引下标 */
-				let netDiskIndex = that.$el.$select.selectedIndex;
+				let ruleIndex = that.$el.$select.selectedIndex;
 				/** 选择的规则 */
 				let selectRegularOption = (
-					that.$el.$select.selectedOptions[netDiskIndex] as any
-				)["data-value"] as NetDiskMatchRuleOption;
+					that.$el.$select.selectedOptions[ruleIndex] as any
+				)["data-value"] as NetDiskMatchRuleConfig;
 				log.info("当前选中的规则: ", selectRegularOption);
-				let testCustomRule = <NetDiskMatchRule>{};
-				testCustomRule[ruleJSON.key] = [selectRegularOption];
+				let testCustomRuleOption = <NetDiskMatchedRuleOption>{};
+				testCustomRuleOption[ruleJSON.key] = [selectRegularOption];
 				let matchTextList: string[] = [];
 				NetDiskWorker.handleRegularMatch(
 					{
 						characterMapping: CharacterMapping.getMappingData(),
-						regular: testCustomRule,
+						matchedRuleOption: testCustomRuleOption,
 						textList: [that.$el.$matchText.value],
 						matchTextRange: ["innerText", "innerHTML"],
 						startTime: Date.now(),

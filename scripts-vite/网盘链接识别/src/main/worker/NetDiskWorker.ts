@@ -1,4 +1,4 @@
-import { $$, DOMUtils, GM_Menu, isDebug, log, utils } from "@/env";
+import { $$, DOMUtils, GM_Menu, DEBUG, log, utils } from "@/env";
 import { NetDisk } from "../NetDisk";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskUI } from "../ui/NetDiskUI";
@@ -111,7 +111,7 @@ export const NetDiskWorker = {
 		callback: (matchData: NetDiskWorkerMatchOption) => void
 	) {
 		// 规则名列表
-		const NetDiskRegularNameList = Object.keys(workerOptionData.regular);
+		const ruleKeyNameList = Object.keys(workerOptionData.matchedRuleOption);
 
 		// 待匹配的文本
 		const matchTextList = workerOptionData.textList.map((matchTextItem) => {
@@ -138,10 +138,10 @@ export const NetDiskWorker = {
 			return matchTextItem;
 		});
 
-		for (const netDiskName of NetDiskRegularNameList) {
-			const netDiskRegular = workerOptionData.regular[netDiskName];
-			for (let index = 0; index < netDiskRegular.length; index++) {
-				const netDiskRegularItem = netDiskRegular[index];
+		for (const ruleKeyName of ruleKeyNameList) {
+			const ruleOption = workerOptionData.matchedRuleOption[ruleKeyName];
+			for (let index = 0; index < ruleOption.length; index++) {
+				const netDiskRegularItem = ruleOption[index];
 				// if (
 				// 	netDiskRegularItem["enable"] != null &&
 				// 	!netDiskRegularItem["enable"]
@@ -189,8 +189,8 @@ export const NetDiskWorker = {
 						if (matchArray && matchArray.length) {
 							// 匹配成功
 							callback({
-								netDiskName: netDiskName,
-								netDiskIndex: index,
+								ruleKeyName: ruleKeyName,
+								ruleIndex: index,
 								data: matchArray,
 							});
 						}
@@ -452,7 +452,7 @@ export const NetDiskWorker = {
 		message: NetDiskWorkerOptions,
 		options?: StructuredSerializeOptions
 	) {
-		if (isDebug) {
+		if (DEBUG) {
 			log.info("Debug-传递数据给worker内进行处理匹配: ", message);
 		}
 		NetDiskWorker.GM_matchWorker.postMessage(message, options);
@@ -464,15 +464,20 @@ export const NetDiskWorker = {
 	 */
 	onMessage(event: MessageEvent<NetDiskWorkerCallBackOptions>) {
 		const data = event.data;
-		if (isDebug) {
+		if (DEBUG) {
 			log.info(`Debug-匹配结束,用时${Date.now() - data.startTime}ms: `, data);
 		}
 		if (data.data.length) {
-			log.success(
-				`成功匹配${data.data.length}个，用时${Date.now() - data.startTime}ms`
-			);
+			if (import.meta.env.DEV) {
+				log.success(
+					`成功匹配${data.data.length}个，用时${Date.now() - data.startTime}ms`
+				);
+			}
 		}
-		if (data.options.from === "PasteText") {
+		if (
+			data.options.from === "PasteText" ||
+			data.options.from === "ShortCut-Select-Content"
+		) {
 			NetDiskUI.matchPasteText.workerMatchEndCallBack(data);
 		}
 		if (data.options.from.startsWith("FirstLoad")) {
@@ -499,10 +504,10 @@ export const NetDiskWorker = {
 			return;
 		}
 
-		const handleNetDiskList: NetDiskHandleObject[] = [];
+		const handleNetDiskList: NetDiskWorkerHandleObject[] = [];
 		for (const matchData of options.data) {
 			/* 已匹配到的网盘，用于显示图标 */
-			NetDisk.$match.matchedInfoRuleKey.add(matchData.netDiskName!);
+			NetDisk.$match.matchedInfoRuleKey.add(matchData.ruleKeyName!);
 			/**
 			 * 匹配到的可能很多，使用集合去重
 			 */
@@ -513,16 +518,16 @@ export const NetDiskWorker = {
 
 			matchLinkSet.forEach((item) => {
 				let handleLink = NetDisk.handleLink(
-					matchData.netDiskName!,
-					matchData.netDiskIndex!,
+					matchData.ruleKeyName!,
+					matchData.ruleIndex!,
 					item
 				);
 				if (handleLink) {
 					handleNetDiskList.push({
 						shareCode: handleLink.shareCode!,
 						accessCode: handleLink.accessCode!,
-						netDiskName: matchData.netDiskName!,
-						netDiskIndex: matchData.netDiskIndex!,
+						ruleKeyName: matchData.ruleKeyName!,
+						ruleIndex: matchData.ruleIndex!,
 						matchText: item,
 					});
 				}
@@ -534,17 +539,11 @@ export const NetDiskWorker = {
 				let isFind =
 					selfArray.findIndex((obj) => {
 						/* 过滤掉同样配置的 */
-						/* 或者是netDiskName、netDiskIndex相同，且shareCode前面存在重复的 */
 						return (
-							//JSON.stringify(obj) === JSON.stringify(value)
 							obj.accessCode === value.accessCode &&
-							obj.netDiskIndex === value.netDiskIndex &&
-							obj.netDiskName === value.netDiskName &&
+							obj.ruleIndex === value.ruleIndex &&
+							obj.ruleKeyName === value.ruleKeyName &&
 							obj.shareCode === value.shareCode
-							//(obj.netDiskName === value.netDiskName &&
-							//  obj.netDiskIndex === value.netDiskIndex &&
-							//  obj.shareCode.startsWith(value.shareCode)) ||
-							//value.shareCode.startsWith(obj.shareCode)
 						);
 					}) === index;
 				return isFind;
@@ -552,36 +551,35 @@ export const NetDiskWorker = {
 		);
 		/* 设置临时值 */
 		filterHandleNetDiskList.forEach((item) => {
-			if (NetDisk.$match.tempMatchedInfo.has(item.netDiskName)) {
+			if (NetDisk.$match.tempMatchedInfo.has(item.ruleKeyName)) {
 				let currentTempDict = NetDisk.$match.tempMatchedInfo.get(
-					item.netDiskName
+					item.ruleKeyName
 				);
 				currentTempDict.set(item.shareCode, item);
 			}
 		});
 		/** 按规则过滤掉当前匹配到的分享码 */
 		filterHandleNetDiskList.forEach((item) => {
-			let { shareCode, accessCode, netDiskName, netDiskIndex, matchText } =
-				item;
+			let { shareCode, accessCode, ruleKeyName, ruleIndex, matchText } = item;
 			// 先找到对应的规则
-			const currentRule = NetDisk.$rule.rule.find(
-				(item) => item.setting.key === netDiskName
+			const findRuleOptions = NetDisk.$rule.rule.find(
+				(item) => item.setting.key === ruleKeyName
 			);
 			// 对应的匹配规则
-			const currentRegular = currentRule!.rule[netDiskIndex];
+			const ruleOption = findRuleOptions!.rule[ruleIndex];
 
 			/* 过滤掉黑名单中的 */
-			let isBlackShareCode = false;
+			let isBlackListShareCode = false;
 			NetDisk.$match.blackMatchedInfo.forEach(
-				(blackMatchInfoItem, blackNetDiskName) => {
+				(blackMatchInfoItem, blackList_ruleKeyName) => {
 					// 规则名也要相同
-					if (blackNetDiskName !== item.netDiskName) {
+					if (blackList_ruleKeyName !== item.ruleKeyName) {
 						return;
 					}
 					let isFindBlackShareCode = blackMatchInfoItem.has(shareCode);
 					if (isFindBlackShareCode) {
 						// 黑名单的分享码相同
-						isBlackShareCode = true;
+						isBlackListShareCode = true;
 						log.warn(
 							`匹配到黑名单分享码，已过滤：${shareCode}`,
 							JSON.stringify(item)
@@ -589,16 +587,16 @@ export const NetDiskWorker = {
 					}
 				}
 			);
-			if (isBlackShareCode) {
+			if (isBlackListShareCode) {
 				// 是黑名单的访问码，退出
 				return;
 			}
 			if (
-				currentRegular.shareCodeExcludeRegular &&
-				Array.isArray(currentRegular.shareCodeExcludeRegular)
+				ruleOption.shareCodeExcludeRegular &&
+				Array.isArray(ruleOption.shareCodeExcludeRegular)
 			) {
 				/* 排除掉在目标规则已匹配到的shareCode */
-				for (const excludeRegularName of currentRegular.shareCodeExcludeRegular) {
+				for (const excludeRegularName of ruleOption.shareCodeExcludeRegular) {
 					let excludeDict = NetDisk.$match.matchedInfo.get(excludeRegularName);
 					let currentTempDict =
 						NetDisk.$match.tempMatchedInfo.get(excludeRegularName);
@@ -607,7 +605,7 @@ export const NetDiskWorker = {
 						currentTempDict.startsWith(shareCode)
 					) {
 						log.warn(
-							`${netDiskName}：该分享码【${shareCode}】与已匹配到该分享码的规则【${excludeRegularName}】冲突`
+							`${ruleKeyName}：该分享码【${shareCode}】与已匹配到该分享码的规则【${excludeRegularName}】冲突`
 						);
 						return;
 					}
@@ -615,11 +613,11 @@ export const NetDiskWorker = {
 			}
 
 			/** 当前存储的 */
-			const currentDict = NetDisk.$match.matchedInfo.get(netDiskName);
+			const currentDict = NetDisk.$match.matchedInfo.get(ruleKeyName);
 			NetDisk.$data.isMatchedLink = true;
 			if (currentDict.startsWith(shareCode)) {
-				/* 存在该访问码 */
-				/* 根据shareCode获取accessCode和netDiskIndex信息 */
+				/* 存在该分享码 */
+				/* 根据分享码获取访问码等信息 */
 				let shareCodeDict = currentDict.getStartsWith(shareCode)!;
 				if (
 					typeof shareCodeDict.isForceAccessCode === "boolean" &&
@@ -639,18 +637,18 @@ export const NetDiskWorker = {
 
 				currentDict.set(
 					shareCode,
-					NetDisk.getLinkDickObj(accessCode, netDiskIndex, false, matchText)
+					NetDisk.getLinkStorageInst(accessCode, ruleIndex, false, matchText)
 				);
 				// 修改视图
 				NetDiskUI.view.changeLinkView(
-					netDiskName,
-					netDiskIndex,
+					ruleKeyName,
+					ruleIndex,
 					shareCode,
 					accessCode,
 					matchText
 				);
 				log.info(
-					`该匹配项无密码，设置密码 ${netDiskName} ${netDiskIndex}: ${shareCode}  ===> ${accessCode}`
+					`该匹配项无密码，设置密码 ${ruleKeyName} ${ruleIndex}: ${shareCode}  ===> ${accessCode}`
 				);
 			} else {
 				/* 不存在该访问码，添加新的进去 */
@@ -661,7 +659,7 @@ export const NetDiskWorker = {
 					NetDiskGlobalData.accessCode.allowQueryHistoryMatchingAccessCode.value
 				) {
 					let historyMatchAccessCode = NetDiskHistoryMatchView.queryAccessCode(
-						netDiskName,
+						ruleKeyName,
 						shareCode,
 						true
 					);
@@ -674,18 +672,18 @@ export const NetDiskWorker = {
 				}
 				currentDict.set(
 					shareCode,
-					NetDisk.getLinkDickObj(accessCode, netDiskIndex, false, matchText)
+					NetDisk.getLinkStorageInst(accessCode, ruleIndex, false, matchText)
 				);
-				NetDiskUI.isMatchedNetDiskIconMap.add(netDiskName);
+				NetDiskUI.isMatchedNetDiskIconMap.add(ruleKeyName);
 				NetDiskUI.view.addLinkView(
-					netDiskName,
-					netDiskIndex,
+					ruleKeyName,
+					ruleIndex,
 					shareCode,
 					accessCode,
 					matchText
 				);
 				log.success(
-					`添加链接 ${netDiskName} ${netDiskIndex}: ${shareCode}  ===> ${accessCode}`
+					`添加链接 ${ruleKeyName} ${ruleIndex}: ${shareCode}  ===> ${accessCode}`
 				);
 			}
 		});
@@ -774,27 +772,27 @@ export const NetDiskWorker = {
 			NetDiskGlobalData.match.depthQueryWithShadowRoot.value;
 
 		/** 过滤出执行匹配的规则 */
-		const matchRegular: NetDiskMatchRule = {};
+		const matchedRuleOption: NetDiskMatchedRuleOption = {};
 		/** 字符映射规则 */
 		const characterMapping = CharacterMapping.getMappingData();
 		/* 循环 */
 		NetDisk.$rule.rule.forEach((item) => {
-			// 网盘键
-			let netDiskName = item.setting.key;
+			// 规则键名
+			let ruleKeyName = item.setting.key;
 			// 启用状态
-			let netDiskRuleEnable = NetDiskRuleData.function.enable(netDiskName);
-			if (!netDiskRuleEnable) {
+			let ruleEnable = NetDiskRuleData.function.enable(ruleKeyName);
+			if (!ruleEnable) {
 				return;
 			}
-			if (Reflect.has(matchRegular, netDiskName)) {
+			if (Reflect.has(matchedRuleOption, ruleKeyName)) {
 				// 已有规则、追加
-				matchRegular[netDiskName] = [
-					...matchRegular[netDiskName],
+				matchedRuleOption[ruleKeyName] = [
+					...matchedRuleOption[ruleKeyName],
 					...item.rule,
 				];
 			} else {
 				// 设置规则
-				Reflect.set(matchRegular, netDiskName, item.rule);
+				Reflect.set(matchedRuleOption, ruleKeyName, item.rule);
 			}
 		});
 		/**
@@ -862,7 +860,7 @@ export const NetDiskWorker = {
 						characterMapping: characterMapping,
 						textList: toMatchedTextList,
 						matchTextRange: matchRange,
-						regular: matchRegular,
+						matchedRuleOption: matchedRuleOption,
 						startTime: startTime,
 						from: "FirstLoad-DOMChange",
 					});
@@ -884,7 +882,7 @@ export const NetDiskWorker = {
 						characterMapping: characterMapping,
 						textList: toMatchedTextList,
 						matchTextRange: matchRange,
-						regular: matchRegular,
+						matchedRuleOption: matchedRuleOption,
 						startTime: startTime,
 						from: "FirstLoad-Text-DOMChange",
 					});
@@ -906,7 +904,7 @@ export const NetDiskWorker = {
 						characterMapping: characterMapping,
 						textList: toMatchedTextList,
 						matchTextRange: matchRange,
-						regular: matchRegular,
+						matchedRuleOption: matchedRuleOption,
 						startTime: startTime,
 						from: "FirstLoad-HTML-DOMChange",
 					});
@@ -934,7 +932,7 @@ export const NetDiskWorker = {
 				characterMapping: characterMapping,
 				textList: toMatchedTextList,
 				matchTextRange: matchRange,
-				regular: matchRegular,
+				matchedRuleOption: matchedRuleOption,
 				startTime: startTime,
 				from: "DOMChange",
 			});

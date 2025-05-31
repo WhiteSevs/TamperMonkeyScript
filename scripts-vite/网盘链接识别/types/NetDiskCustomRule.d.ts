@@ -241,6 +241,14 @@ declare interface NetDiskUserCustomRuleSetting {
 	 */
 	openBlankWithCopyAccessCode?: boolean;
 	/**
+	 * 通过新标签页打开时，是否自动填充访问码
+	 *
+	 *  【点击动作-新标签页打开】-【自动填充访问码】
+	 *
+	 *  键: `${key}-open-blank-auto-fill-accesscode`
+	 */
+	openBlankAutoFilleAccessCode?: boolean;
+	/**
 	 * 是否开启scheme转发
 	 *
 	 * 【Scheme转发】-【启用】
@@ -320,9 +328,9 @@ declare interface NetDiskUserCustomRule {
 	setting: NetDiskUserCustomRuleSetting;
 	/**
 	 * （可选）验证链接有效性的函数
-	 * + `参数1`: netDiskIndex: number
-	 * + `参数2`: shareCode: string
-	 * + `参数3`: accessCode: string
+	 * + `参数1`：netDiskIndex: number
+	 * + `参数2`：shareCode: string
+	 * + `参数3`：accessCode: string
 	 *
 	 * `this`是`NetDiskUserCustomRuleContext`对象:
 	 *
@@ -335,7 +343,34 @@ declare interface NetDiskUserCustomRule {
 	 * + this.NetDiskCheckLinkValidity.status.needAccessCode
 	 * + this.NetDiskCheckLinkValidity.status.unknown
 	 * @example
-	 * return this.NetDiskCheckLinkValidity.status.unknown;
+	 * let response = await this.httpx.get("https://.../...",{
+	 *     headers: {
+	 *         "User-Agent": this.utils.getRandomPCUA(),
+	 *     },
+	 *     allowInterceptConfig: false,
+	 * });
+	 * if (!response.status && utils.isNull(response.data.responseText)) {
+	 *     // 校验失败
+	 *     return this.NetDiskCheckLinkValidity.status.failed;
+	 * }
+	 * let responseText = response.data.responseText;
+	 * if(responseText.includes("请输入访问码")){
+	 *      return {
+	 *          ...this.NetDiskCheckLinkValidity.status.needAccessCode,
+	 *          data: response,
+	 *      }
+	 * }else if(responseText.includes("来晚啦") || responseText.includes("不存在")){
+	 *      return {
+	 *          ...this.NetDiskCheckLinkValidity.status.failed,
+	 *          data: response,
+	 *          tipMsg: "文件不存在",
+	 *      };
+	 * }
+	 * // 未知情况
+	 * return {
+	 *     ...this.NetDiskCheckLinkValidity.status.unknown,
+	 *     data: response,
+	 * }
 	 */
 	checkLinkValidityFunction?: string;
 	/**
@@ -352,20 +387,20 @@ declare interface NetDiskUserCustomRule {
 	 * （可选）自动添加访问码函数
 	 * 通过NetDiskParse.blank函数来打开网盘链接会触发该函数执行
 	 * 会判断条件，需要满足=>key相同、accessCode不为空、开启自动输入访问码功能、网址中存在该shareCode
-	 * + `参数1`: netDiskInfo: NetDiskAutoFillAccessCodeOption
+	 * + `参数1`: `netDiskInfo: NetDiskAutoFillAccessCodeOption`
 	 */
 	AutoFillAccessCodeFunction?: string;
 	/**
 	 * （可选）解析网盘链接函数
 	 * 需要强制返回this
 	 * 入口函数为`init`
-	 * + `参数1`: netDiskIndex: number
-	 * + `参数2`: shareCode: string
-	 * + `参数3`: accessCode: string
+	 * + `参数1`：`ruleIndex: number`
+	 * + `参数2`：`shareCode: string`
+	 * + `参数3`：`accessCode: string`
 	 * @example
 	 * let that = this;
-	 * this.init = async function(netDiskIndex, shareCode, accessCode){
-	 *      console.log(netDiskIndex, shareCode, accessCode);
+	 * this.init = async function(ruleIndex, shareCode, accessCode){
+	 *      console.log(ruleIndex, shareCode, accessCode);
 	 * }
 	 * return this;
 	 */
@@ -373,6 +408,7 @@ declare interface NetDiskUserCustomRule {
 	/**
 	 * （可选）渲染后的链接元素触发的回调
 	 *
+	 * + `参数1`：`option: NetDiskRuleAfterRenderUrlBoxOption`
 	 * @example
 	 *
 	 * this.DOMUtils.on(option.$urlBox, "click", (evt) => {
