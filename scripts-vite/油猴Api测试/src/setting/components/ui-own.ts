@@ -1,5 +1,5 @@
 import { PopsPanelOwnDetails } from "@whitesev/pops/dist/types/src/components/panel/ownType";
-import { ATTRIBUTE_INIT } from "../config";
+import { ATTRIBUTE_INIT } from "../panel-config";
 import { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
 import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 

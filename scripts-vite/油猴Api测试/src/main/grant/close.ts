@@ -5,7 +5,7 @@ import type {
 import { ApiTestBase } from "../base/ApiTestBase";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
-import { UIInfo } from "@/setting/common-components/ui-info";
+import { UIInfo } from "@/setting/components/ui-info";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { DOMUtils, utils } from "@/env";
 import Qmsg from "qmsg";

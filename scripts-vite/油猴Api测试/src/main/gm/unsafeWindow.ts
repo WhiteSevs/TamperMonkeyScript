@@ -6,7 +6,7 @@ import { ApiTestBase } from "../base/ApiTestBase";
 import { monkeyWindow, unsafeWindow } from "ViteGM";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
-import { UIInfo } from "@/setting/common-components/ui-info";
+import { UIInfo } from "@/setting/components/ui-info";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { CommonUtil } from "@/utils/CommonUtil";
 

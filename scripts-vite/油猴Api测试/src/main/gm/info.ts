@@ -2,7 +2,7 @@ import { GM, GM_info } from "ViteGM";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
-import { UIInfo } from "@/setting/common-components/ui-info";
+import { UIInfo } from "@/setting/components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { CommonUtil } from "@/utils/CommonUtil";

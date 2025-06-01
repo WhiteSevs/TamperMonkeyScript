@@ -8,7 +8,7 @@ import {
 import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
-import { PopsPanel } from "./setting/setting";
+import { PopsPanel } from "./setting/panel";
 import pops from "@whitesev/pops";
 import { StorageApi } from "./main/StorageApi";
 import { GMTotal } from "./main/GMTotal";

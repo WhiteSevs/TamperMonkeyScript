@@ -2,7 +2,7 @@ import { GM, GM_getTab } from "ViteGM";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
-import { UIInfo } from "@/setting/common-components/ui-info";
+import { UIInfo } from "@/setting/components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
@@ -108,7 +108,7 @@ export class ApiTest_getTab extends ApiAsyncTestBase {
 									DOMUtils.show(container.$leftDesc, false);
 									try {
 										clearTimeout(timeId);
-										Qmsg.info("等待3s内触发成功复制的回调");
+										Qmsg.info("等待3s内触发回调函数");
 										timeId = setTimeoutLog(() => {
 											TagUtil.setTag(
 												container.$leftText,

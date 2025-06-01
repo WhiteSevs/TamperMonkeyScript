@@ -3,8 +3,8 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "../config";
-import { PopsPanel } from "../setting";
+} from "../panel-config";
+import { PopsPanel } from "../panel";
 
 /**
  * 获取checkbox按钮配置

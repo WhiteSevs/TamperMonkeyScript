@@ -5,9 +5,9 @@ import {
 	ATTRIBUTE_INIT_MORE_VALUE,
 	ATTRIBUTE_KEY,
 	KEY,
-} from "@/setting/config";
+} from "@/setting/panel-config";
 import { unsafeWindow } from "ViteGM";
-import { Component_Common } from "./components/common";
+import { Component_Common } from "./view/common";
 import {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,

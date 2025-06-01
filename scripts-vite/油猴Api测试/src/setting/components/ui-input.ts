@@ -2,37 +2,45 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "../config";
-import { PopsPanelTextAreaDetails } from "@whitesev/pops/dist/types/src/components/panel/textareaType";
-import { PopsPanel } from "../setting";
+} from "../panel-config";
+import { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/inputType";
+import { PopsPanel } from "../panel";
 
 /**
- * 获取多行输入框配置
+ * 获取输入框配置
  * @param text 左边的文字
  * @param key 键
  * @param defaultValue 默认值
  * @param description 左边的文字下面的描述
  * @param changeCallBack 输入框内容改变时的回调
  * @param placeholder 输入框的默认提示内容
- * @param disabled 是否禁用
+ * @param isNumber 是否是数字框
+ * @param isPassword 是否是密码框
  */
-export const UITextArea = function (
+export const UIInput = function (
 	text: string,
 	key: string,
 	defaultValue: string,
-	description?: string,
-	changeCallBack?: (event: InputEvent, value: string) => void | boolean,
-	placeholder: string = "",
-	disabled?: boolean
+	description?: string | undefined,
+	changeCallBack?:
+		| ((
+				event: InputEvent,
+				value: string,
+				valueAsNumber?: number | undefined
+		  ) => void | boolean)
+		| undefined,
+	placeholder = "",
+	isNumber?: boolean,
+	isPassword?: boolean
 ) {
-	let result: PopsPanelTextAreaDetails = {
+	let result: PopsPanelInputDetails = {
 		text: text,
-		type: "textarea",
-		attributes: {},
+		type: "input",
+		isNumber: Boolean(isNumber),
+		isPassword: Boolean(isPassword),
 		props: {},
+		attributes: {},
 		description: description,
-		placeholder: placeholder,
-		disabled: disabled,
 		getValue() {
 			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
 		},
@@ -44,8 +52,8 @@ export const UITextArea = function (
 			}
 			(this.props as any)[PROPS_STORAGE_API].set(key, value);
 		},
+		placeholder: placeholder,
 	};
-
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 	Reflect.set(result.props!, PROPS_STORAGE_API, {
@@ -56,6 +64,5 @@ export const UITextArea = function (
 			PopsPanel.setValue(key, value);
 		},
 	});
-
 	return result;
 };

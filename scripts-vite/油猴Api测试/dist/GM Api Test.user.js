@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.26
+// @version      2025.6.1
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -143,7 +143,7 @@
         };
       }
     } catch (error2) {
-      console.warn(error2);
+      console.warn("Qmsg CompatibleProcessing Object.assign error", error2);
     }
     try {
       if (!("classList" in document.documentElement)) {
@@ -183,93 +183,50 @@
         });
       }
     } catch (error2) {
-      console.warn(error2);
+      console.warn("Qmsg CompatibleProcessing HTMLElement.prototype.classList warning", error2);
     }
   }
-  const QmsgAnimation = {
-    /** 状态 & 动画 */
-    $state: {
-      opening: "MessageMoveIn",
-      done: "",
-      closing: "MessageMoveOut"
-    },
-    $name: {
-      startNameList: [
-        "animationName",
-        "WebkitAnimationName",
-        "MozAnimationName",
-        "msAnimationName",
-        "OAnimationName"
-      ],
-      endNameList: [
-        "animationend",
-        "webkitAnimationEnd",
-        "mozAnimationEnd",
-        "MSAnimationEnd",
-        "oanimationend"
-      ]
-    },
-    /**
-     * 获取元素上的animationName属性
-     * @param element
-     */
-    getStyleAnimationNameValue(element) {
-      for (let index = 0; index < this.$name.startNameList.length; index++) {
-        let animationName = this.$name.startNameList[index];
-        let animationNameValue = element.style[animationName];
-        if (animationNameValue != null) {
-          return animationNameValue;
-        }
-      }
-    },
-    /**
-     * 设置元素上的animationName属性
-     * @param element
-     * @param animationNameValue
-     */
-    setStyleAnimationName(element, animationNameValue = "") {
-      this.$name.startNameList.forEach((animationName) => {
-        if (animationName in element.style) {
-          element.style[animationName] = animationNameValue;
-        }
-      });
-    }
-  };
-  const QmsgConfig = {
+  const QmsgDefaultConfig = {
     /** 声明插件名称 */
-    PLUGIN_NAME: "qmsg",
-    /** 命名空间，用于css和事件 */
-    NAMESPACE: "qmsg",
-    /** 实例配置的固定的默认值 */
-    INS_DEFAULT: {},
-    /** 固定的默认值 */
-    DEFAULT: {
-      animation: true,
-      autoClose: true,
-      content: "",
-      html: false,
-      isHTML: false,
-      position: "top",
-      showClose: false,
-      maxNums: 5,
-      onClose: null,
-      showIcon: true,
-      showMoreContent: false,
-      showReverse: false,
-      timeout: 2500,
-      type: "info",
-      zIndex: 5e4,
-      style: "",
-      customClass: "",
-      isLimitWidth: false,
-      limitWidthNum: 200,
-      limitWidthWrap: "no-wrap",
-      consoleLogContent: false
+    get PLUGIN_NAME() {
+      return "qmsg";
     },
-    /**
-     * 是否支持动画属性
-     */
-    CAN_ANIMATION: Boolean(QmsgAnimation.getStyleAnimationNameValue(document.createElement("div")) != null)
+    /** 命名空间，用于css和事件 */
+    get NAMESPACE() {
+      return "qmsg";
+    },
+    /** 实例配置的固定的默认值，在初始化时会插入值 */
+    INS_DEFAULT: {},
+    /** 实例配置的默认值 */
+    get config() {
+      return {
+        parent: document.body || document.documentElement,
+        shadowRootMode: "open",
+        animation: true,
+        autoClose: true,
+        listenEventToPauseAutoClose: true,
+        content: "",
+        html: false,
+        isHTML: false,
+        position: "top",
+        showClose: false,
+        maxNums: 5,
+        onClose: null,
+        showIcon: true,
+        showMoreContent: false,
+        showReverse: false,
+        timeout: 2500,
+        type: "info",
+        zIndex: 5e4,
+        style: "",
+        customClass: "",
+        isLimitWidth: false,
+        limitWidthNum: 200,
+        limitWidthWrap: "no-wrap",
+        consoleLogContent: false,
+        afterRender: null
+      };
+    }
   };
   const QmsgHeaderCloseIcon = (
     /*css*/
@@ -322,19 +279,440 @@
 		</svg>`
     )
   };
-  const QmsgInstanceStorage = {
-    QmsgList: [],
+  const QmsgInstStorage = {
+    /**
+     * 存储的Qmsg实例信息
+     */
+    insInfoList: [],
     /**
      * 根据uuid移除Qmsg实例
      * @param uuid 每个Qmsg实例的uuid
+     * @returns
+     * + true 移除成功
+     * + false 移除失败
      */
     remove(uuid) {
-      for (let index = 0; index < QmsgInstanceStorage.QmsgList.length; index++) {
-        if (QmsgInstanceStorage.QmsgList[index].uuid === uuid) {
-          QmsgInstanceStorage.QmsgList.splice(index, 1);
+      let flag = false;
+      for (let index = 0; index < QmsgInstStorage.insInfoList.length; index++) {
+        if (QmsgInstStorage.insInfoList[index].uuid === uuid) {
+          QmsgInstStorage.insInfoList.splice(index, 1);
+          flag = true;
           break;
         }
       }
+      return flag;
+    }
+  };
+  const createCache$3 = (lastNumberWeakMap) => {
+    return (collection, nextNumber) => {
+      lastNumberWeakMap.set(collection, nextNumber);
+      return nextNumber;
+    };
+  };
+  const MAX_SAFE_INTEGER$3 = Number.MAX_SAFE_INTEGER === void 0 ? 9007199254740991 : Number.MAX_SAFE_INTEGER;
+  const TWO_TO_THE_POWER_OF_TWENTY_NINE$3 = 536870912;
+  const TWO_TO_THE_POWER_OF_THIRTY$3 = TWO_TO_THE_POWER_OF_TWENTY_NINE$3 * 2;
+  const createGenerateUniqueNumber$3 = (cache2, lastNumberWeakMap) => {
+    return (collection) => {
+      const lastNumber = lastNumberWeakMap.get(collection);
+      let nextNumber = lastNumber === void 0 ? collection.size : lastNumber < TWO_TO_THE_POWER_OF_THIRTY$3 ? lastNumber + 1 : 0;
+      if (!collection.has(nextNumber)) {
+        return cache2(collection, nextNumber);
+      }
+      if (collection.size < TWO_TO_THE_POWER_OF_TWENTY_NINE$3) {
+        while (collection.has(nextNumber)) {
+          nextNumber = Math.floor(Math.random() * TWO_TO_THE_POWER_OF_THIRTY$3);
+        }
+        return cache2(collection, nextNumber);
+      }
+      if (collection.size > MAX_SAFE_INTEGER$3) {
+        throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");
+      }
+      while (collection.has(nextNumber)) {
+        nextNumber = Math.floor(Math.random() * MAX_SAFE_INTEGER$3);
+      }
+      return cache2(collection, nextNumber);
+    };
+  };
+  const LAST_NUMBER_WEAK_MAP$3 = /* @__PURE__ */ new WeakMap();
+  const cache$3 = createCache$3(LAST_NUMBER_WEAK_MAP$3);
+  const generateUniqueNumber$3 = createGenerateUniqueNumber$3(cache$3, LAST_NUMBER_WEAK_MAP$3);
+  const isMessagePort$2 = (sender) => {
+    return typeof sender.start === "function";
+  };
+  const PORT_MAP$2 = /* @__PURE__ */ new WeakMap();
+  const extendBrokerImplementation$2 = (partialBrokerImplementation) => ({
+    ...partialBrokerImplementation,
+    connect: ({ call }) => {
+      return async () => {
+        const { port1, port2 } = new MessageChannel();
+        const portId = await call("connect", { port: port1 }, [port1]);
+        PORT_MAP$2.set(port2, portId);
+        return port2;
+      };
+    },
+    disconnect: ({ call }) => {
+      return async (port) => {
+        const portId = PORT_MAP$2.get(port);
+        if (portId === void 0) {
+          throw new Error("The given port is not connected.");
+        }
+        await call("disconnect", { portId });
+      };
+    },
+    isSupported: ({ call }) => {
+      return () => call("isSupported");
+    }
+  });
+  const ONGOING_REQUESTS$2 = /* @__PURE__ */ new WeakMap();
+  const createOrGetOngoingRequests$2 = (sender) => {
+    if (ONGOING_REQUESTS$2.has(sender)) {
+      return ONGOING_REQUESTS$2.get(sender);
+    }
+    const ongoingRequests = /* @__PURE__ */ new Map();
+    ONGOING_REQUESTS$2.set(sender, ongoingRequests);
+    return ongoingRequests;
+  };
+  const createBroker$2 = (brokerImplementation) => {
+    const fullBrokerImplementation = extendBrokerImplementation$2(brokerImplementation);
+    return (sender) => {
+      const ongoingRequests = createOrGetOngoingRequests$2(sender);
+      sender.addEventListener("message", ({ data: message }) => {
+        const { id } = message;
+        if (id !== null && ongoingRequests.has(id)) {
+          const { reject, resolve } = ongoingRequests.get(id);
+          ongoingRequests.delete(id);
+          if (message.error === void 0) {
+            resolve(message.result);
+          } else {
+            reject(new Error(message.error.message));
+          }
+        }
+      });
+      if (isMessagePort$2(sender)) {
+        sender.start();
+      }
+      const call = (method, params = null, transferables = []) => {
+        return new Promise((resolve, reject) => {
+          const id = generateUniqueNumber$3(ongoingRequests);
+          ongoingRequests.set(id, { reject, resolve });
+          if (params === null) {
+            sender.postMessage({ id, method }, transferables);
+          } else {
+            sender.postMessage({ id, method, params }, transferables);
+          }
+        });
+      };
+      const notify = (method, params, transferables = []) => {
+        sender.postMessage({ id: null, method, params }, transferables);
+      };
+      let functions = {};
+      for (const [key, handler] of Object.entries(fullBrokerImplementation)) {
+        functions = { ...functions, [key]: handler({ call, notify }) };
+      }
+      return { ...functions };
+    };
+  };
+  const scheduledIntervalsState$2 = /* @__PURE__ */ new Map([[0, null]]);
+  const scheduledTimeoutsState$2 = /* @__PURE__ */ new Map([[0, null]]);
+  const wrap$2 = createBroker$2({
+    clearInterval: ({ call }) => {
+      return (timerId) => {
+        if (typeof scheduledIntervalsState$2.get(timerId) === "symbol") {
+          scheduledIntervalsState$2.set(timerId, null);
+          call("clear", { timerId, timerType: "interval" }).then(() => {
+            scheduledIntervalsState$2.delete(timerId);
+          });
+        }
+      };
+    },
+    clearTimeout: ({ call }) => {
+      return (timerId) => {
+        if (typeof scheduledTimeoutsState$2.get(timerId) === "symbol") {
+          scheduledTimeoutsState$2.set(timerId, null);
+          call("clear", { timerId, timerType: "timeout" }).then(() => {
+            scheduledTimeoutsState$2.delete(timerId);
+          });
+        }
+      };
+    },
+    setInterval: ({ call }) => {
+      return (func, delay = 0, ...args2) => {
+        const symbol = Symbol();
+        const timerId = generateUniqueNumber$3(scheduledIntervalsState$2);
+        scheduledIntervalsState$2.set(timerId, symbol);
+        const schedule = () => call("set", {
+          delay,
+          now: performance.timeOrigin + performance.now(),
+          timerId,
+          timerType: "interval"
+        }).then(() => {
+          const state = scheduledIntervalsState$2.get(timerId);
+          if (state === void 0) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (state === symbol) {
+            func(...args2);
+            if (scheduledIntervalsState$2.get(timerId) === symbol) {
+              schedule();
+            }
+          }
+        });
+        schedule();
+        return timerId;
+      };
+    },
+    setTimeout: ({ call }) => {
+      return (func, delay = 0, ...args2) => {
+        const symbol = Symbol();
+        const timerId = generateUniqueNumber$3(scheduledTimeoutsState$2);
+        scheduledTimeoutsState$2.set(timerId, symbol);
+        call("set", {
+          delay,
+          now: performance.timeOrigin + performance.now(),
+          timerId,
+          timerType: "timeout"
+        }).then(() => {
+          const state = scheduledTimeoutsState$2.get(timerId);
+          if (state === void 0) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (state === symbol) {
+            scheduledTimeoutsState$2.delete(timerId);
+            func(...args2);
+          }
+        });
+        return timerId;
+      };
+    }
+  });
+  const load$3 = (url) => {
+    const worker2 = new Worker(url);
+    return wrap$2(worker2);
+  };
+  const createLoadOrReturnBroker$3 = (loadBroker, worker2) => {
+    let broker = null;
+    return () => {
+      if (broker !== null) {
+        return broker;
+      }
+      const blob = new Blob([worker2], { type: "application/javascript; charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      broker = loadBroker(url);
+      setTimeout(() => URL.revokeObjectURL(url));
+      return broker;
+    };
+  };
+  const worker$3 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),d=t(c);e.addUniqueNumber=d,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const d=r instanceof Promise?await r:r;if(null===a){if(void 0!==d.result)throw s(i)}else{if(void 0===d.result)throw s(i);const{result:e,transferables:r=[]}=d;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),d=(e,t,r=()=>!0)=>{const n=c(d,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},l=e=>t=>{const r=e.get(t);if(void 0===r)return Promise.resolve(!1);const[n,o]=r;return clearTimeout(n),e.delete(t),o(!1),Promise.resolve(!0)},f=(e,t,r)=>(n,o,s)=>{const{expected:a,remainingDelay:i}=e(n,o);return new Promise((e=>{t.set(s,[setTimeout(r,i,a,t,e,s),e])}))},m=(e,t)=>{const r=performance.now(),n=e+t-r-performance.timeOrigin;return{expected:r+n,remainingDelay:n}},p=(e,t,r,n)=>{const o=e-performance.now();o>0?t.set(n,[setTimeout(p,o,e,t,r,n),r]):(t.delete(n),r(!0))},h=new Map,v=l(h),w=new Map,g=l(w),M=f(m,h,p),y=f(m,w,p);d(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?v(e):g(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?M:y)(e,t,r)})})})()})();`;
+  const loadOrReturnBroker$3 = createLoadOrReturnBroker$3(load$3, worker$3);
+  const clearInterval$4 = (timerId) => loadOrReturnBroker$3().clearInterval(timerId);
+  const clearTimeout$4 = (timerId) => loadOrReturnBroker$3().clearTimeout(timerId);
+  const setInterval$4 = (...args2) => loadOrReturnBroker$3().setInterval(...args2);
+  const setTimeout$1$3 = (...args2) => loadOrReturnBroker$3().setTimeout(...args2);
+  const QmsgUtils = {
+    /**
+     * 生成带插件名的名称
+     * @param args
+     */
+    getNameSpacify(...args2) {
+      let result2 = QmsgDefaultConfig.NAMESPACE;
+      for (let index = 0; index < args2.length; ++index) {
+        result2 += "-" + args2[index];
+      }
+      return result2;
+    },
+    /**
+     * 判断字符是否是数字
+     * @param text 需要判断的字符串
+     */
+    isNumber(text) {
+      let isNumberPattern = /^\d+$/;
+      return isNumberPattern.test(text);
+    },
+    /**
+     * 获取唯一性的UUID
+     */
+    getUUID() {
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(value) {
+        let randValue = Math.random() * 16 | 0, newValue = value == "x" ? randValue : randValue & 3 | 8;
+        return newValue.toString(16);
+      });
+    },
+    /**
+     * 合并参数为配置信息，用于创建Msg实例
+     * @param content 文本内容
+     * @param config 配置
+     */
+    mergeArgs(content = "", config) {
+      let opts = {};
+      if (arguments.length === 0) {
+        return opts;
+      }
+      if (config != null) {
+        opts.content = content;
+        if (typeof config === "object" && config != null) {
+          return Object.assign(opts, config);
+        }
+      } else {
+        if (typeof content === "object" && content != null) {
+          return Object.assign(opts, content);
+        } else {
+          opts.content = content;
+        }
+      }
+      return opts;
+    },
+    /**
+     * 转换为动态对象
+     * @param obj 需要配置的对象
+     * @param other_obj 获取的其它对象
+     */
+    toDynamicObject(obj, ...other_objs) {
+      let __obj__ = Object.assign({}, obj ?? {});
+      Object.keys(__obj__).forEach((keyName) => {
+        let objValue = __obj__[keyName];
+        Object.defineProperty(__obj__, keyName, {
+          get() {
+            let findIndex = other_objs.findIndex((other_obj) => {
+              return typeof other_obj === "object" && other_obj != null && other_obj.hasOwnProperty.call(other_obj, keyName);
+            });
+            if (findIndex !== -1) {
+              let other_objValue = other_objs[findIndex][keyName];
+              return other_objValue;
+            } else {
+              return objValue;
+            }
+          },
+          set(newValue) {
+            objValue = newValue;
+          }
+        });
+      });
+      return __obj__;
+    },
+    /**
+     * 自动使用 Worker 执行 setTimeout
+     */
+    setTimeout(callback2, timeout) {
+      try {
+        return setTimeout$1$3(callback2, timeout);
+      } catch (error2) {
+        return globalThis.setTimeout(callback2, timeout);
+      }
+    },
+    /**
+     * 配合 QmsgUtils.setTimeout 使用
+     */
+    clearTimeout(timeId) {
+      try {
+        if (timeId != null) {
+          clearTimeout$4(timeId);
+        }
+      } catch (error2) {
+      } finally {
+        globalThis.clearTimeout(timeId);
+      }
+    },
+    /**
+     * 自动使用 Worker 执行 setInterval
+     */
+    setInterval(callback2, timeout) {
+      try {
+        return setInterval$4(callback2, timeout);
+      } catch (error2) {
+        return globalThis.setInterval(callback2, timeout);
+      }
+    },
+    /**
+     * 配合 QmsgUtils.setInterval 使用
+     */
+    clearInterval(timeId) {
+      try {
+        if (timeId != null) {
+          clearInterval$4(timeId);
+        }
+      } catch (error2) {
+      } finally {
+        globalThis.clearInterval(timeId);
+      }
+    },
+    /**
+     * 设置安全的html
+     */
+    setSafeHTML($el, text) {
+      try {
+        $el.innerHTML = text;
+      } catch (error2) {
+        if (globalThis.trustedTypes) {
+          const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
+            createHTML: (html) => html
+          });
+          $el.innerHTML = policy.createHTML(text);
+        } else {
+          throw new Error("QmsgUtils trustedTypes is not defined");
+        }
+      }
+    }
+  };
+  const QmsgAnimation = {
+    /** 状态 & 动画 */
+    $state: {
+      opening: "MessageMoveIn",
+      done: "",
+      closing: "MessageMoveOut"
+    },
+    $name: {
+      startNameList: [
+        "animationName",
+        "WebkitAnimationName",
+        "MozAnimationName",
+        "msAnimationName",
+        "OAnimationName"
+      ],
+      endNameList: [
+        "animationend",
+        "webkitAnimationEnd",
+        "mozAnimationEnd",
+        "MSAnimationEnd",
+        "oanimationend"
+      ]
+    },
+    /**
+     * 是否支持动画属性
+     * @private
+     */
+    __CAN_ANIMATION__: void 0,
+    /**
+     * 是否支持动画属性
+     */
+    get CAN_ANIMATION() {
+      this.__CAN_ANIMATION__ = this.__CAN_ANIMATION__ ?? this.getStyleAnimationNameValue(document.createElement("div")) != null;
+      return this.__CAN_ANIMATION__;
+    },
+    /**
+     * 获取元素上的animationName属性
+     * @param element
+     */
+    getStyleAnimationNameValue(element) {
+      for (let index = 0; index < this.$name.startNameList.length; index++) {
+        let animationName = this.$name.startNameList[index];
+        let animationNameValue = element.style[animationName];
+        if (animationNameValue != null) {
+          return animationNameValue;
+        }
+      }
+    },
+    /**
+     * 设置元素上的animationName属性
+     * @param element
+     * @param animationNameValue
+     */
+    setStyleAnimationName(element, animationNameValue = "") {
+      this.$name.startNameList.forEach((animationName) => {
+        if (animationName in element.style) {
+          element.style[animationName] = animationNameValue;
+        }
+      });
     }
   };
   const QmsgCSS = {
@@ -407,13 +785,13 @@
     getStyleElement() {
       let $style = document.createElement("style");
       $style.setAttribute("type", "text/css");
-      $style.setAttribute("data-type", QmsgConfig.PLUGIN_NAME);
+      $style.setAttribute("data-type", QmsgDefaultConfig.PLUGIN_NAME);
       QmsgUtils.setSafeHTML($style, this.css);
       return $style;
     }
   };
   class QmsgMsg {
-    constructor(option, uuid) {
+    constructor(config, uuid) {
       /**
        * setTimeout的id
        */
@@ -449,15 +827,19 @@
       this.timeId = void 0;
       this.startTime = Date.now();
       this.endTime = null;
-      this.setting = QmsgUtils.toDynamicObject(QmsgConfig.DEFAULT, option, QmsgConfig.INS_DEFAULT);
+      this.setting = QmsgUtils.toDynamicObject(QmsgDefaultConfig.config, config, QmsgDefaultConfig.INS_DEFAULT);
       this.uuid = uuid;
       this.state = "opening";
       this.$Qmsg = document.createElement("div");
       this.repeatNum = 1;
       this.detectionType();
       this.init();
-      if (this.setting.consoleLogContent) {
+      let consoleLogContent = typeof this.setting.consoleLogContent === "function" ? this.setting.consoleLogContent(this) : this.setting.consoleLogContent;
+      if (consoleLogContent) {
         console.log(this.setting.content);
+      }
+      if (typeof this.setting.afterRender === "function") {
+        this.setting.afterRender(this);
       }
     }
     /**
@@ -509,7 +891,8 @@
       }
       let $closeIcon = "";
       if (this.setting.showClose) {
-        $closeIcon = `<i class="qmsg-icon qmsg-icon-close ${extraCloseIconClassName}">${$closeSvg}</i>`;
+        $closeIcon = /*html*/
+        `<i class="qmsg-icon qmsg-icon-close ${extraCloseIconClassName}">${$closeSvg}</i>`;
       }
       let $content = document.createElement("span");
       let $positionClassName = QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase());
@@ -555,17 +938,22 @@
       let $contentContainer = this.$Qmsg.querySelector(".qmsg-content");
       this.$Qmsg.classList.add(QmsgUtils.getNameSpacify("item"));
       this.$Qmsg.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.uuid);
-      let $shadowContainer = document.querySelector(".qmsg-shadow-container");
-      let $shadowRoot = $shadowContainer == null ? void 0 : $shadowContainer.shadowRoot;
+      let $shadowContainer;
+      let $shadowRoot;
+      let $wrapper;
+      $shadowContainer = document.querySelector(".qmsg-shadow-container");
+      $shadowRoot = this.setting.useShadowRoot ? $shadowContainer == null ? void 0 : $shadowContainer.shadowRoot : $shadowContainer;
       if (!$shadowContainer) {
         $shadowContainer = document.createElement("div");
         $shadowContainer.className = "qmsg-shadow-container";
-        $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
-        let __$wrapper__ = document.createElement("div");
-        __$wrapper__.classList.add(QmsgConfig.NAMESPACE, QmsgUtils.getNameSpacify("wrapper"), QmsgUtils.getNameSpacify("is-initialized"));
-        __$wrapper__.classList.add($positionClassName);
+        if (this.setting.useShadowRoot) {
+          $shadowRoot = $shadowContainer.attachShadow({
+            mode: this.setting.shadowRootMode
+          });
+        } else {
+          $shadowRoot = $shadowContainer;
+        }
         $shadowRoot.appendChild(QmsgCSS.getStyleElement());
-        $shadowRoot.appendChild(__$wrapper__);
         if (this.setting.style != null) {
           let __$ownStyle__ = document.createElement("style");
           __$ownStyle__.setAttribute("type", "text/css");
@@ -573,16 +961,15 @@
           QmsgUtils.setSafeHTML(__$ownStyle__, this.setting.style);
           $contentContainer.insertAdjacentElement("afterend", __$ownStyle__);
         }
-        (document.body || document.documentElement).appendChild($shadowContainer);
+        this.setting.parent.appendChild($shadowContainer);
       }
       if ($shadowRoot == null) {
-        throw new TypeError(QmsgConfig.PLUGIN_NAME + " $shadowRoot is null");
+        throw new Error("QmsgInst " + QmsgDefaultConfig.PLUGIN_NAME + " $shadowRoot is null");
       }
-      let $wrapper = $shadowRoot.querySelector(`.${QmsgConfig.NAMESPACE}.${$positionClassName}`);
+      $wrapper = $shadowRoot.querySelector(`.${QmsgDefaultConfig.NAMESPACE}.${$positionClassName}`);
       if (!$wrapper) {
         $wrapper = document.createElement("div");
-        $wrapper.classList.add(QmsgConfig.NAMESPACE, QmsgUtils.getNameSpacify("wrapper"), QmsgUtils.getNameSpacify("is-initialized"));
-        $wrapper.classList.add($positionClassName);
+        $wrapper.classList.add(QmsgDefaultConfig.NAMESPACE, QmsgUtils.getNameSpacify("wrapper"), QmsgUtils.getNameSpacify("is-initialized"), $positionClassName);
         $shadowRoot.appendChild($wrapper);
       }
       if (this.setting.showReverse) {
@@ -602,7 +989,7 @@
       if (this.setting.showClose) {
         let $closeIcon2 = this.$Qmsg.querySelector(".qmsg-icon-close");
         if ($closeIcon2) {
-          $closeIcon2.addEventListener("click", function() {
+          $closeIcon2.addEventListener("click", (evt) => {
             QmsgContext.close();
           });
         }
@@ -618,35 +1005,31 @@
       QmsgAnimation.$name.endNameList.forEach(function(animationendName) {
         QmsgContext.$Qmsg.addEventListener(animationendName, animationendEvent);
       });
-      if (this.setting.autoClose) {
-        this.timeId = QmsgUtils.setTimeout(() => {
-          this.close();
-        }, this.setting.timeout);
+      if (this.setting.autoClose && this.setting.listenEventToPauseAutoClose) {
+        this.resetAutoCloseTimer();
         let enterEvent = (event) => {
-          this.startTime = null;
-          this.endTime = null;
-          QmsgUtils.clearTimeout(this.timeId);
-          this.timeId = void 0;
+          this.clearAutoCloseTimer();
         };
         let leaveEvent = (event) => {
           if (this.timeId != null) {
-            console.warn("timeId is not null，mouseenter may be not first trigger");
+            console.warn("QmsgInst timeId is not null，mouseenter may be not first trigger，timeId：" + this.timeId);
             return;
           }
-          this.startTime = Date.now();
-          this.timeId = QmsgUtils.setTimeout(() => {
-            this.close();
-          }, this.setting.timeout);
+          this.startAutoCloseTimer();
         };
-        this.$Qmsg.addEventListener("touchstart", () => {
-          this.$Qmsg.removeEventListener("mouseenter", enterEvent);
-          this.$Qmsg.removeEventListener("mouseout", leaveEvent);
-        }, {
-          capture: true,
-          once: true
-        });
+        let isRemoveMouseEvent = false;
         this.$Qmsg.addEventListener("mouseenter", enterEvent);
-        this.$Qmsg.addEventListener("mouseout", leaveEvent);
+        this.$Qmsg.addEventListener("mouseleave", leaveEvent);
+        this.$Qmsg.addEventListener("touchstart", (evt) => {
+          if (!isRemoveMouseEvent) {
+            isRemoveMouseEvent = true;
+            this.$Qmsg.removeEventListener("mouseenter", enterEvent);
+            this.$Qmsg.removeEventListener("mouseleave", leaveEvent);
+          }
+          enterEvent();
+        });
+        this.$Qmsg.addEventListener("touchend", leaveEvent);
+        this.$Qmsg.addEventListener("touchcancel", leaveEvent);
       }
     }
     /**
@@ -659,10 +1042,10 @@
         this.setting.timeout = parseInt(this.setting.timeout);
       }
       if (isNaN(this.setting.timeout)) {
-        this.setting.timeout = QmsgConfig.DEFAULT.timeout;
+        this.setting.timeout = QmsgDefaultConfig.config.timeout;
       }
       if (!(this.setting.timeout != null && parseInt(this.setting.timeout.toString()) >= 0 && parseInt(this.setting.timeout.toString()) <= Number.MAX_VALUE)) {
-        this.setting.timeout = QmsgConfig.DEFAULT.timeout;
+        this.setting.timeout = QmsgDefaultConfig.config.timeout;
       }
       if (typeof this.setting.zIndex === "function") {
         this.setting.zIndex = this.setting.zIndex();
@@ -671,7 +1054,7 @@
         this.setting.zIndex = parseInt(this.setting.zIndex);
       }
       if (isNaN(this.setting.zIndex)) {
-        this.setting.zIndex = typeof QmsgConfig.DEFAULT.zIndex === "function" ? QmsgConfig.DEFAULT.zIndex() : QmsgConfig.DEFAULT.zIndex;
+        this.setting.zIndex = typeof QmsgDefaultConfig.config.zIndex === "function" ? QmsgDefaultConfig.config.zIndex() : QmsgDefaultConfig.config.zIndex;
       }
     }
     /**
@@ -689,12 +1072,11 @@
      * 设置消息数量统计
      */
     setMsgCount() {
-      let QmsgContext = this;
       let countClassName = QmsgUtils.getNameSpacify("count");
       let wrapperClassName = `div.${QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase())} [class^="qmsg-content-"]`;
       let $content = this.$Qmsg.querySelector(wrapperClassName);
       if (!$content) {
-        throw new TypeError("$content is null");
+        throw new Error("QmsgInst $content is null");
       }
       let $count = $content.querySelector("." + countClassName);
       if (!$count) {
@@ -702,23 +1084,47 @@
         $count.classList.add(countClassName);
         $content.appendChild($count);
       }
-      QmsgUtils.setSafeHTML($count, this.getRepeatNum().toString());
+      let repeatNum = this.getRepeatNum();
+      QmsgUtils.setSafeHTML($count, repeatNum.toString());
       QmsgAnimation.setStyleAnimationName($count);
       QmsgAnimation.setStyleAnimationName($count, "MessageShake");
+      this.resetAutoCloseTimer();
+    }
+    /**
+     * 清除旧的自动关闭定时器
+     */
+    clearAutoCloseTimer() {
       QmsgUtils.clearTimeout(this.timeId);
-      if (this.setting.autoClose) {
-        this.timeId = QmsgUtils.setTimeout(function() {
-          QmsgContext.close();
+      this.timeId = void 0;
+      this.startTime = null;
+      this.endTime = null;
+    }
+    /**
+     * 开始自动关闭定时器
+     */
+    startAutoCloseTimer() {
+      if (this.setting.autoClose && this.setting.listenEventToPauseAutoClose) {
+        this.startTime = Date.now();
+        this.endTime = null;
+        this.timeId = QmsgUtils.setTimeout(() => {
+          this.close();
         }, this.setting.timeout);
       }
+    }
+    /**
+     * 重置自动关闭定时器（会自动清理旧的定时器）
+     */
+    resetAutoCloseTimer() {
+      this.clearAutoCloseTimer();
+      this.startAutoCloseTimer();
     }
     /**
      * 关闭Qmsg（会触发动画）
      */
     close() {
       this.setState(this.$Qmsg, "closing");
-      if (QmsgConfig.CAN_ANIMATION) {
-        QmsgInstanceStorage.remove(this.uuid);
+      if (QmsgAnimation.CAN_ANIMATION) {
+        QmsgInstStorage.remove(this.uuid);
       } else {
         this.destroy();
       }
@@ -734,431 +1140,78 @@
       this.endTime = Date.now();
       this.$Qmsg.remove();
       QmsgUtils.clearTimeout(this.timeId);
-      QmsgInstanceStorage.remove(this.uuid);
+      QmsgInstStorage.remove(this.uuid);
+      this.timeId = void 0;
+    }
+    /**
+     * 获取内容元素
+     */
+    get $content() {
+      let $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
+      if (!$content) {
+        throw new Error("QmsgInst $content is null");
+      }
+      return $content;
     }
     /**
      * 设置内容文本
      */
     setText(text) {
-      let $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
-      if ($content) {
-        $content.innerText = text;
-        this.setting.content = text;
-      } else {
-        throw new TypeError("$content is null");
-      }
+      let $content = this.$content;
+      $content.innerText = text;
+      this.setting.content = text;
     }
     /**
      * 设置内容超文本
      */
     setHTML(text) {
-      let $content = this.$Qmsg.querySelector("div[class^=qmsg-content-] > span");
-      if ($content) {
-        QmsgUtils.setSafeHTML($content, text);
-        this.setting.content = text;
-      } else {
-        throw new TypeError("$content is null");
-      }
+      let $content = this.$content;
+      QmsgUtils.setSafeHTML($content, text);
+      this.setting.content = text;
     }
   }
-  const createCache = (lastNumberWeakMap) => {
-    return (collection, nextNumber) => {
-      lastNumberWeakMap.set(collection, nextNumber);
-      return nextNumber;
-    };
-  };
-  const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER === void 0 ? 9007199254740991 : Number.MAX_SAFE_INTEGER;
-  const TWO_TO_THE_POWER_OF_TWENTY_NINE = 536870912;
-  const TWO_TO_THE_POWER_OF_THIRTY = TWO_TO_THE_POWER_OF_TWENTY_NINE * 2;
-  const createGenerateUniqueNumber = (cache2, lastNumberWeakMap) => {
-    return (collection) => {
-      const lastNumber = lastNumberWeakMap.get(collection);
-      let nextNumber = lastNumber === void 0 ? collection.size : lastNumber < TWO_TO_THE_POWER_OF_THIRTY ? lastNumber + 1 : 0;
-      if (!collection.has(nextNumber)) {
-        return cache2(collection, nextNumber);
-      }
-      if (collection.size < TWO_TO_THE_POWER_OF_TWENTY_NINE) {
-        while (collection.has(nextNumber)) {
-          nextNumber = Math.floor(Math.random() * TWO_TO_THE_POWER_OF_THIRTY);
+  function QmsgInstHandler(config = {}) {
+    let optionString = JSON.stringify(config);
+    let findQmsgItemInfo = QmsgInstStorage.insInfoList.find((item) => {
+      return item.config === optionString;
+    });
+    let QmsgInstance = findQmsgItemInfo == null ? void 0 : findQmsgItemInfo.instance;
+    if (QmsgInstance == null) {
+      let uuid = QmsgUtils.getUUID();
+      let qmsgInstStorageInfo = {
+        uuid,
+        config: optionString,
+        instance: new QmsgMsg(config, uuid)
+      };
+      QmsgInstStorage.insInfoList.push(qmsgInstStorageInfo);
+      let QmsgListLength = QmsgInstStorage.insInfoList.length;
+      let maxNums = qmsgInstStorageInfo.instance.getSetting().maxNums;
+      if (QmsgListLength > maxNums) {
+        for (let index = 0; index < QmsgListLength - maxNums; index++) {
+          let item = QmsgInstStorage.insInfoList[index];
+          item && item.instance.getSetting().autoClose && item.instance.close();
         }
-        return cache2(collection, nextNumber);
       }
-      if (collection.size > MAX_SAFE_INTEGER) {
-        throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");
-      }
-      while (collection.has(nextNumber)) {
-        nextNumber = Math.floor(Math.random() * MAX_SAFE_INTEGER);
-      }
-      return cache2(collection, nextNumber);
-    };
-  };
-  const LAST_NUMBER_WEAK_MAP = /* @__PURE__ */ new WeakMap();
-  const cache = createCache(LAST_NUMBER_WEAK_MAP);
-  const generateUniqueNumber = createGenerateUniqueNumber(cache, LAST_NUMBER_WEAK_MAP);
-  const isMessagePort = (sender) => {
-    return typeof sender.start === "function";
-  };
-  const PORT_MAP = /* @__PURE__ */ new WeakMap();
-  const extendBrokerImplementation = (partialBrokerImplementation) => ({
-    ...partialBrokerImplementation,
-    connect: ({ call }) => {
-      return async () => {
-        const { port1, port2 } = new MessageChannel();
-        const portId = await call("connect", { port: port1 }, [port1]);
-        PORT_MAP.set(port2, portId);
-        return port2;
-      };
-    },
-    disconnect: ({ call }) => {
-      return async (port) => {
-        const portId = PORT_MAP.get(port);
-        if (portId === void 0) {
-          throw new Error("The given port is not connected.");
-        }
-        await call("disconnect", { portId });
-      };
-    },
-    isSupported: ({ call }) => {
-      return () => call("isSupported");
-    }
-  });
-  const ONGOING_REQUESTS = /* @__PURE__ */ new WeakMap();
-  const createOrGetOngoingRequests = (sender) => {
-    if (ONGOING_REQUESTS.has(sender)) {
-      return ONGOING_REQUESTS.get(sender);
-    }
-    const ongoingRequests = /* @__PURE__ */ new Map();
-    ONGOING_REQUESTS.set(sender, ongoingRequests);
-    return ongoingRequests;
-  };
-  const createBroker = (brokerImplementation) => {
-    const fullBrokerImplementation = extendBrokerImplementation(brokerImplementation);
-    return (sender) => {
-      const ongoingRequests = createOrGetOngoingRequests(sender);
-      sender.addEventListener("message", ({ data: message }) => {
-        const { id } = message;
-        if (id !== null && ongoingRequests.has(id)) {
-          const { reject, resolve } = ongoingRequests.get(id);
-          ongoingRequests.delete(id);
-          if (message.error === void 0) {
-            resolve(message.result);
-          } else {
-            reject(new Error(message.error.message));
-          }
-        }
-      });
-      if (isMessagePort(sender)) {
-        sender.start();
-      }
-      const call = (method, params = null, transferables = []) => {
-        return new Promise((resolve, reject) => {
-          const id = generateUniqueNumber(ongoingRequests);
-          ongoingRequests.set(id, { reject, resolve });
-          if (params === null) {
-            sender.postMessage({ id, method }, transferables);
-          } else {
-            sender.postMessage({ id, method, params }, transferables);
-          }
-        });
-      };
-      const notify = (method, params, transferables = []) => {
-        sender.postMessage({ id: null, method, params }, transferables);
-      };
-      let functions = {};
-      for (const [key, handler] of Object.entries(fullBrokerImplementation)) {
-        functions = { ...functions, [key]: handler({ call, notify }) };
-      }
-      return { ...functions };
-    };
-  };
-  const scheduledIntervalsState = /* @__PURE__ */ new Map([[0, null]]);
-  const scheduledTimeoutsState = /* @__PURE__ */ new Map([[0, null]]);
-  const wrap = createBroker({
-    clearInterval: ({ call }) => {
-      return (timerId) => {
-        if (typeof scheduledIntervalsState.get(timerId) === "symbol") {
-          scheduledIntervalsState.set(timerId, null);
-          call("clear", { timerId, timerType: "interval" }).then(() => {
-            scheduledIntervalsState.delete(timerId);
-          });
-        }
-      };
-    },
-    clearTimeout: ({ call }) => {
-      return (timerId) => {
-        if (typeof scheduledTimeoutsState.get(timerId) === "symbol") {
-          scheduledTimeoutsState.set(timerId, null);
-          call("clear", { timerId, timerType: "timeout" }).then(() => {
-            scheduledTimeoutsState.delete(timerId);
-          });
-        }
-      };
-    },
-    setInterval: ({ call }) => {
-      return (func, delay = 0, ...args2) => {
-        const symbol = Symbol();
-        const timerId = generateUniqueNumber(scheduledIntervalsState);
-        scheduledIntervalsState.set(timerId, symbol);
-        const schedule = () => call("set", {
-          delay,
-          now: performance.timeOrigin + performance.now(),
-          timerId,
-          timerType: "interval"
-        }).then(() => {
-          const state = scheduledIntervalsState.get(timerId);
-          if (state === void 0) {
-            throw new Error("The timer is in an undefined state.");
-          }
-          if (state === symbol) {
-            func(...args2);
-            if (scheduledIntervalsState.get(timerId) === symbol) {
-              schedule();
-            }
-          }
-        });
-        schedule();
-        return timerId;
-      };
-    },
-    setTimeout: ({ call }) => {
-      return (func, delay = 0, ...args2) => {
-        const symbol = Symbol();
-        const timerId = generateUniqueNumber(scheduledTimeoutsState);
-        scheduledTimeoutsState.set(timerId, symbol);
-        call("set", {
-          delay,
-          now: performance.timeOrigin + performance.now(),
-          timerId,
-          timerType: "timeout"
-        }).then(() => {
-          const state = scheduledTimeoutsState.get(timerId);
-          if (state === void 0) {
-            throw new Error("The timer is in an undefined state.");
-          }
-          if (state === symbol) {
-            scheduledTimeoutsState.delete(timerId);
-            func(...args2);
-          }
-        });
-        return timerId;
-      };
-    }
-  });
-  const load = (url) => {
-    const worker2 = new Worker(url);
-    return wrap(worker2);
-  };
-  const createLoadOrReturnBroker = (loadBroker, worker2) => {
-    let broker = null;
-    return () => {
-      if (broker !== null) {
-        return broker;
-      }
-      const blob = new Blob([worker2], { type: "application/javascript; charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      broker = loadBroker(url);
-      setTimeout(() => URL.revokeObjectURL(url));
-      return broker;
-    };
-  };
-  const worker = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),d=t(c);e.addUniqueNumber=d,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const d=r instanceof Promise?await r:r;if(null===a){if(void 0!==d.result)throw s(i)}else{if(void 0===d.result)throw s(i);const{result:e,transferables:r=[]}=d;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),d=(e,t,r=()=>!0)=>{const n=c(d,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},l=e=>t=>{const r=e.get(t);if(void 0===r)return Promise.resolve(!1);const[n,o]=r;return clearTimeout(n),e.delete(t),o(!1),Promise.resolve(!0)},f=(e,t,r)=>(n,o,s)=>{const{expected:a,remainingDelay:i}=e(n,o);return new Promise((e=>{t.set(s,[setTimeout(r,i,a,t,e,s),e])}))},m=(e,t)=>{const r=performance.now(),n=e+t-r-performance.timeOrigin;return{expected:r+n,remainingDelay:n}},p=(e,t,r,n)=>{const o=e-performance.now();o>0?t.set(n,[setTimeout(p,o,e,t,r,n),r]):(t.delete(n),r(!0))},h=new Map,v=l(h),w=new Map,g=l(w),M=f(m,h,p),y=f(m,w,p);d(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?v(e):g(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?M:y)(e,t,r)})})})()})();`;
-  const loadOrReturnBroker = createLoadOrReturnBroker(load, worker);
-  const clearInterval$1 = (timerId) => loadOrReturnBroker().clearInterval(timerId);
-  const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
-  const setInterval$1 = (...args2) => loadOrReturnBroker().setInterval(...args2);
-  const setTimeout$1 = (...args2) => loadOrReturnBroker().setTimeout(...args2);
-  const QmsgUtils = {
-    /**
-     * 生成带插件名的名称
-     * @param args
-     */
-    getNameSpacify(...args2) {
-      let result2 = QmsgConfig.NAMESPACE;
-      for (let index = 0; index < args2.length; ++index) {
-        result2 += "-" + args2[index];
-      }
-      return result2;
-    },
-    /**
-     * 判断字符是否是数字
-     * @param text 需要判断的字符串
-     */
-    isNumber(text) {
-      let isNumberPattern = /^\d+$/;
-      return isNumberPattern.test(text);
-    },
-    /**
-     * 获取唯一性的UUID
-     */
-    getUUID() {
-      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(value) {
-        let randValue = Math.random() * 16 | 0, newValue = value == "x" ? randValue : randValue & 3 | 8;
-        return newValue.toString(16);
-      });
-    },
-    /**
-     * 合并参数为配置信息，用于创建Msg实例
-     * @param content 文本内容
-     * @param config 配置
-     */
-    mergeArgs(content = "", config) {
-      let opts = {};
-      if (arguments.length === 0) {
-        return opts;
-      }
-      if (config != null) {
-        opts.content = content;
-        if (typeof config === "object" && config != null) {
-          return Object.assign(opts, config);
-        }
+      findQmsgItemInfo = qmsgInstStorageInfo;
+      QmsgInstance = qmsgInstStorageInfo.instance;
+    } else {
+      if (!QmsgInstance.getRepeatNum()) {
+        QmsgInstance.setRepeatNum(2);
       } else {
-        if (typeof content === "object" && content != null) {
-          return Object.assign(opts, content);
-        } else {
-          opts.content = content;
+        if (QmsgInstance.getRepeatNum() >= 99) ;
+        else {
+          QmsgInstance.setRepeatNumIncreasing();
         }
       }
-      return opts;
-    },
-    /**
-     * 通过配置信息 来判断是否为同一条消息,并返回消息实例
-     * @param option 配置项
-     */
-    judgeReMsg(option) {
-      option = option || {};
-      let optionString = JSON.stringify(option);
-      let findQmsgItemInfo = QmsgInstanceStorage.QmsgList.find((item) => {
-        return item.config === optionString;
-      });
-      let QmsgInstance = findQmsgItemInfo == null ? void 0 : findQmsgItemInfo.instance;
-      if (QmsgInstance == null) {
-        let uuid = QmsgUtils.getUUID();
-        let QmsgItemInfo = {
-          uuid,
-          config: optionString,
-          instance: new QmsgMsg(option, uuid)
-        };
-        QmsgInstanceStorage.QmsgList.push(QmsgItemInfo);
-        let QmsgListLength = QmsgInstanceStorage.QmsgList.length;
-        let maxNums = QmsgItemInfo.instance.getSetting().maxNums;
-        if (QmsgListLength > maxNums) {
-          for (let index = 0; index < QmsgListLength - maxNums; index++) {
-            let item = QmsgInstanceStorage.QmsgList[index];
-            item && item.instance.getSetting().autoClose && item.instance.close();
-          }
-        }
-        findQmsgItemInfo = QmsgItemInfo;
-        QmsgInstance = QmsgItemInfo.instance;
-      } else {
-        if (!QmsgInstance.getRepeatNum()) {
-          QmsgInstance.setRepeatNum(2);
-        } else {
-          if (QmsgInstance.getRepeatNum() >= 99) ;
-          else {
-            QmsgInstance.setRepeatNumIncreasing();
-          }
-        }
-        QmsgInstance.setMsgCount();
-      }
-      if (QmsgInstance) {
-        QmsgInstance.$Qmsg.setAttribute("data-count", QmsgInstance == null ? void 0 : QmsgInstance.getRepeatNum().toString());
-      } else {
-        throw new TypeError("QmsgInstance is null");
-      }
-      return QmsgInstance;
-    },
-    /**
-     * 转换为动态对象
-     * @param obj 需要配置的对象
-     * @param other_obj 获取的其它对象
-     */
-    toDynamicObject(obj, ...other_objs) {
-      let __obj__ = Object.assign({}, obj);
-      Object.keys(__obj__).forEach((keyName) => {
-        let objValue = __obj__[keyName];
-        Object.defineProperty(__obj__, keyName, {
-          get() {
-            let findIndex = other_objs.findIndex((other_obj) => {
-              return other_obj.hasOwnProperty.call(other_obj, keyName);
-            });
-            if (findIndex !== -1) {
-              return other_objs[findIndex][keyName];
-            } else {
-              return objValue;
-            }
-          },
-          set(newValue) {
-            objValue = newValue;
-          }
-        });
-      });
-      return __obj__;
-    },
-    /**
-     * 自动使用 Worker 执行 setTimeout
-     */
-    setTimeout(callback2, timeout) {
-      try {
-        return setTimeout$1(callback2, timeout);
-      } catch (error2) {
-        return globalThis.setTimeout(callback2, timeout);
-      }
-    },
-    /**
-     * 配合 QmsgUtils.setTimeout 使用
-     */
-    clearTimeout(timeId) {
-      try {
-        if (timeId != null) {
-          clearTimeout$1(timeId);
-        }
-      } catch (error2) {
-      } finally {
-        globalThis.clearTimeout(timeId);
-      }
-    },
-    /**
-     * 自动使用 Worker 执行 setInterval
-     */
-    setInterval(callback2, timeout) {
-      try {
-        return setInterval$1(callback2, timeout);
-      } catch (error2) {
-        return globalThis.setInterval(callback2, timeout);
-      }
-    },
-    /**
-     * 配合 QmsgUtils.setInterval 使用
-     */
-    clearInterval(timeId) {
-      try {
-        if (timeId != null) {
-          clearInterval$1(timeId);
-        }
-      } catch (error2) {
-      } finally {
-        globalThis.clearInterval(timeId);
-      }
-    },
-    /**
-     * 设置安全的html
-     */
-    setSafeHTML($el, text) {
-      try {
-        $el.innerHTML = text;
-      } catch (error2) {
-        if (globalThis.trustedTypes) {
-          const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
-            createHTML: (html) => html
-          });
-          $el.innerHTML = policy.createHTML(text);
-        } else {
-          throw new TypeError("trustedTypes is not defined");
-        }
-      }
+      QmsgInstance.setMsgCount();
     }
-  };
-  CompatibleProcessing();
+    if (QmsgInstance) {
+      QmsgInstance.$Qmsg.setAttribute("data-count", QmsgInstance == null ? void 0 : QmsgInstance.getRepeatNum().toString());
+    } else {
+      throw new Error("QmsgInst is null");
+    }
+    return QmsgInstance;
+  }
   const QmsgEvent = {
     visibilitychange: {
       eventConfig: {
@@ -1170,10 +1223,13 @@
          */
         callback() {
           if (document.visibilityState === "visible") {
-            for (let index = 0; index < QmsgInstanceStorage.QmsgList.length; index++) {
-              let QmsgInstance = QmsgInstanceStorage.QmsgList[index];
-              if (QmsgInstance.instance.endTime == null && QmsgInstance.instance.startTime != null && Date.now() - QmsgInstance.instance.startTime >= QmsgInstance.instance.getSetting().timeout) {
-                QmsgInstance.instance.close();
+            for (let index = 0; index < QmsgInstStorage.insInfoList.length; index++) {
+              let qmsgInst = QmsgInstStorage.insInfoList[index];
+              if (
+                // loading类型不被自动关闭
+                qmsgInst.instance.setting.type !== "loading" && qmsgInst.instance.endTime == null && qmsgInst.instance.startTime != null && Date.now() - qmsgInst.instance.startTime >= qmsgInst.instance.getSetting().timeout
+              ) {
+                qmsgInst.instance.close();
               }
             }
           }
@@ -1186,7 +1242,7 @@
         if ("visibilityState" in document) {
           document.addEventListener("visibilitychange", QmsgEvent.visibilitychange.eventConfig.callback, QmsgEvent.visibilitychange.eventConfig.option);
         } else {
-          console.error("visibilityState not support");
+          console.error("Qmsg addEvent visibilityState not support");
         }
       },
       removeEvent() {
@@ -1194,8 +1250,13 @@
       }
     }
   };
+  CompatibleProcessing();
   class Qmsg {
-    constructor() {
+    /**
+     * 实例化
+     * @param config 配置
+     */
+    constructor(config) {
       /** 数据 */
       __publicField(this, "$data");
       /**
@@ -1203,65 +1264,66 @@
        */
       __publicField(this, "$eventUtils");
       this.$data = {
-        version: "2025.5.10",
-        config: QmsgConfig,
+        version: "2025.5.31",
+        config: QmsgDefaultConfig,
         icon: QmsgIcon,
-        instanceStorage: QmsgInstanceStorage
+        instanceStorage: QmsgInstStorage
       };
       this.$eventUtils = QmsgEvent;
       this.$eventUtils.visibilitychange.addEvent();
+      this.config(config);
     }
     /**
      * 修改默认配置
-     * @param option
+     * @param config 配置
      */
-    config(option) {
-      if (option == null)
+    config(config) {
+      if (config == null)
         return;
-      if (typeof option !== "object")
+      if (typeof config !== "object")
         return;
-      QmsgConfig.INS_DEFAULT = null;
-      QmsgConfig.INS_DEFAULT = option;
+      QmsgDefaultConfig.INS_DEFAULT = null;
+      QmsgDefaultConfig.INS_DEFAULT = config;
     }
-    info(content, option) {
-      let params = QmsgUtils.mergeArgs(content, option);
+    info(content, config) {
+      let params = QmsgUtils.mergeArgs(content, config);
       params.type = "info";
-      return QmsgUtils.judgeReMsg.call(this, params);
+      return QmsgInstHandler.call(this, params);
     }
-    warning(content, option) {
-      let params = QmsgUtils.mergeArgs(content, option);
+    warning(content, config) {
+      let params = QmsgUtils.mergeArgs(content, config);
       params.type = "warning";
-      return QmsgUtils.judgeReMsg.call(this, params);
+      return QmsgInstHandler.call(this, params);
     }
-    success(content, option) {
-      let params = QmsgUtils.mergeArgs(content, option);
+    success(content, config) {
+      let params = QmsgUtils.mergeArgs(content, config);
       params.type = "success";
-      return QmsgUtils.judgeReMsg.call(this, params);
+      return QmsgInstHandler.call(this, params);
     }
-    error(content, option) {
-      let params = QmsgUtils.mergeArgs(content, option);
+    error(content, config) {
+      let params = QmsgUtils.mergeArgs(content, config);
       params.type = "error";
-      return QmsgUtils.judgeReMsg.call(this, params);
+      return QmsgInstHandler.call(this, params);
     }
     loading(content, config) {
       let params = QmsgUtils.mergeArgs(content, config);
       params.type = "loading";
       params.autoClose = false;
-      return QmsgUtils.judgeReMsg.call(this, params);
+      return QmsgInstHandler.call(this, params);
     }
     /**
      * 根据uuid删除Qmsg实例和元素
-     * @param uuid
+     * @param uuid 唯一值
      */
     remove(uuid) {
-      QmsgInstanceStorage.remove(uuid);
+      QmsgInstStorage.remove(uuid);
     }
     /**
      * 关闭当前Qmsg创建的所有的实例
      */
     closeAll() {
-      for (let index = QmsgInstanceStorage.QmsgList.length - 1; index >= 0; index--) {
-        let item = QmsgInstanceStorage.QmsgList[index];
+      for (let index = QmsgInstStorage.insInfoList.length - 1; index >= 0; index--) {
+        let item = QmsgInstStorage.insInfoList[index];
         item && item.instance && item.instance.close();
       }
     }
@@ -1308,6 +1370,196 @@
       return this.api.top;
     }
   };
+  const createCache$2 = (lastNumberWeakMap) => {
+    return (collection, nextNumber) => {
+      lastNumberWeakMap.set(collection, nextNumber);
+      return nextNumber;
+    };
+  };
+  const MAX_SAFE_INTEGER$2 = Number.MAX_SAFE_INTEGER === void 0 ? 9007199254740991 : Number.MAX_SAFE_INTEGER;
+  const TWO_TO_THE_POWER_OF_TWENTY_NINE$2 = 536870912;
+  const TWO_TO_THE_POWER_OF_THIRTY$2 = TWO_TO_THE_POWER_OF_TWENTY_NINE$2 * 2;
+  const createGenerateUniqueNumber$2 = (cache2, lastNumberWeakMap) => {
+    return (collection) => {
+      const lastNumber = lastNumberWeakMap.get(collection);
+      let nextNumber = lastNumber === void 0 ? collection.size : lastNumber < TWO_TO_THE_POWER_OF_THIRTY$2 ? lastNumber + 1 : 0;
+      if (!collection.has(nextNumber)) {
+        return cache2(collection, nextNumber);
+      }
+      if (collection.size < TWO_TO_THE_POWER_OF_TWENTY_NINE$2) {
+        while (collection.has(nextNumber)) {
+          nextNumber = Math.floor(Math.random() * TWO_TO_THE_POWER_OF_THIRTY$2);
+        }
+        return cache2(collection, nextNumber);
+      }
+      if (collection.size > MAX_SAFE_INTEGER$2) {
+        throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");
+      }
+      while (collection.has(nextNumber)) {
+        nextNumber = Math.floor(Math.random() * MAX_SAFE_INTEGER$2);
+      }
+      return cache2(collection, nextNumber);
+    };
+  };
+  const LAST_NUMBER_WEAK_MAP$2 = /* @__PURE__ */ new WeakMap();
+  const cache$2 = createCache$2(LAST_NUMBER_WEAK_MAP$2);
+  const generateUniqueNumber$2 = createGenerateUniqueNumber$2(cache$2, LAST_NUMBER_WEAK_MAP$2);
+  const isCallNotification = (message) => {
+    return message.method !== void 0 && message.method === "call";
+  };
+  const isClearResponse = (message) => {
+    return typeof message.id === "number" && typeof message.result === "boolean";
+  };
+  const load$2 = (url) => {
+    const scheduledIntervalFunctions = /* @__PURE__ */ new Map([[0, () => {
+    }]]);
+    const scheduledTimeoutFunctions = /* @__PURE__ */ new Map([[0, () => {
+    }]]);
+    const unrespondedRequests = /* @__PURE__ */ new Map();
+    const worker2 = new Worker(url);
+    worker2.addEventListener("message", ({ data }) => {
+      if (isCallNotification(data)) {
+        const { params: { timerId, timerType } } = data;
+        if (timerType === "interval") {
+          const idOrFunc = scheduledIntervalFunctions.get(timerId);
+          if (typeof idOrFunc === void 0) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (typeof idOrFunc === "number") {
+            const timerIdAndTimerType = unrespondedRequests.get(idOrFunc);
+            if (timerIdAndTimerType === void 0 || timerIdAndTimerType.timerId !== timerId || timerIdAndTimerType.timerType !== timerType) {
+              throw new Error("The timer is in an undefined state.");
+            }
+          } else if (typeof idOrFunc === "function") {
+            idOrFunc();
+          }
+        } else if (timerType === "timeout") {
+          const idOrFunc = scheduledTimeoutFunctions.get(timerId);
+          if (typeof idOrFunc === void 0) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (typeof idOrFunc === "number") {
+            const timerIdAndTimerType = unrespondedRequests.get(idOrFunc);
+            if (timerIdAndTimerType === void 0 || timerIdAndTimerType.timerId !== timerId || timerIdAndTimerType.timerType !== timerType) {
+              throw new Error("The timer is in an undefined state.");
+            }
+          } else if (typeof idOrFunc === "function") {
+            idOrFunc();
+            scheduledTimeoutFunctions.delete(timerId);
+          }
+        }
+      } else if (isClearResponse(data)) {
+        const { id } = data;
+        const timerIdAndTimerType = unrespondedRequests.get(id);
+        if (timerIdAndTimerType === void 0) {
+          throw new Error("The timer is in an undefined state.");
+        }
+        const { timerId, timerType } = timerIdAndTimerType;
+        unrespondedRequests.delete(id);
+        if (timerType === "interval") {
+          scheduledIntervalFunctions.delete(timerId);
+        } else {
+          scheduledTimeoutFunctions.delete(timerId);
+        }
+      } else {
+        const { error: { message } } = data;
+        throw new Error(message);
+      }
+    });
+    const clearInterval2 = (timerId) => {
+      if (typeof scheduledIntervalFunctions.get(timerId) === "function") {
+        const id = generateUniqueNumber$2(unrespondedRequests);
+        unrespondedRequests.set(id, { timerId, timerType: "interval" });
+        scheduledIntervalFunctions.set(timerId, id);
+        worker2.postMessage({
+          id,
+          method: "clear",
+          params: { timerId, timerType: "interval" }
+        });
+      }
+    };
+    const clearTimeout2 = (timerId) => {
+      if (typeof scheduledTimeoutFunctions.get(timerId) === "function") {
+        const id = generateUniqueNumber$2(unrespondedRequests);
+        unrespondedRequests.set(id, { timerId, timerType: "timeout" });
+        scheduledTimeoutFunctions.set(timerId, id);
+        worker2.postMessage({
+          id,
+          method: "clear",
+          params: { timerId, timerType: "timeout" }
+        });
+      }
+    };
+    const setInterval2 = (func, delay = 0, ...args2) => {
+      const timerId = generateUniqueNumber$2(scheduledIntervalFunctions);
+      scheduledIntervalFunctions.set(timerId, () => {
+        func(...args2);
+        if (typeof scheduledIntervalFunctions.get(timerId) === "function") {
+          worker2.postMessage({
+            id: null,
+            method: "set",
+            params: {
+              delay,
+              now: performance.timeOrigin + performance.now(),
+              timerId,
+              timerType: "interval"
+            }
+          });
+        }
+      });
+      worker2.postMessage({
+        id: null,
+        method: "set",
+        params: {
+          delay,
+          now: performance.timeOrigin + performance.now(),
+          timerId,
+          timerType: "interval"
+        }
+      });
+      return timerId;
+    };
+    const setTimeout2 = (func, delay = 0, ...args2) => {
+      const timerId = generateUniqueNumber$2(scheduledTimeoutFunctions);
+      scheduledTimeoutFunctions.set(timerId, () => func(...args2));
+      worker2.postMessage({
+        id: null,
+        method: "set",
+        params: {
+          delay,
+          now: performance.timeOrigin + performance.now(),
+          timerId,
+          timerType: "timeout"
+        }
+      });
+      return timerId;
+    };
+    return {
+      clearInterval: clearInterval2,
+      clearTimeout: clearTimeout2,
+      setInterval: setInterval2,
+      setTimeout: setTimeout2
+    };
+  };
+  const createLoadOrReturnBroker$2 = (loadBroker, worker2) => {
+    let broker = null;
+    return () => {
+      if (broker !== null) {
+        return broker;
+      }
+      const blob = new Blob([worker2], { type: "application/javascript; charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      broker = loadBroker(url);
+      setTimeout(() => URL.revokeObjectURL(url));
+      return broker;
+    };
+  };
+  const worker$2 = `(()=>{"use strict";const e=new Map,t=new Map,r=t=>{const r=e.get(t);return void 0!==r&&(clearTimeout(r),e.delete(t),!0)},s=e=>{const r=t.get(e);return void 0!==r&&(clearTimeout(r),t.delete(e),!0)},o=(e,t)=>{const r=performance.now(),s=e+t-r-performance.timeOrigin;return{expected:r+s,remainingDelay:s}},i=(e,t,r,s)=>{const o=r-performance.now();o>0?e.set(t,setTimeout(i,o,e,t,r,s)):(e.delete(t),postMessage({id:null,method:"call",params:{timerId:t,timerType:s}}))};addEventListener("message",(({data:n})=>{try{if("clear"===n.method){const{id:e,params:{timerId:t,timerType:o}}=n;if("interval"===o)postMessage({id:e,result:r(t)});else{if("timeout"!==o)throw new Error('The given type "'.concat(o,'" is not supported'));postMessage({id:e,result:s(t)})}}else{if("set"!==n.method)throw new Error('The given method "'.concat(n.method,'" is not supported'));{const{params:{delay:r,now:s,timerId:a,timerType:m}}=n;if("interval"===m)((t,r,s)=>{const{expected:n,remainingDelay:a}=o(t,s);e.set(r,setTimeout(i,a,e,r,n,"interval"))})(r,a,s);else{if("timeout"!==m)throw new Error('The given type "'.concat(m,'" is not supported'));((e,r,s)=>{const{expected:n,remainingDelay:a}=o(e,s);t.set(r,setTimeout(i,a,t,r,n,"timeout"))})(r,a,s)}}}}catch(e){postMessage({error:{message:e.message},id:n.id,result:null})}}))})();`;
+  const loadOrReturnBroker$2 = createLoadOrReturnBroker$2(load$2, worker$2);
+  const clearInterval$3 = (timerId) => loadOrReturnBroker$2().clearInterval(timerId);
+  const clearTimeout$3 = (timerId) => loadOrReturnBroker$2().clearTimeout(timerId);
+  const setInterval$3 = (...args2) => loadOrReturnBroker$2().setInterval(...args2);
+  const setTimeout$1$2 = (...args2) => loadOrReturnBroker$2().setTimeout(...args2);
   const DOMUtilsCommonUtils = {
     windowApi: new WindowApi$1({
       document,
@@ -1432,6 +1684,59 @@
       } else {
         delete target[propName];
       }
+    },
+    /**
+     * 自动使用 Worker 执行 setTimeout
+     */
+    setTimeout(callback2, timeout = 0) {
+      try {
+        return setTimeout$1$2(callback2, timeout);
+      } catch (error2) {
+        return globalThis.setTimeout(callback2, timeout);
+      }
+    },
+    /**
+     * 配合 .setTimeout 使用
+     */
+    clearTimeout(timeId) {
+      try {
+        if (timeId != null) {
+          clearTimeout$3(timeId);
+        }
+      } catch (error2) {
+      } finally {
+        globalThis.clearTimeout(timeId);
+      }
+    },
+    /**
+     * 自动使用 Worker 执行 setInterval
+     */
+    setInterval(callback2, timeout = 0) {
+      try {
+        return setInterval$3(callback2, timeout);
+      } catch (error2) {
+        return globalThis.setInterval(callback2, timeout);
+      }
+    },
+    /**
+     * 配合 .setInterval 使用
+     */
+    clearInterval(timeId) {
+      try {
+        if (timeId != null) {
+          clearInterval$3(timeId);
+        }
+      } catch (error2) {
+      } finally {
+        globalThis.clearInterval(timeId);
+      }
+    },
+    /**
+     * 判断是否是元素列表
+     * @param $ele
+     */
+    isNodeList($ele) {
+      return Array.isArray($ele) || $ele instanceof NodeList;
     }
   };
   const DOMUtilsData = {
@@ -1519,10 +1824,10 @@
             let totalParent = DOMUtilsCommonUtils.isWin(elementItem) || // @ts-ignore
             elementItem === DOMUtilsContext.windowApi.document ? DOMUtilsContext.windowApi.document.documentElement : elementItem;
             let findValue = selectorList.find((selectorItem) => {
-              if (eventTarget == null ? void 0 : eventTarget.matches(selectorItem)) {
+              if (DOMUtilsContext.matches(eventTarget, selectorItem)) {
                 return true;
               }
-              let $closestMatches = eventTarget == null ? void 0 : eventTarget.closest(selectorItem);
+              let $closestMatches = DOMUtilsContext.closest(eventTarget, selectorItem);
               if ($closestMatches && (totalParent == null ? void 0 : totalParent.contains($closestMatches))) {
                 eventTarget = $closestMatches;
                 return true;
@@ -1746,7 +2051,7 @@
         }
       }
       if (checkDOMReadyState()) {
-        setTimeout(callback2);
+        DOMUtilsCommonUtils.setTimeout(callback2);
       } else {
         addDomReadyListener();
       }
@@ -1832,7 +2137,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.click($ele, handler, details, useDispatchToTriggerEvent);
         });
@@ -1866,7 +2171,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.focus($ele, handler, details, useDispatchToTriggerEvent);
         });
@@ -1900,7 +2205,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.focus($ele, handler, details, useDispatchToTriggerEvent);
         });
@@ -1934,7 +2239,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.hover($ele, handler, option);
         });
@@ -1966,7 +2271,7 @@
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.keyup($ele, handler, option);
         });
@@ -1997,7 +2302,7 @@
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.keydown($ele, handler, option);
         });
@@ -2028,7 +2333,7 @@
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.keypress($ele, handler, option);
         });
@@ -2170,15 +2475,117 @@
         return Array.from(context2.windowApi.document.querySelectorAll(selector));
       }
     }
+    /**
+     * 匹配元素，可使用以下的额外语法
+     *
+     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+     * @param $el 元素
+     * @param selector 选择器
+     * @example
+     * DOMUtils.matches("div:contains('测试')")
+     * > true
+     * @example
+     * DOMUtils.matches("div:empty")
+     * > true
+     * @example
+     * DOMUtils.matches("div:regexp('^xxxx$')")
+     * > true
+     * @example
+     * DOMUtils.matches("div:regexp(/^xxx/ig)")
+     * > false
+     */
+    matches($el, selector) {
+      var _a2;
+      selector = selector.trim();
+      if ($el == null) {
+        return false;
+      }
+      if (selector.match(/[^\s]{1}:empty$/gi)) {
+        selector = selector.replace(/:empty$/gi, "");
+        return $el.matches(selector) && ((_a2 = $el == null ? void 0 : $el.innerHTML) == null ? void 0 : _a2.trim()) === "";
+      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        let text = textMatch[2];
+        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+        let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+        if (typeof content !== "string") {
+          content = "";
+        }
+        return $el.matches(selector) && (content == null ? void 0 : content.includes(text));
+      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        let pattern = textMatch[2];
+        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        let flags = "";
+        if (flagMatch) {
+          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+          flags = flagMatch[3];
+        }
+        let regexp = new RegExp(pattern, flags);
+        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+        let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+        if (typeof content !== "string") {
+          content = "";
+        }
+        return $el.matches(selector) && Boolean(content == null ? void 0 : content.match(regexp));
+      } else {
+        return $el.matches(selector);
+      }
+    }
+    closest($el, selector) {
+      var _a2;
+      selector = selector.trim();
+      if (selector.match(/[^\s]{1}:empty$/gi)) {
+        selector = selector.replace(/:empty$/gi, "");
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        if ($closest && ((_a2 = $closest == null ? void 0 : $closest.innerHTML) == null ? void 0 : _a2.trim()) === "") {
+          return $closest;
+        }
+        return null;
+      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        let text = textMatch[2];
+        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        if ($closest) {
+          let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+          if (typeof content === "string" && content.includes(text)) {
+            return $closest;
+          }
+        }
+        return null;
+      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        let pattern = textMatch[2];
+        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        let flags = "";
+        if (flagMatch) {
+          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+          flags = flagMatch[3];
+        }
+        let regexp = new RegExp(pattern, flags);
+        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        if ($closest) {
+          let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+          if (typeof content === "string" && content.match(regexp)) {
+            return $closest;
+          }
+        }
+        return null;
+      } else {
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        return $closest;
+      }
+    }
   }
-  const isNodeList = ($ele) => {
-    return Array.isArray($ele) || $ele instanceof NodeList;
-  };
   class DOMUtils extends DOMUtilsEvent {
     constructor(option) {
       super(option);
       /** 版本号 */
-      __publicField(this, "version", "2025.5.12");
+      __publicField(this, "version", "2025.5.30");
     }
     attr(element, attrName, attrValue) {
       let DOMUtilsContext = this;
@@ -2188,7 +2595,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         if (attrValue == null) {
           return DOMUtilsContext.attr(element[0], attrName, attrValue);
         } else {
@@ -2280,7 +2687,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         if (typeof property === "string") {
           if (value == null) {
             return DOMUtilsContext.css(element[0], property);
@@ -2330,7 +2737,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         if (text == null) {
           return DOMUtilsContext.text(element[0]);
         } else {
@@ -2361,7 +2768,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         if (html == null) {
           return DOMUtilsContext.html(element[0]);
         } else {
@@ -2420,7 +2827,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         if (value == null) {
           return DOMUtilsContext.val(element[0]);
         } else {
@@ -2452,7 +2859,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         if (propValue == null) {
           return DOMUtilsContext.prop(element[0], propName);
         } else {
@@ -2489,7 +2896,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.removeAttr($ele, attrName);
         });
@@ -2514,7 +2921,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.removeClass($ele, className);
         });
@@ -2548,7 +2955,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.removeProp($ele, propName);
         });
@@ -2573,7 +2980,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.replaceWith($ele, newElement);
         });
@@ -2601,7 +3008,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.addClass($ele, className);
         });
@@ -2630,7 +3037,7 @@
       if (element == null) {
         return false;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         let flag = true;
         for (let index = 0; index < element.length; index++) {
           const $ele = element[index];
@@ -2669,7 +3076,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.append($ele, content);
         });
@@ -2712,7 +3119,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.prepend($ele, content);
         });
@@ -2746,7 +3153,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.after($ele, content);
         });
@@ -2781,7 +3188,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.before($ele, content);
         });
@@ -2815,7 +3222,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.remove($ele);
         });
@@ -2839,7 +3246,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.empty($ele);
         });
@@ -3014,7 +3421,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.animate($ele, styles, duration, callback2);
         });
@@ -3039,7 +3446,7 @@
         from[prop] = element.style[prop] || DOMUtilsContext.windowApi.globalThis.getComputedStyle(element)[prop];
         to[prop] = styles[prop];
       }
-      let timer = setInterval(function() {
+      let timer = DOMUtilsCommonUtils.setInterval(function() {
         let timePassed = performance.now() - start;
         let progress = timePassed / duration;
         if (progress > 1) {
@@ -3049,7 +3456,7 @@
           element.style[prop] = from[prop] + (to[prop] - from[prop]) * progress + "px";
         }
         if (progress === 1) {
-          clearInterval(timer);
+          DOMUtilsCommonUtils.clearInterval(timer);
           if (callback2) {
             callback2();
           }
@@ -3072,7 +3479,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.wrap($ele, wrapperHTML);
         });
@@ -3147,7 +3554,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         let resultArray = [];
         element.forEach(($ele) => {
           resultArray.push(DOMUtilsContext.parent($ele));
@@ -3311,7 +3718,7 @@
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.fadeIn($ele, duration, callback2);
         });
@@ -3360,7 +3767,7 @@
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.fadeOut($ele, duration, callback2);
         });
@@ -3404,7 +3811,7 @@
       if (element == null) {
         return;
       }
-      if (isNodeList(element)) {
+      if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
           DOMUtilsContext.toggle($ele);
         });
@@ -6880,7 +7287,7 @@
         __privateSet(that, _flag, true);
       };
       this.unlock = function() {
-        setTimeout(() => {
+        utils$1.workerSetTimeout(() => {
           __privateSet(that, _flag, false);
         }, __privateGet(that, _delayTime));
       };
@@ -7712,6 +8119,212 @@
       return value;
     }
   }
+  const createCache$1 = (lastNumberWeakMap) => {
+    return (collection, nextNumber) => {
+      lastNumberWeakMap.set(collection, nextNumber);
+      return nextNumber;
+    };
+  };
+  const MAX_SAFE_INTEGER$1 = Number.MAX_SAFE_INTEGER === void 0 ? 9007199254740991 : Number.MAX_SAFE_INTEGER;
+  const TWO_TO_THE_POWER_OF_TWENTY_NINE$1 = 536870912;
+  const TWO_TO_THE_POWER_OF_THIRTY$1 = TWO_TO_THE_POWER_OF_TWENTY_NINE$1 * 2;
+  const createGenerateUniqueNumber$1 = (cache2, lastNumberWeakMap) => {
+    return (collection) => {
+      const lastNumber = lastNumberWeakMap.get(collection);
+      let nextNumber = lastNumber === void 0 ? collection.size : lastNumber < TWO_TO_THE_POWER_OF_THIRTY$1 ? lastNumber + 1 : 0;
+      if (!collection.has(nextNumber)) {
+        return cache2(collection, nextNumber);
+      }
+      if (collection.size < TWO_TO_THE_POWER_OF_TWENTY_NINE$1) {
+        while (collection.has(nextNumber)) {
+          nextNumber = Math.floor(Math.random() * TWO_TO_THE_POWER_OF_THIRTY$1);
+        }
+        return cache2(collection, nextNumber);
+      }
+      if (collection.size > MAX_SAFE_INTEGER$1) {
+        throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");
+      }
+      while (collection.has(nextNumber)) {
+        nextNumber = Math.floor(Math.random() * MAX_SAFE_INTEGER$1);
+      }
+      return cache2(collection, nextNumber);
+    };
+  };
+  const LAST_NUMBER_WEAK_MAP$1 = /* @__PURE__ */ new WeakMap();
+  const cache$1 = createCache$1(LAST_NUMBER_WEAK_MAP$1);
+  const generateUniqueNumber$1 = createGenerateUniqueNumber$1(cache$1, LAST_NUMBER_WEAK_MAP$1);
+  const isMessagePort$1 = (sender) => {
+    return typeof sender.start === "function";
+  };
+  const PORT_MAP$1 = /* @__PURE__ */ new WeakMap();
+  const extendBrokerImplementation$1 = (partialBrokerImplementation) => ({
+    ...partialBrokerImplementation,
+    connect: ({ call }) => {
+      return async () => {
+        const { port1, port2 } = new MessageChannel();
+        const portId = await call("connect", { port: port1 }, [port1]);
+        PORT_MAP$1.set(port2, portId);
+        return port2;
+      };
+    },
+    disconnect: ({ call }) => {
+      return async (port) => {
+        const portId = PORT_MAP$1.get(port);
+        if (portId === void 0) {
+          throw new Error("The given port is not connected.");
+        }
+        await call("disconnect", { portId });
+      };
+    },
+    isSupported: ({ call }) => {
+      return () => call("isSupported");
+    }
+  });
+  const ONGOING_REQUESTS$1 = /* @__PURE__ */ new WeakMap();
+  const createOrGetOngoingRequests$1 = (sender) => {
+    if (ONGOING_REQUESTS$1.has(sender)) {
+      return ONGOING_REQUESTS$1.get(sender);
+    }
+    const ongoingRequests = /* @__PURE__ */ new Map();
+    ONGOING_REQUESTS$1.set(sender, ongoingRequests);
+    return ongoingRequests;
+  };
+  const createBroker$1 = (brokerImplementation) => {
+    const fullBrokerImplementation = extendBrokerImplementation$1(brokerImplementation);
+    return (sender) => {
+      const ongoingRequests = createOrGetOngoingRequests$1(sender);
+      sender.addEventListener("message", ({ data: message }) => {
+        const { id } = message;
+        if (id !== null && ongoingRequests.has(id)) {
+          const { reject, resolve } = ongoingRequests.get(id);
+          ongoingRequests.delete(id);
+          if (message.error === void 0) {
+            resolve(message.result);
+          } else {
+            reject(new Error(message.error.message));
+          }
+        }
+      });
+      if (isMessagePort$1(sender)) {
+        sender.start();
+      }
+      const call = (method, params = null, transferables = []) => {
+        return new Promise((resolve, reject) => {
+          const id = generateUniqueNumber$1(ongoingRequests);
+          ongoingRequests.set(id, { reject, resolve });
+          if (params === null) {
+            sender.postMessage({ id, method }, transferables);
+          } else {
+            sender.postMessage({ id, method, params }, transferables);
+          }
+        });
+      };
+      const notify = (method, params, transferables = []) => {
+        sender.postMessage({ id: null, method, params }, transferables);
+      };
+      let functions = {};
+      for (const [key, handler] of Object.entries(fullBrokerImplementation)) {
+        functions = { ...functions, [key]: handler({ call, notify }) };
+      }
+      return { ...functions };
+    };
+  };
+  const scheduledIntervalsState$1 = /* @__PURE__ */ new Map([[0, null]]);
+  const scheduledTimeoutsState$1 = /* @__PURE__ */ new Map([[0, null]]);
+  const wrap$1 = createBroker$1({
+    clearInterval: ({ call }) => {
+      return (timerId) => {
+        if (typeof scheduledIntervalsState$1.get(timerId) === "symbol") {
+          scheduledIntervalsState$1.set(timerId, null);
+          call("clear", { timerId, timerType: "interval" }).then(() => {
+            scheduledIntervalsState$1.delete(timerId);
+          });
+        }
+      };
+    },
+    clearTimeout: ({ call }) => {
+      return (timerId) => {
+        if (typeof scheduledTimeoutsState$1.get(timerId) === "symbol") {
+          scheduledTimeoutsState$1.set(timerId, null);
+          call("clear", { timerId, timerType: "timeout" }).then(() => {
+            scheduledTimeoutsState$1.delete(timerId);
+          });
+        }
+      };
+    },
+    setInterval: ({ call }) => {
+      return (func, delay = 0, ...args2) => {
+        const symbol = Symbol();
+        const timerId = generateUniqueNumber$1(scheduledIntervalsState$1);
+        scheduledIntervalsState$1.set(timerId, symbol);
+        const schedule = () => call("set", {
+          delay,
+          now: performance.timeOrigin + performance.now(),
+          timerId,
+          timerType: "interval"
+        }).then(() => {
+          const state = scheduledIntervalsState$1.get(timerId);
+          if (state === void 0) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (state === symbol) {
+            func(...args2);
+            if (scheduledIntervalsState$1.get(timerId) === symbol) {
+              schedule();
+            }
+          }
+        });
+        schedule();
+        return timerId;
+      };
+    },
+    setTimeout: ({ call }) => {
+      return (func, delay = 0, ...args2) => {
+        const symbol = Symbol();
+        const timerId = generateUniqueNumber$1(scheduledTimeoutsState$1);
+        scheduledTimeoutsState$1.set(timerId, symbol);
+        call("set", {
+          delay,
+          now: performance.timeOrigin + performance.now(),
+          timerId,
+          timerType: "timeout"
+        }).then(() => {
+          const state = scheduledTimeoutsState$1.get(timerId);
+          if (state === void 0) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (state === symbol) {
+            scheduledTimeoutsState$1.delete(timerId);
+            func(...args2);
+          }
+        });
+        return timerId;
+      };
+    }
+  });
+  const load$1 = (url) => {
+    const worker2 = new Worker(url);
+    return wrap$1(worker2);
+  };
+  const createLoadOrReturnBroker$1 = (loadBroker, worker2) => {
+    let broker = null;
+    return () => {
+      if (broker !== null) {
+        return broker;
+      }
+      const blob = new Blob([worker2], { type: "application/javascript; charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      broker = loadBroker(url);
+      setTimeout(() => URL.revokeObjectURL(url));
+      return broker;
+    };
+  };
+  const worker$1 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),d=t(c);e.addUniqueNumber=d,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const d=r instanceof Promise?await r:r;if(null===a){if(void 0!==d.result)throw s(i)}else{if(void 0===d.result)throw s(i);const{result:e,transferables:r=[]}=d;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),d=(e,t,r=()=>!0)=>{const n=c(d,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},l=e=>t=>{const r=e.get(t);if(void 0===r)return Promise.resolve(!1);const[n,o]=r;return clearTimeout(n),e.delete(t),o(!1),Promise.resolve(!0)},f=(e,t,r)=>(n,o,s)=>{const{expected:a,remainingDelay:i}=e(n,o);return new Promise((e=>{t.set(s,[setTimeout(r,i,a,t,e,s),e])}))},m=(e,t)=>{const r=performance.now(),n=e+t-r-performance.timeOrigin;return{expected:r+n,remainingDelay:n}},p=(e,t,r,n)=>{const o=e-performance.now();o>0?t.set(n,[setTimeout(p,o,e,t,r,n),r]):(t.delete(n),r(!0))},h=new Map,v=l(h),w=new Map,g=l(w),M=f(m,h,p),y=f(m,w,p);d(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?v(e):g(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?M:y)(e,t,r)})})})()})();`;
+  const loadOrReturnBroker$1 = createLoadOrReturnBroker$1(load$1, worker$1);
+  const clearInterval$2 = (timerId) => loadOrReturnBroker$1().clearInterval(timerId);
+  const clearTimeout$2 = (timerId) => loadOrReturnBroker$1().clearTimeout(timerId);
+  const setInterval$2 = (...args2) => loadOrReturnBroker$1().setInterval(...args2);
+  const setTimeout$1$1 = (...args2) => loadOrReturnBroker$1().setTimeout(...args2);
   // @license      MIT
   class ModuleRaid {
     /**
@@ -8078,7 +8691,7 @@ ${err.stack}`);
     constructor(option) {
       __publicField(this, "windowApi");
       /** 版本号 */
-      __publicField(this, "version", "2025.4.11");
+      __publicField(this, "version", "2025.5.28");
       /**
        * ajax劫持库，支持xhr和fetch劫持。
        * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
@@ -8602,11 +9215,11 @@ ${err.stack}`);
     }
     debounce(fn, delay = 0) {
       let timer = null;
-      const context2 = this;
+      let UtilsContext = this;
       return function(...args2) {
-        clearTimeout(timer);
-        timer = setTimeout(function() {
-          fn.apply(context2, args2);
+        UtilsContext.workerClearTimeout(timer);
+        timer = UtilsContext.workerSetTimeout(function() {
+          fn.apply(UtilsContext, args2);
         }, delay);
       };
     }
@@ -8646,6 +9259,7 @@ ${err.stack}`);
       });
     }
     downloadBase64(base64Data, fileName, isIFrame = false) {
+      let UtilsContext = this;
       if (typeof base64Data !== "string") {
         throw new Error("Utils.downloadBase64 参数 base64Data 必须为 string 类型");
       }
@@ -8657,7 +9271,7 @@ ${err.stack}`);
         iframeElement.style.display = "none";
         iframeElement.src = base64Data;
         this.windowApi.document.body.appendChild(iframeElement);
-        setTimeout(() => {
+        UtilsContext.workerSetTimeout(() => {
           iframeElement.contentWindow.document.execCommand("SaveAs", true, fileName);
           this.windowApi.document.body.removeChild(iframeElement);
         }, 100);
@@ -10135,17 +10749,18 @@ ${err.stack}`);
         throw new TypeError("Utils.setTimeout 参数 delayTime 必须为 number 类型");
       }
       return new Promise((resolve) => {
-        setTimeout(() => {
+        UtilsContext.workerSetTimeout(() => {
           resolve(UtilsContext.tryCatch().run(callback2));
         }, delayTime);
       });
     }
     sleep(delayTime = 0) {
+      let UtilsContext = this;
       if (typeof delayTime !== "number") {
         throw new Error("Utils.sleep 参数 delayTime 必须为 number 类型");
       }
       return new Promise((resolve) => {
-        setTimeout(() => {
+        UtilsContext.workerSetTimeout(() => {
           resolve(void 0);
         }, delayTime);
       });
@@ -10432,7 +11047,7 @@ ${err.stack}`);
           }
         });
         if (__timeout__ > 0) {
-          setTimeout(() => {
+          UtilsContext.workerSetTimeout(() => {
             if (typeof (observer == null ? void 0 : observer.disconnect) === "function") {
               observer.disconnect();
             }
@@ -10680,12 +11295,13 @@ ${err.stack}`);
       });
     }
     waitPropertyByInterval(checkObj, checkPropertyName, intervalTimer = 250, maxTime = -1) {
+      let UtilsContext = this;
       if (checkObj == null) {
         throw new TypeError("checkObj 不能为空对象 ");
       }
       let isResolve = false;
       return new Promise((resolve, reject) => {
-        let interval = setInterval(() => {
+        let interval = UtilsContext.workerSetInterval(() => {
           let obj = checkObj;
           if (typeof checkObj === "function") {
             obj = checkObj();
@@ -10698,14 +11314,14 @@ ${err.stack}`);
           }
           if (typeof checkPropertyName === "function" && checkPropertyName(obj) || Reflect.has(obj, checkPropertyName)) {
             isResolve = true;
-            clearInterval(interval);
+            UtilsContext.workerClearInterval(interval);
             resolve(obj[checkPropertyName]);
           }
         }, intervalTimer);
         if (maxTime !== -1) {
-          setTimeout(() => {
+          UtilsContext.workerSetTimeout(() => {
             if (!isResolve) {
-              clearInterval(interval);
+              UtilsContext.workerClearInterval(interval);
               reject();
             }
           }, maxTime);
@@ -10880,6 +11496,114 @@ ${err.stack}`);
         }
       });
     }
+    /**
+     * 自动使用 Worker 执行 setTimeout
+     * @param callback 回调函数
+     * @param [timeout=0] 延迟时间，默认为0
+     */
+    workerSetTimeout(callback2, timeout = 0) {
+      try {
+        return setTimeout$1$1(callback2, timeout);
+      } catch (error2) {
+        return globalThis.setTimeout(callback2, timeout);
+      }
+    }
+    /**
+     * 配合 .setTimeout 使用
+     * @param timeId setTimeout 返回的`id`
+     */
+    workerClearTimeout(timeId) {
+      try {
+        if (timeId != null) {
+          clearTimeout$2(timeId);
+        }
+      } catch (error2) {
+      } finally {
+        globalThis.clearTimeout(timeId);
+      }
+    }
+    /**
+     * 自动使用 Worker 执行 setInterval
+     * @param callback 回调函数
+     * @param timeout 间隔时间，默认为0
+     */
+    workerSetInterval(callback2, timeout = 0) {
+      try {
+        return setInterval$2(callback2, timeout);
+      } catch (error2) {
+        return globalThis.setInterval(callback2, timeout);
+      }
+    }
+    /**
+     * 配合 .setInterval 使用
+     * @param timeId setInterval 返回的`id`
+     */
+    workerClearInterval(timeId) {
+      try {
+        if (timeId != null) {
+          clearInterval$2(timeId);
+        }
+      } catch (error2) {
+      } finally {
+        globalThis.clearInterval(timeId);
+      }
+    }
+    /**
+     * 获取剪贴板信息
+     */
+    async getClipboardInfo() {
+      return new Promise((resolve) => {
+        function readClipboardText() {
+          navigator.clipboard.readText().then((clipboardText) => {
+            resolve({
+              error: null,
+              content: clipboardText
+            });
+          }).catch((error2) => {
+            resolve({
+              error: error2,
+              content: ""
+            });
+          });
+        }
+        function requestPermissionsWithClipboard() {
+          navigator.permissions.query({
+            // @ts-ignore
+            name: "clipboard-read"
+          }).then((permissionStatus) => {
+            readClipboardText();
+          }).catch((error2) => {
+            readClipboardText();
+          });
+        }
+        function checkClipboardApi() {
+          var _a2, _b;
+          if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
+            return false;
+          }
+          if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
+            return false;
+          }
+          return true;
+        }
+        if (!checkClipboardApi()) {
+          resolve({
+            error: new Error("当前环境不支持读取剪贴板Api"),
+            content: ""
+          });
+          return;
+        }
+        if (document.hasFocus()) {
+          requestPermissionsWithClipboard();
+        } else {
+          window.addEventListener("focus", () => {
+            requestPermissionsWithClipboard();
+          }, {
+            once: true
+          });
+        }
+      });
+    }
   }
   let utils$1 = new Utils();
   const SymbolEvents = Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).substring(1));
@@ -10908,6 +11632,212 @@ ${err.stack}`);
       defineProperty: Object.defineProperty
     }
   };
+  const createCache = (lastNumberWeakMap) => {
+    return (collection, nextNumber) => {
+      lastNumberWeakMap.set(collection, nextNumber);
+      return nextNumber;
+    };
+  };
+  const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER === void 0 ? 9007199254740991 : Number.MAX_SAFE_INTEGER;
+  const TWO_TO_THE_POWER_OF_TWENTY_NINE = 536870912;
+  const TWO_TO_THE_POWER_OF_THIRTY = TWO_TO_THE_POWER_OF_TWENTY_NINE * 2;
+  const createGenerateUniqueNumber = (cache2, lastNumberWeakMap) => {
+    return (collection) => {
+      const lastNumber = lastNumberWeakMap.get(collection);
+      let nextNumber = lastNumber === void 0 ? collection.size : lastNumber < TWO_TO_THE_POWER_OF_THIRTY ? lastNumber + 1 : 0;
+      if (!collection.has(nextNumber)) {
+        return cache2(collection, nextNumber);
+      }
+      if (collection.size < TWO_TO_THE_POWER_OF_TWENTY_NINE) {
+        while (collection.has(nextNumber)) {
+          nextNumber = Math.floor(Math.random() * TWO_TO_THE_POWER_OF_THIRTY);
+        }
+        return cache2(collection, nextNumber);
+      }
+      if (collection.size > MAX_SAFE_INTEGER) {
+        throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");
+      }
+      while (collection.has(nextNumber)) {
+        nextNumber = Math.floor(Math.random() * MAX_SAFE_INTEGER);
+      }
+      return cache2(collection, nextNumber);
+    };
+  };
+  const LAST_NUMBER_WEAK_MAP = /* @__PURE__ */ new WeakMap();
+  const cache = createCache(LAST_NUMBER_WEAK_MAP);
+  const generateUniqueNumber = createGenerateUniqueNumber(cache, LAST_NUMBER_WEAK_MAP);
+  const isMessagePort = (sender) => {
+    return typeof sender.start === "function";
+  };
+  const PORT_MAP = /* @__PURE__ */ new WeakMap();
+  const extendBrokerImplementation = (partialBrokerImplementation) => ({
+    ...partialBrokerImplementation,
+    connect: ({ call }) => {
+      return async () => {
+        const { port1, port2 } = new MessageChannel();
+        const portId = await call("connect", { port: port1 }, [port1]);
+        PORT_MAP.set(port2, portId);
+        return port2;
+      };
+    },
+    disconnect: ({ call }) => {
+      return async (port) => {
+        const portId = PORT_MAP.get(port);
+        if (portId === void 0) {
+          throw new Error("The given port is not connected.");
+        }
+        await call("disconnect", { portId });
+      };
+    },
+    isSupported: ({ call }) => {
+      return () => call("isSupported");
+    }
+  });
+  const ONGOING_REQUESTS = /* @__PURE__ */ new WeakMap();
+  const createOrGetOngoingRequests = (sender) => {
+    if (ONGOING_REQUESTS.has(sender)) {
+      return ONGOING_REQUESTS.get(sender);
+    }
+    const ongoingRequests = /* @__PURE__ */ new Map();
+    ONGOING_REQUESTS.set(sender, ongoingRequests);
+    return ongoingRequests;
+  };
+  const createBroker = (brokerImplementation) => {
+    const fullBrokerImplementation = extendBrokerImplementation(brokerImplementation);
+    return (sender) => {
+      const ongoingRequests = createOrGetOngoingRequests(sender);
+      sender.addEventListener("message", ({ data: message }) => {
+        const { id } = message;
+        if (id !== null && ongoingRequests.has(id)) {
+          const { reject, resolve } = ongoingRequests.get(id);
+          ongoingRequests.delete(id);
+          if (message.error === void 0) {
+            resolve(message.result);
+          } else {
+            reject(new Error(message.error.message));
+          }
+        }
+      });
+      if (isMessagePort(sender)) {
+        sender.start();
+      }
+      const call = (method, params = null, transferables = []) => {
+        return new Promise((resolve, reject) => {
+          const id = generateUniqueNumber(ongoingRequests);
+          ongoingRequests.set(id, { reject, resolve });
+          if (params === null) {
+            sender.postMessage({ id, method }, transferables);
+          } else {
+            sender.postMessage({ id, method, params }, transferables);
+          }
+        });
+      };
+      const notify = (method, params, transferables = []) => {
+        sender.postMessage({ id: null, method, params }, transferables);
+      };
+      let functions = {};
+      for (const [key, handler] of Object.entries(fullBrokerImplementation)) {
+        functions = { ...functions, [key]: handler({ call, notify }) };
+      }
+      return { ...functions };
+    };
+  };
+  const scheduledIntervalsState = /* @__PURE__ */ new Map([[0, null]]);
+  const scheduledTimeoutsState = /* @__PURE__ */ new Map([[0, null]]);
+  const wrap = createBroker({
+    clearInterval: ({ call }) => {
+      return (timerId) => {
+        if (typeof scheduledIntervalsState.get(timerId) === "symbol") {
+          scheduledIntervalsState.set(timerId, null);
+          call("clear", { timerId, timerType: "interval" }).then(() => {
+            scheduledIntervalsState.delete(timerId);
+          });
+        }
+      };
+    },
+    clearTimeout: ({ call }) => {
+      return (timerId) => {
+        if (typeof scheduledTimeoutsState.get(timerId) === "symbol") {
+          scheduledTimeoutsState.set(timerId, null);
+          call("clear", { timerId, timerType: "timeout" }).then(() => {
+            scheduledTimeoutsState.delete(timerId);
+          });
+        }
+      };
+    },
+    setInterval: ({ call }) => {
+      return (func, delay = 0, ...args2) => {
+        const symbol = Symbol();
+        const timerId = generateUniqueNumber(scheduledIntervalsState);
+        scheduledIntervalsState.set(timerId, symbol);
+        const schedule = () => call("set", {
+          delay,
+          now: performance.timeOrigin + performance.now(),
+          timerId,
+          timerType: "interval"
+        }).then(() => {
+          const state = scheduledIntervalsState.get(timerId);
+          if (state === void 0) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (state === symbol) {
+            func(...args2);
+            if (scheduledIntervalsState.get(timerId) === symbol) {
+              schedule();
+            }
+          }
+        });
+        schedule();
+        return timerId;
+      };
+    },
+    setTimeout: ({ call }) => {
+      return (func, delay = 0, ...args2) => {
+        const symbol = Symbol();
+        const timerId = generateUniqueNumber(scheduledTimeoutsState);
+        scheduledTimeoutsState.set(timerId, symbol);
+        call("set", {
+          delay,
+          now: performance.timeOrigin + performance.now(),
+          timerId,
+          timerType: "timeout"
+        }).then(() => {
+          const state = scheduledTimeoutsState.get(timerId);
+          if (state === void 0) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (state === symbol) {
+            scheduledTimeoutsState.delete(timerId);
+            func(...args2);
+          }
+        });
+        return timerId;
+      };
+    }
+  });
+  const load = (url) => {
+    const worker2 = new Worker(url);
+    return wrap(worker2);
+  };
+  const createLoadOrReturnBroker = (loadBroker, worker2) => {
+    let broker = null;
+    return () => {
+      if (broker !== null) {
+        return broker;
+      }
+      const blob = new Blob([worker2], { type: "application/javascript; charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      broker = loadBroker(url);
+      setTimeout(() => URL.revokeObjectURL(url));
+      return broker;
+    };
+  };
+  const worker = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),d=t(c);e.addUniqueNumber=d,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const d=r instanceof Promise?await r:r;if(null===a){if(void 0!==d.result)throw s(i)}else{if(void 0===d.result)throw s(i);const{result:e,transferables:r=[]}=d;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),d=(e,t,r=()=>!0)=>{const n=c(d,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},l=e=>t=>{const r=e.get(t);if(void 0===r)return Promise.resolve(!1);const[n,o]=r;return clearTimeout(n),e.delete(t),o(!1),Promise.resolve(!0)},f=(e,t,r)=>(n,o,s)=>{const{expected:a,remainingDelay:i}=e(n,o);return new Promise((e=>{t.set(s,[setTimeout(r,i,a,t,e,s),e])}))},m=(e,t)=>{const r=performance.now(),n=e+t-r-performance.timeOrigin;return{expected:r+n,remainingDelay:n}},p=(e,t,r,n)=>{const o=e-performance.now();o>0?t.set(n,[setTimeout(p,o,e,t,r,n),r]):(t.delete(n),r(!0))},h=new Map,v=l(h),w=new Map,g=l(w),M=f(m,h,p),y=f(m,w,p);d(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?v(e):g(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?M:y)(e,t,r)})})})()})();`;
+  const loadOrReturnBroker = createLoadOrReturnBroker(load, worker);
+  const clearInterval$1 = (timerId) => loadOrReturnBroker().clearInterval(timerId);
+  const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
+  const setInterval$1 = (...args2) => loadOrReturnBroker().setInterval(...args2);
+  const setTimeout$1 = (...args2) => loadOrReturnBroker().setTimeout(...args2);
   let t$1 = class t2 {
     constructor() {
       this.__map = {};
@@ -11507,7 +12437,7 @@ ${err.stack}`);
     formatByteToSize(byteSize, addType = true) {
       byteSize = parseInt(byteSize.toString());
       if (isNaN(byteSize)) {
-        throw new Error("Utils.formatByteToSize 参数 byteSize 格式不正确");
+        throw new TypeError("Utils.formatByteToSize 参数 byteSize 格式不正确");
       }
       let result2 = 0;
       let resultType = "KB";
@@ -11534,6 +12464,52 @@ ${err.stack}`);
       result2 = result2.toFixed(2);
       result2 = addType ? result2 + resultType.toString() : parseFloat(result2.toString());
       return result2;
+    }
+    /**
+     * 自动使用 Worker 执行 setTimeout
+     */
+    setTimeout(callback2, timeout = 0) {
+      try {
+        return setTimeout$1(callback2, timeout);
+      } catch (error2) {
+        return globalThis.setTimeout(callback2, timeout);
+      }
+    }
+    /**
+     * 配合 .setTimeout 使用
+     */
+    clearTimeout(timeId) {
+      try {
+        if (timeId != null) {
+          clearTimeout$1(timeId);
+        }
+      } catch (error2) {
+      } finally {
+        globalThis.clearTimeout(timeId);
+      }
+    }
+    /**
+     * 自动使用 Worker 执行 setInterval
+     */
+    setInterval(callback2, timeout = 0) {
+      try {
+        return setInterval$1(callback2, timeout);
+      } catch (error2) {
+        return globalThis.setInterval(callback2, timeout);
+      }
+    }
+    /**
+     * 配合 .setInterval 使用
+     */
+    clearInterval(timeId) {
+      try {
+        if (timeId != null) {
+          clearInterval$1(timeId);
+        }
+      } catch (error2) {
+      } finally {
+        globalThis.clearInterval(timeId);
+      }
     }
   }
   const popsUtils = new PopsUtils();
@@ -11823,7 +12799,7 @@ ${err.stack}`);
         }
       }
       if (checkDOMReadyState()) {
-        setTimeout(callback2);
+        popsUtils.setTimeout(callback2, 0);
       } else {
         addDomReadyListener();
       }
@@ -12884,7 +13860,7 @@ ${err.stack}`);
         let popsElement = animElement.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
           let drawerConfig = config;
-          setTimeout(() => {
+          popsUtils.setTimeout(() => {
             maskElement.style.setProperty("display", "none");
             if (["top", "bottom"].includes(drawerConfig.direction)) {
               popsElement.style.setProperty("height", "0");
@@ -12941,7 +13917,7 @@ ${err.stack}`);
         let popsElement = animElement.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
           let drawerConfig = config;
-          setTimeout(() => {
+          popsUtils.setTimeout(() => {
             popsDOMUtils.css(maskElement, "display", "");
             let direction = drawerConfig.direction;
             let size = drawerConfig.size.toString();
@@ -12953,7 +13929,7 @@ ${err.stack}`);
               console.error("未知direction：", direction);
             }
             resolve();
-          }, drawerConfig.openDelay);
+          }, drawerConfig.openDelay ?? 0);
         } else {
           let findLayerIns = layerConfigList.find((layerConfigItem) => layerConfigItem.guid === guid);
           if (findLayerIns) {
@@ -13026,7 +14002,7 @@ ${err.stack}`);
           }
         }
         if (popsType === "drawer") {
-          setTimeout(() => {
+          popsUtils.setTimeout(() => {
             transitionendEvent();
           }, drawerConfig.closeDelay);
         } else {
@@ -13188,10 +14164,10 @@ ${err.stack}`);
      */
     sortElementListByProperty(getBeforeValueFun, getAfterValueFun, sortByDesc = true) {
       if (typeof sortByDesc !== "boolean") {
-        throw "参数 sortByDesc 必须为boolean类型";
+        throw new TypeError("参数 sortByDesc 必须为boolean类型");
       }
       if (getBeforeValueFun == null || getAfterValueFun == null) {
-        throw "获取前面的值或后面的值的方法不能为空";
+        throw new Error("获取前面的值或后面的值的方法不能为空");
       }
       return function(after_obj, before_obj) {
         var beforeValue = getBeforeValueFun(before_obj);
@@ -14639,7 +15615,7 @@ ${err.stack}`);
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
       if (config.url == null) {
-        throw "config.url不能为空";
+        throw new Error("config.url不能为空");
       }
       config = PopsHandler.handleOnly(PopsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
@@ -15055,8 +16031,8 @@ ${err.stack}`);
         config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
       }
       popsDOMUtils.appendBody($shadowContainer);
-      setTimeout(() => {
-        setTimeout(() => {
+      popsUtils.setTimeout(() => {
+        popsUtils.setTimeout(() => {
           $pops.style.setProperty("transform", "");
         }, config.openDelay);
       }, 50);
@@ -15710,12 +16686,12 @@ ${err.stack}`);
                   let downloadIframeLinkElement = document.createElement("iframe");
                   downloadIframeLinkElement.src = downloadInfo.url;
                   downloadIframeLinkElement.onload = function() {
-                    setTimeout(() => {
+                    popsUtils.setTimeout(() => {
                       downloadIframeLinkElement.remove();
                     }, 1e3);
                   };
                   $shadowRoot.appendChild(downloadIframeLinkElement);
-                  setTimeout(() => {
+                  popsUtils.setTimeout(() => {
                     downloadIframeLinkElement.remove();
                   }, 3 * 60 * 1e3);
                 } else {
@@ -16133,40 +17109,42 @@ ${err.stack}`);
                   value: "select-1",
                   text: "单选1",
                   isHTML: false,
-                  disable() {
-                    return false;
+                  disable(value, allSelectedInfo) {
+                    return allSelectedInfo.findIndex((it) => ["select-5"].includes(it.value)) !== -1;
                   }
                 },
                 {
                   value: "select-2",
                   text: "单选2",
                   isHTML: false,
-                  disable() {
-                    return false;
+                  disable(value, allSelectedInfo) {
+                    return allSelectedInfo.findIndex((it) => ["select-5"].includes(it.value)) !== -1;
                   }
                 },
                 {
                   value: "select-3",
                   text: "单选3",
                   isHTML: false,
-                  disable() {
-                    return false;
+                  disable(value, allSelectedInfo) {
+                    return allSelectedInfo.findIndex((it) => ["select-2", "select-5"].includes(it.value)) !== -1;
                   }
                 },
                 {
                   value: "select-4",
                   text: "单选4",
                   isHTML: false,
-                  disable() {
-                    return false;
+                  disable(value, allSelectedInfo) {
+                    return allSelectedInfo.findIndex((it) => ["select-3", "select-5"].includes(it.value)) !== -1;
                   }
                 },
                 {
                   value: "select-5",
-                  text: "单选5",
+                  text(value, allSelectedInfo) {
+                    return allSelectedInfo.findIndex((it) => ["select-4"].includes(it.value)) !== -1 ? "单选5-禁用" : "单选5";
+                  },
                   isHTML: false,
-                  disable() {
-                    return false;
+                  disable(value, allSelectedInfo) {
+                    return allSelectedInfo.findIndex((it) => ["select-4"].includes(it.value)) !== -1;
                   }
                 }
               ]
@@ -16874,11 +17852,11 @@ ${err.stack}`);
             let isSuccess = false;
             let oldTotalWidth = this.$data.totalWidth;
             let timer = void 0;
-            let interval = setInterval(() => {
+            let interval = popsUtils.setInterval(() => {
               if (isSuccess) {
                 this.$interval.isCheck = false;
-                clearTimeout(timer);
-                clearInterval(interval);
+                popsUtils.clearTimeout(timer);
+                popsUtils.clearInterval(interval);
               } else {
                 this.initTotalWidth();
                 if (this.$data.totalWidth !== 0) {
@@ -16894,8 +17872,8 @@ ${err.stack}`);
                 }
               }
             }, checkStepTime);
-            timer = setTimeout(() => {
-              clearInterval(interval);
+            timer = popsUtils.setTimeout(() => {
+              popsUtils.clearInterval(interval);
             }, maxTime);
           },
           /**
@@ -17214,16 +18192,16 @@ ${err.stack}`);
               return;
             }
             this.$data.isCheckingStopDragMove = true;
-            let interval = setInterval(() => {
+            let interval = popsUtils.setInterval(() => {
               if (!this.$data.isMove) {
                 this.$data.isCheckingStopDragMove = false;
                 this.closeToolTip();
-                clearInterval(interval);
+                popsUtils.clearInterval(interval);
               }
             }, 200);
-            setTimeout(() => {
+            popsUtils.setTimeout(() => {
               this.$data.isCheckingStopDragMove = false;
-              clearInterval(interval);
+              popsUtils.clearInterval(interval);
             }, 2e3);
           },
           /**
@@ -17784,7 +18762,9 @@ ${err.stack}`);
             /** 下拉箭头区域 */
             $suffix: void 0,
             /** 下拉箭头图标 */
-            $suffixIcon: void 0
+            $suffixIcon: void 0,
+            /** 下拉列表弹窗的下拉列表容器 */
+            $selectContainer: void 0
           },
           $data: {
             /** 默认值 */
@@ -17796,18 +18776,19 @@ ${err.stack}`);
             this.initDefault();
             this.inintEl();
             this.initPlaceHolder();
-            this.updateTagElement();
+            this.initTagElement();
             this.setSelectContainerClickEvent();
           },
           /** 初始化默认值 */
           initDefault() {
             formConfig.data.forEach((dataItem) => {
+              var _a2;
               if (this.$data.defaultValue.includes(dataItem.value)) {
                 this.$data.selectInfo.push({
                   text: dataItem.text,
                   value: dataItem.value,
                   isHTML: Boolean(dataItem.isHTML),
-                  disable: dataItem.disable
+                  disable: (_a2 = dataItem.disable) == null ? void 0 : _a2.bind(dataItem)
                 });
               }
             });
@@ -17839,16 +18820,13 @@ ${err.stack}`);
             });
             this.$el.$selectedPlaceHolderWrapper.appendChild($placeholder);
           },
-          /** 初始化tag */
-          updateTagElement() {
+          /** 初始化tag元素 */
+          initTagElement() {
             formConfig.data.forEach((dataItem) => {
               let findValue = this.$data.selectInfo.find((item) => item.value === dataItem.value);
               if (findValue) {
-                let selectedInfo = this.createSelectedItem({
-                  text: dataItem.text,
-                  isHTML: dataItem.isHTML
-                });
-                this.addSelectedItem(selectedInfo.$tag);
+                let selectedInfo = this.createSelectedTagItem(dataItem);
+                this.addSelectedTagItem(selectedInfo.$tag);
                 this.setSelectedItemCloseIconClickEvent({
                   $tag: selectedInfo.$tag,
                   $closeIcon: selectedInfo.$closeIcon,
@@ -17863,7 +18841,7 @@ ${err.stack}`);
            * 生成一个tag项
            * @param data 配置
            */
-          createSelectedItem(data) {
+          createSelectedTagItem(data) {
             const $selectedItem = popsDOMUtils.createElement("div", {
               className: "el-select__selected-item el-select__choose_tag",
               innerHTML: (
@@ -17885,10 +18863,11 @@ ${err.stack}`);
             });
             const $tagText = $selectedItem.querySelector(".el-select__tags-text");
             const $closeIcon = $selectedItem.querySelector(".el-icon.el-tag__close");
+            let text = typeof data.text === "function" ? data.text(data, this.$data.selectInfo) : data.text;
             if (data.isHTML) {
-              PopsSafeUtils.setSafeHTML($tagText, data.text);
+              PopsSafeUtils.setSafeHTML($tagText, text);
             } else {
-              $tagText.innerText = data.text;
+              $tagText.innerText = text;
             }
             return {
               $tag: $selectedItem,
@@ -17897,26 +18876,27 @@ ${err.stack}`);
             };
           },
           /**
-           * 添加选中项元素
+           * 添加选中项的tag元素
+           * @param $tag 添加的元素
            */
-          addSelectedItem($ele) {
+          addSelectedTagItem($tag) {
             this.setSectionIsNear();
             if (this.$el.$section.contains(this.$el.$selectedInputWrapper)) {
               let $prev = this.$el.$selectedInputWrapper.previousElementSibling;
               if ($prev) {
-                popsDOMUtils.after($prev, $ele);
+                popsDOMUtils.after($prev, $tag);
               } else {
-                popsDOMUtils.before(this.$el.$selectedInputWrapper, $ele);
+                popsDOMUtils.before(this.$el.$selectedInputWrapper, $tag);
               }
             } else if (this.$el.$section.contains(this.$el.$selectedPlaceHolderWrapper)) {
               let $prev = this.$el.$selectedPlaceHolderWrapper.previousElementSibling;
               if ($prev) {
-                popsDOMUtils.after($prev, $ele);
+                popsDOMUtils.after($prev, $tag);
               } else {
-                popsDOMUtils.before(this.$el.$selectedPlaceHolderWrapper, $ele);
+                popsDOMUtils.before(this.$el.$selectedPlaceHolderWrapper, $tag);
               }
             } else {
-              this.$el.$section.appendChild($ele);
+              this.$el.$section.appendChild($tag);
             }
             this.hideInputWrapper();
             this.hidePlaceHolderWrapper();
@@ -17926,104 +18906,223 @@ ${err.stack}`);
             this.$el.$section.querySelectorAll(".el-select__choose_tag").forEach(($ele) => {
               $ele.remove();
             });
-            this.updateTagElement();
+            this.initTagElement();
           },
           /**
            * 选中的值改变的回调
-           * @param currentSelectInfo 当前的选中信息
+           * @param selectedDataList 当前的选中信息
            */
-          selectValueChangeCallBack(currentSelectInfo) {
+          selectValueChangeCallBack(selectedDataList) {
+            this.updateSelectItem();
             if (typeof formConfig.callback === "function") {
-              formConfig.callback(currentSelectInfo || this.$data.selectInfo);
+              formConfig.callback(selectedDataList || this.$data.selectInfo);
             }
           },
-          /** 设置下拉列表的点击事件 */
+          /**
+           * 更新选项弹窗内的所有选项元素的状态
+           *
+           * + 更新禁用状态
+           * + 更新选中状态
+           */
+          updateSelectItem() {
+            this.getAllSelectItemInfo(false).forEach(($selectInfo) => {
+              const { data, $select } = $selectInfo;
+              this.setSelectItemText(data, $selectInfo.$select);
+              if (typeof data.disable === "function" && data.disable(data.value, this.$data.selectInfo)) {
+                this.setSelectItemDisabled($select);
+                this.removeSelectedInfo(data, false);
+                this.removeSelectItemSelected($select);
+              } else {
+                this.removeSelectItemDisabled($select);
+              }
+              let findValue = this.$data.selectInfo.find((it) => it.value === data.value);
+              if (findValue) {
+                this.setSelectItemSelected($select);
+              } else {
+                this.removeSelectItemSelected($select);
+              }
+            });
+          },
+          /**
+           * 设置选项元素选中
+           * @param $select 选项元素
+           */
+          setSelectItemSelected($select) {
+            if (this.isSelectItemSelected($select))
+              return;
+            $select.classList.add("select-item-is-selected");
+          },
+          /**
+           * 移除选项元素选中
+           * @param $select 选项元素
+           */
+          removeSelectItemSelected($select) {
+            $select.classList.remove("select-item-is-selected");
+          },
+          /**
+           * 判断选项元素是否选中
+           * @param $select
+           */
+          isSelectItemSelected($select) {
+            return $select.classList.contains("select-item-is-selected");
+          },
+          /**
+           * 添加选中信息
+           * @param dataList 选择项列表的数据
+           * @param $select 选项元素
+           */
+          addSelectedItemInfo(dataList, $select) {
+            var _a2;
+            let info = this.getSelectedItemInfo($select);
+            let findValue = dataList.find((item) => item.value === info.value);
+            if (!findValue) {
+              dataList.push({
+                value: info.value,
+                text: info.text,
+                isHTML: Boolean(info.isHTML),
+                disable: (_a2 = info.disable) == null ? void 0 : _a2.bind(info)
+              });
+            }
+            this.selectValueChangeCallBack(dataList);
+          },
+          /**
+           * 获取选中的项的信息
+           * @param $select 选项元素
+           */
+          getSelectedItemInfo($select) {
+            return Reflect.get($select, "data-info");
+          },
+          /**
+           * 移除选中信息
+           * @param dataList 选择项的数据
+           * @param $select 选项元素
+           */
+          removeSelectedItemInfo(dataList, $select) {
+            let info = this.getSelectedItemInfo($select);
+            let findIndex = dataList.findIndex((item) => item.value === info.value);
+            if (findIndex !== -1) {
+              dataList.splice(findIndex, 1);
+            }
+            this.selectValueChangeCallBack(dataList);
+          },
+          /**
+           * 获取所有选项的信息
+           * @param [onlySelected=true] 是否仅获取选中的项的信息
+           * + true （默认）仅获取选中项的信息
+           * + false 获取所有选择项的信息
+           */
+          getAllSelectItemInfo(onlySelected = true) {
+            var _a2;
+            return Array.from(((_a2 = this.$el.$selectContainer) == null ? void 0 : _a2.querySelectorAll(".select-item")) ?? []).map(($select) => {
+              let data = this.getSelectedItemInfo($select);
+              let result2 = {
+                /** 选项信息数据 */
+                data,
+                /** 选项元素 */
+                $select
+              };
+              if (onlySelected) {
+                let isSelected = this.isSelectItemSelected($select);
+                if (isSelected) {
+                  return result2;
+                }
+                return;
+              } else {
+                return result2;
+              }
+            }).filter((item) => {
+              return item != null;
+            });
+          },
+          /**
+           * 创建一个选择项元素
+           * @param data 选择项的数据
+           */
+          createSelectItemElement(data) {
+            let $select = popsDOMUtils.createElement("li", {
+              className: "select-item",
+              innerHTML: (
+                /*html*/
+                `
+							<span class="select-item-text"></span>
+						`
+              )
+            });
+            this.setSelectItemText(data, $select);
+            Reflect.set($select, "data-info", data);
+            return $select;
+          },
+          /**
+           * 设置选择项的文字
+           * @param data 选择项的数据
+           * @param $select 选择项元素
+           */
+          setSelectItemText(data, $select) {
+            let text = typeof data.text === "function" ? data.text(data.value, this.$data.selectInfo) : data.text;
+            let $selectSpan = $select.querySelector(".select-item-text");
+            if (data.isHTML) {
+              PopsSafeUtils.setSafeHTML($selectSpan, text);
+            } else {
+              $selectSpan.innerText = text;
+            }
+          },
+          /**
+           * 设置选择项的禁用状态
+           * @param $select 选择项元素
+           */
+          setSelectItemDisabled($select) {
+            $select.setAttribute("aria-disabled", "true");
+            $select.setAttribute("disabled", "true");
+          },
+          /**
+           * 移除选择项的禁用状态
+           * @param $select 选择项元素
+           */
+          removeSelectItemDisabled($select) {
+            $select.removeAttribute("aria-disabled");
+            $select.removeAttribute("disabled");
+          },
+          /**
+           * 判断选择项是否禁用
+           * @param $select 选择项元素
+           */
+          isSelectItemDisabled($select) {
+            return $select.hasAttribute("disabled") || $select.ariaDisabled;
+          },
+          /**
+           * 设置选择项的点击事件
+           * @param dataList 选中的信息列表
+           * @param $select 选择项元素
+           */
+          setSelectElementClickEvent(dataList, $select) {
+            popsDOMUtils.on($select, "click", (event) => {
+              popsDOMUtils.preventEvent(event);
+              if (this.isSelectItemDisabled($select)) {
+                return;
+              }
+              if (typeof formConfig.clickCallBack === "function") {
+                let allSelectedInfo = this.getAllSelectItemInfo().map((it) => it.data);
+                let clickResult = formConfig.clickCallBack(event, allSelectedInfo);
+                if (typeof clickResult === "boolean" && !clickResult) {
+                  return;
+                }
+              }
+              if (this.isSelectItemSelected($select)) {
+                this.removeSelectItemSelected($select);
+                this.removeSelectedItemInfo(dataList, $select);
+              } else {
+                this.setSelectItemSelected($select);
+                this.addSelectedItemInfo(dataList, $select);
+              }
+            });
+          },
+          /**
+           * 设置下拉列表的点击事件
+           */
           setSelectContainerClickEvent() {
             const that = this;
             popsDOMUtils.on(this.$el.$container, "click", (event) => {
-              let selectedInfo = [];
-              selectedInfo = selectedInfo.concat(that.$data.selectInfo);
-              function setItemSelected($ele) {
-                $ele.classList.add("select-item-is-selected");
-              }
-              function removeItemSelected($ele) {
-                $ele.classList.remove("select-item-is-selected");
-              }
-              function addSelectedInfo($ele) {
-                let info = getSelectedInfo($ele);
-                let findValue = selectedInfo.find((item) => item.value === info.value);
-                if (!findValue) {
-                  selectedInfo.push({
-                    value: info.value,
-                    text: info.text,
-                    isHTML: Boolean(info.isHTML),
-                    disable: info.disable
-                  });
-                }
-                that.selectValueChangeCallBack(selectedInfo);
-              }
-              function removeSelectedInfo($ele) {
-                let info = getSelectedInfo($ele);
-                let findIndex = selectedInfo.findIndex((item) => item.value === info.value);
-                if (findIndex !== -1) {
-                  selectedInfo.splice(findIndex, 1);
-                }
-                that.selectValueChangeCallBack(selectedInfo);
-              }
-              function isSelected($ele) {
-                return $ele.classList.contains("select-item-is-selected");
-              }
-              function getSelectedInfo($ele) {
-                return Reflect.get($ele, "data-info");
-              }
-              function getAllSelectedInfo() {
-                return Array.from($selectContainer.querySelectorAll(".select-item")).map(($ele) => {
-                  if (isSelected($ele)) {
-                    return getSelectedInfo($ele);
-                  }
-                }).filter((item) => {
-                  return item != null;
-                });
-              }
-              function createSelectItemElement(dataInfo) {
-                let $item = popsDOMUtils.createElement("li", {
-                  className: "select-item",
-                  innerHTML: (
-                    /*html*/
-                    `<span>${dataInfo.text}</span>`
-                  )
-                });
-                Reflect.set($item, "data-info", dataInfo);
-                return $item;
-              }
-              function setSelectItemDisabled($el) {
-                $el.setAttribute("aria-disabled", "true");
-              }
-              function removeSelectItemDisabled($el) {
-                $el.removeAttribute("aria-disabled");
-                $el.removeAttribute("disabled");
-              }
-              function setSelectElementClickEvent($ele) {
-                popsDOMUtils.on($ele, "click", (event2) => {
-                  popsDOMUtils.preventEvent(event2);
-                  if ($ele.hasAttribute("disabled") || $ele.ariaDisabled) {
-                    return;
-                  }
-                  if (typeof formConfig.clickCallBack === "function") {
-                    let clickResult = formConfig.clickCallBack(event2, getAllSelectedInfo());
-                    if (typeof clickResult === "boolean" && !clickResult) {
-                      return;
-                    }
-                  }
-                  if (isSelected($ele)) {
-                    removeItemSelected($ele);
-                    removeSelectedInfo($ele);
-                  } else {
-                    setItemSelected($ele);
-                    addSelectedInfo($ele);
-                  }
-                });
-              }
+              let selectedInfo = that.$data.selectInfo;
               let { style, ...userConfirmDetails } = formConfig.selectConfirmDialogDetails || {};
               let confirmDetails = popsUtils.assign({
                 title: {
@@ -18048,6 +19147,7 @@ ${err.stack}`);
                     callback(details, event2) {
                       that.$data.selectInfo = [...selectedInfo];
                       that.updateSelectTagItem();
+                      that.$el.$selectContainer = null;
                       details.close();
                     }
                   }
@@ -18058,6 +19158,7 @@ ${err.stack}`);
                     originalRun();
                     that.$data.selectInfo = [...selectedInfo];
                     that.updateSelectTagItem();
+                    that.$el.$selectContainer = null;
                   },
                   clickEvent: {
                     toClose: true
@@ -18126,23 +19227,19 @@ ${err.stack}`);
               }, userConfirmDetails);
               let $dialog = pops.alert(confirmDetails);
               let $selectContainer = $dialog.$shadowRoot.querySelector(".select-container");
+              this.$el.$selectContainer = $selectContainer;
               formConfig.data.forEach((item) => {
-                let $select = createSelectItemElement(item);
+                let $select = this.createSelectItemElement(item);
                 $selectContainer.appendChild($select);
-                setSelectElementClickEvent($select);
-                if (typeof item.disable === "function" && item.disable(item.value)) {
-                  setSelectItemDisabled($select);
-                  return;
-                }
-                removeSelectItemDisabled($select);
-                let findValue = selectedInfo.find((value) => value.value === item.value);
-                if (findValue) {
-                  setItemSelected($select);
-                }
+                this.setSelectElementClickEvent(selectedInfo, $select);
               });
+              this.updateSelectItem();
             });
           },
-          /** 设置关闭图标的点击事件 */
+          /**
+           * 设置关闭图标的点击事件
+           * @param data 选中的信息
+           */
           setSelectedItemCloseIconClickEvent(data) {
             popsDOMUtils.on(data.$closeIcon, "click", (event) => {
               popsDOMUtils.preventEvent(event);
@@ -18151,13 +19248,13 @@ ${err.stack}`);
                   $tag: data.$tag,
                   $closeIcon: data.$closeIcon,
                   value: data.value,
-                  text: data.text
+                  text: typeof data.text === "function" ? data.text.bind(data) : data.text
                 });
                 if (typeof result2 === "boolean" && !result2) {
                   return;
                 }
               }
-              this.removeSelectedItem(data.$tag);
+              this.removeSelectedTagItem(data.$tag);
               this.removeSelectedInfo({
                 value: data.value,
                 text: data.text
@@ -18175,13 +19272,21 @@ ${err.stack}`);
               this.removeSectionIsNear();
             }
           },
-          /** 移除选中项元素 */
-          removeSelectedItem($ele) {
-            $ele.remove();
+          /**
+           * 移除选中项元素
+           */
+          removeSelectedTagItem($tag) {
+            $tag.remove();
             this.checkTagEmpty();
           },
-          /** 移除选中的信息 */
-          removeSelectedInfo(data) {
+          /**
+           * 从保存的已选中的信息列表中移除目标信息
+           * @param data 需要移除的信息
+           * @param [triggerValueChangeCallBack=true] 是否触发值改变的回调
+           * + true （默认）触发值改变的回调
+           * + false 不触发值改变的回调
+           */
+          removeSelectedInfo(data, triggerValueChangeCallBack = true) {
             for (let index = 0; index < this.$data.selectInfo.length; index++) {
               const selectInfo = this.$data.selectInfo[index];
               if (selectInfo.value === data.value) {
@@ -18189,7 +19294,7 @@ ${err.stack}`);
                 break;
               }
             }
-            this.selectValueChangeCallBack();
+            triggerValueChangeCallBack && this.selectValueChangeCallBack();
           },
           /** 显示输入框 */
           showInputWrapper() {
@@ -18956,7 +20061,7 @@ ${err.stack}`);
       config = popsUtils.assign(config, details);
       config = PopsHandler.handleOnly(PopsType, config);
       if (config.target == null) {
-        throw "config.target 不能为空";
+        throw new Error("config.target 不能为空");
       }
       if (details.data) {
         config.data = details.data;
@@ -19404,7 +20509,7 @@ ${err.stack}`);
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
       if (config.target == null) {
-        throw new TypeError("config.target 不能为空");
+        throw new Error("config.target 不能为空");
       }
       if (config.inputTarget == null) {
         config.inputTarget = config.target;
@@ -19652,7 +20757,7 @@ ${err.stack}`);
           } else if (config.followPosition === "inputCursor") {
             popsDOMUtils.on([config.inputTarget], ["focus", "click", "input"], void 0, SearchSuggestion.showEvent, option);
           } else {
-            throw new TypeError("未知followPosition：" + config.followPosition);
+            throw new Error("未知followPosition：" + config.followPosition);
           }
         },
         /**
@@ -19887,6 +20992,7 @@ ${err.stack}`);
       useShadowRoot: true,
       target: null,
       content: "默认文字",
+      isDiffContent: false,
       position: "top",
       className: "",
       isFixed: false,
@@ -20009,6 +21115,16 @@ ${err.stack}`);
       if (text == null) {
         text = this.getContent();
       }
+      if (this.$data.config.isDiffContent) {
+        let contentPropKey = "data-content";
+        let originContentText = this.$el.$content[contentPropKey];
+        if (typeof originContentText === "string") {
+          if (originContentText === text) {
+            return;
+          }
+        }
+        this.$el.$content[contentPropKey] = text;
+      }
       PopsSafeUtils.setSafeHTML(this.$el.$content, text);
     }
     /**
@@ -20027,11 +21143,12 @@ ${err.stack}`);
     }
     /**
      * 计算 提示框的位置
+     * @param event 触发的事件
      * @param targetElement 目标元素
      * @param arrowDistance 箭头和目标元素的距离
      * @param otherDistance 其它位置的偏移
      */
-    calcToolTipPosition(targetElement, arrowDistance, otherDistance) {
+    calcToolTipPosition(targetElement, arrowDistance, otherDistance, event) {
       let offsetInfo = popsDOMUtils.offset(targetElement, !this.$data.config.isFixed);
       let targetElement_width = offsetInfo.width;
       let targetElement_height = offsetInfo.height;
@@ -20041,6 +21158,25 @@ ${err.stack}`);
       let toolTipElement_height = popsDOMUtils.outerHeight(this.$el.$toolTip);
       let targetElement_X_center_pos = targetElement_left + targetElement_width / 2 - toolTipElement_width / 2;
       let targetElement_Y_center_pos = targetElement_top + targetElement_height / 2 - toolTipElement_height / 2;
+      let mouseX = 0;
+      let mouseY = 0;
+      if (event != null) {
+        if (event instanceof MouseEvent || event instanceof PointerEvent) {
+          mouseX = event.pageX;
+          mouseY = event.y;
+        } else if (event instanceof TouchEvent) {
+          let touchEvent = event.touches[0];
+          mouseX = touchEvent.pageX;
+          mouseY = touchEvent.pageY;
+        } else {
+          if (typeof event.clientX === "number") {
+            mouseX = event.clientX;
+          }
+          if (typeof event.clientY === "number") {
+            mouseY = event.clientY;
+          }
+        }
+      }
       return {
         TOP: {
           left: targetElement_X_center_pos - otherDistance,
@@ -20065,14 +21201,20 @@ ${err.stack}`);
           top: targetElement_Y_center_pos + otherDistance,
           arrow: "right",
           motion: "fadeInLeft"
+        },
+        FOLLOW: {
+          left: mouseX + otherDistance,
+          top: mouseY + otherDistance,
+          arrow: "follow",
+          motion: ""
         }
       };
     }
     /**
      * 动态修改tooltip的位置
      */
-    changePosition() {
-      let positionInfo = this.calcToolTipPosition(this.$data.config.target, this.$data.config.arrowDistance, this.$data.config.otherDistance);
+    changePosition(event) {
+      let positionInfo = this.calcToolTipPosition(this.$data.config.target, this.$data.config.arrowDistance, this.$data.config.otherDistance, event);
       let positionKey = this.$data.config.position.toUpperCase();
       let positionDetail = positionInfo[positionKey];
       if (positionDetail) {
@@ -20126,12 +21268,12 @@ ${err.stack}`);
         const currentTimeId = timeIdList[index];
         if (typeof timeId === "number") {
           if (timeId == currentTimeId) {
-            clearTimeout(timeId);
+            popsUtils.clearTimeout(timeId);
             timeIdList.splice(index, 1);
             break;
           }
         } else {
-          clearTimeout(currentTimeId);
+          popsUtils.clearTimeout(currentTimeId);
           timeIdList.splice(index, 1);
           index--;
         }
@@ -20161,7 +21303,7 @@ ${err.stack}`);
         popsDOMUtils.append(document.body, this.$el.$shadowContainer);
       }
       this.changeContent();
-      this.changePosition();
+      this.changePosition(event);
       if (typeof this.$data.config.showAfterCallBack === "function") {
         this.$data.config.showAfterCallBack(this.$el.$toolTip);
       }
@@ -20201,12 +21343,17 @@ ${err.stack}`);
       if (this.$data.config.delayCloseTime == null || typeof this.$data.config.delayCloseTime === "number" && this.$data.config.delayCloseTime <= 0) {
         this.$data.config.delayCloseTime = 100;
       }
-      let timeId = setTimeout(() => {
+      let timeId = popsUtils.setTimeout(() => {
         this.clearCloseTimeoutId(eventType, timeId);
         if (this.$el.$toolTip == null) {
           return;
         }
-        this.$el.$toolTip.setAttribute("data-motion", this.$el.$toolTip.getAttribute("data-motion").replace("fadeIn", "fadeOut"));
+        let motion = this.$el.$toolTip.getAttribute("data-motion");
+        if (motion == null || motion.trim() === "") {
+          this.toolTipAnimationFinishEvent();
+        } else {
+          this.$el.$toolTip.setAttribute("data-motion", this.$el.$toolTip.getAttribute("data-motion").replace("fadeIn", "fadeOut"));
+        }
       }, this.$data.config.delayCloseTime);
       this.addCloseTimeoutId(eventType, timeId);
       if (typeof this.$data.config.closeAfterCallBack === "function") {
@@ -20310,7 +21457,7 @@ ${err.stack}`);
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
       if (!(config.target instanceof HTMLElement)) {
-        throw "config.target 必须是HTMLElement类型";
+        throw new TypeError("config.target 必须是HTMLElement类型");
       }
       config = PopsHandler.handleOnly(PopsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
@@ -20341,7 +21488,7 @@ ${err.stack}`);
       /** 配置 */
       __publicField(this, "config", {
         /** 版本号 */
-        version: "2025.5.25",
+        version: "2025.5.26",
         cssText: {
           /** 主CSS */
           index: indexCSS,
@@ -20542,7 +21689,7 @@ ${err.stack}`);
         popsDOMUtils.appendHead(animationStyle);
         this.config.animation = null;
         this.config.animation = PopsInstanceUtils.getKeyFrames(animationStyle.sheet);
-        setTimeout(() => {
+        popsUtils.setTimeout(() => {
           animationStyle.remove();
         }, 50);
       }
@@ -22191,7 +23338,7 @@ ${err.stack}`);
                     domUtils.show(container.$leftDesc, false);
                     try {
                       clearTimeout(timeId);
-                      qmsg.info("等待3s内触发成功复制的回调");
+                      qmsg.info("等待3s内触发回调函数");
                       timeId = setTimeoutLog(() => {
                         TagUtil.setTag(
                           container.$leftText,
