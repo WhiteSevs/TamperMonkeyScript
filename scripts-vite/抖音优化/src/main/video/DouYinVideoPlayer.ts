@@ -13,6 +13,7 @@ import { DouYinGestureBackHashConfig } from "../DouYinGestureBackConfig";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
 import { CommonUtil } from "@/utils/CommonUtil";
 import type { DouYinVideoAwemeInfo } from "./DouYinVideoFilterBase";
+import { DouYinVideoElementAutoHide } from "./DouYinVideoElementAutoHide";
 
 /**
  * 视频播放器的播放速度
@@ -874,108 +875,28 @@ export const DouYinVideoPlayer = {
 	 */
 	titleInfoAutoHide() {
 		log.info(`自动隐藏视频标题`);
-
-		let lockFn = new utils.LockFunction(() => {
-			/** 视频信息列表 */
-			let videoInfoList: (HTMLElement | null)[] = [];
-
-			videoInfoList.push(
-				// 一般的推荐视频|单个视频的当前观看的视频
-				$<HTMLElement>(
-					'#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
-				),
-				// 进入作者主页后的当前观看的视频
-				$<HTMLElement>(
-					'#slideMode[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
-				),
-				// 单个视频
-				$<HTMLElement>(
-					'div[data-e2e="video-detail"] #video-info-wrap:not([data-is-inject-mouse-hide])'
-				)
-			);
-			if (!videoInfoList.length) {
-				return;
-			}
-			videoInfoList.forEach(($el) => {
-				if (!$el) {
-					return;
-				}
-				$el.setAttribute("data-is-inject-mouse-hide", "");
-				let timeId = setTimeout(() => {
-					DOMUtils.trigger($el, "mouseleave");
-				}, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
-				DOMUtils.on($el, ["mouseenter", "touchstart"], (event) => {
-					clearTimeout(timeId);
-					DOMUtils.css($el, "opacity", "");
-				});
-				DOMUtils.on($el, ["mouseleave", "touchend"], (event) => {
-					DOMUtils.css($el, "opacity", 0);
-				});
-			});
-		});
-		utils.mutationObserver(document, {
-			config: {
-				subtree: true,
-				childList: true,
-			},
-			immediate: true,
-			callback: () => {
-				lockFn.run();
-			},
-		});
+		DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
+			// 一般的推荐视频|单个视频的当前观看的视频
+			'#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap',
+			// 进入作者主页后的当前观看的视频
+			'#slideMode[data-e2e="feed-active-video"] #video-info-wrap',
+			// 单个视频
+			'div[data-e2e="video-detail"] #video-info-wrap',
+		]);
 	},
 	/**
 	 * 自动隐藏视频控件
 	 */
 	videoControlsAutoHide() {
 		log.info(`自动隐藏视频控件`);
-		let lockFn = new utils.LockFunction(() => {
-			/** 视频信息列表 */
-			let videoInfoList: (HTMLElement | null)[] = [];
-			videoInfoList.push(
-				// 一般的推荐视频|单个视频的当前观看的视频
-				$<HTMLElement>(
-					`#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])`
-				),
-				// 进入作者主页后的当前观看的视频
-				$<HTMLElement>(
-					'#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])'
-				),
-				// 单个视频
-				$<HTMLElement>(
-					'div[data-e2e="video-detail"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])'
-				)
-			);
-			if (!videoInfoList.length) {
-				return;
-			}
-			videoInfoList.forEach(($el) => {
-				if (!$el) {
-					return;
-				}
-				$el.setAttribute("data-is-inject-mouse-hide", "");
-				let timeId = setTimeout(() => {
-					DOMUtils.trigger($el, "mouseleave");
-				}, PopsPanel.getValue("dy-video-videoControlsAutoHide-delayTime"));
-				DOMUtils.on($el, ["mouseenter", "touchstart"], (event) => {
-					clearTimeout(timeId);
-					DOMUtils.css($el, "opacity", "");
-				});
-				DOMUtils.on($el, ["mouseleave", "touchend"], (event) => {
-					DOMUtils.css($el, "opacity", 0);
-				});
-			});
-		});
-		utils.mutationObserver(document, {
-			config: {
-				subtree: true,
-				childList: true,
-			},
-			immediate: true,
-			callback: () => {
-				lockFn.run();
-			},
-		});
+		DouYinVideoElementAutoHide("dy-video-videoControlsAutoHide-delayTime", [
+			// 一般的推荐视频|单个视频的当前观看的视频
+			`#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls`,
+			// 进入作者主页后的当前观看的视频
+			'#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls',
+			// 单个视频
+			'div[data-e2e="video-detail"] xg-controls.xgplayer-controls',
+		]);
 	},
 	/**
 	 * 自动隐藏右侧工具栏
@@ -987,54 +908,14 @@ export const DouYinVideoPlayer = {
 				transition: opacity 0.5s;
 			}
 		`);
-		let lockFn = new utils.LockFunction(() => {
-			/** 视频信息列表 */
-			let videoInfoList: (HTMLElement | null)[] = [];
-
-			videoInfoList.push(
-				// 一般的推荐视频|单个视频的当前观看的视频
-				$<HTMLElement>(
-					'#sliderVideo[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
-				),
-				// 进入作者主页后的当前观看的视频
-				$<HTMLElement>(
-					'#slideMode[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
-				),
-				// 单个视频
-				$<HTMLElement>(
-					'div[data-e2e="video-detail"] .positionBox:not([data-is-inject-mouse-hide])'
-				)
-			);
-			if (!videoInfoList.length) {
-				return;
-			}
-			videoInfoList.forEach(($el) => {
-				if (!$el) {
-					return;
-				}
-				$el.setAttribute("data-is-inject-mouse-hide", "");
-				let timeId = setTimeout(() => {
-					DOMUtils.trigger($el, "mouseleave");
-				}, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
-				DOMUtils.on($el, ["mouseenter", "touchstart"], (event) => {
-					clearTimeout(timeId);
-					DOMUtils.css($el, "opacity", "");
-				});
-				DOMUtils.on($el, ["mouseleave", "touchend"], (event) => {
-					DOMUtils.css($el, "opacity", 0);
-				});
-			});
-		});
-		utils.mutationObserver(document, {
-			config: {
-				subtree: true,
-				childList: true,
-			},
-			immediate: true,
-			callback: () => {
-				lockFn.run();
-			},
-		});
+		DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
+			// 一般的推荐视频|单个视频的当前观看的视频
+			'#sliderVideo[data-e2e="feed-active-video"] .positionBox',
+			// 进入作者主页后的当前观看的视频
+			'#slideMode[data-e2e="feed-active-video"] .positionBox',
+			// 单个视频
+			'div[data-e2e="video-detail"] .positionBox',
+		]);
 	},
 	/**
 	 * 手势返回关闭评论区

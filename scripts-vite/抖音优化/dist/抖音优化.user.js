@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.30
+// @version      2025.6.1
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.6/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
 // @grant        GM_download
@@ -3490,6 +3490,96 @@
       return CommonUtil.addBlockCSS(`.xgplayer-fullscreen .xg-tips`);
     }
   };
+  const DouYinVideoElementAutoHide = (delayTimeKey, selectors) => {
+    let isInjectAttrName = "data-is-inject-mouse-hide";
+    let opacityShowAttrName = "data-opacity-show";
+    let opacityHideAttrName = "data-opacity-hide";
+    let delayTime = () => PopsPanel.getValue(delayTimeKey);
+    let styleCSS = (__delayTime__ = delayTime()) => {
+      if (__delayTime__ === 0) {
+        return (
+          /*css*/
+          `
+            ${selectors.join(",")}{
+                opacity: 0 !important;
+                
+                &:hover,
+                &[${opacityShowAttrName}]{
+                    opacity: 1 !important;
+                }
+                ${__delayTime__ === 0 ? "transition: none !important;" : ""}
+            }
+            `
+        );
+      } else {
+        return (
+          /*css*/
+          `
+            ${selectors.join(",")}{
+                &[${opacityHideAttrName}]{
+                    opacity: 0 !important;
+                }
+                &:hover{
+                    opacity: 1 !important;
+                }
+            }
+            `
+        );
+      }
+    };
+    let $style = addStyle(styleCSS());
+    PopsPanel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
+      domUtils.html($style, styleCSS(newValue));
+    });
+    let lockFn = new utils.LockFunction(() => {
+      selectors.forEach((selector) => {
+        let $el = $(`${selector}:not([${isInjectAttrName}])`);
+        if (!$el) {
+          return;
+        }
+        $el.setAttribute(isInjectAttrName, "");
+        let timeId = 0;
+        domUtils.on($el, ["mouseenter", "touchstart"], (event) => {
+          clearTimeout(timeId);
+          if (delayTime() === 0) {
+            $el.setAttribute(opacityShowAttrName, "");
+          } else {
+            $el.removeAttribute(opacityHideAttrName);
+          }
+        });
+        domUtils.on($el, ["mouseleave", "touchend"], (event) => {
+          if (delayTime() === 0) {
+            $el.removeAttribute(opacityShowAttrName);
+          } else {
+            $el.setAttribute(opacityHideAttrName, "");
+          }
+        });
+        if (delayTime() === 0) ;
+        else {
+          timeId = setTimeout(() => {
+            $el.setAttribute(opacityHideAttrName, "");
+          }, delayTime());
+        }
+      });
+    });
+    let observer = utils.mutationObserver(document, {
+      config: {
+        subtree: true,
+        childList: true
+      },
+      immediate: true,
+      callback: () => {
+        lockFn.run();
+      }
+    });
+    return {
+      destory() {
+        observer.disconnect();
+        $style.remove();
+      },
+      $style
+    };
+  };
   const DouYinVideoPlayer = {
     init() {
       DouYinVideoPlayerBlockElement.init();
@@ -4229,104 +4319,28 @@
      */
     titleInfoAutoHide() {
       log.info(`自动隐藏视频标题`);
-      let lockFn = new utils.LockFunction(() => {
-        let videoInfoList = [];
-        videoInfoList.push(
-          // 一般的推荐视频|单个视频的当前观看的视频
-          $(
-            '#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
-          ),
-          // 进入作者主页后的当前观看的视频
-          $(
-            '#slideMode[data-e2e="feed-active-video"] #video-info-wrap:not([data-is-inject-mouse-hide])'
-          ),
-          // 单个视频
-          $(
-            'div[data-e2e="video-detail"] #video-info-wrap:not([data-is-inject-mouse-hide])'
-          )
-        );
-        if (!videoInfoList.length) {
-          return;
-        }
-        videoInfoList.forEach(($el) => {
-          if (!$el) {
-            return;
-          }
-          $el.setAttribute("data-is-inject-mouse-hide", "");
-          let timeId = setTimeout(() => {
-            domUtils.trigger($el, "mouseleave");
-          }, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
-          domUtils.on($el, ["mouseenter", "touchstart"], (event) => {
-            clearTimeout(timeId);
-            domUtils.css($el, "opacity", "");
-          });
-          domUtils.on($el, ["mouseleave", "touchend"], (event) => {
-            domUtils.css($el, "opacity", 0);
-          });
-        });
-      });
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        }
-      });
+      DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
+        // 一般的推荐视频|单个视频的当前观看的视频
+        '#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap',
+        // 进入作者主页后的当前观看的视频
+        '#slideMode[data-e2e="feed-active-video"] #video-info-wrap',
+        // 单个视频
+        'div[data-e2e="video-detail"] #video-info-wrap'
+      ]);
     },
     /**
      * 自动隐藏视频控件
      */
     videoControlsAutoHide() {
       log.info(`自动隐藏视频控件`);
-      let lockFn = new utils.LockFunction(() => {
-        let videoInfoList = [];
-        videoInfoList.push(
-          // 一般的推荐视频|单个视频的当前观看的视频
-          $(
-            `#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])`
-          ),
-          // 进入作者主页后的当前观看的视频
-          $(
-            '#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])'
-          ),
-          // 单个视频
-          $(
-            'div[data-e2e="video-detail"] xg-controls.xgplayer-controls:not([data-is-inject-mouse-hide])'
-          )
-        );
-        if (!videoInfoList.length) {
-          return;
-        }
-        videoInfoList.forEach(($el) => {
-          if (!$el) {
-            return;
-          }
-          $el.setAttribute("data-is-inject-mouse-hide", "");
-          let timeId = setTimeout(() => {
-            domUtils.trigger($el, "mouseleave");
-          }, PopsPanel.getValue("dy-video-videoControlsAutoHide-delayTime"));
-          domUtils.on($el, ["mouseenter", "touchstart"], (event) => {
-            clearTimeout(timeId);
-            domUtils.css($el, "opacity", "");
-          });
-          domUtils.on($el, ["mouseleave", "touchend"], (event) => {
-            domUtils.css($el, "opacity", 0);
-          });
-        });
-      });
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        }
-      });
+      DouYinVideoElementAutoHide("dy-video-videoControlsAutoHide-delayTime", [
+        // 一般的推荐视频|单个视频的当前观看的视频
+        `#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls`,
+        // 进入作者主页后的当前观看的视频
+        '#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls',
+        // 单个视频
+        'div[data-e2e="video-detail"] xg-controls.xgplayer-controls'
+      ]);
     },
     /**
      * 自动隐藏右侧工具栏
@@ -4341,52 +4355,14 @@
 			}
 		`
       );
-      let lockFn = new utils.LockFunction(() => {
-        let videoInfoList = [];
-        videoInfoList.push(
-          // 一般的推荐视频|单个视频的当前观看的视频
-          $(
-            '#sliderVideo[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
-          ),
-          // 进入作者主页后的当前观看的视频
-          $(
-            '#slideMode[data-e2e="feed-active-video"] .positionBox:not([data-is-inject-mouse-hide])'
-          ),
-          // 单个视频
-          $(
-            'div[data-e2e="video-detail"] .positionBox:not([data-is-inject-mouse-hide])'
-          )
-        );
-        if (!videoInfoList.length) {
-          return;
-        }
-        videoInfoList.forEach(($el) => {
-          if (!$el) {
-            return;
-          }
-          $el.setAttribute("data-is-inject-mouse-hide", "");
-          let timeId = setTimeout(() => {
-            domUtils.trigger($el, "mouseleave");
-          }, PopsPanel.getValue("dy-video-titleInfoAutoHide-delayTime"));
-          domUtils.on($el, ["mouseenter", "touchstart"], (event) => {
-            clearTimeout(timeId);
-            domUtils.css($el, "opacity", "");
-          });
-          domUtils.on($el, ["mouseleave", "touchend"], (event) => {
-            domUtils.css($el, "opacity", 0);
-          });
-        });
-      });
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        }
-      });
+      DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
+        // 一般的推荐视频|单个视频的当前观看的视频
+        '#sliderVideo[data-e2e="feed-active-video"] .positionBox',
+        // 进入作者主页后的当前观看的视频
+        '#slideMode[data-e2e="feed-active-video"] .positionBox',
+        // 单个视频
+        'div[data-e2e="video-detail"] .positionBox'
+      ]);
     },
     /**
      * 手势返回关闭评论区
@@ -7341,7 +7317,7 @@
                     (value) => {
                       return `${value}ms`;
                     },
-                    "设置延迟自动隐藏视频标题的时间，单位（ms）",
+                    "设置首次延迟自动隐藏视频标题的时间，单位（ms）",
                     100
                   )
                 ]
@@ -7367,7 +7343,7 @@
                     (value) => {
                       return `${value}ms`;
                     },
-                    "设置延迟自动隐藏视频标题的时间，单位（ms）",
+                    "设置首次延迟自动隐藏视频标题的时间，单位（ms）",
                     100
                   )
                 ]
@@ -7393,7 +7369,7 @@
                     (value) => {
                       return `${value}ms`;
                     },
-                    "设置延迟自动隐藏视频标题的时间，单位（ms）",
+                    "设置首次延迟自动隐藏视频标题的时间，单位（ms）",
                     100
                   )
                 ]

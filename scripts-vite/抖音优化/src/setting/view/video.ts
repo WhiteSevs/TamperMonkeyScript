@@ -243,7 +243,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									(value) => {
 										return `${value}ms`;
 									},
-									"设置延迟自动隐藏视频标题的时间，单位（ms）",
+									"设置首次延迟自动隐藏视频标题的时间，单位（ms）",
 									100
 								),
 							],
@@ -269,7 +269,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									(value) => {
 										return `${value}ms`;
 									},
-									"设置延迟自动隐藏视频标题的时间，单位（ms）",
+									"设置首次延迟自动隐藏视频标题的时间，单位（ms）",
 									100
 								),
 							],
@@ -295,7 +295,7 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 									(value) => {
 										return `${value}ms`;
 									},
-									"设置延迟自动隐藏视频标题的时间，单位（ms）",
+									"设置首次延迟自动隐藏视频标题的时间，单位（ms）",
 									100
 								),
 							],
