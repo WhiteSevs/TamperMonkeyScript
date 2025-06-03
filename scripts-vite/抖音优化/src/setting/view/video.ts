@@ -3,7 +3,7 @@ import { UISelect } from "../components/ui-select";
 import { UISwitch } from "../components/ui-switch";
 import { UIButton } from "../components/ui-button";
 import { DouYinVideoPlayerShortCut } from "@/main/video/DouYinVideoPlayerShortCut";
-import { PopsPanel } from "../setting";
+import { PopsPanel } from "../panel";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { UIButtonShortCut } from "../components/ui-button-shortcut";
 import { UISlider } from "../components/ui-slider";

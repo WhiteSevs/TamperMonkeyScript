@@ -1,7 +1,7 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import blockCSS from "./block.css?raw";
 import { DouYinUtils } from "@/utils/DouYinUtils";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import Qmsg from "qmsg";
 import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";
 import { CommonUtil } from "@/utils/CommonUtil";

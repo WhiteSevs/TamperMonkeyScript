@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import type { DouYinVideoFilterOption } from "./DouYinVideoFilter";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { DouYinAwemeApi } from "@/api/DouYinAwemeApi";
 import { ConcurrencyAsyncQueue } from "@/utils/ConcurrencyAsyncQueue";
 

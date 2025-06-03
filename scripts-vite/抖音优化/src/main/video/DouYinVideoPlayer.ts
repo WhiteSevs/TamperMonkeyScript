@@ -1,6 +1,6 @@
 import { GM_download, unsafeWindow } from "ViteGM";
 import { $, $$, DOMUtils, addStyle, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import MobileCSS from "./css/mobile.css?raw";

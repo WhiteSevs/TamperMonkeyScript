@@ -2,7 +2,7 @@ import { DOMUtils, addStyle, log, utils } from "@/env";
 import MobileCSS from "./css/mobile.css?raw";
 import { DouYinSearchHideElement } from "./DouYinSearchHideElement";
 import Qmsg from "qmsg";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 export const DouYinSearch = {
 	init() {

@@ -1,7 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { UISwitch } from "../components/ui-switch";
 import { DouYinMessageFilter } from "@/main/live/DouYinLiveMessage";
-import { PopsPanel } from "../setting";
+import { PopsPanel } from "../panel";
 import { UISelect } from "../components/ui-select";
 import { VideoQualityMap } from "@/main/live/DouYinLive";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";

@@ -2,7 +2,7 @@ import { addStyle, utils } from "@/env";
 import blockCSS from "./block.css?raw";
 import beautifyCSS from "./beautify.css?raw";
 import DOMUtils from "@whitesev/domutils";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 export const MDouYinShareVideo = {
 	init() {

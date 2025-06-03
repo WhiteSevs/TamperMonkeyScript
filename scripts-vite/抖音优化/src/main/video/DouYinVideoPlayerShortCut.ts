@@ -2,7 +2,7 @@ import { unsafeWindow } from "ViteGM";
 import { $$, log } from "@/env";
 import { ShortCut, ShortCutOption } from "@/utils/ShortCut";
 import { DouYinVideoPlayer, VideoPlayerRate } from "./DouYinVideoPlayer";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 export const DouYinVideoPlayerShortCut = {
 	shortCut: new ShortCut("video-short-cut"),

@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { addStyle, log, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";

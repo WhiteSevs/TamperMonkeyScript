@@ -2,7 +2,7 @@ import { DOMUtils, addStyle, utils } from "@/env";
 import blockCSS from "./block.css?raw";
 import Qmsg from "qmsg";
 import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 export const MDouYinShareUser = {
 	init() {

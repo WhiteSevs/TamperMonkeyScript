@@ -1,6 +1,6 @@
 import { $$, DOMUtils, log, utils } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 export const DouYinMessageFilter = {

@@ -1,5 +1,5 @@
 import { $, addStyle, DOMUtils, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 
 export const DouYinVideoElementAutoHide = (
 	delayTimeKey: string,

@@ -8,7 +8,7 @@ import {
 	ATTRIBUTE_INIT_MORE_VALUE,
 	ATTRIBUTE_KEY,
 	KEY,
-} from "./config";
+} from "./panel-config";
 import { PanelVideoConfig } from "./view/video";
 import { PanelSearchConfig } from "./view/search";
 import { MPanelShareUserConfig } from "./mobile-view/shareUser";

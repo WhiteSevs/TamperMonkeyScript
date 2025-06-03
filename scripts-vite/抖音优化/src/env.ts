@@ -13,7 +13,7 @@ import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
 import DOMUtils from "@whitesev/domutils";
 import pops from "@whitesev/pops";
-import { PopsPanel } from "./setting/setting";
+import { PopsPanel } from "./setting/panel";
 import { createApp } from "vue";
 import { CommonUtil } from "./utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";

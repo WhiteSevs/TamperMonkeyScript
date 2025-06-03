@@ -6,7 +6,7 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "@/setting/config";
+} from "@/setting/panel-config";
 import { RuleView } from "@/utils/RuleView";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
@@ -15,7 +15,7 @@ import {
 	type DouYinVideoAwemeInfo,
 	type DouYinVideoHandlerInfo,
 } from "./DouYinVideoFilterBase";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { PanelUISize } from "@/setting/panel-ui-size";

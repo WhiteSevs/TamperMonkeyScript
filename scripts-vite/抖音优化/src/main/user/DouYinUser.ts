@@ -1,6 +1,6 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import blockCSS from "./css/block.css?raw";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { ReactUtils } from "@/utils/ReactUtils";
 import Qmsg from "qmsg";
 

@@ -1,5 +1,5 @@
 import { $$, DOMUtils, GM_Menu, addStyle, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { PopsPanel } from "@/setting/panel";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveMessage } from "./DouYinLiveMessage";
 import Qmsg from "qmsg";
