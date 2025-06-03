@@ -235,42 +235,43 @@ export const DouYinAccount = {
 			CommonUtil.addBlockCSS('body > div[id^="login-full-panel-"]'),
 		];
 
-		utils.waitNode<HTMLBodyElement>("body").then(() => {
-			utils.mutationObserver(document.body, {
-				config: {
-					subtree: true,
-					childList: true,
-				},
-				callback() {
-					if (!PopsPanel.getValue("watchLoginDialogToClose")) {
-						return;
-					}
-					let $loginDialog = $<HTMLDivElement>(
-						'body > div[id^="login-full-panel-"]'
+		let lockFn = new utils.LockFunction(() => {
+			if (!PopsPanel.getValue("watchLoginDialogToClose")) {
+				return;
+			}
+			let $loginDialog = $<HTMLDivElement>(
+				'body > div[id^="login-full-panel-"]'
+			);
+			if ($loginDialog) {
+				let $loginDialogCloseBtn =
+					$loginDialog.querySelector<HTMLDivElement>(".dy-account-close") ||
+					$loginDialog.querySelector<HTMLDivElement>(
+						'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
 					);
-					if ($loginDialog) {
-						let $loginDialogCloseBtn =
-							$loginDialog.querySelector<HTMLDivElement>(".dy-account-close") ||
-							$loginDialog.querySelector<HTMLDivElement>(
-								'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
-							);
-						if ($loginDialogCloseBtn) {
-							let reactInstance = utils.getReactObj($loginDialogCloseBtn);
-							let onClick = reactInstance?.reactProps?.onClick;
-							if (typeof onClick === "function") {
-								onClick(new Event("click"));
-							} else {
-								log.error("监听到登录弹窗但是关闭失败，未获取到onClick函数");
-							}
-						} else {
-							log.error(
-								"未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
-								$loginDialog
-							);
-						}
+				if ($loginDialogCloseBtn) {
+					let reactInstance = utils.getReactObj($loginDialogCloseBtn);
+					let onClick = reactInstance?.reactProps?.onClick;
+					if (typeof onClick === "function") {
+						onClick(new Event("click"));
+					} else {
+						log.error("监听到登录弹窗但是关闭失败，未获取到onClick函数");
 					}
-				},
-			});
+				} else {
+					log.error(
+						"未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
+						$loginDialog
+					);
+				}
+			}
+		});
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			callback: () => {
+				lockFn.run();
+			},
 		});
 
 		return result;

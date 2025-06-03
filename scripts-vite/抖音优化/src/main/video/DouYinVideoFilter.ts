@@ -1238,6 +1238,12 @@ export const DouYinVideoFilter = {
 						},
 					],
 				},
+				clear: {
+					enable: true,
+					callback: () => {
+						this.clearData();
+					},
+				},
 			},
 		});
 		return ruleView;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.1
+// @version      2025.6.3
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1404,6 +1404,12 @@
       PopsPanel.execMenuOnce("live-shieldDanmuku", () => {
         return this.shieldDanmu();
       });
+      PopsPanel.execMenuOnce(
+        "live-block-exhibition-banner-dylive-tooltip",
+        () => {
+          return this.block_exhibition_banner_dylive_tooltip();
+        }
+      );
       DouYinLiveChatRoomBlock.init();
       DouYinLiveVideoAreaRightMenu.init();
     },
@@ -1510,6 +1516,15 @@
                 bottom: 0 !important;
             }`
         )
+      ];
+    },
+    /**
+     * 【屏蔽】点亮展馆帮主播集星
+     */
+    block_exhibition_banner_dylive_tooltip() {
+      log.info(`【屏蔽】点亮展馆帮主播集星`);
+      return [
+        CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')
       ];
     }
   };
@@ -2112,7 +2127,7 @@
       sign: 0
     },
     origin: {
-      label: "潮汐海灵",
+      label: "原画",
       sign: 5
     },
     uhd: {
@@ -2302,21 +2317,37 @@
           }
         }
       };
+      let lockFn = new utils.LockFunction(() => {
+        if (!PopsPanel.getValue("live-waitToRemovePauseDialog")) {
+          return;
+        }
+        $$("body > div[elementtiming='element-timing']").forEach(
+          ($elementTiming) => {
+            checkDialogToClose($elementTiming, "1");
+          }
+        );
+        $$('body > div:not([id="root"])').forEach(($ele) => {
+          checkDialogToClose($ele, "2");
+        });
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: () => {
+          lockFn.run();
+        }
+      });
       domUtils.ready(() => {
         utils.mutationObserver(document.body, {
           config: {
             subtree: true,
             childList: true
           },
+          immediate: true,
           callback() {
-            $$(
-              "body > div[elementtiming='element-timing']"
-            ).forEach(($elementTiming) => {
-              checkDialogToClose($elementTiming, "1");
-            });
-            $$('body > div:not([id="root"])').forEach(($ele) => {
-              checkDialogToClose($ele, "2");
-            });
+            lockFn.run();
           }
         });
       });
@@ -2786,6 +2817,13 @@
                     false,
                     void 0,
                     "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】点亮展馆帮主播集星",
+                    "live-block-exhibition-banner-dylive-tooltip",
+                    false,
+                    void 0,
+                    "屏蔽元素，礼物展馆下面的悬浮提示"
                   )
                 ]
               },
@@ -3528,9 +3566,12 @@
       }
     };
     let $style = addStyle(styleCSS());
-    PopsPanel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
-      domUtils.html($style, styleCSS(newValue));
-    });
+    let listenerId = PopsPanel.addValueChangeListener(
+      delayTimeKey,
+      (key, oldValue, newValue) => {
+        domUtils.html($style, styleCSS(newValue));
+      }
+    );
     let lockFn = new utils.LockFunction(() => {
       selectors.forEach((selector) => {
         let $el = $(`${selector}:not([${isInjectAttrName}])`);
@@ -3568,7 +3609,7 @@
         childList: true
       },
       immediate: true,
-      callback: () => {
+      callback: (mutation, observer2) => {
         lockFn.run();
       }
     });
@@ -3576,6 +3617,7 @@
       destory() {
         observer.disconnect();
         $style.remove();
+        PopsPanel.removeValueChangeListener(listenerId);
       },
       $style
     };
@@ -4466,18 +4508,24 @@
           }
         }
       };
+      let lockFn = new utils.LockFunction(() => {
+        if (!PopsPanel.getValue("dy-video-waitToRemovePauseDialog")) {
+          return;
+        }
+        $$(
+          `.basePlayerContainer xg-bar.xg-right-bar + div`
+        ).forEach(($elementTiming) => {
+          checkDialogToClose($elementTiming);
+        });
+      });
       domUtils.ready(() => {
-        utils.mutationObserver(document.body, {
+        utils.mutationObserver(document, {
           config: {
             subtree: true,
             childList: true
           },
-          callback() {
-            $$(
-              `.basePlayerContainer xg-bar.xg-right-bar + div`
-            ).forEach(($elementTiming) => {
-              checkDialogToClose($elementTiming);
-            });
+          callback: () => {
+            lockFn.run();
           }
         });
       });
@@ -6859,6 +6907,12 @@
                 }
               }
             ]
+          },
+          clear: {
+            enable: true,
+            callback: () => {
+              this.clearData();
+            }
           }
         }
       });
@@ -8910,30 +8964,11 @@
         result.push(
           CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)")
         );
-        utils.waitNode('li.semi-dropdown-item[role="menuitem"]', 1e4).then(($semi) => {
-          if (!$semi) {
-            return;
-          }
-          let observer = utils.mutationObserver(document.body, {
-            config: {
-              subtree: true,
-              childList: true
-            },
-            callback() {
-              let isFind = false;
-              document.querySelectorAll('li.semi-dropdown-item[role="menuitem"]').forEach(($ele) => {
-                var _a2;
-                if ((_a2 = $ele.textContent) == null ? void 0 : _a2.includes("快捷访问")) {
-                  isFind = true;
-                  log.success("搜索-更多-快捷访问 移除元素");
-                  $ele.remove();
-                }
-              });
-              if (isFind) {
-                observer.disconnect();
-              }
-            }
-          });
+        utils.waitNode(
+          'li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")',
+          1e4
+        ).then(($semi) => {
+          $semi == null ? void 0 : $semi.remove();
         });
       } else if (DouYinRouter.isLive()) ;
       return result;
@@ -10041,41 +10076,42 @@
       let result = [
         CommonUtil.addBlockCSS('body > div[id^="login-full-panel-"]')
       ];
-      utils.waitNode("body").then(() => {
-        utils.mutationObserver(document.body, {
-          config: {
-            subtree: true,
-            childList: true
-          },
-          callback() {
-            var _a2;
-            if (!PopsPanel.getValue("watchLoginDialogToClose")) {
-              return;
+      let lockFn = new utils.LockFunction(() => {
+        var _a2;
+        if (!PopsPanel.getValue("watchLoginDialogToClose")) {
+          return;
+        }
+        let $loginDialog = $(
+          'body > div[id^="login-full-panel-"]'
+        );
+        if ($loginDialog) {
+          let $loginDialogCloseBtn = $loginDialog.querySelector(".dy-account-close") || $loginDialog.querySelector(
+            'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
+          );
+          if ($loginDialogCloseBtn) {
+            let reactInstance = utils.getReactObj($loginDialogCloseBtn);
+            let onClick = (_a2 = reactInstance == null ? void 0 : reactInstance.reactProps) == null ? void 0 : _a2.onClick;
+            if (typeof onClick === "function") {
+              onClick(new Event("click"));
+            } else {
+              log.error("监听到登录弹窗但是关闭失败，未获取到onClick函数");
             }
-            let $loginDialog = $(
-              'body > div[id^="login-full-panel-"]'
+          } else {
+            log.error(
+              "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
+              $loginDialog
             );
-            if ($loginDialog) {
-              let $loginDialogCloseBtn = $loginDialog.querySelector(".dy-account-close") || $loginDialog.querySelector(
-                'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
-              );
-              if ($loginDialogCloseBtn) {
-                let reactInstance = utils.getReactObj($loginDialogCloseBtn);
-                let onClick = (_a2 = reactInstance == null ? void 0 : reactInstance.reactProps) == null ? void 0 : _a2.onClick;
-                if (typeof onClick === "function") {
-                  onClick(new Event("click"));
-                } else {
-                  log.error("监听到登录弹窗但是关闭失败，未获取到onClick函数");
-                }
-              } else {
-                log.error(
-                  "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
-                  $loginDialog
-                );
-              }
-            }
           }
-        });
+        }
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: () => {
+          lockFn.run();
+        }
       });
       return result;
     },

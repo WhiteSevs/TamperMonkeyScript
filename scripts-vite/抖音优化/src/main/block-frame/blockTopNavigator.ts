@@ -195,32 +195,12 @@ export const BlockTopNavigator = {
 				CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)")
 			);
 			utils
-				.waitNode('li.semi-dropdown-item[role="menuitem"]', 10000)
+				.waitNode(
+					'li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")',
+					10000
+				)
 				.then(($semi) => {
-					if (!$semi) {
-						return;
-					}
-					let observer = utils.mutationObserver(document.body, {
-						config: {
-							subtree: true,
-							childList: true,
-						},
-						callback() {
-							let isFind = false;
-							document
-								.querySelectorAll('li.semi-dropdown-item[role="menuitem"]')
-								.forEach(($ele) => {
-									if ($ele.textContent?.includes("快捷访问")) {
-										isFind = true;
-										log.success("搜索-更多-快捷访问 移除元素");
-										$ele.remove();
-									}
-								});
-							if (isFind) {
-								observer.disconnect();
-							}
-						},
-					});
+					$semi?.remove();
 				});
 		} else if (DouYinRouter.isLive()) {
 			// 直播页面

@@ -40,9 +40,12 @@ export const DouYinVideoElementAutoHide = (
 		}
 	};
 	let $style = addStyle(styleCSS());
-	PopsPanel.addValueChangeListener(delayTimeKey, (key, oldValue, newValue) => {
-		DOMUtils.html($style, styleCSS(newValue));
-	});
+	let listenerId = PopsPanel.addValueChangeListener(
+		delayTimeKey,
+		(key, oldValue, newValue) => {
+			DOMUtils.html($style, styleCSS(newValue));
+		}
+	);
 	let lockFn = new utils.LockFunction(() => {
 		/** 视频信息列表 */
 		selectors.forEach((selector) => {
@@ -89,7 +92,7 @@ export const DouYinVideoElementAutoHide = (
 			childList: true,
 		},
 		immediate: true,
-		callback: () => {
+		callback: (mutation, observer) => {
 			lockFn.run();
 		},
 	});
@@ -98,6 +101,7 @@ export const DouYinVideoElementAutoHide = (
 		destory() {
 			observer.disconnect();
 			$style.remove();
+			PopsPanel.removeValueChangeListener(listenerId);
 		},
 		$style,
 	};

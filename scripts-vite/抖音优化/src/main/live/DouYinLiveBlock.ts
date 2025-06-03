@@ -29,6 +29,12 @@ export const DouYinLiveBlock = {
 		PopsPanel.execMenuOnce("live-shieldDanmuku", () => {
 			return this.shieldDanmu();
 		});
+		PopsPanel.execMenuOnce(
+			"live-block-exhibition-banner-dylive-tooltip",
+			() => {
+				return this.block_exhibition_banner_dylive_tooltip();
+			}
+		);
 		DouYinLiveChatRoomBlock.init();
 		DouYinLiveVideoAreaRightMenu.init();
 	},
@@ -135,6 +141,15 @@ export const DouYinLiveBlock = {
             div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
                 bottom: 0 !important;
             }`),
+		];
+	},
+	/**
+	 * 【屏蔽】点亮展馆帮主播集星
+	 */
+	block_exhibition_banner_dylive_tooltip() {
+		log.info(`【屏蔽】点亮展馆帮主播集星`);
+		return [
+			CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip'),
 		];
 	},
 };

@@ -1027,18 +1027,24 @@ export const DouYinVideoPlayer = {
 				}
 			}
 		};
+		let lockFn = new utils.LockFunction(() => {
+			if (!PopsPanel.getValue("dy-video-waitToRemovePauseDialog")) {
+				return;
+			}
+			$$<HTMLDivElement>(
+				`.basePlayerContainer xg-bar.xg-right-bar + div`
+			).forEach(($elementTiming) => {
+				checkDialogToClose($elementTiming);
+			});
+		});
 		DOMUtils.ready(() => {
-			utils.mutationObserver(document.body, {
+			utils.mutationObserver(document, {
 				config: {
 					subtree: true,
 					childList: true,
 				},
-				callback() {
-					$$<HTMLDivElement>(
-						`.basePlayerContainer xg-bar.xg-right-bar + div`
-					).forEach(($elementTiming) => {
-						checkDialogToClose($elementTiming);
-					});
+				callback: () => {
+					lockFn.run();
 				},
 			});
 		});

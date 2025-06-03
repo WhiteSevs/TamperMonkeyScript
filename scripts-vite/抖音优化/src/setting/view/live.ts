@@ -367,6 +367,13 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽元素"
 								),
+								UISwitch(
+									"【屏蔽】点亮展馆帮主播集星",
+									"live-block-exhibition-banner-dylive-tooltip",
+									false,
+									void 0,
+									"屏蔽元素，礼物展馆下面的悬浮提示"
+								),
 							],
 						},
 						{

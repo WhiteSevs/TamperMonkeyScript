@@ -19,7 +19,7 @@ export const VideoQualityMap: {
 		sign: 0,
 	},
 	origin: {
-		label: "潮汐海灵",
+		label: "原画",
 		sign: 5,
 	},
 	uhd: {
@@ -249,21 +249,37 @@ export const DouYinLive = {
 				}
 			}
 		};
+		let lockFn = new utils.LockFunction(() => {
+			if (!PopsPanel.getValue("live-waitToRemovePauseDialog")) {
+				return;
+			}
+			$$<HTMLDivElement>("body > div[elementtiming='element-timing']").forEach(
+				($elementTiming) => {
+					checkDialogToClose($elementTiming, "1");
+				}
+			);
+			$$<HTMLDivElement>('body > div:not([id="root"])').forEach(($ele) => {
+				checkDialogToClose($ele, "2");
+			});
+		});
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			callback: () => {
+				lockFn.run();
+			},
+		});
 		DOMUtils.ready(() => {
 			utils.mutationObserver(document.body, {
 				config: {
 					subtree: true,
 					childList: true,
 				},
+				immediate: true,
 				callback() {
-					$$<HTMLDivElement>(
-						"body > div[elementtiming='element-timing']"
-					).forEach(($elementTiming) => {
-						checkDialogToClose($elementTiming, "1");
-					});
-					$$<HTMLDivElement>('body > div:not([id="root"])').forEach(($ele) => {
-						checkDialogToClose($ele, "2");
-					});
+					lockFn.run();
 				},
 			});
 		});
