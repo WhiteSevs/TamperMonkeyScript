@@ -1,6 +1,6 @@
 import { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
 import { UIButton } from "./ui-button";
-import { ATTRIBUTE_INIT } from "../config";
+import { ATTRIBUTE_INIT } from "../panel-config";
 import { ShortCut, ShortCutKeyboardOption } from "@/utils/ShortCut";
 import Qmsg from "qmsg";
 import { log } from "@/env";

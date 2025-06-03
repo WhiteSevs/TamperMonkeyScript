@@ -1,4 +1,4 @@
-import { DOMUtils, GM_Menu, log, pops, utils } from "@/env";
+import { DOMUtils, GM_Menu, httpx, log, pops, utils } from "@/env";
 import { NetWorkHook } from "@/hook/NetWorkHook";
 import { UIInput } from "@/setting/common-components/ui-input";
 import { UISwitch } from "@/setting/common-components/ui-switch";
@@ -6,7 +6,7 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "@/setting/config";
+} from "@/setting/panel-config";
 import { RuleView } from "@/utils/RuleView";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
@@ -14,6 +14,7 @@ import { M3U8Filter } from "./M3U8Filter";
 import { UITextArea } from "@/setting/common-components/ui-textarea";
 import { M3U8Menu } from "./M3U8Menu";
 import { M3U8Parser } from "./M3U8Parser";
+import { PanelUISize } from "@/setting/panel-ui-size";
 
 type RuleOption = {
 	/** 唯一uuid */
@@ -95,7 +96,7 @@ export const M3U8Rule = {
 					return text;
 				},
 				callback: () => {
-					this.exportRule();
+					this.exportRule("m3u8-filter-rule.json");
 				},
 			},
 			{
@@ -530,64 +531,243 @@ export const M3U8Rule = {
 		GM_deleteValue(this.$key.STORAGE_KEY);
 	},
 	/**
-	 * 规则导出
+	 * 导出规则
 	 */
-	exportRule() {
-		let $anchor = DOMUtils.createElement("a", {
-			download: "m3u8-filter-rule.json",
-			href: URL.createObjectURL(
-				new Blob([JSON.stringify(this.getData(), null, 4)], {
-					type: "application/json",
-				})
-			),
-			target: "_blank",
-		});
-		document.body.appendChild($anchor);
-		$anchor.click();
+	exportRule(fileName = "rule.json") {
+		let allRule = this.getData();
+		let blob = new Blob([JSON.stringify(allRule, null, 4)]);
+		let blobUrl = window.URL.createObjectURL(blob);
+		let $a = DOMUtils.createElement("a");
+		$a.href = blobUrl;
+		$a.download = fileName;
+		$a.click();
 		setTimeout(() => {
-			$anchor.remove();
+			window.URL.revokeObjectURL(blobUrl);
 		}, 1500);
 	},
 	/**
-	 * 规则导入
+	 * 导入规则
+	 * @param importEndCallBack 导入完毕后的回调
 	 */
-	importRule() {
-		let $input = DOMUtils.createElement("input", {
-			type: "file",
-			accept: ".json, .txt",
+	importRule(importEndCallBack?: () => void) {
+		let $alert = pops.alert({
+			title: {
+				text: "请选择导入方式",
+				position: "center",
+			},
+			content: {
+				text: /*html*/ `
+                    <div class="btn-control" data-mode="local">本地导入</div>
+                    <div class="btn-control" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
+                `,
+				html: true,
+			},
+			btn: {
+				ok: { enable: false },
+				close: {
+					enable: true,
+					callback(details, event) {
+						details.close();
+					},
+				},
+			},
+			mask: { enable: true },
+			drag: true,
+			width: PanelUISize.info.width,
+			height: PanelUISize.info.height,
+			style: /*css*/ `
+                .btn-control{
+                    display: inline-block;
+                    margin: 10px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+            `,
 		});
-		DOMUtils.on($input, ["input", "propertychange"], (event) => {
-			let files = $input.files;
-			if (!files || files.length === 0) {
-				$input.value = "";
-				return;
+		/** 本地导入 */
+		let $local = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".btn-control[data-mode='local']"
+		)!;
+		/** 网络导入 */
+		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".btn-control[data-mode='network']"
+		)!;
+		/** 剪贴板导入 */
+		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".btn-control[data-mode='clipboard']"
+		)!;
+		/**
+		 * 将获取到的规则更新至存储
+		 */
+		let updateRuleToStorage = (data: any[]) => {
+			let allData = this.getData();
+			let addNewData: typeof allData = [];
+			for (let index = 0; index < data.length; index++) {
+				const dataItem = data[index];
+				let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+				if (findIndex !== -1) {
+					// 存在相同的uuid的规则
+					// 不做处理
+				} else {
+					// 追加
+					addNewData.push(dataItem);
+				}
 			}
-			let reader = new FileReader();
-			reader.onload = (event) => {
-				let text = event.target!.result as string;
-				if (text == null) {
-					Qmsg.error("读取规则文件失败");
+			allData = allData.concat(addNewData);
+			this.setData(allData);
+
+			Qmsg.success(`共 ${data.length} 条规则，新增 ${addNewData.length} 条`);
+			importEndCallBack?.();
+		};
+		/**
+		 * @param subscribeText 订阅文件文本
+		 */
+		let importFile = (subscribeText: string) => {
+			return new Promise<boolean>((resolve) => {
+				let data = utils.toJSON(subscribeText);
+				if (!Array.isArray(data)) {
+					log.error(data);
+					Qmsg.error("导入失败，格式不符合（不是数组）", {
+						consoleLogContent: true,
+					});
+					resolve(false);
 					return;
 				}
-				try {
-					let ruleData: RuleOption[] = utils.toJSON(text);
-					if (!Array.isArray(ruleData)) {
-						log.error("解析出的规则数据不是数组格式", ruleData);
-						Qmsg.error("解析出的规则数据不是数组格式");
-						return;
-					}
-					let coverFlag = window.confirm("是否覆盖本地规则数据？");
-					if (coverFlag) {
-						this.setData(ruleData);
-						Qmsg.success(`成功导入 ${ruleData.length}条数据`);
-					}
-				} catch (error) {
-					log.error("解析规则文件失败", error);
-					Qmsg.error("解析规则内容失败");
+				if (!data.length) {
+					Qmsg.error("导入失败，解析出的数据为空", {
+						consoleLogContent: true,
+					});
+					resolve(false);
+					return;
 				}
-			};
-			reader.readAsText(files[0]);
+
+				updateRuleToStorage(data);
+				resolve(true);
+			});
+		};
+		// 本地导入
+		DOMUtils.on($local, "click", (event) => {
+			utils.preventEvent(event);
+			$alert.close();
+			let $input = DOMUtils.createElement("input", {
+				type: "file",
+				accept: ".json",
+			});
+			DOMUtils.on($input, ["propertychange", "input"], (event) => {
+				if (!$input.files?.length) {
+					return;
+				}
+				let uploadFile = $input.files![0];
+				let fileReader = new FileReader();
+				fileReader.onload = () => {
+					importFile(fileReader.result as string);
+				};
+				fileReader.readAsText(uploadFile, "UTF-8");
+			});
+			$input.click();
 		});
-		$input.click();
+		// 网络导入
+		DOMUtils.on($network, "click", (event) => {
+			utils.preventEvent(event);
+			$alert.close();
+			let $prompt = pops.prompt({
+				title: {
+					text: "网络导入",
+					position: "center",
+				},
+				content: {
+					text: "",
+					placeholder: "请填写URL",
+					focus: true,
+				},
+				btn: {
+					close: {
+						enable: true,
+						callback(details, event) {
+							details.close();
+						},
+					},
+					ok: {
+						text: "导入",
+						callback: async (eventDetails, event) => {
+							let url = eventDetails.text;
+							if (utils.isNull(url)) {
+								Qmsg.error("请填入完整的url");
+								return;
+							}
+							let $loading = Qmsg.loading("正在获取配置...");
+							let response = await httpx.get(url, {
+								allowInterceptConfig: false,
+							});
+							$loading.close();
+							if (!response.status) {
+								log.error(response);
+								Qmsg.error("获取配置失败", { consoleLogContent: true });
+								return;
+							}
+							let flag = await importFile(response.data.responseText);
+							if (!flag) {
+								return;
+							}
+							eventDetails.close();
+						},
+					},
+					cancel: {
+						enable: false,
+					},
+				},
+				mask: { enable: true },
+				drag: true,
+				width: PanelUISize.info.width,
+				height: "auto",
+			});
+			let $promptInput =
+				$prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+			let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(
+				".pops-prompt-btn-ok"
+			)!;
+			DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
+				let value = DOMUtils.val($promptInput);
+				if (value === "") {
+					DOMUtils.attr($promptOk, "disabled", "true");
+				} else {
+					DOMUtils.removeAttr($promptOk, "disabled");
+				}
+			});
+			DOMUtils.listenKeyboard(
+				$promptInput,
+				"keydown",
+				(keyName, keyValue, otherCodeList) => {
+					if (keyName === "Enter" && otherCodeList.length === 0) {
+						let value = DOMUtils.val($promptInput);
+						if (value !== "") {
+							utils.dispatchEvent($promptOk, "click");
+						}
+					}
+				}
+			);
+			utils.dispatchEvent($promptInput, "input");
+		});
+		// 剪贴板导入
+		DOMUtils.on($clipboard, "click", async (event) => {
+			utils.preventEvent(event);
+			$alert.close();
+			let clipboardInfo = await utils.getClipboardInfo();
+			if (clipboardInfo.error != null) {
+				Qmsg.error(clipboardInfo.error.toString());
+				return;
+			}
+			if (clipboardInfo.content.trim() === "") {
+				Qmsg.warning("获取到的剪贴板内容为空");
+				return;
+			}
+			let flag = await importFile(clipboardInfo.content);
+			if (!flag) {
+				return;
+			}
+		});
 	},
 };

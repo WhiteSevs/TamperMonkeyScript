@@ -2,9 +2,9 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "../config";
+} from "../panel-config";
 import { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/inputType";
-import { PopsPanel } from "../setting";
+import { PopsPanel } from "../panel";
 
 /**
  * 获取输入框配置
