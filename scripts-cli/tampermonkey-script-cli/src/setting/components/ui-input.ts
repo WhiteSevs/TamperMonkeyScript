@@ -4,7 +4,7 @@ import {
 	PROPS_STORAGE_API,
 } from "../panel-config";
 import { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/inputType";
-import { PopsPanel } from "../panel";
+import { Panel } from "../panel";
 
 /**
  * 获取输入框配置
@@ -58,10 +58,10 @@ export const UIInput = function <T extends boolean>(
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 	Reflect.set(result.props!, PROPS_STORAGE_API, {
 		get<T>(key: string, defaultValue: T) {
-			return PopsPanel.getValue(key, defaultValue);
+			return Panel.getValue(key, defaultValue);
 		},
 		set(key: string, value: any) {
-			PopsPanel.setValue(key, value);
+			Panel.setValue(key, value);
 		},
 	});
 	return result;

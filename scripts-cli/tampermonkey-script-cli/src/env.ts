@@ -14,7 +14,7 @@ import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
 import pops from "@whitesev/pops";
-import { PopsPanel } from "./setting/panel";
+import { Panel } from "./setting/panel";
 import { httpxCookieManager } from "./utils/HttpxCookieManager";
 import { CommonUtil } from "./utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
@@ -63,7 +63,7 @@ Qmsg.config(
 		{
 			position: {
 				get() {
-					return PopsPanel.getValue(
+					return Panel.getValue(
 						PanelSettingConfig.qmsg_config_position.key,
 						PanelSettingConfig.qmsg_config_position.defaultValue
 					);
@@ -71,7 +71,7 @@ Qmsg.config(
 			},
 			maxNums: {
 				get() {
-					return PopsPanel.getValue(
+					return Panel.getValue(
 						PanelSettingConfig.qmsg_config_maxnums.key,
 						PanelSettingConfig.qmsg_config_maxnums.defaultValue
 					);
@@ -79,7 +79,7 @@ Qmsg.config(
 			},
 			showReverse: {
 				get() {
-					return PopsPanel.getValue(
+					return Panel.getValue(
 						PanelSettingConfig.qmsg_config_showreverse.key,
 						PanelSettingConfig.qmsg_config_showreverse.defaultValue
 					);

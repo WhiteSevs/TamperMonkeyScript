@@ -5,7 +5,7 @@ import {
 } from "../panel-config";
 import { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/selectType";
 import { log } from "@/env";
-import { PopsPanel } from "../panel";
+import { Panel } from "../panel";
 
 /**
  * 下拉列表
@@ -71,10 +71,10 @@ export const UISelect = function <T extends any>(
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 	Reflect.set(result.props!, PROPS_STORAGE_API, {
 		get<T>(key: string, defaultValue: T) {
-			return PopsPanel.getValue(key, defaultValue);
+			return Panel.getValue(key, defaultValue);
 		},
 		set(key: string, value: any) {
-			PopsPanel.setValue(key, value);
+			Panel.setValue(key, value);
 		},
 	});
 	return result;

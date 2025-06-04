@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import { PanelSettingConfig } from "@/setting/panel-setting-config";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
 
 interface HttpxCookieManagerRule {
@@ -14,7 +14,7 @@ class HttpxCookieManager {
 	$data = {
 		/** 是否启用 */
 		get enable() {
-			return PopsPanel.getValue<boolean>(
+			return Panel.getValue<boolean>(
 				PanelSettingConfig.httpx_cookie_manager_enable.key,
 				PanelSettingConfig.httpx_cookie_manager_enable.defaultValue
 			);
@@ -24,7 +24,7 @@ class HttpxCookieManager {
 		 * + true 使用document.cookie额外添加cookie的header
 		 */
 		get useDocumentCookie() {
-			return PopsPanel.getValue<boolean>(
+			return Panel.getValue<boolean>(
 				PanelSettingConfig.httpx_cookie_manager_use_document_cookie.key,
 				PanelSettingConfig.httpx_cookie_manager_use_document_cookie.defaultValue
 			);
@@ -114,7 +114,7 @@ class HttpxCookieManager {
 			let rule = this.$data.cookieRule[index];
 			if (urlObj.hostname.match(rule.hostname)) {
 				// 域名匹配成功
-				let cookie = PopsPanel.getValue(rule.key) as string;
+				let cookie = Panel.getValue(rule.key) as string;
 				if (utils.isNull(cookie)) {
 					break;
 				}

@@ -1,5 +1,5 @@
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { DemoWebSite } from "@/main/demo";
 
-PopsPanel.init();
+Panel.init();
 DemoWebSite.init();
