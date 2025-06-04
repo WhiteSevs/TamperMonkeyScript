@@ -2,7 +2,7 @@ import { PopsPanelButtonDetails } from "@whitesev/pops/dist/types/src/components
 import { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
 import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
-import { PopsIcon } from "@whitesev/pops/dist/types/src/types/icon";
+import { PopsIconType } from "@whitesev/pops/dist/types/src/types/icon";
 
 /**
  * 获取button按钮配置
@@ -20,7 +20,7 @@ export const UIButton = function (
 	text: string,
 	description: string | undefined,
 	buttonText: string | (() => string),
-	buttonIcon: PopsIcon | undefined,
+	buttonIcon: PopsIconType | undefined,
 	buttonIsRightIcon: boolean | undefined,
 	buttonIconIsLoading: boolean | undefined,
 	buttonType: PopsButtonStyleType,

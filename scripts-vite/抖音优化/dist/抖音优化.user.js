@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.3
+// @version      2025.6.4
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,9 +12,10 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.6/dist/index.umd.js
 // @connect      *
+// @connect      www.toutiao.com
 // @grant        GM_deleteValue
 // @grant        GM_download
 // @grant        GM_getResourceText
@@ -52,6 +53,228 @@
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      get width() {
+        if (window.innerWidth < 550) {
+          return "88vw";
+        } else if (window.innerWidth < 700) {
+          return "550px";
+        } else {
+          return "700px";
+        }
+      },
+      get height() {
+        if (window.innerHeight < 450) {
+          return "70vh";
+        } else if (window.innerHeight < 550) {
+          return "450px";
+        } else {
+          return "550px";
+        }
+      }
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
+    }
+  };
+  class StorageUtils {
+    /**
+     * 存储的键名，可以是多层的，如：a.b.c
+     *
+     * 那就是
+     * {
+     *  "a": {
+     *     "b": {
+     *       "c": {
+     *         ...你的数据
+     *       }
+     *     }
+     *   }
+     * }
+     * @param key
+     */
+    constructor(key) {
+      /** 存储的键名 */
+      __publicField(this, "storageKey");
+      __publicField(this, "listenData");
+      if (typeof key === "string") {
+        let trimKey = key.trim();
+        if (trimKey == "") {
+          throw new Error("key参数不能为空字符串");
+        }
+        this.storageKey = trimKey;
+      } else {
+        throw new Error("key参数类型错误，必须是字符串");
+      }
+      this.listenData = new Utils.Dictionary();
+    }
+    /**
+     * 获取本地值
+     */
+    getLocalValue() {
+      let localValue = _GM_getValue(this.storageKey);
+      if (localValue == null) {
+        localValue = {};
+        this.setLocalValue(localValue);
+      }
+      return localValue;
+    }
+    /**
+     * 设置本地值
+     * @param value
+     */
+    setLocalValue(value) {
+      _GM_setValue(this.storageKey, value);
+    }
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    set(key, value) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.set(localValue, key, value);
+      this.setLocalValue(localValue);
+      if (this.listenData.has(key)) {
+        this.listenData.get(key).callback(key, oldValue, value);
+      }
+    }
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    get(key, defaultValue) {
+      let localValue = this.getLocalValue();
+      return Reflect.get(localValue, key) ?? defaultValue;
+    }
+    /**
+     * 获取所有值
+     */
+    getAll() {
+      let localValue = this.getLocalValue();
+      return localValue;
+    }
+    /**
+     * 删除值
+     * @param key 键
+     */
+    delete(key) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.deleteProperty(localValue, key);
+      this.setLocalValue(localValue);
+      if (this.listenData.has(key)) {
+        this.listenData.get(key).callback(key, oldValue, void 0);
+      }
+    }
+    /**
+     * 判断是否存在该值
+     */
+    has(key) {
+      let localValue = this.getLocalValue();
+      return Reflect.has(localValue, key);
+    }
+    /**
+     * 获取所有键
+     */
+    keys() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue);
+    }
+    /**
+     * 获取所有值
+     */
+    values() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue).map(
+        (key) => Reflect.get(localValue, key)
+      );
+    }
+    /**
+     * 清空所有值
+     */
+    clear() {
+      _GM_deleteValue(this.storageKey);
+    }
+    /**
+     * 监听值改变
+     * + .set
+     * + .delete
+     * @param key 监听的键
+     * @param callback 值改变的回调函数
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = Math.random();
+      this.listenData.set(key, {
+        id: listenerId,
+        key,
+        callback
+      });
+      return listenerId;
+    }
+    /**
+     * 移除监听
+     * @param listenerId 监听的id或键名
+     */
+    removeValueChangeListener(listenerId) {
+      let deleteKey = null;
+      for (const [key, value] of this.listenData.entries()) {
+        if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+          deleteKey = key;
+          break;
+        }
+      }
+      if (typeof deleteKey === "string") {
+        this.listenData.delete(deleteKey);
+        return true;
+      } else {
+        return false;
+      }
+    }
+    /**
+     * 主动触发监听器
+     * @param key 键
+     * @param oldValue （可选）旧值
+     * @param newValue （可选）新值
+     */
+    triggerValueChangeListener(key, oldValue, newValue) {
+      if (!this.listenData.has(key)) {
+        return;
+      }
+      let listenData = this.listenData.get(key);
+      if (typeof listenData.callback === "function") {
+        let value = this.get(key);
+        let __newValue;
+        let __oldValue;
+        if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+          __oldValue = oldValue;
+        } else {
+          __oldValue = value;
+        }
+        if (typeof newValue !== "undefined" && arguments.length > 2) {
+          __newValue = newValue;
+        } else {
+          __newValue = value;
+        }
+        listenData.callback(key, __oldValue, __newValue);
+      }
+    }
+  }
+  const PopsPanelStorageApi = new StorageUtils(KEY);
   const UISelect = function(text, key, defaultValue, data, callback, description) {
     let selectData = [];
     if (typeof data === "function") {
@@ -82,10 +305,10 @@
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     Reflect.set(result.props, PROPS_STORAGE_API, {
       get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
+        return Panel.getValue(key2, defaultValue2);
       },
       set(key2, value) {
-        PopsPanel.setValue(key2, value);
+        Panel.setValue(key2, value);
       }
     });
     return result;
@@ -113,10 +336,10 @@
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     Reflect.set(result.props, PROPS_STORAGE_API, {
       get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
+        return Panel.getValue(key2, defaultValue2);
       },
       set(key2, value) {
-        PopsPanel.setValue(key2, value);
+        Panel.setValue(key2, value);
       }
     });
     return result;
@@ -1083,7 +1306,7 @@
         ),
         "聊天室"
       );
-      if (PopsPanel.getValue("live-message-shield-emoji-chat")) {
+      if (Panel.getValue("live-message-shield-emoji-chat")) {
         domUtils.hide(
           $$(
             "xg-danmu.xgplayer-danmu > div:has(>img):not([data-is-filter])"
@@ -1113,27 +1336,27 @@
         let flag = false;
         if (!flag) {
           if (method === "WebcastGiftMessage") {
-            if (PopsPanel.getValue("live-danmu-shield-gift")) {
+            if (Panel.getValue("live-danmu-shield-gift")) {
               flag = true;
             }
           } else if (method === "WebcastChatMessage") {
             if (chat_by === "0") ;
             else if (chat_by === "9" || chat_by === "10") {
-              if (PopsPanel.getValue("live-danmu-shield-lucky-bag")) {
+              if (Panel.getValue("live-danmu-shield-lucky-bag")) {
                 flag = true;
               }
             } else ;
           } else if (method === "WebcastRoomMessage") ;
           else if (method === "WebcastFansclubMessage") ;
           else if (method === "WebcastEmojiChatMessage") {
-            if (PopsPanel.getValue("live-message-shield-emoji-chat")) {
+            if (Panel.getValue("live-message-shield-emoji-chat")) {
               flag = true;
             }
           } else ;
         }
         if (!flag && typeof biz_scene === "string") {
           if (biz_scene === "common_text_game_score") {
-            if (PopsPanel.getValue(
+            if (Panel.getValue(
               "live-message-shield-biz_scene-common_text_game_score"
             )) {
               flag = true;
@@ -1386,25 +1609,25 @@
   };
   const DouYinLiveBlock = {
     init() {
-      PopsPanel.execMenuOnce("live-shieldGiftColumn", () => {
+      Panel.execMenuOnce("live-shieldGiftColumn", () => {
         return this.shieldGiftColumn();
       });
-      PopsPanel.execMenuOnce("live-shieldTopToolBarInfo", () => {
+      Panel.execMenuOnce("live-shieldTopToolBarInfo", () => {
         return this.shieldTopToolBarInfo();
       });
-      PopsPanel.execMenuOnce("live-shieldGiftEffects", () => {
+      Panel.execMenuOnce("live-shieldGiftEffects", () => {
         return this.shieldGiftEffects();
       });
-      PopsPanel.execMenuOnce("live-shieldLucky", () => {
+      Panel.execMenuOnce("live-shieldLucky", () => {
         return this.shieldLucky();
       });
-      PopsPanel.execMenuOnce("live-shielYellowCar", () => {
+      Panel.execMenuOnce("live-shielYellowCar", () => {
         return this.shieldYellowCar();
       });
-      PopsPanel.execMenuOnce("live-shieldDanmuku", () => {
+      Panel.execMenuOnce("live-shieldDanmuku", () => {
         return this.shieldDanmu();
       });
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "live-block-exhibition-banner-dylive-tooltip",
         () => {
           return this.block_exhibition_banner_dylive_tooltip();
@@ -1530,22 +1753,22 @@
   };
   const DouYinLiveChatRoomBlock = {
     init() {
-      PopsPanel.execMenuOnce("live-shieldChatRoom", () => {
+      Panel.execMenuOnce("live-shieldChatRoom", () => {
         return this.shieldChatRoom();
       });
-      PopsPanel.execMenuOnce("live-shielChatRoomVipSeats", () => {
+      Panel.execMenuOnce("live-shielChatRoomVipSeats", () => {
         return this.shielChatRoomVipSeats();
       });
-      PopsPanel.execMenuOnce("dy-live-shieldUserLevelIcon", () => {
+      Panel.execMenuOnce("dy-live-shieldUserLevelIcon", () => {
         return this.shieldUserLevelIcon();
       });
-      PopsPanel.execMenuOnce("dy-live-shieldUserVIPIcon", () => {
+      Panel.execMenuOnce("dy-live-shieldUserVIPIcon", () => {
         return this.shieldUserVIPIcon();
       });
-      PopsPanel.execMenuOnce("dy-live-shieldUserFansIcon", () => {
+      Panel.execMenuOnce("dy-live-shieldUserFansIcon", () => {
         return this.shieldUserFansIcon();
       });
-      PopsPanel.execMenuOnce("dy-live-shieldMessage", () => {
+      Panel.execMenuOnce("dy-live-shieldMessage", () => {
         return this.shieldMessage();
       });
     },
@@ -1631,7 +1854,7 @@
   };
   const DouYinLiveVideoAreaRightMenu = {
     init() {
-      PopsPanel.execMenuOnce("dy-live-blockVideoRightMenu-downloadClient", () => {
+      Panel.execMenuOnce("dy-live-blockVideoRightMenu-downloadClient", () => {
         return this.blockDownloadClient();
       });
     },
@@ -2095,16 +2318,16 @@
           target: "window",
           callback() {
             log.info("快捷键 ==> 【屏蔽】聊天室");
-            let flag = PopsPanel.getValue("live-shieldChatRoom");
-            PopsPanel.setValue("live-shieldChatRoom", !flag);
+            let flag = Panel.getValue("live-shieldChatRoom");
+            Panel.setValue("live-shieldChatRoom", !flag);
           }
         },
         "dy-live-shieldGiftEffects": {
           target: "window",
           callback: () => {
             log.info("快捷键 ==> 【屏蔽】礼物特效");
-            let flag = PopsPanel.getValue("live-shieldGiftEffects");
-            PopsPanel.setValue("live-shieldGiftEffects", !flag);
+            let flag = Panel.getValue("live-shieldGiftEffects");
+            Panel.setValue("live-shieldGiftEffects", !flag);
           }
         },
         "dy-live-shortcut-changeVideoMuted": {
@@ -2151,34 +2374,32 @@
     init() {
       DouYinLiveBlock.init();
       DouYinLiveShortCut.init();
-      PopsPanel.execMenuOnce("live-danmu-shield-rule-enable", () => {
+      Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
         DouYinLiveMessage.filterMessage();
       });
-      PopsPanel.execMenu("live-unlockImageQuality", () => {
+      Panel.execMenu("live-unlockImageQuality", () => {
         this.unlockImageQuality();
       });
-      PopsPanel.execMenuOnce("live-waitToRemovePauseDialog", () => {
+      Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
         this.waitToRemovePauseDialog();
       });
-      PopsPanel.execMenu("live-pauseVideo", () => {
+      Panel.execMenu("live-pauseVideo", () => {
         this.pauseVideo();
       });
-      PopsPanel.execMenu("live-bgColor-enable", () => {
-        PopsPanel.execMenuOnce("live-changeBackgroundColor", (value) => {
-          return this.changeBackgroundColor(value);
-        });
+      Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
+        return this.changeBackgroundColor();
       });
-      PopsPanel.execMenuOnce("live-parsePlayerInstance", () => {
+      Panel.execMenuOnce("live-parsePlayerInstance", () => {
         DouYinLivePlayerInstance.initMenu();
       });
       domUtils.ready(() => {
-        PopsPanel.execMenu("live-chooseQuality", (quality) => {
-          if (quality === "auto") {
+        Panel.execMenu("live-chooseQuality", (option) => {
+          if (option.value === "auto") {
             return;
           }
-          this.chooseQuality(quality);
+          this.chooseQuality(option.value);
         });
-        PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
+        Panel.execMenu("live-autoEnterElementFullScreen", () => {
           this.autoEnterElementFullScreen();
         });
       });
@@ -2187,20 +2408,27 @@
      * 自动进入网页全屏
      */
     autoEnterElementFullScreen() {
-      ReactUtils.waitReactPropsToSet(
-        "xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)",
-        "reactFiber",
-        {
-          check(reactInstance) {
-            var _a2;
-            return typeof ((_a2 = reactInstance == null ? void 0 : reactInstance.memoizedProps) == null ? void 0 : _a2.onClick) === "function";
-          },
-          set(reactInstance, $target) {
-            log.success("自动进入网页全屏");
-            reactInstance.memoizedProps.onClick();
+      domUtils.ready(() => {
+        ReactUtils.waitReactPropsToSet(
+          "xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)",
+          "reactFiber",
+          {
+            check(reactInstance) {
+              var _a2;
+              return typeof ((_a2 = reactInstance == null ? void 0 : reactInstance.memoizedProps) == null ? void 0 : _a2.onClick) === "function";
+            },
+            set(reactInstance, $target) {
+              let $xgIcon = $target.closest("xg-icon");
+              if ($xgIcon && domUtils.text($xgIcon).includes("退出网页全屏")) {
+                log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
+                return;
+              }
+              log.success("成功自动进入网页全屏");
+              reactInstance.memoizedProps.onClick();
+            }
           }
-        }
-      );
+        );
+      });
     },
     /**
      * 选择画质
@@ -2318,7 +2546,7 @@
         }
       };
       let lockFn = new utils.LockFunction(() => {
-        if (!PopsPanel.getValue("live-waitToRemovePauseDialog")) {
+        if (!Panel.getValue("live-waitToRemovePauseDialog")) {
           return;
         }
         $$("body > div[elementtiming='element-timing']").forEach(
@@ -2377,15 +2605,18 @@
      * 修改视频背景颜色
      * @param color 颜色
      */
-    changeBackgroundColor(color) {
+    changeBackgroundColor() {
       log.info("修改视频背景颜色");
+      let color = Panel.getValue("live-changeBackgroundColor");
       return addStyle(
         /*css*/
         `
-		div[id^="living_room_player_container"] > div,
-		#chatroom > div{
-			background: ${color};
-		}	
+		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] div:has(>.xgplayer-dynamic-bg) {
+			background: ${color} !important;
+		}
+		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] .xgplayer-dynamic-bg{
+			visibility: hidden;
+		}
 		`
       );
     }
@@ -2564,7 +2795,7 @@
                         className: "pops-panel-item-left-text",
                         innerHTML: `
 											<p class="pops-panel-item-left-main-text">视频背景颜色</p>
-											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
+											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色</p>
 											`
                       });
                       let $right = domUtils.createElement("div", {
@@ -2576,23 +2807,13 @@
                       let $color = $right.querySelector(
                         ".pops-color-choose"
                       );
-                      $color.value = PopsPanel.getValue(
-                        "live-changeBackgroundColor"
-                      );
-                      let $style = domUtils.createElement("style");
-                      domUtils.append(document.head, $style);
+                      $color.value = Panel.getValue("live-changeBackgroundColor");
                       domUtils.on(
                         $color,
                         ["input", "propertychange"],
                         (event) => {
                           log.info("选择颜色：" + $color.value);
-                          $style.innerHTML = `
-											div[id^="living_room_player_container"] > div,
-											#chatroom > div{
-												background: ${$color.value};
-											}
-											`;
-                          PopsPanel.setValue(
+                          Panel.setValue(
                             "live-changeBackgroundColor",
                             $color.value
                           );
@@ -2901,6 +3122,275 @@
       }
     ]
   };
+  const PanelSearchConfig = {
+    id: "panel-config-search",
+    title: "搜索",
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "禁止点击视频区域进入全屏",
+                    "dy-search-disableClickToEnterFullScreen",
+                    false,
+                    void 0,
+                    "禁止点击视频区域时会触发自动进入全屏功能"
+                  ),
+                  UISelect(
+                    "自动进入网页全屏",
+                    "search-autoEnterElementFullScreen",
+                    -1,
+                    () => [
+                      {
+                        text: `跟随主设置（${PopsPanelStorageApi.get("autoEnterElementFullScreen") ? "是" : "否"}）`,
+                        value: -1
+                      },
+                      {
+                        text: "是",
+                        value: 1
+                      },
+                      {
+                        text: "否",
+                        value: 0
+                      }
+                    ],
+                    void 0,
+                    ["视频", "功能", "自动进入网页全屏"].map((it) => `<code>${it}</code>`).join("-")
+                  ),
+                  UISelect(
+                    "搜索结果-视频-显示样式",
+                    "live-setSearchResultFilterWithVideoStyle",
+                    "one",
+                    [
+                      {
+                        text: "单列",
+                        value: "one"
+                      },
+                      {
+                        text: "双列",
+                        value: "double"
+                      }
+                    ],
+                    void 0,
+                    "自定义搜索结果，按视频筛选的结果项的显示样式"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "布局屏蔽",
+            type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                text: AutoOpenOrClose.text,
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】相关搜索",
+                    "douyin-search-shieldReleatedSearches",
+                    false,
+                    void 0,
+                    "屏蔽右边的相关搜索"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "布局屏蔽-左侧导航栏",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "【屏蔽】左侧导航栏",
+                    "search-shieldLeftNavigator",
+                    -1,
+                    () => [
+                      {
+                        text: `跟随主设置（${PopsPanelStorageApi.get("shieldLeftNavigator") ? "是" : "否"}）`,
+                        value: -1
+                      },
+                      {
+                        text: "是",
+                        value: 1
+                      },
+                      {
+                        text: "否",
+                        value: 0
+                      }
+                    ],
+                    void 0,
+                    ["通用", "布局屏蔽-左侧导航栏", "【屏蔽】左侧导航栏"].map((it) => `<code>${it}</code>`).join("-")
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "布局屏蔽-顶部导航栏",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "【屏蔽】顶部导航栏",
+                    "search-shieldTopNavigator",
+                    -1,
+                    () => [
+                      {
+                        text: `跟随主设置（${PopsPanelStorageApi.get("shieldTopNavigator") ? "是" : "否"}）`,
+                        value: -1
+                      },
+                      {
+                        text: "是",
+                        value: 1
+                      },
+                      {
+                        text: "否",
+                        value: 0
+                      }
+                    ],
+                    void 0,
+                    ["通用", "布局屏蔽-顶部导航栏", "【屏蔽】顶部导航栏"].map((it) => `<code>${it}</code>`).join("-")
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const DouYinUrlUtils = {
+    /**
+     * 获取视频链接
+     * @param videoId 视频id
+     */
+    getVideoUrl(videoId) {
+      return "https://www.douyin.com/video/" + videoId;
+    },
+    /**
+     * 获取视频合集链接
+     * @param collectionId 合集id
+     */
+    getCollectionUrl(collectionId) {
+      return "https://www.douyin.com/collection/" + collectionId;
+    },
+    /**
+     * 获取笔记链接
+     * @param noteId 笔记id
+     */
+    getNoteUrl(noteId) {
+      return "https://www.douyin.com/note/" + noteId;
+    },
+    /**
+     * 获取话题链接
+     * @param hashTagId 话题id
+     */
+    getHashTagUrl(hashTagId) {
+      return "https://www.douyin.com/hashtag/" + hashTagId;
+    },
+    /**
+     * 获取用户主页链接
+     * @param sec_uid
+     */
+    getUserHomeUrl(sec_uid) {
+      return "https://www.douyin.com/user/" + sec_uid;
+    },
+    /**
+     * 获取音乐链接
+     * @param musicId 音乐id
+     */
+    getMusicUrl(musicId) {
+      return "https://www.douyin.com/music/" + musicId;
+    }
+  };
+  const PanelUserConfig = {
+    id: "panel-config-user",
+    title: "用户",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "显示UID",
+            "dy-user-addShowUserUID",
+            true,
+            void 0,
+            "在用户信息区域下方显示当前用户的uid"
+          ),
+          UIButton(
+            "跳转至用户主页",
+            "输入用户UID自动跳转至用户主页",
+            "跳转",
+            void 0,
+            false,
+            false,
+            "default",
+            async (evt) => {
+              utils.preventEvent(evt);
+              let uid = prompt("请输入用户UID");
+              if (typeof uid !== "string") {
+                return;
+              }
+              let url = `https://www.toutiao.com/c/user/${uid}/`;
+              let urlInst = new URL(url);
+              let response = await httpx.options(url, {
+                allowInterceptConfig: false,
+                headers: {
+                  "User-Agent": utils.getRandomPCUA(),
+                  Host: urlInst.hostname,
+                  Origin: urlInst.origin,
+                  Referer: "https://www.toutiao.com/"
+                }
+              });
+              if (!response.status) {
+                log.error(response);
+                Qmsg.error("获取用户sec_uid失败", { consoleLogContent: true });
+                return;
+              }
+              let finalUrl = response.data.finalUrl;
+              let sec_uid_match = finalUrl.match(/\/user\/token\/(.+)\//);
+              if (!sec_uid_match) {
+                Qmsg.error("正则获取用户sec_uid失败", {
+                  consoleLogContent: true
+                });
+                return;
+              }
+              let sec_uid = sec_uid_match[sec_uid_match.length - 1];
+              let userHomeUrl = DouYinUrlUtils.getUserHomeUrl(sec_uid);
+              log.info(`用户sec_uid：` + sec_uid);
+              log.info(`用户主页链接：` + userHomeUrl);
+              window.open(userHomeUrl, "_blank");
+            }
+          )
+        ]
+      }
+    ]
+  };
   const DouYinUtils = {
     /**
      * 判断是否是竖屏
@@ -2916,10 +3406,10 @@
   const MobileCSS$1 = '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n	/* 右侧工具栏放大 */\r\n	.basePlayerContainer .positionBox {\r\n		bottom: 80px !important;\r\n		padding-right: 5px !important;\r\n		scale: unset !important;\r\n		transform: scale3d(1.12, 1.12, 1.12) !important;\r\n	}\r\n	/* 右侧工具栏的svg再放大 */\r\n	.basePlayerContainer .positionBox svg {\r\n		transform: scale3d(1.12, 1.12, 1.12);\r\n	}\r\n	/* 重置关注按钮的scale */\r\n	.basePlayerContainer\r\n		.positionBox\r\n		.dy-tip-container\r\n		div[data-e2e="feed-follow-icon"]\r\n		svg {\r\n		scale: unset !important;\r\n	}\r\n\r\n	/* 调整顶部搜索框的宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: 150px;\r\n		padding-right: 0;\r\n		max-width: unset;\r\n		flex: 1;\r\n	}\r\n	/* 搜索框获取焦点时自动放大宽度 */\r\n	#douyin-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]:focus) {\r\n		width: 100vw;\r\n		width: 100dvw;\r\n	}\r\n	/* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n	#search-content-area > div,\r\n	#search-content-area > div div:has(+ #search-result-container),\r\n	#search-content-area > div #search-result-container {\r\n		width: 100%;\r\n		width: -webkit-fill-available;\r\n	}\r\n	/* 搜索页面 视频右侧的工具栏缩小 */\r\n	#search-content-area .basePlayerContainer .positionBox {\r\n		bottom: 28px !important;\r\n		transform: scale3d(0.6, 0.6, 0.6) !important;\r\n	}\r\n	/* 搜索页面 搜索出的用户信息换行 */\r\n	#search-content-area\r\n		#search-result-container\r\n		ul[data-e2e="scroll-list"]\r\n		li\r\n		.search-result-card\r\n		> div\r\n		> div {\r\n		flex-wrap: wrap;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n	#search-content-area div:has(> div > div > span[data-key="general"]) {\r\n		overflow: auto;\r\n		gap: 10px;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项 */\r\n	#search-content-area div:has(> span[data-key="general"]) {\r\n		gap: 10px;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n	#search-content-area div:has(> div > span[data-key="general"]) {\r\n		position: unset !important;\r\n	}\r\n	/* 搜索页面 搜索结果筛选选项 */\r\n	#search-content-area div:has(> span[data-key="general"]) > * {\r\n		white-space: nowrap !important;\r\n		width: auto !important;\r\n		width: fit-content !important;\r\n		margin-left: 0px !important;\r\n		margin-right: 0px !important;\r\n	}\r\n	/* 去除设置min-width超出浏览器宽度的问题 */\r\n	body {\r\n		min-width: 100% !important;\r\n	}\r\n	/* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n	#douyin-right-container #douyin-header {\r\n		width: 100%;\r\n	}\r\n	/* 去除设置 */\r\n	#douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n		min-width: 100%;\r\n	}\r\n\r\n	/* /video/xxx页面 */\r\n	/* 点赞、评论、分享偏移 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.basePlayerContainer\r\n		.positionBox {\r\n		padding-right: 30px !important;\r\n	}\r\n	/* 底部工具栏右侧的按钮 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		.xgplayer.xgplayer-pc\r\n		.xg-right-grid {\r\n		margin-right: 35px !important;\r\n	}\r\n	/* 评论区全屏 */\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n	div[data-e2e="video-detail"]\r\n		.leftContainer\r\n		> div\r\n		> div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n		width: 100vw !important;\r\n	}\r\n\r\n	/* 设置视频区域的高度 */\r\n	#slidelist {\r\n		width: 100vw;\r\n		height: calc(100vh - var(--header-height)) !important;\r\n	}\r\n	/* 修正网页全屏下的视频高度 */\r\n	#slidelist[class*="isCssFullScreen"] {\r\n		height: 100vh !important;\r\n	}\r\n	/* 去除视频区域右侧偏移 */\r\n	.is-mobile-pc div[data-e2e="slideList"] {\r\n		padding-right: 0px !important;\r\n		height: 100% !important;\r\n		min-height: 100% !important;\r\n	}\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n	/* 右侧工具栏缩小 */\r\n	.basePlayerContainer .positionBox {\r\n		transform: scale(0.95) !important;\r\n		bottom: 42px !important;\r\n		padding-right: 10px !important;\r\n	}\r\n	/* 右侧工具栏的svg再缩小 */\r\n	.basePlayerContainer .positionBox svg {\r\n		transform: scale3d(0.95, 0.95, 0.95);\r\n	}\r\n	/* 修复全屏下不显示视频底部的控制栏 */\r\n	.isCssFullScreen [data-e2e="slideList"] {\r\n		min-height: auto !important;\r\n	}\r\n}\r\n';
   const DouYinVideoPlayerCommentBlockElement = {
     init() {
-      PopsPanel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
+      Panel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
         return this.shieldUserCommentToolBar();
       });
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "dy-video-shieldUserCommentEveryOneAllSearch",
         () => {
           return this.shieldUserCommentEveryOneAllSearch();
@@ -2943,13 +3433,13 @@
   };
   const DouYinVideoPlayerBlockElement_BottomToolbar = {
     init() {
-      PopsPanel.execMenuOnce("shieldBottomVideoToolBar", () => {
+      Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
         return this.shieldBottomVideoToolBar();
       });
-      PopsPanel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
+      Panel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
         return this.shieldVideoInfoWrap();
       });
-      PopsPanel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
+      Panel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
         return this.shieldBottomVideoToolbarDanmuContainer();
       });
     },
@@ -2994,28 +3484,28 @@
   };
   const DouYinVideoPlayerBlockElement_RightToolbar = {
     init() {
-      PopsPanel.execMenuOnce("shieldPlaySwitchButton", () => {
+      Panel.execMenuOnce("shieldPlaySwitchButton", () => {
         return this.shieldPlaySwitchButton();
       });
-      PopsPanel.execMenuOnce("shieldAuthorAvatar", () => {
+      Panel.execMenuOnce("shieldAuthorAvatar", () => {
         return this.shieldAuthorAvatar();
       });
-      PopsPanel.execMenuOnce("shieldLikeButton", () => {
+      Panel.execMenuOnce("shieldLikeButton", () => {
         return this.shieldLikeButton();
       });
-      PopsPanel.execMenuOnce("shieldCommentButton", () => {
+      Panel.execMenuOnce("shieldCommentButton", () => {
         return this.shieldCommentButton();
       });
-      PopsPanel.execMenuOnce("shieldCollectionButton", () => {
+      Panel.execMenuOnce("shieldCollectionButton", () => {
         return this.shieldCollectionButton();
       });
-      PopsPanel.execMenuOnce("shieldSharenButton", () => {
+      Panel.execMenuOnce("shieldSharenButton", () => {
         return this.shieldSharenButton();
       });
-      PopsPanel.execMenuOnce("shieldRelatedRecommendationsButton", () => {
+      Panel.execMenuOnce("shieldRelatedRecommendationsButton", () => {
         return this.shieldRelatedRecommendationsButton();
       });
-      PopsPanel.execMenuOnce("shieldMoreButton", () => {
+      Panel.execMenuOnce("shieldMoreButton", () => {
         return this.shieldMoreButton();
       });
     },
@@ -3159,16 +3649,16 @@
   };
   const DouYinVideoPlayerBlockElement = {
     init() {
-      PopsPanel.execMenuOnce("shieldRightExpandCommentButton", () => {
+      Panel.execMenuOnce("shieldRightExpandCommentButton", () => {
         return this.shieldRightExpandCommentButton();
       });
-      PopsPanel.execMenuOnce("shieldSearchFloatingBar", () => {
+      Panel.execMenuOnce("shieldSearchFloatingBar", () => {
         return this.shieldSearchFloatingBar();
       });
-      PopsPanel.execMenuOnce("shieldCloseFullScreenButton", () => {
+      Panel.execMenuOnce("shieldCloseFullScreenButton", () => {
         return this.shieldCloseFullScreenButton();
       });
-      PopsPanel.execMenuOnce("dy-video-blockShopInfo", () => {
+      Panel.execMenuOnce("dy-video-blockShopInfo", () => {
         return this.blockShopInfo();
       });
       DouYinVideoPlayerBlockElement_BottomToolbar.init();
@@ -3353,37 +3843,37 @@
   };
   const DouYinVideoPlayerBlockMouseHoverTip_RightToolBar = {
     init() {
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "dy-video-mouseHoverTip-rightToolBar-enterUserHome",
         () => {
           return this.blockEnterUserHomeMouseHoverTip();
         }
       );
-      PopsPanel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-follow", () => {
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-follow", () => {
         return this.blockFollowMouseHoverTip();
       });
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "dy-video-mouseHoverTip-rightToolBar-addLike",
         () => {
           return this.blockAddLikeMouseHoverTip();
         }
       );
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "dy-video-mouseHoverTip-rightToolBar-comment",
         () => {
           return this.blockCommentMouseHoverTip();
         }
       );
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "dy-video-mouseHoverTip-rightToolBar-collect",
         () => {
           return this.blockCollectMouseHoverTip();
         }
       );
-      PopsPanel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-share", () => {
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-share", () => {
         return this.blockShareMouseHoverTip();
       });
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "dy-video-mouseHoverTip-rightToolBar-seeCorrelation",
         () => {
           return this.blockSeeCorrelationMouseHoverTip();
@@ -3454,31 +3944,31 @@
   };
   const DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar = {
     init() {
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast",
         () => {
           return this.blockAutomaticBroadcast();
         }
       );
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "dy-video-mouseHoverTip-bottomToolBar-clearScreen",
         () => {
           return this.blockClearScreenMouseHoverTip();
         }
       );
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "dy-video-mouseHoverTip-bottomToolBar-watchLater",
         () => {
           return this.blockWatchLaterMouseHoverTip();
         }
       );
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "dy-video-mouseHoverTip-bottomToolBar-pageFullScreen",
         () => {
           return this.blockPageFullScreenMouseHoverTip();
         }
       );
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "dy-video-mouseHoverTip-bottomToolBar-fullScreen",
         () => {
           return this.blockFullScreenMouseHoverTip();
@@ -3532,7 +4022,7 @@
     let isInjectAttrName = "data-is-inject-mouse-hide";
     let opacityShowAttrName = "data-opacity-show";
     let opacityHideAttrName = "data-opacity-hide";
-    let delayTime = () => PopsPanel.getValue(delayTimeKey);
+    let delayTime = () => Panel.getValue(delayTimeKey);
     let styleCSS = (__delayTime__ = delayTime()) => {
       if (__delayTime__ === 0) {
         return (
@@ -3566,7 +4056,7 @@
       }
     };
     let $style = addStyle(styleCSS());
-    let listenerId = PopsPanel.addValueChangeListener(
+    let listenerId = Panel.addValueChangeListener(
       delayTimeKey,
       (key, oldValue, newValue) => {
         domUtils.html($style, styleCSS(newValue));
@@ -3617,7 +4107,7 @@
       destory() {
         observer.disconnect();
         $style.remove();
-        PopsPanel.removeValueChangeListener(listenerId);
+        Panel.removeValueChangeListener(listenerId);
       },
       $style
     };
@@ -3625,29 +4115,31 @@
   const DouYinVideoPlayer = {
     init() {
       DouYinVideoPlayerBlockElement.init();
-      PopsPanel.onceExec("dy-short-cut", () => {
+      Panel.onceExec("dy-short-cut", () => {
         DouYinVideoPlayerShortCut.init();
       });
       DouYinVideoPlayerBlockMouseHoverTip.init();
-      PopsPanel.execMenuOnce("changeCommentToBottom", () => {
+      Panel.execMenuOnce("changeCommentToBottom", () => {
         DouYinVideoPlayer.changeCommentToBottom();
       });
-      PopsPanel.execMenuOnce("fullScreen", () => {
+      Panel.execMenuOnce("fullScreen", () => {
         return this.fullScreen();
       });
-      PopsPanel.execMenuOnce("parseVideo", () => {
+      Panel.execMenuOnce("parseVideo", () => {
         DouYinVideoPlayer.hookDownloadButtonToParseVideo();
       });
-      PopsPanel.execMenuOnce("dy-video-hookCopyLinkButton", () => {
+      Panel.execMenuOnce("dy-video-hookCopyLinkButton", () => {
         DouYinVideoPlayer.hookCopyLinkButton();
       });
-      PopsPanel.execInheritMenuOnce(
-        "autoEnterElementFullScreen",
-        "search-autoEnterElementFullScreen",
+      Panel.exec(
+        ["autoEnterElementFullScreen", "search-autoEnterElementFullScreen"],
         () => {
           this.autoEnterElementFullScreen();
         },
-        (mainValue, childValue) => {
+        (keyList) => {
+          const [mainKey, childKey] = keyList;
+          let mainValue = Panel.getValue(mainKey);
+          let childValue = Panel.getValue(childKey);
           if (DouYinRouter.isSearch()) {
             if (mainValue) {
               if (childValue == 1) {
@@ -3657,47 +4149,44 @@
               } else ;
             }
           }
-        }
+          return mainValue;
+        },
+        false
       );
-      PopsPanel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
+      Panel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
         this.doubleClickEnterElementFullScreen();
       });
-      PopsPanel.execMenu("dy-video-bgColor-enable", () => {
-        PopsPanel.execMenuOnce(
-          "dy-video-changeBackgroundColor",
-          (value) => {
-            return this.changeBackgroundColor(value);
-          }
-        );
+      Panel.execMenu("dy-video-bgColor-enable", () => {
+        Panel.execMenuOnce("dy-video-changeBackgroundColor", (option) => {
+          return this.changeBackgroundColor(option.value);
+        });
       });
-      PopsPanel.execMenuOnce("repairProgressBar", () => {
-        PopsPanel.onceExec("repairProgressBar", () => {
+      Panel.execMenuOnce("repairProgressBar", () => {
+        Panel.onceExec("repairProgressBar", () => {
           this.repairVideoProgressBar();
         });
       });
-      PopsPanel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
+      Panel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
         this.gestureBackCloseComment();
       });
-      PopsPanel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
+      Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
         this.waitToRemovePauseDialog();
       });
-      PopsPanel.execMenuOnce("dy-video-removeStyle-bottom", () => {
+      Panel.execMenuOnce("dy-video-removeStyle-bottom", () => {
         return this.removeStyleBottom();
       });
       domUtils.ready(() => {
-        DouYinVideoPlayer.chooseQuality(
-          PopsPanel.getValue("chooseVideoDefinition")
-        );
-        PopsPanel.execMenuOnce("mobileMode", () => {
+        DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
+        Panel.execMenuOnce("mobileMode", () => {
           return this.mobileMode();
         });
-        PopsPanel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
+        Panel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
           this.titleInfoAutoHide();
         });
-        PopsPanel.execMenuOnce("dy-video-videoControlsAutoHide", () => {
+        Panel.execMenuOnce("dy-video-videoControlsAutoHide", () => {
           this.videoControlsAutoHide();
         });
-        PopsPanel.execMenuOnce("dy-video-rightToolBarAutoHide", () => {
+        Panel.execMenuOnce("dy-video-rightToolBarAutoHide", () => {
           this.rightToolBarAutoHide();
         });
       });
@@ -3826,12 +4315,9 @@
 		}
 		`
       );
-      PopsPanel.execMenuOnce(
-        "douyin-video-autoCheckChangeCommentToBottom",
-        () => {
-          domUtils.on(window, "resize", autoChangeCommentPosition);
-        }
-      );
+      Panel.execMenuOnce("douyin-video-autoCheckChangeCommentToBottom", () => {
+        domUtils.on(window, "resize", autoChangeCommentPosition);
+      });
     },
     /**
      * 选择视频清晰度
@@ -4284,7 +4770,7 @@
         CommonUtil.addBlockCSS("img#douyin-temp-sidebar"),
         addStyle(MobileCSS$1)
       );
-      PopsPanel.onceExec("repairProgressBar", () => {
+      Panel.onceExec("repairProgressBar", () => {
         this.repairVideoProgressBar();
       });
       return result;
@@ -4509,7 +4995,7 @@
         }
       };
       let lockFn = new utils.LockFunction(() => {
-        if (!PopsPanel.getValue("dy-video-waitToRemovePauseDialog")) {
+        if (!Panel.getValue("dy-video-waitToRemovePauseDialog")) {
           return;
         }
         $$(
@@ -4607,9 +5093,9 @@
           target: "window",
           callback() {
             log.info("触发快捷键 ==> 沉浸模式");
-            let value = PopsPanel.getValue("fullScreen");
-            PopsPanel.setValue("fullScreen", !value);
-            PopsPanel.execMenuOnce("fullScreen", () => {
+            let value = Panel.getValue("fullScreen");
+            Panel.setValue("fullScreen", !value);
+            Panel.execMenuOnce("fullScreen", () => {
               return DouYinVideoPlayer.fullScreen();
             });
           }
@@ -4656,10 +5142,10 @@
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     Reflect.set(result.props, PROPS_STORAGE_API, {
       get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
+        return Panel.getValue(key2, defaultValue2);
       },
       set(key2, value) {
-        PopsPanel.setValue(key2, value);
+        Panel.setValue(key2, value);
       }
     });
     return result;
@@ -4685,10 +5171,10 @@
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     Reflect.set(result.props, PROPS_STORAGE_API, {
       get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
+        return Panel.getValue(key2, defaultValue2);
       },
       set(key2, value) {
-        PopsPanel.setValue(key2, value);
+        Panel.setValue(key2, value);
       }
     });
     return result;
@@ -4725,10 +5211,10 @@
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     Reflect.set(result.props, PROPS_STORAGE_API, {
       get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
+        return Panel.getValue(key2, defaultValue2);
       },
       set(key2, value) {
-        PopsPanel.setValue(key2, value);
+        Panel.setValue(key2, value);
       }
     });
     return result;
@@ -5925,42 +6411,6 @@
       });
     }
   };
-  const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
-      get width() {
-        if (window.innerWidth < 550) {
-          return "88vw";
-        } else if (window.innerWidth < 700) {
-          return "550px";
-        } else {
-          return "700px";
-        }
-      },
-      get height() {
-        if (window.innerHeight < 450) {
-          return "70vh";
-        } else if (window.innerHeight < 550) {
-          return "450px";
-        } else {
-          return "550px";
-        }
-      }
-    },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
-      get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
-      },
-      get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
-      }
-    }
-  };
   const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
     let result = {
       text,
@@ -5981,10 +6431,10 @@
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     Reflect.set(result.props, PROPS_STORAGE_API, {
       get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
+        return Panel.getValue(key2, defaultValue2);
       },
       set(key2, value) {
-        PopsPanel.setValue(key2, value);
+        Panel.setValue(key2, value);
       }
     });
     return result;
@@ -6005,18 +6455,18 @@
        * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
        */
       get isReverse() {
-        return PopsPanel.getValue(
+        return Panel.getValue(
           "shieldVideo-only-show-filtered-video"
         );
       }
     },
     init() {
       if (DouYinRouter.isLive()) {
-        PopsPanel.deleteExecMenuOnce(this.$key.ENABLE_KEY);
+        Panel.deleteExecMenuOnce(this.$key.ENABLE_KEY);
         return;
       }
       this.execFilter();
-      PopsPanel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
+      Panel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
         this.addParseButton();
       });
     },
@@ -6025,11 +6475,11 @@
      */
     execFilter() {
       const that = this;
-      PopsPanel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
+      Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
         log.info(`执行视频过滤器`);
         let filterBase = new DouYinVideoFilterBase();
         let queryScopeFilterOptionList = (scopeName) => {
-          if (!PopsPanel.getValue(that.$key.ENABLE_KEY)) {
+          if (!Panel.getValue(that.$key.ENABLE_KEY)) {
             return [];
           }
           let filterOptionList = that.getData();
@@ -7321,7 +7771,7 @@
                       let $color = $right.querySelector(
                         ".pops-color-choose"
                       );
-                      $color.value = PopsPanel.getValue(
+                      $color.value = Panel.getValue(
                         "dy-video-changeBackgroundColor"
                       );
                       let $style = domUtils.createElement("style");
@@ -7337,7 +7787,7 @@
 													background: ${$color.value};
 												}
 												`;
-                          PopsPanel.setValue(
+                          Panel.setValue(
                             "dy-video-changeBackgroundColor",
                             $color.value
                           );
@@ -7763,163 +8213,10 @@
       }
     ]
   };
-  const PanelSearchConfig = {
-    id: "panel-config-search",
-    title: "搜索",
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "功能",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "禁止点击视频区域进入全屏",
-                    "dy-search-disableClickToEnterFullScreen",
-                    false,
-                    void 0,
-                    "禁止点击视频区域时会触发自动进入全屏功能"
-                  ),
-                  UISelect(
-                    "自动进入网页全屏",
-                    "search-autoEnterElementFullScreen",
-                    -1,
-                    [
-                      {
-                        text: "跟随主设置",
-                        value: -1
-                      },
-                      {
-                        text: "是",
-                        value: 1
-                      },
-                      {
-                        text: "否",
-                        value: 0
-                      }
-                    ],
-                    void 0,
-                    "网页加载完毕后自动点击网页全屏按钮进入全屏"
-                  ),
-                  UISelect(
-                    "搜索结果-视频-显示样式",
-                    "live-setSearchResultFilterWithVideoStyle",
-                    "",
-                    [
-                      {
-                        text: "默认",
-                        value: ""
-                      },
-                      {
-                        text: "单列",
-                        value: "one"
-                      },
-                      {
-                        text: "双列",
-                        value: "double"
-                      }
-                    ],
-                    void 0,
-                    "自定义搜索结果，按视频筛选的结果项的显示样式"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "布局屏蔽",
-            type: "deepMenu",
-            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
-              {
-                text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "【屏蔽】相关搜索",
-                    "douyin-search-shieldReleatedSearches",
-                    false,
-                    void 0,
-                    "屏蔽右边的相关搜索"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "布局屏蔽-主框架",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISelect(
-                    "【屏蔽】左侧导航栏",
-                    "search-shieldLeftNavigator",
-                    -1,
-                    [
-                      {
-                        text: "跟随主设置",
-                        value: -1
-                      },
-                      {
-                        text: "是",
-                        value: 1
-                      },
-                      {
-                        text: "否",
-                        value: 0
-                      }
-                    ],
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISelect(
-                    "【屏蔽】顶部导航栏",
-                    "search-shieldTopNavigator",
-                    -1,
-                    [
-                      {
-                        text: "跟随主设置",
-                        value: -1
-                      },
-                      {
-                        text: "是",
-                        value: 1
-                      },
-                      {
-                        text: "否",
-                        value: 0
-                      }
-                    ],
-                    void 0,
-                    "屏蔽元素"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const MPanelShareUserConfig = {
-    id: "m-panel-config-share-user",
-    title: "主页",
-    headerTitle: "/share/user<br />主页",
+  const MPanelShareChallengeConfig = {
+    id: "m-panel-config-share-challenge",
+    title: "话题",
+    headerTitle: "/share/challenge<br />话题",
     forms: [
       {
         text: "",
@@ -7934,15 +8231,15 @@
                 type: "forms",
                 forms: [
                   UISwitch(
-                    "视频合集",
-                    "m-dy-share-user-coverPlayletList",
+                    "顶部区域",
+                    "m-dy-share-challenge-coverTopJump",
                     true,
                     void 0,
-                    "正确跳转视频合集页面"
+                    "阻止跳转至下载页面"
                   ),
                   UISwitch(
-                    "视频列表",
-                    "m-dy-share-user-coverPostListContainer",
+                    "视频卡片",
+                    "m-dy-share-challenge-coverVideoCard",
                     true,
                     void 0,
                     "正确跳转视频页面"
@@ -7955,10 +8252,10 @@
       }
     ]
   };
-  const MPanelShareVideoConfig = {
-    id: "m-panel-config-share-video",
-    title: "视频",
-    headerTitle: "/share/video<br />视频",
+  const MPanelShareMusicConfig = {
+    id: "m-panel-config-share-music",
+    title: "音乐",
+    headerTitle: "/share/music<br />音乐",
     forms: [
       {
         text: "",
@@ -7973,11 +8270,11 @@
                 type: "forms",
                 forms: [
                   UISwitch(
-                    "全局点击",
-                    "m-dy-share-video-coverGlobalClick",
+                    "视频卡片",
+                    "m-dy-share-music-coverVideoCard",
                     true,
                     void 0,
-                    "阻止跳转至下载页"
+                    "正确跳转视频页面"
                   )
                 ]
               }
@@ -8080,10 +8377,10 @@
       }
     ]
   };
-  const MPanelShareChallengeConfig = {
-    id: "m-panel-config-share-challenge",
-    title: "话题",
-    headerTitle: "/share/challenge<br />话题",
+  const MPanelShareUserConfig = {
+    id: "m-panel-config-share-user",
+    title: "主页",
+    headerTitle: "/share/user<br />主页",
     forms: [
       {
         text: "",
@@ -8098,15 +8395,15 @@
                 type: "forms",
                 forms: [
                   UISwitch(
-                    "顶部区域",
-                    "m-dy-share-challenge-coverTopJump",
+                    "视频合集",
+                    "m-dy-share-user-coverPlayletList",
                     true,
                     void 0,
-                    "阻止跳转至下载页面"
+                    "正确跳转视频合集页面"
                   ),
                   UISwitch(
-                    "视频卡片",
-                    "m-dy-share-challenge-coverVideoCard",
+                    "视频列表",
+                    "m-dy-share-user-coverPostListContainer",
                     true,
                     void 0,
                     "正确跳转视频页面"
@@ -8119,10 +8416,10 @@
       }
     ]
   };
-  const MPanelShareMusicConfig = {
-    id: "m-panel-config-share-music",
-    title: "音乐",
-    headerTitle: "/share/music<br />音乐",
+  const MPanelShareVideoConfig = {
+    id: "m-panel-config-share-video",
+    title: "视频",
+    headerTitle: "/share/video<br />视频",
     forms: [
       {
         text: "",
@@ -8137,11 +8434,11 @@
                 type: "forms",
                 forms: [
                   UISwitch(
-                    "视频卡片",
-                    "m-dy-share-music-coverVideoCard",
+                    "全局点击",
+                    "m-dy-share-video-coverGlobalClick",
                     true,
                     void 0,
-                    "正确跳转视频页面"
+                    "阻止跳转至下载页"
                   )
                 ]
               }
@@ -8151,92 +8448,49 @@
       }
     ]
   };
-  const PanelUserConfig = {
-    id: "panel-config-user",
-    title: "用户",
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "显示UID",
-            "dy-user-addShowUserUID",
-            true,
-            void 0,
-            "在用户信息区域下方显示当前用户的uid"
-          )
-        ]
-      }
-    ]
+  const PanelContent = {
+    /**
+     * 获取所有的配置内容，用于初始化默认的值
+     */
+    getAllConfig() {
+      return [...this.getConfig(), ...this.getMConfig()];
+    },
+    /**
+     * 获取配置内容
+     */
+    getConfig() {
+      let configList = [
+        PanelCommonConfig,
+        PanelVideoConfig,
+        PanelSearchConfig,
+        PanelLiveConfig,
+        PanelUserConfig
+      ];
+      return configList;
+    },
+    /**
+     * 获取配置内容
+     */
+    getMConfig() {
+      let configList = [
+        MPanelShareUserConfig,
+        MPanelShareNoteConfig,
+        MPanelShareChallengeConfig,
+        MPanelShareVideoConfig,
+        MPanelShareMusicConfig
+      ];
+      return configList;
+    }
   };
-  const PopsPanel = {
-    /** 数据 */
-    $data: {
-      __data: null,
-      __oneSuccessExecMenu: null,
-      __onceExec: null,
-      __listenData: null,
-      /**
-       * 菜单项的默认值
-       */
-      get data() {
-        if (PopsPanel.$data.__data == null) {
-          PopsPanel.$data.__data = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__data;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get oneSuccessExecMenu() {
-        if (PopsPanel.$data.__oneSuccessExecMenu == null) {
-          PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__oneSuccessExecMenu;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get onceExec() {
-        if (PopsPanel.$data.__onceExec == null) {
-          PopsPanel.$data.__onceExec = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__onceExec;
-      },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
-        return SCRIPT_NAME;
-      },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
-    },
-    /** 监听器 */
-    $listener: {
-      /**
-       * 值改变的监听器
-       */
-      get listenData() {
-        if (PopsPanel.$data.__listenData == null) {
-          PopsPanel.$data.__listenData = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__listenData;
-      }
-    },
+  const PanelMenu = {
     init() {
-      this.initPanelDefaultValue();
       this.initExtensionsMenu();
     },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
-    },
+    /**
+     * 初始化菜单项
+     */
     initExtensionsMenu() {
-      if (!this.isTopWindow()) {
+      if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add([
@@ -8249,7 +8503,7 @@
             return text;
           },
           callback: () => {
-            this.showPanel();
+            Panel.showPanel(PanelContent.getConfig());
           }
         },
         {
@@ -8261,15 +8515,72 @@
             return text;
           },
           callback: () => {
-            this.showMPanel();
+            Panel.showPanel(
+              PanelContent.getMConfig(),
+              `${Panel.$data.scriptName}-移动端设置`
+            );
           }
         }
       ]);
+    }
+  };
+  const Panel = {
+    /** 数据 */
+    $data: {
+      __data: null,
+      __oneSuccessExecMenu: null,
+      __onceExec: null,
+      $panel: null,
+      /**
+       * 菜单项的默认值
+       */
+      get data() {
+        if (Panel.$data.__data == null) {
+          Panel.$data.__data = new utils.Dictionary();
+        }
+        return Panel.$data.__data;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get oneSuccessExecMenu() {
+        if (Panel.$data.__oneSuccessExecMenu == null) {
+          Panel.$data.__oneSuccessExecMenu = new utils.Dictionary();
+        }
+        return Panel.$data.__oneSuccessExecMenu;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExec() {
+        if (Panel.$data.__onceExec == null) {
+          Panel.$data.__onceExec = new utils.Dictionary();
+        }
+        return Panel.$data.__onceExec;
+      },
+      /** 脚本名，一般用在设置的标题上 */
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
+      /** 菜单项的总值在本地数据配置的键名 */
+      key: KEY,
+      /** 菜单项在attributes上配置的菜单键 */
+      attributeKeyName: ATTRIBUTE_KEY,
+      /** 菜单项在attributes上配置的菜单默认值 */
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+    },
+    init() {
+      this.initContentDefaultValue();
+      PanelMenu.init();
+    },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
     },
     /** 初始化菜单项的默认值保存到本地数据中 */
-    initPanelDefaultValue() {
-      let that = this;
-      function initDefaultValue(config) {
+    initContentDefaultValue() {
+      const that = this;
+      const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
         }
@@ -8301,8 +8612,8 @@
           }
           that.$data.data.set(__key, __defaultValue);
         });
-      }
-      function loopInitDefaultValue(configList) {
+      };
+      const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
@@ -8311,16 +8622,14 @@
             loopInitDefaultValue(childForms);
           }
         }
-      }
-      let contentConfigList = this.getPanelContentConfig().concat(
-        this.getMPanelContentConfig()
-      );
+      };
+      const contentConfigList = [...PanelContent.getAllConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         let leftContentConfigItem = contentConfigList[index];
         if (!leftContentConfigItem.forms) {
           continue;
         }
-        let rightContentConfigList = leftContentConfigItem.forms;
+        const rightContentConfigList = leftContentConfigItem.forms;
         if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
           loopInitDefaultValue(rightContentConfigList);
         }
@@ -8332,13 +8641,7 @@
      * @param value 值
      */
     setValue(key, value) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      locaData[key] = value;
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, value);
-      }
+      PopsPanelStorageApi.set(key, value);
     },
     /**
      * 获取值
@@ -8346,8 +8649,7 @@
      * @param defaultValue 默认值
      */
     getValue(key, defaultValue) {
-      let locaData = _GM_getValue(KEY, {});
-      let localValue = locaData[key];
+      let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.data.has(key)) {
           return this.$data.data.get(key);
@@ -8361,13 +8663,14 @@
      * @param key 键
      */
     deleteValue(key) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      Reflect.deleteProperty(locaData, key);
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
-      }
+      PopsPanelStorageApi.delete(key);
+    },
+    /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasKey(key) {
+      return PopsPanelStorageApi.has(key);
     },
     /**
      * 监听调用setValue、deleteValue
@@ -8375,12 +8678,12 @@
      * @param callback
      */
     addValueChangeListener(key, callback) {
-      let listenerId = Math.random();
-      this.$listener.listenData.set(key, {
-        id: listenerId,
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(
         key,
-        callback
-      });
+        (__key, __newValue, __oldValue) => {
+          callback(key, __oldValue, __newValue);
+        }
+      );
       return listenerId;
     },
     /**
@@ -8388,18 +8691,7 @@
      * @param listenerId 监听的id
      */
     removeValueChangeListener(listenerId) {
-      let deleteKey = null;
-      for (const [key, value] of this.$listener.listenData.entries()) {
-        if (value.id === listenerId) {
-          deleteKey = key;
-          break;
-        }
-      }
-      if (typeof deleteKey === "string") {
-        this.$listener.listenData.delete(deleteKey);
-      } else {
-        console.warn("没有找到对应的监听器");
-      }
+      PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
     /**
      * 主动触发菜单值改变的回调
@@ -8408,29 +8700,7 @@
      * @param oldValue 想要触发的旧值，默认使用当前值
      */
     triggerMenuValueChange(key, newValue, oldValue) {
-      if (this.$listener.listenData.has(key)) {
-        let listenData = this.$listener.listenData.get(key);
-        if (typeof listenData.callback === "function") {
-          let value = this.getValue(key);
-          let __newValue = value;
-          let __oldValue = value;
-          if (typeof newValue !== "undefined" && arguments.length > 1) {
-            __newValue = newValue;
-          }
-          if (typeof oldValue !== "undefined" && arguments.length > 2) {
-            __oldValue = oldValue;
-          }
-          listenData.callback(key, __oldValue, __newValue);
-        }
-      }
-    },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
-      let locaData = _GM_getValue(KEY, {});
-      return key in locaData;
+      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
     /**
      * 移除已执行的仅执行一次的菜单
@@ -8438,17 +8708,7 @@
      */
     deleteExecMenuOnce(key) {
       this.$data.oneSuccessExecMenu.delete(key);
-      let flag = false;
-      for (const [
-        listenerId,
-        listenerData
-      ] of this.$listener.listenData.entries()) {
-        if (listenerData.key === key) {
-          flag = true;
-          this.removeValueChangeListener(listenerData.id);
-          break;
-        }
-      }
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
     /**
@@ -8459,69 +8719,52 @@
       this.$data.onceExec.delete(key);
     },
     /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key
-     * @param callback 回调
-     * @param [isReverse=false] 逆反判断菜单启用
-     */
-    execMenu(key, callback, isReverse = false) {
-      if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
-        throw new TypeError("key 必须是字符串或者字符串数组");
-      }
-      let runKeyList = [];
-      if (typeof key === "object" && Array.isArray(key)) {
-        runKeyList = [...key];
-      } else {
-        runKeyList.push(key);
-      }
-      let value = void 0;
-      for (let index = 0; index < runKeyList.length; index++) {
-        const runKey = runKeyList[index];
-        if (!this.$data.data.has(runKey)) {
-          log.warn(`${key} 键不存在`);
-          return;
-        }
-        let runValue = PopsPanel.getValue(runKey);
-        if (isReverse) {
-          runValue = !runValue;
-        }
-        if (!runValue) {
-          break;
-        }
-        value = runValue;
-      }
-      if (value) {
-        callback(value);
-      }
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     * 执行菜单
      *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key
-     * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     * @param queryKey 键|键数组
+     * @param callback 执行的回调函数
+     * @param checkExec 判断是否执行回调
+     *
+     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
+     *
+     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
+     *
+     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
+     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
+     * @param once 是否只执行一次，默认true
+     *
+     * + true （默认）只执行一次，且会监听键的值改变
+     * + false 不会监听键的值改变
      */
-    execMenuOnce(key, callback, getValueFn, handleValueChangeFn) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
+    exec(queryKey, callback, checkExec, once = true) {
+      const that = this;
+      let queryKeyFn;
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
+        queryKeyFn = () => queryKey;
+      } else {
+        queryKeyFn = queryKey;
       }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
+      let isArrayKey = false;
+      let queryKeyResult = queryKeyFn();
+      let keyList = [];
+      if (Array.isArray(queryKeyResult)) {
+        isArrayKey = true;
+        keyList = queryKeyResult;
+      } else {
+        keyList.push(queryKeyResult);
+      }
+      let findNotInDataKey = keyList.find((it) => !this.$data.data.has(it));
+      if (findNotInDataKey) {
+        log.warn(`${findNotInDataKey} 键不存在`);
         return;
       }
-      if (this.$data.oneSuccessExecMenu.has(key)) {
+      let storageKey = JSON.stringify(keyList);
+      if (once && this.$data.oneSuccessExecMenu.has(JSON.stringify(storageKey))) {
         return;
       }
-      this.$data.oneSuccessExecMenu.set(key, 1);
-      let __getValue = () => {
-        let localValue = PopsPanel.getValue(key);
-        return typeof getValueFn === "function" ? getValueFn(key, localValue) : localValue;
-      };
-      let resultStyleList = [];
-      let dynamicPushStyleNode = ($style) => {
-        let __value = __getValue();
+      let storeStyleElements = [];
+      let listenerIdList = [];
+      let dynamicPushStyleNode = (value, $style) => {
         let dynamicResultList = [];
         if ($style instanceof HTMLStyleElement) {
           dynamicResultList = [$style];
@@ -8532,93 +8775,139 @@
             )
           ];
         }
-        if (__value) {
-          resultStyleList = resultStyleList.concat(dynamicResultList);
-        } else {
-          for (let index = 0; index < dynamicResultList.length; index++) {
-            let $css = dynamicResultList[index];
-            $css.remove();
-            dynamicResultList.splice(index, 1);
-            index--;
-          }
+        {
+          storeStyleElements = storeStyleElements.concat(dynamicResultList);
         }
       };
-      let changeCallBack = (currentValue) => {
-        let resultList = [];
-        if (currentValue) {
-          let result = callback(currentValue, dynamicPushStyleNode);
-          if (result instanceof HTMLStyleElement) {
-            resultList = [result];
-          } else if (Array.isArray(result)) {
-            resultList = [
-              ...result.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            ];
-          }
-        }
-        for (let index = 0; index < resultStyleList.length; index++) {
-          let $css = resultStyleList[index];
+      let getValue = (key) => {
+        let value = Panel.getValue(key);
+        return value;
+      };
+      let clearStoreStyleElements = () => {
+        for (let index = 0; index < storeStyleElements.length; index++) {
+          let $css = storeStyleElements[index];
           $css.remove();
-          resultStyleList.splice(index, 1);
+          storeStyleElements.splice(index, 1);
           index--;
         }
-        resultStyleList = [...resultList];
       };
-      this.addValueChangeListener(
-        key,
-        (__key, oldValue, newValue) => {
-          let __newValue = newValue;
-          if (typeof handleValueChangeFn === "function") {
-            __newValue = handleValueChangeFn(__key, newValue, oldValue);
-          }
-          changeCallBack(__newValue);
+      let __checkExec__ = () => {
+        let flag = false;
+        if (typeof checkExec === "function") {
+          flag = checkExec(keyList);
+        } else {
+          flag = keyList.every((key) => getValue(key));
         }
-      );
-      let value = __getValue();
-      if (value) {
-        changeCallBack(value);
-      }
+        return flag;
+      };
+      let valueChange = (valueOption) => {
+        let execFlag = __checkExec__();
+        let resultList = [];
+        if (execFlag) {
+          let valueList = keyList.map((key) => this.getValue(key));
+          let $styles = callback({
+            addStyleElement: (...args) => {
+              return dynamicPushStyleNode(true, ...args);
+            },
+            value: isArrayKey ? valueList : valueList[0]
+          });
+          if ($styles instanceof HTMLStyleElement) {
+            resultList.push($styles);
+          } else if (Array.isArray($styles)) {
+            resultList.push(
+              ...$styles.filter(
+                (item) => item != null && item instanceof HTMLStyleElement
+              )
+            );
+          }
+        }
+        clearStoreStyleElements();
+        storeStyleElements = [...resultList];
+      };
+      once && keyList.forEach((key) => {
+        let listenerId = this.addValueChangeListener(
+          key,
+          (key2, newValue, oldValue) => {
+            valueChange();
+          }
+        );
+        listenerIdList.push(listenerId);
+      });
+      valueChange();
+      let result = {
+        /**
+         * 清空菜单执行情况
+         *
+         * + 清空存储的元素列表
+         * + 清空值改变的监听器
+         * + 清空存储的一次执行的键
+         */
+        clear() {
+          this.clearStoreStyleElements();
+          this.removeValueChangeListener();
+          once && that.$data.oneSuccessExecMenu.delete(storageKey);
+        },
+        /**
+         * 清空存储的元素列表
+         */
+        clearStoreStyleElements: () => {
+          return clearStoreStyleElements();
+        },
+        /**
+         * 移除值改变的监听器
+         */
+        removeValueChangeListener: () => {
+          listenerIdList.forEach((listenerId) => {
+            this.removeValueChangeListener(listenerId);
+          });
+        }
+      };
+      return result;
     },
     /**
-     * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key 菜单键
-     * @param childKey 子菜单键
+     * 自动判断菜单是否启用，然后执行回调
+     * @param key
      * @param callback 回调
-     * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
+     * @param [isReverse=false] 逆反判断菜单启用
      */
-    execInheritMenuOnce(key, childKey, callback, replaceValueFn) {
-      let that = this;
-      const handleInheritValue = (key2, childKey2) => {
-        let mainValue = that.getValue(key2);
-        let childValue = that.getValue(childKey2);
-        if (typeof replaceValueFn === "function") {
-          let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue !== void 0) {
-            return changedMainValue;
-          }
-        }
-        return mainValue;
-      };
-      this.execMenuOnce(
+    execMenu(key, callback, isReverse = false) {
+      return this.exec(
+        key,
+        (option) => {
+          return callback(option);
+        },
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            isReverse && (flag = !flag);
+            return flag;
+          });
+          return execFlag;
+        },
+        false
+      );
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     *
+     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
+     * @param key
+     * @param callback 回调
+     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     */
+    execMenuOnce(key, callback) {
+      return this.exec(
         key,
         callback,
-        () => {
-          return handleInheritValue(key, childKey);
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            return flag;
+          });
+          return execFlag;
         },
-        () => {
-          return handleInheritValue(key, childKey);
-        }
-      );
-      this.execMenuOnce(
-        childKey,
-        () => {
-        },
-        () => false,
-        () => {
-          this.triggerMenuValueChange(key);
-          return false;
-        }
+        true
       );
     },
     /**
@@ -8638,20 +8927,33 @@
     /**
      * 显示设置面板
      */
-    showPanel() {
-      __pops.panel({
+    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
+      let $panel = __pops.panel({
         title: {
           text: `${SCRIPT_NAME}-设置`,
           position: "center",
           html: false,
           style: ""
         },
-        content: this.getPanelContentConfig(),
+        content,
+        btn: {
+          close: {
+            enable: true,
+            callback: (details, event) => {
+              details.close();
+              this.$data.$panel = null;
+            }
+          }
+        },
         mask: {
           enable: true,
           clickEvent: {
             toClose: true,
             toHide: false
+          },
+          clickCallBack: (originalRun, config) => {
+            originalRun();
+            this.$data.$panel = null;
           }
         },
         width: PanelUISize.setting.width,
@@ -8659,57 +8961,7 @@
         drag: true,
         only: true
       });
-    },
-    /**
-     * 显示移动端设置面板
-     */
-    showMPanel() {
-      __pops.panel({
-        title: {
-          text: `${SCRIPT_NAME}-设置`,
-          position: "center",
-          html: false,
-          style: ""
-        },
-        content: this.getMPanelContentConfig(),
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: true,
-            toHide: false
-          }
-        },
-        width: PanelUISize.setting.width,
-        height: PanelUISize.setting.height,
-        drag: true,
-        only: true
-      });
-    },
-    /**
-     * 获取配置内容
-     */
-    getPanelContentConfig() {
-      let configList = [
-        PanelCommonConfig,
-        PanelVideoConfig,
-        PanelSearchConfig,
-        PanelLiveConfig,
-        PanelUserConfig
-      ];
-      return configList;
-    },
-    /**
-     * 获取配置内容
-     */
-    getMPanelContentConfig() {
-      let configList = [
-        MPanelShareUserConfig,
-        MPanelShareNoteConfig,
-        MPanelShareChallengeConfig,
-        MPanelShareVideoConfig,
-        MPanelShareMusicConfig
-      ];
-      return configList;
+      this.$data.$panel = $panel;
     }
   };
   const _SCRIPT_NAME_ = "抖音优化";
@@ -8736,17 +8988,17 @@
       {
         position: {
           get() {
-            return PopsPanel.getValue("qmsg-config-position", "bottom");
+            return Panel.getValue("qmsg-config-position", "bottom");
           }
         },
         maxNums: {
           get() {
-            return PopsPanel.getValue("qmsg-config-maxnums", 5);
+            return Panel.getValue("qmsg-config-maxnums", 5);
           }
         },
         showReverse: {
           get() {
-            return PopsPanel.getValue("qmsg-config-showreverse", true);
+            return Panel.getValue("qmsg-config-showreverse", true);
           }
         }
       }
@@ -8781,13 +9033,15 @@
   new utils.GM_Cookie();
   const BlockTopNavigator = {
     init() {
-      PopsPanel.execInheritMenuOnce(
-        "shieldTopNavigator",
-        "search-shieldTopNavigator",
+      Panel.exec(
+        ["shieldTopNavigator", "search-shieldTopNavigator"],
         () => {
           return this.shieldTopNavigator();
         },
-        (mainValue, childValue) => {
+        (keyList) => {
+          const [mainKey, childKey] = keyList;
+          let mainValue = Panel.getValue(mainKey);
+          let childValue = Panel.getValue(childKey);
           if (DouYinRouter.isSearch()) {
             if (childValue == 1) {
               return true;
@@ -8795,45 +9049,46 @@
               return false;
             } else ;
           }
+          return mainValue;
         }
       );
-      PopsPanel.execMenuOnce("shieldClientTip", () => {
+      Panel.execMenuOnce("shieldClientTip", () => {
         return this.shieldClientTip();
       });
-      PopsPanel.execMenuOnce("shieldFillingBricksAndStones", () => {
+      Panel.execMenuOnce("shieldFillingBricksAndStones", () => {
         return this.shieldFillingBricksAndStones();
       });
-      PopsPanel.execMenuOnce("shieldClient", () => {
+      Panel.execMenuOnce("shieldClient", () => {
         return this.shieldClient();
       });
-      PopsPanel.execMenuOnce("shieldQuickAccess", () => {
+      Panel.execMenuOnce("shieldQuickAccess", () => {
         return this.shieldQuickAccess();
       });
-      PopsPanel.execMenuOnce("shieldNotifitation", () => {
+      Panel.execMenuOnce("shieldNotifitation", () => {
         return this.shieldNotifitation();
       });
-      PopsPanel.execMenuOnce("shieldPrivateMessage", () => {
+      Panel.execMenuOnce("shieldPrivateMessage", () => {
         return this.shieldPrivateMessage();
       });
-      PopsPanel.execMenuOnce("shieldSubmission", () => {
+      Panel.execMenuOnce("shieldSubmission", () => {
         return this.shieldSubmission();
       });
-      PopsPanel.execMenuOnce("shieldWallpaper", () => {
+      Panel.execMenuOnce("shieldWallpaper", () => {
         return this.shieldWallpaper();
       });
-      PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
+      Panel.execMenuOnce("shieldBottomQuestionButton", () => {
         return this.shieldBottomQuestionButton();
       });
-      PopsPanel.execMenuOnce("shield-topNav-rightMenu", () => {
+      Panel.execMenuOnce("shield-topNav-rightMenu", () => {
         return this.shieldRightMenu();
       });
-      PopsPanel.execMenuOnce("shield-topNav-rightMenu-more", () => {
+      Panel.execMenuOnce("shield-topNav-rightMenu-more", () => {
         return this.shieldRightMenuMore();
       });
-      PopsPanel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
+      Panel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
         return this.shieldRightMenuLoginAvatar();
       });
-      PopsPanel.execMenuOnce("shield-topNav-ai-search", () => {
+      Panel.execMenuOnce("shield-topNav-ai-search", () => {
         return this.shieldAISearch();
       });
     },
@@ -9166,16 +9421,16 @@
   };
   const BlockSearchFrame = {
     init() {
-      PopsPanel.execMenuOnce("shieldSearch", () => {
+      Panel.execMenuOnce("shieldSearch", () => {
         return this.shieldSearch();
       });
-      PopsPanel.execMenuOnce("shieldSearchPlaceholder", () => {
+      Panel.execMenuOnce("shieldSearchPlaceholder", () => {
         return this.shieldSearchPlaceholder();
       });
-      PopsPanel.execMenuOnce("shieldSearchGuessYouWantToSearch", () => {
+      Panel.execMenuOnce("shieldSearchGuessYouWantToSearch", () => {
         return this.shieldSearchGuessYouWantToSearch();
       });
-      PopsPanel.execMenuOnce("shieldSearchTiktokHotspot", () => {
+      Panel.execMenuOnce("shieldSearchTiktokHotspot", () => {
         return this.shieldSearchTiktokHotspot();
       });
     },
@@ -9556,18 +9811,18 @@
       hookElementAddEventListener: []
     },
     init() {
-      PopsPanel.onceExec("hookKeyboard", () => {
+      Panel.onceExec("hookKeyboard", () => {
         DouYinHook.disableShortCut();
       });
-      PopsPanel.execMenu("dy-cookie-remove__ac__", () => {
+      Panel.execMenu("dy-cookie-remove__ac__", () => {
         this.removeCookie();
       });
       if (DouYinRouter.isIndex()) {
-        PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
+        Panel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
           DouYinHook.disableDoubleClickLike();
         });
       } else if (DouYinRouter.isLive()) {
-        PopsPanel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
+        Panel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
           DouYinHook.disableDoubleClickLike();
         });
       }
@@ -9781,7 +10036,7 @@
                     continue;
                   }
                 }
-                if (!PopsPanel.getValue(keyboardConfig.enableKey)) {
+                if (!Panel.getValue(keyboardConfig.enableKey)) {
                   continue;
                 }
                 return;
@@ -10078,7 +10333,7 @@
       ];
       let lockFn = new utils.LockFunction(() => {
         var _a2;
-        if (!PopsPanel.getValue("watchLoginDialogToClose")) {
+        if (!Panel.getValue("watchLoginDialogToClose")) {
           return;
         }
         let $loginDialog = $(
@@ -10161,7 +10416,7 @@
   };
   const DouYinRedirect = {
     init() {
-      PopsPanel.execMenu("douyin-redirect-url-home-to-root", () => {
+      Panel.execMenu("douyin-redirect-url-home-to-root", () => {
         this.redirectUrlHomeToRoot();
       });
     },
@@ -10178,7 +10433,7 @@
   const MobileCSS = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100vw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\r\n#douyin-header header{\r\n	flex-direction: row-reverse !important;\r\n}\r\n#douyin-header header > div:nth-child(2) {\r\n	position: unset !important;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#sliderVideo {\r\n		width: 100%;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#component-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n';
   const DouYinSearchHideElement = {
     init() {
-      PopsPanel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
+      Panel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
         return this.shieldReleatedSearches();
       });
     },
@@ -10202,18 +10457,15 @@
   const DouYinSearch = {
     init() {
       DouYinSearchHideElement.init();
-      PopsPanel.execMenuOnce("mobileMode", () => {
+      Panel.execMenuOnce("mobileMode", () => {
         return this.mobileMode();
       });
-      PopsPanel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
+      Panel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
         this.disableClickToEnterFullScreen();
       });
-      PopsPanel.execMenuOnce(
-        "live-setSearchResultFilterWithVideoStyle",
-        (value) => {
-          return this.setSearchResultFilterWithVideoStyle(value);
-        }
-      );
+      Panel.execMenuOnce("live-setSearchResultFilterWithVideoStyle", (option) => {
+        return this.setSearchResultFilterWithVideoStyle(option.value);
+      });
     },
     /**
      * 手机模式
@@ -10390,13 +10642,15 @@
   };
   const BlockLeftNavigator = {
     init() {
-      PopsPanel.execInheritMenuOnce(
-        "shieldLeftNavigator",
-        "search-shieldLeftNavigator",
+      Panel.exec(
+        ["shieldLeftNavigator", "search-shieldLeftNavigator"],
         () => {
           return this.shieldLeftNavigator();
         },
-        (mainValue, childValue) => {
+        (keyList) => {
+          const [mainKey, childKey] = keyList;
+          let mainValue = Panel.getValue(mainKey);
+          let childValue = Panel.getValue(childKey);
           if (DouYinRouter.isSearch()) {
             if (childValue == 1) {
               return true;
@@ -10404,60 +10658,61 @@
               return false;
             } else ;
           }
+          return mainValue;
         }
       );
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-home", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-home", () => {
         return this.block_tab_home();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-recommend", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-recommend", () => {
         return this.block_tab_recommend();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-follow", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-follow", () => {
         return this.block_tab_follow();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-friend", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-friend", () => {
         return this.block_tab_friend();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
         return this.block_tab_user_self();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-user_self_like", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_like", () => {
         return this.block_tab_user_self_like();
       });
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "shieldLeftNavigator-tab-user_self_collection",
         () => {
           return this.block_tab_user_self_collection();
         }
       );
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-user_self_record", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_record", () => {
         return this.block_tab_user_self_record();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
         return this.block_tab_live();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
         return this.block_tab_vs();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
         return this.block_tab_series();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
         return this.block_tab_ai_search();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300203", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300203", () => {
         return this.block_tab_channel_300203();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300205", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300205", () => {
         return this.block_tab_channel_300205();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300206", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300206", () => {
         return this.block_tab_channel_300206();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300209", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300209", () => {
         return this.block_tab_channel_300209();
       });
-      PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
+      Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
         return this.block_tab_channel_300204();
       });
     },
@@ -10640,7 +10895,7 @@
     init() {
       addStyle(blockCSS$7);
       domUtils.ready(() => {
-        PopsPanel.execMenu("dy-user-addShowUserUID", () => {
+        Panel.execMenu("dy-user-addShowUserUID", () => {
           this.addShowUserUID();
         });
       });
@@ -10704,29 +10959,29 @@
   };
   const DouYin = {
     init() {
-      PopsPanel.onceExec("dy-global-block-css", () => {
+      Panel.onceExec("dy-global-block-css", () => {
         addStyle(blockCSS$8);
       });
       DouYinGestureBackClearHash();
       DouYinHook.init();
       DouYinVideoFilter.init();
       DouYinRedirect.init();
-      PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
+      Panel.execMenuOnce("watchLoginDialogToClose", () => {
         DouYinAccount.watchLoginDialogToClose();
       });
-      PopsPanel.execMenuOnce("disguiseLogin", () => {
+      Panel.execMenuOnce("disguiseLogin", () => {
         DouYinAccount.disguiseLogin();
       });
-      PopsPanel.execMenuOnce("dy-initialScale", () => {
+      Panel.execMenuOnce("dy-initialScale", () => {
         this.initialScale();
       });
-      PopsPanel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
+      Panel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
         this.removeMetaAppleItunesApp();
       });
       BlockLeftNavigator.init();
       BlockTopNavigator.init();
       BlockSearchFrame.init();
-      PopsPanel.execMenuOnce("dy-common-listenRouterChange", () => {
+      Panel.execMenuOnce("dy-common-listenRouterChange", () => {
         this.listenRouterChange();
       });
       if (DouYinRouter.isLive()) {
@@ -10841,57 +11096,13 @@
     }
   };
   const blockCSS$4 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button{\r\n    display: none !important;\r\n}";
-  const DouYinUrlUtils = {
-    /**
-     * 获取视频链接
-     * @param videoId 视频id
-     */
-    getVideoUrl(videoId) {
-      return "https://www.douyin.com/video/" + videoId;
-    },
-    /**
-     * 获取视频合集链接
-     * @param collectionId 合集id
-     */
-    getCollectionUrl(collectionId) {
-      return "https://www.douyin.com/collection/" + collectionId;
-    },
-    /**
-     * 获取笔记链接
-     * @param noteId 笔记id
-     */
-    getNoteUrl(noteId) {
-      return "https://www.douyin.com/note/" + noteId;
-    },
-    /**
-     * 获取话题链接
-     * @param hashTagId 话题id
-     */
-    getHashTagUrl(hashTagId) {
-      return "https://www.douyin.com/hashtag/" + hashTagId;
-    },
-    /**
-     * 获取用户主页链接
-     * @param sec_uid
-     */
-    getUserHomeUrl(sec_uid) {
-      return "https://www.douyin.com/user/" + sec_uid;
-    },
-    /**
-     * 获取音乐链接
-     * @param musicId 音乐id
-     */
-    getMusicUrl(musicId) {
-      return "https://www.douyin.com/music/" + musicId;
-    }
-  };
   const MDouYinShareUser = {
     init() {
       addStyle(blockCSS$4);
-      PopsPanel.execMenuOnce("m-dy-share-user-coverPlayletList", () => {
+      Panel.execMenuOnce("m-dy-share-user-coverPlayletList", () => {
         this.coverPlayletList();
       });
-      PopsPanel.execMenuOnce("m-dy-share-user-coverPostListContainer", () => {
+      Panel.execMenuOnce("m-dy-share-user-coverPostListContainer", () => {
         this.coverPostListContainer();
       });
     },
@@ -10964,7 +11175,7 @@
     init() {
       addStyle(blockCSS$3);
       addStyle(beautifyCSS);
-      PopsPanel.execMenuOnce("m-dy-share-video-coverGlobalClick", () => {
+      Panel.execMenuOnce("m-dy-share-video-coverGlobalClick", () => {
         this.coverGlobalClick();
       });
     },
@@ -10992,28 +11203,28 @@
   const MDouYinShareNote = {
     init() {
       addStyle(blockCSS$2);
-      PopsPanel.execMenuOnce("m-dy-share-note-blockRecommend", () => {
+      Panel.execMenuOnce("m-dy-share-note-blockRecommend", () => {
         return this.blockRecommend();
       });
-      PopsPanel.execMenuOnce("m-dy-share-note-blockComment", () => {
+      Panel.execMenuOnce("m-dy-share-note-blockComment", () => {
         return this.blockComment();
       });
-      PopsPanel.execMenuOnce("m-dy-share-note-blockFooterToobar", () => {
+      Panel.execMenuOnce("m-dy-share-note-blockFooterToobar", () => {
         return this.blockFooterToobar();
       });
-      PopsPanel.execMenuOnce("m-dy-share-note-coverUser", () => {
+      Panel.execMenuOnce("m-dy-share-note-coverUser", () => {
         this.coverUser();
       });
-      PopsPanel.execMenuOnce("m-dy-share-note-coverHashTag", () => {
+      Panel.execMenuOnce("m-dy-share-note-coverHashTag", () => {
         this.coverHashTag();
       });
-      PopsPanel.execMenuOnce("m-dy-share-note-coverMusic", () => {
+      Panel.execMenuOnce("m-dy-share-note-coverMusic", () => {
         this.coverMusic();
       });
-      PopsPanel.execMenuOnce("m-dy-share-note-coverRecommend", () => {
+      Panel.execMenuOnce("m-dy-share-note-coverRecommend", () => {
         this.coverRecommend();
       });
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "m-dy-share-note-coverExcitingGraphicsAndText",
         () => {
           this.coverExcitingGraphicsAndText();
@@ -11182,10 +11393,10 @@
   const MDouYinShareChallenge = {
     init() {
       addStyle(blockCSS$1);
-      PopsPanel.onceExec("m-dy-share-challenge-coverTopJump", () => {
+      Panel.onceExec("m-dy-share-challenge-coverTopJump", () => {
         this.coverTopJump();
       });
-      PopsPanel.execMenuOnce("m-dy-share-challenge-coverVideoCard", () => {
+      Panel.execMenuOnce("m-dy-share-challenge-coverVideoCard", () => {
         this.coverVideoCard();
       });
     },
@@ -11240,7 +11451,7 @@
   const MDouYinShareMusic = {
     init() {
       addStyle(blockCSS);
-      PopsPanel.execMenuOnce("m-dy-share-music-coverVideoCard", () => {
+      Panel.execMenuOnce("m-dy-share-music-coverVideoCard", () => {
         this.coverVideoCard();
       });
     },
@@ -11296,7 +11507,7 @@
       }
     }
   };
-  PopsPanel.init();
+  Panel.init();
   if (MDouYinRouter.isMDouYin()) {
     MDouYin.init();
   } else {
