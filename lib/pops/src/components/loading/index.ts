@@ -1,7 +1,7 @@
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
-import { pops } from "../../Pops";
+import { PopsCSS } from "../../PopsCSS";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsLoadingConfig } from "./config";
@@ -33,14 +33,14 @@ export const PopsLoading = {
             <div class="pops-loading-content">${
 							config.addIndexCSS
 								? /*html*/ `
-                <style data-model-name="index">${pops.config.cssText.index}</style>
-                <style data-model-name="anim">${pops.config.cssText.anim}</style>
-                <style data-model-name="common">${pops.config.cssText.common}</style>
+                <style data-model-name="index">${PopsCSS.index}</style>
+                <style data-model-name="anim">${PopsCSS.anim}</style>
+                <style data-model-name="common">${PopsCSS.common}</style>
                 `
 								: ""
 						}
                 <style data-model-name="loadingCSS">
-                    ${pops.config.cssText.loadingCSS}
+                    ${PopsCSS.loadingCSS}
                 </style>
             ${config.style != null ? `<style>${config.style}</style>` : ""}
             	<p pops style="${contentPStyle}">${config.content.text}</p>

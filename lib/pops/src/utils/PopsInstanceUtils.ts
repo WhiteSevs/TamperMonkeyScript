@@ -11,7 +11,8 @@ import type { PopsLayerMode } from "../types/main";
 import { popsDOMUtils } from "./PopsDOMUtils";
 import { popsUtils } from "./PopsUtils";
 import { PopsCore } from "../Core";
-import { pops } from "../Pops";
+import { PopsLayer } from "../PopsLayer";
+import { PopsAnimation } from "../PopsAnimation";
 
 export const PopsInstanceUtils = {
 	/**
@@ -120,8 +121,8 @@ export const PopsInstanceUtils = {
 		function isVisibleNode($css: CSSStyleDeclaration): boolean {
 			return $css.position !== "static" && $css.display !== "none";
 		}
-		Object.keys(pops.config.layer).forEach((layerName) => {
-			let layerList = pops.config.layer[layerName as PopsLayerMode];
+		Object.keys(PopsLayer).forEach((layerName) => {
+			let layerList = PopsLayer[layerName as PopsLayerMode];
 			for (let index = 0; index < layerList.length; index++) {
 				const layer = layerList[index];
 				let nodeStyle = window.getComputedStyle(layer.animElement);
@@ -156,25 +157,6 @@ export const PopsInstanceUtils = {
 		return this.getMaxZIndexNodeInfo(deviation).zIndex;
 	},
 	/**
-	 * 获取CSS Rule
-	 * @param sheet
-	 * @returns
-	 */
-	getKeyFrames(sheet: CSSStyleSheet) {
-		let result = {};
-		Object.keys(sheet.cssRules).forEach((key) => {
-			if (
-				(sheet.cssRules as any)[key].type === 7 &&
-				(sheet.cssRules as any)[key].name.startsWith("pops-anim-")
-			) {
-				(result as any)[(sheet.cssRules as any)[key].name] = (
-					sheet.cssRules as any
-				)[key];
-			}
-		});
-		return result;
-	},
-	/**
 	 * 删除配置中对应的对象
 	 * @param moreLayerConfigList 配置实例列表
 	 * @param  guid 唯一标识
@@ -206,17 +188,17 @@ export const PopsInstanceUtils = {
 				// 移除全部或者guid相同
 				if (isAll || layerConfigItem["guid"] === guid) {
 					// 判断是否有动画
-					if (
-						pops.config.animation.hasOwnProperty(
-							layerConfigItem.animElement.getAttribute("anim") as string
-						)
-					) {
+					let animName = layerConfigItem.animElement.getAttribute(
+						"anim"
+					) as string;
+					if (PopsAnimation.hasAnim(animName)) {
+						let reverseAnimName = animName + "-reverse";
 						layerConfigItem.animElement.style.width = "100%";
 						layerConfigItem.animElement.style.height = "100%";
 						(layerConfigItem.animElement.style as any)["animation-name"] =
-							layerConfigItem.animElement.getAttribute("anim") + "-reverse";
+							reverseAnimName;
 						if (
-							pops.config.animation.hasOwnProperty(
+							PopsAnimation.hasAnim(
 								(layerConfigItem.animElement.style as any)["animation-name"]
 							)
 						) {
@@ -296,7 +278,7 @@ export const PopsInstanceUtils = {
 					(layerConfigItem.animElement.style as any)["animation-name"] =
 						layerConfigItem.animElement.getAttribute("anim") + "-reverse";
 					if (
-						pops.config.animation.hasOwnProperty(
+						PopsAnimation.hasAnim(
 							(layerConfigItem.animElement.style as any)["animation-name"]
 						)
 					) {
@@ -394,7 +376,7 @@ export const PopsInstanceUtils = {
 							.animElement!.getAttribute("anim")!
 							.replace("-reverse", "");
 					if (
-						pops.config.animation.hasOwnProperty(
+						PopsAnimation.hasAnim(
 							(layerConfigItem.animElement.style as any)["animation-name"]
 						)
 					) {

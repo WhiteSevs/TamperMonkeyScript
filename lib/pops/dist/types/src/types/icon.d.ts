@@ -1,7 +1,7 @@
 /**
  * 按钮svg图标
  */
-export type PopsIcon =
+export type PopsIconType =
 	| "min"
 	| "mise"
 	| "max"

@@ -1,11 +1,12 @@
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
-import { pops } from "../../Pops";
+import { PopsCSS } from "../../PopsCSS";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
+import { PopsLoading } from "../loading";
 import { PopsFolderConfig } from "./config";
 import { Folder_ICON } from "./folderIcon";
 import type { PopsFolderDataConfig, PopsFolderDetails } from "./indexType";
@@ -23,13 +24,13 @@ export const PopsFolder = {
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			pops.config.cssText.index,
-			pops.config.cssText.ninePalaceGridPosition,
-			pops.config.cssText.scrollbar,
-			pops.config.cssText.button,
-			pops.config.cssText.anim,
-			pops.config.cssText.common,
-			pops.config.cssText.folderCSS,
+			PopsCSS.index,
+			PopsCSS.ninePalaceGridPosition,
+			PopsCSS.scrollbar,
+			PopsCSS.button,
+			PopsCSS.anim,
+			PopsCSS.common,
+			PopsCSS.folderCSS,
 		]);
 
 		/* 办公几件套 */
@@ -129,7 +130,7 @@ export const PopsFolder = {
 					: `<p pops style="${headerPStyle}">${config.title.text}</p>`
 			}${headerBtnHTML}</div>
 			<div class="pops-folder-content ${
-				pops.isPhone() ? "pops-mobile-folder-content" : ""
+				popsUtils.isPhone() ? "pops-mobile-folder-content" : ""
 			}">
                 <div class="pops-folder-list">
                     <div class="pops-folder-file-list-breadcrumb">
@@ -213,7 +214,7 @@ export const PopsFolder = {
                     <table class="pops-folder-list-table__body">
                         <colgroup>
                         ${
-													pops.isPhone()
+													popsUtils.isPhone()
 														? `<col width="100%">`
 														: `
                             <col width="52%">
@@ -572,9 +573,8 @@ export const PopsFolder = {
 			} else {
 				console.error("获取导航按钮失败");
 			}
-			let loadingMask = pops.loading({
+			let loadingMask = PopsLoading.init({
 				parent: $content,
-
 				content: {
 					text: "获取文件列表中...",
 				},
@@ -600,7 +600,7 @@ export const PopsFolder = {
 			_config_: PopsFolderDataConfig
 		) {
 			clearFolerRow();
-			let loadingMask = pops.loading({
+			let loadingMask = PopsLoading.init({
 				parent: $content,
 
 				content: {
@@ -828,7 +828,7 @@ export const PopsFolder = {
 			sortFolderConfig(_config_, config.sort.name, config.sort.isDesc);
 			_config_.forEach((item) => {
 				if (item["isFolder"]) {
-					let { folderELement, fileNameElement } = pops.isPhone()
+					let { folderELement, fileNameElement } = popsUtils.isPhone()
 						? createMobileFolderRowElement(item["fileName"], "", "", true)
 						: createFolderRowElement(item["fileName"], "", "", true);
 
@@ -842,7 +842,7 @@ export const PopsFolder = {
 
 					folderListBodyElement.appendChild(folderELement);
 				} else {
-					let { folderELement, fileNameElement } = pops.isPhone()
+					let { folderELement, fileNameElement } = popsUtils.isPhone()
 						? createMobileFolderRowElement(
 								item["fileName"],
 								item.latestTime,

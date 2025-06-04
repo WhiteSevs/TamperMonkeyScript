@@ -1,11 +1,11 @@
 import { PopsHandler } from "../../handler/PopsHandler";
-import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { searchSuggestionConfig as PopsSearchSuggestionConfig } from "./config";
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import type { PopsSearchSuggestionDetails } from "./indexType";
+import { PopsCSS } from "../../PopsCSS";
 
 export const PopsSearchSuggestion = {
 	init(details: PopsSearchSuggestionDetails) {
@@ -29,9 +29,9 @@ export const PopsSearchSuggestion = {
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			pops.config.cssText.index,
-			pops.config.cssText.anim,
-			pops.config.cssText.common,
+			PopsCSS.index,
+			PopsCSS.anim,
+			PopsCSS.common,
 		]);
 
 		if (config.style != null) {
@@ -655,7 +655,7 @@ export const PopsSearchSuggestion = {
 				this.$data.isEmpty = true;
 				this.clearAllSearchItemLi();
 				this.$el.$hintULContainer.appendChild(
-					popsUtils.parseTextToDOM(config.toSearhNotResultHTML)
+					popsDOMUtils.parseTextToDOM(config.toSearhNotResultHTML)
 				);
 				if (config.toHideWithNotResult) {
 					this.hide();

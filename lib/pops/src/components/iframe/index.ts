@@ -2,7 +2,8 @@ import { PopsCore } from "../../Core";
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
-import { pops } from "../../Pops";
+import { PopsCSS } from "../../PopsCSS";
+import { PopsLayer } from "../../PopsLayer";
 import type { PopsEventDetails } from "../../types/event";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
@@ -26,12 +27,12 @@ export const PopsIframe = {
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			pops.config.cssText.index,
-			pops.config.cssText.ninePalaceGridPosition,
-			pops.config.cssText.scrollbar,
-			pops.config.cssText.anim,
-			pops.config.cssText.common,
-			pops.config.cssText.iframeCSS,
+			PopsCSS.index,
+			PopsCSS.ninePalaceGridPosition,
+			PopsCSS.scrollbar,
+			PopsCSS.anim,
+			PopsCSS.common,
+			PopsCSS.iframeCSS,
 		]);
 
 		let maskExtraStyle =
@@ -304,11 +305,7 @@ export const PopsIframe = {
 			(event) => {
 				event.preventDefault();
 				event.stopPropagation();
-				PopsInstanceUtils.removeInstance(
-					[pops.config.layer.iframe],
-					guid,
-					false
-				);
+				PopsInstanceUtils.removeInstance([PopsLayer.iframe], guid, false);
 				if (typeof config?.btn?.close?.callback === "function") {
 					config.btn.close.callback(eventDetails, event);
 				}

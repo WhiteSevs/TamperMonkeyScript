@@ -1,8 +1,7 @@
 import type { PopsAlertDetails } from "../components/alert/indexType";
 import type { PopsConfirmDetails } from "../components/confirm/indexType";
 import type { PopsIframeDetails } from "../components/iframe/indexType";
-import { pops } from "../Pops";
-import type { PopsIcon } from "../types/icon";
+import type { PopsIconType } from "../types/icon";
 import type {
 	PopsSupportAnim,
 	PopsSupportBottomBtn,
@@ -13,7 +12,8 @@ import type {
 	PopsTypeSupportContent,
 	PopsTypeSupportHeaderTitle,
 } from "../types/main";
-import { popsUtils } from "../utils/PopsUtils";
+import { PopsIcon } from "../PopsIcon";
+import { popsDOMUtils } from "../utils/PopsDOMUtils";
 
 export const PopsElementHandler = {
 	/**
@@ -101,9 +101,7 @@ export const PopsElementHandler = {
 				item = item.toLowerCase();
 				topRightButtonHTML += /*html*/ `
                 <button class="pops-header-control" type="${item}">
-                    <i class="pops-icon">${
-											(pops.config.iconSVG as any)[item]
-										}</i>
+                    <i class="pops-icon">${PopsIcon.getIcon(item)}</i>
                 </button>`;
 			});
 			resultHTML = /*html*/ `
@@ -113,7 +111,7 @@ export const PopsElementHandler = {
 				closeHTML = /*html*/ `
                 <div class="pops-header-controls">
                     <button class="pops-header-control" type="close" data-header>
-                    	<i class="pops-icon">${pops.config.iconSVG["close"]}</i>
+                    	<i class="pops-icon">${PopsIcon.getIcon("close")}</i>
                     </button>
                 </div>`;
 			}
@@ -168,12 +166,12 @@ export const PopsElementHandler = {
 				okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
 			}
 			let okIconHTML = "";
-			let okIcon = __config_confirm.btn.ok!.icon! as PopsIcon | string;
+			let okIcon = __config_confirm.btn.ok!.icon! as PopsIconType | string;
 			if (okIcon !== "") {
 				// 判断图标是否是svg库内的
 				let iconHTML = "";
-				if (okIcon in pops.config.iconSVG) {
-					iconHTML = pops.config.iconSVG[okIcon as PopsIcon];
+				if (PopsIcon.hasIcon(okIcon)) {
+					iconHTML = PopsIcon.getIcon(okIcon)!;
 				} else {
 					iconHTML = okIcon;
 				}
@@ -202,12 +200,14 @@ export const PopsElementHandler = {
 					"pops-button-" + __config_confirm.btn.cancel.size;
 			}
 			let cancelIconHTML = "";
-			let cancelIcon = __config_confirm.btn.cancel!.icon as PopsIcon | string;
+			let cancelIcon = __config_confirm.btn.cancel!.icon as
+				| PopsIconType
+				| string;
 			if (cancelIcon !== "") {
 				let iconHTML = "";
 				// 判断图标是否是svg库内的
-				if (cancelIcon in pops.config.iconSVG) {
-					iconHTML = pops.config.iconSVG[cancelIcon as PopsIcon];
+				if (PopsIcon.hasIcon(cancelIcon)) {
+					iconHTML = PopsIcon.getIcon(cancelIcon)!;
 				} else {
 					iconHTML = cancelIcon;
 				}
@@ -236,12 +236,12 @@ export const PopsElementHandler = {
 					"pops-button-" + __config_confirm.btn.other.size;
 			}
 			let otherIconHTML = "";
-			let otherIcon = __config_confirm.btn.other!.icon as PopsIcon | string;
+			let otherIcon = __config_confirm.btn.other!.icon as PopsIconType | string;
 			if (otherIcon !== "") {
 				let iconHTML = "";
 				// 判断图标是否是svg库内的
-				if (otherIcon in pops.config.iconSVG) {
-					iconHTML = pops.config.iconSVG[otherIcon as PopsIcon];
+				if (PopsIcon.hasIcon(otherIcon)) {
+					iconHTML = PopsIcon.getIcon(otherIcon)!;
 				} else {
 					otherIcon;
 				}
@@ -315,6 +315,6 @@ export const PopsElementHandler = {
 	 * @param html
 	 */
 	parseElement<T extends HTMLElement>(html: string): T {
-		return popsUtils.parseTextToDOM(html);
+		return popsDOMUtils.parseTextToDOM(html);
 	},
 };

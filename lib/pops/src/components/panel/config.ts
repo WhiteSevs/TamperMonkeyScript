@@ -1,3 +1,4 @@
+import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import type { PopsPanelDetails } from "./indexType";
 
 export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
@@ -130,6 +131,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 							return "50";
 						},
 						callback(event, value) {
+							popsDOMUtils.preventEvent(event);
 							console.log("输入框内容改变：", value);
 						},
 						placeholder: "请输入内容",
@@ -145,6 +147,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 							return "123456";
 						},
 						callback(event, value) {
+							popsDOMUtils.preventEvent(event);
 							console.log("密码输入框内容改变：", value);
 						},
 						isPassword: true,
@@ -161,6 +164,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 							return "50";
 						},
 						callback(event, value) {
+							popsDOMUtils.preventEvent(event);
 							console.log("textarea输入框内容改变：", value);
 						},
 						placeholder: "请输入内容",

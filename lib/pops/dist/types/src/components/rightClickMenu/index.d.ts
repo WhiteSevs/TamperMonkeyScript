@@ -1,4 +1,3 @@
-import type { PopsIcon } from "../../types/icon";
 import type { PopsRightClickMenuDetails } from "./indexType";
 export declare const PopsRightClickMenu: {
     init(details: PopsRightClickMenuDetails): {
@@ -20639,7 +20638,7 @@ export declare const PopsRightClickMenu: {
             };
             targetSelector: string | null;
             data: {
-                icon: PopsIcon | string;
+                icon: import("../../types/icon").PopsIconType | string;
                 iconIsLoading: boolean;
                 text: string | (() => string);
                 callback: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement) => boolean | void | Promise<boolean | void>;

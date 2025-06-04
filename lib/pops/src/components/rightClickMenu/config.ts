@@ -1,4 +1,4 @@
-import { pops } from "../../Pops";
+import { PopsIcon } from "../../PopsIcon";
 import type { PopsRightClickMenuDetails } from "./indexType";
 
 export const rightClickMenuConfig =
@@ -8,7 +8,7 @@ export const rightClickMenuConfig =
 			targetSelector: null,
 			data: [
 				{
-					icon: pops.config.iconSVG.search,
+					icon: PopsIcon.getIcon("search")!,
 					iconIsLoading: false,
 					text: "搜索",
 					item: [],
@@ -21,7 +21,7 @@ export const rightClickMenuConfig =
 					},
 				},
 				{
-					icon: pops.config.iconSVG.documentCopy,
+					icon: PopsIcon.getIcon("documentCopy")!,
 					iconIsLoading: false,
 					text: "复制",
 					item: [],
@@ -34,7 +34,7 @@ export const rightClickMenuConfig =
 					},
 				},
 				{
-					icon: pops.config.iconSVG.delete,
+					icon: PopsIcon.getIcon("delete")!,
 					text: "删除",
 					iconIsLoading: false,
 					item: [],
@@ -47,7 +47,7 @@ export const rightClickMenuConfig =
 					},
 				},
 				{
-					icon: pops.config.iconSVG.loading,
+					icon: PopsIcon.getIcon("loading")!,
 					iconIsLoading: true,
 					text: "加载",
 					item: [],
@@ -61,7 +61,7 @@ export const rightClickMenuConfig =
 					},
 				},
 				{
-					icon: pops.config.iconSVG.elemePlus,
+					icon: PopsIcon.getIcon("elemePlus")!,
 					iconIsLoading: true,
 					text: "饿了么",
 					callback(clickEvent, contextMenuEvent, liElement) {
@@ -99,7 +99,7 @@ export const rightClickMenuConfig =
 							},
 							item: [
 								{
-									icon: pops.config.iconSVG.view,
+									icon: PopsIcon.getIcon("view")!,
 									iconIsLoading: false,
 									text: "查看",
 									item: [],

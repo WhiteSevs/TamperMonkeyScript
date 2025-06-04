@@ -1,13 +1,13 @@
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
-import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsAlertConfig } from "./config";
 import type { PopsMode } from "../../types/main";
 import type { PopsAlertDetails } from "./indexType";
+import { PopsCSS } from "../../PopsCSS";
 
 export const PopsAlert = {
 	init(details: PopsAlertDetails) {
@@ -21,13 +21,13 @@ export const PopsAlert = {
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			pops.config.cssText.index,
-			pops.config.cssText.ninePalaceGridPosition,
-			pops.config.cssText.scrollbar,
-			pops.config.cssText.button,
-			pops.config.cssText.anim,
-			pops.config.cssText.common,
-			pops.config.cssText.alertCSS,
+			PopsCSS.index,
+			PopsCSS.ninePalaceGridPosition,
+			PopsCSS.scrollbar,
+			PopsCSS.button,
+			PopsCSS.anim,
+			PopsCSS.common,
+			PopsCSS.alertCSS,
 		]);
 
 		// 先把z-index提取出来

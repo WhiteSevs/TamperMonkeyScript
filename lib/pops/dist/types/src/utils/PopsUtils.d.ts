@@ -43,12 +43,6 @@ declare class PopsUtils {
      */
     getRandomGUID(): string;
     /**
-     * 字符串转HTMLElement
-     * @param elementString
-     * @returns
-     */
-    parseTextToDOM<R extends HTMLElement>(elementString: string): R;
-    /**
      * 判断元素/页面中是否包含该元素
      * @param target 需要判断的元素
      * @param context 默认为body
@@ -119,6 +113,11 @@ declare class PopsUtils {
      **/
     formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T): T extends true ? string : number;
     AnyTouch: () => typeof AnyTouch;
+    /**
+     * 通过navigator.userAgent判断是否是手机访问
+     * @param userAgent
+     */
+    isPhone(userAgent?: string): boolean;
     /**
      * 自动使用 Worker 执行 setTimeout
      */

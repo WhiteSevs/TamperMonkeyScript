@@ -1,16 +1,16 @@
 import { OriginPrototype } from "../../Core";
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsHandler } from "../../handler/PopsHandler";
-import { pops } from "../../Pops";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { rightClickMenuConfig as PopsRightClickMenuConfig } from "./config";
-import type { PopsIcon } from "../../types/icon";
 import type {
 	PopsRightClickMenuDataDetails,
 	PopsRightClickMenuDetails,
 } from "./indexType";
+import { PopsCSS } from "../../PopsCSS";
+import { PopsIcon } from "../../PopsIcon";
 
 export const PopsRightClickMenu = {
 	init(details: PopsRightClickMenuDetails) {
@@ -31,10 +31,10 @@ export const PopsRightClickMenu = {
 		}
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			pops.config.cssText.index,
-			pops.config.cssText.anim,
-			pops.config.cssText.common,
-			pops.config.cssText.rightClickMenu,
+			PopsCSS.index,
+			PopsCSS.anim,
+			PopsCSS.common,
+			PopsCSS.rightClickMenu,
 		]);
 
 		if (config.style != null) {
@@ -441,12 +441,11 @@ export const PopsRightClickMenu = {
 				let menuULElement = menuElement.querySelector<HTMLUListElement>("ul")!;
 				_config_.forEach((item) => {
 					let menuLiElement =
-						popsUtils.parseTextToDOM<HTMLLIElement>(`<li></li>`);
+						popsDOMUtils.parseTextToDOM<HTMLLIElement>(`<li></li>`);
 					/* 判断有无图标，有就添加进去 */
 					if (typeof item.icon === "string" && item.icon.trim() !== "") {
-						let iconSVGHTML =
-							pops.config.iconSVG[item.icon as PopsIcon] ?? item.icon;
-						let iconElement = popsUtils.parseTextToDOM(
+						let iconSVGHTML = PopsIcon.getIcon(item.icon) ?? item.icon;
+						let iconElement = popsDOMUtils.parseTextToDOM(
 							/*html*/ `<i class="pops-${PopsType}-icon" is-loading="${item.iconIsLoading}">${iconSVGHTML}</i>`
 						);
 						menuLiElement.appendChild(iconElement);

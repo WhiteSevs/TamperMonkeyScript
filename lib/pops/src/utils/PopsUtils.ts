@@ -1,6 +1,5 @@
 import { PopsCore } from "../Core";
 import type { PopsUtilsOwnObject } from "../types/main";
-import { popsDOMUtils } from "./PopsDOMUtils";
 import {
 	clearInterval as WorkerClearInterval,
 	clearTimeout as WorkerClearTimeout,
@@ -181,21 +180,6 @@ class PopsUtils {
 				}
 			);
 		}
-	}
-	/**
-	 * 字符串转HTMLElement
-	 * @param elementString
-	 * @returns
-	 */
-	parseTextToDOM<R extends HTMLElement>(elementString: string): R {
-		/* 去除前后的换行和空格 */
-		elementString = elementString
-			.replace(/^[\n|\s]*/g, "")
-			.replace(/[\n|\s]*$/g, "");
-		let targetElement = popsDOMUtils.createElement("div", {
-			innerHTML: elementString,
-		});
-		return targetElement.firstChild as any as R;
 	}
 	/**
 	 * 判断元素/页面中是否包含该元素
@@ -389,6 +373,13 @@ class PopsUtils {
 	AnyTouch = () => {
 		return AnyTouch;
 	};
+	/**
+	 * 通过navigator.userAgent判断是否是手机访问
+	 * @param userAgent
+	 */
+	isPhone(userAgent = PopsCore.globalThis.navigator.userAgent): boolean {
+		return Boolean(/(iPhone|iPad|iPod|iOS|Android)/i.test(userAgent));
+	}
 	/**
 	 * 自动使用 Worker 执行 setTimeout
 	 */

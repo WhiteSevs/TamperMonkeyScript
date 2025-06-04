@@ -1,11 +1,12 @@
-import { pops } from "../../Pops";
+import { PopsIcon } from "../../PopsIcon";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { PopsMathFloatUtils } from "../../utils/PopsMathUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
+import { PopsAlert } from "../alert";
 import type { PopsAlertDetails } from "../alert/indexType";
-import type { PopsTooltip } from "../tooltip";
+import { PopsTooltip } from "../tooltip";
 import type { PopsPanelButtonDetails } from "./buttonType";
 import type { PopsPanelRightAsideContainerOptions } from "./commonType";
 import type { PopsPanelDeepMenuDetails } from "./deepMenuType";
@@ -401,7 +402,7 @@ export const PanelHandleContentDetails = () => {
 					return value as string;
 				}
 			};
-			let tooltip = pops.tooltip({
+			let tooltip = PopsTooltip.init({
 				target: rangeInputElement.parentElement!,
 				content: () => {
 					return getToolTipContent(rangeInputElement.value);
@@ -576,11 +577,11 @@ export const PanelHandleContentDetails = () => {
 					let isSuccess = false;
 					let oldTotalWidth = this.$data.totalWidth;
 					let timer: number | undefined = void 0;
-					let interval = popsUtils.setInterval(() => {
+					let interval = setInterval(() => {
 						if (isSuccess) {
 							this.$interval.isCheck = false;
-							popsUtils.clearTimeout(timer);
-							popsUtils.clearInterval(interval);
+							clearTimeout(timer);
+							clearInterval(interval);
 						} else {
 							this.initTotalWidth();
 							if (this.$data.totalWidth !== 0) {
@@ -598,8 +599,8 @@ export const PanelHandleContentDetails = () => {
 						}
 					}, checkStepTime);
 					/* 最长检测时间是10s */
-					timer = popsUtils.setTimeout(() => {
-						popsUtils.clearInterval(interval);
+					timer = setTimeout(() => {
+						clearInterval(interval);
 					}, maxTime);
 				},
 				/**
@@ -981,16 +982,16 @@ export const PanelHandleContentDetails = () => {
 						return;
 					}
 					this.$data.isCheckingStopDragMove = true;
-					let interval = popsUtils.setInterval(() => {
+					let interval = setInterval(() => {
 						if (!this.$data.isMove) {
 							this.$data.isCheckingStopDragMove = false;
 							this.closeToolTip();
-							popsUtils.clearInterval(interval);
+							clearInterval(interval);
 						}
 					}, 200);
-					popsUtils.setTimeout(() => {
+					setTimeout(() => {
 						this.$data.isCheckingStopDragMove = false;
-						popsUtils.clearInterval(interval);
+						clearInterval(interval);
 					}, 2000);
 				},
 				/**
@@ -1008,7 +1009,7 @@ export const PanelHandleContentDetails = () => {
 						}
 					}
 
-					let tooltip = pops.tooltip({
+					let tooltip = PopsTooltip.init({
 						target: this.$ele.button,
 						content: getToolTipContent,
 						zIndex: () => {
@@ -1105,12 +1106,12 @@ export const PanelHandleContentDetails = () => {
 					this.setInputValue(this.$data.value);
 					/* 如果是密码框，放进图标 */
 					if (formConfig.isPassword) {
-						this.setCircleIcon(pops.config.iconSVG.view);
+						this.setCircleIcon(PopsIcon.getIcon("view")!);
 						this.setCircleIconClickEvent();
 					} else {
 						/* 先判断预设值是否为空，不为空添加清空图标按钮 */
 						if (this.$ele.input.value != "") {
-							this.setCircleIcon(pops.config.iconSVG.circleClose);
+							this.setCircleIcon(PopsIcon.getIcon("circleClose")!);
 							this.setCircleIconClickEvent();
 						}
 					}
@@ -1191,9 +1192,9 @@ export const PanelHandleContentDetails = () => {
 				},
 				/**
 				 * 添加清空图标按钮
-				 * @param [svgHTML=pops.config.iconSVG.circleClose] svg图标，默认为清空的图标
+				 * @param [svgHTML=PopsIcon.getIcon("circleClose")] svg图标，默认为清空的图标
 				 */
-				setCircleIcon(svgHTML = pops.config.iconSVG.circleClose) {
+				setCircleIcon(svgHTML = PopsIcon.getIcon("circleClose")!) {
 					PopsSafeUtils.setSafeHTML(this.$ele.icon, svgHTML);
 				},
 				/**
@@ -1213,13 +1214,13 @@ export const PanelHandleContentDetails = () => {
 								this.$data.isView = false;
 								/* 显示输入框内容，且更换图标为隐藏图标 */
 								this.setInputType("text");
-								this.setCircleIcon(pops.config.iconSVG.hide);
+								this.setCircleIcon(PopsIcon.getIcon("hide")!);
 							} else {
 								/* 当前不可见 => 点击改变为显示 */
 								this.$data.isView = true;
 								/* 隐藏输入框内容，且更换图标为显示图标 */
 								this.setInputType("password");
-								this.setCircleIcon(pops.config.iconSVG.view);
+								this.setCircleIcon(PopsIcon.getIcon("view")!);
 							}
 						} else {
 							/* 普通输入框 */
@@ -1249,7 +1250,7 @@ export const PanelHandleContentDetails = () => {
 									this.$ele.icon.innerHTML === ""
 								) {
 									/* 不为空，显示清空图标 */
-									this.setCircleIcon(pops.config.iconSVG.circleClose);
+									this.setCircleIcon(PopsIcon.getIcon("circleClose")!);
 									this.setCircleIconClickEvent();
 								} else if (this.$ele.input.value === "") {
 									this.removeCircleIcon();
@@ -2211,7 +2212,7 @@ export const PanelHandleContentDetails = () => {
 							} as PopsAlertDetails,
 							userConfirmDetails
 						);
-						let $dialog = pops.alert(confirmDetails);
+						let $dialog = PopsAlert.init(confirmDetails);
 						let $selectContainer =
 							$dialog.$shadowRoot.querySelector<HTMLUListElement>(
 								".select-container"
@@ -2401,8 +2402,8 @@ export const PanelHandleContentDetails = () => {
 						formConfig.buttonIcon.trim() !== ""
 					) {
 						/* 存在icon图标且不为空 */
-						if (formConfig.buttonIcon in pops.config.iconSVG) {
-							this.setIconSVG(pops.config.iconSVG[formConfig.buttonIcon]);
+						if (PopsIcon.hasIcon(formConfig.buttonIcon)) {
+							this.setIconSVG(PopsIcon.getIcon(formConfig.buttonIcon)!);
 						} else {
 							this.setIconSVG(formConfig.buttonIcon);
 						}
@@ -2530,7 +2531,9 @@ export const PanelHandleContentDetails = () => {
 					: true;
 			let arrowRightIconHTML = "";
 			if (arrowRightIcon) {
-				arrowRightIconHTML = `<i class="pops-panel-deepMenu-arrowRight-icon">${pops.config.iconSVG.arrowRight}</i>`;
+				arrowRightIconHTML = `<i class="pops-panel-deepMenu-arrowRight-icon">${PopsIcon.getIcon(
+					"arrowRight"
+				)}</i>`;
 			}
 			let rightText = "";
 			if (formConfig.rightText) {
@@ -2688,7 +2691,7 @@ export const PanelHandleContentDetails = () => {
 					});
 					let $headerLeftArrow = popsDOMUtils.createElement("i", {
 						className: "pops-panel-deepMenu-container-left-arrow-icon",
-						innerHTML: pops.config.iconSVG.arrowLeft,
+						innerHTML: PopsIcon.getIcon("arrowLeft")!,
 					});
 					popsDOMUtils.on(
 						$headerLeftArrow,

@@ -1,6 +1,6 @@
 import type { PopsPanelCommonDetails } from "./commonType";
 import type { PopsButtonStyleType } from "../../types/button";
-import type { PopsIcon } from "../../types/icon";
+import type { PopsIconType } from "../../types/icon";
 /**
  * pops.panel的 button
  */
@@ -48,7 +48,7 @@ export interface PopsPanelButtonDetails extends PopsPanelCommonDetails<PopsPanel
 	/**
 	 * 按钮的图标，已配置的svg请看pops.config.iconSVG，或者自定义的图标svg代码
 	 */
-	buttonIcon?: PopsIcon;
+	buttonIcon?: PopsIconType;
 	/**
 	 * 按钮的图标在右边
 	 */

@@ -1,5 +1,5 @@
 import { PopsEventDetails, PopsHandlerEventDetails } from "./event";
-import type { PopsIcon } from "./icon";
+import type { PopsIconType } from "./icon";
 
 /**
  * 按钮类型
@@ -79,7 +79,7 @@ export interface PopsButtonDetails<T = {}> {
 	/**
 	 * 图标按钮，如果名字为内置的，则使用内置的，否则为自定义的svg
 	 */
-	icon: PopsIcon;
+	icon: PopsIconType;
 	/**
 	 * 图标按钮是否放在右边
 	 */
@@ -125,7 +125,7 @@ export interface PopsButtonDetailsAnyType<T = {}> {
 	/**
 	 * 图标按钮，如果名字为内置的，则使用内置的，否则为自定义的svg
 	 */
-	icon: PopsIcon;
+	icon: PopsIconType;
 	/**
 	 * 图标按钮是否放在右边
 	 */

@@ -1670,7 +1670,21 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		});
 		return tempElement;
 	}
-
+	/**
+	 * 字符串转HTMLElement
+	 * @param elementString
+	 * @returns
+	 */
+	parseTextToDOM<R extends HTMLElement>(elementString: string): R {
+		/* 去除前后的换行和空格 */
+		elementString = elementString
+			.replace(/^[\n|\s]*/g, "")
+			.replace(/[\n|\s]*$/g, "");
+		let targetElement = this.createElement("div", {
+			innerHTML: elementString,
+		});
+		return targetElement.firstChild as any as R;
+	}
 	/**
 	 * 获取文字的位置信息
 	 * @param input 输入框
@@ -2118,6 +2132,25 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		} else {
 			element!.parentElement!.insertBefore(content, element.nextSibling);
 		}
+	}
+	/**
+	 * 获取CSS Rule
+	 * @param sheet
+	 * @returns
+	 */
+	getKeyFrames(sheet: CSSStyleSheet) {
+		let result = {};
+		Object.keys(sheet.cssRules).forEach((key) => {
+			if (
+				(sheet.cssRules as any)[key].type === 7 &&
+				(sheet.cssRules as any)[key].name.startsWith("pops-anim-")
+			) {
+				(result as any)[(sheet.cssRules as any)[key].name] = (
+					sheet.cssRules as any
+				)[key];
+			}
+		});
+		return result;
 	}
 }
 

@@ -1,7 +1,7 @@
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
-import { pops } from "../../Pops";
+import { PopsCSS } from "../../PopsCSS";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsDrawerConfig } from "./config";
@@ -19,13 +19,13 @@ export const PopsDrawer = {
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			pops.config.cssText.index,
-			pops.config.cssText.ninePalaceGridPosition,
-			pops.config.cssText.scrollbar,
-			pops.config.cssText.button,
-			pops.config.cssText.anim,
-			pops.config.cssText.common,
-			pops.config.cssText.drawerCSS,
+			PopsCSS.index,
+			PopsCSS.ninePalaceGridPosition,
+			PopsCSS.scrollbar,
+			PopsCSS.button,
+			PopsCSS.anim,
+			PopsCSS.common,
+			PopsCSS.drawerCSS,
 		]);
 
 		// 先把z-index提取出来

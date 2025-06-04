@@ -7,7 +7,8 @@ import type { PopsLoadingDetails } from "../components/loading/indexType";
 import type { PopsPanelDetails } from "../components/panel/indexType";
 import type { PopsPromptDetails } from "../components/prompt/indexType";
 import { PopsCore } from "../Core";
-import { pops } from "../Pops";
+import { PopsAnimation } from "../PopsAnimation";
+import { PopsLayer } from "../PopsLayer";
 import type { PopsCommonConfig } from "../types/components";
 import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
 import { PopsLayerCommonConfig } from "../types/layer";
@@ -50,7 +51,7 @@ export const PopsHandler = {
 		$shadowRoot?: ShadowRoot | HTMLElement,
 		cssText?: string | string[]
 	) {
-		pops.init();
+		PopsAnimation.init();
 		if (!arguments.length) {
 			return;
 		}
@@ -101,7 +102,9 @@ export const PopsHandler = {
 		}
 	) {
 		let result = {
-			maskElement: popsUtils.parseTextToDOM<HTMLDivElement>(details.maskHTML),
+			maskElement: popsDOMUtils.parseTextToDOM<HTMLDivElement>(
+				details.maskHTML
+			),
 		};
 		let isMaskClick = false;
 		/**
@@ -111,7 +114,7 @@ export const PopsHandler = {
 		function clickEvent(event: MouseEvent | PointerEvent) {
 			popsDOMUtils.preventEvent(event);
 			// 获取该类型实例存储列表
-			let targetLayer = pops.config.layer[details.type];
+			let targetLayer = PopsLayer[details.type];
 			function originalRun() {
 				if (details.config.mask!.clickEvent!.toClose) {
 					/* 关闭 */
@@ -400,7 +403,7 @@ export const PopsHandler = {
 			close() {
 				return PopsInstanceUtils.close(
 					mode,
-					pops.config.layer[mode],
+					PopsLayer[mode],
 					guid,
 					config,
 					animElement
@@ -409,7 +412,7 @@ export const PopsHandler = {
 			hide() {
 				return PopsInstanceUtils.hide(
 					mode,
-					pops.config.layer[mode],
+					PopsLayer[mode],
 					guid,
 					config,
 					animElement,
@@ -419,7 +422,7 @@ export const PopsHandler = {
 			show() {
 				return PopsInstanceUtils.show(
 					mode,
-					pops.config.layer[mode],
+					PopsLayer[mode],
 					guid,
 					config,
 					animElement,
@@ -463,7 +466,7 @@ export const PopsHandler = {
 			close() {
 				return PopsInstanceUtils.close(
 					mode,
-					pops.config.layer[mode],
+					PopsLayer[mode],
 					guid,
 					config,
 					animElement
@@ -472,7 +475,7 @@ export const PopsHandler = {
 			hide() {
 				return PopsInstanceUtils.hide(
 					mode,
-					pops.config.layer[mode],
+					PopsLayer[mode],
 					guid,
 					config,
 					animElement,
@@ -482,7 +485,7 @@ export const PopsHandler = {
 			show() {
 				return PopsInstanceUtils.show(
 					mode,
-					pops.config.layer[mode],
+					PopsLayer[mode],
 					guid,
 					config,
 					animElement,
@@ -636,20 +639,20 @@ export const PopsHandler = {
 				type === "tooltip" ||
 				type === "rightClickMenu"
 			) {
-				let layer = pops.config.layer[type as keyof typeof pops.config.layer];
+				let layer = PopsLayer[type as keyof typeof PopsLayer];
 				if (layer) {
 					PopsInstanceUtils.removeInstance([layer], "", true);
 				}
 			} else {
 				PopsInstanceUtils.removeInstance(
 					[
-						pops.config.layer.alert,
-						pops.config.layer.confirm,
-						pops.config.layer.prompt,
-						pops.config.layer.iframe,
-						pops.config.layer.drawer,
-						pops.config.layer.folder,
-						pops.config.layer.panel,
+						PopsLayer.alert,
+						PopsLayer.confirm,
+						PopsLayer.prompt,
+						PopsLayer.iframe,
+						PopsLayer.drawer,
+						PopsLayer.folder,
+						PopsLayer.panel,
 					],
 					"",
 					true
@@ -674,6 +677,6 @@ export const PopsHandler = {
 	 * @param value
 	 */
 	handlePush(type: PopsLayerMode, value: PopsLayerCommonConfig) {
-		pops.config.layer[type].push(value);
+		PopsLayer[type].push(value);
 	},
 };

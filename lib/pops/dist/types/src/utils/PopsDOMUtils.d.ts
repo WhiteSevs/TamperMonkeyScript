@@ -521,6 +521,12 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
     /** 自定义属性 */
     attributes?: PopsDOMUtilsCreateElementAttributesMap): HTMLElementTagNameMap[K];
     /**
+     * 字符串转HTMLElement
+     * @param elementString
+     * @returns
+     */
+    parseTextToDOM<R extends HTMLElement>(elementString: string): R;
+    /**
      * 获取文字的位置信息
      * @param input 输入框
      * @param selectionStart 起始位置
@@ -635,6 +641,12 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * DOMUtils.after("a.xx","'<b class="xx"></b>")
      * */
     after(element: HTMLElement | Element | string, content: HTMLElement | string): void;
+    /**
+     * 获取CSS Rule
+     * @param sheet
+     * @returns
+     */
+    getKeyFrames(sheet: CSSStyleSheet): {};
 }
 declare const popsDOMUtils: PopsDOMUtils;
 export { popsDOMUtils };

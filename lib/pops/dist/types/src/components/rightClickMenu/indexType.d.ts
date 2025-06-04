@@ -1,5 +1,5 @@
 import type { PopsCommonConfig } from "../../types/components";
-import type { PopsIcon } from "../../types/icon";
+import type { PopsIconType } from "../../types/icon";
 /**
  * pops.rightClickMenu的右键菜单配置
  */
@@ -7,7 +7,7 @@ export interface PopsRightClickMenuDataDetails {
     /**
      * svg图标
      */
-    icon: PopsIcon | string;
+    icon: PopsIconType | string;
     /**
      * 图标是否旋转
      */

@@ -43,12 +43,6 @@ export declare const PopsInstanceUtils: {
      **/
     getMaxZIndex(deviation?: number): number;
     /**
-     * 获取CSS Rule
-     * @param sheet
-     * @returns
-     */
-    getKeyFrames(sheet: CSSStyleSheet): {};
-    /**
      * 删除配置中对应的对象
      * @param moreLayerConfigList 配置实例列表
      * @param  guid 唯一标识

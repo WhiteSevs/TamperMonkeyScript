@@ -1,6 +1,6 @@
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsHandler } from "../../handler/PopsHandler";
-import { pops } from "../../Pops";
+import { PopsCSS } from "../../PopsCSS";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
@@ -613,10 +613,10 @@ export const PopsTooltip = {
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			pops.config.cssText.index,
-			pops.config.cssText.anim,
-			pops.config.cssText.common,
-			pops.config.cssText.tooltipCSS,
+			PopsCSS.index,
+			PopsCSS.anim,
+			PopsCSS.common,
+			PopsCSS.tooltipCSS,
 		]);
 
 		let toolTip = new ToolTip(config, guid, {

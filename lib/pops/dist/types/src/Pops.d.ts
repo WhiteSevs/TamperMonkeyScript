@@ -1,7 +1,5 @@
-import { PopsLayerMode } from "./types/main";
 import type { PopsAlertDetails } from "./components/alert/indexType";
 import type { PopsConfirmDetails } from "./components/confirm/indexType";
-import type { PopsLayerCommonConfig } from "./types/layer";
 import type { PopsPromptDetails } from "./components/prompt/indexType";
 import type { PopsLoadingDetails } from "./components/loading/indexType";
 import type { PopsIframeDetails } from "./components/iframe/indexType";
@@ -10,7 +8,6 @@ import type { PopsDrawerDetails } from "./components/drawer/indexType";
 import type { PopsFolderDetails } from "./components/folder/indexType";
 import type { PopsPanelDetails } from "./components/panel/indexType";
 import type { PopsRightClickMenuDetails } from "./components/rightClickMenu/indexType";
-import type { PopsIcon } from "./types/icon";
 import type { PopsSearchSuggestionDetails } from "./components/searchSuggestion/indexType";
 declare class Pops {
     /** 配置 */
@@ -18,49 +15,71 @@ declare class Pops {
         /** 版本号 */
         version: string;
         cssText: {
-            /** 主CSS */
             index: string;
-            /** 九宫格位置CSS */
             ninePalaceGridPosition: string;
-            /** 滚动条CSS */
             scrollbar: string;
-            /** 按钮CSS */
             button: string;
-            /** 通用的CSS */
             common: string;
-            /** 动画 */
             anim: string;
-            /** pops.alert */
             alertCSS: string;
-            /** pops.cponfirm */
             confirmCSS: string;
-            /** pops.prompt */
             promptCSS: string;
-            /** pops.loading */
             loadingCSS: string;
-            /** pops.iframe */
             iframeCSS: string;
-            /** pops.tooltip */
             tooltipCSS: string;
-            /** pops.drawer */
             drawerCSS: string;
-            /** pops.folder */
             folderCSS: string;
-            /** pops.folder */
             panelCSS: string;
-            /** pops.rightClickMenu */
             rightClickMenu: string;
         };
         /** icon图标的svg代码 */
-        iconSVG: { [key in PopsIcon]: string; };
+        iconSVG: {
+            loading: string;
+            min: string;
+            max: string;
+            mise: string;
+            close: string;
+            edit: string;
+            share: string;
+            delete: string;
+            search: string;
+            upload: string;
+            next: string;
+            prev: string;
+            eleme: string;
+            elemePlus: string;
+            chromeFilled: string;
+            cpu: string;
+            videoPlay: string;
+            videoPause: string;
+            headset: string;
+            monitor: string;
+            documentCopy: string;
+            picture: string;
+            circleClose: string;
+            view: string;
+            hide: string;
+            keyboard: string;
+            arrowRight: string;
+            arrowLeft: string;
+        };
         /** 当前已配置的动画@keyframes名字映射(初始化时生成) */
         animation: {
             [key: string]: CSSKeyframesRule;
         };
-        /** 是否初始化 */
-        isInit: boolean;
         /** 存储已创建的元素 */
-        layer: { [key in PopsLayerMode]: PopsLayerCommonConfig[]; };
+        layer: {
+            iframe: import("./types/layer").PopsLayerCommonConfig[];
+            loading: import("./types/layer").PopsLayerCommonConfig[];
+            folder: import("./types/layer").PopsLayerCommonConfig[];
+            alert: import("./types/layer").PopsLayerCommonConfig[];
+            confirm: import("./types/layer").PopsLayerCommonConfig[];
+            prompt: import("./types/layer").PopsLayerCommonConfig[];
+            drawer: import("./types/layer").PopsLayerCommonConfig[];
+            panel: import("./types/layer").PopsLayerCommonConfig[];
+            tooltip: import("./types/layer").PopsLayerCommonConfig[];
+            rightClickMenu: import("./types/layer").PopsLayerCommonConfig[];
+        };
         /** 禁止滚动 */
         forbiddenScroll: {
             event(event: Event): boolean;
@@ -72,13 +91,13 @@ declare class Pops {
             delete(target: any, propName: any): void;
             assign<T1, T2 extends object, T3 extends boolean>(target: T1, source: T2, isAdd?: T3 | undefined): T3 extends true ? T1 & T2 : T1;
             getRandomGUID(): string;
-            parseTextToDOM<R extends HTMLElement>(elementString: string): R;
             contains(target: any): boolean;
             contains(context: any, target?: any): boolean;
             formatTime(text?: string | number | Date, formatType?: string): string;
             formatTime(text?: string | number | Date, formatType?: "yyyy-MM-dd HH:mm:ss" | "yyyy/MM/dd HH:mm:ss" | "yyyy_MM_dd_HH_mm_ss" | "yyyy\u5E74MM\u6708dd\u65E5 HH\u65F6mm\u5206ss\u79D2" | "yyyy\u5E74MM\u6708dd\u65E5 hh:mm:ss" | "yyyy\u5E74MM\u6708dd\u65E5 HH:mm:ss" | "yyyy-MM-dd" | "yyyyMMdd" | "HH:mm:ss"): string;
             formatByteToSize<T extends boolean>(byteSize: number | string, addType?: T | undefined): T extends true ? string : number;
             AnyTouch: () => typeof import("any-touch").default;
+            isPhone(userAgent?: string): boolean;
             setTimeout(callback: Function, timeout?: number): number;
             clearTimeout(timeId: number | undefined): void;
             setInterval(callback: Function, timeout?: number): number;
@@ -105,6 +124,7 @@ declare class Pops {
             createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, property?: ({ [P in keyof HTMLElementTagNameMap[K]]?: HTMLElementTagNameMap[K][P] extends string | boolean | number ? HTMLElementTagNameMap[K][P] : never; } & {
                 [key: string]: any;
             }) | string, attributes?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsCreateElementAttributesMap): HTMLElementTagNameMap[K];
+            parseTextToDOM<R extends HTMLElement>(elementString: string): R;
             getTextBoundingRect(input: HTMLInputElement | HTMLTextAreaElement, selectionStart: number | string, selectionEnd: number | string, debug: boolean): DOMRect;
             cssHide(ele: Element | null, isImportant?: boolean): void;
             cssShow(ele: Element | null): void;
@@ -120,6 +140,7 @@ declare class Pops {
             getStyleValue(element: HTMLElement | CSSStyleDeclaration, styleName: string): number;
             before(element: HTMLElement | Element | string, content: HTMLElement | string): void;
             after(element: HTMLElement | Element | string, content: HTMLElement | string): void;
+            getKeyFrames(sheet: CSSStyleSheet): {};
             on(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType: string | string[], callback: (event: Event) => void, option?: boolean | AddEventListenerOptions): void;
             on<T extends import("./types/PopsDOMUtilsEventType").PopsDOMUtils_EventType>(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType: T | T[], callback: (event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions): void;
             on<T extends Event>(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType: string, callback: (event: T) => void, option?: boolean | AddEventListenerOptions): void;
@@ -158,11 +179,10 @@ declare class Pops {
                 isOverMaxZIndex: boolean;
             };
             getMaxZIndex(deviation?: number): number;
-            getKeyFrames(sheet: CSSStyleSheet): {};
-            removeInstance(moreLayerConfigList: PopsLayerCommonConfig[][], guid: string, isAll?: boolean): PopsLayerCommonConfig[][];
-            hide(popsType: PopsLayerMode, layerConfigList: PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement: HTMLElement): Promise<void>;
-            show(popsType: PopsLayerMode, layerConfigList: PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement?: HTMLElement): Promise<void>;
-            close(popsType: string, layerConfigList: PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement): Promise<void>;
+            removeInstance(moreLayerConfigList: import("./types/layer").PopsLayerCommonConfig[][], guid: string, isAll?: boolean): import("./types/layer").PopsLayerCommonConfig[][];
+            hide(popsType: import("./types/main").PopsLayerMode, layerConfigList: import("./types/layer").PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement: HTMLElement): Promise<void>;
+            show(popsType: import("./types/main").PopsLayerMode, layerConfigList: import("./types/layer").PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement?: HTMLElement): Promise<void>;
+            close(popsType: string, layerConfigList: import("./types/layer").PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement): Promise<void>;
             drag(moveElement: HTMLElement, options: {
                 dragElement: HTMLElement;
                 limit: boolean;
@@ -21000,7 +21020,7 @@ declare class Pops {
             };
             targetSelector: string | null;
             data: {
-                icon: PopsIcon | string;
+                icon: import("./types/icon").PopsIconType | string;
                 iconIsLoading: boolean;
                 text: string | (() => string);
                 callback: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement) => boolean | void | Promise<boolean | void>;
