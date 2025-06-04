@@ -1,6 +1,6 @@
 import { log, utils } from "@/env";
 import type { DouYinVideoFilterOption } from "./DouYinVideoFilter";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { DouYinAwemeApi } from "@/api/DouYinAwemeApi";
 import { ConcurrencyAsyncQueue } from "@/utils/ConcurrencyAsyncQueue";
 
@@ -940,7 +940,7 @@ export class DouYinVideoFilterBase {
 		// 	// 未开启发送不感兴趣的请求
 		// 	return;
 		// }
-		// let webid = PopsPanel.getValue<string>("dy-webid");
+		// let webid = Panel.getValue<string>("dy-webid");
 		// if (typeof webid !== "string") {
 		// 	return;
 		// }

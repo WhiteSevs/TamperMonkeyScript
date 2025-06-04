@@ -1,6 +1,6 @@
 import { GM_download, unsafeWindow } from "ViteGM";
 import { $, $$, DOMUtils, addStyle, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import MobileCSS from "./css/mobile.css?raw";
@@ -30,29 +30,31 @@ export type VideoPlayerRate =
 export const DouYinVideoPlayer = {
 	init() {
 		DouYinVideoPlayerBlockElement.init();
-		PopsPanel.onceExec("dy-short-cut", () => {
+		Panel.onceExec("dy-short-cut", () => {
 			DouYinVideoPlayerShortCut.init();
 		});
 		DouYinVideoPlayerBlockMouseHoverTip.init();
-		PopsPanel.execMenuOnce("changeCommentToBottom", () => {
+		Panel.execMenuOnce("changeCommentToBottom", () => {
 			DouYinVideoPlayer.changeCommentToBottom();
 		});
-		PopsPanel.execMenuOnce("fullScreen", () => {
+		Panel.execMenuOnce("fullScreen", () => {
 			return this.fullScreen();
 		});
-		PopsPanel.execMenuOnce("parseVideo", () => {
+		Panel.execMenuOnce("parseVideo", () => {
 			DouYinVideoPlayer.hookDownloadButtonToParseVideo();
 		});
-		PopsPanel.execMenuOnce("dy-video-hookCopyLinkButton", () => {
+		Panel.execMenuOnce("dy-video-hookCopyLinkButton", () => {
 			DouYinVideoPlayer.hookCopyLinkButton();
 		});
-		PopsPanel.execInheritMenuOnce(
-			"autoEnterElementFullScreen",
-			"search-autoEnterElementFullScreen",
+		Panel.exec(
+			["autoEnterElementFullScreen", "search-autoEnterElementFullScreen"],
 			() => {
 				this.autoEnterElementFullScreen();
 			},
-			(mainValue, childValue) => {
+			(keyList) => {
+				const [mainKey, childKey] = keyList;
+				let mainValue = Panel.getValue<boolean>(mainKey);
+				let childValue = Panel.getValue<number>(childKey);
 				if (DouYinRouter.isSearch()) {
 					if (mainValue) {
 						if (childValue == 1) {
@@ -66,47 +68,44 @@ export const DouYinVideoPlayer = {
 						}
 					}
 				}
-			}
+				return mainValue;
+			},
+			false
 		);
-		PopsPanel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
+		Panel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
 			this.doubleClickEnterElementFullScreen();
 		});
-		PopsPanel.execMenu("dy-video-bgColor-enable", () => {
-			PopsPanel.execMenuOnce(
-				"dy-video-changeBackgroundColor",
-				(value: string) => {
-					return this.changeBackgroundColor(value);
-				}
-			);
+		Panel.execMenu("dy-video-bgColor-enable", () => {
+			Panel.execMenuOnce("dy-video-changeBackgroundColor", (option) => {
+				return this.changeBackgroundColor(option.value);
+			});
 		});
-		PopsPanel.execMenuOnce("repairProgressBar", () => {
-			PopsPanel.onceExec("repairProgressBar", () => {
+		Panel.execMenuOnce("repairProgressBar", () => {
+			Panel.onceExec("repairProgressBar", () => {
 				this.repairVideoProgressBar();
 			});
 		});
-		PopsPanel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
+		Panel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
 			this.gestureBackCloseComment();
 		});
-		PopsPanel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
+		Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
 			this.waitToRemovePauseDialog();
 		});
-		PopsPanel.execMenuOnce("dy-video-removeStyle-bottom", () => {
+		Panel.execMenuOnce("dy-video-removeStyle-bottom", () => {
 			return this.removeStyleBottom();
 		});
 		DOMUtils.ready(() => {
-			DouYinVideoPlayer.chooseQuality(
-				PopsPanel.getValue("chooseVideoDefinition")
-			);
-			PopsPanel.execMenuOnce("mobileMode", () => {
+			DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
+			Panel.execMenuOnce("mobileMode", () => {
 				return this.mobileMode();
 			});
-			PopsPanel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
+			Panel.execMenuOnce("dy-video-titleInfoAutoHide", () => {
 				this.titleInfoAutoHide();
 			});
-			PopsPanel.execMenuOnce("dy-video-videoControlsAutoHide", () => {
+			Panel.execMenuOnce("dy-video-videoControlsAutoHide", () => {
 				this.videoControlsAutoHide();
 			});
-			PopsPanel.execMenuOnce("dy-video-rightToolBarAutoHide", () => {
+			Panel.execMenuOnce("dy-video-rightToolBarAutoHide", () => {
 				this.rightToolBarAutoHide();
 			});
 		});
@@ -237,12 +236,9 @@ export const DouYinVideoPlayer = {
 			position: absolute;
 		}
 		`);
-		PopsPanel.execMenuOnce(
-			"douyin-video-autoCheckChangeCommentToBottom",
-			() => {
-				DOMUtils.on(window, "resize", autoChangeCommentPosition);
-			}
-		);
+		Panel.execMenuOnce("douyin-video-autoCheckChangeCommentToBottom", () => {
+			DOMUtils.on(window, "resize", autoChangeCommentPosition);
+		});
 	},
 	/**
 	 * 选择视频清晰度
@@ -802,7 +798,7 @@ export const DouYinVideoPlayer = {
 			CommonUtil.addBlockCSS("img#douyin-temp-sidebar")!,
 			addStyle(MobileCSS)
 		);
-		PopsPanel.onceExec("repairProgressBar", () => {
+		Panel.onceExec("repairProgressBar", () => {
 			this.repairVideoProgressBar();
 		});
 		return result;
@@ -1028,7 +1024,7 @@ export const DouYinVideoPlayer = {
 			}
 		};
 		let lockFn = new utils.LockFunction(() => {
-			if (!PopsPanel.getValue("dy-video-waitToRemovePauseDialog")) {
+			if (!Panel.getValue("dy-video-waitToRemovePauseDialog")) {
 				return;
 			}
 			$$<HTMLDivElement>(

@@ -1,5 +1,5 @@
 import { $$, addStyle, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { BlockTopNavigator } from "./block-frame/blockTopNavigator";
 import { BlockSearchFrame } from "./block-frame/blockSearchFrame";
 import { DouYinHook } from "../hook/DouYinHook";
@@ -21,7 +21,7 @@ import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 
 export const DouYin = {
 	init() {
-		PopsPanel.onceExec("dy-global-block-css", () => {
+		Panel.onceExec("dy-global-block-css", () => {
 			addStyle(blockCSS);
 		});
 		DouYinGestureBackClearHash();
@@ -29,23 +29,23 @@ export const DouYin = {
 		DouYinVideoFilter.init();
 		DouYinNetWorkHook.init();
 		DouYinRedirect.init();
-		PopsPanel.execMenuOnce("watchLoginDialogToClose", () => {
+		Panel.execMenuOnce("watchLoginDialogToClose", () => {
 			DouYinAccount.watchLoginDialogToClose();
 		});
-		PopsPanel.execMenuOnce("disguiseLogin", () => {
+		Panel.execMenuOnce("disguiseLogin", () => {
 			DouYinAccount.disguiseLogin();
 		});
-		PopsPanel.execMenuOnce("dy-initialScale", () => {
+		Panel.execMenuOnce("dy-initialScale", () => {
 			this.initialScale();
 		});
-		PopsPanel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
+		Panel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
 			this.removeMetaAppleItunesApp();
 		});
 		BlockLeftNavigator.init();
 		BlockTopNavigator.init();
 		BlockSearchFrame.init();
 
-		PopsPanel.execMenuOnce("dy-common-listenRouterChange", () => {
+		Panel.execMenuOnce("dy-common-listenRouterChange", () => {
 			this.listenRouterChange();
 		});
 

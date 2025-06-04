@@ -1,5 +1,5 @@
 import { log } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 export const DouYinVideoPlayerBlockMouseHoverTip = {
@@ -14,37 +14,37 @@ export const DouYinVideoPlayerBlockMouseHoverTip = {
 
 export const DouYinVideoPlayerBlockMouseHoverTip_RightToolBar = {
 	init() {
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"dy-video-mouseHoverTip-rightToolBar-enterUserHome",
 			() => {
 				return this.blockEnterUserHomeMouseHoverTip();
 			}
 		);
-		PopsPanel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-follow", () => {
+		Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-follow", () => {
 			return this.blockFollowMouseHoverTip();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"dy-video-mouseHoverTip-rightToolBar-addLike",
 			() => {
 				return this.blockAddLikeMouseHoverTip();
 			}
 		);
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"dy-video-mouseHoverTip-rightToolBar-comment",
 			() => {
 				return this.blockCommentMouseHoverTip();
 			}
 		);
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"dy-video-mouseHoverTip-rightToolBar-collect",
 			() => {
 				return this.blockCollectMouseHoverTip();
 			}
 		);
-		PopsPanel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-share", () => {
+		Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-share", () => {
 			return this.blockShareMouseHoverTip();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"dy-video-mouseHoverTip-rightToolBar-seeCorrelation",
 			() => {
 				return this.blockSeeCorrelationMouseHoverTip();
@@ -116,31 +116,31 @@ export const DouYinVideoPlayerBlockMouseHoverTip_RightToolBar = {
 
 export const DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar = {
 	init() {
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast",
 			() => {
 				return this.blockAutomaticBroadcast();
 			}
 		);
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"dy-video-mouseHoverTip-bottomToolBar-clearScreen",
 			() => {
 				return this.blockClearScreenMouseHoverTip();
 			}
 		);
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"dy-video-mouseHoverTip-bottomToolBar-watchLater",
 			() => {
 				return this.blockWatchLaterMouseHoverTip();
 			}
 		);
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"dy-video-mouseHoverTip-bottomToolBar-pageFullScreen",
 			() => {
 				return this.blockPageFullScreenMouseHoverTip();
 			}
 		);
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"dy-video-mouseHoverTip-bottomToolBar-fullScreen",
 			() => {
 				return this.blockFullScreenMouseHoverTip();

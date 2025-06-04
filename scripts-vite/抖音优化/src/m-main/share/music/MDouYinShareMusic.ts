@@ -1,13 +1,13 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import blockCSS from "./block.css?raw";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import Qmsg from "qmsg";
 import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";
 
 export const MDouYinShareMusic = {
 	init() {
 		addStyle(blockCSS);
-		PopsPanel.execMenuOnce("m-dy-share-music-coverVideoCard", () => {
+		Panel.execMenuOnce("m-dy-share-music-coverVideoCard", () => {
 			this.coverVideoCard();
 		});
 	},

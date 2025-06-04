@@ -2,15 +2,15 @@ import { DOMUtils, addStyle, utils } from "@/env";
 import blockCSS from "./block.css?raw";
 import Qmsg from "qmsg";
 import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 
 export const MDouYinShareUser = {
 	init() {
 		addStyle(blockCSS);
-		PopsPanel.execMenuOnce("m-dy-share-user-coverPlayletList", () => {
+		Panel.execMenuOnce("m-dy-share-user-coverPlayletList", () => {
 			this.coverPlayletList();
 		});
-		PopsPanel.execMenuOnce("m-dy-share-user-coverPostListContainer", () => {
+		Panel.execMenuOnce("m-dy-share-user-coverPostListContainer", () => {
 			this.coverPostListContainer();
 		});
 	},

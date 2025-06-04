@@ -15,7 +15,7 @@ import {
 	type DouYinVideoAwemeInfo,
 	type DouYinVideoHandlerInfo,
 } from "./DouYinVideoFilterBase";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { CommonUtil } from "@/utils/CommonUtil";
 import { PanelUISize } from "@/setting/panel-ui-size";
@@ -93,18 +93,18 @@ export const DouYinVideoFilter = {
 		 * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
 		 */
 		get isReverse() {
-			return PopsPanel.getValue<boolean>(
+			return Panel.getValue<boolean>(
 				"shieldVideo-only-show-filtered-video"
 			);
 		},
 	},
 	init() {
 		if (DouYinRouter.isLive()) {
-			PopsPanel.deleteExecMenuOnce(this.$key.ENABLE_KEY);
+			Panel.deleteExecMenuOnce(this.$key.ENABLE_KEY);
 			return;
 		}
 		this.execFilter();
-		PopsPanel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
+		Panel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
 			this.addParseButton();
 		});
 	},
@@ -113,14 +113,14 @@ export const DouYinVideoFilter = {
 	 */
 	execFilter() {
 		const that = this;
-		PopsPanel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
+		Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
 			log.info(`执行视频过滤器`);
-			// let webid = PopsPanel.getValue("dy-webid");
+			// let webid = Panel.getValue("dy-webid");
 			// if (utils.isNull(webid)) {
 			// 	let temp_webid = await DouYinQueryApi.webid();
 			// 	if (typeof temp_webid === "string") {
 			// 		webid = temp_webid;
-			// 		PopsPanel.setValue("dy-webid", webid);
+			// 		Panel.setValue("dy-webid", webid);
 			// 	}
 			// }
 			let filterBase = new DouYinVideoFilterBase();
@@ -130,7 +130,7 @@ export const DouYinVideoFilter = {
 			let queryScopeFilterOptionList = (
 				scopeName: DouYinVideoFilterOptionScope
 			) => {
-				if (!PopsPanel.getValue(that.$key.ENABLE_KEY)) {
+				if (!Panel.getValue(that.$key.ENABLE_KEY)) {
 					return [];
 				}
 				let filterOptionList = that.getData();

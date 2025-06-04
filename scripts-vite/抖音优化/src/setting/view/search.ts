@@ -2,6 +2,7 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 import { UISwitch } from "../components/ui-switch";
 import { UISelect } from "../components/ui-select";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
+import { PopsPanelStorageApi } from "../panel-storage";
 
 const PanelSearchConfig: PopsPanelContentConfig = {
 	id: "panel-config-search",
@@ -30,9 +31,13 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 									"自动进入网页全屏",
 									"search-autoEnterElementFullScreen",
 									-1,
-									[
+									() => [
 										{
-											text: "跟随主设置",
+											text: `跟随主设置（${
+												PopsPanelStorageApi.get("autoEnterElementFullScreen")
+													? "是"
+													: "否"
+											}）`,
 											value: -1,
 										},
 										{
@@ -45,17 +50,15 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 										},
 									],
 									void 0,
-									"网页加载完毕后自动点击网页全屏按钮进入全屏"
+									["视频", "功能", "自动进入网页全屏"]
+										.map((it) => `<code>${it}</code>`)
+										.join("-")
 								),
 								UISelect(
 									"搜索结果-视频-显示样式",
 									"live-setSearchResultFilterWithVideoStyle",
-									"",
+									"one",
 									[
-										{
-											text: "默认",
-											value: "",
-										},
 										{
 											text: "单列",
 											value: "one",
@@ -100,7 +103,7 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "布局屏蔽-主框架",
+					text: "布局屏蔽-左侧导航栏",
 					type: "deepMenu",
 					forms: [
 						{
@@ -111,9 +114,13 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 									"【屏蔽】左侧导航栏",
 									"search-shieldLeftNavigator",
 									-1,
-									[
+									() => [
 										{
-											text: "跟随主设置",
+											text: `跟随主设置（${
+												PopsPanelStorageApi.get("shieldLeftNavigator")
+													? "是"
+													: "否"
+											}）`,
 											value: -1,
 										},
 										{
@@ -126,15 +133,33 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 										},
 									],
 									void 0,
-									"屏蔽元素"
+									["通用", "布局屏蔽-左侧导航栏", "【屏蔽】左侧导航栏"]
+										.map((it) => `<code>${it}</code>`)
+										.join("-")
 								),
+							],
+						},
+					],
+				},
+				{
+					text: "布局屏蔽-顶部导航栏",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
 								UISelect(
 									"【屏蔽】顶部导航栏",
 									"search-shieldTopNavigator",
 									-1,
-									[
+									() => [
 										{
-											text: "跟随主设置",
+											text: `跟随主设置（${
+												PopsPanelStorageApi.get("shieldTopNavigator")
+													? "是"
+													: "否"
+											}）`,
 											value: -1,
 										},
 										{
@@ -147,7 +172,9 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 										},
 									],
 									void 0,
-									"屏蔽元素"
+									["通用", "布局屏蔽-顶部导航栏", "【屏蔽】顶部导航栏"]
+										.map((it) => `<code>${it}</code>`)
+										.join("-")
 								),
 							],
 						},

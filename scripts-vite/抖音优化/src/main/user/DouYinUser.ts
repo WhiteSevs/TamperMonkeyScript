@@ -1,6 +1,6 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import blockCSS from "./css/block.css?raw";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { ReactUtils } from "@/utils/ReactUtils";
 import Qmsg from "qmsg";
 
@@ -8,7 +8,7 @@ export const DouYinUser = {
 	init() {
 		addStyle(blockCSS);
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("dy-user-addShowUserUID", () => {
+			Panel.execMenu("dy-user-addShowUserUID", () => {
 				this.addShowUserUID();
 			});
 		});

@@ -1,9 +1,9 @@
 import { log } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 
 export const DouYinRedirect = {
 	init() {
-		PopsPanel.execMenu("douyin-redirect-url-home-to-root", () => {
+		Panel.execMenu("douyin-redirect-url-home-to-root", () => {
 			this.redirectUrlHomeToRoot();
 		});
 	},

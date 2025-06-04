@@ -1,5 +1,5 @@
 import { $, addStyle, DOMUtils, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 
 export const DouYinVideoElementAutoHide = (
 	delayTimeKey: string,
@@ -8,7 +8,7 @@ export const DouYinVideoElementAutoHide = (
 	let isInjectAttrName = "data-is-inject-mouse-hide";
 	let opacityShowAttrName = "data-opacity-show";
 	let opacityHideAttrName = "data-opacity-hide";
-	let delayTime = () => PopsPanel.getValue<number>(delayTimeKey);
+	let delayTime = () => Panel.getValue<number>(delayTimeKey);
 
 	let styleCSS = (__delayTime__ = delayTime()) => {
 		if (__delayTime__ === 0) {
@@ -40,7 +40,7 @@ export const DouYinVideoElementAutoHide = (
 		}
 	};
 	let $style = addStyle(styleCSS());
-	let listenerId = PopsPanel.addValueChangeListener(
+	let listenerId = Panel.addValueChangeListener(
 		delayTimeKey,
 		(key, oldValue, newValue) => {
 			DOMUtils.html($style, styleCSS(newValue));
@@ -101,7 +101,7 @@ export const DouYinVideoElementAutoHide = (
 		destory() {
 			observer.disconnect();
 			$style.remove();
-			PopsPanel.removeValueChangeListener(listenerId);
+			Panel.removeValueChangeListener(listenerId);
 		},
 		$style,
 	};

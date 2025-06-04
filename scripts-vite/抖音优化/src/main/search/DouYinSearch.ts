@@ -2,23 +2,20 @@ import { DOMUtils, addStyle, log, utils } from "@/env";
 import MobileCSS from "./css/mobile.css?raw";
 import { DouYinSearchHideElement } from "./DouYinSearchHideElement";
 import Qmsg from "qmsg";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 
 export const DouYinSearch = {
 	init() {
 		DouYinSearchHideElement.init();
-		PopsPanel.execMenuOnce("mobileMode", () => {
+		Panel.execMenuOnce("mobileMode", () => {
 			return this.mobileMode();
 		});
-		PopsPanel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
+		Panel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
 			this.disableClickToEnterFullScreen();
 		});
-		PopsPanel.execMenuOnce(
-			"live-setSearchResultFilterWithVideoStyle",
-			(value) => {
-				return this.setSearchResultFilterWithVideoStyle(value);
-			}
-		);
+		Panel.execMenuOnce("live-setSearchResultFilterWithVideoStyle", (option) => {
+			return this.setSearchResultFilterWithVideoStyle(option.value);
+		});
 	},
 	/**
 	 * 手机模式

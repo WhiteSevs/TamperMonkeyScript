@@ -1,6 +1,6 @@
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { Hook } from "./Hook";
 import { DouYinRouter } from "@/router/DouYinRouter";
 
@@ -16,18 +16,18 @@ export const DouYinHook = {
 		>[],
 	},
 	init() {
-		PopsPanel.onceExec("hookKeyboard", () => {
+		Panel.onceExec("hookKeyboard", () => {
 			DouYinHook.disableShortCut();
 		});
-		PopsPanel.execMenu("dy-cookie-remove__ac__", () => {
+		Panel.execMenu("dy-cookie-remove__ac__", () => {
 			this.removeCookie();
 		});
 		if (DouYinRouter.isIndex()) {
-			PopsPanel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
+			Panel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
 				DouYinHook.disableDoubleClickLike();
 			});
 		} else if (DouYinRouter.isLive()) {
-			PopsPanel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
+			Panel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
 				DouYinHook.disableDoubleClickLike();
 			});
 		}
@@ -255,7 +255,7 @@ export const DouYinHook = {
 									continue;
 								}
 							}
-							if (!PopsPanel.getValue(keyboardConfig.enableKey)) {
+							if (!Panel.getValue(keyboardConfig.enableKey)) {
 								// 未启用
 								continue;
 							}

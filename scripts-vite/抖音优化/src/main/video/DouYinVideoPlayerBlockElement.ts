@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
@@ -7,10 +7,10 @@ import { DouYinVideoPlayer } from "./DouYinVideoPlayer";
 
 export const DouYinVideoPlayerCommentBlockElement = {
 	init() {
-		PopsPanel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
+		Panel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
 			return this.shieldUserCommentToolBar();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"dy-video-shieldUserCommentEveryOneAllSearch",
 			() => {
 				return this.shieldUserCommentEveryOneAllSearch();
@@ -36,13 +36,13 @@ export const DouYinVideoPlayerCommentBlockElement = {
 
 export const DouYinVideoPlayerBlockElement_BottomToolbar = {
 	init() {
-		PopsPanel.execMenuOnce("shieldBottomVideoToolBar", () => {
+		Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
 			return this.shieldBottomVideoToolBar();
 		});
-		PopsPanel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
+		Panel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
 			return this.shieldVideoInfoWrap();
 		});
-		PopsPanel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
+		Panel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
 			return this.shieldBottomVideoToolbarDanmuContainer();
 		});
 	},
@@ -87,28 +87,28 @@ export const DouYinVideoPlayerBlockElement_BottomToolbar = {
 
 export const DouYinVideoPlayerBlockElement_RightToolbar = {
 	init() {
-		PopsPanel.execMenuOnce("shieldPlaySwitchButton", () => {
+		Panel.execMenuOnce("shieldPlaySwitchButton", () => {
 			return this.shieldPlaySwitchButton();
 		});
-		PopsPanel.execMenuOnce("shieldAuthorAvatar", () => {
+		Panel.execMenuOnce("shieldAuthorAvatar", () => {
 			return this.shieldAuthorAvatar();
 		});
-		PopsPanel.execMenuOnce("shieldLikeButton", () => {
+		Panel.execMenuOnce("shieldLikeButton", () => {
 			return this.shieldLikeButton();
 		});
-		PopsPanel.execMenuOnce("shieldCommentButton", () => {
+		Panel.execMenuOnce("shieldCommentButton", () => {
 			return this.shieldCommentButton();
 		});
-		PopsPanel.execMenuOnce("shieldCollectionButton", () => {
+		Panel.execMenuOnce("shieldCollectionButton", () => {
 			return this.shieldCollectionButton();
 		});
-		PopsPanel.execMenuOnce("shieldSharenButton", () => {
+		Panel.execMenuOnce("shieldSharenButton", () => {
 			return this.shieldSharenButton();
 		});
-		PopsPanel.execMenuOnce("shieldRelatedRecommendationsButton", () => {
+		Panel.execMenuOnce("shieldRelatedRecommendationsButton", () => {
 			return this.shieldRelatedRecommendationsButton();
 		});
-		PopsPanel.execMenuOnce("shieldMoreButton", () => {
+		Panel.execMenuOnce("shieldMoreButton", () => {
 			return this.shieldMoreButton();
 		});
 	},
@@ -243,16 +243,16 @@ export const DouYinVideoPlayerBlockElement_RightToolbar = {
 };
 export const DouYinVideoPlayerBlockElement = {
 	init() {
-		PopsPanel.execMenuOnce("shieldRightExpandCommentButton", () => {
+		Panel.execMenuOnce("shieldRightExpandCommentButton", () => {
 			return this.shieldRightExpandCommentButton();
 		});
-		PopsPanel.execMenuOnce("shieldSearchFloatingBar", () => {
+		Panel.execMenuOnce("shieldSearchFloatingBar", () => {
 			return this.shieldSearchFloatingBar();
 		});
-		PopsPanel.execMenuOnce("shieldCloseFullScreenButton", () => {
+		Panel.execMenuOnce("shieldCloseFullScreenButton", () => {
 			return this.shieldCloseFullScreenButton();
 		});
-		PopsPanel.execMenuOnce("dy-video-blockShopInfo", () => {
+		Panel.execMenuOnce("dy-video-blockShopInfo", () => {
 			return this.blockShopInfo();
 		});
 		DouYinVideoPlayerBlockElement_BottomToolbar.init();

@@ -1,7 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { UISwitch } from "../components/ui-switch";
 import { DouYinMessageFilter } from "@/main/live/DouYinLiveMessage";
-import { PopsPanel } from "../panel";
+import { Panel } from "../panel";
 import { UISelect } from "../components/ui-select";
 import { VideoQualityMap } from "@/main/live/DouYinLive";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
@@ -109,7 +109,7 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 											className: "pops-panel-item-left-text",
 											innerHTML: `
 											<p class="pops-panel-item-left-main-text">视频背景颜色</p>
-											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
+											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色</p>
 											`,
 										});
 										let $right = DOMUtils.createElement("div", {
@@ -122,23 +122,15 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 											$right.querySelector<HTMLInputElement>(
 												".pops-color-choose"
 											)!;
-										$color.value = PopsPanel.getValue(
+										$color.value = Panel.getValue(
 											"live-changeBackgroundColor"
 										);
-										let $style = DOMUtils.createElement("style");
-										DOMUtils.append(document.head, $style);
 										DOMUtils.on(
 											$color,
 											["input", "propertychange"],
 											(event) => {
 												log.info("选择颜色：" + $color.value);
-												$style.innerHTML = `
-											div[id^="living_room_player_container"] > div,
-											#chatroom > div{
-												background: ${$color.value};
-											}
-											`;
-												PopsPanel.setValue(
+												Panel.setValue(
 													"live-changeBackgroundColor",
 													$color.value
 												);

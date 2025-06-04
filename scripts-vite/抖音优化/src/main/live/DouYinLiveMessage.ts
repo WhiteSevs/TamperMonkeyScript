@@ -1,6 +1,6 @@
 import { $$, DOMUtils, log, utils } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 export const DouYinMessageFilter = {
@@ -45,7 +45,7 @@ export const DouYinMessageFilter = {
 			),
 			"聊天室"
 		);
-		if (PopsPanel.getValue("live-message-shield-emoji-chat")) {
+		if (Panel.getValue("live-message-shield-emoji-chat")) {
 			// 弹幕 - 表情包|emoji
 			// 它们的元素上没有message实例
 			DOMUtils.hide(
@@ -93,7 +93,7 @@ export const DouYinMessageFilter = {
 			if (!flag) {
 				if (method === "WebcastGiftMessage") {
 					// 礼物弹幕
-					if (PopsPanel.getValue("live-danmu-shield-gift")) {
+					if (Panel.getValue("live-danmu-shield-gift")) {
 						flag = true;
 					}
 				} else if (method === "WebcastChatMessage") {
@@ -103,7 +103,7 @@ export const DouYinMessageFilter = {
 					} else if (chat_by === "9" || chat_by === "10") {
 						// 来自福袋一键发送
 						// 福袋口令
-						if (PopsPanel.getValue("live-danmu-shield-lucky-bag")) {
+						if (Panel.getValue("live-danmu-shield-lucky-bag")) {
 							flag = true;
 						}
 					} else {
@@ -117,7 +117,7 @@ export const DouYinMessageFilter = {
 					//
 				} else if (method === "WebcastEmojiChatMessage") {
 					// 表情包|图片|emoji
-					if (PopsPanel.getValue("live-message-shield-emoji-chat")) {
+					if (Panel.getValue("live-message-shield-emoji-chat")) {
 						flag = true;
 					}
 				} else if (method === "WebcastExhibitionChatMessage") {
@@ -132,7 +132,7 @@ export const DouYinMessageFilter = {
 				if (biz_scene === "common_text_game_score") {
 					// xxx 为主播加了 xx分
 					if (
-						PopsPanel.getValue(
+						Panel.getValue(
 							"live-message-shield-biz_scene-common_text_game_score"
 						)
 					) {

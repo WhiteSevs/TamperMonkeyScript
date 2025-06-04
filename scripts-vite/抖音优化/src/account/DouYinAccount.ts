@@ -2,7 +2,7 @@ import { $, addStyle, log, utils } from "@/env";
 import { DouYinElement } from "../utils/DouYinElement";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { CommonUtil } from "@/utils/CommonUtil";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 
 export const DouYinAccount = {
@@ -236,7 +236,7 @@ export const DouYinAccount = {
 		];
 
 		let lockFn = new utils.LockFunction(() => {
-			if (!PopsPanel.getValue("watchLoginDialogToClose")) {
+			if (!Panel.getValue("watchLoginDialogToClose")) {
 				return;
 			}
 			let $loginDialog = $<HTMLDivElement>(

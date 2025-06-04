@@ -6,7 +6,7 @@ import {
 import { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/selectMultipleType";
 import { log } from "@/env";
 import type { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/indexType";
-import { PopsPanel } from "../panel";
+import { Panel } from "../panel";
 
 /**
  * 下拉列表-多选
@@ -65,10 +65,10 @@ export const UISelectMultiple = function <T>(
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 	Reflect.set(result.props!, PROPS_STORAGE_API, {
 		get<T>(key: string, defaultValue: T) {
-			return PopsPanel.getValue(key, defaultValue);
+			return Panel.getValue(key, defaultValue);
 		},
 		set(key: string, value: any) {
-			PopsPanel.setValue(key, value);
+			Panel.setValue(key, value);
 		},
 	});
 	return result;

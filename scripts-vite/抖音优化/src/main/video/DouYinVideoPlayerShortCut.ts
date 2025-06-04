@@ -2,7 +2,7 @@ import { unsafeWindow } from "ViteGM";
 import { $$, log } from "@/env";
 import { ShortCut, ShortCutOption } from "@/utils/ShortCut";
 import { DouYinVideoPlayer, VideoPlayerRate } from "./DouYinVideoPlayer";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 
 export const DouYinVideoPlayerShortCut = {
 	shortCut: new ShortCut("video-short-cut"),
@@ -69,9 +69,9 @@ export const DouYinVideoPlayerShortCut = {
 				target: "window",
 				callback() {
 					log.info("触发快捷键 ==> 沉浸模式");
-					let value = PopsPanel.getValue<boolean>("fullScreen");
-					PopsPanel.setValue("fullScreen", !value);
-					PopsPanel.execMenuOnce("fullScreen", () => {
+					let value = Panel.getValue<boolean>("fullScreen");
+					Panel.setValue("fullScreen", !value);
+					Panel.execMenuOnce("fullScreen", () => {
 						return DouYinVideoPlayer.fullScreen();
 					});
 				},

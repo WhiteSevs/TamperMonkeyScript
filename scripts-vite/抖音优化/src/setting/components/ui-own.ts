@@ -34,10 +34,10 @@ export const UIOwn = function (
 			// Object.keys(initConfig).forEach((key) => {
 			// 	let defaultValue = initConfig[key];
 			// 	/* 存储到内存中 */
-			// 	if (PopsPanel.$data.data.has(key)) {
+			// 	if (Panel.$data.data.has(key)) {
 			// 		log.warn("请检查该key(已存在): " + key);
 			// 	}
-			// 	PopsPanel.$data.data.set(key, defaultValue);
+			// 	Panel.$data.data.set(key, defaultValue);
 			// });
 		}
 		return false;

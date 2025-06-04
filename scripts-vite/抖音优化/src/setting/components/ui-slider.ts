@@ -4,7 +4,7 @@ import {
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
 } from "../panel-config";
-import { PopsPanel } from "../panel";
+import { Panel } from "../panel";
 
 /**
  * 获取checkbox按钮配置
@@ -64,10 +64,10 @@ export const UISlider = function (
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 	Reflect.set(result.props!, PROPS_STORAGE_API, {
 		get<T>(key: string, defaultValue: T) {
-			return PopsPanel.getValue(key, defaultValue);
+			return Panel.getValue(key, defaultValue);
 		},
 		set(key: string, value: any) {
-			PopsPanel.setValue(key, value);
+			Panel.setValue(key, value);
 		},
 	});
 	return result;

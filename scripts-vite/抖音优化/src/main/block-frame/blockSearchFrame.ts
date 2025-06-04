@@ -1,19 +1,19 @@
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { addStyle, log } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 export const BlockSearchFrame = {
 	init() {
-		PopsPanel.execMenuOnce("shieldSearch", () => {
+		Panel.execMenuOnce("shieldSearch", () => {
 			return this.shieldSearch();
 		});
-		PopsPanel.execMenuOnce("shieldSearchPlaceholder", () => {
+		Panel.execMenuOnce("shieldSearchPlaceholder", () => {
 			return this.shieldSearchPlaceholder();
 		});
-		PopsPanel.execMenuOnce("shieldSearchGuessYouWantToSearch", () => {
+		Panel.execMenuOnce("shieldSearchGuessYouWantToSearch", () => {
 			return this.shieldSearchGuessYouWantToSearch();
 		});
-		PopsPanel.execMenuOnce("shieldSearchTiktokHotspot", () => {
+		Panel.execMenuOnce("shieldSearchTiktokHotspot", () => {
 			return this.shieldSearchTiktokHotspot();
 		});
 	},

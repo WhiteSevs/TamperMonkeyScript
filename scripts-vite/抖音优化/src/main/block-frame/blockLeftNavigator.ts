@@ -1,17 +1,19 @@
 import { addStyle, log } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 export const BlockLeftNavigator = {
 	init() {
-		PopsPanel.execInheritMenuOnce(
-			"shieldLeftNavigator",
-			"search-shieldLeftNavigator",
+		Panel.exec(
+			["shieldLeftNavigator", "search-shieldLeftNavigator"],
 			() => {
 				return this.shieldLeftNavigator();
 			},
-			(mainValue, childValue) => {
+			(keyList) => {
+				const [mainKey, childKey] = keyList;
+				let mainValue = Panel.getValue<boolean>(mainKey);
+				let childValue = Panel.getValue<number>(childKey);
 				if (DouYinRouter.isSearch()) {
 					if (childValue == 1) {
 						// 开
@@ -23,60 +25,61 @@ export const BlockLeftNavigator = {
 						// 跟随主设置
 					}
 				}
+				return mainValue;
 			}
 		);
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-home", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-home", () => {
 			return this.block_tab_home();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-recommend", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-recommend", () => {
 			return this.block_tab_recommend();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-follow", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-follow", () => {
 			return this.block_tab_follow();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-friend", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-friend", () => {
 			return this.block_tab_friend();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
 			return this.block_tab_user_self();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-user_self_like", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_like", () => {
 			return this.block_tab_user_self_like();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"shieldLeftNavigator-tab-user_self_collection",
 			() => {
 				return this.block_tab_user_self_collection();
 			}
 		);
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-user_self_record", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_record", () => {
 			return this.block_tab_user_self_record();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
 			return this.block_tab_live();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
 			return this.block_tab_vs();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
 			return this.block_tab_series();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
 			return this.block_tab_ai_search();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300203", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300203", () => {
 			return this.block_tab_channel_300203();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300205", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300205", () => {
 			return this.block_tab_channel_300205();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300206", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300206", () => {
 			return this.block_tab_channel_300206();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300209", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300209", () => {
 			return this.block_tab_channel_300209();
 		});
-		PopsPanel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
+		Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
 			return this.block_tab_channel_300204();
 		});
 	},

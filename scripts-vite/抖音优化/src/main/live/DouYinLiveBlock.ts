@@ -1,5 +1,5 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 /**
@@ -11,25 +11,25 @@ import { CommonUtil } from "@/utils/CommonUtil";
  */
 export const DouYinLiveBlock = {
 	init() {
-		PopsPanel.execMenuOnce("live-shieldGiftColumn", () => {
+		Panel.execMenuOnce("live-shieldGiftColumn", () => {
 			return this.shieldGiftColumn();
 		});
-		PopsPanel.execMenuOnce("live-shieldTopToolBarInfo", () => {
+		Panel.execMenuOnce("live-shieldTopToolBarInfo", () => {
 			return this.shieldTopToolBarInfo();
 		});
-		PopsPanel.execMenuOnce("live-shieldGiftEffects", () => {
+		Panel.execMenuOnce("live-shieldGiftEffects", () => {
 			return this.shieldGiftEffects();
 		});
-		PopsPanel.execMenuOnce("live-shieldLucky", () => {
+		Panel.execMenuOnce("live-shieldLucky", () => {
 			return this.shieldLucky();
 		});
-		PopsPanel.execMenuOnce("live-shielYellowCar", () => {
+		Panel.execMenuOnce("live-shielYellowCar", () => {
 			return this.shieldYellowCar();
 		});
-		PopsPanel.execMenuOnce("live-shieldDanmuku", () => {
+		Panel.execMenuOnce("live-shieldDanmuku", () => {
 			return this.shieldDanmu();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"live-block-exhibition-banner-dylive-tooltip",
 			() => {
 				return this.block_exhibition_banner_dylive_tooltip();
@@ -156,22 +156,22 @@ export const DouYinLiveBlock = {
 
 export const DouYinLiveChatRoomBlock = {
 	init() {
-		PopsPanel.execMenuOnce("live-shieldChatRoom", () => {
+		Panel.execMenuOnce("live-shieldChatRoom", () => {
 			return this.shieldChatRoom();
 		});
-		PopsPanel.execMenuOnce("live-shielChatRoomVipSeats", () => {
+		Panel.execMenuOnce("live-shielChatRoomVipSeats", () => {
 			return this.shielChatRoomVipSeats();
 		});
-		PopsPanel.execMenuOnce("dy-live-shieldUserLevelIcon", () => {
+		Panel.execMenuOnce("dy-live-shieldUserLevelIcon", () => {
 			return this.shieldUserLevelIcon();
 		});
-		PopsPanel.execMenuOnce("dy-live-shieldUserVIPIcon", () => {
+		Panel.execMenuOnce("dy-live-shieldUserVIPIcon", () => {
 			return this.shieldUserVIPIcon();
 		});
-		PopsPanel.execMenuOnce("dy-live-shieldUserFansIcon", () => {
+		Panel.execMenuOnce("dy-live-shieldUserFansIcon", () => {
 			return this.shieldUserFansIcon();
 		});
-		PopsPanel.execMenuOnce("dy-live-shieldMessage", () => {
+		Panel.execMenuOnce("dy-live-shieldMessage", () => {
 			return this.shieldMessage();
 		});
 	},
@@ -255,7 +255,7 @@ export const DouYinLiveChatRoomBlock = {
 
 export const DouYinLiveVideoAreaRightMenu = {
 	init() {
-		PopsPanel.execMenuOnce("dy-live-blockVideoRightMenu-downloadClient", () => {
+		Panel.execMenuOnce("dy-live-blockVideoRightMenu-downloadClient", () => {
 			return this.blockDownloadClient();
 		});
 	},

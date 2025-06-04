@@ -1,7 +1,7 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import blockCSS from "./block.css?raw";
 import { DouYinUtils } from "@/utils/DouYinUtils";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import Qmsg from "qmsg";
 import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";
 import { CommonUtil } from "@/utils/CommonUtil";
@@ -9,28 +9,28 @@ import { CommonUtil } from "@/utils/CommonUtil";
 export const MDouYinShareNote = {
 	init() {
 		addStyle(blockCSS);
-		PopsPanel.execMenuOnce("m-dy-share-note-blockRecommend", () => {
+		Panel.execMenuOnce("m-dy-share-note-blockRecommend", () => {
 			return this.blockRecommend();
 		});
-		PopsPanel.execMenuOnce("m-dy-share-note-blockComment", () => {
+		Panel.execMenuOnce("m-dy-share-note-blockComment", () => {
 			return this.blockComment();
 		});
-		PopsPanel.execMenuOnce("m-dy-share-note-blockFooterToobar", () => {
+		Panel.execMenuOnce("m-dy-share-note-blockFooterToobar", () => {
 			return this.blockFooterToobar();
 		});
-		PopsPanel.execMenuOnce("m-dy-share-note-coverUser", () => {
+		Panel.execMenuOnce("m-dy-share-note-coverUser", () => {
 			this.coverUser();
 		});
-		PopsPanel.execMenuOnce("m-dy-share-note-coverHashTag", () => {
+		Panel.execMenuOnce("m-dy-share-note-coverHashTag", () => {
 			this.coverHashTag();
 		});
-		PopsPanel.execMenuOnce("m-dy-share-note-coverMusic", () => {
+		Panel.execMenuOnce("m-dy-share-note-coverMusic", () => {
 			this.coverMusic();
 		});
-		PopsPanel.execMenuOnce("m-dy-share-note-coverRecommend", () => {
+		Panel.execMenuOnce("m-dy-share-note-coverRecommend", () => {
 			this.coverRecommend();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"m-dy-share-note-coverExcitingGraphicsAndText",
 			() => {
 				this.coverExcitingGraphicsAndText();

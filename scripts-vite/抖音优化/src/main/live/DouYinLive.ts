@@ -1,5 +1,5 @@
 import { $$, DOMUtils, GM_Menu, addStyle, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveMessage } from "./DouYinLiveMessage";
 import Qmsg from "qmsg";
@@ -61,35 +61,33 @@ export const DouYinLive = {
 	init() {
 		DouYinLiveBlock.init();
 		DouYinLiveShortCut.init();
-		PopsPanel.execMenuOnce("live-danmu-shield-rule-enable", () => {
+		Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
 			DouYinLiveMessage.filterMessage();
 		});
-		PopsPanel.execMenu("live-unlockImageQuality", () => {
+		Panel.execMenu("live-unlockImageQuality", () => {
 			this.unlockImageQuality();
 		});
-		PopsPanel.execMenuOnce("live-waitToRemovePauseDialog", () => {
+		Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
 			this.waitToRemovePauseDialog();
 		});
-		PopsPanel.execMenu("live-pauseVideo", () => {
+		Panel.execMenu("live-pauseVideo", () => {
 			this.pauseVideo();
 		});
-		PopsPanel.execMenu("live-bgColor-enable", () => {
-			PopsPanel.execMenuOnce("live-changeBackgroundColor", (value: string) => {
-				return this.changeBackgroundColor(value);
-			});
+		Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
+			return this.changeBackgroundColor();
 		});
-		PopsPanel.execMenuOnce("live-parsePlayerInstance", () => {
+		Panel.execMenuOnce("live-parsePlayerInstance", () => {
 			DouYinLivePlayerInstance.initMenu();
 		});
 		DouYinLiveChatRoom.init();
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("live-chooseQuality", (quality) => {
-				if (quality === "auto") {
+			Panel.execMenu("live-chooseQuality", (option) => {
+				if (option.value === "auto") {
 					return;
 				}
-				this.chooseQuality(quality);
+				this.chooseQuality(option.value);
 			});
-			PopsPanel.execMenu("live-autoEnterElementFullScreen", () => {
+			Panel.execMenu("live-autoEnterElementFullScreen", () => {
 				this.autoEnterElementFullScreen();
 			});
 		});
@@ -98,19 +96,26 @@ export const DouYinLive = {
 	 * 自动进入网页全屏
 	 */
 	autoEnterElementFullScreen() {
-		ReactUtils.waitReactPropsToSet(
-			"xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)",
-			"reactFiber",
-			{
-				check(reactInstance) {
-					return typeof reactInstance?.memoizedProps?.onClick === "function";
-				},
-				set(reactInstance, $target) {
-					log.success("自动进入网页全屏");
-					reactInstance.memoizedProps.onClick();
-				},
-			}
-		);
+		DOMUtils.ready(() => {
+			ReactUtils.waitReactPropsToSet(
+				"xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)",
+				"reactFiber",
+				{
+					check(reactInstance) {
+						return typeof reactInstance?.memoizedProps?.onClick === "function";
+					},
+					set(reactInstance, $target) {
+						let $xgIcon = $target.closest<HTMLElement>("xg-icon");
+						if ($xgIcon && DOMUtils.text($xgIcon).includes("退出网页全屏")) {
+							log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
+							return;
+						}
+						log.success("成功自动进入网页全屏");
+						reactInstance.memoizedProps.onClick();
+					},
+				}
+			);
+		});
 	},
 	/**
 	 * 选择画质
@@ -250,7 +255,7 @@ export const DouYinLive = {
 			}
 		};
 		let lockFn = new utils.LockFunction(() => {
-			if (!PopsPanel.getValue("live-waitToRemovePauseDialog")) {
+			if (!Panel.getValue("live-waitToRemovePauseDialog")) {
 				return;
 			}
 			$$<HTMLDivElement>("body > div[elementtiming='element-timing']").forEach(
@@ -311,13 +316,16 @@ export const DouYinLive = {
 	 * 修改视频背景颜色
 	 * @param color 颜色
 	 */
-	changeBackgroundColor(color: string) {
+	changeBackgroundColor() {
 		log.info("修改视频背景颜色");
+		let color = Panel.getValue<string>("live-changeBackgroundColor");
 		return addStyle(/*css*/ `
-		div[id^="living_room_player_container"] > div,
-		#chatroom > div{
-			background: ${color};
-		}	
+		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] div:has(>.xgplayer-dynamic-bg) {
+			background: ${color} !important;
+		}
+		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] .xgplayer-dynamic-bg{
+			visibility: hidden;
+		}
 		`);
 	},
 };

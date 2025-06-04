@@ -1,8 +1,20 @@
+import utils from "@whitesev/utils";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
+
+/**
+ * 监听的值
+ */
+type ListenerData = {
+	id: number;
+	key: string;
+	callback: (key: string, oldValue: any, newValue: any) => void;
+};
 
 export class StorageUtils {
 	/** 存储的键名 */
 	storageKey: string;
+	private listenData: UtilsDictionary<string, ListenerData>;
 	/**
 	 * 存储的键名，可以是多层的，如：a.b.c
 	 *
@@ -28,7 +40,7 @@ export class StorageUtils {
 		} else {
 			throw new Error("key参数类型错误，必须是字符串");
 		}
-		this.getLocalValue();
+		this.listenData = new utils.Dictionary();
 	}
 	/**
 	 * 获取本地值
@@ -54,9 +66,13 @@ export class StorageUtils {
 	 * @param value 值
 	 */
 	set(key: string, value: any) {
+		let oldValue = this.get(key);
 		let localValue = this.getLocalValue();
 		Reflect.set(localValue, key, value);
 		this.setLocalValue(localValue);
+		if (this.listenData.has(key)) {
+			this.listenData.get(key)!.callback(key, oldValue, value);
+		}
 	}
 	/**
 	 * 获取值
@@ -79,9 +95,13 @@ export class StorageUtils {
 	 * @param key 键
 	 */
 	delete(key: string) {
+		let oldValue = this.get(key);
 		let localValue = this.getLocalValue();
 		Reflect.deleteProperty(localValue, key);
 		this.setLocalValue(localValue);
+		if (this.listenData.has(key)) {
+			this.listenData.get(key)!.callback(key, oldValue, void 0);
+		}
 	}
 	/**
 	 * 判断是否存在该值
@@ -111,5 +131,74 @@ export class StorageUtils {
 	 */
 	clear() {
 		GM_deleteValue(this.storageKey);
+	}
+	/**
+	 * 监听值改变
+	 * + .set
+	 * + .delete
+	 * @param key 监听的键
+	 * @param callback 值改变的回调函数
+	 */
+	addValueChangeListener(
+		key: string,
+		callback: <T>(key: string, newValue: T, oldValue: T) => void
+	) {
+		let listenerId = Math.random();
+		this.listenData.set(key, {
+			id: listenerId,
+			key,
+			callback,
+		});
+		return listenerId;
+	}
+	/**
+	 * 移除监听
+	 * @param listenerId 监听的id或键名
+	 */
+	removeValueChangeListener(listenerId: number | string) {
+		let deleteKey = null;
+		for (const [key, value] of this.listenData.entries()) {
+			if (
+				(typeof listenerId === "string" && value.key === listenerId) ||
+				(typeof listenerId === "number" && value.id === listenerId)
+			) {
+				deleteKey = key;
+				break;
+			}
+		}
+		if (typeof deleteKey === "string") {
+			this.listenData.delete(deleteKey);
+			return true;
+		} else {
+			return false;
+		}
+	}
+	/**
+	 * 主动触发监听器
+	 * @param key 键
+	 * @param oldValue （可选）旧值
+	 * @param newValue （可选）新值
+	 */
+	triggerValueChangeListener(key: string, oldValue?: any, newValue?: any) {
+		if (!this.listenData.has(key)) {
+			return;
+		}
+		let listenData = this.listenData.get(key)!;
+		if (typeof listenData.callback === "function") {
+			let value = this.get(key);
+			let __newValue;
+			let __oldValue;
+			if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+				__oldValue = oldValue;
+			} else {
+				__oldValue = value;
+			}
+			if (typeof newValue !== "undefined" && arguments.length > 2) {
+				__newValue = newValue;
+			} else {
+				__newValue = value;
+			}
+			listenData.callback(key, __oldValue, __newValue);
+		}
 	}
 }

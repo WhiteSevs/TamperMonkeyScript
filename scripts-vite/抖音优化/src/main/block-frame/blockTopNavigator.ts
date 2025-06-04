@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { addStyle, log, utils } from "@/env";
 import { CommonUtil } from "@/utils/CommonUtil";
@@ -6,13 +6,15 @@ import { CommonUtil } from "@/utils/CommonUtil";
 /** 顶部导航栏屏蔽 */
 export const BlockTopNavigator = {
 	init() {
-		PopsPanel.execInheritMenuOnce(
-			"shieldTopNavigator",
-			"search-shieldTopNavigator",
+		Panel.exec(
+			["shieldTopNavigator", "search-shieldTopNavigator"],
 			() => {
 				return this.shieldTopNavigator();
 			},
-			(mainValue, childValue) => {
+			(keyList) => {
+				const [mainKey, childKey] = keyList;
+				let mainValue = Panel.getValue<boolean>(mainKey);
+				let childValue = Panel.getValue<number>(childKey);
 				if (DouYinRouter.isSearch()) {
 					if (childValue == 1) {
 						// 开
@@ -24,45 +26,46 @@ export const BlockTopNavigator = {
 						// 跟随主设置
 					}
 				}
+				return mainValue;
 			}
 		);
-		PopsPanel.execMenuOnce("shieldClientTip", () => {
+		Panel.execMenuOnce("shieldClientTip", () => {
 			return this.shieldClientTip();
 		});
-		PopsPanel.execMenuOnce("shieldFillingBricksAndStones", () => {
+		Panel.execMenuOnce("shieldFillingBricksAndStones", () => {
 			return this.shieldFillingBricksAndStones();
 		});
-		PopsPanel.execMenuOnce("shieldClient", () => {
+		Panel.execMenuOnce("shieldClient", () => {
 			return this.shieldClient();
 		});
-		PopsPanel.execMenuOnce("shieldQuickAccess", () => {
+		Panel.execMenuOnce("shieldQuickAccess", () => {
 			return this.shieldQuickAccess();
 		});
-		PopsPanel.execMenuOnce("shieldNotifitation", () => {
+		Panel.execMenuOnce("shieldNotifitation", () => {
 			return this.shieldNotifitation();
 		});
-		PopsPanel.execMenuOnce("shieldPrivateMessage", () => {
+		Panel.execMenuOnce("shieldPrivateMessage", () => {
 			return this.shieldPrivateMessage();
 		});
-		PopsPanel.execMenuOnce("shieldSubmission", () => {
+		Panel.execMenuOnce("shieldSubmission", () => {
 			return this.shieldSubmission();
 		});
-		PopsPanel.execMenuOnce("shieldWallpaper", () => {
+		Panel.execMenuOnce("shieldWallpaper", () => {
 			return this.shieldWallpaper();
 		});
-		PopsPanel.execMenuOnce("shieldBottomQuestionButton", () => {
+		Panel.execMenuOnce("shieldBottomQuestionButton", () => {
 			return this.shieldBottomQuestionButton();
 		});
-		PopsPanel.execMenuOnce("shield-topNav-rightMenu", () => {
+		Panel.execMenuOnce("shield-topNav-rightMenu", () => {
 			return this.shieldRightMenu();
 		});
-		PopsPanel.execMenuOnce("shield-topNav-rightMenu-more", () => {
+		Panel.execMenuOnce("shield-topNav-rightMenu-more", () => {
 			return this.shieldRightMenuMore();
 		});
-		PopsPanel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
+		Panel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
 			return this.shieldRightMenuLoginAvatar();
 		});
-		PopsPanel.execMenuOnce("shield-topNav-ai-search", () => {
+		Panel.execMenuOnce("shield-topNav-ai-search", () => {
 			return this.shieldAISearch();
 		});
 	},

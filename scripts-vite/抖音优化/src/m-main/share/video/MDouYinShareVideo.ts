@@ -2,13 +2,13 @@ import { addStyle, utils } from "@/env";
 import blockCSS from "./block.css?raw";
 import beautifyCSS from "./beautify.css?raw";
 import DOMUtils from "@whitesev/domutils";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 
 export const MDouYinShareVideo = {
 	init() {
 		addStyle(blockCSS);
 		addStyle(beautifyCSS);
-		PopsPanel.execMenuOnce("m-dy-share-video-coverGlobalClick", () => {
+		Panel.execMenuOnce("m-dy-share-video-coverGlobalClick", () => {
 			this.coverGlobalClick();
 		});
 	},

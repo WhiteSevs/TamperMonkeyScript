@@ -1,11 +1,11 @@
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { addStyle, log } from "@/env";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { CommonUtil } from "@/utils/CommonUtil";
 
 export const DouYinSearchHideElement = {
 	init() {
-		PopsPanel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
+		Panel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
 			return this.shieldReleatedSearches();
 		});
 	},
