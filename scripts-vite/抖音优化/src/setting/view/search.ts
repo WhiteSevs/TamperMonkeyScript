@@ -4,7 +4,7 @@ import { UISelect } from "../components/ui-select";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
 import { PopsPanelStorageApi } from "../panel-storage";
 
-const PanelSearchConfig: PopsPanelContentConfig = {
+export const PanelSearchConfig: PopsPanelContentConfig = {
 	id: "panel-config-search",
 	title: "搜索",
 	forms: [
@@ -184,5 +184,3 @@ const PanelSearchConfig: PopsPanelContentConfig = {
 		},
 	],
 };
-
-export { PanelSearchConfig };

@@ -8,10 +8,8 @@ import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
 import { UIButtonShortCut } from "../components/ui-button-shortcut";
 import { DouYinLiveShortCut } from "@/main/live/DouYinLiveShortCut";
-import { UIButton } from "../components/ui-button";
-import Qmsg from "qmsg";
 
-const PanelLiveConfig: PopsPanelContentConfig = {
+export const PanelLiveConfig: PopsPanelContentConfig = {
 	id: "panel-config-live",
 	title: "直播",
 	forms: [
@@ -122,9 +120,7 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 											$right.querySelector<HTMLInputElement>(
 												".pops-color-choose"
 											)!;
-										$color.value = Panel.getValue(
-											"live-changeBackgroundColor"
-										);
+										$color.value = Panel.getValue("live-changeBackgroundColor");
 										DOMUtils.on(
 											$color,
 											["input", "propertychange"],
@@ -443,5 +439,3 @@ const PanelLiveConfig: PopsPanelContentConfig = {
 		},
 	],
 };
-
-export { PanelLiveConfig };

@@ -9,9 +9,8 @@ import { UIButtonShortCut } from "../components/ui-button-shortcut";
 import { UISlider } from "../components/ui-slider";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
 import { DouYinVideoFilter } from "@/main/video/DouYinVideoFilter";
-import { UIInput } from "../components/ui-input";
 
-const PanelVideoConfig: PopsPanelContentConfig = {
+export const PanelVideoConfig: PopsPanelContentConfig = {
 	id: "panel-config-video",
 	title: "视频",
 	forms: [
@@ -638,5 +637,3 @@ const PanelVideoConfig: PopsPanelContentConfig = {
 		},
 	],
 };
-
-export { PanelVideoConfig };

@@ -17,7 +17,7 @@ function getGPU() {
 	// console.warn(debugInfo.UNMASKED_RENDERER_WEBGL, info);
 	return info;
 }
-const PanelCommonConfig: PopsPanelContentConfig = {
+export const PanelCommonConfig: PopsPanelContentConfig = {
 	id: "panel-config-common",
 	title: "通用",
 	forms: [
@@ -791,5 +791,3 @@ const PanelCommonConfig: PopsPanelContentConfig = {
 		},
 	],
 };
-
-export { PanelCommonConfig };
