@@ -21030,6 +21030,8 @@ declare class Pops {
                 callback: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement, menuListenerRootNode: HTMLElement) => boolean | void | Promise<boolean | void>;
                 item: /*elided*/ any[] | null;
             }[];
+            chileMenuLeftOrRightDistance: number;
+            childMenuTopOrBottomDistance: number;
             className: string;
             isAnimation: boolean;
             preventDefault: boolean;

@@ -116,6 +116,8 @@ export const rightClickMenuConfig =
 					],
 				},
 			],
+			chileMenuLeftOrRightDistance: 0,
+			childMenuTopOrBottomDistance: 0,
 			useShadowRoot: true,
 			className: "",
 			isAnimation: true,

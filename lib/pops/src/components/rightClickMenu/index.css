@@ -59,7 +59,7 @@ i.pops-rightClickMenu-icon[is-loading="true"] {
 }
 .pops-rightClickMenu ul li {
 	padding: 5px 10px;
-	margin: 2.5px 5px;
+	margin: 5px 5px;
 	border-radius: 3px;
 	display: flex;
 	width: -webkit-fill-available;
@@ -70,10 +70,4 @@ i.pops-rightClickMenu-icon[is-loading="true"] {
 	-moz-user-select: none;
 	-ms-user-select: none;
 	align-items: center;
-}
-.pops-rightClickMenu ul li:first-child {
-	margin-top: 5px;
-}
-.pops-rightClickMenu ul li:last-child {
-	margin-bottom: 5px;
 }

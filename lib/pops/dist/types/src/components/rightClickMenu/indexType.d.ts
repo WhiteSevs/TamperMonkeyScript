@@ -53,6 +53,16 @@ export interface PopsRightClickMenuDetails extends Pick<PopsCommonConfig, "useSh
      */
     data: PopsRightClickMenuDataDetails[];
     /**
+     * 子菜单的左右偏移距离
+     * @default 0
+     */
+    chileMenuLeftOrRightDistance?: number;
+    /**
+     * 子菜单的上下偏移距离
+     * @default 0
+     */
+    childMenuTopOrBottomDistance?: number;
+    /**
      * 自定义className，默认为空
      * @default ""
      */

@@ -297,34 +297,104 @@ export const PopsRightClickMenu = {
 			},
 			/**
 			 * 获取left、top偏移
-			 * @param menuElement 菜单元素
-			 * @param x
-			 * @param y
+			 * @param menuElement 当前生成的菜单元素
+			 * @param mousePosition 鼠标位置信息
+			 * @param isMainMenu 是否是主菜单
 			 */
-			getOffset(menuElement: HTMLElement, x: number, y: number) {
+			getOffset(
+				menuElement: HTMLElement,
+				mousePosition: { x: number; y: number },
+				parentInfo: {
+					$menu: HTMLElement;
+					$parentItem: HTMLElement;
+				} | null
+			) {
+				let result = {
+					top: 0,
+					right: 0,
+					bottom: 0,
+					left: 0,
+				};
 				let menuElementWidth = popsDOMUtils.width(menuElement);
 				let menuElementHeight = popsDOMUtils.height(menuElement);
+				/**
+				 * 限制的间隙距离
+				 */
+				let limitDistance = 1;
+				let maxPageLeftOffset = popsDOMUtils.width(globalThis) - limitDistance;
+				let maxPageTopOffset = popsDOMUtils.height(globalThis) - limitDistance;
 				/* left最大偏移 */
-				let maxLeftOffset =
-					popsDOMUtils.width(globalThis) - menuElementWidth - 1;
+				let maxLeftOffset = maxPageLeftOffset - menuElementWidth;
 				/* top最大偏移 */
-				let maxTopOffset =
-					popsDOMUtils.height(globalThis) - menuElementHeight - 8;
+				let maxTopOffset = maxPageTopOffset - menuElementHeight;
 
-				let currentLeftOffset = x;
-				let currentTopOffset = y;
-				/* 不允许超出left最大值 */
+				let chileMenuLeftOrRightDistance = config.chileMenuLeftOrRightDistance;
+				let childMenuTopOrBottomDistance = config.childMenuTopOrBottomDistance;
+				let currentLeftOffset = mousePosition.x;
+				let currentTopOffset = mousePosition.y;
 				currentLeftOffset = currentLeftOffset < 0 ? 0 : currentLeftOffset;
-				currentLeftOffset =
-					currentLeftOffset < maxLeftOffset ? currentLeftOffset : maxLeftOffset;
-				/* 不允许超出top最大值 */
+				// 不允许超出left最大值
+				if (currentLeftOffset + chileMenuLeftOrRightDistance >= maxLeftOffset) {
+					// 超过，那么子菜单将会在放在左边
+					// 偏移计算方式就是父菜单的右偏移+父菜单的宽度
+					if (parentInfo) {
+						// 子菜单
+						let mainMenuOffset = popsDOMUtils.offset(parentInfo.$menu);
+						currentLeftOffset =
+							maxPageLeftOffset -
+							mainMenuOffset.left -
+							chileMenuLeftOrRightDistance +
+							limitDistance;
+					} else {
+						// 主菜单 默认的
+						currentLeftOffset = limitDistance + chileMenuLeftOrRightDistance;
+					}
+					if (currentLeftOffset < 0) {
+						currentLeftOffset = 0;
+					} else if (currentLeftOffset > maxLeftOffset) {
+						currentLeftOffset = maxLeftOffset;
+					}
+					// 去除左偏移，变为右偏移
+					result.right = currentLeftOffset;
+					Reflect.deleteProperty(result, "left");
+				} else {
+					// 右边
+					currentLeftOffset = currentLeftOffset + chileMenuLeftOrRightDistance;
+					result.left = currentLeftOffset;
+					Reflect.deleteProperty(result, "right");
+				}
+				// 不允许超出top最大值
 				currentTopOffset = currentTopOffset < 0 ? 0 : currentTopOffset;
-				currentTopOffset =
-					currentTopOffset < maxTopOffset ? currentTopOffset : maxTopOffset;
-				return {
-					left: currentLeftOffset,
-					top: currentTopOffset,
-				};
+				if (currentTopOffset + childMenuTopOrBottomDistance >= maxTopOffset) {
+					// 超过，那么子菜单将会在放在上面
+					if (parentInfo) {
+						// 以项的top偏移为基准
+						let parentItemOffset = popsDOMUtils.offset(
+							parentInfo.$parentItem,
+							false
+						);
+						currentTopOffset =
+							maxPageTopOffset -
+							parentItemOffset.bottom -
+							childMenuTopOrBottomDistance +
+							limitDistance;
+					} else {
+						currentTopOffset = limitDistance + childMenuTopOrBottomDistance;
+					}
+					if (currentTopOffset < 0) {
+						currentTopOffset = limitDistance;
+					} else if (currentTopOffset > maxTopOffset) {
+						currentTopOffset = maxTopOffset;
+					}
+					// 去除上偏移，变为下偏移
+					result.bottom = currentTopOffset;
+					Reflect.deleteProperty(result, "top");
+				} else {
+					currentTopOffset = currentTopOffset + childMenuTopOrBottomDistance;
+					result.top = currentTopOffset;
+					Reflect.deleteProperty(result, "bottom");
+				}
+				return result;
 			},
 			/**
 			 * 显示菜单
@@ -360,14 +430,16 @@ export const PopsRightClickMenu = {
 					}
 					popsDOMUtils.appendBody($shadowContainer);
 				}
-				let { left: menuLeftOffset, top: menuTopOffset } = this.getOffset(
+				let offset = this.getOffset(
 					menuElement,
-					menuEvent.clientX,
-					menuEvent.clientY
+					{
+						x: menuEvent.clientX,
+						y: menuEvent.clientY,
+					},
+					null
 				);
 				popsDOMUtils.css(menuElement, {
-					left: menuLeftOffset,
-					top: menuTopOffset,
+					...offset,
 					display: "",
 				});
 				/* 过渡动画 */
@@ -417,16 +489,21 @@ export const PopsRightClickMenu = {
 				});
 				/* 添加到页面 */
 				popsDOMUtils.append($shadowRoot, menuElement);
-				let { left: menuLeftOffset, top: menuTopOffset } = this.getOffset(
+				let $parentMenu = targetLiElement.closest<HTMLElement>(
+					".pops-rightClickMenu"
+				)!;
+				let offset = this.getOffset(
 					menuElement,
-					posInfo.clientX,
-					posInfo.clientY
+					{
+						x: posInfo.clientX,
+						y: posInfo.clientY,
+					},
+					{
+						$menu: $parentMenu,
+						$parentItem: targetLiElement,
+					}
 				);
-				popsDOMUtils.css(menuElement, {
-					left: menuLeftOffset,
-					top: menuTopOffset,
-					display: "",
-				});
+				popsDOMUtils.css(menuElement, { ...offset, display: "" });
 				/* 过渡动画 */
 				if (config.isAnimation) {
 					popsDOMUtils.addClassName(menuElement, `pops-${PopsType}-anim-show`);
