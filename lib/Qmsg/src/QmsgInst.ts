@@ -394,7 +394,6 @@ export class QmsgMsg {
 	 * 设置消息数量统计
 	 */
 	setMsgCount() {
-		let QmsgContext = this;
 		let countClassName = QmsgUtils.getNameSpacify("count");
 		let wrapperClassName = `div.${QmsgUtils.getNameSpacify(
 			"data-position",

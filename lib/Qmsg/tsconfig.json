@@ -23,7 +23,17 @@
 		"outDir": "./dist",
 		// 输出.d.ts声明文件
 		"declaration": true,
-		"sourceMap": true
+		// 指定生成的声明文件的输出目录。
+		//"declarationDir": "dist/types",
+		// 为发出的 JavaScript 文件创建源映射文件。
+		"sourceMap": true,
+		"mapRoot": "./",
+		// 指定多个文件夹，其作用类似于./node_modules/@types.
+		//"typeRoots": ["./src/types", "src/types/"],
+		// 当未读取局部变量时启用错误报告。
+		"noUnusedLocals": true,
+		//未读取函数参数时引发错误
+		"noUnusedParameters": false
 	},
 	// 包含src下的所有文件
 	"include": ["src/**/*", "index.ts"]
