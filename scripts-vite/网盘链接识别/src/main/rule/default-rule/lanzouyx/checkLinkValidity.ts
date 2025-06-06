@@ -47,7 +47,7 @@ export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntrance
 			);
 			if (!response.status) {
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: response,
 				};
 			}
@@ -55,7 +55,7 @@ export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntrance
 			log.success("获取链接信息：", data);
 			if (data["code"] !== 200) {
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: data,
 				};
 			}

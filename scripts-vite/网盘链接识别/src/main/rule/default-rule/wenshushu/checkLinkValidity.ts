@@ -38,7 +38,7 @@ export const NetDiskCheckLinkValidity_wenshushu: NetDiskCheckLinkValidityEntranc
 			);
 			if (!response.status && utils.isNull(response.data.responseText)) {
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: response,
 				};
 			}

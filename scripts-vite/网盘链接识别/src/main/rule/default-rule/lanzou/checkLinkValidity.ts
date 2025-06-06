@@ -19,48 +19,60 @@ export const NetDiskCheckLinkValidity_lanzou: NetDiskCheckLinkValidityEntranceIn
 				shareCode,
 				accessCode
 			);
-			let urlObj = new URL(url);
+			let urlInst = new URL(url);
 
 			let response = await httpx.get(url, {
 				headers: {
 					"User-Agent": utils.getRandomPCUA(),
-					Host: urlObj.hostname,
-					Origin: urlObj.origin,
+					Host: urlInst.hostname,
+					Origin: urlInst.origin,
 					Referer: url,
 				},
 				...NetDiskCheckLinkValidityRequestOption,
 			});
 			if (!response.status) {
-				return {
-					...NetDiskCheckLinkValidity.status.error,
-					data: response,
-				};
+				if (response.type === "ontimeout") {
+					return {
+						...NetDiskCheckLinkValidity.status.networkError,
+						data: response,
+					};
+				}
 			}
-			let data = response.data.responseText;
-			if (utils.isNull(data)) {
+			let responseText = response.data.responseText;
+			if (utils.isNull(responseText)) {
+				// 空的
 				return {
 					...NetDiskCheckLinkValidity.status.failed,
-					data: data,
+					data: response,
+					tipMsg: "响应数据为空",
 				};
-			} else if (data.includes("输入密码")) {
+			} else if (responseText.includes("输入密码")) {
 				return {
 					...NetDiskCheckLinkValidity.status.needAccessCode,
-					data: data,
+					data: response,
 				};
 			} else if (
-				data.includes("来晚啦") ||
-				data.includes("不存在") ||
-				data.includes("div>文件链接失效，请获取新链接</div>")
+				responseText.includes("来晚啦") ||
+				responseText.includes("不存在") ||
+				responseText.includes("div>文件链接失效，请获取新链接</div>")
 			) {
 				return {
 					...NetDiskCheckLinkValidity.status.failed,
-					data: data,
+					data: response,
 				};
 			} else {
-				return {
-					...NetDiskCheckLinkValidity.status.success,
-					data: data,
-				};
+				if (response.status) {
+					return {
+						...NetDiskCheckLinkValidity.status.success,
+						data: response,
+					};
+				} else {
+					return {
+						...NetDiskCheckLinkValidity.status.unknown,
+						data: response,
+						tipMsg: response.msg,
+					};
+				}
 			}
 		},
 	};

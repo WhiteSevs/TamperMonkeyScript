@@ -37,7 +37,7 @@ export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceIns
 			);
 			if (!response.status && utils.isNull(response.data.responseText)) {
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: response,
 				};
 			}
@@ -87,7 +87,7 @@ export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceIns
 				) {
 					// 空的|失败的
 					return {
-						...NetDiskCheckLinkValidity.status.error,
+						...NetDiskCheckLinkValidity.status.networkError,
 						data: getResponse,
 					};
 				}

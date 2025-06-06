@@ -37,7 +37,7 @@ export const NetDiskCheckLinkValidity_115pan: NetDiskCheckLinkValidityEntranceIn
 					};
 				}
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: response,
 				};
 			}

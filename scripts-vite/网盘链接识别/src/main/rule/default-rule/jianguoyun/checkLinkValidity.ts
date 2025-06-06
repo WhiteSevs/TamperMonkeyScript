@@ -36,7 +36,7 @@ export const NetDiskCheckLinkValidity_jianguoyun: NetDiskCheckLinkValidityEntran
 			let responseText = response.data.responseText;
 			if (!response.status && utils.isNull(responseText)) {
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: response,
 				};
 			}

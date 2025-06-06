@@ -33,7 +33,7 @@ export const NetDiskCheckLinkValidity_onedrive: NetDiskCheckLinkValidityEntrance
 				let status = response.data?.status?.toString();
 				if (status === "429") {
 					return {
-						...NetDiskCheckLinkValidity.status.error,
+						...NetDiskCheckLinkValidity.status.networkError,
 						data: response,
 					};
 				} else if (status === "404") {
@@ -43,7 +43,7 @@ export const NetDiskCheckLinkValidity_onedrive: NetDiskCheckLinkValidityEntrance
 					};
 				}
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: response,
 				};
 			}

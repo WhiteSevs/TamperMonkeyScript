@@ -71,9 +71,9 @@ export const NetDiskCheckLinkValidityStatus = {
 		},
 	},
 	/**
-	 * 验证失败
+	 * 网络异常
 	 */
-	error: <NetDiskCheckLinkValidityStatusInstance>{
+	networkError: <NetDiskCheckLinkValidityStatusInstance>{
 		code: -404,
 		msg: "网络异常",
 		setIcon($el) {

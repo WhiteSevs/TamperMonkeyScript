@@ -33,7 +33,7 @@ export const NetDiskCheckLinkValidity_hecaiyun: NetDiskCheckLinkValidityEntrance
 			);
 			if (!response.status) {
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: response,
 				};
 			}

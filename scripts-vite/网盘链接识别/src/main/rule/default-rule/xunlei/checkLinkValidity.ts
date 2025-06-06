@@ -46,7 +46,7 @@ export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceIn
 				utils.isNull(postResponse.data.responseText)
 			) {
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: postResponse,
 				};
 			}
@@ -75,7 +75,7 @@ export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceIn
 
 			if (!getResponse.status && utils.isNull(getResponse.data.responseText)) {
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: [postResponse, getResponse],
 				};
 			}

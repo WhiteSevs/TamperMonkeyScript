@@ -49,14 +49,14 @@ export const NetDiskCheckLinkValidity_baidu: NetDiskCheckLinkValidityEntranceIns
 			if (!response.status) {
 				if (utils.isNull(responseText)) {
 					return {
-						...NetDiskCheckLinkValidity.status.error,
+						...NetDiskCheckLinkValidity.status.networkError,
 						data: response,
 					};
 				}
 			}
 			if (response.data.finalUrl.includes("404.html")) {
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: response,
 				};
 			}

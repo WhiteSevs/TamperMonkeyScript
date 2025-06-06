@@ -30,7 +30,7 @@ export const NetDiskCheckLinkValidity_uc: NetDiskCheckLinkValidityEntranceInstan
 			let responseText = response.data.responseText;
 			if (!response.status && utils.isNull(responseText)) {
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: response,
 				};
 			}

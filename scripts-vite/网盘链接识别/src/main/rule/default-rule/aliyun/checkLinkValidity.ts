@@ -32,7 +32,7 @@ export const NetDiskCheckLinkValidity_aliyun: NetDiskCheckLinkValidityEntranceIn
 			let data = utils.toJSON(response.data.responseText);
 			if (!response.status && utils.isNull(data)) {
 				return {
-					...NetDiskCheckLinkValidity.status.error,
+					...NetDiskCheckLinkValidity.status.networkError,
 					data: response,
 				};
 			}
