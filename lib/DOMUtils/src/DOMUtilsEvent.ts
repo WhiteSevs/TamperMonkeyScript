@@ -61,7 +61,7 @@ export class DOMUtilsEvent {
 	 */
 	on<T extends Event>(
 		element: DOMUtilsElementEventType,
-		eventType: string,
+		eventType: string | string[],
 		callback: (this: HTMLElement, event: T) => void,
 		option?: DOMUtilsEventListenerOption | boolean
 	): void;
@@ -77,16 +77,16 @@ export class DOMUtilsEvent {
 	 * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
 	 * @example
 	 * // 监听元素a.xx的click、tap、hover事件
-	 * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
-	 * DOMUtils.on("a.xx",["click","tap","hover"],(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
 	 * @example
 	 * // 监听全局document下的子元素a.xx的click事件
-	 * DOMUtils.on(document,"click tap hover","a.xx",(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
 	 */
 	on<T extends DOMUtils_EventType>(
@@ -112,22 +112,22 @@ export class DOMUtilsEvent {
 	 * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
 	 * @example
 	 * // 监听元素a.xx的click、tap、hover事件
-	 * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
-	 * DOMUtils.on("a.xx",["click","tap","hover"],(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
 	 * @example
 	 * // 监听全局document下的子元素a.xx的click事件
-	 * DOMUtils.on(document,"click tap hover","a.xx",(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
 	 */
 	on<T extends Event>(
 		element: DOMUtilsElementEventType,
-		eventType: string,
-		selector: string | string[] | (() => string | string[]) | undefined | null,
+		eventType: string | string[],
+		selector: string | string[] | undefined | null,
 		callback: (
 			this: HTMLElement,
 			event: T,
@@ -146,11 +146,11 @@ export class DOMUtilsEvent {
 			| Element
 			| null
 			| typeof globalThis,
-		eventType: DOMUtils_EventType | DOMUtils_EventType[] | string,
+		eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
 		selector:
 			| string
-			| undefined
 			| string[]
+			| undefined
 			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
 			| null,
 		callback?:
@@ -212,14 +212,26 @@ export class DOMUtilsEvent {
 		// 事件名
 		let eventTypeList: string[] = [];
 		if (Array.isArray(eventType)) {
-			eventTypeList = eventTypeList.concat(eventType as string[]);
+			eventTypeList = eventTypeList.concat(
+				eventType.filter(
+					(eventTypeItem) =>
+						typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
+				)
+			);
 		} else if (typeof eventType === "string") {
-			eventTypeList = eventTypeList.concat(eventType.split(" "));
+			eventTypeList = eventTypeList.concat(
+				eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== "")
+			);
 		}
 		// 子元素选择器
 		let selectorList: string[] = [];
 		if (Array.isArray(selector)) {
-			selectorList = selectorList.concat(selector);
+			selectorList = selectorList.concat(
+				selector.filter(
+					(selectorItem) =>
+						typeof selectorItem === "string" && selectorItem.toString() !== ""
+				)
+			);
 		} else if (typeof selector === "string") {
 			selectorList.push(selector);
 		}
@@ -237,11 +249,12 @@ export class DOMUtilsEvent {
 			isComposedPath: false,
 		};
 		if (typeof selector === "function") {
-			/* 这是为没有selector的情况 */
+			// 这是为没有selector的情况
+			// 那么它就是callback
 			listenerCallBack = selector as any;
 			listenerOption = getOption(args, 3, listenerOption);
 		} else {
-			/* 这是存在selector的情况 */
+			// 这是存在selector的情况
 			listenerOption = getOption(args, 4, listenerOption);
 		}
 		/**
@@ -270,12 +283,15 @@ export class DOMUtilsEvent {
 					let eventTarget = listenerOption.isComposedPath
 						? (event.composedPath()[0] as HTMLElement)
 						: (event.target as HTMLElement);
-					let totalParent =
-						DOMUtilsCommonUtils.isWin(elementItem) ||
-						// @ts-ignore
-						elementItem === DOMUtilsContext.windowApi.document
-							? DOMUtilsContext.windowApi.document.documentElement
-							: elementItem;
+					let totalParent = elementItem;
+					if (DOMUtilsCommonUtils.isWin(totalParent)) {
+						if (
+							totalParent ===
+							(DOMUtilsContext.windowApi.document as any as HTMLElement)
+						) {
+							totalParent = DOMUtilsContext.windowApi.document.documentElement;
+						}
+					}
 					let findValue = selectorList.find((selectorItem) => {
 						// 判断目标元素是否匹配选择器
 						if (DOMUtilsContext.matches(eventTarget, selectorItem)) {
@@ -322,8 +338,7 @@ export class DOMUtilsEvent {
 				/* 获取对象上的事件 */
 				let elementEvents: {
 					[k: string]: DOMUtilsEventListenerOptionsAttribute[];
-					// @ts-ignore
-				} = elementItem[DOMUtilsData.SymbolEvents] || {};
+				} = Reflect.get(elementItem, DOMUtilsData.SymbolEvents) || {};
 				/* 初始化对象上的xx事件 */
 				elementEvents[eventName] = elementEvents[eventName] || [];
 				elementEvents[eventName].push({
@@ -333,8 +348,7 @@ export class DOMUtilsEvent {
 					originCallBack: listenerCallBack,
 				});
 				/* 覆盖事件 */
-				// @ts-ignore
-				elementItem[DOMUtilsData.SymbolEvents] = elementEvents;
+				Reflect.set(elementItem, DOMUtilsData.SymbolEvents, elementEvents);
 			});
 		});
 	}
@@ -354,12 +368,8 @@ export class DOMUtilsEvent {
 	off<T extends DOMUtils_EventType>(
 		element: DOMUtilsElementEventType,
 		eventType: T | T[],
-		callback?: (
-			this: HTMLElement,
-			event: DOMUtils_Event[T],
-			selectorTarget: HTMLElement
-		) => void,
-		option?: boolean | EventListenerOptions,
+		callback?: (this: HTMLElement, event: DOMUtils_Event[T]) => void,
+		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -381,13 +391,9 @@ export class DOMUtilsEvent {
 	 */
 	off<T extends Event>(
 		element: DOMUtilsElementEventType,
-		eventType: string,
-		callback?: (
-			this: HTMLElement,
-			event: T,
-			selectorTarget: HTMLElement
-		) => void,
-		option?: boolean | EventListenerOptions,
+		eventType: string | string[],
+		callback?: (this: HTMLElement, event: T) => void,
+		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -411,13 +417,13 @@ export class DOMUtilsEvent {
 	off<T extends DOMUtils_EventType>(
 		element: DOMUtilsElementEventType,
 		eventType: T | T[],
-		selector?: DOMUtilsEventListenerOptionsAttribute["selector"] | undefined,
+		selector?: string | string[] | undefined | null,
 		callback?: (
 			this: HTMLElement,
 			event: DOMUtils_Event[T],
 			selectorTarget: HTMLElement
 		) => void,
-		option?: boolean | EventListenerOptions,
+		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -440,14 +446,14 @@ export class DOMUtilsEvent {
 	 */
 	off<T extends Event>(
 		element: DOMUtilsElementEventType,
-		eventType: string,
-		selector?: DOMUtilsEventListenerOptionsAttribute["selector"] | undefined,
+		eventType: string | string[],
+		selector?: string | string[] | undefined | null,
 		callback?: (
 			this: HTMLElement,
 			event: T,
 			selectorTarget: HTMLElement
 		) => void,
-		option?: boolean | EventListenerOptions,
+		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -465,18 +471,20 @@ export class DOMUtilsEvent {
 			| Element
 			| null
 			| typeof globalThis,
-		eventType: DOMUtils_EventType | DOMUtils_EventType[] | string,
-		selector?:
-			| DOMUtilsEventListenerOptionsAttribute["selector"]
+		eventType: DOMUtils_EventType | DOMUtils_EventType[] | string | string[],
+		selector:
+			| string
+			| string[]
 			| undefined
-			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void),
+			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
+			| null,
 		callback?:
 			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
-			| boolean
-			| EventListenerOptions,
-		option?:
-			| boolean
 			| EventListenerOptions
+			| boolean,
+		option?:
+			| EventListenerOptions
+			| boolean
 			| ((
 					value: DOMUtilsEventListenerOptionsAttribute,
 					index: number,
@@ -499,7 +507,7 @@ export class DOMUtilsEvent {
 			startIndex: number,
 			option: EventListenerOptions
 		) {
-			let currentParam: boolean | EventListenerOptions = args1[startIndex];
+			let currentParam: EventListenerOptions | boolean = args1[startIndex];
 			if (typeof currentParam === "boolean") {
 				option.capture = currentParam;
 			} else if (
@@ -527,14 +535,26 @@ export class DOMUtilsEvent {
 		}
 		let eventTypeList: string[] = [];
 		if (Array.isArray(eventType)) {
-			eventTypeList = eventTypeList.concat(eventType as string[]);
+			eventTypeList = eventTypeList.concat(
+				eventType.filter(
+					(eventTypeItem) =>
+						typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
+				)
+			);
 		} else if (typeof eventType === "string") {
-			eventTypeList = eventTypeList.concat(eventType.split(" "));
+			eventTypeList = eventTypeList.concat(
+				eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== "")
+			);
 		}
 		// 子元素选择器
 		let selectorList: string[] = [];
 		if (Array.isArray(selector)) {
-			selectorList = selectorList.concat(selector);
+			selectorList = selectorList.concat(
+				selector.filter(
+					(selectorItem) =>
+						typeof selectorItem === "string" && selectorItem.toString() !== ""
+				)
+			);
 		} else if (typeof selector === "string") {
 			selectorList.push(selector);
 		}
@@ -554,10 +574,12 @@ export class DOMUtilsEvent {
 			capture: false,
 		};
 		if (typeof selector === "function") {
-			/* 这是为没有selector的情况 */
+			// 这是为没有selector的情况
+			// 那么它就是callback
 			listenerCallBack = selector;
 			listenerOption = getOption(args, 3, listenerOption);
 		} else {
+			// 这是存在selector的情况
 			listenerOption = getOption(args, 4, listenerOption);
 		}
 		// 是否移除所有事件
@@ -574,11 +596,11 @@ export class DOMUtilsEvent {
 		}
 		elementList.forEach((elementItem) => {
 			/* 获取对象上的事件 */
-			// @ts-ignore
-			let elementEvents = elementItem[DOMUtilsData.SymbolEvents] || {};
+			let elementEvents: {
+				[key: string]: DOMUtilsEventListenerOptionsAttribute[];
+			} = Reflect.get(elementItem, DOMUtilsData.SymbolEvents) || {};
 			eventTypeList.forEach((eventName) => {
-				let handlers: DOMUtilsEventListenerOptionsAttribute[] =
-					elementEvents[eventName] || [];
+				let handlers = elementEvents[eventName] || [];
 				if (typeof filter === "function") {
 					handlers = handlers.filter(filter);
 				}
@@ -619,8 +641,7 @@ export class DOMUtilsEvent {
 					DOMUtilsCommonUtils.delete(elementEvents, eventType);
 				}
 			});
-			// @ts-ignore
-			elementItem[DOMUtilsData.SymbolEvents] = elementEvents;
+			Reflect.set(elementItem, DOMUtilsData.SymbolEvents, elementEvents);
 		});
 	}
 	/**
@@ -687,8 +708,8 @@ export class DOMUtilsEvent {
 							capture: handler["option"]["capture"],
 						});
 					}
-					// @ts-ignore
-					DOMUtilsCommonUtils.delete(elementItem[symbolEvents], eventName);
+					let events = Reflect.get(elementItem, symbolEvents);
+					DOMUtilsCommonUtils.delete(events, eventName);
 				});
 			});
 		});

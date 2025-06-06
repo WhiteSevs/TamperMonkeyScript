@@ -394,9 +394,9 @@ declare class DOMUtils extends DOMUtilsEvent {
     height(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
     /**
      * 获取元素的外部宽度（包括边框和外边距）
-     * @param {HTMLElement|string} element 要获取外部宽度的元素
-     * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
-     * @returns {number} 元素的外部宽度，单位为像素
+     * @param element 要获取外部宽度的元素
+     * @param [isShow=false] 是否已进行isShow，避免爆堆栈
+     * @returns 元素的外部宽度，单位为像素
      * @example
      * // 获取元素a.xx的外部宽度
      * DOMUtils.outerWidth(document.querySelector("a.xx"))

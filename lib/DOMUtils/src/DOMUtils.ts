@@ -12,7 +12,7 @@ class DOMUtils extends DOMUtilsEvent {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2025.5.30";
+	version = "2025.6.6";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -1110,12 +1110,13 @@ class DOMUtils extends DOMUtilsEvent {
 	width(
 		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow: boolean = false
-	) {
+	): number {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selector<HTMLElement>(element)!;
 		}
 		if (element == null) {
+			// @ts-ignore
 			return;
 		}
 		if (DOMUtilsCommonUtils.isWin(element)) {
@@ -1213,7 +1214,7 @@ class DOMUtils extends DOMUtilsEvent {
 	height(
 		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow: boolean = false
-	) {
+	): number {
 		let DOMUtilsContext = this;
 		if (DOMUtilsCommonUtils.isWin(element)) {
 			return DOMUtilsContext.windowApi.window.document.documentElement
@@ -1293,9 +1294,9 @@ class DOMUtils extends DOMUtilsEvent {
 	}
 	/**
 	 * 获取元素的外部宽度（包括边框和外边距）
-	 * @param {HTMLElement|string} element 要获取外部宽度的元素
-	 * @param {boolean} [isShow=false] 是否已进行isShow，避免爆堆栈
-	 * @returns {number} 元素的外部宽度，单位为像素
+	 * @param element 要获取外部宽度的元素
+	 * @param [isShow=false] 是否已进行isShow，避免爆堆栈
+	 * @returns 元素的外部宽度，单位为像素
 	 * @example
 	 * // 获取元素a.xx的外部宽度
 	 * DOMUtils.outerWidth(document.querySelector("a.xx"))
@@ -1312,7 +1313,7 @@ class DOMUtils extends DOMUtilsEvent {
 	outerWidth(
 		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow: boolean = false
-	) {
+	): number {
 		let DOMUtilsContext = this;
 		if (DOMUtilsCommonUtils.isWin(element)) {
 			return DOMUtilsContext.windowApi.window.innerWidth;
