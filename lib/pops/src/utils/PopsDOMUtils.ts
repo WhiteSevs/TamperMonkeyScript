@@ -1,15 +1,14 @@
 import type {
 	ParseHTMLReturnType,
+	PopsDOMUtils_EventType,
 	PopsDOMUtilsCreateElementAttributesMap,
+	PopsDOMUtilsEventListenerOption,
+	PopsDOMUtilsEventListenerOptionsAttribute,
+	PopsDOMUtils_Event,
+	PopsDOMUtilsElementEventType,
 } from "../types/PopsDOMUtilsEventType";
 import { SymbolEvents } from "../Config";
 import { OriginPrototype, PopsCore } from "../Core";
-import type {
-	PopsDOMUtils_Event,
-	PopsDOMUtils_EventType,
-	PopsDOMUtilsElementEventType,
-	PopsDOMUtilsEventListenerOptionsAttribute,
-} from "../types/PopsDOMUtilsEventType";
 import { popsUtils } from "./PopsUtils";
 import { PopsSafeUtils } from "./PopsSafeUtils";
 
@@ -32,17 +31,11 @@ class PopsDOMUtilsEvent {
 	 *    console.log("事件触发",event)
 	 * })
 	 */
-	on(
-		element: PopsDOMUtilsElementEventType,
-		eventType: string | string[],
-		callback: (event: Event) => void,
-		option?: boolean | AddEventListenerOptions
-	): void;
 	on<T extends PopsDOMUtils_EventType>(
 		element: PopsDOMUtilsElementEventType,
 		eventType: T | T[],
-		callback: (event: PopsDOMUtils_Event[T]) => void,
-		option?: boolean | AddEventListenerOptions
+		callback: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void,
+		option?: PopsDOMUtilsEventListenerOption | boolean
 	): void;
 	/**
 	 * 绑定事件
@@ -64,9 +57,9 @@ class PopsDOMUtilsEvent {
 	 */
 	on<T extends Event>(
 		element: PopsDOMUtilsElementEventType,
-		eventType: string,
-		callback: (event: T) => void,
-		option?: boolean | AddEventListenerOptions
+		eventType: string | string[],
+		callback: (this: HTMLElement, event: T) => void,
+		option?: PopsDOMUtilsEventListenerOption | boolean
 	): void;
 	/**
 	 * 绑定事件
@@ -80,31 +73,28 @@ class PopsDOMUtilsEvent {
 	 * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
 	 * @example
 	 * // 监听元素a.xx的click、tap、hover事件
-	 * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
-	 * DOMUtils.on("a.xx",["click","tap","hover"],(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
 	 * @example
 	 * // 监听全局document下的子元素a.xx的click事件
-	 * DOMUtils.on(document,"click tap hover","a.xx",(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
 	 */
 	on<T extends PopsDOMUtils_EventType>(
 		element: PopsDOMUtilsElementEventType,
 		eventType: T | T[],
-		selector: string | undefined | null,
-		callback: (event: PopsDOMUtils_Event[T]) => void,
-		option?: boolean | AddEventListenerOptions
-	): void;
-	on<T extends Event>(
-		element: PopsDOMUtilsElementEventType,
-		eventType: string | string[],
-		selector: string | undefined | null,
-		callback: (event: T) => void,
-		option?: boolean | AddEventListenerOptions
+		selector: string | string[] | undefined | null,
+		callback: (
+			this: HTMLElement,
+			event: PopsDOMUtils_Event[T],
+			selectorTarget: HTMLElement
+		) => void,
+		option?: PopsDOMUtilsEventListenerOption | boolean
 	): void;
 	/**
 	 * 绑定事件
@@ -118,24 +108,28 @@ class PopsDOMUtilsEvent {
 	 * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
 	 * @example
 	 * // 监听元素a.xx的click、tap、hover事件
-	 * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
-	 * DOMUtils.on("a.xx",["click","tap","hover"],(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
 	 * @example
 	 * // 监听全局document下的子元素a.xx的click事件
-	 * DOMUtils.on(document,"click tap hover","a.xx",(event)=>{
-	 *    console.log("事件触发",event)
+	 * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
+	 *    console.log("事件触发", event, selectorTarget)
 	 * })
 	 */
 	on<T extends Event>(
 		element: PopsDOMUtilsElementEventType,
-		eventType: string,
-		selector: string | undefined | null,
-		callback: (event: T) => void,
-		option?: boolean | AddEventListenerOptions
+		eventType: string | string[],
+		selector: string | string[] | undefined | null,
+		callback: (
+			this: HTMLElement,
+			event: T,
+			selectorTarget: HTMLElement
+		) => void,
+		option?: PopsDOMUtilsEventListenerOption | boolean
 	): void;
 	on<T extends Event>(
 		element:
@@ -148,10 +142,22 @@ class PopsDOMUtilsEvent {
 			| Element
 			| null
 			| typeof globalThis,
-		eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[] | string,
-		selector: string | undefined | ((event: T) => void) | null,
-		callback?: ((event: T) => void) | boolean | AddEventListenerOptions,
-		option?: boolean | AddEventListenerOptions
+		eventType:
+			| PopsDOMUtils_EventType
+			| PopsDOMUtils_EventType[]
+			| string
+			| string[],
+		selector:
+			| string
+			| string[]
+			| undefined
+			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
+			| null,
+		callback?:
+			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
+			| PopsDOMUtilsEventListenerOption
+			| boolean,
+		option?: PopsDOMUtilsEventListenerOption | boolean
 	) {
 		/**
 		 * 获取option配置
@@ -162,10 +168,11 @@ class PopsDOMUtilsEvent {
 		function getOption(
 			args: IArguments,
 			startIndex: number,
-			option: AddEventListenerOptions
+			option: PopsDOMUtilsEventListenerOption
 		) {
-			if (typeof args[startIndex] === "boolean") {
-				option.capture = args[startIndex];
+			let currentParam = args[startIndex];
+			if (typeof currentParam === "boolean") {
+				option.capture = currentParam;
 				if (typeof args[startIndex + 1] === "boolean") {
 					option.once = args[startIndex + 1];
 				}
@@ -173,14 +180,16 @@ class PopsDOMUtilsEvent {
 					option.passive = args[startIndex + 2];
 				}
 			} else if (
-				typeof args[startIndex] === "object" &&
-				("capture" in args[startIndex] ||
-					"once" in args[startIndex] ||
-					"passive" in args[startIndex])
+				typeof currentParam === "object" &&
+				("capture" in currentParam ||
+					"once" in currentParam ||
+					"passive" in currentParam ||
+					"isComposedPath" in currentParam)
 			) {
-				option.capture = args[startIndex].capture;
-				option.once = args[startIndex].once;
-				option.passive = args[startIndex].passive;
+				option.capture = currentParam.capture;
+				option.once = currentParam.once;
+				option.passive = currentParam.passive;
+				option.isComposedPath = currentParam.isComposedPath;
 			}
 			return option;
 		}
@@ -188,7 +197,7 @@ class PopsDOMUtilsEvent {
 		let DOMUtilsContext = this;
 		let args = arguments;
 		if (typeof element === "string") {
-			element = PopsCore.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -200,34 +209,59 @@ class PopsDOMUtilsEvent {
 		} else {
 			elementList.push(element as HTMLElement);
 		}
-
+		// 事件名
 		let eventTypeList: string[] = [];
 		if (Array.isArray(eventType)) {
-			eventTypeList = eventTypeList.concat(eventType as string[]);
+			eventTypeList = eventTypeList.concat(
+				eventType.filter(
+					(eventTypeItem) =>
+						typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
+				)
+			);
 		} else if (typeof eventType === "string") {
-			eventTypeList = eventTypeList.concat(eventType.split(" "));
+			eventTypeList = eventTypeList.concat(
+				eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== "")
+			);
 		}
-		let _selector_: string | undefined = selector as any;
-		let _callback_: (event: T) => void = callback as any;
-		let _option_: AddEventListenerOptions = {
+		// 子元素选择器
+		let selectorList: string[] = [];
+		if (Array.isArray(selector)) {
+			selectorList = selectorList.concat(
+				selector.filter(
+					(selectorItem) =>
+						typeof selectorItem === "string" && selectorItem.toString() !== ""
+				)
+			);
+		} else if (typeof selector === "string") {
+			selectorList.push(selector);
+		}
+		// 事件回调
+		let listenerCallBack: (
+			this: HTMLElement,
+			event: Event,
+			selectorTarget?: HTMLElement
+		) => void = callback as any;
+		// 事件配置
+		let listenerOption: PopsDOMUtilsEventListenerOption = {
 			capture: false,
 			once: false,
 			passive: false,
+			isComposedPath: false,
 		};
 		if (typeof selector === "function") {
-			/* 这是为没有selector的情况 */
-			_selector_ = void 0;
-			_callback_ = selector;
-			_option_ = getOption(args, 3, _option_);
+			// 这是为没有selector的情况
+			// 那么它就是callback
+			listenerCallBack = selector as any;
+			listenerOption = getOption(args, 3, listenerOption);
 		} else {
-			/* 这是存在selector的情况 */
-			_option_ = getOption(args, 4, _option_);
+			// 这是存在selector的情况
+			listenerOption = getOption(args, 4, listenerOption);
 		}
 		/**
 		 * 如果是once，那么删除该监听和元素上的事件和监听
 		 */
 		function checkOptionOnceToRemoveEventListener() {
-			if (_option_.once) {
+			if (listenerOption.once) {
 				DOMUtilsContext.off(
 					element,
 					eventType as any,
@@ -238,57 +272,80 @@ class PopsDOMUtilsEvent {
 			}
 		}
 		elementList.forEach((elementItem) => {
-			function ownCallBack(event: Event) {
-				let target = event.target as HTMLElement;
-				if (_selector_) {
-					/* 存在自定义子元素选择器 */
-					let totalParent = popsUtils.isWin(elementItem)
-						? PopsCore.document.documentElement
-						: elementItem;
-					if (target.matches(_selector_)) {
-						/* 当前目标可以被selector所匹配到 */
-						_callback_.call(target, event as any);
-						checkOptionOnceToRemoveEventListener();
-					} else if (
-						target.closest(_selector_) &&
-						totalParent.contains(target.closest(_selector_))
-					) {
+			/**
+			 * 事件回调
+			 * @param event
+			 */
+			function domUtilsEventCallBack(event: Event) {
+				if (selectorList.length) {
+					/* 存在子元素选择器 */
+					// 这时候的this和target都是子元素选择器的元素
+					let eventTarget = listenerOption.isComposedPath
+						? (event.composedPath()[0] as HTMLElement)
+						: (event.target as HTMLElement);
+					let totalParent = elementItem;
+					if (popsUtils.isWin(totalParent)) {
+						if (totalParent === (PopsCore.document as any as HTMLElement)) {
+							totalParent = PopsCore.document.documentElement;
+						}
+					}
+					let findValue = selectorList.find((selectorItem) => {
+						// 判断目标元素是否匹配选择器
+						if (DOMUtilsContext.matches(eventTarget, selectorItem)) {
+							/* 当前目标可以被selector所匹配到 */
+							return true;
+						}
 						/* 在上层与主元素之间寻找可以被selector所匹配到的 */
-						let closestElement = target.closest(_selector_);
-						/* event的target值不能直接修改 */
-						OriginPrototype.Object.defineProperty(event, "target", {
-							get() {
-								return closestElement;
-							},
-						});
-						_callback_.call(closestElement, event as any);
+						let $closestMatches = DOMUtilsContext.closest<HTMLElement>(
+							eventTarget,
+							selectorItem
+						);
+						if ($closestMatches && totalParent?.contains($closestMatches)) {
+							eventTarget = $closestMatches;
+							return true;
+						}
+						return false;
+					});
+					if (findValue) {
+						// 这里尝试使用defineProperty修改event的target值
+						try {
+							OriginPrototype.Object.defineProperty(event, "target", {
+								get() {
+									return eventTarget;
+								},
+							});
+						} catch (error) {}
+						listenerCallBack.call(eventTarget, event as any, eventTarget);
 						checkOptionOnceToRemoveEventListener();
 					}
 				} else {
-					_callback_.call(elementItem, event as any);
+					// 这时候的this指向监听的元素
+					listenerCallBack.call(elementItem, event as any);
 					checkOptionOnceToRemoveEventListener();
 				}
 			}
 
 			/* 遍历事件名设置元素事件 */
 			eventTypeList.forEach((eventName) => {
-				elementItem.addEventListener(eventName, ownCallBack, _option_);
-
-				if (_callback_ && (_callback_ as any).delegate) {
-					elementItem.setAttribute("data-delegate", _selector_ as string);
-				}
+				elementItem.addEventListener(
+					eventName,
+					domUtilsEventCallBack,
+					listenerOption
+				);
 				/* 获取对象上的事件 */
-				let elementEvents = (elementItem as any)[SymbolEvents] || {};
+				let elementEvents: {
+					[k: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
+				} = Reflect.get(elementItem, SymbolEvents) || {};
 				/* 初始化对象上的xx事件 */
 				elementEvents[eventName] = elementEvents[eventName] || [];
 				elementEvents[eventName].push({
-					selector: _selector_,
-					option: _option_,
-					callback: ownCallBack,
-					originCallBack: _callback_,
+					selector: selectorList,
+					option: listenerOption,
+					callback: domUtilsEventCallBack,
+					originCallBack: listenerCallBack,
 				});
 				/* 覆盖事件 */
-				(elementItem as any)[SymbolEvents] = elementEvents;
+				Reflect.set(elementItem, SymbolEvents, elementEvents);
 			});
 		});
 	}
@@ -301,26 +358,15 @@ class PopsDOMUtilsEvent {
 	 * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
 	 * @param filter (可选)过滤函数，对元素属性上的事件进行过滤出想要删除的事件
 	 * @example
-	 * // 取消监听元素a.xx的click事件
+	 * // 取消监听元素a.xx所有的click事件
 	 * DOMUtils.off(document.querySelector("a.xx"),"click")
 	 * DOMUtils.off("a.xx","click")
 	 */
-	off(
-		element: PopsDOMUtilsElementEventType,
-		eventType: string | string[],
-		callback?: (event: Event) => void,
-		option?: boolean | AddEventListenerOptions,
-		filter?: (
-			value: PopsDOMUtilsEventListenerOptionsAttribute,
-			index: number,
-			array: PopsDOMUtilsEventListenerOptionsAttribute[]
-		) => boolean
-	): void;
 	off<T extends PopsDOMUtils_EventType>(
 		element: PopsDOMUtilsElementEventType,
 		eventType: T | T[],
-		callback?: (event: PopsDOMUtils_Event[T]) => void,
-		option?: boolean | AddEventListenerOptions,
+		callback?: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void,
+		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: PopsDOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -342,9 +388,9 @@ class PopsDOMUtilsEvent {
 	 */
 	off<T extends Event>(
 		element: PopsDOMUtilsElementEventType,
-		eventType: string,
-		callback?: (event: T) => void,
-		option?: boolean | AddEventListenerOptions,
+		eventType: string | string[],
+		callback?: (this: HTMLElement, event: T) => void,
+		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: PopsDOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -368,9 +414,13 @@ class PopsDOMUtilsEvent {
 	off<T extends PopsDOMUtils_EventType>(
 		element: PopsDOMUtilsElementEventType,
 		eventType: T | T[],
-		selector?: string | undefined,
-		callback?: (event: PopsDOMUtils_Event[T]) => void,
-		option?: boolean | AddEventListenerOptions,
+		selector?: string | string[] | undefined | null,
+		callback?: (
+			this: HTMLElement,
+			event: PopsDOMUtils_Event[T],
+			selectorTarget: HTMLElement
+		) => void,
+		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: PopsDOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -394,9 +444,13 @@ class PopsDOMUtilsEvent {
 	off<T extends Event>(
 		element: PopsDOMUtilsElementEventType,
 		eventType: string | string[],
-		selector?: string | undefined,
-		callback?: (event: T) => void,
-		option?: boolean | AddEventListenerOptions,
+		selector?: string | string[] | undefined | null,
+		callback?: (
+			this: HTMLElement,
+			event: T,
+			selectorTarget: HTMLElement
+		) => void,
+		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: PopsDOMUtilsEventListenerOptionsAttribute,
 			index: number,
@@ -419,11 +473,19 @@ class PopsDOMUtilsEvent {
 			| PopsDOMUtils_EventType[]
 			| string
 			| string[],
-		selector?: string | undefined | ((event: T) => void),
-		callback?: ((event: T) => void) | boolean | AddEventListenerOptions,
+		selector:
+			| string
+			| string[]
+			| undefined
+			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
+			| null,
+		callback?:
+			| ((this: HTMLElement, event: T, selectorTarget: HTMLElement) => void)
+			| EventListenerOptions
+			| boolean,
 		option?:
+			| EventListenerOptions
 			| boolean
-			| AddEventListenerOptions
 			| ((
 					value: PopsDOMUtilsEventListenerOptionsAttribute,
 					index: number,
@@ -446,20 +508,21 @@ class PopsDOMUtilsEvent {
 			startIndex: number,
 			option: EventListenerOptions
 		) {
-			if (typeof args1[startIndex] === "boolean") {
-				option.capture = args1[startIndex];
+			let currentParam: EventListenerOptions | boolean = args1[startIndex];
+			if (typeof currentParam === "boolean") {
+				option.capture = currentParam;
 			} else if (
-				typeof args1[startIndex] === "object" &&
-				"capture" in args1[startIndex]
+				typeof currentParam === "object" &&
+				"capture" in currentParam
 			) {
-				option.capture = args1[startIndex].capture;
+				option.capture = currentParam.capture;
 			}
 			return option;
 		}
-
+		let DOMUtilsContext = this;
 		let args = arguments;
 		if (typeof element === "string") {
-			element = PopsCore.document.querySelectorAll(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -473,63 +536,103 @@ class PopsDOMUtilsEvent {
 		}
 		let eventTypeList: string[] = [];
 		if (Array.isArray(eventType)) {
-			eventTypeList = eventTypeList.concat(eventType as string[]);
+			eventTypeList = eventTypeList.concat(
+				eventType.filter(
+					(eventTypeItem) =>
+						typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
+				)
+			);
 		} else if (typeof eventType === "string") {
-			eventTypeList = eventTypeList.concat(eventType.split(" "));
+			eventTypeList = eventTypeList.concat(
+				eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== "")
+			);
 		}
-		/**
-		 * 子元素选择器
-		 */
-		let _selector_: string | undefined = selector as any;
+		// 子元素选择器
+		let selectorList: string[] = [];
+		if (Array.isArray(selector)) {
+			selectorList = selectorList.concat(
+				selector.filter(
+					(selectorItem) =>
+						typeof selectorItem === "string" && selectorItem.toString() !== ""
+				)
+			);
+		} else if (typeof selector === "string") {
+			selectorList.push(selector);
+		}
 		/**
 		 * 事件的回调函数
 		 */
-		let _callback_: (event: T) => void = callback as any;
+		let listenerCallBack: (
+			this: HTMLElement,
+			event: T,
+			selectorTarget: HTMLElement
+		) => void = callback as any;
 
 		/**
 		 * 事件的配置
 		 */
-		let _option_: EventListenerOptions = {
+		let listenerOption: EventListenerOptions = {
 			capture: false,
 		};
 		if (typeof selector === "function") {
-			/* 这是为没有selector的情况 */
-			_selector_ = void 0;
-			_callback_ = selector;
-			_option_ = getOption(args, 3, _option_);
+			// 这是为没有selector的情况
+			// 那么它就是callback
+			listenerCallBack = selector;
+			listenerOption = getOption(args, 3, listenerOption);
 		} else {
-			_option_ = getOption(args, 4, _option_);
+			// 这是存在selector的情况
+			listenerOption = getOption(args, 4, listenerOption);
+		}
+		// 是否移除所有事件
+		let isRemoveAll = false;
+		if (args.length === 2) {
+			// 目标函数、事件名
+			isRemoveAll = true;
+		} else if (
+			(args.length === 3 && typeof args[2] === "string") ||
+			Array.isArray(args[2])
+		) {
+			// 目标函数、事件名、子元素选择器
+			isRemoveAll = true;
 		}
 		elementList.forEach((elementItem) => {
 			/* 获取对象上的事件 */
-			let elementEvents = (elementItem as any)[SymbolEvents] || {};
+			let elementEvents: {
+				[key: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
+			} = Reflect.get(elementItem, SymbolEvents) || {};
 			eventTypeList.forEach((eventName) => {
-				let handlers: PopsDOMUtilsEventListenerOptionsAttribute[] =
-					elementEvents[eventName] || [];
+				let handlers = elementEvents[eventName] || [];
 				if (typeof filter === "function") {
 					handlers = handlers.filter(filter);
 				}
 				for (let index = 0; index < handlers.length; index++) {
 					let handler = handlers[index];
-					let flag = false;
-					if (!_selector_ || handler.selector === _selector_) {
-						/* selector不为空，进行selector判断 */
-						flag = true;
-					}
+					let flag = true;
 					if (
-						!_callback_ ||
-						handler.callback === _callback_ ||
-						handler.originCallBack === _callback_
+						flag &&
+						listenerCallBack &&
+						handler.originCallBack !== listenerCallBack
 					) {
-						/* callback不为空，进行callback判断 */
-						flag = true;
+						// callback不同
+						flag = false;
 					}
-
-					if (flag) {
+					if (flag && selectorList.length && Array.isArray(handler.selector)) {
+						if (
+							JSON.stringify(handler.selector) !== JSON.stringify(selectorList)
+						) {
+							// 子元素选择器不同
+							flag = false;
+						}
+					}
+					if (flag && listenerOption.capture !== handler.option.capture) {
+						// 事件的配置项不同
+						flag = false;
+					}
+					if (flag || isRemoveAll) {
 						elementItem.removeEventListener(
 							eventName,
 							handler.callback,
-							_option_
+							handler.option
 						);
 						handlers.splice(index--, 1);
 					}
@@ -539,7 +642,7 @@ class PopsDOMUtilsEvent {
 					popsUtils.delete(elementEvents, eventType);
 				}
 			});
-			(elementItem as any)[SymbolEvents] = elementEvents;
+			Reflect.set(elementItem, SymbolEvents, elementEvents);
 		});
 	}
 	/**
@@ -1081,6 +1184,268 @@ class PopsDOMUtilsEvent {
 					capture: Boolean(capture),
 				});
 			});
+		}
+	}
+	/**
+	 * 选择器，可使用以下的额外语法
+	 *
+	 * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+	 * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+	 * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+	 * @param selector 选择器
+	 * @example
+	 * DOMUtils.selector("div:contains('测试')")
+	 * > div.xxx
+	 * @example
+	 * DOMUtils.selector("div:empty")
+	 * > div.xxx
+	 * @example
+	 * DOMUtils.selector("div:regexp('^xxxx$')")
+	 * > div.xxx
+	 */
+	selector<K extends keyof HTMLElementTagNameMap>(
+		selector: K
+	): HTMLElementTagNameMap[K] | undefined;
+	selector<E extends Element = Element>(selector: string): E | undefined;
+	selector<E extends Element = Element>(selector: string) {
+		return this.selectorAll<E>(selector)[0];
+	}
+	/**
+	 * 选择器，可使用以下的额外语法
+	 *
+	 * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+	 * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+	 * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+	 * @param selector 选择器
+	 * @example
+	 * DOMUtils.selectorAll("div:contains('测试')")
+	 * > [div.xxx]
+	 * @example
+	 * DOMUtils.selectorAll("div:empty")
+	 * > [div.xxx]
+	 * @example
+	 * DOMUtils.selectorAll("div:regexp('^xxxx$')")
+	 * > [div.xxx]
+	 * @example
+	 * DOMUtils.selectorAll("div:regexp(/^xxx/ig)")
+	 * > [div.xxx]
+	 */
+	selectorAll<K extends keyof HTMLElementTagNameMap>(
+		selector: K
+	): HTMLElementTagNameMap[K][];
+	selectorAll<E extends Element = Element>(selector: string): E[];
+	selectorAll<E extends Element = Element>(selector: string) {
+		selector = selector.trim();
+		if (selector.match(/[^\s]{1}:empty$/gi)) {
+			// empty 语法
+			selector = selector.replace(/:empty$/gi, "");
+			return Array.from(PopsCore.document.querySelectorAll<E>(selector)).filter(
+				($ele) => {
+					return $ele?.innerHTML?.trim() === "";
+				}
+			);
+		} else if (
+			selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) ||
+			selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)
+		) {
+			// contains 语法
+			let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+			let text = textMatch![2];
+			selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+			return Array.from(PopsCore.document.querySelectorAll<E>(selector)).filter(
+				($ele) => {
+					// @ts-ignore
+					return ($ele?.textContent || $ele?.innerText)?.includes(text);
+				}
+			);
+		} else if (
+			selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) ||
+			selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)
+		) {
+			// regexp 语法
+			let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+			let pattern = textMatch![2];
+			let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+			let flags = "";
+			if (flagMatch) {
+				pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+				flags = flagMatch[3];
+			}
+			let regexp = new RegExp(pattern, flags);
+			selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+			return Array.from(PopsCore.document.querySelectorAll<E>(selector)).filter(
+				($ele) => {
+					// @ts-ignore
+					return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
+				}
+			);
+		} else {
+			// 普通语法
+			return Array.from(PopsCore.document.querySelectorAll<E>(selector));
+		}
+	}
+	/**
+	 * 匹配元素，可使用以下的额外语法
+	 *
+	 * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+	 * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+	 * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+	 * @param $el 元素
+	 * @param selector 选择器
+	 * @example
+	 * DOMUtils.matches("div:contains('测试')")
+	 * > true
+	 * @example
+	 * DOMUtils.matches("div:empty")
+	 * > true
+	 * @example
+	 * DOMUtils.matches("div:regexp('^xxxx$')")
+	 * > true
+	 * @example
+	 * DOMUtils.matches("div:regexp(/^xxx/ig)")
+	 * > false
+	 */
+	matches(
+		$el: HTMLElement | Element | null | undefined,
+		selector: string
+	): boolean {
+		selector = selector.trim();
+		if ($el == null) {
+			return false;
+		}
+
+		if (selector.match(/[^\s]{1}:empty$/gi)) {
+			// empty 语法
+			selector = selector.replace(/:empty$/gi, "");
+			return $el.matches(selector) && $el?.innerHTML?.trim() === "";
+		} else if (
+			selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) ||
+			selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)
+		) {
+			// contains 语法
+			let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+			let text = textMatch![2];
+			selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+			// @ts-ignore
+			let content = $el?.textContent || $el?.innerText;
+			if (typeof content !== "string") {
+				content = "";
+			}
+			return $el.matches(selector) && content?.includes(text);
+		} else if (
+			selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) ||
+			selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)
+		) {
+			// regexp 语法
+			let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+			let pattern = textMatch![2];
+			let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+			let flags = "";
+			if (flagMatch) {
+				pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+				flags = flagMatch[3];
+			}
+			let regexp = new RegExp(pattern, flags);
+			selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+			// @ts-ignore
+			let content = $el?.textContent || $el?.innerText;
+			if (typeof content !== "string") {
+				content = "";
+			}
+			return $el.matches(selector) && Boolean(content?.match(regexp));
+		} else {
+			// 普通语法
+			return $el.matches(selector);
+		}
+	}
+	/**
+	 * 根据选择器获取上层元素，可使用以下的额外语法
+	 *
+	 * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+	 * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+	 * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+	 * @param $el 元素
+	 * @param selector 选择器
+	 * @example
+	 * DOMUtils.closest("div:contains('测试')")
+	 * > div.xxx
+	 * @example
+	 * DOMUtils.closest("div:empty")
+	 * > div.xxx
+	 * @example
+	 * DOMUtils.closest("div:regexp('^xxxx$')")
+	 * > div.xxxx
+	 * @example
+	 * DOMUtils.closest("div:regexp(/^xxx/ig)")
+	 * > null
+	 */
+	closest<K extends keyof HTMLElementTagNameMap>(
+		$el: HTMLElement | Element,
+		selector: string
+	): HTMLElementTagNameMap[K] | null;
+	closest<E extends Element = Element>(
+		$el: HTMLElement | Element,
+		selector: string
+	): E | null;
+	closest<E extends Element = Element>(
+		$el: HTMLElement | Element,
+		selector: string
+	): E | null {
+		selector = selector.trim();
+
+		if (selector.match(/[^\s]{1}:empty$/gi)) {
+			// empty 语法
+			selector = selector.replace(/:empty$/gi, "");
+			let $closest = $el?.closest<E>(selector);
+			if ($closest && $closest?.innerHTML?.trim() === "") {
+				return $closest;
+			}
+			return null;
+		} else if (
+			selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) ||
+			selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)
+		) {
+			// contains 语法
+			let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+			let text = textMatch![2];
+			selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+			let $closest = $el?.closest<E>(selector);
+			if ($closest) {
+				// @ts-ignore
+				let content = $el?.textContent || $el?.innerText;
+				if (typeof content === "string" && content.includes(text)) {
+					return $closest;
+				}
+			}
+			return null;
+		} else if (
+			selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) ||
+			selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)
+		) {
+			// regexp 语法
+			let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+			let pattern = textMatch![2];
+			let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+			let flags = "";
+			if (flagMatch) {
+				pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+				flags = flagMatch[3];
+			}
+			let regexp = new RegExp(pattern, flags);
+			selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+			let $closest = $el?.closest<E>(selector);
+			if ($closest) {
+				// @ts-ignore
+				let content = $el?.textContent || $el?.innerText;
+				if (typeof content === "string" && content.match(regexp)) {
+					return $closest;
+				}
+			}
+			return null;
+		} else {
+			// 普通语法
+			let $closest = $el?.closest<E>(selector);
+			return $closest;
 		}
 	}
 }

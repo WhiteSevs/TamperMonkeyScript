@@ -149,8 +149,9 @@ export const PopsRightClickMenu = {
 			/**
 			 * contextmenu事件
 			 * @param event
+			 * @param selectorTarget
 			 */
-			contextMenuEvent(event: PointerEvent) {
+			contextMenuEvent(event: PointerEvent, selectorTarget: HTMLElement) {
 				if (config.preventDefault) {
 					popsDOMUtils.preventEvent(event);
 				}
@@ -158,15 +159,19 @@ export const PopsRightClickMenu = {
 				if (PopsContextMenu.rootElement) {
 					PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
 				}
-				let rootElement = PopsContextMenu.showMenu(event, config.data);
+				let rootElement = PopsContextMenu.showMenu(
+					event,
+					config.data,
+					selectorTarget
+				);
 				PopsContextMenu.rootElement = rootElement;
 				if (config.only) {
 					PopsHandler.handlePush(PopsType, {
 						$shadowRoot: $shadowRoot,
 						$shadowContainer: $shadowContainer,
 						guid: guid,
-						animElement: rootElement as HTMLDivElement,
-						popsElement: rootElement as HTMLDivElement,
+						animElement: rootElement,
+						popsElement: rootElement,
 						beforeRemoveCallBack(layerCommonConfig) {
 							PopsContextMenu.closeAllMenu(layerCommonConfig.popsElement);
 						},
@@ -217,7 +222,6 @@ export const PopsRightClickMenu = {
 					popsDOMUtils.off(
 						element,
 						popsDOMUtils.getTransitionEndNameList(),
-						void 0,
 						transitionEndEvent,
 						{
 							capture: true,
@@ -230,7 +234,6 @@ export const PopsRightClickMenu = {
 					popsDOMUtils.on(
 						element,
 						popsDOMUtils.getTransitionEndNameList(),
-						void 0,
 						transitionEndEvent,
 						{
 							capture: true,
@@ -327,10 +330,12 @@ export const PopsRightClickMenu = {
 			 * 显示菜单
 			 * @param menuEvent 触发的事件
 			 * @param _config_
+			 * @param menuListenerRootNode 右键菜单监听的元素
 			 */
 			showMenu(
 				menuEvent: PointerEvent,
-				_config_: PopsRightClickMenuDataDetails[]
+				_config_: PopsRightClickMenuDataDetails[],
+				menuListenerRootNode: HTMLElement
 			) {
 				let menuElement = this.getMenuContainerElement(false);
 				Reflect.set(menuElement, "__menuData__", {
@@ -338,9 +343,10 @@ export const PopsRightClickMenu = {
 				});
 				PopsContextMenu.addMenuLiELement(
 					menuEvent,
-					menuElement as HTMLDivElement,
-					menuElement as HTMLDivElement,
-					_config_
+					menuElement,
+					menuElement,
+					_config_,
+					menuListenerRootNode
 				);
 				/* 先隐藏 */
 				popsDOMUtils.css(menuElement, {
@@ -377,6 +383,7 @@ export const PopsRightClickMenu = {
 			 * @param  _config_
 			 * @param rootElement 根菜单元素
 			 * @param targetLiElement 父li项元素
+			 * @param menuListenerRootNode 右键菜单监听的元素
 			 */
 			showClildMenu(
 				menuEvent: PointerEvent,
@@ -386,7 +393,8 @@ export const PopsRightClickMenu = {
 				},
 				_config_: PopsRightClickMenuDataDetails[],
 				rootElement: HTMLDivElement,
-				targetLiElement: HTMLLIElement
+				targetLiElement: HTMLLIElement,
+				menuListenerRootNode: HTMLElement
 			) {
 				let menuElement = this.getMenuContainerElement(true);
 				Reflect.set(menuElement, "__menuData__", {
@@ -397,10 +405,11 @@ export const PopsRightClickMenu = {
 				let rootElementMenuData = Reflect.get(rootElement, "__menuData__");
 				rootElementMenuData.child.push(menuElement);
 				PopsContextMenu.addMenuLiELement(
-					menuEvent as PointerEvent,
-					rootElement as HTMLDivElement,
-					menuElement as HTMLDivElement,
-					_config_
+					menuEvent,
+					rootElement,
+					menuElement,
+					_config_,
+					menuListenerRootNode
 				);
 				/* 先隐藏 */
 				popsDOMUtils.css(menuElement, {
@@ -430,12 +439,14 @@ export const PopsRightClickMenu = {
 			 * @param rootElement 根元素
 			 * @param menuElement 菜单元素
 			 * @param _config_ 配置
+			 * @param menuListenerRootNode 右键菜单监听的元素
 			 */
 			addMenuLiELement(
 				menuEvent: PointerEvent,
 				rootElement: HTMLDivElement,
 				menuElement: HTMLDivElement,
-				_config_: PopsRightClickMenuDataDetails[]
+				_config_: PopsRightClickMenuDataDetails[],
+				menuListenerRootNode: HTMLElement
 			) {
 				let menuEventTarget = menuEvent.target;
 				let menuULElement = menuElement.querySelector<HTMLUListElement>("ul")!;
@@ -446,7 +457,9 @@ export const PopsRightClickMenu = {
 					if (typeof item.icon === "string" && item.icon.trim() !== "") {
 						let iconSVGHTML = PopsIcon.getIcon(item.icon) ?? item.icon;
 						let iconElement = popsDOMUtils.parseTextToDOM(
-							/*html*/ `<i class="pops-${PopsType}-icon" is-loading="${item.iconIsLoading}">${iconSVGHTML}</i>`
+							/*html*/ `<i class="pops-${PopsType}-icon" is-loading="${
+								item.iconIsLoading ?? false
+							}">${iconSVGHTML}</i>`
 						);
 						menuLiElement.appendChild(iconElement);
 					}
@@ -511,8 +524,9 @@ export const PopsRightClickMenu = {
 								clientY: rect.top,
 							},
 							item.item,
-							rootElement as HTMLDivElement,
-							menuLiElement
+							rootElement,
+							menuLiElement,
+							menuListenerRootNode
 						);
 						(menuLiElement as any).__menuData__ = {
 							child: childMenu,
@@ -527,15 +541,18 @@ export const PopsRightClickMenu = {
 						clickEvent: MouseEvent | PointerEvent
 					) {
 						if (typeof item.callback === "function") {
-							OriginPrototype.Object.defineProperty(menuEvent, "target", {
-								get() {
-									return menuEventTarget;
-								},
-							});
+							try {
+								OriginPrototype.Object.defineProperty(menuEvent, "target", {
+									get() {
+										return menuEventTarget;
+									},
+								});
+							} catch (error) {}
 							let callbackResult = await item.callback(
 								clickEvent as PointerEvent,
 								menuEvent,
-								menuLiElement
+								menuLiElement,
+								menuListenerRootNode
 							);
 							if (
 								typeof callbackResult === "boolean" &&

@@ -20641,7 +20641,7 @@ export declare const PopsRightClickMenu: {
                 icon: import("../../types/icon").PopsIconType | string;
                 iconIsLoading: boolean;
                 text: string | (() => string);
-                callback: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement) => boolean | void | Promise<boolean | void>;
+                callback: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement, menuListenerRootNode: HTMLElement) => boolean | void | Promise<boolean | void>;
                 item: /*elided*/ any[] | null;
             }[];
             className: string;

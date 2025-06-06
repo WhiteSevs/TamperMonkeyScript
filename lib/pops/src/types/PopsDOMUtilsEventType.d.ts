@@ -205,23 +205,23 @@ export type PopsDOMUtils_EventType = keyof PopsDOMUtils_Event;
 /**
  * 元素上的events属性
  */
-export interface PopsDOMUtilsEventListenerOptionsAttribute {
+export declare interface PopsDOMUtilsEventListenerOptionsAttribute {
 	/**
-	 * 自定义的ownCallBack
+	 * DOMUtils的ownCallBack，元素上的监听事件就是它，移除事件时也需要传入这个函数
 	 */
-	callback: () => void;
+	callback: (event: Event) => void;
 	/**
 	 * 属性配置
 	 */
-	option: AddEventListenerOptions;
+	option: DOMUtilsEventListenerOption;
 	/**
 	 * 用户添加的事件
 	 */
-	originCallBack: () => void;
+	originCallBack: (event: Event, selectorTarget?: HTMLElement) => void;
 	/**
 	 * 子元素选择器
 	 */
-	selector?: string;
+	selector?: string[];
 }
 
 export type PopsDOMUtilsElementEventType =
@@ -244,3 +244,16 @@ export type ParseHTMLReturnType<T1, T2> = T1 extends true
 		? Document
 		: HTMLElement
 	: HTMLElement;
+
+/**
+ * 事件的额外配置
+ */
+export declare type PopsDOMUtilsEventListenerOption =
+	AddEventListenerOptions & {
+		/**
+		 * 是否使用 event.composedPath() 来代替 event.target
+		 *
+		 * 一般用于设置了selector参数
+		 */
+		isComposedPath?: boolean;
+	};

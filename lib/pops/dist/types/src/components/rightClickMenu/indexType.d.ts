@@ -5,13 +5,15 @@ import type { PopsIconType } from "../../types/icon";
  */
 export interface PopsRightClickMenuDataDetails {
     /**
-     * svg图标
+     * svg图标，留空则是没图标
+     * @default ""
      */
-    icon: PopsIconType | string;
+    icon?: PopsIconType | string;
     /**
      * 图标是否旋转
+     * @default false
      */
-    iconIsLoading: boolean;
+    iconIsLoading?: boolean;
     /**
      * 文字
      */
@@ -21,12 +23,13 @@ export interface PopsRightClickMenuDataDetails {
      * @param clickEvent 点击菜单的click事件
      * @param contextMenuEvent 触发的contextmenu事件
      * @param liElement <li>元素
+     * @param menuListenerRootNode 右键菜单监听的元素
      * @returns
      * + true(默认) 关闭菜单
      * + false 不关闭菜单
      *
      */
-    callback?: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement) => boolean | void | Promise<boolean | void>;
+    callback?: (clickEvent: PointerEvent, contextMenuEvent: PointerEvent, liElement: HTMLLIElement, menuListenerRootNode: HTMLElement) => boolean | void | Promise<boolean | void>;
     /**
      * 子项配置
      */

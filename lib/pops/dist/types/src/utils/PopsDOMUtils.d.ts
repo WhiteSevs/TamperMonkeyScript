@@ -1,5 +1,4 @@
-import type { ParseHTMLReturnType, PopsDOMUtilsCreateElementAttributesMap } from "../types/PopsDOMUtilsEventType";
-import type { PopsDOMUtils_Event, PopsDOMUtils_EventType, PopsDOMUtilsElementEventType, PopsDOMUtilsEventListenerOptionsAttribute } from "../types/PopsDOMUtilsEventType";
+import type { ParseHTMLReturnType, PopsDOMUtils_EventType, PopsDOMUtilsCreateElementAttributesMap, PopsDOMUtilsEventListenerOption, PopsDOMUtilsEventListenerOptionsAttribute, PopsDOMUtils_Event, PopsDOMUtilsElementEventType } from "../types/PopsDOMUtilsEventType";
 declare class PopsDOMUtilsEvent {
     /**
      * 绑定事件
@@ -19,8 +18,7 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback: (event: Event) => void, option?: boolean | AddEventListenerOptions): void;
-    on<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback: (event: PopsDOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions): void;
+    on<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void, option?: PopsDOMUtilsEventListenerOption | boolean): void;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -39,7 +37,7 @@ declare class PopsDOMUtilsEvent {
      *    console.log("事件触发",event)
      * })
      */
-    on<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string, callback: (event: T) => void, option?: boolean | AddEventListenerOptions): void;
+    on<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback: (this: HTMLElement, event: T) => void, option?: PopsDOMUtilsEventListenerOption | boolean): void;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -52,20 +50,19 @@ declare class PopsDOMUtilsEvent {
      * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
      * @example
      * // 监听元素a.xx的click、tap、hover事件
-     * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event)=>{
-     *    console.log("事件触发",event)
+     * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
+     *    console.log("事件触发", event, selectorTarget)
      * })
-     * DOMUtils.on("a.xx",["click","tap","hover"],(event)=>{
-     *    console.log("事件触发",event)
+     * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
+     *    console.log("事件触发", event, selectorTarget)
      * })
      * @example
      * // 监听全局document下的子元素a.xx的click事件
-     * DOMUtils.on(document,"click tap hover","a.xx",(event)=>{
-     *    console.log("事件触发",event)
+     * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
+     *    console.log("事件触发", event, selectorTarget)
      * })
      */
-    on<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector: string | undefined | null, callback: (event: PopsDOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions): void;
-    on<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector: string | undefined | null, callback: (event: T) => void, option?: boolean | AddEventListenerOptions): void;
+    on<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): void;
     /**
      * 绑定事件
      * @param element 需要绑定的元素|元素数组|window
@@ -78,19 +75,33 @@ declare class PopsDOMUtilsEvent {
      * + passive 表示事件监听器是否不会调用preventDefault()。默认为false
      * @example
      * // 监听元素a.xx的click、tap、hover事件
-     * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event)=>{
-     *    console.log("事件触发",event)
+     * DOMUtils.on(document.querySelector("a.xx"),"click tap hover",(event, selectorTarget)=>{
+     *    console.log("事件触发", event, selectorTarget)
      * })
-     * DOMUtils.on("a.xx",["click","tap","hover"],(event)=>{
-     *    console.log("事件触发",event)
+     * DOMUtils.on("a.xx",["click","tap","hover"],(event, selectorTarget)=>{
+     *    console.log("事件触发", event, selectorTarget)
      * })
      * @example
      * // 监听全局document下的子元素a.xx的click事件
-     * DOMUtils.on(document,"click tap hover","a.xx",(event)=>{
-     *    console.log("事件触发",event)
+     * DOMUtils.on(document,"click tap hover","a.xx",(event, selectorTarget)=>{
+     *    console.log("事件触发", event, selectorTarget)
      * })
      */
-    on<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string, selector: string | undefined | null, callback: (event: T) => void, option?: boolean | AddEventListenerOptions): void;
+    on<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector: string | string[] | undefined | null, callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: PopsDOMUtilsEventListenerOption | boolean): void;
+    /**
+     * 取消绑定事件
+     * @param element 需要取消绑定的元素|元素数组
+     * @param eventType 需要取消监听的事件
+     * @param callback 通过DOMUtils.on绑定的事件函数
+     * @param option
+     * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
+     * @param filter (可选)过滤函数，对元素属性上的事件进行过滤出想要删除的事件
+     * @example
+     * // 取消监听元素a.xx所有的click事件
+     * DOMUtils.off(document.querySelector("a.xx"),"click")
+     * DOMUtils.off("a.xx","click")
+     */
+    off<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback?: (this: HTMLElement, event: PopsDOMUtils_Event[T]) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -104,22 +115,7 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click")
      * DOMUtils.off("a.xx","click")
      */
-    off(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback?: (event: Event) => void, option?: boolean | AddEventListenerOptions, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
-    off<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], callback?: (event: PopsDOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
-    /**
-     * 取消绑定事件
-     * @param element 需要取消绑定的元素|元素数组
-     * @param eventType 需要取消监听的事件
-     * @param callback 通过DOMUtils.on绑定的事件函数
-     * @param option
-     * + capture 如果在添加事件监听器时指定了useCapture为true，则在移除事件监听器时也必须指定为true
-     * @param filter (可选)过滤函数，对元素属性上的事件进行过滤出想要删除的事件
-     * @example
-     * // 取消监听元素a.xx的click事件
-     * DOMUtils.off(document.querySelector("a.xx"),"click")
-     * DOMUtils.off("a.xx","click")
-     */
-    off<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string, callback?: (event: T) => void, option?: boolean | AddEventListenerOptions, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], callback?: (this: HTMLElement, event: T) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -134,7 +130,7 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector?: string | undefined, callback?: (event: PopsDOMUtils_Event[T]) => void, option?: boolean | AddEventListenerOptions, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends PopsDOMUtils_EventType>(element: PopsDOMUtilsElementEventType, eventType: T | T[], selector?: string | string[] | undefined | null, callback?: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定事件
      * @param element 需要取消绑定的元素|元素数组
@@ -149,7 +145,7 @@ declare class PopsDOMUtilsEvent {
      * DOMUtils.off(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.off("a.xx",["click","tap","hover"])
      */
-    off<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector?: string | undefined, callback?: (event: T) => void, option?: boolean | AddEventListenerOptions, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
+    off<T extends Event>(element: PopsDOMUtilsElementEventType, eventType: string | string[], selector?: string | string[] | undefined | null, callback?: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void, option?: EventListenerOptions | boolean, filter?: (value: PopsDOMUtilsEventListenerOptionsAttribute, index: number, array: PopsDOMUtilsEventListenerOptionsAttribute[]) => boolean): void;
     /**
      * 取消绑定所有的事件
      * @param element 需要取消绑定的元素|元素数组
@@ -331,6 +327,92 @@ declare class PopsDOMUtilsEvent {
      * Utils.preventEvent(event);
      */
     preventEvent(element: HTMLElement, eventNameList?: string | string[], capture?: boolean): boolean;
+    /**
+     * 选择器，可使用以下的额外语法
+     *
+     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+     * @param selector 选择器
+     * @example
+     * DOMUtils.selector("div:contains('测试')")
+     * > div.xxx
+     * @example
+     * DOMUtils.selector("div:empty")
+     * > div.xxx
+     * @example
+     * DOMUtils.selector("div:regexp('^xxxx$')")
+     * > div.xxx
+     */
+    selector<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K] | undefined;
+    selector<E extends Element = Element>(selector: string): E | undefined;
+    /**
+     * 选择器，可使用以下的额外语法
+     *
+     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+     * @param selector 选择器
+     * @example
+     * DOMUtils.selectorAll("div:contains('测试')")
+     * > [div.xxx]
+     * @example
+     * DOMUtils.selectorAll("div:empty")
+     * > [div.xxx]
+     * @example
+     * DOMUtils.selectorAll("div:regexp('^xxxx$')")
+     * > [div.xxx]
+     * @example
+     * DOMUtils.selectorAll("div:regexp(/^xxx/ig)")
+     * > [div.xxx]
+     */
+    selectorAll<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K][];
+    selectorAll<E extends Element = Element>(selector: string): E[];
+    /**
+     * 匹配元素，可使用以下的额外语法
+     *
+     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+     * @param $el 元素
+     * @param selector 选择器
+     * @example
+     * DOMUtils.matches("div:contains('测试')")
+     * > true
+     * @example
+     * DOMUtils.matches("div:empty")
+     * > true
+     * @example
+     * DOMUtils.matches("div:regexp('^xxxx$')")
+     * > true
+     * @example
+     * DOMUtils.matches("div:regexp(/^xxx/ig)")
+     * > false
+     */
+    matches($el: HTMLElement | Element | null | undefined, selector: string): boolean;
+    /**
+     * 根据选择器获取上层元素，可使用以下的额外语法
+     *
+     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+     * @param $el 元素
+     * @param selector 选择器
+     * @example
+     * DOMUtils.closest("div:contains('测试')")
+     * > div.xxx
+     * @example
+     * DOMUtils.closest("div:empty")
+     * > div.xxx
+     * @example
+     * DOMUtils.closest("div:regexp('^xxxx$')")
+     * > div.xxxx
+     * @example
+     * DOMUtils.closest("div:regexp(/^xxx/ig)")
+     * > null
+     */
+    closest<K extends keyof HTMLElementTagNameMap>($el: HTMLElement | Element, selector: string): HTMLElementTagNameMap[K] | null;
+    closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null;
 }
 declare class PopsDOMUtils extends PopsDOMUtilsEvent {
     /** 获取 animationend 在各个浏览器的兼容名 */
