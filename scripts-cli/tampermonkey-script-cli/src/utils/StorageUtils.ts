@@ -14,7 +14,7 @@ type ListenerData = {
 export class StorageUtils {
 	/** 存储的键名 */
 	storageKey: string;
-	private listenData: UtilsDictionary<string, ListenerData>;
+	private listenerData: UtilsDictionary<string, ListenerData[]>;
 	/**
 	 * 存储的键名，可以是多层的，如：a.b.c
 	 *
@@ -40,7 +40,7 @@ export class StorageUtils {
 		} else {
 			throw new Error("key参数类型错误，必须是字符串");
 		}
-		this.listenData = new utils.Dictionary();
+		this.listenerData = new utils.Dictionary();
 	}
 	/**
 	 * 获取本地值
@@ -70,9 +70,7 @@ export class StorageUtils {
 		let localValue = this.getLocalValue();
 		Reflect.set(localValue, key, value);
 		this.setLocalValue(localValue);
-		if (this.listenData.has(key)) {
-			this.listenData.get(key)!.callback(key, oldValue, value);
-		}
+		this.triggerValueChangeListener(key, oldValue, value);
 	}
 	/**
 	 * 获取值
@@ -99,9 +97,7 @@ export class StorageUtils {
 		let localValue = this.getLocalValue();
 		Reflect.deleteProperty(localValue, key);
 		this.setLocalValue(localValue);
-		if (this.listenData.has(key)) {
-			this.listenData.get(key)!.callback(key, oldValue, void 0);
-		}
+		this.triggerValueChangeListener(key, oldValue, void 0);
 	}
 	/**
 	 * 判断是否存在该值
@@ -144,11 +140,13 @@ export class StorageUtils {
 		callback: <T>(key: string, newValue: T, oldValue: T) => void
 	) {
 		let listenerId = Math.random();
-		this.listenData.set(key, {
+		let listenerData = this.listenerData.get(key) || [];
+		listenerData.push({
 			id: listenerId,
 			key,
 			callback,
 		});
+		this.listenerData.set(key, listenerData);
 		return listenerId;
 	}
 	/**
@@ -156,22 +154,22 @@ export class StorageUtils {
 	 * @param listenerId 监听的id或键名
 	 */
 	removeValueChangeListener(listenerId: number | string) {
-		let deleteKey = null;
-		for (const [key, value] of this.listenData.entries()) {
-			if (
-				(typeof listenerId === "string" && value.key === listenerId) ||
-				(typeof listenerId === "number" && value.id === listenerId)
-			) {
-				deleteKey = key;
-				break;
+		let flag = false;
+		for (const [key, listenerData] of this.listenerData.entries()) {
+			for (let index = 0; index < listenerData.length; index++) {
+				const value = listenerData[index];
+				if (
+					(typeof listenerId === "string" && value.key === listenerId) ||
+					(typeof listenerId === "number" && value.id === listenerId)
+				) {
+					listenerData.splice(index, 1);
+					index--;
+					flag = true;
+				}
 			}
+			this.listenerData.set(key, listenerData);
 		}
-		if (typeof deleteKey === "string") {
-			this.listenData.delete(deleteKey);
-			return true;
-		} else {
-			return false;
-		}
+		return flag;
 	}
 	/**
 	 * 主动触发监听器
@@ -180,25 +178,28 @@ export class StorageUtils {
 	 * @param newValue （可选）新值
 	 */
 	triggerValueChangeListener(key: string, oldValue?: any, newValue?: any) {
-		if (!this.listenData.has(key)) {
+		if (!this.listenerData.has(key)) {
 			return;
 		}
-		let listenData = this.listenData.get(key)!;
-		if (typeof listenData.callback === "function") {
-			let value = this.get(key);
-			let __newValue;
-			let __oldValue;
-			if (typeof oldValue !== "undefined" && arguments.length >= 2) {
-				__oldValue = oldValue;
-			} else {
-				__oldValue = value;
+		let listenerData = this.listenerData.get(key)!;
+		for (let index = 0; index < listenerData.length; index++) {
+			const data = listenerData[index];
+			if (typeof data.callback === "function") {
+				let value = this.get<any>(key);
+				let __newValue;
+				let __oldValue;
+				if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+					__oldValue = oldValue;
+				} else {
+					__oldValue = value;
+				}
+				if (typeof newValue !== "undefined" && arguments.length > 2) {
+					__newValue = newValue;
+				} else {
+					__newValue = value;
+				}
+				data.callback(key, __oldValue, __newValue);
 			}
-			if (typeof newValue !== "undefined" && arguments.length > 2) {
-				__newValue = newValue;
-			} else {
-				__newValue = value;
-			}
-			listenData.callback(key, __oldValue, __newValue);
 		}
 	}
 }
