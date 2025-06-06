@@ -68,8 +68,11 @@ type RuleElementAttr = {
  */
 export type RegisterContextMenuShowTextOption = Pick<
 	PopsRightClickMenuDataDetails,
-	"text" | "callback"
->;
+	"text" | "callback" | "item"
+> & {
+	icon?: PopsRightClickMenuDataDetails["icon"];
+	iconIsLoading?: PopsRightClickMenuDataDetails["iconIsLoading"];
+};
 
 export const NetDiskView = {
 	show() {
@@ -785,10 +788,11 @@ export const NetDiskView = {
 		let data: PopsRightClickMenuDataDetails[] = [];
 		showTextList.forEach((item) => {
 			data.push({
-				icon: "",
-				iconIsLoading: false,
 				text: item.text,
 				callback: item.callback,
+				icon: item?.icon ?? "",
+				iconIsLoading: item?.iconIsLoading ?? false,
+				item: item?.item ?? null,
 			});
 		});
 		let detail: PopsRightClickMenuDetails = {
@@ -798,6 +802,8 @@ export const NetDiskView = {
 			isAnimation: false,
 			className: className,
 			only: true,
+			chileMenuLeftOrRightDistance: -3,
+			childMenuTopOrBottomDistance: -5,
 		};
 		NetDiskPops.rightClickMenu(detail);
 	},
