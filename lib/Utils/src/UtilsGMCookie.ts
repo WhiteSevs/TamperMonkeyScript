@@ -1,3 +1,4 @@
+import { CommonUtil } from "./CommonUtil";
 import type {
 	UtilsGMCookieDeleteOptions,
 	UtilsGMCookieListOptions,
@@ -5,7 +6,6 @@ import type {
 	UtilsGMCookieSetOptions,
 	WindowApiOption,
 } from "./types/UtilsGMCookie";
-import { Utils } from "./Utils";
 
 export class UtilsGMCookie {
 	private windowApi = {
@@ -82,7 +82,7 @@ export class UtilsGMCookie {
 				name: "",
 				path: "/",
 			};
-			defaultOption = Utils.assign(defaultOption, option);
+			defaultOption = CommonUtil.assign(defaultOption, option);
 			let cookies = this.getCookiesList();
 			cookies.forEach((item) => {
 				item = item.trim();
@@ -133,7 +133,7 @@ export class UtilsGMCookie {
 			name: "",
 			path: "/",
 		};
-		defaultOption = Utils.assign(defaultOption, option);
+		defaultOption = CommonUtil.assign(defaultOption, option);
 		let cookies = this.getCookiesList();
 		cookies.forEach((item) => {
 			item = item.trim();
@@ -183,7 +183,7 @@ export class UtilsGMCookie {
 				 */
 				expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30,
 			};
-			defaultOption = Utils.assign(defaultOption, option);
+			defaultOption = CommonUtil.assign(defaultOption, option);
 			let life = defaultOption.expirationDate
 				? defaultOption.expirationDate
 				: Math.floor(Date.now()) + 60 * 60 * 24 * 30;
@@ -194,7 +194,7 @@ export class UtilsGMCookie {
 				";expires=" +
 				(new Date(life) as any).toGMTString() +
 				"; path=/";
-			if (Utils.isNotNull(defaultOption.domain)) {
+			if (CommonUtil.isNull(defaultOption.domain)) {
 				cookieStr += "; domain=" + defaultOption.domain;
 			}
 			this.windowApi.document.cookie = cookieStr;
@@ -223,9 +223,9 @@ export class UtilsGMCookie {
 				path: "/",
 				firstPartyDomain: "",
 			};
-			defaultOption = Utils.assign(defaultOption, option);
+			defaultOption = CommonUtil.assign(defaultOption, option);
 			let cookieStr = `${defaultOption.name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${defaultOption.path}`;
-			if (Utils.isNotNull(defaultOption.firstPartyDomain)) {
+			if (CommonUtil.isNull(defaultOption.firstPartyDomain)) {
 				cookieStr += `; domain=${defaultOption.firstPartyDomain};`;
 			}
 			this.windowApi.document.cookie = cookieStr;

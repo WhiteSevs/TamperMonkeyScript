@@ -1,3 +1,5 @@
+import { CommonUtil } from "./CommonUtil";
+import { TryCatch } from "./TryCatch";
 import type {
 	HttpxAllowInterceptConfig,
 	HttpxHookErrorData,
@@ -8,7 +10,6 @@ import type {
 	HttpxPromise,
 	HttpxInitOption,
 } from "./types/Httpx";
-import { Utils } from "./Utils";
 import { GenerateUUID } from "./UtilsCommon";
 
 class Httpx {
@@ -250,13 +251,13 @@ class Httpx {
 				if (typeof args[1] === "object") {
 					/* 处理第二个参数details */
 					let optionArg = args[1];
-					Utils.assign(option, optionArg, true);
+					CommonUtil.assign(option, optionArg, true);
 					option.url = url;
 				}
 			} else {
 				/* 传入的是配置 */
 				let optionArg = args[0];
-				Utils.assign(option, optionArg, true);
+				CommonUtil.assign(option, optionArg, true);
 			}
 			return option;
 		},
@@ -297,7 +298,9 @@ class Httpx {
 					userRequestOption.responseType ||
 					this.context.#defaultRequestOption.responseType,
 				/* 对象使用深拷贝 */
-				headers: Utils.deepClone(this.context.#defaultRequestOption.headers),
+				headers: CommonUtil.deepClone(
+					this.context.#defaultRequestOption.headers
+				),
 				data: userRequestOption.data || this.context.#defaultRequestOption.data,
 				redirect:
 					userRequestOption.redirect ||
@@ -316,7 +319,7 @@ class Httpx {
 					userRequestOption.revalidate ||
 					this.context.#defaultRequestOption.revalidate,
 				/* 对象使用深拷贝 */
-				context: Utils.deepClone(
+				context: CommonUtil.deepClone(
 					userRequestOption.context ||
 						this.context.#defaultRequestOption.context
 				),
@@ -329,7 +332,7 @@ class Httpx {
 				fetch:
 					userRequestOption.fetch || this.context.#defaultRequestOption.fetch,
 				/* 对象使用深拷贝 */
-				fetchInit: Utils.deepClone(
+				fetchInit: CommonUtil.deepClone(
 					this.context.#defaultRequestOption.fetchInit
 				),
 				allowInterceptConfig: {
@@ -627,13 +630,13 @@ class Httpx {
 				if (
 					option[keyName as keyof HttpxRequestOption] == null ||
 					(option[keyName as keyof HttpxRequestOption] instanceof Function &&
-						Utils.isNull(option[keyName as keyof HttpxRequestOption]))
+						CommonUtil.isNull(option[keyName as keyof HttpxRequestOption]))
 				) {
 					Reflect.deleteProperty(option, keyName);
 					return;
 				}
 			});
-			if (Utils.isNull(option.url)) {
+			if (CommonUtil.isNull(option.url)) {
 				throw new TypeError(`Utils.Httpx 参数 url不符合要求: ${option.url}`);
 			}
 			return option;
@@ -861,11 +864,11 @@ class Httpx {
 			let originResponse: HttpxResponseData<HttpxRequestOption> = argsResult[0];
 			/* responseText为空，response不为空的情况 */
 			if (
-				Utils.isNull(originResponse["responseText"]) &&
-				Utils.isNotNull(originResponse["response"])
+				CommonUtil.isNull(originResponse["responseText"]) &&
+				CommonUtil.isNotNull(originResponse["response"])
 			) {
 				if (typeof originResponse["response"] === "object") {
-					Utils.tryCatch().run(() => {
+					TryCatch().run(() => {
 						originResponse["responseText"] = JSON.stringify(
 							originResponse["response"]
 						);
@@ -886,7 +889,7 @@ class Httpx {
 				// 自定义个新的response
 				let httpxResponse: any = httpxResponseText;
 				if (details.responseType === "json") {
-					httpxResponse = Utils.toJSON(httpxResponseText);
+					httpxResponse = CommonUtil.toJSON(httpxResponseText);
 				} else if (details.responseType === "document") {
 					let parser = new DOMParser();
 					httpxResponse = parser.parseFromString(
@@ -1139,7 +1142,7 @@ class Httpx {
 							fetchResponseType.includes("application/json"))
 					) {
 						// response返回格式是JSON格式
-						response = Utils.toJSON(responseText);
+						response = CommonUtil.toJSON(responseText);
 					} else if (
 						option.responseType === "document" ||
 						option.responseType == null
@@ -1245,7 +1248,7 @@ class Httpx {
 				"[Httpx-constructor] 未传入GM_xmlhttpRequest函数或传入的GM_xmlhttpRequest不是Function，将默认使用window.fetch"
 			);
 		}
-		Utils.coverObjectFunctionThis(this);
+		CommonUtil.coverObjectFunctionThis(this);
 		this.interceptors.request.context = this;
 		this.interceptors.response.context = this;
 		this.config(option);
@@ -1258,11 +1261,14 @@ class Httpx {
 		if (typeof option.xmlHttpRequest === "function") {
 			this.GM_Api.xmlHttpRequest = option.xmlHttpRequest;
 		}
-		this.#defaultRequestOption = Utils.assign(
+		this.#defaultRequestOption = CommonUtil.assign(
 			this.#defaultRequestOption,
 			option
 		);
-		this.#defaultInitOption = Utils.assign(this.#defaultInitOption, option);
+		this.#defaultInitOption = CommonUtil.assign(
+			this.#defaultInitOption,
+			option
+		);
 	}
 	/**
 	 * 拦截器

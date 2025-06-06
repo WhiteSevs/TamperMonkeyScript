@@ -1,4 +1,4 @@
-import { Utils } from "./Utils";
+import { CommonUtil } from "./CommonUtil";
 
 class UtilsDictionary<K, V> {
 	private items: {
@@ -120,7 +120,7 @@ class UtilsDictionary<K, V> {
 	 * @param data 需要合并的字典
 	 */
 	concat(data: UtilsDictionary<K, V>) {
-		this.items = Utils.assign(this.items, data.getItems());
+		this.items = CommonUtil.assign(this.items, data.getItems());
 	}
 	forEach(
 		callbackfn: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void

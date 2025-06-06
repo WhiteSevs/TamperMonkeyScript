@@ -1,5 +1,4 @@
 import type { UtilsTryCatchConfig, UtilsTryCatchType } from "./types/TryCatch";
-import { Utils } from "./Utils";
 
 export const TryCatch = function (...args: any) {
 	/* 定义变量和函数 */
@@ -17,7 +16,7 @@ export const TryCatch = function (...args: any) {
 		 * @returns
 		 */
 		config(paramDetails: UtilsTryCatchConfig) {
-			defaultDetails = Utils.assign(defaultDetails, paramDetails);
+			defaultDetails = Object.assign(defaultDetails, paramDetails);
 			return TryCatchCore;
 		},
 		/**
@@ -63,9 +62,7 @@ export const TryCatch = function (...args: any) {
 		let result = void 0;
 		try {
 			if (typeof callback === "string") {
-				(function () {
-					eval(callback as string);
-				}).apply(funcThis, args);
+				result = new Function(callback).apply(funcThis, args);
 			} else {
 				result = (callback as Function).apply(funcThis, args);
 			}
@@ -81,10 +78,10 @@ export const TryCatch = function (...args: any) {
 			}
 			if (handleErrorFunc) {
 				if (typeof handleErrorFunc === "string") {
-					result = function () {
-						return eval(handleErrorFunc);
-						// @ts-ignore
-					}.apply(funcThis, [...args, error]);
+					result = new Function(handleErrorFunc).apply(funcThis, [
+						...args,
+						error,
+					]);
 				} else {
 					result = handleErrorFunc.apply(funcThis, [...args, error]);
 				}

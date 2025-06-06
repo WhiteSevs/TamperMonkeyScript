@@ -1,10 +1,8 @@
-import { Utils } from "./Utils";
-
 class LockFunction<K extends (...args: any[]) => any | Promise<any> | void> {
 	#flag: boolean = false;
 	#delayTime: number = 0;
 	#callback: K;
-	#context: typeof Utils;
+	#timeId: number | undefined = void 0;
 	lock: () => void;
 	unlock: () => void;
 	run: (...args: any[]) => Promise<void>;
@@ -25,22 +23,21 @@ class LockFunction<K extends (...args: any[]) => any | Promise<any> | void> {
 		this.#callback = callback;
 		if (typeof context === "number") {
 			this.#delayTime = context;
-			this.#context = Utils;
 		} else {
 			this.#delayTime = delayTime as number;
-			this.#context = context;
 		}
 		/**
 		 * 锁
 		 */
 		this.lock = function () {
 			that.#flag = true;
+			clearTimeout(that.#timeId);
 		};
 		/**
 		 * 解锁
 		 */
 		this.unlock = function () {
-			Utils.workerSetTimeout(() => {
+			that.#timeId = setTimeout(() => {
 				that.#flag = false;
 			}, that.#delayTime);
 		};
@@ -58,7 +55,7 @@ class LockFunction<K extends (...args: any[]) => any | Promise<any> | void> {
 				return;
 			}
 			that.lock();
-			await that.#callback.apply(that.#context, args);
+			await that.#callback.apply(this, args);
 			that.unlock();
 		};
 	}

@@ -44,7 +44,7 @@ declare class Utils {
             }
         }
      */
-    assign<T1, T2 extends object, T3 extends boolean>(target: T1, source: T2, isAdd?: T3): T3 extends true ? T1 & T2 : T1;
+    assign: <T1, T2 extends object, T3 extends boolean>(target: T1, source: T2, isAdd?: T3 | undefined) => T3 extends true ? T1 & T2 : T1;
     /**
      * 异步替换字符串
      * @param string 需要被替换的目标字符串
@@ -121,7 +121,7 @@ declare class Utils {
      * 深拷贝
      * @param obj 对象
      */
-    deepClone<T extends object | undefined | null>(obj?: T): T;
+    deepClone: <T extends object | undefined | null>(obj?: T | undefined) => T;
     /**
      * 防抖函数
      * @param fn 需要触发的回调
@@ -811,7 +811,7 @@ declare class Utils {
      * Utils.isDOM(document.querySelector("a"))
      * > true
      */
-    isDOM(target: any): boolean;
+    isDOM: (target: any) => boolean;
     /**
      * 判断浏览器是否支持全屏
      */
@@ -853,8 +853,10 @@ declare class Utils {
      * Utils.isNotNull("123");
      * > true
      */
-    isNotNull<T>(value: T | null | undefined): value is T;
-    isNotNull(...args: any[]): boolean;
+    isNotNull: {
+        <T>(value: T | null | undefined): value is T;
+        (...args: any[]): boolean;
+    };
     /**
      * 判断对象或数据是否为空
      * + `String`判空的值，如 ""、"null"、"undefined"、"   "
@@ -900,8 +902,10 @@ declare class Utils {
       Utils.isNull(false,[123]);
       > false
      **/
-    isNull<T>(value: T | undefined | null): value is null | undefined;
-    isNull(...args: any[]): boolean;
+    isNull: {
+        <T>(value: T | undefined | null): value is null | undefined;
+        (...args: any[]): boolean;
+    };
     /**
      * 判断浏览器主题是否是暗黑|深色模式
      */
@@ -1348,7 +1352,7 @@ declare class Utils {
      * Utils.toJSON("{123:123}")
      * > {123:123}
      */
-    toJSON<T = any>(data: string | null, errorCallBack?: (error: Error) => void): T;
+    toJSON: <T = any>(data: string | null, errorCallBack?: (error: Error) => void) => T;
     /**
      * 对象转为UrlSearchParams格式的字符串
      * @param obj 目标对象，可以是对象组成的数组
@@ -1804,7 +1808,7 @@ declare class Utils {
      * @param target 需要覆盖的对象
      * @param [objectThis] 覆盖的this指向，如果为传入，则默认为对象本身
      */
-    coverObjectFunctionThis(target: any, objectThis?: any): void;
+    coverObjectFunctionThis: (target: any, objectThis?: any) => void;
     /**
      * 生成uuid
      * @example

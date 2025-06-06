@@ -1,7 +1,8 @@
 {
 	"name": "@whitesev/utils",
-	"version": "2.6.8",
+	"version": "2.6.9",
 	"description": "一个常用的工具库",
+	"$schema": "https://json.schemastore.org/package.json",
 	"main": "dist/index.cjs.js",
 	"module": "dist/index.esm.js",
 	"types": "dist/types/index.d.ts",

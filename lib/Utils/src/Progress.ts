@@ -1,5 +1,5 @@
+import { CommonUtil } from "./CommonUtil";
 import type { ProgressParamConfig } from "./types/Progress";
-import { Utils } from "./Utils";
 
 class Progress {
 	#config: ProgressParamConfig = {
@@ -48,7 +48,7 @@ class Progress {
 	 * @param paramConfig 配置信息
 	 */
 	constructor(paramConfig: ProgressParamConfig) {
-		this.#config = Utils.assign(this.#config, paramConfig);
+		this.#config = CommonUtil.assign(this.#config, paramConfig);
 		if (!(this.#config.canvasNode instanceof HTMLCanvasElement)) {
 			throw new Error(
 				"Utils.Progress 参数 canvasNode 必须是 HTMLCanvasElement"

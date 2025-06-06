@@ -1,9 +1,9 @@
+import { CommonUtil } from "./CommonUtil";
 import type {
 	UtilsGMMenuConstructorOptions,
 	UtilsGMMenuOption,
 	UtilsGMMenuOptionData,
 } from "./types/UtilsGMMenu";
-import { Utils } from "./Utils";
 
 class GMMenu {
 	private GM_Api = {
@@ -87,7 +87,7 @@ class GMMenu {
 				menuOptions = [menuOptions];
 			}
 			for (let index = 0; index < menuOptions.length; index++) {
-				let cloneMenuOptionData = Utils.deepClone(menuOptions[index].data);
+				let cloneMenuOptionData = CommonUtil.deepClone(menuOptions[index].data);
 				const { showText, clickCallBack } = this.handleMenuData(
 					cloneMenuOptionData as Required<UtilsGMMenuOption>
 				);

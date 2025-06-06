@@ -33,18 +33,17 @@ class Hooks {
 				return "";
 			}
 			try {
-				eval(
-					"_context[_funcName] = function " +
-						_funcName +
-						"(){\n" +
-						"let args = Array.prototype.slice.call(arguments,0);\n" +
-						"let obj = this;\n" +
-						"hookFunc.apply(obj,args);\n" +
-						"return _context['realFunc_" +
-						_funcName +
-						"'].apply(obj,args);\n" +
-						"};"
-				);
+				new Function(
+					"_context",
+					"_funcName",
+					"hookFunc",
+					`_context[_funcName] = function ${_funcName}() {
+        let args = Array.prototype.slice.call(arguments, 0);
+        let obj = this;
+        hookFunc.apply(obj, args);
+        return _context['realFunc_${_funcName}'].apply(obj, args);
+    };`
+				)(_context, _funcName, hookFunc);
 				(_context as any)[_funcName].prototype.isHooked = true;
 				return true;
 			} catch (e) {

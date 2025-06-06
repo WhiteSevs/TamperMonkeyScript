@@ -30,6 +30,8 @@ import {
 	setTimeout as WorkerSetTimeout,
 } from "worker-timers";
 import { ModuleRaid } from "./ModuleRaid";
+import { domUtils } from "./DOMUtils";
+import { CommonUtil } from "./CommonUtil";
 
 class Utils {
 	private windowApi: typeof WindowApi.prototype;
@@ -37,8 +39,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2025.5.28";
-
+	version = "2025.6.7";
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
 	 * @param cssText css字符串
@@ -91,75 +92,7 @@ class Utils {
             }
         }
      */
-	assign<T1, T2 extends object, T3 extends boolean>(
-		target: T1,
-		source: T2,
-		isAdd?: T3
-	): T3 extends true ? T1 & T2 : T1;
-	assign(target = {}, source = {}, isAdd = false) {
-		let UtilsContext = this;
-		if (Array.isArray(source)) {
-			let canTraverse = source.filter((item) => {
-				return typeof item === "object";
-			});
-			if (!canTraverse.length) {
-				return source;
-			}
-		}
-		if (source == null) {
-			return target;
-		}
-		if (target == null) {
-			target = {};
-		}
-		if (isAdd) {
-			for (const sourceKeyName in source) {
-				const targetKeyName = sourceKeyName;
-				let targetValue = (target as any)[targetKeyName];
-				let sourceValue = (source as any)[sourceKeyName];
-				if (
-					typeof sourceValue === "object" &&
-					sourceValue != null &&
-					sourceKeyName in target &&
-					!UtilsContext.isDOM(sourceValue)
-				) {
-					/* 源端的值是object类型，且不是元素节点 */
-					(target as any)[sourceKeyName] = UtilsContext.assign(
-						targetValue,
-						sourceValue,
-						isAdd
-					);
-					continue;
-				}
-				(target as any)[sourceKeyName] = sourceValue;
-			}
-		} else {
-			for (const targetKeyName in target) {
-				if (targetKeyName in source) {
-					let targetValue = (target as any)[targetKeyName];
-					let sourceValue = (source as any)[targetKeyName];
-					if (
-						typeof sourceValue === "object" &&
-						sourceValue != null &&
-						!UtilsContext.isDOM(sourceValue) &&
-						Object.keys(sourceValue).length
-					) {
-						/* 源端的值是object类型，且不是元素节点 */
-						(target as any)[targetKeyName] = UtilsContext.assign(
-							targetValue,
-							sourceValue,
-							isAdd
-						);
-						continue;
-					}
-					/* 直接赋值 */
-					(target as any)[targetKeyName] = sourceValue;
-				}
-			}
-		}
-
-		return target;
-	}
+	assign = CommonUtil.assign.bind(CommonUtil);
 	/**
 	 * 异步替换字符串
 	 * @param string 需要被替换的目标字符串
@@ -404,18 +337,7 @@ class Utils {
 	 * 深拷贝
 	 * @param obj 对象
 	 */
-	deepClone<T extends object | undefined | null>(obj?: T): T;
-	deepClone<T extends object | undefined | null>(obj?: T) {
-		let UtilsContext = this;
-		if (obj === void 0) return void 0;
-		if (obj === null) return null;
-		let clone = obj instanceof Array ? [] : {};
-		for (const [key, value] of Object.entries(obj)) {
-			(clone as any)[key] =
-				typeof value === "object" ? UtilsContext.deepClone(value) : value;
-		}
-		return clone;
-	}
+	deepClone = CommonUtil.deepClone.bind(CommonUtil);
 	/**
 	 * 防抖函数
 	 * @param fn 需要触发的回调
@@ -469,7 +391,10 @@ class Utils {
 			);
 		}
 		let result = false;
-		let needRemoveDOM = (element as HTMLElement).closest(targetSelector);
+		let needRemoveDOM = domUtils.closest(
+			element as HTMLElement,
+			targetSelector
+		);
 		if (needRemoveDOM) {
 			needRemoveDOM.remove();
 			result = true;
@@ -1954,10 +1879,7 @@ class Utils {
 	 * Utils.isDOM(document.querySelector("a"))
 	 * > true
 	 */
-	isDOM(target: any): boolean;
-	isDOM(target: any): boolean {
-		return target instanceof Node;
-	}
+	isDOM = CommonUtil.isDOM.bind(CommonUtil);
 	/**
 	 * 判断浏览器是否支持全屏
 	 */
@@ -2189,12 +2111,7 @@ class Utils {
 	 * Utils.isNotNull("123");
 	 * > true
 	 */
-	isNotNull<T>(value: T | null | undefined): value is T;
-	isNotNull(...args: any[]): boolean;
-	isNotNull(...args: any[]): boolean {
-		let UtilsContext = this;
-		return !UtilsContext.isNull.apply(this, args);
-	}
+	isNotNull = CommonUtil.isNotNull.bind(CommonUtil);
 	/**
      * 判断对象或数据是否为空
      * + `String`判空的值，如 ""、"null"、"undefined"、"   "
@@ -2240,51 +2157,7 @@ class Utils {
       Utils.isNull(false,[123]);
       > false
      **/
-	isNull<T>(value: T | undefined | null): value is null | undefined;
-	isNull(...args: any[]): boolean;
-	isNull(...args: any[]): boolean {
-		let result = true;
-		let checkList = [...args];
-		for (const objItem of checkList) {
-			let itemResult = false;
-			if (objItem === null || objItem === undefined) {
-				itemResult = true;
-			} else {
-				switch (typeof objItem) {
-					case "object":
-						if (typeof objItem[Symbol.iterator] === "function") {
-							/* 可迭代 */
-							itemResult = objItem.length === 0;
-						} else {
-							itemResult = Object.keys(objItem).length === 0;
-						}
-						break;
-					case "number":
-						itemResult = objItem === 0;
-						break;
-					case "string":
-						itemResult =
-							objItem.trim() === "" ||
-							objItem === "null" ||
-							objItem === "undefined";
-						break;
-					case "boolean":
-						itemResult = !objItem;
-						break;
-					case "function":
-						let funcStr = objItem.toString().replace(/\s/g, "");
-						/* 排除()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){} */
-						itemResult = Boolean(
-							funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/)
-						);
-						break;
-				}
-			}
-			result = result && itemResult;
-		}
-
-		return result;
-	}
+	isNull = CommonUtil.isNull.bind(CommonUtil);
 
 	/**
 	 * 判断浏览器主题是否是暗黑|深色模式
@@ -3583,7 +3456,7 @@ class Utils {
 		}
 		let sliderElement =
 			typeof selector === "string"
-				? this.windowApi.document.querySelector(selector)
+				? domUtils.selector<HTMLElement>(selector)
 				: selector;
 		if (
 			!(sliderElement instanceof Node) ||
@@ -3902,61 +3775,7 @@ class Utils {
 	 * Utils.toJSON("{123:123}")
 	 * > {123:123}
 	 */
-	toJSON<T = any>(
-		data: string | null,
-		errorCallBack?: (error: Error) => void
-	): T;
-	toJSON<T = any>(
-		data: string | null,
-		errorCallBack?: (error: Error) => void
-	): T {
-		let UtilsContext = this;
-		let result: any = {};
-		if (typeof data === "object") {
-			return data as any;
-		}
-		UtilsContext.tryCatch()
-			.config({ log: false })
-			.error((error: Error) => {
-				UtilsContext.tryCatch()
-					.error(() => {
-						try {
-							result = (UtilsContext.windowApi.window as any).eval(
-								"(" + data + ")"
-							);
-						} catch (error2: any) {
-							if (typeof errorCallBack === "function") {
-								errorCallBack(error2);
-							}
-						}
-					})
-					.run(() => {
-						if (
-							data &&
-							/^[\],:{}\s]*$/.test(
-								data
-									.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
-									.replace(
-										/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
-										"]"
-									)
-									.replace(/(?:^|:|,)(?:\s*\[)+/g, "")
-							)
-						) {
-							result = new Function("return " + data)();
-						} else {
-							if (typeof errorCallBack === "function") {
-								errorCallBack(new Error("target is not a JSON"));
-							}
-						}
-					});
-			})
-			.run(() => {
-				data = (data as string).trim();
-				result = JSON.parse(data);
-			});
-		return result as any;
-	}
+	toJSON = CommonUtil.toJSON.bind(CommonUtil);
 	/**
 	 * 对象转为UrlSearchParams格式的字符串
 	 * @param obj 目标对象，可以是对象组成的数组
@@ -4393,7 +4212,7 @@ class Utils {
 			if (Array.isArray(selector)) {
 				let result: T[] = [];
 				for (let index = 0; index < selector.length; index++) {
-					let node = parent.querySelector(selector[index]);
+					let node = domUtils.selector(selector[index]);
 					if (node) {
 						result.push(node as any);
 					}
@@ -4404,7 +4223,7 @@ class Utils {
 			} else if (typeof selector === "function") {
 				return selector();
 			} else {
-				return parent.querySelector(selector);
+				return domUtils.selector(selector, parent);
 			}
 		}
 		return UtilsContext.wait(
@@ -4704,18 +4523,16 @@ class Utils {
 			if (Array.isArray(selector)) {
 				let result: T[] = [];
 				for (let index = 0; index < selector.length; index++) {
-					let nodeList = (parent as Element).querySelectorAll(
-						selector[index]
-					) as T;
+					let nodeList = domUtils.selectorAll(selector[index], parent);
 					if (nodeList.length) {
-						result.push(nodeList);
+						result.push(nodeList as any as T);
 					}
 				}
 				if (result.length === selector.length) {
 					return result;
 				}
 			} else {
-				let nodeList = (parent as Element).querySelectorAll(selector) as T;
+				let nodeList = domUtils.selectorAll(selector, parent);
 				if (nodeList.length) {
 					return nodeList;
 				}
@@ -5212,17 +5029,7 @@ class Utils {
 	 * @param target 需要覆盖的对象
 	 * @param [objectThis] 覆盖的this指向，如果为传入，则默认为对象本身
 	 */
-	coverObjectFunctionThis(target: any, objectThis?: any) {
-		if (typeof target !== "object" || target === null) {
-			throw new Error("target must be object");
-		}
-		objectThis = objectThis || target;
-		Object.keys(target).forEach((key) => {
-			if (typeof target[key] === "function") {
-				target[key] = target[key].bind(objectThis);
-			}
-		});
-	}
+	coverObjectFunctionThis = CommonUtil.coverObjectFunctionThis.bind(CommonUtil);
 	/**
 	 * 生成uuid
 	 * @example
