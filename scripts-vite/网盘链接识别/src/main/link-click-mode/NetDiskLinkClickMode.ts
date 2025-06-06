@@ -165,7 +165,7 @@ export const NetDiskLinkClickMode = {
 			let parseObj = new NetDiskParse.rule[
 				ruleKeyName as keyof typeof NetDiskParse.rule
 			]();
-			await parseObj.init(ruleIndex, shareCode, accessCode);
+			await parseObj.init(ruleIndex, shareCode, accessCode ?? "");
 		} else {
 			log.error(`${ruleKeyName} 未配置解析函数`, [
 				ruleKeyName,

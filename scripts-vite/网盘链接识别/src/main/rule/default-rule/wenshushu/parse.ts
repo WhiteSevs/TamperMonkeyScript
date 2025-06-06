@@ -24,7 +24,7 @@ export class NetDiskParse_Wenshushu extends ParseFileAbstract {
 	async init(
 		ruleIndex: number,
 		shareCode: string,
-		accessCode: AccessCodeType
+		accessCode: AccessCodeNonNullType
 	) {
 		const that = this;
 		log.info(ruleIndex, shareCode, accessCode);

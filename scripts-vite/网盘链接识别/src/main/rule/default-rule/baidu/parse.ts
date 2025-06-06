@@ -12,7 +12,7 @@ export class NetDiskParse_Baidu extends ParseFileAbstract {
 	 * @param shareCode
 	 * @param accessCode
 	 */
-	init(ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
+	init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
 		log.info(ruleIndex, shareCode, accessCode);
 		this.ruleIndex = ruleIndex;
 		this.shareCode = shareCode;

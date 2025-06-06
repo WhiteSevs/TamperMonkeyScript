@@ -28,7 +28,7 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 	async init(
 		ruleIndex: number,
 		shareCode: string,
-		accessCode: AccessCodeType
+		accessCode: AccessCodeNonNullType
 	) {
 		const that = this;
 		log.info(ruleIndex, shareCode, accessCode);
@@ -307,7 +307,7 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 		let tempFolderInfoList: PopsFolderDataConfig[] = [];
 
 		let tempFolderFileInfoList: PopsFolderDataConfig[] = [];
-		infoList.forEach((item: any) => {
+		infoList.forEach((item) => {
 			if (item.Type) {
 				/* 文件夹 */
 				tempFolderInfoList.push({
@@ -319,7 +319,9 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 					isFolder: true,
 					index: index,
 					async clickEvent() {
-						let resultFileInfoList = await that.getFilesByRec(item["FileId"]);
+						let resultFileInfoList = await that.getFilesByRec(
+							item["FileId"].toString()
+						);
 						if (resultFileInfoList) {
 							return that.getFolderInfo(resultFileInfoList, index + 1);
 						} else {

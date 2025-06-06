@@ -15,7 +15,7 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 	 * @param shareCode
 	 * @param accessCode
 	 */
-	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
+	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
 		const that = this;
 		log.info(ruleIndex, shareCode, accessCode);
 		that.ruleIndex = ruleIndex;
@@ -87,7 +87,6 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 	 * 判断是否已登录UC网盘
 	 */
 	async isLogin() {
-		const that = this;
 		let getResp = await httpx.get("https://drive.uc.cn/", {
 			headers: {
 				"User-Agent": utils.getRandomPCUA(),
@@ -187,7 +186,6 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 	 * @param text 弹窗的显示的内容
 	 */
 	gotoLogin(text = "") {
-		const that = this;
 		NetDiskPops.confirm(
 			{
 				title: {
@@ -218,9 +216,8 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 	 * @param pwd_id 分享码
 	 * @param passcode 访问码
 	 */
-	async getStoken(pwd_id: string, passcode: AccessCodeType) {
-		const that = this;
-		let postResp = await httpx.post(
+	async getStoken(pwd_id: string, passcode: AccessCodeNonNullType) {
+		let response = await httpx.post(
 			"https://pc-api.uc.cn/1/clouddrive/share/sharepage/token?entry=ft&fr=pc&pr=UCBrowser",
 			{
 				data: JSON.stringify({
@@ -236,11 +233,10 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 					Referer: "https://drive.uc.cn/",
 				},
 				allowInterceptConfig: false,
-				onerror() {},
 			}
 		);
-		if (!postResp.status) {
-			let errorData = utils.toJSON(postResp.data.responseText);
+		if (!response.status) {
+			let errorData = utils.toJSON(response.data.responseText);
 			log.error("获取stoken失败JSON信息", errorData);
 			if ("message" in errorData) {
 				Qmsg.error(errorData["message"]);
@@ -249,14 +245,14 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 			}
 			return;
 		}
-		let data = utils.toJSON(postResp.data.responseText);
+		let data = utils.toJSON(response.data.responseText);
 		log.info("获取stoken：", data);
 		if (data["code"] !== 0) {
 			log.error("获取stoken失败", data);
 			Qmsg.error("获取stoken失败");
 			return;
 		}
-		return data["data"]["stoken"];
+		return <string>data["data"]["stoken"];
 	}
 
 	/**
@@ -274,7 +270,7 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 	 */
 	async getDetail(
 		pwd_id: string,
-		passcode: AccessCodeType,
+		passcode: AccessCodeNonNullType,
 		stoken: string,
 		pdir_fid = 0,
 		force = 0,
@@ -284,8 +280,7 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 		_fetch_share = 0,
 		_fetch_total = 1
 	): Promise<any> {
-		const that = this;
-		let getResp = await httpx.get(
+		let response = await httpx.get(
 			`https://pc-api.uc.cn/1/clouddrive/transfer_share/detail?pr=UCBrowser&fr=h5&pwd_id=${pwd_id}&__t=${new Date().getTime()}&passcode=${passcode}&stoken=${encodeURIComponent(
 				stoken
 			)}&pdir_fid=${pdir_fid}&force=${force}&_page=${_page}&_size=${_size}&_fetch_banner=${_fetch_banner}&_fetch_share=${_fetch_share}&_fetch_total=${_fetch_total}&_sort=${encodeURIComponent(
@@ -300,10 +295,10 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 				},
 			}
 		);
-		if (!getResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let data = utils.toJSON(getResp.data.responseText);
+		let data = utils.toJSON(response.data.responseText);
 		log.info("获取detail：", data);
 		if (data["code"] !== 0) {
 			log.error("获取detail失败", data);
@@ -345,8 +340,7 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 		fid: string,
 		share_fid_token: string
 	) {
-		const that = this;
-		let postResp = await httpx.post(
+		let response = await httpx.post(
 			"https://pc-api.uc.cn/1/clouddrive/file/download?entry=ft&fr=pc&pr=UCBrowser",
 			{
 				data: JSON.stringify({
@@ -364,10 +358,10 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 				},
 			}
 		);
-		if (!postResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let data = utils.toJSON(postResp.data.responseText);
+		let data = utils.toJSON(response.data.responseText);
 		log.info("获取download：", data);
 		if (data["code"] !== 0) {
 			log.error("获取download失败", data);

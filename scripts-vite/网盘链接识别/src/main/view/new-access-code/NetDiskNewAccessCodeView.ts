@@ -12,7 +12,7 @@ type OkCallBackOption = {
 	/** 是否成功同步至历史匹配记录 */
 	isUpdatedHistoryMatched: boolean;
 	/** 新的访问码 */
-	accessCode: AccessCodeType;
+	accessCode: AccessCodeNonNullType;
 };
 /**
  * 需要重新输入新密码的弹窗
@@ -22,6 +22,7 @@ type OkCallBackOption = {
  * @param shareCode 分享码
  * @param accessCode 访问码
  * @param okCallBack 成功的回调
+ * @param closeCallBack 弹窗关闭的回调
  */
 export const NetDiskNewAccessCodeView = function (
 	title: string = "密码错误",
@@ -29,7 +30,8 @@ export const NetDiskNewAccessCodeView = function (
 	ruleIndex: number,
 	shareCode: string,
 	accessCode: AccessCodeType,
-	okCallBack: (option: OkCallBackOption) => void = () => {}
+	okCallBack: (option: OkCallBackOption) => void = () => {},
+	closeCallBack?: () => void
 ) {
 	const accessCodeConfirm = NetDiskPops.prompt(
 		{
@@ -45,6 +47,14 @@ export const NetDiskNewAccessCodeView = function (
 					text: "取消",
 					callback(eventDetails, event) {
 						accessCodeConfirm.close();
+						closeCallBack?.();
+					},
+				},
+				close: {
+					callback(details, event) {
+						details.close();
+
+						closeCallBack?.();
 					},
 				},
 				ok: {
@@ -125,6 +135,7 @@ export const NetDiskNewAccessCodeView = function (
 							);
 						okCallBack(callbackOption);
 						event.close();
+						closeCallBack?.();
 					},
 				},
 			},

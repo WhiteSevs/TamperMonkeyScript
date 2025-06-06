@@ -5,7 +5,7 @@ import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { GeneratePanelData } from "@/main/data/NetDiskDataUtils";
 import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
-import type { HttpxResponse } from "@whitesev/utils/src/types/Httpx";
+import type { HttpxResponseData } from "@whitesev/utils/src/types/Httpx";
 
 export const NetDiskParse_Lanzou_Config = {
 	/** 蓝奏云默认域名 */
@@ -27,6 +27,31 @@ let deleteAnnotationCode = (text: string) => {
 	return text;
 };
 
+type FileMoreAjaxJSONText = {
+	duan: string;
+	icon: string;
+	id: string;
+	name_all: string;
+	p_ico: number;
+	size: string;
+	t: number;
+	time: string;
+};
+type FileMoreAjaxJSON = {
+	info: string;
+	text: string | FileMoreAjaxJSONText[];
+	zt: number;
+};
+
+type InfoListType = {
+	isFolder: boolean;
+	fileName: string;
+	fileSize: number;
+	createTime: string;
+	latestTime: string;
+	shareCode: string;
+	accessCode: string;
+};
 /**
  * 蓝奏云
  *
@@ -172,29 +197,456 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 	async init(
 		ruleIndex: number,
 		shareCode: string,
-		accessCode: AccessCodeType
+		accessCode: AccessCodeNonNullType
 	) {
 		log.info(ruleIndex, shareCode, accessCode);
 		this.ruleIndex = ruleIndex;
 		this.shareCode = shareCode;
 		this.accessCode = accessCode;
 		this.regexp.unicode.isUnicode = Boolean(
-			this.shareCode.match(this.regexp.unicode.match)
+			shareCode.match(this.regexp.unicode.match)
 		);
-		if (ruleIndex === 2) {
-			await this.getMoreFile(this.router.root_s(this.shareCode));
+		let url =
+			ruleIndex === 1
+				? this.router.root_s(shareCode)
+				: this.router.root(shareCode);
+		let pageInfoResponse = await this.getPageInfo(url);
+		if (!pageInfoResponse) {
+			return;
+		}
+		if (this.isMoreFile(pageInfoResponse)) {
+			// 多文件
+			log.info(`多文件`);
+			let $loading = Qmsg.loading(`正在解析多文件中，请稍后...`);
+			let fileInfo = await this.parseFiles(shareCode, accessCode);
+			if (!fileInfo) {
+				$loading.close();
+				return;
+			}
+			let folderInfoList = this.getFolderInfo(
+				this.transformFileInfoToInfoList(shareCode, accessCode, fileInfo),
+				0
+			);
+			$loading.close();
+			log.info("递归完毕");
+			NetDiskUI.staticView.moreFile("蓝奏云文件解析", folderInfoList);
 		} else {
-			await this.getFileLink();
+			// 单文件
+			log.info(`单文件`);
+			let fileDownloadInfo = await this.getFileDownloadInfo(
+				shareCode,
+				accessCode,
+				pageInfoResponse
+			);
+			if (fileDownloadInfo) {
+				NetDiskUI.staticView.oneFile({
+					title: "蓝奏云单文件直链",
+					fileName: fileDownloadInfo.fileName,
+					fileSize: fileDownloadInfo.fileSize,
+					downloadUrl: fileDownloadInfo.downloadUrl,
+					fileUploadTime: fileDownloadInfo.fileUploadTime,
+				});
+			}
 		}
 	}
 	/**
-	 * 获取文件链接
-	 * @param getShareCodeByPageAgain
+	 * 参数转换
 	 */
-	async getFileLink(getShareCodeByPageAgain: boolean = false) {
+	transformFileInfoToInfoList(
+		shareCode: string,
+		accessCode: AccessCodeNonNullType,
+		fileInfo: NonNullable<Awaited<ReturnType<typeof this.parseFiles>>>
+	) {
+		return [
+			...fileInfo.folders.map((folder) => {
+				return {
+					isFolder: true,
+					fileName: folder.folderName,
+					fileSize: 0,
+					createTime: "",
+					latestTime: "",
+					shareCode: folder.shareCode,
+					accessCode: folder.accessCode,
+				};
+			}),
+			...(fileInfo.infos || []).map((info) => {
+				return {
+					isFolder: false,
+					fileName: info.name_all,
+					// @ts-ignore
+					fileSize: info.size as number,
+					createTime: info.time,
+					latestTime: info.time,
+					shareCode: info.id,
+					accessCode: accessCode,
+				};
+			}),
+		].filter((it) => it != null);
+	}
+	/**
+	 * 获取文件夹信息
+	 * @param infoList
+	 */
+	getFolderInfo(infoList: InfoListType[], index: number) {
 		const that = this;
-		let url = this.router.root(this.shareCode);
-		log.info("蓝奏云-获取文件下载链接" + url);
+		let folderInfoList: PopsFolderDataConfig[] = [];
+		let tempFolderInfoList: PopsFolderDataConfig[] = [];
+
+		let tempFolderFileInfoList: PopsFolderDataConfig[] = [];
+		infoList.forEach((item) => {
+			if (item.isFolder) {
+				// 文件夹
+				tempFolderInfoList.push({
+					fileName: item.fileName,
+					fileSize: 0,
+					fileType: "",
+					// @ts-ignore
+					createTime: item.createTime,
+					// @ts-ignore
+					latestTime: item.latestTime,
+					isFolder: true,
+					index: index,
+					clickEvent: async () => {
+						let fileInfo = await this.parseFiles(
+							item.shareCode,
+							item.accessCode
+						);
+						if (fileInfo) {
+							return that.getFolderInfo(
+								this.transformFileInfoToInfoList(
+									this.shareCode,
+									this.accessCode,
+									fileInfo
+								),
+								index + 1
+							);
+						}
+						return [];
+					},
+				});
+			} else {
+				// 文件
+				tempFolderFileInfoList.push({
+					fileName: item.fileName,
+					fileSize: item.fileSize,
+					fileType: "",
+					// @ts-ignore
+					createTime: item.createTime,
+					// @ts-ignore
+					latestTime: item.latestTime,
+					isFolder: false,
+					index: index,
+					clickEvent: async () => {
+						let url =
+							this.ruleIndex === 1
+								? this.router.root_s(item.shareCode)
+								: this.router.root(item.shareCode);
+						let responseData = await this.getPageInfo(url);
+						if (!responseData) {
+							return;
+						}
+						let fileDownloadInfo = await this.getFileDownloadInfo(
+							item.shareCode,
+							item.accessCode,
+							responseData
+						);
+						if (!fileDownloadInfo) {
+							return;
+						}
+						return {
+							url: fileDownloadInfo.downloadUrl,
+							autoDownload: true,
+							mode: "aBlank",
+						};
+					},
+				});
+			}
+		});
+		tempFolderInfoList.sort((a, b) =>
+			a["fileName"].localeCompare(b["fileName"])
+		);
+		tempFolderFileInfoList.sort((a, b) =>
+			a["fileName"].localeCompare(b["fileName"])
+		);
+		folderInfoList = folderInfoList.concat(tempFolderInfoList);
+		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
+		return folderInfoList;
+	}
+	/**
+	 * 获取文件下载信息
+	 */
+	async getFileDownloadInfo(
+		shareCode: string,
+		accessCode: AccessCodeNonNullType,
+		responseData: HttpxResponseData<any>
+	): Promise<
+		| undefined
+		| {
+				fileName: string;
+				fileSize: string;
+				fileUploadTime: string | number | undefined;
+				downloadUrl: string;
+		  }
+	> {
+		let fileDownloadInfo:
+			| {
+					fileName: string;
+					fileSize: string;
+					fileUploadTime: string | number | undefined;
+					downloadUrl: string;
+			  }
+			| undefined = void 0;
+		let $pageDoc = DOMUtils.parseHTML(responseData.responseText, true, true);
+		let pageText = deleteAnnotationCode(responseData.responseText);
+		let $pageIframe =
+			$pageDoc.querySelector<HTMLIFrameElement>('iframe[class^="ifr"]') ||
+			$pageDoc.querySelector<HTMLIFrameElement>('iframe[class^="n_downlink"]');
+		if ($pageIframe) {
+			// 该链接需要重新通过iframe地址访问获取信息
+			let iframeUrl = $pageIframe.getAttribute("src")!;
+			log.error("该链接需要重新通过iframe地址访问获取信息", iframeUrl);
+			Qmsg.info("正在请求下载信息");
+			let fileName =
+				$pageDoc.querySelector<HTMLElement>("body div.d > div")?.innerText ||
+				$pageDoc.querySelector<HTMLElement>("#filenajax")?.innerText ||
+				$pageDoc
+					.querySelector("title")
+					?.textContent?.replace(/ - 蓝奏云$/i, "")!;
+			let fileSize =
+				pageText.match(/文件大小：<\/span>(.+?)<br>/i) ||
+				$pageDoc.querySelector<HTMLElement>(
+					"div.n_box div.n_file div.n_filesize"
+				)?.innerText ||
+				$pageDoc.querySelector<HTMLElement>(
+					".d2 table tr td .fileinfo:nth-child(1) .fileinforight"
+				)?.innerText!;
+			let fileUploadTime =
+				pageText.match(/上传时间：<\/span>(.+?)<br>/i) ||
+				$pageDoc.querySelector<HTMLElement>(
+					"#file[class=''] .n_file_info span.n_file_infos"
+				)?.innerText ||
+				$pageDoc.querySelector<HTMLElement>(
+					".d2 table tr td .fileinfo:nth-child(3) .fileinforight"
+				)?.innerText ||
+				$pageDoc.querySelector<HTMLElement>(
+					"#file[class='filter'] .n_file_info span.n_file_infos"
+				)?.innerText;
+			if (fileSize) {
+				if (Array.isArray(fileSize)) {
+					fileSize = fileSize[fileSize.length - 1];
+				}
+				if (typeof fileSize === "string") {
+					fileSize = fileSize.replaceAll("大小：", "");
+				}
+			} else {
+				log.error("解析文件大小信息失败");
+			}
+			if (fileUploadTime) {
+				if (Array.isArray(fileUploadTime)) {
+					fileUploadTime = fileUploadTime[fileUploadTime.length - 1];
+				}
+				if (fileUploadTime.toString().toLowerCase().startsWith("android")) {
+					log.error("解析出的文件上传时间信息是Android/xxxx开头");
+					fileUploadTime = void 0;
+				}
+			} else {
+				log.error("解析文件上传时间信息失败");
+			}
+			let downloadUrl = await this.getLinkByIframe(
+				shareCode,
+				accessCode,
+				iframeUrl,
+				{
+					fileName,
+					fileSize,
+					// @ts-ignore
+					fileUploadTime,
+				}
+			);
+			if (!downloadUrl) {
+				return;
+			}
+			fileDownloadInfo = {
+				fileName,
+				fileSize,
+				downloadUrl: downloadUrl,
+				fileUploadTime,
+			};
+		} else {
+			log.warn("该页面不是使用iframe获取链接，使用其它方式解析");
+
+			let sign =
+				pageText.match(/'sign':'(.+?)',/i) ||
+				pageText.match(this.regexp.sign.match);
+
+			let postData_p = "";
+			let postData_sign = "";
+			let fileNameMatch = pageText.match(this.regexp.fileName.match);
+			let fileName = fileNameMatch
+				? fileNameMatch[fileNameMatch.length - 1].trim()
+				: "";
+			let fileSizeMatch =
+				pageText.match(this.regexp.fileSize.match) ||
+				pageText.match(/<div class="n_filesize">大小：(.+?)<\/div>/i);
+			let fileSize = fileSizeMatch
+				? fileSizeMatch[fileSizeMatch.length - 1].trim()
+				: "";
+			let fileUploadTimeMatch =
+				pageText.match(this.regexp.uploadTime.match) ||
+				pageText.match(/<span class="n_file_infos">(.+?)<\/span>/i);
+			let fileUploadTime = fileUploadTimeMatch
+				? fileUploadTimeMatch[fileUploadTimeMatch.length - 1].trim()
+				: "";
+			let fileIdMatch =
+				pageText.match(/[\s]+url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i) ||
+				pageText.match(/\/\/url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i);
+			let fileId = fileIdMatch ? fileIdMatch[fileIdMatch.length - 1] : "1";
+			if (sign) {
+				postData_sign = sign[sign.length - 1];
+				log.info(`获取Sign: ${postData_sign}`);
+				if (utils.isNotNull(accessCode)) {
+					log.info("传入参数=>有密码");
+					postData_p = accessCode;
+				} else {
+					log.info("传入参数=>无密码");
+				}
+				let kd = await this.getKNDS();
+				let ajaxmResponse = await httpx.post({
+					url: this.router.root("ajaxm.php?file=" + fileId),
+					responseType: "json",
+					headers: {
+						accept: "application/json, text/javascript, */*",
+						"Content-Type": "application/x-www-form-urlencoded",
+						"User-Agent": utils.getRandomAndroidUA(),
+						Origin: "https://" + NetDiskParse_Lanzou_Config.hostname,
+						Referer: this.router.root(shareCode),
+					},
+					data: `action=downprocess&sign=${postData_sign}&p=${postData_p}&kd=${kd}`,
+				});
+				if (!ajaxmResponse.status) {
+					return;
+				}
+				let ajaxmResponseData = ajaxmResponse.data;
+				log.info(ajaxmResponseData);
+
+				let json_data = utils.toJSON(ajaxmResponseData.responseText);
+				let downloadUrl = `${json_data["dom"]}/file/${json_data["url"]}`;
+				if (
+					typeof json_data["url"] === "string" &&
+					(json_data["url"].startsWith("http") ||
+						json_data["url"].startsWith(json_data["dom"]))
+				) {
+					/* 有些情况下比如苹果的ipa文件的请求，json_data["url"]就是一个完整的链接 */
+					downloadUrl = json_data["url"];
+				}
+				/* json_data["zt"]表示状态，一般为1 */
+				let zt = json_data["zt"];
+				/* json_data["inf"]一般是文件名，也可以看作是请求信息提示 */
+				if ("密码不正确".indexOf(json_data["inf"]) != -1) {
+					Qmsg.error("密码不正确!");
+					let newAccessCodeInfo = await new Promise<
+						| undefined
+						| {
+								accessCode: AccessCodeNonNullType;
+						  }
+					>((resolve) => {
+						NetDiskUI.newAccessCodeView(
+							void 0,
+							"lanzou",
+							this.ruleIndex,
+							shareCode,
+							accessCode,
+							(option) => {
+								resolve({
+									accessCode: option.accessCode!,
+								});
+							},
+							() => {
+								resolve(void 0);
+							}
+						);
+					});
+					if (!newAccessCodeInfo) {
+						return;
+					}
+					accessCode = newAccessCodeInfo.accessCode;
+					let url =
+						this.ruleIndex === 1
+							? this.router.root_s(shareCode)
+							: this.router.root(shareCode);
+					let newResponseData = await this.getPageInfo(url);
+					if (!newResponseData) {
+						return;
+					}
+					return await this.getFileDownloadInfo(
+						shareCode,
+						accessCode,
+						newResponseData
+					);
+				} else {
+					fileName = json_data["inf"] ? json_data["inf"] : fileName;
+				}
+				fileDownloadInfo = {
+					fileName,
+					fileSize,
+					fileUploadTime,
+					downloadUrl,
+				};
+			} else {
+				let loadDownHost = pageText.match(this.regexp.loadDownHost.match);
+				let loadDown = pageText.match(this.regexp.loadDown.match);
+				let appleDownMatch = pageText.match(this.regexp.appleDown.match)!;
+				let appleDown = appleDownMatch[appleDownMatch.length - 1];
+				if (utils.isNull(loadDown)) {
+					loadDown = pageText.match(/var[\s]*(cppat)[\s]*=[\s]*'(.+?)'/i);
+				}
+				if (utils.isNull(loadDownHost) && appleDown) {
+					appleDown = appleDown[appleDown.length - 1];
+					loadDownHost = [appleDown];
+					loadDown = [""];
+					log.success("多文件-当前链接猜测为苹果的文件", appleDown);
+				}
+				if (utils.isNull(loadDownHost)) {
+					Qmsg.error("蓝奏云直链：获取sign的域名失败，请反馈开发者", {
+						timeout: 3500,
+					});
+					return;
+				}
+				if (utils.isNull(loadDown)) {
+					Qmsg.error("蓝奏云直链：获取sign失败，请反馈开发者", {
+						timeout: 3500,
+					});
+					return;
+				}
+				let downloadUrl = `${loadDownHost[loadDownHost.length - 1]}${
+					loadDown[loadDown.length - 1]
+				}`;
+
+				fileDownloadInfo = {
+					fileName,
+					fileSize,
+					fileUploadTime,
+					downloadUrl,
+				};
+			}
+		}
+
+		// 链接转发
+		if (
+			fileDownloadInfo &&
+			NetDiskFilterScheme.isForwardDownloadLink("lanzou")
+		) {
+			fileDownloadInfo.downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+				"lanzou",
+				fileDownloadInfo.downloadUrl
+			);
+		}
+		return fileDownloadInfo;
+	}
+	/**
+	 * 获取链接页面的信息
+	 */
+	async getPageInfo(url: string) {
 		let response = await httpx.get({
 			url: url,
 			headers: {
@@ -203,11 +655,11 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 				Referer: url,
 			},
 			allowInterceptConfig: false,
-			onerror() {},
 		});
 		if (!response.status) {
 			log.error(response);
 			if (response.type === "ontimeout") {
+				Qmsg.error("请求超时");
 				return;
 			}
 			if (utils.isNull(response.data.responseText)) {
@@ -215,124 +667,30 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 				return;
 			}
 			if (this.checkPageCode(response.data)) {
-				Qmsg.error("未知情况");
+				Qmsg.error("请求失败，未知情况");
 			}
 			return;
 		}
-		let respData = response.data;
-		if (respData.readyState !== 4) {
-			log.error(respData);
-			Qmsg.error("请求失败，请重试");
-			return;
-		}
-		if (respData.responseText == null) {
-			log.error(respData);
+		let responseText = response.data.responseText;
+		if (utils.isNull(responseText)) {
+			log.error(response);
 			Qmsg.error("获取网页内容为空");
 			return;
 		}
-		if (!that.checkPageCode(respData)) {
+		if (!this.checkPageCode(response.data)) {
+			log.error(response);
 			return;
 		}
-		if (that.isMoreFile(respData)) {
-			await that.getMoreFile();
-		} else {
-			log.info(respData);
-			let pageText = deleteAnnotationCode(respData.responseText);
-			if (getShareCodeByPageAgain) {
-				let shareCodeNewMatch = pageText.match(
-					/var[\s]*link[\s]*=[\s]*\'tp\/(.+?)\';/i
-				)!;
-				that.shareCode = shareCodeNewMatch[shareCodeNewMatch.length - 1];
-				log.info(`新参数 => ${that.shareCode}`);
-			}
-			let pageDOM = DOMUtils.parseHTML(pageText, true, true);
-			let pageIframeElement =
-				pageDOM.querySelector('iframe[class^="ifr"]') ||
-				pageDOM.querySelector('iframe[class^="n_downlink"]');
-			if (pageIframeElement) {
-				let iframeUrl = pageIframeElement.getAttribute("src")!;
-				log.error("该链接需要重新通过iframe地址访问获取信息", iframeUrl);
-				Qmsg.info("正在请求下载信息");
-				let fileName =
-					pageDOM.querySelector<HTMLElement>("body div.d > div")?.innerText ||
-					pageDOM.querySelector<HTMLElement>("#filenajax")?.innerText ||
-					pageDOM
-						.querySelector("title")
-						?.textContent?.replace(/ - 蓝奏云$/i, "")!;
-				let fileSize =
-					pageText.match(/文件大小：<\/span>(.+?)<br>/i) ||
-					pageDOM.querySelector<HTMLElement>(
-						"div.n_box div.n_file div.n_filesize"
-					)?.innerText ||
-					pageDOM.querySelector<HTMLElement>(
-						".d2 table tr td .fileinfo:nth-child(1) .fileinforight"
-					)?.innerText!;
-				let fileUploadTime =
-					pageText.match(/上传时间：<\/span>(.+?)<br>/i) ||
-					pageDOM.querySelector<HTMLElement>(
-						"#file[class=''] .n_file_info span.n_file_infos"
-					)?.innerText ||
-					pageDOM.querySelector<HTMLElement>(
-						".d2 table tr td .fileinfo:nth-child(3) .fileinforight"
-					)?.innerText ||
-					pageDOM.querySelector<HTMLElement>(
-						"#file[class='filter'] .n_file_info span.n_file_infos"
-					)?.innerText;
-				if (fileSize) {
-					if (Array.isArray(fileSize)) {
-						fileSize = fileSize[fileSize.length - 1];
-					}
-					if (typeof fileSize === "string") {
-						fileSize = fileSize.replaceAll("大小：", "");
-					}
-				} else {
-					log.error("解析文件大小信息失败");
-				}
-				if (fileUploadTime) {
-					if (Array.isArray(fileUploadTime)) {
-						fileUploadTime = fileUploadTime[fileUploadTime.length - 1];
-					}
-					if (fileUploadTime.toString().toLowerCase().startsWith("android")) {
-						log.error("解析出的文件上传时间信息是Android/xxxx开头");
-						fileUploadTime = void 0;
-					}
-				} else {
-					log.error("解析文件上传时间信息失败");
-				}
-				let downloadUrl = await that.getLinkByIframe(iframeUrl, {
-					fileName,
-					fileSize,
-					// @ts-ignore
-					fileUploadTime,
-				});
-				if (downloadUrl) {
-					if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
-						downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-							"lanzou",
-							downloadUrl
-						);
-					}
-					NetDiskUI.staticView.oneFile({
-						title: "蓝奏云单文件直链",
-						fileName: fileName,
-						fileSize: fileSize,
-						downloadUrl: downloadUrl,
-						fileUploadTime: fileUploadTime,
-					});
-				}
-			} else {
-				await that.getLink(respData);
-			}
-		}
+		return response.data;
 	}
 	/**
 	 * 页面检查，看看是否存在文件失效情况
-	 * @param response
+	 * @param responseData
 	 * + true 未失效
 	 * + false 已失效
 	 */
-	checkPageCode(response: HttpxResponse<any>["data"]): boolean {
-		let pageText = response.responseText;
+	checkPageCode(responseData: HttpxResponseData<any>): boolean {
+		let pageText = responseData.responseText;
 		if (pageText.match(this.regexp.noFile.match)) {
 			Qmsg.error(this.regexp.noFile.tip);
 			return false;
@@ -352,16 +710,15 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		return true;
 	}
 	/**
-	 * 判断是否是多文件的链接
-	 * @param response
+	 * 判断是否是多文件
+	 * @param responseData
 	 * @returns
 	 * + true 多文件
 	 * + false 单文件
 	 */
-	isMoreFile(response: HttpxResponse<any>["data"]) {
-		const that = this;
-		let pageText = response.responseText;
-		if (pageText.match(that.regexp.moreFile.match)) {
+	isMoreFile(responseData: HttpxResponseData<any>) {
+		let pageText = responseData.responseText;
+		if (pageText.match(this.regexp.moreFile.match)) {
 			log.info("该链接为多文件");
 			return true;
 		} else {
@@ -370,174 +727,141 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		}
 	}
 	/**
-	 * 获取链接
+	 * 解析组合链接（多个链接组成的链接）
 	 * @param response
 	 */
-	async getLink(response: HttpxResponse<any>["data"]) {
-		const that = this;
-		let pageText = response.responseText;
-		if (pageText == void 0) {
-			log.error("shareCode错误，重新从页面中获取");
-			await that.getFileLink(true);
+	async parseFiles(
+		shareCode: string,
+		accessCode: AccessCodeNonNullType
+	): Promise<
+		| {
+				folders: {
+					url: string;
+					shareCode: string;
+					accessCode: string;
+					folderName: string;
+				}[];
+				infos: FileMoreAjaxJSONText[] | undefined;
+		  }
+		| undefined
+	> {
+		let url =
+			this.ruleIndex === 1
+				? this.router.root_s(shareCode)
+				: this.router.root(shareCode);
+		let pageInfoResponse = await this.getPageInfo(url);
+		if (!pageInfoResponse) {
 			return;
 		}
-		// 删除注释的代码
-		pageText = deleteAnnotationCode(pageText);
-		let sign =
-			pageText.match(/'sign':'(.+?)',/i) ||
-			pageText.match(that.regexp.sign.match);
-
-		let postData_p = "";
-		let postData_sign = "";
-		let fileNameMatch = pageText.match(that.regexp.fileName.match);
-		let fileName = fileNameMatch
-			? fileNameMatch[fileNameMatch.length - 1].trim()
-			: "";
-		let fileSizeMatch =
-			pageText.match(that.regexp.fileSize.match) ||
-			pageText.match(/<div class="n_filesize">大小：(.+?)<\/div>/i);
-		let fileSize = fileSizeMatch
-			? fileSizeMatch[fileSizeMatch.length - 1].trim()
-			: "";
-		let fileUploadTimeMatch =
-			pageText.match(that.regexp.uploadTime.match) ||
-			pageText.match(/<span class="n_file_infos">(.+?)<\/span>/i);
-		let fileUploadTime = fileUploadTimeMatch
-			? fileUploadTimeMatch[fileUploadTimeMatch.length - 1].trim()
-			: "";
-		let fileIdMatch =
-			pageText.match(/[\s]+url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i) ||
-			pageText.match(/\/\/url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i);
-		let fileId = fileIdMatch ? fileIdMatch[fileIdMatch.length - 1] : "1";
-		if (sign) {
-			postData_sign = sign[sign.length - 1];
-			log.info(`获取Sign: ${postData_sign}`);
-			if (utils.isNotNull(that.accessCode)) {
-				log.info("传入参数=>有密码");
-				postData_p = that.accessCode;
-			} else {
-				log.info("传入参数=>无密码");
-			}
-			let kd = await that.getKNDS();
-			let postResp = await httpx.post({
-				url: that.router.root("ajaxm.php?file=" + fileId),
-				responseType: "json",
-				headers: {
-					accept: "application/json, text/javascript, */*",
-					"Content-Type": "application/x-www-form-urlencoded",
-					"User-Agent": utils.getRandomAndroidUA(),
-					Origin: "https://" + NetDiskParse_Lanzou_Config.hostname,
-					Referer: that.router.root(that.shareCode),
-				},
-				data: `action=downprocess&sign=${postData_sign}&p=${postData_p}&kd=${kd}`,
-			});
-			if (!postResp.status) {
-				return;
-			}
-			let respData = postResp.data;
-			log.info(respData);
-			if (respData.readyState === 4) {
-				let json_data = utils.toJSON(respData.responseText);
-				let downloadUrl = `${json_data["dom"]}/file/${json_data["url"]}`;
-				if (
-					typeof json_data["url"] === "string" &&
-					(json_data["url"].startsWith("http") ||
-						json_data["url"].startsWith(json_data["dom"]))
-				) {
-					/* 有些情况下比如苹果的ipa文件的请求，json_data["url"]就是一个完整的链接 */
-					downloadUrl = json_data["url"];
+		let pageText = pageInfoResponse.responseText;
+		let pageDoc = DOMUtils.parseHTML(pageText, true, true);
+		let folders = Array.from(
+			pageDoc.querySelectorAll<HTMLAnchorElement>("#folder a.mlink[href]")
+		)
+			.map(($link) => {
+				let url = $link.href;
+				let urlInst = new URL(url);
+				let shareCodeMatch = urlInst.pathname.match(/^\/([0-9a-zA-Z]{5,})/);
+				if (shareCodeMatch == null) {
+					return;
 				}
-				/* json_data["zt"]表示状态，一般为1 */
-				let zt = json_data["zt"];
-				/* json_data["inf"]一般是文件名，也可以看作是请求信息提示 */
-				if ("密码不正确".indexOf(json_data["inf"]) != -1) {
+				let __shareCode__ = shareCodeMatch[shareCodeMatch.length - 1];
+				let $filename = $link.querySelector(".filename");
+				let filename = $filename?.firstChild?.textContent || "";
+				return {
+					url: url,
+					shareCode: __shareCode__,
+					accessCode: accessCode,
+					folderName: filename,
+				};
+			})
+			.filter((it) => it != null);
+
+		let infos;
+		// 不管存不存在普通文件，都需要请求一下重新获取信息
+		let fid = pageText.match(/\'fid\':(.+?),/)![1].replaceAll("'", "");
+		let uid = pageText.match(/\'uid\':(.+?),/)![1].replaceAll("'", "");
+		let pgs = 1;
+		let t_name = pageText.match(/\'t\':(.+?),/)![1];
+		let t_rexp = new RegExp(t_name + "[\\s]*=[\\s]*('|\")(.+?)('|\");");
+		let t = pageText.match(t_rexp)![2];
+		let k_name = pageText.match(/\'k\':(.+?),/)![1];
+		let k_rexp = new RegExp(k_name + "[\\s]*=[\\s]*('|\")(.+?)('|\");");
+		let k = pageText.match(k_rexp)![2];
+		let lx = shareCode.match(this.regexp.unicode.match) ? 1 : 2;
+		let json_data = await this.fileMoreAjax(shareCode, accessCode, {
+			lx: lx,
+			fid: fid,
+			uid: uid,
+			pg: pgs,
+			t: t,
+			k: k,
+			pwd: accessCode!,
+		});
+		let error: undefined | string = undefined;
+		if (json_data) {
+			log.info(`json_data：`, json_data);
+			const { zt, info, text } = json_data;
+			if (zt !== 1) {
+				// 请求失败的情况
+				if (zt === 4) {
+					error = text as string;
+				} else if (info?.includes("密码不正确")) {
 					Qmsg.error("密码不正确!");
-					NetDiskUI.newAccessCodeView(
-						void 0,
-						"lanzou",
-						that.ruleIndex,
-						that.shareCode,
-						that.accessCode,
-						(option) => {
-							that.init(that.ruleIndex, that.shareCode, option.accessCode);
-						}
-					);
-				} else {
-					fileName = json_data["inf"] ? json_data["inf"] : fileName;
-					log.info(downloadUrl);
-
-					if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
-						downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
+					let newAccessCodeInfo = await new Promise<
+						| undefined
+						| {
+								accssCode: AccessCodeNonNullType;
+						  }
+					>((resolve) => {
+						NetDiskUI.newAccessCodeView(
+							void 0,
 							"lanzou",
-							downloadUrl
+							this.ruleIndex,
+							shareCode,
+							accessCode,
+							(option) => {
+								resolve({
+									accssCode: option.accessCode!,
+								});
+							},
+							() => {
+								resolve(void 0);
+							}
 						);
-					}
-
-					NetDiskUI.staticView.oneFile({
-						title: "蓝奏云单文件直链",
-						fileName: fileName,
-						fileSize: fileSize,
-						downloadUrl: downloadUrl,
-						fileUploadTime: fileUploadTime,
 					});
+					if (!newAccessCodeInfo) {
+						return;
+					}
+					return await this.parseFiles(shareCode, newAccessCodeInfo.accssCode);
+				} else if (info?.includes("没有了")) {
+					error = "没有文件了";
+				} else {
+					error = "未知错误";
 				}
-			} else {
-				Qmsg.error("请求失败，请重试");
 			}
-		} else {
-			let loadDownHost = pageText.match(that.regexp.loadDownHost.match);
-			let loadDown = pageText.match(that.regexp.loadDown.match);
-			let appleDownMatch = pageText.match(that.regexp.appleDown.match)!;
-			let appleDown = appleDownMatch[appleDownMatch.length - 1];
-			if (utils.isNull(loadDown)) {
-				loadDown = pageText.match(/var[\s]*(cppat)[\s]*=[\s]*'(.+?)'/i);
+			if (Array.isArray(text)) {
+				infos = text;
 			}
-			if (utils.isNull(loadDownHost) && appleDown) {
-				appleDown = appleDown[appleDown.length - 1];
-				loadDownHost = [appleDown];
-				loadDown = [""];
-				log.success("多文件-当前链接猜测为苹果的文件", appleDown);
-			}
-			if (utils.isNull(loadDownHost)) {
-				Qmsg.error("蓝奏云直链：获取sign的域名失败，请反馈开发者", {
-					timeout: 3500,
-				});
-				return;
-			}
-			if (utils.isNull(loadDown)) {
-				Qmsg.error("蓝奏云直链：获取sign失败，请反馈开发者", {
-					timeout: 3500,
-				});
-				return;
-			}
-			let downloadUrl = `${loadDownHost[loadDownHost.length - 1]}${
-				loadDown[loadDown.length - 1]
-			}`;
-			log.info(fileName, fileSize, downloadUrl);
-			log.info(downloadUrl);
-			if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
-				downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-					"lanzou",
-					downloadUrl
-				);
-			}
-
-			NetDiskUI.staticView.oneFile({
-				title: "蓝奏云单文件直链",
-				fileName: fileName,
-				fileSize: fileSize,
-				downloadUrl: downloadUrl,
-				fileUploadTime: fileUploadTime,
-			});
 		}
+		if (typeof error === "string") {
+			log.error(error);
+		}
+		let result = {
+			folders: folders,
+			infos: infos,
+		};
+		log.info(result);
+		return result;
 	}
-
 	/**
 	 * 通过iframe的链接来获取单文件直链
 	 * @param urlPathName url路径
 	 * @param fileInfo 文件信息
 	 */
 	async getLinkByIframe(
+		shareCode: string,
+		accessCode: AccessCodeNonNullType,
 		urlPathName: string,
 		fileInfo: {
 			fileName: string;
@@ -545,16 +869,15 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 			fileUploadTime: string;
 		}
 	) {
-		const that = this;
 		log.info(urlPathName, fileInfo);
-		let iFrameUrl = that.router.root(urlPathName);
+		let iFrameUrl = this.router.root(urlPathName);
 		let response = await httpx.get({
 			url: iFrameUrl,
 			headers: {
 				Accept:
 					"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
 				"User-Agent": utils.getRandomPCUA(),
-				Referer: that.router.root(that.shareCode),
+				Referer: this.router.root(shareCode),
 			},
 		});
 		if (!response.status) {
@@ -621,12 +944,12 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		};
 		log.success("请求的路径参数：" + ajaxUrl);
 		log.success(["ajaxm.php的请求参数-> ", postData]);
-		let postResp = await httpx.post(that.router.root(ajaxUrl), {
+		let postResp = await httpx.post(this.router.root(ajaxUrl), {
 			data: utils.toSearchParamsStr(postData),
 			headers: {
 				Accept: "application/json, text/javascript, */*",
 				"Content-Type": "application/x-www-form-urlencoded",
-				Referer: that.router.root(that.shareCode),
+				Referer: this.router.root(shareCode),
 				"User-Agent": utils.getRandomPCUA(),
 			},
 		});
@@ -661,11 +984,11 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 			NetDiskUI.newAccessCodeView(
 				void 0,
 				"lanzou",
-				that.ruleIndex,
-				that.shareCode,
-				that.accessCode,
+				this.ruleIndex,
+				shareCode,
+				accessCode,
 				(option) => {
-					that.init(that.ruleIndex, that.shareCode, option.accessCode);
+					this.init(this.ruleIndex, shareCode, option.accessCode);
 				}
 			);
 		} else {
@@ -693,46 +1016,33 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		}
 	}
 	/**
-	 * 多文件获取
-	 * @param url 链接
+	 * 请求filemoreajax.php获取多文件信息
 	 */
-	async getMoreFile(url?: string) {
-		const that = this;
-		if (url == null) {
-			url = that.router.root(that.shareCode);
+	async fileMoreAjax(
+		shareCode: string,
+		accessCode: AccessCodeNonNullType,
+		config: {
+			lx: number;
+			fid: string;
+			uid: string;
+			pg: number;
+			t: string;
+			k: string;
+			pwd: NonNullable<AccessCodeNonNullType>;
+			rep?: number;
+			up?: number;
+			ls?: number;
 		}
-		let getResp = await httpx.get({
-			url: url,
-			headers: {
-				Accept: "*/*",
-				"User-Agent": utils.getRandomAndroidUA(),
-				Referer: url,
-			},
+	) {
+		let postData = utils.toFormData({
+			rep: 0,
+			up: 1,
+			ls: 1,
+			...config,
 		});
-		if (!getResp.status) {
-			return;
-		}
-		let respData = getResp.data;
-		log.info(respData);
-		if (respData.readyState !== 4) {
-			Qmsg.error("请求失败，请重试");
-			return;
-		}
-		let pageText: string = respData.responseText;
-		let fid = pageText.match(/\'fid\':(.+?),/)![1].replaceAll("'", "");
-		let uid = pageText.match(/\'uid\':(.+?),/)![1].replaceAll("'", "");
-		let pgs = 1;
-		let t_name = pageText.match(/\'t\':(.+?),/)![1];
-		let t_rexp = new RegExp(t_name + "[\\s]*=[\\s]*('|\")(.+?)('|\");");
-		let t = pageText.match(t_rexp)![2];
-		let k_name = pageText.match(/\'k\':(.+?),/)![1];
-		let k_rexp = new RegExp(k_name + "[\\s]*=[\\s]*('|\")(.+?)('|\");");
-		let k = pageText.match(k_rexp)![2];
-		let lx = that.shareCode.match(that.regexp.unicode.match) ? 1 : 2;
-		let postData = `lx=${lx}&fid=${fid}&uid=${uid}&pg=${pgs}&rep=0&t=${t}&k=${k}&up=1&ls=1&pwd=${that.accessCode}`;
-		log.info(`多文件请求参数：${postData}`);
-		let postResp = await httpx.post({
-			url: that.router.root("filemoreajax.php"),
+		let url = this.router.root("filemoreajax.php");
+		let fileMoreAjaxResponse = await httpx.post({
+			url: this.router.root("filemoreajax.php"),
 			responseType: "json",
 			headers: {
 				"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -741,170 +1051,14 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 			},
 			data: postData,
 		});
-		if (!postResp.status) {
+		if (!fileMoreAjaxResponse.status) {
 			return;
 		}
-		let postRespData = postResp.data;
-		log.info(postRespData);
-		let json_data = utils.toJSON(postRespData.responseText);
-		let zt = json_data["zt"];
-		let info = json_data["info"];
-		if (zt === 4) {
-			Qmsg.error(info);
-		} else if (zt === 1) {
-			let QmsgLoading = Qmsg.loading("获取文件夹成功，解析文件直链中...");
-			/* 获取多文件的数组信息 */
-			let folder = json_data["text"];
-			/**
-			 * 弹出内容
-			 */
-			let folderList: PopsFolderDataConfig[] = [];
-			log.info(`本链接一共${folder.length}个文件`);
-			for (let index = 0; index < folder.length; index++) {
-				let folderInfo = folder[index];
-				let fileShareCode = folderInfo["id"];
-				let fileName = folderInfo["name_all"];
-				let fileSize = folderInfo["size"];
-				let fileType = folderInfo["icon"];
-				let uploadTime = folderInfo["time"];
-				folderList.push({
-					fileName: fileName,
-					fileSize: fileSize,
-					fileType: fileType,
-					createTime: uploadTime,
-					latestTime: uploadTime,
-					isFolder: false,
-					index: 0,
-					async clickEvent() {
-						let folderDownloadInfo = await that.parseMoreFile(
-							fileShareCode,
-							fileName,
-							fileSize,
-							uploadTime
-						);
-						/* 成功获取下载信息 */
-						if (folderDownloadInfo.success) {
-							return {
-								autoDownload: true,
-								mode: "aBlank",
-								url: folderDownloadInfo.downloadUrl!,
-							};
-						} else {
-							log.error("获取下载信息失败：", folderDownloadInfo);
-							Qmsg.error(folderDownloadInfo.msg);
-						}
-					},
-				});
-			}
-			QmsgLoading.close();
-			NetDiskUI.staticView.moreFile("蓝奏云文件解析", folderList);
-		} else if ("密码不正确".indexOf(info) !== -1) {
-			Qmsg.error("密码不正确!");
-			NetDiskUI.newAccessCodeView(
-				void 0,
-				"lanzou",
-				that.ruleIndex,
-				that.shareCode,
-				that.accessCode,
-				(option) => {
-					that.init(that.ruleIndex, that.shareCode, option.accessCode);
-				}
-			);
-		} else if ("没有了".indexOf(info) !== -1) {
-			Qmsg.error("没有文件了");
-		} else {
-			Qmsg.error("未知错误");
-		}
-	}
-	/**
-	 * 文件解析并返回html-vip
-	 * @param paramShareCode 解析多文件获取的shareCode
-	 * @param fileName 文件名
-	 * @param fileSize 文件大小
-	 * @param fileUploadTime 文件上传时间
-	 */
-	async parseMoreFile(
-		paramShareCode: string,
-		fileName: string,
-		fileSize: string,
-		fileUploadTime: string
-	): Promise<{
-		success: boolean;
-		fileName: string;
-		fileSize: string;
-		fileUploadTime: string;
-		downloadUrl?: string;
-		msg: string;
-	}> {
-		const that = this;
-		/* 根据获取到的json中多文件链接来获取单文件直链 */
-		let getResp = await httpx.get({
-			url: that.router.root(paramShareCode),
-			headers: {
-				Accept: "*/*",
-				"User-Agent": utils.getRandomPCUA(),
-				Referer: that.router.root(that.shareCode),
-			},
-		});
-		log.info(getResp);
-		if (!getResp.status) {
-			return {
-				success: false,
-				fileName: fileName,
-				fileSize: fileSize,
-				fileUploadTime: fileUploadTime,
-				msg: `解析失败，${getResp.msg}`,
-				downloadUrl: void 0,
-			};
-		}
-		let respData = getResp.data;
-		let pageText = respData.responseText;
-		let pageDOM = DOMUtils.parseHTML(pageText, true, true);
-		let pageIframeElement =
-			pageDOM.querySelector('iframe[class^="ifr"]') ||
-			pageDOM.querySelector('iframe[class^="n_downlink"]');
-		if (!pageIframeElement) {
-			return {
-				success: false,
-				fileName: fileName,
-				fileSize: fileSize,
-				fileUploadTime: fileUploadTime,
-				msg: `解析iframe链接失败`,
-				downloadUrl: void 0,
-			};
-		}
-		let iframeUrl = pageIframeElement.getAttribute("src")!;
-		log.error("该链接需要重新通过iframe地址访问获取信息", iframeUrl);
-		Qmsg.info("正在请求下载信息");
-		let downloadUrl = await that.getLinkByIframe(iframeUrl, {
-			fileName,
-			fileSize,
-			fileUploadTime,
-		});
-		if (downloadUrl) {
-			if (NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
-				downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-					"lanzou",
-					downloadUrl
-				);
-			}
-			return {
-				success: true,
-				fileName: fileName,
-				fileSize: fileSize,
-				fileUploadTime: fileUploadTime,
-				msg: "success",
-				downloadUrl: downloadUrl,
-			};
-		} else {
-			return {
-				success: false,
-				fileName: fileName,
-				fileSize: fileSize,
-				fileUploadTime: fileUploadTime,
-				msg: `获取下载链接失败`,
-				downloadUrl: void 0,
-			};
-		}
+		let fileMoreAjaxResponseData = fileMoreAjaxResponse.data;
+		log.info(fileMoreAjaxResponseData);
+		let json_data = utils.toJSON<FileMoreAjaxJSON>(
+			fileMoreAjaxResponseData.responseText
+		);
+		return json_data;
 	}
 }

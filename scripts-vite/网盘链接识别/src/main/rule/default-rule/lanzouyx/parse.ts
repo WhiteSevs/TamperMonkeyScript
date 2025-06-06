@@ -149,7 +149,7 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 	async init(
 		ruleIndex: number,
 		shareCode: string,
-		accessCode: AccessCodeType
+		accessCode: AccessCodeNonNullType
 	) {
 		const that = this;
 		log.info(ruleIndex, shareCode, accessCode);

@@ -28,7 +28,7 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 	 * header请求头 X-Canary
 	 */
 	X_Canary = "client=web,app=share,version=v2.3.1";
-	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
+	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
 		const that = this;
 		log.info(ruleIndex, shareCode, accessCode);
 		that.ruleIndex = ruleIndex;
@@ -221,7 +221,6 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 					"User-Agent": utils.getRandomPCUA(),
 				},
 				allowInterceptConfig: false,
-				onerror() {},
 			}
 		);
 		if (!postResp.status) {
@@ -276,7 +275,6 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 				},
 				responseType: "arraybuffer",
 				allowInterceptConfig: false,
-				onerror() {},
 			}
 		);
 		if (!postResp.status) {
@@ -322,7 +320,7 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 	 * @param share_id
 	 * @param share_pwd
 	 */
-	async get_X_Share_Token(share_id: string, share_pwd: AccessCodeType) {
+	async get_X_Share_Token(share_id: string, share_pwd: AccessCodeNonNullType) {
 		const that = this;
 		if (new Date() < new Date(that.X_Share_Token_Data.expire_time)) {
 			return that.X_Share_Token_Data.share_token;
@@ -344,7 +342,6 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 					"User-Agent": utils.getRandomPCUA(),
 				},
 				allowInterceptConfig: false,
-				onerror() {},
 			}
 		);
 		if (!postResp.status) {

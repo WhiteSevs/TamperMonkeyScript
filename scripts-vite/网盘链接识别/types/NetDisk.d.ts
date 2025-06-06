@@ -53,3 +53,8 @@ declare interface NetDiskSettingMenuDetails
  * 访问码类型
  */
 declare type AccessCodeType = string | null | undefined;
+
+/**
+ * 访问码类型
+ */
+declare type AccessCodeNonNullType = NonNullable<AccessCodeType>;

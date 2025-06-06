@@ -11,7 +11,7 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 	panelList = [];
 	panelContent = "";
 	OK_CODE = "0000";
-	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
+	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
 		const that = this;
 		log.info(ruleIndex, shareCode, accessCode);
 		that.ruleIndex = ruleIndex;
@@ -99,7 +99,7 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 	 * @param shareCode
 	 * @param accessCode
 	 */
-	async checkLinkValidity(shareCode: string, accessCode: AccessCodeType) {
+	async checkLinkValidity(shareCode: string, accessCode: AccessCodeNonNullType) {
 		const that = this;
 		let resultJSON = await that.getShareByUniqueUrl(shareCode);
 		if (!resultJSON) {
@@ -278,7 +278,7 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 	 * @param shareCode
 	 * @param accessCode
 	 */
-	async parseMoreFile(shareCode: string, accessCode: AccessCodeType) {}
+	async parseMoreFile(shareCode: string, accessCode: AccessCodeNonNullType) {}
 	/**
 	 * 获取文件夹信息
 	 * @param transferGuid

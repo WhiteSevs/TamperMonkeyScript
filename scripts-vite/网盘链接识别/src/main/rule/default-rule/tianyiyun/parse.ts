@@ -22,7 +22,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 		InvalidSessionKey:
 			"天翼云PC端Cookie未生成，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC且在登录后要等待进入个人云空间后生成Cookie，不是手机端浏览的个人云空间，那样生成的Cookie无法使用)",
 	};
-	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
+	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
 		const that = this;
 		log.info(ruleIndex, shareCode, accessCode);
 		that.ruleIndex = ruleIndex;
@@ -123,19 +123,10 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 	}
 	/**
 	 * 获取当前登录用户的信息
-	 * @returns {Promise<?{
-	 * encryptAccount: string,
-	 * icon: string,
-	 * nickname: string,
-	 * res_code: string,
-	 * res_message: string,
-	 * sessionKey: string,
-	 * userAccount: string
-	 * }>}
 	 */
 	async getUserBriefInfo(shareCode: string) {
 		const that = this;
-		let getResp = await httpx.get(
+		let response = await httpx.get(
 			"https://cloud.189.cn/api/portal/v2/getUserBriefInfo.action",
 			{
 				headers: {
@@ -144,12 +135,11 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 					"User-Agent": utils.getRandomPCUA(),
 				},
 				allowInterceptConfig: false,
-				onerror() {},
 			}
 		);
-		log.info(getResp);
-		if (!getResp.status) {
-			let errorResultJSON = utils.toJSON(getResp.data.responseText);
+		log.info(response);
+		if (!response.status) {
+			let errorResultJSON = utils.toJSON(response.data.responseText);
 			if (errorResultJSON["res_code"] in that.code) {
 				Qmsg.error(
 					that.code[errorResultJSON["res_code"] as keyof typeof this.code]
@@ -159,19 +149,26 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			}
 			return;
 		}
-		let data = utils.toJSON(getResp.data.responseText);
+		let data = utils.toJSON(response.data.responseText);
 		if (data["res_code"] === 0) {
-			return data;
+			return data as {
+				encryptAccount: string;
+				icon: string;
+				nickname: string;
+				res_code: string;
+				res_message: string;
+				sessionKey: string;
+				userAccount: string;
+			};
 		}
 	}
 	/**
 	 * 获取分享信息
-	 * @param {string} shareCode
-	 * @returns
+	 * @param shareCode
 	 */
 	async getShareInfoByCodeV2(shareCode: string) {
 		const that = this;
-		let postResp = await httpx.post({
+		let response = await httpx.post({
 			url: "https://cloud.189.cn/api/open/share/getShareInfoByCodeV2.action",
 			data: `shareCode=${shareCode}`,
 			headers: {
@@ -183,10 +180,9 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 				Origin: "https://cloud.189.cn",
 			},
 			allowInterceptConfig: false,
-			onerror() {},
 		});
-		if (!postResp.status) {
-			let errorData = utils.toJSON(postResp.data.responseText);
+		if (!response.status) {
+			let errorData = utils.toJSON(response.data.responseText);
 			log.error("获取下载参数失败的JSON信息", errorData);
 			if (errorData["res_code"] in that.code) {
 				Qmsg.error(that.code[errorData["res_code"] as keyof typeof that.code]);
@@ -195,7 +191,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			}
 			return;
 		}
-		let postData = postResp.data;
+		let postData = response.data;
 		log.info(postData);
 		let data = utils.toJSON(postData.responseText);
 		if (data["res_code"] == 0) {
@@ -211,8 +207,8 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 	/**
 	 * 获取shareId
 	 */
-	async getShareId(shareCode: string, accessCode: AccessCodeType) {
-		let getResp = await httpx.get({
+	async getShareId(shareCode: string, accessCode: AccessCodeNonNullType) {
+		let response = await httpx.get({
 			url: `https://cloud.189.cn/api/open/share/checkAccessCode.action?shareCode=${shareCode}&accessCode=${accessCode}`,
 			headers: {
 				Accept: "application/json;charset=UTF-8",
@@ -223,10 +219,10 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			},
 			responseType: "json",
 		});
-		if (!getResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let respData = getResp.data;
+		let respData = response.data;
 		log.info(respData);
 		let data = utils.toJSON(respData.responseText);
 		if (data["res_code"] === 0 && "shareId" in data) {
@@ -238,7 +234,6 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 	}
 	/**
 	 * 获取随机noCache
-	 * @returns {string}
 	 */
 	getNoCacheValue() {
 		let result = "";
@@ -249,20 +244,19 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 	}
 	/**
 	 * 获取下载链接
-	 * @param {string} shareCode
-	 * @param {string} accessCode
-	 * @param {number} fileId
-	 * @param {number} shareId
-	 * @returns {Promise}
+	 * @param shareCode
+	 * @param accessCode
+	 * @param fileId
+	 * @param shareId
 	 */
 	async getDownloadUrl(
 		shareCode: string,
-		accessCode: AccessCodeType,
+		accessCode: AccessCodeNonNullType,
 		fileId: number,
 		shareId: number
 	) {
 		const that = this;
-		let getResp = await httpx.get({
+		let response = await httpx.get({
 			url: `https://cloud.189.cn/api/open/file/getFileDownloadUrl.action?fileId=${fileId}&dt=1&shareId=${shareId}`,
 			headers: {
 				Accept: "application/json;charset=UTF-8",
@@ -273,11 +267,10 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			},
 			responseType: "json",
 			allowInterceptConfig: false,
-			onerror() {},
 		});
-		log.info(getResp);
-		if (!getResp.status) {
-			let errorResultJSON = utils.toJSON(getResp.data.responseText);
+		log.info(response);
+		if (!response.status) {
+			let errorResultJSON = utils.toJSON(response.data.responseText);
 			if (errorResultJSON["errorCode"] === "InvalidSessionKey") {
 				that.gotoLogin(that.code["InvalidSessionKey"]);
 			} else if (errorResultJSON["res_code"] in that.code) {
@@ -289,8 +282,8 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			}
 			return;
 		}
-		let respData = getResp.data;
-		let data = utils.toJSON(respData.responseText);
+		let responseData = response.data;
+		let data = utils.toJSON(responseData.responseText);
 		log.info(data);
 		if (data["res_code"] === 0) {
 			return data["fileDownloadUrl"];
@@ -303,10 +296,9 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			Qmsg.error(that.code[data["res_code"] as keyof typeof that.code]);
 		} else {
 			Qmsg.error("请求失败");
-			log.error(respData);
+			log.error(responseData);
 		}
 	}
-
 	/**
 	 * 天翼云登录弹窗
 	 * @param text 弹窗的显示的内容
@@ -345,7 +337,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 	 */
 	async listShareDir(
 		shareCode: string,
-		accessCode: AccessCodeType,
+		accessCode: AccessCodeNonNullType,
 		pageNum: number = 1,
 		pageSize: number = 60,
 		fileId: string | number,
@@ -371,7 +363,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			descending: descending,
 			accessCode: accessCode,
 		};
-		let getResp = await httpx.get(
+		let response = await httpx.get(
 			`https://cloud.189.cn/api/open/share/listShareDir.action?${utils.toSearchParamsStr(
 				getSearParamData
 			)}`,
@@ -384,11 +376,10 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 				},
 				responseType: "json",
 				allowInterceptConfig: false,
-				onerror() {},
 			}
 		);
-		if (!getResp.status) {
-			let errorData = utils.toJSON(getResp.data.responseText);
+		if (!response.status) {
+			let errorData = utils.toJSON(response.data.responseText);
 			log.error("解析文件夹信息失败", errorData);
 			if (errorData["res_code"] in that.code) {
 				Qmsg.error(that.code[errorData["res_code"] as keyof typeof that.code]);
@@ -399,9 +390,9 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			}
 			return;
 		}
-		let getData = getResp.data;
-		log.info(getData);
-		let data = utils.toJSON(getData.responseText);
+		let responseData = response.data;
+		log.info(responseData);
+		let data = utils.toJSON(responseData.responseText);
 		if (data["res_code"] == 0) {
 			return data["fileListAO"];
 		} else {
@@ -417,7 +408,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 	 */
 	getFolderInfo(
 		shareCode: string,
-		accessCode: AccessCodeType,
+		accessCode: AccessCodeNonNullType,
 		dirInfo: any,
 		index = 0
 	) {

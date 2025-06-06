@@ -4,7 +4,7 @@ export abstract class ParseFileAbstract {
 	/** 分享码 */
 	shareCode: string = "";
 	/** 提取码 */
-	accessCode: AccessCodeType = "";
+	accessCode: AccessCodeNonNullType = "";
 	/**
 	 * 入口
 	 * @param ruleIndex 规则下标
@@ -14,6 +14,6 @@ export abstract class ParseFileAbstract {
 	abstract init(
 		ruleIndex: number,
 		shareCode: string,
-		accessCode: AccessCodeType
+		accessCode: AccessCodeNonNullType
 	): IPromise<void>;
 }

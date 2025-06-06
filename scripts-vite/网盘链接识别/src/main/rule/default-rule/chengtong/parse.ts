@@ -14,7 +14,7 @@ export class NetDiskParse_Chengtong extends ParseFileAbstract {
 	init(
 		ruleIndex: number,
 		shareCode: string,
-		accessCode: AccessCodeType
+		accessCode: AccessCodeNonNullType
 	) {
 		let ruleKeyName = "chengtong";
 		if (ruleIndex !== 3) {

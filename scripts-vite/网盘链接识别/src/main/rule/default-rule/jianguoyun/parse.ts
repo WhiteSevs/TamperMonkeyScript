@@ -10,11 +10,19 @@ import type {
 	HttpxResponse,
 } from "@whitesev/utils/dist/types/src/types/Httpx";
 
+type FolderInfo = {
+	mtime: number;
+	relPath: string;
+	size: number;
+	tblUri?: string;
+	type: "file" | string;
+};
+
 export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 	errorCode = {
 		UnAuthorized: "请先登录坚果云账号",
 	};
-	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
+	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
 		const that = this;
 		log.info(ruleIndex, shareCode, accessCode);
 		that.ruleIndex = ruleIndex;
@@ -70,34 +78,15 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 	}
 	/**
 	 * 解析多文件信息
-	 * @param {{
-	 * mtime: number,
-	 * relPath: string,
-	 * size: number,
-	 * tblUri: ?string,
-	 * type: "file"|string,
-	 * }[]} folderInfo
-	 * @param {string} hash 文件hash值
-	 * @param {string} fileName 文件名
-	 * @returns {{
-	 * fileName: string,
-	 * fileSize: string|number,
-	 * fileType: ?string,
-	 * createTime: ?string,
-	 * latestTime: ?string,
-	 * isFolder: boolean,
-	 * index: ?number,
-	 * clickCallBack: ?(event:Event,_config_: object)=>{}
-	 * }[]}
+	 * @param folderInfo
+	 * @param hash 文件hash值
+	 * @param fileName 文件名
 	 */
-	parseMoreFile(folderInfo: any, hash = "", fileName = "") {
+	parseMoreFile(folderInfo: FolderInfo[], hash = "", fileName = "") {
 		const that = this;
 		log.info("解析多文件信息", folderInfo);
-		/**
-		 * @type {PopsFolderDataConfig[]}
-		 */
 		let folderInfoList: PopsFolderDataConfig[] = [];
-		folderInfo.forEach((item: any) => {
+		folderInfo.forEach((item) => {
 			let fileName = item.relPath;
 			if (fileName.startsWith("/")) {
 				fileName = fileName.replace(/^\//, "");
@@ -262,9 +251,8 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 	}
 	/**
 	 * 获取下载链接
-	 * @param {string} fileHash 文件hash值
-	 * @param {string} fileName 文件名
-	 * @returns {Promise}
+	 * @param fileHash 文件hash值
+	 * @param fileName 文件名
 	 */
 	async getFileLink(fileHash = "", fileName = "") {
 		const that = this;
@@ -278,7 +266,6 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 				"User-Agent": utils.getRandomPCUA(),
 			},
 			allowInterceptConfig: false,
-			onerror: function () {},
 		});
 		if (!getResp.status) {
 			if (utils.isNotNull(getResp.data?.responseText)) {
@@ -302,17 +289,16 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 			Qmsg.error("坚果云: " + resultJSON["detailMsg"]);
 			return;
 		} else if (resultJSON.hasOwnProperty("url")) {
-			return resultJSON["url"];
+			return <string>resultJSON["url"];
 		} else {
 			Qmsg.error("坚果云: 处理下载链接异常");
 		}
 	}
 	/**
 	 * 获取文件夹下的文件下载链接
-	 * @param {string} fileHash
-	 * @param {string} fileName
-	 * @param {string} filePath
-	 * @returns {Promise}
+	 * @param fileHash
+	 * @param fileName
+	 * @param filePath
 	 */
 	async getDirLink(fileHash = "", fileName = "", filePath = "/") {
 		const that = this;
@@ -324,7 +310,6 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 				"User-Agent": utils.getRandomPCUA(),
 			},
 			allowInterceptConfig: false,
-			onerror: function () {},
 		});
 		if (!getResp.status) {
 			if (utils.isNotNull(getResp.data?.responseText)) {
@@ -348,20 +333,18 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 			Qmsg.error("坚果云: " + resultJSON["detailMsg"]);
 			return;
 		} else if (resultJSON.hasOwnProperty("url")) {
-			return resultJSON["url"];
+			return <string>resultJSON["url"];
 		} else {
 			Qmsg.error("坚果云: 处理下载链接异常");
 		}
 	}
 	/**
 	 * 获取文件夹信息
-	 * @param {string} hash
-	 * @returns
+	 * @param hash
 	 */
 	async getFolderInfo(hash = "") {
-		const that = this;
 		let getResp = await httpx.get({
-			url: `https://www.jianguoyun.com/d/ajax/dirops/pubDIRBrowse?hash=${hash}&relPath=%2F&_=${new Date().getTime()}`,
+			url: `https://www.jianguoyun.com/d/ajax/dirops/pubDIRBrowse?hash=${hash}&relPath=%2F&_=${Date.now()}`,
 			responseType: "json",
 			headers: {
 				"User-Agent": utils.getRandomPCUA(),
@@ -375,7 +358,7 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 		let resultJSON = utils.toJSON(respData.responseText);
 		log.info(resultJSON);
 		if ("objects" in resultJSON) {
-			return resultJSON["objects"];
+			return <FolderInfo[]>resultJSON["objects"];
 		} else {
 			Qmsg.error("坚果云: 处理多文件信息异常");
 		}
