@@ -383,6 +383,7 @@ export declare class DOMUtilsEvent {
      * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
      * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
      * @param selector 选择器
+     * @param parent 指定父元素
      * @example
      * DOMUtils.selector("div:contains('测试')")
      * > div.xxx
@@ -393,8 +394,8 @@ export declare class DOMUtilsEvent {
      * DOMUtils.selector("div:regexp('^xxxx$')")
      * > div.xxx
      */
-    selector<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K] | undefined;
-    selector<E extends Element = Element>(selector: string): E | undefined;
+    selector<K extends keyof HTMLElementTagNameMap>(selector: K, parent?: Element | Document | DocumentFragment | ShadowRoot): HTMLElementTagNameMap[K] | undefined;
+    selector<E extends Element = Element>(selector: string, parent?: Element | Document | DocumentFragment | ShadowRoot): E | undefined;
     /**
      * 选择器，可使用以下的额外语法
      *
@@ -402,6 +403,7 @@ export declare class DOMUtilsEvent {
      * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
      * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
      * @param selector 选择器
+     * @param parent 指定父元素
      * @example
      * DOMUtils.selectorAll("div:contains('测试')")
      * > [div.xxx]
@@ -415,8 +417,8 @@ export declare class DOMUtilsEvent {
      * DOMUtils.selectorAll("div:regexp(/^xxx/ig)")
      * > [div.xxx]
      */
-    selectorAll<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K][];
-    selectorAll<E extends Element = Element>(selector: string): E[];
+    selectorAll<K extends keyof HTMLElementTagNameMap>(selector: K, parent?: Element | Document | DocumentFragment | ShadowRoot): HTMLElementTagNameMap[K][];
+    selectorAll<E extends Element = Element>(selector: string, parent?: Element | Document | DocumentFragment | ShadowRoot): E[];
     /**
      * 匹配元素，可使用以下的额外语法
      *
