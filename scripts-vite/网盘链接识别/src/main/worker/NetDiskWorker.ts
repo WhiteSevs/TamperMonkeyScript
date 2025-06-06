@@ -3,13 +3,12 @@ import { NetDisk } from "../NetDisk";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { NetDiskSuspensionConfig } from "../view/suspension/NetDiskSuspensionView";
-import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 import { NetDiskWorkerUtils } from "./NetDiskWorkerUtils";
 import { NetDiskRuleData } from "../data/NetDiskRuleData";
 import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
 import { CharacterMapping } from "../character-mapping/CharacterMapping";
-import { GM_getValue, GM_setValue } from "ViteGM";
+import { GM_getValue } from "ViteGM";
 import { NetDiskPops } from "../pops/NetDiskPops";
 import { WebsiteRule } from "../website-rule/WebsiteRule";
 import { PopsPanel } from "@/setting/panel";
@@ -18,7 +17,6 @@ import { NetDiskWorkerInitError } from "./NetDiskWorkerInitError";
 import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
 import { NetDiskRuleManager } from "../NetDiskRuleManager";
 import { RulePanelView } from "@/utils/RulePanelView";
-import { CommonUtil } from "@/utils/CommonUtil";
 
 /** Woker */
 export const NetDiskWorker = {
@@ -32,7 +30,11 @@ export const NetDiskWorker = {
 	delayNotMatchCount: 0,
 	/** 跨域传递消息的类型 */
 	postMessageType: "worker-init-error",
-	/** 主动触发监听DOM变化的事件 */
+	/**
+	 * 主动触发监听DOM变化的事件
+	 *
+	 * 主动设置true将会主动触发识别
+	 */
 	dispatchMonitorDOMChange: false,
 	/** worker的Blob链接 */
 	blobUrl: "",
