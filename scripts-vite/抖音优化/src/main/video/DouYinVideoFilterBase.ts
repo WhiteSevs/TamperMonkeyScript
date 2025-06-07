@@ -1,8 +1,5 @@
 import { log, utils } from "@/env";
 import type { DouYinVideoFilterOption } from "./DouYinVideoFilter";
-import { Panel } from "@/setting/panel";
-import { DouYinAwemeApi } from "@/api/DouYinAwemeApi";
-import { ConcurrencyAsyncQueue } from "@/utils/ConcurrencyAsyncQueue";
 
 /**
  * 视频信息处理过后的数据结构
