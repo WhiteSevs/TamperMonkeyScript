@@ -93,9 +93,7 @@ export const DouYinVideoFilter = {
 		 * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
 		 */
 		get isReverse() {
-			return Panel.getValue<boolean>(
-				"shieldVideo-only-show-filtered-video"
-			);
+			return Panel.getValue<boolean>("shieldVideo-only-show-filtered-video");
 		},
 	},
 	init() {
@@ -1354,8 +1352,9 @@ export const DouYinVideoFilter = {
 	},
 	/**
 	 * 导入规则
+	 * @param importEndCallBack 导入完毕后的回调
 	 */
-	importRule() {
+	importRule(importEndCallBack?: () => void) {
 		let $alert = pops.alert({
 			title: {
 				text: "请选择导入方式",
@@ -1363,15 +1362,27 @@ export const DouYinVideoFilter = {
 			},
 			content: {
 				text: /*html*/ `
-                    <div class="import-mode" data-mode="local">本地导入</div>
-                    <div class="import-mode" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="local">本地导入</div>
+                    <div class="btn-control" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
                 `,
 				html: true,
 			},
+			btn: {
+				ok: { enable: false },
+				close: {
+					enable: true,
+					callback(details, event) {
+						details.close();
+					},
+				},
+			},
+			mask: { enable: true },
+			drag: true,
 			width: PanelUISize.info.width,
 			height: PanelUISize.info.height,
 			style: /*css*/ `
-                .import-mode{
+                .btn-control{
                     display: inline-block;
                     margin: 10px;
                     padding: 10px;
@@ -1381,12 +1392,68 @@ export const DouYinVideoFilter = {
                 }
             `,
 		});
+		/** 本地导入 */
 		let $local = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".import-mode[data-mode='local']"
+			".btn-control[data-mode='local']"
 		)!;
+		/** 网络导入 */
 		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".import-mode[data-mode='network']"
+			".btn-control[data-mode='network']"
 		)!;
+		/** 剪贴板导入 */
+		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(
+			".btn-control[data-mode='clipboard']"
+		)!;
+		/**
+		 * 将获取到的规则更新至存储
+		 */
+		let updateRuleToStorage = (data: any[]) => {
+			let allData = this.getData();
+			let addNewData: typeof allData = [];
+			for (let index = 0; index < data.length; index++) {
+				const dataItem = data[index];
+				let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+				if (findIndex !== -1) {
+					// 存在相同的uuid的规则
+					// 不做处理
+				} else {
+					// 追加
+					addNewData.push(dataItem);
+				}
+			}
+			allData = allData.concat(addNewData);
+			this.setData(allData);
+
+			Qmsg.success(`共 ${data.length} 条规则，新增 ${addNewData.length} 条`);
+			importEndCallBack?.();
+		};
+		/**
+		 * @param subscribeText 订阅文件文本
+		 */
+		let importFile = (subscribeText: string) => {
+			return new Promise<boolean>((resolve) => {
+				let data = utils.toJSON(subscribeText);
+				if (!Array.isArray(data)) {
+					log.error(data);
+					Qmsg.error("导入失败，格式不符合（不是数组）", {
+						consoleLogContent: true,
+					});
+					resolve(false);
+					return;
+				}
+				if (!data.length) {
+					Qmsg.error("导入失败，解析出的数据为空", {
+						consoleLogContent: true,
+					});
+					resolve(false);
+					return;
+				}
+
+				updateRuleToStorage(data);
+				resolve(true);
+			});
+		};
+		// 本地导入
 		DOMUtils.on($local, "click", (event) => {
 			utils.preventEvent(event);
 			$alert.close();
@@ -1401,59 +1468,111 @@ export const DouYinVideoFilter = {
 				let uploadFile = $input.files![0];
 				let fileReader = new FileReader();
 				fileReader.onload = () => {
-					let data = utils.toJSON(fileReader.result as string);
-					if (!Array.isArray(data)) {
-						log.error("不是正确的规则文件", data);
-						Qmsg.error("不是正确的规则文件");
-						return;
-					}
-					this.setData(data);
-					Qmsg.success(`成功导入 ${data.length}条规则`);
+					importFile(fileReader.result as string);
 				};
 				fileReader.readAsText(uploadFile, "UTF-8");
 			});
 			$input.click();
 		});
+		// 网络导入
 		DOMUtils.on($network, "click", (event) => {
 			utils.preventEvent(event);
 			$alert.close();
-			pops.prompt({
+			let $prompt = pops.prompt({
 				title: {
 					text: "网络导入",
 					position: "center",
 				},
 				content: {
 					text: "",
-					placeholder: "url",
+					placeholder: "请填写URL",
 					focus: true,
 				},
 				btn: {
+					close: {
+						enable: true,
+						callback(details, event) {
+							details.close();
+						},
+					},
 					ok: {
+						text: "导入",
 						callback: async (eventDetails, event) => {
 							let url = eventDetails.text;
 							if (utils.isNull(url)) {
 								Qmsg.error("请填入完整的url");
 								return;
 							}
-							let response = await httpx.get(url);
+							let $loading = Qmsg.loading("正在获取配置...");
+							let response = await httpx.get(url, {
+								allowInterceptConfig: false,
+							});
+							$loading.close();
 							if (!response.status) {
+								log.error(response);
+								Qmsg.error("获取配置失败", { consoleLogContent: true });
 								return;
 							}
-							let data = utils.toJSON(response.data.responseText);
-							if (!Array.isArray(data)) {
-								log.error("不是正确的规则文件", response, data);
-								Qmsg.error("不是正确的规则文件");
+							let flag = await importFile(response.data.responseText);
+							if (!flag) {
 								return;
 							}
-							this.setData(data);
 							eventDetails.close();
-							Qmsg.success(`成功导入 ${data.length}条规则`);
 						},
 					},
+					cancel: {
+						enable: false,
+					},
 				},
+				mask: { enable: true },
+				drag: true,
 				width: PanelUISize.info.width,
 				height: "auto",
 			});
+			let $promptInput =
+				$prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+			let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(
+				".pops-prompt-btn-ok"
+			)!;
+			DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
+				let value = DOMUtils.val($promptInput);
+				if (value === "") {
+					DOMUtils.attr($promptOk, "disabled", "true");
+				} else {
+					DOMUtils.removeAttr($promptOk, "disabled");
+				}
+			});
+			DOMUtils.listenKeyboard(
+				$promptInput,
+				"keydown",
+				(keyName, keyValue, otherCodeList) => {
+					if (keyName === "Enter" && otherCodeList.length === 0) {
+						let value = DOMUtils.val($promptInput);
+						if (value !== "") {
+							utils.dispatchEvent($promptOk, "click");
+						}
+					}
+				}
+			);
+			utils.dispatchEvent($promptInput, "input");
+		});
+		// 剪贴板导入
+		DOMUtils.on($clipboard, "click", async (event) => {
+			utils.preventEvent(event);
+			$alert.close();
+			let clipboardInfo = await utils.getClipboardInfo();
+			if (clipboardInfo.error != null) {
+				Qmsg.error(clipboardInfo.error.toString());
+				return;
+			}
+			if (clipboardInfo.content.trim() === "") {
+				Qmsg.warning("获取到的剪贴板内容为空");
+				return;
+			}
+			let flag = await importFile(clipboardInfo.content);
+			if (!flag) {
+				return;
+			}
 		});
 	},
 };

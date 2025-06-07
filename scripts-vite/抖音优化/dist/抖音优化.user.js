@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.7.18
+// @version      2025.6.7.19
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -6504,9 +6504,7 @@
        * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
        */
       get isReverse() {
-        return Panel.getValue(
-          "shieldVideo-only-show-filtered-video"
-        );
+        return Panel.getValue("shieldVideo-only-show-filtered-video");
       }
     },
     init() {
@@ -7523,8 +7521,9 @@
     },
     /**
      * 导入规则
+     * @param importEndCallBack 导入完毕后的回调
      */
-    importRule() {
+    importRule(importEndCallBack) {
       let $alert = __pops.alert({
         title: {
           text: "请选择导入方式",
@@ -7534,18 +7533,30 @@
           text: (
             /*html*/
             `
-                    <div class="import-mode" data-mode="local">本地导入</div>
-                    <div class="import-mode" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="local">本地导入</div>
+                    <div class="btn-control" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
                 `
           ),
           html: true
         },
+        btn: {
+          ok: { enable: false },
+          close: {
+            enable: true,
+            callback(details, event) {
+              details.close();
+            }
+          }
+        },
+        mask: { enable: true },
+        drag: true,
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
           /*css*/
           `
-                .import-mode{
+                .btn-control{
                     display: inline-block;
                     margin: 10px;
                     padding: 10px;
@@ -7557,11 +7568,52 @@
         )
       });
       let $local = $alert.$shadowRoot.querySelector(
-        ".import-mode[data-mode='local']"
+        ".btn-control[data-mode='local']"
       );
       let $network = $alert.$shadowRoot.querySelector(
-        ".import-mode[data-mode='network']"
+        ".btn-control[data-mode='network']"
       );
+      let $clipboard = $alert.$shadowRoot.querySelector(
+        ".btn-control[data-mode='clipboard']"
+      );
+      let updateRuleToStorage = (data) => {
+        let allData = this.getData();
+        let addNewData = [];
+        for (let index = 0; index < data.length; index++) {
+          const dataItem = data[index];
+          let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+          if (findIndex !== -1) ;
+          else {
+            addNewData.push(dataItem);
+          }
+        }
+        allData = allData.concat(addNewData);
+        this.setData(allData);
+        Qmsg.success(`共 ${data.length} 条规则，新增 ${addNewData.length} 条`);
+        importEndCallBack == null ? void 0 : importEndCallBack();
+      };
+      let importFile = (subscribeText) => {
+        return new Promise((resolve) => {
+          let data = utils.toJSON(subscribeText);
+          if (!Array.isArray(data)) {
+            log.error(data);
+            Qmsg.error("导入失败，格式不符合（不是数组）", {
+              consoleLogContent: true
+            });
+            resolve(false);
+            return;
+          }
+          if (!data.length) {
+            Qmsg.error("导入失败，解析出的数据为空", {
+              consoleLogContent: true
+            });
+            resolve(false);
+            return;
+          }
+          updateRuleToStorage(data);
+          resolve(true);
+        });
+      };
       domUtils.on($local, "click", (event) => {
         utils.preventEvent(event);
         $alert.close();
@@ -7577,14 +7629,7 @@
           let uploadFile = $input.files[0];
           let fileReader = new FileReader();
           fileReader.onload = () => {
-            let data = utils.toJSON(fileReader.result);
-            if (!Array.isArray(data)) {
-              log.error("不是正确的规则文件", data);
-              Qmsg.error("不是正确的规则文件");
-              return;
-            }
-            this.setData(data);
-            Qmsg.success(`成功导入 ${data.length}条规则`);
+            importFile(fileReader.result);
           };
           fileReader.readAsText(uploadFile, "UTF-8");
         });
@@ -7593,43 +7638,99 @@
       domUtils.on($network, "click", (event) => {
         utils.preventEvent(event);
         $alert.close();
-        __pops.prompt({
+        let $prompt = __pops.prompt({
           title: {
             text: "网络导入",
             position: "center"
           },
           content: {
             text: "",
-            placeholder: "url",
+            placeholder: "请填写URL",
             focus: true
           },
           btn: {
+            close: {
+              enable: true,
+              callback(details, event2) {
+                details.close();
+              }
+            },
             ok: {
+              text: "导入",
               callback: async (eventDetails, event2) => {
                 let url = eventDetails.text;
                 if (utils.isNull(url)) {
                   Qmsg.error("请填入完整的url");
                   return;
                 }
-                let response = await httpx.get(url);
+                let $loading = Qmsg.loading("正在获取配置...");
+                let response = await httpx.get(url, {
+                  allowInterceptConfig: false
+                });
+                $loading.close();
                 if (!response.status) {
+                  log.error(response);
+                  Qmsg.error("获取配置失败", { consoleLogContent: true });
                   return;
                 }
-                let data = utils.toJSON(response.data.responseText);
-                if (!Array.isArray(data)) {
-                  log.error("不是正确的规则文件", response, data);
-                  Qmsg.error("不是正确的规则文件");
+                let flag = await importFile(response.data.responseText);
+                if (!flag) {
                   return;
                 }
-                this.setData(data);
                 eventDetails.close();
-                Qmsg.success(`成功导入 ${data.length}条规则`);
               }
+            },
+            cancel: {
+              enable: false
             }
           },
+          mask: { enable: true },
+          drag: true,
           width: PanelUISize.info.width,
           height: "auto"
         });
+        let $promptInput = $prompt.$shadowRoot.querySelector("input");
+        let $promptOk = $prompt.$shadowRoot.querySelector(
+          ".pops-prompt-btn-ok"
+        );
+        domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+          let value = domUtils.val($promptInput);
+          if (value === "") {
+            domUtils.attr($promptOk, "disabled", "true");
+          } else {
+            domUtils.removeAttr($promptOk, "disabled");
+          }
+        });
+        domUtils.listenKeyboard(
+          $promptInput,
+          "keydown",
+          (keyName, keyValue, otherCodeList) => {
+            if (keyName === "Enter" && otherCodeList.length === 0) {
+              let value = domUtils.val($promptInput);
+              if (value !== "") {
+                utils.dispatchEvent($promptOk, "click");
+              }
+            }
+          }
+        );
+        utils.dispatchEvent($promptInput, "input");
+      });
+      domUtils.on($clipboard, "click", async (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        let clipboardInfo = await utils.getClipboardInfo();
+        if (clipboardInfo.error != null) {
+          Qmsg.error(clipboardInfo.error.toString());
+          return;
+        }
+        if (clipboardInfo.content.trim() === "") {
+          Qmsg.warning("获取到的剪贴板内容为空");
+          return;
+        }
+        let flag = await importFile(clipboardInfo.content);
+        if (!flag) {
+          return;
+        }
       });
     }
   };
