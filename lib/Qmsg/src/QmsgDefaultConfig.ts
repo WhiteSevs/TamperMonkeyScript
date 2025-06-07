@@ -12,9 +12,10 @@ export const QmsgDefaultConfig = {
 	/** 实例配置的固定的默认值，在初始化时会插入值 */
 	INS_DEFAULT: {} as QmsgConfig,
 	/** 实例配置的默认值 */
-	get config() {
+	get config(): Required<QmsgConfig> {
 		return {
 			parent: document.body || document.documentElement,
+			useShadowRoot: true,
 			shadowRootMode: "open",
 			animation: true,
 			autoClose: true,
@@ -39,6 +40,6 @@ export const QmsgDefaultConfig = {
 			limitWidthWrap: "no-wrap",
 			consoleLogContent: false,
 			afterRender: null,
-		} as Required<QmsgConfig>;
+		};
 	},
 };
