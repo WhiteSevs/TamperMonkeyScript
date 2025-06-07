@@ -131,7 +131,7 @@ export class StorageUtils {
 		GM_deleteValue(this.storageKey);
 	}
 	/**
-	 * 判断是否在某键改变的值监听器
+	 * 判断某键是否存在值改变的监听器
 	 * @param listenerId 监听器id或键
 	 */
 	hasValueChangeListener(listenerId: number | string) {
