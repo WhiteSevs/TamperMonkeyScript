@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.4
+// @version      2025.6.7
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.7/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
 // @grant        GM_deleteValue
@@ -108,7 +108,7 @@
     constructor(key) {
       /** 存储的键名 */
       __publicField(this, "storageKey");
-      __publicField(this, "listenData");
+      __publicField(this, "listenerData");
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -118,7 +118,7 @@
       } else {
         throw new Error("key参数类型错误，必须是字符串");
       }
-      this.listenData = new Utils.Dictionary();
+      this.listenerData = new Utils.Dictionary();
     }
     /**
      * 获取本地值
@@ -148,9 +148,7 @@
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
-      if (this.listenData.has(key)) {
-        this.listenData.get(key).callback(key, oldValue, value);
-      }
+      this.triggerValueChangeListener(key, oldValue, value);
     }
     /**
      * 获取值
@@ -177,12 +175,10 @@
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
-      if (this.listenData.has(key)) {
-        this.listenData.get(key).callback(key, oldValue, void 0);
-      }
+      this.triggerValueChangeListener(key, oldValue, void 0);
     }
     /**
-     * 判断是否存在该值
+     * 判断是否存在该键
      */
     has(key) {
       let localValue = this.getLocalValue();
@@ -193,22 +189,41 @@
      */
     keys() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue);
+      let keys = Reflect.ownKeys(localValue);
+      return keys;
     }
     /**
      * 获取所有值
      */
     values() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map(
+      let values = Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
+      return values;
     }
     /**
      * 清空所有值
      */
     clear() {
       _GM_deleteValue(this.storageKey);
+    }
+    /**
+     * 判断是否在某键改变的值监听器
+     * @param listenerId 监听器id或键
+     */
+    hasValueChangeListener(listenerId) {
+      let flag = false;
+      outerLoop: for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+            flag = true;
+            break outerLoop;
+          }
+        }
+      }
+      return flag;
     }
     /**
      * 监听值改变
@@ -219,11 +234,13 @@
      */
     addValueChangeListener(key, callback) {
       let listenerId = Math.random();
-      this.listenData.set(key, {
+      let listenerData = this.listenerData.get(key) || [];
+      listenerData.push({
         id: listenerId,
         key,
         callback
       });
+      this.listenerData.set(key, listenerData);
       return listenerId;
     }
     /**
@@ -231,19 +248,19 @@
      * @param listenerId 监听的id或键名
      */
     removeValueChangeListener(listenerId) {
-      let deleteKey = null;
-      for (const [key, value] of this.listenData.entries()) {
-        if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
-          deleteKey = key;
-          break;
+      let flag = false;
+      for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+            listenerData.splice(index, 1);
+            index--;
+            flag = true;
+          }
         }
+        this.listenerData.set(key, listenerData);
       }
-      if (typeof deleteKey === "string") {
-        this.listenData.delete(deleteKey);
-        return true;
-      } else {
-        return false;
-      }
+      return flag;
     }
     /**
      * 主动触发监听器
@@ -252,25 +269,28 @@
      * @param newValue （可选）新值
      */
     triggerValueChangeListener(key, oldValue, newValue) {
-      if (!this.listenData.has(key)) {
+      if (!this.listenerData.has(key)) {
         return;
       }
-      let listenData = this.listenData.get(key);
-      if (typeof listenData.callback === "function") {
-        let value = this.get(key);
-        let __newValue;
-        let __oldValue;
-        if (typeof oldValue !== "undefined" && arguments.length >= 2) {
-          __oldValue = oldValue;
-        } else {
-          __oldValue = value;
+      let listenerData = this.listenerData.get(key);
+      for (let index = 0; index < listenerData.length; index++) {
+        const data = listenerData[index];
+        if (typeof data.callback === "function") {
+          let value = this.get(key);
+          let __newValue;
+          let __oldValue;
+          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+            __oldValue = oldValue;
+          } else {
+            __oldValue = value;
+          }
+          if (typeof newValue !== "undefined" && arguments.length > 2) {
+            __newValue = newValue;
+          } else {
+            __newValue = value;
+          }
+          data.callback(key, __oldValue, __newValue);
         }
-        if (typeof newValue !== "undefined" && arguments.length > 2) {
-          __newValue = newValue;
-        } else {
-          __newValue = value;
-        }
-        listenData.callback(key, __oldValue, __newValue);
       }
     }
   }
@@ -10960,7 +10980,7 @@
   const DouYin = {
     init() {
       Panel.onceExec("dy-global-block-css", () => {
-        addStyle(blockCSS$8);
+        return this.removeAds();
       });
       DouYinGestureBackClearHash();
       DouYinHook.init();
@@ -11009,6 +11029,25 @@
       } else {
         log.error("未适配router: " + window.location.href);
       }
+    },
+    /**
+     * 移除ads
+     */
+    removeAds() {
+      if (DouYinRouter.isIndex()) {
+        utils.waitNode(
+          () => domUtils.selector(
+            '#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:contains("下载抖音精选")'
+          ),
+          1e4
+        ).then(($el) => {
+          if (!$el) {
+            return;
+          }
+          domUtils.remove($el);
+        });
+      }
+      return [addStyle(blockCSS$8)];
     },
     /**
      * 固定meta viewport缩放倍率为1
