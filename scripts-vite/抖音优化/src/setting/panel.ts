@@ -33,13 +33,13 @@ const PanelContent = {
 	/**
 	 * 获取所有的配置内容，用于初始化默认的值
 	 */
-	getAllConfig() {
+	getAllConfig(): PopsPanelContentConfig[] {
 		return [...this.getConfig(), ...this.getMConfig()];
 	},
 	/**
 	 * 获取配置内容
 	 */
-	getConfig() {
+	getConfig(): PopsPanelContentConfig[] {
 		let configList: PopsPanelContentConfig[] = [
 			PanelCommonConfig,
 			PanelVideoConfig,
@@ -52,7 +52,7 @@ const PanelContent = {
 	/**
 	 * 获取配置内容
 	 */
-	getMConfig() {
+	getMConfig(): PopsPanelContentConfig[] {
 		let configList: PopsPanelContentConfig[] = [
 			MPanelShareUserConfig,
 			MPanelShareNoteConfig,
