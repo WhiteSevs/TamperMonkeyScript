@@ -101,6 +101,14 @@ export const NetDiskLinearChainDialogView = {
 					text: title,
 				},
 				folder: folderInfoList,
+				btn: {
+					ok: {
+						enable: false,
+					},
+					cancel: {
+						enable: true,
+					},
+				},
 				style: indexCSS,
 			},
 			NetDiskUI.popsStyle.moreFileStaticView

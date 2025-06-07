@@ -8,7 +8,7 @@ import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { WebsiteRuleDataKey } from "./data/NetDiskRuleDataKey";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { CharacterMapping } from "./character-mapping/CharacterMapping";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 
 export const NetDisk = {
 	$data: {
@@ -119,7 +119,7 @@ export const NetDisk = {
 				},
 				callback: () => {
 					log.info("当前网址：" + self.location.href);
-					if (!PopsPanel.isTopWindow()) {
+					if (!Panel.isTopWindow()) {
 						return;
 					}
 					alert(
@@ -142,7 +142,7 @@ export const NetDisk = {
 				},
 				callback: () => {
 					log.info("当前网址：" + self.location.href);
-					if (!PopsPanel.isTopWindow()) {
+					if (!Panel.isTopWindow()) {
 						return;
 					}
 					alert(

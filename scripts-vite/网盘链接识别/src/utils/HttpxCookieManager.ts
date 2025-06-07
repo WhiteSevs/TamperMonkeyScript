@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
 
 interface HttpxCookieManagerRule {
@@ -13,11 +13,11 @@ export const HttpxCookieManager = {
 	$data: {
 		/** 是否启用 */
 		get enable() {
-			return PopsPanel.getValue<boolean>("httpx-use-cookie-enable");
+			return Panel.getValue<boolean>("httpx-use-cookie-enable");
 		},
 		/** 是否使用document.cookie */
 		get useDocumentCookie() {
-			return PopsPanel.getValue<boolean>("httpx-use-document-cookie");
+			return Panel.getValue<boolean>("httpx-use-document-cookie");
 		},
 		/**
 		 * cookie规则，在这里填入
@@ -90,7 +90,7 @@ export const HttpxCookieManager = {
 			let rule = this.$data.cookieRule[index];
 			if (urlObj.hostname.match(rule.hostname)) {
 				// 域名匹配成功
-				let cookie = PopsPanel.getValue(rule.key) as string;
+				let cookie = Panel.getValue(rule.key) as string;
 				if (utils.isNull(cookie)) {
 					break;
 				}

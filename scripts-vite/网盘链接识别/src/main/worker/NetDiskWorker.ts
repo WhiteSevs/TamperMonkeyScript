@@ -11,7 +11,7 @@ import { CharacterMapping } from "../character-mapping/CharacterMapping";
 import { GM_getValue } from "ViteGM";
 import { NetDiskPops } from "../pops/NetDiskPops";
 import { WebsiteRule } from "../website-rule/WebsiteRule";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import Qmsg from "qmsg";
 import { NetDiskWorkerInitError } from "./NetDiskWorkerInitError";
 import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
@@ -261,7 +261,7 @@ export const NetDiskWorker = {
 	 * 监听Worker初始化失败的弹窗
 	 */
 	listenWorkerInitErrorDialog() {
-		if (!PopsPanel.isTopWindow()) {
+		if (!Panel.isTopWindow()) {
 			return;
 		}
 		const that = this;
@@ -284,7 +284,7 @@ export const NetDiskWorker = {
 							text: /*html*/ `
 							<div style="padding: 10px;gap: 10px;display: flex;flex-direction: column;">
 								<p>链接：${data.url}</p>
-								<p>来源：${PopsPanel.isTopWindow() ? "top" : "iframe"}</p>
+								<p>来源：${Panel.isTopWindow() ? "top" : "iframe"}</p>
 								<p>原因：初始化Worker失败，可能页面使用了Content-Security-Policy策略，执行匹配时如果页面的内容过大会导致页面卡死，请使用Menu模式进行匹配或者使用CSP插件禁用CSP策略（不建议）。</p>
 								<p>
 									错误信息：
@@ -1016,7 +1016,7 @@ export const NetDiskWorker = {
 			GM_Menu.add({
 				key: "performPageTextMatchingManually" + "_" + window.location.href,
 				text:
-					"点击执行文本匹配" + (PopsPanel.isTopWindow() ? "" : "（iframe）"),
+					"点击执行文本匹配" + (Panel.isTopWindow() ? "" : "（iframe）"),
 				autoReload: false,
 				isStoreValue: false,
 				showText(text) {

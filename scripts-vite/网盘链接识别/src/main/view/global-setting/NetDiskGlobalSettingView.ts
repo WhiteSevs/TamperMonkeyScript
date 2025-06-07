@@ -1,7 +1,7 @@
 import { DOMUtils, log, SCRIPT_NAME } from "@/env";
 import { NetDiskUI } from "../../ui/NetDiskUI";
 import Qmsg from "qmsg";
-import { PopsPanel } from "@/setting/panel";
+import { PanelContent } from "@/setting/panel";
 import { NetDiskUserRule } from "@/main/rule/user-rule/NetDiskUserRule";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { GM_info } from "ViteGM";
@@ -18,10 +18,10 @@ export const NetDiskGlobalSettingView = {
 			return;
 		}
 		// 总设置
-		let content = PopsPanel.getPanelContentConfig();
+		let content = PanelContent.getConfig();
 		// 规则的设置
 		let ruleContent = NetDiskRule.getRulePanelContent();
-		content = content.concat(ruleContent);
+		content.push(...ruleContent);
 		let $panel = NetDiskPops.panel(
 			{
 				title: {

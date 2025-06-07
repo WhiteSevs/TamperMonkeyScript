@@ -10,7 +10,7 @@ import { UIButton } from "@/setting/components/ui-button";
 import Qmsg from "qmsg";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { NetDiskPops } from "../pops/NetDiskPops";
-import { PopsPanel } from "@/setting/panel";
+import { Panel, PanelContent } from "@/setting/panel";
 import { NetDiskRule } from "../rule/NetDiskRule";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import {
@@ -27,7 +27,6 @@ import {
 import { WebsiteSubscribeRule } from "./WebsiteSubscribeRule";
 import { PanelUISize } from "@/setting/panel-ui-size";
 import { StorageUtils } from "@/utils/StorageUtils";
-import { CommonUtil } from "@/utils/CommonUtil";
 
 /** 深拷贝 */
 function deepCopy<T>(obj: T): T {
@@ -389,10 +388,10 @@ export const WebsiteRule = {
 												(event) => {
 													utils.preventEvent(event);
 													// 先获取总设置和所有规则的content配置
-													let originPanelContentConfig =
-														PopsPanel.getPanelContentConfig().concat(
-															NetDiskRule.getRulePanelContent()
-														);
+													let originPanelContentConfig = [
+														...PanelContent.getConfig(),
+														...NetDiskRule.getRulePanelContent(),
+													];
 													// 新配置，原始直接覆盖是浅复制
 													// let newPanelContentConfig = utils.assign(
 													// 	[],
@@ -776,7 +775,7 @@ export const WebsiteRule = {
 								return {
 									get(key: string, defaultValue: any) {
 										let currentRule = that.getRule(uuid) ?? addData();
-										let panelValue = PopsPanel.getValue(key, defaultValue);
+										let panelValue = Panel.getValue(key, defaultValue);
 										return (
 											(currentRule && Reflect.get(currentRule.data, key)) ??
 											panelValue
@@ -857,10 +856,10 @@ export const WebsiteRule = {
 								(event) => {
 									utils.preventEvent(event);
 									// 先获取总设置和所有规则的content配置
-									let originPanelContentConfig =
-										PopsPanel.getPanelContentConfig().concat(
-											NetDiskRule.getRulePanelContent()
-										);
+									let originPanelContentConfig = [
+										...PanelContent.getConfig(),
+										...NetDiskRule.getRulePanelContent(),
+									];
 									// 新配置，原始直接覆盖是浅复制
 									// let newPanelContentConfig = utils.assign(
 									// 	[],

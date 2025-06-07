@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@/setting/panel";
 import { NetDisk } from "@/main/NetDisk";
 import { NetDiskRule } from "./main/rule/NetDiskRule";
 import { NetDiskUI } from "./main/ui/NetDiskUI";
@@ -24,7 +24,7 @@ NetDiskUserRule.init();
 NetDiskRule.init();
 // 初始化配置默认
 // 注册油猴菜单
-PopsPanel.init();
+Panel.init();
 // 初始化配置数据
 NetDisk.init();
 NetDiskShortcut.init();
