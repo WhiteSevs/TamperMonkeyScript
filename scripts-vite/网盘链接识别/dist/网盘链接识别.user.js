@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.6.7.11
+// @version      2025.6.7.18
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
 // @connect      lanzoub.com
@@ -285,6 +285,9 @@
       },
       afterAddToUListCallBack
     };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      return false;
+    });
     return result;
   };
   const NetDiskRuleUtils = {
@@ -24963,36 +24966,45 @@
   const Panel = {
     /** 数据 */
     $data: {
-      __data: null,
-      __oneSuccessExecMenu: null,
-      __onceExec: null,
+      /**
+       * @private
+       */
+      __configDefaultValueData: null,
+      /**
+       * @private
+       */
+      __onceExecMenuData: null,
+      /**
+       * @private
+       */
+      __onceExecData: null,
       $panel: null,
       /**
        * 菜单项的默认值
        */
-      get data() {
-        if (Panel.$data.__data == null) {
-          Panel.$data.__data = new utils.Dictionary();
+      get configDefaultValueData() {
+        if (this.__configDefaultValueData == null) {
+          this.__configDefaultValueData = new utils.Dictionary();
         }
-        return Panel.$data.__data;
+        return this.__configDefaultValueData;
       },
       /**
        * 成功只执行了一次的项
        */
-      get oneSuccessExecMenu() {
-        if (Panel.$data.__oneSuccessExecMenu == null) {
-          Panel.$data.__oneSuccessExecMenu = new utils.Dictionary();
+      get onceExecMenuData() {
+        if (this.__onceExecMenuData == null) {
+          this.__onceExecMenuData = new utils.Dictionary();
         }
-        return Panel.$data.__oneSuccessExecMenu;
+        return this.__onceExecMenuData;
       },
       /**
        * 成功只执行了一次的项
        */
-      get onceExec() {
-        if (Panel.$data.__onceExec == null) {
-          Panel.$data.__onceExec = new utils.Dictionary();
+      get onceExecData() {
+        if (this.__onceExecData == null) {
+          this.__onceExecData = new utils.Dictionary();
         }
-        return Panel.$data.__onceExec;
+        return this.__onceExecData;
       },
       /** 脚本名，一般用在设置的标题上 */
       get scriptName() {
@@ -25015,9 +25027,11 @@
     },
     /** 初始化菜单项的默认值保存到本地数据中 */
     initContentDefaultValue() {
-      const that = this;
       const initDefaultValue = (config) => {
         if (!config.attributes) {
+          return;
+        }
+        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
         let needInitConfig = {};
@@ -25043,10 +25057,7 @@
         }
         needInitConfigList.forEach((__key) => {
           let __defaultValue = needInitConfig[__key];
-          if (that.$data.data.has(__key)) {
-            log.warn("请检查该key(已存在): " + __key);
-          }
-          that.$data.data.set(__key, __defaultValue);
+          this.setDefaultValue(__key, __defaultValue);
         });
       };
       const loopInitDefaultValue = (configList) => {
@@ -25072,6 +25083,15 @@
       }
     },
     /**
+     * 设置初始化使用的默认值
+     */
+    setDefaultValue(key, defaultValue) {
+      if (this.$data.configDefaultValueData.has(key)) {
+        log.warn("请检查该key(已存在): " + key);
+      }
+      this.$data.configDefaultValueData.set(key, defaultValue);
+    },
+    /**
      * 设置值
      * @param key 键
      * @param value 值
@@ -25087,8 +25107,8 @@
     getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.data.has(key)) {
-          return this.$data.data.get(key);
+        if (this.$data.configDefaultValueData.has(key)) {
+          return this.$data.configDefaultValueData.get(key);
         }
         return defaultValue;
       }
@@ -25143,7 +25163,7 @@
      * @param key 键
      */
     deleteExecMenuOnce(key) {
-      this.$data.oneSuccessExecMenu.delete(key);
+      this.$data.onceExecMenuData.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
@@ -25152,7 +25172,7 @@
      * @param key 键
      */
     deleteOnceExec(key) {
-      this.$data.onceExec.delete(key);
+      this.$data.onceExecData.delete(key);
     },
     /**
      * 执行菜单
@@ -25189,17 +25209,19 @@
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find((it) => !this.$data.data.has(it));
+      let findNotInDataKey = keyList.find(
+        (it) => !this.$data.configDefaultValueData.has(it)
+      );
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
       }
       let storageKey = JSON.stringify(keyList);
       if (once) {
-        if (this.$data.oneSuccessExecMenu.has(storageKey)) {
+        if (this.$data.onceExecMenuData.has(storageKey)) {
           return;
         }
-        this.$data.oneSuccessExecMenu.set(storageKey, 1);
+        this.$data.onceExecMenuData.set(storageKey, 1);
       }
       let storeStyleElements = [];
       let listenerIdList = [];
@@ -25218,8 +25240,8 @@
           storeStyleElements = storeStyleElements.concat(dynamicResultList);
         }
       };
-      let getValue = (key) => {
-        let value = Panel.getValue(key);
+      let getMenuValue = (key) => {
+        let value = this.getValue(key);
         return value;
       };
       let clearStoreStyleElements = () => {
@@ -25235,7 +25257,7 @@
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
         } else {
-          flag = keyList.every((key) => getValue(key));
+          flag = keyList.every((key) => getMenuValue(key));
         }
         return flag;
       };
@@ -25284,7 +25306,7 @@
         clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
-          once && that.$data.oneSuccessExecMenu.delete(storageKey);
+          once && that.$data.onceExecMenuData.delete(storageKey);
         },
         /**
          * 清空存储的元素列表
@@ -25357,11 +25379,11 @@
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
-      if (this.$data.onceExec.has(key)) {
+      if (this.$data.onceExecData.has(key)) {
         return;
       }
       callback();
-      this.$data.onceExec.set(key, 1);
+      this.$data.onceExecData.set(key, 1);
     },
     /**
      * 显示设置面板
