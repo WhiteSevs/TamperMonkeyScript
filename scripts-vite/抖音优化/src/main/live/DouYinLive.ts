@@ -263,18 +263,11 @@ export const DouYinLive = {
 					checkDialogToClose($elementTiming, "1");
 				}
 			);
-			$$<HTMLDivElement>('body > div:not([id="root"])').forEach(($ele) => {
-				checkDialogToClose($ele, "2");
-			});
-		});
-		utils.mutationObserver(document, {
-			config: {
-				subtree: true,
-				childList: true,
-			},
-			callback: () => {
-				lockFn.run();
-			},
+			$$<HTMLDivElement>('body > div:not([id="root"]):not(:empty)').forEach(
+				($ele) => {
+					checkDialogToClose($ele, "2");
+				}
+			);
 		});
 		DOMUtils.ready(() => {
 			utils.mutationObserver(document.body, {

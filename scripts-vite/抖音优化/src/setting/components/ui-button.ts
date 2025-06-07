@@ -3,6 +3,7 @@ import { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/s
 import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
 import { PopsIconType } from "@whitesev/pops/dist/types/src/types/icon";
+import { ATTRIBUTE_INIT } from "../panel-config";
 
 /**
  * 获取button按钮配置
@@ -35,6 +36,7 @@ export const UIButton = function (
 	let result: PopsPanelButtonDetails = {
 		text: text,
 		type: "button",
+		attributes: {},
 		description: description,
 		buttonIcon: buttonIcon,
 		buttonIsRightIcon: buttonIsRightIcon,
@@ -48,5 +50,8 @@ export const UIButton = function (
 		},
 		afterAddToUListCallBack: afterAddToUListCallBack,
 	};
+	Reflect.set(result.attributes!, ATTRIBUTE_INIT, () => {
+		return false;
+	});
 	return result;
 };

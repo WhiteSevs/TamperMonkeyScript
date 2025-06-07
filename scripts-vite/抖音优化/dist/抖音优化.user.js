@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.7.12
+// @version      2025.6.7.18
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
 // @grant        GM_deleteValue
@@ -2574,18 +2574,11 @@
             checkDialogToClose($elementTiming, "1");
           }
         );
-        $$('body > div:not([id="root"])').forEach(($ele) => {
-          checkDialogToClose($ele, "2");
-        });
-      });
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        callback: () => {
-          lockFn.run();
-        }
+        $$('body > div:not([id="root"]):not(:empty)').forEach(
+          ($ele) => {
+            checkDialogToClose($ele, "2");
+          }
+        );
       });
       domUtils.ready(() => {
         utils.mutationObserver(document.body, {
@@ -2645,6 +2638,7 @@
     let result = {
       text,
       type: "button",
+      attributes: {},
       description,
       buttonIcon,
       buttonIsRightIcon,
@@ -2658,6 +2652,9 @@
       },
       afterAddToUListCallBack
     };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      return false;
+    });
     return result;
   };
   const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {
@@ -8579,36 +8576,45 @@
   const Panel = {
     /** 数据 */
     $data: {
-      __data: null,
-      __oneSuccessExecMenu: null,
-      __onceExec: null,
+      /**
+       * @private
+       */
+      __configDefaultValueData: null,
+      /**
+       * @private
+       */
+      __onceExecMenuData: null,
+      /**
+       * @private
+       */
+      __onceExecData: null,
       $panel: null,
       /**
        * 菜单项的默认值
        */
-      get data() {
-        if (Panel.$data.__data == null) {
-          Panel.$data.__data = new utils.Dictionary();
+      get configDefaultValueData() {
+        if (this.__configDefaultValueData == null) {
+          this.__configDefaultValueData = new utils.Dictionary();
         }
-        return Panel.$data.__data;
+        return this.__configDefaultValueData;
       },
       /**
        * 成功只执行了一次的项
        */
-      get oneSuccessExecMenu() {
-        if (Panel.$data.__oneSuccessExecMenu == null) {
-          Panel.$data.__oneSuccessExecMenu = new utils.Dictionary();
+      get onceExecMenuData() {
+        if (this.__onceExecMenuData == null) {
+          this.__onceExecMenuData = new utils.Dictionary();
         }
-        return Panel.$data.__oneSuccessExecMenu;
+        return this.__onceExecMenuData;
       },
       /**
        * 成功只执行了一次的项
        */
-      get onceExec() {
-        if (Panel.$data.__onceExec == null) {
-          Panel.$data.__onceExec = new utils.Dictionary();
+      get onceExecData() {
+        if (this.__onceExecData == null) {
+          this.__onceExecData = new utils.Dictionary();
         }
-        return Panel.$data.__onceExec;
+        return this.__onceExecData;
       },
       /** 脚本名，一般用在设置的标题上 */
       get scriptName() {
@@ -8631,9 +8637,11 @@
     },
     /** 初始化菜单项的默认值保存到本地数据中 */
     initContentDefaultValue() {
-      const that = this;
       const initDefaultValue = (config) => {
         if (!config.attributes) {
+          return;
+        }
+        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
         let needInitConfig = {};
@@ -8659,10 +8667,7 @@
         }
         needInitConfigList.forEach((__key) => {
           let __defaultValue = needInitConfig[__key];
-          if (that.$data.data.has(__key)) {
-            log.warn("请检查该key(已存在): " + __key);
-          }
-          that.$data.data.set(__key, __defaultValue);
+          this.setDefaultValue(__key, __defaultValue);
         });
       };
       const loopInitDefaultValue = (configList) => {
@@ -8688,6 +8693,15 @@
       }
     },
     /**
+     * 设置初始化使用的默认值
+     */
+    setDefaultValue(key, defaultValue) {
+      if (this.$data.configDefaultValueData.has(key)) {
+        log.warn("请检查该key(已存在): " + key);
+      }
+      this.$data.configDefaultValueData.set(key, defaultValue);
+    },
+    /**
      * 设置值
      * @param key 键
      * @param value 值
@@ -8703,8 +8717,8 @@
     getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.data.has(key)) {
-          return this.$data.data.get(key);
+        if (this.$data.configDefaultValueData.has(key)) {
+          return this.$data.configDefaultValueData.get(key);
         }
         return defaultValue;
       }
@@ -8759,7 +8773,7 @@
      * @param key 键
      */
     deleteExecMenuOnce(key) {
-      this.$data.oneSuccessExecMenu.delete(key);
+      this.$data.onceExecMenuData.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
@@ -8768,7 +8782,7 @@
      * @param key 键
      */
     deleteOnceExec(key) {
-      this.$data.onceExec.delete(key);
+      this.$data.onceExecData.delete(key);
     },
     /**
      * 执行菜单
@@ -8805,17 +8819,19 @@
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find((it) => !this.$data.data.has(it));
+      let findNotInDataKey = keyList.find(
+        (it) => !this.$data.configDefaultValueData.has(it)
+      );
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
       }
       let storageKey = JSON.stringify(keyList);
       if (once) {
-        if (this.$data.oneSuccessExecMenu.has(storageKey)) {
+        if (this.$data.onceExecMenuData.has(storageKey)) {
           return;
         }
-        this.$data.oneSuccessExecMenu.set(storageKey, 1);
+        this.$data.onceExecMenuData.set(storageKey, 1);
       }
       let storeStyleElements = [];
       let listenerIdList = [];
@@ -8834,8 +8850,8 @@
           storeStyleElements = storeStyleElements.concat(dynamicResultList);
         }
       };
-      let getValue = (key) => {
-        let value = Panel.getValue(key);
+      let getMenuValue = (key) => {
+        let value = this.getValue(key);
         return value;
       };
       let clearStoreStyleElements = () => {
@@ -8851,7 +8867,7 @@
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
         } else {
-          flag = keyList.every((key) => getValue(key));
+          flag = keyList.every((key) => getMenuValue(key));
         }
         return flag;
       };
@@ -8900,7 +8916,7 @@
         clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
-          once && that.$data.oneSuccessExecMenu.delete(storageKey);
+          once && that.$data.onceExecMenuData.delete(storageKey);
         },
         /**
          * 清空存储的元素列表
@@ -8973,11 +8989,11 @@
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
-      if (this.$data.onceExec.has(key)) {
+      if (this.$data.onceExecData.has(key)) {
         return;
       }
       callback();
-      this.$data.onceExec.set(key, 1);
+      this.$data.onceExecData.set(key, 1);
     },
     /**
      * 显示设置面板
@@ -9028,7 +9044,7 @@
   let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
   log.config({
     debug: false,
-    logMaxCount: 100,
+    logMaxCount: 500,
     autoClearConsole: true,
     tag: true
   });

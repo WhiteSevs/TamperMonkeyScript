@@ -29,7 +29,7 @@ let SCRIPT_NAME = GM_info?.script?.name || _SCRIPT_NAME_;
 /* 配置控制台日志 */
 log.config({
 	debug: false,
-	logMaxCount: import.meta.env.DEV ? 10000 : 100,
+	logMaxCount: import.meta.env.DEV ? 10000 : 500,
 	autoClearConsole: true,
 	tag: true,
 });
