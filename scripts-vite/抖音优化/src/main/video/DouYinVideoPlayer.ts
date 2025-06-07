@@ -14,6 +14,7 @@ import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMou
 import { CommonUtil } from "@/utils/CommonUtil";
 import type { DouYinVideoAwemeInfo } from "./DouYinVideoFilterBase";
 import { DouYinVideoElementAutoHide } from "./DouYinVideoElementAutoHide";
+import { ReactUtils } from "@/utils/ReactUtils";
 
 /**
  * 视频播放器的播放速度
@@ -28,6 +29,9 @@ export type VideoPlayerRate =
 	| "3";
 
 export const DouYinVideoPlayer = {
+	$flag: {
+		isWaitEnterFullScreen: false,
+	},
 	init() {
 		DouYinVideoPlayerBlockElement.init();
 		Panel.onceExec("dy-short-cut", () => {
@@ -142,28 +146,56 @@ export const DouYinVideoPlayer = {
 	 * @param [userKeyBoard=false] 是否使用键盘触发
 	 */
 	autoEnterElementFullScreen(userKeyBoard = false) {
+		if (this.$flag.isWaitEnterFullScreen) {
+			log.warn(`已存在等待进入全屏...`);
+			return;
+		}
+		this.$flag.isWaitEnterFullScreen = true;
 		if (userKeyBoard) {
 			// 使用键盘事件触发全屏
 			// 优点：只要抖音不修改触发全屏的快捷键，则此方案可以一直使用
-			let keydownEvent = new KeyboardEvent("keydown", {
-				bubbles: true,
-				cancelable: true,
-				key: "Y",
-				code: "KeyY",
-				keyCode: 89,
-				which: 89,
+			DOMUtils.ready(() => {
+				let keydownEvent = new KeyboardEvent("keydown", {
+					bubbles: true,
+					cancelable: true,
+					key: "Y",
+					code: "KeyY",
+					keyCode: 89,
+					which: 89,
+				});
+				document.dispatchEvent(keydownEvent);
+				this.$flag.isWaitEnterFullScreen = false;
+				log.success("成功自动进入网页全屏-快捷键");
 			});
-			document.dispatchEvent(keydownEvent);
 		} else {
 			// 点击全屏按钮来触发全屏
-			utils
-				.waitNode<HTMLElement>(
-					'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon'
-				)
-				.then(($el) => {
-					log.success("自动进入网页全屏");
-					$el.click();
-				});
+			DOMUtils.ready(() => {
+				ReactUtils.waitReactPropsToSet(
+					() => {
+						return (
+							// 普通视频的网页全屏按钮
+							$<HTMLElement>(
+								'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon'
+							) ||
+							// 搜索页面的网页全屏按钮↓
+							$<HTMLElement>(
+								'[data-e2e="feed-active-video"] dy-icon.douyin-player-page-full-screen .douyin-player-icon'
+							)
+						);
+					},
+					"reactProps",
+					{
+						check(reactInstance) {
+							return typeof reactInstance?.onClick === "function";
+						},
+						set: (reactInstance, $target) => {
+							this.$flag.isWaitEnterFullScreen = false;
+							log.success("成功自动进入网页全屏-点击按钮");
+							$target.click();
+						},
+					}
+				);
+			});
 		}
 	},
 	/**

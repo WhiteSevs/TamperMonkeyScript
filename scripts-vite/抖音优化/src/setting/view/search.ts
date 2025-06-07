@@ -30,7 +30,7 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
 								UISelect(
 									"自动进入网页全屏",
 									"search-autoEnterElementFullScreen",
-									-1,
+									0,
 									() => [
 										{
 											text: `跟随主设置（${

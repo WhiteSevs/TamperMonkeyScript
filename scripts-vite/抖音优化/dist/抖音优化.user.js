@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.7.11
+// @version      2025.6.7.12
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2606,6 +2606,8 @@
     pauseVideo() {
       log.info("禁止自动播放视频(直播)");
       utils.waitNode('.basicPlayer[data-e2e="basicPlayer"] video').then(($video) => {
+        $video.autoplay = false;
+        $video.pause();
         domUtils.on(
           $video,
           "play",
@@ -2617,8 +2619,6 @@
             once: true
           }
         );
-        $video.autoplay = false;
-        $video.pause();
       });
     },
     /**
@@ -3168,7 +3168,7 @@
                   UISelect(
                     "自动进入网页全屏",
                     "search-autoEnterElementFullScreen",
-                    -1,
+                    0,
                     () => [
                       {
                         text: `跟随主设置（${PopsPanelStorageApi.get("autoEnterElementFullScreen") ? "是" : "否"}）`,
@@ -4133,6 +4133,9 @@
     };
   };
   const DouYinVideoPlayer = {
+    $flag: {
+      isWaitEnterFullScreen: false
+    },
     init() {
       DouYinVideoPlayerBlockElement.init();
       Panel.onceExec("dy-short-cut", () => {
@@ -4246,22 +4249,51 @@
      * @param [userKeyBoard=false] 是否使用键盘触发
      */
     autoEnterElementFullScreen(userKeyBoard = false) {
+      if (this.$flag.isWaitEnterFullScreen) {
+        log.warn(`已存在等待进入全屏...`);
+        return;
+      }
+      this.$flag.isWaitEnterFullScreen = true;
       if (userKeyBoard) {
-        let keydownEvent = new KeyboardEvent("keydown", {
-          bubbles: true,
-          cancelable: true,
-          key: "Y",
-          code: "KeyY",
-          keyCode: 89,
-          which: 89
+        domUtils.ready(() => {
+          let keydownEvent = new KeyboardEvent("keydown", {
+            bubbles: true,
+            cancelable: true,
+            key: "Y",
+            code: "KeyY",
+            keyCode: 89,
+            which: 89
+          });
+          document.dispatchEvent(keydownEvent);
+          this.$flag.isWaitEnterFullScreen = false;
+          log.success("成功自动进入网页全屏-快捷键");
         });
-        document.dispatchEvent(keydownEvent);
       } else {
-        utils.waitNode(
-          'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon'
-        ).then(($el) => {
-          log.success("自动进入网页全屏");
-          $el.click();
+        domUtils.ready(() => {
+          ReactUtils.waitReactPropsToSet(
+            () => {
+              return (
+                // 普通视频的网页全屏按钮
+                $(
+                  'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon'
+                ) || // 搜索页面的网页全屏按钮↓
+                $(
+                  '[data-e2e="feed-active-video"] dy-icon.douyin-player-page-full-screen .douyin-player-icon'
+                )
+              );
+            },
+            "reactProps",
+            {
+              check(reactInstance) {
+                return typeof (reactInstance == null ? void 0 : reactInstance.onClick) === "function";
+              },
+              set: (reactInstance, $target) => {
+                this.$flag.isWaitEnterFullScreen = false;
+                log.success("成功自动进入网页全屏-点击按钮");
+                $target.click();
+              }
+            }
+          );
         });
       }
     },
@@ -11094,7 +11126,8 @@
     listenRouterChange() {
       log.info(`监听Router重载`);
       domUtils.on(window, "wb_url_change", (event) => {
-        log.info(`Router Change`);
+        let currentUrl = window.location.href;
+        log.info(`Router Change：` + currentUrl);
         this.init();
       });
     }

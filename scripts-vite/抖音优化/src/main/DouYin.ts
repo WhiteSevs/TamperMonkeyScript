@@ -144,7 +144,8 @@ export const DouYin = {
 	listenRouterChange() {
 		log.info(`监听Router重载`);
 		DOMUtils.on(window, "wb_url_change", (event) => {
-			log.info(`Router Change`);
+			let currentUrl = window.location.href;
+			log.info(`Router Change：` + currentUrl);
 			this.init();
 		});
 	},

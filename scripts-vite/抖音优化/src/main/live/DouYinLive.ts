@@ -297,6 +297,8 @@ export const DouYinLive = {
 		utils
 			.waitNode<HTMLVideoElement>('.basicPlayer[data-e2e="basicPlayer"] video')
 			.then(($video) => {
+				$video.autoplay = false;
+				$video.pause();
 				DOMUtils.on(
 					$video,
 					"play",
@@ -308,8 +310,6 @@ export const DouYinLive = {
 						once: true,
 					}
 				);
-				$video.autoplay = false;
-				$video.pause();
 			});
 	},
 	/**
