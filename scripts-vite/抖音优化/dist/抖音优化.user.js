@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.7
+// @version      2025.6.7.11
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -209,7 +209,7 @@
       _GM_deleteValue(this.storageKey);
     }
     /**
-     * 判断是否在某键改变的值监听器
+     * 判断某键是否存在值改变的监听器
      * @param listenerId 监听器id或键
      */
     hasValueChangeListener(listenerId) {
@@ -8779,8 +8779,11 @@
         return;
       }
       let storageKey = JSON.stringify(keyList);
-      if (once && this.$data.oneSuccessExecMenu.has(JSON.stringify(storageKey))) {
-        return;
+      if (once) {
+        if (this.$data.oneSuccessExecMenu.has(storageKey)) {
+          return;
+        }
+        this.$data.oneSuccessExecMenu.set(storageKey, 1);
       }
       let storeStyleElements = [];
       let listenerIdList = [];

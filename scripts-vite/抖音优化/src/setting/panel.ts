@@ -447,11 +447,14 @@ const Panel = {
 		}
 		/** 存储的键 */
 		let storageKey = JSON.stringify(keyList);
-		if (once && this.$data.oneSuccessExecMenu.has(JSON.stringify(storageKey))) {
-			// log.warn(`${storageKey} 键已执行过，请勿重复执行`);
-			return;
+		if (once) {
+			// 仅执行一次
+			if (this.$data.oneSuccessExecMenu.has(storageKey)) {
+				// log.warn(`${storageKey} 键已执行过，请勿重复执行`);
+				return;
+			}
+			this.$data.oneSuccessExecMenu.set(storageKey, 1);
 		}
-
 		/**
 		 * 存储的<style>标签列表
 		 */
