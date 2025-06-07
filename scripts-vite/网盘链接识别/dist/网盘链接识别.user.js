@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.6.6
+// @version      2025.6.7
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.14/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
 // @connect      lanzoub.com
@@ -669,11 +669,7 @@
     constructor(key) {
       /** 存储的键名 */
       __publicField(this, "storageKey");
-      Object.keys(this).forEach((key2) => {
-        if (typeof this[key2] === "function") {
-          this[key2] = this[key2].bind(this);
-        }
-      });
+      __publicField(this, "listenerData");
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -683,7 +679,7 @@
       } else {
         throw new Error("key参数类型错误，必须是字符串");
       }
-      this.getLocalValue();
+      this.listenerData = new Utils.Dictionary();
     }
     /**
      * 获取本地值
@@ -709,9 +705,11 @@
      * @param value 值
      */
     set(key, value) {
+      let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, value);
     }
     /**
      * 获取值
@@ -734,12 +732,14 @@
      * @param key 键
      */
     delete(key) {
+      let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, void 0);
     }
     /**
-     * 判断是否存在该值
+     * 判断是否存在该键
      */
     has(key) {
       let localValue = this.getLocalValue();
@@ -750,22 +750,109 @@
      */
     keys() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue);
+      let keys = Reflect.ownKeys(localValue);
+      return keys;
     }
     /**
      * 获取所有值
      */
     values() {
       let localValue = this.getLocalValue();
-      return Reflect.ownKeys(localValue).map(
+      let values = Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
+      return values;
     }
     /**
      * 清空所有值
      */
     clear() {
       _GM_deleteValue(this.storageKey);
+    }
+    /**
+     * 判断是否在某键改变的值监听器
+     * @param listenerId 监听器id或键
+     */
+    hasValueChangeListener(listenerId) {
+      let flag = false;
+      outerLoop: for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+            flag = true;
+            break outerLoop;
+          }
+        }
+      }
+      return flag;
+    }
+    /**
+     * 监听值改变
+     * + .set
+     * + .delete
+     * @param key 监听的键
+     * @param callback 值改变的回调函数
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = Math.random();
+      let listenerData = this.listenerData.get(key) || [];
+      listenerData.push({
+        id: listenerId,
+        key,
+        callback
+      });
+      this.listenerData.set(key, listenerData);
+      return listenerId;
+    }
+    /**
+     * 移除监听
+     * @param listenerId 监听的id或键名
+     */
+    removeValueChangeListener(listenerId) {
+      let flag = false;
+      for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+            listenerData.splice(index, 1);
+            index--;
+            flag = true;
+          }
+        }
+        this.listenerData.set(key, listenerData);
+      }
+      return flag;
+    }
+    /**
+     * 主动触发监听器
+     * @param key 键
+     * @param oldValue （可选）旧值
+     * @param newValue （可选）新值
+     */
+    triggerValueChangeListener(key, oldValue, newValue) {
+      if (!this.listenerData.has(key)) {
+        return;
+      }
+      let listenerData = this.listenerData.get(key);
+      for (let index = 0; index < listenerData.length; index++) {
+        const data = listenerData[index];
+        if (typeof data.callback === "function") {
+          let value = this.get(key);
+          let __newValue;
+          let __oldValue;
+          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+            __oldValue = oldValue;
+          } else {
+            __oldValue = value;
+          }
+          if (typeof newValue !== "undefined" && arguments.length > 2) {
+            __newValue = newValue;
+          } else {
+            __newValue = value;
+          }
+          data.callback(key, __oldValue, __newValue);
+        }
+      }
     }
   }
   let RuleSubscribe$1 = class RuleSubscribe {
@@ -5982,7 +6069,6 @@
         isAnimation: false,
         className,
         only: true,
-        // @ts-ignore
         chileMenuLeftOrRightDistance: -3,
         childMenuTopOrBottomDistance: -5
       };
