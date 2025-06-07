@@ -22,7 +22,7 @@ import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 export const DouYin = {
 	init() {
 		Panel.onceExec("dy-global-block-css", () => {
-			addStyle(blockCSS);
+			return this.removeAds();
 		});
 		DouYinGestureBackClearHash();
 		DouYinHook.init();
@@ -76,6 +76,28 @@ export const DouYin = {
 		} else {
 			log.error("未适配router: " + window.location.href);
 		}
+	},
+	/**
+	 * 移除ads
+	 */
+	removeAds() {
+		if (DouYinRouter.isIndex()) {
+			utils
+				.waitNode<HTMLElement>(
+					() =>
+						DOMUtils.selector<HTMLElement>(
+							'#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:contains("下载抖音精选")'
+						),
+					10000
+				)
+				.then(($el) => {
+					if (!$el) {
+						return;
+					}
+					DOMUtils.remove($el);
+				});
+		}
+		return [addStyle(blockCSS)];
 	},
 	/**
 	 * 固定meta viewport缩放倍率为1
