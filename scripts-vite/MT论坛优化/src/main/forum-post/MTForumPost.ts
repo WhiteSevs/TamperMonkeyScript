@@ -1,5 +1,5 @@
 import { $, $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { MTRegExp } from "@/utils/MTRegExp";
 import hljs, { type HLJSApi, type Language } from "highlight.js";
 import Qmsg from "qmsg";
@@ -13,38 +13,38 @@ export const MTForumPost = {
 	},
 	init() {
 		MTForumPostRightToolBar.init();
-		PopsPanel.execMenuOnce("mt-forum-post-autoExpandContent", () => {
+		Panel.execMenuOnce("mt-forum-post-autoExpandContent", () => {
 			return this.autoExpandContent();
 		});
-		PopsPanel.execMenuOnce("mt-forum-post-repairImageWidth", () => {
+		Panel.execMenuOnce("mt-forum-post-repairImageWidth", () => {
 			return this.repairImageWidth();
 		});
-		PopsPanel.execMenuOnce("mt-forum-post-hideBottomInfoBlock", () => {
+		Panel.execMenuOnce("mt-forum-post-hideBottomInfoBlock", () => {
 			return this.hideBottomInfoBlock();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("mt-forum-post-removeFontStyle", () => {
+			Panel.execMenu("mt-forum-post-removeFontStyle", () => {
 				this.removeFontStyle();
 			});
-			PopsPanel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
+			Panel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
 				this.removeCommentFontStyle();
 			});
-			PopsPanel.execMenuOnce("mt-forum-post-loadNextPageComment", () => {
+			Panel.execMenuOnce("mt-forum-post-loadNextPageComment", () => {
 				this.loadNextPageComment();
 			});
-			PopsPanel.execMenuOnce("mt-forum-post-codeQuoteOptimization", () => {
+			Panel.execMenuOnce("mt-forum-post-codeQuoteOptimization", () => {
 				this.codeQuoteOptimization();
 			});
-			PopsPanel.execMenuOnce("mt-forum-post-optimizationImagePreview", () => {
+			Panel.execMenuOnce("mt-forum-post-optimizationImagePreview", () => {
 				this.optimizationImagePreview();
 			});
-			PopsPanel.execMenuOnce("mt-forum-post-interceptionAttachment", () => {
+			Panel.execMenuOnce("mt-forum-post-interceptionAttachment", () => {
 				this.setAttachmentsClickTip();
 			});
-			PopsPanel.execMenu("mt-forum-post-detectingUserOnlineStatus", () => {
+			Panel.execMenu("mt-forum-post-detectingUserOnlineStatus", () => {
 				this.detectingUserOnlineStatus();
 			});
-			PopsPanel.execMenu("mt-forum-post-showUserLevel", () => {
+			Panel.execMenu("mt-forum-post-showUserLevel", () => {
 				this.showUserLevel();
 			});
 		});
@@ -623,7 +623,7 @@ export const MTForumPost = {
 	 */
 	async detectingUserOnlineStatus() {
 		log.info(`探测用户在线状态`);
-		PopsPanel.onceExec("mt-forum-post-detectingUserOnlineStatus", () => {
+		Panel.onceExec("mt-forum-post-detectingUserOnlineStatus", () => {
 			addStyle(/*css*/ `
 				.gm-user-status-icon{
 					border: 0 !important;

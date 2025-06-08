@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { MTIdentifyLinks } from "./MTIdentifyLinks";
 import { MTAutoSignIn } from "./sign/MTAutoSignIn";
 import { addStyle, DOMUtils, log, utils } from "@/env";
@@ -16,7 +16,7 @@ export const MT = {
 		showUserUID_initCSS: false,
 	},
 	init() {
-		PopsPanel.onceExec("mt-MTCommentFilter", () => {
+		Panel.onceExec("mt-MTCommentFilter", () => {
 			MTCommentFilter.init();
 		});
 		if (Router.isPost()) {
@@ -30,25 +30,25 @@ export const MT = {
 		}
 
 		DOMUtils.ready(() => {
-			PopsPanel.onceExec("mt-MTProductListingReminder", () => {
+			Panel.onceExec("mt-MTProductListingReminder", () => {
 				MTProductListingReminder.init();
 			});
-			PopsPanel.onceExec("mt-blackHome", () => {
+			Panel.onceExec("mt-blackHome", () => {
 				MTBlackHome.init();
 			});
-			PopsPanel.onceExec("mt-onlineUser", () => {
+			Panel.onceExec("mt-onlineUser", () => {
 				MTOnlineUser.init();
 			});
-			PopsPanel.execMenuOnce("mt-link-text-to-hyperlink", () => {
+			Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
 				MTIdentifyLinks();
 			});
-			PopsPanel.execMenuOnce("mt-addLatestPostBtn", () => {
+			Panel.execMenuOnce("mt-addLatestPostBtn", () => {
 				this.addLatestPostBtn();
 			});
-			PopsPanel.execMenu("mt-auto-sign", () => {
+			Panel.execMenu("mt-auto-sign", () => {
 				MTAutoSignIn.init();
 			});
-			PopsPanel.execMenu("mt-extend-cookie-expire", () => {
+			Panel.execMenu("mt-extend-cookie-expire", () => {
 				this.extendCookieExpire();
 			});
 		});

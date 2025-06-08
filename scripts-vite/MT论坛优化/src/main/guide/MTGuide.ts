@@ -1,12 +1,12 @@
 import { $$, addStyle, DOMUtils, httpx, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { MTUtils } from "@/utils/MTUtils";
 import { unsafeWindow } from "ViteGM";
 
 export const MTGuide = {
 	init() {
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("mt-guide-beautifyPage", () => {
+			Panel.execMenuOnce("mt-guide-beautifyPage", () => {
 				return this.beautifyPage();
 			});
 		});

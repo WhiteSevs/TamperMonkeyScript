@@ -1,5 +1,5 @@
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { MT } from "@/main/MT";
 
-PopsPanel.init();
+Panel.init();
 MT.init();

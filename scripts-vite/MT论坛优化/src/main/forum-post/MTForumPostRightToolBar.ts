@@ -1,5 +1,5 @@
 import { $, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { MTUtils } from "@/utils/MTUtils";
 import { unsafeWindow } from "ViteGM";
 import { MTAutoSignIn } from "../sign/MTAutoSignIn";
@@ -7,10 +7,10 @@ import { MTAutoSignIn } from "../sign/MTAutoSignIn";
 export const MTForumPostRightToolBar = {
 	init() {
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("mt-forum-post-quickCollentBtn", () => {
+			Panel.execMenuOnce("mt-forum-post-quickCollentBtn", () => {
 				this.quickCollentBtn();
 			});
-			PopsPanel.execMenuOnce("mt-forum-post-quickReplyOptimization", () => {
+			Panel.execMenuOnce("mt-forum-post-quickReplyOptimization", () => {
 				this.quickReplyOptimization();
 			});
 		});
@@ -20,26 +20,28 @@ export const MTForumPostRightToolBar = {
 	 */
 	quickCollentBtn() {
 		log.info(`【快捷收藏】`);
-		utils.waitNode<HTMLDivElement>("#scrolltop", 10000).then(($scrollTop) => {
-			if (!$scrollTop) {
-				return;
-			}
-			let formhash = MTUtils.getFormHash();
-			let threadId = MTUtils.getThreadId(window.location.href)!;
-			// 收藏的链接
-			let collectUrl = `/home.php?${utils.toSearchParamsStr({
-				mod: "spacecp",
-				ac: "favorite",
-				type: "thread",
-				id: threadId,
-				formhash: formhash,
-				infloat: "yes",
-				handlekey: "k_favorite",
-				inajax: 1,
-				ajaxtarget: "fwin_content_k_favorite",
-			})}`;
-			let $collect = document.createElement("span");
-			$collect.innerHTML = /*html*/ `
+		utils
+			.waitNode<HTMLDivElement>("#scrolltop", 10000)
+			.then(async ($scrollTop) => {
+				if (!$scrollTop) {
+					return;
+				}
+				let formhash = await MTUtils.getFormHash();
+				let threadId = MTUtils.getThreadId(window.location.href)!;
+				// 收藏的链接
+				let collectUrl = `/home.php?${utils.toSearchParamsStr({
+					mod: "spacecp",
+					ac: "favorite",
+					type: "thread",
+					id: threadId,
+					formhash: formhash,
+					infloat: "yes",
+					handlekey: "k_favorite",
+					inajax: 1,
+					ajaxtarget: "fwin_content_k_favorite",
+				})}`;
+				let $collect = document.createElement("span");
+				$collect.innerHTML = /*html*/ `
 			<a href="${collectUrl}" 
 				id="k_favorite"
 				onclick="showWindow(this.id, this.href, 'get', 0);"
@@ -50,8 +52,8 @@ export const MTForumPostRightToolBar = {
 						style="position:absolute;top:10px;left:11px">
 			</a>
 			`;
-			DOMUtils.prepend($scrollTop, $collect);
-		});
+				DOMUtils.prepend($scrollTop, $collect);
+			});
 	},
 	/**
 	 * 快捷回复优化

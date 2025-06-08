@@ -1,9 +1,9 @@
 import { DOMUtils, log, pops } from "@/env";
-import { UISwitch } from "../common-components/ui-switch";
-import { UISelect } from "../common-components/ui-select";
+import { UISwitch } from "../components/ui-switch";
+import { UISelect } from "../components/ui-select";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UIButton } from "../common-components/ui-button";
-import { UIOwn } from "../common-components/ui-own";
+import { UIButton } from "../components/ui-button";
+import { UIOwn } from "../components/ui-own";
 import { MTUtils } from "@/utils/MTUtils";
 import { MTDyncmicAvatar } from "@/main/MTDyncmicAvatar";
 import Utils from "@whitesev/utils";

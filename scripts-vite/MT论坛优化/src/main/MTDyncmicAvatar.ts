@@ -104,7 +104,7 @@ export const MTDyncmicAvatar = {
 								return;
 							}
 							// 获取当前登录用户的formhash
-							let formhash = MTUtils.getFormHash();
+							let formhash = await MTUtils.getFormHash();
 							if (formhash == null) {
 								Qmsg.error("获取formhash失败");
 								return;
