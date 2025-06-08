@@ -1,5 +1,19 @@
 export const DouYinRouter = {
 	/**
+	 * 是否是抖音主站
+	 */
+	isIndex() {
+		return window.location.hostname === "www.douyin.com";
+	},
+	/**
+	 * 关注
+	 *
+	 * + /follow
+	 */
+	isFollow() {
+		return this.isIndex() && window.location.pathname.startsWith("/follow");
+	},
+	/**
 	 * 直播
 	 */
 	isLive() {
@@ -26,12 +40,6 @@ export const DouYinRouter = {
 	 */
 	isRootLive() {
 		return this.isIndex() && window.location.pathname.startsWith("/root/live/");
-	},
-	/**
-	 * 是否是抖音主站
-	 */
-	isIndex() {
-		return window.location.hostname === "www.douyin.com";
 	},
 	/**
 	 * 推荐视频
@@ -103,5 +111,21 @@ export const DouYinRouter = {
 	 */
 	isNote() {
 		return this.isIndex() && window.location.pathname.startsWith("/note/");
+	},
+	/**
+	 * 精选
+	 *
+	 * + /jingxuan/
+	 */
+	isJingXuan() {
+		return this.isIndex() && window.location.pathname.startsWith("/jingxuan");
+	},
+	/**
+	 * 朋友
+	 *
+	 * + /friend
+	 */
+	isFriend() {
+		return this.isIndex() && window.location.pathname.startsWith("/friend");
 	},
 };
