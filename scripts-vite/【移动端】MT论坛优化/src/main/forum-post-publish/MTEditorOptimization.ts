@@ -5,7 +5,7 @@ import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
 import { MTUtils } from "@/utils/MTUtils";
 import { Router } from "@/router/router";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { MTSmiliesDict } from "./MTSmiliesDict";
 import {
 	ExtendJQueryFn,
@@ -756,10 +756,10 @@ export const MTEditorOptimization = {
 			};
 		}
 		if (
-			PopsPanel.getValue(
+			Panel.getValue(
 				"mt-forum-post-editorOptimizationNormal-recordInputText"
 			) ||
-			PopsPanel.getValue("mt-forum-post-editorOptimization-recordInputText")
+			Panel.getValue("mt-forum-post-editorOptimization-recordInputText")
 		) {
 			this.setInputChangeEvent();
 			this.initReplyText();
@@ -866,7 +866,7 @@ export const MTEditorOptimization = {
 		} else if (Router.isPostPublish_reply()) {
 			log.info(`回复页面`);
 			if (
-				PopsPanel.getValue(
+				Panel.getValue(
 					"mt-forum-post-editorOptimizationNormal-recordInputText"
 				)
 			) {
@@ -1189,7 +1189,7 @@ export const MTEditorOptimization = {
 				} else if (Router.isPostPublish_reply()) {
 					// 回复页面
 					log.info(`内容改变 ==> 回复页面`);
-					PopsPanel.execMenu(
+					Panel.execMenu(
 						"mt-forum-post-editorOptimizationNormal-recordInputText",
 						() => {
 							MTEditorOptimizationNormal.$data.db
@@ -1914,10 +1914,10 @@ export const MTEditorOptimization = {
 					.fadeIn();
 			}
 		);
-		PopsPanel.execMenuOnce("mt-image-bed-hello-enable", () => {
+		Panel.execMenuOnce("mt-image-bed-hello-enable", () => {
 			MTEditorImageBed_Hello.init();
 		});
-		PopsPanel.execMenuOnce("mt-image-bed-mt-enable", () => {
+		Panel.execMenuOnce("mt-image-bed-mt-enable", () => {
 			MTEditorImageBed_MT.init();
 		});
 	},

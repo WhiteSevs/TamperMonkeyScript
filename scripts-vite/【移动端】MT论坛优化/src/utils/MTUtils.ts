@@ -1,5 +1,6 @@
 import { unsafeWindow } from "ViteGM";
 import { MTRegExp } from "./MTRegExp";
+import { DOMUtils, httpx, log, utils } from "@/env";
 
 export const MTUtils = {
 	/**
@@ -31,7 +32,7 @@ export const MTUtils = {
 	/**
 	 * 获取账号的formhash
 	 */
-	getFormHash() {
+	async getFormHash() {
 		let $inputFormHashList = Array.from(
 			(top || globalThis).document.querySelectorAll<HTMLInputElement>(
 				"input[name=formhash]"
@@ -59,6 +60,25 @@ export const MTUtils = {
 					return formHash;
 				}
 			}
+		}
+		let homeResponse = await httpx.get("/home.php?mod=spacecp", {
+			fetch: true,
+			allowInterceptConfig: false,
+		});
+		if (homeResponse.status) {
+			let homeText = homeResponse.data.responseText;
+			let homeDoc = DOMUtils.parseHTML(homeText, true, true);
+			let $formhash = homeDoc.querySelector<HTMLInputElement>(
+				"input[name=formhash]"
+			);
+			if ($formhash) {
+				let formHash = $formhash.value;
+				if (utils.isNotNull(formHash)) {
+					return formHash;
+				}
+			}
+		} else {
+			log.error("请求个人主页获取formhash失败", homeResponse);
 		}
 	},
 	/**

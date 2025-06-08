@@ -1,12 +1,12 @@
 import { addStyle, httpx, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import DOMUtils from "@whitesev/domutils";
 import Qmsg from "qmsg";
 
 export const MTGuide = {
 	init() {
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("mt-guide-showLatestPost", () => {
+			Panel.execMenuOnce("mt-guide-showLatestPost", () => {
 				this.showLatestPost();
 			});
 		});

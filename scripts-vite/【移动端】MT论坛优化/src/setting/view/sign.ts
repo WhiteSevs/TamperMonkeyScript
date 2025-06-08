@@ -1,9 +1,9 @@
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../common-components/ui-switch";
+import { UISwitch } from "../components/ui-switch";
 import { MTAutoSignIn } from "@/main/sign/MTAutoSignIn";
 import Qmsg from "qmsg";
 import { DOMUtils, pops, utils } from "@/env";
-import { UIButton } from "../common-components/ui-button";
+import { UIButton } from "../components/ui-button";
 import Utils from "@whitesev/utils";
 
 export const Component_Sign: PopsPanelContentConfig = {

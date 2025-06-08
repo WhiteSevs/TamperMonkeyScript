@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { MTBlackHome } from "./MTBlackHome";
 import { MTOnlineUser } from "./MTOnlineUser";
 import { MTIdentifyLinks } from "./MTIdentifyLinks";
@@ -35,7 +35,7 @@ export const MT = {
 			Router.isSearch() ||
 			Router.isSpace()
 		) {
-			PopsPanel.execMenuOnce("mt-show-user-uid", () => {
+			Panel.execMenuOnce("mt-show-user-uid", () => {
 				this.showUserUID();
 			});
 		}
@@ -46,7 +46,7 @@ export const MT = {
 			Router.isSpace() ||
 			Router.isPlate()
 		) {
-			PopsPanel.execMenuOnce("mt-small-window", () => {
+			Panel.execMenuOnce("mt-small-window", () => {
 				MTSmallWindow.init();
 			});
 		}
@@ -74,34 +74,34 @@ export const MT = {
 		}
 
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("mt-black-home", () => {
+			Panel.execMenuOnce("mt-black-home", () => {
 				MTBlackHome.init();
 			});
-			PopsPanel.execMenuOnce("mt-online-user", () => {
+			Panel.execMenuOnce("mt-online-user", () => {
 				MTOnlineUser.init();
 			});
-			PopsPanel.execMenuOnce("mt-post-paidThemePost", () => {
+			Panel.execMenuOnce("mt-post-paidThemePost", () => {
 				MTPaidThemePost.init();
 			});
-			PopsPanel.execMenuOnce("mt-ownBlock", () => {
+			Panel.execMenuOnce("mt-ownBlock", () => {
 				MTOwnBlock.init();
 			});
-			PopsPanel.execMenuOnce("mt-post-comment-filter", () => {
+			Panel.execMenuOnce("mt-post-comment-filter", () => {
 				MTCommentFilter.init();
 			});
-			PopsPanel.execMenuOnce("mt-productListingReminder", () => {
+			Panel.execMenuOnce("mt-productListingReminder", () => {
 				MTProductListingReminder.init();
 			});
-			PopsPanel.execMenuOnce("mt-customizeUserLabels", () => {
+			Panel.execMenuOnce("mt-customizeUserLabels", () => {
 				MTCustomizeUserLabels.init();
 			});
-			PopsPanel.execMenuOnce("mt-link-text-to-hyperlink", () => {
+			Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
 				MTIdentifyLinks();
 			});
-			PopsPanel.execMenu("mt-auto-sign", () => {
+			Panel.execMenu("mt-auto-sign", () => {
 				MTAutoSignIn.init();
 			});
-			PopsPanel.execMenu("mt-extend-cookie-expire", () => {
+			Panel.execMenu("mt-extend-cookie-expire", () => {
 				this.extendCookieExpire();
 			});
 		});

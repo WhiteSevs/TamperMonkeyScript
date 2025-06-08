@@ -6,7 +6,7 @@ import Qmsg from "qmsg";
 import { MTRegExp } from "@/utils/MTRegExp";
 import { MTUtils } from "@/utils/MTUtils";
 import { MTEditorImageBed_Hello } from "./MTEditorImageBed_Hello";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { MTEditorImageBed_MT } from "./MTEditorImageBed_MT";
 import { MTQuickUBB, MTUBB_Rainbow } from "./MTQuickUBB";
 import Utils from "@whitesev/utils";
@@ -294,17 +294,17 @@ export const MTEditorOptimizationNormal = {
 		this.setMenuSmileTabClickEvent();
 		this.setMenuInsertClickEvent();
 		this.setMenuQuickUBB();
-		PopsPanel.execMenu(
+		Panel.execMenu(
 			"mt-forum-post-editorOptimizationNormal-recordInputText",
 			() => {
 				this.initReplyText();
 				this.setInputChangeSaveEvent();
 			}
 		);
-		PopsPanel.execMenuOnce("mt-image-bed-hello-enable", () => {
+		Panel.execMenuOnce("mt-image-bed-hello-enable", () => {
 			MTEditorImageBed_Hello.init();
 		});
-		PopsPanel.execMenuOnce("mt-image-bed-mt-enable", () => {
+		Panel.execMenuOnce("mt-image-bed-mt-enable", () => {
 			MTEditorImageBed_MT.init();
 		});
 	},
@@ -933,7 +933,7 @@ export const MTEditorOptimizationNormal = {
 				);
 				tempReplyBtnNode = $reply;
 				DOMUtils.val("#needmessage", DOMUtils.attr($reply, "data-text") || "");
-				PopsPanel.execMenu(
+				Panel.execMenu(
 					"mt-forum-post-editorOptimizationNormal-recordInputText",
 					() => {
 						this.initReplyText(true, reply_url);
@@ -1039,7 +1039,7 @@ export const MTEditorOptimizationNormal = {
 
 				if (DOMUtils.val(that.$el.$input) === "") {
 					// 空的
-					PopsPanel.execMenu(
+					Panel.execMenu(
 						"mt-forum-post-editorOptimizationNormal-recordInputText",
 						() => {
 							that.initReplyText();

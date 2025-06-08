@@ -1,5 +1,5 @@
 import { $, addStyle, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import DOMUtils from "@whitesev/domutils";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
@@ -17,13 +17,13 @@ export const MTSearch = {
         }
         `);
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("mt-search-showSearchHistory", () => {
+			Panel.execMenuOnce("mt-search-showSearchHistory", () => {
 				this.showSearchHistory();
 			});
-			PopsPanel.execMenuOnce("mt-search-repairClearBtn", () => {
+			Panel.execMenuOnce("mt-search-repairClearBtn", () => {
 				this.repairClearBtn();
 			});
-			PopsPanel.execMenuOnce("mt-search-searchInputAutoFocus", () => {
+			Panel.execMenuOnce("mt-search-searchInputAutoFocus", () => {
 				this.searchInputAutoFocus();
 			});
 		});

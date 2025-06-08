@@ -1,5 +1,5 @@
 import { $, $$, DOMUtils, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import Qmsg from "qmsg";
 import { GM_getValue, GM_setValue } from "ViteGM";
 
@@ -144,7 +144,7 @@ export class MTEditorImageBed<T> {
 				};
 				if ($file.files && $file.files.length) {
 					let chooseImage = $file.files!;
-					if (PopsPanel.getValue<boolean>("mt-image-bed-watermark-enable")) {
+					if (Panel.getValue<boolean>("mt-image-bed-watermark-enable")) {
 						let $loading = Qmsg.loading("处理水印中...");
 						let needUploadImageArray: string[] = [];
 						let needUploadImageFileArray: File[] = [];
@@ -161,24 +161,24 @@ export class MTEditorImageBed<T> {
 									await watermark.setFile(item);
 									watermark.addText({
 										text: [
-											PopsPanel.getValue<string>("mt-image-bed-watermark-text"),
+											Panel.getValue<string>("mt-image-bed-watermark-text"),
 										],
-										color: PopsPanel.getValue<string>(
+										color: Panel.getValue<string>(
 											"mt-image-bed-watermark-text-color"
 										),
-										fontSize: PopsPanel.getValue<number>(
+										fontSize: Panel.getValue<number>(
 											"mt-image-bed-watermark-font-size"
 										),
-										globalAlpha: PopsPanel.getValue<number>(
+										globalAlpha: Panel.getValue<number>(
 											"mt-image-bed-watermark-font-opacity"
 										),
-										xMoveDistance: PopsPanel.getValue<number>(
+										xMoveDistance: Panel.getValue<number>(
 											"mt-image-bed-watermark-left-right-margin"
 										),
-										yMoveDistance: PopsPanel.getValue<number>(
+										yMoveDistance: Panel.getValue<number>(
 											"mt-image-bed-watermark-top-bottom-margin"
 										),
-										rotateAngle: PopsPanel.getValue<number>(
+										rotateAngle: Panel.getValue<number>(
 											"mt-image-bed-watermark-rotate"
 										),
 									});
@@ -196,7 +196,7 @@ export class MTEditorImageBed<T> {
 						// @ts-ignore
 						chooseImage = needUploadImageFileArray;
 						if (
-							PopsPanel.getValue<boolean>(
+							Panel.getValue<boolean>(
 								"mt-image-bed-watermark-autoAddWaterMark"
 							)
 						) {

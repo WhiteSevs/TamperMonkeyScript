@@ -1,5 +1,5 @@
 import { $, $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { MTRegExp } from "@/utils/MTRegExp";
 import hljs, { type HLJSApi, type Language } from "highlight.js";
 import Qmsg from "qmsg";
@@ -11,36 +11,36 @@ export const MTForumPost = {
 		isSetHljsCSS: false,
 	},
 	init() {
-		PopsPanel.execMenuOnce("mt-forum-post-autoExpandContent", () => {
+		Panel.execMenuOnce("mt-forum-post-autoExpandContent", () => {
 			return this.autoExpandContent();
 		});
-		PopsPanel.execMenuOnce("mt-forum-post-repairImageWidth", () => {
+		Panel.execMenuOnce("mt-forum-post-repairImageWidth", () => {
 			return this.repairImageWidth();
 		});
 
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("mt-forum-post-removeFontStyle", () => {
+			Panel.execMenu("mt-forum-post-removeFontStyle", () => {
 				this.removeFontStyle();
 			});
-			PopsPanel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
+			Panel.execMenu("mt-forum-post-removeCommentFontStyle", () => {
 				this.removeCommentFontStyle();
 			});
-			PopsPanel.execMenu("mt-forum-post-addCommentOnBtn", () => {
+			Panel.execMenu("mt-forum-post-addCommentOnBtn", () => {
 				this.addCommentOnBtn();
 			});
-			PopsPanel.execMenuOnce("mt-forum-post-loadNextPageComment", () => {
+			Panel.execMenuOnce("mt-forum-post-loadNextPageComment", () => {
 				this.loadNextPageComment();
 			});
-			PopsPanel.execMenuOnce("mt-forum-post-codeQuoteOptimization", () => {
+			Panel.execMenuOnce("mt-forum-post-codeQuoteOptimization", () => {
 				this.codeQuoteOptimization();
 			});
-			PopsPanel.execMenuOnce("mt-forum-post-editorOptimizationNormal", () => {
+			Panel.execMenuOnce("mt-forum-post-editorOptimizationNormal", () => {
 				MTEditorOptimizationNormal.init();
 			});
-			PopsPanel.execMenu("mt-forum-post-optimizationImagePreview", () => {
+			Panel.execMenu("mt-forum-post-optimizationImagePreview", () => {
 				this.optimizationImagePreview();
 			});
-			PopsPanel.execMenuOnce("mt-forum-post-setAttachmentsClickTip", () => {
+			Panel.execMenuOnce("mt-forum-post-setAttachmentsClickTip", () => {
 				this.setAttachmentsClickTip();
 			});
 		});
@@ -280,7 +280,7 @@ export const MTForumPost = {
 					}
 				}
 
-				PopsPanel.execMenu("mt-forum-post-syncNextPageUrl", () => {
+				Panel.execMenu("mt-forum-post-syncNextPageUrl", () => {
 					if (window === top?.window) {
 						let urlObj = new URL(url);
 						let setLocationUrl = `${urlObj.pathname}${urlObj.search}`;

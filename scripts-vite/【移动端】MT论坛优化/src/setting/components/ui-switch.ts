@@ -3,11 +3,11 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "../config";
+} from "../panel-config";
 import { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/switchType";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
-import { PopsPanel } from "../setting";
+import { Panel } from "../panel";
 
 /**
  * 获取checkbox按钮配置
@@ -61,10 +61,10 @@ export const UISwitch = function (
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 	Reflect.set(result.props!, PROPS_STORAGE_API, {
 		get<T>(key: string, defaultValue: T) {
-			return PopsPanel.getValue(key, defaultValue);
+			return Panel.getValue(key, defaultValue);
 		},
 		set(key: string, value: any) {
-			PopsPanel.setValue(key, value);
+			Panel.setValue(key, value);
 		},
 	});
 

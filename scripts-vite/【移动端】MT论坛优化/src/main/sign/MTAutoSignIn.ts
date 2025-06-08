@@ -1,5 +1,5 @@
 import { $, DOMUtils, httpx, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { MTUtils } from "@/utils/MTUtils";
 import pops from "@whitesev/pops";
 import Qmsg from "qmsg";
@@ -122,25 +122,24 @@ export const MTAutoSignIn = {
 	 * 签到
 	 */
 	async sign() {
-		let formHash = MTUtils.getFormHash();
+		if (this.checkSignInfo()) {
+			log.info("今日已签到");
+			return;
+		}
+		let formHash = await MTUtils.getFormHash();
 		if (formHash == null) {
 			if ($("#comiis_picshowbox")) {
 				/* 当前为评论区的看图模式 */
 				log.info("当前为评论区的看图模式 ");
 				return;
 			}
-			log.error("自动签到：获取账号formhash失败");
 			this.clearSignInfo(window.location.hostname);
-			Qmsg.error({
-				content: "自动签到：获取账号formhash失败",
+			Qmsg.error("自动签到：获取账号formhash失败", {
+				consoleLogContent: true,
 			});
 			return;
 		}
-		if (this.checkSignInfo()) {
-			log.info("今日已签到");
-			return;
-		}
-		let useFetch = Boolean(PopsPanel.getValue("mt-auto-sign-useFetch"));
+		let useFetch = Boolean(Panel.getValue("mt-auto-sign-useFetch"));
 		let userAgent = utils.getRandomPCUA();
 
 		/** 签到成功的回调 */
@@ -352,7 +351,10 @@ export const MTAutoSignIn = {
 				true,
 				true
 			);
-			if (pluginDoc.querySelector("#messagetext")) {
+			if (
+				pluginDoc.querySelector("#messagetext") ||
+				checkResponse.data.responseText.includes("插件不存在或已关闭")
+			) {
 				// 插件未启用或不存在
 				log.error(
 					`插件：${signPluginItem.checkPluginEnableUrl} 未启用或不存在`

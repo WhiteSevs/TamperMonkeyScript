@@ -1,13 +1,13 @@
 import { DOMUtils, log, pops, utils } from "@/env";
 import { Router } from "@/router/router";
-import { UIInput } from "@/setting/common-components/ui-input";
-import { UISwitch } from "@/setting/common-components/ui-switch";
-import { UITextArea } from "@/setting/common-components/ui-textarea";
+import { UIInput } from "@/setting/components/ui-input";
+import { UISwitch } from "@/setting/components/ui-switch";
+import { UITextArea } from "@/setting/components/ui-textarea";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "@/setting/config";
+} from "@/setting/panel-config";
 import { ElementUtils } from "@/utils/ElementUtils";
 import { MTRegExp } from "@/utils/MTRegExp";
 import { RuleView } from "@/utils/RuleView";

@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import {
 	MTEditorImageBed,
 	type ImageBedUploadImageReusltInfo,
@@ -28,13 +28,13 @@ type ImageInfo = {
 export const MTEditorImageBed_Hello = {
 	$data: {
 		get account() {
-			return PopsPanel.getValue("mt-image-bed-hello-account");
+			return Panel.getValue("mt-image-bed-hello-account");
 		},
 		get password() {
-			return PopsPanel.getValue("mt-image-bed-hello-password");
+			return Panel.getValue("mt-image-bed-hello-password");
 		},
 		get token() {
-			return PopsPanel.getValue("mt-image-bed-hello-token");
+			return Panel.getValue("mt-image-bed-hello-token");
 		},
 	},
 	$code: {

@@ -1,5 +1,5 @@
 import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { MTAutoSignIn } from "./MTAutoSignIn";
 import Qmsg from "qmsg";
 import { MTUtils } from "@/utils/MTUtils";
@@ -8,10 +8,10 @@ import { unsafeWindow } from "ViteGM";
 export const MTSign = {
 	init() {
 		DOMUtils.ready(()=>{
-			PopsPanel.execMenuOnce("mt-sign-showTodaySignStar", () => {
+			Panel.execMenuOnce("mt-sign-showTodaySignStar", () => {
 				this.showTodaySignStar();
 			});
-			PopsPanel.execMenuOnce("mt-sign-showTodayRanking", () => {
+			Panel.execMenuOnce("mt-sign-showTodayRanking", () => {
 				this.showTodayRanking();
 			});
 		})

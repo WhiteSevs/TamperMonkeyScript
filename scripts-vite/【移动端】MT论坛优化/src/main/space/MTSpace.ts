@@ -1,17 +1,17 @@
 import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
 import { Router } from "@/router/router";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import { ElementUtils } from "@/utils/ElementUtils";
 import { MTRegExp } from "@/utils/MTRegExp";
 import Qmsg from "qmsg";
 
 export const MTSpace = {
 	init() {
-		PopsPanel.execMenuOnce("mt-space-repairEnterSpace", () => {
+		Panel.execMenuOnce("mt-space-repairEnterSpace", () => {
 			this.repairEnterSpace();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("mt-space-showCommentContent", () => {
+			Panel.execMenuOnce("mt-space-showCommentContent", () => {
 				this.showCommentContent();
 			});
 		});

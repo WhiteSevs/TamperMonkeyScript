@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@/setting/panel";
 import {
 	MTEditorImageBed,
 	type ImageBedUploadImageReusltInfo,

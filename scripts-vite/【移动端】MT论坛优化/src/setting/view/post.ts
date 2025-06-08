@@ -1,7 +1,7 @@
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../common-components/ui-switch";
-import { UIInput } from "../common-components/ui-input";
-import { UIButton } from "../common-components/ui-button";
+import { UISwitch } from "../components/ui-switch";
+import { UIInput } from "../components/ui-input";
+import { UIButton } from "../components/ui-button";
 import { MTEditorOptimizationNormal } from "@/main/forum-post/MTEditorOptimization-normal";
 import Qmsg from "qmsg";
 import { DOMUtils } from "@/env";

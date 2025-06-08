@@ -13,7 +13,7 @@ import {
 import Qmsg from "qmsg";
 import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
-import { PopsPanel } from "./setting/setting";
+import { Panel } from "./setting/panel";
 import { HttpxCookieManager } from "./utils/HttpxCookieManager";
 import pops from "@whitesev/pops";
 import Viewer from "viewerjs";
@@ -59,17 +59,17 @@ Qmsg.config(
 		{
 			position: {
 				get() {
-					return PopsPanel.getValue("qmsg-config-position", "bottom");
+					return Panel.getValue("qmsg-config-position", "bottom");
 				},
 			},
 			maxNums: {
 				get() {
-					return PopsPanel.getValue("qmsg-config-maxnums", 5);
+					return Panel.getValue("qmsg-config-maxnums", 5);
 				},
 			},
 			showReverse: {
 				get() {
-					return PopsPanel.getValue("qmsg-config-showreverse", true);
+					return Panel.getValue("qmsg-config-showreverse", true);
 				},
 			},
 			zIndex: {
