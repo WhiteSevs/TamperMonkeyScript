@@ -43,18 +43,18 @@ export const BlockLeftNavigator = {
 		Panel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
 			return this.block_tab_user_self();
 		});
-		Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_like", () => {
-			return this.block_tab_user_self_like();
-		});
-		Panel.execMenuOnce(
-			"shieldLeftNavigator-tab-user_self_collection",
-			() => {
-				return this.block_tab_user_self_collection();
-			}
-		);
-		Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_record", () => {
-			return this.block_tab_user_self_record();
-		});
+		// Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_like", () => {
+		// 	return this.block_tab_user_self_like();
+		// });
+		// Panel.execMenuOnce(
+		// 	"shieldLeftNavigator-tab-user_self_collection",
+		// 	() => {
+		// 		return this.block_tab_user_self_collection();
+		// 	}
+		// );
+		// Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_record", () => {
+		// 	return this.block_tab_user_self_record();
+		// });
 		Panel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
 			return this.block_tab_live();
 		});
@@ -67,21 +67,21 @@ export const BlockLeftNavigator = {
 		Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
 			return this.block_tab_ai_search();
 		});
-		Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300203", () => {
-			return this.block_tab_channel_300203();
-		});
-		Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300205", () => {
-			return this.block_tab_channel_300205();
-		});
-		Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300206", () => {
-			return this.block_tab_channel_300206();
-		});
-		Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300209", () => {
-			return this.block_tab_channel_300209();
-		});
-		Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
-			return this.block_tab_channel_300204();
-		});
+		// Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300203", () => {
+		// 	return this.block_tab_channel_300203();
+		// });
+		// Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300205", () => {
+		// 	return this.block_tab_channel_300205();
+		// });
+		// Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300206", () => {
+		// 	return this.block_tab_channel_300206();
+		// });
+		// Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300209", () => {
+		// 	return this.block_tab_channel_300209();
+		// });
+		// Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
+		// 	return this.block_tab_channel_300204();
+		// });
 	},
 	/**
 	 * 【屏蔽】左侧导航栏

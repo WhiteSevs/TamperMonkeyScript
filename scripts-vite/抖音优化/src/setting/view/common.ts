@@ -479,27 +479,27 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽元素"
 								),
-								UISwitch(
-									"【屏蔽】喜欢",
-									"shieldLeftNavigator-tab-user_self_like",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】收藏",
-									"shieldLeftNavigator-tab-user_self_collection",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】观看历史",
-									"shieldLeftNavigator-tab-user_self_record",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
+								// UISwitch(
+								// 	"【屏蔽】喜欢",
+								// 	"shieldLeftNavigator-tab-user_self_like",
+								// 	false,
+								// 	void 0,
+								// 	"屏蔽元素"
+								// ),
+								// UISwitch(
+								// 	"【屏蔽】收藏",
+								// 	"shieldLeftNavigator-tab-user_self_collection",
+								// 	false,
+								// 	void 0,
+								// 	"屏蔽元素"
+								// ),
+								// UISwitch(
+								// 	"【屏蔽】观看历史",
+								// 	"shieldLeftNavigator-tab-user_self_record",
+								// 	false,
+								// 	void 0,
+								// 	"屏蔽元素"
+								// ),
 								UISwitch(
 									"【屏蔽】直播",
 									"shieldLeftNavigator-tab-live",
@@ -521,41 +521,41 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽元素"
 								),
-								UISwitch(
-									"【屏蔽】知识",
-									"shieldLeftNavigator-tab-channel_300203",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】游戏",
-									"shieldLeftNavigator-tab-channel_300205",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】二次元",
-									"shieldLeftNavigator-tab-channel_300206",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】音乐",
-									"shieldLeftNavigator-tab-channel_300209",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】美食",
-									"shieldLeftNavigator-tab-channel_300204",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
+								// UISwitch(
+								// 	"【屏蔽】知识",
+								// 	"shieldLeftNavigator-tab-channel_300203",
+								// 	false,
+								// 	void 0,
+								// 	"屏蔽元素"
+								// ),
+								// UISwitch(
+								// 	"【屏蔽】游戏",
+								// 	"shieldLeftNavigator-tab-channel_300205",
+								// 	false,
+								// 	void 0,
+								// 	"屏蔽元素"
+								// ),
+								// UISwitch(
+								// 	"【屏蔽】二次元",
+								// 	"shieldLeftNavigator-tab-channel_300206",
+								// 	false,
+								// 	void 0,
+								// 	"屏蔽元素"
+								// ),
+								// UISwitch(
+								// 	"【屏蔽】音乐",
+								// 	"shieldLeftNavigator-tab-channel_300209",
+								// 	false,
+								// 	void 0,
+								// 	"屏蔽元素"
+								// ),
+								// UISwitch(
+								// 	"【屏蔽】美食",
+								// 	"shieldLeftNavigator-tab-channel_300204",
+								// 	false,
+								// 	void 0,
+								// 	"屏蔽元素"
+								// ),
 							],
 						},
 					],
