@@ -80,39 +80,45 @@ type ExecMenuCallBackOption = {
 const Panel = {
 	/** 数据 */
 	$data: {
-		__data: null as any as UtilsDictionary<string, any>,
-		__oneSuccessExecMenu: null as any as UtilsDictionary<string, number>,
-		__onceExec: null as any as UtilsDictionary<string, number>,
-		$panel: null as null | ReturnType<typeof pops.panel>,
+		/**
+		 * @private
+		 */
+		__configDefaultValueData: null as UtilsDictionary<string, any> | null,
+		/**
+		 * @private
+		 */
+		__onceExecMenuData: null as UtilsDictionary<string, number> | null,
+		/**
+		 * @private
+		 */
+		__onceExecData: null as UtilsDictionary<string, number> | null,
+		$panel: null as ReturnType<typeof pops.panel> | null,
 		/**
 		 * 菜单项的默认值
 		 */
-		get data() {
-			if (Panel.$data.__data == null) {
-				Panel.$data.__data = new utils.Dictionary<string, any>();
+		get configDefaultValueData() {
+			if (this.__configDefaultValueData == null) {
+				this.__configDefaultValueData = new utils.Dictionary();
 			}
-			return Panel.$data.__data;
+			return this.__configDefaultValueData;
 		},
 		/**
 		 * 成功只执行了一次的项
 		 */
-		get oneSuccessExecMenu() {
-			if (Panel.$data.__oneSuccessExecMenu == null) {
-				Panel.$data.__oneSuccessExecMenu = new utils.Dictionary<
-					string,
-					number
-				>();
+		get onceExecMenuData() {
+			if (this.__onceExecMenuData == null) {
+				this.__onceExecMenuData = new utils.Dictionary<string, number>();
 			}
-			return Panel.$data.__oneSuccessExecMenu;
+			return this.__onceExecMenuData;
 		},
 		/**
 		 * 成功只执行了一次的项
 		 */
-		get onceExec() {
-			if (Panel.$data.__onceExec == null) {
-				Panel.$data.__onceExec = new utils.Dictionary<string, number>();
+		get onceExecData() {
+			if (this.__onceExecData == null) {
+				this.__onceExecData = new utils.Dictionary<string, number>();
 			}
-			return Panel.$data.__onceExec;
+			return this.__onceExecData;
 		},
 		/** 脚本名，一般用在设置的标题上 */
 		get scriptName() {
@@ -135,7 +141,6 @@ const Panel = {
 	},
 	/** 初始化菜单项的默认值保存到本地数据中 */
 	initContentDefaultValue() {
-		const that = this;
 		/**
 		 * 设置默认值
 		 * @param config
@@ -147,6 +152,16 @@ const Panel = {
 				/* 必须配置attributes属性，用于存储菜单的键和默认值 */
 				return;
 			}
+
+			// 排除掉不需要初始化默认值的配置
+			if (
+				config.type === "button" ||
+				config.type === "forms" ||
+				config.type === "deepMenu"
+			) {
+				return;
+			}
+
 			/* 初始化配置对象，每个是需要配置的键值对 */
 			let needInitConfig = <{ [key: string]: any }>{};
 			/* 获取键名 */
@@ -177,11 +192,7 @@ const Panel = {
 			// 循环初始化默认值
 			needInitConfigList.forEach((__key) => {
 				let __defaultValue = needInitConfig[__key];
-				/* 存储到内存中 */
-				if (that.$data.data.has(__key)) {
-					log.warn("请检查该key(已存在): " + __key);
-				}
-				that.$data.data.set(__key, __defaultValue);
+				this.setDefaultValue(__key, __defaultValue);
 			});
 		};
 		/** 嵌套循环初始化默认值 */
@@ -213,6 +224,16 @@ const Panel = {
 		}
 	},
 	/**
+	 * 设置初始化使用的默认值
+	 */
+	setDefaultValue(key: string, defaultValue: any) {
+		/* 存储到缓存中*/
+		if (this.$data.configDefaultValueData.has(key)) {
+			log.warn("请检查该key(已存在): " + key);
+		}
+		this.$data.configDefaultValueData.set(key, defaultValue);
+	},
+	/**
 	 * 设置值
 	 * @param key 键
 	 * @param value 值
@@ -229,10 +250,10 @@ const Panel = {
 		let localValue = PopsPanelStorageApi.get<T>(key);
 		if (localValue == null) {
 			/* 值不存在或值为null/undefined或只有键但无值 */
-			if (this.$data.data.has(key)) {
+			if (this.$data.configDefaultValueData.has(key)) {
 				/* 先判断是否是菜单配置的键 */
 				/* 是的话取出值并返回 */
-				return this.$data.data.get(key);
+				return this.$data.configDefaultValueData.get(key);
 			}
 			return defaultValue as T;
 		}
@@ -290,7 +311,7 @@ const Panel = {
 	 * @param key 键
 	 */
 	deleteExecMenuOnce(key: string) {
-		this.$data.oneSuccessExecMenu.delete(key);
+		this.$data.onceExecMenuData.delete(key);
 		let flag = PopsPanelStorageApi.removeValueChangeListener(key);
 		return flag;
 	},
@@ -299,7 +320,7 @@ const Panel = {
 	 * @param key 键
 	 */
 	deleteOnceExec(key: string) {
-		this.$data.onceExec.delete(key);
+		this.$data.onceExecData.delete(key);
 	},
 	/**
 	 * 执行菜单
@@ -347,7 +368,9 @@ const Panel = {
 			keyList.push(queryKeyResult);
 		}
 
-		let findNotInDataKey = keyList.find((it) => !this.$data.data.has(it));
+		let findNotInDataKey = keyList.find(
+			(it) => !this.$data.configDefaultValueData.has(it)
+		);
 		if (findNotInDataKey) {
 			log.warn(`${findNotInDataKey} 键不存在`);
 			return;
@@ -356,11 +379,11 @@ const Panel = {
 		let storageKey = JSON.stringify(keyList);
 		if (once) {
 			// 仅执行一次
-			if (this.$data.oneSuccessExecMenu.has(storageKey)) {
+			if (this.$data.onceExecMenuData.has(storageKey)) {
 				// log.warn(`${storageKey} 键已执行过，请勿重复执行`);
 				return;
 			}
-			this.$data.oneSuccessExecMenu.set(storageKey, 1);
+			this.$data.onceExecMenuData.set(storageKey, 1);
 		}
 		/**
 		 * 存储的<style>标签列表
@@ -399,8 +422,8 @@ const Panel = {
 		/**
 		 * 获取值
 		 */
-		let getValue = (key: string) => {
-			let value = Panel.getValue<boolean>(key);
+		let getMenuValue = (key: string) => {
+			let value = this.getValue<boolean>(key);
 			return value;
 		};
 		/**
@@ -422,7 +445,7 @@ const Panel = {
 			if (typeof checkExec === "function") {
 				flag = checkExec(keyList);
 			} else {
-				flag = keyList.every((key) => getValue(key));
+				flag = keyList.every((key) => getMenuValue(key));
 			}
 			return flag;
 		};
@@ -487,7 +510,7 @@ const Panel = {
 			clear() {
 				this.clearStoreStyleElements();
 				this.removeValueChangeListener();
-				once && that.$data.oneSuccessExecMenu.delete(storageKey);
+				once && that.$data.onceExecMenuData.delete(storageKey);
 			},
 			/**
 			 * 清空存储的元素列表
@@ -568,12 +591,12 @@ const Panel = {
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
 		}
-		if (this.$data.onceExec.has(key)) {
+		if (this.$data.onceExecData.has(key)) {
 			// log.warn(`${key} 键已执行（最多一次），请勿重复执行`);
 			return;
 		}
 		callback();
-		this.$data.onceExec.set(key, 1);
+		this.$data.onceExecData.set(key, 1);
 	},
 	/**
 	 * 显示设置面板
