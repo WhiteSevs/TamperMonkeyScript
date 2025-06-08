@@ -1,9 +1,9 @@
 import { PopsPanelButtonDetails } from "@whitesev/pops/dist/types/src/components/panel/buttonType";
 import { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
-import { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
 import { PopsIconType } from "@whitesev/pops/dist/types/src/types/icon";
 import { ATTRIBUTE_INIT } from "../panel-config";
+import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 
 /**
  * 获取button按钮配置
@@ -13,9 +13,10 @@ import { ATTRIBUTE_INIT } from "../panel-config";
  * @param buttonIcon 按钮图标
  * @param buttonIsRightIcon 按钮是否在右边
  * @param buttonIconIsLoading 按钮图标是否旋转
- * @param buttonType 按钮类型
- * @param clickCallBack 点击回调
- * @param afterAddToUListCallBack 在添加到元素后触发该回调
+ * @param buttonType 按钮的样式类型
+ * @param clickCallBack （可选）点击回调
+ * @param afterAddToUListCallBack （可选）在添加到元素后触发该回调
+ * @param disable （可选）是否禁用该按钮
  */
 export const UIButton = function (
 	text: string,
@@ -31,14 +32,14 @@ export const UIButton = function (
 				formConfig: PopsPanelFormsTotalDetails,
 				container: PopsPanelRightAsideContainerOptions
 		  ) => void)
-		| undefined
+		| undefined,
+	disable?: boolean | undefined | (() => boolean)
 ): PopsPanelButtonDetails {
 	let result: PopsPanelButtonDetails = {
 		text: text,
 		type: "button",
-		description: description,
 		attributes: {},
-		props: {},
+		description: description,
 		buttonIcon: buttonIcon,
 		buttonIsRightIcon: buttonIsRightIcon,
 		buttonIconIsLoading: buttonIconIsLoading,
@@ -52,6 +53,9 @@ export const UIButton = function (
 		afterAddToUListCallBack: afterAddToUListCallBack,
 	};
 	Reflect.set(result.attributes!, ATTRIBUTE_INIT, () => {
+		result.disable = Boolean(
+			typeof disable === "function" ? disable() : disable
+		);
 		return false;
 	});
 	return result;
