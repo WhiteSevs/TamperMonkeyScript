@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.7.19
+// @version      2025.6.9
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -879,27 +879,27 @@
                     void 0,
                     "屏蔽元素"
                   ),
-                  UISwitch(
-                    "【屏蔽】喜欢",
-                    "shieldLeftNavigator-tab-user_self_like",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】收藏",
-                    "shieldLeftNavigator-tab-user_self_collection",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】观看历史",
-                    "shieldLeftNavigator-tab-user_self_record",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
+                  // UISwitch(
+                  // 	"【屏蔽】喜欢",
+                  // 	"shieldLeftNavigator-tab-user_self_like",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】收藏",
+                  // 	"shieldLeftNavigator-tab-user_self_collection",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】观看历史",
+                  // 	"shieldLeftNavigator-tab-user_self_record",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
                   UISwitch(
                     "【屏蔽】直播",
                     "shieldLeftNavigator-tab-live",
@@ -920,42 +920,42 @@
                     false,
                     void 0,
                     "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】知识",
-                    "shieldLeftNavigator-tab-channel_300203",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】游戏",
-                    "shieldLeftNavigator-tab-channel_300205",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】二次元",
-                    "shieldLeftNavigator-tab-channel_300206",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】音乐",
-                    "shieldLeftNavigator-tab-channel_300209",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】美食",
-                    "shieldLeftNavigator-tab-channel_300204",
-                    false,
-                    void 0,
-                    "屏蔽元素"
                   )
+                  // UISwitch(
+                  // 	"【屏蔽】知识",
+                  // 	"shieldLeftNavigator-tab-channel_300203",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】游戏",
+                  // 	"shieldLeftNavigator-tab-channel_300205",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】二次元",
+                  // 	"shieldLeftNavigator-tab-channel_300206",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】音乐",
+                  // 	"shieldLeftNavigator-tab-channel_300209",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】美食",
+                  // 	"shieldLeftNavigator-tab-channel_300204",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
                 ]
               }
             ]
@@ -1190,6 +1190,20 @@
   };
   const DouYinRouter = {
     /**
+     * 是否是抖音主站
+     */
+    isIndex() {
+      return window.location.hostname === "www.douyin.com";
+    },
+    /**
+     * 关注
+     *
+     * + /follow
+     */
+    isFollow() {
+      return this.isIndex() && window.location.pathname.startsWith("/follow");
+    },
+    /**
      * 直播
      */
     isLive() {
@@ -1210,12 +1224,6 @@
      */
     isRootLive() {
       return this.isIndex() && window.location.pathname.startsWith("/root/live/");
-    },
-    /**
-     * 是否是抖音主站
-     */
-    isIndex() {
-      return window.location.hostname === "www.douyin.com";
     },
     /**
      * 推荐视频
@@ -1282,6 +1290,22 @@
      */
     isNote() {
       return this.isIndex() && window.location.pathname.startsWith("/note/");
+    },
+    /**
+     * 精选
+     *
+     * + /jingxuan/
+     */
+    isJingXuan() {
+      return this.isIndex() && window.location.pathname.startsWith("/jingxuan");
+    },
+    /**
+     * 朋友
+     *
+     * + /friend
+     */
+    isFriend() {
+      return this.isIndex() && window.location.pathname.startsWith("/friend");
     }
   };
   const DouYinMessageFilter = {
@@ -2634,7 +2658,7 @@
       );
     }
   };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
     let result = {
       text,
       type: "button",
@@ -2653,6 +2677,9 @@
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(
+        disable
+      );
       return false;
     });
     return result;
@@ -10848,18 +10875,6 @@
       Panel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
         return this.block_tab_user_self();
       });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_like", () => {
-        return this.block_tab_user_self_like();
-      });
-      Panel.execMenuOnce(
-        "shieldLeftNavigator-tab-user_self_collection",
-        () => {
-          return this.block_tab_user_self_collection();
-        }
-      );
-      Panel.execMenuOnce("shieldLeftNavigator-tab-user_self_record", () => {
-        return this.block_tab_user_self_record();
-      });
       Panel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
         return this.block_tab_live();
       });
@@ -10871,21 +10886,6 @@
       });
       Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
         return this.block_tab_ai_search();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300203", () => {
-        return this.block_tab_channel_300203();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300205", () => {
-        return this.block_tab_channel_300205();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300206", () => {
-        return this.block_tab_channel_300206();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300209", () => {
-        return this.block_tab_channel_300209();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-channel_300204", () => {
-        return this.block_tab_channel_300204();
       });
     },
     /**
@@ -11186,10 +11186,10 @@
      * 移除ads
      */
     removeAds() {
-      if (DouYinRouter.isIndex()) {
+      if (DouYinRouter.isIndex() || DouYinRouter.isJingXuan()) {
         utils.waitNode(
           () => domUtils.selector(
-            '#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:contains("下载抖音精选")'
+            '#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:contains("下载抖音精选|条条都是宝藏视频")'
           ),
           1e4
         ).then(($el) => {
