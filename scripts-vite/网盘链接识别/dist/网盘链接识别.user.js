@@ -266,13 +266,12 @@
     });
     return result;
   };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
     let result = {
       text,
       type: "button",
-      description,
       attributes: {},
-      props: {},
+      description,
       buttonIcon,
       buttonIsRightIcon,
       buttonIconIsLoading,
@@ -286,6 +285,9 @@
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(
+        disable
+      );
       return false;
     });
     return result;
