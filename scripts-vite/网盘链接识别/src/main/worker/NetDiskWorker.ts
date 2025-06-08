@@ -333,8 +333,7 @@ export const NetDiskWorker = {
 							cancel: {
 								text: "网站规则",
 								callback(details, event) {
-									let rulePanelView = NetDiskRuleManager.getPanelView(0);
-									rulePanelView.showView();
+									NetDiskRuleManager.showView("网站规则");
 								},
 							},
 							other: {
@@ -1015,8 +1014,7 @@ export const NetDiskWorker = {
 			// 注册油猴菜单
 			GM_Menu.add({
 				key: "performPageTextMatchingManually" + "_" + window.location.href,
-				text:
-					"点击执行文本匹配" + (Panel.isTopWindow() ? "" : "（iframe）"),
+				text: "点击执行文本匹配" + (Panel.isTopWindow() ? "" : "（iframe）"),
 				autoReload: false,
 				isStoreValue: false,
 				showText(text) {

@@ -56,7 +56,7 @@ export const NetDiskShortcut = {
 				target: "window",
 				callback() {
 					log.info("快捷键 ==> 【打开】⚙ 字符映射规则");
-					NetDiskRuleManager.showView(2);
+					NetDiskRuleManager.showView("字符映射");
 				},
 			},
 			"netdisk-keyboard-identifyTheSelectedContent": {
