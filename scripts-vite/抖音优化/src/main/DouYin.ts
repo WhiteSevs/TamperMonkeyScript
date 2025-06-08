@@ -81,12 +81,12 @@ export const DouYin = {
 	 * 移除ads
 	 */
 	removeAds() {
-		if (DouYinRouter.isIndex()) {
+		if (DouYinRouter.isIndex() || DouYinRouter.isJingXuan()) {
 			utils
 				.waitNode<HTMLElement>(
 					() =>
 						DOMUtils.selector<HTMLElement>(
-							'#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:contains("下载抖音精选")'
+							'#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:contains("下载抖音精选|条条都是宝藏视频")'
 						),
 					10000
 				)
