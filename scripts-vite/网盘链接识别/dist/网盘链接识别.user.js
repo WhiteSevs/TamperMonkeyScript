@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://greasyfork.org/zh-CN/scripts/445489
-// @version      2025.6.7.18
+// @version      2025.6.8
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -14812,7 +14812,7 @@
     },
     /**
      * 获取规则管理器视图
-     * @param defaultTab 左侧默认的选项卡
+     * @param defaultTab 左侧默认的选项卡，可以是索引下标，也可以是标题
      */
     getPanelView(defaultTab = 0) {
       let option = {
@@ -14824,7 +14824,11 @@
         ]
       };
       option.contentConfig = option.contentConfig.map((it, index) => {
-        it.isDefault = index === defaultTab;
+        if (typeof defaultTab === "number" && defaultTab === index || typeof defaultTab === "string" && defaultTab === it.title) {
+          it.isDefault = true;
+        } else {
+          it.isDefault = false;
+        }
         return it;
       });
       let rulePanelView = new RulePanelView(option);
@@ -14832,9 +14836,9 @@
     },
     /**
      * 显示视图
-     * @param defaultTab 左侧默认的选项卡
+     * @param defaultTab 左侧默认的选项卡，可以是索引下标，也可以是标题
      */
-    showView(defaultTab = 0) {
+    showView(defaultTab) {
       let rulePanelView = this.getPanelView(defaultTab);
       rulePanelView.showView();
     },
@@ -15121,8 +15125,7 @@
                 cancel: {
                   text: "网站规则",
                   callback(details, event2) {
-                    let rulePanelView = NetDiskRuleManager.getPanelView(0);
-                    rulePanelView.showView();
+                    NetDiskRuleManager.showView("网站规则");
                   }
                 },
                 other: {
@@ -23948,7 +23951,7 @@
           target: "window",
           callback() {
             log.info("快捷键 ==> 【打开】⚙ 字符映射规则");
-            NetDiskRuleManager.showView(2);
+            NetDiskRuleManager.showView("字符映射");
           }
         },
         "netdisk-keyboard-identifyTheSelectedContent": {
