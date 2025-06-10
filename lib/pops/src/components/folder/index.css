@@ -162,17 +162,26 @@ table.pops-folder-list-table__body {
 }
 .pops-folder-content .pops-folder-list {
 	height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 .pops-folder-content .pops-folder-list-table__body-div {
 	height: 100%;
-	padding-bottom: 85px;
+	flex: 1 auto;
+	overflow: auto;
+	padding-bottom: 0;
 }
 .pops-mobile-folder-content .pops-folder-list-table__body-div {
 	height: 100%;
-	padding-bottom: 40px;
+	flex: 1 auto;
+	overflow: auto;
+	padding-bottom: 0;
 }
 .pops-folder-content table.pops-folder-list-table__body {
 	overflow: auto;
+}
+.pops-folder-content .pops-folder-list-table__header-div {
+	flex: 0;
 }
 .pops-mobile-folder-content .pops-folder-list-table__header-div {
 	display: none;
@@ -216,6 +225,7 @@ table.pops-folder-list-table__body {
 	vertical-align: middle;
 }
 .pops-folder-list .pops-folder-file-list-breadcrumb-primary {
+	flex: 0;
 	display: -webkit-box;
 	display: -webkit-flex;
 	display: -ms-flexbox;
