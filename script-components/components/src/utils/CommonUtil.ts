@@ -50,7 +50,7 @@ export const CommonUtil = {
 		let cssText =
 			typeof GM_getResourceText === "function"
 				? GM_getResourceText(resourceMapData.keyName)
-				: "";
+				: null;
 		if (typeof cssText === "string" && cssText) {
 			addStyle(cssText);
 		} else {
