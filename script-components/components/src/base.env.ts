@@ -29,6 +29,8 @@ const log = new utils.Log(
 );
 let SCRIPT_NAME = GM_info?.script?.name || import.meta.env.SCRIPT_NAME;
 
+const AnyTouch = pops.config.Utils.AnyTouch();
+
 /**
  * 是否为调试模式
  */
@@ -244,5 +246,7 @@ export {
 	$$,
 	MountVue,
 	VUE_ELE_NAME_ID,
+	DEBUG,
 	cookieManager,
+	AnyTouch,
 };

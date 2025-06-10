@@ -47,7 +47,7 @@ export const PanelContent = {
 	 * 获取配置内容
 	 * @param index 配置索引
 	 */
-	getConfig(index: number): PopsPanelContentConfig[] {
+	getConfig(index: number = 0): PopsPanelContentConfig[] {
 		return this.$data.contentConfig.get(index) ?? [];
 	},
 };
