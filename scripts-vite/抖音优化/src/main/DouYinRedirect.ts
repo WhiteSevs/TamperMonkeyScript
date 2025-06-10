@@ -1,5 +1,5 @@
 import { log } from "@/env";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 
 export const DouYinRedirect = {
 	init() {

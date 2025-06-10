@@ -1,7 +1,7 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import blockCSS from "./css/block.css?raw";
-import { Panel } from "@/setting/panel";
-import { ReactUtils } from "@/utils/ReactUtils";
+import { Panel } from "@components/setting/panel";
+import { ReactUtils } from "@components/utils/ReactUtils";
 import Qmsg from "qmsg";
 
 export const DouYinUser = {

@@ -1,5 +1,5 @@
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 
 export const MPanelShareVideoConfig: PopsPanelContentConfig = {
 	id: "m-panel-config-share-video",

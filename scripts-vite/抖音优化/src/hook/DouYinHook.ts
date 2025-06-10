@@ -1,6 +1,6 @@
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, log, utils } from "@/env";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { Hook } from "./Hook";
 import { DouYinRouter } from "@/router/DouYinRouter";
 

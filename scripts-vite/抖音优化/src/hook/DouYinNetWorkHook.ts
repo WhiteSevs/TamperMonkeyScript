@@ -1,5 +1,5 @@
 import { utils } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const DouYinNetWorkHook = {
 	__ajaxHooker: null as null | ReturnType<typeof utils.ajaxHooker>,

@@ -1,7 +1,7 @@
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { addStyle, log, utils } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 /** 顶部导航栏屏蔽 */
 export const BlockTopNavigator = {

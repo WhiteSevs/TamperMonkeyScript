@@ -1,6 +1,6 @@
 import { GM_download, unsafeWindow } from "ViteGM";
 import { $, $$, DOMUtils, addStyle, log, pops, utils } from "@/env";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import MobileCSS from "./css/mobile.css?raw";
@@ -8,13 +8,13 @@ import Qmsg from "qmsg";
 import { DouYin } from "../DouYin";
 import { DouYinVideoPlayerBlockElement } from "./DouYinVideoPlayerBlockElement";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
-import { GestureBack } from "@/utils/GestureBack";
+import { GestureBack } from "@components/utils/GestureBack";
 import { DouYinGestureBackHashConfig } from "../DouYinGestureBackConfig";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import type { DouYinVideoAwemeInfo } from "./DouYinVideoFilterBase";
 import { DouYinVideoElementAutoHide } from "./DouYinVideoElementAutoHide";
-import { ReactUtils } from "@/utils/ReactUtils";
+import { ReactUtils } from "@components/utils/ReactUtils";
 
 /**
  * 视频播放器的播放速度

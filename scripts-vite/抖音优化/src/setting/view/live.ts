@@ -1,12 +1,12 @@
 import { DOMUtils, log, utils } from "@/env";
-import { UISwitch } from "../components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import { DouYinMessageFilter } from "@/main/live/DouYinLiveMessage";
-import { Panel } from "../panel";
-import { UISelect } from "../components/ui-select";
+import { Panel } from "@components/setting/panel";
+import { UISelect } from "@components/setting/components/ui-select";
 import { VideoQualityMap } from "@/main/live/DouYinLive";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
-import { UIButtonShortCut } from "../components/ui-button-shortcut";
+import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { DouYinLiveShortCut } from "@/main/live/DouYinLiveShortCut";
 
 export const PanelLiveConfig: PopsPanelContentConfig = {

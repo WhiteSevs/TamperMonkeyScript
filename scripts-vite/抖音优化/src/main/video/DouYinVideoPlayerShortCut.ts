@@ -1,8 +1,8 @@
 import { unsafeWindow } from "ViteGM";
 import { $$, log } from "@/env";
-import { ShortCut, ShortCutOption } from "@/utils/ShortCut";
+import { ShortCut, ShortCutOption } from "@components/utils/ShortCut";
 import { DouYinVideoPlayer, VideoPlayerRate } from "./DouYinVideoPlayer";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 
 export const DouYinVideoPlayerShortCut = {
 	shortCut: new ShortCut("video-short-cut"),

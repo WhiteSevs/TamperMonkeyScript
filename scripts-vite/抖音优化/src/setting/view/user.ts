@@ -1,6 +1,6 @@
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../components/ui-switch";
-import { UIButton } from "../components/ui-button";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { UIButton } from "@components/setting/components/ui-button";
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";

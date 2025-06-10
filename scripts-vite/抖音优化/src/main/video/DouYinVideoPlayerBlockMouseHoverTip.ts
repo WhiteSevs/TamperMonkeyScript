@@ -1,6 +1,6 @@
 import { log } from "@/env";
-import { Panel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const DouYinVideoPlayerBlockMouseHoverTip = {
 	init() {
@@ -23,24 +23,15 @@ export const DouYinVideoPlayerBlockMouseHoverTip_RightToolBar = {
 		Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-follow", () => {
 			return this.blockFollowMouseHoverTip();
 		});
-		Panel.execMenuOnce(
-			"dy-video-mouseHoverTip-rightToolBar-addLike",
-			() => {
-				return this.blockAddLikeMouseHoverTip();
-			}
-		);
-		Panel.execMenuOnce(
-			"dy-video-mouseHoverTip-rightToolBar-comment",
-			() => {
-				return this.blockCommentMouseHoverTip();
-			}
-		);
-		Panel.execMenuOnce(
-			"dy-video-mouseHoverTip-rightToolBar-collect",
-			() => {
-				return this.blockCollectMouseHoverTip();
-			}
-		);
+		Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-addLike", () => {
+			return this.blockAddLikeMouseHoverTip();
+		});
+		Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-comment", () => {
+			return this.blockCommentMouseHoverTip();
+		});
+		Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-collect", () => {
+			return this.blockCollectMouseHoverTip();
+		});
 		Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-share", () => {
 			return this.blockShareMouseHoverTip();
 		});
@@ -161,9 +152,7 @@ export const DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar = {
 	 */
 	blockClearScreenMouseHoverTip() {
 		log.info(`禁用清屏按钮的悬浮提示`);
-		return CommonUtil.addBlockCSS(
-			`.xgplayer-immersive-switch-setting .xgTips`
-		);
+		return CommonUtil.addBlockCSS(`.xgplayer-immersive-switch-setting .xgTips`);
 	},
 	/**
 	 * 禁用稍后再看按钮的悬浮提示

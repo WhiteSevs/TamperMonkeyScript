@@ -1,6 +1,6 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
-import { Panel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 /**
  * 需验证以下状态下的屏蔽情况，防止误杀

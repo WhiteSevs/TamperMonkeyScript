@@ -1,6 +1,6 @@
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { addStyle, log } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const BlockSearchFrame = {
 	init() {

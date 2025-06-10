@@ -1,9 +1,9 @@
 import { $$, DOMUtils, GM_Menu, addStyle, log, pops, utils } from "@/env";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveMessage } from "./DouYinLiveMessage";
 import Qmsg from "qmsg";
-import { ReactUtils } from "@/utils/ReactUtils";
+import { ReactUtils } from "@components/utils/ReactUtils";
 import { DouYinLiveBlock } from "./DouYinLiveBlock";
 import { DouYinLivePlayerInstance } from "./DouYinLivePlayerInstance";
 import { DouYinLiveShortCut } from "./DouYinLiveShortCut";

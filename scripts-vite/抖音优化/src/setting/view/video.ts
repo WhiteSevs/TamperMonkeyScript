@@ -1,12 +1,12 @@
 import { DOMUtils, log, SCRIPT_NAME, utils } from "@/env";
-import { UISelect } from "../components/ui-select";
-import { UISwitch } from "../components/ui-switch";
-import { UIButton } from "../components/ui-button";
+import { UISelect } from "@components/setting/components/ui-select";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { UIButton } from "@components/setting/components/ui-button";
 import { DouYinVideoPlayerShortCut } from "@/main/video/DouYinVideoPlayerShortCut";
-import { Panel } from "../panel";
+import { Panel } from "@components/setting/panel";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UIButtonShortCut } from "../components/ui-button-shortcut";
-import { UISlider } from "../components/ui-slider";
+import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
+import { UISlider } from "@components/setting/components/ui-slider";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
 import { DouYinVideoFilter } from "@/main/video/DouYinVideoFilter";
 

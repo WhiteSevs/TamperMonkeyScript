@@ -1,7 +1,7 @@
 import { addStyle, log } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { Panel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const BlockLeftNavigator = {
 	init() {

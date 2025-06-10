@@ -1,5 +1,5 @@
 import { $$, addStyle, DOMUtils, log, utils } from "@/env";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { BlockTopNavigator } from "./block-frame/blockTopNavigator";
 import { BlockSearchFrame } from "./block-frame/blockSearchFrame";
 import { DouYinHook } from "../hook/DouYinHook";

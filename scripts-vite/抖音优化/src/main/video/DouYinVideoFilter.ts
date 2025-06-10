@@ -1,13 +1,13 @@
 import { $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
-import { UIInput } from "@/setting/components/ui-input";
-import { UISelectMultiple } from "@/setting/components/ui-select-multiple";
-import { UISwitch } from "@/setting/components/ui-switch";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UISelectMultiple } from "@components/setting/components/ui-select-multiple";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "@/setting/panel-config";
-import { RuleView } from "@/utils/RuleView";
+} from "@components/setting/panel-config";
+import { RuleView } from "@components/utils/RuleView";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import {
@@ -15,11 +15,11 @@ import {
 	type DouYinVideoAwemeInfo,
 	type DouYinVideoHandlerInfo,
 } from "./DouYinVideoFilterBase";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
-import { CommonUtil } from "@/utils/CommonUtil";
-import { PanelUISize } from "@/setting/panel-ui-size";
-import { UITextArea } from "@/setting/components/ui-textarea";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { PanelUISize } from "@components/setting/panel-ui-size";
+import { UITextArea } from "@components/setting/components/ui-textarea";
 import Utils from "@whitesev/utils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";

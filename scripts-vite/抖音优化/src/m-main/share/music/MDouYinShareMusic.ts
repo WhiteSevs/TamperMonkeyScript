@@ -1,6 +1,6 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import blockCSS from "./block.css?raw";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
 import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";
 

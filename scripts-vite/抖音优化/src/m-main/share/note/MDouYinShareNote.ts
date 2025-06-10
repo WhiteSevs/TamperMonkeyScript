@@ -1,10 +1,10 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import blockCSS from "./block.css?raw";
 import { DouYinUtils } from "@/utils/DouYinUtils";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
 import { DouYinUrlUtils } from "@/utils/DouYinUrlUtils";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const MDouYinShareNote = {
 	init() {

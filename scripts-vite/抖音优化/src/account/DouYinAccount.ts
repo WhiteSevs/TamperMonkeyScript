@@ -1,8 +1,8 @@
 import { $, addStyle, log, utils } from "@/env";
 import { DouYinElement } from "../utils/DouYinElement";
 import { DouYinRouter } from "@/router/DouYinRouter";
-import { CommonUtil } from "@/utils/CommonUtil";
-import { Panel } from "@/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 
 export const DouYinAccount = {
