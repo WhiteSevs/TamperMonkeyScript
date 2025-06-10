@@ -16,6 +16,7 @@ import { Panel } from "../panel";
  * @param placeholder （可选）输入框的默认提示内容
  * @param isNumber （可选）是否是数字框
  * @param isPassword （可选）是否是密码框
+ * @param afterAddToUListCallBack （可选）
  */
 export const UIInput = function <T extends boolean>(
 	text: string,
@@ -31,7 +32,8 @@ export const UIInput = function <T extends boolean>(
 		| undefined,
 	placeholder = "",
 	isNumber?: T,
-	isPassword?: boolean
+	isPassword?: boolean,
+	afterAddToUListCallBack?: PopsPanelInputDetails["afterAddToUListCallBack"]
 ) {
 	let result: PopsPanelInputDetails = {
 		text: text,
@@ -41,6 +43,7 @@ export const UIInput = function <T extends boolean>(
 		props: {},
 		attributes: {},
 		description: description,
+		afterAddToUListCallBack: afterAddToUListCallBack,
 		getValue() {
 			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
 		},
