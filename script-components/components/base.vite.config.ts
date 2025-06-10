@@ -366,4 +366,4 @@ const GenerateUserConfig = async (option: {
 	return BaseUserConfig;
 };
 
-export { GenerateUserConfig };
+export { GenerateUserConfig, baseUtils };
