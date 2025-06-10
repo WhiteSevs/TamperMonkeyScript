@@ -1,6 +1,4 @@
-import { addStyle, SCRIPT_NAME } from "@components/base.env";
-import { CommonUtil } from "@components/utils/CommonUtil";
-import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
+import { SCRIPT_NAME } from "@components/base.env";
 import CryptoJS from "crypto-js";
 import { unsafeWindow } from "ViteGM";
 import DataPaging from "@lib/DataPaging/index.esm";
@@ -10,21 +8,6 @@ const __DataPaging =
 	// @ts-ignore
 	DataPaging ?? window.DataPaging ?? unsafeWindow.DataPaging;
 const Cryptojs = CryptoJS ?? window.CryptoJS ?? unsafeWindow.CryptoJS;
-
-if (import.meta.env.DEV) {
-	import("viewerjs/dist/viewer.css?raw").then((cssText) => {
-		addStyle(cssText.default);
-	});
-} else {
-	CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
-}
-if (import.meta.env.DEV) {
-	import("highlight.js/styles/github-dark.min.css?raw").then((cssText) => {
-		addStyle(cssText.default);
-	});
-} else {
-	CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Hljs);
-}
 
 export {
 	utils,
