@@ -1,5 +1,5 @@
 import { $, $$, DOMUtils, pops, utils } from "@/env";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
 import { GM_getValue, GM_setValue } from "ViteGM";
 

@@ -1,5 +1,5 @@
 import { DOMUtils } from "@/env";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { MTEditorOptimization } from "./MTEditorOptimization";
 
 export const MTForumPostPublish = {

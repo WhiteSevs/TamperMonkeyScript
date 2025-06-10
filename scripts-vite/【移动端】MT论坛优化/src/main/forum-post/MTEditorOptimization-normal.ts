@@ -6,7 +6,7 @@ import Qmsg from "qmsg";
 import { MTRegExp } from "@/utils/MTRegExp";
 import { MTUtils } from "@/utils/MTUtils";
 import { MTEditorImageBed_Hello } from "./MTEditorImageBed_Hello";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { MTEditorImageBed_MT } from "./MTEditorImageBed_MT";
 import { MTQuickUBB, MTUBB_Rainbow } from "./MTQuickUBB";
 import Utils from "@whitesev/utils";

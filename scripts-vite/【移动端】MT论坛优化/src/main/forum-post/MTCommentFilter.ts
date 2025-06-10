@@ -1,12 +1,12 @@
 import { $$, log, pops, utils } from "@/env";
 import { Router } from "@/router/router";
-import { UIInput } from "@/setting/components/ui-input";
-import { UISwitch } from "@/setting/components/ui-switch";
-import { UITextArea } from "@/setting/components/ui-textarea";
-import { PROPS_STORAGE_API } from "@/setting/panel-config";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { UITextArea } from "@components/setting/components/ui-textarea";
+import { PROPS_STORAGE_API } from "@components/setting/panel-config";
 import { ElementUtils } from "@/utils/ElementUtils";
 import { MTRegExp } from "@/utils/MTRegExp";
-import { RuleEditView } from "@/utils/RuleEditView";
+import { RuleEditView } from "@components/utils/RuleEditView";
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 type FilterOption = {

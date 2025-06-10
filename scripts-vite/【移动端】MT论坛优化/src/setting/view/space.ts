@@ -1,5 +1,5 @@
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 
 export const Component_Space: PopsPanelContentConfig = {
 	id: "component-space",

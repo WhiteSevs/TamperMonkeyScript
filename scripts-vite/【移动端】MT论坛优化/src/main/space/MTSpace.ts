@@ -1,6 +1,6 @@
 import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
 import { Router } from "@/router/router";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { ElementUtils } from "@/utils/ElementUtils";
 import { MTRegExp } from "@/utils/MTRegExp";
 import Qmsg from "qmsg";

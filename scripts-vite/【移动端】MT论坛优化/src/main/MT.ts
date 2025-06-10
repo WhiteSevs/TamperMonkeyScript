@@ -1,4 +1,4 @@
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { MTBlackHome } from "./MTBlackHome";
 import { MTOnlineUser } from "./MTOnlineUser";
 import { MTIdentifyLinks } from "./MTIdentifyLinks";

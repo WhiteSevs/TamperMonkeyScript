@@ -1,7 +1,7 @@
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../components/ui-switch";
-import { UIInput } from "../components/ui-input";
-import { UIButton } from "../components/ui-button";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UIButton } from "@components/setting/components/ui-button";
 import { MTEditorOptimizationNormal } from "@/main/forum-post/MTEditorOptimization-normal";
 import Qmsg from "qmsg";
 import { DOMUtils } from "@/env";
@@ -319,7 +319,7 @@ export const Component_ForumPost: PopsPanelContentConfig = {
 									"",
 									false,
 									false,
-									(formCOnfig, container) => {
+									(formConfig, container) => {
 										let $input = container.target?.querySelector("input")!;
 										let $suffix =
 											container.target?.querySelector<HTMLDivElement>(

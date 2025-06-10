@@ -3,7 +3,7 @@ import { ElementUtils } from "@/utils/ElementUtils";
 import smallWindowCSS from "./css/small-window.css?raw";
 import Qmsg from "qmsg";
 import Viewer from "viewerjs";
-import { GestureBack } from "@/utils/GestureBack";
+import { GestureBack } from "@components/utils/GestureBack";
 import { unsafeWindow } from "ViteGM";
 
 const MTSmallWindowIcon = {

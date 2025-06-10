@@ -1,4 +1,4 @@
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import {
 	MTEditorImageBed,
 	type ImageBedUploadImageReusltInfo,

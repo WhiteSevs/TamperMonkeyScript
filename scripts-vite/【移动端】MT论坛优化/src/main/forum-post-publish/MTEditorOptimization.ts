@@ -5,7 +5,7 @@ import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
 import { MTUtils } from "@/utils/MTUtils";
 import { Router } from "@/router/router";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { MTSmiliesDict } from "./MTSmiliesDict";
 import {
 	ExtendJQueryFn,

@@ -1,5 +1,5 @@
 import { $, addStyle, log, pops, utils } from "@/env";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import DOMUtils from "@whitesev/domutils";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";

@@ -1,5 +1,5 @@
 import { $, $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { MTRegExp } from "@/utils/MTRegExp";
 import hljs, { type HLJSApi, type Language } from "highlight.js";
 import Qmsg from "qmsg";

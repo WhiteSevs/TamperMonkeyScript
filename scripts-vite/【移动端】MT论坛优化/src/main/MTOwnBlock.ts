@@ -1,15 +1,15 @@
 import { $$, log, pops, utils } from "@/env";
 import { Router } from "@/router/router";
-import { UIInput } from "@/setting/components/ui-input";
-import { UISwitch } from "@/setting/components/ui-switch";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "@/setting/panel-config";
+} from "@components/setting/panel-config";
 import { ElementUtils } from "@/utils/ElementUtils";
 import { MTRegExp } from "@/utils/MTRegExp";
-import { RuleView } from "@/utils/RuleView";
+import { RuleView } from "@components/utils/RuleView";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 
