@@ -1,5 +1,5 @@
 import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
-import { Router } from "@/router/router";
+import { MTRouter } from "@/router/MTRouter";
 import { Panel } from "@components/setting/panel";
 import { ElementUtils } from "@/utils/ElementUtils";
 import { MTRegExp } from "@/utils/MTRegExp";
@@ -21,7 +21,7 @@ export const MTSpace = {
 	 */
 	repairEnterSpace() {
 		log.info(`修复无法进入空间`);
-		if (Router.isSpace()) {
+		if (MTRouter.isSpace()) {
 			let hrefParamsMatchArray =
 				window.location.href.match(/home.php\?(.+)/gi)!;
 			let href_params = hrefParamsMatchArray[hrefParamsMatchArray.length - 1];
@@ -33,7 +33,7 @@ export const MTSpace = {
 			) {
 				window.location.href = window.location.href + "&do=profile";
 			}
-		} else if (Router.isSpaceWithAt()) {
+		} else if (MTRouter.isSpaceWithAt()) {
 			let hrefParamsMatchArray =
 				window.location.href.match(/space-uid-(.+).html/i)!;
 			let href_params = hrefParamsMatchArray[hrefParamsMatchArray.length - 1];

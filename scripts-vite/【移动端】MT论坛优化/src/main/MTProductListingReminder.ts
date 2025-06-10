@@ -1,5 +1,5 @@
 import { DOMUtils, httpx, log, pops, utils } from "@/env";
-import { Router } from "@/router/router";
+import { MTRouter } from "@/router/MTRouter";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import {
@@ -111,7 +111,7 @@ export const MTProductListingReminder = {
 			return productInfoList;
 		}
 
-		if (Router.isPointsMall()) {
+		if (MTRouter.isPointsMall()) {
 			// 不在积分商城内进行提示
 			return;
 		}

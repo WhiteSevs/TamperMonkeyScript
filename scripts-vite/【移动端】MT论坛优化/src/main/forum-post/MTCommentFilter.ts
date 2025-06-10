@@ -1,5 +1,5 @@
 import { $$, log, pops, utils } from "@/env";
-import { Router } from "@/router/router";
+import { MTRouter } from "@/router/MTRouter";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { UITextArea } from "@components/setting/components/ui-textarea";
@@ -72,7 +72,7 @@ export const MTCommentFilter = {
 	},
 	init() {
 		this.registerMenu();
-		if (Router.isPost()) {
+		if (MTRouter.isPost()) {
 			let allData = this.getData();
 			if (!allData.enable) {
 				return;

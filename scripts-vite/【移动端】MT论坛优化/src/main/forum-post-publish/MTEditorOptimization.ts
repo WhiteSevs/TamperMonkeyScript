@@ -4,7 +4,7 @@ import { GM_deleteValue, GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import Qmsg from "qmsg";
 import Utils from "@whitesev/utils";
 import { MTUtils } from "@/utils/MTUtils";
-import { Router } from "@/router/router";
+import { MTRouter } from "@/router/MTRouter";
 import { Panel } from "@components/setting/panel";
 import { MTSmiliesDict } from "./MTSmiliesDict";
 import {
@@ -612,7 +612,7 @@ export const MTEditorOptimization = {
 	$data: {
 		db: new Utils.indexedDB("mt_full_reply_record", "input_text"),
 		get type(): EditorStorageOption["type"] {
-			return Router.isPostPublish_voting() ? "post-vote" : "post";
+			return MTRouter.isPostPublish_voting() ? "post-vote" : "post";
 		},
 		get tid() {
 			return MTUtils.getThreadId(window.location.href)!;
@@ -737,7 +737,7 @@ export const MTEditorOptimization = {
 		);
 		DOMUtils.css("#needmessage", "marginBottom", extra_margin_bottom + "px");
 
-		if (Router.isPostPublish_edit() && DOMUtils.val("#needsubject") === "") {
+		if (MTRouter.isPostPublish_edit() && DOMUtils.val("#needsubject") === "") {
 			DOMUtils.hide(".comiis_styli.comiis_flex", false);
 		} else {
 			DOMUtils.attr(
@@ -791,10 +791,10 @@ export const MTEditorOptimization = {
 			| null
 			| (() => boolean | Promise<boolean>);
 		let delete_callback = null as any as null | (() => void | Promise<void>);
-		if (Router.isPostPublish_newthread()) {
+		if (MTRouter.isPostPublish_newthread()) {
 			// 新发布帖子的页面
 			log.info(`新发布帖子的页面`);
-			if (Router.isPostPublish_voting()) {
+			if (MTRouter.isPostPublish_voting()) {
 				// 投票页面
 				log.info(`投票页面`);
 				data = GM_getValue<VotingContentOption>(
@@ -811,7 +811,7 @@ export const MTEditorOptimization = {
 					GM_deleteValue(this.$key.noPublishSerializeText);
 				};
 			}
-		} else if (Router.isPostPublish_edit()) {
+		} else if (MTRouter.isPostPublish_edit()) {
 			// 草稿的页面
 			log.info(`草稿的页面`);
 			log.info(
@@ -863,7 +863,7 @@ export const MTEditorOptimization = {
 					};
 				}
 			}
-		} else if (Router.isPostPublish_reply()) {
+		} else if (MTRouter.isPostPublish_reply()) {
 			log.info(`回复页面`);
 			if (
 				Panel.getValue(
@@ -898,7 +898,7 @@ export const MTEditorOptimization = {
 			return;
 		}
 
-		if (Router.isPostPublish_voting()) {
+		if (MTRouter.isPostPublish_voting()) {
 			// 投票页面
 			save_callback = () => {
 				let $title = that.$el.$form.querySelector<HTMLInputElement>(
@@ -945,7 +945,7 @@ export const MTEditorOptimization = {
 			};
 		} else {
 			// 普通帖子页面
-			if (Router.isPostPublish_reply()) {
+			if (MTRouter.isPostPublish_reply()) {
 				// 回复页面
 				save_callback = () => {
 					// 内容
@@ -977,14 +977,14 @@ export const MTEditorOptimization = {
 				};
 			}
 		}
-		if (Router.isPostPublish_newthread()) {
+		if (MTRouter.isPostPublish_newthread()) {
 			log.info(`新发布帖子的页面`);
 			// 新发布帖子的页面
 			// 直接覆盖，因为本来就是空的
 			if (typeof save_callback === "function") {
 				save_callback();
 			}
-		} else if (Router.isPostPublish_edit()) {
+		} else if (MTRouter.isPostPublish_edit()) {
 			// 草稿的页面
 			log.info(`草稿的页面`);
 			if (
@@ -1027,7 +1027,7 @@ export const MTEditorOptimization = {
 					height: "200px",
 				});
 			}
-		} else if (Router.isPostPublish_reply()) {
+		} else if (MTRouter.isPostPublish_reply()) {
 			log.info(`回复页面`);
 			// 直接覆盖，因为本来就是空的
 			if (typeof save_callback === "function") {
@@ -1065,7 +1065,7 @@ export const MTEditorOptimization = {
 				console.warn(result);
 				return;
 			}
-			let type: EditorStorageOption["type"] = Router.isPostPublish_voting()
+			let type: EditorStorageOption["type"] = MTRouter.isPostPublish_voting()
 				? "post-vote"
 				: "post";
 			let tid = MTUtils.getThreadId(window.location.href)!;
@@ -1098,7 +1098,7 @@ export const MTEditorOptimization = {
 			function (event) {
 				/* 记录输入的文本保存到indexDB中 */
 				let data = null as any as EditorStorageOption["data"];
-				if (Router.isPostPublish_voting()) {
+				if (MTRouter.isPostPublish_voting()) {
 					// 投票页面
 					// 标题
 					let $title = that.$el.$form.querySelector<HTMLInputElement>(
@@ -1147,15 +1147,15 @@ export const MTEditorOptimization = {
 						content: $content.value,
 					} as PostContentOption;
 				}
-				if (Router.isPostPublish_newthread()) {
+				if (MTRouter.isPostPublish_newthread()) {
 					// 新发布帖子的页面
 					log.info(`内容改变 ==> 新发布帖子的页面`);
-					if (Router.isPostPublish_voting()) {
+					if (MTRouter.isPostPublish_voting()) {
 						GM_setValue(that.$key.noPublishVotingSerializeText, data);
 					} else {
 						GM_setValue(that.$key.noPublishSerializeText, data);
 					}
-				} else if (Router.isPostPublish_edit()) {
+				} else if (MTRouter.isPostPublish_edit()) {
 					// 草稿的页面
 					log.info(`内容改变 ==> 草稿的页面`);
 					that.$data.db.get<EditorStorageOption[]>("data").then((result) => {
@@ -1186,7 +1186,7 @@ export const MTEditorOptimization = {
 						});
 						that.$data.db.save("data", result.data).then((result2) => {});
 					});
-				} else if (Router.isPostPublish_reply()) {
+				} else if (MTRouter.isPostPublish_reply()) {
 					// 回复页面
 					log.info(`内容改变 ==> 回复页面`);
 					Panel.execMenu(
@@ -1606,7 +1606,7 @@ export const MTEditorOptimization = {
 		let $select = $<HTMLSelectElement>(`#select-post-section`)!;
 		let currentSection = MTUtils.getForumId(window.location.href)!;
 
-		if (Router.isPostPublish_newthread()) {
+		if (MTRouter.isPostPublish_newthread()) {
 			/* 发帖 */
 			log.info(`发帖`);
 			DOMUtils.on($select, "change", function () {

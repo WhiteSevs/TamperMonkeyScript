@@ -1,5 +1,5 @@
 import { $$, log, pops, utils } from "@/env";
-import { Router } from "@/router/router";
+import { MTRouter } from "@/router/MTRouter";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import {
@@ -417,7 +417,7 @@ export const MTOwnBlock = {
 			}
 			return false;
 		}
-		if (Router.isGuide() || Router.isPlate() || Router.isPost()) {
+		if (MTRouter.isGuide() || MTRouter.isPlate() || MTRouter.isPost()) {
 			// 导航、板块、帖子
 			let shieldUserList = this.getData();
 			/* 帖子元素列表 */
@@ -518,7 +518,7 @@ export const MTOwnBlock = {
 					}
 				});
 		}
-		if (Router.isMessageList()) {
+		if (MTRouter.isMessageList()) {
 			// 消息列表
 			let shieldUserList = this.getData();
 			$$<HTMLLIElement>(".comiis_pms_box .comiis_pmlist ul li").forEach(

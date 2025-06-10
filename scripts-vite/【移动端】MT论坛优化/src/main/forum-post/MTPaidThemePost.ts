@@ -1,5 +1,5 @@
 import { DOMUtils, log, pops, utils } from "@/env";
-import { Router } from "@/router/router";
+import { MTRouter } from "@/router/MTRouter";
 import { ElementUtils } from "@/utils/ElementUtils";
 import Qmsg from "qmsg";
 import { GM_getValue, GM_setValue } from "ViteGM";
@@ -23,7 +23,7 @@ export const MTPaidThemePost = {
 
 		let setTipForumPostList = this.getTipData();
 
-		if (Router.isPost()) {
+		if (MTRouter.isPost()) {
 			/* 帖子内部-添加进提醒的按钮或者已添加进提醒的按钮点击移出 */
 			/* 购买主题的元素 */
 			let $kmren = document.querySelector<HTMLSpanElement>("span.kmren");
@@ -141,10 +141,10 @@ export const MTPaidThemePost = {
 		}
 
 		if (
-			Router.isMySpace() ||
-			Router.isGuide() ||
-			Router.isForumList() ||
-			Router.isPlate()
+			MTRouter.isMySpace() ||
+			MTRouter.isGuide() ||
+			MTRouter.isForumList() ||
+			MTRouter.isPlate()
 		) {
 			/* 当前网页为，底部导航-我的 */
 			/* 底部导航-我的-右上角小红点 */

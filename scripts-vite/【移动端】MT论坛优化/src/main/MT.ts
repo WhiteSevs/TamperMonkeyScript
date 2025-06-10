@@ -4,7 +4,7 @@ import { MTOnlineUser } from "./MTOnlineUser";
 import { MTIdentifyLinks } from "./MTIdentifyLinks";
 import { MTAutoSignIn } from "./sign/MTAutoSignIn";
 import { addStyle, DOMUtils, log, utils } from "@/env";
-import { Router } from "@/router/router";
+import { MTRouter } from "@/router/MTRouter";
 import { MTForumPost } from "./forum-post/MTForumPost";
 import { ElementUtils } from "@/utils/ElementUtils";
 import { MTRegExp } from "@/utils/MTRegExp";
@@ -28,12 +28,12 @@ export const MT = {
 	},
 	init() {
 		if (
-			Router.isPage() ||
-			Router.isGuide() ||
-			Router.isPlate() ||
-			Router.isPost() ||
-			Router.isSearch() ||
-			Router.isSpace()
+			MTRouter.isPage() ||
+			MTRouter.isGuide() ||
+			MTRouter.isPlate() ||
+			MTRouter.isPost() ||
+			MTRouter.isSearch() ||
+			MTRouter.isSpace()
 		) {
 			Panel.execMenuOnce("mt-show-user-uid", () => {
 				this.showUserUID();
@@ -41,32 +41,32 @@ export const MT = {
 		}
 
 		if (
-			Router.isSearch() ||
-			Router.isGuide() ||
-			Router.isSpace() ||
-			Router.isPlate()
+			MTRouter.isSearch() ||
+			MTRouter.isGuide() ||
+			MTRouter.isSpace() ||
+			MTRouter.isPlate()
 		) {
 			Panel.execMenuOnce("mt-small-window", () => {
 				MTSmallWindow.init();
 			});
 		}
 
-		if (Router.isPost()) {
+		if (MTRouter.isPost()) {
 			log.info(`Router: 帖子`);
 			MTForumPost.init();
-		} else if (Router.isSearch()) {
+		} else if (MTRouter.isSearch()) {
 			log.info(`Router: 搜索`);
 			MTSearch.init();
-		} else if (Router.isKMiSign()) {
+		} else if (MTRouter.isKMiSign()) {
 			log.info(`Router: 签到`);
 			MTSign.init();
-		} else if (Router.isSpace() || Router.isSpaceWithAt()) {
+		} else if (MTRouter.isSpace() || MTRouter.isSpaceWithAt()) {
 			log.info(`Router: 空间`);
 			MTSpace.init();
-		} else if (Router.isGuide()) {
+		} else if (MTRouter.isGuide()) {
 			log.info(`Router: 导读`);
 			MTGuide.init();
-		} else if (Router.isPostPublish()) {
+		} else if (MTRouter.isPostPublish()) {
 			log.info("Router: 发帖页面");
 			MTForumPostPublish.init();
 		} else {
