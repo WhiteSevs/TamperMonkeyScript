@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.9
+// @version      2025.6.10
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -29,7 +29,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, Utils, DOMUtils, pops) {
+(function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
   var __defProp = Object.defineProperty;
@@ -178,7 +178,7 @@
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
     /**
-     * 判断是否存在该键
+     * 判断是否存在该值
      */
     has(key) {
       let localValue = this.getLocalValue();
@@ -189,41 +189,22 @@
      */
     keys() {
       let localValue = this.getLocalValue();
-      let keys = Reflect.ownKeys(localValue);
-      return keys;
+      return Reflect.ownKeys(localValue);
     }
     /**
      * 获取所有值
      */
     values() {
       let localValue = this.getLocalValue();
-      let values = Reflect.ownKeys(localValue).map(
+      return Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
-      return values;
     }
     /**
      * 清空所有值
      */
     clear() {
       _GM_deleteValue(this.storageKey);
-    }
-    /**
-     * 判断某键是否存在值改变的监听器
-     * @param listenerId 监听器id或键
-     */
-    hasValueChangeListener(listenerId) {
-      let flag = false;
-      outerLoop: for (const [key, listenerData] of this.listenerData.entries()) {
-        for (let index = 0; index < listenerData.length; index++) {
-          const value = listenerData[index];
-          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
-            flag = true;
-            break outerLoop;
-          }
-        }
-      }
-      return flag;
     }
     /**
      * 监听值改变
@@ -295,899 +276,1051 @@
     }
   }
   const PopsPanelStorageApi = new StorageUtils(KEY);
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
+  const PanelContent = {
+    $data: {
+      /**
+       * @private
+       */
+      __contentConfig: null,
+      get contentConfig() {
+        if (this.__contentConfig == null) {
+          this.__contentConfig = new utils.Dictionary();
+        }
+        return this.__contentConfig;
+      }
+    },
+    /**
+     * 设置所有配置项，用于初始化默认的值
+     * @param configList 配置项
+     */
+    addContentConfig(configList) {
+      if (!Array.isArray(configList)) {
+        configList = [configList];
+      }
+      let index = this.$data.contentConfig.keys().length;
+      this.$data.contentConfig.set(index, configList);
+    },
+    /**
+     * 获取所有的配置内容，用于初始化默认的值
+     */
+    getAllContentConfig() {
+      return this.$data.contentConfig.values().flat();
+    },
+    /**
+     * 获取配置内容
+     * @param index 配置索引
+     */
+    getConfig(index) {
+      return this.$data.contentConfig.get(index) ?? [];
     }
-    let result = {
-      text,
-      type: "select",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      callback(event, isSelectedValue, isSelectedText) {
-        let value = isSelectedValue;
-        log.info(`选择：${isSelectedText}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof callback === "function") {
-          callback(event, value, isSelectedText);
-        }
-      },
-      data: selectData
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
-      }
-    });
-    return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
-    let result = {
-      text,
-      type: "switch",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return Boolean(
-          this.props[PROPS_STORAGE_API].get(key, defaultValue)
-        );
-      },
-      callback(event, __value) {
-        let value = Boolean(__value);
-        log.success(`${value ? "开启" : "关闭"} ${text}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
-      },
-      afterAddToUListCallBack
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+  const PanelMenu = {
+    $data: {
+      __menuOption: [],
+      get menuOption() {
+        return this.__menuOption;
       }
-    });
-    return result;
-  };
-  const afterEnterDeepMenuCallBack = (formConfig, container) => {
-    let $oneClickOpen = container.sectionBodyContainer.querySelector(
-      ".keyboard-oneClickOpen"
-    );
-    let $oneClickClose = container.sectionBodyContainer.querySelector(
-      ".keyboard-oneClickClose"
-    );
-    let clickCallBack = (isOpen) => {
-      var _a2;
-      (_a2 = container.sectionBodyContainer) == null ? void 0 : _a2.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
-        let $input = $ele.querySelector(
-          ".pops-panel-switch__input"
-        );
-        let $checkbox = $ele.querySelector(
-          ".pops-panel-switch__core"
-        );
-        if (isOpen) {
-          if (!$input.checked) {
-            $checkbox.click();
+    },
+    init() {
+      this.initExtensionsMenu();
+    },
+    /**
+     * 初始化菜单项
+     */
+    initExtensionsMenu() {
+      if (!Panel.isTopWindow()) {
+        return;
+      }
+      GM_Menu.add([
+        {
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            Panel.showPanel(PanelContent.getConfig(0));
           }
+        },
+        ...this.$data.menuOption
+      ]);
+    },
+    /**
+     * 添加菜单项
+     */
+    addMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      this.$data.menuOption.push(...option);
+    }
+  };
+  const Panel = {
+    /** 数据 */
+    $data: {
+      /**
+       * @private
+       */
+      __configDefaultValueData: null,
+      /**
+       * @private
+       */
+      __onceExecMenuData: null,
+      /**
+       * @private
+       */
+      __onceExecData: null,
+      /**
+       * @private
+       */
+      __panelConfig: {},
+      $panel: null,
+      /**
+       * 菜单项的默认值
+       */
+      get configDefaultValueData() {
+        if (this.__configDefaultValueData == null) {
+          this.__configDefaultValueData = new utils.Dictionary();
+        }
+        return this.__configDefaultValueData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecMenuData() {
+        if (this.__onceExecMenuData == null) {
+          this.__onceExecMenuData = new utils.Dictionary();
+        }
+        return this.__onceExecMenuData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecData() {
+        if (this.__onceExecData == null) {
+          this.__onceExecData = new utils.Dictionary();
+        }
+        return this.__onceExecData;
+      },
+      /** 脚本名，一般用在设置的标题上 */
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
+      get panelConfig() {
+        return this.__panelConfig;
+      },
+      set panelConfig(value) {
+        this.__panelConfig = value;
+      },
+      /** 菜单项的总值在本地数据配置的键名 */
+      key: KEY,
+      /** 菜单项在attributes上配置的菜单键 */
+      attributeKeyName: ATTRIBUTE_KEY,
+      /** 菜单项在attributes上配置的菜单默认值 */
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+    },
+    init() {
+      this.initContentDefaultValue();
+      PanelMenu.init();
+    },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
+    },
+    /** 初始化菜单项的默认值保存到本地数据中 */
+    initContentDefaultValue() {
+      const initDefaultValue = (config) => {
+        if (!config.attributes) {
+          return;
+        }
+        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+          return;
+        }
+        let needInitConfig = {};
+        let key = config.attributes[ATTRIBUTE_KEY];
+        if (key != null) {
+          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
+        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (initMoreValue && typeof initMoreValue === "object") {
+          Object.assign(needInitConfig, initMoreValue);
+        }
+        let needInitConfigList = Object.keys(needInitConfig);
+        if (!needInitConfigList.length) {
+          log.warn(["请先配置键", config]);
+          return;
+        }
+        needInitConfigList.forEach((__key) => {
+          let __defaultValue = needInitConfig[__key];
+          this.setDefaultValue(__key, __defaultValue);
+        });
+      };
+      const loopInitDefaultValue = (configList) => {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
+          initDefaultValue(configItem);
+          let childForms = configItem.forms;
+          if (childForms && Array.isArray(childForms)) {
+            loopInitDefaultValue(childForms);
+          }
+        }
+      };
+      const contentConfigList = [...PanelContent.getAllContentConfig()];
+      for (let index = 0; index < contentConfigList.length; index++) {
+        let leftContentConfigItem = contentConfigList[index];
+        if (!leftContentConfigItem.forms) {
+          continue;
+        }
+        const rightContentConfigList = leftContentConfigItem.forms;
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
+        }
+      }
+    },
+    /**
+     * 设置初始化使用的默认值
+     */
+    setDefaultValue(key, defaultValue) {
+      if (this.$data.configDefaultValueData.has(key)) {
+        log.warn("请检查该key(已存在): " + key);
+      }
+      this.$data.configDefaultValueData.set(key, defaultValue);
+    },
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    setValue(key, value) {
+      PopsPanelStorageApi.set(key, value);
+    },
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    getValue(key, defaultValue) {
+      let localValue = PopsPanelStorageApi.get(key);
+      if (localValue == null) {
+        if (this.$data.configDefaultValueData.has(key)) {
+          return this.$data.configDefaultValueData.get(key);
+        }
+        return defaultValue;
+      }
+      return localValue;
+    },
+    /**
+     * 删除值
+     * @param key 键
+     */
+    deleteValue(key) {
+      PopsPanelStorageApi.delete(key);
+    },
+    /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasKey(key) {
+      return PopsPanelStorageApi.has(key);
+    },
+    /**
+     * 监听调用setValue、deleteValue
+     * @param key 需要监听的键
+     * @param callback
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(
+        key,
+        (__key, __newValue, __oldValue) => {
+          callback(key, __oldValue, __newValue);
+        }
+      );
+      return listenerId;
+    },
+    /**
+     * 移除监听
+     * @param listenerId 监听的id
+     */
+    removeValueChangeListener(listenerId) {
+      PopsPanelStorageApi.removeValueChangeListener(listenerId);
+    },
+    /**
+     * 主动触发菜单值改变的回调
+     * @param key 菜单键
+     * @param newValue 想要触发的新值，默认使用当前值
+     * @param oldValue 想要触发的旧值，默认使用当前值
+     */
+    triggerMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.onceExecMenuData.delete(key);
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag;
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      this.$data.onceExecData.delete(key);
+    },
+    /**
+     * 执行菜单
+     *
+     * @param queryKey 键|键数组
+     * @param callback 执行的回调函数
+     * @param checkExec 判断是否执行回调
+     *
+     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
+     *
+     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
+     *
+     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
+     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
+     * @param once 是否只执行一次，默认true
+     *
+     * + true （默认）只执行一次，且会监听键的值改变
+     * + false 不会监听键的值改变
+     */
+    exec(queryKey, callback, checkExec, once = true) {
+      const that = this;
+      let queryKeyFn;
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
+        queryKeyFn = () => queryKey;
+      } else {
+        queryKeyFn = queryKey;
+      }
+      let isArrayKey = false;
+      let queryKeyResult = queryKeyFn();
+      let keyList = [];
+      if (Array.isArray(queryKeyResult)) {
+        isArrayKey = true;
+        keyList = queryKeyResult;
+      } else {
+        keyList.push(queryKeyResult);
+      }
+      let findNotInDataKey = keyList.find(
+        (it) => !this.$data.configDefaultValueData.has(it)
+      );
+      if (findNotInDataKey) {
+        log.warn(`${findNotInDataKey} 键不存在`);
+        return;
+      }
+      let storageKey = JSON.stringify(keyList);
+      if (once) {
+        if (this.$data.onceExecMenuData.has(storageKey)) {
+          return;
+        }
+        this.$data.onceExecMenuData.set(storageKey, 1);
+      }
+      let storeStyleElements = [];
+      let listenerIdList = [];
+      let dynamicPushStyleNode = (value, $style) => {
+        let dynamicResultList = [];
+        if ($style instanceof HTMLStyleElement) {
+          dynamicResultList = [$style];
+        } else if (Array.isArray($style)) {
+          dynamicResultList = [
+            ...$style.filter(
+              (item) => item != null && item instanceof HTMLStyleElement
+            )
+          ];
+        }
+        {
+          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+        }
+      };
+      let getMenuValue = (key) => {
+        let value = this.getValue(key);
+        return value;
+      };
+      let clearStoreStyleElements = () => {
+        for (let index = 0; index < storeStyleElements.length; index++) {
+          let $css = storeStyleElements[index];
+          $css.remove();
+          storeStyleElements.splice(index, 1);
+          index--;
+        }
+      };
+      let __checkExec__ = () => {
+        let flag = false;
+        if (typeof checkExec === "function") {
+          flag = checkExec(keyList);
         } else {
-          if ($input.checked) {
-            $checkbox.click();
+          flag = keyList.every((key) => getMenuValue(key));
+        }
+        return flag;
+      };
+      let valueChange = (valueOption) => {
+        let execFlag = __checkExec__();
+        let resultList = [];
+        if (execFlag) {
+          let valueList = keyList.map((key) => this.getValue(key));
+          let $styles = callback({
+            addStyleElement: (...args) => {
+              return dynamicPushStyleNode(true, ...args);
+            },
+            value: isArrayKey ? valueList : valueList[0]
+          });
+          if ($styles instanceof HTMLStyleElement) {
+            resultList.push($styles);
+          } else if (Array.isArray($styles)) {
+            resultList.push(
+              ...$styles.filter(
+                (item) => item != null && item instanceof HTMLStyleElement
+              )
+            );
           }
         }
-      });
-    };
-    domUtils.on($oneClickOpen, "click", (event) => {
-      utils.preventEvent(event);
-      clickCallBack(true);
-    });
-    domUtils.on($oneClickClose, "click", (event) => {
-      utils.preventEvent(event);
-      clickCallBack(false);
-    });
-  };
-  const AutoOpenOrClose = {
-    text: (
-      /*html*/
-      `
-		<p>注：开启是禁用该快捷键、关闭是不禁用该快捷键</p>
-        <a href="javascript:;" class="keyboard-oneClickOpen">禁用全部快捷键</a>
-        <br>
-        <a href="javascript:;" class="keyboard-oneClickClose">取消禁用全部快捷键</a>
-    `
-    ),
-    afterEnterDeepMenuCallBack
-  };
-  function getGPU() {
-    const canvas = document.createElement("canvas"), gl = canvas.getContext("experimental-webgl"), debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-    const info = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-    return info;
-  }
-  const PanelCommonConfig = {
-    id: "panel-config-common",
-    title: "通用",
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "Toast配置",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISelect(
-                    "Toast位置",
-                    "qmsg-config-position",
-                    "bottom",
-                    [
-                      {
-                        value: "topleft",
-                        text: "左上角"
-                      },
-                      {
-                        value: "top",
-                        text: "顶部"
-                      },
-                      {
-                        value: "topright",
-                        text: "右上角"
-                      },
-                      {
-                        value: "left",
-                        text: "左边"
-                      },
-                      {
-                        value: "center",
-                        text: "中间"
-                      },
-                      {
-                        value: "right",
-                        text: "右边"
-                      },
-                      {
-                        value: "bottomleft",
-                        text: "左下角"
-                      },
-                      {
-                        value: "bottom",
-                        text: "底部"
-                      },
-                      {
-                        value: "bottomright",
-                        text: "右下角"
-                      }
-                    ],
-                    (event, isSelectValue, isSelectText) => {
-                      log.info("设置当前Qmsg弹出位置" + isSelectText);
-                    },
-                    "Toast显示在页面九宫格的位置"
-                  ),
-                  UISelect(
-                    "最多显示的数量",
-                    "qmsg-config-maxnums",
-                    3,
-                    [
-                      {
-                        value: 1,
-                        text: "1"
-                      },
-                      {
-                        value: 2,
-                        text: "2"
-                      },
-                      {
-                        value: 3,
-                        text: "3"
-                      },
-                      {
-                        value: 4,
-                        text: "4"
-                      },
-                      {
-                        value: 5,
-                        text: "5"
-                      }
-                    ],
-                    void 0,
-                    "限制Toast显示的数量"
-                  ),
-                  UISwitch(
-                    "逆序弹出",
-                    "qmsg-config-showreverse",
-                    false,
-                    void 0,
-                    "修改Toast弹出的顺序"
-                  )
-                ]
-              }
-            ]
+        clearStoreStyleElements();
+        storeStyleElements = [...resultList];
+      };
+      once && keyList.forEach((key) => {
+        let listenerId = this.addValueChangeListener(
+          key,
+          (key2, newValue, oldValue) => {
+            valueChange();
           }
-        ]
-      },
-      {
-        type: "forms",
-        text: "",
-        forms: [
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let $left = domUtils.createElement("div", {
-                className: "pops-panel-item-left-text",
-                innerHTML: (
-                  /*html*/
-                  `
-							<p class="pops-panel-item-left-main-text">WebGL</p>
-							<p class="pops-panel-item-left-desc-text"></p>
-							`
-                )
-              });
-              let $leftDesc = $left.querySelector(
-                ".pops-panel-item-left-desc-text"
-              );
-              let gpuInfo = "";
-              try {
-                gpuInfo = getGPU();
-              } catch (error) {
-                log.error(error);
-                gpuInfo = error.toString();
+        );
+        listenerIdList.push(listenerId);
+      });
+      valueChange();
+      let result = {
+        /**
+         * 清空菜单执行情况
+         *
+         * + 清空存储的元素列表
+         * + 清空值改变的监听器
+         * + 清空存储的一次执行的键
+         */
+        clear() {
+          this.clearStoreStyleElements();
+          this.removeValueChangeListener();
+          once && that.$data.onceExecMenuData.delete(storageKey);
+        },
+        /**
+         * 清空存储的元素列表
+         */
+        clearStoreStyleElements: () => {
+          return clearStoreStyleElements();
+        },
+        /**
+         * 移除值改变的监听器
+         */
+        removeValueChangeListener: () => {
+          listenerIdList.forEach((listenerId) => {
+            this.removeValueChangeListener(listenerId);
+          });
+        }
+      };
+      return result;
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调
+     * @param key
+     * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
+     */
+    execMenu(key, callback, isReverse = false) {
+      return this.exec(
+        key,
+        (option) => {
+          return callback(option);
+        },
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            isReverse && (flag = !flag);
+            return flag;
+          });
+          return execFlag;
+        },
+        false
+      );
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     *
+     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
+     * @param key
+     * @param callback 回调
+     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     */
+    execMenuOnce(key, callback) {
+      return this.exec(
+        key,
+        callback,
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            return flag;
+          });
+          return execFlag;
+        },
+        true
+      );
+    },
+    /**
+     * 根据key执行一次
+     * @param key 键
+     * @param callback 回调
+     */
+    onceExec(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (this.$data.onceExecData.has(key)) {
+        return;
+      }
+      callback();
+      this.$data.onceExecData.set(key, 1);
+    },
+    /**
+     * 显示设置面板
+     * @param content 显示的内容配置
+     * @param [title] 标题
+     */
+    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
+      let $panel = __pops.panel({
+        ...{
+          title: {
+            text: `${SCRIPT_NAME}-设置`,
+            position: "center",
+            html: false,
+            style: ""
+          },
+          content,
+          btn: {
+            close: {
+              enable: true,
+              callback: (details, event) => {
+                details.close();
+                this.$data.$panel = null;
               }
-              domUtils.text($leftDesc, gpuInfo);
-              domUtils.append(liElement, $left);
-              return liElement;
             }
           },
-          {
-            text: "功能",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "伪装登录",
-                    "disguiseLogin",
-                    false,
-                    void 0,
-                    "使用随机UID进行伪装"
-                  ),
-                  UISwitch(
-                    "initial-scale=1",
-                    "dy-initialScale",
-                    false,
-                    void 0,
-                    "可配合手机模式放大页面"
-                  ),
-                  UISwitch(
-                    "移除<meta> apple-itunes-app",
-                    "dy-apple-removeMetaAppleItunesApp",
-                    true,
-                    void 0,
-                    "Safari使用，移除顶部横幅【Open in the 抖音 app】"
-                  ),
-                  UISwitch(
-                    "监听Router改变",
-                    "dy-common-listenRouterChange",
-                    true,
-                    void 0,
-                    "功能重载"
-                  ),
-                  UISwitch(
-                    "移除某些Cookie",
-                    "dy-cookie-remove__ac__",
-                    false,
-                    void 0,
-                    "阻止触发验证弹窗（maybe）"
-                  )
-                ]
-              },
-              {
-                text: "Url重定向",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "重定向/home",
-                    "douyin-redirect-url-home-to-root",
-                    false,
-                    void 0,
-                    "/home => /"
-                  )
-                ]
-              }
-            ]
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: true,
+              toHide: false
+            },
+            clickCallBack: (originalRun, config) => {
+              originalRun();
+              this.$data.$panel = null;
+            }
           },
-          {
-            type: "deepMenu",
-            text: "禁用抖音快捷键",
-            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
-              {
-                type: "forms",
-                text: AutoOpenOrClose.text,
-                forms: [
-                  UISwitch(
-                    "赞|取消赞",
-                    "dy-keyboard-hook-likeOrDislike",
-                    false,
-                    void 0,
-                    "Z"
-                  ),
-                  UISwitch(
-                    "评论",
-                    "dy-keyboard-hook-comment",
-                    false,
-                    void 0,
-                    "X"
-                  ),
-                  UISwitch(
-                    "开启/关闭弹幕",
-                    "dy-keyboard-hook-danmaku-enable",
-                    false,
-                    void 0,
-                    "B"
-                  ),
-                  UISwitch(
-                    "收藏/取消收藏",
-                    "dy-keyboard-hook-collect-enable",
-                    false,
-                    void 0,
-                    "C"
-                  ),
-                  UISwitch(
-                    "复制分享口令",
-                    "dy-keyboard-hook-copyShareLink",
-                    false,
-                    void 0,
-                    "V"
-                  ),
-                  UISwitch(
-                    "清屏",
-                    "dy-keyboard-hook-clearScreen",
-                    false,
-                    void 0,
-                    "J"
-                  ),
-                  UISwitch(
-                    "自动连播",
-                    "dy-keyboard-hook-automaticBroadcast",
-                    false,
-                    void 0,
-                    "K"
-                  ),
-                  UISwitch(
-                    "视频信息",
-                    "dy-keyboard-hook-videoInfo",
-                    false,
-                    void 0,
-                    "I"
-                  ),
-                  UISwitch(
-                    "不感兴趣",
-                    "dy-keyboard-hook-notInterested",
-                    false,
-                    void 0,
-                    "R"
-                  ),
-                  UISwitch(
-                    "进入作者主页",
-                    "dy-keyboard-hook-enterAuthorHomePage",
-                    false,
-                    void 0,
-                    "F"
-                  ),
-                  UISwitch(
-                    "关注/取消关注",
-                    "dy-keyboard-hook-follow",
-                    false,
-                    void 0,
-                    "G"
-                  ),
-                  UISwitch(
-                    "抖音搜索",
-                    "dy-keyboard-hook-search",
-                    false,
-                    void 0,
-                    "Shift+F"
-                  ),
-                  UISwitch(
-                    "一键关闭当前页",
-                    "dy-keyboard-hook-closeTheCurrentPageWithOneClick",
-                    false,
-                    void 0,
-                    "Shift+Q"
-                  ),
-                  UISwitch(
-                    "上下翻页",
-                    "dy-keyboard-hook-pageUpAndDown",
-                    false,
-                    void 0,
-                    "↑↓"
-                  ),
-                  UISwitch(
-                    "快进快退",
-                    "dy-keyboard-hook-fastForwardAndFastBack",
-                    false,
-                    void 0,
-                    "← →"
-                  ),
-                  UISwitch(
-                    "暂停",
-                    "dy-keyboard-hook-pause",
-                    false,
-                    void 0,
-                    "空格"
-                  ),
-                  UISwitch(
-                    "网页内全屏",
-                    "dy-keyboard-hook-fullScreenInsideThePage",
-                    false,
-                    void 0,
-                    "Y"
-                  ),
-                  UISwitch(
-                    "全屏",
-                    "dy-keyboard-hook-fullScreen",
-                    false,
-                    void 0,
-                    "H"
-                  ),
-                  UISwitch(
-                    "稍后再看",
-                    "dy-keyboard-hook-watchItOutLater",
-                    false,
-                    void 0,
-                    "L"
-                  ),
-                  UISwitch(
-                    "音量调整",
-                    "dy-keyboard-hook-volumeAdjustment",
-                    false,
-                    void 0,
-                    "Shift + / Shift -"
-                  ),
-                  UISwitch(
-                    "呼出快捷键列表",
-                    "dy-keyboard-hook-listOfCallShortcutKeys",
-                    false,
-                    void 0,
-                    "?"
-                  ),
-                  UISwitch(
-                    "关闭快捷键列表",
-                    "dy-keyboard-hook-closeTheShortcutKeyList",
-                    false,
-                    void 0,
-                    "ESC"
-                  ),
-                  UISwitch(
-                    "相关推荐",
-                    "dy-keyboard-hook-relevantRecommendation",
-                    false,
-                    void 0,
-                    "N"
-                  )
-                ]
-              }
-            ]
+          width: PanelUISize.setting.width,
+          height: PanelUISize.setting.height,
+          drag: true,
+          only: true
+        },
+        ...this.$data.panelConfig
+      });
+      this.$data.$panel = $panel;
+    }
+  };
+  const PanelSettingConfig = {
+    /** Toast位置 */
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom"
+    },
+    /** 最多显示的数量 */
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3
+    },
+    /** 逆序弹出 */
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false
+    },
+    /** Cookie配置-启用 */
+    httpx_cookie_manager_enable: {
+      key: "httpx-use-cookie-enable",
+      defaultValue: false
+    },
+    /** Cookie配置-使用document.cookie */
+    httpx_cookie_manager_use_document_cookie: {
+      key: "httpx-use-document-cookie",
+      defaultValue: false
+    }
+  };
+  class HttpxCookieManager {
+    /**
+     * cookie规则，在这里填入
+     * @param cookieRule
+     * @example
+     * {
+     *     key: "cookie-example-com",
+     *     hostname: "example.com",
+     * }
+     */
+    constructor(cookieRule) {
+      __publicField(this, "$data", {
+        /** 是否启用 */
+        get enable() {
+          return Panel.getValue(
+            PanelSettingConfig.httpx_cookie_manager_enable.key,
+            PanelSettingConfig.httpx_cookie_manager_enable.defaultValue
+          );
+        },
+        /**
+         * 是否使用document.cookie
+         * + true 使用document.cookie额外添加cookie的header
+         */
+        get useDocumentCookie() {
+          return Panel.getValue(
+            PanelSettingConfig.httpx_cookie_manager_use_document_cookie.key,
+            PanelSettingConfig.httpx_cookie_manager_use_document_cookie.defaultValue
+          );
+        },
+        /**
+         * cookie规则，在这里填入
+         * @example
+         * {
+         *     key: "cookie-example-com",
+         *     hostname: "example.com",
+         * }
+         */
+        cookieRule: []
+      });
+      if (Array.isArray(cookieRule)) {
+        this.$data.cookieRule = cookieRule;
+      }
+    }
+    /**
+     * 补充cookie末尾分号
+     */
+    fixCookieSplit(str) {
+      if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
+        str += ";";
+      }
+      return str;
+    }
+    /**
+     * 合并两个cookie
+     */
+    concatCookie(targetCookie, newCookie) {
+      if (utils.isNull(targetCookie)) {
+        return newCookie;
+      }
+      targetCookie = targetCookie.trim();
+      newCookie = newCookie.trim();
+      targetCookie = this.fixCookieSplit(targetCookie);
+      if (newCookie.startsWith(";")) {
+        newCookie = newCookie.substring(1);
+      }
+      return targetCookie.concat(newCookie);
+    }
+    /**
+     * 处理cookie
+     * @param details
+     * @returns
+     */
+    handle(details) {
+      if (details.fetch) {
+        return;
+      }
+      if (!this.$data.enable) {
+        return;
+      }
+      let ownCookie = "";
+      let url = details.url;
+      if (url.startsWith("//")) {
+        url = window.location.protocol + url;
+      }
+      let urlObj = new URL(url);
+      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
+        window.location.hostname.split(".").slice(-2).join(".")
+      )) {
+        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
+      }
+      for (let index = 0; index < this.$data.cookieRule.length; index++) {
+        let rule = this.$data.cookieRule[index];
+        if (urlObj.hostname.match(rule.hostname)) {
+          let cookie = Panel.getValue(rule.key);
+          if (utils.isNull(cookie)) {
+            break;
           }
-        ]
+          ownCookie = this.concatCookie(ownCookie, cookie);
+        }
+      }
+      if (utils.isNotNull(ownCookie)) {
+        if (details.headers && details.headers["Cookie"]) {
+          details.headers.Cookie = this.concatCookie(
+            details.headers.Cookie,
+            ownCookie
+          );
+        } else {
+          details.headers["Cookie"] = ownCookie;
+        }
+        log.info(["Httpx => 设置cookie:", details]);
+      }
+      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
+        delete details.headers.Cookie;
+      }
+    }
+  }
+  const httpxCookieManager = new HttpxCookieManager([]);
+  const CommonUtil = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     * @example
+     * setGMResourceCSS({
+     *   keyName: "ViewerCSS",
+     *   url: "https://example.com/example.css",
+     * })
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtil.loadStyleLink(resourceMapData.url);
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.css")
+     */
+    async loadStyleLink(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      DOMUtils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 添加<script>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.js")
+     */
+    async loadScript(url) {
+      let $script = document.createElement("script");
+      $script.src = url;
+      return new Promise((resolve) => {
+        $script.onload = () => {
+          resolve(null);
+        };
+        (document.head || document.documentElement).appendChild($script);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlInstance = new URL(url);
+      urlInstance.protocol = "https:";
+      return urlInstance.toString();
+    },
+    /**
+     * 禁止页面滚动，默认锁定html和body
+     * @example
+     * lockScroll();
+     * @example
+     * lockScroll(document.body);
+     */
+    lockScroll(...args) {
+      let $hidden = document.createElement("style");
+      $hidden.innerHTML = /*css*/
+      `
+			.pops-overflow-hidden-important {
+				overflow: hidden !important;
+			}
+		`;
+      let $elList = [document.documentElement, document.body].concat(
+        ...args || []
+      );
+      $elList.forEach(($el) => {
+        $el.classList.add("pops-overflow-hidden-important");
+      });
+      (document.head || document.documentElement).appendChild($hidden);
+      return {
+        /**
+         * 解除锁定
+         */
+        recovery() {
+          $elList.forEach(($el) => {
+            $el.classList.remove("pops-overflow-hidden-important");
+          });
+          $hidden.remove();
+        }
+      };
+    },
+    /**
+     * 获取剪贴板文本
+     */
+    async getClipboardText() {
+      function readClipboardText(resolve) {
+        navigator.clipboard.readText().then((clipboardText) => {
+          resolve(clipboardText);
+        }).catch((error) => {
+          log.error("读取剪贴板内容失败👉", error);
+          resolve("");
+        });
+      }
+      function requestPermissionsWithClipboard(resolve) {
+        navigator.permissions.query({
+          // @ts-ignore
+          name: "clipboard-read"
+        }).then((permissionStatus) => {
+          readClipboardText(resolve);
+        }).catch((error) => {
+          log.error(
+            "申请剪贴板权限失败，尝试直接读取👉",
+            error.message ?? error.name ?? error.stack
+          );
+          readClipboardText(resolve);
+        });
+      }
+      function checkClipboardApi() {
+        var _a2, _b;
+        if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
+          return false;
+        }
+        if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
+          return false;
+        }
+        return true;
+      }
+      return new Promise((resolve) => {
+        if (!checkClipboardApi()) {
+          resolve("");
+          return;
+        }
+        if (document.hasFocus()) {
+          requestPermissionsWithClipboard(resolve);
+        } else {
+          window.addEventListener(
+            "focus",
+            () => {
+              requestPermissionsWithClipboard(resolve);
+            },
+            {
+              once: true
+            }
+          );
+        }
+      });
+    }
+  };
+  const utils = Utils.noConflict();
+  const domUtils = DOMUtils.noConflict();
+  const __pops = pops;
+  const log = new utils.Log(
+    _GM_info,
+    _unsafeWindow.console || _monkeyWindow.console
+  );
+  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  const DEBUG = false;
+  log.config({
+    debug: DEBUG,
+    logMaxCount: 1e3,
+    autoClearConsole: true,
+    tag: true
+  });
+  Qmsg.config(
+    Object.defineProperties(
+      {
+        html: true,
+        autoClose: true,
+        showClose: false
       },
       {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "布局屏蔽-全局",
-            type: "deepMenu",
-            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
-              {
-                type: "forms",
-                text: AutoOpenOrClose.text,
-                forms: [
-                  UISwitch(
-                    "【屏蔽】登录弹窗",
-                    "watchLoginDialogToClose",
-                    true,
-                    void 0,
-                    "屏蔽元素且自动等待元素出现并关闭登录弹窗"
-                  ),
-                  UISwitch(
-                    "【屏蔽】底部？按钮",
-                    "shieldBottomQuestionButton",
-                    true,
-                    void 0,
-                    "屏蔽元素"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "布局屏蔽-左侧导航栏",
-            type: "deepMenu",
-            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
-              {
-                type: "forms",
-                text: AutoOpenOrClose.text,
-                forms: [
-                  UISwitch(
-                    "【屏蔽】左侧导航栏",
-                    "shieldLeftNavigator",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】精选",
-                    "shieldLeftNavigator-tab-home",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】推荐",
-                    "shieldLeftNavigator-tab-recommend",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】AI搜索",
-                    "shieldLeftNavigator-tab-ai-search",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】关注",
-                    "shieldLeftNavigator-tab-follow",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】朋友",
-                    "shieldLeftNavigator-tab-friend",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】我的",
-                    "shieldLeftNavigator-tab-user_self",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  // UISwitch(
-                  // 	"【屏蔽】喜欢",
-                  // 	"shieldLeftNavigator-tab-user_self_like",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】收藏",
-                  // 	"shieldLeftNavigator-tab-user_self_collection",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】观看历史",
-                  // 	"shieldLeftNavigator-tab-user_self_record",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  UISwitch(
-                    "【屏蔽】直播",
-                    "shieldLeftNavigator-tab-live",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】放映厅",
-                    "shieldLeftNavigator-tab-vs",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】短剧",
-                    "shieldLeftNavigator-tab-series",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  )
-                  // UISwitch(
-                  // 	"【屏蔽】知识",
-                  // 	"shieldLeftNavigator-tab-channel_300203",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】游戏",
-                  // 	"shieldLeftNavigator-tab-channel_300205",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】二次元",
-                  // 	"shieldLeftNavigator-tab-channel_300206",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】音乐",
-                  // 	"shieldLeftNavigator-tab-channel_300209",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】美食",
-                  // 	"shieldLeftNavigator-tab-channel_300204",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                ]
-              }
-            ]
-          },
-          {
-            text: "布局屏蔽-顶部导航栏",
-            type: "deepMenu",
-            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
-              {
-                text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "【屏蔽】顶部导航栏",
-                    "shieldTopNavigator",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】右侧菜单栏",
-                    "shield-topNav-rightMenu",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】客户端提示",
-                    "shieldClientTip",
-                    true,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】充钻石",
-                    "shieldFillingBricksAndStones",
-                    true,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】客户端",
-                    "shieldClient",
-                    true,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】快捷访问",
-                    "shieldQuickAccess",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】通知",
-                    "shieldNotifitation",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】私信",
-                    "shieldPrivateMessage",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】投稿",
-                    "shieldSubmission",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】壁纸",
-                    "shieldWallpaper",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】更多",
-                    "shield-topNav-rightMenu-more",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】登录头像",
-                    "shield-topNav-rightMenu-loginAvatar",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】AI搜索",
-                    "shield-topNav-ai-search",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "布局屏蔽-搜索",
-            type: "deepMenu",
-            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
-              {
-                text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "【屏蔽】搜索框",
-                    "shieldSearch",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】搜索框的提示",
-                    "shieldSearchPlaceholder",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】猜你想搜",
-                    "shieldSearchGuessYouWantToSearch",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】抖音热点",
-                    "shieldSearchTiktokHotspot",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            type: "deepMenu",
-            text: "布局屏蔽-鼠标悬浮提示",
-            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
-              {
-                type: "forms",
-                text: AutoOpenOrClose.text + "<br>视频区域-右侧工具栏",
-                forms: [
-                  UISwitch(
-                    "进入作者主页",
-                    "dy-video-mouseHoverTip-rightToolBar-enterUserHome",
-                    false
-                  ),
-                  UISwitch(
-                    "关注",
-                    "dy-video-mouseHoverTip-rightToolBar-follow",
-                    false
-                  ),
-                  UISwitch(
-                    "点赞",
-                    "dy-video-mouseHoverTip-rightToolBar-addLike",
-                    false
-                  ),
-                  UISwitch(
-                    "评论",
-                    "dy-video-mouseHoverTip-rightToolBar-comment",
-                    false
-                  ),
-                  UISwitch(
-                    "收藏",
-                    "dy-video-mouseHoverTip-rightToolBar-collect",
-                    false
-                  ),
-                  UISwitch(
-                    "分享",
-                    "dy-video-mouseHoverTip-rightToolBar-share",
-                    false
-                  ),
-                  UISwitch(
-                    "看相关",
-                    "dy-video-mouseHoverTip-rightToolBar-seeCorrelation",
-                    false
-                  )
-                ]
-              },
-              {
-                type: "forms",
-                text: "视频区域-底部工具栏",
-                forms: [
-                  UISwitch(
-                    "自动连播",
-                    "dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast",
-                    false
-                  ),
-                  UISwitch(
-                    "清屏",
-                    "dy-video-mouseHoverTip-bottomToolBar-clearScreen",
-                    false
-                  ),
-                  UISwitch(
-                    "稍后再看",
-                    "dy-video-mouseHoverTip-bottomToolBar-watchLater",
-                    false
-                  ),
-                  UISwitch(
-                    "网页全屏",
-                    "dy-video-mouseHoverTip-bottomToolBar-pageFullScreen",
-                    false
-                  ),
-                  UISwitch(
-                    "全屏",
-                    "dy-video-mouseHoverTip-bottomToolBar-fullScreen",
-                    false
-                  )
-                ]
-              }
-            ]
+        position: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_position.key,
+              PanelSettingConfig.qmsg_config_position.defaultValue
+            );
           }
-        ]
+        },
+        maxNums: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_maxnums.key,
+              PanelSettingConfig.qmsg_config_maxnums.defaultValue
+            );
+          }
+        },
+        showReverse: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_showreverse.key,
+              PanelSettingConfig.qmsg_config_showreverse.defaultValue
+            );
+          }
+        },
+        zIndex: {
+          get() {
+            let maxZIndex = Utils.getMaxZIndex();
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+          }
+        }
       }
-    ]
-  };
+    )
+  );
+  __pops.GlobalConfig.setGlobalConfig({
+    zIndex: () => {
+      let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+        var _a2;
+        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+          return false;
+        }
+        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+          return false;
+        }
+      });
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    },
+    mask: {
+      // 开启遮罩层
+      enable: true,
+      // 取消点击遮罩层的事件
+      clickEvent: {
+        toClose: false,
+        toHide: false
+      }
+    }
+  });
+  const GM_Menu = new utils.GM_Menu({
+    GM_getValue: _GM_getValue,
+    GM_setValue: _GM_setValue,
+    GM_registerMenuCommand: _GM_registerMenuCommand,
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+  });
+  const httpx = new utils.Httpx({
+    xmlHttpRequest: _GM_xmlhttpRequest,
+    logDetails: DEBUG
+  });
+  httpx.interceptors.request.use((data) => {
+    httpxCookieManager.handle(data);
+    return data;
+  });
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error("拦截器-请求错误", data);
+    if (data.type === "onabort") {
+      Qmsg.warning("请求取消", { consoleLogContent: true });
+    } else if (data.type === "onerror") {
+      Qmsg.error("请求异常", { consoleLogContent: true });
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时", { consoleLogContent: true });
+    } else {
+      Qmsg.error("其它错误", { consoleLogContent: true });
+    }
+    return data;
+  });
+  ({
+    Object: {
+      defineProperty: _unsafeWindow.Object.defineProperty
+    },
+    Function: {
+      apply: _unsafeWindow.Function.prototype.apply,
+      call: _unsafeWindow.Function.prototype.call
+    },
+    Element: {
+      appendChild: _unsafeWindow.Element.prototype.appendChild
+    },
+    setTimeout: _unsafeWindow.setTimeout
+  });
+  const addStyle = utils.addStyle.bind(utils);
+  const $ = document.querySelector.bind(document);
+  const $$ = document.querySelectorAll.bind(document);
+  new utils.GM_Cookie();
+  const _SCRIPT_NAME_ = SCRIPT_NAME || "抖音优化";
   const DouYinRouter = {
     /**
      * 是否是抖音主站
@@ -1308,2132 +1441,1439 @@
       return this.isIndex() && window.location.pathname.startsWith("/friend");
     }
   };
-  const DouYinMessageFilter = {
-    key: "douyin-live-danmu-rule",
-    $data: {
-      rule: []
-    },
+  const BlockTopNavigator = {
     init() {
-      this.initRule();
-    },
-    /**
-     * 初始化解析规则
-     */
-    initRule() {
-      this.$data.rule = [];
-      let localRule = this.get().trim();
-      let localRuleSplit = localRule.split("\n");
-      localRuleSplit.forEach((item) => {
-        if (item.trim() == "") return;
-        item = item.trim();
-        let itemRegExp = new RegExp(item.trim());
-        this.$data.rule.push(itemRegExp);
+      Panel.exec(
+        ["shieldTopNavigator", "search-shieldTopNavigator"],
+        () => {
+          return this.shieldTopNavigator();
+        },
+        (keyList) => {
+          const [mainKey, childKey] = keyList;
+          let mainValue = Panel.getValue(mainKey);
+          let childValue = Panel.getValue(childKey);
+          if (DouYinRouter.isSearch()) {
+            if (childValue == 1) {
+              return true;
+            } else if (childValue == 0) {
+              return false;
+            } else ;
+          }
+          return mainValue;
+        }
+      );
+      Panel.execMenuOnce("shieldClientTip", () => {
+        return this.shieldClientTip();
+      });
+      Panel.execMenuOnce("shieldFillingBricksAndStones", () => {
+        return this.shieldFillingBricksAndStones();
+      });
+      Panel.execMenuOnce("shieldClient", () => {
+        return this.shieldClient();
+      });
+      Panel.execMenuOnce("shieldQuickAccess", () => {
+        return this.shieldQuickAccess();
+      });
+      Panel.execMenuOnce("shieldNotifitation", () => {
+        return this.shieldNotifitation();
+      });
+      Panel.execMenuOnce("shieldPrivateMessage", () => {
+        return this.shieldPrivateMessage();
+      });
+      Panel.execMenuOnce("shieldSubmission", () => {
+        return this.shieldSubmission();
+      });
+      Panel.execMenuOnce("shieldWallpaper", () => {
+        return this.shieldWallpaper();
+      });
+      Panel.execMenuOnce("shieldBottomQuestionButton", () => {
+        return this.shieldBottomQuestionButton();
+      });
+      Panel.execMenuOnce("shield-topNav-rightMenu", () => {
+        return this.shieldRightMenu();
+      });
+      Panel.execMenuOnce("shield-topNav-rightMenu-more", () => {
+        return this.shieldRightMenuMore();
+      });
+      Panel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
+        return this.shieldRightMenuLoginAvatar();
+      });
+      Panel.execMenuOnce("shield-topNav-ai-search", () => {
+        return this.shieldAISearch();
       });
     },
     /**
-     * 通知弹幕改变(可能是新增)
+     * 【屏蔽】顶部导航栏
      */
-    change() {
-      this.execMessageFilter(
-        Array.from(
-          $$(
-            "xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
-          )
-        ),
-        "弹幕"
+    shieldTopNavigator() {
+      log.info("【屏蔽】顶部导航栏");
+      let result = [];
+      result.push(CommonUtil.addBlockCSS("#douyin-header"));
+      result.push(
+        addStyle(
+          /*css*/
+          `
+			/* 修复视频的高度 */
+			#douyin-right-container{
+				padding-top: 0px !important;
+			}
+			/* 兼容手机模式 */
+			@media screen and (max-width: 550px){
+				.is-mobile-pc{
+					--header-height: 0px !important;
+				}
+				
+			}
+		`
+        )
       );
-      this.execMessageFilter(
-        Array.from(
-          $$(
-            "#chatroom .webcast-chatroom .webcast-chatroom___item:not([data-is-filter])"
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          addStyle(
+            /*css*/
+            `
+				/* 把搜索顶部的工具栏置顶 */
+				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
+					top: 0;
+				}`
           )
-        ),
-        "聊天室"
-      );
-      if (Panel.getValue("live-message-shield-emoji-chat")) {
-        domUtils.hide(
-          $$(
-            "xg-danmu.xgplayer-danmu > div:has(>img):not([data-is-filter])"
-          ),
-          false
         );
       }
+      return result;
     },
     /**
-     * 执行过滤
-     * @param messageQueue 消息元素队列
-     * @param from 来自
+     * 【屏蔽】充钻石
      */
-    execMessageFilter(messageQueue, from) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
-      for (let index = 0; index < messageQueue.length; index++) {
-        let $danmu = messageQueue[index];
-        let react = utils.getReactObj($danmu);
-        let messageIns = ((_c = (_b = (_a2 = react == null ? void 0 : react.reactFiber) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.message) || ((_i = (_h = (_g = (_f = (_e = (_d = react == null ? void 0 : react.reactFiber) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.children) == null ? void 0 : _f.props) == null ? void 0 : _g.children) == null ? void 0 : _h.props) == null ? void 0 : _i.message);
-        if (typeof messageIns !== "object" || messageIns == null) {
-          continue;
-        }
-        let message = ((_j = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _j.content) || ((_l = (_k = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _k.common) == null ? void 0 : _l.describe);
-        let method = messageIns.method;
-        let chat_by = (_m = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _m.chat_by;
-        let biz_scene = (_n = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _n.biz_scene;
-        let flag = false;
-        if (!flag) {
-          if (method === "WebcastGiftMessage") {
-            if (Panel.getValue("live-danmu-shield-gift")) {
-              flag = true;
-            }
-          } else if (method === "WebcastChatMessage") {
-            if (chat_by === "0") ;
-            else if (chat_by === "9" || chat_by === "10") {
-              if (Panel.getValue("live-danmu-shield-lucky-bag")) {
-                flag = true;
-              }
-            } else ;
-          } else if (method === "WebcastRoomMessage") ;
-          else if (method === "WebcastFansclubMessage") ;
-          else if (method === "WebcastEmojiChatMessage") {
-            if (Panel.getValue("live-message-shield-emoji-chat")) {
-              flag = true;
-            }
-          } else ;
-        }
-        if (!flag && typeof biz_scene === "string") {
-          if (biz_scene === "common_text_game_score") {
-            if (Panel.getValue(
-              "live-message-shield-biz_scene-common_text_game_score"
-            )) {
-              flag = true;
-            }
-          }
-        }
-        if (!flag) {
-          flag = typeof message === "string" && this.$data.rule.some((ruleText) => {
-            if (message.match(ruleText)) {
-              log.info("自定义规则过滤 " + from + " 消息: " + message);
-              return true;
-            }
-          });
-        }
-        if (flag) {
-          $danmu.setAttribute("data-is-filter", "true");
-          domUtils.hide($danmu, false);
-        }
-      }
-    },
-    set(value) {
-      _GM_setValue(this.key, value);
-    },
-    get() {
-      return _GM_getValue(this.key, "");
-    }
-  };
-  const DouYinLiveMessage = {
-    /**
-     * 消息过滤
-     */
-    filterMessage() {
-      let lockFn = new utils.LockFunction(() => {
-        if (!DouYinRouter.isLive()) {
-          return;
-        }
-        DouYinMessageFilter.change();
-      });
-      domUtils.ready(() => {
-        log.success("消息过滤");
-        DouYinMessageFilter.init();
-        utils.mutationObserver(document.body, {
-          config: {
-            childList: true,
-            subtree: true
-          },
-          immediate: true,
-          callback: () => {
-            lockFn.run();
-          }
-        });
-      });
-    }
-  };
-  const ReactUtils = {
-    /**
-     * 等待react某个属性并进行设置
-     */
-    async waitReactPropsToSet($target, propName, needSetList) {
-      function getTarget() {
-        let __target__ = null;
-        if (typeof $target === "string") {
-          __target__ = document.querySelector($target);
-        } else if (typeof $target === "function") {
-          __target__ = $target();
-        } else if ($target instanceof HTMLElement) {
-          __target__ = $target;
-        }
-        return __target__;
-      }
-      if (typeof $target === "string") {
-        let $ele = await utils.waitNode($target, 1e4);
-        if (!$ele) {
-          return;
-        }
-      }
-      if (!Array.isArray(needSetList)) {
-        needSetList = [needSetList];
-      }
-      needSetList.forEach((needSetOption) => {
-        if (typeof needSetOption.msg === "string") {
-          log.info(needSetOption.msg);
-        }
-        function checkReactInstance() {
-          let target = getTarget();
-          if (target == null) {
-            return false;
-          }
-          let targetInstance = utils.getReactObj(target);
-          if (targetInstance == null) {
-            return false;
-          }
-          let targetInstanceProp = targetInstance[propName];
-          if (targetInstanceProp == null) {
-            return false;
-          }
-          let needOwnCheck = needSetOption.check(targetInstanceProp);
-          return Boolean(needOwnCheck);
-        }
-        utils.waitPropertyByInterval(
-          () => {
-            return getTarget();
-          },
-          checkReactInstance,
-          250,
-          1e4
-        ).then(() => {
-          let target = getTarget();
-          if (target == null) {
-            return;
-          }
-          let targetInstance = utils.getReactObj(target);
-          if (targetInstance == null) {
-            return;
-          }
-          let targetInstanceProp = targetInstance[propName];
-          if (targetInstanceProp == null) {
-            return;
-          }
-          needSetOption.set(targetInstanceProp, target);
-        });
-      });
-    }
-  };
-  const CommonUtil = {
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-      if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
-      } else {
-        CommonUtil.loadStyleLink(resourceMapData.url);
-      }
-    },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
-      let $link = document.createElement("link");
-      $link.rel = "stylesheet";
-      $link.type = "text/css";
-      $link.href = url;
-      domUtils.ready(() => {
-        document.head.appendChild($link);
-      });
-    },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
-      let $script = document.createElement("script");
-      $script.src = url;
-      return new Promise((resolve) => {
-        $script.onload = () => {
-          resolve(null);
-        };
-        (document.head || document.documentElement).appendChild($script);
-      });
-    },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
-      url = url.trim();
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
-        url = window.location.origin + url;
-        return url;
-      }
-    },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
-      let urlInstance = new URL(url);
-      urlInstance.protocol = "https:";
-      return urlInstance.toString();
-    }
-  };
-  const DouYinLiveBlock = {
-    init() {
-      Panel.execMenuOnce("live-shieldGiftColumn", () => {
-        return this.shieldGiftColumn();
-      });
-      Panel.execMenuOnce("live-shieldTopToolBarInfo", () => {
-        return this.shieldTopToolBarInfo();
-      });
-      Panel.execMenuOnce("live-shieldGiftEffects", () => {
-        return this.shieldGiftEffects();
-      });
-      Panel.execMenuOnce("live-shieldLucky", () => {
-        return this.shieldLucky();
-      });
-      Panel.execMenuOnce("live-shielYellowCar", () => {
-        return this.shieldYellowCar();
-      });
-      Panel.execMenuOnce("live-shieldDanmuku", () => {
-        return this.shieldDanmu();
-      });
-      Panel.execMenuOnce(
-        "live-block-exhibition-banner-dylive-tooltip",
-        () => {
-          return this.block_exhibition_banner_dylive_tooltip();
-        }
+    shieldFillingBricksAndStones() {
+      log.info("【屏蔽】充钻石");
+      let result = [];
+      const iconPath = `d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"`;
+      result.push(
+        CommonUtil.addBlockCSS(
+          // 2024.8.12
+          `div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`,
+          // 2024.7.16 更多 充钻石
+          'body .semi-portal .semi-portal-inner li.semi-dropdown-item:has(a[href*="douyin_recharge"])'
+        )
       );
-      DouYinLiveChatRoomBlock.init();
-      DouYinLiveVideoAreaRightMenu.init();
-    },
-    /**
-     * 屏蔽弹幕
-     */
-    shieldDanmu() {
-      log.info("屏蔽弹幕");
-      return [CommonUtil.addBlockCSS("xg-danmu.xgplayer-danmu")];
-    },
-    /**
-     * 【屏蔽】顶栏信息
-     * 包括直播作者、右侧的礼物展馆
-     */
-    shieldTopToolBarInfo() {
-      log.info("【屏蔽】顶栏信息");
-      return [
-        CommonUtil.addBlockCSS(
-          'div[data-e2e="living-container"] div[id*="living_room_player_container"] > pace-island[id^="island_"]',
-          // 2024.12.26
-          'div[data-e2e="living-container"] div[id*="living_room_player_container"] >div>div>pace-island[id^="island_"]:has(.__isFullPlayer)',
-          // 全屏状态下的
-          'div[data-e2e="living-container"] xg-bar.xg-top-bar'
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】礼物特效
-     */
-    shieldGiftEffects() {
-      log.info("【屏蔽】礼物特效");
-      let result = [
-        CommonUtil.addBlockCSS(
-          // ↓该屏蔽会把连麦的用户也屏蔽了
-          // '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
-          // 排除掉福袋
-          '.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:not(:has(.ShortTouchContainer)):has(>div > div:not([class*="video_layout_container"]) > div)'
-        )
-      ];
-      domUtils.ready(() => {
-        utils.waitNode(() => {
-          return domUtils.selector(
-            "xg-icon.pluginContainer > div:contains('屏蔽礼物特效')"
-          );
-        }, 1e4).then(($el) => {
-          var _a2, _b, _c, _d;
-          if (!$el) {
-            log.error("屏蔽礼物特效按钮不存在，获取超时");
-            return;
-          }
-          let { reactFiber } = utils.getReactObj($el);
-          let onClick = (_d = (_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.memoizedProps) == null ? void 0 : _a2.children) == null ? void 0 : _b[1]) == null ? void 0 : _c.props) == null ? void 0 : _d.onClick;
-          if (typeof onClick === "function") {
-            log.info(`调用屏蔽礼物特效按钮的onClick函数`);
-            onClick();
-          } else {
-            log.error(`调用屏蔽礼物特效按钮的onClick函数失败，未获取到`);
-          }
-        });
-      });
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            // 2024.8.12
+            `div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`
+          )
+        );
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            // 直播
+            '#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"])'
+          )
+        );
+      }
       return result;
     },
     /**
-     * 【屏蔽】福袋
+     * 【屏蔽】客户端
      */
-    shieldLucky() {
-      log.info("【屏蔽】福袋");
-      return [
+    shieldClient() {
+      log.info("【屏蔽】客户端");
+      let result = [];
+      result.push(
         CommonUtil.addBlockCSS(
-          '.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:has(.ShortTouchContainer):has(>div > div:not([class*="video_layout_container"]) > div)'
+          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
+          // 2024.7.15
+          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
+          // ios
+          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])'
         )
-      ];
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            'div:has(> div[data-e2e="something-button"] path[d="M18.404 19.018h-12v-1.5h12v1.5zM11.654 13.457v-8.19h1.5v8.19l3.22-3.22 1.06 1.061-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5 1.06-1.06 3.22 3.22z"])',
+            // 2024.7.15
+            'div[id^="douyin-header-menu"] >  div > div > div:has(a[download^="douyin-downloader"])'
+          )
+        );
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            // 直播
+            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)',
+            // 直播
+            '#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
+            /* 直播 更多 客户端 */
+            '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
+          )
+        );
+      }
+      return result;
     },
     /**
-     * 【屏蔽】小黄车
+     * 【屏蔽】快捷访问
      */
-    shieldYellowCar() {
-      log.info("【屏蔽】小黄车");
-      return [
+    shieldQuickAccess() {
+      log.info("【屏蔽】快捷访问");
+      let result = [];
+      result.push(
         CommonUtil.addBlockCSS(
-          'div[id^="living_room_player_container"] .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
+          'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)',
+          // 直播 更多里面的 快捷访问
+          // '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item'
+          // 2024.7.15 更新规则
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(.quick-access-nav-icon)'
         )
-      ];
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)")
+        );
+        utils.waitNode(
+          'li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")',
+          1e4
+        ).then(($semi) => {
+          $semi == null ? void 0 : $semi.remove();
+        });
+      } else if (DouYinRouter.isLive()) ;
+      return result;
     },
     /**
-     * 【屏蔽】底部的礼物栏
+     * 【屏蔽】通知
      */
-    shieldGiftColumn() {
-      log.info("【屏蔽】底部的礼物栏");
-      return [
+    shieldNotifitation() {
+      log.info("【屏蔽】通知");
+      let result = [];
+      result.push(
+        // 2024.11.11
         CommonUtil.addBlockCSS(
-          // 2025.5.9
-          'div[data-e2e="living-container"] [id^="living_room_player_container"] > :last-child:has(.gitBarOptimizeEnabled )',
-          // Firefox上的CSS，多了个pace-island
-          'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
-          // 全屏状态下的
-          'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))'
-        ),
+          '#douyin-right-container #douyin-header-menuCt pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            // 2024.8.12
+            'div[id^="douyin-header-menu"] >  div > div > ul:has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+          )
+        );
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            // 直播
+            'div[id^="douyin-header-menu"] pace-island[id^="island"] > * > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+          )
+        );
+      }
+      return result;
+    },
+    /**
+     * 【屏蔽】私信
+     */
+    shieldPrivateMessage() {
+      log.info("【屏蔽】私信");
+      let result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])',
+          // 直播
+          '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        log.info("搜索-【屏蔽】私信");
+        result.push(
+          CommonUtil.addBlockCSS(
+            'ul:has( div>div[data-e2e="im-entry"] )',
+            // 2024.7.15
+            'div[id^="douyin-header-menu"] >  div > div > ul:has([data-e2e="im-entry"])'
+          )
+        );
+      }
+      return result;
+    },
+    /**
+     * 【屏蔽】投稿
+     */
+    shieldSubmission() {
+      log.info("【屏蔽】投稿");
+      let result = [];
+      const iconPath = `d="M11.3487 4.90125H11.3164H11.3164C10.2479 4.90124 9.40104 4.90124 8.71799 4.95587C8.01959 5.01173 7.42807 5.12824 6.88626 5.39747C5.95866 5.8584 5.20716 6.60991 4.74622 7.53751C4.477 8.07932 4.36048 8.67084 4.30462 9.36923C4.24999 10.0523 4.24999 10.8991 4.25 11.9677V12V12.0322C4.24999 13.1008 4.24999 13.9477 4.30462 14.6307C4.36048 15.3291 4.477 15.9206 4.74622 16.4624C5.20716 17.39 5.95866 18.1415 6.88626 18.6025C7.42807 18.8717 8.01959 18.9882 8.71799 19.0441C9.40104 19.0987 10.2479 19.0987 11.3164 19.0987H11.3487H12.6513H12.6836C13.7521 19.0987 14.599 19.0987 15.282 19.0441C15.9804 18.9882 16.5719 18.8717 17.1137 18.6025C18.0413 18.1415 18.7928 17.39 19.2538 16.4624C19.523 15.9206 19.6395 15.3291 19.6954 14.6307C19.75 13.9477 19.75 13.1008 19.75 12.0322V12V11.9677C19.75 10.8991 19.75 10.0523 19.6954 9.36923C19.6395 8.67084 19.523 8.07932 19.2538 7.53751C18.7928 6.60991 18.0413 5.8584 17.1137 5.39747C16.5719 5.12824 15.9804 5.01173 15.282 4.95587C14.599 4.90124 13.7521 4.90124 12.6836 4.90125H12.6513H11.3487ZM7.55376 6.74077C7.8529 6.59212 8.22981 6.4997 8.83757 6.45109C9.45382 6.4018 10.2407 6.40125 11.3487 6.40125H12.6513C13.7593 6.40125 14.5462 6.4018 15.1624 6.45109C15.7702 6.4997 16.1471 6.59212 16.4462 6.74077C17.0809 7.05614 17.5951 7.57033 17.9105 8.205C18.0591 8.50414 18.1515 8.88105 18.2002 9.48882C18.2494 10.1051 18.25 10.8919 18.25 12C18.25 13.108 18.2494 13.8949 18.2002 14.5111C18.1515 15.1189 18.0591 15.4958 17.9105 15.7949C17.5951 16.4296 17.0809 16.9438 16.4462 17.2592C16.1471 17.4078 15.7702 17.5002 15.1624 17.5488C14.5462 17.5981 13.7593 17.5987 12.6513 17.5987H11.3487C10.2407 17.5987 9.45382 17.5981 8.83757 17.5488C8.22981 17.5002 7.8529 17.4078 7.55376 17.2592C6.91909 16.9438 6.4049 16.4296 6.08952 15.7949C5.94088 15.4958 5.84846 15.1189 5.79985 14.5111C5.75056 13.8949 5.75 13.108 5.75 12C5.75 10.8919 5.75056 10.1051 5.79985 9.48882C5.84846 8.88105 5.94088 8.50414 6.08952 8.205C6.4049 7.57033 6.91909 7.05614 7.55376 6.74077ZM11.25 15V12.75H9V11.25H11.25V8.99997H12.75V11.25H15V12.75H12.75V15H11.25Z"`;
+      result.push(
+        CommonUtil.addBlockCSS(
+          // 2024.8.12 更新规则
+          `div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            // 2024.8.12
+            `div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`
+          )
+        );
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
+          )
+        );
+      }
+      return result;
+    },
+    /**
+     * 【屏蔽】客户端提示
+     */
+    shieldClientTip() {
+      log.info("【屏蔽】客户端提示");
+      let result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          /* 右上角 通知 下载客户端，实时接收消息通知 */
+          'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
+          /* 右上角 个人信息 客户端登录访问更便捷 [下载] */
+          '#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
+          /* 右上角 私信 下载客户端，实时接收好友消息 */
+          '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
+          /* 右上角 壁纸 下载客户端，使用壁纸 */
+          '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            /* 右上角 私信 下载客户端，实时接收好友消息 */
+            'div[id^="douyin-header-menu"] ul li div[data-e2e="im-entry"] div > div > div:has(>a[download*="douyin-downloader"])',
+            /* 右上角 个人信息 客户端登录访问更便捷 [下载] */
+            'div[id^="douyin-header-menu"] ul > div:has(>a[download*="douyin-downloader"])'
+          )
+        );
+      }
+      return result;
+    },
+    /**
+     * 【屏蔽】壁纸
+     */
+    shieldWallpaper() {
+      log.info("【屏蔽】壁纸");
+      let result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          // 2024.8.12
+          'div[id^="douyin-header-menu"] pace-island > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
+        )
+      );
+      if (DouYinRouter.isSearch()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            // 2024.8.12
+            'div[id^="douyin-header-menu"] >  div > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
+          )
+        );
+      } else if (DouYinRouter.isLive()) {
+        result.push(
+          CommonUtil.addBlockCSS(
+            '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)',
+            '#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)'
+          )
+        );
+      }
+      return result;
+    },
+    /**
+     * 屏蔽底部问题按钮
+     */
+    shieldBottomQuestionButton() {
+      log.info("屏蔽底部问题按钮");
+      return CommonUtil.addBlockCSS([
+        "#douyin-sidebar",
+        /* 推荐视频右下角的？按钮 */
+        "#douyin-temp-sidebar"
+      ]);
+    },
+    /**
+     * 【屏蔽】右侧菜单栏
+     */
+    shieldRightMenu() {
+      log.info(`【屏蔽】右侧菜单栏`);
+      return CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"]`);
+    },
+    /**
+     * 【屏蔽】更多
+     */
+    shieldRightMenuMore() {
+      log.info(`【屏蔽】更多`);
+      return CommonUtil.addBlockCSS(
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M17 8.75H7V7.25H17V8.75ZM17 12.75H7V11.25H17V12.75ZM7 16.75H17V15.25H7V16.75Z"])`
+      );
+    },
+    /**
+     * 【屏蔽】登录头像
+     */
+    shieldRightMenuLoginAvatar() {
+      log.info(`【屏蔽】登录头像`);
+      return CommonUtil.addBlockCSS(
+        // 未登录
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M6.484 43.177c4.765-5.408 11.743-8.821 19.517-8.821 7.775 0 14.753 3.413 19.517 8.821C40.754 48.587 33.776 52 26.001 52c-7.774 0-14.752-3.413-19.517-8.822zM35.287 21.356a9.286 9.286 0 1 1-18.571 0 9.286 9.286 0 0 1 18.571 0z"])`,
+        // 已登录
+        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has([data-e2e="live-avatar"])`
+      );
+    },
+    /**
+     * 【屏蔽】AI搜索
+     */
+    shieldAISearch() {
+      log.info(`【屏蔽】AI搜索`);
+      return CommonUtil.addBlockCSS(
+        `#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`
+      );
+    }
+  };
+  const BlockSearchFrame = {
+    init() {
+      Panel.execMenuOnce("shieldSearch", () => {
+        return this.shieldSearch();
+      });
+      Panel.execMenuOnce("shieldSearchPlaceholder", () => {
+        return this.shieldSearchPlaceholder();
+      });
+      Panel.execMenuOnce("shieldSearchGuessYouWantToSearch", () => {
+        return this.shieldSearchGuessYouWantToSearch();
+      });
+      Panel.execMenuOnce("shieldSearchTiktokHotspot", () => {
+        return this.shieldSearchTiktokHotspot();
+      });
+    },
+    /**
+     * 【屏蔽】搜索框
+     */
+    shieldSearch() {
+      log.info("【屏蔽】搜索框");
+      return CommonUtil.addBlockCSS(
+        '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
+      );
+    },
+    /**
+     * 【屏蔽】搜索框的提示
+     */
+    shieldSearchPlaceholder() {
+      log.info("【屏蔽】搜索框的提示");
+      let result = [];
+      result.push(
+        CommonUtil.addBlockCSS(
+          '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
+        )
+      );
+      result.push(
         addStyle(
           /*css*/
           `
-            /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
-            div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
-                bottom: 0 !important;
-            }`
+			#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
+				color: transparent;
+			}`
         )
-      ];
+      );
+      return result;
     },
     /**
-     * 【屏蔽】点亮展馆帮主播集星
+     * 【屏蔽】搜索-猜你想搜
      */
-    block_exhibition_banner_dylive_tooltip() {
-      log.info(`【屏蔽】点亮展馆帮主播集星`);
-      return [
-        CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')
-      ];
+    shieldSearchGuessYouWantToSearch() {
+      log.info("【屏蔽】搜索-猜你想搜");
+      return CommonUtil.addBlockCSS(
+        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
+        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
+      );
+    },
+    /**
+     * 【屏蔽】搜索-抖音热点
+     */
+    shieldSearchTiktokHotspot() {
+      log.info("【屏蔽】搜索-抖音热点");
+      return CommonUtil.addBlockCSS(
+        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
+        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
+      );
     }
   };
-  const DouYinLiveChatRoomBlock = {
-    init() {
-      Panel.execMenuOnce("live-shieldChatRoom", () => {
-        return this.shieldChatRoom();
-      });
-      Panel.execMenuOnce("live-shielChatRoomVipSeats", () => {
-        return this.shielChatRoomVipSeats();
-      });
-      Panel.execMenuOnce("dy-live-shieldUserLevelIcon", () => {
-        return this.shieldUserLevelIcon();
-      });
-      Panel.execMenuOnce("dy-live-shieldUserVIPIcon", () => {
-        return this.shieldUserVIPIcon();
-      });
-      Panel.execMenuOnce("dy-live-shieldUserFansIcon", () => {
-        return this.shieldUserFansIcon();
-      });
-      Panel.execMenuOnce("dy-live-shieldMessage", () => {
-        return this.shieldMessage();
-      });
-    },
-    /**
-     * 【屏蔽】评论区（聊天室）
-     */
-    shieldChatRoom() {
-      log.info("【屏蔽】评论区（聊天室）");
-      return [
-        CommonUtil.addBlockCSS("#chatroom"),
-        addStyle(
-          /*css*/
-          `
-            div[data-e2e="living-container"],
-            div[data-e2e="living-container"] > div{
-                margin-bottom: 0px !important;
-            }`
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】评论区的贵宾席
-     */
-    shielChatRoomVipSeats() {
-      log.info("【屏蔽】评论区的贵宾席");
-      return [
-        CommonUtil.addBlockCSS(
-          "#chatroom > div > div:has(#audiencePanelScrollId)",
-          // Firefox上的CSS，多了个pace-island
-          "#chatroom > pace-island > div > div:has(#audiencePanelScrollId)"
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】用户等级图标
-     */
-    shieldUserLevelIcon() {
-      log.info("【屏蔽】用户等级图标");
-      return [
-        CommonUtil.addBlockCSS(
-          '#chatroom .webcast-chatroom___item span:has(>img[src*="level"])'
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】VIP图标
-     */
-    shieldUserVIPIcon() {
-      log.info("【屏蔽】VIP图标");
-      return [
-        CommonUtil.addBlockCSS(
-          '#chatroom .webcast-chatroom___item span:has(>img[src*="subscribe"])'
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】粉丝牌
-     */
-    shieldUserFansIcon() {
-      log.info("【屏蔽】粉丝牌");
-      return [
-        CommonUtil.addBlockCSS(
-          '#chatroom .webcast-chatroom___item span:has(>div[style*="fansclub"])',
-          '#chatroom .webcast-chatroom___item span:has(>img[src*="fansclub"])'
-        )
-      ];
-    },
-    /**
-     * 【屏蔽】信息播报
-     */
-    shieldMessage() {
-      log.info("【屏蔽】信息播报");
-      return [
-        CommonUtil.addBlockCSS(
-          "#chatroom .webcast-chatroom___bottom-message",
-          // 上面的滚动播报，xxx加入了直播间
-          `#chatroom >div:nth-child(2)>div>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`,
-          // Firefox的，多了个pace-island
-          `#chatroom >pace-island>div>div:first-child>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`
-        )
-      ];
-    }
-  };
-  const DouYinLiveVideoAreaRightMenu = {
-    init() {
-      Panel.execMenuOnce("dy-live-blockVideoRightMenu-downloadClient", () => {
-        return this.blockDownloadClient();
-      });
-    },
-    /**
-     * 【屏蔽】右键菜单-下载客户端
-     */
-    blockDownloadClient() {
-      log.info(`【屏蔽】右键菜单-下载客户端`);
-      return [
-        CommonUtil.addBlockCSS(
-          '.__menu_container_className:has(>a[href*="douyin-pc-web"])'
-        )
-      ];
-    }
-  };
-  const DouYinLivePlayerInstance = {
+  const Hook = {
     $data: {
-      playerInstance: null
-    },
-    $el: {
-      $playerIns: null
+      document_addEventListener: [],
+      element_addEventListener: [],
+      setTimeout: [],
+      setInterval: [],
+      function_apply: [],
+      function_call: [],
+      defineProperty: []
     },
     /**
-     * 添加油猴菜单
+     * 劫持 document.addEventListener
+     * @param handler
      */
-    initMenu() {
-      GM_Menu.add({
-        key: "live-parsePlayerInstance",
-        text: "⚙ PlayerInstance",
-        autoReload: false,
-        showText(text, enable) {
-          return text;
-        },
-        callback: () => {
-          let $playerIns = $(
-            `[id^="living_room_player_container"]`
-          );
-          if (!$playerIns) {
-            log.error("获取playerInstance所在的元素失败");
-            Qmsg.error("获取playerInstance所在的元素失败");
+    document_addEventListener(handler) {
+      this.$data.document_addEventListener.push(handler);
+      log.info("document.addEventListener hook新增劫持判断回调");
+      if (this.$data.document_addEventListener.length > 1) {
+        return;
+      }
+      const that = this;
+      let weakMap = /* @__PURE__ */ new WeakMap();
+      const originAddEventListener = _unsafeWindow.document.addEventListener;
+      const originRemoveEventListener = _unsafeWindow.document.removeEventListener;
+      _unsafeWindow.document.addEventListener = function(...args) {
+        let target = this;
+        let eventName = args[0];
+        let listener = args[1];
+        let options = args[2];
+        for (let index = 0; index < that.$data.document_addEventListener.length; index++) {
+          const callback = that.$data.document_addEventListener[index];
+          const result = Reflect.apply(callback, this, [
+            target,
+            eventName,
+            listener,
+            options
+          ]);
+          if (typeof result === "function") {
+            args[1] = result;
+            weakMap.set(listener, {
+              eventName,
+              fn: result,
+              options
+            });
+            break;
+          } else if (typeof result === "boolean" && !result) {
             return;
           }
-          this.$el.$playerIns = $playerIns;
-          let playerInstance = this.parseElementPlayerIns(this.$el.$playerIns);
-          if (playerInstance == null) {
-            log.error("获取playerInstance失败");
-            log.error("获取playerInstance失败");
-            return;
-          }
-          this.$data.playerInstance = playerInstance;
-          this.showParseDialog();
         }
-      });
+        return Reflect.apply(originAddEventListener, this, args);
+      };
+      _unsafeWindow.document.removeEventListener = function(...args) {
+        let eventName = args[0];
+        let listener = args[1];
+        let options = args[2];
+        if (weakMap.has(listener)) {
+          const {
+            eventName: __eventName__,
+            fn: __listener__,
+            options: __options__
+          } = weakMap.get(listener);
+          let flag = false;
+          if (eventName === __eventName__) {
+            if (typeof options === "boolean" && options === __options__) {
+              flag = true;
+            } else if (typeof options === "object" && typeof __options__ === "object" && options["capture"] === __options__["capture"]) {
+              flag = true;
+            } else if (options == options) {
+              flag = true;
+            }
+          }
+          if (flag) {
+            args[1] = __listener__;
+          }
+        }
+        return Reflect.apply(originRemoveEventListener, this, args);
+      };
     },
     /**
-     * 解析元素上的播放器实例
+     * 劫持 Element.property.addEventListener
+     * @param handler
      */
-    parseElementPlayerIns($ele) {
-      var _a2, _b, _c, _d;
-      let react = utils.getReactObj($ele);
-      return (_d = (_c = (_b = (_a2 = react == null ? void 0 : react.reactFiber) == null ? void 0 : _a2.child) == null ? void 0 : _b.child) == null ? void 0 : _c.memoizedProps) == null ? void 0 : _d.playerInstance;
+    element_addEventListener(handler) {
+      this.$data.element_addEventListener.push(handler);
+      log.info("Element.prototype.addEventListener hook新增劫持判断回调");
+      if (this.$data.element_addEventListener.length > 1) {
+        return;
+      }
+      const that = this;
+      let weakMap = /* @__PURE__ */ new WeakMap();
+      const originAddEventListener = _unsafeWindow.Element.prototype.addEventListener;
+      const originRemoveEventListener = _unsafeWindow.Element.prototype.removeEventListener;
+      _unsafeWindow.Element.prototype.addEventListener = function(...args) {
+        let target = this;
+        let eventName = args[0];
+        let listener = args[1];
+        let options = args[2];
+        for (let index = 0; index < that.$data.element_addEventListener.length; index++) {
+          const callback = that.$data.element_addEventListener[index];
+          const result = Reflect.apply(callback, this, [
+            target,
+            eventName,
+            listener,
+            options
+          ]);
+          if (typeof result === "function") {
+            args[1] = result;
+            weakMap.set(listener, {
+              eventName,
+              fn: result,
+              options
+            });
+            break;
+          } else if (typeof result === "boolean" && !result) {
+            return;
+          }
+        }
+        return Reflect.apply(originAddEventListener, this, args);
+      };
+      _unsafeWindow.Element.prototype.removeEventListener = function(...args) {
+        let eventName = args[0];
+        let listener = args[1];
+        let options = args[2];
+        if (weakMap.has(listener)) {
+          const {
+            eventName: __eventName__,
+            fn: __listener__,
+            options: __options__
+          } = weakMap.get(listener);
+          let flag = false;
+          if (__eventName__ === eventName) {
+            if (typeof options === "boolean" && options === __options__) {
+              flag = true;
+            } else if (typeof options === "object" && typeof __options__ === "object" && options["capture"] === __options__["capture"]) {
+              flag = true;
+            } else if (options == __options__) {
+              flag = true;
+            }
+          }
+          if (flag) {
+            args[1] = __listener__;
+          }
+        }
+        return Reflect.apply(originRemoveEventListener, this, args);
+      };
     },
     /**
-     * 显示解析的信息弹窗
+     * 劫持 window.setTimeout
+     *
+     * @param handler
      */
-    showParseDialog() {
-      var _a2, _b, _c, _d;
-      log.info(["解析的信息：", this.$data.playerInstance]);
-      let blobSrc = ((_a2 = this.$data.playerInstance) == null ? void 0 : _a2.url) || ((_b = this.$data.playerInstance) == null ? void 0 : _b.src);
-      let pushSrc = (_c = this.$data.playerInstance) == null ? void 0 : _c.config.url;
-      __pops.alert({
-        title: {
-          text: "解析信息",
-          position: "center"
+    setTimeout(handler) {
+      this.$data.setTimeout.push(handler);
+      log.info("window.setTimeout hook新增劫持");
+      if (this.$data.setTimeout.length > 1) {
+        return;
+      }
+      const that = this;
+      let originSetTimeout = _unsafeWindow.setTimeout;
+      _unsafeWindow.setTimeout = function(...args) {
+        let fn = args[0];
+        let timeout = args[1];
+        for (let index = 0; index < that.$data.setTimeout.length; index++) {
+          const item = that.$data.setTimeout[index];
+          const result = item(fn, timeout);
+          if (typeof result === "boolean" && !result) {
+            return;
+          }
+        }
+        return Reflect.apply(originSetTimeout, this, args);
+      };
+    },
+    /**
+     * 劫持 window.setInterval
+     * @param handler
+     */
+    setInterval(handler) {
+      this.$data.setInterval.push(handler);
+      log.info("window.setInterval hook新增劫持");
+      if (this.$data.setInterval.length > 1) {
+        return;
+      }
+      const that = this;
+      let originSetInterval = _unsafeWindow.setInterval;
+      _unsafeWindow.setInterval = function(...args) {
+        let fn = args[0];
+        let timeout = args[1];
+        for (let index = 0; index < that.$data.setInterval.length; index++) {
+          const item = that.$data.setInterval[index];
+          const result = item(fn, timeout);
+          if (typeof result === "boolean" && !result) {
+            return;
+          }
+        }
+        return Reflect.apply(originSetInterval, this, args);
+      };
+    },
+    /**
+     * 劫持 Function.prototype.apply
+     * @param handler
+     */
+    function_apply(handler) {
+      this.$data.function_apply.push(handler);
+      log.info("Function.prototype.apply hook新增劫持");
+      if (this.$data.function_apply.length > 1) {
+        return;
+      }
+      const that = this;
+      let originFunctionApply = _unsafeWindow.Function.prototype.apply;
+      _unsafeWindow.Function.prototype.apply = function(...args) {
+        let thisArg = args[0];
+        let argArray = args[1];
+        let context = this;
+        for (let index = 0; index < that.$data.function_apply.length; index++) {
+          const item = that.$data.function_apply[index];
+          const result = item(context, thisArg, argArray);
+          if (result != null) {
+            args[0] = result.thisArg;
+            args[1] = result.argArray;
+            context = result.context;
+            break;
+          }
+        }
+        return Reflect.apply(originFunctionApply, context, args);
+      };
+    },
+    /**
+     * 劫持 Function.prototype.call
+     * @param handler
+     */
+    function_call(handler) {
+      this.$data.function_call.push(handler);
+      log.info("Function.prototype.call hook新增劫持");
+      if (this.$data.function_call.length > 1) {
+        return;
+      }
+      const that = this;
+      let originFunctionCall = _unsafeWindow.Function.prototype.call;
+      _unsafeWindow.Function.prototype.call = function(...args) {
+        let thisArg = args[0];
+        let argArray = args.slice(1);
+        let context = this;
+        for (let index = 0; index < that.$data.function_call.length; index++) {
+          const item = that.$data.function_call[index];
+          const result = item(context, thisArg, argArray);
+          if (result != null) {
+            args[0] = result.thisArg;
+            args.splice(1, argArray.length, ...result.argArray);
+            context = result.context;
+            break;
+          }
+        }
+        return Reflect.apply(originFunctionCall, context, args);
+      };
+    },
+    /**
+     * 劫持 Object.defineProperty
+     * @package handler
+     */
+    defineProperty(handler) {
+      this.$data.defineProperty.push(handler);
+      log.info("Object.defineProperty hook新增劫持");
+      if (this.$data.defineProperty.length > 1) {
+        return;
+      }
+      const that = this;
+      let originDefineProperty = _unsafeWindow.Object.defineProperty;
+      _unsafeWindow.Object.defineProperty = function(...args) {
+        let target = args[0];
+        let key = args[1];
+        let attributes = args[2];
+        for (let index = 0; index < that.$data.defineProperty.length; index++) {
+          const item = that.$data.defineProperty[index];
+          const result = item(target, key, attributes);
+          if (result != null) {
+            args[0] = result.target;
+            args[1] = result.key;
+            args[2] = result.attributes;
+            break;
+          }
+        }
+        return Reflect.apply(originDefineProperty, this, args);
+      };
+    },
+    /**
+     * 劫持webpack
+     * @param webpackName 当前全局变量的webpack名
+     * @param mainCoreData 需要劫持的webpack的顶部core
+     * 例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
+     * 此时mainCoreData是["core:0"]
+     * @param handler 如果mainCoreData匹配上，则调用此回调函数，替换的话把传入的值进行处理后再返回它就行
+     */
+    window_webpack(webpackName = "webpackJsonp", mainCoreData, handler) {
+      let originObject = void 0;
+      _unsafeWindow.Object.defineProperty(_unsafeWindow, webpackName, {
+        get() {
+          return originObject;
         },
-        content: {
-          text: (
-            /*html*/
-            `
-                <div class="live-dy-parse-container">
-                    <div class="live-dy-parse-item">
-                        <div class="live-dy-parse-item-name">推流地址：</div>
-                        <a class="live-dy-parse-item-value" href="${pushSrc}" target="_blank">${pushSrc}
-                        </a>
-                    </div>
-                    <div class="live-dy-parse-item">
-                        <div class="live-dy-parse-item-name">blob地址：</div>
-                        <a class="live-dy-parse-item-value" href="${blobSrc}" target="_blank">${blobSrc}
-                        </a>
-                    </div>
-                    <div class="live-dy-parse-item">
-                        <div class="live-dy-parse-item-name">播放器版本：</div>
-                        <div class="live-dy-parse-item-value">${(_d = this.$data.playerInstance) == null ? void 0 : _d.version}
-                        </div>
-                    </div>
-                </div>
-                `
-          ),
-          html: true
-        },
-        mask: {
-          enable: false
-        },
-        width: window.innerWidth > 550 ? "550px" : "88wv",
-        height: window.innerHeight > 550 ? "550px" : "70vh",
-        style: (
-          /*css*/
-          `
-            .live-dy-parse-container{
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
+        set(newValue) {
+          log.success("成功劫持webpack，当前webpack名：" + webpackName);
+          originObject = newValue;
+          const originPush = originObject.push;
+          originObject.push = function(...args) {
+            let _mainCoreData = args[0][0];
+            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
+              Object.keys(args[0][1]).forEach((keyName) => {
+                let originSwitchFunc = args[0][1][keyName];
+                args[0][1][keyName] = function(..._args) {
+                  let result = originSwitchFunc.call(this, ..._args);
+                  _args[0] = handler(_args[0]);
+                  return result;
+                };
+              });
             }
-            .live-dy-parse-item{
-                display: flex;
-                flex-wrap: wrap;
-                border: 1px solid #919191;
-                border-left: 0px;
-                border-right: 0px;
-                width: 100%;
-                background: #0af9ee;
-                padding: 5px 5px;
-            }
-            `
-        )
+            return Reflect.apply(originPush, this, args);
+          };
+        }
       });
     }
   };
-  class ShortCut {
-    constructor(key) {
-      /** 存储的键 */
-      __publicField(this, "key", "short-cut");
-      /** 配置 */
-      __publicField(this, "$data");
-      /** 是否存在等待按下的按键 */
-      __publicField(this, "isWaitPress", false);
-      /**
-       * 当前等待按下的按键实例
-       */
-      __publicField(this, "currentWaitEnterPressInstanceHandler", null);
-      if (typeof key === "string") {
-        this.key = key;
-      }
-      this.$data = {
-        /**
-         * 其它实例的快捷键的配置
-         *
-         * 这里一般是用于在录入快捷键时判断是否存在重复的快捷键
-         */
-        otherShortCutOptions: []
-      };
-    }
-    /**
-     * 初始化配置默认值
-     */
-    initConfig(key, option) {
-      if (this.hasOption(key)) ;
-      else {
-        this.setOption(key, option);
-      }
-    }
-    /** 获取存储的键 */
-    getStorageKey() {
-      return this.key;
-    }
-    /**
-     * 获取本地存储的所有值
-     */
-    getLocalAllOptions() {
-      return _GM_getValue(this.key, []);
-    }
-    /**
-     * 判断是否存在该配置
-     * @param key 键
-     */
-    hasOption(key) {
-      let localOptions = this.getLocalAllOptions();
-      let findOption = localOptions.find((item) => item.key === key);
-      return !!findOption;
-    }
-    /**
-     * 判断是否存在该配置的value值
-     * @param key 键
-     */
-    hasOptionValue(key) {
-      if (this.hasOption(key)) {
-        let option = this.getOption(key);
-        return !((option == null ? void 0 : option.value) == null);
-      } else {
-        return false;
-      }
-    }
-    /**
-     * 获取配置
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getOption(key, defaultValue) {
-      let localOptions = this.getLocalAllOptions();
-      let findOption = localOptions.find((item) => item.key === key);
-      return findOption ?? defaultValue;
-    }
-    /**
-     * 设置配置
-     * @param key 键
-     * @param value 配置
-     */
-    setOption(key, value) {
-      let localOptions = this.getLocalAllOptions();
-      let findIndex = localOptions.findIndex((item) => item.key === key);
-      if (findIndex == -1) {
-        localOptions.push({
-          key,
-          value
-        });
-      } else {
-        Reflect.set(localOptions[findIndex], "value", value);
-      }
-      _GM_setValue(this.key, localOptions);
-    }
-    /**
-     * 清空当前已有配置录入的值
-     * @param key
-     */
-    emptyOption(key) {
-      let result = false;
-      let localOptions = this.getLocalAllOptions();
-      let findIndex = localOptions.findIndex((item) => item.key === key);
-      if (findIndex !== -1) {
-        localOptions[findIndex].value = null;
-        result = true;
-      }
-      _GM_setValue(this.key, localOptions);
-      return result;
-    }
-    /**
-     * 删除配置
-     * @param key 键
-     */
-    deleteOption(key) {
-      let result = false;
-      let localValue = this.getLocalAllOptions();
-      let findValueIndex = localValue.findIndex((item) => item.key === key);
-      if (findValueIndex !== -1) {
-        localValue.splice(findValueIndex, 1);
-        result = true;
-      }
-      _GM_setValue(this.key, localValue);
-      return result;
-    }
-    /**
-     * 把配置的快捷键转成文字
-     * @param keyboardValue
-     */
-    translateKeyboardValueToButtonText(keyboardValue) {
-      let result = "";
-      keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
-        result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
+  const DouYinHook = {
+    $data: {
+      hookElementAddEventListener: []
+    },
+    init() {
+      Panel.onceExec("hookKeyboard", () => {
+        DouYinHook.disableShortCut();
       });
-      result += utils.stringTitleToUpperCase(keyboardValue.keyName);
-      return result;
-    }
-    /**
-     * 获取快捷键显示的文字
-     * @param key 本地存储的快捷键键名
-     * @param defaultShowText 默认显示的文字
-     */
-    getShowText(key, defaultShowText) {
-      if (this.hasOption(key)) {
-        let localOption = this.getOption(key);
-        if (localOption.value == null) {
-          return defaultShowText;
-        } else {
-          return this.translateKeyboardValueToButtonText(localOption.value);
-        }
-      } else {
-        return defaultShowText;
+      Panel.execMenu("dy-cookie-remove__ac__", () => {
+        this.removeCookie();
+      });
+      if (DouYinRouter.isIndex()) {
+        Panel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
+          DouYinHook.disableDoubleClickLike();
+        });
+      } else if (DouYinRouter.isLive()) {
+        Panel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
+          DouYinHook.disableDoubleClickLike();
+        });
       }
-    }
+    },
     /**
-     * 录入快捷键
-     * @param key 本地存储的快捷键键名
+     * 移除环境检测
      */
-    async enterShortcutKeys(key) {
-      const that = this;
-      return new Promise((resolve) => {
-        this.isWaitPress = true;
-        let keyboardListener = domUtils.listenKeyboard(
-          window,
-          "keyup",
-          (keyName, keyValue, ohterCodeList) => {
-            const currentOption = {
-              keyName,
-              keyValue,
-              ohterCodeList
-            };
-            let result = {};
-            try {
-              const shortcutJSONString = JSON.stringify(currentOption);
-              const allOptions = this.getLocalAllOptions();
-              if (Array.isArray(this.$data.otherShortCutOptions)) {
-                allOptions.push(...this.$data.otherShortCutOptions);
+    removeEnvCheck() {
+      log.info("移除环境检测");
+      let originalSetInterval = _unsafeWindow.setInterval;
+      _unsafeWindow.setInterval = function(callback, time) {
+        let funcStr = callback.toString().trim();
+        if (funcStr.includes("debugger")) {
+          log.success(["拦截→", [funcStr]]);
+          return;
+        }
+        if (funcStr.includes("checkEXp")) {
+          log.success(["拦截→", [funcStr]]);
+          return;
+        }
+        return originalSetInterval.call(this, callback, time);
+      };
+    },
+    /**
+     * 移除Cookie
+     */
+    removeCookie() {
+      let cookieHandler = new utils.GM_Cookie();
+      let cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
+      cookieNameList.forEach((cookieName) => {
+        cookieHandler.delete(
+          {
+            name: cookieName,
+            firstPartyDomain: ""
+          },
+          (error) => {
+            if (error) {
+              log.error(`移除Cookie失败 ==> ${cookieName}`, error);
+            } else {
+              log.success(`移除Cookie成功 ==> ${cookieName}`);
+            }
+          }
+        );
+      });
+    },
+    /**
+     * 禁用快捷键
+     */
+    disableShortCut() {
+      Hook.document_addEventListener((target, eventName, listener, option) => {
+        if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
+          return function(...eventArgs) {
+            let event = eventArgs[0];
+            event.key;
+            let code = event.code;
+            event.charCode || event.keyCode || event.which;
+            let otherCodeList = [];
+            if (event.ctrlKey) {
+              otherCodeList.push("ctrl");
+            }
+            if (event.altKey) {
+              otherCodeList.push("alt");
+            }
+            if (event.metaKey) {
+              otherCodeList.push("meta");
+            }
+            if (event.shiftKey) {
+              otherCodeList.push("shift");
+            }
+            let keyboardConfigList = [
+              {
+                enableKey: "dy-keyboard-hook-likeOrDislike",
+                code: ["KeyZ"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-comment",
+                code: ["KeyX"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-danmaku-enable",
+                code: ["KeyB"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-collect-enable",
+                code: ["KeyC"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-copyShareLink",
+                code: ["KeyV"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-clearScreen",
+                code: ["KeyJ"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-automaticBroadcast",
+                code: ["KeyK"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-videoInfo",
+                code: ["KeyI"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-notInterested",
+                code: ["KeyR"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-enterAuthorHomePage",
+                code: ["KeyF"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-follow",
+                code: ["KeyG"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-search",
+                code: ["KeyF"],
+                otherCodeList: ["shift"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-closeTheCurrentPageWithOneClick",
+                code: ["KeyQ"],
+                otherCodeList: ["shift"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-pageUpAndDown",
+                code: ["ArrowUp", "ArrowDown"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-fastForwardAndFastBack",
+                code: ["ArrowLeft", "ArrowRight"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-pause",
+                code: ["Space"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-fullScreenInsideThePage",
+                code: ["KeyY"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-fullScreen",
+                code: ["KeyH"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-watchItOutLater",
+                code: ["KeyL"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-volumeAdjustment",
+                code: ["Minus"],
+                otherCodeList: ["shift"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-listOfCallShortcutKeys",
+                code: ["Slash"],
+                otherCodeList: ["shift"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-closeTheShortcutKeyList",
+                code: ["Escape"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-relevantRecommendation",
+                code: ["KeyN"]
               }
-              for (let index = 0; index < allOptions.length; index++) {
-                let localValue = allOptions[index];
-                if (localValue.key === key) {
+            ];
+            if (DouYinRouter.isIndex()) {
+              keyboardConfigList.push(
+                {
+                  enableKey: "dy-keyboard-hook-arrowUp-w",
+                  code: ["KeyW"]
+                },
+                {
+                  enableKey: "dy-keyboard-hook-arrowDown-s",
+                  code: ["KeyS"]
+                },
+                {
+                  enableKey: "dy-keyboard-hook-videoRewind",
+                  code: ["KeyA"]
+                },
+                {
+                  enableKey: "dy-keyboard-hook-videoFastForward",
+                  code: ["KeyD"]
+                }
+              );
+            } else if (DouYinRouter.isLive()) {
+              keyboardConfigList.push(
+                {
+                  enableKey: "dy-live-refresh",
+                  code: ["KeyE"]
+                },
+                {
+                  enableKey: "dy-live-screenRotation",
+                  code: ["KeyD"]
+                },
+                {
+                  enableKey: "dy-live-enableSmallWindowMode",
+                  code: ["KeyU"]
+                }
+              );
+            }
+            for (let index = 0; index < keyboardConfigList.length; index++) {
+              const keyboardConfig = keyboardConfigList[index];
+              if (keyboardConfig.code.includes(code)) {
+                if (Array.isArray(keyboardConfig.otherCodeList)) {
+                  let findValue = keyboardConfig.otherCodeList.find(
+                    (item) => !otherCodeList.includes(item)
+                  );
+                  if (findValue) {
+                    continue;
+                  }
+                }
+                if (!Panel.getValue(keyboardConfig.enableKey)) {
                   continue;
                 }
-                const localShortCutJSONString = JSON.stringify(localValue.value);
-                let isUsedByOtherOption = false;
-                if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
-                  isUsedByOtherOption = true;
-                }
-                if (isUsedByOtherOption) {
-                  result = {
-                    status: false,
-                    key: localValue.key,
-                    option: currentOption
-                  };
-                  return;
-                }
+                return;
               }
-              this.setOption(key, currentOption);
-              result = {
-                status: true,
-                key,
-                option: currentOption
-              };
-            } catch (error) {
-              console.log(error);
-              result = {
-                status: false,
-                key,
-                option: currentOption
-              };
-            } finally {
-              that.isWaitPress = false;
-              keyboardListener.removeListen();
-              that.currentWaitEnterPressInstanceHandler = null;
-              resolve(result);
+            }
+            return Reflect.apply(listener, this, eventArgs);
+          };
+        }
+      });
+    },
+    /**
+     * 禁用双击点赞
+     */
+    disableDoubleClickLike() {
+      let latestClickTime = Date.now();
+      Hook.element_addEventListener((target, eventName, listener, option) => {
+        var _a2;
+        const listenerStr = listener.toString();
+        if (eventName === "click" && target instanceof HTMLElement && ((_a2 = target == null ? void 0 : target.classList) == null ? void 0 : _a2.contains("xgplayer")) && listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) {
+          return function(...eventArgs) {
+            let currentClickTime = Date.now();
+            if (currentClickTime - latestClickTime <= 288) {
+              latestClickTime = currentClickTime;
+              log.success("阻止触发双击点赞");
+              return;
+            }
+            latestClickTime = currentClickTime;
+            Reflect.apply(listener, this, eventArgs);
+          };
+        }
+      });
+    }
+  };
+  const DouYinElement = {
+    /**
+     * 观察 #slidelist的加载每条视频
+     * @param callback
+     */
+    watchFeedVideoListChange(callback) {
+      let $os = null;
+      domUtils.ready(() => {
+        utils.waitAnyNode([
+          "#slidelist",
+          // 搜索页面的↓搜索结果列表
+          '#search-content-area ul[data-e2e="scroll-list"]'
+        ]).then(($ele) => {
+          log.info(`启用观察器观察加载的视频`);
+          let lockFn = new utils.LockFunction((observer) => {
+            $os = $os || this.getOSElement();
+            if (!$os) {
+              log.error("watchVideDataListChange：获取osElement失败");
+              return;
+            }
+            callback($os, observer);
+          }, 50);
+          utils.mutationObserver(document, {
+            config: {
+              childList: true,
+              subtree: true
+            },
+            immediate: true,
+            callback: (mutations, observer) => {
+              lockFn.run(observer);
+            }
+          });
+        });
+      });
+    },
+    getOSElement() {
+      return $("#root div[class*='-os']") || $("#douyin-right-container");
+    }
+  };
+  const DouYinNetWorkHook = {
+    __ajaxHooker: null,
+    get ajaxHooker() {
+      if (this.__ajaxHooker == null) {
+        this.__ajaxHooker = utils.ajaxHooker();
+      }
+      return this.__ajaxHooker;
+    },
+    init() {
+    },
+    /**
+     * 评论区的查看评论api
+     */
+    commentReply() {
+      this.ajaxHooker.hook((request) => {
+        let url = CommonUtil.fixUrl(request.url);
+        let urlInstance = new URL(url);
+        if (urlInstance.pathname.startsWith("/aweme/v1/web/comment/list/reply")) {
+          urlInstance.searchParams.delete("whale_cut_token");
+          urlInstance.searchParams.append("whale_cut_token", "");
+          request.url = urlInstance.toString();
+        }
+      });
+    },
+    /**
+     * 篡改未登录时的响应结果
+     */
+    hookUserNoLoginResponse() {
+      this.ajaxHooker.hook((request) => {
+        let originResponse = request.response;
+        request.response = (response) => {
+          var _a2, _b, _c;
+          originResponse && originResponse(response);
+          let data = utils.toJSON(response.responseText);
+          if (typeof data["status_code"] === "number" && data["status_code"] !== 0) {
+            data["status_code"] = 0;
+            if (typeof data["status_msg"] === "string") {
+              data["status_msg"] = "";
             }
           }
-        );
-        that.currentWaitEnterPressInstanceHandler = null;
-        that.currentWaitEnterPressInstanceHandler = () => {
-          that.isWaitPress = false;
-          keyboardListener.removeListen();
+          if (typeof ((_a2 = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _a2["status_code"]) === "number" && ((_b = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _b["status_code"]) !== 0) {
+            data["user_collect_count"]["status_code"] = 0;
+            if (typeof ((_c = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _c["status_msg"]) === "string") {
+              data["user_collect_count"]["status_msg"] = "";
+            }
+          }
+          response.responseText = JSON.stringify(data);
         };
       });
     }
+  };
+  const DouYinAccount = {
     /**
-     * 取消当前的录入快捷键操作
+     * 伪装登录
      */
-    cancelEnterShortcutKeys() {
-      if (typeof this.currentWaitEnterPressInstanceHandler === "function") {
-        this.currentWaitEnterPressInstanceHandler();
-      }
-    }
-    /**
-     * 初始化全局键盘监听
-     * @param shortCutOption 快捷键配置 一般是{ "键名": { callback: ()=>{}}}，键名是本地存储的自定义快捷键的键名
-     * @param config 配置
-     */
-    initGlobalKeyboardListener(shortCutOption, config) {
-      let localOptions = this.getLocalAllOptions();
-      if (!localOptions.length) {
-        log.warn("没有设置快捷键");
-        return;
-      }
-      const that = this;
-      function setListenKeyboard($ele, option) {
-        domUtils.listenKeyboard(
-          $ele,
-          "keydown",
-          (keyName, keyValue, ohterCodeList, event) => {
-            if (that.isWaitPress) {
-              return;
-            }
-            if (config == null ? void 0 : config.isPrevent) {
-              utils.preventEvent(event);
-            }
-            localOptions = that.getLocalAllOptions();
-            let findShortcutIndex = localOptions.findIndex((item) => {
-              let option2 = item.value;
-              let tempOption = {
-                keyName,
-                keyValue,
-                ohterCodeList
-              };
-              if (JSON.stringify(option2) === JSON.stringify(tempOption)) {
-                return item;
-              }
-            });
-            if (findShortcutIndex != -1) {
-              let findShortcut = localOptions[findShortcutIndex];
-              if (findShortcut.key in option) {
-                log.info(["调用快捷键", findShortcut]);
-                option[findShortcut.key].callback();
-              }
-            }
+    disguiseLogin() {
+      log.info("伪装登录");
+      DouYinNetWorkHook.hookUserNoLoginResponse();
+      const WAIT_TIME = 2e4;
+      let uid = 114514;
+      let info = {
+        uid,
+        secUid: "",
+        shortId: "",
+        realName: "",
+        nickname: "乌萨奇",
+        // 昵称
+        desc: "除草证3级",
+        // 描述
+        gender: 0,
+        // 性别
+        avatarUrl: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+        // 头像
+        avatar300Url: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+        followStatus: 0,
+        followerStatus: 0,
+        awemeCount: 0,
+        // 作品数量
+        watchLaterCount: 0,
+        // 稍后再看数量
+        followingCount: 0,
+        // 关注
+        followerCount: 0,
+        followerCountStr: "",
+        mplatformFollowersCount: 9999999,
+        // 粉丝数量
+        favoritingCount: 0,
+        // 我的喜欢的数量
+        totalFavorited: 9999999,
+        // 获赞
+        userCollectCount: {
+          logPb: {
+            impr_id: ""
           },
-          {
-            capture: Boolean(config == null ? void 0 : config.capture)
+          collectCountList: [],
+          statusCode: 0,
+          extra: {
+            fatal_item_ids: [],
+            logid: "",
+            now: Date.now()
           }
-        );
+        },
+        uniqueId: "",
+        customVerify: "",
+        generalPermission: {
+          is_hit_active_fans_grayed: false
+        },
+        age: (/* @__PURE__ */ new Date()).getFullYear() - 2019,
+        // 年龄
+        country: "",
+        province: "",
+        city: "",
+        district: "",
+        school: "chiikawa",
+        // 学校
+        schoolVisible: 1,
+        // 控制学校显示
+        enterpriseVerifyReason: "",
+        secret: 1,
+        userCanceled: false,
+        roomData: {},
+        shareQrcodeUrl: "",
+        shareInfo: {
+          boolPersist: 1,
+          shareDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。",
+          shareImageUrl: {
+            uri: "",
+            url_list: []
+          },
+          shareQrcodeUrl: {
+            uri: "",
+            url_list: []
+          },
+          shareUrl: "",
+          shareWeiboDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。"
+        },
+        coverAndHeadImageInfo: {
+          profileCoverList: []
+        },
+        roomId: 0,
+        favoritePermission: 1,
+        viewHistoryPermission: true,
+        isGovMediaVip: false,
+        isStar: false,
+        hideLocation: false,
+        needSpecialShowFollowerCount: false,
+        continuationState: 0,
+        im_role_ids: [],
+        accountCertInfo: {},
+        close_consecutive_chat: 0
+      };
+      function getUserInfo(element) {
+        var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D;
+        let userInfoList = [];
+        let reactInstance = utils.getReactObj(element);
+        let reactFiber = reactInstance == null ? void 0 : reactInstance.reactFiber;
+        reactInstance == null ? void 0 : reactInstance.reactProps;
+        if ((_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.userInfo) {
+          userInfoList.push(
+            (_f = (_e = (_d = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _d.return) == null ? void 0 : _e.memoizedProps) == null ? void 0 : _f.userInfo
+          );
+        }
+        if ((_j = (_i = (_h = (_g = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _g.return) == null ? void 0 : _h.memoizedProps) == null ? void 0 : _i.userInfo) == null ? void 0 : _j.userInfo) {
+          userInfoList.push(
+            (_m = (_l = (_k = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _k.return) == null ? void 0 : _l.memoizedProps) == null ? void 0 : _m.userInfo.userInfo
+          );
+        }
+        if ((_q = (_p = (_o = (_n = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _n.return) == null ? void 0 : _o.return) == null ? void 0 : _p.memoizedProps) == null ? void 0 : _q.userInfo) {
+          userInfoList.push(
+            (_u = (_t = (_s = (_r = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _r.return) == null ? void 0 : _s.return) == null ? void 0 : _t.memoizedProps) == null ? void 0 : _u.userInfo
+          );
+        }
+        if ((_z = (_y = (_x = (_w = (_v = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _v.return) == null ? void 0 : _w.return) == null ? void 0 : _x.memoizedProps) == null ? void 0 : _y.userInfo) == null ? void 0 : _z.userInfo) {
+          userInfoList.push(
+            (_D = (_C = (_B = (_A = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _A.return) == null ? void 0 : _B.return) == null ? void 0 : _C.memoizedProps) == null ? void 0 : _D.userInfo.userInfo
+          );
+        }
+        return userInfoList;
       }
-      let WindowShortCutOption = {};
-      let ElementShortCutOption = {};
-      Object.keys(shortCutOption).forEach((localKey) => {
-        let option = shortCutOption[localKey];
-        if (option.target == null || typeof option.target === "string" && option.target === "") {
-          option.target = "window";
-        }
-        if (option.target === "window") {
-          Reflect.set(WindowShortCutOption, localKey, option);
-        } else {
-          Reflect.set(ElementShortCutOption, localKey, option);
-        }
-      });
-      setListenKeyboard(window, WindowShortCutOption);
-      domUtils.ready(() => {
-        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
-          let option = ElementShortCutOption[localKey];
-          if (typeof option.target === "string") {
-            utils.waitNode(option.target, 1e4).then(($ele) => {
-              if (!$ele) {
-                return;
-              }
-              let __option = {};
-              Reflect.set(__option, localKey, option);
-              setListenKeyboard($ele, __option);
-            });
-          } else if (typeof option.target === "function") {
-            let target = await option.target();
-            if (target == null) {
-              return;
-            }
-            let __option = {};
-            Reflect.set(__option, localKey, option);
-            setListenKeyboard(target, __option);
-          } else {
-            let __option = {};
-            Reflect.set(__option, localKey, option);
-            setListenKeyboard(option.target, __option);
+      function setLogin(element) {
+        getUserInfo(element).forEach((userInfo) => {
+          if (!userInfo.isLogin) {
+            userInfo.info = info;
+            userInfo.isLogin = true;
+            userInfo.statusCode = 0;
           }
         });
+      }
+      DouYinElement.watchFeedVideoListChange(($os) => {
+        setLogin($os);
       });
-    }
-  }
-  const DouYinLiveShortCut = {
-    shortCut: new ShortCut("live-short-cut"),
-    $data: {
-      blockChatRoom: false
-    },
-    init() {
-      this.shortCut.initGlobalKeyboardListener(this.getShortCutMap());
-    },
-    getShortCutMap() {
-      return {
-        "dy-live-block-chatroom": {
-          target: "window",
-          callback() {
-            log.info("快捷键 ==> 【屏蔽】聊天室");
-            let flag = Panel.getValue("live-shieldChatRoom");
-            Panel.setValue("live-shieldChatRoom", !flag);
-          }
-        },
-        "dy-live-shieldGiftEffects": {
-          target: "window",
-          callback: () => {
-            log.info("快捷键 ==> 【屏蔽】礼物特效");
-            let flag = Panel.getValue("live-shieldGiftEffects");
-            Panel.setValue("live-shieldGiftEffects", !flag);
-          }
-        },
-        "dy-live-shortcut-changeVideoMuted": {
-          target: "window",
-          callback() {
-            log.info(`触发快捷键 ==> 切换静音状态`);
-            $$("video").forEach(($video) => {
-              let muted = !$video.muted;
-              log.success(`切换video标签的静音状态为 ${muted}`);
-              $video.muted = muted;
-            });
-          }
-        }
-      };
-    }
-  };
-  const VideoQualityMap = {
-    auto: {
-      label: "自动",
-      sign: 0
-    },
-    origin: {
-      label: "原画",
-      sign: 5
-    },
-    uhd: {
-      label: "蓝光",
-      sign: 4
-    },
-    hd: {
-      label: "超清",
-      sign: 3
-    },
-    sd: {
-      label: "高清",
-      sign: 2
-    },
-    ld: {
-      label: "标清",
-      sign: 1
-    }
-  };
-  const DouYinLive = {
-    init() {
-      DouYinLiveBlock.init();
-      DouYinLiveShortCut.init();
-      Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
-        DouYinLiveMessage.filterMessage();
-      });
-      Panel.execMenu("live-unlockImageQuality", () => {
-        this.unlockImageQuality();
-      });
-      Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
-        this.waitToRemovePauseDialog();
-      });
-      Panel.execMenu("live-pauseVideo", () => {
-        this.pauseVideo();
-      });
-      Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
-        return this.changeBackgroundColor();
-      });
-      Panel.execMenuOnce("live-parsePlayerInstance", () => {
-        DouYinLivePlayerInstance.initMenu();
-      });
-      domUtils.ready(() => {
-        Panel.execMenu("live-chooseQuality", (option) => {
-          if (option.value === "auto") {
+      utils.waitNode("#root div[class*='-os']", WAIT_TIME).then(() => {
+        let lockFn = new utils.LockFunction(() => {
+          let $os = DouYinElement.getOSElement();
+          if (!$os) {
             return;
           }
-          this.chooseQuality(option.value);
-        });
-        Panel.execMenu("live-autoEnterElementFullScreen", () => {
-          this.autoEnterElementFullScreen();
-        });
-      });
-    },
-    /**
-     * 自动进入网页全屏
-     */
-    autoEnterElementFullScreen() {
-      domUtils.ready(() => {
-        ReactUtils.waitReactPropsToSet(
-          "xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)",
-          "reactFiber",
-          {
-            check(reactInstance) {
-              var _a2;
-              return typeof ((_a2 = reactInstance == null ? void 0 : reactInstance.memoizedProps) == null ? void 0 : _a2.onClick) === "function";
-            },
-            set(reactInstance, $target) {
-              let $xgIcon = $target.closest("xg-icon");
-              if ($xgIcon && domUtils.text($xgIcon).includes("退出网页全屏")) {
-                log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
-                return;
-              }
-              log.success("成功自动进入网页全屏");
-              reactInstance.memoizedProps.onClick();
-            }
-          }
-        );
-      });
-    },
-    /**
-     * 选择画质
-     * @param quality 选择的画质
-     */
-    chooseQuality(quality = "origin") {
-      ReactUtils.waitReactPropsToSet(
-        'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
-        "reactProps",
-        {
-          check(reactInstance) {
-            var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
-            return typeof ((_d = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _a2.props) == null ? void 0 : _b.children) == null ? void 0 : _c.props) == null ? void 0 : _d.qualityHandler) === "object" && typeof ((_i = (_h = (_g = (_f = (_e = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _e.props) == null ? void 0 : _f.children) == null ? void 0 : _g.props) == null ? void 0 : _h.qualityHandler) == null ? void 0 : _i.getCurrentQualityList) === "function";
-          },
-          set(reactInstance) {
-            let qualityHandler = reactInstance.children.props.children.props.qualityHandler;
-            let currentQualityList = qualityHandler.getCurrentQualityList();
-            if (!currentQualityList.includes(quality)) {
-              Qmsg.warning(
-                "当前直播没有【" + quality + "】画质，自动选择最高画质"
-              );
-              currentQualityList.sort((a, b) => {
-                if (!VideoQualityMap[a]) {
-                  log.error("画质【" + a + "】不存在");
-                  return 0;
-                }
-                if (!VideoQualityMap[b]) {
-                  log.error("画质【" + b + "】不存在");
-                  return 0;
-                }
-                return VideoQualityMap[a].sign - VideoQualityMap[b].sign;
-              });
-              quality = currentQualityList[currentQualityList.length - 1];
-            }
-            qualityHandler.setCurrentQuality(quality);
-            log.success("成功设置画质为【" + quality + "】");
-          }
-        }
-      );
-    },
-    /**
-     * 解锁画质选择
-     *
-     * 未登录情况下最高选择【高清】画质
-     */
-    unlockImageQuality() {
-      log.info("解锁画质选择");
-      domUtils.on(
-        document,
-        "click",
-        'div[data-e2e="quality-selector"] > div',
-        function(event, clickNode) {
-          var _a2, _b;
-          utils.preventEvent(event);
-          try {
-            let reactInstance = utils.getReactObj(clickNode);
-            let key = (_a2 = reactInstance == null ? void 0 : reactInstance.reactFiber) == null ? void 0 : _a2["key"];
-            let parent = clickNode.closest("div[data-index]");
-            let parentReactInstance = utils.getReactObj(parent);
-            let current = (_b = parentReactInstance == null ? void 0 : parentReactInstance.reactProps) == null ? void 0 : _b["children"]["ref"]["current"];
-            log.info("当前选择的画质: " + key);
-            log.info(["所有的画质: ", current.getCurrentQualityList()]);
-            current.setCurrentQuality(key);
-          } catch (error) {
-            log.error(error);
-            Qmsg.error("切换画质失败");
-          }
-        },
-        {
-          capture: true
-        }
-      );
-    },
-    /**
-     * 长时间无操作，已暂停播放
-     * 累计节能xx分钟
-     */
-    waitToRemovePauseDialog() {
-      log.info("监听【长时间无操作，已暂停播放】弹窗");
-      let checkDialogToClose = ($ele, from) => {
-        var _a2, _b, _c, _d, _e, _f;
-        let eleText = domUtils.text($ele);
-        if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
-          Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`, {
-            consoleLogContent: true
-          });
-          let $rect = utils.getReactObj($ele);
-          if (typeof $rect.reactContainer === "object") {
-            let closeDialogFn = utils.queryProperty($rect.reactContainer, (obj) => {
-              var _a3, _b2;
-              if (typeof obj["onClose"] === "function") {
-                return {
-                  isFind: true,
-                  data: obj["onClose"]
-                };
-              } else if (typeof ((_a3 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _a3["onClose"]) === "function") {
-                return {
-                  isFind: true,
-                  data: (_b2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _b2["onClose"]
-                };
-              } else {
-                return {
-                  isFind: false,
-                  data: obj["child"]
-                };
-              }
-            }) || ((_f = (_e = (_d = (_c = (_b = (_a2 = $rect == null ? void 0 : $rect.reactContainer) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.element) == null ? void 0 : _c.props) == null ? void 0 : _d.children) == null ? void 0 : _e.props) == null ? void 0 : _f.onClose);
-            if (typeof closeDialogFn === "function") {
-              Qmsg.success(`检测${from}：调用函数关闭弹窗`, {
-                consoleLogContent: true
-              });
-              closeDialogFn();
-            }
-          }
-        }
-      };
-      let lockFn = new utils.LockFunction(() => {
-        if (!Panel.getValue("live-waitToRemovePauseDialog")) {
-          return;
-        }
-        $$("body > div[elementtiming='element-timing']").forEach(
-          ($elementTiming) => {
-            checkDialogToClose($elementTiming, "1");
-          }
-        );
-        $$('body > div:not([id="root"]):not(:empty)').forEach(
-          ($ele) => {
-            checkDialogToClose($ele, "2");
-          }
-        );
-      });
-      domUtils.ready(() => {
+          setLogin($os);
+        }, 70);
         utils.mutationObserver(document.body, {
           config: {
             subtree: true,
             childList: true
           },
           immediate: true,
-          callback() {
+          callback: () => {
             lockFn.run();
           }
         });
+      }).catch((err) => {
       });
-    },
-    /**
-     * 暂停视频
-     */
-    pauseVideo() {
-      log.info("禁止自动播放视频(直播)");
-      utils.waitNode('.basicPlayer[data-e2e="basicPlayer"] video').then(($video) => {
-        $video.autoplay = false;
-        $video.pause();
-        domUtils.on(
-          $video,
-          "play",
-          () => {
-            $video.pause();
-          },
-          {
-            capture: true,
-            once: true
-          }
-        );
-      });
-    },
-    /**
-     * 修改视频背景颜色
-     * @param color 颜色
-     */
-    changeBackgroundColor() {
-      log.info("修改视频背景颜色");
-      let color = Panel.getValue("live-changeBackgroundColor");
-      return addStyle(
-        /*css*/
-        `
-		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] div:has(>.xgplayer-dynamic-bg) {
-			background: ${color} !important;
-		}
-		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] .xgplayer-dynamic-bg{
-			visibility: hidden;
-		}
-		`
-      );
-    }
-  };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
-    let result = {
-      text,
-      type: "button",
-      attributes: {},
-      description,
-      buttonIcon,
-      buttonIsRightIcon,
-      buttonIconIsLoading,
-      buttonType,
-      buttonText,
-      callback(event) {
-        if (typeof clickCallBack === "function") {
-          clickCallBack(event);
-        }
-      },
-      afterAddToUListCallBack
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(
-        disable
-      );
-      return false;
-    });
-    return result;
-  };
-  const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {
-    let __defaultButtonText = defaultButtonText;
-    let getButtonText = () => {
-      return shortCut.getShowText(key, __defaultButtonText);
-    };
-    let result = UIButton(
-      text,
-      description,
-      getButtonText,
-      "keyboard",
-      false,
-      false,
-      buttonType,
-      async (event) => {
-        var _a2;
-        let $click = event.target;
-        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
-        if (shortCut.isWaitPress) {
-          Qmsg.warning("请先执行当前的录入操作");
-          return;
-        }
-        if (shortCut.hasOptionValue(key)) {
-          shortCut.emptyOption(key);
-          Qmsg.success("清空快捷键");
-        } else {
-          let loadingQmsg = Qmsg.loading("请按下快捷键...", {
-            showClose: true,
-            onClose() {
-              shortCut.cancelEnterShortcutKeys();
+      this.watchCommentDialogToClose();
+      if (DouYinRouter.isLive()) {
+        log.info("伪装登录：live");
+        utils.waitNode(
+          `[id^="douyin-header"] div:has(.dy-tip-container)`,
+          WAIT_TIME
+        ).then(() => {
+          let lockFn = new utils.LockFunction(() => {
+            setLogin($(`[id^="douyin-header"]`));
+          }, 70);
+          utils.mutationObserver(document.body, {
+            config: {
+              subtree: true,
+              childList: true
+            },
+            callback: () => {
+              lockFn.run();
             }
           });
-          let {
-            status,
-            option,
-            key: isUsedKey
-          } = await shortCut.enterShortcutKeys(key);
-          loadingQmsg.close();
-          if (status) {
-            log.success(["成功录入快捷键", option]);
-            Qmsg.success("成功录入");
+        });
+      } else if (DouYinRouter.isSearch()) {
+        let setUserInfoBySearch = function($ele) {
+          var _a2, _b, _c, _d, _e, _f, _g;
+          let $react = utils.getReactObj($ele);
+          $react == null ? void 0 : $react.reactFiber;
+          let reactProps = $react == null ? void 0 : $react.reactProps;
+          if (typeof ((_d = (_c = (_b = (_a2 = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _a2[1]) == null ? void 0 : _b.props) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean") {
+            Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
+          }
+          if (typeof ((_g = (_f = (_e = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _e[1]) == null ? void 0 : _f.props) == null ? void 0 : _g.isClient) === "boolean") {
+            Reflect.set(reactProps.children[1].props, "isClient", true);
+          }
+        };
+        log.info("伪装登录：search");
+        utils.waitNode("#root > div", WAIT_TIME).then(($rootDiv) => {
+          if (!$rootDiv) {
+            log.error("#root > div获取失败");
+            return;
+          }
+          let lockFn = new utils.LockFunction(() => {
+            setUserInfoBySearch($rootDiv);
+          }, 70);
+          utils.mutationObserver(document, {
+            config: {
+              subtree: true,
+              childList: true
+            },
+            callback: () => {
+              lockFn.run();
+            }
+          });
+        });
+      }
+    },
+    /**
+     * 关闭登录弹窗
+     */
+    watchLoginDialogToClose() {
+      log.info("监听登录弹窗并关闭");
+      let result = [
+        CommonUtil.addBlockCSS('body > div[id^="login-full-panel-"]')
+      ];
+      let lockFn = new utils.LockFunction(() => {
+        var _a2;
+        if (!Panel.getValue("watchLoginDialogToClose")) {
+          return;
+        }
+        let $loginDialog = $(
+          'body > div[id^="login-full-panel-"]'
+        );
+        if ($loginDialog) {
+          let $loginDialogCloseBtn = $loginDialog.querySelector(".dy-account-close") || $loginDialog.querySelector(
+            'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
+          );
+          if ($loginDialogCloseBtn) {
+            let reactInstance = utils.getReactObj($loginDialogCloseBtn);
+            let onClick = (_a2 = reactInstance == null ? void 0 : reactInstance.reactProps) == null ? void 0 : _a2.onClick;
+            if (typeof onClick === "function") {
+              onClick(new Event("click"));
+            } else {
+              log.error("监听到登录弹窗但是关闭失败，未获取到onClick函数");
+            }
           } else {
-            Qmsg.error(
-              `快捷键 ${shortCut.translateKeyboardValueToButtonText(
-              option
-            )} 已被 ${isUsedKey} 占用`
+            log.error(
+              "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
+              $loginDialog
             );
           }
         }
-        $btn.innerHTML = getButtonText();
-      }
-    );
-    result.attributes = {};
-    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      return false;
-    });
-    return result;
-  };
-  const PanelLiveConfig = {
-    id: "panel-config-live",
-    title: "直播",
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "功能",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "功能",
-                type: "forms",
-                forms: [
-                  UISelect(
-                    "清晰度",
-                    "live-chooseQuality",
-                    "origin",
-                    (() => {
-                      return Object.keys(VideoQualityMap).map((key) => {
-                        let item = VideoQualityMap[key];
-                        return {
-                          value: key,
-                          text: item.label
-                        };
-                      });
-                    })(),
-                    void 0,
-                    "自行选择清晰度"
-                  ),
-                  UISwitch(
-                    "解锁画质选择",
-                    "live-unlockImageQuality",
-                    true,
-                    void 0,
-                    "未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
-                  ),
-                  UISwitch(
-                    "自动进入网页全屏",
-                    "live-autoEnterElementFullScreen",
-                    false,
-                    void 0,
-                    "网页加载完毕后自动点击网页全屏按钮进入全屏"
-                  ),
-                  UISwitch(
-                    "监听并关闭【长时间无操作，已暂停播放】弹窗",
-                    "live-waitToRemovePauseDialog",
-                    true,
-                    void 0,
-                    "自动监听并检测弹窗"
-                  ),
-                  UISwitch(
-                    "禁止自动播放",
-                    "live-pauseVideo",
-                    false,
-                    void 0,
-                    "暂停直播播放"
-                  ),
-                  UISwitch(
-                    "解析直播信息",
-                    "live-parsePlayerInstance",
-                    true,
-                    void 0,
-                    "开启后将在油猴菜单中新增菜单【⚙ PlayerInstance】，可解析当前的直播信息"
-                  ),
-                  UISwitch(
-                    "禁用双击点赞",
-                    "dy-live-disableDoubleClickLike",
-                    false,
-                    void 0,
-                    "禁止直播视频区域双击点赞"
-                  )
-                ]
-              },
-              {
-                text: "视频区域背景色",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "启用",
-                    "live-bgColor-enable",
-                    false,
-                    void 0,
-                    "自定义视频背景色"
-                  ),
-                  {
-                    type: "own",
-                    attributes: {
-                      "data-key": "live-changeBackgroundColor",
-                      "data-default-value": "#000000"
-                    },
-                    getLiElementCallBack(liElement) {
-                      let $left = domUtils.createElement("div", {
-                        className: "pops-panel-item-left-text",
-                        innerHTML: `
-											<p class="pops-panel-item-left-main-text">视频背景颜色</p>
-											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色</p>
-											`
-                      });
-                      let $right = domUtils.createElement("div", {
-                        className: "pops-panel-item-right",
-                        innerHTML: `
-											<input type="color" class="pops-color-choose" />
-											`
-                      });
-                      let $color = $right.querySelector(
-                        ".pops-color-choose"
-                      );
-                      $color.value = Panel.getValue("live-changeBackgroundColor");
-                      domUtils.on(
-                        $color,
-                        ["input", "propertychange"],
-                        (event) => {
-                          log.info("选择颜色：" + $color.value);
-                          Panel.setValue(
-                            "live-changeBackgroundColor",
-                            $color.value
-                          );
-                        }
-                      );
-                      liElement.appendChild($left);
-                      liElement.appendChild($right);
-                      return liElement;
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            text: "消息过滤器",
-            type: "deepMenu",
-            description: "包括：弹幕、聊天室",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "启用",
-                    "live-danmu-shield-rule-enable",
-                    false,
-                    void 0,
-                    "启用自定义的弹幕过滤规则"
-                  ),
-                  UISwitch(
-                    "【屏蔽】送礼信息",
-                    "live-danmu-shield-gift",
-                    false,
-                    void 0,
-                    ""
-                  ),
-                  UISwitch(
-                    "【屏蔽】福袋口令",
-                    "live-danmu-shield-lucky-bag",
-                    false,
-                    void 0,
-                    ""
-                  )
-                ]
-              },
-              {
-                type: "forms",
-                text: "聊天室",
-                forms: [
-                  UISwitch(
-                    "【屏蔽】xxx 为主播加了 xx分",
-                    "live-message-shield-biz_scene-common_text_game_score",
-                    false,
-                    void 0,
-                    ""
-                  ),
-                  UISwitch(
-                    "【屏蔽】emoji",
-                    "live-message-shield-method-emoji-chat",
-                    false,
-                    void 0,
-                    ""
-                  )
-                ]
-              },
-              {
-                type: "forms",
-                text: "",
-                forms: [
-                  {
-                    type: "own",
-                    getLiElementCallBack(liElement) {
-                      let textareaDiv = domUtils.createElement(
-                        "div",
-                        {
-                          className: "pops-panel-textarea",
-                          innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
-                        },
-                        {
-                          style: "width: 100%;"
-                        }
-                      );
-                      let textarea = textareaDiv.querySelector("textarea");
-                      textarea.value = DouYinMessageFilter.get();
-                      domUtils.on(
-                        textarea,
-                        ["input", "propertychange"],
-                        utils.debounce(function() {
-                          DouYinMessageFilter.set(textarea.value);
-                          DouYinMessageFilter.init();
-                        }, 1e3)
-                      );
-                      liElement.appendChild(textareaDiv);
-                      return liElement;
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            text: "自定义快捷键",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UIButtonShortCut(
-                    "【屏蔽】聊天室",
-                    "",
-                    "dy-live-block-chatroom",
-                    void 0,
-                    "点击录入快捷键",
-                    void 0,
-                    DouYinLiveShortCut.shortCut
-                  ),
-                  UIButtonShortCut(
-                    "【屏蔽】礼物特效",
-                    "",
-                    "dy-live-shieldGiftEffects",
-                    void 0,
-                    "点击录入快捷键",
-                    void 0,
-                    DouYinLiveShortCut.shortCut
-                  ),
-                  UIButtonShortCut(
-                    "切换静音状态",
-                    "切换video标签的muted属性",
-                    "dy-live-shortcut-changeVideoMuted",
-                    void 0,
-                    "点击录入快捷键",
-                    void 0,
-                    DouYinLiveShortCut.shortCut
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            type: "deepMenu",
-            text: "禁用抖音快捷键",
-            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
-              {
-                type: "forms",
-                text: AutoOpenOrClose.text,
-                forms: [
-                  UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
-                  UISwitch(
-                    "屏幕旋转",
-                    "dy-live-screenRotation",
-                    false,
-                    void 0,
-                    "D"
-                  ),
-                  UISwitch(
-                    "开启小窗模式",
-                    "dy-live-enableSmallWindowMode",
-                    false,
-                    void 0,
-                    "U"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "布局屏蔽-视频区域内",
-            type: "deepMenu",
-            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
-              {
-                text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "【屏蔽】顶栏信息",
-                    "live-shieldTopToolBarInfo",
-                    false,
-                    void 0,
-                    "屏蔽元素，包括直播作者、右侧的礼物展馆"
-                  ),
-                  UISwitch(
-                    "【屏蔽】底部的礼物栏",
-                    "live-shieldGiftColumn",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】礼物特效",
-                    "live-shieldGiftEffects",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】福袋",
-                    "live-shieldLucky",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】弹幕",
-                    "live-shieldDanmuku",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】小黄车",
-                    "live-shielYellowCar",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】点亮展馆帮主播集星",
-                    "live-block-exhibition-banner-dylive-tooltip",
-                    false,
-                    void 0,
-                    "屏蔽元素，礼物展馆下面的悬浮提示"
-                  )
-                ]
-              },
-              {
-                type: "forms",
-                text: "右键菜单",
-                forms: [
-                  UISwitch(
-                    "【屏蔽】下载客户端",
-                    "dy-live-blockVideoRightMenu-downloadClient",
-                    true,
-                    void 0,
-                    "屏蔽右键菜单项"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "布局屏蔽-聊天室",
-            type: "deepMenu",
-            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
-              {
-                text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "【屏蔽】聊天室",
-                    "live-shieldChatRoom",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】贵宾席",
-                    "live-shielChatRoomVipSeats",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】用户等级图标",
-                    "dy-live-shieldUserLevelIcon",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】VIP图标",
-                    "dy-live-shieldUserVIPIcon",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】粉丝牌",
-                    "dy-live-shieldUserFansIcon",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】信息播报",
-                    "dy-live-shieldMessage",
-                    false,
-                    void 0,
-                    "底部滚动播报的的xxx来了，xxx给主播点赞"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const PanelSearchConfig = {
-    id: "panel-config-search",
-    title: "搜索",
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "功能",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "禁止点击视频区域进入全屏",
-                    "dy-search-disableClickToEnterFullScreen",
-                    false,
-                    void 0,
-                    "禁止点击视频区域时会触发自动进入全屏功能"
-                  ),
-                  UISelect(
-                    "自动进入网页全屏",
-                    "search-autoEnterElementFullScreen",
-                    0,
-                    () => [
-                      {
-                        text: `跟随主设置（${PopsPanelStorageApi.get("autoEnterElementFullScreen") ? "是" : "否"}）`,
-                        value: -1
-                      },
-                      {
-                        text: "是",
-                        value: 1
-                      },
-                      {
-                        text: "否",
-                        value: 0
-                      }
-                    ],
-                    void 0,
-                    ["视频", "功能", "自动进入网页全屏"].map((it) => `<code>${it}</code>`).join("-")
-                  ),
-                  UISelect(
-                    "搜索结果-视频-显示样式",
-                    "live-setSearchResultFilterWithVideoStyle",
-                    "one",
-                    [
-                      {
-                        text: "单列",
-                        value: "one"
-                      },
-                      {
-                        text: "双列",
-                        value: "double"
-                      }
-                    ],
-                    void 0,
-                    "自定义搜索结果，按视频筛选的结果项的显示样式"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "布局屏蔽",
-            type: "deepMenu",
-            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
-            forms: [
-              {
-                text: AutoOpenOrClose.text,
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "【屏蔽】相关搜索",
-                    "douyin-search-shieldReleatedSearches",
-                    false,
-                    void 0,
-                    "屏蔽右边的相关搜索"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "布局屏蔽-左侧导航栏",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISelect(
-                    "【屏蔽】左侧导航栏",
-                    "search-shieldLeftNavigator",
-                    -1,
-                    () => [
-                      {
-                        text: `跟随主设置（${PopsPanelStorageApi.get("shieldLeftNavigator") ? "是" : "否"}）`,
-                        value: -1
-                      },
-                      {
-                        text: "是",
-                        value: 1
-                      },
-                      {
-                        text: "否",
-                        value: 0
-                      }
-                    ],
-                    void 0,
-                    ["通用", "布局屏蔽-左侧导航栏", "【屏蔽】左侧导航栏"].map((it) => `<code>${it}</code>`).join("-")
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "布局屏蔽-顶部导航栏",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISelect(
-                    "【屏蔽】顶部导航栏",
-                    "search-shieldTopNavigator",
-                    -1,
-                    () => [
-                      {
-                        text: `跟随主设置（${PopsPanelStorageApi.get("shieldTopNavigator") ? "是" : "否"}）`,
-                        value: -1
-                      },
-                      {
-                        text: "是",
-                        value: 1
-                      },
-                      {
-                        text: "否",
-                        value: 0
-                      }
-                    ],
-                    void 0,
-                    ["通用", "布局屏蔽-顶部导航栏", "【屏蔽】顶部导航栏"].map((it) => `<code>${it}</code>`).join("-")
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const DouYinUrlUtils = {
-    /**
-     * 获取视频链接
-     * @param videoId 视频id
-     */
-    getVideoUrl(videoId) {
-      return "https://www.douyin.com/video/" + videoId;
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: () => {
+          lockFn.run();
+        }
+      });
+      return result;
     },
     /**
-     * 获取视频合集链接
-     * @param collectionId 合集id
+     * 关闭评论区的登录遮罩层
      */
-    getCollectionUrl(collectionId) {
-      return "https://www.douyin.com/collection/" + collectionId;
-    },
-    /**
-     * 获取笔记链接
-     * @param noteId 笔记id
-     */
-    getNoteUrl(noteId) {
-      return "https://www.douyin.com/note/" + noteId;
-    },
-    /**
-     * 获取话题链接
-     * @param hashTagId 话题id
-     */
-    getHashTagUrl(hashTagId) {
-      return "https://www.douyin.com/hashtag/" + hashTagId;
-    },
-    /**
-     * 获取用户主页链接
-     * @param sec_uid
-     */
-    getUserHomeUrl(sec_uid) {
-      return "https://www.douyin.com/user/" + sec_uid;
-    },
-    /**
-     * 获取音乐链接
-     * @param musicId 音乐id
-     */
-    getMusicUrl(musicId) {
-      return "https://www.douyin.com/music/" + musicId;
+    watchCommentDialogToClose() {
+      let lockFn = new utils.LockFunction(() => {
+        let $cardLoginGuide = $(
+          '[id^="related-video-card-login-guide"]'
+        );
+        if (!$cardLoginGuide) {
+          return;
+        }
+        let $close = $cardLoginGuide.querySelector(
+          ".related-video-card-login-guide__footer-close"
+        );
+        if (!$close) {
+          log.error("监听到评论区的登录遮罩层但是未获取到关闭按钮");
+          return;
+        }
+        $close.click();
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        }
+      });
+      return [
+        CommonUtil.addBlockCSS('[id^="related-video-card-login-guide"]'),
+        addStyle(
+          /*css*/
+          `
+			/* 去除遮罩层 */
+			[id^="related-video-card-login-guide"]+div{
+				filter: none !important;
+			}
+		`
+        )
+      ];
     }
-  };
-  const PanelUserConfig = {
-    id: "panel-config-user",
-    title: "用户",
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "显示UID",
-            "dy-user-addShowUserUID",
-            true,
-            void 0,
-            "在用户信息区域下方显示当前用户的uid"
-          ),
-          UIButton(
-            "跳转至用户主页",
-            "输入用户UID自动跳转至用户主页",
-            "跳转",
-            void 0,
-            false,
-            false,
-            "default",
-            async (evt) => {
-              utils.preventEvent(evt);
-              let uid = prompt("请输入用户UID");
-              if (typeof uid !== "string") {
-                return;
-              }
-              let url = `https://www.toutiao.com/c/user/${uid}/`;
-              let urlInst = new URL(url);
-              let response = await httpx.options(url, {
-                allowInterceptConfig: false,
-                headers: {
-                  "User-Agent": utils.getRandomPCUA(),
-                  Host: urlInst.hostname,
-                  Origin: urlInst.origin,
-                  Referer: "https://www.toutiao.com/"
-                }
-              });
-              if (!response.status) {
-                log.error(response);
-                Qmsg.error("获取用户sec_uid失败", { consoleLogContent: true });
-                return;
-              }
-              let finalUrl = response.data.finalUrl;
-              let sec_uid_match = finalUrl.match(/\/user\/token\/(.+)\//);
-              if (!sec_uid_match) {
-                Qmsg.error("正则获取用户sec_uid失败", {
-                  consoleLogContent: true
-                });
-                return;
-              }
-              let sec_uid = sec_uid_match[sec_uid_match.length - 1];
-              let userHomeUrl = DouYinUrlUtils.getUserHomeUrl(sec_uid);
-              log.info(`用户sec_uid：` + sec_uid);
-              log.info(`用户主页链接：` + userHomeUrl);
-              window.open(userHomeUrl, "_blank");
-            }
-          )
-        ]
-      }
-    ]
   };
   const DouYinUtils = {
     /**
@@ -3782,6 +3222,408 @@
       return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
     }
   };
+  class ShortCut {
+    constructor(key) {
+      /** 存储的键 */
+      __publicField(this, "key", "short-cut");
+      /** 配置 */
+      __publicField(this, "$data");
+      /** 是否存在等待按下的按键 */
+      __publicField(this, "isWaitPress", false);
+      /**
+       * 当前等待按下的按键实例
+       */
+      __publicField(this, "currentWaitEnterPressInstanceHandler", null);
+      if (typeof key === "string") {
+        this.key = key;
+      }
+      this.$data = {
+        /**
+         * 其它实例的快捷键的配置
+         *
+         * 这里一般是用于在录入快捷键时判断是否存在重复的快捷键
+         */
+        otherShortCutOptions: []
+      };
+    }
+    /**
+     * 初始化配置默认值
+     */
+    initConfig(key, option) {
+      if (this.hasOption(key)) ;
+      else {
+        this.setOption(key, option);
+      }
+    }
+    /** 获取存储的键 */
+    getStorageKey() {
+      return this.key;
+    }
+    /**
+     * 获取本地存储的所有值
+     */
+    getLocalAllOptions() {
+      return _GM_getValue(this.key, []);
+    }
+    /**
+     * 判断是否存在该配置
+     * @param key 键
+     */
+    hasOption(key) {
+      let localOptions = this.getLocalAllOptions();
+      let findOption = localOptions.find((item) => item.key === key);
+      return !!findOption;
+    }
+    /**
+     * 判断是否存在该配置的value值
+     * @param key 键
+     */
+    hasOptionValue(key) {
+      if (this.hasOption(key)) {
+        let option = this.getOption(key);
+        return !((option == null ? void 0 : option.value) == null);
+      } else {
+        return false;
+      }
+    }
+    /**
+     * 获取配置
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    getOption(key, defaultValue) {
+      let localOptions = this.getLocalAllOptions();
+      let findOption = localOptions.find((item) => item.key === key);
+      return findOption ?? defaultValue;
+    }
+    /**
+     * 设置配置
+     * @param key 键
+     * @param value 配置
+     */
+    setOption(key, value) {
+      let localOptions = this.getLocalAllOptions();
+      let findIndex = localOptions.findIndex((item) => item.key === key);
+      if (findIndex == -1) {
+        localOptions.push({
+          key,
+          value
+        });
+      } else {
+        Reflect.set(localOptions[findIndex], "value", value);
+      }
+      _GM_setValue(this.key, localOptions);
+    }
+    /**
+     * 清空当前已有配置录入的值
+     * @param key
+     */
+    emptyOption(key) {
+      let result = false;
+      let localOptions = this.getLocalAllOptions();
+      let findIndex = localOptions.findIndex((item) => item.key === key);
+      if (findIndex !== -1) {
+        localOptions[findIndex].value = null;
+        result = true;
+      }
+      _GM_setValue(this.key, localOptions);
+      return result;
+    }
+    /**
+     * 删除配置
+     * @param key 键
+     */
+    deleteOption(key) {
+      let result = false;
+      let localValue = this.getLocalAllOptions();
+      let findValueIndex = localValue.findIndex((item) => item.key === key);
+      if (findValueIndex !== -1) {
+        localValue.splice(findValueIndex, 1);
+        result = true;
+      }
+      _GM_setValue(this.key, localValue);
+      return result;
+    }
+    /**
+     * 把配置的快捷键转成文字
+     * @param keyboardValue
+     */
+    translateKeyboardValueToButtonText(keyboardValue) {
+      let result = "";
+      keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
+        result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
+      });
+      result += utils.stringTitleToUpperCase(keyboardValue.keyName);
+      return result;
+    }
+    /**
+     * 获取快捷键显示的文字
+     * @param key 本地存储的快捷键键名
+     * @param defaultShowText 默认显示的文字
+     */
+    getShowText(key, defaultShowText) {
+      if (this.hasOption(key)) {
+        let localOption = this.getOption(key);
+        if (localOption.value == null) {
+          return defaultShowText;
+        } else {
+          return this.translateKeyboardValueToButtonText(localOption.value);
+        }
+      } else {
+        return defaultShowText;
+      }
+    }
+    /**
+     * 录入快捷键
+     * @param key 本地存储的快捷键键名
+     */
+    async enterShortcutKeys(key) {
+      const that = this;
+      return new Promise((resolve) => {
+        this.isWaitPress = true;
+        let keyboardListener = domUtils.listenKeyboard(
+          window,
+          "keyup",
+          (keyName, keyValue, ohterCodeList) => {
+            const currentOption = {
+              keyName,
+              keyValue,
+              ohterCodeList
+            };
+            let result = {};
+            try {
+              const shortcutJSONString = JSON.stringify(currentOption);
+              const allOptions = this.getLocalAllOptions();
+              if (Array.isArray(this.$data.otherShortCutOptions)) {
+                allOptions.push(...this.$data.otherShortCutOptions);
+              }
+              for (let index = 0; index < allOptions.length; index++) {
+                let localValue = allOptions[index];
+                if (localValue.key === key) {
+                  continue;
+                }
+                const localShortCutJSONString = JSON.stringify(localValue.value);
+                let isUsedByOtherOption = false;
+                if (localValue.value != null && shortcutJSONString === localShortCutJSONString) {
+                  isUsedByOtherOption = true;
+                }
+                if (isUsedByOtherOption) {
+                  result = {
+                    status: false,
+                    key: localValue.key,
+                    option: currentOption
+                  };
+                  return;
+                }
+              }
+              this.setOption(key, currentOption);
+              result = {
+                status: true,
+                key,
+                option: currentOption
+              };
+            } catch (error) {
+              console.log(error);
+              result = {
+                status: false,
+                key,
+                option: currentOption
+              };
+            } finally {
+              that.isWaitPress = false;
+              keyboardListener.removeListen();
+              that.currentWaitEnterPressInstanceHandler = null;
+              resolve(result);
+            }
+          }
+        );
+        that.currentWaitEnterPressInstanceHandler = null;
+        that.currentWaitEnterPressInstanceHandler = () => {
+          that.isWaitPress = false;
+          keyboardListener.removeListen();
+        };
+      });
+    }
+    /**
+     * 取消当前的录入快捷键操作
+     */
+    cancelEnterShortcutKeys() {
+      if (typeof this.currentWaitEnterPressInstanceHandler === "function") {
+        this.currentWaitEnterPressInstanceHandler();
+      }
+    }
+    /**
+     * 初始化全局键盘监听
+     * @param shortCutOption 快捷键配置 一般是{ "键名": { callback: ()=>{}}}，键名是本地存储的自定义快捷键的键名
+     * @param config 配置
+     */
+    initGlobalKeyboardListener(shortCutOption, config) {
+      let localOptions = this.getLocalAllOptions();
+      if (!localOptions.length) {
+        log.warn("没有设置快捷键");
+        return;
+      }
+      const that = this;
+      function setListenKeyboard($ele, option) {
+        domUtils.listenKeyboard(
+          $ele,
+          "keydown",
+          (keyName, keyValue, ohterCodeList, event) => {
+            if (that.isWaitPress) {
+              return;
+            }
+            if (config == null ? void 0 : config.isPrevent) {
+              utils.preventEvent(event);
+            }
+            localOptions = that.getLocalAllOptions();
+            let findShortcutIndex = localOptions.findIndex((item) => {
+              let option2 = item.value;
+              let tempOption = {
+                keyName,
+                keyValue,
+                ohterCodeList
+              };
+              if (JSON.stringify(option2) === JSON.stringify(tempOption)) {
+                return item;
+              }
+            });
+            if (findShortcutIndex != -1) {
+              let findShortcut = localOptions[findShortcutIndex];
+              if (findShortcut.key in option) {
+                log.info(["调用快捷键", findShortcut]);
+                option[findShortcut.key].callback();
+              }
+            }
+          },
+          {
+            capture: Boolean(config == null ? void 0 : config.capture)
+          }
+        );
+      }
+      let WindowShortCutOption = {};
+      let ElementShortCutOption = {};
+      Object.keys(shortCutOption).forEach((localKey) => {
+        let option = shortCutOption[localKey];
+        if (option.target == null || typeof option.target === "string" && option.target === "") {
+          option.target = "window";
+        }
+        if (option.target === "window") {
+          Reflect.set(WindowShortCutOption, localKey, option);
+        } else {
+          Reflect.set(ElementShortCutOption, localKey, option);
+        }
+      });
+      setListenKeyboard(window, WindowShortCutOption);
+      domUtils.ready(() => {
+        Object.keys(ElementShortCutOption).forEach(async (localKey) => {
+          let option = ElementShortCutOption[localKey];
+          if (typeof option.target === "string") {
+            utils.waitNode(option.target, 1e4).then(($ele) => {
+              if (!$ele) {
+                return;
+              }
+              let __option = {};
+              Reflect.set(__option, localKey, option);
+              setListenKeyboard($ele, __option);
+            });
+          } else if (typeof option.target === "function") {
+            let target = await option.target();
+            if (target == null) {
+              return;
+            }
+            let __option = {};
+            Reflect.set(__option, localKey, option);
+            setListenKeyboard(target, __option);
+          } else {
+            let __option = {};
+            Reflect.set(__option, localKey, option);
+            setListenKeyboard(option.target, __option);
+          }
+        });
+      });
+    }
+  }
+  const DouYinVideoPlayerShortCut = {
+    shortCut: new ShortCut("video-short-cut"),
+    $data: {
+      rateMap: [
+        "0.75",
+        "1",
+        "1.25",
+        "1.5",
+        "1.75",
+        "2",
+        "3"
+      ]
+    },
+    init() {
+      this.shortCut.initGlobalKeyboardListener(this.getShortCutMap());
+    },
+    getShortCutMap() {
+      return {
+        "dy-video-rate-low": {
+          target: "window",
+          callback() {
+            log.info("触发快捷键 ==> 调用倍速：小");
+            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
+            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex(
+              (rate) => {
+                return rate === currentRate;
+              }
+            );
+            if (findIndex === 0) {
+              log.warn("触发快捷键 ==> 已是最小倍速: " + currentRate);
+              return;
+            }
+            let prevRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex - 1];
+            log.info("触发快捷键 ==> 设置倍速: " + prevRate);
+            DouYinVideoPlayer.chooseVideoRate(prevRate);
+          }
+        },
+        "dy-video-rate-up": {
+          target: "window",
+          callback() {
+            log.info("触发快捷键 ==> 调用倍速：大");
+            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
+            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex(
+              (rate) => {
+                return rate === currentRate;
+              }
+            );
+            if (findIndex === DouYinVideoPlayerShortCut.$data.rateMap.length - 1) {
+              log.warn("触发快捷键 ==> 已是最大倍速: " + currentRate);
+              return;
+            }
+            let nextRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex + 1];
+            log.info("触发快捷键 ==> 设置倍速: " + nextRate);
+            DouYinVideoPlayer.chooseVideoRate(nextRate);
+          }
+        },
+        "dy-video-shortcut-immersionMode": {
+          target: "window",
+          callback() {
+            log.info("触发快捷键 ==> 沉浸模式");
+            let value = Panel.getValue("fullScreen");
+            Panel.setValue("fullScreen", !value);
+            Panel.execMenuOnce("fullScreen", () => {
+              return DouYinVideoPlayer.fullScreen();
+            });
+          }
+        },
+        "dy-video-shortcut-changeVideoMuted": {
+          target: "window",
+          callback() {
+            log.info(`触发快捷键 ==> 切换静音状态`);
+            $$("video").forEach(($video) => {
+              let muted = !$video.muted;
+              log.success(`切换video标签的静音状态为 ${muted}`);
+              $video.muted = muted;
+            });
+          }
+        }
+      };
+    }
+  };
   class GestureBack {
     constructor(config) {
       /**
@@ -3805,7 +3647,7 @@
      * @param event
      */
     popStateEvent(event) {
-      utils.preventEvent(event);
+      Utils.preventEvent(event);
       if (this.isBacking) {
         return;
       }
@@ -3851,7 +3693,7 @@
         if (this.config.win.location.hash.endsWith(this.config.hash)) {
           log.info("history.back()");
           this.config.win.history.back();
-          await utils.sleep(this.config.backDelayTime || 150);
+          await Utils.sleep(this.config.backDelayTime || 150);
         } else {
           break;
         }
@@ -3896,24 +3738,15 @@
       Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-follow", () => {
         return this.blockFollowMouseHoverTip();
       });
-      Panel.execMenuOnce(
-        "dy-video-mouseHoverTip-rightToolBar-addLike",
-        () => {
-          return this.blockAddLikeMouseHoverTip();
-        }
-      );
-      Panel.execMenuOnce(
-        "dy-video-mouseHoverTip-rightToolBar-comment",
-        () => {
-          return this.blockCommentMouseHoverTip();
-        }
-      );
-      Panel.execMenuOnce(
-        "dy-video-mouseHoverTip-rightToolBar-collect",
-        () => {
-          return this.blockCollectMouseHoverTip();
-        }
-      );
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-addLike", () => {
+        return this.blockAddLikeMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-comment", () => {
+        return this.blockCommentMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-collect", () => {
+        return this.blockCollectMouseHoverTip();
+      });
       Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-share", () => {
         return this.blockShareMouseHoverTip();
       });
@@ -4033,9 +3866,7 @@
      */
     blockClearScreenMouseHoverTip() {
       log.info(`禁用清屏按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(
-        `.xgplayer-immersive-switch-setting .xgTips`
-      );
+      return CommonUtil.addBlockCSS(`.xgplayer-immersive-switch-setting .xgTips`);
     },
     /**
      * 禁用稍后再看按钮的悬浮提示
@@ -4155,6 +3986,77 @@
       },
       $style
     };
+  };
+  const ReactUtils = {
+    /**
+     * 等待react某个属性并进行设置
+     */
+    async waitReactPropsToSet($target, propName, needSetList) {
+      if (!Array.isArray(needSetList)) {
+        this.waitReactPropsToSet($target, propName, [needSetList]);
+        return;
+      }
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $target === "string") {
+          __target__ = document.querySelector($target);
+        } else if (typeof $target === "function") {
+          __target__ = $target();
+        } else if ($target instanceof HTMLElement) {
+          __target__ = $target;
+        }
+        return __target__;
+      }
+      if (typeof $target === "string") {
+        let $ele = await utils.waitNode($target, 1e4);
+        if (!$ele) {
+          return;
+        }
+      }
+      needSetList.forEach((needSetOption) => {
+        if (typeof needSetOption.msg === "string") {
+          log.info(needSetOption.msg);
+        }
+        function checkObj() {
+          let target = getTarget();
+          if (target == null) {
+            return false;
+          }
+          let reactInstance = utils.getReactObj(target);
+          if (reactInstance == null) {
+            return false;
+          }
+          let reactInstanceProp = reactInstance[propName];
+          if (reactInstanceProp == null) {
+            return false;
+          }
+          let needOwnCheck = needSetOption.check(reactInstanceProp, target);
+          return Boolean(needOwnCheck);
+        }
+        utils.waitPropertyByInterval(
+          () => {
+            return getTarget();
+          },
+          checkObj,
+          250,
+          1e4
+        ).then(() => {
+          let target = getTarget();
+          if (target == null) {
+            return;
+          }
+          let reactInstance = utils.getReactObj(target);
+          if (reactInstance == null) {
+            return;
+          }
+          let reactInstanceProp = reactInstance[propName];
+          if (reactInstanceProp == null) {
+            return;
+          }
+          needSetOption.set(reactInstanceProp, target);
+        });
+      });
+    }
   };
   const DouYinVideoPlayer = {
     $flag: {
@@ -5109,74 +5011,556 @@
       );
     }
   };
-  const DouYinVideoPlayerShortCut = {
-    shortCut: new ShortCut("video-short-cut"),
+  const DouYinMessageFilter = {
+    key: "douyin-live-danmu-rule",
     $data: {
-      rateMap: [
-        "0.75",
-        "1",
-        "1.25",
-        "1.5",
-        "1.75",
-        "2",
-        "3"
-      ]
+      rule: []
+    },
+    init() {
+      this.initRule();
+    },
+    /**
+     * 初始化解析规则
+     */
+    initRule() {
+      this.$data.rule = [];
+      let localRule = this.get().trim();
+      let localRuleSplit = localRule.split("\n");
+      localRuleSplit.forEach((item) => {
+        if (item.trim() == "") return;
+        item = item.trim();
+        let itemRegExp = new RegExp(item.trim());
+        this.$data.rule.push(itemRegExp);
+      });
+    },
+    /**
+     * 通知弹幕改变(可能是新增)
+     */
+    change() {
+      this.execMessageFilter(
+        Array.from(
+          $$(
+            "xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
+          )
+        ),
+        "弹幕"
+      );
+      this.execMessageFilter(
+        Array.from(
+          $$(
+            "#chatroom .webcast-chatroom .webcast-chatroom___item:not([data-is-filter])"
+          )
+        ),
+        "聊天室"
+      );
+      if (Panel.getValue("live-message-shield-emoji-chat")) {
+        domUtils.hide(
+          $$(
+            "xg-danmu.xgplayer-danmu > div:has(>img):not([data-is-filter])"
+          ),
+          false
+        );
+      }
+    },
+    /**
+     * 执行过滤
+     * @param messageQueue 消息元素队列
+     * @param from 来自
+     */
+    execMessageFilter(messageQueue, from) {
+      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
+      for (let index = 0; index < messageQueue.length; index++) {
+        let $danmu = messageQueue[index];
+        let react = utils.getReactObj($danmu);
+        let messageIns = ((_c = (_b = (_a2 = react == null ? void 0 : react.reactFiber) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.message) || ((_i = (_h = (_g = (_f = (_e = (_d = react == null ? void 0 : react.reactFiber) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.children) == null ? void 0 : _f.props) == null ? void 0 : _g.children) == null ? void 0 : _h.props) == null ? void 0 : _i.message);
+        if (typeof messageIns !== "object" || messageIns == null) {
+          continue;
+        }
+        let message = ((_j = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _j.content) || ((_l = (_k = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _k.common) == null ? void 0 : _l.describe);
+        let method = messageIns.method;
+        let chat_by = (_m = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _m.chat_by;
+        let biz_scene = (_n = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _n.biz_scene;
+        let flag = false;
+        if (!flag) {
+          if (method === "WebcastGiftMessage") {
+            if (Panel.getValue("live-danmu-shield-gift")) {
+              flag = true;
+            }
+          } else if (method === "WebcastChatMessage") {
+            if (chat_by === "0") ;
+            else if (chat_by === "9" || chat_by === "10") {
+              if (Panel.getValue("live-danmu-shield-lucky-bag")) {
+                flag = true;
+              }
+            } else ;
+          } else if (method === "WebcastRoomMessage") ;
+          else if (method === "WebcastFansclubMessage") ;
+          else if (method === "WebcastEmojiChatMessage") {
+            if (Panel.getValue("live-message-shield-emoji-chat")) {
+              flag = true;
+            }
+          } else ;
+        }
+        if (!flag && typeof biz_scene === "string") {
+          if (biz_scene === "common_text_game_score") {
+            if (Panel.getValue(
+              "live-message-shield-biz_scene-common_text_game_score"
+            )) {
+              flag = true;
+            }
+          }
+        }
+        if (!flag) {
+          flag = typeof message === "string" && this.$data.rule.some((ruleText) => {
+            if (message.match(ruleText)) {
+              log.info("自定义规则过滤 " + from + " 消息: " + message);
+              return true;
+            }
+          });
+        }
+        if (flag) {
+          $danmu.setAttribute("data-is-filter", "true");
+          domUtils.hide($danmu, false);
+        }
+      }
+    },
+    set(value) {
+      _GM_setValue(this.key, value);
+    },
+    get() {
+      return _GM_getValue(this.key, "");
+    }
+  };
+  const DouYinLiveMessage = {
+    /**
+     * 消息过滤
+     */
+    filterMessage() {
+      let lockFn = new utils.LockFunction(() => {
+        if (!DouYinRouter.isLive()) {
+          return;
+        }
+        DouYinMessageFilter.change();
+      });
+      domUtils.ready(() => {
+        log.success("消息过滤");
+        DouYinMessageFilter.init();
+        utils.mutationObserver(document.body, {
+          config: {
+            childList: true,
+            subtree: true
+          },
+          immediate: true,
+          callback: () => {
+            lockFn.run();
+          }
+        });
+      });
+    }
+  };
+  const DouYinLiveBlock = {
+    init() {
+      Panel.execMenuOnce("live-shieldGiftColumn", () => {
+        return this.shieldGiftColumn();
+      });
+      Panel.execMenuOnce("live-shieldTopToolBarInfo", () => {
+        return this.shieldTopToolBarInfo();
+      });
+      Panel.execMenuOnce("live-shieldGiftEffects", () => {
+        return this.shieldGiftEffects();
+      });
+      Panel.execMenuOnce("live-shieldLucky", () => {
+        return this.shieldLucky();
+      });
+      Panel.execMenuOnce("live-shielYellowCar", () => {
+        return this.shieldYellowCar();
+      });
+      Panel.execMenuOnce("live-shieldDanmuku", () => {
+        return this.shieldDanmu();
+      });
+      Panel.execMenuOnce(
+        "live-block-exhibition-banner-dylive-tooltip",
+        () => {
+          return this.block_exhibition_banner_dylive_tooltip();
+        }
+      );
+      DouYinLiveChatRoomBlock.init();
+      DouYinLiveVideoAreaRightMenu.init();
+    },
+    /**
+     * 屏蔽弹幕
+     */
+    shieldDanmu() {
+      log.info("屏蔽弹幕");
+      return [CommonUtil.addBlockCSS("xg-danmu.xgplayer-danmu")];
+    },
+    /**
+     * 【屏蔽】顶栏信息
+     * 包括直播作者、右侧的礼物展馆
+     */
+    shieldTopToolBarInfo() {
+      log.info("【屏蔽】顶栏信息");
+      return [
+        CommonUtil.addBlockCSS(
+          'div[data-e2e="living-container"] div[id*="living_room_player_container"] > pace-island[id^="island_"]',
+          // 2024.12.26
+          'div[data-e2e="living-container"] div[id*="living_room_player_container"] >div>div>pace-island[id^="island_"]:has(.__isFullPlayer)',
+          // 全屏状态下的
+          'div[data-e2e="living-container"] xg-bar.xg-top-bar'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】礼物特效
+     */
+    shieldGiftEffects() {
+      log.info("【屏蔽】礼物特效");
+      let result = [
+        CommonUtil.addBlockCSS(
+          // ↓该屏蔽会把连麦的用户也屏蔽了
+          // '.basicPlayer[data-e2e="basicPlayer"]  pace-island[id^="island_"]:has(>div>div>div)'
+          // 排除掉福袋
+          '.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:not(:has(.ShortTouchContainer)):has(>div > div:not([class*="video_layout_container"]) > div)'
+        )
+      ];
+      domUtils.ready(() => {
+        utils.waitNode(() => {
+          return domUtils.selector(
+            "xg-icon.pluginContainer > div:contains('屏蔽礼物特效')"
+          );
+        }, 1e4).then(($el) => {
+          var _a2, _b, _c, _d;
+          if (!$el) {
+            log.error("屏蔽礼物特效按钮不存在，获取超时");
+            return;
+          }
+          let { reactFiber } = utils.getReactObj($el);
+          let onClick = (_d = (_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.memoizedProps) == null ? void 0 : _a2.children) == null ? void 0 : _b[1]) == null ? void 0 : _c.props) == null ? void 0 : _d.onClick;
+          if (typeof onClick === "function") {
+            log.info(`调用屏蔽礼物特效按钮的onClick函数`);
+            onClick();
+          } else {
+            log.error(`调用屏蔽礼物特效按钮的onClick函数失败，未获取到`);
+          }
+        });
+      });
+      return result;
+    },
+    /**
+     * 【屏蔽】福袋
+     */
+    shieldLucky() {
+      log.info("【屏蔽】福袋");
+      return [
+        CommonUtil.addBlockCSS(
+          '.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:has(.ShortTouchContainer):has(>div > div:not([class*="video_layout_container"]) > div)'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】小黄车
+     */
+    shieldYellowCar() {
+      log.info("【屏蔽】小黄车");
+      return [
+        CommonUtil.addBlockCSS(
+          'div[id^="living_room_player_container"] .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】底部的礼物栏
+     */
+    shieldGiftColumn() {
+      log.info("【屏蔽】底部的礼物栏");
+      return [
+        CommonUtil.addBlockCSS(
+          // 2025.5.9
+          'div[data-e2e="living-container"] [id^="living_room_player_container"] > :last-child:has(.gitBarOptimizeEnabled )',
+          // Firefox上的CSS，多了个pace-island
+          'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
+          // 全屏状态下的
+          'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))'
+        ),
+        addStyle(
+          /*css*/
+          `
+            /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
+            div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
+                bottom: 0 !important;
+            }`
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】点亮展馆帮主播集星
+     */
+    block_exhibition_banner_dylive_tooltip() {
+      log.info(`【屏蔽】点亮展馆帮主播集星`);
+      return [
+        CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')
+      ];
+    }
+  };
+  const DouYinLiveChatRoomBlock = {
+    init() {
+      Panel.execMenuOnce("live-shieldChatRoom", () => {
+        return this.shieldChatRoom();
+      });
+      Panel.execMenuOnce("live-shielChatRoomVipSeats", () => {
+        return this.shielChatRoomVipSeats();
+      });
+      Panel.execMenuOnce("dy-live-shieldUserLevelIcon", () => {
+        return this.shieldUserLevelIcon();
+      });
+      Panel.execMenuOnce("dy-live-shieldUserVIPIcon", () => {
+        return this.shieldUserVIPIcon();
+      });
+      Panel.execMenuOnce("dy-live-shieldUserFansIcon", () => {
+        return this.shieldUserFansIcon();
+      });
+      Panel.execMenuOnce("dy-live-shieldMessage", () => {
+        return this.shieldMessage();
+      });
+    },
+    /**
+     * 【屏蔽】评论区（聊天室）
+     */
+    shieldChatRoom() {
+      log.info("【屏蔽】评论区（聊天室）");
+      return [
+        CommonUtil.addBlockCSS("#chatroom"),
+        addStyle(
+          /*css*/
+          `
+            div[data-e2e="living-container"],
+            div[data-e2e="living-container"] > div{
+                margin-bottom: 0px !important;
+            }`
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】评论区的贵宾席
+     */
+    shielChatRoomVipSeats() {
+      log.info("【屏蔽】评论区的贵宾席");
+      return [
+        CommonUtil.addBlockCSS(
+          "#chatroom > div > div:has(#audiencePanelScrollId)",
+          // Firefox上的CSS，多了个pace-island
+          "#chatroom > pace-island > div > div:has(#audiencePanelScrollId)"
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】用户等级图标
+     */
+    shieldUserLevelIcon() {
+      log.info("【屏蔽】用户等级图标");
+      return [
+        CommonUtil.addBlockCSS(
+          '#chatroom .webcast-chatroom___item span:has(>img[src*="level"])'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】VIP图标
+     */
+    shieldUserVIPIcon() {
+      log.info("【屏蔽】VIP图标");
+      return [
+        CommonUtil.addBlockCSS(
+          '#chatroom .webcast-chatroom___item span:has(>img[src*="subscribe"])'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】粉丝牌
+     */
+    shieldUserFansIcon() {
+      log.info("【屏蔽】粉丝牌");
+      return [
+        CommonUtil.addBlockCSS(
+          '#chatroom .webcast-chatroom___item span:has(>div[style*="fansclub"])',
+          '#chatroom .webcast-chatroom___item span:has(>img[src*="fansclub"])'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】信息播报
+     */
+    shieldMessage() {
+      log.info("【屏蔽】信息播报");
+      return [
+        CommonUtil.addBlockCSS(
+          "#chatroom .webcast-chatroom___bottom-message",
+          // 上面的滚动播报，xxx加入了直播间
+          `#chatroom >div:nth-child(2)>div>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`,
+          // Firefox的，多了个pace-island
+          `#chatroom >pace-island>div>div:first-child>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`
+        )
+      ];
+    }
+  };
+  const DouYinLiveVideoAreaRightMenu = {
+    init() {
+      Panel.execMenuOnce("dy-live-blockVideoRightMenu-downloadClient", () => {
+        return this.blockDownloadClient();
+      });
+    },
+    /**
+     * 【屏蔽】右键菜单-下载客户端
+     */
+    blockDownloadClient() {
+      log.info(`【屏蔽】右键菜单-下载客户端`);
+      return [
+        CommonUtil.addBlockCSS(
+          '.__menu_container_className:has(>a[href*="douyin-pc-web"])'
+        )
+      ];
+    }
+  };
+  const DouYinLivePlayerInstance = {
+    $data: {
+      playerInstance: null
+    },
+    $el: {
+      $playerIns: null
+    },
+    /**
+     * 添加油猴菜单
+     */
+    initMenu() {
+      GM_Menu.add({
+        key: "live-parsePlayerInstance",
+        text: "⚙ PlayerInstance",
+        autoReload: false,
+        showText(text, enable) {
+          return text;
+        },
+        callback: () => {
+          let $playerIns = $(
+            `[id^="living_room_player_container"]`
+          );
+          if (!$playerIns) {
+            log.error("获取playerInstance所在的元素失败");
+            Qmsg.error("获取playerInstance所在的元素失败");
+            return;
+          }
+          this.$el.$playerIns = $playerIns;
+          let playerInstance = this.parseElementPlayerIns(this.$el.$playerIns);
+          if (playerInstance == null) {
+            log.error("获取playerInstance失败");
+            log.error("获取playerInstance失败");
+            return;
+          }
+          this.$data.playerInstance = playerInstance;
+          this.showParseDialog();
+        }
+      });
+    },
+    /**
+     * 解析元素上的播放器实例
+     */
+    parseElementPlayerIns($ele) {
+      var _a2, _b, _c, _d;
+      let react = utils.getReactObj($ele);
+      return (_d = (_c = (_b = (_a2 = react == null ? void 0 : react.reactFiber) == null ? void 0 : _a2.child) == null ? void 0 : _b.child) == null ? void 0 : _c.memoizedProps) == null ? void 0 : _d.playerInstance;
+    },
+    /**
+     * 显示解析的信息弹窗
+     */
+    showParseDialog() {
+      var _a2, _b, _c, _d;
+      log.info(["解析的信息：", this.$data.playerInstance]);
+      let blobSrc = ((_a2 = this.$data.playerInstance) == null ? void 0 : _a2.url) || ((_b = this.$data.playerInstance) == null ? void 0 : _b.src);
+      let pushSrc = (_c = this.$data.playerInstance) == null ? void 0 : _c.config.url;
+      __pops.alert({
+        title: {
+          text: "解析信息",
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                <div class="live-dy-parse-container">
+                    <div class="live-dy-parse-item">
+                        <div class="live-dy-parse-item-name">推流地址：</div>
+                        <a class="live-dy-parse-item-value" href="${pushSrc}" target="_blank">${pushSrc}
+                        </a>
+                    </div>
+                    <div class="live-dy-parse-item">
+                        <div class="live-dy-parse-item-name">blob地址：</div>
+                        <a class="live-dy-parse-item-value" href="${blobSrc}" target="_blank">${blobSrc}
+                        </a>
+                    </div>
+                    <div class="live-dy-parse-item">
+                        <div class="live-dy-parse-item-name">播放器版本：</div>
+                        <div class="live-dy-parse-item-value">${(_d = this.$data.playerInstance) == null ? void 0 : _d.version}
+                        </div>
+                    </div>
+                </div>
+                `
+          ),
+          html: true
+        },
+        mask: {
+          enable: false
+        },
+        width: window.innerWidth > 550 ? "550px" : "88wv",
+        height: window.innerHeight > 550 ? "550px" : "70vh",
+        style: (
+          /*css*/
+          `
+            .live-dy-parse-container{
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .live-dy-parse-item{
+                display: flex;
+                flex-wrap: wrap;
+                border: 1px solid #919191;
+                border-left: 0px;
+                border-right: 0px;
+                width: 100%;
+                background: #0af9ee;
+                padding: 5px 5px;
+            }
+            `
+        )
+      });
+    }
+  };
+  const DouYinLiveShortCut = {
+    shortCut: new ShortCut("live-short-cut"),
+    $data: {
+      blockChatRoom: false
     },
     init() {
       this.shortCut.initGlobalKeyboardListener(this.getShortCutMap());
     },
     getShortCutMap() {
       return {
-        "dy-video-rate-low": {
+        "dy-live-block-chatroom": {
           target: "window",
           callback() {
-            log.info("触发快捷键 ==> 调用倍速：小");
-            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex(
-              (rate) => {
-                return rate === currentRate;
-              }
-            );
-            if (findIndex === 0) {
-              log.warn("触发快捷键 ==> 已是最小倍速: " + currentRate);
-              return;
-            }
-            let prevRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex - 1];
-            log.info("触发快捷键 ==> 设置倍速: " + prevRate);
-            DouYinVideoPlayer.chooseVideoRate(prevRate);
+            log.info("快捷键 ==> 【屏蔽】聊天室");
+            let flag = Panel.getValue("live-shieldChatRoom");
+            Panel.setValue("live-shieldChatRoom", !flag);
           }
         },
-        "dy-video-rate-up": {
+        "dy-live-shieldGiftEffects": {
           target: "window",
-          callback() {
-            log.info("触发快捷键 ==> 调用倍速：大");
-            let currentRate = _unsafeWindow.sessionStorage.getItem("player_playbackratio") ?? "1";
-            let findIndex = DouYinVideoPlayerShortCut.$data.rateMap.findIndex(
-              (rate) => {
-                return rate === currentRate;
-              }
-            );
-            if (findIndex === DouYinVideoPlayerShortCut.$data.rateMap.length - 1) {
-              log.warn("触发快捷键 ==> 已是最大倍速: " + currentRate);
-              return;
-            }
-            let nextRate = DouYinVideoPlayerShortCut.$data.rateMap[findIndex + 1];
-            log.info("触发快捷键 ==> 设置倍速: " + nextRate);
-            DouYinVideoPlayer.chooseVideoRate(nextRate);
+          callback: () => {
+            log.info("快捷键 ==> 【屏蔽】礼物特效");
+            let flag = Panel.getValue("live-shieldGiftEffects");
+            Panel.setValue("live-shieldGiftEffects", !flag);
           }
         },
-        "dy-video-shortcut-immersionMode": {
-          target: "window",
-          callback() {
-            log.info("触发快捷键 ==> 沉浸模式");
-            let value = Panel.getValue("fullScreen");
-            Panel.setValue("fullScreen", !value);
-            Panel.execMenuOnce("fullScreen", () => {
-              return DouYinVideoPlayer.fullScreen();
-            });
-          }
-        },
-        "dy-video-shortcut-changeVideoMuted": {
+        "dy-live-shortcut-changeVideoMuted": {
           target: "window",
           callback() {
             log.info(`触发快捷键 ==> 切换静音状态`);
@@ -5190,41 +5574,785 @@
       };
     }
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
-    let result = {
-      text,
-      type: "slider",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      getToolTipContent(value) {
-        if (typeof getToolTipContent === "function") {
-          return getToolTipContent(value);
-        } else {
-          return `${value}`;
+  const VideoQualityMap = {
+    auto: {
+      label: "自动",
+      sign: 0
+    },
+    origin: {
+      label: "原画",
+      sign: 5
+    },
+    uhd: {
+      label: "蓝光",
+      sign: 4
+    },
+    hd: {
+      label: "超清",
+      sign: 3
+    },
+    sd: {
+      label: "高清",
+      sign: 2
+    },
+    ld: {
+      label: "标清",
+      sign: 1
+    }
+  };
+  const DouYinLive = {
+    init() {
+      DouYinLiveBlock.init();
+      DouYinLiveShortCut.init();
+      Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
+        DouYinLiveMessage.filterMessage();
+      });
+      Panel.execMenu("live-unlockImageQuality", () => {
+        this.unlockImageQuality();
+      });
+      Panel.execMenuOnce("live-waitToRemovePauseDialog", () => {
+        this.waitToRemovePauseDialog();
+      });
+      Panel.execMenu("live-pauseVideo", () => {
+        this.pauseVideo();
+      });
+      Panel.exec(["live-bgColor-enable", "live-changeBackgroundColor"], () => {
+        return this.changeBackgroundColor();
+      });
+      Panel.execMenuOnce("live-parsePlayerInstance", () => {
+        DouYinLivePlayerInstance.initMenu();
+      });
+      domUtils.ready(() => {
+        Panel.execMenu("live-chooseQuality", (option) => {
+          if (option.value === "auto") {
+            return;
+          }
+          this.chooseQuality(option.value);
+        });
+        Panel.execMenu("live-autoEnterElementFullScreen", () => {
+          this.autoEnterElementFullScreen();
+        });
+      });
+    },
+    /**
+     * 自动进入网页全屏
+     */
+    autoEnterElementFullScreen() {
+      domUtils.ready(() => {
+        ReactUtils.waitReactPropsToSet(
+          "xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)",
+          "reactFiber",
+          {
+            check(reactInstance) {
+              var _a2;
+              return typeof ((_a2 = reactInstance == null ? void 0 : reactInstance.memoizedProps) == null ? void 0 : _a2.onClick) === "function";
+            },
+            set(reactInstance, $target) {
+              let $xgIcon = $target.closest("xg-icon");
+              if ($xgIcon && domUtils.text($xgIcon).includes("退出网页全屏")) {
+                log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
+                return;
+              }
+              log.success("成功自动进入网页全屏");
+              reactInstance.memoizedProps.onClick();
+            }
+          }
+        );
+      });
+    },
+    /**
+     * 选择画质
+     * @param quality 选择的画质
+     */
+    chooseQuality(quality = "origin") {
+      ReactUtils.waitReactPropsToSet(
+        'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
+        "reactProps",
+        {
+          check(reactInstance) {
+            var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
+            return typeof ((_d = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _a2.props) == null ? void 0 : _b.children) == null ? void 0 : _c.props) == null ? void 0 : _d.qualityHandler) === "object" && typeof ((_i = (_h = (_g = (_f = (_e = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _e.props) == null ? void 0 : _f.children) == null ? void 0 : _g.props) == null ? void 0 : _h.qualityHandler) == null ? void 0 : _i.getCurrentQualityList) === "function";
+          },
+          set(reactInstance) {
+            let qualityHandler = reactInstance.children.props.children.props.qualityHandler;
+            let currentQualityList = qualityHandler.getCurrentQualityList();
+            if (!currentQualityList.includes(quality)) {
+              Qmsg.warning(
+                "当前直播没有【" + quality + "】画质，自动选择最高画质"
+              );
+              currentQualityList.sort((a, b) => {
+                if (!VideoQualityMap[a]) {
+                  log.error("画质【" + a + "】不存在");
+                  return 0;
+                }
+                if (!VideoQualityMap[b]) {
+                  log.error("画质【" + b + "】不存在");
+                  return 0;
+                }
+                return VideoQualityMap[a].sign - VideoQualityMap[b].sign;
+              });
+              quality = currentQualityList[currentQualityList.length - 1];
+            }
+            qualityHandler.setCurrentQuality(quality);
+            log.success("成功设置画质为【" + quality + "】");
+          }
         }
-      },
-      callback(event, value) {
-        this.props[PROPS_STORAGE_API].set(key, value);
-      },
-      min,
-      max,
-      step
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      );
+    },
+    /**
+     * 解锁画质选择
+     *
+     * 未登录情况下最高选择【高清】画质
+     */
+    unlockImageQuality() {
+      log.info("解锁画质选择");
+      domUtils.on(
+        document,
+        "click",
+        'div[data-e2e="quality-selector"] > div',
+        function(event, clickNode) {
+          var _a2, _b;
+          utils.preventEvent(event);
+          try {
+            let reactInstance = utils.getReactObj(clickNode);
+            let key = (_a2 = reactInstance == null ? void 0 : reactInstance.reactFiber) == null ? void 0 : _a2["key"];
+            let parent = clickNode.closest("div[data-index]");
+            let parentReactInstance = utils.getReactObj(parent);
+            let current = (_b = parentReactInstance == null ? void 0 : parentReactInstance.reactProps) == null ? void 0 : _b["children"]["ref"]["current"];
+            log.info("当前选择的画质: " + key);
+            log.info(["所有的画质: ", current.getCurrentQualityList()]);
+            current.setCurrentQuality(key);
+          } catch (error) {
+            log.error(error);
+            Qmsg.error("切换画质失败");
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 长时间无操作，已暂停播放
+     * 累计节能xx分钟
+     */
+    waitToRemovePauseDialog() {
+      log.info("监听【长时间无操作，已暂停播放】弹窗");
+      let checkDialogToClose = ($ele, from) => {
+        var _a2, _b, _c, _d, _e, _f;
+        let eleText = domUtils.text($ele);
+        if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
+          Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`, {
+            consoleLogContent: true
+          });
+          let $rect = utils.getReactObj($ele);
+          if (typeof $rect.reactContainer === "object") {
+            let closeDialogFn = utils.queryProperty($rect.reactContainer, (obj) => {
+              var _a3, _b2;
+              if (typeof obj["onClose"] === "function") {
+                return {
+                  isFind: true,
+                  data: obj["onClose"]
+                };
+              } else if (typeof ((_a3 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _a3["onClose"]) === "function") {
+                return {
+                  isFind: true,
+                  data: (_b2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _b2["onClose"]
+                };
+              } else {
+                return {
+                  isFind: false,
+                  data: obj["child"]
+                };
+              }
+            }) || ((_f = (_e = (_d = (_c = (_b = (_a2 = $rect == null ? void 0 : $rect.reactContainer) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.element) == null ? void 0 : _c.props) == null ? void 0 : _d.children) == null ? void 0 : _e.props) == null ? void 0 : _f.onClose);
+            if (typeof closeDialogFn === "function") {
+              Qmsg.success(`检测${from}：调用函数关闭弹窗`, {
+                consoleLogContent: true
+              });
+              closeDialogFn();
+            }
+          }
+        }
+      };
+      let lockFn = new utils.LockFunction(() => {
+        if (!Panel.getValue("live-waitToRemovePauseDialog")) {
+          return;
+        }
+        $$("body > div[elementtiming='element-timing']").forEach(
+          ($elementTiming) => {
+            checkDialogToClose($elementTiming, "1");
+          }
+        );
+        $$('body > div:not([id="root"]):not(:empty)').forEach(
+          ($ele) => {
+            checkDialogToClose($ele, "2");
+          }
+        );
+      });
+      domUtils.ready(() => {
+        utils.mutationObserver(document.body, {
+          config: {
+            subtree: true,
+            childList: true
+          },
+          immediate: true,
+          callback() {
+            lockFn.run();
+          }
+        });
+      });
+    },
+    /**
+     * 暂停视频
+     */
+    pauseVideo() {
+      log.info("禁止自动播放视频(直播)");
+      utils.waitNode('.basicPlayer[data-e2e="basicPlayer"] video').then(($video) => {
+        $video.autoplay = false;
+        $video.pause();
+        domUtils.on(
+          $video,
+          "play",
+          () => {
+            $video.pause();
+          },
+          {
+            capture: true,
+            once: true
+          }
+        );
+      });
+    },
+    /**
+     * 修改视频背景颜色
+     * @param color 颜色
+     */
+    changeBackgroundColor() {
+      log.info("修改视频背景颜色");
+      let color = Panel.getValue("live-changeBackgroundColor");
+      return addStyle(
+        /*css*/
+        `
+		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] div:has(>.xgplayer-dynamic-bg) {
+			background: ${color} !important;
+		}
+		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] .xgplayer-dynamic-bg{
+			visibility: hidden;
+		}
+		`
+      );
+    }
+  };
+  const DouYinRedirect = {
+    init() {
+      Panel.execMenu("douyin-redirect-url-home-to-root", () => {
+        this.redirectUrlHomeToRoot();
+      });
+    },
+    /**
+     * 从首页到根目录
+     */
+    redirectUrlHomeToRoot() {
+      if (window.location.pathname === "/home") {
+        log.info("从首页跳转到根目录");
+        window.location.href = window.location.origin + "/?is_from_mobile_home=1&recommend=1";
       }
-    });
-    return result;
+    }
+  };
+  const MobileCSS = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100vw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\r\n#douyin-header header{\r\n	flex-direction: row-reverse !important;\r\n}\r\n#douyin-header header > div:nth-child(2) {\r\n	position: unset !important;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#sliderVideo {\r\n		width: 100%;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#component-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n';
+  const DouYinSearchHideElement = {
+    init() {
+      Panel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
+        return this.shieldReleatedSearches();
+      });
+    },
+    /**
+     * 【屏蔽】相关搜索
+     */
+    shieldReleatedSearches() {
+      log.info("【屏蔽】相关搜索");
+      return [
+        CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
+        addStyle(
+          /*css*/
+          `
+			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
+				width: 100vw;
+			}`
+        )
+      ];
+    }
+  };
+  const DouYinSearch = {
+    init() {
+      DouYinSearchHideElement.init();
+      Panel.execMenuOnce("mobileMode", () => {
+        return this.mobileMode();
+      });
+      Panel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
+        this.disableClickToEnterFullScreen();
+      });
+      Panel.execMenuOnce("live-setSearchResultFilterWithVideoStyle", (option) => {
+        return this.setSearchResultFilterWithVideoStyle(option.value);
+      });
+    },
+    /**
+     * 手机模式
+     * (由通用统一调用，勿放在本函数的init内)
+     */
+    mobileMode() {
+      log.info("搜索-手机模式");
+      let result = [];
+      result.push(addStyle(MobileCSS));
+      result.push(
+        addStyle(
+          /*css*/
+          `
+			@media screen and (max-width: 550px){
+				div#search-body-container {
+					display: flex;
+				}
+				div#search-body-container #component-Navigation {
+					flex: 0;
+				}
+				div#search-body-container #douyin-right-container {
+					flex: 1 auto;
+				}
+				div#search-body-container #douyin-right-container #search-content-area > div {
+					width: 100% !important;
+				}
+				div#search-body-container #douyin-right-container #search-content-area > div > div > div {
+					width: 100% !important;
+					margin-left: 0px;
+					margin-right: 0px;
+					padding-left: 0px;
+					padding-right: 0px;
+				}
+				/* 上面的搜索结果筛选 */
+				#search-content-area > div >div> div:first-child > div:first-child > div:last-child{
+					overflow: auto;
+					text-wrap: nowrap;
+					height: auto;
+				}
+				/* 视频右侧的TA的作品↓ */
+				#searchSideCard{
+					width: unset !important;
+				}
+				#searchSideCard > div{
+					padding: 0px !important;
+				}
+				#searchSideCard > div:has(>div+svg),
+				#searchSideCard ul[data-e2e="scroll-list"]{
+					padding: 0px 10px !important;
+				}
+				#searchSideCard ul[data-e2e="scroll-list"] .video-playing-item > div{
+					width: auto;
+				}
+				/* 视频右侧的TA的作品↑ */
+				/* 悬浮的筛选 */
+				#douyin-right-container #douyin-header{
+        			background-color: var(--color-bg-b0);
+				}
+				xg-right-grid{
+					margin: auto !important;
+				}
+			}
+		`
+        )
+      );
+      utils.waitNode("#relatedVideoCard").then(($relatedVideoCard) => {
+        log.info("评论区展开的className：" + $relatedVideoCard.className);
+        result.push(
+          addStyle(
+            /*css*/
+            `
+					html[data-vertical-screen]
+						#sliderVideo[data-e2e="feed-active-video"]
+						#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
+							width: 100vw !important;
+					}`
+          )
+        );
+      });
+      return result;
+    },
+    /**
+     * 禁止点击视频区域进入全屏
+     */
+    disableClickToEnterFullScreen() {
+      log.info("搜索-禁止点击视频区域进入全屏");
+      domUtils.on(
+        document,
+        "click",
+        ".focusPanel",
+        (event) => {
+          var _a2;
+          utils.preventEvent(event);
+          let $click = event.target;
+          let $parent = (_a2 = $click.parentElement) == null ? void 0 : _a2.parentElement;
+          let $video = $parent.querySelector("video");
+          if ($video) {
+            if ($video.paused) {
+              log.info(".focusPanel：播放视频");
+              $video.play();
+            } else {
+              log.info(".focusPanel：视频暂停");
+              $video.pause();
+            }
+          } else {
+            log.error(".focusPanel未找到<video>标签");
+            Qmsg.error(".focusPanel未找到<video>标签", {
+              isHTML: false
+            });
+          }
+        },
+        {
+          capture: true
+        }
+      );
+      domUtils.on(
+        document,
+        "click",
+        "xg-video-container",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let $video = $click.querySelector("video");
+          if ($video) {
+            if ($video.paused) {
+              log.info("xg-video-container：播放视频");
+              $video.play();
+            } else {
+              log.info("xg-video-container：视频暂停");
+              $video.pause();
+            }
+          } else {
+            log.error("xg-video-container未找到<video>标签");
+            Qmsg.error("xg-video-container未找到<video>标签", {
+              isHTML: false
+            });
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 设置搜索结果-按视频过滤的显示样式
+     * @param lineMode 单列/双列
+     */
+    setSearchResultFilterWithVideoStyle(lineMode = "one") {
+      log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
+      if (lineMode === "one") {
+        return addStyle(
+          /*css*/
+          `
+			@media screen and (max-width: 800px){
+				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
+					width: calc(100% - 21px);
+				}
+			}
+			`
+        );
+      } else if (lineMode === "double") {
+        return addStyle(
+          /*css*/
+          `	
+			@media screen and (max-width: 800px){
+				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
+					width: calc(50% - 21px);
+				}
+			}
+			`
+        );
+      }
+    }
+  };
+  const BlockLeftNavigator = {
+    init() {
+      Panel.exec(
+        ["shieldLeftNavigator", "search-shieldLeftNavigator"],
+        () => {
+          return this.shieldLeftNavigator();
+        },
+        (keyList) => {
+          const [mainKey, childKey] = keyList;
+          let mainValue = Panel.getValue(mainKey);
+          let childValue = Panel.getValue(childKey);
+          if (DouYinRouter.isSearch()) {
+            if (childValue == 1) {
+              return true;
+            } else if (childValue == 0) {
+              return false;
+            } else ;
+          }
+          return mainValue;
+        }
+      );
+      Panel.execMenuOnce("shieldLeftNavigator-tab-home", () => {
+        return this.block_tab_home();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-recommend", () => {
+        return this.block_tab_recommend();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-follow", () => {
+        return this.block_tab_follow();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-friend", () => {
+        return this.block_tab_friend();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
+        return this.block_tab_user_self();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
+        return this.block_tab_live();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
+        return this.block_tab_vs();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
+        return this.block_tab_series();
+      });
+      Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
+        return this.block_tab_ai_search();
+      });
+    },
+    /**
+     * 【屏蔽】左侧导航栏
+     */
+    shieldLeftNavigator() {
+      log.info("【屏蔽】左侧导航栏");
+      let result = [];
+      result.push(CommonUtil.addBlockCSS("#douyin-navigation"));
+      result.push(
+        addStyle(
+          /*css*/
+          `
+			/* 修复顶部导航栏的宽度 */
+			#douyin-header{
+				width: 100%;
+			}`
+        )
+      );
+      return result;
+    },
+    /**
+     * 【屏蔽】精选
+     */
+    block_tab_home() {
+      log.info("【屏蔽】精选");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)'
+      );
+    },
+    /**
+     * 【屏蔽】推荐
+     */
+    block_tab_recommend() {
+      log.info("【屏蔽】推荐");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)'
+      );
+    },
+    /**
+     * 【屏蔽】关注
+     */
+    block_tab_follow() {
+      log.info("【屏蔽】关注");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)'
+      );
+    },
+    /**
+     * 【屏蔽】朋友
+     */
+    block_tab_friend() {
+      log.info("【屏蔽】朋友");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)'
+      );
+    },
+    /**
+     * 【屏蔽】我的
+     */
+    block_tab_user_self() {
+      log.info("【屏蔽】我的");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)'
+      );
+    },
+    /**
+     * 【屏蔽】喜欢
+     */
+    block_tab_user_self_like() {
+      log.info("【屏蔽】喜欢");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_like)'
+      );
+    },
+    /**
+     * 【屏蔽】收藏
+     */
+    block_tab_user_self_collection() {
+      log.info("【屏蔽】收藏");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_collection)'
+      );
+    },
+    /**
+     * 【屏蔽】观看历史
+     */
+    block_tab_user_self_record() {
+      log.info("【屏蔽】观看历史");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_record)'
+      );
+    },
+    /**
+     * 【屏蔽】直播
+     */
+    block_tab_live() {
+      log.info("【屏蔽】直播");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)'
+      );
+    },
+    /**
+     * 【屏蔽】放映厅
+     */
+    block_tab_vs() {
+      log.info("【屏蔽】放映厅");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)'
+      );
+    },
+    /**
+     * 【屏蔽】短剧
+     */
+    block_tab_series() {
+      log.info(`短剧`);
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)'
+      );
+    },
+    /**
+     * 【屏蔽】AI搜索
+     */
+    block_tab_ai_search() {
+      log.info(`【屏蔽】AI搜索`);
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
+      );
+    },
+    /**
+     * 【屏蔽】知识
+     */
+    block_tab_channel_300203() {
+      log.info("【屏蔽】知识");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300203)'
+      );
+    },
+    /**
+     * 【屏蔽】游戏
+     */
+    block_tab_channel_300205() {
+      log.info("【屏蔽】游戏");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300205)'
+      );
+    },
+    /**
+     * 【屏蔽】二次元
+     */
+    block_tab_channel_300206() {
+      log.info("【屏蔽】二次元");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300206)'
+      );
+    },
+    /**
+     * 【屏蔽】音乐
+     */
+    block_tab_channel_300209() {
+      log.info("【屏蔽】音乐");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300209)'
+      );
+    },
+    /**
+     * 【屏蔽】美食
+     */
+    block_tab_channel_300204() {
+      log.info("【屏蔽】美食");
+      return CommonUtil.addBlockCSS(
+        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)'
+      );
+    }
+  };
+  const blockCSS$8 = '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n/* 但是这个CSS又会屏蔽右键菜单 */\r\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\r\n/* 下载客户端，使用壁纸 */\r\ndiv:has(+#wallpaper-modal),\r\n/* 下载客户端，实时接收消息通知 */\r\n/* 下载客户端，实时接收好友消息 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\r\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\r\n/* 客户端登录访问更便捷 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\r\n/* 前往电脑客户端，即享下载视频 */\r\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\r\n/* so.douyin.com的广告item */\r\n.card-item:has(.h5-ad-video-card),\r\n.card-item:has([data-is-ad="true"]) {\r\n	display: none !important;\r\n}\r\n';
+  const blockCSS$7 = '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n	display: none !important;\r\n}\r\n';
+  const DouYinUser = {
+    init() {
+      addStyle(blockCSS$7);
+      domUtils.ready(() => {
+        Panel.execMenu("dy-user-addShowUserUID", () => {
+          this.addShowUserUID();
+        });
+      });
+    },
+    /**
+     * 显示UID
+     */
+    addShowUserUID() {
+      ReactUtils.waitReactPropsToSet(
+        `[data-e2e="user-detail"] [data-e2e="user-info"]`,
+        "reactFiber",
+        {
+          msg: "显示UID",
+          check(reactInstance) {
+            var _a2, _b, _c;
+            return typeof ((_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedProps) == null ? void 0 : _b.userInfo) == null ? void 0 : _c.uid) === "string";
+          },
+          set(reactInstance, $target) {
+            var _a2, _b, _c;
+            let uid = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedProps) == null ? void 0 : _b.userInfo) == null ? void 0 : _c.uid;
+            domUtils.remove(
+              $target.querySelectorAll(".gm-user-uid")
+            );
+            let $userUID = domUtils.createElement(
+              "p",
+              {
+                className: "gm-user-uid",
+                innerHTML: (
+                  /*html*/
+                  `
+							<span>UID：${uid}</span>
+						`
+                )
+              },
+              {
+                style: "color: var(--color-text-t3);margin-right: 20px;font-size: 12px;line-height: 20px;cursor: pointer;"
+              }
+            );
+            domUtils.on($userUID, "click", (event) => {
+              utils.preventEvent(event);
+              utils.setClip(uid);
+              Qmsg.success("复制成功");
+            });
+            $target.appendChild($userUID);
+          }
+        }
+      );
+    }
+  };
+  const blockCSS$6 = '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r\ndiv[data-e2e="video-detail"]\r\n	div\r\n	> :has(> div:last-child > a[href*="douyin-pc-web"]) {\r\n	display: none !important;\r\n}\r\n';
+  const DouYinVideo = {
+    init() {
+      addStyle(blockCSS$6);
+    }
   };
   const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
     let result = {
@@ -5282,6 +6410,37 @@
         log.info(`多选-选择：`, value);
       },
       data: selectData
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      }
+    });
+    return result;
+  };
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
+    let result = {
+      text,
+      type: "switch",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return Boolean(
+          this.props[PROPS_STORAGE_API].get(key, defaultValue)
+        );
+      },
+      callback(event, __value) {
+        let value = Boolean(__value);
+        log.success(`${value ? "开启" : "关闭"} ${text}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
+      },
+      afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
@@ -6436,57 +7595,6 @@
       }
     }
   }
-  const DouYinNetWorkHook = {
-    __ajaxHooker: null,
-    get ajaxHooker() {
-      if (this.__ajaxHooker == null) {
-        this.__ajaxHooker = utils.ajaxHooker();
-      }
-      return this.__ajaxHooker;
-    },
-    init() {
-    },
-    /**
-     * 评论区的查看评论api
-     */
-    commentReply() {
-      this.ajaxHooker.hook((request) => {
-        let url = CommonUtil.fixUrl(request.url);
-        let urlInstance = new URL(url);
-        if (urlInstance.pathname.startsWith("/aweme/v1/web/comment/list/reply")) {
-          urlInstance.searchParams.delete("whale_cut_token");
-          urlInstance.searchParams.append("whale_cut_token", "");
-          request.url = urlInstance.toString();
-        }
-      });
-    },
-    /**
-     * 篡改未登录时的响应结果
-     */
-    hookUserNoLoginResponse() {
-      this.ajaxHooker.hook((request) => {
-        let originResponse = request.response;
-        request.response = (response) => {
-          var _a2, _b, _c;
-          originResponse && originResponse(response);
-          let data = utils.toJSON(response.responseText);
-          if (typeof data["status_code"] === "number" && data["status_code"] !== 0) {
-            data["status_code"] = 0;
-            if (typeof data["status_msg"] === "string") {
-              data["status_msg"] = "";
-            }
-          }
-          if (typeof ((_a2 = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _a2["status_code"]) === "number" && ((_b = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _b["status_code"]) !== 0) {
-            data["user_collect_count"]["status_code"] = 0;
-            if (typeof ((_c = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _c["status_msg"]) === "string") {
-              data["user_collect_count"]["status_msg"] = "";
-            }
-          }
-          response.responseText = JSON.stringify(data);
-        };
-      });
-    }
-  };
   const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
     let result = {
       text,
@@ -6497,7 +7605,11 @@
       placeholder,
       disabled,
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        if (Array.isArray(value)) {
+          return value.join("\n");
+        }
+        return value;
       },
       callback(event, value) {
         this.props[PROPS_STORAGE_API].set(key, value);
@@ -7761,6 +8873,1606 @@
       });
     }
   };
+  const blockCSS$5 = '/* 右侧视频信息里的 下载客户端，桌面快捷访问 */\r\n[data-e2e="note-detail"]\r\n	div:has(> [data-e2e="user-info"])\r\n	> div:has(a[download*="douyin-downloader"]) {\r\n	display: none !important;\r\n}\r\n';
+  const DouYinNote = {
+    init() {
+      addStyle(blockCSS$5);
+    }
+  };
+  const DouYin = {
+    init() {
+      Panel.onceExec("dy-global-block-css", () => {
+        return this.removeAds();
+      });
+      DouYinGestureBackClearHash();
+      DouYinHook.init();
+      DouYinVideoFilter.init();
+      DouYinRedirect.init();
+      Panel.execMenuOnce("watchLoginDialogToClose", () => {
+        DouYinAccount.watchLoginDialogToClose();
+      });
+      Panel.execMenuOnce("disguiseLogin", () => {
+        DouYinAccount.disguiseLogin();
+      });
+      Panel.execMenuOnce("dy-initialScale", () => {
+        this.initialScale();
+      });
+      Panel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
+        this.removeMetaAppleItunesApp();
+      });
+      BlockLeftNavigator.init();
+      BlockTopNavigator.init();
+      BlockSearchFrame.init();
+      Panel.execMenuOnce("dy-common-listenRouterChange", () => {
+        this.listenRouterChange();
+      });
+      if (DouYinRouter.isLive()) {
+        log.info("Router: 直播");
+        DouYinLive.init();
+      } else if (DouYinRouter.isIndex()) {
+        DouYinVideoPlayer.init();
+        if (DouYinRouter.isSearch()) {
+          log.info("Router: 搜索");
+          DouYinSearch.init();
+        } else if (DouYinRouter.isUser()) {
+          log.info(`Router: 用户页面`);
+          DouYinUser.init();
+        } else if (DouYinRouter.isVideo()) {
+          log.info(`Router: 单个视频页面`);
+          DouYinVideo.init();
+        } else if (DouYinRouter.isChannel()) {
+          log.info(`Router: Channel页面`);
+        } else if (DouYinRouter.isNote()) {
+          log.info(`Router:  笔记页面`);
+          DouYinNote.init();
+        } else {
+          log.warn("子router: " + window.location.href);
+        }
+      } else {
+        log.error("未适配router: " + window.location.href);
+      }
+    },
+    /**
+     * 移除ads
+     */
+    removeAds() {
+      if (DouYinRouter.isIndex() || DouYinRouter.isJingXuan()) {
+        utils.waitNode(
+          () => domUtils.selector(
+            '#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:contains("下载抖音精选|条条都是宝藏视频")'
+          ),
+          1e4
+        ).then(($el) => {
+          if (!$el) {
+            return;
+          }
+          domUtils.remove($el);
+        });
+      }
+      return [addStyle(blockCSS$8)];
+    },
+    /**
+     * 固定meta viewport缩放倍率为1
+     */
+    initialScale() {
+      log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
+      domUtils.ready(() => {
+        let meta = domUtils.createElement(
+          "meta",
+          {},
+          {
+            name: "viewport",
+            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
+          }
+        );
+        domUtils.remove("meta[name='viewport']");
+        utils.waitNode("head").then(() => {
+          document.head.appendChild(meta);
+        });
+      });
+    },
+    /**
+     * 移除<meta>标签name="apple-itunes-app"
+     */
+    removeMetaAppleItunesApp() {
+      utils.waitNodeList(
+        ['meta[name="apple-itunes-app"]'],
+        1e4
+      ).then(($metaList) => {
+        if (!$metaList) {
+          return;
+        }
+        $metaList.forEach(($meta) => {
+          $meta.remove();
+        });
+      });
+    },
+    /**
+     * 监听Router重载
+     */
+    listenRouterChange() {
+      log.info(`监听Router重载`);
+      domUtils.on(window, "wb_url_change", (event) => {
+        let currentUrl = window.location.href;
+        log.info(`Router Change：` + currentUrl);
+        this.init();
+      });
+    }
+  };
+  const MDouYinRouter = {
+    /**
+     * 是否是移动端抖音
+     */
+    isMDouYin() {
+      return window.location.hostname === "m.douyin.com" || window.location.hostname === "www.iesdouyin.com";
+    },
+    /**
+     * 用户主页
+     */
+    isShareUser() {
+      return this.isMDouYin() && window.location.pathname.startsWith("/share/user/");
+    },
+    /**
+     * 分享的视频
+     */
+    isShareVideo() {
+      return this.isMDouYin() && (window.location.pathname.startsWith("/share/video/") || window.location.pathname.startsWith("/shipin/"));
+    },
+    /**
+     * 笔记
+     */
+    isShareNote() {
+      return this.isMDouYin() && window.location.pathname.startsWith("/share/note/");
+    },
+    /**
+     * 音乐
+     */
+    isShareMusic() {
+      return this.isMDouYin() && window.location.pathname.startsWith("/share/music/");
+    },
+    /**
+     * 话题
+     */
+    isShareChallenge() {
+      return this.isMDouYin() && window.location.pathname.startsWith("/share/challenge/");
+    }
+  };
+  const blockCSS$4 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button{\r\n    display: none !important;\r\n}";
+  const DouYinUrlUtils = {
+    /**
+     * 获取视频链接
+     * @param videoId 视频id
+     */
+    getVideoUrl(videoId) {
+      return "https://www.douyin.com/video/" + videoId;
+    },
+    /**
+     * 获取视频合集链接
+     * @param collectionId 合集id
+     */
+    getCollectionUrl(collectionId) {
+      return "https://www.douyin.com/collection/" + collectionId;
+    },
+    /**
+     * 获取笔记链接
+     * @param noteId 笔记id
+     */
+    getNoteUrl(noteId) {
+      return "https://www.douyin.com/note/" + noteId;
+    },
+    /**
+     * 获取话题链接
+     * @param hashTagId 话题id
+     */
+    getHashTagUrl(hashTagId) {
+      return "https://www.douyin.com/hashtag/" + hashTagId;
+    },
+    /**
+     * 获取用户主页链接
+     * @param sec_uid
+     */
+    getUserHomeUrl(sec_uid) {
+      return "https://www.douyin.com/user/" + sec_uid;
+    },
+    /**
+     * 获取音乐链接
+     * @param musicId 音乐id
+     */
+    getMusicUrl(musicId) {
+      return "https://www.douyin.com/music/" + musicId;
+    }
+  };
+  const MDouYinShareUser = {
+    init() {
+      addStyle(blockCSS$4);
+      Panel.execMenuOnce("m-dy-share-user-coverPlayletList", () => {
+        this.coverPlayletList();
+      });
+      Panel.execMenuOnce("m-dy-share-user-coverPostListContainer", () => {
+        this.coverPostListContainer();
+      });
+    },
+    /**
+     * 覆盖视频合集点击事件
+     */
+    coverPlayletList() {
+      domUtils.on(
+        document,
+        "click",
+        ".user-playlet-list .playlet-item",
+        (event) => {
+          var _a2, _b, _c, _d;
+          utils.preventEvent(event);
+          let $click = event.target;
+          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
+          let key = reactFiber == null ? void 0 : reactFiber.key;
+          if (key == null) {
+            Qmsg.error("获取视频合集key失败");
+            return;
+          }
+          let index = reactFiber == null ? void 0 : reactFiber.index;
+          if (index == null) {
+            Qmsg.error("获取视频合集index失败");
+            return;
+          }
+          let playletList = (_d = (_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.return) == null ? void 0 : _c.pendingProps) == null ? void 0 : _d.playletList;
+          if (playletList == null) {
+            Qmsg.error("获取视频合集playletList失败");
+            return;
+          }
+          let currentPlaylet = playletList[index];
+          let url = DouYinUrlUtils.getCollectionUrl(currentPlaylet["mix_id"]);
+          window.open(url, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 覆盖视频列表点击事件
+     */
+    coverPostListContainer() {
+      domUtils.on(
+        document,
+        "click",
+        ".post-list-container .user-post-cover",
+        (event) => {
+          var _a2, _b, _c, _d, _e;
+          utils.preventEvent(event);
+          let $click = event.target;
+          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
+          if ((_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.productionUrl) {
+            let url = (_e = (_d = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.productionUrl;
+            window.open(url, "_blank");
+          } else {
+            Qmsg.error("获取视频链接失败");
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
+  const blockCSS$3 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 视频描述信息区域中的 打开抖音看精彩视频 */\r\n.footer .img-button,\r\n/* 登录页面 */\r\n.login-page ,\r\n/* 底部左下角 打开抖音看精彩视频 */\r\n.footer .bottom-btn-con-new,\r\n/* 合集 打开抖音看精彩视频 */\r\n.container .end-page-info-button {\r\n	display: none !important;\r\n}\r\n";
+  const beautifyCSS = ".video-container {\r\n	height: 100% !important;\r\n	margin-top: 0 !important;\r\n}\r\n.footer {\r\n	bottom: 50px !important;\r\n}\r\n.mix-info {\r\n	bottom: 0px !important;\r\n}\r\n";
+  const MDouYinShareVideo = {
+    init() {
+      addStyle(blockCSS$3);
+      addStyle(beautifyCSS);
+      Panel.execMenuOnce("m-dy-share-video-coverGlobalClick", () => {
+        this.coverGlobalClick();
+      });
+    },
+    /**
+     * 阻止全局点击，会跳转
+     */
+    coverGlobalClick() {
+      let selectorList = [".right-con", ".footer", ".mix-info"];
+      selectorList.forEach((selector) => {
+        DOMUtils.on(
+          document,
+          "click",
+          selector,
+          (event) => {
+            return utils.preventEvent(event);
+          },
+          {
+            capture: true
+          }
+        );
+      });
+    }
+  };
+  const blockCSS$2 = "/* 顶部 打开看看 登录 */\r\n.container .adapt-login-header,\r\n/* 底部中间的 App内打开 */\r\n.container .float-button-con {\r\n	display: none !important;\r\n}\r\n\r\n.gallery-container {\r\n	margin-top: 10px !important;\r\n}\r\n";
+  const MDouYinShareNote = {
+    init() {
+      addStyle(blockCSS$2);
+      Panel.execMenuOnce("m-dy-share-note-blockRecommend", () => {
+        return this.blockRecommend();
+      });
+      Panel.execMenuOnce("m-dy-share-note-blockComment", () => {
+        return this.blockComment();
+      });
+      Panel.execMenuOnce("m-dy-share-note-blockFooterToobar", () => {
+        return this.blockFooterToobar();
+      });
+      Panel.execMenuOnce("m-dy-share-note-coverUser", () => {
+        this.coverUser();
+      });
+      Panel.execMenuOnce("m-dy-share-note-coverHashTag", () => {
+        this.coverHashTag();
+      });
+      Panel.execMenuOnce("m-dy-share-note-coverMusic", () => {
+        this.coverMusic();
+      });
+      Panel.execMenuOnce("m-dy-share-note-coverRecommend", () => {
+        this.coverRecommend();
+      });
+      Panel.execMenuOnce(
+        "m-dy-share-note-coverExcitingGraphicsAndText",
+        () => {
+          this.coverExcitingGraphicsAndText();
+        }
+      );
+    },
+    /**
+     * 【屏蔽】相关推荐
+     */
+    blockRecommend() {
+      log.info("【屏蔽】相关推荐");
+      return CommonUtil.addBlockCSS(".recommend-con");
+    },
+    /**
+     * 【屏蔽】评论
+     */
+    blockComment() {
+      log.info("【屏蔽】评论");
+      return CommonUtil.addBlockCSS(".comment-con");
+    },
+    /**
+     * 【屏蔽】底部工具栏
+     */
+    blockFooterToobar() {
+      log.info("【屏蔽】底部工具栏");
+      return CommonUtil.addBlockCSS(".footer-con");
+    },
+    /**
+     * 覆盖相关推荐的点击事件
+     */
+    coverRecommend() {
+      log.info("覆盖相关推荐的点击事件");
+      domUtils.on(
+        document,
+        "click",
+        "#masonry .card",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let rectFiber = utils.getReactObj($click).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let awemeId = rectFiber.return.memoizedProps.awemeId;
+          let url = DouYinUrlUtils.getNoteUrl(awemeId);
+          window.open(url, "_blank");
+        },
+        { capture: true }
+      );
+    },
+    /**
+     * 覆盖用户点击事件
+     */
+    coverUser() {
+      log.info("覆盖用户点击事件");
+      domUtils.on(
+        document,
+        "click",
+        ".message-con__top",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let rectFiber = utils.getReactObj($click).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let sec_id = rectFiber.return.return.memoizedProps.video.authorInfo.sec_uid;
+          let url = DouYinUrlUtils.getUserHomeUrl(sec_id);
+          window.open(url, "_blank");
+        },
+        { capture: true }
+      );
+    },
+    /**
+     * 覆盖话题点击事件
+     */
+    coverHashTag() {
+      log.info("覆盖话题点击事件");
+      domUtils.on(
+        document,
+        "click",
+        ".message-con__content__body .message-con__content__body-text",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let rectFiber = utils.getReactObj($click).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let index = rectFiber.index;
+          let splitStrArr = rectFiber.return.return.return.return.memoizedProps.video.splitStrArr;
+          let currentSplitStr = splitStrArr[index];
+          let hashtagId = currentSplitStr["hashtagId"];
+          let url = DouYinUrlUtils.getHashTagUrl(hashtagId);
+          window.open(url, "_blank");
+        },
+        { capture: true }
+      );
+    },
+    /**
+     * 覆盖音乐点击事件
+     */
+    coverMusic() {
+      log.info("覆盖音乐点击事件");
+      domUtils.on(
+        document,
+        "click",
+        ".message-con__footer",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let rectFiber = utils.getReactObj($click).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let musicId = rectFiber.return.return.memoizedProps.video.musicId;
+          let url = DouYinUrlUtils.getMusicUrl(musicId);
+          window.open(url, "_blank");
+        },
+        { capture: true }
+      );
+    },
+    /**
+     * 覆盖精彩图文点击事件
+     */
+    coverExcitingGraphicsAndText() {
+      log.info("覆盖精彩图文点击事件");
+      domUtils.on(
+        document,
+        "click",
+        ".container .related-list-con .related-note-item",
+        (event) => {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let rectFiber = utils.getReactObj($click).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let itemData = rectFiber.return.memoizedProps.itemData;
+          let awemeId = itemData["awemeId"];
+          let url = DouYinUrlUtils.getNoteUrl(awemeId);
+          window.open(url, "_blank");
+        },
+        { capture: true }
+      );
+      domUtils.on(
+        document,
+        "click",
+        ".related-title-con",
+        (event) => utils.preventEvent(event),
+        { capture: true }
+      );
+    }
+  };
+  const blockCSS$1 = "/* 顶部 打开看看 登录 */\r\n.page-reflow-challenge .header,\r\n/* 底部的 打开抖音App看更多内容 */\r\n.page-reflow-challenge .bottom-btn__con {\r\n	display: none !important;\r\n}\r\n\r\n.page-reflow-challenge {\r\n	padding-top: 0 !important;\r\n}\r\n";
+  const MDouYinShareChallenge = {
+    init() {
+      addStyle(blockCSS$1);
+      Panel.onceExec("m-dy-share-challenge-coverTopJump", () => {
+        this.coverTopJump();
+      });
+      Panel.execMenuOnce("m-dy-share-challenge-coverVideoCard", () => {
+        this.coverVideoCard();
+      });
+    },
+    /**
+     * 阻止上面区域点击跳转至下载页面
+     */
+    coverTopJump() {
+      log.info("阻止上面区域点击跳转至下载页面");
+      domUtils.on(
+        document,
+        "click",
+        ".challenge-body",
+        (event) => {
+          utils.preventEvent(event);
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 覆盖视频卡片点击事件
+     */
+    coverVideoCard() {
+      log.info("覆盖视频卡片点击事件");
+      domUtils.on(
+        document,
+        "click",
+        "#pagelet-worklist li.item",
+        (event) => {
+          utils.preventEvent(event);
+          let $clikc = event.target;
+          let rectFiber = utils.getReactObj($clikc).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let listData = rectFiber.return.return.return.memoizedProps.listData;
+          let index = rectFiber.index;
+          let currentList = listData[index];
+          let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+          window.open(url, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
+  const blockCSS = "/* 顶部 打开App，发现更多内容 */\r\n.page-reflow-music .header,\r\n/* ↑屏蔽后的 顶部空白区域 */\r\n.page-reflow-music .banner-placeholder ,\r\n/* 底部 打开抖音App看更多内容 */\r\n.page-reflow-music .bottom-btn__con {\r\n	display: none !important;\r\n}\r\n";
+  const MDouYinShareMusic = {
+    init() {
+      addStyle(blockCSS);
+      Panel.execMenuOnce("m-dy-share-music-coverVideoCard", () => {
+        this.coverVideoCard();
+      });
+    },
+    /**
+     * 覆盖视频卡片点击事件
+     */
+    coverVideoCard() {
+      log.info("覆盖视频卡片点击事件");
+      domUtils.on(
+        document,
+        "click",
+        "#pagelet-worklist li.item",
+        (event) => {
+          utils.preventEvent(event);
+          let $clikc = event.target;
+          let rectFiber = utils.getReactObj($clikc).reactFiber;
+          if (!rectFiber) {
+            log.error("获取reactFiber失败");
+            Qmsg.error("获取reactFiber失败");
+            return;
+          }
+          let listData = rectFiber.return.return.return.memoizedProps.listData;
+          let index = rectFiber.index;
+          let currentList = listData[index];
+          let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
+          window.open(url, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
+  const MDouYin = {
+    init() {
+      if (MDouYinRouter.isShareUser()) {
+        log.info("M-Router: 分享用户");
+        MDouYinShareUser.init();
+      } else if (MDouYinRouter.isShareVideo()) {
+        log.info("M-Router: 分享视频");
+        MDouYinShareVideo.init();
+      } else if (MDouYinRouter.isShareNote()) {
+        log.info("M-Router: 分享笔记");
+        MDouYinShareNote.init();
+      } else if (MDouYinRouter.isShareChallenge()) {
+        log.info("M-Router: 分享话题");
+        MDouYinShareChallenge.init();
+      } else if (MDouYinRouter.isShareMusic()) {
+        log.info("M-Router: 分享音乐");
+        MDouYinShareMusic.init();
+      } else {
+        log.error("未知M-router: " + window.location.hostname);
+      }
+    }
+  };
+  const UISelect = function(text, key, defaultValue, data, callback, description) {
+    let selectData = [];
+    if (typeof data === "function") {
+      selectData = data();
+    } else {
+      selectData = data;
+    }
+    let result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(event, isSelectedValue, isSelectedText) {
+        let value = isSelectedValue;
+        log.info(`选择：${isSelectedText}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof callback === "function") {
+          callback(event, value, isSelectedText);
+        }
+      },
+      data: selectData
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      }
+    });
+    return result;
+  };
+  const afterEnterDeepMenuCallBack = (formConfig, container) => {
+    let $oneClickOpen = container.sectionBodyContainer.querySelector(
+      ".keyboard-oneClickOpen"
+    );
+    let $oneClickClose = container.sectionBodyContainer.querySelector(
+      ".keyboard-oneClickClose"
+    );
+    let clickCallBack = (isOpen) => {
+      var _a2;
+      (_a2 = container.sectionBodyContainer) == null ? void 0 : _a2.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
+        let $input = $ele.querySelector(
+          ".pops-panel-switch__input"
+        );
+        let $checkbox = $ele.querySelector(
+          ".pops-panel-switch__core"
+        );
+        if (isOpen) {
+          if (!$input.checked) {
+            $checkbox.click();
+          }
+        } else {
+          if ($input.checked) {
+            $checkbox.click();
+          }
+        }
+      });
+    };
+    domUtils.on($oneClickOpen, "click", (event) => {
+      utils.preventEvent(event);
+      clickCallBack(true);
+    });
+    domUtils.on($oneClickClose, "click", (event) => {
+      utils.preventEvent(event);
+      clickCallBack(false);
+    });
+  };
+  const AutoOpenOrClose = {
+    text: (
+      /*html*/
+      `
+		<p>注：开启是禁用该快捷键、关闭是不禁用该快捷键</p>
+        <a href="javascript:;" class="keyboard-oneClickOpen">禁用全部快捷键</a>
+        <br>
+        <a href="javascript:;" class="keyboard-oneClickClose">取消禁用全部快捷键</a>
+    `
+    ),
+    afterEnterDeepMenuCallBack
+  };
+  function getGPU() {
+    const canvas = document.createElement("canvas"), gl = canvas.getContext("experimental-webgl"), debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+    const info = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+    return info;
+  }
+  const PanelCommonConfig = {
+    id: "panel-config-common",
+    title: "通用",
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "Toast配置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "Toast位置",
+                    "qmsg-config-position",
+                    "bottom",
+                    [
+                      {
+                        value: "topleft",
+                        text: "左上角"
+                      },
+                      {
+                        value: "top",
+                        text: "顶部"
+                      },
+                      {
+                        value: "topright",
+                        text: "右上角"
+                      },
+                      {
+                        value: "left",
+                        text: "左边"
+                      },
+                      {
+                        value: "center",
+                        text: "中间"
+                      },
+                      {
+                        value: "right",
+                        text: "右边"
+                      },
+                      {
+                        value: "bottomleft",
+                        text: "左下角"
+                      },
+                      {
+                        value: "bottom",
+                        text: "底部"
+                      },
+                      {
+                        value: "bottomright",
+                        text: "右下角"
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    },
+                    "Toast显示在页面九宫格的位置"
+                  ),
+                  UISelect(
+                    "最多显示的数量",
+                    "qmsg-config-maxnums",
+                    3,
+                    [
+                      {
+                        value: 1,
+                        text: "1"
+                      },
+                      {
+                        value: 2,
+                        text: "2"
+                      },
+                      {
+                        value: 3,
+                        text: "3"
+                      },
+                      {
+                        value: 4,
+                        text: "4"
+                      },
+                      {
+                        value: 5,
+                        text: "5"
+                      }
+                    ],
+                    void 0,
+                    "限制Toast显示的数量"
+                  ),
+                  UISwitch(
+                    "逆序弹出",
+                    "qmsg-config-showreverse",
+                    false,
+                    void 0,
+                    "修改Toast弹出的顺序"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        type: "forms",
+        text: "",
+        forms: [
+          {
+            type: "own",
+            getLiElementCallBack(liElement) {
+              let $left = domUtils.createElement("div", {
+                className: "pops-panel-item-left-text",
+                innerHTML: (
+                  /*html*/
+                  `
+							<p class="pops-panel-item-left-main-text">WebGL</p>
+							<p class="pops-panel-item-left-desc-text"></p>
+							`
+                )
+              });
+              let $leftDesc = $left.querySelector(
+                ".pops-panel-item-left-desc-text"
+              );
+              let gpuInfo = "";
+              try {
+                gpuInfo = getGPU();
+              } catch (error) {
+                log.error(error);
+                gpuInfo = error.toString();
+              }
+              domUtils.text($leftDesc, gpuInfo);
+              domUtils.append(liElement, $left);
+              return liElement;
+            }
+          },
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "伪装登录",
+                    "disguiseLogin",
+                    false,
+                    void 0,
+                    "使用随机UID进行伪装"
+                  ),
+                  UISwitch(
+                    "initial-scale=1",
+                    "dy-initialScale",
+                    false,
+                    void 0,
+                    "可配合手机模式放大页面"
+                  ),
+                  UISwitch(
+                    "移除<meta> apple-itunes-app",
+                    "dy-apple-removeMetaAppleItunesApp",
+                    true,
+                    void 0,
+                    "Safari使用，移除顶部横幅【Open in the 抖音 app】"
+                  ),
+                  UISwitch(
+                    "监听Router改变",
+                    "dy-common-listenRouterChange",
+                    true,
+                    void 0,
+                    "功能重载"
+                  ),
+                  UISwitch(
+                    "移除某些Cookie",
+                    "dy-cookie-remove__ac__",
+                    false,
+                    void 0,
+                    "阻止触发验证弹窗（maybe）"
+                  )
+                ]
+              },
+              {
+                text: "Url重定向",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "重定向/home",
+                    "douyin-redirect-url-home-to-root",
+                    false,
+                    void 0,
+                    "/home => /"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "禁用抖音快捷键",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                type: "forms",
+                text: AutoOpenOrClose.text,
+                forms: [
+                  UISwitch(
+                    "赞|取消赞",
+                    "dy-keyboard-hook-likeOrDislike",
+                    false,
+                    void 0,
+                    "Z"
+                  ),
+                  UISwitch(
+                    "评论",
+                    "dy-keyboard-hook-comment",
+                    false,
+                    void 0,
+                    "X"
+                  ),
+                  UISwitch(
+                    "开启/关闭弹幕",
+                    "dy-keyboard-hook-danmaku-enable",
+                    false,
+                    void 0,
+                    "B"
+                  ),
+                  UISwitch(
+                    "收藏/取消收藏",
+                    "dy-keyboard-hook-collect-enable",
+                    false,
+                    void 0,
+                    "C"
+                  ),
+                  UISwitch(
+                    "复制分享口令",
+                    "dy-keyboard-hook-copyShareLink",
+                    false,
+                    void 0,
+                    "V"
+                  ),
+                  UISwitch(
+                    "清屏",
+                    "dy-keyboard-hook-clearScreen",
+                    false,
+                    void 0,
+                    "J"
+                  ),
+                  UISwitch(
+                    "自动连播",
+                    "dy-keyboard-hook-automaticBroadcast",
+                    false,
+                    void 0,
+                    "K"
+                  ),
+                  UISwitch(
+                    "视频信息",
+                    "dy-keyboard-hook-videoInfo",
+                    false,
+                    void 0,
+                    "I"
+                  ),
+                  UISwitch(
+                    "不感兴趣",
+                    "dy-keyboard-hook-notInterested",
+                    false,
+                    void 0,
+                    "R"
+                  ),
+                  UISwitch(
+                    "进入作者主页",
+                    "dy-keyboard-hook-enterAuthorHomePage",
+                    false,
+                    void 0,
+                    "F"
+                  ),
+                  UISwitch(
+                    "关注/取消关注",
+                    "dy-keyboard-hook-follow",
+                    false,
+                    void 0,
+                    "G"
+                  ),
+                  UISwitch(
+                    "抖音搜索",
+                    "dy-keyboard-hook-search",
+                    false,
+                    void 0,
+                    "Shift+F"
+                  ),
+                  UISwitch(
+                    "一键关闭当前页",
+                    "dy-keyboard-hook-closeTheCurrentPageWithOneClick",
+                    false,
+                    void 0,
+                    "Shift+Q"
+                  ),
+                  UISwitch(
+                    "上下翻页",
+                    "dy-keyboard-hook-pageUpAndDown",
+                    false,
+                    void 0,
+                    "↑↓"
+                  ),
+                  UISwitch(
+                    "快进快退",
+                    "dy-keyboard-hook-fastForwardAndFastBack",
+                    false,
+                    void 0,
+                    "← →"
+                  ),
+                  UISwitch(
+                    "暂停",
+                    "dy-keyboard-hook-pause",
+                    false,
+                    void 0,
+                    "空格"
+                  ),
+                  UISwitch(
+                    "网页内全屏",
+                    "dy-keyboard-hook-fullScreenInsideThePage",
+                    false,
+                    void 0,
+                    "Y"
+                  ),
+                  UISwitch(
+                    "全屏",
+                    "dy-keyboard-hook-fullScreen",
+                    false,
+                    void 0,
+                    "H"
+                  ),
+                  UISwitch(
+                    "稍后再看",
+                    "dy-keyboard-hook-watchItOutLater",
+                    false,
+                    void 0,
+                    "L"
+                  ),
+                  UISwitch(
+                    "音量调整",
+                    "dy-keyboard-hook-volumeAdjustment",
+                    false,
+                    void 0,
+                    "Shift + / Shift -"
+                  ),
+                  UISwitch(
+                    "呼出快捷键列表",
+                    "dy-keyboard-hook-listOfCallShortcutKeys",
+                    false,
+                    void 0,
+                    "?"
+                  ),
+                  UISwitch(
+                    "关闭快捷键列表",
+                    "dy-keyboard-hook-closeTheShortcutKeyList",
+                    false,
+                    void 0,
+                    "ESC"
+                  ),
+                  UISwitch(
+                    "相关推荐",
+                    "dy-keyboard-hook-relevantRecommendation",
+                    false,
+                    void 0,
+                    "N"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "布局屏蔽-全局",
+            type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                type: "forms",
+                text: AutoOpenOrClose.text,
+                forms: [
+                  UISwitch(
+                    "【屏蔽】登录弹窗",
+                    "watchLoginDialogToClose",
+                    true,
+                    void 0,
+                    "屏蔽元素且自动等待元素出现并关闭登录弹窗"
+                  ),
+                  UISwitch(
+                    "【屏蔽】底部？按钮",
+                    "shieldBottomQuestionButton",
+                    true,
+                    void 0,
+                    "屏蔽元素"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "布局屏蔽-左侧导航栏",
+            type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                type: "forms",
+                text: AutoOpenOrClose.text,
+                forms: [
+                  UISwitch(
+                    "【屏蔽】左侧导航栏",
+                    "shieldLeftNavigator",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】精选",
+                    "shieldLeftNavigator-tab-home",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】推荐",
+                    "shieldLeftNavigator-tab-recommend",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】AI搜索",
+                    "shieldLeftNavigator-tab-ai-search",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】关注",
+                    "shieldLeftNavigator-tab-follow",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】朋友",
+                    "shieldLeftNavigator-tab-friend",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】我的",
+                    "shieldLeftNavigator-tab-user_self",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  // UISwitch(
+                  // 	"【屏蔽】喜欢",
+                  // 	"shieldLeftNavigator-tab-user_self_like",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】收藏",
+                  // 	"shieldLeftNavigator-tab-user_self_collection",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】观看历史",
+                  // 	"shieldLeftNavigator-tab-user_self_record",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  UISwitch(
+                    "【屏蔽】直播",
+                    "shieldLeftNavigator-tab-live",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】放映厅",
+                    "shieldLeftNavigator-tab-vs",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】短剧",
+                    "shieldLeftNavigator-tab-series",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  )
+                  // UISwitch(
+                  // 	"【屏蔽】知识",
+                  // 	"shieldLeftNavigator-tab-channel_300203",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】游戏",
+                  // 	"shieldLeftNavigator-tab-channel_300205",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】二次元",
+                  // 	"shieldLeftNavigator-tab-channel_300206",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】音乐",
+                  // 	"shieldLeftNavigator-tab-channel_300209",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                  // UISwitch(
+                  // 	"【屏蔽】美食",
+                  // 	"shieldLeftNavigator-tab-channel_300204",
+                  // 	false,
+                  // 	void 0,
+                  // 	"屏蔽元素"
+                  // ),
+                ]
+              }
+            ]
+          },
+          {
+            text: "布局屏蔽-顶部导航栏",
+            type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                text: AutoOpenOrClose.text,
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】顶部导航栏",
+                    "shieldTopNavigator",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】右侧菜单栏",
+                    "shield-topNav-rightMenu",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】客户端提示",
+                    "shieldClientTip",
+                    true,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】充钻石",
+                    "shieldFillingBricksAndStones",
+                    true,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】客户端",
+                    "shieldClient",
+                    true,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】快捷访问",
+                    "shieldQuickAccess",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】通知",
+                    "shieldNotifitation",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】私信",
+                    "shieldPrivateMessage",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】投稿",
+                    "shieldSubmission",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】壁纸",
+                    "shieldWallpaper",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】更多",
+                    "shield-topNav-rightMenu-more",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】登录头像",
+                    "shield-topNav-rightMenu-loginAvatar",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】AI搜索",
+                    "shield-topNav-ai-search",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "布局屏蔽-搜索",
+            type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                text: AutoOpenOrClose.text,
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】搜索框",
+                    "shieldSearch",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】搜索框的提示",
+                    "shieldSearchPlaceholder",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】猜你想搜",
+                    "shieldSearchGuessYouWantToSearch",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】抖音热点",
+                    "shieldSearchTiktokHotspot",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "布局屏蔽-鼠标悬浮提示",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                type: "forms",
+                text: AutoOpenOrClose.text + "<br>视频区域-右侧工具栏",
+                forms: [
+                  UISwitch(
+                    "进入作者主页",
+                    "dy-video-mouseHoverTip-rightToolBar-enterUserHome",
+                    false
+                  ),
+                  UISwitch(
+                    "关注",
+                    "dy-video-mouseHoverTip-rightToolBar-follow",
+                    false
+                  ),
+                  UISwitch(
+                    "点赞",
+                    "dy-video-mouseHoverTip-rightToolBar-addLike",
+                    false
+                  ),
+                  UISwitch(
+                    "评论",
+                    "dy-video-mouseHoverTip-rightToolBar-comment",
+                    false
+                  ),
+                  UISwitch(
+                    "收藏",
+                    "dy-video-mouseHoverTip-rightToolBar-collect",
+                    false
+                  ),
+                  UISwitch(
+                    "分享",
+                    "dy-video-mouseHoverTip-rightToolBar-share",
+                    false
+                  ),
+                  UISwitch(
+                    "看相关",
+                    "dy-video-mouseHoverTip-rightToolBar-seeCorrelation",
+                    false
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "视频区域-底部工具栏",
+                forms: [
+                  UISwitch(
+                    "自动连播",
+                    "dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast",
+                    false
+                  ),
+                  UISwitch(
+                    "清屏",
+                    "dy-video-mouseHoverTip-bottomToolBar-clearScreen",
+                    false
+                  ),
+                  UISwitch(
+                    "稍后再看",
+                    "dy-video-mouseHoverTip-bottomToolBar-watchLater",
+                    false
+                  ),
+                  UISwitch(
+                    "网页全屏",
+                    "dy-video-mouseHoverTip-bottomToolBar-pageFullScreen",
+                    false
+                  ),
+                  UISwitch(
+                    "全屏",
+                    "dy-video-mouseHoverTip-bottomToolBar-fullScreen",
+                    false
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
+    let result = {
+      text,
+      type: "button",
+      attributes: {},
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
+        }
+      },
+      afterAddToUListCallBack
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(
+        disable
+      );
+    });
+    return result;
+  };
+  const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {
+    let __defaultButtonText = defaultButtonText;
+    let getButtonText = () => {
+      return shortCut.getShowText(key, __defaultButtonText);
+    };
+    let result = UIButton(
+      text,
+      description,
+      getButtonText,
+      "keyboard",
+      false,
+      false,
+      buttonType,
+      async (event) => {
+        var _a2;
+        let $click = event.target;
+        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
+        if (shortCut.isWaitPress) {
+          Qmsg.warning("请先执行当前的录入操作");
+          return;
+        }
+        if (shortCut.hasOptionValue(key)) {
+          shortCut.emptyOption(key);
+          Qmsg.success("清空快捷键");
+        } else {
+          let loadingQmsg = Qmsg.loading("请按下快捷键...", {
+            showClose: true,
+            onClose() {
+              shortCut.cancelEnterShortcutKeys();
+            }
+          });
+          let {
+            status,
+            option,
+            key: isUsedKey
+          } = await shortCut.enterShortcutKeys(key);
+          loadingQmsg.close();
+          if (status) {
+            log.success(["成功录入快捷键", option]);
+            Qmsg.success("成功录入");
+          } else {
+            Qmsg.error(
+              `快捷键 ${shortCut.translateKeyboardValueToButtonText(
+              option
+            )} 已被 ${isUsedKey} 占用`
+            );
+          }
+        }
+        $btn.innerHTML = getButtonText();
+      }
+    );
+    result.attributes = {};
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      return false;
+    });
+    return result;
+  };
+  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
+    let result = {
+      text,
+      type: "slider",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      getToolTipContent(value) {
+        if (typeof getToolTipContent === "function") {
+          return getToolTipContent(value);
+        } else {
+          return `${value}`;
+        }
+      },
+      callback(event, value) {
+        this.props[PROPS_STORAGE_API].set(key, value);
+      },
+      min,
+      max,
+      step
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    Reflect.set(result.props, PROPS_STORAGE_API, {
+      get(key2, defaultValue2) {
+        return Panel.getValue(key2, defaultValue2);
+      },
+      set(key2, value) {
+        Panel.setValue(key2, value);
+      }
+    });
+    return result;
+  };
   const PanelVideoConfig = {
     id: "panel-config-video",
     title: "视频",
@@ -8215,7 +10927,7 @@
                     "primary",
                     () => {
                       DouYinVideoFilter.exportRule(
-                        SCRIPT_NAME + "-视频过滤规则.json"
+                        _SCRIPT_NAME_ + "-视频过滤规则.json"
                       );
                     }
                   )
@@ -8390,17 +11102,16 @@
       }
     ]
   };
-  const MPanelShareChallengeConfig = {
-    id: "m-panel-config-share-challenge",
-    title: "话题",
-    headerTitle: "/share/challenge<br />话题",
+  const PanelSearchConfig = {
+    id: "panel-config-search",
+    title: "搜索",
     forms: [
       {
         text: "",
         type: "forms",
         forms: [
           {
-            text: "覆盖点击事件",
+            text: "功能",
             type: "deepMenu",
             forms: [
               {
@@ -8408,18 +11119,141 @@
                 type: "forms",
                 forms: [
                   UISwitch(
-                    "顶部区域",
-                    "m-dy-share-challenge-coverTopJump",
-                    true,
+                    "禁止点击视频区域进入全屏",
+                    "dy-search-disableClickToEnterFullScreen",
+                    false,
                     void 0,
-                    "阻止跳转至下载页面"
+                    "禁止点击视频区域时会触发自动进入全屏功能"
                   ),
-                  UISwitch(
-                    "视频卡片",
-                    "m-dy-share-challenge-coverVideoCard",
-                    true,
+                  UISelect(
+                    "自动进入网页全屏",
+                    "search-autoEnterElementFullScreen",
+                    0,
+                    () => [
+                      {
+                        text: `跟随主设置（${PopsPanelStorageApi.get("autoEnterElementFullScreen") ? "是" : "否"}）`,
+                        value: -1
+                      },
+                      {
+                        text: "是",
+                        value: 1
+                      },
+                      {
+                        text: "否",
+                        value: 0
+                      }
+                    ],
                     void 0,
-                    "正确跳转视频页面"
+                    ["视频", "功能", "自动进入网页全屏"].map((it) => `<code>${it}</code>`).join("-")
+                  ),
+                  UISelect(
+                    "搜索结果-视频-显示样式",
+                    "live-setSearchResultFilterWithVideoStyle",
+                    "one",
+                    [
+                      {
+                        text: "单列",
+                        value: "one"
+                      },
+                      {
+                        text: "双列",
+                        value: "double"
+                      }
+                    ],
+                    void 0,
+                    "自定义搜索结果，按视频筛选的结果项的显示样式"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "布局屏蔽",
+            type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                text: AutoOpenOrClose.text,
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】相关搜索",
+                    "douyin-search-shieldReleatedSearches",
+                    false,
+                    void 0,
+                    "屏蔽右边的相关搜索"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "布局屏蔽-左侧导航栏",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "【屏蔽】左侧导航栏",
+                    "search-shieldLeftNavigator",
+                    -1,
+                    () => [
+                      {
+                        text: `跟随主设置（${PopsPanelStorageApi.get("shieldLeftNavigator") ? "是" : "否"}）`,
+                        value: -1
+                      },
+                      {
+                        text: "是",
+                        value: 1
+                      },
+                      {
+                        text: "否",
+                        value: 0
+                      }
+                    ],
+                    void 0,
+                    ["通用", "布局屏蔽-左侧导航栏", "【屏蔽】左侧导航栏"].map((it) => `<code>${it}</code>`).join("-")
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "布局屏蔽-顶部导航栏",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "【屏蔽】顶部导航栏",
+                    "search-shieldTopNavigator",
+                    -1,
+                    () => [
+                      {
+                        text: `跟随主设置（${PopsPanelStorageApi.get("shieldTopNavigator") ? "是" : "否"}）`,
+                        value: -1
+                      },
+                      {
+                        text: "是",
+                        value: 1
+                      },
+                      {
+                        text: "否",
+                        value: 0
+                      }
+                    ],
+                    void 0,
+                    ["通用", "布局屏蔽-顶部导航栏", "【屏蔽】顶部导航栏"].map((it) => `<code>${it}</code>`).join("-")
                   )
                 ]
               }
@@ -8429,10 +11263,499 @@
       }
     ]
   };
-  const MPanelShareMusicConfig = {
-    id: "m-panel-config-share-music",
-    title: "音乐",
-    headerTitle: "/share/music<br />音乐",
+  const PanelLiveConfig = {
+    id: "panel-config-live",
+    title: "直播",
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "清晰度",
+                    "live-chooseQuality",
+                    "origin",
+                    (() => {
+                      return Object.keys(VideoQualityMap).map((key) => {
+                        let item = VideoQualityMap[key];
+                        return {
+                          value: key,
+                          text: item.label
+                        };
+                      });
+                    })(),
+                    void 0,
+                    "自行选择清晰度"
+                  ),
+                  UISwitch(
+                    "解锁画质选择",
+                    "live-unlockImageQuality",
+                    true,
+                    void 0,
+                    "未登录的情况下选择原画实际上是未登录的情况下最高选择的画质"
+                  ),
+                  UISwitch(
+                    "自动进入网页全屏",
+                    "live-autoEnterElementFullScreen",
+                    false,
+                    void 0,
+                    "网页加载完毕后自动点击网页全屏按钮进入全屏"
+                  ),
+                  UISwitch(
+                    "监听并关闭【长时间无操作，已暂停播放】弹窗",
+                    "live-waitToRemovePauseDialog",
+                    true,
+                    void 0,
+                    "自动监听并检测弹窗"
+                  ),
+                  UISwitch(
+                    "禁止自动播放",
+                    "live-pauseVideo",
+                    false,
+                    void 0,
+                    "暂停直播播放"
+                  ),
+                  UISwitch(
+                    "解析直播信息",
+                    "live-parsePlayerInstance",
+                    true,
+                    void 0,
+                    "开启后将在油猴菜单中新增菜单【⚙ PlayerInstance】，可解析当前的直播信息"
+                  ),
+                  UISwitch(
+                    "禁用双击点赞",
+                    "dy-live-disableDoubleClickLike",
+                    false,
+                    void 0,
+                    "禁止直播视频区域双击点赞"
+                  )
+                ]
+              },
+              {
+                text: "视频区域背景色",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "live-bgColor-enable",
+                    false,
+                    void 0,
+                    "自定义视频背景色"
+                  ),
+                  {
+                    type: "own",
+                    attributes: {
+                      "data-key": "live-changeBackgroundColor",
+                      "data-default-value": "#000000"
+                    },
+                    getLiElementCallBack(liElement) {
+                      let $left = domUtils.createElement("div", {
+                        className: "pops-panel-item-left-text",
+                        innerHTML: `
+											<p class="pops-panel-item-left-main-text">视频背景颜色</p>
+											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色</p>
+											`
+                      });
+                      let $right = domUtils.createElement("div", {
+                        className: "pops-panel-item-right",
+                        innerHTML: `
+											<input type="color" class="pops-color-choose" />
+											`
+                      });
+                      let $color = $right.querySelector(
+                        ".pops-color-choose"
+                      );
+                      $color.value = Panel.getValue("live-changeBackgroundColor");
+                      domUtils.on(
+                        $color,
+                        ["input", "propertychange"],
+                        (event) => {
+                          log.info("选择颜色：" + $color.value);
+                          Panel.setValue(
+                            "live-changeBackgroundColor",
+                            $color.value
+                          );
+                        }
+                      );
+                      liElement.appendChild($left);
+                      liElement.appendChild($right);
+                      return liElement;
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            text: "消息过滤器",
+            type: "deepMenu",
+            description: "包括：弹幕、聊天室",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "live-danmu-shield-rule-enable",
+                    false,
+                    void 0,
+                    "启用自定义的弹幕过滤规则"
+                  ),
+                  UISwitch(
+                    "【屏蔽】送礼信息",
+                    "live-danmu-shield-gift",
+                    false,
+                    void 0,
+                    ""
+                  ),
+                  UISwitch(
+                    "【屏蔽】福袋口令",
+                    "live-danmu-shield-lucky-bag",
+                    false,
+                    void 0,
+                    ""
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "聊天室",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】xxx 为主播加了 xx分",
+                    "live-message-shield-biz_scene-common_text_game_score",
+                    false,
+                    void 0,
+                    ""
+                  ),
+                  UISwitch(
+                    "【屏蔽】emoji",
+                    "live-message-shield-method-emoji-chat",
+                    false,
+                    void 0,
+                    ""
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  {
+                    type: "own",
+                    getLiElementCallBack(liElement) {
+                      let textareaDiv = domUtils.createElement(
+                        "div",
+                        {
+                          className: "pops-panel-textarea",
+                          innerHTML: `<textarea placeholder="请输入屏蔽规则，每行一个" style="height:350px;"></textarea>`
+                        },
+                        {
+                          style: "width: 100%;"
+                        }
+                      );
+                      let textarea = textareaDiv.querySelector("textarea");
+                      textarea.value = DouYinMessageFilter.get();
+                      domUtils.on(
+                        textarea,
+                        ["input", "propertychange"],
+                        utils.debounce(function() {
+                          DouYinMessageFilter.set(textarea.value);
+                          DouYinMessageFilter.init();
+                        }, 1e3)
+                      );
+                      liElement.appendChild(textareaDiv);
+                      return liElement;
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            text: "自定义快捷键",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UIButtonShortCut(
+                    "【屏蔽】聊天室",
+                    "",
+                    "dy-live-block-chatroom",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinLiveShortCut.shortCut
+                  ),
+                  UIButtonShortCut(
+                    "【屏蔽】礼物特效",
+                    "",
+                    "dy-live-shieldGiftEffects",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinLiveShortCut.shortCut
+                  ),
+                  UIButtonShortCut(
+                    "切换静音状态",
+                    "切换video标签的muted属性",
+                    "dy-live-shortcut-changeVideoMuted",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinLiveShortCut.shortCut
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "禁用抖音快捷键",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                type: "forms",
+                text: AutoOpenOrClose.text,
+                forms: [
+                  UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
+                  UISwitch(
+                    "屏幕旋转",
+                    "dy-live-screenRotation",
+                    false,
+                    void 0,
+                    "D"
+                  ),
+                  UISwitch(
+                    "开启小窗模式",
+                    "dy-live-enableSmallWindowMode",
+                    false,
+                    void 0,
+                    "U"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "布局屏蔽-视频区域内",
+            type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                text: AutoOpenOrClose.text,
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】顶栏信息",
+                    "live-shieldTopToolBarInfo",
+                    false,
+                    void 0,
+                    "屏蔽元素，包括直播作者、右侧的礼物展馆"
+                  ),
+                  UISwitch(
+                    "【屏蔽】底部的礼物栏",
+                    "live-shieldGiftColumn",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】礼物特效",
+                    "live-shieldGiftEffects",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】福袋",
+                    "live-shieldLucky",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】弹幕",
+                    "live-shieldDanmuku",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】小黄车",
+                    "live-shielYellowCar",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】点亮展馆帮主播集星",
+                    "live-block-exhibition-banner-dylive-tooltip",
+                    false,
+                    void 0,
+                    "屏蔽元素，礼物展馆下面的悬浮提示"
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "右键菜单",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】下载客户端",
+                    "dy-live-blockVideoRightMenu-downloadClient",
+                    true,
+                    void 0,
+                    "屏蔽右键菜单项"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "布局屏蔽-聊天室",
+            type: "deepMenu",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
+            forms: [
+              {
+                text: AutoOpenOrClose.text,
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】聊天室",
+                    "live-shieldChatRoom",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】贵宾席",
+                    "live-shielChatRoomVipSeats",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】用户等级图标",
+                    "dy-live-shieldUserLevelIcon",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】VIP图标",
+                    "dy-live-shieldUserVIPIcon",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】粉丝牌",
+                    "dy-live-shieldUserFansIcon",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】信息播报",
+                    "dy-live-shieldMessage",
+                    false,
+                    void 0,
+                    "底部滚动播报的的xxx来了，xxx给主播点赞"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const PanelUserConfig = {
+    id: "panel-config-user",
+    title: "用户",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "显示UID",
+            "dy-user-addShowUserUID",
+            true,
+            void 0,
+            "在用户信息区域下方显示当前用户的uid"
+          ),
+          UIButton(
+            "跳转至用户主页",
+            "输入用户UID自动跳转至用户主页",
+            "跳转",
+            void 0,
+            false,
+            false,
+            "default",
+            async (evt) => {
+              utils.preventEvent(evt);
+              let uid = prompt("请输入用户UID");
+              if (typeof uid !== "string") {
+                return;
+              }
+              let url = `https://www.toutiao.com/c/user/${uid}/`;
+              let urlInst = new URL(url);
+              let response = await httpx.options(url, {
+                allowInterceptConfig: false,
+                headers: {
+                  "User-Agent": utils.getRandomPCUA(),
+                  Host: urlInst.hostname,
+                  Origin: urlInst.origin,
+                  Referer: "https://www.toutiao.com/"
+                }
+              });
+              if (!response.status) {
+                log.error(response);
+                Qmsg.error("获取用户sec_uid失败", { consoleLogContent: true });
+                return;
+              }
+              let finalUrl = response.data.finalUrl;
+              let sec_uid_match = finalUrl.match(/\/user\/token\/(.+)\//);
+              if (!sec_uid_match) {
+                Qmsg.error("正则获取用户sec_uid失败", {
+                  consoleLogContent: true
+                });
+                return;
+              }
+              let sec_uid = sec_uid_match[sec_uid_match.length - 1];
+              let userHomeUrl = DouYinUrlUtils.getUserHomeUrl(sec_uid);
+              log.info(`用户sec_uid：` + sec_uid);
+              log.info(`用户主页链接：` + userHomeUrl);
+              window.open(userHomeUrl, "_blank");
+            }
+          )
+        ]
+      }
+    ]
+  };
+  const MPanelShareUserConfig = {
+    id: "m-panel-config-share-user",
+    title: "主页",
+    headerTitle: "/share/user<br />主页",
     forms: [
       {
         text: "",
@@ -8447,8 +11770,15 @@
                 type: "forms",
                 forms: [
                   UISwitch(
-                    "视频卡片",
-                    "m-dy-share-music-coverVideoCard",
+                    "视频合集",
+                    "m-dy-share-user-coverPlayletList",
+                    true,
+                    void 0,
+                    "正确跳转视频合集页面"
+                  ),
+                  UISwitch(
+                    "视频列表",
+                    "m-dy-share-user-coverPostListContainer",
                     true,
                     void 0,
                     "正确跳转视频页面"
@@ -8554,10 +11884,10 @@
       }
     ]
   };
-  const MPanelShareUserConfig = {
-    id: "m-panel-config-share-user",
-    title: "主页",
-    headerTitle: "/share/user<br />主页",
+  const MPanelShareChallengeConfig = {
+    id: "m-panel-config-share-challenge",
+    title: "话题",
+    headerTitle: "/share/challenge<br />话题",
     forms: [
       {
         text: "",
@@ -8572,15 +11902,15 @@
                 type: "forms",
                 forms: [
                   UISwitch(
-                    "视频合集",
-                    "m-dy-share-user-coverPlayletList",
+                    "顶部区域",
+                    "m-dy-share-challenge-coverTopJump",
                     true,
                     void 0,
-                    "正确跳转视频合集页面"
+                    "阻止跳转至下载页面"
                   ),
                   UISwitch(
-                    "视频列表",
-                    "m-dy-share-user-coverPostListContainer",
+                    "视频卡片",
+                    "m-dy-share-challenge-coverVideoCard",
                     true,
                     void 0,
                     "正确跳转视频页面"
@@ -8625,3080 +11955,67 @@
       }
     ]
   };
-  const PanelContent = {
-    /**
-     * 获取所有的配置内容，用于初始化默认的值
-     */
-    getAllConfig() {
-      return [...this.getConfig(), ...this.getMConfig()];
-    },
-    /**
-     * 获取配置内容
-     */
-    getConfig() {
-      let configList = [
-        PanelCommonConfig,
-        PanelVideoConfig,
-        PanelSearchConfig,
-        PanelLiveConfig,
-        PanelUserConfig
-      ];
-      return configList;
-    },
-    /**
-     * 获取配置内容
-     */
-    getMConfig() {
-      let configList = [
-        MPanelShareUserConfig,
-        MPanelShareNoteConfig,
-        MPanelShareChallengeConfig,
-        MPanelShareVideoConfig,
-        MPanelShareMusicConfig
-      ];
-      return configList;
-    }
-  };
-  const PanelMenu = {
-    init() {
-      this.initExtensionsMenu();
-    },
-    /**
-     * 初始化菜单项
-     */
-    initExtensionsMenu() {
-      if (!Panel.isTopWindow()) {
-        return;
-      }
-      GM_Menu.add([
-        {
-          key: "show_pops_panel_setting",
-          text: "⚙ 设置",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            Panel.showPanel(PanelContent.getConfig());
-          }
-        },
-        {
-          key: "show_pops_m_panel_setting",
-          text: "⚙ 移动端设置",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            Panel.showPanel(
-              PanelContent.getMConfig(),
-              `${Panel.$data.scriptName}-移动端设置`
-            );
-          }
-        }
-      ]);
-    }
-  };
-  const Panel = {
-    /** 数据 */
-    $data: {
-      /**
-       * @private
-       */
-      __configDefaultValueData: null,
-      /**
-       * @private
-       */
-      __onceExecMenuData: null,
-      /**
-       * @private
-       */
-      __onceExecData: null,
-      $panel: null,
-      /**
-       * 菜单项的默认值
-       */
-      get configDefaultValueData() {
-        if (this.__configDefaultValueData == null) {
-          this.__configDefaultValueData = new utils.Dictionary();
-        }
-        return this.__configDefaultValueData;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get onceExecMenuData() {
-        if (this.__onceExecMenuData == null) {
-          this.__onceExecMenuData = new utils.Dictionary();
-        }
-        return this.__onceExecMenuData;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get onceExecData() {
-        if (this.__onceExecData == null) {
-          this.__onceExecData = new utils.Dictionary();
-        }
-        return this.__onceExecData;
-      },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
-        return SCRIPT_NAME;
-      },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
-    },
-    init() {
-      this.initContentDefaultValue();
-      PanelMenu.init();
-    },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
-    },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initContentDefaultValue() {
-      const initDefaultValue = (config) => {
-        if (!config.attributes) {
-          return;
-        }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
-          return;
-        }
-        let needInitConfig = {};
-        let key = config.attributes[ATTRIBUTE_KEY];
-        if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
-        }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-        if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
-        }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
-        }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          log.warn(["请先配置键", config]);
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
-          this.setDefaultValue(__key, __defaultValue);
-        });
-      };
-      const loopInitDefaultValue = (configList) => {
-        for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
-          initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
-          }
-        }
-      };
-      const contentConfigList = [...PanelContent.getAllConfig()];
-      for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
-          continue;
-        }
-        const rightContentConfigList = leftContentConfigItem.forms;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
-          loopInitDefaultValue(rightContentConfigList);
-        }
-      }
-    },
-    /**
-     * 设置初始化使用的默认值
-     */
-    setDefaultValue(key, defaultValue) {
-      if (this.$data.configDefaultValueData.has(key)) {
-        log.warn("请检查该key(已存在): " + key);
-      }
-      this.$data.configDefaultValueData.set(key, defaultValue);
-    },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
-      PopsPanelStorageApi.set(key, value);
-    },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
-      let localValue = PopsPanelStorageApi.get(key);
-      if (localValue == null) {
-        if (this.$data.configDefaultValueData.has(key)) {
-          return this.$data.configDefaultValueData.get(key);
-        }
-        return defaultValue;
-      }
-      return localValue;
-    },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
-      PopsPanelStorageApi.delete(key);
-    },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
-      return PopsPanelStorageApi.has(key);
-    },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(
-        key,
-        (__key, __newValue, __oldValue) => {
-          callback(key, __oldValue, __newValue);
-        }
-      );
-      return listenerId;
-    },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
-      PopsPanelStorageApi.removeValueChangeListener(listenerId);
-    },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
-    },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
-      this.$data.onceExecMenuData.delete(key);
-      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
-    },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteOnceExec(key) {
-      this.$data.onceExecData.delete(key);
-    },
-    /**
-     * 执行菜单
-     *
-     * @param queryKey 键|键数组
-     * @param callback 执行的回调函数
-     * @param checkExec 判断是否执行回调
-     *
-     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-     *
-     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-     *
-     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-     * @param once 是否只执行一次，默认true
-     *
-     * + true （默认）只执行一次，且会监听键的值改变
-     * + false 不会监听键的值改变
-     */
-    exec(queryKey, callback, checkExec, once = true) {
-      const that = this;
-      let queryKeyFn;
-      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
-        queryKeyFn = () => queryKey;
-      } else {
-        queryKeyFn = queryKey;
-      }
-      let isArrayKey = false;
-      let queryKeyResult = queryKeyFn();
-      let keyList = [];
-      if (Array.isArray(queryKeyResult)) {
-        isArrayKey = true;
-        keyList = queryKeyResult;
-      } else {
-        keyList.push(queryKeyResult);
-      }
-      let findNotInDataKey = keyList.find(
-        (it) => !this.$data.configDefaultValueData.has(it)
-      );
-      if (findNotInDataKey) {
-        log.warn(`${findNotInDataKey} 键不存在`);
-        return;
-      }
-      let storageKey = JSON.stringify(keyList);
-      if (once) {
-        if (this.$data.onceExecMenuData.has(storageKey)) {
-          return;
-        }
-        this.$data.onceExecMenuData.set(storageKey, 1);
-      }
-      let storeStyleElements = [];
-      let listenerIdList = [];
-      let dynamicPushStyleNode = (value, $style) => {
-        let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
-        }
-        {
-          storeStyleElements = storeStyleElements.concat(dynamicResultList);
-        }
-      };
-      let getMenuValue = (key) => {
-        let value = this.getValue(key);
-        return value;
-      };
-      let clearStoreStyleElements = () => {
-        for (let index = 0; index < storeStyleElements.length; index++) {
-          let $css = storeStyleElements[index];
-          $css.remove();
-          storeStyleElements.splice(index, 1);
-          index--;
-        }
-      };
-      let __checkExec__ = () => {
-        let flag = false;
-        if (typeof checkExec === "function") {
-          flag = checkExec(keyList);
-        } else {
-          flag = keyList.every((key) => getMenuValue(key));
-        }
-        return flag;
-      };
-      let valueChange = (valueOption) => {
-        let execFlag = __checkExec__();
-        let resultList = [];
-        if (execFlag) {
-          let valueList = keyList.map((key) => this.getValue(key));
-          let $styles = callback({
-            addStyleElement: (...args) => {
-              return dynamicPushStyleNode(true, ...args);
-            },
-            value: isArrayKey ? valueList : valueList[0]
-          });
-          if ($styles instanceof HTMLStyleElement) {
-            resultList.push($styles);
-          } else if (Array.isArray($styles)) {
-            resultList.push(
-              ...$styles.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            );
-          }
-        }
-        clearStoreStyleElements();
-        storeStyleElements = [...resultList];
-      };
-      once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(
-          key,
-          (key2, newValue, oldValue) => {
-            valueChange();
-          }
-        );
-        listenerIdList.push(listenerId);
-      });
-      valueChange();
-      let result = {
-        /**
-         * 清空菜单执行情况
-         *
-         * + 清空存储的元素列表
-         * + 清空值改变的监听器
-         * + 清空存储的一次执行的键
-         */
-        clear() {
-          this.clearStoreStyleElements();
-          this.removeValueChangeListener();
-          once && that.$data.onceExecMenuData.delete(storageKey);
-        },
-        /**
-         * 清空存储的元素列表
-         */
-        clearStoreStyleElements: () => {
-          return clearStoreStyleElements();
-        },
-        /**
-         * 移除值改变的监听器
-         */
-        removeValueChangeListener: () => {
-          listenerIdList.forEach((listenerId) => {
-            this.removeValueChangeListener(listenerId);
-          });
-        }
-      };
-      return result;
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key
-     * @param callback 回调
-     * @param [isReverse=false] 逆反判断菜单启用
-     */
-    execMenu(key, callback, isReverse = false) {
-      return this.exec(
-        key,
-        (option) => {
-          return callback(option);
-        },
-        (keyList) => {
-          let execFlag = keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            isReverse && (flag = !flag);
-            return flag;
-          });
-          return execFlag;
-        },
-        false
-      );
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key
-     * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
-     */
-    execMenuOnce(key, callback) {
-      return this.exec(
-        key,
-        callback,
-        (keyList) => {
-          let execFlag = keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            return flag;
-          });
-          return execFlag;
-        },
-        true
-      );
-    },
-    /**
-     * 根据key执行一次
-     * @param key
-     */
-    onceExec(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExecData.has(key)) {
-        return;
-      }
-      callback();
-      this.$data.onceExecData.set(key, 1);
-    },
-    /**
-     * 显示设置面板
-     */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
-      let $panel = __pops.panel({
-        title: {
-          text: `${SCRIPT_NAME}-设置`,
-          position: "center",
-          html: false,
-          style: ""
-        },
-        content,
-        btn: {
-          close: {
-            enable: true,
-            callback: (details, event) => {
-              details.close();
-              this.$data.$panel = null;
-            }
-          }
-        },
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: true,
-            toHide: false
-          },
-          clickCallBack: (originalRun, config) => {
-            originalRun();
-            this.$data.$panel = null;
-          }
-        },
-        width: PanelUISize.setting.width,
-        height: PanelUISize.setting.height,
-        drag: true,
-        only: true
-      });
-      this.$data.$panel = $panel;
-    }
-  };
-  const _SCRIPT_NAME_ = "抖音优化";
-  const utils = Utils.noConflict();
-  let domUtils = DOMUtils.noConflict();
-  const __pops = pops;
-  const console$1 = _unsafeWindow.console || _monkeyWindow.console;
-  const log = new utils.Log(_GM_info, console$1);
-  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
-  log.config({
-    debug: false,
-    logMaxCount: 500,
-    autoClearConsole: true,
-    tag: true
-  });
-  Qmsg.config(
-    Object.defineProperties(
+  const MPanelShareMusicConfig = {
+    id: "m-panel-config-share-music",
+    title: "音乐",
+    headerTitle: "/share/music<br />音乐",
+    forms: [
       {
-        html: true,
-        autoClose: true,
-        showClose: false,
-        zIndex: 1e7
-      },
-      {
-        position: {
-          get() {
-            return Panel.getValue("qmsg-config-position", "bottom");
-          }
-        },
-        maxNums: {
-          get() {
-            return Panel.getValue("qmsg-config-maxnums", 5);
-          }
-        },
-        showReverse: {
-          get() {
-            return Panel.getValue("qmsg-config-showreverse", true);
-          }
-        }
-      }
-    )
-  );
-  const GM_Menu = new utils.GM_Menu({
-    GM_getValue: _GM_getValue,
-    GM_setValue: _GM_setValue,
-    GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
-  });
-  const httpx = new utils.Httpx({
-    xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: false
-  });
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error(["拦截器-请求错误", data]);
-    if (data.type === "onabort") {
-      Qmsg.warning("请求取消");
-    } else if (data.type === "onerror") {
-      Qmsg.error("请求异常");
-    } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时");
-    } else {
-      Qmsg.error("其它错误");
-    }
-    return data;
-  });
-  const addStyle = utils.addStyle.bind(utils);
-  const $ = document.querySelector.bind(document);
-  const $$ = document.querySelectorAll.bind(document);
-  new utils.GM_Cookie();
-  const BlockTopNavigator = {
-    init() {
-      Panel.exec(
-        ["shieldTopNavigator", "search-shieldTopNavigator"],
-        () => {
-          return this.shieldTopNavigator();
-        },
-        (keyList) => {
-          const [mainKey, childKey] = keyList;
-          let mainValue = Panel.getValue(mainKey);
-          let childValue = Panel.getValue(childKey);
-          if (DouYinRouter.isSearch()) {
-            if (childValue == 1) {
-              return true;
-            } else if (childValue == 0) {
-              return false;
-            } else ;
-          }
-          return mainValue;
-        }
-      );
-      Panel.execMenuOnce("shieldClientTip", () => {
-        return this.shieldClientTip();
-      });
-      Panel.execMenuOnce("shieldFillingBricksAndStones", () => {
-        return this.shieldFillingBricksAndStones();
-      });
-      Panel.execMenuOnce("shieldClient", () => {
-        return this.shieldClient();
-      });
-      Panel.execMenuOnce("shieldQuickAccess", () => {
-        return this.shieldQuickAccess();
-      });
-      Panel.execMenuOnce("shieldNotifitation", () => {
-        return this.shieldNotifitation();
-      });
-      Panel.execMenuOnce("shieldPrivateMessage", () => {
-        return this.shieldPrivateMessage();
-      });
-      Panel.execMenuOnce("shieldSubmission", () => {
-        return this.shieldSubmission();
-      });
-      Panel.execMenuOnce("shieldWallpaper", () => {
-        return this.shieldWallpaper();
-      });
-      Panel.execMenuOnce("shieldBottomQuestionButton", () => {
-        return this.shieldBottomQuestionButton();
-      });
-      Panel.execMenuOnce("shield-topNav-rightMenu", () => {
-        return this.shieldRightMenu();
-      });
-      Panel.execMenuOnce("shield-topNav-rightMenu-more", () => {
-        return this.shieldRightMenuMore();
-      });
-      Panel.execMenuOnce("shield-topNav-rightMenu-loginAvatar", () => {
-        return this.shieldRightMenuLoginAvatar();
-      });
-      Panel.execMenuOnce("shield-topNav-ai-search", () => {
-        return this.shieldAISearch();
-      });
-    },
-    /**
-     * 【屏蔽】顶部导航栏
-     */
-    shieldTopNavigator() {
-      log.info("【屏蔽】顶部导航栏");
-      let result = [];
-      result.push(CommonUtil.addBlockCSS("#douyin-header"));
-      result.push(
-        addStyle(
-          /*css*/
-          `
-			/* 修复视频的高度 */
-			#douyin-right-container{
-				padding-top: 0px !important;
-			}
-			/* 兼容手机模式 */
-			@media screen and (max-width: 550px){
-				.is-mobile-pc{
-					--header-height: 0px !important;
-				}
-				
-			}
-		`
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          addStyle(
-            /*css*/
-            `
-				/* 把搜索顶部的工具栏置顶 */
-				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
-					top: 0;
-				}`
-          )
-        );
-      }
-      return result;
-    },
-    /**
-     * 【屏蔽】充钻石
-     */
-    shieldFillingBricksAndStones() {
-      log.info("【屏蔽】充钻石");
-      let result = [];
-      const iconPath = `d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"`;
-      result.push(
-        CommonUtil.addBlockCSS(
-          // 2024.8.12
-          `div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`,
-          // 2024.7.16 更多 充钻石
-          'body .semi-portal .semi-portal-inner li.semi-dropdown-item:has(a[href*="douyin_recharge"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            // 2024.8.12
-            `div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`
-          )
-        );
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            // 直播
-            '#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"])'
-          )
-        );
-      }
-      return result;
-    },
-    /**
-     * 【屏蔽】客户端
-     */
-    shieldClient() {
-      log.info("【屏蔽】客户端");
-      let result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
-          // 2024.7.15
-          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
-          // ios
-          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            'div:has(> div[data-e2e="something-button"] path[d="M18.404 19.018h-12v-1.5h12v1.5zM11.654 13.457v-8.19h1.5v8.19l3.22-3.22 1.06 1.061-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5 1.06-1.06 3.22 3.22z"])',
-            // 2024.7.15
-            'div[id^="douyin-header-menu"] >  div > div > div:has(a[download^="douyin-downloader"])'
-          )
-        );
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            // 直播
-            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)',
-            // 直播
-            '#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
-            /* 直播 更多 客户端 */
-            '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
-          )
-        );
-      }
-      return result;
-    },
-    /**
-     * 【屏蔽】快捷访问
-     */
-    shieldQuickAccess() {
-      log.info("【屏蔽】快捷访问");
-      let result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)',
-          // 直播 更多里面的 快捷访问
-          // '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item'
-          // 2024.7.15 更新规则
-          'div[id^="douyin-header-menu"] pace-island > div > div:has(.quick-access-nav-icon)'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS("div:has(>div>div>.quick-access-nav-icon)")
-        );
-        utils.waitNode(
-          'li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")',
-          1e4
-        ).then(($semi) => {
-          $semi == null ? void 0 : $semi.remove();
-        });
-      } else if (DouYinRouter.isLive()) ;
-      return result;
-    },
-    /**
-     * 【屏蔽】通知
-     */
-    shieldNotifitation() {
-      log.info("【屏蔽】通知");
-      let result = [];
-      result.push(
-        // 2024.11.11
-        CommonUtil.addBlockCSS(
-          '#douyin-right-container #douyin-header-menuCt pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            // 2024.8.12
-            'div[id^="douyin-header-menu"] >  div > div > ul:has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
-          )
-        );
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            // 直播
-            'div[id^="douyin-header-menu"] pace-island[id^="island"] > * > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
-          )
-        );
-      }
-      return result;
-    },
-    /**
-     * 【屏蔽】私信
-     */
-    shieldPrivateMessage() {
-      log.info("【屏蔽】私信");
-      let result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])',
-          // 直播
-          '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        log.info("搜索-【屏蔽】私信");
-        result.push(
-          CommonUtil.addBlockCSS(
-            'ul:has( div>div[data-e2e="im-entry"] )',
-            // 2024.7.15
-            'div[id^="douyin-header-menu"] >  div > div > ul:has([data-e2e="im-entry"])'
-          )
-        );
-      }
-      return result;
-    },
-    /**
-     * 【屏蔽】投稿
-     */
-    shieldSubmission() {
-      log.info("【屏蔽】投稿");
-      let result = [];
-      const iconPath = `d="M11.3487 4.90125H11.3164H11.3164C10.2479 4.90124 9.40104 4.90124 8.71799 4.95587C8.01959 5.01173 7.42807 5.12824 6.88626 5.39747C5.95866 5.8584 5.20716 6.60991 4.74622 7.53751C4.477 8.07932 4.36048 8.67084 4.30462 9.36923C4.24999 10.0523 4.24999 10.8991 4.25 11.9677V12V12.0322C4.24999 13.1008 4.24999 13.9477 4.30462 14.6307C4.36048 15.3291 4.477 15.9206 4.74622 16.4624C5.20716 17.39 5.95866 18.1415 6.88626 18.6025C7.42807 18.8717 8.01959 18.9882 8.71799 19.0441C9.40104 19.0987 10.2479 19.0987 11.3164 19.0987H11.3487H12.6513H12.6836C13.7521 19.0987 14.599 19.0987 15.282 19.0441C15.9804 18.9882 16.5719 18.8717 17.1137 18.6025C18.0413 18.1415 18.7928 17.39 19.2538 16.4624C19.523 15.9206 19.6395 15.3291 19.6954 14.6307C19.75 13.9477 19.75 13.1008 19.75 12.0322V12V11.9677C19.75 10.8991 19.75 10.0523 19.6954 9.36923C19.6395 8.67084 19.523 8.07932 19.2538 7.53751C18.7928 6.60991 18.0413 5.8584 17.1137 5.39747C16.5719 5.12824 15.9804 5.01173 15.282 4.95587C14.599 4.90124 13.7521 4.90124 12.6836 4.90125H12.6513H11.3487ZM7.55376 6.74077C7.8529 6.59212 8.22981 6.4997 8.83757 6.45109C9.45382 6.4018 10.2407 6.40125 11.3487 6.40125H12.6513C13.7593 6.40125 14.5462 6.4018 15.1624 6.45109C15.7702 6.4997 16.1471 6.59212 16.4462 6.74077C17.0809 7.05614 17.5951 7.57033 17.9105 8.205C18.0591 8.50414 18.1515 8.88105 18.2002 9.48882C18.2494 10.1051 18.25 10.8919 18.25 12C18.25 13.108 18.2494 13.8949 18.2002 14.5111C18.1515 15.1189 18.0591 15.4958 17.9105 15.7949C17.5951 16.4296 17.0809 16.9438 16.4462 17.2592C16.1471 17.4078 15.7702 17.5002 15.1624 17.5488C14.5462 17.5981 13.7593 17.5987 12.6513 17.5987H11.3487C10.2407 17.5987 9.45382 17.5981 8.83757 17.5488C8.22981 17.5002 7.8529 17.4078 7.55376 17.2592C6.91909 16.9438 6.4049 16.4296 6.08952 15.7949C5.94088 15.4958 5.84846 15.1189 5.79985 14.5111C5.75056 13.8949 5.75 13.108 5.75 12C5.75 10.8919 5.75056 10.1051 5.79985 9.48882C5.84846 8.88105 5.94088 8.50414 6.08952 8.205C6.4049 7.57033 6.91909 7.05614 7.55376 6.74077ZM11.25 15V12.75H9V11.25H11.25V8.99997H12.75V11.25H15V12.75H12.75V15H11.25Z"`;
-      result.push(
-        CommonUtil.addBlockCSS(
-          // 2024.8.12 更新规则
-          `div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            // 2024.8.12
-            `div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`
-          )
-        );
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(ul[data-e2e="cooperate-list"])'
-          )
-        );
-      }
-      return result;
-    },
-    /**
-     * 【屏蔽】客户端提示
-     */
-    shieldClientTip() {
-      log.info("【屏蔽】客户端提示");
-      let result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          /* 右上角 通知 下载客户端，实时接收消息通知 */
-          'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
-          /* 右上角 个人信息 客户端登录访问更便捷 [下载] */
-          '#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
-          /* 右上角 私信 下载客户端，实时接收好友消息 */
-          '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
-          /* 右上角 壁纸 下载客户端，使用壁纸 */
-          '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            /* 右上角 私信 下载客户端，实时接收好友消息 */
-            'div[id^="douyin-header-menu"] ul li div[data-e2e="im-entry"] div > div > div:has(>a[download*="douyin-downloader"])',
-            /* 右上角 个人信息 客户端登录访问更便捷 [下载] */
-            'div[id^="douyin-header-menu"] ul > div:has(>a[download*="douyin-downloader"])'
-          )
-        );
-      }
-      return result;
-    },
-    /**
-     * 【屏蔽】壁纸
-     */
-    shieldWallpaper() {
-      log.info("【屏蔽】壁纸");
-      let result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          // 2024.8.12
-          'div[id^="douyin-header-menu"] pace-island > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
-        )
-      );
-      if (DouYinRouter.isSearch()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            // 2024.8.12
-            'div[id^="douyin-header-menu"] >  div > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
-          )
-        );
-      } else if (DouYinRouter.isLive()) {
-        result.push(
-          CommonUtil.addBlockCSS(
-            '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container:has(span.semi-icon)',
-            '#douyin-header pace-island[id^="island"] > div[class] span:has(.semi-icon)'
-          )
-        );
-      }
-      return result;
-    },
-    /**
-     * 屏蔽底部问题按钮
-     */
-    shieldBottomQuestionButton() {
-      log.info("屏蔽底部问题按钮");
-      return CommonUtil.addBlockCSS([
-        "#douyin-sidebar",
-        /* 推荐视频右下角的？按钮 */
-        "#douyin-temp-sidebar"
-      ]);
-    },
-    /**
-     * 【屏蔽】右侧菜单栏
-     */
-    shieldRightMenu() {
-      log.info(`【屏蔽】右侧菜单栏`);
-      return CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"]`);
-    },
-    /**
-     * 【屏蔽】更多
-     */
-    shieldRightMenuMore() {
-      log.info(`【屏蔽】更多`);
-      return CommonUtil.addBlockCSS(
-        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M17 8.75H7V7.25H17V8.75ZM17 12.75H7V11.25H17V12.75ZM7 16.75H17V15.25H7V16.75Z"])`
-      );
-    },
-    /**
-     * 【屏蔽】登录头像
-     */
-    shieldRightMenuLoginAvatar() {
-      log.info(`【屏蔽】登录头像`);
-      return CommonUtil.addBlockCSS(
-        // 未登录
-        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M6.484 43.177c4.765-5.408 11.743-8.821 19.517-8.821 7.775 0 14.753 3.413 19.517 8.821C40.754 48.587 33.776 52 26.001 52c-7.774 0-14.752-3.413-19.517-8.822zM35.287 21.356a9.286 9.286 0 1 1-18.571 0 9.286 9.286 0 0 1 18.571 0z"])`,
-        // 已登录
-        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has([data-e2e="live-avatar"])`
-      );
-    },
-    /**
-     * 【屏蔽】AI搜索
-     */
-    shieldAISearch() {
-      log.info(`【屏蔽】AI搜索`);
-      return CommonUtil.addBlockCSS(
-        `#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`
-      );
-    }
-  };
-  const BlockSearchFrame = {
-    init() {
-      Panel.execMenuOnce("shieldSearch", () => {
-        return this.shieldSearch();
-      });
-      Panel.execMenuOnce("shieldSearchPlaceholder", () => {
-        return this.shieldSearchPlaceholder();
-      });
-      Panel.execMenuOnce("shieldSearchGuessYouWantToSearch", () => {
-        return this.shieldSearchGuessYouWantToSearch();
-      });
-      Panel.execMenuOnce("shieldSearchTiktokHotspot", () => {
-        return this.shieldSearchTiktokHotspot();
-      });
-    },
-    /**
-     * 【屏蔽】搜索框
-     */
-    shieldSearch() {
-      log.info("【屏蔽】搜索框");
-      return CommonUtil.addBlockCSS(
-        '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
-      );
-    },
-    /**
-     * 【屏蔽】搜索框的提示
-     */
-    shieldSearchPlaceholder() {
-      log.info("【屏蔽】搜索框的提示");
-      let result = [];
-      result.push(
-        CommonUtil.addBlockCSS(
-          '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div div:has( + input[data-e2e="searchbar-input"])'
-        )
-      );
-      result.push(
-        addStyle(
-          /*css*/
-          `
-			#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
-				color: transparent;
-			}`
-        )
-      );
-      return result;
-    },
-    /**
-     * 【屏蔽】搜索-猜你想搜
-     */
-    shieldSearchGuessYouWantToSearch() {
-      log.info("【屏蔽】搜索-猜你想搜");
-      return CommonUtil.addBlockCSS(
-        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
-        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
-      );
-    },
-    /**
-     * 【屏蔽】搜索-抖音热点
-     */
-    shieldSearchTiktokHotspot() {
-      log.info("【屏蔽】搜索-抖音热点");
-      return CommonUtil.addBlockCSS(
-        'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
-        'button[data-e2e="searchbar-button"] + div div[data-e2e="search-hot-container"]'
-      );
-    }
-  };
-  const Hook = {
-    $data: {
-      document_addEventListener: [],
-      element_addEventListener: [],
-      setTimeout: [],
-      setInterval: [],
-      function_apply: [],
-      function_call: [],
-      defineProperty: []
-    },
-    /**
-     * 劫持 document.addEventListener
-     * @param handler
-     */
-    document_addEventListener(handler) {
-      this.$data.document_addEventListener.push(handler);
-      log.info("document.addEventListener hook新增劫持判断回调");
-      if (this.$data.document_addEventListener.length > 1) {
-        return;
-      }
-      const that = this;
-      let weakMap = /* @__PURE__ */ new WeakMap();
-      const originAddEventListener = _unsafeWindow.document.addEventListener;
-      const originRemoveEventListener = _unsafeWindow.document.removeEventListener;
-      _unsafeWindow.document.addEventListener = function(...args) {
-        let target = this;
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
-        for (let index = 0; index < that.$data.document_addEventListener.length; index++) {
-          const callback = that.$data.document_addEventListener[index];
-          const result = Reflect.apply(callback, this, [
-            target,
-            eventName,
-            listener,
-            options
-          ]);
-          if (typeof result === "function") {
-            args[1] = result;
-            weakMap.set(listener, {
-              eventName,
-              fn: result,
-              options
-            });
-            break;
-          } else if (typeof result === "boolean" && !result) {
-            return;
-          }
-        }
-        return Reflect.apply(originAddEventListener, this, args);
-      };
-      _unsafeWindow.document.removeEventListener = function(...args) {
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
-        if (weakMap.has(listener)) {
-          const {
-            eventName: __eventName__,
-            fn: __listener__,
-            options: __options__
-          } = weakMap.get(listener);
-          let flag = false;
-          if (eventName === __eventName__) {
-            if (typeof options === "boolean" && options === __options__) {
-              flag = true;
-            } else if (typeof options === "object" && typeof __options__ === "object" && options["capture"] === __options__["capture"]) {
-              flag = true;
-            } else if (options == options) {
-              flag = true;
-            }
-          }
-          if (flag) {
-            args[1] = __listener__;
-          }
-        }
-        return Reflect.apply(originRemoveEventListener, this, args);
-      };
-    },
-    /**
-     * 劫持 Element.property.addEventListener
-     * @param handler
-     */
-    element_addEventListener(handler) {
-      this.$data.element_addEventListener.push(handler);
-      log.info("Element.prototype.addEventListener hook新增劫持判断回调");
-      if (this.$data.element_addEventListener.length > 1) {
-        return;
-      }
-      const that = this;
-      let weakMap = /* @__PURE__ */ new WeakMap();
-      const originAddEventListener = _unsafeWindow.Element.prototype.addEventListener;
-      const originRemoveEventListener = _unsafeWindow.Element.prototype.removeEventListener;
-      _unsafeWindow.Element.prototype.addEventListener = function(...args) {
-        let target = this;
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
-        for (let index = 0; index < that.$data.element_addEventListener.length; index++) {
-          const callback = that.$data.element_addEventListener[index];
-          const result = Reflect.apply(callback, this, [
-            target,
-            eventName,
-            listener,
-            options
-          ]);
-          if (typeof result === "function") {
-            args[1] = result;
-            weakMap.set(listener, {
-              eventName,
-              fn: result,
-              options
-            });
-            break;
-          } else if (typeof result === "boolean" && !result) {
-            return;
-          }
-        }
-        return Reflect.apply(originAddEventListener, this, args);
-      };
-      _unsafeWindow.Element.prototype.removeEventListener = function(...args) {
-        let eventName = args[0];
-        let listener = args[1];
-        let options = args[2];
-        if (weakMap.has(listener)) {
-          const {
-            eventName: __eventName__,
-            fn: __listener__,
-            options: __options__
-          } = weakMap.get(listener);
-          let flag = false;
-          if (__eventName__ === eventName) {
-            if (typeof options === "boolean" && options === __options__) {
-              flag = true;
-            } else if (typeof options === "object" && typeof __options__ === "object" && options["capture"] === __options__["capture"]) {
-              flag = true;
-            } else if (options == __options__) {
-              flag = true;
-            }
-          }
-          if (flag) {
-            args[1] = __listener__;
-          }
-        }
-        return Reflect.apply(originRemoveEventListener, this, args);
-      };
-    },
-    /**
-     * 劫持 window.setTimeout
-     *
-     * @param handler
-     */
-    setTimeout(handler) {
-      this.$data.setTimeout.push(handler);
-      log.info("window.setTimeout hook新增劫持");
-      if (this.$data.setTimeout.length > 1) {
-        return;
-      }
-      const that = this;
-      let originSetTimeout = _unsafeWindow.setTimeout;
-      _unsafeWindow.setTimeout = function(...args) {
-        let fn = args[0];
-        let timeout = args[1];
-        for (let index = 0; index < that.$data.setTimeout.length; index++) {
-          const item = that.$data.setTimeout[index];
-          const result = item(fn, timeout);
-          if (typeof result === "boolean" && !result) {
-            return;
-          }
-        }
-        return Reflect.apply(originSetTimeout, this, args);
-      };
-    },
-    /**
-     * 劫持 window.setInterval
-     * @param handler
-     */
-    setInterval(handler) {
-      this.$data.setInterval.push(handler);
-      log.info("window.setInterval hook新增劫持");
-      if (this.$data.setInterval.length > 1) {
-        return;
-      }
-      const that = this;
-      let originSetInterval = _unsafeWindow.setInterval;
-      _unsafeWindow.setInterval = function(...args) {
-        let fn = args[0];
-        let timeout = args[1];
-        for (let index = 0; index < that.$data.setInterval.length; index++) {
-          const item = that.$data.setInterval[index];
-          const result = item(fn, timeout);
-          if (typeof result === "boolean" && !result) {
-            return;
-          }
-        }
-        return Reflect.apply(originSetInterval, this, args);
-      };
-    },
-    /**
-     * 劫持 Function.prototype.apply
-     * @param handler
-     */
-    function_apply(handler) {
-      this.$data.function_apply.push(handler);
-      log.info("Function.prototype.apply hook新增劫持");
-      if (this.$data.function_apply.length > 1) {
-        return;
-      }
-      const that = this;
-      let originFunctionApply = _unsafeWindow.Function.prototype.apply;
-      _unsafeWindow.Function.prototype.apply = function(...args) {
-        let thisArg = args[0];
-        let argArray = args[1];
-        let context = this;
-        for (let index = 0; index < that.$data.function_apply.length; index++) {
-          const item = that.$data.function_apply[index];
-          const result = item(context, thisArg, argArray);
-          if (result != null) {
-            args[0] = result.thisArg;
-            args[1] = result.argArray;
-            context = result.context;
-            break;
-          }
-        }
-        return Reflect.apply(originFunctionApply, context, args);
-      };
-    },
-    /**
-     * 劫持 Function.prototype.call
-     * @param handler
-     */
-    function_call(handler) {
-      this.$data.function_call.push(handler);
-      log.info("Function.prototype.call hook新增劫持");
-      if (this.$data.function_call.length > 1) {
-        return;
-      }
-      const that = this;
-      let originFunctionCall = _unsafeWindow.Function.prototype.call;
-      _unsafeWindow.Function.prototype.call = function(...args) {
-        let thisArg = args[0];
-        let argArray = args.slice(1);
-        let context = this;
-        for (let index = 0; index < that.$data.function_call.length; index++) {
-          const item = that.$data.function_call[index];
-          const result = item(context, thisArg, argArray);
-          if (result != null) {
-            args[0] = result.thisArg;
-            args.splice(1, argArray.length, ...result.argArray);
-            context = result.context;
-            break;
-          }
-        }
-        return Reflect.apply(originFunctionCall, context, args);
-      };
-    },
-    /**
-     * 劫持 Object.defineProperty
-     * @package handler
-     */
-    defineProperty(handler) {
-      this.$data.defineProperty.push(handler);
-      log.info("Object.defineProperty hook新增劫持");
-      if (this.$data.defineProperty.length > 1) {
-        return;
-      }
-      const that = this;
-      let originDefineProperty = _unsafeWindow.Object.defineProperty;
-      _unsafeWindow.Object.defineProperty = function(...args) {
-        let target = args[0];
-        let key = args[1];
-        let attributes = args[2];
-        for (let index = 0; index < that.$data.defineProperty.length; index++) {
-          const item = that.$data.defineProperty[index];
-          const result = item(target, key, attributes);
-          if (result != null) {
-            args[0] = result.target;
-            args[1] = result.key;
-            args[2] = result.attributes;
-            break;
-          }
-        }
-        return Reflect.apply(originDefineProperty, this, args);
-      };
-    },
-    /**
-     * 劫持webpack
-     * @param webpackName 当前全局变量的webpack名
-     * @param mainCoreData 需要劫持的webpack的顶部core
-     * 例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
-     * 此时mainCoreData是["core:0"]
-     * @param handler 如果mainCoreData匹配上，则调用此回调函数，替换的话把传入的值进行处理后再返回它就行
-     */
-    window_webpack(webpackName = "webpackJsonp", mainCoreData, handler) {
-      let originObject = void 0;
-      _unsafeWindow.Object.defineProperty(_unsafeWindow, webpackName, {
-        get() {
-          return originObject;
-        },
-        set(newValue) {
-          log.success("成功劫持webpack，当前webpack名：" + webpackName);
-          originObject = newValue;
-          const originPush = originObject.push;
-          originObject.push = function(...args) {
-            let _mainCoreData = args[0][0];
-            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
-              Object.keys(args[0][1]).forEach((keyName) => {
-                let originSwitchFunc = args[0][1][keyName];
-                args[0][1][keyName] = function(..._args) {
-                  let result = originSwitchFunc.call(this, ..._args);
-                  _args[0] = handler(_args[0]);
-                  return result;
-                };
-              });
-            }
-            return Reflect.apply(originPush, this, args);
-          };
-        }
-      });
-    }
-  };
-  const DouYinHook = {
-    $data: {
-      hookElementAddEventListener: []
-    },
-    init() {
-      Panel.onceExec("hookKeyboard", () => {
-        DouYinHook.disableShortCut();
-      });
-      Panel.execMenu("dy-cookie-remove__ac__", () => {
-        this.removeCookie();
-      });
-      if (DouYinRouter.isIndex()) {
-        Panel.execMenuOnce("dy-video-disableDoubleClickLike", () => {
-          DouYinHook.disableDoubleClickLike();
-        });
-      } else if (DouYinRouter.isLive()) {
-        Panel.execMenuOnce("dy-live-disableDoubleClickLike", () => {
-          DouYinHook.disableDoubleClickLike();
-        });
-      }
-    },
-    /**
-     * 移除环境检测
-     */
-    removeEnvCheck() {
-      log.info("移除环境检测");
-      let originalSetInterval = _unsafeWindow.setInterval;
-      _unsafeWindow.setInterval = function(callback, time) {
-        let funcStr = callback.toString().trim();
-        if (funcStr.includes("debugger")) {
-          log.success(["拦截→", [funcStr]]);
-          return;
-        }
-        if (funcStr.includes("checkEXp")) {
-          log.success(["拦截→", [funcStr]]);
-          return;
-        }
-        return originalSetInterval.call(this, callback, time);
-      };
-    },
-    /**
-     * 移除Cookie
-     */
-    removeCookie() {
-      let cookieHandler = new utils.GM_Cookie();
-      let cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
-      cookieNameList.forEach((cookieName) => {
-        cookieHandler.delete(
+        text: "",
+        type: "forms",
+        forms: [
           {
-            name: cookieName,
-            firstPartyDomain: ""
-          },
-          (error) => {
-            if (error) {
-              log.error(`移除Cookie失败 ==> ${cookieName}`, error);
-            } else {
-              log.success(`移除Cookie成功 ==> ${cookieName}`);
-            }
-          }
-        );
-      });
-    },
-    /**
-     * 禁用快捷键
-     */
-    disableShortCut() {
-      Hook.document_addEventListener((target, eventName, listener, option) => {
-        if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
-          return function(...eventArgs) {
-            let event = eventArgs[0];
-            event.key;
-            let code = event.code;
-            event.charCode || event.keyCode || event.which;
-            let otherCodeList = [];
-            if (event.ctrlKey) {
-              otherCodeList.push("ctrl");
-            }
-            if (event.altKey) {
-              otherCodeList.push("alt");
-            }
-            if (event.metaKey) {
-              otherCodeList.push("meta");
-            }
-            if (event.shiftKey) {
-              otherCodeList.push("shift");
-            }
-            let keyboardConfigList = [
+            text: "覆盖点击事件",
+            type: "deepMenu",
+            forms: [
               {
-                enableKey: "dy-keyboard-hook-likeOrDislike",
-                code: ["KeyZ"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-comment",
-                code: ["KeyX"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-danmaku-enable",
-                code: ["KeyB"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-collect-enable",
-                code: ["KeyC"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-copyShareLink",
-                code: ["KeyV"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-clearScreen",
-                code: ["KeyJ"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-automaticBroadcast",
-                code: ["KeyK"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-videoInfo",
-                code: ["KeyI"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-notInterested",
-                code: ["KeyR"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-enterAuthorHomePage",
-                code: ["KeyF"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-follow",
-                code: ["KeyG"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-search",
-                code: ["KeyF"],
-                otherCodeList: ["shift"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-closeTheCurrentPageWithOneClick",
-                code: ["KeyQ"],
-                otherCodeList: ["shift"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-pageUpAndDown",
-                code: ["ArrowUp", "ArrowDown"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-fastForwardAndFastBack",
-                code: ["ArrowLeft", "ArrowRight"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-pause",
-                code: ["Space"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-fullScreenInsideThePage",
-                code: ["KeyY"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-fullScreen",
-                code: ["KeyH"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-watchItOutLater",
-                code: ["KeyL"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-volumeAdjustment",
-                code: ["Minus"],
-                otherCodeList: ["shift"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-listOfCallShortcutKeys",
-                code: ["Slash"],
-                otherCodeList: ["shift"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-closeTheShortcutKeyList",
-                code: ["Escape"]
-              },
-              {
-                enableKey: "dy-keyboard-hook-relevantRecommendation",
-                code: ["KeyN"]
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "视频卡片",
+                    "m-dy-share-music-coverVideoCard",
+                    true,
+                    void 0,
+                    "正确跳转视频页面"
+                  )
+                ]
               }
-            ];
-            if (DouYinRouter.isIndex()) {
-              keyboardConfigList.push(
-                {
-                  enableKey: "dy-keyboard-hook-arrowUp-w",
-                  code: ["KeyW"]
-                },
-                {
-                  enableKey: "dy-keyboard-hook-arrowDown-s",
-                  code: ["KeyS"]
-                },
-                {
-                  enableKey: "dy-keyboard-hook-videoRewind",
-                  code: ["KeyA"]
-                },
-                {
-                  enableKey: "dy-keyboard-hook-videoFastForward",
-                  code: ["KeyD"]
-                }
-              );
-            } else if (DouYinRouter.isLive()) {
-              keyboardConfigList.push(
-                {
-                  enableKey: "dy-live-refresh",
-                  code: ["KeyE"]
-                },
-                {
-                  enableKey: "dy-live-screenRotation",
-                  code: ["KeyD"]
-                },
-                {
-                  enableKey: "dy-live-enableSmallWindowMode",
-                  code: ["KeyU"]
-                }
-              );
-            }
-            for (let index = 0; index < keyboardConfigList.length; index++) {
-              const keyboardConfig = keyboardConfigList[index];
-              if (keyboardConfig.code.includes(code)) {
-                if (Array.isArray(keyboardConfig.otherCodeList)) {
-                  let findValue = keyboardConfig.otherCodeList.find(
-                    (item) => !otherCodeList.includes(item)
-                  );
-                  if (findValue) {
-                    continue;
-                  }
-                }
-                if (!Panel.getValue(keyboardConfig.enableKey)) {
-                  continue;
-                }
-                return;
-              }
-            }
-            return Reflect.apply(listener, this, eventArgs);
-          };
-        }
-      });
-    },
-    /**
-     * 禁用双击点赞
-     */
-    disableDoubleClickLike() {
-      let latestClickTime = Date.now();
-      Hook.element_addEventListener((target, eventName, listener, option) => {
-        var _a2;
-        const listenerStr = listener.toString();
-        if (eventName === "click" && target instanceof HTMLElement && ((_a2 = target == null ? void 0 : target.classList) == null ? void 0 : _a2.contains("xgplayer")) && listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) {
-          return function(...eventArgs) {
-            let currentClickTime = Date.now();
-            if (currentClickTime - latestClickTime <= 288) {
-              latestClickTime = currentClickTime;
-              log.success("阻止触发双击点赞");
-              return;
-            }
-            latestClickTime = currentClickTime;
-            Reflect.apply(listener, this, eventArgs);
-          };
-        }
-      });
-    }
-  };
-  const DouYinElement = {
-    /**
-     * 观察 #slidelist的加载每条视频
-     * @param callback
-     */
-    watchFeedVideoListChange(callback) {
-      let $os = null;
-      domUtils.ready(() => {
-        utils.waitAnyNode([
-          "#slidelist",
-          // 搜索页面的↓搜索结果列表
-          '#search-content-area ul[data-e2e="scroll-list"]'
-        ]).then(($ele) => {
-          log.info(`启用观察器观察加载的视频`);
-          let lockFn = new utils.LockFunction((observer) => {
-            $os = $os || this.getOSElement();
-            if (!$os) {
-              log.error("watchVideDataListChange：获取osElement失败");
-              return;
-            }
-            callback($os, observer);
-          }, 50);
-          utils.mutationObserver(document, {
-            config: {
-              childList: true,
-              subtree: true
-            },
-            immediate: true,
-            callback: (mutations, observer) => {
-              lockFn.run(observer);
-            }
-          });
-        });
-      });
-    },
-    getOSElement() {
-      return $("#root div[class*='-os']") || $("#douyin-right-container");
-    }
-  };
-  const DouYinAccount = {
-    /**
-     * 伪装登录
-     */
-    disguiseLogin() {
-      log.info("伪装登录");
-      DouYinNetWorkHook.hookUserNoLoginResponse();
-      const WAIT_TIME = 2e4;
-      let uid = 114514;
-      let info = {
-        uid,
-        secUid: "",
-        shortId: "",
-        realName: "",
-        nickname: "乌萨奇",
-        // 昵称
-        desc: "除草证3级",
-        // 描述
-        gender: 0,
-        // 性别
-        avatarUrl: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
-        // 头像
-        avatar300Url: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
-        followStatus: 0,
-        followerStatus: 0,
-        awemeCount: 0,
-        // 作品数量
-        watchLaterCount: 0,
-        // 稍后再看数量
-        followingCount: 0,
-        // 关注
-        followerCount: 0,
-        followerCountStr: "",
-        mplatformFollowersCount: 9999999,
-        // 粉丝数量
-        favoritingCount: 0,
-        // 我的喜欢的数量
-        totalFavorited: 9999999,
-        // 获赞
-        userCollectCount: {
-          logPb: {
-            impr_id: ""
-          },
-          collectCountList: [],
-          statusCode: 0,
-          extra: {
-            fatal_item_ids: [],
-            logid: "",
-            now: Date.now()
+            ]
           }
-        },
-        uniqueId: "",
-        customVerify: "",
-        generalPermission: {
-          is_hit_active_fans_grayed: false
-        },
-        age: (/* @__PURE__ */ new Date()).getFullYear() - 2019,
-        // 年龄
-        country: "",
-        province: "",
-        city: "",
-        district: "",
-        school: "chiikawa",
-        // 学校
-        schoolVisible: 1,
-        // 控制学校显示
-        enterpriseVerifyReason: "",
-        secret: 1,
-        userCanceled: false,
-        roomData: {},
-        shareQrcodeUrl: "",
-        shareInfo: {
-          boolPersist: 1,
-          shareDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。",
-          shareImageUrl: {
-            uri: "",
-            url_list: []
-          },
-          shareQrcodeUrl: {
-            uri: "",
-            url_list: []
-          },
-          shareUrl: "",
-          shareWeiboDesc: "长按复制此条消息，打开抖音搜索，查看TA的更多作品。"
-        },
-        coverAndHeadImageInfo: {
-          profileCoverList: []
-        },
-        roomId: 0,
-        favoritePermission: 1,
-        viewHistoryPermission: true,
-        isGovMediaVip: false,
-        isStar: false,
-        hideLocation: false,
-        needSpecialShowFollowerCount: false,
-        continuationState: 0,
-        im_role_ids: [],
-        accountCertInfo: {},
-        close_consecutive_chat: 0
-      };
-      function getUserInfo(element) {
-        var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D;
-        let userInfoList = [];
-        let reactInstance = utils.getReactObj(element);
-        let reactFiber = reactInstance == null ? void 0 : reactInstance.reactFiber;
-        reactInstance == null ? void 0 : reactInstance.reactProps;
-        if ((_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.userInfo) {
-          userInfoList.push(
-            (_f = (_e = (_d = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _d.return) == null ? void 0 : _e.memoizedProps) == null ? void 0 : _f.userInfo
-          );
-        }
-        if ((_j = (_i = (_h = (_g = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _g.return) == null ? void 0 : _h.memoizedProps) == null ? void 0 : _i.userInfo) == null ? void 0 : _j.userInfo) {
-          userInfoList.push(
-            (_m = (_l = (_k = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _k.return) == null ? void 0 : _l.memoizedProps) == null ? void 0 : _m.userInfo.userInfo
-          );
-        }
-        if ((_q = (_p = (_o = (_n = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _n.return) == null ? void 0 : _o.return) == null ? void 0 : _p.memoizedProps) == null ? void 0 : _q.userInfo) {
-          userInfoList.push(
-            (_u = (_t = (_s = (_r = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _r.return) == null ? void 0 : _s.return) == null ? void 0 : _t.memoizedProps) == null ? void 0 : _u.userInfo
-          );
-        }
-        if ((_z = (_y = (_x = (_w = (_v = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _v.return) == null ? void 0 : _w.return) == null ? void 0 : _x.memoizedProps) == null ? void 0 : _y.userInfo) == null ? void 0 : _z.userInfo) {
-          userInfoList.push(
-            (_D = (_C = (_B = (_A = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _A.return) == null ? void 0 : _B.return) == null ? void 0 : _C.memoizedProps) == null ? void 0 : _D.userInfo.userInfo
-          );
-        }
-        return userInfoList;
+        ]
       }
-      function setLogin(element) {
-        getUserInfo(element).forEach((userInfo) => {
-          if (!userInfo.isLogin) {
-            userInfo.info = info;
-            userInfo.isLogin = true;
-            userInfo.statusCode = 0;
-          }
-        });
-      }
-      DouYinElement.watchFeedVideoListChange(($os) => {
-        setLogin($os);
-      });
-      utils.waitNode("#root div[class*='-os']", WAIT_TIME).then(() => {
-        let lockFn = new utils.LockFunction(() => {
-          let $os = DouYinElement.getOSElement();
-          if (!$os) {
-            return;
-          }
-          setLogin($os);
-        }, 70);
-        utils.mutationObserver(document.body, {
-          config: {
-            subtree: true,
-            childList: true
-          },
-          immediate: true,
-          callback: () => {
-            lockFn.run();
-          }
-        });
-      }).catch((err) => {
-      });
-      this.watchCommentDialogToClose();
-      if (DouYinRouter.isLive()) {
-        log.info("伪装登录：live");
-        utils.waitNode(
-          `[id^="douyin-header"] div:has(.dy-tip-container)`,
-          WAIT_TIME
-        ).then(() => {
-          let lockFn = new utils.LockFunction(() => {
-            setLogin($(`[id^="douyin-header"]`));
-          }, 70);
-          utils.mutationObserver(document.body, {
-            config: {
-              subtree: true,
-              childList: true
-            },
-            callback: () => {
-              lockFn.run();
-            }
-          });
-        });
-      } else if (DouYinRouter.isSearch()) {
-        let setUserInfoBySearch = function($ele) {
-          var _a2, _b, _c, _d, _e, _f, _g;
-          let $react = utils.getReactObj($ele);
-          $react == null ? void 0 : $react.reactFiber;
-          let reactProps = $react == null ? void 0 : $react.reactProps;
-          if (typeof ((_d = (_c = (_b = (_a2 = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _a2[1]) == null ? void 0 : _b.props) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean") {
-            Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
-          }
-          if (typeof ((_g = (_f = (_e = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _e[1]) == null ? void 0 : _f.props) == null ? void 0 : _g.isClient) === "boolean") {
-            Reflect.set(reactProps.children[1].props, "isClient", true);
-          }
-        };
-        log.info("伪装登录：search");
-        utils.waitNode("#root > div", WAIT_TIME).then(($rootDiv) => {
-          if (!$rootDiv) {
-            log.error("#root > div获取失败");
-            return;
-          }
-          let lockFn = new utils.LockFunction(() => {
-            setUserInfoBySearch($rootDiv);
-          }, 70);
-          utils.mutationObserver(document, {
-            config: {
-              subtree: true,
-              childList: true
-            },
-            callback: () => {
-              lockFn.run();
-            }
-          });
-        });
-      }
-    },
-    /**
-     * 关闭登录弹窗
-     */
-    watchLoginDialogToClose() {
-      log.info("监听登录弹窗并关闭");
-      let result = [
-        CommonUtil.addBlockCSS('body > div[id^="login-full-panel-"]')
-      ];
-      let lockFn = new utils.LockFunction(() => {
-        var _a2;
-        if (!Panel.getValue("watchLoginDialogToClose")) {
-          return;
-        }
-        let $loginDialog = $(
-          'body > div[id^="login-full-panel-"]'
-        );
-        if ($loginDialog) {
-          let $loginDialogCloseBtn = $loginDialog.querySelector(".dy-account-close") || $loginDialog.querySelector(
-            'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
-          );
-          if ($loginDialogCloseBtn) {
-            let reactInstance = utils.getReactObj($loginDialogCloseBtn);
-            let onClick = (_a2 = reactInstance == null ? void 0 : reactInstance.reactProps) == null ? void 0 : _a2.onClick;
-            if (typeof onClick === "function") {
-              onClick(new Event("click"));
-            } else {
-              log.error("监听到登录弹窗但是关闭失败，未获取到onClick函数");
-            }
-          } else {
-            log.error(
-              "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
-              $loginDialog
-            );
-          }
-        }
-      });
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        callback: () => {
-          lockFn.run();
-        }
-      });
-      return result;
-    },
-    /**
-     * 关闭评论区的登录遮罩层
-     */
-    watchCommentDialogToClose() {
-      let lockFn = new utils.LockFunction(() => {
-        let $cardLoginGuide = $(
-          '[id^="related-video-card-login-guide"]'
-        );
-        if (!$cardLoginGuide) {
-          return;
-        }
-        let $close = $cardLoginGuide.querySelector(
-          ".related-video-card-login-guide__footer-close"
-        );
-        if (!$close) {
-          log.error("监听到评论区的登录遮罩层但是未获取到关闭按钮");
-          return;
-        }
-        $close.click();
-      });
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        }
-      });
-      return [
-        CommonUtil.addBlockCSS('[id^="related-video-card-login-guide"]'),
-        addStyle(
-          /*css*/
-          `
-			/* 去除遮罩层 */
-			[id^="related-video-card-login-guide"]+div{
-				filter: none !important;
-			}
-		`
-        )
-      ];
-    }
+    ]
   };
-  const DouYinRedirect = {
-    init() {
-      Panel.execMenu("douyin-redirect-url-home-to-root", () => {
-        this.redirectUrlHomeToRoot();
-      });
+  PanelContent.addContentConfig([
+    PanelCommonConfig,
+    PanelVideoConfig,
+    PanelSearchConfig,
+    PanelLiveConfig,
+    PanelUserConfig
+  ]);
+  PanelContent.addContentConfig([
+    MPanelShareUserConfig,
+    MPanelShareNoteConfig,
+    MPanelShareChallengeConfig,
+    MPanelShareVideoConfig,
+    MPanelShareMusicConfig
+  ]);
+  PanelMenu.addMenuOption({
+    key: "show_pops_m_panel_setting",
+    text: "⚙ 移动端设置",
+    autoReload: false,
+    isStoreValue: false,
+    showText(text) {
+      return text;
     },
-    /**
-     * 从首页到根目录
-     */
-    redirectUrlHomeToRoot() {
-      if (window.location.pathname === "/home") {
-        log.info("从首页跳转到根目录");
-        window.location.href = window.location.origin + "/?is_from_mobile_home=1&recommend=1";
-      }
-    }
-  };
-  const MobileCSS = '/* 去除顶部的padding距离 */\r\n#douyin-right-container {\r\n	padding-top: 0;\r\n}\r\n/* 放大放大顶部的综合、视频、用户等header的宽度 */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) {\r\n	width: 100vw;\r\n}\r\n/* 放大顶部的综合、视频、用户等header */\r\n#search-content-area > div > div:nth-child(1) > div:nth-child(1) > div {\r\n	transform: scale(0.8);\r\n}\r\n/* 视频宽度 */\r\nul[data-e2e="scroll-list"] {\r\n	padding: 0px 10px;\r\n}\r\n#sliderVideo {\r\n	width: -webkit-fill-available;\r\n}\r\n/* 距离是顶部导航栏的高度 */\r\n#search-content-area {\r\n	margin-top: 65px;\r\n}\r\n/* 从其它页面进入搜索页面，例如路径是/root/search，会出现返回按钮 */\r\n#douyin-header header{\r\n	flex-direction: row-reverse !important;\r\n}\r\n#douyin-header header > div:nth-child(2) {\r\n	position: unset !important;\r\n}\r\n/* 调整视频列表的宽度 */\r\n@media screen and (max-width: 550px) {\r\n	#sliderVideo {\r\n		width: 100%;\r\n	}\r\n	/* 调整顶部搜索框的宽度 */\r\n	#component-header\r\n		div[data-click="doubleClick"]\r\n		> div[data-click="doubleClick"]\r\n		> div:has(input[data-e2e="searchbar-input"]) {\r\n		width: -webkit-fill-available;\r\n		padding-right: 0;\r\n	}\r\n}\r\n';
-  const DouYinSearchHideElement = {
-    init() {
-      Panel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
-        return this.shieldReleatedSearches();
-      });
-    },
-    /**
-     * 【屏蔽】相关搜索
-     */
-    shieldReleatedSearches() {
-      log.info("【屏蔽】相关搜索");
-      return [
-        CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
-        addStyle(
-          /*css*/
-          `
-			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
-				width: 100vw;
-			}`
-        )
-      ];
-    }
-  };
-  const DouYinSearch = {
-    init() {
-      DouYinSearchHideElement.init();
-      Panel.execMenuOnce("mobileMode", () => {
-        return this.mobileMode();
-      });
-      Panel.execMenuOnce("dy-search-disableClickToEnterFullScreen", () => {
-        this.disableClickToEnterFullScreen();
-      });
-      Panel.execMenuOnce("live-setSearchResultFilterWithVideoStyle", (option) => {
-        return this.setSearchResultFilterWithVideoStyle(option.value);
-      });
-    },
-    /**
-     * 手机模式
-     * (由通用统一调用，勿放在本函数的init内)
-     */
-    mobileMode() {
-      log.info("搜索-手机模式");
-      let result = [];
-      result.push(addStyle(MobileCSS));
-      result.push(
-        addStyle(
-          /*css*/
-          `
-			@media screen and (max-width: 550px){
-				div#search-body-container {
-					display: flex;
-				}
-				div#search-body-container #component-Navigation {
-					flex: 0;
-				}
-				div#search-body-container #douyin-right-container {
-					flex: 1 auto;
-				}
-				div#search-body-container #douyin-right-container #search-content-area > div {
-					width: 100% !important;
-				}
-				div#search-body-container #douyin-right-container #search-content-area > div > div > div {
-					width: 100% !important;
-					margin-left: 0px;
-					margin-right: 0px;
-					padding-left: 0px;
-					padding-right: 0px;
-				}
-				/* 上面的搜索结果筛选 */
-				#search-content-area > div >div> div:first-child > div:first-child > div:last-child{
-					overflow: auto;
-					text-wrap: nowrap;
-					height: auto;
-				}
-				/* 视频右侧的TA的作品↓ */
-				#searchSideCard{
-					width: unset !important;
-				}
-				#searchSideCard > div{
-					padding: 0px !important;
-				}
-				#searchSideCard > div:has(>div+svg),
-				#searchSideCard ul[data-e2e="scroll-list"]{
-					padding: 0px 10px !important;
-				}
-				#searchSideCard ul[data-e2e="scroll-list"] .video-playing-item > div{
-					width: auto;
-				}
-				/* 视频右侧的TA的作品↑ */
-				/* 悬浮的筛选 */
-				#douyin-right-container #douyin-header{
-        			background-color: var(--color-bg-b0);
-				}
-				xg-right-grid{
-					margin: auto !important;
-				}
-			}
-		`
-        )
-      );
-      utils.waitNode("#relatedVideoCard").then(($relatedVideoCard) => {
-        log.info("评论区展开的className：" + $relatedVideoCard.className);
-        result.push(
-          addStyle(
-            /*css*/
-            `
-					html[data-vertical-screen]
-						#sliderVideo[data-e2e="feed-active-video"]
-						#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
-							width: 100vw !important;
-					}`
-          )
-        );
-      });
-      return result;
-    },
-    /**
-     * 禁止点击视频区域进入全屏
-     */
-    disableClickToEnterFullScreen() {
-      log.info("搜索-禁止点击视频区域进入全屏");
-      domUtils.on(
-        document,
-        "click",
-        ".focusPanel",
-        (event) => {
-          var _a2;
-          utils.preventEvent(event);
-          let $click = event.target;
-          let $parent = (_a2 = $click.parentElement) == null ? void 0 : _a2.parentElement;
-          let $video = $parent.querySelector("video");
-          if ($video) {
-            if ($video.paused) {
-              log.info(".focusPanel：播放视频");
-              $video.play();
-            } else {
-              log.info(".focusPanel：视频暂停");
-              $video.pause();
-            }
-          } else {
-            log.error(".focusPanel未找到<video>标签");
-            Qmsg.error(".focusPanel未找到<video>标签", {
-              isHTML: false
-            });
-          }
-        },
-        {
-          capture: true
-        }
-      );
-      domUtils.on(
-        document,
-        "click",
-        "xg-video-container",
-        (event) => {
-          utils.preventEvent(event);
-          let $click = event.target;
-          let $video = $click.querySelector("video");
-          if ($video) {
-            if ($video.paused) {
-              log.info("xg-video-container：播放视频");
-              $video.play();
-            } else {
-              log.info("xg-video-container：视频暂停");
-              $video.pause();
-            }
-          } else {
-            log.error("xg-video-container未找到<video>标签");
-            Qmsg.error("xg-video-container未找到<video>标签", {
-              isHTML: false
-            });
-          }
-        },
-        {
-          capture: true
-        }
-      );
-    },
-    /**
-     * 设置搜索结果-按视频过滤的显示样式
-     * @param lineMode 单列/双列
-     */
-    setSearchResultFilterWithVideoStyle(lineMode = "one") {
-      log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
-      if (lineMode === "one") {
-        return addStyle(
-          /*css*/
-          `
-			@media screen and (max-width: 800px){
-				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
-					width: calc(100% - 21px);
-				}
-			}
-			`
-        );
-      } else if (lineMode === "double") {
-        return addStyle(
-          /*css*/
-          `	
-			@media screen and (max-width: 800px){
-				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
-					width: calc(50% - 21px);
-				}
-			}
-			`
-        );
-      }
-    }
-  };
-  const BlockLeftNavigator = {
-    init() {
-      Panel.exec(
-        ["shieldLeftNavigator", "search-shieldLeftNavigator"],
-        () => {
-          return this.shieldLeftNavigator();
-        },
-        (keyList) => {
-          const [mainKey, childKey] = keyList;
-          let mainValue = Panel.getValue(mainKey);
-          let childValue = Panel.getValue(childKey);
-          if (DouYinRouter.isSearch()) {
-            if (childValue == 1) {
-              return true;
-            } else if (childValue == 0) {
-              return false;
-            } else ;
-          }
-          return mainValue;
-        }
-      );
-      Panel.execMenuOnce("shieldLeftNavigator-tab-home", () => {
-        return this.block_tab_home();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-recommend", () => {
-        return this.block_tab_recommend();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-follow", () => {
-        return this.block_tab_follow();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-friend", () => {
-        return this.block_tab_friend();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-user_self", () => {
-        return this.block_tab_user_self();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-live", () => {
-        return this.block_tab_live();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-vs", () => {
-        return this.block_tab_vs();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-series", () => {
-        return this.block_tab_series();
-      });
-      Panel.execMenuOnce("shieldLeftNavigator-tab-ai-search", () => {
-        return this.block_tab_ai_search();
-      });
-    },
-    /**
-     * 【屏蔽】左侧导航栏
-     */
-    shieldLeftNavigator() {
-      log.info("【屏蔽】左侧导航栏");
-      let result = [];
-      result.push(CommonUtil.addBlockCSS("#douyin-navigation"));
-      result.push(
-        addStyle(
-          /*css*/
-          `
-			/* 修复顶部导航栏的宽度 */
-			#douyin-header{
-				width: 100%;
-			}`
-        )
-      );
-      return result;
-    },
-    /**
-     * 【屏蔽】精选
-     */
-    block_tab_home() {
-      log.info("【屏蔽】精选");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)'
-      );
-    },
-    /**
-     * 【屏蔽】推荐
-     */
-    block_tab_recommend() {
-      log.info("【屏蔽】推荐");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)'
-      );
-    },
-    /**
-     * 【屏蔽】关注
-     */
-    block_tab_follow() {
-      log.info("【屏蔽】关注");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)'
-      );
-    },
-    /**
-     * 【屏蔽】朋友
-     */
-    block_tab_friend() {
-      log.info("【屏蔽】朋友");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)'
-      );
-    },
-    /**
-     * 【屏蔽】我的
-     */
-    block_tab_user_self() {
-      log.info("【屏蔽】我的");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)'
-      );
-    },
-    /**
-     * 【屏蔽】喜欢
-     */
-    block_tab_user_self_like() {
-      log.info("【屏蔽】喜欢");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_like)'
-      );
-    },
-    /**
-     * 【屏蔽】收藏
-     */
-    block_tab_user_self_collection() {
-      log.info("【屏蔽】收藏");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_collection)'
-      );
-    },
-    /**
-     * 【屏蔽】观看历史
-     */
-    block_tab_user_self_record() {
-      log.info("【屏蔽】观看历史");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_record)'
-      );
-    },
-    /**
-     * 【屏蔽】直播
-     */
-    block_tab_live() {
-      log.info("【屏蔽】直播");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)'
-      );
-    },
-    /**
-     * 【屏蔽】放映厅
-     */
-    block_tab_vs() {
-      log.info("【屏蔽】放映厅");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)'
-      );
-    },
-    /**
-     * 【屏蔽】短剧
-     */
-    block_tab_series() {
-      log.info(`短剧`);
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)'
-      );
-    },
-    /**
-     * 【屏蔽】AI搜索
-     */
-    block_tab_ai_search() {
-      log.info(`【屏蔽】AI搜索`);
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
-      );
-    },
-    /**
-     * 【屏蔽】知识
-     */
-    block_tab_channel_300203() {
-      log.info("【屏蔽】知识");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300203)'
-      );
-    },
-    /**
-     * 【屏蔽】游戏
-     */
-    block_tab_channel_300205() {
-      log.info("【屏蔽】游戏");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300205)'
-      );
-    },
-    /**
-     * 【屏蔽】二次元
-     */
-    block_tab_channel_300206() {
-      log.info("【屏蔽】二次元");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300206)'
-      );
-    },
-    /**
-     * 【屏蔽】音乐
-     */
-    block_tab_channel_300209() {
-      log.info("【屏蔽】音乐");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300209)'
-      );
-    },
-    /**
-     * 【屏蔽】美食
-     */
-    block_tab_channel_300204() {
-      log.info("【屏蔽】美食");
-      return CommonUtil.addBlockCSS(
-        'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)'
+    callback: () => {
+      Panel.showPanel(
+        PanelContent.getConfig(1),
+        `${Panel.$data.scriptName}-移动端设置`
       );
     }
-  };
-  const blockCSS$8 = '/* 从顶部往下弹出的下载抖音电脑版的drawer提示 */\r\n#douyin-web-download-guide-container\r\n/* 视频信息区域的 及时接收作品更新提醒 下载电脑客户端 */\r\n/* 但是这个CSS又会屏蔽右键菜单 */\r\n/*.basePlayerContainer xg-bar.xg-right-bar + div:not(:has(>svg))*/ ,\r\n/* 下载客户端，使用壁纸 */\r\ndiv:has(+#wallpaper-modal),\r\n/* 下载客户端，实时接收消息通知 */\r\n/* 下载客户端，实时接收好友消息 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.popShadowAnimation),\r\ndiv:has(> a[download*="douyin-downloade"]):has(+div>[data-e2e="listDlgTest-container"]),\r\n/* 客户端登录访问更便捷 */\r\ndiv:has(> a[download*="douyin-downloade"]):has(+.userMenuPanelShadowAnimation),\r\n/* 前往电脑客户端，即享下载视频 */\r\n[data-e2e="video-share-container"] div:has(>div>div> a[download*="douyin-downloader"]):first-child,\r\n/* so.douyin.com的广告item */\r\n.card-item:has(.h5-ad-video-card),\r\n.card-item:has([data-is-ad="true"]) {\r\n	display: none !important;\r\n}\r\n';
-  const blockCSS$7 = '/* 资料右边的 下载桌面客户端，桌面快捷访问 */\r\ndiv[data-e2e="user-detail"] div:has(> div > a[href*="douyin-pc"]) {\r\n	display: none !important;\r\n}\r\n';
-  const DouYinUser = {
-    init() {
-      addStyle(blockCSS$7);
-      domUtils.ready(() => {
-        Panel.execMenu("dy-user-addShowUserUID", () => {
-          this.addShowUserUID();
-        });
-      });
-    },
-    /**
-     * 显示UID
-     */
-    addShowUserUID() {
-      ReactUtils.waitReactPropsToSet(
-        `[data-e2e="user-detail"] [data-e2e="user-info"]`,
-        "reactFiber",
-        {
-          msg: "显示UID",
-          check(reactInstance) {
-            var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedProps) == null ? void 0 : _b.userInfo) == null ? void 0 : _c.uid) === "string";
-          },
-          set(reactInstance, $target) {
-            var _a2, _b, _c;
-            let uid = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedProps) == null ? void 0 : _b.userInfo) == null ? void 0 : _c.uid;
-            domUtils.remove(
-              $target.querySelectorAll(".gm-user-uid")
-            );
-            let $userUID = domUtils.createElement(
-              "p",
-              {
-                className: "gm-user-uid",
-                innerHTML: (
-                  /*html*/
-                  `
-							<span>UID：${uid}</span>
-						`
-                )
-              },
-              {
-                style: "color: var(--color-text-t3);margin-right: 20px;font-size: 12px;line-height: 20px;cursor: pointer;"
-              }
-            );
-            domUtils.on($userUID, "click", (event) => {
-              utils.preventEvent(event);
-              utils.setClip(uid);
-              Qmsg.success("复制成功");
-            });
-            $target.appendChild($userUID);
-          }
-        }
-      );
-    }
-  };
-  const blockCSS$6 = '/* 单个视频页面右侧的 下载客户端，桌面快捷访问 */\r\ndiv[data-e2e="video-detail"]\r\n	div\r\n	> :has(> div:last-child > a[href*="douyin-pc-web"]) {\r\n	display: none !important;\r\n}\r\n';
-  const DouYinVideo = {
-    init() {
-      addStyle(blockCSS$6);
-    }
-  };
-  const blockCSS$5 = '/* 右侧视频信息里的 下载客户端，桌面快捷访问 */\r\n[data-e2e="note-detail"]\r\n	div:has(> [data-e2e="user-info"])\r\n	> div:has(a[download*="douyin-downloader"]) {\r\n	display: none !important;\r\n}\r\n';
-  const DouYinNote = {
-    init() {
-      addStyle(blockCSS$5);
-    }
-  };
-  const DouYin = {
-    init() {
-      Panel.onceExec("dy-global-block-css", () => {
-        return this.removeAds();
-      });
-      DouYinGestureBackClearHash();
-      DouYinHook.init();
-      DouYinVideoFilter.init();
-      DouYinRedirect.init();
-      Panel.execMenuOnce("watchLoginDialogToClose", () => {
-        DouYinAccount.watchLoginDialogToClose();
-      });
-      Panel.execMenuOnce("disguiseLogin", () => {
-        DouYinAccount.disguiseLogin();
-      });
-      Panel.execMenuOnce("dy-initialScale", () => {
-        this.initialScale();
-      });
-      Panel.execMenu("dy-apple-removeMetaAppleItunesApp", () => {
-        this.removeMetaAppleItunesApp();
-      });
-      BlockLeftNavigator.init();
-      BlockTopNavigator.init();
-      BlockSearchFrame.init();
-      Panel.execMenuOnce("dy-common-listenRouterChange", () => {
-        this.listenRouterChange();
-      });
-      if (DouYinRouter.isLive()) {
-        log.info("Router: 直播");
-        DouYinLive.init();
-      } else if (DouYinRouter.isIndex()) {
-        DouYinVideoPlayer.init();
-        if (DouYinRouter.isSearch()) {
-          log.info("Router: 搜索");
-          DouYinSearch.init();
-        } else if (DouYinRouter.isUser()) {
-          log.info(`Router: 用户页面`);
-          DouYinUser.init();
-        } else if (DouYinRouter.isVideo()) {
-          log.info(`Router: 单个视频页面`);
-          DouYinVideo.init();
-        } else if (DouYinRouter.isChannel()) {
-          log.info(`Router: Channel页面`);
-        } else if (DouYinRouter.isNote()) {
-          log.info(`Router:  笔记页面`);
-          DouYinNote.init();
-        } else {
-          log.warn("子router: " + window.location.href);
-        }
-      } else {
-        log.error("未适配router: " + window.location.href);
-      }
-    },
-    /**
-     * 移除ads
-     */
-    removeAds() {
-      if (DouYinRouter.isIndex() || DouYinRouter.isJingXuan()) {
-        utils.waitNode(
-          () => domUtils.selector(
-            '#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:contains("下载抖音精选|条条都是宝藏视频")'
-          ),
-          1e4
-        ).then(($el) => {
-          if (!$el) {
-            return;
-          }
-          domUtils.remove($el);
-        });
-      }
-      return [addStyle(blockCSS$8)];
-    },
-    /**
-     * 固定meta viewport缩放倍率为1
-     */
-    initialScale() {
-      log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-      domUtils.ready(() => {
-        let meta = domUtils.createElement(
-          "meta",
-          {},
-          {
-            name: "viewport",
-            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
-          }
-        );
-        domUtils.remove("meta[name='viewport']");
-        utils.waitNode("head").then(() => {
-          document.head.appendChild(meta);
-        });
-      });
-    },
-    /**
-     * 移除<meta>标签name="apple-itunes-app"
-     */
-    removeMetaAppleItunesApp() {
-      utils.waitNodeList(
-        ['meta[name="apple-itunes-app"]'],
-        1e4
-      ).then(($metaList) => {
-        if (!$metaList) {
-          return;
-        }
-        $metaList.forEach(($meta) => {
-          $meta.remove();
-        });
-      });
-    },
-    /**
-     * 监听Router重载
-     */
-    listenRouterChange() {
-      log.info(`监听Router重载`);
-      domUtils.on(window, "wb_url_change", (event) => {
-        let currentUrl = window.location.href;
-        log.info(`Router Change：` + currentUrl);
-        this.init();
-      });
-    }
-  };
-  const MDouYinRouter = {
-    /**
-     * 是否是移动端抖音
-     */
-    isMDouYin() {
-      return window.location.hostname === "m.douyin.com" || window.location.hostname === "www.iesdouyin.com";
-    },
-    /**
-     * 用户主页
-     */
-    isShareUser() {
-      return this.isMDouYin() && window.location.pathname.startsWith("/share/user/");
-    },
-    /**
-     * 分享的视频
-     */
-    isShareVideo() {
-      return this.isMDouYin() && (window.location.pathname.startsWith("/share/video/") || window.location.pathname.startsWith("/shipin/"));
-    },
-    /**
-     * 笔记
-     */
-    isShareNote() {
-      return this.isMDouYin() && window.location.pathname.startsWith("/share/note/");
-    },
-    /**
-     * 音乐
-     */
-    isShareMusic() {
-      return this.isMDouYin() && window.location.pathname.startsWith("/share/music/");
-    },
-    /**
-     * 话题
-     */
-    isShareChallenge() {
-      return this.isMDouYin() && window.location.pathname.startsWith("/share/challenge/");
-    }
-  };
-  const blockCSS$4 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button{\r\n    display: none !important;\r\n}";
-  const MDouYinShareUser = {
-    init() {
-      addStyle(blockCSS$4);
-      Panel.execMenuOnce("m-dy-share-user-coverPlayletList", () => {
-        this.coverPlayletList();
-      });
-      Panel.execMenuOnce("m-dy-share-user-coverPostListContainer", () => {
-        this.coverPostListContainer();
-      });
-    },
-    /**
-     * 覆盖视频合集点击事件
-     */
-    coverPlayletList() {
-      domUtils.on(
-        document,
-        "click",
-        ".user-playlet-list .playlet-item",
-        (event) => {
-          var _a2, _b, _c, _d;
-          utils.preventEvent(event);
-          let $click = event.target;
-          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
-          let key = reactFiber == null ? void 0 : reactFiber.key;
-          if (key == null) {
-            Qmsg.error("获取视频合集key失败");
-            return;
-          }
-          let index = reactFiber == null ? void 0 : reactFiber.index;
-          if (index == null) {
-            Qmsg.error("获取视频合集index失败");
-            return;
-          }
-          let playletList = (_d = (_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.return) == null ? void 0 : _c.pendingProps) == null ? void 0 : _d.playletList;
-          if (playletList == null) {
-            Qmsg.error("获取视频合集playletList失败");
-            return;
-          }
-          let currentPlaylet = playletList[index];
-          let url = DouYinUrlUtils.getCollectionUrl(currentPlaylet["mix_id"]);
-          window.open(url, "_blank");
-        },
-        {
-          capture: true
-        }
-      );
-    },
-    /**
-     * 覆盖视频列表点击事件
-     */
-    coverPostListContainer() {
-      domUtils.on(
-        document,
-        "click",
-        ".post-list-container .user-post-cover",
-        (event) => {
-          var _a2, _b, _c, _d, _e;
-          utils.preventEvent(event);
-          let $click = event.target;
-          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
-          if ((_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.productionUrl) {
-            let url = (_e = (_d = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.productionUrl;
-            window.open(url, "_blank");
-          } else {
-            Qmsg.error("获取视频链接失败");
-          }
-        },
-        {
-          capture: true
-        }
-      );
-    }
-  };
-  const blockCSS$3 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 视频描述信息区域中的 打开抖音看精彩视频 */\r\n.footer .img-button,\r\n/* 登录页面 */\r\n.login-page ,\r\n/* 底部左下角 打开抖音看精彩视频 */\r\n.footer .bottom-btn-con-new,\r\n/* 合集 打开抖音看精彩视频 */\r\n.container .end-page-info-button {\r\n	display: none !important;\r\n}\r\n";
-  const beautifyCSS = ".video-container {\r\n	height: 100% !important;\r\n	margin-top: 0 !important;\r\n}\r\n.footer {\r\n	bottom: 50px !important;\r\n}\r\n.mix-info {\r\n	bottom: 0px !important;\r\n}\r\n";
-  const MDouYinShareVideo = {
-    init() {
-      addStyle(blockCSS$3);
-      addStyle(beautifyCSS);
-      Panel.execMenuOnce("m-dy-share-video-coverGlobalClick", () => {
-        this.coverGlobalClick();
-      });
-    },
-    /**
-     * 阻止全局点击，会跳转
-     */
-    coverGlobalClick() {
-      let selectorList = [".right-con", ".footer", ".mix-info"];
-      selectorList.forEach((selector) => {
-        DOMUtils.on(
-          document,
-          "click",
-          selector,
-          (event) => {
-            return utils.preventEvent(event);
-          },
-          {
-            capture: true
-          }
-        );
-      });
-    }
-  };
-  const blockCSS$2 = "/* 顶部 打开看看 登录 */\r\n.container .adapt-login-header,\r\n/* 底部中间的 App内打开 */\r\n.container .float-button-con {\r\n	display: none !important;\r\n}\r\n\r\n.gallery-container {\r\n	margin-top: 10px !important;\r\n}\r\n";
-  const MDouYinShareNote = {
-    init() {
-      addStyle(blockCSS$2);
-      Panel.execMenuOnce("m-dy-share-note-blockRecommend", () => {
-        return this.blockRecommend();
-      });
-      Panel.execMenuOnce("m-dy-share-note-blockComment", () => {
-        return this.blockComment();
-      });
-      Panel.execMenuOnce("m-dy-share-note-blockFooterToobar", () => {
-        return this.blockFooterToobar();
-      });
-      Panel.execMenuOnce("m-dy-share-note-coverUser", () => {
-        this.coverUser();
-      });
-      Panel.execMenuOnce("m-dy-share-note-coverHashTag", () => {
-        this.coverHashTag();
-      });
-      Panel.execMenuOnce("m-dy-share-note-coverMusic", () => {
-        this.coverMusic();
-      });
-      Panel.execMenuOnce("m-dy-share-note-coverRecommend", () => {
-        this.coverRecommend();
-      });
-      Panel.execMenuOnce(
-        "m-dy-share-note-coverExcitingGraphicsAndText",
-        () => {
-          this.coverExcitingGraphicsAndText();
-        }
-      );
-    },
-    /**
-     * 【屏蔽】相关推荐
-     */
-    blockRecommend() {
-      log.info("【屏蔽】相关推荐");
-      return CommonUtil.addBlockCSS(".recommend-con");
-    },
-    /**
-     * 【屏蔽】评论
-     */
-    blockComment() {
-      log.info("【屏蔽】评论");
-      return CommonUtil.addBlockCSS(".comment-con");
-    },
-    /**
-     * 【屏蔽】底部工具栏
-     */
-    blockFooterToobar() {
-      log.info("【屏蔽】底部工具栏");
-      return CommonUtil.addBlockCSS(".footer-con");
-    },
-    /**
-     * 覆盖相关推荐的点击事件
-     */
-    coverRecommend() {
-      log.info("覆盖相关推荐的点击事件");
-      domUtils.on(
-        document,
-        "click",
-        "#masonry .card",
-        (event) => {
-          utils.preventEvent(event);
-          let $click = event.target;
-          let rectFiber = utils.getReactObj($click).reactFiber;
-          if (!rectFiber) {
-            log.error("获取reactFiber失败");
-            Qmsg.error("获取reactFiber失败");
-            return;
-          }
-          let awemeId = rectFiber.return.memoizedProps.awemeId;
-          let url = DouYinUrlUtils.getNoteUrl(awemeId);
-          window.open(url, "_blank");
-        },
-        { capture: true }
-      );
-    },
-    /**
-     * 覆盖用户点击事件
-     */
-    coverUser() {
-      log.info("覆盖用户点击事件");
-      domUtils.on(
-        document,
-        "click",
-        ".message-con__top",
-        (event) => {
-          utils.preventEvent(event);
-          let $click = event.target;
-          let rectFiber = utils.getReactObj($click).reactFiber;
-          if (!rectFiber) {
-            log.error("获取reactFiber失败");
-            Qmsg.error("获取reactFiber失败");
-            return;
-          }
-          let sec_id = rectFiber.return.return.memoizedProps.video.authorInfo.sec_uid;
-          let url = DouYinUrlUtils.getUserHomeUrl(sec_id);
-          window.open(url, "_blank");
-        },
-        { capture: true }
-      );
-    },
-    /**
-     * 覆盖话题点击事件
-     */
-    coverHashTag() {
-      log.info("覆盖话题点击事件");
-      domUtils.on(
-        document,
-        "click",
-        ".message-con__content__body .message-con__content__body-text",
-        (event) => {
-          utils.preventEvent(event);
-          let $click = event.target;
-          let rectFiber = utils.getReactObj($click).reactFiber;
-          if (!rectFiber) {
-            log.error("获取reactFiber失败");
-            Qmsg.error("获取reactFiber失败");
-            return;
-          }
-          let index = rectFiber.index;
-          let splitStrArr = rectFiber.return.return.return.return.memoizedProps.video.splitStrArr;
-          let currentSplitStr = splitStrArr[index];
-          let hashtagId = currentSplitStr["hashtagId"];
-          let url = DouYinUrlUtils.getHashTagUrl(hashtagId);
-          window.open(url, "_blank");
-        },
-        { capture: true }
-      );
-    },
-    /**
-     * 覆盖音乐点击事件
-     */
-    coverMusic() {
-      log.info("覆盖音乐点击事件");
-      domUtils.on(
-        document,
-        "click",
-        ".message-con__footer",
-        (event) => {
-          utils.preventEvent(event);
-          let $click = event.target;
-          let rectFiber = utils.getReactObj($click).reactFiber;
-          if (!rectFiber) {
-            log.error("获取reactFiber失败");
-            Qmsg.error("获取reactFiber失败");
-            return;
-          }
-          let musicId = rectFiber.return.return.memoizedProps.video.musicId;
-          let url = DouYinUrlUtils.getMusicUrl(musicId);
-          window.open(url, "_blank");
-        },
-        { capture: true }
-      );
-    },
-    /**
-     * 覆盖精彩图文点击事件
-     */
-    coverExcitingGraphicsAndText() {
-      log.info("覆盖精彩图文点击事件");
-      domUtils.on(
-        document,
-        "click",
-        ".container .related-list-con .related-note-item",
-        (event) => {
-          utils.preventEvent(event);
-          let $click = event.target;
-          let rectFiber = utils.getReactObj($click).reactFiber;
-          if (!rectFiber) {
-            log.error("获取reactFiber失败");
-            Qmsg.error("获取reactFiber失败");
-            return;
-          }
-          let itemData = rectFiber.return.memoizedProps.itemData;
-          let awemeId = itemData["awemeId"];
-          let url = DouYinUrlUtils.getNoteUrl(awemeId);
-          window.open(url, "_blank");
-        },
-        { capture: true }
-      );
-      domUtils.on(
-        document,
-        "click",
-        ".related-title-con",
-        (event) => utils.preventEvent(event),
-        { capture: true }
-      );
-    }
-  };
-  const blockCSS$1 = "/* 顶部 打开看看 登录 */\r\n.page-reflow-challenge .header,\r\n/* 底部的 打开抖音App看更多内容 */\r\n.page-reflow-challenge .bottom-btn__con {\r\n	display: none !important;\r\n}\r\n\r\n.page-reflow-challenge {\r\n	padding-top: 0 !important;\r\n}\r\n";
-  const MDouYinShareChallenge = {
-    init() {
-      addStyle(blockCSS$1);
-      Panel.onceExec("m-dy-share-challenge-coverTopJump", () => {
-        this.coverTopJump();
-      });
-      Panel.execMenuOnce("m-dy-share-challenge-coverVideoCard", () => {
-        this.coverVideoCard();
-      });
-    },
-    /**
-     * 阻止上面区域点击跳转至下载页面
-     */
-    coverTopJump() {
-      log.info("阻止上面区域点击跳转至下载页面");
-      domUtils.on(
-        document,
-        "click",
-        ".challenge-body",
-        (event) => {
-          utils.preventEvent(event);
-        },
-        {
-          capture: true
-        }
-      );
-    },
-    /**
-     * 覆盖视频卡片点击事件
-     */
-    coverVideoCard() {
-      log.info("覆盖视频卡片点击事件");
-      domUtils.on(
-        document,
-        "click",
-        "#pagelet-worklist li.item",
-        (event) => {
-          utils.preventEvent(event);
-          let $clikc = event.target;
-          let rectFiber = utils.getReactObj($clikc).reactFiber;
-          if (!rectFiber) {
-            log.error("获取reactFiber失败");
-            Qmsg.error("获取reactFiber失败");
-            return;
-          }
-          let listData = rectFiber.return.return.return.memoizedProps.listData;
-          let index = rectFiber.index;
-          let currentList = listData[index];
-          let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
-          window.open(url, "_blank");
-        },
-        {
-          capture: true
-        }
-      );
-    }
-  };
-  const blockCSS = "/* 顶部 打开App，发现更多内容 */\r\n.page-reflow-music .header,\r\n/* ↑屏蔽后的 顶部空白区域 */\r\n.page-reflow-music .banner-placeholder ,\r\n/* 底部 打开抖音App看更多内容 */\r\n.page-reflow-music .bottom-btn__con {\r\n	display: none !important;\r\n}\r\n";
-  const MDouYinShareMusic = {
-    init() {
-      addStyle(blockCSS);
-      Panel.execMenuOnce("m-dy-share-music-coverVideoCard", () => {
-        this.coverVideoCard();
-      });
-    },
-    /**
-     * 覆盖视频卡片点击事件
-     */
-    coverVideoCard() {
-      log.info("覆盖视频卡片点击事件");
-      domUtils.on(
-        document,
-        "click",
-        "#pagelet-worklist li.item",
-        (event) => {
-          utils.preventEvent(event);
-          let $clikc = event.target;
-          let rectFiber = utils.getReactObj($clikc).reactFiber;
-          if (!rectFiber) {
-            log.error("获取reactFiber失败");
-            Qmsg.error("获取reactFiber失败");
-            return;
-          }
-          let listData = rectFiber.return.return.return.memoizedProps.listData;
-          let index = rectFiber.index;
-          let currentList = listData[index];
-          let url = DouYinUrlUtils.getVideoUrl(currentList["aweme_id"]);
-          window.open(url, "_blank");
-        },
-        {
-          capture: true
-        }
-      );
-    }
-  };
-  const MDouYin = {
-    init() {
-      if (MDouYinRouter.isShareUser()) {
-        log.info("M-Router: 分享用户");
-        MDouYinShareUser.init();
-      } else if (MDouYinRouter.isShareVideo()) {
-        log.info("M-Router: 分享视频");
-        MDouYinShareVideo.init();
-      } else if (MDouYinRouter.isShareNote()) {
-        log.info("M-Router: 分享笔记");
-        MDouYinShareNote.init();
-      } else if (MDouYinRouter.isShareChallenge()) {
-        log.info("M-Router: 分享话题");
-        MDouYinShareChallenge.init();
-      } else if (MDouYinRouter.isShareMusic()) {
-        log.info("M-Router: 分享音乐");
-        MDouYinShareMusic.init();
-      } else {
-        log.error("未知M-router: " + window.location.hostname);
-      }
-    }
-  };
+  });
   Panel.init();
   if (MDouYinRouter.isMDouYin()) {
     MDouYin.init();
@@ -11706,4 +12023,4 @@
     DouYin.init();
   }
 
-})(Qmsg, Utils, DOMUtils, pops);
+})(Qmsg, DOMUtils, Utils, pops);
