@@ -3,7 +3,7 @@ import monkey, {
 	cdn,
 	type MonkeyOption as __MonkeyOption__,
 } from "vite-plugin-monkey";
-import { ViteUtils, GetLib, viteUtils } from "../vite.utils";
+import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils";
 import mkcert from "vite-plugin-mkcert";
 import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/dist/vite";
@@ -14,6 +14,7 @@ import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import fs from "fs";
 import path from "path";
 
+const baseUtils = new ViteUtils(__dirname);
 /**
  * 生成用户配置
  * @param option 配置项
@@ -38,8 +39,8 @@ const GenerateUserConfig = async (option: {
 	 */
 	__dirname: string;
 }) => {
-	const Utils = new ViteUtils(option.__dirname);
-	const pkg = Utils.getPackageJSON();
+	const inheritUtils = new ViteUtils(option.__dirname);
+	const pkg = inheritUtils.getPackageJSON();
 	const SCRIPT_NAME = option.monkeyOption.userscript.name;
 
 	/**
@@ -176,7 +177,7 @@ const GenerateUserConfig = async (option: {
 
 	let VERSION = "0.0.1";
 	if (process.argv.findIndex((i) => i.startsWith("build")) !== -1) {
-		VERSION = Utils.getScriptVersion(!isEmptyOutDir);
+		VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
 	}
 
 	/**
@@ -189,7 +190,11 @@ const GenerateUserConfig = async (option: {
 			}),
 		],
 		resolve: {
-			alias: {},
+			alias: {
+				"@": inheritUtils.getAbsolutePath("./src"),
+				"@lib": baseUtils.getAbsolutePath("./../../lib"),
+				"@components": baseUtils.getAbsolutePath("./src"),
+			},
 		},
 		server: {
 			// 允许外部访问

@@ -1,8 +1,0 @@
-{
-	"extends": "./base.tsconfig.json",
-	"references": [
-		{
-			"path": "./tsconfig.node.json"
-		}
-	]
-}
