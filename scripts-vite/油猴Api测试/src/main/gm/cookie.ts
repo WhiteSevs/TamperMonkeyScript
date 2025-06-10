@@ -1,14 +1,15 @@
 import { GM, GM_cookie, type GmCookieType } from "ViteGM";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { StorageApi } from "../StorageApi";
-import { PanelKeyConfig } from "@/setting/panel-key-config";
-import { UIInfo } from "@/setting/components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { DOMUtils, pops, utils } from "@/env";
 import Qmsg from "qmsg";
-import { PanelUISize } from "@/setting/panel-ui-size";
+import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import { PanelKeyConfig } from "@/setting/panel-key-config";
+import { UIInfo } from "@/setting/components/ui-info";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 
 interface GmCookieSetOptions {
 	url?: string;
@@ -62,7 +63,7 @@ export class ApiTest_cookie extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
 				apiName + ".list",
 				`${apiName} & ${apiAsyncInfo.name}`
 			)}`,

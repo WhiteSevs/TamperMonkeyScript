@@ -1,10 +1,10 @@
 import { DOMUtils, injectDocumentTime, log, utils } from "@/env";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UIInfo } from "../components/ui-info";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { UIInfo } from "./../components/ui-info";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { StorageApi } from "@/main/StorageApi";
-import { PanelKeyConfig } from "../panel-key-config";
 import { GMTotal } from "@/main/GMTotal";
+import { PanelKeyConfig } from "../panel-key-config";
 
 type ApiSupportUIConfig = {
 	name: string;
@@ -105,7 +105,7 @@ export const Component_Common = (): PopsPanelContentConfig => {
 		forms: [
 			{
 				type: "forms",
-				text: "@run-at document-start<br>注：注入速度等级越低，注入的速度越快",
+				text: "@run-at document-start<br>注：注入速度等级越低，注入的速度越快<br>范围：0~4",
 				forms: [
 					UIInfo(() => {
 						return {

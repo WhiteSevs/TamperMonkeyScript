@@ -6,9 +6,10 @@ import type {
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/components/ui-info";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { GlobalUtil } from "../GlobalUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
 
 export class ApiTest_addElement extends ApiAsyncTestBase {
 	public getApiName() {
@@ -29,7 +30,7 @@ export class ApiTest_addElement extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: apiName,
-			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
 				apiName,
 				`${apiName} & ${apiAsyncInfo.name}`
 			)}`,

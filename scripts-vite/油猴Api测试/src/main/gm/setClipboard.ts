@@ -8,7 +8,8 @@ import { DOMUtils, setTimeoutLog, utils } from "@/env";
 import { TagUtil } from "@/setting/tag";
 import Qmsg from "qmsg";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
 
 export class ApiTest_setClipboard extends ApiAsyncTestBase {
 	public isSupport() {
@@ -31,7 +32,7 @@ export class ApiTest_setClipboard extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
 				apiName,
 				`${apiName} & ${apiAsyncInfo.name}`
 			)}`,

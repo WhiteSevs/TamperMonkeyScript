@@ -6,10 +6,11 @@ import { ApiTestBase } from "../base/ApiTestBase";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/components/ui-info";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { DOMUtils, utils } from "@/env";
 import Qmsg from "qmsg";
 import { monkeyWindow } from "ViteGM";
+import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
 
 export class GrantTest_close extends ApiTestBase {
 	public getApiName() {
@@ -26,7 +27,7 @@ export class GrantTest_close extends ApiTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(apiName)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;

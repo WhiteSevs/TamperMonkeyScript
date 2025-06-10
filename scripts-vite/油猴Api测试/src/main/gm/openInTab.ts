@@ -6,10 +6,11 @@ import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/components/ui-info";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { DOMUtils, setTimeoutLog, utils } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { TagUtil } from "@/setting/tag";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
+import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
 
 export class ApiTest_openInTab extends ApiAsyncTestBase {
 	public isSupport() {
@@ -32,7 +33,7 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
 				apiName,
 				`${apiName} & ${apiAsyncInfo.name}`
 			)}`,
