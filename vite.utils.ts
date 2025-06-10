@@ -315,7 +315,6 @@ export class ViteUtils {
 			version: `${this.formatTime(currentTime, "yyyy.MM.dd", false)}`,
 		};
 		try {
-			ViteUtils;
 			/* 版本号文件存在 */
 			let fileInfo = fs.readFileSync(SCRIPT_VERSION_PATH, {
 				encoding: "utf-8",
