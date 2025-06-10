@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.1
+// @version      2025.6.10
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -93,7 +93,7 @@
       return __privateGet(obj, member, getter);
     }
   });
-  var _data, _U2Ghash, _G2Uhash, _defaultRequestOption, _defaultInitOption, _dbName, _storeName, _dbVersion, _slqVersion, _indexedDB, _db, _store, _statusCode, _flag, _delayTime, _callback, _context2, _disable, _console, _logCount, _details, _msgColorDetails, _config, _ctx, _width, _height, _a;
+  var _data, _U2Ghash, _G2Uhash, _defaultRequestOption, _defaultInitOption, _dbName, _storeName, _dbVersion, _slqVersion, _indexedDB, _db, _store, _statusCode, _flag, _delayTime, _callback, _timeId, _disable, _console, _logCount, _details, _msgColorDetails, _config, _ctx, _width, _height, _a;
   var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
   var _GM_addElement = /* @__PURE__ */ (() => typeof GM_addElement != "undefined" ? GM_addElement : void 0)();
   var _GM_addStyle = /* @__PURE__ */ (() => typeof GM_addStyle != "undefined" ? GM_addStyle : void 0)();
@@ -142,8 +142,8 @@
           return target;
         };
       }
-    } catch (error2) {
-      console.warn("Qmsg CompatibleProcessing Object.assign error", error2);
+    } catch (error) {
+      console.warn("Qmsg CompatibleProcessing Object.assign error", error);
     }
     try {
       if (!("classList" in document.documentElement)) {
@@ -182,8 +182,8 @@
           }
         });
       }
-    } catch (error2) {
-      console.warn("Qmsg CompatibleProcessing HTMLElement.prototype.classList warning", error2);
+    } catch (error) {
+      console.warn("Qmsg CompatibleProcessing HTMLElement.prototype.classList warning", error);
     }
   }
   const QmsgDefaultConfig = {
@@ -201,6 +201,7 @@
     get config() {
       return {
         parent: document.body || document.documentElement,
+        useShadowRoot: true,
         shadowRootMode: "open",
         animation: true,
         autoClose: true,
@@ -437,7 +438,7 @@
       };
     },
     setInterval: ({ call }) => {
-      return (func, delay = 0, ...args2) => {
+      return (func, delay = 0, ...args) => {
         const symbol = Symbol();
         const timerId = generateUniqueNumber$3(scheduledIntervalsState$2);
         scheduledIntervalsState$2.set(timerId, symbol);
@@ -452,7 +453,7 @@
             throw new Error("The timer is in an undefined state.");
           }
           if (state === symbol) {
-            func(...args2);
+            func(...args);
             if (scheduledIntervalsState$2.get(timerId) === symbol) {
               schedule();
             }
@@ -463,7 +464,7 @@
       };
     },
     setTimeout: ({ call }) => {
-      return (func, delay = 0, ...args2) => {
+      return (func, delay = 0, ...args) => {
         const symbol = Symbol();
         const timerId = generateUniqueNumber$3(scheduledTimeoutsState$2);
         scheduledTimeoutsState$2.set(timerId, symbol);
@@ -479,7 +480,7 @@
           }
           if (state === symbol) {
             scheduledTimeoutsState$2.delete(timerId);
-            func(...args2);
+            func(...args);
           }
         });
         return timerId;
@@ -506,20 +507,20 @@
   const worker$3 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),d=t(c);e.addUniqueNumber=d,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const d=r instanceof Promise?await r:r;if(null===a){if(void 0!==d.result)throw s(i)}else{if(void 0===d.result)throw s(i);const{result:e,transferables:r=[]}=d;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),d=(e,t,r=()=>!0)=>{const n=c(d,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},l=e=>t=>{const r=e.get(t);if(void 0===r)return Promise.resolve(!1);const[n,o]=r;return clearTimeout(n),e.delete(t),o(!1),Promise.resolve(!0)},f=(e,t,r)=>(n,o,s)=>{const{expected:a,remainingDelay:i}=e(n,o);return new Promise((e=>{t.set(s,[setTimeout(r,i,a,t,e,s),e])}))},m=(e,t)=>{const r=performance.now(),n=e+t-r-performance.timeOrigin;return{expected:r+n,remainingDelay:n}},p=(e,t,r,n)=>{const o=e-performance.now();o>0?t.set(n,[setTimeout(p,o,e,t,r,n),r]):(t.delete(n),r(!0))},h=new Map,v=l(h),w=new Map,g=l(w),M=f(m,h,p),y=f(m,w,p);d(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?v(e):g(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?M:y)(e,t,r)})})})()})();`;
   const loadOrReturnBroker$3 = createLoadOrReturnBroker$3(load$3, worker$3);
   const clearInterval$4 = (timerId) => loadOrReturnBroker$3().clearInterval(timerId);
-  const clearTimeout$4 = (timerId) => loadOrReturnBroker$3().clearTimeout(timerId);
-  const setInterval$4 = (...args2) => loadOrReturnBroker$3().setInterval(...args2);
-  const setTimeout$1$3 = (...args2) => loadOrReturnBroker$3().setTimeout(...args2);
+  const clearTimeout$3 = (timerId) => loadOrReturnBroker$3().clearTimeout(timerId);
+  const setInterval$4 = (...args) => loadOrReturnBroker$3().setInterval(...args);
+  const setTimeout$1$3 = (...args) => loadOrReturnBroker$3().setTimeout(...args);
   const QmsgUtils = {
     /**
      * 生成带插件名的名称
      * @param args
      */
-    getNameSpacify(...args2) {
-      let result2 = QmsgDefaultConfig.NAMESPACE;
-      for (let index = 0; index < args2.length; ++index) {
-        result2 += "-" + args2[index];
+    getNameSpacify(...args) {
+      let result = QmsgDefaultConfig.NAMESPACE;
+      for (let index = 0; index < args.length; ++index) {
+        result += "-" + args[index];
       }
-      return result2;
+      return result;
     },
     /**
      * 判断字符是否是数字
@@ -593,11 +594,11 @@
     /**
      * 自动使用 Worker 执行 setTimeout
      */
-    setTimeout(callback2, timeout) {
+    setTimeout(callback, timeout) {
       try {
-        return setTimeout$1$3(callback2, timeout);
-      } catch (error2) {
-        return globalThis.setTimeout(callback2, timeout);
+        return setTimeout$1$3(callback, timeout);
+      } catch (error) {
+        return globalThis.setTimeout(callback, timeout);
       }
     },
     /**
@@ -606,9 +607,9 @@
     clearTimeout(timeId) {
       try {
         if (timeId != null) {
-          clearTimeout$4(timeId);
+          clearTimeout$3(timeId);
         }
-      } catch (error2) {
+      } catch (error) {
       } finally {
         globalThis.clearTimeout(timeId);
       }
@@ -616,11 +617,11 @@
     /**
      * 自动使用 Worker 执行 setInterval
      */
-    setInterval(callback2, timeout) {
+    setInterval(callback, timeout) {
       try {
-        return setInterval$4(callback2, timeout);
-      } catch (error2) {
-        return globalThis.setInterval(callback2, timeout);
+        return setInterval$4(callback, timeout);
+      } catch (error) {
+        return globalThis.setInterval(callback, timeout);
       }
     },
     /**
@@ -631,7 +632,7 @@
         if (timeId != null) {
           clearInterval$4(timeId);
         }
-      } catch (error2) {
+      } catch (error) {
       } finally {
         globalThis.clearInterval(timeId);
       }
@@ -642,7 +643,7 @@
     setSafeHTML($el, text) {
       try {
         $el.innerHTML = text;
-      } catch (error2) {
+      } catch (error) {
         if (globalThis.trustedTypes) {
           const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
             createHTML: (html) => html
@@ -1264,7 +1265,7 @@
        */
       __publicField(this, "$eventUtils");
       this.$data = {
-        version: "2025.5.31",
+        version: "2025.6.7",
         config: QmsgDefaultConfig,
         icon: QmsgIcon,
         instanceStorage: QmsgInstStorage
@@ -1329,7 +1330,7 @@
     }
   }
   let qmsg = new Qmsg();
-  let WindowApi$1 = class WindowApi2 {
+  let WindowApi$1 = class WindowApi {
     constructor(option) {
       /** 默认的配置 */
       __publicField(this, "defaultApi", {
@@ -1490,10 +1491,10 @@
         });
       }
     };
-    const setInterval2 = (func, delay = 0, ...args2) => {
+    const setInterval2 = (func, delay = 0, ...args) => {
       const timerId = generateUniqueNumber$2(scheduledIntervalFunctions);
       scheduledIntervalFunctions.set(timerId, () => {
-        func(...args2);
+        func(...args);
         if (typeof scheduledIntervalFunctions.get(timerId) === "function") {
           worker2.postMessage({
             id: null,
@@ -1519,9 +1520,9 @@
       });
       return timerId;
     };
-    const setTimeout2 = (func, delay = 0, ...args2) => {
+    const setTimeout2 = (func, delay = 0, ...args) => {
       const timerId = generateUniqueNumber$2(scheduledTimeoutFunctions);
-      scheduledTimeoutFunctions.set(timerId, () => func(...args2));
+      scheduledTimeoutFunctions.set(timerId, () => func(...args));
       worker2.postMessage({
         id: null,
         method: "set",
@@ -1557,9 +1558,9 @@
   const worker$2 = `(()=>{"use strict";const e=new Map,t=new Map,r=t=>{const r=e.get(t);return void 0!==r&&(clearTimeout(r),e.delete(t),!0)},s=e=>{const r=t.get(e);return void 0!==r&&(clearTimeout(r),t.delete(e),!0)},o=(e,t)=>{const r=performance.now(),s=e+t-r-performance.timeOrigin;return{expected:r+s,remainingDelay:s}},i=(e,t,r,s)=>{const o=r-performance.now();o>0?e.set(t,setTimeout(i,o,e,t,r,s)):(e.delete(t),postMessage({id:null,method:"call",params:{timerId:t,timerType:s}}))};addEventListener("message",(({data:n})=>{try{if("clear"===n.method){const{id:e,params:{timerId:t,timerType:o}}=n;if("interval"===o)postMessage({id:e,result:r(t)});else{if("timeout"!==o)throw new Error('The given type "'.concat(o,'" is not supported'));postMessage({id:e,result:s(t)})}}else{if("set"!==n.method)throw new Error('The given method "'.concat(n.method,'" is not supported'));{const{params:{delay:r,now:s,timerId:a,timerType:m}}=n;if("interval"===m)((t,r,s)=>{const{expected:n,remainingDelay:a}=o(t,s);e.set(r,setTimeout(i,a,e,r,n,"interval"))})(r,a,s);else{if("timeout"!==m)throw new Error('The given type "'.concat(m,'" is not supported'));((e,r,s)=>{const{expected:n,remainingDelay:a}=o(e,s);t.set(r,setTimeout(i,a,t,r,n,"timeout"))})(r,a,s)}}}}catch(e){postMessage({error:{message:e.message},id:n.id,result:null})}}))})();`;
   const loadOrReturnBroker$2 = createLoadOrReturnBroker$2(load$2, worker$2);
   const clearInterval$3 = (timerId) => loadOrReturnBroker$2().clearInterval(timerId);
-  const clearTimeout$3 = (timerId) => loadOrReturnBroker$2().clearTimeout(timerId);
-  const setInterval$3 = (...args2) => loadOrReturnBroker$2().setInterval(...args2);
-  const setTimeout$1$2 = (...args2) => loadOrReturnBroker$2().setTimeout(...args2);
+  const clearTimeout$2 = (timerId) => loadOrReturnBroker$2().clearTimeout(timerId);
+  const setInterval$3 = (...args) => loadOrReturnBroker$2().setInterval(...args);
+  const setTimeout$1$2 = (...args) => loadOrReturnBroker$2().setTimeout(...args);
   const DOMUtilsCommonUtils = {
     windowApi: new WindowApi$1({
       document,
@@ -1688,11 +1689,11 @@
     /**
      * 自动使用 Worker 执行 setTimeout
      */
-    setTimeout(callback2, timeout = 0) {
+    setTimeout(callback, timeout = 0) {
       try {
-        return setTimeout$1$2(callback2, timeout);
-      } catch (error2) {
-        return globalThis.setTimeout(callback2, timeout);
+        return setTimeout$1$2(callback, timeout);
+      } catch (error) {
+        return globalThis.setTimeout(callback, timeout);
       }
     },
     /**
@@ -1701,9 +1702,9 @@
     clearTimeout(timeId) {
       try {
         if (timeId != null) {
-          clearTimeout$3(timeId);
+          clearTimeout$2(timeId);
         }
-      } catch (error2) {
+      } catch (error) {
       } finally {
         globalThis.clearTimeout(timeId);
       }
@@ -1711,11 +1712,11 @@
     /**
      * 自动使用 Worker 执行 setInterval
      */
-    setInterval(callback2, timeout = 0) {
+    setInterval(callback, timeout = 0) {
       try {
-        return setInterval$3(callback2, timeout);
-      } catch (error2) {
-        return globalThis.setInterval(callback2, timeout);
+        return setInterval$3(callback, timeout);
+      } catch (error) {
+        return globalThis.setInterval(callback, timeout);
       }
     },
     /**
@@ -1726,7 +1727,7 @@
         if (timeId != null) {
           clearInterval$3(timeId);
         }
-      } catch (error2) {
+      } catch (error) {
       } finally {
         globalThis.clearInterval(timeId);
       }
@@ -1753,16 +1754,16 @@
       __publicField(this, "windowApi");
       this.windowApi = new WindowApi$1(windowApiOption);
     }
-    on(element, eventType, selector, callback2, option) {
-      function getOption(args3, startIndex, option2) {
-        let currentParam = args3[startIndex];
+    on(element, eventType, selector, callback, option) {
+      function getOption(args2, startIndex, option2) {
+        let currentParam = args2[startIndex];
         if (typeof currentParam === "boolean") {
           option2.capture = currentParam;
-          if (typeof args3[startIndex + 1] === "boolean") {
-            option2.once = args3[startIndex + 1];
+          if (typeof args2[startIndex + 1] === "boolean") {
+            option2.once = args2[startIndex + 1];
           }
-          if (typeof args3[startIndex + 2] === "boolean") {
-            option2.passive = args3[startIndex + 2];
+          if (typeof args2[startIndex + 2] === "boolean") {
+            option2.passive = args2[startIndex + 2];
           }
         } else if (typeof currentParam === "object" && ("capture" in currentParam || "once" in currentParam || "passive" in currentParam || "isComposedPath" in currentParam)) {
           option2.capture = currentParam.capture;
@@ -1773,7 +1774,7 @@
         return option2;
       }
       let DOMUtilsContext = this;
-      let args2 = arguments;
+      let args = arguments;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
       }
@@ -1789,17 +1790,17 @@
       }
       let eventTypeList = [];
       if (Array.isArray(eventType)) {
-        eventTypeList = eventTypeList.concat(eventType);
+        eventTypeList = eventTypeList.concat(eventType.filter((eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""));
       } else if (typeof eventType === "string") {
-        eventTypeList = eventTypeList.concat(eventType.split(" "));
+        eventTypeList = eventTypeList.concat(eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== ""));
       }
       let selectorList = [];
       if (Array.isArray(selector)) {
-        selectorList = selectorList.concat(selector);
+        selectorList = selectorList.concat(selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== ""));
       } else if (typeof selector === "string") {
         selectorList.push(selector);
       }
-      let listenerCallBack = callback2;
+      let listenerCallBack = callback;
       let listenerOption = {
         capture: false,
         once: false,
@@ -1808,21 +1809,25 @@
       };
       if (typeof selector === "function") {
         listenerCallBack = selector;
-        listenerOption = getOption(args2, 3, listenerOption);
+        listenerOption = getOption(args, 3, listenerOption);
       } else {
-        listenerOption = getOption(args2, 4, listenerOption);
+        listenerOption = getOption(args, 4, listenerOption);
       }
       function checkOptionOnceToRemoveEventListener() {
         if (listenerOption.once) {
-          DOMUtilsContext.off(element, eventType, selector, callback2, option);
+          DOMUtilsContext.off(element, eventType, selector, callback, option);
         }
       }
       elementList.forEach((elementItem) => {
         function domUtilsEventCallBack(event) {
           if (selectorList.length) {
             let eventTarget = listenerOption.isComposedPath ? event.composedPath()[0] : event.target;
-            let totalParent = DOMUtilsCommonUtils.isWin(elementItem) || // @ts-ignore
-            elementItem === DOMUtilsContext.windowApi.document ? DOMUtilsContext.windowApi.document.documentElement : elementItem;
+            let totalParent = elementItem;
+            if (DOMUtilsCommonUtils.isWin(totalParent)) {
+              if (totalParent === DOMUtilsContext.windowApi.document) {
+                totalParent = DOMUtilsContext.windowApi.document.documentElement;
+              }
+            }
             let findValue = selectorList.find((selectorItem) => {
               if (DOMUtilsContext.matches(eventTarget, selectorItem)) {
                 return true;
@@ -1841,7 +1846,7 @@
                     return eventTarget;
                   }
                 });
-              } catch (error2) {
+              } catch (error) {
               }
               listenerCallBack.call(eventTarget, event, eventTarget);
               checkOptionOnceToRemoveEventListener();
@@ -1853,7 +1858,7 @@
         }
         eventTypeList.forEach((eventName) => {
           elementItem.addEventListener(eventName, domUtilsEventCallBack, listenerOption);
-          let elementEvents = elementItem[DOMUtilsData.SymbolEvents] || {};
+          let elementEvents = Reflect.get(elementItem, DOMUtilsData.SymbolEvents) || {};
           elementEvents[eventName] = elementEvents[eventName] || [];
           elementEvents[eventName].push({
             selector: selectorList,
@@ -1861,11 +1866,11 @@
             callback: domUtilsEventCallBack,
             originCallBack: listenerCallBack
           });
-          elementItem[DOMUtilsData.SymbolEvents] = elementEvents;
+          Reflect.set(elementItem, DOMUtilsData.SymbolEvents, elementEvents);
         });
       });
     }
-    off(element, eventType, selector, callback2, option, filter) {
+    off(element, eventType, selector, callback, option, filter) {
       function getOption(args1, startIndex, option2) {
         let currentParam = args1[startIndex];
         if (typeof currentParam === "boolean") {
@@ -1876,7 +1881,7 @@
         return option2;
       }
       let DOMUtilsContext = this;
-      let args2 = arguments;
+      let args = arguments;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
       }
@@ -1892,34 +1897,34 @@
       }
       let eventTypeList = [];
       if (Array.isArray(eventType)) {
-        eventTypeList = eventTypeList.concat(eventType);
+        eventTypeList = eventTypeList.concat(eventType.filter((eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""));
       } else if (typeof eventType === "string") {
-        eventTypeList = eventTypeList.concat(eventType.split(" "));
+        eventTypeList = eventTypeList.concat(eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== ""));
       }
       let selectorList = [];
       if (Array.isArray(selector)) {
-        selectorList = selectorList.concat(selector);
+        selectorList = selectorList.concat(selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== ""));
       } else if (typeof selector === "string") {
         selectorList.push(selector);
       }
-      let listenerCallBack = callback2;
+      let listenerCallBack = callback;
       let listenerOption = {
         capture: false
       };
       if (typeof selector === "function") {
         listenerCallBack = selector;
-        listenerOption = getOption(args2, 3, listenerOption);
+        listenerOption = getOption(args, 3, listenerOption);
       } else {
-        listenerOption = getOption(args2, 4, listenerOption);
+        listenerOption = getOption(args, 4, listenerOption);
       }
       let isRemoveAll = false;
-      if (args2.length === 2) {
+      if (args.length === 2) {
         isRemoveAll = true;
-      } else if (args2.length === 3 && typeof args2[2] === "string" || Array.isArray(args2[2])) {
+      } else if (args.length === 3 && typeof args[2] === "string" || Array.isArray(args[2])) {
         isRemoveAll = true;
       }
       elementList.forEach((elementItem) => {
-        let elementEvents = elementItem[DOMUtilsData.SymbolEvents] || {};
+        let elementEvents = Reflect.get(elementItem, DOMUtilsData.SymbolEvents) || {};
         eventTypeList.forEach((eventName) => {
           let handlers = elementEvents[eventName] || [];
           if (typeof filter === "function") {
@@ -1948,7 +1953,7 @@
             DOMUtilsCommonUtils.delete(elementEvents, eventType);
           }
         });
-        elementItem[DOMUtilsData.SymbolEvents] = elementEvents;
+        Reflect.set(elementItem, DOMUtilsData.SymbolEvents, elementEvents);
       });
     }
     /**
@@ -1993,7 +1998,8 @@
                 capture: handler["option"]["capture"]
               });
             }
-            DOMUtilsCommonUtils.delete(elementItem[symbolEvents], eventName);
+            let events = Reflect.get(elementItem, symbolEvents);
+            DOMUtilsCommonUtils.delete(events, eventName);
           });
         });
       });
@@ -2006,8 +2012,8 @@
      *   console.log("文档加载完毕")
      * })
      */
-    ready(callback2) {
-      if (typeof callback2 !== "function") {
+    ready(callback) {
+      if (typeof callback !== "function") {
         return;
       }
       let DOMUtilsContext = this;
@@ -2018,13 +2024,13 @@
           } else {
             return false;
           }
-        } catch (error2) {
+        } catch (error) {
           return false;
         }
       }
       function completed() {
         removeDomReadyListener();
-        callback2();
+        callback();
       }
       let targetList = [
         {
@@ -2051,7 +2057,7 @@
         }
       }
       if (checkDOMReadyState()) {
-        DOMUtilsCommonUtils.setTimeout(callback2);
+        DOMUtilsCommonUtils.setTimeout(callback);
       } else {
         addDomReadyListener();
       }
@@ -2404,7 +2410,7 @@
         搜索		170
         收藏		171
        **/
-    listenKeyboard(element, eventName = "keypress", callback2, options) {
+    listenKeyboard(element, eventName = "keypress", callback, options) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -2425,8 +2431,8 @@
         if (event.shiftKey) {
           otherCodeList.push("shift");
         }
-        if (typeof callback2 === "function") {
-          callback2(keyName, keyValue, otherCodeList, event);
+        if (typeof callback === "function") {
+          callback(keyName, keyValue, otherCodeList, event);
         }
       };
       DOMUtilsContext.on(element, eventName, keyboardEventCallBack, options);
@@ -2436,15 +2442,16 @@
         }
       };
     }
-    selector(selector) {
-      return this.selectorAll(selector)[0];
+    selector(selector, parent) {
+      return this.selectorAll(selector, parent)[0];
     }
-    selectorAll(selector) {
-      const context2 = this;
+    selectorAll(selector, parent) {
+      const context = this;
+      parent = parent || context.windowApi.document;
       selector = selector.trim();
       if (selector.match(/[^\s]{1}:empty$/gi)) {
         selector = selector.replace(/:empty$/gi, "");
-        return Array.from(context2.windowApi.document.querySelectorAll(selector)).filter(($ele) => {
+        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
           var _a2;
           return ((_a2 = $ele == null ? void 0 : $ele.innerHTML) == null ? void 0 : _a2.trim()) === "";
         });
@@ -2452,7 +2459,7 @@
         let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
         let text = textMatch[2];
         selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-        return Array.from(context2.windowApi.document.querySelectorAll(selector)).filter(($ele) => {
+        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
           var _a2;
           return (_a2 = ($ele == null ? void 0 : $ele.textContent) || ($ele == null ? void 0 : $ele.innerText)) == null ? void 0 : _a2.includes(text);
         });
@@ -2467,12 +2474,12 @@
         }
         let regexp = new RegExp(pattern, flags);
         selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-        return Array.from(context2.windowApi.document.querySelectorAll(selector)).filter(($ele) => {
+        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
           var _a2;
           return Boolean((_a2 = ($ele == null ? void 0 : $ele.textContent) || ($ele == null ? void 0 : $ele.innerText)) == null ? void 0 : _a2.match(regexp));
         });
       } else {
-        return Array.from(context2.windowApi.document.querySelectorAll(selector));
+        return Array.from(parent.querySelectorAll(selector));
       }
     }
     /**
@@ -2581,11 +2588,11 @@
       }
     }
   }
-  class DOMUtils extends DOMUtilsEvent {
+  let DOMUtils$1 = class DOMUtils extends DOMUtilsEvent {
     constructor(option) {
       super(option);
       /** 版本号 */
-      __publicField(this, "version", "2025.5.30");
+      __publicField(this, "version", "2025.6.7");
     }
     attr(element, attrName, attrValue) {
       let DOMUtilsContext = this;
@@ -3413,7 +3420,7 @@
      *   console.log("已往上位移100px")
      * })
      */
-    animate(element, styles, duration = 1e3, callback2 = null) {
+    animate(element, styles, duration = 1e3, callback = null) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
         element = DOMUtilsContext.selectorAll(element);
@@ -3423,14 +3430,14 @@
       }
       if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
-          DOMUtilsContext.animate($ele, styles, duration, callback2);
+          DOMUtilsContext.animate($ele, styles, duration, callback);
         });
         return;
       }
       if (typeof duration !== "number" || duration <= 0) {
         throw new TypeError("duration must be a positive number");
       }
-      if (typeof callback2 !== "function" && callback2 !== void 0) {
+      if (typeof callback !== "function" && callback !== void 0) {
         throw new TypeError("callback must be a function or null");
       }
       if (typeof styles !== "object" || styles === void 0) {
@@ -3457,8 +3464,8 @@
         }
         if (progress === 1) {
           DOMUtilsCommonUtils.clearInterval(timer);
-          if (callback2) {
-            callback2();
+          if (callback) {
+            callback();
           }
         }
       }, 10);
@@ -3710,7 +3717,7 @@
      *   console.log("淡入完毕");
      * })
      */
-    fadeIn(element, duration = 400, callback2) {
+    fadeIn(element, duration = 400, callback) {
       if (element == null) {
         return;
       }
@@ -3720,7 +3727,7 @@
       }
       if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
-          DOMUtilsContext.fadeIn($ele, duration, callback2);
+          DOMUtilsContext.fadeIn($ele, duration, callback);
         });
         return;
       }
@@ -3737,8 +3744,8 @@
         if (progress < duration) {
           DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
         } else {
-          if (callback2 && typeof callback2 === "function") {
-            callback2();
+          if (callback && typeof callback === "function") {
+            callback();
           }
           DOMUtilsContext.windowApi.window.cancelAnimationFrame(timer);
         }
@@ -3759,7 +3766,7 @@
      *   console.log("淡出完毕");
      * })
      */
-    fadeOut(element, duration = 400, callback2) {
+    fadeOut(element, duration = 400, callback) {
       let DOMUtilsContext = this;
       if (element == null) {
         return;
@@ -3769,7 +3776,7 @@
       }
       if (DOMUtilsCommonUtils.isNodeList(element)) {
         element.forEach(($ele) => {
-          DOMUtilsContext.fadeOut($ele, duration, callback2);
+          DOMUtilsContext.fadeOut($ele, duration, callback);
         });
         return;
       }
@@ -3786,8 +3793,8 @@
           DOMUtilsContext.windowApi.window.requestAnimationFrame(step);
         } else {
           element.style.display = "none";
-          if (typeof callback2 === "function") {
-            callback2();
+          if (typeof callback === "function") {
+            callback();
           }
           DOMUtilsContext.windowApi.window.cancelAnimationFrame(timer);
         }
@@ -3942,8 +3949,8 @@
         return isNumber ? parseFloat(val) : val;
       }
     }
-  }
-  let domUtils$1 = new DOMUtils();
+  };
+  let domUtils$2 = new DOMUtils$1();
   class ColorConversion {
     /**
      * 判断是否是16进制颜色
@@ -4081,12 +4088,12 @@
      */
     encode(str) {
       let that = this;
-      return [...str].reduce((result2, val, i2) => {
-        return result2 + toGBK(val);
+      return [...str].reduce((result, val, i2) => {
+        return result + toGBK(val);
       }, "");
       function toGBK(val) {
         var _a2;
-        let result2 = "";
+        let result = "";
         for (let i2 = 0; i2 < val.length; i2++) {
           const codePoint = val.codePointAt(i2);
           const code = String.fromCodePoint(codePoint);
@@ -4094,16 +4101,16 @@
           key.length != 4 && (key = (_a2 = ("000" + key).match(/....$/)) == null ? void 0 : _a2[0]);
           i2 += code.length - 1;
           if (that.isAscii(codePoint)) {
-            result2 += encodeURIComponent(code);
+            result += encodeURIComponent(code);
             continue;
           }
           if (__privateGet(that, _U2Ghash)[key]) {
-            result2 += __privateGet(that, _U2Ghash)[key];
+            result += __privateGet(that, _U2Ghash)[key];
             continue;
           }
-          result2 += toGBK(`&#${codePoint};`);
+          result += toGBK(`&#${codePoint};`);
         }
-        return result2;
+        return result;
       }
     }
     /**
@@ -4131,6 +4138,230 @@
   _data = new WeakMap();
   _U2Ghash = new WeakMap();
   _G2Uhash = new WeakMap();
+  const TryCatch = function(...args) {
+    let callbackFunction = null;
+    let context = null;
+    let handleError = (error) => {
+    };
+    let defaultDetails = {
+      log: true
+    };
+    const TryCatchCore = {
+      /**
+       *
+       * @param paramDetails 配置
+       * @returns
+       */
+      config(paramDetails) {
+        defaultDetails = Object.assign(defaultDetails, paramDetails);
+        return TryCatchCore;
+      },
+      /**
+       * 处理错误
+       * @param handler
+       */
+      error(handler) {
+        handleError = handler;
+        return TryCatchCore;
+      },
+      /**
+       * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
+       * @param callback 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
+       * @param __context__ 待执行函数的作用域，用于apply指定
+       * @returns 如果函数有返回值，则返回该返回值；否则返回 tryCatchObj 函数以支持链式调用。
+       * @throws {Error} 如果传入参数不符合要求，则会抛出相应类型的错误。
+       */
+      run(callback, __context__) {
+        callbackFunction = callback;
+        context = __context__ || this;
+        let result = executeTryCatch(callbackFunction, handleError, context);
+        return result !== void 0 ? result : TryCatchCore;
+      }
+    };
+    function executeTryCatch(callback, handleErrorFunc, funcThis) {
+      let result = void 0;
+      try {
+        if (typeof callback === "string") {
+          result = new Function(callback).apply(funcThis, args);
+        } else {
+          result = callback.apply(funcThis, args);
+        }
+      } catch (error) {
+        if (defaultDetails.log) {
+          callback = callback;
+          console.log(`%c ${(callback == null ? void 0 : callback.name) ? callback == null ? void 0 : callback.name : callback + "出现错误"} `, "color: #f20000");
+          console.log(`%c 错误原因：${error}`, "color: #f20000");
+          console.trace(callback);
+        }
+        if (handleErrorFunc) {
+          if (typeof handleErrorFunc === "string") {
+            result = new Function(handleErrorFunc).apply(funcThis, [
+              ...args,
+              error
+            ]);
+          } else {
+            result = handleErrorFunc.apply(funcThis, [...args, error]);
+          }
+        }
+      }
+      return result;
+    }
+    return TryCatchCore;
+  };
+  let CommonUtil$1 = class CommonUtil {
+    assign(target = {}, source = {}, isAdd = false) {
+      let UtilsContext = this;
+      if (Array.isArray(source)) {
+        let canTraverse = source.filter((item) => {
+          return typeof item === "object";
+        });
+        if (!canTraverse.length) {
+          return source;
+        }
+      }
+      if (source == null) {
+        return target;
+      }
+      if (target == null) {
+        target = {};
+      }
+      if (isAdd) {
+        for (const sourceKeyName in source) {
+          const targetKeyName = sourceKeyName;
+          let targetValue = target[targetKeyName];
+          let sourceValue = source[sourceKeyName];
+          if (typeof sourceValue === "object" && sourceValue != null && sourceKeyName in target && !UtilsContext.isDOM(sourceValue)) {
+            target[sourceKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
+            continue;
+          }
+          target[sourceKeyName] = sourceValue;
+        }
+      } else {
+        for (const targetKeyName in target) {
+          if (targetKeyName in source) {
+            let targetValue = target[targetKeyName];
+            let sourceValue = source[targetKeyName];
+            if (typeof sourceValue === "object" && sourceValue != null && !UtilsContext.isDOM(sourceValue) && Object.keys(sourceValue).length) {
+              target[targetKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
+              continue;
+            }
+            target[targetKeyName] = sourceValue;
+          }
+        }
+      }
+      return target;
+    }
+    isNull(...args) {
+      let result = true;
+      let checkList = [...args];
+      for (const objItem of checkList) {
+        let itemResult = false;
+        if (objItem === null || objItem === void 0) {
+          itemResult = true;
+        } else {
+          switch (typeof objItem) {
+            case "object":
+              if (typeof objItem[Symbol.iterator] === "function") {
+                itemResult = objItem.length === 0;
+              } else {
+                itemResult = Object.keys(objItem).length === 0;
+              }
+              break;
+            case "number":
+              itemResult = objItem === 0;
+              break;
+            case "string":
+              itemResult = objItem.trim() === "" || objItem === "null" || objItem === "undefined";
+              break;
+            case "boolean":
+              itemResult = !objItem;
+              break;
+            case "function":
+              let funcStr = objItem.toString().replace(/\s/g, "");
+              itemResult = Boolean(funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/));
+              break;
+          }
+        }
+        result = result && itemResult;
+      }
+      return result;
+    }
+    /**
+     * 判断对象是否是元素
+     * @param target
+     * @returns
+     * + true 是元素
+     * + false 不是元素
+     * @example
+     * Utils.isDOM(document.querySelector("a"))
+     * > true
+     */
+    isDOM(target) {
+      return target instanceof Node;
+    }
+    isNotNull(...args) {
+      let UtilsContext = this;
+      return !UtilsContext.isNull.apply(this, args);
+    }
+    deepClone(obj) {
+      let UtilsContext = this;
+      if (obj === void 0)
+        return void 0;
+      if (obj === null)
+        return null;
+      let clone = obj instanceof Array ? [] : {};
+      for (const [key, value] of Object.entries(obj)) {
+        clone[key] = typeof value === "object" ? UtilsContext.deepClone(value) : value;
+      }
+      return clone;
+    }
+    /**
+     * 覆盖对象中的函数this指向
+     * @param target 需要覆盖的对象
+     * @param [objectThis] 覆盖的this指向，如果为传入，则默认为对象本身
+     */
+    coverObjectFunctionThis(target, objectThis) {
+      if (typeof target !== "object" || target === null) {
+        throw new Error("target must be object");
+      }
+      objectThis = objectThis || target;
+      Object.keys(target).forEach((key) => {
+        if (typeof target[key] === "function") {
+          target[key] = target[key].bind(objectThis);
+        }
+      });
+    }
+    toJSON(data, errorCallBack) {
+      let result = {};
+      if (typeof data === "object") {
+        return data;
+      }
+      TryCatch().config({ log: false }).error((error) => {
+        TryCatch().error(() => {
+          try {
+            result = new Function("return " + data)();
+          } catch (error2) {
+            if (typeof errorCallBack === "function") {
+              errorCallBack(error2);
+            }
+          }
+        }).run(() => {
+          if (data && /^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@").replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]").replace(/(?:^|:|,)(?:\s*\[)+/g, ""))) {
+            result = new Function("return " + data)();
+          } else {
+            if (typeof errorCallBack === "function") {
+              errorCallBack(new Error("target is not a JSON"));
+            }
+          }
+        });
+      }).run(() => {
+        data = data.trim();
+        result = JSON.parse(data);
+      });
+      return result;
+    }
+  };
+  let commonUtil = new CommonUtil$1();
   class UtilsGMCookie {
     constructor(windowApiOption) {
       __publicField(this, "windowApi", {
@@ -4191,7 +4422,7 @@
      * + cookies object[]
      * + error string|undefined
      **/
-    list(option, callback2) {
+    list(option, callback) {
       if (option == null) {
         throw new Error("Utils.GMCookie.list 参数不能为空");
       }
@@ -4203,7 +4434,7 @@
           name: "",
           path: "/"
         };
-        defaultOption = utils$1.assign(defaultOption, option);
+        defaultOption = commonUtil.assign(defaultOption, option);
         let cookies = this.getCookiesList();
         cookies.forEach((item) => {
           item = item.trim();
@@ -4227,12 +4458,12 @@
             });
           }
         });
-        if (typeof callback2 === "function") {
-          callback2(resultData);
+        if (typeof callback === "function") {
+          callback(resultData);
         }
-      } catch (error2) {
-        if (typeof callback2 === "function") {
-          callback2(resultData, error2);
+      } catch (error) {
+        if (typeof callback === "function") {
+          callback(resultData, error);
         }
       }
     }
@@ -4251,7 +4482,7 @@
         name: "",
         path: "/"
       };
-      defaultOption = utils$1.assign(defaultOption, option);
+      defaultOption = commonUtil.assign(defaultOption, option);
       let cookies = this.getCookiesList();
       cookies.forEach((item) => {
         item = item.trim();
@@ -4282,7 +4513,7 @@
      * @param option 配置
      * @param callback 设置操作后的回调(成功/失败)
      */
-    set(option, callback2) {
+    set(option, callback) {
       let errorInfo;
       try {
         let defaultOption = {
@@ -4298,18 +4529,18 @@
            */
           expirationDate: Math.floor(Date.now()) + 60 * 60 * 24 * 30
         };
-        defaultOption = utils$1.assign(defaultOption, option);
+        defaultOption = commonUtil.assign(defaultOption, option);
         let life = defaultOption.expirationDate ? defaultOption.expirationDate : Math.floor(Date.now()) + 60 * 60 * 24 * 30;
         let cookieStr = defaultOption.name + "=" + decodeURIComponent(defaultOption.value) + ";expires=" + new Date(life).toGMTString() + "; path=/";
-        if (utils$1.isNotNull(defaultOption.domain)) {
+        if (commonUtil.isNull(defaultOption.domain)) {
           cookieStr += "; domain=" + defaultOption.domain;
         }
         this.windowApi.document.cookie = cookieStr;
-      } catch (error2) {
-        errorInfo = error2;
+      } catch (error) {
+        errorInfo = error;
       } finally {
-        if (typeof callback2 === "function") {
-          callback2(errorInfo);
+        if (typeof callback === "function") {
+          callback(errorInfo);
         }
       }
     }
@@ -4318,7 +4549,7 @@
      * @param option 配置
      * @param callback 删除操作后的回调(成功/失败)
      */
-    delete(option, callback2) {
+    delete(option, callback) {
       let errorInfo;
       try {
         let defaultOption = {
@@ -4327,17 +4558,17 @@
           path: "/",
           firstPartyDomain: ""
         };
-        defaultOption = utils$1.assign(defaultOption, option);
+        defaultOption = commonUtil.assign(defaultOption, option);
         let cookieStr = `${defaultOption.name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${defaultOption.path}`;
-        if (utils$1.isNotNull(defaultOption.firstPartyDomain)) {
+        if (commonUtil.isNull(defaultOption.firstPartyDomain)) {
           cookieStr += `; domain=${defaultOption.firstPartyDomain};`;
         }
         this.windowApi.document.cookie = cookieStr;
-      } catch (error2) {
-        errorInfo = error2;
+      } catch (error) {
+        errorInfo = error;
       } finally {
-        if (typeof callback2 === "function") {
-          callback2(errorInfo);
+        if (typeof callback === "function") {
+          callback(errorInfo);
         }
       }
     }
@@ -4351,19 +4582,19 @@
         return [];
       }
       let cookies = cookieStr.split(";");
-      let result2 = [];
+      let result = [];
       for (const cookieItem of cookies) {
         let item = cookieItem.trim();
         let itemSplit = item.split("=");
         let itemName = itemSplit[0];
         itemSplit.splice(0, 1);
         let itemValue = decodeURIComponent(itemSplit.join(""));
-        result2.push({
+        result.push({
           key: itemName,
           value: itemValue
         });
       }
-      return result2;
+      return result;
     }
   }
   const AjaxHooker = function() {
@@ -4402,11 +4633,11 @@
       function isThenable(obj) {
         return obj && ["object", "function"].includes(typeof obj) && typeof obj.then === "function";
       }
-      function catchError(fn, ...args2) {
+      function catchError(fn, ...args) {
         try {
-          const result2 = fn(...args2);
-          if (isThenable(result2)) return result2.then(null, errorFn);
-          return result2;
+          const result = fn(...args);
+          if (isThenable(result)) return result.then(null, errorFn);
+          return result;
         } catch (err) {
           console.error(err);
         }
@@ -4689,21 +4920,21 @@
           const headers = this.request.headers;
           headers[header] = header in headers ? `${headers[header]}, ${value}` : value;
         }
-        addEventListener(...args2) {
-          if (xhrAsyncEvents.includes(args2[0])) {
-            this.addEvent(args2[0], args2[1]);
+        addEventListener(...args) {
+          if (xhrAsyncEvents.includes(args[0])) {
+            this.addEvent(args[0], args[1]);
           } else {
-            this.originalXhr.addEventListener(...args2);
+            this.originalXhr.addEventListener(...args);
           }
         }
-        removeEventListener(...args2) {
-          if (xhrAsyncEvents.includes(args2[0])) {
-            this.removeEvent(args2[0], args2[1]);
+        removeEventListener(...args) {
+          if (xhrAsyncEvents.includes(args[0])) {
+            this.removeEvent(args[0], args[1]);
           } else {
-            this.originalXhr.removeEventListener(...args2);
+            this.originalXhr.removeEventListener(...args);
           }
         }
-        open(method, url, async = true, ...args2) {
+        open(method, url, async = true, ...args) {
           this.request = {
             type: "xhr",
             url: url.toString(),
@@ -4714,7 +4945,7 @@
             response: null,
             async: !!async
           };
-          this.openArgs = args2;
+          this.openArgs = args;
           this.resThenable = new SyncThenable();
           [
             "responseURL",
@@ -4725,7 +4956,7 @@
           ].forEach((key) => {
             delete this.proxyProps[key];
           });
-          return this.originalXhr.open(method, url, async, ...args2);
+          return this.originalXhr.open(method, url, async, ...args);
         }
         send(data) {
           const ah = this;
@@ -4869,17 +5100,17 @@
       resProto.clone = winAh.fakeFetchClone;
       winAh.hookInsts.add(hookInst);
       class AHFunction {
-        call(thisArg, ...args2) {
+        call(thisArg, ...args) {
           if (thisArg && thisArg.__ajaxHooker && thisArg.__ajaxHooker.proxyXhr === thisArg) {
             thisArg = thisArg.__ajaxHooker.originalXhr;
           }
-          return Reflect.apply(this, thisArg, args2);
+          return Reflect.apply(this, thisArg, args);
         }
-        apply(thisArg, args2) {
+        apply(thisArg, args) {
           if (thisArg && thisArg.__ajaxHooker && thisArg.__ajaxHooker.proxyXhr === thisArg) {
             thisArg = thisArg.__ajaxHooker.originalXhr;
           }
-          return Reflect.apply(this, thisArg, args2 || []);
+          return Reflect.apply(this, thisArg, args || []);
         }
       }
       function hookSecsdk(csrf) {
@@ -5030,13 +5261,13 @@
       function xhrLoadAndLoadend(e2) {
         e2.target.__ajaxHooker.delegateEvent(e2);
       }
-      function fakeXhrOpen(method, url, ...args2) {
+      function fakeXhrOpen(method, url, ...args) {
         const ah = this.__ajaxHooker;
         ah.url = url.toString();
         ah.method = method.toUpperCase();
-        ah.openArgs = args2;
+        ah.openArgs = args;
         ah.headers = {};
-        return ah.originalMethods.open(method, url, ...args2);
+        return ah.originalMethods.open(method, url, ...args);
       }
       function fakeXhr() {
         const xhr = new realXhr();
@@ -5078,18 +5309,18 @@
               }
             }
           };
-          xhr.addEventListener = function(...args2) {
-            if (xhrAsyncEvents.includes(args2[0])) {
-              ah.hookedEvents[args2[0]].add(args2[1]);
+          xhr.addEventListener = function(...args) {
+            if (xhrAsyncEvents.includes(args[0])) {
+              ah.hookedEvents[args[0]].add(args[1]);
             } else {
-              ah.originalMethods.addEventListener(...args2);
+              ah.originalMethods.addEventListener(...args);
             }
           };
-          xhr.removeEventListener = function(...args2) {
-            if (xhrAsyncEvents.includes(args2[0])) {
-              ah.hookedEvents[args2[0]].delete(args2[1]);
+          xhr.removeEventListener = function(...args) {
+            if (xhrAsyncEvents.includes(args[0])) {
+              ah.hookedEvents[args[0]].delete(args[1]);
             } else {
-              ah.originalMethods.removeEventListener(...args2);
+              ah.originalMethods.removeEventListener(...args);
             }
           };
           xhrAsyncEvents.forEach((evt) => {
@@ -5245,7 +5476,7 @@
         };
         return xhr;
       }
-      function hookFetchResponse(response, arg, callback2) {
+      function hookFetchResponse(response, arg, callback) {
         fetchResponses.forEach((prop) => {
           response[prop] = () => new Promise((resolve, reject) => {
             resProto[prop].call(response).then((res) => {
@@ -5254,7 +5485,7 @@
               } else {
                 try {
                   arg[prop] = res;
-                  Promise.resolve(callback2(arg)).then(() => {
+                  Promise.resolve(callback(arg)).then(() => {
                     if (prop in arg) {
                       Promise.resolve(arg[prop]).then(
                         (val) => resolve(arg[prop] = val),
@@ -5438,7 +5669,7 @@
             menuOptions = [menuOptions];
           }
           for (let index = 0; index < menuOptions.length; index++) {
-            let cloneMenuOptionData = utils$1.deepClone(menuOptions[index].data);
+            let cloneMenuOptionData = commonUtil.deepClone(menuOptions[index].data);
             const { showText, clickCallBack } = this.handleMenuData(cloneMenuOptionData);
             let menuId = that.context.GM_Api.registerMenuCommand(showText, clickCallBack);
             menuOptions[index].id = menuId;
@@ -5684,15 +5915,15 @@
      * @param menuKey
      */
     getMenuId(menuKey) {
-      let result2 = null;
+      let result = null;
       for (let index = 0; index < this.MenuHandle.$data.data.length; index++) {
         const optionData = this.MenuHandle.$data.data[index];
         if (optionData.handleData.key === menuKey) {
-          result2 = optionData.id;
+          result = optionData.id;
           break;
         }
       }
-      return result2;
+      return result;
     }
     /**
      * 根据键值获取accessKey值
@@ -5817,7 +6048,12 @@
           return "";
         }
         try {
-          eval("_context[_funcName] = function " + _funcName + "(){\nlet args = Array.prototype.slice.call(arguments,0);\nlet obj = this;\nhookFunc.apply(obj,args);\nreturn _context['realFunc_" + _funcName + "'].apply(obj,args);\n};");
+          new Function("_context", "_funcName", "hookFunc", `_context[_funcName] = function ${_funcName}() {
+        let args = Array.prototype.slice.call(arguments, 0);
+        let obj = this;
+        hookFunc.apply(obj, args);
+        return _context['realFunc_${_funcName}'].apply(obj, args);
+    };`)(_context, _funcName, hookFunc);
           _context[_funcName].prototype.isHooked = true;
           return true;
         } catch (e2) {
@@ -5825,17 +6061,17 @@
           return false;
         }
       };
-      Function.prototype.unhook = function(realFunc2, funcName, context2) {
-        let _context3 = null;
-        let _funcName2 = null;
-        _context3 = context2 || window;
-        _funcName2 = funcName;
-        if (!_context3[_funcName2].prototype.isHooked) {
+      Function.prototype.unhook = function(realFunc, funcName, context) {
+        let _context = null;
+        let _funcName = null;
+        _context = context || window;
+        _funcName = funcName;
+        if (!_context[_funcName].prototype.isHooked) {
           console.log("No function is hooked on");
           return false;
         }
-        _context3[_funcName2] = _context3["realFunc" + _funcName2];
-        Reflect.deleteProperty(_context3, "realFunc_" + _funcName2);
+        _context[_funcName] = _context["realFunc" + _funcName];
+        Reflect.deleteProperty(_context, "realFunc_" + _funcName);
         return true;
       };
     }
@@ -5900,8 +6136,8 @@
           for (let index = 0; index < this.$config.configList.length; index++) {
             let item = this.$config.configList[index];
             if (typeof item.fn === "function") {
-              let result2 = await item.fn(details);
-              if (result2 == null) {
+              let result = await item.fn(details);
+              if (result == null) {
                 return;
               }
             }
@@ -5971,8 +6207,8 @@
           for (let index = 0; index < this.$config.configList.length; index++) {
             let item = this.$config.configList[index];
             if (typeof item.successFn === "function") {
-              let result2 = await item.successFn(response, details);
-              if (result2 == null) {
+              let result = await item.successFn(response, details);
+              if (result == null) {
                 return;
               }
             }
@@ -6000,8 +6236,8 @@
           for (let index = 0; index < this.$config.configList.length; index++) {
             let item = this.$config.configList[index];
             if (typeof item.errorFn === "function") {
-              let result2 = await item.errorFn(data);
-              if (result2 == null) {
+              let result = await item.errorFn(data);
+              if (result == null) {
                 return;
               }
             }
@@ -6046,19 +6282,19 @@
         /**
          * 对请求的参数进行合并处理
          */
-        handleBeforeRequestOptionArgs(...args2) {
+        handleBeforeRequestOptionArgs(...args) {
           let option = {};
-          if (typeof args2[0] === "string") {
-            let url = args2[0];
+          if (typeof args[0] === "string") {
+            let url = args[0];
             option.url = url;
-            if (typeof args2[1] === "object") {
-              let optionArg = args2[1];
-              utils$1.assign(option, optionArg, true);
+            if (typeof args[1] === "object") {
+              let optionArg = args[1];
+              commonUtil.assign(option, optionArg, true);
               option.url = url;
             }
           } else {
-            let optionArg = args2[0];
-            utils$1.assign(option, optionArg, true);
+            let optionArg = args[0];
+            commonUtil.assign(option, optionArg, true);
           }
           return option;
         },
@@ -6087,7 +6323,7 @@
             timeout: userRequestOption.timeout || __privateGet(this.context, _defaultRequestOption).timeout,
             responseType: userRequestOption.responseType || __privateGet(this.context, _defaultRequestOption).responseType,
             /* 对象使用深拷贝 */
-            headers: utils$1.deepClone(__privateGet(this.context, _defaultRequestOption).headers),
+            headers: commonUtil.deepClone(__privateGet(this.context, _defaultRequestOption).headers),
             data: userRequestOption.data || __privateGet(this.context, _defaultRequestOption).data,
             redirect: userRequestOption.redirect || __privateGet(this.context, _defaultRequestOption).redirect,
             cookie: userRequestOption.cookie || __privateGet(this.context, _defaultRequestOption).cookie,
@@ -6096,12 +6332,12 @@
             nocache: userRequestOption.nocache || __privateGet(this.context, _defaultRequestOption).nocache,
             revalidate: userRequestOption.revalidate || __privateGet(this.context, _defaultRequestOption).revalidate,
             /* 对象使用深拷贝 */
-            context: utils$1.deepClone(userRequestOption.context || __privateGet(this.context, _defaultRequestOption).context),
+            context: commonUtil.deepClone(userRequestOption.context || __privateGet(this.context, _defaultRequestOption).context),
             overrideMimeType: userRequestOption.overrideMimeType || __privateGet(this.context, _defaultRequestOption).overrideMimeType,
             anonymous: userRequestOption.anonymous || __privateGet(this.context, _defaultRequestOption).anonymous,
             fetch: userRequestOption.fetch || __privateGet(this.context, _defaultRequestOption).fetch,
             /* 对象使用深拷贝 */
-            fetchInit: utils$1.deepClone(__privateGet(this.context, _defaultRequestOption).fetchInit),
+            fetchInit: commonUtil.deepClone(__privateGet(this.context, _defaultRequestOption).fetchInit),
             allowInterceptConfig: {
               beforeRequest: __privateGet(this.context, _defaultRequestOption).allowInterceptConfig.beforeRequest,
               afterResponseSuccess: __privateGet(this.context, _defaultRequestOption).allowInterceptConfig.afterResponseSuccess,
@@ -6109,26 +6345,26 @@
             },
             user: userRequestOption.user || __privateGet(this.context, _defaultRequestOption).user,
             password: userRequestOption.password || __privateGet(this.context, _defaultRequestOption).password,
-            onabort(...args2) {
-              that.context.HttpxCallBack.onAbort(userRequestOption, resolve, reject, args2);
+            onabort(...args) {
+              that.context.HttpxCallBack.onAbort(userRequestOption, resolve, reject, args);
             },
-            onerror(...args2) {
-              that.context.HttpxCallBack.onError(userRequestOption, resolve, reject, args2);
+            onerror(...args) {
+              that.context.HttpxCallBack.onError(userRequestOption, resolve, reject, args);
             },
-            onloadstart(...args2) {
-              that.context.HttpxCallBack.onLoadStart(userRequestOption, args2);
+            onloadstart(...args) {
+              that.context.HttpxCallBack.onLoadStart(userRequestOption, args);
             },
-            onprogress(...args2) {
-              that.context.HttpxCallBack.onProgress(userRequestOption, args2);
+            onprogress(...args) {
+              that.context.HttpxCallBack.onProgress(userRequestOption, args);
             },
-            onreadystatechange(...args2) {
-              that.context.HttpxCallBack.onReadyStateChange(userRequestOption, args2);
+            onreadystatechange(...args) {
+              that.context.HttpxCallBack.onReadyStateChange(userRequestOption, args);
             },
-            ontimeout(...args2) {
-              that.context.HttpxCallBack.onTimeout(userRequestOption, resolve, reject, args2);
+            ontimeout(...args) {
+              that.context.HttpxCallBack.onTimeout(userRequestOption, resolve, reject, args);
             },
-            onload(...args2) {
-              that.context.HttpxCallBack.onLoad(userRequestOption, resolve, reject, args2);
+            onload(...args) {
+              that.context.HttpxCallBack.onLoad(userRequestOption, resolve, reject, args);
             }
           };
           if (typeof userRequestOption.allowInterceptConfig === "boolean") {
@@ -6182,7 +6418,7 @@
           }
           try {
             new URL(requestOption.url);
-          } catch (error2) {
+          } catch (error) {
             if (requestOption.url.startsWith("//")) {
               requestOption.url = globalThis.location.protocol + requestOption.url;
             } else if (requestOption.url.startsWith("/")) {
@@ -6258,8 +6494,8 @@
                 }
               }
             }
-          } catch (error2) {
-            console.warn("Httpx ==> 转换data参数错误", error2);
+          } catch (error) {
+            console.warn("Httpx ==> 转换data参数错误", error);
           }
           return requestOption;
         },
@@ -6269,12 +6505,12 @@
          */
         removeRequestNullOption(option) {
           Object.keys(option).forEach((keyName) => {
-            if (option[keyName] == null || option[keyName] instanceof Function && utils$1.isNull(option[keyName])) {
+            if (option[keyName] == null || option[keyName] instanceof Function && commonUtil.isNull(option[keyName])) {
               Reflect.deleteProperty(option, keyName);
               return;
             }
           });
-          if (utils$1.isNull(option.url)) {
+          if (commonUtil.isNull(option.url)) {
             throw new TypeError(`Utils.Httpx 参数 url不符合要求: ${option.url}`);
           }
           return option;
@@ -6444,9 +6680,9 @@
          */
         async onLoad(details, resolve, reject, argsResult) {
           let originResponse = argsResult[0];
-          if (utils$1.isNull(originResponse["responseText"]) && utils$1.isNotNull(originResponse["response"])) {
+          if (commonUtil.isNull(originResponse["responseText"]) && commonUtil.isNotNull(originResponse["response"])) {
             if (typeof originResponse["response"] === "object") {
-              utils$1.tryCatch().run(() => {
+              TryCatch().run(() => {
                 originResponse["responseText"] = JSON.stringify(originResponse["response"]);
               });
             } else {
@@ -6457,7 +6693,7 @@
             let httpxResponseText = originResponse.responseText;
             let httpxResponse = httpxResponseText;
             if (details.responseType === "json") {
-              httpxResponse = utils$1.toJSON(httpxResponseText);
+              httpxResponse = commonUtil.toJSON(httpxResponseText);
             } else if (details.responseType === "document") {
               let parser = new DOMParser();
               httpxResponse = parser.parseFromString(httpxResponseText, "text/html");
@@ -6476,15 +6712,15 @@
                 console.warn("[Httpx-HttpxCallBack.oonLoad] 覆盖原始 response 失败，尝试添加新的httpxResponse");
                 try {
                   Reflect.set(originResponse, "httpxResponse", httpxResponse);
-                } catch (error2) {
+                } catch (error) {
                   console.warn("[Httpx-HttpxCallBack.oonLoad] httpxResponse 无法被覆盖");
                 }
               }
-            } catch (error2) {
+            } catch (error) {
               console.warn("[Httpx-HttpxCallBack.oonLoad] 原始 response 无法被覆盖，尝试添加新的httpxResponse");
               try {
                 Reflect.set(originResponse, "httpxResponse", httpxResponse);
-              } catch (error3) {
+              } catch (error2) {
                 console.warn("[Httpx-HttpxCallBack.oonLoad] httpxResponse 无法被覆盖");
               }
             }
@@ -6624,7 +6860,7 @@
             } else if (option.responseType === "blob") {
               response = new Blob([arrayBuffer]);
             } else if (option.responseType === "json" || typeof fetchResponseType === "string" && fetchResponseType.includes("application/json")) {
-              response = utils$1.toJSON(responseText);
+              response = commonUtil.toJSON(responseText);
             } else if (option.responseType === "document" || option.responseType == null) {
               let parser2 = new DOMParser();
               response = parser2.parseFromString(responseText, "text/html");
@@ -6635,8 +6871,8 @@
             Reflect.set(httpxResponse, "responseText", responseText);
             Reflect.set(httpxResponse, "responseXML", responseXML);
             option.onload(httpxResponse);
-          }).catch((error2) => {
-            if (error2.name === "AbortError") {
+          }).catch((error) => {
+            if (error.name === "AbortError") {
               return;
             }
             option.onerror({
@@ -6647,7 +6883,7 @@
               statusText: "",
               responseHeaders: "",
               responseText: "",
-              error: error2
+              error
             });
           });
           option.onloadstart({
@@ -6788,7 +7024,7 @@
       if (typeof option.xmlHttpRequest !== "function") {
         console.warn("[Httpx-constructor] 未传入GM_xmlhttpRequest函数或传入的GM_xmlhttpRequest不是Function，将默认使用window.fetch");
       }
-      utils$1.coverObjectFunctionThis(this);
+      commonUtil.coverObjectFunctionThis(this);
       this.interceptors.request.context = this;
       this.interceptors.response.context = this;
       this.config(option);
@@ -6801,8 +7037,8 @@
       if (typeof option.xmlHttpRequest === "function") {
         this.GM_Api.xmlHttpRequest = option.xmlHttpRequest;
       }
-      __privateSet(this, _defaultRequestOption, utils$1.assign(__privateGet(this, _defaultRequestOption), option));
-      __privateSet(this, _defaultInitOption, utils$1.assign(__privateGet(this, _defaultInitOption), option));
+      __privateSet(this, _defaultRequestOption, commonUtil.assign(__privateGet(this, _defaultRequestOption), option));
+      __privateSet(this, _defaultInitOption, commonUtil.assign(__privateGet(this, _defaultInitOption), option));
     }
     /**
      * 修改xmlHttpRequest
@@ -6816,8 +7052,8 @@
      * @param url 网址
      * @param details 配置
      */
-    get(...args2) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
+    get(...args) {
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "GET";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
@@ -6826,16 +7062,16 @@
     /**
      * POST 请求
      */
-    post(...args2) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
+    post(...args) {
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "POST";
       return this.request(useRequestOption);
     }
     /**
      * HEAD 请求
      */
-    head(...args2) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
+    head(...args) {
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "HEAD";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
@@ -6844,8 +7080,8 @@
     /**
      * OPTIONS 请求
      */
-    options(...args2) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
+    options(...args) {
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "OPTIONS";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
@@ -6854,8 +7090,8 @@
     /**
      * DELETE 请求
      */
-    delete(...args2) {
-      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
+    delete(...args) {
+      let useRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       useRequestOption.method = "DELETE";
       return this.request(useRequestOption, (option) => {
         Reflect.deleteProperty(option, "onprogress");
@@ -6864,8 +7100,8 @@
     /**
      * PUT 请求
      */
-    put(...args2) {
-      let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args2);
+    put(...args) {
+      let userRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(...args);
       userRequestOption.method = "PUT";
       return this.request(userRequestOption);
     }
@@ -6962,12 +7198,12 @@
      * @param callback  回调
      * @param dbName 数据库名
      */
-    open(callback2, dbName) {
+    open(callback, dbName) {
       let that = this;
       if (!__privateGet(that, _db)[dbName]) {
         let request = __privateGet(that, _indexedDB).open(dbName, __privateGet(that, _dbVersion));
         request.onerror = function(event) {
-          callback2(null, {
+          callback(null, {
             code: __privateGet(that, _statusCode).openFailed.code,
             msg: __privateGet(that, _statusCode).openFailed.msg,
             event
@@ -6979,7 +7215,7 @@
             __privateGet(that, _db)[dbName] = target.result;
           }
           let store = that.createStore(dbName);
-          callback2(store);
+          callback(store);
         };
         request.onupgradeneeded = function(event) {
           let target = event.target;
@@ -6988,12 +7224,12 @@
             keyPath: "key"
           });
           store.transaction.oncomplete = function(event2) {
-            callback2(store);
+            callback(store);
           };
         };
       } else {
         let store = this.createStore(dbName);
-        callback2(store);
+        callback(store);
       }
     }
     /**
@@ -7095,8 +7331,8 @@
             let request = idbStore.get(key);
             request.onsuccess = function(event) {
               let target = event.target;
-              let result2 = target.result;
-              let data = result2 ? result2.value : void 0;
+              let result = target.result;
+              let data = result ? result.value : void 0;
               if (data == null) {
                 resolve({
                   success: true,
@@ -7104,7 +7340,7 @@
                   msg: __privateGet(that, _statusCode).empty.msg,
                   data,
                   event,
-                  result: result2
+                  result
                 });
               } else {
                 resolve({
@@ -7113,7 +7349,7 @@
                   msg: __privateGet(that, _statusCode).operationSuccess.msg,
                   data,
                   event,
-                  result: result2
+                  result
                 });
               }
             };
@@ -7151,9 +7387,9 @@
             let request = idbStore.getAll();
             request.onsuccess = function(event) {
               let target = event.target;
-              let result2 = target.result;
-              if (result2.length !== 0) {
-                result2.forEach((dataItem, index) => {
+              let result = target.result;
+              if (result.length !== 0) {
+                result.forEach((dataItem, index) => {
                   let __key = dataItem["key"];
                   let __value = dataItem["value"];
                   if (__key.match(key)) {
@@ -7265,41 +7501,40 @@
   _store = new WeakMap();
   _statusCode = new WeakMap();
   class LockFunction {
-    constructor(callback2, context2, delayTime) {
+    constructor(callback, context, delayTime) {
       __privateAdd(this, _flag, false);
       __privateAdd(this, _delayTime, 0);
       __privateAdd(this, _callback);
-      __privateAdd(this, _context2);
+      __privateAdd(this, _timeId);
       __publicField(this, "lock");
       __publicField(this, "unlock");
       __publicField(this, "run");
       __publicField(this, "isLock");
       let that = this;
-      __privateSet(this, _callback, callback2);
-      if (typeof context2 === "number") {
-        __privateSet(this, _delayTime, context2);
-        __privateSet(this, _context2, utils$1);
+      __privateSet(this, _callback, callback);
+      if (typeof context === "number") {
+        __privateSet(this, _delayTime, context);
       } else {
         __privateSet(this, _delayTime, delayTime);
-        __privateSet(this, _context2, context2);
       }
       this.lock = function() {
         __privateSet(that, _flag, true);
+        clearTimeout(__privateGet(that, _timeId));
       };
       this.unlock = function() {
-        utils$1.workerSetTimeout(() => {
+        __privateSet(that, _timeId, setTimeout(() => {
           __privateSet(that, _flag, false);
-        }, __privateGet(that, _delayTime));
+        }, __privateGet(that, _delayTime)));
       };
       this.isLock = function() {
         return __privateGet(that, _flag);
       };
-      this.run = async function(...args2) {
+      this.run = async function(...args) {
         if (that.isLock()) {
           return;
         }
         that.lock();
-        await __privateGet(that, _callback).apply(__privateGet(that, _context2), args2);
+        await __privateGet(that, _callback).apply(this, args);
         that.unlock();
       };
     }
@@ -7307,7 +7542,7 @@
   _flag = new WeakMap();
   _delayTime = new WeakMap();
   _callback = new WeakMap();
-  _context2 = new WeakMap();
+  _timeId = new WeakMap();
   class Log {
     /**
      * @param __GM_info 油猴管理器的API GM_info，或者是一个对象，如{"script":{name:"Utils.Log"}}，或者直接是一个字符串，用作tag名
@@ -7355,7 +7590,7 @@
      * @param stack
      */
     parseErrorStack(stack) {
-      let result2 = {
+      let result = {
         name: "",
         position: ""
       };
@@ -7374,24 +7609,24 @@
         if (stackFunctionName === "" || stackFunctionName.match(/^(Utils\.|)Log(\.|)|.<anonymous>$|^Function.each|^NodeList.forEach|^k.fn.init.each/g)) {
           continue;
         } else {
-          result2.name = stackFunctionName;
-          result2.position = stackFunctionNamePosition;
+          result.name = stackFunctionName;
+          result.position = stackFunctionNamePosition;
           break;
         }
       }
-      if (result2.position === "") {
+      if (result.position === "") {
         let lastStackString = stack[stack.length - 1].trim();
         if (lastStackString.startsWith("at chrome-extension://")) {
           let lastStackMatch = lastStackString.match(/^at[\s]+(.+)/);
           if (lastStackMatch) {
-            result2.position = lastStackMatch[lastStackMatch.length - 1];
+            result.position = lastStackMatch[lastStackMatch.length - 1];
           }
         }
       }
-      if (result2.position === "") {
-        result2.position = stack[stack.length - 1].trim().replace(/^at[\s]*/g, "");
+      if (result.position === "") {
+        result.position = stack[stack.length - 1].trim().replace(/^at[\s]*/g, "");
       }
-      return result2;
+      return result;
     }
     /**
      * 检测清理控制台
@@ -7448,10 +7683,10 @@
      * @example
      * log.info("输出信息","输出信息2","输出信息3","输出")
      */
-    info(...args2) {
+    info(...args) {
       if (__privateGet(this, _disable))
         return;
-      this.printContent(args2, __privateGet(this, _details).infoColor);
+      this.printContent(args, __privateGet(this, _details).infoColor);
     }
     /**
      * 控制台-警告输出
@@ -7459,10 +7694,10 @@
      * @example
      * log.warn("输出警告","输出警告2","输出警告3","输出警告4")
      */
-    warn(...args2) {
+    warn(...args) {
       if (__privateGet(this, _disable))
         return;
-      this.printContent(args2, __privateGet(this, _details).warnColor, "background: #FEF6D5;padding: 4px 6px 4px 0px;");
+      this.printContent(args, __privateGet(this, _details).warnColor, "background: #FEF6D5;padding: 4px 6px 4px 0px;");
     }
     /**
      * 控制台-错误输出
@@ -7470,10 +7705,10 @@
      * @example
      * log.error("输出错误","输出错误2","输出错误3","输出错误4")
      */
-    error(...args2) {
+    error(...args) {
       if (__privateGet(this, _disable))
         return;
-      this.printContent(args2, __privateGet(this, _details).errorColor);
+      this.printContent(args, __privateGet(this, _details).errorColor);
     }
     /**
      * 控制台-成功输出
@@ -7481,10 +7716,10 @@
      * @example
      * log.success("输出成功")
      */
-    success(...args2) {
+    success(...args) {
       if (__privateGet(this, _disable))
         return;
-      this.printContent(args2, __privateGet(this, _details).successColor);
+      this.printContent(args, __privateGet(this, _details).successColor);
     }
     /**
      * 控制台-输出表格
@@ -7576,7 +7811,7 @@
       __privateAdd(this, _ctx, null);
       __privateAdd(this, _width, null);
       __privateAdd(this, _height, null);
-      __privateSet(this, _config, utils$1.assign(__privateGet(this, _config), paramConfig));
+      __privateSet(this, _config, commonUtil.assign(__privateGet(this, _config), paramConfig));
       if (!(__privateGet(this, _config).canvasNode instanceof HTMLCanvasElement)) {
         throw new Error("Utils.Progress 参数 canvasNode 必须是 HTMLCanvasElement");
       }
@@ -7628,77 +7863,6 @@
   _ctx = new WeakMap();
   _width = new WeakMap();
   _height = new WeakMap();
-  const TryCatch = function(...args) {
-    let callbackFunction = null;
-    let context = null;
-    let handleError = (error2) => {
-    };
-    let defaultDetails = {
-      log: true
-    };
-    const TryCatchCore = {
-      /**
-       *
-       * @param paramDetails 配置
-       * @returns
-       */
-      config(paramDetails) {
-        defaultDetails = utils$1.assign(defaultDetails, paramDetails);
-        return TryCatchCore;
-      },
-      /**
-       * 处理错误
-       * @param handler
-       */
-      error(handler) {
-        handleError = handler;
-        return TryCatchCore;
-      },
-      /**
-       * 执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
-       * @param callback 待执行函数，可以是 function 或者 string 类型。如果是 string 类型，则会被当做代码进行执行。
-       * @param __context__ 待执行函数的作用域，用于apply指定
-       * @returns 如果函数有返回值，则返回该返回值；否则返回 tryCatchObj 函数以支持链式调用。
-       * @throws {Error} 如果传入参数不符合要求，则会抛出相应类型的错误。
-       */
-      run(callback2, __context__) {
-        callbackFunction = callback2;
-        context = __context__ || this;
-        let result2 = executeTryCatch(callbackFunction, handleError, context);
-        return result2 !== void 0 ? result2 : TryCatchCore;
-      }
-    };
-    function executeTryCatch(callback, handleErrorFunc, funcThis) {
-      let result = void 0;
-      try {
-        if (typeof callback === "string") {
-          (function() {
-            eval(callback);
-          }).apply(funcThis, args);
-        } else {
-          result = callback.apply(funcThis, args);
-        }
-      } catch (error) {
-        if (defaultDetails.log) {
-          callback = callback;
-          console.log(`%c ${(callback == null ? void 0 : callback.name) ? callback == null ? void 0 : callback.name : callback + "出现错误"} `, "color: #f20000");
-          console.log(`%c 错误原因：${error}`, "color: #f20000");
-          console.trace(callback);
-        }
-        if (handleErrorFunc) {
-          if (typeof handleErrorFunc === "string") {
-            result = (function() {
-              return eval(handleErrorFunc);
-            }).apply(funcThis, [...args, error]);
-          } else {
-            result = handleErrorFunc.apply(funcThis, [...args, error]);
-          }
-        }
-      }
-      return result;
-    }
-    return TryCatchCore;
-  };
   class UtilsDictionary {
     constructor(key, value) {
       __publicField(this, "items", {});
@@ -7732,14 +7896,14 @@
      */
     getStartsWith(key) {
       let allKeys = this.keys();
-      let result2 = void 0;
+      let result = void 0;
       for (const keyName of allKeys) {
         if (String(keyName).startsWith(String(key))) {
-          result2 = this.get(keyName);
+          result = this.get(keyName);
           break;
         }
       }
-      return result2;
+      return result;
     }
     /**
      * 为字典添加某一个值
@@ -7813,7 +7977,7 @@
      * @param data 需要合并的字典
      */
     concat(data) {
-      this.items = utils$1.assign(this.items, data.getItems());
+      this.items = commonUtil.assign(this.items, data.getItems());
     }
     forEach(callbackfn) {
       for (const key in this.getItems()) {
@@ -7848,7 +8012,7 @@
       };
     }
   }
-  class WindowApi {
+  class WindowApi2 {
     constructor(option) {
       /** 默认的配置 */
       __publicField(this, "defaultApi", {
@@ -8015,11 +8179,11 @@
         },
         set(target2, key, value, receiver) {
           let oldValue = target2[key];
-          let result2 = Reflect.set(target2, key, value, receiver);
+          let result = Reflect.set(target2, key, value, receiver);
           if (oldValue !== value) {
             that.trigger(target2, "set", key, oldValue, value);
           }
-          return result2;
+          return result;
         }
       });
       that.reactMap.set(target, proxy);
@@ -8062,11 +8226,11 @@
       return new ObjectRefImpl(object, key);
     }
     toRefs(object) {
-      const result2 = VueUtils.isArray(object) ? new Array(object.length) : {};
+      const result = VueUtils.isArray(object) ? new Array(object.length) : {};
       for (let key in object) {
-        result2[key] = this.toRef(object, key);
+        result[key] = this.toRef(object, key);
       }
-      return result2;
+      return result;
     }
     trigger(target, type, key, oldValue, value) {
       const depsMap = this.targetMap.get(target);
@@ -8253,7 +8417,7 @@
       };
     },
     setInterval: ({ call }) => {
-      return (func, delay = 0, ...args2) => {
+      return (func, delay = 0, ...args) => {
         const symbol = Symbol();
         const timerId = generateUniqueNumber$1(scheduledIntervalsState$1);
         scheduledIntervalsState$1.set(timerId, symbol);
@@ -8268,7 +8432,7 @@
             throw new Error("The timer is in an undefined state.");
           }
           if (state === symbol) {
-            func(...args2);
+            func(...args);
             if (scheduledIntervalsState$1.get(timerId) === symbol) {
               schedule();
             }
@@ -8279,7 +8443,7 @@
       };
     },
     setTimeout: ({ call }) => {
-      return (func, delay = 0, ...args2) => {
+      return (func, delay = 0, ...args) => {
         const symbol = Symbol();
         const timerId = generateUniqueNumber$1(scheduledTimeoutsState$1);
         scheduledTimeoutsState$1.set(timerId, symbol);
@@ -8295,7 +8459,7 @@
           }
           if (state === symbol) {
             scheduledTimeoutsState$1.delete(timerId);
-            func(...args2);
+            func(...args);
           }
         });
         return timerId;
@@ -8322,9 +8486,9 @@
   const worker$1 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),d=t(c);e.addUniqueNumber=d,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const d=r instanceof Promise?await r:r;if(null===a){if(void 0!==d.result)throw s(i)}else{if(void 0===d.result)throw s(i);const{result:e,transferables:r=[]}=d;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),d=(e,t,r=()=>!0)=>{const n=c(d,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},l=e=>t=>{const r=e.get(t);if(void 0===r)return Promise.resolve(!1);const[n,o]=r;return clearTimeout(n),e.delete(t),o(!1),Promise.resolve(!0)},f=(e,t,r)=>(n,o,s)=>{const{expected:a,remainingDelay:i}=e(n,o);return new Promise((e=>{t.set(s,[setTimeout(r,i,a,t,e,s),e])}))},m=(e,t)=>{const r=performance.now(),n=e+t-r-performance.timeOrigin;return{expected:r+n,remainingDelay:n}},p=(e,t,r,n)=>{const o=e-performance.now();o>0?t.set(n,[setTimeout(p,o,e,t,r,n),r]):(t.delete(n),r(!0))},h=new Map,v=l(h),w=new Map,g=l(w),M=f(m,h,p),y=f(m,w,p);d(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?v(e):g(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?M:y)(e,t,r)})})})()})();`;
   const loadOrReturnBroker$1 = createLoadOrReturnBroker$1(load$1, worker$1);
   const clearInterval$2 = (timerId) => loadOrReturnBroker$1().clearInterval(timerId);
-  const clearTimeout$2 = (timerId) => loadOrReturnBroker$1().clearTimeout(timerId);
-  const setInterval$2 = (...args2) => loadOrReturnBroker$1().setInterval(...args2);
-  const setTimeout$1$1 = (...args2) => loadOrReturnBroker$1().setTimeout(...args2);
+  const clearTimeout$1$1 = (timerId) => loadOrReturnBroker$1().clearTimeout(timerId);
+  const setInterval$2 = (...args) => loadOrReturnBroker$1().setInterval(...args);
+  const setTimeout$1$1 = (...args) => loadOrReturnBroker$1().setTimeout(...args);
   // @license      MIT
   class ModuleRaid {
     /**
@@ -8499,10 +8663,10 @@ ${err.stack}`);
      */
     setupPushEvent() {
       const originalPush = this.target[this.entrypoint].push;
-      this.target[this.entrypoint].push = (...args2) => {
-        const result2 = Reflect.apply(originalPush, this.target[this.entrypoint], args2);
-        document.dispatchEvent(new CustomEvent("moduleraid:webpack-push", { detail: args2 }));
-        return result2;
+      this.target[this.entrypoint].push = (...args) => {
+        const result = Reflect.apply(originalPush, this.target[this.entrypoint], args);
+        document.dispatchEvent(new CustomEvent("moduleraid:webpack-push", { detail: args }));
+        return result;
       };
     }
     /**
@@ -8687,11 +8851,179 @@ ${err.stack}`);
       return results;
     }
   }
+  class DOMUtils2 {
+    constructor(option) {
+      __publicField(this, "windowApi");
+      this.windowApi = new WindowApi2(option);
+    }
+    selector(selector, parent) {
+      return this.selectorAll(selector, parent)[0];
+    }
+    selectorAll(selector, parent) {
+      const context = this;
+      parent = parent || context.windowApi.document;
+      selector = selector.trim();
+      if (selector.match(/[^\s]{1}:empty$/gi)) {
+        selector = selector.replace(/:empty$/gi, "");
+        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
+          var _a2;
+          return ((_a2 = $ele == null ? void 0 : $ele.innerHTML) == null ? void 0 : _a2.trim()) === "";
+        });
+      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        let text = textMatch[2];
+        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
+          var _a2;
+          return (_a2 = ($ele == null ? void 0 : $ele.textContent) || ($ele == null ? void 0 : $ele.innerText)) == null ? void 0 : _a2.includes(text);
+        });
+      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        let pattern = textMatch[2];
+        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        let flags = "";
+        if (flagMatch) {
+          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+          flags = flagMatch[3];
+        }
+        let regexp = new RegExp(pattern, flags);
+        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+        return Array.from(parent.querySelectorAll(selector)).filter(($ele) => {
+          var _a2;
+          return Boolean((_a2 = ($ele == null ? void 0 : $ele.textContent) || ($ele == null ? void 0 : $ele.innerText)) == null ? void 0 : _a2.match(regexp));
+        });
+      } else {
+        return Array.from(parent.querySelectorAll(selector));
+      }
+    }
+    /**
+     * 匹配元素，可使用以下的额外语法
+     *
+     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+     * @param $el 元素
+     * @param selector 选择器
+     * @example
+     * DOMUtils.matches("div:contains('测试')")
+     * > true
+     * @example
+     * DOMUtils.matches("div:empty")
+     * > true
+     * @example
+     * DOMUtils.matches("div:regexp('^xxxx$')")
+     * > true
+     * @example
+     * DOMUtils.matches("div:regexp(/^xxx/ig)")
+     * > false
+     */
+    matches($el, selector) {
+      var _a2;
+      selector = selector.trim();
+      if ($el == null) {
+        return false;
+      }
+      if (selector.match(/[^\s]{1}:empty$/gi)) {
+        selector = selector.replace(/:empty$/gi, "");
+        return $el.matches(selector) && ((_a2 = $el == null ? void 0 : $el.innerHTML) == null ? void 0 : _a2.trim()) === "";
+      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        let text = textMatch[2];
+        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+        let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+        if (typeof content !== "string") {
+          content = "";
+        }
+        return $el.matches(selector) && (content == null ? void 0 : content.includes(text));
+      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        let pattern = textMatch[2];
+        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        let flags = "";
+        if (flagMatch) {
+          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+          flags = flagMatch[3];
+        }
+        let regexp = new RegExp(pattern, flags);
+        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+        let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+        if (typeof content !== "string") {
+          content = "";
+        }
+        return $el.matches(selector) && Boolean(content == null ? void 0 : content.match(regexp));
+      } else {
+        return $el.matches(selector);
+      }
+    }
+    closest($el, selector) {
+      var _a2;
+      selector = selector.trim();
+      if (selector.match(/[^\s]{1}:empty$/gi)) {
+        selector = selector.replace(/:empty$/gi, "");
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        if ($closest && ((_a2 = $closest == null ? void 0 : $closest.innerHTML) == null ? void 0 : _a2.trim()) === "") {
+          return $closest;
+        }
+        return null;
+      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        let text = textMatch[2];
+        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        if ($closest) {
+          let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+          if (typeof content === "string" && content.includes(text)) {
+            return $closest;
+          }
+        }
+        return null;
+      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        let pattern = textMatch[2];
+        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        let flags = "";
+        if (flagMatch) {
+          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+          flags = flagMatch[3];
+        }
+        let regexp = new RegExp(pattern, flags);
+        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        if ($closest) {
+          let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+          if (typeof content === "string" && content.match(regexp)) {
+            return $closest;
+          }
+        }
+        return null;
+      } else {
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        return $closest;
+      }
+    }
+  }
+  let domUtils$1 = new DOMUtils2();
   class Utils {
     constructor(option) {
       __publicField(this, "windowApi");
       /** 版本号 */
-      __publicField(this, "version", "2025.5.28");
+      __publicField(this, "version", "2025.6.7");
+      /**
+       * JSON数据从源端替换到目标端中，如果目标端存在该数据则替换，不添加，返回结果为目标端替换完毕的结果
+       * @param target 目标数据
+       * @param source 源数据
+       * @param isAdd 是否可以追加键，默认false
+       * @example
+       * Utils.assign({"1":1,"2":{"3":3}}, {"2":{"3":4}});
+       * >
+       * {
+              "1": 1,
+              "2": {
+                  "3": 4
+              }
+          }
+       */
+      __publicField(this, "assign", commonUtil.assign.bind(commonUtil));
       /**
        * ajax劫持库，支持xhr和fetch劫持。
        * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
@@ -8713,6 +9045,11 @@ ${err.stack}`);
        * @returns
        */
       __publicField(this, "ColorConversion", ColorConversion);
+      /**
+       * 深拷贝
+       * @param obj 对象
+       */
+      __publicField(this, "deepClone", commonUtil.deepClone.bind(commonUtil));
       /**
        * 字典
        * @example
@@ -8946,6 +9283,73 @@ ${err.stack}`);
          **/
       __publicField(this, "indexedDB", indexedDB);
       /**
+       * 判断对象是否是元素
+       * @param target
+       * @returns
+       * + true 是元素
+       * + false 不是元素
+       * @example
+       * Utils.isDOM(document.querySelector("a"))
+       * > true
+       */
+      __publicField(this, "isDOM", commonUtil.isDOM.bind(commonUtil));
+      /**
+       * 判断对象是否不为空
+       * @returns {boolean}
+       * + true 不为空
+       * + false 为空
+       * @example
+       * Utils.isNotNull("123");
+       * > true
+       */
+      __publicField(this, "isNotNull", commonUtil.isNotNull.bind(commonUtil));
+      /**
+       * 判断对象或数据是否为空
+       * + `String`判空的值，如 ""、"null"、"undefined"、"   "
+       * + `Number`判空的值，如 0
+       * + `Object`判空的值，如 {}、null、undefined
+       * + `Array`(存在属性Symbol.iterator)判空的值，如 []
+       * + `Boolean`判空的值，如false
+       * + `Function`判空的值，如()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){}
+       * @returns
+       * + true 为空
+       * + false 不为空
+       * @example
+        Utils.isNull({});
+        > true
+       * @example
+        Utils.isNull([]);
+        > true
+       * @example
+        Utils.isNull(" ");
+        > true
+       * @example
+        Utils.isNull(function(){});
+        > true
+       * @example
+        Utils.isNull(()=>{}));
+        > true
+       * @example
+        Utils.isNull("undefined");
+        > true
+       * @example
+        Utils.isNull("null");
+        > true
+       * @example
+        Utils.isNull(" ", false);
+        > true
+       * @example
+        Utils.isNull([1],[]);
+        > false
+       * @example
+        Utils.isNull([],[1]);
+        > false
+       * @example
+        Utils.isNull(false,[123]);
+        > false
+       **/
+      __publicField(this, "isNull", commonUtil.isNull.bind(commonUtil));
+      /**
        * 自动锁对象，用于循环判断运行的函数，在循环外new后使用，注意，如果函数内部存在异步操作，需要使用await
        * @example
         let lock = new Utils.LockFunction(()=>{console.log(1)}))
@@ -8995,6 +9399,15 @@ ${err.stack}`);
        * **/
       __publicField(this, "Progress", Progress);
       /**
+       * 字符串转Object对象，类似'{"test":""}' => {"test":""}
+       * @param data
+       * @param errorCallBack （可选）错误回调
+       * @example
+       * Utils.toJSON("{123:123}")
+       * > {123:123}
+       */
+      __publicField(this, "toJSON", commonUtil.toJSON.bind(commonUtil));
+      /**
        * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
        * @example
        * Utils.tryCatch().error().run(()=>{console.log(1)});
@@ -9004,6 +9417,12 @@ ${err.stack}`);
        * > ()=>{throw new Error('测试错误')}出现错误
        */
       __publicField(this, "tryCatch", TryCatch);
+      /**
+       * 覆盖对象中的函数this指向
+       * @param target 需要覆盖的对象
+       * @param [objectThis] 覆盖的this指向，如果为传入，则默认为对象本身
+       */
+      __publicField(this, "coverObjectFunctionThis", commonUtil.coverObjectFunctionThis.bind(commonUtil));
       /**
        * 生成uuid
        * @example
@@ -9024,7 +9443,7 @@ ${err.stack}`);
        */
       __publicField(this, "Vue", Vue);
       __publicField(this, "ModuleRaid", ModuleRaid);
-      this.windowApi = new WindowApi(option);
+      this.windowApi = new WindowApi2(option);
     }
     addStyle(cssText) {
       if (typeof cssText !== "string") {
@@ -9043,48 +9462,6 @@ ${err.stack}`);
         this.windowApi.document.documentElement.insertBefore(cssNode, this.windowApi.document.documentElement.childNodes[0]);
       }
       return cssNode;
-    }
-    assign(target = {}, source = {}, isAdd = false) {
-      let UtilsContext = this;
-      if (Array.isArray(source)) {
-        let canTraverse = source.filter((item) => {
-          return typeof item === "object";
-        });
-        if (!canTraverse.length) {
-          return source;
-        }
-      }
-      if (source == null) {
-        return target;
-      }
-      if (target == null) {
-        target = {};
-      }
-      if (isAdd) {
-        for (const sourceKeyName in source) {
-          const targetKeyName = sourceKeyName;
-          let targetValue = target[targetKeyName];
-          let sourceValue = source[sourceKeyName];
-          if (typeof sourceValue === "object" && sourceValue != null && sourceKeyName in target && !UtilsContext.isDOM(sourceValue)) {
-            target[sourceKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
-            continue;
-          }
-          target[sourceKeyName] = sourceValue;
-        }
-      } else {
-        for (const targetKeyName in target) {
-          if (targetKeyName in source) {
-            let targetValue = target[targetKeyName];
-            let sourceValue = source[targetKeyName];
-            if (typeof sourceValue === "object" && sourceValue != null && !UtilsContext.isDOM(sourceValue) && Object.keys(sourceValue).length) {
-              target[targetKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
-              continue;
-            }
-            target[targetKeyName] = sourceValue;
-          }
-        }
-      }
-      return target;
     }
     async asyncReplaceAll(string, pattern, asyncFn) {
       let UtilsContext = this;
@@ -9105,19 +9482,19 @@ ${err.stack}`);
       } else {
         throw new TypeError("pattern必须是正则对象");
       }
-      let result2 = [];
+      let result = [];
       let match;
       let lastIndex = 0;
       while ((match = reg.exec(string)) !== null) {
         const item = asyncFn(match[0]);
         const prefix = string.slice(lastIndex, match.index);
         lastIndex = match.index + match[0].length;
-        result2.push(item);
-        result2.push(prefix);
+        result.push(item);
+        result.push(prefix);
       }
-      result2.push(string.slice(lastIndex));
-      result2 = await Promise.all(result2);
-      return result2.join("");
+      result.push(string.slice(lastIndex));
+      result = await Promise.all(result);
+      return result.join("");
     }
     canvasClickByPosition(canvasElement, clientX = 0, clientY = 0, view = globalThis) {
       if (!(canvasElement instanceof HTMLCanvasElement)) {
@@ -9183,43 +9560,31 @@ ${err.stack}`);
     }
     createOverload() {
       let fnMap = /* @__PURE__ */ new Map();
-      function overload(...args2) {
-        let key = args2.map((it) => typeof it).join(",");
+      function overload(...args) {
+        let key = args.map((it) => typeof it).join(",");
         let fn = fnMap.get(key);
         if (!fn) {
           throw new TypeError("没有找到对应的实现");
         }
-        return fn.apply(this, args2);
+        return fn.apply(this, args);
       }
-      overload.addImpl = function(...args2) {
-        let fn = args2.pop();
+      overload.addImpl = function(...args) {
+        let fn = args.pop();
         if (typeof fn !== "function") {
           throw new TypeError("最后一个参数必须是函数");
         }
-        let key = args2.join(",");
+        let key = args.join(",");
         fnMap.set(key, fn);
       };
       return overload;
     }
-    deepClone(obj) {
-      let UtilsContext = this;
-      if (obj === void 0)
-        return void 0;
-      if (obj === null)
-        return null;
-      let clone = obj instanceof Array ? [] : {};
-      for (const [key, value] of Object.entries(obj)) {
-        clone[key] = typeof value === "object" ? UtilsContext.deepClone(value) : value;
-      }
-      return clone;
-    }
     debounce(fn, delay = 0) {
       let timer = null;
       let UtilsContext = this;
-      return function(...args2) {
+      return function(...args) {
         UtilsContext.workerClearTimeout(timer);
         timer = UtilsContext.workerSetTimeout(function() {
-          fn.apply(UtilsContext, args2);
+          fn.apply(UtilsContext, args);
         }, delay);
       };
     }
@@ -9234,13 +9599,13 @@ ${err.stack}`);
       if (typeof targetSelector !== "string") {
         throw new Error("Utils.deleteParentNode 参数 targetSelector 必须为 string 类型");
       }
-      let result2 = false;
-      let needRemoveDOM = element.closest(targetSelector);
+      let result = false;
+      let needRemoveDOM = domUtils$1.closest(element, targetSelector);
       if (needRemoveDOM) {
         needRemoveDOM.remove();
-        result2 = true;
+        result = true;
       }
-      return result2;
+      return result;
     }
     dispatchEvent(element, eventName, details) {
       let eventNameList = [];
@@ -9365,7 +9730,7 @@ ${err.stack}`);
       if (isNaN(byteSize)) {
         throw new Error("Utils.formatByteToSize 参数 byteSize 格式不正确");
       }
-      let result2 = 0;
+      let result = 0;
       let resultType = "KB";
       let sizeData = {};
       sizeData.B = 1;
@@ -9381,19 +9746,19 @@ ${err.stack}`);
       sizeData.NB = sizeData.BB * sizeData.KB;
       sizeData.DB = sizeData.NB * sizeData.KB;
       for (let key in sizeData) {
-        result2 = byteSize / sizeData[key];
+        result = byteSize / sizeData[key];
         resultType = key;
-        if (sizeData.KB >= result2) {
+        if (sizeData.KB >= result) {
           break;
         }
       }
-      result2 = result2.toFixed(2);
-      result2 = addType ? result2 + resultType.toString() : parseFloat(result2.toString());
-      return result2;
+      result = result.toFixed(2);
+      result = addType ? result + resultType.toString() : parseFloat(result.toString());
+      return result;
     }
-    getNodeListValue(...args2) {
+    getNodeListValue(...args) {
       let resultArray = [];
-      for (let arg of args2) {
+      for (let arg of args) {
         let value = arg;
         if (typeof arg === "function") {
           value = arg();
@@ -9405,10 +9770,10 @@ ${err.stack}`);
       }
       return resultArray;
     }
-    getNonNullValue(...args2) {
-      let resultValue = args2[args2.length - 1];
+    getNonNullValue(...args) {
+      let resultValue = args[args.length - 1];
       let UtilsContext = this;
-      for (const argValue of args2) {
+      for (const argValue of args) {
         if (UtilsContext.isNotNull(argValue)) {
           resultValue = argValue;
           break;
@@ -9488,18 +9853,18 @@ ${err.stack}`);
     getArrayLastValue(targetObj) {
       return targetObj[targetObj.length - 1];
     }
-    getArrayRealValue(...args2) {
-      let result2 = null;
-      for (let arg of args2) {
+    getArrayRealValue(...args) {
+      let result = null;
+      for (let arg of args) {
         if (typeof arg === "function") {
           arg = arg();
         }
         if (arg != null) {
-          result2 = arg;
+          result = arg;
           break;
         }
       }
-      return result2;
+      return result;
     }
     getDaysDifference(timestamp1 = Date.now(), timestamp2 = Date.now(), type = "天") {
       type = type.trim();
@@ -9585,21 +9950,21 @@ ${err.stack}`);
      * Utils.getMaxValue([{1:123},{2:345},{3:456}],(index,value)=>{return parseInt(index)})
      * > 2
      */
-    getMaxValue(...args2) {
-      let result2 = [...args2];
+    getMaxValue(...args) {
+      let result = [...args];
       let newResult = [];
-      if (result2.length === 0) {
+      if (result.length === 0) {
         return;
       }
-      if (result2.length > 1) {
-        if (result2.length === 2 && typeof result2[0] === "object" && typeof result2[1] === "function") {
-          let data = result2[0];
-          let handleDataFunc = result2[1];
+      if (result.length > 1) {
+        if (result.length === 2 && typeof result[0] === "object" && typeof result[1] === "function") {
+          let data = result[0];
+          let handleDataFunc = result[1];
           Object.keys(data).forEach((keyName) => {
             newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
           });
         } else {
-          result2.forEach((item) => {
+          result.forEach((item) => {
             if (!isNaN(parseFloat(item))) {
               newResult = [...newResult, parseFloat(item)];
             }
@@ -9607,7 +9972,7 @@ ${err.stack}`);
         }
         return Math.max(...newResult);
       } else {
-        result2[0].forEach((item) => {
+        result[0].forEach((item) => {
           if (!isNaN(parseFloat(item))) {
             newResult = [...newResult, parseFloat(item)];
           }
@@ -9662,21 +10027,21 @@ ${err.stack}`);
     getMaxZIndex(deviation = 1, target = this.windowApi.document, ignoreCallBack) {
       return this.getMaxZIndexNodeInfo(deviation, target, ignoreCallBack).zIndex;
     }
-    getMinValue(...args2) {
-      let result2 = [...args2];
+    getMinValue(...args) {
+      let result = [...args];
       let newResult = [];
-      if (result2.length === 0) {
+      if (result.length === 0) {
         return;
       }
-      if (result2.length > 1) {
-        if (result2.length === 2 && typeof result2[0] === "object" && typeof result2[1] === "function") {
-          let data = result2[0];
-          let handleDataFunc = result2[1];
+      if (result.length > 1) {
+        if (result.length === 2 && typeof result[0] === "object" && typeof result[1] === "function") {
+          let data = result[0];
+          let handleDataFunc = result[1];
           Object.keys(data).forEach((keyName) => {
             newResult = [...newResult, handleDataFunc(keyName, data[keyName])];
           });
         } else {
-          result2.forEach((item) => {
+          result.forEach((item) => {
             if (!isNaN(parseFloat(item))) {
               newResult = [...newResult, parseFloat(item)];
             }
@@ -9684,7 +10049,7 @@ ${err.stack}`);
         }
         return Math.min(...newResult);
       } else {
-        result2[0].forEach((item) => {
+        result[0].forEach((item) => {
           if (!isNaN(parseFloat(item))) {
             newResult = [...newResult, parseFloat(item)];
           }
@@ -9750,18 +10115,18 @@ ${err.stack}`);
       let chromeVersion4 = UtilsContext.getRandomValue(1, 218);
       return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeVersion1}.${chromeVersion2}.${chromeVersion3}.${chromeVersion4} Safari/537.36`;
     }
-    getRandomValue(...args2) {
-      let result2 = [...args2];
-      if (result2.length > 1) {
-        if (result2.length === 2 && typeof result2[0] === "number" && typeof result2[1] === "number") {
-          let leftNumber = result2[0] > result2[1] ? result2[1] : result2[0];
-          let rightNumber = result2[0] > result2[1] ? result2[0] : result2[1];
+    getRandomValue(...args) {
+      let result = [...args];
+      if (result.length > 1) {
+        if (result.length === 2 && typeof result[0] === "number" && typeof result[1] === "number") {
+          let leftNumber = result[0] > result[1] ? result[1] : result[0];
+          let rightNumber = result[0] > result[1] ? result[0] : result[1];
           return Math.round(Math.random() * (rightNumber - leftNumber)) + leftNumber;
         } else {
-          return result2[Math.floor(Math.random() * result2.length)];
+          return result[Math.floor(Math.random() * result.length)];
         }
-      } else if (result2.length === 1) {
-        let paramData = result2[0];
+      } else if (result.length === 1) {
+        let paramData = result[0];
         if (Array.isArray(paramData)) {
           return paramData[Math.floor(Math.random() * paramData.length)];
         } else if (typeof paramData === "object" && Object.keys(paramData).length > 0) {
@@ -9780,17 +10145,17 @@ ${err.stack}`);
      * Utils.getReactObj(document.querySelector("input"))?.reactProps?.onChange({target:{value:"123"}});
      */
     getReactObj(element) {
-      let result2 = {};
+      let result = {};
       Object.keys(element).forEach((domPropsName) => {
         if (domPropsName.startsWith("__react")) {
           let propsName = domPropsName.replace(/__(.+)\$.+/i, "$1");
-          if (propsName in result2) ;
+          if (propsName in result) ;
           else {
-            result2[propsName] = element[domPropsName];
+            result[propsName] = element[domPropsName];
           }
         }
       });
-      return result2;
+      return result;
     }
     /**
      * 获取对象上的Symbol属性，如果没设置keyName，那么返回一个对象，对象是所有遍历到的Symbol对象
@@ -9817,11 +10182,11 @@ ${err.stack}`);
           return target[findSymbol];
         }
       } else {
-        let result2 = {};
+        let result = {};
         objectsSymbols.forEach((item) => {
-          result2[item] = target[item];
+          result[item] = target[item];
         });
-        return result2;
+        return result;
       }
     }
     /**
@@ -9855,7 +10220,7 @@ ${err.stack}`);
     isNativeFunc(target) {
       return Boolean(target.toString().match(/^function .*\(\) { \[native code\] }$/));
     }
-    isNearBottom(...args2) {
+    isNearBottom(...args) {
       let nearBottomHeight = 50;
       let checkWindow = () => {
         let scrollTop = this.windowApi.window.pageYOffset || this.windowApi.document.documentElement.scrollTop;
@@ -9869,28 +10234,25 @@ ${err.stack}`);
         let maxScrollHeight = $ele.scrollHeight - viewportHeight - nearBottomHeight;
         return scrollTop >= maxScrollHeight;
       };
-      let firstArg = args2[0];
-      if (args2.length === 0 || typeof args2[0] === "number") {
+      let firstArg = args[0];
+      if (args.length === 0 || typeof args[0] === "number") {
         return checkWindow();
-      } else if (typeof args2[0] === "object" && args2[0] instanceof HTMLElement) {
-        if (typeof args2[1] === "number" && !Number.isNaN(args2[1])) {
-          nearBottomHeight = args2[1];
+      } else if (typeof args[0] === "object" && args[0] instanceof HTMLElement) {
+        if (typeof args[1] === "number" && !Number.isNaN(args[1])) {
+          nearBottomHeight = args[1];
         }
-        return checkNode(args2[0]);
+        return checkNode(args[0]);
       } else {
         throw new TypeError("参数1类型错误" + typeof firstArg);
       }
-    }
-    isDOM(target) {
-      return target instanceof Node;
     }
     isFullscreenEnabled() {
       return !!(this.windowApi.document.fullscreenEnabled || this.windowApi.document.webkitFullScreenEnabled || this.windowApi.document.mozFullScreenEnabled || this.windowApi.document.msFullScreenEnabled);
     }
     isJQuery(target) {
-      let result2 = false;
+      let result = false;
       if (typeof jQuery === "object" && target instanceof jQuery) {
-        result2 = true;
+        result = true;
       }
       if (target == null) {
         return false;
@@ -10027,14 +10389,14 @@ ${err.stack}`);
         ];
         for (const jQueryPropsName of jQueryProps) {
           if (!(jQueryPropsName in target)) {
-            result2 = false;
+            result = false;
             break;
           } else {
-            result2 = true;
+            result = true;
           }
         }
       }
-      return result2;
+      return result;
     }
     isPhone(userAgent = navigator.userAgent) {
       return Boolean(/(iPhone|iPad|iPod|iOS|Android|Mobile)/i.test(userAgent));
@@ -10057,53 +10419,14 @@ ${err.stack}`);
         }
         targetStrLength++;
       }
-      let result2 = false;
+      let result = false;
       for (const char in targetCharMap) {
         if (targetCharMap[char] / targetStrLength >= coefficient) {
-          result2 = true;
+          result = true;
           break;
         }
       }
-      return result2;
-    }
-    isNotNull(...args2) {
-      let UtilsContext = this;
-      return !UtilsContext.isNull.apply(this, args2);
-    }
-    isNull(...args2) {
-      let result2 = true;
-      let checkList = [...args2];
-      for (const objItem of checkList) {
-        let itemResult = false;
-        if (objItem === null || objItem === void 0) {
-          itemResult = true;
-        } else {
-          switch (typeof objItem) {
-            case "object":
-              if (typeof objItem[Symbol.iterator] === "function") {
-                itemResult = objItem.length === 0;
-              } else {
-                itemResult = Object.keys(objItem).length === 0;
-              }
-              break;
-            case "number":
-              itemResult = objItem === 0;
-              break;
-            case "string":
-              itemResult = objItem.trim() === "" || objItem === "null" || objItem === "undefined";
-              break;
-            case "boolean":
-              itemResult = !objItem;
-              break;
-            case "function":
-              let funcStr = objItem.toString().replace(/\s/g, "");
-              itemResult = Boolean(funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/));
-              break;
-          }
-        }
-        result2 = result2 && itemResult;
-      }
-      return result2;
+      return result;
     }
     isThemeDark() {
       return this.windowApi.globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -10129,76 +10452,76 @@ ${err.stack}`);
       } else {
         needCheckDomList = [element];
       }
-      let result2 = true;
+      let result = true;
       for (const domItem of needCheckDomList) {
         let domDisplay = this.windowApi.window.getComputedStyle(domItem);
         if (domDisplay.display === "none") {
-          result2 = false;
+          result = false;
         } else {
           let domClientRect = domItem.getBoundingClientRect();
           if (inView) {
             let viewportWidth = this.windowApi.window.innerWidth || this.windowApi.document.documentElement.clientWidth;
             let viewportHeight = this.windowApi.window.innerHeight || this.windowApi.document.documentElement.clientHeight;
-            result2 = !(domClientRect.right < 0 || domClientRect.left > viewportWidth || domClientRect.bottom < 0 || domClientRect.top > viewportHeight);
+            result = !(domClientRect.right < 0 || domClientRect.left > viewportWidth || domClientRect.bottom < 0 || domClientRect.top > viewportHeight);
           } else {
-            result2 = Boolean(domItem.getClientRects().length);
+            result = Boolean(domItem.getClientRects().length);
           }
         }
-        if (!result2) {
+        if (!result) {
           break;
         }
       }
-      return result2;
+      return result;
     }
     isWebView_Via() {
-      let result2 = true;
+      let result = true;
       let UtilsContext = this;
       if (typeof this.windowApi.top.window.via === "object") {
         for (const key in Object.values(this.windowApi.top.window.via)) {
           if (Reflect.has(this.windowApi.top.window.via, key)) {
             let objValueFunc = this.windowApi.top.window.via[key];
             if (typeof objValueFunc === "function" && UtilsContext.isNativeFunc(objValueFunc)) {
-              result2 = true;
+              result = true;
             } else {
-              result2 = false;
+              result = false;
               break;
             }
           }
         }
       } else {
-        result2 = false;
+        result = false;
       }
-      return result2;
+      return result;
     }
     isWebView_X() {
-      let result2 = true;
+      let result = true;
       let UtilsContext = this;
       if (typeof this.windowApi.top.window.mbrowser === "object") {
         for (const key in Object.values(this.windowApi.top.window.mbrowser)) {
           if (Reflect.has(this.windowApi.top.window.mbrowser, key)) {
             let objValueFunc = this.windowApi.top.window.mbrowser[key];
             if (typeof objValueFunc === "function" && UtilsContext.isNativeFunc(objValueFunc)) {
-              result2 = true;
+              result = true;
             } else {
-              result2 = false;
+              result = false;
               break;
             }
           }
         }
       } else {
-        result2 = false;
+        result = false;
       }
-      return result2;
+      return result;
     }
     parseObjectToArray(target) {
       if (typeof target !== "object") {
         throw new Error("Utils.parseObjectToArray 参数 target 必须为 object 类型");
       }
-      let result2 = [];
+      let result = [];
       Object.keys(target).forEach(function(keyName) {
-        result2 = result2.concat(target[keyName]);
+        result = result.concat(target[keyName]);
       });
-      return result2;
+      return result;
     }
     mergeArrayToString(data, handleFunc) {
       if (!(data instanceof Array)) {
@@ -10301,7 +10624,7 @@ ${err.stack}`);
      *     console.log("该元素出现在视图内");
      * }))
      */
-    mutationVisible(target, callback2, options) {
+    mutationVisible(target, callback, options) {
       if (typeof IntersectionObserver === "undefined") {
         throw new TypeError("IntersectionObserver is not defined");
       }
@@ -10316,8 +10639,8 @@ ${err.stack}`);
       defaultOptions = this.assign(defaultOptions, options || {});
       let intersectionObserver = new IntersectionObserver((entries, observer) => {
         if (entries[0].isIntersecting) {
-          if (typeof callback2 === "function") {
-            callback2(entries, observer);
+          if (typeof callback === "function") {
+            callback(entries, observer);
           }
         }
       }, defaultOptions);
@@ -10459,20 +10782,20 @@ ${err.stack}`);
         fetch(blobUrl).then((response) => response.blob()).then((blob) => {
           const file = new File([blob], fileName, { type: blob.type });
           resolve(file);
-        }).catch((error2) => {
-          console.error("Error:", error2);
-          reject(error2);
+        }).catch((error) => {
+          console.error("Error:", error);
+          reject(error);
         });
       });
     }
     parseCDATA(text = "") {
-      let result2 = "";
+      let result = "";
       let cdataRegexp = /<\!\[CDATA\[([\s\S]*)\]\]>/;
       let cdataMatch = cdataRegexp.exec(text.trim());
       if (cdataMatch && cdataMatch.length > 1) {
-        result2 = cdataMatch[cdataMatch.length - 1];
+        result = cdataMatch[cdataMatch.length - 1];
       }
-      return result2;
+      return result;
     }
     async parseFileToBase64(fileObj) {
       let reader = new FileReader();
@@ -10532,31 +10855,31 @@ ${err.stack}`);
         };
       }
       const originalListener = EventTarget.prototype.addEventListener;
-      EventTarget.prototype.addEventListener = function(...args2) {
-        let type = args2[0];
-        let callback2 = args2[1];
-        args2[2];
+      EventTarget.prototype.addEventListener = function(...args) {
+        let type = args[0];
+        let callback = args[1];
+        args[2];
         if (filter(type)) {
-          if (typeof callback2 === "function") {
-            args2[1] = function(event) {
-              callback2.call(this, trustEvent(event));
+          if (typeof callback === "function") {
+            args[1] = function(event) {
+              callback.call(this, trustEvent(event));
             };
-          } else if (typeof callback2 === "object" && "handleEvent" in callback2) {
-            let oldHandleEvent = callback2["handleEvent"];
-            args2[1]["handleEvent"] = function(event) {
+          } else if (typeof callback === "object" && "handleEvent" in callback) {
+            let oldHandleEvent = callback["handleEvent"];
+            args[1]["handleEvent"] = function(event) {
               if (event == null) {
                 return;
               }
               try {
                 event instanceof Proxy;
                 oldHandleEvent.call(this, trustEvent(event));
-              } catch (error2) {
+              } catch (error) {
                 event["isTrusted"] = isTrustValue;
               }
             };
           }
         }
-        return originalListener.apply(this, args2);
+        return originalListener.apply(this, args);
       };
     }
     reverseNumber(num) {
@@ -10626,8 +10949,8 @@ ${err.stack}`);
           if (this.hasClipboard() && (this.hasClipboardWrite() || this.hasClipboardWriteText())) {
             try {
               copyStatus = await this.copyDataByClipboard();
-            } catch (error2) {
-              console.error("复制失败，使用第二种方式，error👉", error2);
+            } catch (error) {
+              console.error("复制失败，使用第二种方式，error👉", error);
               copyStatus = this.copyTextByTextArea();
             }
           } else {
@@ -10670,8 +10993,8 @@ ${err.stack}`);
             UtilsContext.windowApi.document.execCommand("copy");
             UtilsContext.windowApi.document.body.removeChild(copyElement);
             return true;
-          } catch (error2) {
-            console.error("复制失败，error👉", error2);
+          } catch (error) {
+            console.error("复制失败，error👉", error);
             return false;
           }
         }
@@ -10686,10 +11009,10 @@ ${err.stack}`);
                 name: "clipboard-write"
               }).then((permissionStatus) => {
                 resolve(true);
-              }).catch((error2) => {
+              }).catch((error) => {
                 console.error([
                   "申请剪贴板权限失败，尝试直接写入👉",
-                  error2.message ?? error2.name ?? error2.stack
+                  error.message ?? error.name ?? error.stack
                 ]);
                 resolve(false);
               });
@@ -10706,8 +11029,8 @@ ${err.stack}`);
             if (this.isText()) {
               navigator.clipboard.writeText(__privateGet(this, _copyData)).then(() => {
                 resolve(true);
-              }).catch((error2) => {
-                reject(error2);
+              }).catch((error) => {
+                reject(error);
               });
             } else {
               let textBlob = new Blob([__privateGet(this, _copyData)], {
@@ -10719,8 +11042,8 @@ ${err.stack}`);
                 })
               ]).then(() => {
                 resolve(true);
-              }).catch((error2) => {
-                reject(error2);
+              }).catch((error) => {
+                reject(error);
               });
             }
           });
@@ -10740,9 +11063,9 @@ ${err.stack}`);
         }
       });
     }
-    setTimeout(callback2, delayTime = 0) {
+    setTimeout(callback, delayTime = 0) {
       let UtilsContext = this;
-      if (typeof callback2 !== "function" && typeof callback2 !== "string") {
+      if (typeof callback !== "function" && typeof callback !== "string") {
         throw new TypeError("Utils.setTimeout 参数 callback 必须为 function|string 类型");
       }
       if (typeof delayTime !== "number") {
@@ -10750,7 +11073,7 @@ ${err.stack}`);
       }
       return new Promise((resolve) => {
         UtilsContext.workerSetTimeout(() => {
-          resolve(UtilsContext.tryCatch().run(callback2));
+          resolve(UtilsContext.tryCatch().run(callback));
         }, delayTime);
       });
     }
@@ -10773,7 +11096,7 @@ ${err.stack}`);
         mouseEvent.initMouseEvent(eventName, true, true, win, 0, offSetX, offSetY, offSetX, offSetY, false, false, false, false, 0, null);
         return mouseEvent;
       }
-      let sliderElement = typeof selector === "string" ? this.windowApi.document.querySelector(selector) : selector;
+      let sliderElement = typeof selector === "string" ? domUtils$1.selector(selector) : selector;
       if (!(sliderElement instanceof Node) || !(sliderElement instanceof Element)) {
         throw new Error("Utils.dragSlider 参数selector 必须为Node/Element类型");
       }
@@ -10868,7 +11191,7 @@ ${err.stack}`);
           }
         }
       };
-      let result2 = data;
+      let result = data;
       let getDataFunc = null;
       if (data instanceof Function) {
         getDataFunc = data;
@@ -10878,11 +11201,11 @@ ${err.stack}`);
         data.sort(sortFunc);
       } else if (data instanceof NodeList || UtilsContext.isJQuery(data)) {
         sortNodeFunc(data, getDataFunc);
-        result2 = getDataFunc();
+        result = getDataFunc();
       } else {
         throw new Error("Utils.sortListByProperty 参数 data 必须为 Array|NodeList|jQuery 类型");
       }
-      return result2;
+      return result;
     }
     stringToRegular(targetString, flags = "ig") {
       let reg;
@@ -10937,36 +11260,6 @@ ${err.stack}`);
       }
       return newTargetString;
     }
-    toJSON(data, errorCallBack) {
-      let UtilsContext = this;
-      let result2 = {};
-      if (typeof data === "object") {
-        return data;
-      }
-      UtilsContext.tryCatch().config({ log: false }).error((error2) => {
-        UtilsContext.tryCatch().error(() => {
-          try {
-            result2 = UtilsContext.windowApi.window.eval("(" + data + ")");
-          } catch (error22) {
-            if (typeof errorCallBack === "function") {
-              errorCallBack(error22);
-            }
-          }
-        }).run(() => {
-          if (data && /^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@").replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]").replace(/(?:^|:|,)(?:\s*\[)+/g, ""))) {
-            result2 = new Function("return " + data)();
-          } else {
-            if (typeof errorCallBack === "function") {
-              errorCallBack(new Error("target is not a JSON"));
-            }
-          }
-        });
-      }).run(() => {
-        data = data.trim();
-        result2 = JSON.parse(data);
-      });
-      return result2;
-    }
     toSearchParamsStr(obj, addPrefix) {
       let UtilsContext = this;
       let searhParamsStr = "";
@@ -11001,15 +11294,15 @@ ${err.stack}`);
       if (typeof compareArrayData === "function") {
         const compareFn = compareArrayData;
         const seen = /* @__PURE__ */ new Set();
-        const result2 = [];
+        const result = [];
         for (const item of uniqueArrayData) {
           const identfier = compareFn(item);
           if (!seen.has(identfier)) {
             seen.add(identfier);
-            result2.push(item);
+            result.push(item);
           }
         }
-        return result2;
+        return result;
       } else {
         return Array.from(uniqueArrayData).filter((item) => !Array.from(compareArrayData).some(function(item2) {
           return compareFun(item, item2);
@@ -11037,12 +11330,12 @@ ${err.stack}`);
           },
           immediate: true,
           callback(mutations, __observer__) {
-            let result2 = checkFn();
-            if (result2.success) {
+            let result = checkFn();
+            if (result.success) {
               if (typeof (__observer__ == null ? void 0 : __observer__.disconnect) === "function") {
                 __observer__.disconnect();
               }
-              resolve(result2.data);
+              resolve(result.data);
             }
           }
         });
@@ -11056,18 +11349,18 @@ ${err.stack}`);
         }
       });
     }
-    waitNode(...args2) {
-      args2 = args2.filter((arg) => arg !== void 0);
+    waitNode(...args) {
+      args = args.filter((arg) => arg !== void 0);
       let UtilsContext = this;
-      let selector = args2[0];
+      let selector = args[0];
       let parent = UtilsContext.windowApi.document;
       let timeout = 0;
-      if (typeof args2[0] !== "string" && !Array.isArray(args2[0]) && typeof args2[0] !== "function") {
+      if (typeof args[0] !== "string" && !Array.isArray(args[0]) && typeof args[0] !== "function") {
         throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]|Function");
       }
-      if (args2.length === 1) ;
-      else if (args2.length === 2) {
-        let secondParam = args2[1];
+      if (args.length === 1) ;
+      else if (args.length === 2) {
+        let secondParam = args[1];
         if (typeof secondParam === "number") {
           timeout = secondParam;
         } else if (typeof secondParam === "object" && secondParam instanceof Node) {
@@ -11075,9 +11368,9 @@ ${err.stack}`);
         } else {
           throw new TypeError("Utils.waitNode 第二个参数必须是number|Node");
         }
-      } else if (args2.length === 3) {
-        let secondParam = args2[1];
-        let thirdParam = args2[2];
+      } else if (args.length === 3) {
+        let secondParam = args[1];
+        let thirdParam = args[2];
         if (typeof secondParam === "object" && secondParam instanceof Node) {
           parent = secondParam;
           if (typeof thirdParam === "number") {
@@ -11093,20 +11386,20 @@ ${err.stack}`);
       }
       function getNode() {
         if (Array.isArray(selector)) {
-          let result2 = [];
+          let result = [];
           for (let index = 0; index < selector.length; index++) {
-            let node = parent.querySelector(selector[index]);
+            let node = domUtils$1.selector(selector[index]);
             if (node) {
-              result2.push(node);
+              result.push(node);
             }
           }
-          if (result2.length === selector.length) {
-            return result2;
+          if (result.length === selector.length) {
+            return result;
           }
         } else if (typeof selector === "function") {
           return selector();
         } else {
-          return parent.querySelector(selector);
+          return domUtils$1.selector(selector, parent);
         }
       }
       return UtilsContext.wait(() => {
@@ -11124,18 +11417,18 @@ ${err.stack}`);
         }
       }, timeout, parent);
     }
-    waitAnyNode(...args2) {
-      args2 = args2.filter((arg) => arg !== void 0);
+    waitAnyNode(...args) {
+      args = args.filter((arg) => arg !== void 0);
       let UtilsContext = this;
-      let selectorList = args2[0];
+      let selectorList = args[0];
       let parent = UtilsContext.windowApi.document;
       let timeout = 0;
-      if (typeof args2[0] !== "object" && !Array.isArray(args2[0])) {
+      if (typeof args[0] !== "object" && !Array.isArray(args[0])) {
         throw new TypeError("Utils.waitAnyNode 第一个参数必须是string[]");
       }
-      if (args2.length === 1) ;
-      else if (args2.length === 2) {
-        let secondParam = args2[1];
+      if (args.length === 1) ;
+      else if (args.length === 2) {
+        let secondParam = args[1];
         if (typeof secondParam === "number") {
           timeout = secondParam;
         } else if (typeof secondParam === "object" && secondParam instanceof Node) {
@@ -11143,9 +11436,9 @@ ${err.stack}`);
         } else {
           throw new TypeError("Utils.waitAnyNode 第二个参数必须是number|Node");
         }
-      } else if (args2.length === 3) {
-        let secondParam = args2[1];
-        let thirdParam = args2[2];
+      } else if (args.length === 3) {
+        let secondParam = args[1];
+        let thirdParam = args[2];
         if (typeof secondParam === "object" && secondParam instanceof Node) {
           parent = secondParam;
           if (typeof thirdParam === "number") {
@@ -11164,18 +11457,18 @@ ${err.stack}`);
       });
       return Promise.any(promiseList);
     }
-    waitNodeList(...args2) {
-      args2 = args2.filter((arg) => arg !== void 0);
+    waitNodeList(...args) {
+      args = args.filter((arg) => arg !== void 0);
       let UtilsContext = this;
-      let selector = args2[0];
+      let selector = args[0];
       let parent = UtilsContext.windowApi.document;
       let timeout = 0;
-      if (typeof args2[0] !== "string" && !Array.isArray(args2[0])) {
+      if (typeof args[0] !== "string" && !Array.isArray(args[0])) {
         throw new TypeError("Utils.waitNodeList 第一个参数必须是string|string[]");
       }
-      if (args2.length === 1) ;
-      else if (args2.length === 2) {
-        let secondParam = args2[1];
+      if (args.length === 1) ;
+      else if (args.length === 2) {
+        let secondParam = args[1];
         if (typeof secondParam === "number") {
           timeout = secondParam;
         } else if (typeof secondParam === "object" && secondParam instanceof Node) {
@@ -11183,9 +11476,9 @@ ${err.stack}`);
         } else {
           throw new TypeError("Utils.waitNodeList 第二个参数必须是number|Node");
         }
-      } else if (args2.length === 3) {
-        let secondParam = args2[1];
-        let thirdParam = args2[2];
+      } else if (args.length === 3) {
+        let secondParam = args[1];
+        let thirdParam = args[2];
         if (typeof secondParam === "object" && secondParam instanceof Node) {
           parent = secondParam;
           if (typeof thirdParam === "number") {
@@ -11201,18 +11494,18 @@ ${err.stack}`);
       }
       function getNodeList() {
         if (Array.isArray(selector)) {
-          let result2 = [];
+          let result = [];
           for (let index = 0; index < selector.length; index++) {
-            let nodeList = parent.querySelectorAll(selector[index]);
+            let nodeList = domUtils$1.selectorAll(selector[index], parent);
             if (nodeList.length) {
-              result2.push(nodeList);
+              result.push(nodeList);
             }
           }
-          if (result2.length === selector.length) {
-            return result2;
+          if (result.length === selector.length) {
+            return result;
           }
         } else {
-          let nodeList = parent.querySelectorAll(selector);
+          let nodeList = domUtils$1.selectorAll(selector, parent);
           if (nodeList.length) {
             return nodeList;
           }
@@ -11233,18 +11526,18 @@ ${err.stack}`);
         }
       }, timeout, parent);
     }
-    waitAnyNodeList(...args2) {
-      args2 = args2.filter((arg) => arg !== void 0);
+    waitAnyNodeList(...args) {
+      args = args.filter((arg) => arg !== void 0);
       let UtilsContext = this;
-      let selectorList = args2[0];
+      let selectorList = args[0];
       let parent = UtilsContext.windowApi.document;
       let timeout = 0;
-      if (!Array.isArray(args2[0])) {
+      if (!Array.isArray(args[0])) {
         throw new TypeError("Utils.waitAnyNodeList 第一个参数必须是string[]");
       }
-      if (args2.length === 1) ;
-      else if (args2.length === 2) {
-        let secondParam = args2[1];
+      if (args.length === 1) ;
+      else if (args.length === 2) {
+        let secondParam = args[1];
         if (typeof secondParam === "number") {
           timeout = secondParam;
         } else if (typeof secondParam === "object" && secondParam instanceof Node) {
@@ -11252,9 +11545,9 @@ ${err.stack}`);
         } else {
           throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是number|Node");
         }
-      } else if (args2.length === 3) {
-        let secondParam = args2[1];
-        let thirdParam = args2[2];
+      } else if (args.length === 3) {
+        let secondParam = args[1];
+        let thirdParam = args[2];
         if (typeof secondParam === "object" && secondParam instanceof Node) {
           parent = secondParam;
           if (typeof thirdParam === "number") {
@@ -11286,8 +11579,8 @@ ${err.stack}`);
             set: function(value) {
               try {
                 resolve(value);
-              } catch (error2) {
-                console.error("Error setting property:", error2);
+              } catch (error) {
+                console.error("Error setting property:", error);
               }
             }
           });
@@ -11359,7 +11652,7 @@ ${err.stack}`);
           }
           return false;
         }, timer, maxTime);
-      } catch (error2) {
+      } catch (error) {
         return flag;
       }
       return flag;
@@ -11481,31 +11774,15 @@ ${err.stack}`);
       return new URL(text);
     }
     /**
-     * 覆盖对象中的函数this指向
-     * @param target 需要覆盖的对象
-     * @param [objectThis] 覆盖的this指向，如果为传入，则默认为对象本身
-     */
-    coverObjectFunctionThis(target, objectThis) {
-      if (typeof target !== "object" || target === null) {
-        throw new Error("target must be object");
-      }
-      objectThis = objectThis || target;
-      Object.keys(target).forEach((key) => {
-        if (typeof target[key] === "function") {
-          target[key] = target[key].bind(objectThis);
-        }
-      });
-    }
-    /**
      * 自动使用 Worker 执行 setTimeout
      * @param callback 回调函数
      * @param [timeout=0] 延迟时间，默认为0
      */
-    workerSetTimeout(callback2, timeout = 0) {
+    workerSetTimeout(callback, timeout = 0) {
       try {
-        return setTimeout$1$1(callback2, timeout);
-      } catch (error2) {
-        return globalThis.setTimeout(callback2, timeout);
+        return setTimeout$1$1(callback, timeout);
+      } catch (error) {
+        return globalThis.setTimeout(callback, timeout);
       }
     }
     /**
@@ -11515,9 +11792,9 @@ ${err.stack}`);
     workerClearTimeout(timeId) {
       try {
         if (timeId != null) {
-          clearTimeout$2(timeId);
+          clearTimeout$1$1(timeId);
         }
-      } catch (error2) {
+      } catch (error) {
       } finally {
         globalThis.clearTimeout(timeId);
       }
@@ -11527,11 +11804,11 @@ ${err.stack}`);
      * @param callback 回调函数
      * @param timeout 间隔时间，默认为0
      */
-    workerSetInterval(callback2, timeout = 0) {
+    workerSetInterval(callback, timeout = 0) {
       try {
-        return setInterval$2(callback2, timeout);
-      } catch (error2) {
-        return globalThis.setInterval(callback2, timeout);
+        return setInterval$2(callback, timeout);
+      } catch (error) {
+        return globalThis.setInterval(callback, timeout);
       }
     }
     /**
@@ -11543,7 +11820,7 @@ ${err.stack}`);
         if (timeId != null) {
           clearInterval$2(timeId);
         }
-      } catch (error2) {
+      } catch (error) {
       } finally {
         globalThis.clearInterval(timeId);
       }
@@ -11559,9 +11836,9 @@ ${err.stack}`);
               error: null,
               content: clipboardText
             });
-          }).catch((error2) => {
+          }).catch((error) => {
             resolve({
-              error: error2,
+              error,
               content: ""
             });
           });
@@ -11572,7 +11849,7 @@ ${err.stack}`);
             name: "clipboard-read"
           }).then((permissionStatus) => {
             readClipboardText();
-          }).catch((error2) => {
+          }).catch((error) => {
             readClipboardText();
           });
         }
@@ -11766,7 +12043,7 @@ ${err.stack}`);
       };
     },
     setInterval: ({ call }) => {
-      return (func, delay = 0, ...args2) => {
+      return (func, delay = 0, ...args) => {
         const symbol = Symbol();
         const timerId = generateUniqueNumber(scheduledIntervalsState);
         scheduledIntervalsState.set(timerId, symbol);
@@ -11781,7 +12058,7 @@ ${err.stack}`);
             throw new Error("The timer is in an undefined state.");
           }
           if (state === symbol) {
-            func(...args2);
+            func(...args);
             if (scheduledIntervalsState.get(timerId) === symbol) {
               schedule();
             }
@@ -11792,7 +12069,7 @@ ${err.stack}`);
       };
     },
     setTimeout: ({ call }) => {
-      return (func, delay = 0, ...args2) => {
+      return (func, delay = 0, ...args) => {
         const symbol = Symbol();
         const timerId = generateUniqueNumber(scheduledTimeoutsState);
         scheduledTimeoutsState.set(timerId, symbol);
@@ -11808,7 +12085,7 @@ ${err.stack}`);
           }
           if (state === symbol) {
             scheduledTimeoutsState.delete(timerId);
-            func(...args2);
+            func(...args);
           }
         });
         return timerId;
@@ -11836,9 +12113,9 @@ ${err.stack}`);
   const loadOrReturnBroker = createLoadOrReturnBroker(load, worker);
   const clearInterval$1 = (timerId) => loadOrReturnBroker().clearInterval(timerId);
   const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
-  const setInterval$1 = (...args2) => loadOrReturnBroker().setInterval(...args2);
-  const setTimeout$1 = (...args2) => loadOrReturnBroker().setTimeout(...args2);
-  let t$1 = class t2 {
+  const setInterval$1 = (...args) => loadOrReturnBroker().setInterval(...args);
+  const setTimeout$1 = (...args) => loadOrReturnBroker().setTimeout(...args);
+  let t$1 = class t {
     constructor() {
       this.__map = {};
     }
@@ -11876,7 +12153,7 @@ ${err.stack}`);
       this.__map = {};
     }
   };
-  const n$1 = "clientX", e$2 = "clientY", t = 16, c$3 = "start", o$1 = "move", s$1 = "cancel", u$3 = "end", a$2 = "left", i$3 = "right", r$4 = "up", d$1 = "down", m$2 = { 4: "start", 5: "move", 1: "end", 3: "cancel" };
+  const n$1 = "clientX", e$2 = "clientY", t2 = 16, c$3 = "start", o$1 = "move", s$1 = "cancel", u$3 = "end", a$2 = "left", i$3 = "right", r$4 = "up", d$1 = "down", m$2 = { 4: "start", 5: "move", 1: "end", 3: "cancel" };
   function v$1(n2) {
     return m$2[n2];
   }
@@ -11947,7 +12224,7 @@ ${err.stack}`);
     }
     return false;
   } };
-  let l$1 = class l2 extends t$1 {
+  let l$1 = class l extends t$1 {
     constructor(t3, e2) {
       super(), this.v = "2.1.3", this.__computeFunctionList = [], this.__computeFunctionCreatorList = [], this.__pluginContexts = [], this.__isIgnoreMouse = false, this.el = t3, this.c = {}, this.__options = Object.assign(Object.assign({}, g), e2);
       const n2 = function(t4) {
@@ -12082,7 +12359,7 @@ ${err.stack}`);
       return c$3 === l3 ? (n2 = 0, u2 = 0, s2 = 0, p2 = 0, d2 = 0) : o$1 === l3 && (n2 = Math.round(h2.points[0][n$1] - f2.points[0][n$1]), u2 = Math.round(h2.points[0][e$2] - f2.points[0][e$2]), s2 = Math.abs(n2), p2 = Math.abs(u2), d2 = Math.round(x({ x: s2, y: p2 })), t3 = u$1(n2, u2)), { displacementX: n2, displacementY: u2, distanceX: s2, distanceY: p2, distance: d2, overallDirection: t3 };
     };
   }
-  function l() {
+  function l2() {
     let t3 = 1;
     return function(n2, o2) {
       let r2 = 1;
@@ -12096,7 +12373,7 @@ ${err.stack}`);
       if (void 0 !== c2) {
         n2 = n2 || c2.startInput;
         const u2 = c2.timestamp - n2.timestamp;
-        if (t < u2) {
+        if (t2 < u2) {
           const s2 = c2.x - n2.x, p2 = c2.y - n2.y;
           i2 = Math.round(s2 / u2 * 100) / 100, a2 = Math.round(p2 / u2 * 100) / 100, e2 = Math.abs(i2), r2 = Math.abs(a2), t$12 = u$1(s2, p2), n2 = c2;
         }
@@ -12204,7 +12481,7 @@ ${err.stack}`);
   const i$2 = { name: "pinch", threshold: 0, pointLength: 2 };
   function r(r2, m2) {
     const p2 = O(i$2, m2);
-    return r2.compute([m$1, l], (t3) => {
+    return r2.compute([m$1, l2], (t3) => {
       if (g$1(p2), j(p2)) return;
       const c2 = function() {
         const { pointLength: e2, scale: n2, deltaScale: o2, phase: a2 } = t3;
@@ -12369,19 +12646,7 @@ ${err.stack}`);
         });
       }
     }
-    /**
-     * 字符串转HTMLElement
-     * @param elementString
-     * @returns
-     */
-    parseTextToDOM(elementString) {
-      elementString = elementString.replace(/^[\n|\s]*/g, "").replace(/[\n|\s]*$/g, "");
-      let targetElement = popsDOMUtils.createElement("div", {
-        innerHTML: elementString
-      });
-      return targetElement.firstChild;
-    }
-    contains(context2, target) {
+    contains(context, target) {
       if (arguments.length === 1) {
         return this.contains(PopsCore.document.body || PopsCore.document.documentElement, arguments[0]);
       } else {
@@ -12391,14 +12656,14 @@ ${err.stack}`);
         if (typeof target[Symbol.iterator] === "function") {
           let flag = true;
           for (const targetNode of target) {
-            if (!context2.contains(targetNode)) {
+            if (!context.contains(targetNode)) {
               flag = false;
               break;
             }
           }
           return flag;
         } else {
-          return context2.contains(target);
+          return context.contains(target);
         }
       }
     }
@@ -12439,7 +12704,7 @@ ${err.stack}`);
       if (isNaN(byteSize)) {
         throw new TypeError("Utils.formatByteToSize 参数 byteSize 格式不正确");
       }
-      let result2 = 0;
+      let result = 0;
       let resultType = "KB";
       let sizeData = {};
       sizeData.B = 1;
@@ -12455,24 +12720,31 @@ ${err.stack}`);
       sizeData.NB = sizeData.BB * sizeData.KB;
       sizeData.DB = sizeData.NB * sizeData.KB;
       for (let key in sizeData) {
-        result2 = byteSize / sizeData[key];
+        result = byteSize / sizeData[key];
         resultType = key;
-        if (sizeData.KB >= result2) {
+        if (sizeData.KB >= result) {
           break;
         }
       }
-      result2 = result2.toFixed(2);
-      result2 = addType ? result2 + resultType.toString() : parseFloat(result2.toString());
-      return result2;
+      result = result.toFixed(2);
+      result = addType ? result + resultType.toString() : parseFloat(result.toString());
+      return result;
+    }
+    /**
+     * 通过navigator.userAgent判断是否是手机访问
+     * @param userAgent
+     */
+    isPhone(userAgent = PopsCore.globalThis.navigator.userAgent) {
+      return Boolean(/(iPhone|iPad|iPod|iOS|Android)/i.test(userAgent));
     }
     /**
      * 自动使用 Worker 执行 setTimeout
      */
-    setTimeout(callback2, timeout = 0) {
+    setTimeout(callback, timeout = 0) {
       try {
-        return setTimeout$1(callback2, timeout);
-      } catch (error2) {
-        return globalThis.setTimeout(callback2, timeout);
+        return setTimeout$1(callback, timeout);
+      } catch (error) {
+        return globalThis.setTimeout(callback, timeout);
       }
     }
     /**
@@ -12483,7 +12755,7 @@ ${err.stack}`);
         if (timeId != null) {
           clearTimeout$1(timeId);
         }
-      } catch (error2) {
+      } catch (error) {
       } finally {
         globalThis.clearTimeout(timeId);
       }
@@ -12491,11 +12763,11 @@ ${err.stack}`);
     /**
      * 自动使用 Worker 执行 setInterval
      */
-    setInterval(callback2, timeout = 0) {
+    setInterval(callback, timeout = 0) {
       try {
-        return setInterval$1(callback2, timeout);
-      } catch (error2) {
-        return globalThis.setInterval(callback2, timeout);
+        return setInterval$1(callback, timeout);
+      } catch (error) {
+        return globalThis.setInterval(callback, timeout);
       }
     }
     /**
@@ -12506,7 +12778,7 @@ ${err.stack}`);
         if (timeId != null) {
           clearInterval$1(timeId);
         }
-      } catch (error2) {
+      } catch (error) {
       } finally {
         globalThis.clearInterval(timeId);
       }
@@ -12535,27 +12807,29 @@ ${err.stack}`);
     }
   };
   class PopsDOMUtilsEvent {
-    on(element, eventType, selector, callback2, option) {
-      function getOption(args3, startIndex, option2) {
-        if (typeof args3[startIndex] === "boolean") {
-          option2.capture = args3[startIndex];
-          if (typeof args3[startIndex + 1] === "boolean") {
-            option2.once = args3[startIndex + 1];
+    on(element, eventType, selector, callback, option) {
+      function getOption(args2, startIndex, option2) {
+        let currentParam = args2[startIndex];
+        if (typeof currentParam === "boolean") {
+          option2.capture = currentParam;
+          if (typeof args2[startIndex + 1] === "boolean") {
+            option2.once = args2[startIndex + 1];
           }
-          if (typeof args3[startIndex + 2] === "boolean") {
-            option2.passive = args3[startIndex + 2];
+          if (typeof args2[startIndex + 2] === "boolean") {
+            option2.passive = args2[startIndex + 2];
           }
-        } else if (typeof args3[startIndex] === "object" && ("capture" in args3[startIndex] || "once" in args3[startIndex] || "passive" in args3[startIndex])) {
-          option2.capture = args3[startIndex].capture;
-          option2.once = args3[startIndex].once;
-          option2.passive = args3[startIndex].passive;
+        } else if (typeof currentParam === "object" && ("capture" in currentParam || "once" in currentParam || "passive" in currentParam || "isComposedPath" in currentParam)) {
+          option2.capture = currentParam.capture;
+          option2.once = currentParam.once;
+          option2.passive = currentParam.passive;
+          option2.isComposedPath = currentParam.isComposedPath;
         }
         return option2;
       }
       let DOMUtilsContext = this;
-      let args2 = arguments;
+      let args = arguments;
       if (typeof element === "string") {
-        element = PopsCore.document.querySelectorAll(element);
+        element = DOMUtilsContext.selectorAll(element);
       }
       if (element == null) {
         return;
@@ -12569,81 +12843,100 @@ ${err.stack}`);
       }
       let eventTypeList = [];
       if (Array.isArray(eventType)) {
-        eventTypeList = eventTypeList.concat(eventType);
+        eventTypeList = eventTypeList.concat(eventType.filter((eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""));
       } else if (typeof eventType === "string") {
-        eventTypeList = eventTypeList.concat(eventType.split(" "));
+        eventTypeList = eventTypeList.concat(eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== ""));
       }
-      let _selector_ = selector;
-      let _callback_ = callback2;
-      let _option_ = {
+      let selectorList = [];
+      if (Array.isArray(selector)) {
+        selectorList = selectorList.concat(selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== ""));
+      } else if (typeof selector === "string") {
+        selectorList.push(selector);
+      }
+      let listenerCallBack = callback;
+      let listenerOption = {
         capture: false,
         once: false,
-        passive: false
+        passive: false,
+        isComposedPath: false
       };
       if (typeof selector === "function") {
-        _selector_ = void 0;
-        _callback_ = selector;
-        _option_ = getOption(args2, 3, _option_);
+        listenerCallBack = selector;
+        listenerOption = getOption(args, 3, listenerOption);
       } else {
-        _option_ = getOption(args2, 4, _option_);
+        listenerOption = getOption(args, 4, listenerOption);
       }
       function checkOptionOnceToRemoveEventListener() {
-        if (_option_.once) {
-          DOMUtilsContext.off(element, eventType, selector, callback2, option);
+        if (listenerOption.once) {
+          DOMUtilsContext.off(element, eventType, selector, callback, option);
         }
       }
       elementList.forEach((elementItem) => {
-        function ownCallBack(event) {
-          let target = event.target;
-          if (_selector_) {
-            let totalParent = popsUtils.isWin(elementItem) ? PopsCore.document.documentElement : elementItem;
-            if (target.matches(_selector_)) {
-              _callback_.call(target, event);
-              checkOptionOnceToRemoveEventListener();
-            } else if (target.closest(_selector_) && totalParent.contains(target.closest(_selector_))) {
-              let closestElement = target.closest(_selector_);
-              OriginPrototype.Object.defineProperty(event, "target", {
-                get() {
-                  return closestElement;
-                }
-              });
-              _callback_.call(closestElement, event);
+        function domUtilsEventCallBack(event) {
+          if (selectorList.length) {
+            let eventTarget = listenerOption.isComposedPath ? event.composedPath()[0] : event.target;
+            let totalParent = elementItem;
+            if (popsUtils.isWin(totalParent)) {
+              if (totalParent === PopsCore.document) {
+                totalParent = PopsCore.document.documentElement;
+              }
+            }
+            let findValue = selectorList.find((selectorItem) => {
+              if (DOMUtilsContext.matches(eventTarget, selectorItem)) {
+                return true;
+              }
+              let $closestMatches = DOMUtilsContext.closest(eventTarget, selectorItem);
+              if ($closestMatches && (totalParent == null ? void 0 : totalParent.contains($closestMatches))) {
+                eventTarget = $closestMatches;
+                return true;
+              }
+              return false;
+            });
+            if (findValue) {
+              try {
+                OriginPrototype.Object.defineProperty(event, "target", {
+                  get() {
+                    return eventTarget;
+                  }
+                });
+              } catch (error) {
+              }
+              listenerCallBack.call(eventTarget, event, eventTarget);
               checkOptionOnceToRemoveEventListener();
             }
           } else {
-            _callback_.call(elementItem, event);
+            listenerCallBack.call(elementItem, event);
             checkOptionOnceToRemoveEventListener();
           }
         }
         eventTypeList.forEach((eventName) => {
-          elementItem.addEventListener(eventName, ownCallBack, _option_);
-          if (_callback_ && _callback_.delegate) {
-            elementItem.setAttribute("data-delegate", _selector_);
-          }
-          let elementEvents = elementItem[SymbolEvents] || {};
+          elementItem.addEventListener(eventName, domUtilsEventCallBack, listenerOption);
+          let elementEvents = Reflect.get(elementItem, SymbolEvents) || {};
           elementEvents[eventName] = elementEvents[eventName] || [];
           elementEvents[eventName].push({
-            selector: _selector_,
-            option: _option_,
-            callback: ownCallBack,
-            originCallBack: _callback_
+            selector: selectorList,
+            option: listenerOption,
+            callback: domUtilsEventCallBack,
+            originCallBack: listenerCallBack
           });
-          elementItem[SymbolEvents] = elementEvents;
+          Reflect.set(elementItem, SymbolEvents, elementEvents);
         });
       });
     }
-    off(element, eventType, selector, callback2, option, filter) {
+    off(element, eventType, selector, callback, option, filter) {
       function getOption(args1, startIndex, option2) {
-        if (typeof args1[startIndex] === "boolean") {
-          option2.capture = args1[startIndex];
-        } else if (typeof args1[startIndex] === "object" && "capture" in args1[startIndex]) {
-          option2.capture = args1[startIndex].capture;
+        let currentParam = args1[startIndex];
+        if (typeof currentParam === "boolean") {
+          option2.capture = currentParam;
+        } else if (typeof currentParam === "object" && "capture" in currentParam) {
+          option2.capture = currentParam.capture;
         }
         return option2;
       }
-      let args2 = arguments;
+      let DOMUtilsContext = this;
+      let args = arguments;
       if (typeof element === "string") {
-        element = PopsCore.document.querySelectorAll(element);
+        element = DOMUtilsContext.selectorAll(element);
       }
       if (element == null) {
         return;
@@ -12657,24 +12950,34 @@ ${err.stack}`);
       }
       let eventTypeList = [];
       if (Array.isArray(eventType)) {
-        eventTypeList = eventTypeList.concat(eventType);
+        eventTypeList = eventTypeList.concat(eventType.filter((eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""));
       } else if (typeof eventType === "string") {
-        eventTypeList = eventTypeList.concat(eventType.split(" "));
+        eventTypeList = eventTypeList.concat(eventType.split(" ").filter((eventTypeItem) => eventTypeItem !== ""));
       }
-      let _selector_ = selector;
-      let _callback_ = callback2;
-      let _option_ = {
+      let selectorList = [];
+      if (Array.isArray(selector)) {
+        selectorList = selectorList.concat(selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== ""));
+      } else if (typeof selector === "string") {
+        selectorList.push(selector);
+      }
+      let listenerCallBack = callback;
+      let listenerOption = {
         capture: false
       };
       if (typeof selector === "function") {
-        _selector_ = void 0;
-        _callback_ = selector;
-        _option_ = getOption(args2, 3, _option_);
+        listenerCallBack = selector;
+        listenerOption = getOption(args, 3, listenerOption);
       } else {
-        _option_ = getOption(args2, 4, _option_);
+        listenerOption = getOption(args, 4, listenerOption);
+      }
+      let isRemoveAll = false;
+      if (args.length === 2) {
+        isRemoveAll = true;
+      } else if (args.length === 3 && typeof args[2] === "string" || Array.isArray(args[2])) {
+        isRemoveAll = true;
       }
       elementList.forEach((elementItem) => {
-        let elementEvents = elementItem[SymbolEvents] || {};
+        let elementEvents = Reflect.get(elementItem, SymbolEvents) || {};
         eventTypeList.forEach((eventName) => {
           let handlers = elementEvents[eventName] || [];
           if (typeof filter === "function") {
@@ -12682,15 +12985,20 @@ ${err.stack}`);
           }
           for (let index = 0; index < handlers.length; index++) {
             let handler = handlers[index];
-            let flag = false;
-            if (!_selector_ || handler.selector === _selector_) {
-              flag = true;
+            let flag = true;
+            if (flag && listenerCallBack && handler.originCallBack !== listenerCallBack) {
+              flag = false;
             }
-            if (!_callback_ || handler.callback === _callback_ || handler.originCallBack === _callback_) {
-              flag = true;
+            if (flag && selectorList.length && Array.isArray(handler.selector)) {
+              if (JSON.stringify(handler.selector) !== JSON.stringify(selectorList)) {
+                flag = false;
+              }
             }
-            if (flag) {
-              elementItem.removeEventListener(eventName, handler.callback, _option_);
+            if (flag && listenerOption.capture !== handler.option.capture) {
+              flag = false;
+            }
+            if (flag || isRemoveAll) {
+              elementItem.removeEventListener(eventName, handler.callback, handler.option);
               handlers.splice(index--, 1);
             }
           }
@@ -12698,7 +13006,7 @@ ${err.stack}`);
             popsUtils.delete(elementEvents, eventType);
           }
         });
-        elementItem[SymbolEvents] = elementEvents;
+        Reflect.set(elementItem, SymbolEvents, elementEvents);
       });
     }
     /**
@@ -12755,8 +13063,8 @@ ${err.stack}`);
      *   console.log("文档加载完毕")
      * })
      */
-    ready(callback2) {
-      if (typeof callback2 !== "function") {
+    ready(callback) {
+      if (typeof callback !== "function") {
         return;
       }
       function checkDOMReadyState() {
@@ -12766,13 +13074,13 @@ ${err.stack}`);
           } else {
             return false;
           }
-        } catch (error2) {
+        } catch (error) {
           return false;
         }
       }
       function completed() {
         removeDomReadyListener();
-        callback2();
+        callback();
       }
       let targetList = [
         {
@@ -12799,7 +13107,7 @@ ${err.stack}`);
         }
       }
       if (checkDOMReadyState()) {
-        popsUtils.setTimeout(callback2, 0);
+        popsUtils.setTimeout(callback, 0);
       } else {
         addDomReadyListener();
       }
@@ -13064,6 +13372,149 @@ ${err.stack}`);
             capture: Boolean(capture)
           });
         });
+      }
+    }
+    selector(selector) {
+      return this.selectorAll(selector)[0];
+    }
+    selectorAll(selector) {
+      selector = selector.trim();
+      if (selector.match(/[^\s]{1}:empty$/gi)) {
+        selector = selector.replace(/:empty$/gi, "");
+        return Array.from(PopsCore.document.querySelectorAll(selector)).filter(($ele) => {
+          var _a2;
+          return ((_a2 = $ele == null ? void 0 : $ele.innerHTML) == null ? void 0 : _a2.trim()) === "";
+        });
+      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        let text = textMatch[2];
+        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+        return Array.from(PopsCore.document.querySelectorAll(selector)).filter(($ele) => {
+          var _a2;
+          return (_a2 = ($ele == null ? void 0 : $ele.textContent) || ($ele == null ? void 0 : $ele.innerText)) == null ? void 0 : _a2.includes(text);
+        });
+      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        let pattern = textMatch[2];
+        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        let flags = "";
+        if (flagMatch) {
+          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+          flags = flagMatch[3];
+        }
+        let regexp = new RegExp(pattern, flags);
+        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+        return Array.from(PopsCore.document.querySelectorAll(selector)).filter(($ele) => {
+          var _a2;
+          return Boolean((_a2 = ($ele == null ? void 0 : $ele.textContent) || ($ele == null ? void 0 : $ele.innerText)) == null ? void 0 : _a2.match(regexp));
+        });
+      } else {
+        return Array.from(PopsCore.document.querySelectorAll(selector));
+      }
+    }
+    /**
+     * 匹配元素，可使用以下的额外语法
+     *
+     * + :contains([text]) 作用: 找到包含指定文本内容的指定元素
+     * + :empty 作用:找到既没有文本内容也没有子元素的指定元素
+     * + :regexp([text]) 作用: 找到符合正则表达式的内容的指定元素
+     * @param $el 元素
+     * @param selector 选择器
+     * @example
+     * DOMUtils.matches("div:contains('测试')")
+     * > true
+     * @example
+     * DOMUtils.matches("div:empty")
+     * > true
+     * @example
+     * DOMUtils.matches("div:regexp('^xxxx$')")
+     * > true
+     * @example
+     * DOMUtils.matches("div:regexp(/^xxx/ig)")
+     * > false
+     */
+    matches($el, selector) {
+      var _a2;
+      selector = selector.trim();
+      if ($el == null) {
+        return false;
+      }
+      if (selector.match(/[^\s]{1}:empty$/gi)) {
+        selector = selector.replace(/:empty$/gi, "");
+        return $el.matches(selector) && ((_a2 = $el == null ? void 0 : $el.innerHTML) == null ? void 0 : _a2.trim()) === "";
+      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        let text = textMatch[2];
+        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+        let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+        if (typeof content !== "string") {
+          content = "";
+        }
+        return $el.matches(selector) && (content == null ? void 0 : content.includes(text));
+      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        let pattern = textMatch[2];
+        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        let flags = "";
+        if (flagMatch) {
+          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+          flags = flagMatch[3];
+        }
+        let regexp = new RegExp(pattern, flags);
+        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+        let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+        if (typeof content !== "string") {
+          content = "";
+        }
+        return $el.matches(selector) && Boolean(content == null ? void 0 : content.match(regexp));
+      } else {
+        return $el.matches(selector);
+      }
+    }
+    closest($el, selector) {
+      var _a2;
+      selector = selector.trim();
+      if (selector.match(/[^\s]{1}:empty$/gi)) {
+        selector = selector.replace(/:empty$/gi, "");
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        if ($closest && ((_a2 = $closest == null ? void 0 : $closest.innerHTML) == null ? void 0 : _a2.trim()) === "") {
+          return $closest;
+        }
+        return null;
+      } else if (selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) || selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
+        let text = textMatch[2];
+        selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        if ($closest) {
+          let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+          if (typeof content === "string" && content.includes(text)) {
+            return $closest;
+          }
+        }
+        return null;
+      } else if (selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) || selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)) {
+        let textMatch = selector.match(/:regexp\(("|')(.*)("|')\)$/i);
+        let pattern = textMatch[2];
+        let flagMatch = pattern.match(/("|'),[\s]*("|')([igm]{0,3})$/i);
+        let flags = "";
+        if (flagMatch) {
+          pattern = pattern.replace(/("|'),[\s]*("|')([igm]{0,3})$/gi, "");
+          flags = flagMatch[3];
+        }
+        let regexp = new RegExp(pattern, flags);
+        selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        if ($closest) {
+          let content = ($el == null ? void 0 : $el.textContent) || ($el == null ? void 0 : $el.innerText);
+          if (typeof content === "string" && content.match(regexp)) {
+            return $closest;
+          }
+        }
+        return null;
+      } else {
+        let $closest = $el == null ? void 0 : $el.closest(selector);
+        return $closest;
       }
     }
   }
@@ -13358,6 +13809,18 @@ ${err.stack}`);
         tempElement.setAttribute(key, value);
       });
       return tempElement;
+    }
+    /**
+     * 字符串转HTMLElement
+     * @param elementString
+     * @returns
+     */
+    parseTextToDOM(elementString) {
+      elementString = elementString.replace(/^[\n|\s]*/g, "").replace(/[\n|\s]*$/g, "");
+      let targetElement = this.createElement("div", {
+        innerHTML: elementString
+      });
+      return targetElement.firstChild;
     }
     /**
      * 获取文字的位置信息
@@ -13687,8 +14150,110 @@ ${err.stack}`);
         element.parentElement.insertBefore(content, element.nextSibling);
       }
     }
+    /**
+     * 获取CSS Rule
+     * @param sheet
+     * @returns
+     */
+    getKeyFrames(sheet) {
+      let result = {};
+      Object.keys(sheet.cssRules).forEach((key) => {
+        if (sheet.cssRules[key].type === 7 && sheet.cssRules[key].name.startsWith("pops-anim-")) {
+          result[sheet.cssRules[key].name] = sheet.cssRules[key];
+        }
+      });
+      return result;
+    }
   }
   const popsDOMUtils = new PopsDOMUtils();
+  const PopsLayer = {
+    alert: [],
+    confirm: [],
+    prompt: [],
+    loading: [],
+    iframe: [],
+    tooltip: [],
+    drawer: [],
+    folder: [],
+    panel: [],
+    rightClickMenu: []
+  };
+  var indexCSS = '@charset "utf-8";\r\n.pops * {\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	margin: 0;\r\n	padding: 0;\r\n	-webkit-tap-highlight-color: transparent;\r\n	/* 代替::-webkit-scrollbar */\r\n	scrollbar-width: thin;\r\n}\r\n.pops {\r\n	--pops-bg-opacity: 1;\r\n	--pops-bd-opacity: 1;\r\n	--pops-font-size: 16px;\r\n	interpolate-size: allow-keywords;\r\n}\r\n.pops-mask {\r\n	--pops-mask-bg-opacity: 0.4;\r\n}\r\n.pops {\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	border-radius: 4px;\r\n	border: 1px solid rgb(235, 238, 245, var(--pops-bd-opacity));\r\n	font-size: var(--pops-font-size);\r\n	line-height: normal;\r\n	box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);\r\n	box-sizing: border-box;\r\n	overflow: hidden;\r\n	transition: all 0.35s;\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.pops-anim {\r\n	position: fixed;\r\n	top: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.pops-anim[anim=""] {\r\n	top: unset;\r\n	right: unset;\r\n	bottom: unset;\r\n	left: unset;\r\n	width: unset;\r\n	height: unset;\r\n	transition: none;\r\n}\r\n/* 底部图标动画和样式 */\r\n.pops i.pops-bottom-icon[is-loading="true"] {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n.pops i.pops-bottom-icon {\r\n	height: 1em;\r\n	width: 1em;\r\n	line-height: normal;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n	color: inherit;\r\n	font-size: inherit;\r\n}\r\n\r\n/* 遮罩层样式 */\r\n.pops-mask {\r\n	position: fixed;\r\n	top: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	border: 0;\r\n	border-radius: 0;\r\n	background-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));\r\n	box-shadow: none;\r\n	transition: none;\r\n}\r\n\r\n.pops-header-controls button.pops-header-control[type][data-header] {\r\n	float: right;\r\n	margin: 0 0;\r\n	outline: 0;\r\n	border: 0;\r\n	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\r\n	background-color: transparent;\r\n	color: #888;\r\n	cursor: pointer;\r\n}\r\n.pops-header-controls button.pops-header-control[type="max"],\r\n.pops-header-controls button.pops-header-control[type="mise"],\r\n.pops-header-controls button.pops-header-control[type="min"] {\r\n	outline: 0 !important;\r\n	border: 0;\r\n	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\r\n	background-color: transparent;\r\n	color: rgb(136, 136, 136);\r\n	cursor: pointer;\r\n	transition: all 0.3s ease-in-out;\r\n}\r\nbutton.pops-header-control i {\r\n	color: rgb(144, 147, 153);\r\n	font-size: inherit;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n}\r\nbutton.pops-header-control svg {\r\n	height: 1.25em;\r\n	width: 1.25em;\r\n}\r\nbutton.pops-header-control {\r\n	right: 15px;\r\n	padding: 0;\r\n	border: none;\r\n	outline: 0;\r\n	background: 0 0;\r\n	cursor: pointer;\r\n	position: unset;\r\n	line-height: normal;\r\n}\r\nbutton.pops-header-control i:hover {\r\n	color: rgb(64, 158, 255);\r\n}\r\n.pops-header-controls[data-margin] button.pops-header-control {\r\n	margin: 0 6px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops[type-value] .pops-header-controls {\r\n	display: flex;\r\n	gap: 6px;\r\n}\r\n\r\n/* 标题禁止选中文字 */\r\n.pops [class^="pops"][class*="-title"] p[pops] {\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n}\r\n';
+  var ninePalaceGridPositionCSS = '.pops[position="top_left"] {\r\n	position: fixed;\r\n	top: 0;\r\n	left: 0;\r\n}\r\n.pops[position="top"] {\r\n	position: fixed;\r\n	top: 0;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n}\r\n.pops[position="top_right"] {\r\n	position: fixed;\r\n	top: 0;\r\n	right: 0;\r\n}\r\n.pops[position="center_left"] {\r\n	position: fixed;\r\n	top: 50%;\r\n	left: 0;\r\n	transform: translateY(-50%);\r\n}\r\n.pops[position="center"] {\r\n	position: fixed;\r\n	top: 50%;\r\n	left: 50%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n.pops[position="center_right"] {\r\n	position: fixed;\r\n	top: 50%;\r\n	right: 0;\r\n	transform: translateY(-50%);\r\n}\r\n.pops[position="bottom_left"] {\r\n	position: fixed;\r\n	bottom: 0;\r\n	left: 0;\r\n}\r\n.pops[position="bottom"] {\r\n	position: fixed;\r\n	bottom: 0;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n}\r\n.pops[position="bottom_right"] {\r\n	position: fixed;\r\n	right: 0;\r\n	bottom: 0;\r\n}\r\n';
+  var scrollbarCSS = "/* firefox上暂不支持::-webkit-scrollbar */\r\n.pops ::-webkit-scrollbar {\r\n	width: 6px;\r\n	height: 0;\r\n}\r\n\r\n.pops ::-webkit-scrollbar-track {\r\n	width: 0;\r\n}\r\n.pops ::-webkit-scrollbar-thumb:hover {\r\n	background: rgb(178, 178, 178, var(--pops-bg-opacity));\r\n}\r\n.pops ::-webkit-scrollbar-thumb {\r\n	min-height: 28px;\r\n	border-radius: 2em;\r\n	background: rgb(204, 204, 204, var(--pops-bg-opacity));\r\n	background-clip: padding-box;\r\n}\r\n";
+  var buttonCSS = '.pops {\r\n	--button-font-size: 14px;\r\n	--button-height: 32px;\r\n	--button-color: rgb(51, 51, 51);\r\n	--button-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n	--button-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n	--button-margin-top: 0px;\r\n	--button-margin-bottom: 0px;\r\n	--button-margin-left: 5px;\r\n	--button-margin-right: 5px;\r\n	--button-padding-top: 6px;\r\n	--button-padding-bottom: 6px;\r\n	--button-padding-left: 12px;\r\n	--button-padding-right: 12px;\r\n	--button-radius: 4px;\r\n\r\n	--container-title-height: 55px;\r\n	--container-bottom-btn-height: 55px;\r\n}\r\n.pops[data-bottom-btn="false"] {\r\n	--container-bottom-btn-height: 0px;\r\n}\r\n.pops button {\r\n	white-space: nowrap;\r\n	float: right;\r\n	display: inline-block;\r\n	margin: var(--button-margin-top) var(--button-margin-right)\r\n		var(--button-margin-bottom) var(--button-margin-left);\r\n	padding: var(--button-padding-top) var(--button-padding-right)\r\n		var(--button-padding-bottom) var(--button-padding-left);\r\n	outline: 0;\r\n}\r\n.pops button[data-has-icon="false"] .pops-bottom-icon {\r\n	display: none;\r\n}\r\n.pops button {\r\n	border-radius: var(--button-radius);\r\n	box-shadow: none;\r\n	font-weight: 400;\r\n	font-size: var(--button-font-size);\r\n	cursor: pointer;\r\n	transition: all 0.3s ease-in-out;\r\n}\r\n.pops button {\r\n	display: flex;\r\n	align-items: center;\r\n	height: var(--button-height);\r\n	line-height: normal;\r\n	box-sizing: border-box;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	border: 1px solid var(--button-bd-color);\r\n}\r\n.pops button {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button:active {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n	outline: 0;\r\n}\r\n.pops button:hover {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button:focus-visible {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button:disabled {\r\n	cursor: not-allowed;\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button.pops-button-large {\r\n	--button-height: 32px;\r\n	--button-padding-top: 12px;\r\n	--button-padding-bottom: 12px;\r\n	--button-padding-left: 19px;\r\n	--button-padding-right: 19px;\r\n	--button-font-size: 14px;\r\n	--button-border-radius: 4px;\r\n}\r\n\r\n.pops button.pops-button-small {\r\n	--button-height: 24px;\r\n	--button-padding-top: 5px;\r\n	--button-padding-bottom: 5px;\r\n	--button-padding-left: 11px;\r\n	--button-padding-right: 11px;\r\n	--button-font-size: 12px;\r\n	--button-border-radius: 4px;\r\n}\r\n.pops-panel-button-no-icon .pops-panel-button_inner i {\r\n	display: none;\r\n}\r\n.pops-panel-button-right-icon {\r\n}\r\n.pops-panel-button-right-icon .pops-panel-button_inner {\r\n	flex-direction: row-reverse;\r\n}\r\n.pops-panel-button-right-icon .pops-panel-button_inner i {\r\n}\r\n.pops-panel-button .pops-panel-button_inner i:has(svg),\r\n.pops-panel-button-right-icon .pops-panel-button-text {\r\n	margin-right: 6px;\r\n}\r\n\r\n.pops button[type="default"] {\r\n	--button-color: #333333;\r\n	--button-bd-color: #dcdfe6;\r\n	--button-bg-color: #ffffff;\r\n}\r\n.pops button[type="default"]:active {\r\n	--button-color: #409eff;\r\n	--button-bd-color: #409eff;\r\n	--button-bg-color: #ecf5ff;\r\n}\r\n.pops button[type="default"]:hover {\r\n	--button-color: #409eff;\r\n	--button-bd-color: #c6e2ff;\r\n	--button-bg-color: #ecf5ff;\r\n}\r\n.pops button[type="default"]:focus-visible {\r\n	outline: 2px solid #a0cfff;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="default"]:disabled {\r\n	--button-color: #a8abb2;\r\n	--button-bd-color: #fff;\r\n	--button-bg-color: #e4e7ed;\r\n}\r\n\r\n.pops button[type="primary"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #409eff;\r\n	--button-bg-color: #409eff;\r\n}\r\n.pops button[type="primary"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #337ecc;\r\n	--button-bg-color: #337ecc;\r\n}\r\n.pops button[type="primary"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #79bbff;\r\n	--button-bg-color: #79bbff;\r\n}\r\n.pops button[type="primary"]:focus-visible {\r\n	outline: 2px solid #a0cfff;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="primary"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #a0cfff;\r\n	--button-bg-color: #a0cfff;\r\n}\r\n\r\n.pops button[type="success"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #4cae4c;\r\n	--button-bg-color: #5cb85c;\r\n}\r\n.pops button[type="success"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #529b2e;\r\n	--button-bg-color: #529b2e;\r\n}\r\n.pops button[type="success"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #95d475;\r\n	--button-bg-color: #95d475;\r\n}\r\n.pops button[type="success"]:focus-visible {\r\n	outline: 2px solid #b3e19d;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="success"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #b3e19d;\r\n	--button-bg-color: #b3e19d;\r\n}\r\n\r\n.pops button[type="info"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #909399;\r\n	--button-bg-color: #909399;\r\n}\r\n.pops button[type="info"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #73767a;\r\n	--button-bg-color: #73767a;\r\n}\r\n.pops button[type="info"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #b1b3b8;\r\n	--button-bg-color: #b1b3b8;\r\n}\r\n.pops button[type="info"]:focus-visible {\r\n	outline: 2px solid #c8c9cc;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="info"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #c8c9cc;\r\n	--button-bg-color: #c8c9cc;\r\n}\r\n\r\n.pops button[type="warning"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #e6a23c;\r\n	--button-bg-color: #e6a23c;\r\n}\r\n.pops button[type="warning"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #b88230;\r\n	--button-bg-color: #b88230;\r\n}\r\n.pops button[type="warning"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #eebe77;\r\n	--button-bg-color: #eebe77;\r\n}\r\n.pops button[type="warning"]:focus-visible {\r\n	outline: 2px solid #f3d19e;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="warning"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #f3d19e;\r\n	--button-bg-color: #f3d19e;\r\n}\r\n\r\n.pops button[type="danger"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #f56c6c;\r\n	--button-bg-color: #f56c6c;\r\n}\r\n.pops button[type="danger"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #c45656;\r\n	--button-bg-color: #c45656;\r\n}\r\n.pops button[type="danger"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #f89898;\r\n	--button-bg-color: #f89898;\r\n}\r\n.pops button[type="danger"]:focus-visible {\r\n	outline: 2px solid #fab6b6;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="danger"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #fab6b6;\r\n	--button-bg-color: #fab6b6;\r\n}\r\n\r\n.pops button[type="xiaomi-primary"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #ff5c00;\r\n	--button-bg-color: #ff5c00;\r\n}\r\n.pops button[type="xiaomi-primary"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #da4f00;\r\n	--button-bg-color: #da4f00;\r\n}\r\n.pops button[type="xiaomi-primary"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #ff7e29;\r\n	--button-bg-color: #ff7e29;\r\n}\r\n.pops button[type="xiaomi-primary"]:focus-visible {\r\n	outline: 2px solid #fab6b6;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="xiaomi-primary"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #fad5b6;\r\n	--button-bg-color: #fad5b6;\r\n}\r\n';
+  var commonCSS = ".pops-flex-items-center {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops-flex-y-center {\r\n	display: flex;\r\n	justify-content: space-between;\r\n}\r\n.pops-flex-x-center {\r\n	display: flex;\r\n	align-content: center;\r\n}\r\n.pops-hide {\r\n	display: none;\r\n}\r\n.pops-hide-important {\r\n	display: none !important;\r\n}\r\n.pops-no-border {\r\n	border: 0;\r\n}\r\n.pops-no-border-important {\r\n	border: 0 !important;\r\n}\r\n.pops-user-select-none {\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-ms-user-select: none;\r\n	-moz-user-select: none;\r\n}\r\n.pops-line-height-center {\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops-width-fill {\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n}\r\n";
+  var animCSS = '@keyframes rotating {\r\n	0% {\r\n		transform: rotate(0);\r\n	}\r\n	to {\r\n		transform: rotate(360deg);\r\n	}\r\n}\r\n@keyframes iframeLoadingChange_85 {\r\n	0% {\r\n		background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n	}\r\n	20% {\r\n		background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\r\n	}\r\n	40% {\r\n		background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\r\n	}\r\n	60% {\r\n		background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\r\n	}\r\n	80% {\r\n		background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\r\n	}\r\n	100% {\r\n		background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\r\n	}\r\n	from {\r\n		width: 75%;\r\n	}\r\n	to {\r\n		width: 100%;\r\n	}\r\n}\r\n@keyframes iframeLoadingChange {\r\n	0% {\r\n		background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n	}\r\n	20% {\r\n		background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\r\n	}\r\n	40% {\r\n		background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\r\n	}\r\n	60% {\r\n		background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\r\n	}\r\n	80% {\r\n		background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\r\n	}\r\n	100% {\r\n		background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\r\n	}\r\n	from {\r\n		width: 0;\r\n	}\r\n	to {\r\n		width: 75%;\r\n	}\r\n}\r\n\r\n@keyframes searchSelectFalIn {\r\n	from {\r\n		opacity: 0;\r\n		display:none;\r\n	}\r\n	to {\r\n		display:block;\r\n		opacity: 1;\r\n	}\r\n}\r\n@keyframes searchSelectFalOut {\r\n	from {\r\n		display:block;\r\n		opacity: 1;\r\n	}\r\n	to {\r\n		opacity: 0;\r\n		display:none;\r\n	}\r\n}\r\n\r\n@keyframes pops-anim-wait-rotate {\r\n	form {\r\n		transform: rotate(0);\r\n	}\r\n	to {\r\n		transform: rotate(360deg);\r\n	}\r\n}\r\n@keyframes pops-anim-spread {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scaleX(0);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scaleX(1);\r\n	}\r\n}\r\n@keyframes pops-anim-shake {\r\n	0%,\r\n	100% {\r\n		transform: translateX(0);\r\n	}\r\n	10%,\r\n	30%,\r\n	50%,\r\n	70%,\r\n	90% {\r\n		transform: translateX(-10px);\r\n	}\r\n	20%,\r\n	40%,\r\n	60%,\r\n	80% {\r\n		transform: translateX(10px);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-left {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateX(-100%) rotate(-120deg);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-right {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateX(100%) rotate(120deg);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-top {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateY(-200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-bottom {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateY(200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-left {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateX(-200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-right {\r\n	0% {\r\n		transform: translateX(200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein {\r\n	0% {\r\n		opacity: 0;\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-zoom {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale(0.5);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scale(1);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-alert {\r\n	0% {\r\n		transform: scale(0.5);\r\n	}\r\n	45% {\r\n		transform: scale(1.05);\r\n	}\r\n	80% {\r\n		transform: scale(0.95);\r\n	}\r\n	100% {\r\n		transform: scale(1);\r\n	}\r\n}\r\n@keyframes pops-anim-don {\r\n	0% {\r\n		opacity: 0;\r\n		transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	2.08333% {\r\n		transform: matrix3d(\r\n			0.75266,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.76342,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	4.16667% {\r\n		transform: matrix3d(\r\n			0.81071,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.84545,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	6.25% {\r\n		transform: matrix3d(\r\n			0.86808,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.9286,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	8.33333% {\r\n		transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	10.4167% {\r\n		transform: matrix3d(\r\n			0.96482,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.05202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	12.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	14.5833% {\r\n		transform: matrix3d(\r\n			1.02563,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.09149,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	16.6667% {\r\n		transform: matrix3d(\r\n			1.04227,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.08453,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	18.75% {\r\n		transform: matrix3d(\r\n			1.05102,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.06666,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	20.8333% {\r\n		transform: matrix3d(\r\n			1.05334,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.04355,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	22.9167% {\r\n		transform: matrix3d(\r\n			1.05078,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.02012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	25% {\r\n		transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	27.0833% {\r\n		transform: matrix3d(\r\n			1.03699,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98534,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	29.1667% {\r\n		transform: matrix3d(\r\n			1.02831,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97688,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	31.25% {\r\n		transform: matrix3d(\r\n			1.01973,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97422,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	33.3333% {\r\n		transform: matrix3d(\r\n			1.01191,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97618,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	35.4167% {\r\n		transform: matrix3d(\r\n			1.00526,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98122,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	37.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	39.5833% {\r\n		transform: matrix3d(\r\n			0.99617,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99433,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	41.6667% {\r\n		transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	43.75% {\r\n		transform: matrix3d(\r\n			0.99237,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00413,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	45.8333% {\r\n		transform: matrix3d(\r\n			0.99202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00651,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	47.9167% {\r\n		transform: matrix3d(\r\n			0.99241,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00726,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	50% {\r\n		opacity: 1;\r\n		transform: matrix3d(\r\n			0.99329,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00671,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	52.0833% {\r\n		transform: matrix3d(\r\n			0.99447,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00529,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	54.1667% {\r\n		transform: matrix3d(\r\n			0.99577,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00346,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	56.25% {\r\n		transform: matrix3d(\r\n			0.99705,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.0016,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	58.3333% {\r\n		transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	60.4167% {\r\n		transform: matrix3d(\r\n			0.99921,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99884,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	62.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	64.5833% {\r\n		transform: matrix3d(\r\n			1.00057,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99795,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	66.6667% {\r\n		transform: matrix3d(\r\n			1.00095,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99811,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	68.75% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99851,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	70.8333% {\r\n		transform: matrix3d(\r\n			1.00119,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99903,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	72.9167% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99955,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	75% {\r\n		transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	77.0833% {\r\n		transform: matrix3d(\r\n			1.00083,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00033,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	79.1667% {\r\n		transform: matrix3d(\r\n			1.00063,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00052,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	81.25% {\r\n		transform: matrix3d(\r\n			1.00044,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00058,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	83.3333% {\r\n		transform: matrix3d(\r\n			1.00027,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00053,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	85.4167% {\r\n		transform: matrix3d(\r\n			1.00012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00042,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	87.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	89.5833% {\r\n		transform: matrix3d(\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00013,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	91.6667% {\r\n		transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	93.75% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	95.8333% {\r\n		transform: matrix3d(\r\n			0.99982,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99985,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	97.9167% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99984,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-roll {\r\n	0% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\r\n	}\r\n	100% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\r\n	}\r\n}\r\n@keyframes pops-anim-sandra {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale3d(1.1, 1.1, 1);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scale3d(1, 1, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-gather {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale(5, 0);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scale(1, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-spread-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: scaleX(1);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scaleX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-shake-reverse {\r\n	0%,\r\n	100% {\r\n		transform: translateX(10px);\r\n	}\r\n	10%,\r\n	30%,\r\n	50%,\r\n	70%,\r\n	90% {\r\n		transform: translateX(-10px);\r\n	}\r\n	20%,\r\n	40%,\r\n	60%,\r\n	80% {\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-left-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateX(-100%) rotate(-120deg);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-right-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateX(100%) rotate(120deg);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-top-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateY(-200%);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-bottom-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateY(200%);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-left-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateX(-200%);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-right-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		transform: translateX(200%);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-reverse {\r\n	0% {\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-zoom-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: scale(1);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scale(0.5);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-alert-reverse {\r\n	0% {\r\n		transform: scale(1);\r\n	}\r\n	45% {\r\n		transform: scale(0.95);\r\n	}\r\n	80% {\r\n		transform: scale(1.05);\r\n	}\r\n	100% {\r\n		transform: scale(0.5);\r\n	}\r\n}\r\n@keyframes pops-anim-don-reverse {\r\n	100% {\r\n		opacity: 0;\r\n		transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	97.9167% {\r\n		transform: matrix3d(\r\n			0.75266,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.76342,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	95.8333% {\r\n		transform: matrix3d(\r\n			0.81071,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.84545,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	93.75% {\r\n		transform: matrix3d(\r\n			0.86808,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.9286,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	91.6667% {\r\n		transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	89.5833% {\r\n		transform: matrix3d(\r\n			0.96482,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.05202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	87.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	85.4167% {\r\n		transform: matrix3d(\r\n			1.02563,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.09149,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	83.3333% {\r\n		transform: matrix3d(\r\n			1.04227,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.08453,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	81.25% {\r\n		transform: matrix3d(\r\n			1.05102,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.06666,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	79.1667% {\r\n		transform: matrix3d(\r\n			1.05334,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.04355,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	77.0833% {\r\n		transform: matrix3d(\r\n			1.05078,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.02012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	75% {\r\n		transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	72.9167% {\r\n		transform: matrix3d(\r\n			1.03699,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98534,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	70.8333% {\r\n		transform: matrix3d(\r\n			1.02831,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97688,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	68.75% {\r\n		transform: matrix3d(\r\n			1.01973,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97422,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	66.6667% {\r\n		transform: matrix3d(\r\n			1.01191,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97618,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	64.5833% {\r\n		transform: matrix3d(\r\n			1.00526,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98122,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	62.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	60.4167% {\r\n		transform: matrix3d(\r\n			0.99617,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99433,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	58.3333% {\r\n		transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	56.25% {\r\n		transform: matrix3d(\r\n			0.99237,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00413,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	54.1667% {\r\n		transform: matrix3d(\r\n			0.99202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00651,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	52.0833% {\r\n		transform: matrix3d(\r\n			0.99241,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00726,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	50% {\r\n		opacity: 1;\r\n		transform: matrix3d(\r\n			0.99329,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00671,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	47.9167% {\r\n		transform: matrix3d(\r\n			0.99447,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00529,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	45.8333% {\r\n		transform: matrix3d(\r\n			0.99577,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00346,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	43.75% {\r\n		transform: matrix3d(\r\n			0.99705,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.0016,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	41.6667% {\r\n		transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	39.5833% {\r\n		transform: matrix3d(\r\n			0.99921,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99884,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	37.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	35.4167% {\r\n		transform: matrix3d(\r\n			1.00057,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99795,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	33.3333% {\r\n		transform: matrix3d(\r\n			1.00095,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99811,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	31.25% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99851,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	29.1667% {\r\n		transform: matrix3d(\r\n			1.00119,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99903,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	27.0833% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99955,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	25% {\r\n		transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	22.9167% {\r\n		transform: matrix3d(\r\n			1.00083,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00033,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	20.8333% {\r\n		transform: matrix3d(\r\n			1.00063,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00052,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	18.75% {\r\n		transform: matrix3d(\r\n			1.00044,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00058,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	16.6667% {\r\n		transform: matrix3d(\r\n			1.00027,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00053,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	14.5833% {\r\n		transform: matrix3d(\r\n			1.00012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00042,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	12.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	10.4167% {\r\n		transform: matrix3d(\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00013,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	8.33333% {\r\n		transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	6.25% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	4.16667% {\r\n		transform: matrix3d(\r\n			0.99982,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99985,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	2.08333% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99984,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	0% {\r\n		opacity: 1;\r\n		transform: matrix3d(\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0type=close,\r\n			1\r\n		);\r\n	}\r\n}\r\n@keyframes pops-anim-roll-reverse {\r\n	0% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\r\n	}\r\n	100% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\r\n	}\r\n}\r\n@keyframes pops-anim-sandra-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: scale3d(1, 1, 1);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scale3d(1.1, 1.1, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-gather-reverse {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale(5, 0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scale(5, 0);\r\n	}\r\n}\r\n\r\n@-webkit-keyframes pops-motion-fadeInTop {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(-30px);\r\n		transform: translateY(-30px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInTop {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateY(-30px);\r\n		-ms-transform: translateY(-30px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutTop {\r\n	0% {\r\n		opacity: 10;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(-30px);\r\n		transform: translateY(-30px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutTop {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n		-ms-transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateY(-30px);\r\n		-ms-transform: translateY(-30px);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeInBottom {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInBottom {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n		-ms-transform: translateY(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n		-ms-transform: translateY(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutBottom {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutBottom {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n		-ms-transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n		-ms-transform: translateY(20px);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeInLeft {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-20px);\r\n		transform: translateX(-20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInLeft {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-30px);\r\n		transform: translateX(-30px);\r\n		-ms-transform: translateX(-30px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutLeft {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-30px);\r\n		transform: translateX(-30px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutLeft {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-20px);\r\n		transform: translateX(-20px);\r\n		-ms-transform: translateX(-20px);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeInRight {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInRight {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n		-ms-transform: translateX(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutRight {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutRight {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n		-ms-transform: translateX(20px);\r\n	}\r\n}\r\n\r\n/* 动画 */\r\n.pops-anim[anim="pops-anim-spread"] {\r\n	animation: pops-anim-spread 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-shake"] {\r\n	animation: pops-anim-shake 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-left"] {\r\n	animation: pops-anim-rolling-left 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-right"] {\r\n	animation: pops-anim-rolling-right 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-top"] {\r\n	animation: pops-anim-slide-top 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-bottom"] {\r\n	animation: pops-anim-slide-bottom 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-left"] {\r\n	animation: pops-anim-slide-left 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-right"] {\r\n	animation: pops-anim-slide-right 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein"] {\r\n	animation: pops-anim-fadein 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-zoom"] {\r\n	animation: pops-anim-fadein-zoom 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-alert"] {\r\n	animation: pops-anim-fadein-alert 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-don"] {\r\n	animation: pops-anim-don 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-roll"] {\r\n	animation: pops-anim-roll 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-sandra"] {\r\n	animation: pops-anim-sandra 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-gather"] {\r\n	animation: pops-anim-gather 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-spread-reverse"] {\r\n	animation: pops-anim-spread-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-shake-reverse"] {\r\n	animation: pops-anim-shake-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-left-reverse"] {\r\n	animation: pops-anim-rolling-left-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-right-reverse"] {\r\n	animation: pops-anim-rolling-right-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-top-reverse"] {\r\n	animation: pops-anim-slide-top-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-bottom-reverse"] {\r\n	animation: pops-anim-slide-bottom-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-left-reverse"] {\r\n	animation: pops-anim-slide-left-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-right-reverse"] {\r\n	animation: pops-anim-slide-right-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-reverse"] {\r\n	animation: pops-anim-fadein-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-zoom-reverse"] {\r\n	animation: pops-anim-fadein-zoom-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-alert-reverse"] {\r\n	animation: pops-anim-fadein-alert-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-don-reverse"] {\r\n	animation: pops-anim-don-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-roll-reverse"] {\r\n	animation: pops-anim-roll-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-sandra-reverse"] {\r\n	animation: pops-anim-sandra-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-gather-reverse"] {\r\n	animation: pops-anim-gather-reverse 0.3s;\r\n}\r\n';
+  var alertCSS = '.pops[type-value] .pops-alert-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value="alert"] .pops-alert-title {\r\n	width: 100%;\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="alert"] .pops-alert-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n}\r\n.pops[type-value="alert"] .pops-alert-content {\r\n	width: 100%;\r\n	/*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n	flex: 1;\r\n	overflow: auto;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="alert"] .pops-alert-content p[pops] {\r\n	padding: 5px 10px;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n}\r\n.pops[type-value="alert"] .pops-alert-btn {\r\n	/*position: absolute;\r\n	bottom: 0;*/\r\n	display: flex;\r\n	padding: 10px 10px 10px 10px;\r\n	width: 100%;\r\n	height: var(--container-bottom-btn-height);\r\n	max-height: var(--container-bottom-btn-height);\r\n	line-height: normal;\r\n	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: right;\r\n	align-items: center;\r\n}\r\n';
+  var confirmCSS = '.pops[type-value] .pops-confirm-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value="confirm"] .pops-confirm-title {\r\n	width: 100%;\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="confirm"] .pops-confirm-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n}\r\n.pops[type-value="confirm"] .pops-confirm-content {\r\n	width: 100%;\r\n	/*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n	flex: 1;\r\n	overflow: auto;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="confirm"] .pops-confirm-content p[pops] {\r\n	padding: 5px 10px;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n}\r\n.pops[type-value="confirm"] .pops-confirm-btn {\r\n	/*position: absolute;\r\n	bottom: 0;*/\r\n	display: flex;\r\n	padding: 10px 10px 10px 10px;\r\n	width: 100%;\r\n	height: var(--container-bottom-btn-height);\r\n	max-height: var(--container-bottom-btn-height);\r\n	line-height: normal;\r\n	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: right;\r\n	align-items: center;\r\n}\r\n';
+  var promptCSS = '.pops[type-value] .pops-prompt-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value="prompt"] .pops-prompt-title {\r\n	width: 100%;\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="prompt"] .pops-prompt-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops[type-value="prompt"] .pops-prompt-content {\r\n	width: 100%;\r\n	/*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n	flex: 1;\r\n	overflow: auto;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="prompt"] .pops-prompt-content p[pops] {\r\n	padding: 5px 10px;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n}\r\n.pops[type-value="prompt"] .pops-prompt-btn {\r\n	display: flex;\r\n	padding: 10px 10px 10px 10px;\r\n	width: 100%;\r\n	height: var(--container-bottom-btn-height);\r\n	max-height: var(--container-bottom-btn-height);\r\n	line-height: normal;\r\n	align-content: center;\r\n	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: right;\r\n	align-items: center;\r\n}\r\n.pops[type-value="prompt"] input[pops] {\r\n	padding: 5px 10px;\r\n}\r\n.pops[type-value="prompt"] textarea[pops] {\r\n	padding: 5px 10px;\r\n	resize: none;\r\n}\r\n.pops[type-value="prompt"] input[pops],\r\n.pops[type-value="prompt"] textarea[pops] {\r\n	width: 100%;\r\n	height: 100%;\r\n	outline: 0;\r\n	border: 0;\r\n	color: rgb(51, 51, 51);\r\n}\r\n';
+  var loadingCSS = '.pops[type-value="loading"] {\r\n	position: absolute;\r\n	top: 272.5px;\r\n	top: 50%;\r\n	left: 26px;\r\n	left: 50%;\r\n	display: flex;\r\n	overflow: hidden;\r\n	padding: 10px 15px;\r\n	max-width: 100%;\r\n	max-height: 100%;\r\n	min-width: 0;\r\n	min-height: 0;\r\n	border: 1px solid rgba(0, 0, 0, 0.2);\r\n	border-radius: 5px;\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	box-shadow: 0 0 5px rgb(0 0 0 / 50%);\r\n	vertical-align: middle;\r\n	transition: all 0.35s;\r\n	transform: translate(-50%, -50%);\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	justify-content: center;\r\n	align-content: center;\r\n}\r\n.pops[type-value="loading"]:before {\r\n	float: left;\r\n	display: inline-block;\r\n	width: 2em;\r\n	height: 2em;\r\n	border: 0.3em solid rgba(100, 149, 237, 0.1);\r\n	border-top: 0.3em solid rgb(100, 149, 237, var(--pops-bd-opacity));\r\n	border-radius: 50%;\r\n	content: " ";\r\n	vertical-align: middle;\r\n	font-size: inherit;\r\n	animation: pops-anim-wait-rotate 1.2s linear infinite;\r\n}\r\n.pops[type-value="loading"] .pops-loading-content {\r\n	position: static;\r\n	top: 0;\r\n	bottom: 0;\r\n	float: left;\r\n	overflow: hidden;\r\n	width: auto;\r\n	font-size: inherit;\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops[type-value="loading"] .pops-loading-content p[pops] {\r\n	display: inline-block;\r\n	padding: 5px 0px;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	font-size: inherit;\r\n	text-align: center;\r\n}\r\n';
+  var iframeCSS = '.pops[type-value="iframe"] {\r\n	--container-title-height: 55px;\r\n	transition: width 0.35s ease, height 0.35s ease;\r\n}\r\n.pops[type-value] .pops-iframe-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value="iframe"] .pops-iframe-title {\r\n	width: calc(100% - 0px);\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="iframe"] .pops-iframe-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops[type-value="iframe"] .pops-iframe-content {\r\n	width: 100%;\r\n	/*height: calc(100% - var(--container-title-height));*/\r\n	flex: 1;\r\n	overflow: hidden;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="iframe"] .pops-iframe-content p[pops] {\r\n	padding: 5px 10px;\r\n	color: #333;\r\n	text-indent: 15px;\r\n}\r\n.pops-loading {\r\n	position: absolute;\r\n	top: 40px;\r\n	right: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n	z-index: 5;\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-loading:before {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	z-index: 3;\r\n	display: block;\r\n	margin: -20px 0 0 -20px;\r\n	padding: 20px;\r\n	border: 4px solid rgb(221, 221, 221, var(--pops-bd-opacity));\r\n	border-radius: 50%;\r\n	content: "";\r\n	border-top-color: transparent;\r\n	animation: pops-anim-wait-rotate 1.2s linear infinite;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="min"] {\r\n	bottom: 0;\r\n	max-width: 200px;\r\n	max-height: 53px;\r\n	position: unset;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="min"]\r\n	.pops-header-control[type="min"] {\r\n	display: none;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-top {\r\n	top: unset !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-left {\r\n	left: unset !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-transform {\r\n	transform: none !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-transition {\r\n	transition: none !important;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="max"] {\r\n	width: 100% !important;\r\n	height: 100% !important;\r\n}\r\n.pops[type-value="iframe"] iframe[pops] {\r\n	width: calc(100% - 4px);\r\n	height: calc(100% - 4px);\r\n	border: 0;\r\n}\r\n.pops-iframe-content-global-loading {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	z-index: 999999;\r\n	width: 0;\r\n	height: 4px;\r\n	background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n	animation: iframeLoadingChange 2s forwards;\r\n}\r\n\r\n.pops-anim:has(.pops[type-value="iframe"].pops[type-module="min"]) {\r\n	position: unset;\r\n}\r\n';
+  var tooltipCSS = '.pops-tip {\r\n	--tooltip-color: #4e4e4e;\r\n	--tooltip-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	--tooltip-bd-radius: 2px;\r\n	--tooltip-font-size: 14px;\r\n	--tooltip-padding-top: 13px;\r\n	--tooltip-padding-right: 13px;\r\n	--tooltip-padding-bottom: 13px;\r\n	--tooltip-padding-left: 13px;\r\n\r\n	--tooltip-arrow--after-color: rgb(78, 78, 78);\r\n	--tooltip-arrow--after-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	--tooltip-arrow--after-width: 12px;\r\n	--tooltip-arrow--after-height: 12px;\r\n\r\n	padding: var(--tooltip-padding-top) var(--tooltip-padding-right)\r\n		var(--tooltip-padding-bottom) var(--tooltip-padding-left);\r\n	max-width: 400px;\r\n	max-height: 300px;\r\n	border-radius: var(--tooltip-bd-radius);\r\n	background-color: var(--tooltip-bg-color);\r\n	box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.24), 0 1.5px 6px rgba(0, 0, 0, 0.12);\r\n	color: var(--tooltip-color);\r\n	font-size: var(--tooltip-font-size);\r\n}\r\n.pops-tip[data-position="absolute"] {\r\n	position: absolute;\r\n}\r\n.pops-tip[data-position="fixed"] {\r\n	position: fixed;\r\n}\r\n/* github的样式 */\r\n.pops-tip.github-tooltip {\r\n	--tooltip-bg-opacity: 1;\r\n	--tooltip-color: rgb(255, 255, 255);\r\n	--tooltip-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\r\n	--tooltip-bd-radius: 6px;\r\n	--tooltip-padding-top: 6px;\r\n	--tooltip-padding-right: 8px;\r\n	--tooltip-padding-bottom: 6px;\r\n	--tooltip-padding-left: 8px;\r\n\r\n	--tooltip-arrow--after-color: rgb(255, 255, 255);\r\n	--tooltip-arrow--after-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\r\n	--tooltip-arrow--after-width: 8px;\r\n	--tooltip-arrow--after-height: 8px;\r\n}\r\n.pops-tip .pops-tip-arrow {\r\n	position: absolute;\r\n	top: 100%;\r\n	left: 50%;\r\n	overflow: hidden;\r\n	width: 100%;\r\n	height: 12.5px;\r\n	transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow::after {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 50%;\r\n	width: var(--tooltip-arrow--after-width);\r\n	height: var(--tooltip-arrow--after-height);\r\n	background: var(--tooltip-arrow--after-bg-color);\r\n	color: var(--tooltip-arrow--after-color);\r\n	box-shadow: 0 1px 7px rgba(0, 0, 0, 0.24), 0 1px 7px rgba(0, 0, 0, 0.12);\r\n	content: "";\r\n	transform: translateX(-50%) translateY(-50%) rotate(45deg);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="bottom"] {\r\n	position: absolute;\r\n	top: 100%;\r\n	left: 50%;\r\n	overflow: hidden;\r\n	width: 100%;\r\n	height: 12.5px;\r\n	transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="bottom"]:after {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 50%;\r\n	width: var(--tooltip-arrow--after-width);\r\n	height: var(--tooltip-arrow--after-height);\r\n	background: var(--tooltip-arrow--after-bg-color);\r\n	box-shadow: 0 1px 7px rgba(0, 0, 0, 0.24), 0 1px 7px rgba(0, 0, 0, 0.12);\r\n	content: "";\r\n	transform: translateX(-50%) translateY(-50%) rotate(45deg);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="left"] {\r\n	top: 50%;\r\n	left: -12.5px;\r\n	width: 12.5px;\r\n	height: 50px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="left"]:after {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 100%;\r\n	content: "";\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="right"] {\r\n	top: 50%;\r\n	right: -12.5px;\r\n	left: auto;\r\n	width: 12.5px;\r\n	height: 50px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="right"]:after {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 0;\r\n	content: "";\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="top"] {\r\n	top: -12.5px;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="top"]:after {\r\n	position: absolute;\r\n	top: 100%;\r\n	left: 50%;\r\n	content: "";\r\n}\r\n\r\n.pops-tip[data-motion] {\r\n	-webkit-animation-duration: 0.25s;\r\n	animation-duration: 0.25s;\r\n	-webkit-animation-fill-mode: forwards;\r\n	animation-fill-mode: forwards;\r\n}\r\n.pops-tip[data-motion="fadeOutRight"] {\r\n	-webkit-animation-name: pops-motion-fadeOutRight;\r\n	animation-name: pops-motion-fadeOutRight;\r\n}\r\n.pops-tip[data-motion="fadeInTop"] {\r\n	-webkit-animation-name: pops-motion-fadeInTop;\r\n	animation-name: pops-motion-fadeInTop;\r\n	animation-timing-function: cubic-bezier(0.49, 0.49, 0.13, 1.3);\r\n}\r\n.pops-tip[data-motion="fadeOutTop"] {\r\n	-webkit-animation-name: pops-motion-fadeOutTop;\r\n	animation-name: pops-motion-fadeOutTop;\r\n	animation-timing-function: cubic-bezier(0.32, 0.37, 0.06, 0.87);\r\n}\r\n.pops-tip[data-motion="fadeInBottom"] {\r\n	-webkit-animation-name: pops-motion-fadeInBottom;\r\n	animation-name: pops-motion-fadeInBottom;\r\n}\r\n.pops-tip[data-motion="fadeOutBottom"] {\r\n	-webkit-animation-name: pops-motion-fadeOutBottom;\r\n	animation-name: pops-motion-fadeOutBottom;\r\n}\r\n.pops-tip[data-motion="fadeInLeft"] {\r\n	-webkit-animation-name: pops-motion-fadeInLeft;\r\n	animation-name: pops-motion-fadeInLeft;\r\n}\r\n.pops-tip[data-motion="fadeOutLeft"] {\r\n	-webkit-animation-name: pops-motion-fadeOutLeft;\r\n	animation-name: pops-motion-fadeOutLeft;\r\n}\r\n.pops-tip[data-motion="fadeInRight"] {\r\n	-webkit-animation-name: pops-motion-fadeInRight;\r\n	animation-name: pops-motion-fadeInRight;\r\n}\r\n';
+  var drawerCSS = '.pops[type-value="drawer"] {\r\n	position: fixed;\r\n	box-sizing: border-box;\r\n	display: flex;\r\n	flex-direction: column;\r\n	box-shadow: 0px 16px 48px 16px rgba(0, 0, 0, 0.08),\r\n		0px 12px 32px rgba(0, 0, 0, 0.12), 0px 8px 16px -8px rgba(0, 0, 0, 0.16);\r\n	overflow: hidden;\r\n	transition: all 0.3s;\r\n}\r\n.pops[type-value] .pops-drawer-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value] .pops-drawer-title p[pops] {\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n\r\n.pops-drawer-content {\r\n	flex: 1;\r\n	overflow: auto;\r\n}\r\n.pops[type-value="drawer"] .pops-drawer-btn {\r\n	padding-top: 10px;\r\n	padding-bottom: 10px;\r\n}\r\n.pops[type-value="drawer"][direction="top"] {\r\n	width: 100%;\r\n	left: 0;\r\n	right: 0;\r\n	top: 0;\r\n}\r\n.pops[type-value="drawer"][direction="bottom"] {\r\n	width: 100%;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n}\r\n.pops[type-value="drawer"][direction="left"] {\r\n	height: 100%;\r\n	top: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n}\r\n.pops[type-value="drawer"][direction="right"] {\r\n	height: 100%;\r\n	top: 0;\r\n	bottom: 0;\r\n	right: 0;\r\n}\r\n';
+  var folderCSS = '.pops[type-value] .pops-folder-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value="folder"] .pops-folder-title {\r\n	width: 100%;\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="folder"] .pops-folder-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n}\r\n.pops[type-value="folder"] .pops-folder-content p[pops] {\r\n	padding: 5px 10px;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n}\r\n.pops[type-value="folder"] .pops-folder-content {\r\n	width: 100%;\r\n	/*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n	flex: 1;\r\n	overflow: auto;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="folder"] .pops-folder-btn {\r\n	/*position: absolute;\r\n	bottom: 0;*/\r\n	display: flex;\r\n	padding: 10px 10px 10px 10px;\r\n	width: 100%;\r\n	height: var(--container-bottom-btn-height);\r\n	max-height: var(--container-bottom-btn-height);\r\n	line-height: normal;\r\n	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: right;\r\n	align-items: center;\r\n}\r\n.pops-folder-list .cursor-p {\r\n	cursor: pointer;\r\n}\r\n.pops-folder-list a {\r\n	background: 0 0;\r\n	text-decoration: none;\r\n	-webkit-tap-highlight-color: transparent;\r\n	color: #05082c;\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n	width: 100%;\r\n	table-layout: fixed;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	padding: 0 20px;\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n	height: 100%;\r\n	background: 0 0;\r\n	overflow: hidden;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	-ms-flex-direction: column;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-box-direction: normal;\r\n}\r\ntable.pops-folder-list-table__body {\r\n	height: 100%;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n}\r\n.pops-folder-list table tr {\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops-folder-list-table__header-row {\r\n	height: 50px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	color: rgb(129, 137, 153);\r\n	text-align: left;\r\n	font-size: 12px;\r\n}\r\n.pops-folder-list-table__header-row {\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n}\r\n.pops-folder-list-table__body-row {\r\n	height: 50px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	color: #03081a;\r\n	font-size: 12px;\r\n}\r\n.pops-folder-list-table__body-row:hover {\r\n	background: rgb(245, 246, 247, var(--pops-bg-opacity));\r\n}\r\n.pops-folder-list table th {\r\n	border: 0;\r\n	border-bottom: 1px solid rgb(247, 248, 250, var(--pops-bg-opacity));\r\n}\r\n.pops-folder-list table td {\r\n	border: 0;\r\n	border-bottom: 1px solid rgb(247, 248, 250, var(--pops-bg-opacity));\r\n	position: relative;\r\n}\r\n.pops-folder-list .list-name-text {\r\n	display: inline-block;\r\n	padding-left: 12px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	max-width: 176px;\r\n}\r\n.pops-folder-list-file-name > div {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.pops-mobile-folder-list-file-name {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops-mobile-folder-list-file-name > div {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	justify-content: flex-start;\r\n	align-items: flex-start;\r\n	padding: 6px 0px;\r\n	flex-direction: column;\r\n}\r\n.pops-mobile-folder-list-file-name img.pops-folder-list-file-icon {\r\n	width: 45px;\r\n	height: 45px;\r\n}\r\n.pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {\r\n	padding-left: unset;\r\n	max-width: 250px;\r\n	overflow-x: hidden;\r\n	font-weight: 400;\r\n	line-height: unset;\r\n	margin-bottom: 4px;\r\n	white-space: normal;\r\n	text-overflow: unset;\r\n}\r\n\r\n/* 修改滚动 */\r\n.pops-folder-content {\r\n	overflow: hidden !important;\r\n}\r\n.pops-folder-content .pops-folder-list {\r\n	height: 100%;\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.pops-folder-content .pops-folder-list-table__body-div {\r\n	height: 100%;\r\n	flex: 1 auto;\r\n	overflow: auto;\r\n	padding-bottom: 0;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__body-div {\r\n	height: 100%;\r\n	flex: 1 auto;\r\n	overflow: auto;\r\n	padding-bottom: 0;\r\n}\r\n.pops-folder-content table.pops-folder-list-table__body {\r\n	overflow: auto;\r\n}\r\n.pops-folder-content .pops-folder-list-table__header-div {\r\n	flex: 0;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__header-div {\r\n	display: none;\r\n}\r\n\r\n.pops-folder-list-file-name-title-text:hover {\r\n	text-decoration: none;\r\n	color: rgb(6, 167, 255);\r\n}\r\n.pops-folder-list .text-ellip {\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n}\r\n.pops-folder-list .content {\r\n	color: rgb(129, 137, 153);\r\n	position: relative;\r\n	width: 100%;\r\n	text-align: left;\r\n}\r\n.pops-folder-list .inline-block-v-middle {\r\n	display: inline-block;\r\n	vertical-align: middle;\r\n}\r\n.pops-folder-list .flex-a-i-center {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops-folder-list .u-file-icon {\r\n	display: inline-block;\r\n	vertical-align: middle;\r\n}\r\n.pops-folder-list .u-file-icon--list {\r\n	width: 32px;\r\n	height: 32px;\r\n}\r\n.pops-folder-list .pops-folder-list-file-icon {\r\n	line-height: normal;\r\n	align-content: center;\r\n	position: relative;\r\n	vertical-align: middle;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-primary {\r\n	flex: 0;\r\n	display: -webkit-box;\r\n	display: -webkit-flex;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	-webkit-box-align: center;\r\n	-webkit-align-items: center;\r\n	-ms-flex-align: center;\r\n	align-items: center;\r\n	-webkit-box-orient: horizontal;\r\n	-webkit-box-direction: normal;\r\n	-webkit-flex-direction: row;\r\n	-ms-flex-direction: row;\r\n	flex-direction: row;\r\n	min-height: 17px;\r\n	flex-wrap: wrap;\r\n}\r\n.pops-folder-list .pops-folder-list-table__sort {\r\n	display: inline-flex;\r\n	margin-left: 4px;\r\n	flex-direction: column;\r\n}\r\n\r\n.pops-folder-list .pops-folder-icon-arrow {\r\n	width: 10px;\r\n	height: 10px;\r\n	fill: rgb(212, 215, 222);\r\n}\r\n.pops-folder-list .pops-folder-icon-active {\r\n	fill: rgb(6, 167, 255);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb {\r\n	padding: 4px 20px;\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	display: -webkit-box;\r\n	display: -webkit-flex;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	-webkit-box-align: center;\r\n	-webkit-align-items: center;\r\n	-ms-flex-align: center;\r\n	align-items: center;\r\n	-webkit-box-orient: horizontal;\r\n	-webkit-box-direction: normal;\r\n	-webkit-flex-direction: row;\r\n	-ms-flex-direction: row;\r\n	flex-direction: row;\r\n	-webkit-box-pack: start;\r\n	-webkit-justify-content: start;\r\n	-ms-flex-pack: start;\r\n	justify-content: flex-start;\r\n	min-height: 35px;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {\r\n	font-size: 12px;\r\n	color: #333;\r\n	line-height: normal;\r\n	align-content: center;\r\n	font-weight: 700;\r\n	display: inline-block;\r\n	max-width: 140px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	word-wrap: normal;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a {\r\n	color: rgb(153, 153, 153);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child a {\r\n	font-size: 14px;\r\n	color: rgb(18, 22, 26);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb .iconArrow {\r\n	width: 16px;\r\n	height: 16px;\r\n}\r\n.pops-folder-list .iconArrow {\r\n	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAASCAMAAABYd88+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTOLi4uLi4t7e3uPj49/f397e3t3d3f///97e3vDw8N3d3d7e3t3d3d3d3ejo6N/f397e3t7e3t3d3d/f393d3d3d3RK+NoEAAAAWdFJOUwAnM4YPU/iQA+UIeMDaHhY41i7zX7UebpjFAAAAUElEQVQI15XOORaAIAwE0LATXHCd+x9VfCiksXCq+UUWou8oZ1vXHrt7YVBiYkW4gdMKYFIC4CSATWCNHWPuM6HuHkr1x3N0ZrBu/9gl0b9c3+kF7C7hS1YAAAAASUVORK5CYII=)\r\n		55% 50%/6px 9px no-repeat;\r\n}\r\n';
+  var panelCSS = '.pops[type-value="panel"] {\r\n	--el-disabled-text-color: #a8abb2;\r\n	--el-disabled-bg-color: #f5f7fa;\r\n	--el-disabled-border-color: #e4e7ed;\r\n	--pops-bg-color: #f2f2f2;\r\n	--pops-color: #333;\r\n	--title-bg-color: #ffffff;\r\n	--aside-bg-color: #ffffff;\r\n	--aside-hover-color: rgb(64, 158, 255);\r\n	--aside-hover-bg-color: rgba(64, 158, 255, 0.1);\r\n\r\n	--pops-panel-forms-margin-top-bottom: 10px;\r\n	--pops-panel-forms-margin-left-right: 20px;\r\n	--pops-panel-forms-header-icon-size: 20px;\r\n	--pops-panel-forms-header-padding-top-bottom: 15px;\r\n	--pops-panel-forms-header-padding-left-right: 10px;\r\n	--pops-panel-forms-container-item-bg-color: #ffffff;\r\n	--pops-panel-forms-container-item-title-color: #333;\r\n	--pops-panel-forms-container-item-border-radius: 6px;\r\n	--pops-panel-forms-container-item-margin-top-bottom: 10px;\r\n	--pops-panel-forms-container-item-margin-left-right: var(\r\n		--pops-panel-forms-margin-left-right\r\n	);\r\n	--pops-panel-forms-container-li-padding-top-bottom: 12px;\r\n	--pops-panel-forms-container-li-padding-left-right: 16px;\r\n}\r\n.pops[type-value="panel"] {\r\n	color: var(--pops-color);\r\n	background: var(--pops-bg-color);\r\n}\r\n.pops[type-value] .pops-panel-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n	background: var(--title-bg-color);\r\n}\r\n\r\n.pops[type-value="panel"] .pops-panel-title {\r\n	width: 100%;\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="panel"] .pops-panel-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops[type-value="panel"] .pops-panel-content {\r\n	width: 100%;\r\n	/*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n	flex: 1;\r\n	overflow: auto;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="panel"] .pops-panel-btn {\r\n	display: flex;\r\n	padding: 10px 10px 10px 10px;\r\n	width: 100%;\r\n	height: var(--container-bottom-btn-height);\r\n	max-height: var(--container-bottom-btn-height);\r\n	line-height: normal;\r\n	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: right;\r\n	align-content: center;\r\n	align-items: center;\r\n}\r\n\r\n/* ↓panel的CSS↓ */\r\naside.pops-panel-aside {\r\n	overflow: auto;\r\n	box-sizing: border-box;\r\n	flex-shrink: 0;\r\n	max-width: 200px;\r\n	min-width: 100px;\r\n	height: 100%;\r\n	background: var(--aside-bg-color);\r\n	border-right: 1px solid var(--aside-bg-color);\r\n	font-size: 0.9em;\r\n}\r\naside.pops-panel-aside {\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n}\r\n.pops-panel-content {\r\n	display: flex;\r\n	flex-direction: row;\r\n	flex: 1;\r\n	overflow: auto;\r\n	flex-basis: auto;\r\n	box-sizing: border-box;\r\n	min-width: 0;\r\n	bottom: 0 !important;\r\n}\r\nsection.pops-panel-container {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul,\r\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	flex: 0 auto;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul li {\r\n	text-align: left;\r\n	display: flex;\r\n	justify-content: flex-start !important;\r\n	margin: 0px !important;\r\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n		calc(\r\n			var(--pops-panel-forms-margin-left-right) +\r\n				var(--pops-panel-forms-container-li-padding-left-right)\r\n		);\r\n}\r\nsection.pops-panel-container > ul:last-child {\r\n	overflow: auto;\r\n	flex: 1;\r\n}\r\naside.pops-panel-aside ul li {\r\n	margin: 6px 8px;\r\n	border-radius: 4px;\r\n	padding: 6px 10px;\r\n	cursor: default;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: flex-start;\r\n}\r\naside.pops-panel-aside .pops-is-visited,\r\naside.pops-panel-aside ul li:hover {\r\n	color: var(--aside-hover-color);\r\n	background: var(--aside-hover-bg-color);\r\n}\r\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	margin: var(--pops-panel-forms-margin-top-bottom)\r\n		calc(\r\n			var(--pops-panel-forms-margin-left-right) +\r\n				var(--pops-panel-forms-margin-left-right)\r\n		);\r\n	gap: 10px;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\r\n	margin: 10px;\r\n	margin-left: calc(\r\n		var(--pops-panel-forms-margin-left-right) +\r\n			var(--pops-panel-forms-container-li-padding-left-right)\r\n	);\r\n	font-size: 0.9em;\r\n	text-align: left;\r\n	color: var(--pops-panel-forms-container-item-title-color);\r\n}\r\nsection.pops-panel-container li.pops-panel-forms-container-item {\r\n	display: block;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul {\r\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n	background: var(--pops-panel-forms-container-item-bg-color);\r\n	margin: var(--pops-panel-forms-container-item-margin-top-bottom)\r\n		var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\r\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: left;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	ul\r\n	li.pops-panel-deepMenu-nav-item {\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n		var(--pops-panel-forms-container-li-padding-left-right);\r\n	margin: 0px;\r\n	border-bottom: 0;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li:last-child {\r\n	border: 0;\r\n}\r\n/* 主文字 */\r\n/*section.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	.pops-panel-item-left-text\r\n	.pops-panel-item-left-main-text {\r\n	line-height: 2;\r\n}*/\r\n/* 描述文字 */\r\nsection.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	.pops-panel-item-left-text\r\n	.pops-panel-item-left-desc-text {\r\n	line-height: normal;\r\n	margin-top: 6px;\r\n	font-size: 0.8em;\r\n	color: rgb(108, 108, 108);\r\n}\r\n\r\n/* 折叠面板 */\r\n\r\nsection.pops-panel-container .pops-panel-forms-fold {\r\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n	background: var(--pops-panel-forms-container-item-bg-color);\r\n	margin: var(--pops-panel-forms-margin-top-bottom)\r\n		var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold\r\n	.pops-panel-forms-fold-container {\r\n	display: flex;\r\n	align-items: center;\r\n	fill: #6c6c6c;\r\n	justify-content: space-between;\r\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold[data-fold-enable]\r\n	.pops-panel-forms-fold-container-icon {\r\n	transform: rotate(90deg);\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold\r\n	.pops-panel-forms-fold-container-icon {\r\n	width: 15px;\r\n	height: 15px;\r\n	display: flex;\r\n	align-items: center;\r\n	transform: rotate(-90deg);\r\n	transition: transform 0.3s;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold[data-fold-enable]\r\n	.pops-panel-forms-container-item-formlist {\r\n	height: 0;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold\r\n	.pops-panel-forms-container-item-formlist {\r\n	transition: height 0.3s;\r\n	overflow: hidden;\r\n	border-radius: unset;\r\n	background: unset;\r\n	margin: 0;\r\n	height: auto;\r\n	height: calc-size(auto, size);\r\n}\r\n/* 折叠面板 */\r\n\r\n/* 姑且认为小于600px的屏幕为移动端 */\r\n@media (max-width: 600px) {\r\n	/* 兼容移动端CSS */\r\n	.pops[type-value="panel"] {\r\n		--pops-panel-forms-margin-left-right: 10px;\r\n	}\r\n	.pops[type-value="panel"] {\r\n		width: 92%;\r\n		width: 92vw;\r\n		width: 92dvw;\r\n	}\r\n	.pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\r\n		max-width: 20%;\r\n		min-width: auto;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-forms-container-item\r\n		> div {\r\n		text-align: left;\r\n		--pops-panel-forms-margin-left-right: 0px;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-forms-container-item\r\n		ul {\r\n		margin: 0px !important;\r\n	}\r\n	.pops[type-value="panel"] section.pops-panel-container > ul > li {\r\n		margin: 10px 10px;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		> ul\r\n		> li\r\n		div:nth-child(2) {\r\n		max-width: 55%;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-select\r\n		select {\r\n		min-width: 88px !important;\r\n		width: -webkit-fill-available;\r\n		width: -moz-available;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-container-header-ul\r\n		li {\r\n		font-size: 16px;\r\n	}\r\n	.pops[type-value="panel"] .pops-panel-title p[pops],\r\n	.pops[type-value="panel"] section.pops-panel-container > ul li,\r\n	.pops[type-value="panel"] aside.pops-panel-aside ul li {\r\n		font-size: 14px;\r\n	}\r\n}\r\n/* switch的CSS */\r\n.pops-panel-switch {\r\n	display: inline-flex;\r\n	flex-direction: row-reverse;\r\n	align-items: center;\r\n	position: relative;\r\n	font-size: 14px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	height: 32px;\r\n	vertical-align: middle;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-ms-user-select: none;\r\n	-moz-user-select: none;\r\n}\r\n.pops-panel-switch input.pops-panel-switch__input {\r\n	position: absolute;\r\n	width: 0;\r\n	height: 0;\r\n	opacity: 0;\r\n	margin: 0;\r\n}\r\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\r\n.pops-panel-switch[data-disabled],\r\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\r\n.pops-panel-switch\r\n	input.pops-panel-switch__input:disabled\r\n	+ .pops-panel-switch__core {\r\n	cursor: not-allowed;\r\n	opacity: 0.6;\r\n}\r\n.pops-panel-switch span.pops-panel-switch__core {\r\n	display: inline-flex;\r\n	position: relative;\r\n	align-items: center;\r\n	min-width: 40px;\r\n	height: 20px;\r\n	border: 1px solid rgb(220, 223, 230, var(--pops-bd-opacity));\r\n	outline: 0;\r\n	border-radius: 10px;\r\n	box-sizing: border-box;\r\n	background: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n	cursor: pointer;\r\n	transition: border-color 0.3s, background-color 0.3s;\r\n}\r\n.pops-panel-switch .pops-panel-switch__action {\r\n	position: absolute;\r\n	left: 1px;\r\n	border-radius: 100%;\r\n	transition: all 0.3s;\r\n	width: 16px;\r\n	height: 16px;\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	color: rgb(220, 223, 230);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\r\n	border-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n	background-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\r\n	left: calc(100% - 17px);\r\n	color: rgb(64, 158, 255);\r\n}\r\n/* switch的CSS */\r\n\r\n/* slider旧的CSS */\r\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\r\n	overflow: hidden;\r\n	height: 25px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\r\n	height: 6px;\r\n	background: rgb(228, 231, 237, var(--pops-bg-opacity));\r\n	outline: 0;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	width: 100%;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-slider\r\n	input[type="range"]::-webkit-slider-thumb {\r\n	width: 20px;\r\n	height: 20px;\r\n	border-radius: 50%;\r\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	box-shadow: 0 0 2px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-slider\r\n	input[type="range"]::-moz-range-thumb {\r\n	width: 20px;\r\n	height: 20px;\r\n	border-radius: 50%;\r\n	border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	box-shadow: 0 0 2px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-slider\r\n	input[type="range"]::-moz-range-progress {\r\n	height: 6px;\r\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\n/* slider旧的CSS */\r\n\r\n/* slider的CSS */\r\n.pops-slider {\r\n	--pops-slider-color-white: #ffffff;\r\n	--pops-slider-color-primary: #409eff;\r\n	--pops-slider-color-info: #909399;\r\n	--pops-slider-text-color-placeholder: #a8abb2;\r\n	--pops-slider-border-color-light: #e4e7ed;\r\n	--pops-slider-border-radius-circle: 100%;\r\n	--pops-slider-transition-duration-fast: 0.2s;\r\n\r\n	--pops-slider-main-bg-color: var(--pops-slider-color-primary);\r\n	--pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\r\n	--pops-slider-stop-bg-color: var(--pops-slider-color-white);\r\n	--pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\r\n	--pops-slider-border-radius: 3px;\r\n	--pops-slider-height: 6px;\r\n	--pops-slider-button-size: 20px;\r\n	--pops-slider-button-wrapper-size: 36px;\r\n	--pops-slider-button-wrapper-offset: -15px;\r\n}\r\n\r\n.pops-slider {\r\n	width: 100%;\r\n	height: 32px;\r\n	display: flex;\r\n	align-items: center;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-ms-user-select: none;\r\n	-moz-user-select: none;\r\n}\r\n\r\n.pops-slider-width {\r\n	flex: 0 0 52%;\r\n	margin-left: 10px;\r\n}\r\n\r\n.pops-slider__runway {\r\n	flex: 1;\r\n	height: var(--pops-slider-height);\r\n	background-color: var(--pops-slider-runway-bg-color);\r\n	border-radius: var(--pops-slider-border-radius);\r\n	position: relative;\r\n	cursor: pointer;\r\n}\r\n\r\n.pops-slider__runway.show-input {\r\n	margin-right: 30px;\r\n	width: auto;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled {\r\n	cursor: default;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\r\n	background-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\r\n	border-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n	cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n	transform: scale(1);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n	cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__input {\r\n	flex-shrink: 0;\r\n	width: 130px;\r\n}\r\n\r\n.pops-slider__bar {\r\n	height: var(--pops-slider-height);\r\n	background-color: var(--pops-slider-main-bg-color);\r\n	border-top-left-radius: var(--pops-slider-border-radius);\r\n	border-bottom-left-radius: var(--pops-slider-border-radius);\r\n	position: absolute;\r\n}\r\n\r\n.pops-slider__button-wrapper {\r\n	height: var(--pops-slider-button-wrapper-size);\r\n	width: var(--pops-slider-button-wrapper-size);\r\n	position: absolute;\r\n	z-index: 1;\r\n	top: var(--pops-slider-button-wrapper-offset);\r\n	transform: translate(-50%);\r\n	background-color: transparent;\r\n	text-align: center;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	line-height: normal;\r\n	outline: none;\r\n}\r\n\r\n.pops-slider__button-wrapper:after {\r\n	display: inline-block;\r\n	content: "";\r\n	height: 100%;\r\n	vertical-align: middle;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n	cursor: grab;\r\n}\r\n\r\n.pops-slider__button {\r\n	display: inline-block;\r\n	width: var(--pops-slider-button-size);\r\n	height: var(--pops-slider-button-size);\r\n	vertical-align: middle;\r\n	border: solid 2px var(--pops-slider-main-bg-color);\r\n	background-color: var(--pops-slider-color-white);\r\n	border-radius: 50%;\r\n	box-sizing: border-box;\r\n	transition: var(--pops-slider-transition-duration-fast);\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover,\r\n.pops-slider__button.dragging {\r\n	transform: scale(1.2);\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n	cursor: grab;\r\n}\r\n\r\n.pops-slider__button.dragging {\r\n	cursor: grabbing;\r\n}\r\n\r\n.pops-slider__stop {\r\n	position: absolute;\r\n	height: var(--pops-slider-height);\r\n	width: var(--pops-slider-height);\r\n	border-radius: var(--pops-slider-border-radius-circle);\r\n	background-color: var(--pops-slider-stop-bg-color);\r\n	transform: translate(-50%);\r\n}\r\n\r\n.pops-slider__marks {\r\n	top: 0;\r\n	left: 12px;\r\n	width: 18px;\r\n	height: 100%;\r\n}\r\n\r\n.pops-slider__marks-text {\r\n	position: absolute;\r\n	transform: translate(-50%);\r\n	font-size: 14px;\r\n	color: var(--pops-slider-color-info);\r\n	margin-top: 15px;\r\n	white-space: pre;\r\n}\r\n\r\n.pops-slider.is-vertical {\r\n	position: relative;\r\n	display: inline-flex;\r\n	width: auto;\r\n	height: 100%;\r\n	flex: 0;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__runway {\r\n	width: var(--pops-slider-height);\r\n	height: 100%;\r\n	margin: 0 16px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__bar {\r\n	width: var(--pops-slider-height);\r\n	height: auto;\r\n	border-radius: 0 0 3px 3px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__button-wrapper {\r\n	top: auto;\r\n	left: var(--pops-slider-button-wrapper-offset);\r\n	transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__stop {\r\n	transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__marks-text {\r\n	margin-top: 0;\r\n	left: 15px;\r\n	transform: translateY(50%);\r\n}\r\n\r\n.pops-slider--large {\r\n	height: 40px;\r\n}\r\n\r\n.pops-slider--small {\r\n	height: 24px;\r\n}\r\n/* slider的CSS */\r\n\r\n/* input的CSS */\r\n.pops-panel-input {\r\n	display: flex;\r\n	align-items: center;\r\n	border: 1px solid #dcdfe6;\r\n	border-radius: 4px;\r\n	background-color: #ffffff;\r\n	position: relative;\r\n}\r\n.pops-panel-input:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n.pops-panel-input:has(input:focus) {\r\n	outline: 0;\r\n	border: 1px solid #409eff;\r\n	border-radius: 4px;\r\n	box-shadow: none;\r\n}\r\n.pops-panel-input input {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	text-align: start;\r\n	align-items: center;\r\n	align-content: center;\r\n	white-space: nowrap;\r\n	cursor: text;\r\n	box-sizing: border-box;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	vertical-align: middle;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	background-color: transparent;\r\n	outline: 0;\r\n	transition: 0.1s;\r\n	border: 0;\r\n	font-size: 14px;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n	height: 32px;\r\n	width: 100%;\r\n	flex: 1;\r\n	margin-right: calc(1em + 8px);\r\n	padding: 8px 8px;\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix {\r\n	display: inline-flex;\r\n	white-space: nowrap;\r\n	flex-shrink: 0;\r\n	flex-wrap: nowrap;\r\n	height: 100%;\r\n	text-align: center;\r\n	color: #a8abb2;\r\n	transition: all 0.3s;\r\n	pointer-events: none;\r\n	margin: 0 8px;\r\n	position: absolute;\r\n	right: 0px;\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix-inner {\r\n	pointer-events: all;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n	cursor: pointer;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n	height: inherit;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	transition: all 0.3s;\r\n}\r\n.pops-panel-input .pops-panel-icon svg {\r\n	height: 1em;\r\n	width: 1em;\r\n}\r\n\r\n.pops-input-disabled {\r\n	background-color: var(--el-disabled-bg-color);\r\n	box-shadow: 0 0 0 1px var(--el-disabled-border-color) inset;\r\n}\r\n.pops-panel-input.pops-input-disabled {\r\n	border: none;\r\n}\r\n.pops-panel-input.pops-input-disabled:hover {\r\n	box-shadow: 0 0 0 1px var(--el-disabled-border-color) inset;\r\n}\r\n.pops-panel-input input:disabled,\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	color: var(--el-disabled-text-color);\r\n	-webkit-text-fill-color: var(--el-disabled-text-color);\r\n	cursor: not-allowed;\r\n}\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n	display: none;\r\n}\r\n/* input的CSS */\r\n\r\n/* textarea的CSS */\r\n.pops-panel-textarea textarea {\r\n	width: 100%;\r\n	/*vertical-align: bottom;*/\r\n	position: relative;\r\n	display: block;\r\n	resize: none;\r\n	padding: 5px 11px;\r\n	/*line-height: 1;*/\r\n	box-sizing: border-box;\r\n	font-size: inherit;\r\n	font-family: inherit;\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	background-image: none;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n	border-radius: 0;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	border: none;\r\n}\r\n.pops-panel-textarea textarea:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n.pops-panel-textarea-disable .pops-panel-textarea textarea:hover {\r\n	box-shadow: none;\r\n}\r\n.pops-panel-textarea textarea:focus {\r\n	outline: 0;\r\n	box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n/* textarea的CSS */\r\n\r\n/* select的CSS */\r\n.pops-panel-select select {\r\n	height: 32px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	min-width: 200px;\r\n	border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));\r\n	border-radius: 5px;\r\n	text-align: center;\r\n	outline: 0;\r\n	background: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	box-shadow: none;\r\n}\r\n.pops-panel-select select:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n.pops-panel-select-disable .pops-panel-select select:hover {\r\n	box-shadow: none;\r\n}\r\n.pops-panel-select select:focus {\r\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n	box-shadow: none;\r\n}\r\n/* select的CSS */\r\n\r\n/* select-multiple的CSS*/\r\n.pops-panel-select-multiple {\r\n	--el-border-radius-base: 4px;\r\n	--el-fill-color-blank: #ffffff;\r\n	--el-transition-duration: 0.3s;\r\n	--el-border-color: #dcdfe6;\r\n	--el-text-color-placeholder: #a8abb2;\r\n	--color: inherit;\r\n	--el-select-input-color: #a8abb2;\r\n	--el-select-input-font-size: 14px;\r\n	--el-text-color-regular: #606266;\r\n	--el-color-info: #909399;\r\n	--el-color-info-light-9: #f4f4f5;\r\n	--el-color-info-light-8: #e9e9eb;\r\n	--el-color-primary-light-9: #ecf5ff;\r\n	--el-color-primary-light-8: #d9ecff;\r\n	--el-color-primary: #409eff;\r\n	--el-color-white: #ffffff;\r\n	width: 200px;\r\n	/* 左侧内容*/\r\n	/* 左侧内容*/\r\n	/* 右侧箭头图标*/\r\n	/* 右侧箭头图标*/\r\n	/* tag*/\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	box-sizing: border-box;\r\n	cursor: pointer;\r\n	text-align: left;\r\n	font-size: 14px;\r\n	padding: 4px 12px;\r\n	gap: 6px;\r\n	min-height: 32px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	border-radius: var(--el-border-radius-base);\r\n	background-color: var(--el-fill-color-blank);\r\n	transition: var(--el-transition-duration);\r\n	transform: translateZ(0);\r\n	box-shadow: 0 0 0 1px var(--el-border-color) inset;\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\r\n	box-shadow: 0 0 0 1px var(--el-color-primary) inset;\r\n}\r\n.pops-panel-select-multiple .el-select__selection {\r\n	position: relative;\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	align-items: center;\r\n	flex: 1;\r\n	min-width: 0;\r\n	gap: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	-webkit-user-select: none;\r\n	user-select: none;\r\n}\r\n.pops-panel-select-multiple\r\n	.el-select__selected-item.el-select__choose_tag\r\n	.el-tag {\r\n	max-width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__input-wrapper {\r\n	max-width: 100%;\r\n}\r\n.pops-panel-select-multiple .el-select__selection.is-near {\r\n	margin-left: -8px;\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder {\r\n	position: absolute;\r\n	display: block;\r\n	top: 50%;\r\n	transform: translateY(-50%);\r\n	width: 100%;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	color: var(--el-input-text-color, var(--el-text-color-regular));\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\r\n	-webkit-user-select: none;\r\n	user-select: none;\r\n	color: var(--el-text-color-placeholder);\r\n}\r\n.pops-panel-select-multiple .el-select__prefix,\r\n.pops-panel-select-multiple .el-select__suffix {\r\n	display: flex;\r\n	align-items: center;\r\n	flex-shrink: 0;\r\n	gap: 6px;\r\n	color: var(--el-input-icon-color, var(--el-text-color-placeholder));\r\n}\r\n.pops-panel-select-multiple .el-icon {\r\n	--color: inherit;\r\n	height: 1em;\r\n	width: 1em;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n	color: var(--color);\r\n	font-size: inherit;\r\n}\r\n.pops-panel-select-multiple .el-icon svg {\r\n	height: 1em;\r\n	width: 1em;\r\n}\r\n.pops-panel-select-multiple .el-select__caret {\r\n	color: var(--el-select-input-color);\r\n	font-size: var(--el-select-input-font-size);\r\n	transition: var(--el-transition-duration);\r\n	transform: rotate(0);\r\n	cursor: pointer;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n	--el-tag-font-size: 12px;\r\n	--el-tag-border-radius: 4px;\r\n	--el-tag-border-radius-rounded: 9999px;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n	background-color: var(--el-tag-bg-color);\r\n	border-color: var(--el-tag-border-color);\r\n	color: var(--el-tag-text-color);\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	vertical-align: middle;\r\n	height: 24px;\r\n	padding: 0 9px;\r\n	font-size: var(--el-tag-font-size);\r\n	line-height: normal;\r\n	align-content: center;\r\n	border-width: 1px;\r\n	border-style: solid;\r\n	border-radius: var(--el-tag-border-radius);\r\n	box-sizing: border-box;\r\n	white-space: nowrap;\r\n	--el-icon-size: 14px;\r\n	--el-tag-bg-color: var(--el-color-primary-light-9);\r\n	--el-tag-border-color: var(--el-color-primary-light-8);\r\n	--el-tag-hover-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag {\r\n	cursor: pointer;\r\n	border-color: transparent;\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n	--el-tag-bg-color: var(--el-color-info-light-9);\r\n	--el-tag-border-color: var(--el-color-info-light-8);\r\n	--el-tag-hover-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n	--el-tag-text-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.is-closable {\r\n	padding-right: 5px;\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\r\n	min-width: 0;\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n	flex-shrink: 0;\r\n	color: var(--el-tag-text-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\r\n	color: var(--el-color-white);\r\n	background-color: var(--el-tag-hover-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-icon {\r\n	border-radius: 50%;\r\n	cursor: pointer;\r\n	font-size: calc(var(--el-icon-size) - 2px);\r\n	height: var(--el-icon-size);\r\n	width: var(--el-icon-size);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n	margin-left: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__tags-text {\r\n	display: block;\r\n	line-height: normal;\r\n	align-content: center;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n}\r\n/* select-multiple的CSS*/\r\n\r\n/* deepMenu的css */\r\n.pops-panel-deepMenu-nav-item {\r\n	cursor: pointer;\r\n}\r\n.pops-panel-deepMenu-nav-item:active {\r\n	background: #e9e9e9;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\r\n	display: flex;\r\n	align-items: center;\r\n	color: #6c6c6c;\r\n	fill: #6c6c6c;\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\r\n	width: 15px;\r\n	height: 15px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-header {\r\n	display: flex;\r\n	align-items: center;\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n		calc(\r\n			var(--pops-panel-forms-margin-left-right) +\r\n				var(--pops-panel-forms-container-li-padding-left-right) -\r\n				var(--pops-panel-forms-header-icon-size)\r\n		);\r\n}\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n	width: var(--pops-panel-forms-header-icon-size);\r\n	height: var(--pops-panel-forms-header-icon-size);\r\n	display: flex;\r\n	align-items: center;\r\n	cursor: pointer;\r\n}\r\n/* 修复safari上图标大小未正常显示 */\r\n.pops-panel-deepMenu-container\r\n	.pops-panel-deepMenu-container-left-arrow-icon\r\n	> svg {\r\n	width: inherit;\r\n	height: inherit;\r\n}\r\n/* deepMenu的css */\r\n\r\n/* <code> */\r\n.pops[type-value="panel"] code {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: #000;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n	border: 0;\r\n	padding: 0.2em 0;\r\n	white-space: normal;\r\n	background: #f5f5f5;\r\n	text-wrap: wrap;\r\n	text-align: left;\r\n	word-spacing: normal;\r\n	word-break: normal;\r\n	word-wrap: normal;\r\n	line-height: 1.4;\r\n	-moz-tab-size: 8;\r\n	-o-tab-size: 8;\r\n	tab-size: 8;\r\n	-webkit-hyphens: none;\r\n	-moz-hyphens: none;\r\n	-ms-hyphens: none;\r\n	hyphens: none;\r\n	direction: ltr;\r\n}\r\n\r\n.pops[type-value="panel"] code::before,\r\n.pops[type-value="panel"] code::after {\r\n	letter-spacing: -0.2em;\r\n	content: "\\00a0";\r\n}\r\n';
+  var rightClickMenuCSS = '.pops-rightClickMenu * {\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	margin: 0;\r\n	padding: 0;\r\n	-webkit-tap-highlight-color: transparent;\r\n	scrollbar-width: thin;\r\n}\r\n.pops-rightClickMenu {\r\n	position: fixed;\r\n	z-index: 10000;\r\n	text-align: center;\r\n	border-radius: 3px;\r\n	font-size: 16px;\r\n	font-weight: 500;\r\n	background: #fff;\r\n	box-shadow: 0px 1px 6px 1px #cacaca;\r\n}\r\n.pops-rightClickMenu-anim-grid {\r\n	display: grid;\r\n	transition: 0.3s;\r\n	grid-template-rows: 0fr;\r\n}\r\n.pops-rightClickMenu-anim-show {\r\n	grid-template-rows: 1fr;\r\n}\r\n.pops-rightClickMenu-is-visited {\r\n	background: #dfdfdf;\r\n}\r\ni.pops-rightClickMenu-icon {\r\n	height: 1em;\r\n	width: 1em;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n	color: inherit;\r\n	font-size: inherit;\r\n	margin-right: 6px;\r\n}\r\ni.pops-rightClickMenu-icon[is-loading="true"] {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n.pops-rightClickMenu li:hover {\r\n	background: #dfdfdf;\r\n	cursor: pointer;\r\n}\r\n.pops-rightClickMenu ul {\r\n	margin: 0;\r\n	padding: 0;\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: flex-start;\r\n	justify-content: center;\r\n	overflow: hidden;\r\n}\r\n.pops-rightClickMenu ul li {\r\n	padding: 5px 10px;\r\n	margin: 5px 5px;\r\n	border-radius: 3px;\r\n	display: flex;\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n	text-align: left;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	align-items: center;\r\n}\r\n';
+  const PopsCSS = {
+    /** 主CSS */
+    index: indexCSS,
+    /** 九宫格位置CSS */
+    ninePalaceGridPosition: ninePalaceGridPositionCSS,
+    /** 滚动条CSS */
+    scrollbar: scrollbarCSS,
+    /** 按钮CSS */
+    button: buttonCSS,
+    /** 通用的CSS */
+    common: commonCSS,
+    /** 动画 */
+    anim: animCSS,
+    /** pops.alert */
+    alertCSS,
+    /** pops.cponfirm */
+    confirmCSS,
+    /** pops.prompt */
+    promptCSS,
+    /** pops.loading */
+    loadingCSS,
+    /** pops.iframe */
+    iframeCSS,
+    /** pops.tooltip */
+    tooltipCSS,
+    /** pops.drawer */
+    drawerCSS,
+    /** pops.folder */
+    folderCSS,
+    /** pops.folder */
+    panelCSS,
+    /** pops.rightClickMenu */
+    rightClickMenu: rightClickMenuCSS
+  };
+  const PopsAnimation = {
+    $data: {},
+    $flag: {
+      /** 是否初始化 */
+      isInit: false
+    },
+    init() {
+      if (!this.$flag.isInit) {
+        this.$flag.isInit = true;
+        let animationStyle = document.createElement("style");
+        PopsSafeUtils.setSafeHTML(animationStyle, PopsCSS.anim);
+        popsDOMUtils.appendHead(animationStyle);
+        this.$data = null;
+        this.$data = popsDOMUtils.getKeyFrames(animationStyle.sheet);
+        popsUtils.setTimeout(() => {
+          animationStyle.remove();
+        }, 50);
+      }
+    },
+    /**
+     * 判断是否存在某个动画名
+     */
+    hasAnim(name) {
+      return this.$data.hasOwnProperty(name);
+    }
+  };
   const PopsInstanceUtils = {
     /**
      * 获取页面中最大的z-index的元素信息
@@ -13757,8 +14322,8 @@ ${err.stack}`);
       function isVisibleNode($css) {
         return $css.position !== "static" && $css.display !== "none";
       }
-      Object.keys(pops.config.layer).forEach((layerName) => {
-        let layerList = pops.config.layer[layerName];
+      Object.keys(PopsLayer).forEach((layerName) => {
+        let layerList = PopsLayer[layerName];
         for (let index = 0; index < layerList.length; index++) {
           const layer = layerList[index];
           let nodeStyle = window.getComputedStyle(layer.animElement);
@@ -13791,20 +14356,6 @@ ${err.stack}`);
       return this.getMaxZIndexNodeInfo(deviation).zIndex;
     },
     /**
-     * 获取CSS Rule
-     * @param sheet
-     * @returns
-     */
-    getKeyFrames(sheet) {
-      let result2 = {};
-      Object.keys(sheet.cssRules).forEach((key) => {
-        if (sheet.cssRules[key].type === 7 && sheet.cssRules[key].name.startsWith("pops-anim-")) {
-          result2[sheet.cssRules[key].name] = sheet.cssRules[key];
-        }
-      });
-      return result2;
-    },
-    /**
      * 删除配置中对应的对象
      * @param moreLayerConfigList 配置实例列表
      * @param  guid 唯一标识
@@ -13824,11 +14375,13 @@ ${err.stack}`);
       moreLayerConfigList.forEach((layerConfigList) => {
         layerConfigList.forEach((layerConfigItem, index) => {
           if (isAll || layerConfigItem["guid"] === guid) {
-            if (pops.config.animation.hasOwnProperty(layerConfigItem.animElement.getAttribute("anim"))) {
+            let animName = layerConfigItem.animElement.getAttribute("anim");
+            if (PopsAnimation.hasAnim(animName)) {
+              let reverseAnimName = animName + "-reverse";
               layerConfigItem.animElement.style.width = "100%";
               layerConfigItem.animElement.style.height = "100%";
-              layerConfigItem.animElement.style["animation-name"] = layerConfigItem.animElement.getAttribute("anim") + "-reverse";
-              if (pops.config.animation.hasOwnProperty(layerConfigItem.animElement.style["animation-name"])) {
+              layerConfigItem.animElement.style["animation-name"] = reverseAnimName;
+              if (PopsAnimation.hasAnim(layerConfigItem.animElement.style["animation-name"])) {
                 popsDOMUtils.on(layerConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), function() {
                   removeItem(layerConfigItem);
                 }, {
@@ -13878,7 +14431,7 @@ ${err.stack}`);
             layerConfigItem.animElement.style.width = "100%";
             layerConfigItem.animElement.style.height = "100%";
             layerConfigItem.animElement.style["animation-name"] = layerConfigItem.animElement.getAttribute("anim") + "-reverse";
-            if (pops.config.animation.hasOwnProperty(layerConfigItem.animElement.style["animation-name"])) {
+            if (PopsAnimation.hasAnim(layerConfigItem.animElement.style["animation-name"])) {
               let animationendCallBack2 = function() {
                 layerConfigItem.animElement.style.display = "none";
                 if (layerConfigItem.maskElement) {
@@ -13937,7 +14490,7 @@ ${err.stack}`);
             layerConfigItem.animElement.style.width = "";
             layerConfigItem.animElement.style.height = "";
             layerConfigItem.animElement.style["animation-name"] = layerConfigItem.animElement.getAttribute("anim").replace("-reverse", "");
-            if (pops.config.animation.hasOwnProperty(layerConfigItem.animElement.style["animation-name"])) {
+            if (PopsAnimation.hasAnim(layerConfigItem.animElement.style["animation-name"])) {
               let animationendCallBack2 = function() {
                 popsDOMUtils.off(layerConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
                   capture: true
@@ -14192,22 +14745,55 @@ ${err.stack}`);
       };
     }
   };
-  var indexCSS = '@charset "utf-8";\r\n.pops * {\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	margin: 0;\r\n	padding: 0;\r\n	-webkit-tap-highlight-color: transparent;\r\n	/* 代替::-webkit-scrollbar */\r\n	scrollbar-width: thin;\r\n}\r\n.pops {\r\n	--pops-bg-opacity: 1;\r\n	--pops-bd-opacity: 1;\r\n	--pops-font-size: 16px;\r\n	interpolate-size: allow-keywords;\r\n}\r\n.pops-mask {\r\n	--pops-mask-bg-opacity: 0.4;\r\n}\r\n.pops {\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	border-radius: 4px;\r\n	border: 1px solid rgb(235, 238, 245, var(--pops-bd-opacity));\r\n	font-size: var(--pops-font-size);\r\n	line-height: normal;\r\n	box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);\r\n	box-sizing: border-box;\r\n	overflow: hidden;\r\n	transition: all 0.35s;\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.pops-anim {\r\n	position: fixed;\r\n	top: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.pops-anim[anim=""] {\r\n	top: unset;\r\n	right: unset;\r\n	bottom: unset;\r\n	left: unset;\r\n	width: unset;\r\n	height: unset;\r\n	transition: none;\r\n}\r\n/* 底部图标动画和样式 */\r\n.pops i.pops-bottom-icon[is-loading="true"] {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n.pops i.pops-bottom-icon {\r\n	height: 1em;\r\n	width: 1em;\r\n	line-height: normal;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n	color: inherit;\r\n	font-size: inherit;\r\n}\r\n\r\n/* 遮罩层样式 */\r\n.pops-mask {\r\n	position: fixed;\r\n	top: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	border: 0;\r\n	border-radius: 0;\r\n	background-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));\r\n	box-shadow: none;\r\n	transition: none;\r\n}\r\n\r\n.pops-header-controls button.pops-header-control[type][data-header] {\r\n	float: right;\r\n	margin: 0 0;\r\n	outline: 0;\r\n	border: 0;\r\n	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\r\n	background-color: transparent;\r\n	color: #888;\r\n	cursor: pointer;\r\n}\r\n.pops-header-controls button.pops-header-control[type="max"],\r\n.pops-header-controls button.pops-header-control[type="mise"],\r\n.pops-header-controls button.pops-header-control[type="min"] {\r\n	outline: 0 !important;\r\n	border: 0;\r\n	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\r\n	background-color: transparent;\r\n	color: rgb(136, 136, 136);\r\n	cursor: pointer;\r\n	transition: all 0.3s ease-in-out;\r\n}\r\nbutton.pops-header-control i {\r\n	color: rgb(144, 147, 153);\r\n	font-size: inherit;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n}\r\nbutton.pops-header-control svg {\r\n	height: 1.25em;\r\n	width: 1.25em;\r\n}\r\nbutton.pops-header-control {\r\n	right: 15px;\r\n	padding: 0;\r\n	border: none;\r\n	outline: 0;\r\n	background: 0 0;\r\n	cursor: pointer;\r\n	position: unset;\r\n	line-height: normal;\r\n}\r\nbutton.pops-header-control i:hover {\r\n	color: rgb(64, 158, 255);\r\n}\r\n.pops-header-controls[data-margin] button.pops-header-control {\r\n	margin: 0 6px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops[type-value] .pops-header-controls {\r\n	display: flex;\r\n	gap: 6px;\r\n}\r\n\r\n/* 标题禁止选中文字 */\r\n.pops [class^="pops"][class*="-title"] p[pops] {\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n}\r\n';
-  var ninePalaceGridPositionCSS = '.pops[position="top_left"] {\r\n	position: fixed;\r\n	top: 0;\r\n	left: 0;\r\n}\r\n.pops[position="top"] {\r\n	position: fixed;\r\n	top: 0;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n}\r\n.pops[position="top_right"] {\r\n	position: fixed;\r\n	top: 0;\r\n	right: 0;\r\n}\r\n.pops[position="center_left"] {\r\n	position: fixed;\r\n	top: 50%;\r\n	left: 0;\r\n	transform: translateY(-50%);\r\n}\r\n.pops[position="center"] {\r\n	position: fixed;\r\n	top: 50%;\r\n	left: 50%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n.pops[position="center_right"] {\r\n	position: fixed;\r\n	top: 50%;\r\n	right: 0;\r\n	transform: translateY(-50%);\r\n}\r\n.pops[position="bottom_left"] {\r\n	position: fixed;\r\n	bottom: 0;\r\n	left: 0;\r\n}\r\n.pops[position="bottom"] {\r\n	position: fixed;\r\n	bottom: 0;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n}\r\n.pops[position="bottom_right"] {\r\n	position: fixed;\r\n	right: 0;\r\n	bottom: 0;\r\n}\r\n';
-  var scrollbarCSS = "/* firefox上暂不支持::-webkit-scrollbar */\r\n.pops ::-webkit-scrollbar {\r\n	width: 6px;\r\n	height: 0;\r\n}\r\n\r\n.pops ::-webkit-scrollbar-track {\r\n	width: 0;\r\n}\r\n.pops ::-webkit-scrollbar-thumb:hover {\r\n	background: rgb(178, 178, 178, var(--pops-bg-opacity));\r\n}\r\n.pops ::-webkit-scrollbar-thumb {\r\n	min-height: 28px;\r\n	border-radius: 2em;\r\n	background: rgb(204, 204, 204, var(--pops-bg-opacity));\r\n	background-clip: padding-box;\r\n}\r\n";
-  var buttonCSS = '.pops {\r\n	--button-font-size: 14px;\r\n	--button-height: 32px;\r\n	--button-color: rgb(51, 51, 51);\r\n	--button-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n	--button-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n	--button-margin-top: 0px;\r\n	--button-margin-bottom: 0px;\r\n	--button-margin-left: 5px;\r\n	--button-margin-right: 5px;\r\n	--button-padding-top: 6px;\r\n	--button-padding-bottom: 6px;\r\n	--button-padding-left: 12px;\r\n	--button-padding-right: 12px;\r\n	--button-radius: 4px;\r\n\r\n	--container-title-height: 55px;\r\n	--container-bottom-btn-height: 55px;\r\n}\r\n.pops[data-bottom-btn="false"] {\r\n	--container-bottom-btn-height: 0px;\r\n}\r\n.pops button {\r\n	white-space: nowrap;\r\n	float: right;\r\n	display: inline-block;\r\n	margin: var(--button-margin-top) var(--button-margin-right)\r\n		var(--button-margin-bottom) var(--button-margin-left);\r\n	padding: var(--button-padding-top) var(--button-padding-right)\r\n		var(--button-padding-bottom) var(--button-padding-left);\r\n	outline: 0;\r\n}\r\n.pops button[data-has-icon="false"] .pops-bottom-icon {\r\n	display: none;\r\n}\r\n.pops button {\r\n	border-radius: var(--button-radius);\r\n	box-shadow: none;\r\n	font-weight: 400;\r\n	font-size: var(--button-font-size);\r\n	cursor: pointer;\r\n	transition: all 0.3s ease-in-out;\r\n}\r\n.pops button {\r\n	display: flex;\r\n	align-items: center;\r\n	height: var(--button-height);\r\n	line-height: normal;\r\n	box-sizing: border-box;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	border: 1px solid var(--button-bd-color);\r\n}\r\n.pops button {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button:active {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n	outline: 0;\r\n}\r\n.pops button:hover {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button:focus-visible {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button:disabled {\r\n	cursor: not-allowed;\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button.pops-button-large {\r\n	--button-height: 32px;\r\n	--button-padding-top: 12px;\r\n	--button-padding-bottom: 12px;\r\n	--button-padding-left: 19px;\r\n	--button-padding-right: 19px;\r\n	--button-font-size: 14px;\r\n	--button-border-radius: 4px;\r\n}\r\n\r\n.pops button.pops-button-small {\r\n	--button-height: 24px;\r\n	--button-padding-top: 5px;\r\n	--button-padding-bottom: 5px;\r\n	--button-padding-left: 11px;\r\n	--button-padding-right: 11px;\r\n	--button-font-size: 12px;\r\n	--button-border-radius: 4px;\r\n}\r\n.pops-panel-button-no-icon .pops-panel-button_inner i {\r\n	display: none;\r\n}\r\n.pops-panel-button-right-icon {\r\n}\r\n.pops-panel-button-right-icon .pops-panel-button_inner {\r\n	flex-direction: row-reverse;\r\n}\r\n.pops-panel-button-right-icon .pops-panel-button_inner i {\r\n}\r\n.pops-panel-button .pops-panel-button_inner i:has(svg),\r\n.pops-panel-button-right-icon .pops-panel-button-text {\r\n	margin-right: 6px;\r\n}\r\n\r\n.pops button[type="default"] {\r\n	--button-color: #333333;\r\n	--button-bd-color: #dcdfe6;\r\n	--button-bg-color: #ffffff;\r\n}\r\n.pops button[type="default"]:active {\r\n	--button-color: #409eff;\r\n	--button-bd-color: #409eff;\r\n	--button-bg-color: #ecf5ff;\r\n}\r\n.pops button[type="default"]:hover {\r\n	--button-color: #409eff;\r\n	--button-bd-color: #c6e2ff;\r\n	--button-bg-color: #ecf5ff;\r\n}\r\n.pops button[type="default"]:focus-visible {\r\n	outline: 2px solid #a0cfff;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="default"]:disabled {\r\n	--button-color: #a8abb2;\r\n	--button-bd-color: #fff;\r\n	--button-bg-color: #e4e7ed;\r\n}\r\n\r\n.pops button[type="primary"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #409eff;\r\n	--button-bg-color: #409eff;\r\n}\r\n.pops button[type="primary"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #337ecc;\r\n	--button-bg-color: #337ecc;\r\n}\r\n.pops button[type="primary"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #79bbff;\r\n	--button-bg-color: #79bbff;\r\n}\r\n.pops button[type="primary"]:focus-visible {\r\n	outline: 2px solid #a0cfff;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="primary"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #a0cfff;\r\n	--button-bg-color: #a0cfff;\r\n}\r\n\r\n.pops button[type="success"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #4cae4c;\r\n	--button-bg-color: #5cb85c;\r\n}\r\n.pops button[type="success"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #529b2e;\r\n	--button-bg-color: #529b2e;\r\n}\r\n.pops button[type="success"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #95d475;\r\n	--button-bg-color: #95d475;\r\n}\r\n.pops button[type="success"]:focus-visible {\r\n	outline: 2px solid #b3e19d;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="success"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #b3e19d;\r\n	--button-bg-color: #b3e19d;\r\n}\r\n\r\n.pops button[type="info"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #909399;\r\n	--button-bg-color: #909399;\r\n}\r\n.pops button[type="info"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #73767a;\r\n	--button-bg-color: #73767a;\r\n}\r\n.pops button[type="info"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #b1b3b8;\r\n	--button-bg-color: #b1b3b8;\r\n}\r\n.pops button[type="info"]:focus-visible {\r\n	outline: 2px solid #c8c9cc;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="info"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #c8c9cc;\r\n	--button-bg-color: #c8c9cc;\r\n}\r\n\r\n.pops button[type="warning"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #e6a23c;\r\n	--button-bg-color: #e6a23c;\r\n}\r\n.pops button[type="warning"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #b88230;\r\n	--button-bg-color: #b88230;\r\n}\r\n.pops button[type="warning"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #eebe77;\r\n	--button-bg-color: #eebe77;\r\n}\r\n.pops button[type="warning"]:focus-visible {\r\n	outline: 2px solid #f3d19e;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="warning"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #f3d19e;\r\n	--button-bg-color: #f3d19e;\r\n}\r\n\r\n.pops button[type="danger"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #f56c6c;\r\n	--button-bg-color: #f56c6c;\r\n}\r\n.pops button[type="danger"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #c45656;\r\n	--button-bg-color: #c45656;\r\n}\r\n.pops button[type="danger"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #f89898;\r\n	--button-bg-color: #f89898;\r\n}\r\n.pops button[type="danger"]:focus-visible {\r\n	outline: 2px solid #fab6b6;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="danger"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #fab6b6;\r\n	--button-bg-color: #fab6b6;\r\n}\r\n\r\n.pops button[type="xiaomi-primary"] {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #ff5c00;\r\n	--button-bg-color: #ff5c00;\r\n}\r\n.pops button[type="xiaomi-primary"]:active {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #da4f00;\r\n	--button-bg-color: #da4f00;\r\n}\r\n.pops button[type="xiaomi-primary"]:hover {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #ff7e29;\r\n	--button-bg-color: #ff7e29;\r\n}\r\n.pops button[type="xiaomi-primary"]:focus-visible {\r\n	outline: 2px solid #fab6b6;\r\n	outline-offset: 1px;\r\n}\r\n.pops button[type="xiaomi-primary"]:disabled {\r\n	--button-color: #ffffff;\r\n	--button-bd-color: #fad5b6;\r\n	--button-bg-color: #fad5b6;\r\n}\r\n';
-  var commonCSS = ".pops-flex-items-center {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops-flex-y-center {\r\n	display: flex;\r\n	justify-content: space-between;\r\n}\r\n.pops-flex-x-center {\r\n	display: flex;\r\n	align-content: center;\r\n}\r\n.pops-hide {\r\n	display: none;\r\n}\r\n.pops-hide-important {\r\n	display: none !important;\r\n}\r\n.pops-no-border {\r\n	border: 0;\r\n}\r\n.pops-no-border-important {\r\n	border: 0 !important;\r\n}\r\n.pops-user-select-none {\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-ms-user-select: none;\r\n	-moz-user-select: none;\r\n}\r\n.pops-line-height-center {\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops-width-fill {\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n}\r\n";
-  var animCSS = '@keyframes rotating {\r\n	0% {\r\n		transform: rotate(0);\r\n	}\r\n	to {\r\n		transform: rotate(360deg);\r\n	}\r\n}\r\n@keyframes iframeLoadingChange_85 {\r\n	0% {\r\n		background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n	}\r\n	20% {\r\n		background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\r\n	}\r\n	40% {\r\n		background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\r\n	}\r\n	60% {\r\n		background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\r\n	}\r\n	80% {\r\n		background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\r\n	}\r\n	100% {\r\n		background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\r\n	}\r\n	from {\r\n		width: 75%;\r\n	}\r\n	to {\r\n		width: 100%;\r\n	}\r\n}\r\n@keyframes iframeLoadingChange {\r\n	0% {\r\n		background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n	}\r\n	20% {\r\n		background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\r\n	}\r\n	40% {\r\n		background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\r\n	}\r\n	60% {\r\n		background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\r\n	}\r\n	80% {\r\n		background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\r\n	}\r\n	100% {\r\n		background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\r\n	}\r\n	from {\r\n		width: 0;\r\n	}\r\n	to {\r\n		width: 75%;\r\n	}\r\n}\r\n\r\n@keyframes searchSelectFalIn {\r\n	from {\r\n		opacity: 0;\r\n		display:none;\r\n	}\r\n	to {\r\n		display:block;\r\n		opacity: 1;\r\n	}\r\n}\r\n@keyframes searchSelectFalOut {\r\n	from {\r\n		display:block;\r\n		opacity: 1;\r\n	}\r\n	to {\r\n		opacity: 0;\r\n		display:none;\r\n	}\r\n}\r\n\r\n@keyframes pops-anim-wait-rotate {\r\n	form {\r\n		transform: rotate(0);\r\n	}\r\n	to {\r\n		transform: rotate(360deg);\r\n	}\r\n}\r\n@keyframes pops-anim-spread {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scaleX(0);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scaleX(1);\r\n	}\r\n}\r\n@keyframes pops-anim-shake {\r\n	0%,\r\n	100% {\r\n		transform: translateX(0);\r\n	}\r\n	10%,\r\n	30%,\r\n	50%,\r\n	70%,\r\n	90% {\r\n		transform: translateX(-10px);\r\n	}\r\n	20%,\r\n	40%,\r\n	60%,\r\n	80% {\r\n		transform: translateX(10px);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-left {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateX(-100%) rotate(-120deg);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-right {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateX(100%) rotate(120deg);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-top {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateY(-200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-bottom {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateY(200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-left {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateX(-200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-right {\r\n	0% {\r\n		transform: translateX(200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein {\r\n	0% {\r\n		opacity: 0;\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-zoom {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale(0.5);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scale(1);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-alert {\r\n	0% {\r\n		transform: scale(0.5);\r\n	}\r\n	45% {\r\n		transform: scale(1.05);\r\n	}\r\n	80% {\r\n		transform: scale(0.95);\r\n	}\r\n	100% {\r\n		transform: scale(1);\r\n	}\r\n}\r\n@keyframes pops-anim-don {\r\n	0% {\r\n		opacity: 0;\r\n		transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	2.08333% {\r\n		transform: matrix3d(\r\n			0.75266,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.76342,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	4.16667% {\r\n		transform: matrix3d(\r\n			0.81071,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.84545,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	6.25% {\r\n		transform: matrix3d(\r\n			0.86808,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.9286,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	8.33333% {\r\n		transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	10.4167% {\r\n		transform: matrix3d(\r\n			0.96482,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.05202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	12.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	14.5833% {\r\n		transform: matrix3d(\r\n			1.02563,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.09149,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	16.6667% {\r\n		transform: matrix3d(\r\n			1.04227,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.08453,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	18.75% {\r\n		transform: matrix3d(\r\n			1.05102,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.06666,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	20.8333% {\r\n		transform: matrix3d(\r\n			1.05334,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.04355,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	22.9167% {\r\n		transform: matrix3d(\r\n			1.05078,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.02012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	25% {\r\n		transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	27.0833% {\r\n		transform: matrix3d(\r\n			1.03699,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98534,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	29.1667% {\r\n		transform: matrix3d(\r\n			1.02831,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97688,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	31.25% {\r\n		transform: matrix3d(\r\n			1.01973,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97422,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	33.3333% {\r\n		transform: matrix3d(\r\n			1.01191,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97618,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	35.4167% {\r\n		transform: matrix3d(\r\n			1.00526,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98122,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	37.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	39.5833% {\r\n		transform: matrix3d(\r\n			0.99617,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99433,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	41.6667% {\r\n		transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	43.75% {\r\n		transform: matrix3d(\r\n			0.99237,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00413,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	45.8333% {\r\n		transform: matrix3d(\r\n			0.99202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00651,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	47.9167% {\r\n		transform: matrix3d(\r\n			0.99241,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00726,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	50% {\r\n		opacity: 1;\r\n		transform: matrix3d(\r\n			0.99329,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00671,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	52.0833% {\r\n		transform: matrix3d(\r\n			0.99447,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00529,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	54.1667% {\r\n		transform: matrix3d(\r\n			0.99577,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00346,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	56.25% {\r\n		transform: matrix3d(\r\n			0.99705,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.0016,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	58.3333% {\r\n		transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	60.4167% {\r\n		transform: matrix3d(\r\n			0.99921,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99884,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	62.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	64.5833% {\r\n		transform: matrix3d(\r\n			1.00057,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99795,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	66.6667% {\r\n		transform: matrix3d(\r\n			1.00095,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99811,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	68.75% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99851,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	70.8333% {\r\n		transform: matrix3d(\r\n			1.00119,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99903,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	72.9167% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99955,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	75% {\r\n		transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	77.0833% {\r\n		transform: matrix3d(\r\n			1.00083,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00033,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	79.1667% {\r\n		transform: matrix3d(\r\n			1.00063,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00052,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	81.25% {\r\n		transform: matrix3d(\r\n			1.00044,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00058,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	83.3333% {\r\n		transform: matrix3d(\r\n			1.00027,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00053,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	85.4167% {\r\n		transform: matrix3d(\r\n			1.00012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00042,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	87.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	89.5833% {\r\n		transform: matrix3d(\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00013,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	91.6667% {\r\n		transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	93.75% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	95.8333% {\r\n		transform: matrix3d(\r\n			0.99982,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99985,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	97.9167% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99984,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-roll {\r\n	0% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\r\n	}\r\n	100% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\r\n	}\r\n}\r\n@keyframes pops-anim-sandra {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale3d(1.1, 1.1, 1);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scale3d(1, 1, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-gather {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale(5, 0);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scale(1, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-spread-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: scaleX(1);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scaleX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-shake-reverse {\r\n	0%,\r\n	100% {\r\n		transform: translateX(10px);\r\n	}\r\n	10%,\r\n	30%,\r\n	50%,\r\n	70%,\r\n	90% {\r\n		transform: translateX(-10px);\r\n	}\r\n	20%,\r\n	40%,\r\n	60%,\r\n	80% {\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-left-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateX(-100%) rotate(-120deg);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-right-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateX(100%) rotate(120deg);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-top-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateY(-200%);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-bottom-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateY(200%);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-left-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateX(-200%);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-right-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		transform: translateX(200%);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-reverse {\r\n	0% {\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-zoom-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: scale(1);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scale(0.5);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-alert-reverse {\r\n	0% {\r\n		transform: scale(1);\r\n	}\r\n	45% {\r\n		transform: scale(0.95);\r\n	}\r\n	80% {\r\n		transform: scale(1.05);\r\n	}\r\n	100% {\r\n		transform: scale(0.5);\r\n	}\r\n}\r\n@keyframes pops-anim-don-reverse {\r\n	100% {\r\n		opacity: 0;\r\n		transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	97.9167% {\r\n		transform: matrix3d(\r\n			0.75266,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.76342,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	95.8333% {\r\n		transform: matrix3d(\r\n			0.81071,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.84545,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	93.75% {\r\n		transform: matrix3d(\r\n			0.86808,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.9286,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	91.6667% {\r\n		transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	89.5833% {\r\n		transform: matrix3d(\r\n			0.96482,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.05202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	87.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	85.4167% {\r\n		transform: matrix3d(\r\n			1.02563,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.09149,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	83.3333% {\r\n		transform: matrix3d(\r\n			1.04227,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.08453,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	81.25% {\r\n		transform: matrix3d(\r\n			1.05102,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.06666,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	79.1667% {\r\n		transform: matrix3d(\r\n			1.05334,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.04355,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	77.0833% {\r\n		transform: matrix3d(\r\n			1.05078,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.02012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	75% {\r\n		transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	72.9167% {\r\n		transform: matrix3d(\r\n			1.03699,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98534,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	70.8333% {\r\n		transform: matrix3d(\r\n			1.02831,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97688,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	68.75% {\r\n		transform: matrix3d(\r\n			1.01973,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97422,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	66.6667% {\r\n		transform: matrix3d(\r\n			1.01191,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97618,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	64.5833% {\r\n		transform: matrix3d(\r\n			1.00526,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98122,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	62.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	60.4167% {\r\n		transform: matrix3d(\r\n			0.99617,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99433,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	58.3333% {\r\n		transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	56.25% {\r\n		transform: matrix3d(\r\n			0.99237,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00413,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	54.1667% {\r\n		transform: matrix3d(\r\n			0.99202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00651,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	52.0833% {\r\n		transform: matrix3d(\r\n			0.99241,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00726,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	50% {\r\n		opacity: 1;\r\n		transform: matrix3d(\r\n			0.99329,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00671,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	47.9167% {\r\n		transform: matrix3d(\r\n			0.99447,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00529,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	45.8333% {\r\n		transform: matrix3d(\r\n			0.99577,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00346,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	43.75% {\r\n		transform: matrix3d(\r\n			0.99705,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.0016,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	41.6667% {\r\n		transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	39.5833% {\r\n		transform: matrix3d(\r\n			0.99921,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99884,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	37.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	35.4167% {\r\n		transform: matrix3d(\r\n			1.00057,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99795,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	33.3333% {\r\n		transform: matrix3d(\r\n			1.00095,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99811,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	31.25% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99851,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	29.1667% {\r\n		transform: matrix3d(\r\n			1.00119,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99903,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	27.0833% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99955,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	25% {\r\n		transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	22.9167% {\r\n		transform: matrix3d(\r\n			1.00083,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00033,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	20.8333% {\r\n		transform: matrix3d(\r\n			1.00063,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00052,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	18.75% {\r\n		transform: matrix3d(\r\n			1.00044,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00058,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	16.6667% {\r\n		transform: matrix3d(\r\n			1.00027,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00053,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	14.5833% {\r\n		transform: matrix3d(\r\n			1.00012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00042,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	12.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	10.4167% {\r\n		transform: matrix3d(\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00013,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	8.33333% {\r\n		transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	6.25% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	4.16667% {\r\n		transform: matrix3d(\r\n			0.99982,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99985,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	2.08333% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99984,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	0% {\r\n		opacity: 1;\r\n		transform: matrix3d(\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0type=close,\r\n			1\r\n		);\r\n	}\r\n}\r\n@keyframes pops-anim-roll-reverse {\r\n	0% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\r\n	}\r\n	100% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\r\n	}\r\n}\r\n@keyframes pops-anim-sandra-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: scale3d(1, 1, 1);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scale3d(1.1, 1.1, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-gather-reverse {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale(5, 0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scale(5, 0);\r\n	}\r\n}\r\n\r\n@-webkit-keyframes pops-motion-fadeInTop {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(-30px);\r\n		transform: translateY(-30px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInTop {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateY(-30px);\r\n		-ms-transform: translateY(-30px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutTop {\r\n	0% {\r\n		opacity: 10;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(-30px);\r\n		transform: translateY(-30px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutTop {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n		-ms-transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateY(-30px);\r\n		-ms-transform: translateY(-30px);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeInBottom {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInBottom {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n		-ms-transform: translateY(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n		-ms-transform: translateY(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutBottom {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutBottom {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n		-ms-transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n		-ms-transform: translateY(20px);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeInLeft {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-20px);\r\n		transform: translateX(-20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInLeft {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-30px);\r\n		transform: translateX(-30px);\r\n		-ms-transform: translateX(-30px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutLeft {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-30px);\r\n		transform: translateX(-30px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutLeft {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-20px);\r\n		transform: translateX(-20px);\r\n		-ms-transform: translateX(-20px);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeInRight {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInRight {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n		-ms-transform: translateX(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutRight {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutRight {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n		-ms-transform: translateX(20px);\r\n	}\r\n}\r\n\r\n/* 动画 */\r\n.pops-anim[anim="pops-anim-spread"] {\r\n	animation: pops-anim-spread 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-shake"] {\r\n	animation: pops-anim-shake 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-left"] {\r\n	animation: pops-anim-rolling-left 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-right"] {\r\n	animation: pops-anim-rolling-right 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-top"] {\r\n	animation: pops-anim-slide-top 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-bottom"] {\r\n	animation: pops-anim-slide-bottom 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-left"] {\r\n	animation: pops-anim-slide-left 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-right"] {\r\n	animation: pops-anim-slide-right 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein"] {\r\n	animation: pops-anim-fadein 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-zoom"] {\r\n	animation: pops-anim-fadein-zoom 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-alert"] {\r\n	animation: pops-anim-fadein-alert 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-don"] {\r\n	animation: pops-anim-don 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-roll"] {\r\n	animation: pops-anim-roll 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-sandra"] {\r\n	animation: pops-anim-sandra 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-gather"] {\r\n	animation: pops-anim-gather 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-spread-reverse"] {\r\n	animation: pops-anim-spread-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-shake-reverse"] {\r\n	animation: pops-anim-shake-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-left-reverse"] {\r\n	animation: pops-anim-rolling-left-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-right-reverse"] {\r\n	animation: pops-anim-rolling-right-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-top-reverse"] {\r\n	animation: pops-anim-slide-top-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-bottom-reverse"] {\r\n	animation: pops-anim-slide-bottom-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-left-reverse"] {\r\n	animation: pops-anim-slide-left-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-right-reverse"] {\r\n	animation: pops-anim-slide-right-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-reverse"] {\r\n	animation: pops-anim-fadein-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-zoom-reverse"] {\r\n	animation: pops-anim-fadein-zoom-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-alert-reverse"] {\r\n	animation: pops-anim-fadein-alert-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-don-reverse"] {\r\n	animation: pops-anim-don-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-roll-reverse"] {\r\n	animation: pops-anim-roll-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-sandra-reverse"] {\r\n	animation: pops-anim-sandra-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-gather-reverse"] {\r\n	animation: pops-anim-gather-reverse 0.3s;\r\n}\r\n';
-  var alertCSS = '.pops[type-value] .pops-alert-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value="alert"] .pops-alert-title {\r\n	width: 100%;\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="alert"] .pops-alert-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n}\r\n.pops[type-value="alert"] .pops-alert-content {\r\n	width: 100%;\r\n	/*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n	flex: 1;\r\n	overflow: auto;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="alert"] .pops-alert-content p[pops] {\r\n	padding: 5px 10px;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n}\r\n.pops[type-value="alert"] .pops-alert-btn {\r\n	/*position: absolute;\r\n	bottom: 0;*/\r\n	display: flex;\r\n	padding: 10px 10px 10px 10px;\r\n	width: 100%;\r\n	height: var(--container-bottom-btn-height);\r\n	max-height: var(--container-bottom-btn-height);\r\n	line-height: normal;\r\n	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: right;\r\n	align-items: center;\r\n}\r\n';
-  var confirmCSS = '.pops[type-value] .pops-confirm-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value="confirm"] .pops-confirm-title {\r\n	width: 100%;\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="confirm"] .pops-confirm-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n}\r\n.pops[type-value="confirm"] .pops-confirm-content {\r\n	width: 100%;\r\n	/*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n	flex: 1;\r\n	overflow: auto;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="confirm"] .pops-confirm-content p[pops] {\r\n	padding: 5px 10px;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n}\r\n.pops[type-value="confirm"] .pops-confirm-btn {\r\n	/*position: absolute;\r\n	bottom: 0;*/\r\n	display: flex;\r\n	padding: 10px 10px 10px 10px;\r\n	width: 100%;\r\n	height: var(--container-bottom-btn-height);\r\n	max-height: var(--container-bottom-btn-height);\r\n	line-height: normal;\r\n	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: right;\r\n	align-items: center;\r\n}\r\n';
-  var promptCSS = '.pops[type-value] .pops-prompt-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value="prompt"] .pops-prompt-title {\r\n	width: 100%;\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="prompt"] .pops-prompt-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops[type-value="prompt"] .pops-prompt-content {\r\n	width: 100%;\r\n	/*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n	flex: 1;\r\n	overflow: auto;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="prompt"] .pops-prompt-content p[pops] {\r\n	padding: 5px 10px;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n}\r\n.pops[type-value="prompt"] .pops-prompt-btn {\r\n	display: flex;\r\n	padding: 10px 10px 10px 10px;\r\n	width: 100%;\r\n	height: var(--container-bottom-btn-height);\r\n	max-height: var(--container-bottom-btn-height);\r\n	line-height: normal;\r\n	align-content: center;\r\n	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: right;\r\n	align-items: center;\r\n}\r\n.pops[type-value="prompt"] input[pops] {\r\n	padding: 5px 10px;\r\n}\r\n.pops[type-value="prompt"] textarea[pops] {\r\n	padding: 5px 10px;\r\n	resize: none;\r\n}\r\n.pops[type-value="prompt"] input[pops],\r\n.pops[type-value="prompt"] textarea[pops] {\r\n	width: 100%;\r\n	height: 100%;\r\n	outline: 0;\r\n	border: 0;\r\n	color: rgb(51, 51, 51);\r\n}\r\n';
-  var loadingCSS = '.pops[type-value="loading"] {\r\n	position: absolute;\r\n	top: 272.5px;\r\n	top: 50%;\r\n	left: 26px;\r\n	left: 50%;\r\n	display: flex;\r\n	overflow: hidden;\r\n	padding: 10px 15px;\r\n	max-width: 100%;\r\n	max-height: 100%;\r\n	min-width: 0;\r\n	min-height: 0;\r\n	border: 1px solid rgba(0, 0, 0, 0.2);\r\n	border-radius: 5px;\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	box-shadow: 0 0 5px rgb(0 0 0 / 50%);\r\n	vertical-align: middle;\r\n	transition: all 0.35s;\r\n	transform: translate(-50%, -50%);\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	justify-content: center;\r\n	align-content: center;\r\n}\r\n.pops[type-value="loading"]:before {\r\n	float: left;\r\n	display: inline-block;\r\n	width: 2em;\r\n	height: 2em;\r\n	border: 0.3em solid rgba(100, 149, 237, 0.1);\r\n	border-top: 0.3em solid rgb(100, 149, 237, var(--pops-bd-opacity));\r\n	border-radius: 50%;\r\n	content: " ";\r\n	vertical-align: middle;\r\n	font-size: inherit;\r\n	animation: pops-anim-wait-rotate 1.2s linear infinite;\r\n}\r\n.pops[type-value="loading"] .pops-loading-content {\r\n	position: static;\r\n	top: 0;\r\n	bottom: 0;\r\n	float: left;\r\n	overflow: hidden;\r\n	width: auto;\r\n	font-size: inherit;\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops[type-value="loading"] .pops-loading-content p[pops] {\r\n	display: inline-block;\r\n	padding: 5px 0px;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	font-size: inherit;\r\n	text-align: center;\r\n}\r\n';
-  var iframeCSS = '.pops[type-value="iframe"] {\r\n	--container-title-height: 55px;\r\n	transition: width 0.35s ease, height 0.35s ease;\r\n}\r\n.pops[type-value] .pops-iframe-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value="iframe"] .pops-iframe-title {\r\n	width: calc(100% - 0px);\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="iframe"] .pops-iframe-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops[type-value="iframe"] .pops-iframe-content {\r\n	width: 100%;\r\n	/*height: calc(100% - var(--container-title-height));*/\r\n	flex: 1;\r\n	overflow: hidden;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="iframe"] .pops-iframe-content p[pops] {\r\n	padding: 5px 10px;\r\n	color: #333;\r\n	text-indent: 15px;\r\n}\r\n.pops-loading {\r\n	position: absolute;\r\n	top: 40px;\r\n	right: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n	z-index: 5;\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-loading:before {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	z-index: 3;\r\n	display: block;\r\n	margin: -20px 0 0 -20px;\r\n	padding: 20px;\r\n	border: 4px solid rgb(221, 221, 221, var(--pops-bd-opacity));\r\n	border-radius: 50%;\r\n	content: "";\r\n	border-top-color: transparent;\r\n	animation: pops-anim-wait-rotate 1.2s linear infinite;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="min"] {\r\n	bottom: 0;\r\n	max-width: 200px;\r\n	max-height: 53px;\r\n	position: unset;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="min"]\r\n	.pops-header-control[type="min"] {\r\n	display: none;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-top {\r\n	top: unset !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-left {\r\n	left: unset !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-transform {\r\n	transform: none !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-transition {\r\n	transition: none !important;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="max"] {\r\n	width: 100% !important;\r\n	height: 100% !important;\r\n}\r\n.pops[type-value="iframe"] iframe[pops] {\r\n	width: calc(100% - 4px);\r\n	height: calc(100% - 4px);\r\n	border: 0;\r\n}\r\n.pops-iframe-content-global-loading {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	z-index: 999999;\r\n	width: 0;\r\n	height: 4px;\r\n	background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n	animation: iframeLoadingChange 2s forwards;\r\n}\r\n\r\n.pops-anim:has(.pops[type-value="iframe"].pops[type-module="min"]) {\r\n	position: unset;\r\n}\r\n';
-  var tooltipCSS = '.pops-tip {\r\n	--tooltip-color: #4e4e4e;\r\n	--tooltip-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	--tooltip-bd-radius: 2px;\r\n	--tooltip-font-size: 14px;\r\n	--tooltip-padding-top: 13px;\r\n	--tooltip-padding-right: 13px;\r\n	--tooltip-padding-bottom: 13px;\r\n	--tooltip-padding-left: 13px;\r\n\r\n	--tooltip-arrow--after-color: rgb(78, 78, 78);\r\n	--tooltip-arrow--after-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	--tooltip-arrow--after-width: 12px;\r\n	--tooltip-arrow--after-height: 12px;\r\n\r\n	padding: var(--tooltip-padding-top) var(--tooltip-padding-right)\r\n		var(--tooltip-padding-bottom) var(--tooltip-padding-left);\r\n	max-width: 400px;\r\n	max-height: 300px;\r\n	border-radius: var(--tooltip-bd-radius);\r\n	background-color: var(--tooltip-bg-color);\r\n	box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.24), 0 1.5px 6px rgba(0, 0, 0, 0.12);\r\n	color: var(--tooltip-color);\r\n	font-size: var(--tooltip-font-size);\r\n}\r\n.pops-tip[data-position="absolute"] {\r\n	position: absolute;\r\n}\r\n.pops-tip[data-position="fixed"] {\r\n	position: fixed;\r\n}\r\n/* github的样式 */\r\n.pops-tip.github-tooltip {\r\n	--tooltip-bg-opacity: 1;\r\n	--tooltip-color: rgb(255, 255, 255);\r\n	--tooltip-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\r\n	--tooltip-bd-radius: 6px;\r\n	--tooltip-padding-top: 6px;\r\n	--tooltip-padding-right: 8px;\r\n	--tooltip-padding-bottom: 6px;\r\n	--tooltip-padding-left: 8px;\r\n\r\n	--tooltip-arrow--after-color: rgb(255, 255, 255);\r\n	--tooltip-arrow--after-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\r\n	--tooltip-arrow--after-width: 8px;\r\n	--tooltip-arrow--after-height: 8px;\r\n}\r\n.pops-tip .pops-tip-arrow {\r\n	position: absolute;\r\n	top: 100%;\r\n	left: 50%;\r\n	overflow: hidden;\r\n	width: 100%;\r\n	height: 12.5px;\r\n	transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow::after {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 50%;\r\n	width: var(--tooltip-arrow--after-width);\r\n	height: var(--tooltip-arrow--after-height);\r\n	background: var(--tooltip-arrow--after-bg-color);\r\n	color: var(--tooltip-arrow--after-color);\r\n	box-shadow: 0 1px 7px rgba(0, 0, 0, 0.24), 0 1px 7px rgba(0, 0, 0, 0.12);\r\n	content: "";\r\n	transform: translateX(-50%) translateY(-50%) rotate(45deg);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="bottom"] {\r\n	position: absolute;\r\n	top: 100%;\r\n	left: 50%;\r\n	overflow: hidden;\r\n	width: 100%;\r\n	height: 12.5px;\r\n	transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="bottom"]:after {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 50%;\r\n	width: var(--tooltip-arrow--after-width);\r\n	height: var(--tooltip-arrow--after-height);\r\n	background: var(--tooltip-arrow--after-bg-color);\r\n	box-shadow: 0 1px 7px rgba(0, 0, 0, 0.24), 0 1px 7px rgba(0, 0, 0, 0.12);\r\n	content: "";\r\n	transform: translateX(-50%) translateY(-50%) rotate(45deg);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="left"] {\r\n	top: 50%;\r\n	left: -12.5px;\r\n	width: 12.5px;\r\n	height: 50px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="left"]:after {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 100%;\r\n	content: "";\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="right"] {\r\n	top: 50%;\r\n	right: -12.5px;\r\n	left: auto;\r\n	width: 12.5px;\r\n	height: 50px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="right"]:after {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 0;\r\n	content: "";\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="top"] {\r\n	top: -12.5px;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="top"]:after {\r\n	position: absolute;\r\n	top: 100%;\r\n	left: 50%;\r\n	content: "";\r\n}\r\n\r\n.pops-tip[data-motion] {\r\n	-webkit-animation-duration: 0.25s;\r\n	animation-duration: 0.25s;\r\n	-webkit-animation-fill-mode: forwards;\r\n	animation-fill-mode: forwards;\r\n}\r\n.pops-tip[data-motion="fadeOutRight"] {\r\n	-webkit-animation-name: pops-motion-fadeOutRight;\r\n	animation-name: pops-motion-fadeOutRight;\r\n}\r\n.pops-tip[data-motion="fadeInTop"] {\r\n	-webkit-animation-name: pops-motion-fadeInTop;\r\n	animation-name: pops-motion-fadeInTop;\r\n	animation-timing-function: cubic-bezier(0.49, 0.49, 0.13, 1.3);\r\n}\r\n.pops-tip[data-motion="fadeOutTop"] {\r\n	-webkit-animation-name: pops-motion-fadeOutTop;\r\n	animation-name: pops-motion-fadeOutTop;\r\n	animation-timing-function: cubic-bezier(0.32, 0.37, 0.06, 0.87);\r\n}\r\n.pops-tip[data-motion="fadeInBottom"] {\r\n	-webkit-animation-name: pops-motion-fadeInBottom;\r\n	animation-name: pops-motion-fadeInBottom;\r\n}\r\n.pops-tip[data-motion="fadeOutBottom"] {\r\n	-webkit-animation-name: pops-motion-fadeOutBottom;\r\n	animation-name: pops-motion-fadeOutBottom;\r\n}\r\n.pops-tip[data-motion="fadeInLeft"] {\r\n	-webkit-animation-name: pops-motion-fadeInLeft;\r\n	animation-name: pops-motion-fadeInLeft;\r\n}\r\n.pops-tip[data-motion="fadeOutLeft"] {\r\n	-webkit-animation-name: pops-motion-fadeOutLeft;\r\n	animation-name: pops-motion-fadeOutLeft;\r\n}\r\n.pops-tip[data-motion="fadeInRight"] {\r\n	-webkit-animation-name: pops-motion-fadeInRight;\r\n	animation-name: pops-motion-fadeInRight;\r\n}\r\n';
-  var drawerCSS = '.pops[type-value="drawer"] {\r\n	position: fixed;\r\n	box-sizing: border-box;\r\n	display: flex;\r\n	flex-direction: column;\r\n	box-shadow: 0px 16px 48px 16px rgba(0, 0, 0, 0.08),\r\n		0px 12px 32px rgba(0, 0, 0, 0.12), 0px 8px 16px -8px rgba(0, 0, 0, 0.16);\r\n	overflow: hidden;\r\n	transition: all 0.3s;\r\n}\r\n.pops[type-value] .pops-drawer-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value] .pops-drawer-title p[pops] {\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n\r\n.pops-drawer-content {\r\n	flex: 1;\r\n	overflow: auto;\r\n}\r\n.pops[type-value="drawer"] .pops-drawer-btn {\r\n	padding-top: 10px;\r\n	padding-bottom: 10px;\r\n}\r\n.pops[type-value="drawer"][direction="top"] {\r\n	width: 100%;\r\n	left: 0;\r\n	right: 0;\r\n	top: 0;\r\n}\r\n.pops[type-value="drawer"][direction="bottom"] {\r\n	width: 100%;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n}\r\n.pops[type-value="drawer"][direction="left"] {\r\n	height: 100%;\r\n	top: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n}\r\n.pops[type-value="drawer"][direction="right"] {\r\n	height: 100%;\r\n	top: 0;\r\n	bottom: 0;\r\n	right: 0;\r\n}\r\n';
-  var folderCSS = '.pops[type-value] .pops-folder-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n}\r\n.pops[type-value="folder"] .pops-folder-title {\r\n	width: 100%;\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="folder"] .pops-folder-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n}\r\n.pops[type-value="folder"] .pops-folder-content p[pops] {\r\n	padding: 5px 10px;\r\n	color: rgb(51, 51, 51);\r\n	text-indent: 15px;\r\n}\r\n.pops[type-value="folder"] .pops-folder-content {\r\n	width: 100%;\r\n	/*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n	flex: 1;\r\n	overflow: auto;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="folder"] .pops-folder-btn {\r\n	/*position: absolute;\r\n	bottom: 0;*/\r\n	display: flex;\r\n	padding: 10px 10px 10px 10px;\r\n	width: 100%;\r\n	height: var(--container-bottom-btn-height);\r\n	max-height: var(--container-bottom-btn-height);\r\n	line-height: normal;\r\n	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: right;\r\n	align-items: center;\r\n}\r\n.pops-folder-list .cursor-p {\r\n	cursor: pointer;\r\n}\r\n.pops-folder-list a {\r\n	background: 0 0;\r\n	text-decoration: none;\r\n	-webkit-tap-highlight-color: transparent;\r\n	color: #05082c;\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n	width: 100%;\r\n	table-layout: fixed;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	padding: 0 20px;\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n	height: 100%;\r\n	background: 0 0;\r\n	overflow: hidden;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	-ms-flex-direction: column;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-box-direction: normal;\r\n}\r\ntable.pops-folder-list-table__body {\r\n	height: 100%;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n}\r\n.pops-folder-list table tr {\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops-folder-list-table__header-row {\r\n	height: 50px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	color: rgb(129, 137, 153);\r\n	text-align: left;\r\n	font-size: 12px;\r\n}\r\n.pops-folder-list-table__header-row {\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n}\r\n.pops-folder-list-table__body-row {\r\n	height: 50px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	color: #03081a;\r\n	font-size: 12px;\r\n}\r\n.pops-folder-list-table__body-row:hover {\r\n	background: rgb(245, 246, 247, var(--pops-bg-opacity));\r\n}\r\n.pops-folder-list table th {\r\n	border: 0;\r\n	border-bottom: 1px solid rgb(247, 248, 250, var(--pops-bg-opacity));\r\n}\r\n.pops-folder-list table td {\r\n	border: 0;\r\n	border-bottom: 1px solid rgb(247, 248, 250, var(--pops-bg-opacity));\r\n	position: relative;\r\n}\r\n.pops-folder-list .list-name-text {\r\n	display: inline-block;\r\n	padding-left: 12px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	max-width: 176px;\r\n}\r\n.pops-folder-list-file-name > div {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.pops-mobile-folder-list-file-name {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops-mobile-folder-list-file-name > div {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	justify-content: flex-start;\r\n	align-items: flex-start;\r\n	padding: 6px 0px;\r\n	flex-direction: column;\r\n}\r\n.pops-mobile-folder-list-file-name img.pops-folder-list-file-icon {\r\n	width: 45px;\r\n	height: 45px;\r\n}\r\n.pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {\r\n	padding-left: unset;\r\n	max-width: 250px;\r\n	overflow-x: hidden;\r\n	font-weight: 400;\r\n	line-height: unset;\r\n	margin-bottom: 4px;\r\n	white-space: normal;\r\n	text-overflow: unset;\r\n}\r\n\r\n/* 修改滚动 */\r\n.pops-folder-content {\r\n	overflow: hidden !important;\r\n}\r\n.pops-folder-content .pops-folder-list {\r\n	height: 100%;\r\n}\r\n.pops-folder-content .pops-folder-list-table__body-div {\r\n	height: 100%;\r\n	padding-bottom: 85px;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__body-div {\r\n	height: 100%;\r\n	padding-bottom: 40px;\r\n}\r\n.pops-folder-content table.pops-folder-list-table__body {\r\n	overflow: auto;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__header-div {\r\n	display: none;\r\n}\r\n\r\n.pops-folder-list-file-name-title-text:hover {\r\n	text-decoration: none;\r\n	color: rgb(6, 167, 255);\r\n}\r\n.pops-folder-list .text-ellip {\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n}\r\n.pops-folder-list .content {\r\n	color: rgb(129, 137, 153);\r\n	position: relative;\r\n	width: 100%;\r\n	text-align: left;\r\n}\r\n.pops-folder-list .inline-block-v-middle {\r\n	display: inline-block;\r\n	vertical-align: middle;\r\n}\r\n.pops-folder-list .flex-a-i-center {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops-folder-list .u-file-icon {\r\n	display: inline-block;\r\n	vertical-align: middle;\r\n}\r\n.pops-folder-list .u-file-icon--list {\r\n	width: 32px;\r\n	height: 32px;\r\n}\r\n.pops-folder-list .pops-folder-list-file-icon {\r\n	line-height: normal;\r\n	align-content: center;\r\n	position: relative;\r\n	vertical-align: middle;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-primary {\r\n	display: -webkit-box;\r\n	display: -webkit-flex;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	-webkit-box-align: center;\r\n	-webkit-align-items: center;\r\n	-ms-flex-align: center;\r\n	align-items: center;\r\n	-webkit-box-orient: horizontal;\r\n	-webkit-box-direction: normal;\r\n	-webkit-flex-direction: row;\r\n	-ms-flex-direction: row;\r\n	flex-direction: row;\r\n	min-height: 17px;\r\n	flex-wrap: wrap;\r\n}\r\n.pops-folder-list .pops-folder-list-table__sort {\r\n	display: inline-flex;\r\n	margin-left: 4px;\r\n	flex-direction: column;\r\n}\r\n\r\n.pops-folder-list .pops-folder-icon-arrow {\r\n	width: 10px;\r\n	height: 10px;\r\n	fill: rgb(212, 215, 222);\r\n}\r\n.pops-folder-list .pops-folder-icon-active {\r\n	fill: rgb(6, 167, 255);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb {\r\n	padding: 4px 20px;\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	display: -webkit-box;\r\n	display: -webkit-flex;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	-webkit-box-align: center;\r\n	-webkit-align-items: center;\r\n	-ms-flex-align: center;\r\n	align-items: center;\r\n	-webkit-box-orient: horizontal;\r\n	-webkit-box-direction: normal;\r\n	-webkit-flex-direction: row;\r\n	-ms-flex-direction: row;\r\n	flex-direction: row;\r\n	-webkit-box-pack: start;\r\n	-webkit-justify-content: start;\r\n	-ms-flex-pack: start;\r\n	justify-content: flex-start;\r\n	min-height: 35px;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {\r\n	font-size: 12px;\r\n	color: #333;\r\n	line-height: normal;\r\n	align-content: center;\r\n	font-weight: 700;\r\n	display: inline-block;\r\n	max-width: 140px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	word-wrap: normal;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a {\r\n	color: rgb(153, 153, 153);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child a {\r\n	font-size: 14px;\r\n	color: rgb(18, 22, 26);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb .iconArrow {\r\n	width: 16px;\r\n	height: 16px;\r\n}\r\n.pops-folder-list .iconArrow {\r\n	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAASCAMAAABYd88+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTOLi4uLi4t7e3uPj49/f397e3t3d3f///97e3vDw8N3d3d7e3t3d3d3d3ejo6N/f397e3t7e3t3d3d/f393d3d3d3RK+NoEAAAAWdFJOUwAnM4YPU/iQA+UIeMDaHhY41i7zX7UebpjFAAAAUElEQVQI15XOORaAIAwE0LATXHCd+x9VfCiksXCq+UUWou8oZ1vXHrt7YVBiYkW4gdMKYFIC4CSATWCNHWPuM6HuHkr1x3N0ZrBu/9gl0b9c3+kF7C7hS1YAAAAASUVORK5CYII=)\r\n		55% 50%/6px 9px no-repeat;\r\n}\r\n';
-  var panelCSS = '.pops[type-value="panel"] {\r\n	--el-disabled-text-color: #a8abb2;\r\n	--el-disabled-bg-color: #f5f7fa;\r\n	--el-disabled-border-color: #e4e7ed;\r\n	--pops-bg-color: #f2f2f2;\r\n	--pops-color: #333;\r\n	--title-bg-color: #ffffff;\r\n	--aside-bg-color: #ffffff;\r\n	--aside-hover-color: rgb(64, 158, 255);\r\n	--aside-hover-bg-color: rgba(64, 158, 255, 0.1);\r\n\r\n	--pops-panel-forms-margin-top-bottom: 10px;\r\n	--pops-panel-forms-margin-left-right: 20px;\r\n	--pops-panel-forms-header-icon-size: 20px;\r\n	--pops-panel-forms-header-padding-top-bottom: 15px;\r\n	--pops-panel-forms-header-padding-left-right: 10px;\r\n	--pops-panel-forms-container-item-bg-color: #ffffff;\r\n	--pops-panel-forms-container-item-title-color: #333;\r\n	--pops-panel-forms-container-item-border-radius: 6px;\r\n	--pops-panel-forms-container-item-margin-top-bottom: 10px;\r\n	--pops-panel-forms-container-item-margin-left-right: var(\r\n		--pops-panel-forms-margin-left-right\r\n	);\r\n	--pops-panel-forms-container-li-padding-top-bottom: 12px;\r\n	--pops-panel-forms-container-li-padding-left-right: 16px;\r\n}\r\n.pops[type-value="panel"] {\r\n	color: var(--pops-color);\r\n	background: var(--pops-bg-color);\r\n}\r\n.pops[type-value] .pops-panel-title {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n	background: var(--title-bg-color);\r\n}\r\n\r\n.pops[type-value="panel"] .pops-panel-title {\r\n	width: 100%;\r\n	height: var(--container-title-height);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="panel"] .pops-panel-title p[pops] {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops[type-value="panel"] .pops-panel-content {\r\n	width: 100%;\r\n	/*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n	flex: 1;\r\n	overflow: auto;\r\n	word-break: break-word;\r\n}\r\n.pops[type-value="panel"] .pops-panel-btn {\r\n	display: flex;\r\n	padding: 10px 10px 10px 10px;\r\n	width: 100%;\r\n	height: var(--container-bottom-btn-height);\r\n	max-height: var(--container-bottom-btn-height);\r\n	line-height: normal;\r\n	border-top: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: right;\r\n	align-content: center;\r\n	align-items: center;\r\n}\r\n\r\n/* ↓panel的CSS↓ */\r\naside.pops-panel-aside {\r\n	overflow: auto;\r\n	box-sizing: border-box;\r\n	flex-shrink: 0;\r\n	max-width: 200px;\r\n	min-width: 100px;\r\n	height: 100%;\r\n	background: var(--aside-bg-color);\r\n	border-right: 1px solid var(--aside-bg-color);\r\n	font-size: 0.9em;\r\n}\r\naside.pops-panel-aside {\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n}\r\n.pops-panel-content {\r\n	display: flex;\r\n	flex-direction: row;\r\n	flex: 1;\r\n	overflow: auto;\r\n	flex-basis: auto;\r\n	box-sizing: border-box;\r\n	min-width: 0;\r\n	bottom: 0 !important;\r\n}\r\nsection.pops-panel-container {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul,\r\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	flex: 0 auto;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul li {\r\n	text-align: left;\r\n	display: flex;\r\n	justify-content: flex-start !important;\r\n	margin: 0px !important;\r\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n		calc(\r\n			var(--pops-panel-forms-margin-left-right) +\r\n				var(--pops-panel-forms-container-li-padding-left-right)\r\n		);\r\n}\r\nsection.pops-panel-container > ul:last-child {\r\n	overflow: auto;\r\n	flex: 1;\r\n}\r\naside.pops-panel-aside ul li {\r\n	margin: 6px 8px;\r\n	border-radius: 4px;\r\n	padding: 6px 10px;\r\n	cursor: default;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: flex-start;\r\n}\r\naside.pops-panel-aside .pops-is-visited,\r\naside.pops-panel-aside ul li:hover {\r\n	color: var(--aside-hover-color);\r\n	background: var(--aside-hover-bg-color);\r\n}\r\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	margin: var(--pops-panel-forms-margin-top-bottom)\r\n		calc(\r\n			var(--pops-panel-forms-margin-left-right) +\r\n				var(--pops-panel-forms-margin-left-right)\r\n		);\r\n	gap: 10px;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\r\n	margin: 10px;\r\n	margin-left: calc(\r\n		var(--pops-panel-forms-margin-left-right) +\r\n			var(--pops-panel-forms-container-li-padding-left-right)\r\n	);\r\n	font-size: 0.9em;\r\n	text-align: left;\r\n	color: var(--pops-panel-forms-container-item-title-color);\r\n}\r\nsection.pops-panel-container li.pops-panel-forms-container-item {\r\n	display: block;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul {\r\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n	background: var(--pops-panel-forms-container-item-bg-color);\r\n	margin: var(--pops-panel-forms-container-item-margin-top-bottom)\r\n		var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\r\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	text-align: left;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	ul\r\n	li.pops-panel-deepMenu-nav-item {\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n		var(--pops-panel-forms-container-li-padding-left-right);\r\n	margin: 0px;\r\n	border-bottom: 0;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item ul li:last-child {\r\n	border: 0;\r\n}\r\n/* 主文字 */\r\n/*section.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	.pops-panel-item-left-text\r\n	.pops-panel-item-left-main-text {\r\n	line-height: 2;\r\n}*/\r\n/* 描述文字 */\r\nsection.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	.pops-panel-item-left-text\r\n	.pops-panel-item-left-desc-text {\r\n	line-height: normal;\r\n	margin-top: 6px;\r\n	font-size: 0.8em;\r\n	color: rgb(108, 108, 108);\r\n}\r\n\r\n/* 折叠面板 */\r\n\r\nsection.pops-panel-container .pops-panel-forms-fold {\r\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n	background: var(--pops-panel-forms-container-item-bg-color);\r\n	margin: var(--pops-panel-forms-margin-top-bottom)\r\n		var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold\r\n	.pops-panel-forms-fold-container {\r\n	display: flex;\r\n	align-items: center;\r\n	fill: #6c6c6c;\r\n	justify-content: space-between;\r\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold[data-fold-enable]\r\n	.pops-panel-forms-fold-container-icon {\r\n	transform: rotate(90deg);\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold\r\n	.pops-panel-forms-fold-container-icon {\r\n	width: 15px;\r\n	height: 15px;\r\n	display: flex;\r\n	align-items: center;\r\n	transform: rotate(-90deg);\r\n	transition: transform 0.3s;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold[data-fold-enable]\r\n	.pops-panel-forms-container-item-formlist {\r\n	height: 0;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold\r\n	.pops-panel-forms-container-item-formlist {\r\n	transition: height 0.3s;\r\n	overflow: hidden;\r\n	border-radius: unset;\r\n	background: unset;\r\n	margin: 0;\r\n	height: auto;\r\n	height: calc-size(auto, size);\r\n}\r\n/* 折叠面板 */\r\n\r\n/* 姑且认为小于600px的屏幕为移动端 */\r\n@media (max-width: 600px) {\r\n	/* 兼容移动端CSS */\r\n	.pops[type-value="panel"] {\r\n		--pops-panel-forms-margin-left-right: 10px;\r\n	}\r\n	.pops[type-value="panel"] {\r\n		width: 92%;\r\n		width: 92vw;\r\n		width: 92dvw;\r\n	}\r\n	.pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\r\n		max-width: 20%;\r\n		min-width: auto;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-forms-container-item\r\n		> div {\r\n		text-align: left;\r\n		--pops-panel-forms-margin-left-right: 0px;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-forms-container-item\r\n		ul {\r\n		margin: 0px !important;\r\n	}\r\n	.pops[type-value="panel"] section.pops-panel-container > ul > li {\r\n		margin: 10px 10px;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		> ul\r\n		> li\r\n		div:nth-child(2) {\r\n		max-width: 55%;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-select\r\n		select {\r\n		min-width: 88px !important;\r\n		width: -webkit-fill-available;\r\n		width: -moz-available;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-container-header-ul\r\n		li {\r\n		font-size: 16px;\r\n	}\r\n	.pops[type-value="panel"] .pops-panel-title p[pops],\r\n	.pops[type-value="panel"] section.pops-panel-container > ul li,\r\n	.pops[type-value="panel"] aside.pops-panel-aside ul li {\r\n		font-size: 14px;\r\n	}\r\n}\r\n/* switch的CSS */\r\n.pops-panel-switch {\r\n	display: inline-flex;\r\n	flex-direction: row-reverse;\r\n	align-items: center;\r\n	position: relative;\r\n	font-size: 14px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	height: 32px;\r\n	vertical-align: middle;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-ms-user-select: none;\r\n	-moz-user-select: none;\r\n}\r\n.pops-panel-switch input.pops-panel-switch__input {\r\n	position: absolute;\r\n	width: 0;\r\n	height: 0;\r\n	opacity: 0;\r\n	margin: 0;\r\n}\r\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\r\n.pops-panel-switch[data-disabled],\r\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\r\n.pops-panel-switch\r\n	input.pops-panel-switch__input:disabled\r\n	+ .pops-panel-switch__core {\r\n	cursor: not-allowed;\r\n	opacity: 0.6;\r\n}\r\n.pops-panel-switch span.pops-panel-switch__core {\r\n	display: inline-flex;\r\n	position: relative;\r\n	align-items: center;\r\n	min-width: 40px;\r\n	height: 20px;\r\n	border: 1px solid rgb(220, 223, 230, var(--pops-bd-opacity));\r\n	outline: 0;\r\n	border-radius: 10px;\r\n	box-sizing: border-box;\r\n	background: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n	cursor: pointer;\r\n	transition: border-color 0.3s, background-color 0.3s;\r\n}\r\n.pops-panel-switch .pops-panel-switch__action {\r\n	position: absolute;\r\n	left: 1px;\r\n	border-radius: 100%;\r\n	transition: all 0.3s;\r\n	width: 16px;\r\n	height: 16px;\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	color: rgb(220, 223, 230);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\r\n	border-color: rgb(64, 158, 255, var(--pops-bd-opacity));\r\n	background-color: rgb(64, 158, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\r\n	left: calc(100% - 17px);\r\n	color: rgb(64, 158, 255);\r\n}\r\n/* switch的CSS */\r\n\r\n/* slider旧的CSS */\r\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\r\n	overflow: hidden;\r\n	height: 25px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\r\n	height: 6px;\r\n	background: rgb(228, 231, 237, var(--pops-bg-opacity));\r\n	outline: 0;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	width: 100%;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-slider\r\n	input[type="range"]::-webkit-slider-thumb {\r\n	width: 20px;\r\n	height: 20px;\r\n	border-radius: 50%;\r\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	box-shadow: 0 0 2px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-slider\r\n	input[type="range"]::-moz-range-thumb {\r\n	width: 20px;\r\n	height: 20px;\r\n	border-radius: 50%;\r\n	border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	box-shadow: 0 0 2px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-slider\r\n	input[type="range"]::-moz-range-progress {\r\n	height: 6px;\r\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\n/* slider旧的CSS */\r\n\r\n/* slider的CSS */\r\n.pops-slider {\r\n	--pops-slider-color-white: #ffffff;\r\n	--pops-slider-color-primary: #409eff;\r\n	--pops-slider-color-info: #909399;\r\n	--pops-slider-text-color-placeholder: #a8abb2;\r\n	--pops-slider-border-color-light: #e4e7ed;\r\n	--pops-slider-border-radius-circle: 100%;\r\n	--pops-slider-transition-duration-fast: 0.2s;\r\n\r\n	--pops-slider-main-bg-color: var(--pops-slider-color-primary);\r\n	--pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\r\n	--pops-slider-stop-bg-color: var(--pops-slider-color-white);\r\n	--pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\r\n	--pops-slider-border-radius: 3px;\r\n	--pops-slider-height: 6px;\r\n	--pops-slider-button-size: 20px;\r\n	--pops-slider-button-wrapper-size: 36px;\r\n	--pops-slider-button-wrapper-offset: -15px;\r\n}\r\n\r\n.pops-slider {\r\n	width: 100%;\r\n	height: 32px;\r\n	display: flex;\r\n	align-items: center;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-ms-user-select: none;\r\n	-moz-user-select: none;\r\n}\r\n\r\n.pops-slider-width {\r\n	flex: 0 0 52%;\r\n	margin-left: 10px;\r\n}\r\n\r\n.pops-slider__runway {\r\n	flex: 1;\r\n	height: var(--pops-slider-height);\r\n	background-color: var(--pops-slider-runway-bg-color);\r\n	border-radius: var(--pops-slider-border-radius);\r\n	position: relative;\r\n	cursor: pointer;\r\n}\r\n\r\n.pops-slider__runway.show-input {\r\n	margin-right: 30px;\r\n	width: auto;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled {\r\n	cursor: default;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\r\n	background-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\r\n	border-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n	cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n	transform: scale(1);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n	cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__input {\r\n	flex-shrink: 0;\r\n	width: 130px;\r\n}\r\n\r\n.pops-slider__bar {\r\n	height: var(--pops-slider-height);\r\n	background-color: var(--pops-slider-main-bg-color);\r\n	border-top-left-radius: var(--pops-slider-border-radius);\r\n	border-bottom-left-radius: var(--pops-slider-border-radius);\r\n	position: absolute;\r\n}\r\n\r\n.pops-slider__button-wrapper {\r\n	height: var(--pops-slider-button-wrapper-size);\r\n	width: var(--pops-slider-button-wrapper-size);\r\n	position: absolute;\r\n	z-index: 1;\r\n	top: var(--pops-slider-button-wrapper-offset);\r\n	transform: translate(-50%);\r\n	background-color: transparent;\r\n	text-align: center;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	line-height: normal;\r\n	outline: none;\r\n}\r\n\r\n.pops-slider__button-wrapper:after {\r\n	display: inline-block;\r\n	content: "";\r\n	height: 100%;\r\n	vertical-align: middle;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n	cursor: grab;\r\n}\r\n\r\n.pops-slider__button {\r\n	display: inline-block;\r\n	width: var(--pops-slider-button-size);\r\n	height: var(--pops-slider-button-size);\r\n	vertical-align: middle;\r\n	border: solid 2px var(--pops-slider-main-bg-color);\r\n	background-color: var(--pops-slider-color-white);\r\n	border-radius: 50%;\r\n	box-sizing: border-box;\r\n	transition: var(--pops-slider-transition-duration-fast);\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover,\r\n.pops-slider__button.dragging {\r\n	transform: scale(1.2);\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n	cursor: grab;\r\n}\r\n\r\n.pops-slider__button.dragging {\r\n	cursor: grabbing;\r\n}\r\n\r\n.pops-slider__stop {\r\n	position: absolute;\r\n	height: var(--pops-slider-height);\r\n	width: var(--pops-slider-height);\r\n	border-radius: var(--pops-slider-border-radius-circle);\r\n	background-color: var(--pops-slider-stop-bg-color);\r\n	transform: translate(-50%);\r\n}\r\n\r\n.pops-slider__marks {\r\n	top: 0;\r\n	left: 12px;\r\n	width: 18px;\r\n	height: 100%;\r\n}\r\n\r\n.pops-slider__marks-text {\r\n	position: absolute;\r\n	transform: translate(-50%);\r\n	font-size: 14px;\r\n	color: var(--pops-slider-color-info);\r\n	margin-top: 15px;\r\n	white-space: pre;\r\n}\r\n\r\n.pops-slider.is-vertical {\r\n	position: relative;\r\n	display: inline-flex;\r\n	width: auto;\r\n	height: 100%;\r\n	flex: 0;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__runway {\r\n	width: var(--pops-slider-height);\r\n	height: 100%;\r\n	margin: 0 16px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__bar {\r\n	width: var(--pops-slider-height);\r\n	height: auto;\r\n	border-radius: 0 0 3px 3px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__button-wrapper {\r\n	top: auto;\r\n	left: var(--pops-slider-button-wrapper-offset);\r\n	transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__stop {\r\n	transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__marks-text {\r\n	margin-top: 0;\r\n	left: 15px;\r\n	transform: translateY(50%);\r\n}\r\n\r\n.pops-slider--large {\r\n	height: 40px;\r\n}\r\n\r\n.pops-slider--small {\r\n	height: 24px;\r\n}\r\n/* slider的CSS */\r\n\r\n/* input的CSS */\r\n.pops-panel-input {\r\n	display: flex;\r\n	align-items: center;\r\n	border: 1px solid #dcdfe6;\r\n	border-radius: 4px;\r\n	background-color: #ffffff;\r\n	position: relative;\r\n}\r\n.pops-panel-input:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n.pops-panel-input:has(input:focus) {\r\n	outline: 0;\r\n	border: 1px solid #409eff;\r\n	border-radius: 4px;\r\n	box-shadow: none;\r\n}\r\n.pops-panel-input input {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	text-align: start;\r\n	align-items: center;\r\n	align-content: center;\r\n	white-space: nowrap;\r\n	cursor: text;\r\n	box-sizing: border-box;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	vertical-align: middle;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	background-color: transparent;\r\n	outline: 0;\r\n	transition: 0.1s;\r\n	border: 0;\r\n	font-size: 14px;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n	height: 32px;\r\n	width: 100%;\r\n	flex: 1;\r\n	margin-right: calc(1em + 8px);\r\n	padding: 8px 8px;\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix {\r\n	display: inline-flex;\r\n	white-space: nowrap;\r\n	flex-shrink: 0;\r\n	flex-wrap: nowrap;\r\n	height: 100%;\r\n	text-align: center;\r\n	color: #a8abb2;\r\n	transition: all 0.3s;\r\n	pointer-events: none;\r\n	margin: 0 8px;\r\n	position: absolute;\r\n	right: 0px;\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix-inner {\r\n	pointer-events: all;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n	cursor: pointer;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n	height: inherit;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	transition: all 0.3s;\r\n}\r\n.pops-panel-input .pops-panel-icon svg {\r\n	height: 1em;\r\n	width: 1em;\r\n}\r\n\r\n.pops-input-disabled {\r\n	background-color: var(--el-disabled-bg-color);\r\n	box-shadow: 0 0 0 1px var(--el-disabled-border-color) inset;\r\n}\r\n.pops-panel-input.pops-input-disabled {\r\n	border: none;\r\n}\r\n.pops-panel-input.pops-input-disabled:hover {\r\n	box-shadow: 0 0 0 1px var(--el-disabled-border-color) inset;\r\n}\r\n.pops-panel-input input:disabled,\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	color: var(--el-disabled-text-color);\r\n	-webkit-text-fill-color: var(--el-disabled-text-color);\r\n	cursor: not-allowed;\r\n}\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n	display: none;\r\n}\r\n/* input的CSS */\r\n\r\n/* textarea的CSS */\r\n.pops-panel-textarea textarea {\r\n	width: 100%;\r\n	/*vertical-align: bottom;*/\r\n	position: relative;\r\n	display: block;\r\n	resize: none;\r\n	padding: 5px 11px;\r\n	/*line-height: 1;*/\r\n	box-sizing: border-box;\r\n	font-size: inherit;\r\n	font-family: inherit;\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	background-image: none;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	box-shadow: 0 0 0 1px #dcdfe6 inset;\r\n	border-radius: 0;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	border: none;\r\n}\r\n.pops-panel-textarea textarea:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n.pops-panel-textarea-disable .pops-panel-textarea textarea:hover {\r\n	box-shadow: none;\r\n}\r\n.pops-panel-textarea textarea:focus {\r\n	outline: 0;\r\n	box-shadow: 0 0 0 1px #409eff inset;\r\n}\r\n/* textarea的CSS */\r\n\r\n/* select的CSS */\r\n.pops-panel-select select {\r\n	height: 32px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	min-width: 200px;\r\n	border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));\r\n	border-radius: 5px;\r\n	text-align: center;\r\n	outline: 0;\r\n	background: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	box-shadow: none;\r\n}\r\n.pops-panel-select select:hover {\r\n	box-shadow: 0 0 0 1px #c0c4cc inset;\r\n}\r\n.pops-panel-select-disable .pops-panel-select select:hover {\r\n	box-shadow: none;\r\n}\r\n.pops-panel-select select:focus {\r\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n	box-shadow: none;\r\n}\r\n/* select的CSS */\r\n\r\n/* select-multiple的CSS*/\r\n.pops-panel-select-multiple {\r\n	--el-border-radius-base: 4px;\r\n	--el-fill-color-blank: #ffffff;\r\n	--el-transition-duration: 0.3s;\r\n	--el-border-color: #dcdfe6;\r\n	--el-text-color-placeholder: #a8abb2;\r\n	--color: inherit;\r\n	--el-select-input-color: #a8abb2;\r\n	--el-select-input-font-size: 14px;\r\n	--el-text-color-regular: #606266;\r\n	--el-color-info: #909399;\r\n	--el-color-info-light-9: #f4f4f5;\r\n	--el-color-info-light-8: #e9e9eb;\r\n	--el-color-primary-light-9: #ecf5ff;\r\n	--el-color-primary-light-8: #d9ecff;\r\n	--el-color-primary: #409eff;\r\n	--el-color-white: #ffffff;\r\n	width: 200px;\r\n	/* 左侧内容*/\r\n	/* 左侧内容*/\r\n	/* 右侧箭头图标*/\r\n	/* 右侧箭头图标*/\r\n	/* tag*/\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	box-sizing: border-box;\r\n	cursor: pointer;\r\n	text-align: left;\r\n	font-size: 14px;\r\n	padding: 4px 12px;\r\n	gap: 6px;\r\n	min-height: 32px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	border-radius: var(--el-border-radius-base);\r\n	background-color: var(--el-fill-color-blank);\r\n	transition: var(--el-transition-duration);\r\n	transform: translateZ(0);\r\n	box-shadow: 0 0 0 1px var(--el-border-color) inset;\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\r\n	box-shadow: 0 0 0 1px var(--el-color-primary) inset;\r\n}\r\n.pops-panel-select-multiple .el-select__selection {\r\n	position: relative;\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	align-items: center;\r\n	flex: 1;\r\n	min-width: 0;\r\n	gap: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	-webkit-user-select: none;\r\n	user-select: none;\r\n}\r\n.pops-panel-select-multiple\r\n	.el-select__selected-item.el-select__choose_tag\r\n	.el-tag {\r\n	max-width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__input-wrapper {\r\n	max-width: 100%;\r\n}\r\n.pops-panel-select-multiple .el-select__selection.is-near {\r\n	margin-left: -8px;\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder {\r\n	position: absolute;\r\n	display: block;\r\n	top: 50%;\r\n	transform: translateY(-50%);\r\n	width: 100%;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	color: var(--el-input-text-color, var(--el-text-color-regular));\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\r\n	-webkit-user-select: none;\r\n	user-select: none;\r\n	color: var(--el-text-color-placeholder);\r\n}\r\n.pops-panel-select-multiple .el-select__prefix,\r\n.pops-panel-select-multiple .el-select__suffix {\r\n	display: flex;\r\n	align-items: center;\r\n	flex-shrink: 0;\r\n	gap: 6px;\r\n	color: var(--el-input-icon-color, var(--el-text-color-placeholder));\r\n}\r\n.pops-panel-select-multiple .el-icon {\r\n	--color: inherit;\r\n	height: 1em;\r\n	width: 1em;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n	color: var(--color);\r\n	font-size: inherit;\r\n}\r\n.pops-panel-select-multiple .el-icon svg {\r\n	height: 1em;\r\n	width: 1em;\r\n}\r\n.pops-panel-select-multiple .el-select__caret {\r\n	color: var(--el-select-input-color);\r\n	font-size: var(--el-select-input-font-size);\r\n	transition: var(--el-transition-duration);\r\n	transform: rotate(0);\r\n	cursor: pointer;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n	--el-tag-font-size: 12px;\r\n	--el-tag-border-radius: 4px;\r\n	--el-tag-border-radius-rounded: 9999px;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n	background-color: var(--el-tag-bg-color);\r\n	border-color: var(--el-tag-border-color);\r\n	color: var(--el-tag-text-color);\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	vertical-align: middle;\r\n	height: 24px;\r\n	padding: 0 9px;\r\n	font-size: var(--el-tag-font-size);\r\n	line-height: normal;\r\n	align-content: center;\r\n	border-width: 1px;\r\n	border-style: solid;\r\n	border-radius: var(--el-tag-border-radius);\r\n	box-sizing: border-box;\r\n	white-space: nowrap;\r\n	--el-icon-size: 14px;\r\n	--el-tag-bg-color: var(--el-color-primary-light-9);\r\n	--el-tag-border-color: var(--el-color-primary-light-8);\r\n	--el-tag-hover-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag {\r\n	cursor: pointer;\r\n	border-color: transparent;\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n	--el-tag-bg-color: var(--el-color-info-light-9);\r\n	--el-tag-border-color: var(--el-color-info-light-8);\r\n	--el-tag-hover-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n	--el-tag-text-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.is-closable {\r\n	padding-right: 5px;\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\r\n	min-width: 0;\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n	flex-shrink: 0;\r\n	color: var(--el-tag-text-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\r\n	color: var(--el-color-white);\r\n	background-color: var(--el-tag-hover-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-icon {\r\n	border-radius: 50%;\r\n	cursor: pointer;\r\n	font-size: calc(var(--el-icon-size) - 2px);\r\n	height: var(--el-icon-size);\r\n	width: var(--el-icon-size);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n	margin-left: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__tags-text {\r\n	display: block;\r\n	line-height: normal;\r\n	align-content: center;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n}\r\n/* select-multiple的CSS*/\r\n\r\n/* deepMenu的css */\r\n.pops-panel-deepMenu-nav-item {\r\n	cursor: pointer;\r\n}\r\n.pops-panel-deepMenu-nav-item:active {\r\n	background: #e9e9e9;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\r\n	display: flex;\r\n	align-items: center;\r\n	color: #6c6c6c;\r\n	fill: #6c6c6c;\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\r\n	width: 15px;\r\n	height: 15px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-header {\r\n	display: flex;\r\n	align-items: center;\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n		calc(\r\n			var(--pops-panel-forms-margin-left-right) +\r\n				var(--pops-panel-forms-container-li-padding-left-right) -\r\n				var(--pops-panel-forms-header-icon-size)\r\n		);\r\n}\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n	width: var(--pops-panel-forms-header-icon-size);\r\n	height: var(--pops-panel-forms-header-icon-size);\r\n	display: flex;\r\n	align-items: center;\r\n	cursor: pointer;\r\n}\r\n/* 修复safari上图标大小未正常显示 */\r\n.pops-panel-deepMenu-container\r\n	.pops-panel-deepMenu-container-left-arrow-icon\r\n	> svg {\r\n	width: inherit;\r\n	height: inherit;\r\n}\r\n/* deepMenu的css */\r\n';
-  var rightClickMenuCSS = '.pops-rightClickMenu * {\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	margin: 0;\r\n	padding: 0;\r\n	-webkit-tap-highlight-color: transparent;\r\n	scrollbar-width: thin;\r\n}\r\n.pops-rightClickMenu {\r\n	position: fixed;\r\n	z-index: 10000;\r\n	text-align: center;\r\n	border-radius: 3px;\r\n	font-size: 16px;\r\n	font-weight: 500;\r\n	background: #fff;\r\n	box-shadow: 0px 1px 6px 1px #cacaca;\r\n}\r\n.pops-rightClickMenu-anim-grid {\r\n	display: grid;\r\n	transition: 0.3s;\r\n	grid-template-rows: 0fr;\r\n}\r\n.pops-rightClickMenu-anim-show {\r\n	grid-template-rows: 1fr;\r\n}\r\n.pops-rightClickMenu-is-visited {\r\n	background: #dfdfdf;\r\n}\r\ni.pops-rightClickMenu-icon {\r\n	height: 1em;\r\n	width: 1em;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n	color: inherit;\r\n	font-size: inherit;\r\n	margin-right: 6px;\r\n}\r\ni.pops-rightClickMenu-icon[is-loading="true"] {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n.pops-rightClickMenu li:hover {\r\n	background: #dfdfdf;\r\n	cursor: pointer;\r\n}\r\n.pops-rightClickMenu ul {\r\n	margin: 0;\r\n	padding: 0;\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: flex-start;\r\n	justify-content: center;\r\n	overflow: hidden;\r\n}\r\n.pops-rightClickMenu ul li {\r\n	padding: 5px 10px;\r\n	margin: 2.5px 5px;\r\n	border-radius: 3px;\r\n	display: flex;\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n	text-align: left;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	align-items: center;\r\n}\r\n.pops-rightClickMenu ul li:first-child {\r\n	margin-top: 5px;\r\n}\r\n.pops-rightClickMenu ul li:last-child {\r\n	margin-bottom: 5px;\r\n}\r\n';
+  const GlobalConfig = {
+    config: {},
+    /**
+     * 为所有弹窗设置全局属性
+     */
+    setGlobalConfig(config) {
+      Reflect.ownKeys(config).forEach((keyName) => {
+        Reflect.set(GlobalConfig.config, keyName, Reflect.get(config, keyName));
+      });
+    },
+    /**
+     * 获取全局配置
+     */
+    getGlobalConfig() {
+      let result = {};
+      Object.keys(GlobalConfig.config).forEach((keyName) => {
+        let configValue = Reflect.get(GlobalConfig.config, keyName);
+        if (keyName === "style") {
+          let style = configValue == null ? "" : typeof configValue === "function" ? (
+            // @ts-ignore
+            configValue()
+          ) : configValue;
+          if (typeof style === "string") {
+            result.style = style;
+          }
+        } else if (keyName === "zIndex") {
+          let zIndex = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
+          if (typeof zIndex === "string") {
+            let newIndex = zIndex = parseInt(zIndex);
+            if (!isNaN(newIndex)) {
+              result.zIndex = newIndex;
+            }
+          } else {
+            if (!isNaN(zIndex)) {
+              result.zIndex = zIndex;
+            }
+          }
+        } else if (keyName === "mask") {
+          let mask = GlobalConfig.config.mask == null ? {} : GlobalConfig.config.mask;
+          if (typeof mask === "object" && mask != null) {
+            result.mask = mask;
+          }
+        } else {
+          Reflect.set(result, keyName, configValue);
+        }
+      });
+      return result;
+    }
+  };
   var SVG_min = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M128 544h768a32 32 0 1 0 0-64H128a32 32 0 0 0 0 64z"></path>\r\n</svg>\r\n';
   var SVG_mise = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M885.333333 85.333333H330.410667a53.333333 53.333333 0 0 0-53.333334 53.333334v106.666666H138.666667A53.333333 53.333333 0 0 0 85.333333 298.666667v586.666666a53.333333 53.333333 0 0 0 53.333334 53.333334H725.333333a53.333333 53.333333 0 0 0 53.333334-53.333334V746.154667h106.666666c29.44 0 53.333333-23.893333 53.333334-53.333334V138.666667A53.333333 53.333333 0 0 0 885.333333 85.333333zM725.333333 692.821333v192.512H138.666667V298.666667H725.333333v394.154666z m157.866667 0H778.666667V298.666667a53.333333 53.333333 0 0 0-53.333334-53.333334H330.410667v-106.666666h554.922666l-2.133333 554.154666z"></path>\r\n</svg>\r\n';
   var SVG_max = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="m160 96.064 192 .192a32 32 0 0 1 0 64l-192-.192V352a32 32 0 0 1-64 0V96h64v.064zm0 831.872V928H96V672a32 32 0 1 1 64 0v191.936l192-.192a32 32 0 1 1 0 64l-192 .192zM864 96.064V96h64v256a32 32 0 1 1-64 0V160.064l-192 .192a32 32 0 1 1 0-64l192-.192zm0 831.872-192-.192a32 32 0 0 1 0-64l192 .192V672a32 32 0 1 1 64 0v256h-64v-.064z"></path>\r\n</svg>\r\n';
@@ -14236,53 +14822,65 @@ ${err.stack}`);
   var SVG_keyboard = '<svg viewBox="0 0 1123 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M1014.122186 1024H109.753483A109.753483 109.753483 0 0 1 0 914.246517V392.917471a109.753483 109.753483 0 0 1 109.753483-109.753484h904.368703a109.753483 109.753483 0 0 1 109.753484 109.753484v521.329046a109.753483 109.753483 0 0 1-109.753484 109.753483zM109.753483 370.966774a21.950697 21.950697 0 0 0-21.950696 21.950697v521.329046a21.950697 21.950697 0 0 0 21.950696 21.950696h904.368703a21.950697 21.950697 0 0 0 21.950697-21.950696V392.917471a21.950697 21.950697 0 0 0-21.950697-21.950697z"></path>\r\n	<path\r\n		d="M687.056806 891.198285H307.309753a43.901393 43.901393 0 0 1 0-87.802787h379.747053a43.901393 43.901393 0 0 1 0 87.802787zM175.605573 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM432.428725 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM947.172562 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 546.572347a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 803.395498a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 678.276527a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM948.270096 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394z"></path>\r\n	<path\r\n		d="M881.320472 766.079314H689.251876a43.901393 43.901393 0 0 1 0-87.802787h192.068596a21.950697 21.950697 0 0 0 21.950696-21.950696v-65.85209a43.901393 43.901393 0 0 1 87.802787 0v65.85209a109.753483 109.753483 0 0 1-109.753483 109.753483zM305.114684 502.670954H175.605573a43.901393 43.901393 0 0 1 0-87.802787h129.509111a43.901393 43.901393 0 0 1 0 87.802787zM563.03537 365.4791a43.901393 43.901393 0 0 1-43.901394-43.901394v-105.363344A109.753483 109.753483 0 0 1 628.88746 106.460879h61.461951a21.950697 21.950697 0 0 0 21.950696-21.950697V43.901393a43.901393 43.901393 0 0 1 87.802787 0v40.608789a109.753483 109.753483 0 0 1-109.753483 109.753484h-61.461951a21.950697 21.950697 0 0 0-21.950697 21.950696v105.363344a43.901393 43.901393 0 0 1-43.901393 43.901394z"></path>\r\n</svg>\r\n';
   var SVG_arrowRight = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">\r\n	<path\r\n		d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>\r\n</svg>\r\n';
   var SVG_arrowLeft = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">\r\n	<path\r\n		d="M609.408 149.376 277.76 489.6a32 32 0 0 0 0 44.672l331.648 340.352a29.12 29.12 0 0 0 41.728 0 30.592 30.592 0 0 0 0-42.752L339.264 511.936l311.872-319.872a30.592 30.592 0 0 0 0-42.688 29.12 29.12 0 0 0-41.728 0z"></path>\r\n</svg>\r\n';
-  const GlobalConfig = {
-    config: {},
-    /**
-     * 为所有弹窗设置全局属性
-     */
-    setGlobalConfig(config) {
-      Reflect.ownKeys(config).forEach((keyName) => {
-        Reflect.set(GlobalConfig.config, keyName, Reflect.get(config, keyName));
-      });
+  const PopsIcon = {
+    $data: {
+      min: SVG_min,
+      mise: SVG_mise,
+      max: SVG_max,
+      close: SVG_close,
+      edit: SVG_edit,
+      share: SVG_share,
+      delete: SVG_delete,
+      search: SVG_search,
+      upload: SVG_upload,
+      loading: SVG_loading,
+      next: SVG_next,
+      prev: SVG_prev,
+      eleme: SVG_eleme,
+      elemePlus: SVG_elemePlus,
+      chromeFilled: SVG_chromeFilled,
+      cpu: SVG_cpu,
+      videoPlay: SVG_videoPlay,
+      videoPause: SVG_videoPause,
+      headset: SVG_headset,
+      monitor: SVG_monitor,
+      documentCopy: SVG_documentCopy,
+      picture: SVG_picture,
+      circleClose: SVG_circleClose,
+      view: SVG_view,
+      hide: SVG_hide,
+      keyboard: SVG_keyboard,
+      arrowRight: SVG_arrowRight,
+      arrowLeft: SVG_arrowLeft
     },
     /**
-     * 获取全局配置
+     * 判断是否存在某个icon
+     * @param iconName 图标名
      */
-    getGlobalConfig() {
-      let result2 = {};
-      Object.keys(GlobalConfig.config).forEach((keyName) => {
-        let configValue = Reflect.get(GlobalConfig.config, keyName);
-        if (keyName === "style") {
-          let style = configValue == null ? "" : typeof configValue === "function" ? (
-            // @ts-ignore
-            configValue()
-          ) : configValue;
-          if (typeof style === "string") {
-            result2.style = style;
-          }
-        } else if (keyName === "zIndex") {
-          let zIndex = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
-          if (typeof zIndex === "string") {
-            let newIndex = zIndex = parseInt(zIndex);
-            if (!isNaN(newIndex)) {
-              result2.zIndex = newIndex;
-            }
-          } else {
-            if (!isNaN(zIndex)) {
-              result2.zIndex = zIndex;
-            }
-          }
-        } else if (keyName === "mask") {
-          let mask = GlobalConfig.config.mask == null ? {} : GlobalConfig.config.mask;
-          if (typeof mask === "object" && mask != null) {
-            result2.mask = mask;
-          }
-        } else {
-          Reflect.set(result2, keyName, configValue);
-        }
-      });
-      return result2;
+    hasIcon(iconName) {
+      return Object.keys(PopsIcon.$data).includes(iconName);
+    },
+    /**
+     * 获取icon
+     * @param iconName 图标名
+     */
+    getIcon(iconName) {
+      return PopsIcon.$data[iconName];
+    },
+    /**
+     * 删除图标
+     * @param iconName 图标名
+     */
+    deleteIcon(iconName) {
+      return Reflect.deleteProperty(PopsIcon.$data, iconName);
+    },
+    /**
+     * 设置图标
+     * @param iconName 图标名
+     * @param iconHTML 图标html
+     */
+    setIcon(iconName, iconHTML) {
+      Reflect.set(PopsIcon.$data, iconName, iconHTML);
     }
   };
   const PopsElementHandler = {
@@ -14359,7 +14957,7 @@ ${err.stack}`);
           topRightButtonHTML += /*html*/
           `
                 <button class="pops-header-control" type="${item}">
-                    <i class="pops-icon">${pops.config.iconSVG[item]}</i>
+                    <i class="pops-icon">${PopsIcon.getIcon(item)}</i>
                 </button>`;
         });
         resultHTML = /*html*/
@@ -14371,7 +14969,7 @@ ${err.stack}`);
           `
                 <div class="pops-header-controls">
                     <button class="pops-header-control" type="close" data-header>
-                    	<i class="pops-icon">${pops.config.iconSVG["close"]}</i>
+                    	<i class="pops-icon">${PopsIcon.getIcon("close")}</i>
                     </button>
                 </div>`;
         }
@@ -14415,8 +15013,8 @@ ${err.stack}`);
         let okIcon = __config_confirm.btn.ok.icon;
         if (okIcon !== "") {
           let iconHTML = "";
-          if (okIcon in pops.config.iconSVG) {
-            iconHTML = pops.config.iconSVG[okIcon];
+          if (PopsIcon.hasIcon(okIcon)) {
+            iconHTML = PopsIcon.getIcon(okIcon);
           } else {
             iconHTML = okIcon;
           }
@@ -14445,8 +15043,8 @@ ${err.stack}`);
         let cancelIcon = __config_confirm.btn.cancel.icon;
         if (cancelIcon !== "") {
           let iconHTML = "";
-          if (cancelIcon in pops.config.iconSVG) {
-            iconHTML = pops.config.iconSVG[cancelIcon];
+          if (PopsIcon.hasIcon(cancelIcon)) {
+            iconHTML = PopsIcon.getIcon(cancelIcon);
           } else {
             iconHTML = cancelIcon;
           }
@@ -14475,8 +15073,8 @@ ${err.stack}`);
         let otherIcon = __config_confirm.btn.other.icon;
         if (otherIcon !== "") {
           let iconHTML = "";
-          if (otherIcon in pops.config.iconSVG) {
-            iconHTML = pops.config.iconSVG[otherIcon];
+          if (PopsIcon.hasIcon(otherIcon)) {
+            iconHTML = PopsIcon.getIcon(otherIcon);
           }
           iconHTML = iconHTML || "";
           otherIconHTML = /*html*/
@@ -14541,7 +15139,7 @@ ${err.stack}`);
      * @param html
      */
     parseElement(html) {
-      return popsUtils.parseTextToDOM(html);
+      return popsDOMUtils.parseTextToDOM(html);
     }
   };
   const PopsHandler = {
@@ -14570,7 +15168,7 @@ ${err.stack}`);
      * @param cssText 添加进ShadowRoot的CSS
      */
     handleInit($shadowRoot, cssText) {
-      pops.init();
+      PopsAnimation.init();
       if (!arguments.length) {
         return;
       }
@@ -14594,18 +15192,18 @@ ${err.stack}`);
      * @param details 传递的配置
      */
     handleMask(details = {}) {
-      let result2 = {
-        maskElement: popsUtils.parseTextToDOM(details.maskHTML)
+      let result = {
+        maskElement: popsDOMUtils.parseTextToDOM(details.maskHTML)
       };
       let isMaskClick = false;
       function clickEvent(event) {
         popsDOMUtils.preventEvent(event);
-        let targetLayer = pops.config.layer[details.type];
+        let targetLayer = PopsLayer[details.type];
         function originalRun() {
           if (details.config.mask.clickEvent.toClose) {
             return PopsInstanceUtils.close(details.type, targetLayer, details.guid, details.config, details.animElement);
           } else if (details.config.mask.clickEvent.toHide) {
-            return PopsInstanceUtils.hide(details.type, targetLayer, details.guid, details.config, details.animElement, result2.maskElement);
+            return PopsInstanceUtils.hide(details.type, targetLayer, details.guid, details.config, details.animElement, result.maskElement);
           }
         }
         if (typeof details.config.mask.clickCallBack === "function") {
@@ -14630,12 +15228,12 @@ ${err.stack}`);
             return clickEvent(event);
           }
         });
-        popsDOMUtils.on(result2.maskElement, "click", void 0, (event) => {
+        popsDOMUtils.on(result.maskElement, "click", void 0, (event) => {
           isMaskClick = true;
           clickEvent(event);
         });
       }
-      return result2;
+      return result;
     },
     /**
      * 处理获取元素
@@ -14768,13 +15366,13 @@ ${err.stack}`);
         mode,
         guid,
         close() {
-          return PopsInstanceUtils.close(mode, pops.config.layer[mode], guid, config, animElement);
+          return PopsInstanceUtils.close(mode, PopsLayer[mode], guid, config, animElement);
         },
         hide() {
-          return PopsInstanceUtils.hide(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.hide(mode, PopsLayer[mode], guid, config, animElement, maskElement);
         },
         show() {
-          return PopsInstanceUtils.show(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.show(mode, PopsLayer[mode], guid, config, animElement, maskElement);
         }
       };
     },
@@ -14796,13 +15394,13 @@ ${err.stack}`);
         mode,
         guid,
         close() {
-          return PopsInstanceUtils.close(mode, pops.config.layer[mode], guid, config, animElement);
+          return PopsInstanceUtils.close(mode, PopsLayer[mode], guid, config, animElement);
         },
         hide() {
-          return PopsInstanceUtils.hide(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.hide(mode, PopsLayer[mode], guid, config, animElement, maskElement);
         },
         show() {
-          return PopsInstanceUtils.show(mode, pops.config.layer[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.show(mode, PopsLayer[mode], guid, config, animElement, maskElement);
         }
       };
     },
@@ -14822,12 +15420,12 @@ ${err.stack}`);
      * @param eventDetails 事件配置，由popsHandler.handleEventDetails创建的
      * @param callback 点击回调
      */
-    handleClickEvent(type, $btn, eventDetails, callback2) {
+    handleClickEvent(type, $btn, eventDetails, callback) {
       popsDOMUtils.on($btn, "click", (event) => {
         let extraParam = {
           type
         };
-        callback2(Object.assign(eventDetails, extraParam), event);
+        callback(Object.assign(eventDetails, extraParam), event);
       }, {
         capture: true
       });
@@ -14838,7 +15436,7 @@ ${err.stack}`);
      * @param otherKeyList 组合按键，数组类型，包含ctrl、shift、alt和meta（win键或mac的cmd键）
      * @param callback 回调函数
      */
-    handleKeyboardEvent(keyName, otherKeyList = [], callback2) {
+    handleKeyboardEvent(keyName, otherKeyList = [], callback) {
       let keyboardEvent = function(event) {
         let _keyName = event.code || event.key;
         let _keyValue = event.charCode || event.keyCode || event.which;
@@ -14855,9 +15453,9 @@ ${err.stack}`);
           return;
         }
         if (typeof keyName === "string" && keyName === _keyName) {
-          callback2 && callback2(event);
+          callback && callback(event);
         } else if (typeof keyName === "number" && keyName === _keyValue) {
-          callback2 && callback2(event);
+          callback && callback(event);
         }
       };
       popsDOMUtils.on(PopsCore.globalThis, "keydown", keyboardEvent, {
@@ -14879,13 +15477,13 @@ ${err.stack}`);
      * @param eventDetails 事件配置，由popsHandler.handleEventDetails创建的
      * @param callback 点击回调
      */
-    handlePromptClickEvent(type, inputElement, $btn, eventDetails, callback2) {
+    handlePromptClickEvent(type, inputElement, $btn, eventDetails, callback) {
       popsDOMUtils.on($btn, "click", (event) => {
         let extraParam = {
           type,
           text: inputElement.value
         };
-        callback2(Object.assign(eventDetails, extraParam), event);
+        callback(Object.assign(eventDetails, extraParam), event);
       }, {
         capture: true
       });
@@ -14909,19 +15507,19 @@ ${err.stack}`);
     handleOnly(type, config) {
       if (config.only) {
         if (type === "loading" || type === "tooltip" || type === "rightClickMenu") {
-          let layer = pops.config.layer[type];
+          let layer = PopsLayer[type];
           if (layer) {
             PopsInstanceUtils.removeInstance([layer], "", true);
           }
         } else {
           PopsInstanceUtils.removeInstance([
-            pops.config.layer.alert,
-            pops.config.layer.confirm,
-            pops.config.layer.prompt,
-            pops.config.layer.iframe,
-            pops.config.layer.drawer,
-            pops.config.layer.folder,
-            pops.config.layer.panel
+            PopsLayer.alert,
+            PopsLayer.confirm,
+            PopsLayer.prompt,
+            PopsLayer.iframe,
+            PopsLayer.drawer,
+            PopsLayer.folder,
+            PopsLayer.panel
           ], "", true);
         }
       } else {
@@ -14939,7 +15537,7 @@ ${err.stack}`);
      * @param value
      */
     handlePush(type, value) {
-      pops.config.layer[type].push(value);
+      PopsLayer[type].push(value);
     }
   };
   const PopsAlertConfig = () => {
@@ -15015,13 +15613,13 @@ ${err.stack}`);
       config = PopsHandler.handleOnly(PopsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
-        pops.config.cssText.index,
-        pops.config.cssText.ninePalaceGridPosition,
-        pops.config.cssText.scrollbar,
-        pops.config.cssText.button,
-        pops.config.cssText.anim,
-        pops.config.cssText.common,
-        pops.config.cssText.alertCSS
+        PopsCSS.index,
+        PopsCSS.ninePalaceGridPosition,
+        PopsCSS.scrollbar,
+        PopsCSS.button,
+        PopsCSS.anim,
+        PopsCSS.common,
+        PopsCSS.alertCSS
       ]);
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
       let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
@@ -15083,8 +15681,8 @@ ${err.stack}`);
           endCallBack: config.dragEndCallBack
         });
       }
-      let result2 = PopsHandler.handleResultDetails(eventDetails);
-      return result2;
+      let result = PopsHandler.handleResultDetails(eventDetails);
+      return result;
     }
   };
   const PopsConfirmConfig = () => {
@@ -15187,13 +15785,13 @@ ${err.stack}`);
       config = PopsHandler.handleOnly(PopsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
-        pops.config.cssText.index,
-        pops.config.cssText.ninePalaceGridPosition,
-        pops.config.cssText.scrollbar,
-        pops.config.cssText.button,
-        pops.config.cssText.anim,
-        pops.config.cssText.common,
-        pops.config.cssText.confirmCSS
+        PopsCSS.index,
+        PopsCSS.ninePalaceGridPosition,
+        PopsCSS.scrollbar,
+        PopsCSS.button,
+        PopsCSS.anim,
+        PopsCSS.common,
+        PopsCSS.confirmCSS
       ]);
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
       let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
@@ -15257,8 +15855,8 @@ ${err.stack}`);
           endCallBack: config.dragEndCallBack
         });
       }
-      let result2 = PopsHandler.handleResultDetails(eventDetails);
-      return result2;
+      let result = PopsHandler.handleResultDetails(eventDetails);
+      return result;
     }
   };
   const PopsPromptConfig = () => {
@@ -15365,13 +15963,13 @@ ${err.stack}`);
       config = PopsHandler.handleOnly(PopsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
-        pops.config.cssText.index,
-        pops.config.cssText.ninePalaceGridPosition,
-        pops.config.cssText.scrollbar,
-        pops.config.cssText.button,
-        pops.config.cssText.anim,
-        pops.config.cssText.common,
-        pops.config.cssText.promptCSS
+        PopsCSS.index,
+        PopsCSS.ninePalaceGridPosition,
+        PopsCSS.scrollbar,
+        PopsCSS.button,
+        PopsCSS.anim,
+        PopsCSS.common,
+        PopsCSS.promptCSS
       ]);
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
       let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
@@ -15442,8 +16040,8 @@ ${err.stack}`);
       if (config.content.select) {
         $input.select();
       }
-      let result2 = PopsHandler.handleResultDetails(eventDetails);
-      return result2;
+      let result = PopsHandler.handleResultDetails(eventDetails);
+      return result;
     }
   };
   const PopsLoadingConfig = () => {
@@ -15493,13 +16091,13 @@ ${err.stack}`);
             <div class="pops-loading-content">${config.addIndexCSS ? (
         /*html*/
         `
-                <style data-model-name="index">${pops.config.cssText.index}</style>
-                <style data-model-name="anim">${pops.config.cssText.anim}</style>
-                <style data-model-name="common">${pops.config.cssText.common}</style>
+                <style data-model-name="index">${PopsCSS.index}</style>
+                <style data-model-name="anim">${PopsCSS.anim}</style>
+                <style data-model-name="common">${PopsCSS.common}</style>
                 `
       ) : ""}
                 <style data-model-name="loadingCSS">
-                    ${pops.config.cssText.loadingCSS}
+                    ${PopsCSS.loadingCSS}
                 </style>
             ${config.style != null ? `<style>${config.style}</style>` : ""}
             	<p pops style="${contentPStyle}">${config.content.text}</p>
@@ -15537,8 +16135,8 @@ ${err.stack}`);
         popsDOMUtils.css($anim, "position", "absolute !important");
         $mask && popsDOMUtils.css($mask, "position", "absolute !important");
       }
-      let result2 = PopsHandler.handleResultDetails(eventDetails);
-      return result2;
+      let result = PopsHandler.handleResultDetails(eventDetails);
+      return result;
     }
   };
   const PopsIframeConfig = () => {
@@ -15620,12 +16218,12 @@ ${err.stack}`);
       config = PopsHandler.handleOnly(PopsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
-        pops.config.cssText.index,
-        pops.config.cssText.ninePalaceGridPosition,
-        pops.config.cssText.scrollbar,
-        pops.config.cssText.anim,
-        pops.config.cssText.common,
-        pops.config.cssText.iframeCSS
+        PopsCSS.index,
+        PopsCSS.ninePalaceGridPosition,
+        PopsCSS.scrollbar,
+        PopsCSS.anim,
+        PopsCSS.common,
+        PopsCSS.iframeCSS
       ]);
       let maskExtraStyle = (
         // @ts-ignore
@@ -15796,7 +16394,7 @@ ${err.stack}`);
         var _a3, _b;
         event.preventDefault();
         event.stopPropagation();
-        PopsInstanceUtils.removeInstance([pops.config.layer.iframe], guid, false);
+        PopsInstanceUtils.removeInstance([PopsLayer.iframe], guid, false);
         if (typeof ((_b = (_a3 = config == null ? void 0 : config.btn) == null ? void 0 : _a3.close) == null ? void 0 : _b.callback) === "function") {
           config.btn.close.callback(eventDetails, event);
         }
@@ -15811,8 +16409,8 @@ ${err.stack}`);
         $shadowContainer,
         $shadowRoot
       });
-      let result2 = PopsHandler.handleResultDetails(eventDetails);
-      return result2;
+      let result = PopsHandler.handleResultDetails(eventDetails);
+      return result;
     }
   };
   const PopsDrawerConfig = () => {
@@ -15912,13 +16510,13 @@ ${err.stack}`);
       config = PopsHandler.handleOnly(PopsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
-        pops.config.cssText.index,
-        pops.config.cssText.ninePalaceGridPosition,
-        pops.config.cssText.scrollbar,
-        pops.config.cssText.button,
-        pops.config.cssText.anim,
-        pops.config.cssText.common,
-        pops.config.cssText.drawerCSS
+        PopsCSS.index,
+        PopsCSS.ninePalaceGridPosition,
+        PopsCSS.scrollbar,
+        PopsCSS.button,
+        PopsCSS.anim,
+        PopsCSS.common,
+        PopsCSS.drawerCSS
       ]);
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
       let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
@@ -16047,8 +16645,8 @@ ${err.stack}`);
         $shadowContainer,
         $shadowRoot
       });
-      let result2 = PopsHandler.handleResultDetails(eventDetails);
-      return result2;
+      let result = PopsHandler.handleResultDetails(eventDetails);
+      return result;
     }
   };
   const PopsFolderConfig = () => {
@@ -16220,13 +16818,13 @@ ${err.stack}`);
       config = PopsHandler.handleOnly(PopsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
-        pops.config.cssText.index,
-        pops.config.cssText.ninePalaceGridPosition,
-        pops.config.cssText.scrollbar,
-        pops.config.cssText.button,
-        pops.config.cssText.anim,
-        pops.config.cssText.common,
-        pops.config.cssText.folderCSS
+        PopsCSS.index,
+        PopsCSS.ninePalaceGridPosition,
+        PopsCSS.scrollbar,
+        PopsCSS.button,
+        PopsCSS.anim,
+        PopsCSS.common,
+        PopsCSS.folderCSS
       ]);
       Folder_ICON.docx = Folder_ICON.doc;
       Folder_ICON.rtf = Folder_ICON.doc;
@@ -16291,7 +16889,7 @@ ${err.stack}`);
         /*html*/
         `
             <div class="pops-folder-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
-			<div class="pops-folder-content ${pops.isPhone() ? "pops-mobile-folder-content" : ""}">
+			<div class="pops-folder-content ${popsUtils.isPhone() ? "pops-mobile-folder-content" : ""}">
                 <div class="pops-folder-list">
                     <div class="pops-folder-file-list-breadcrumb">
                     <div class="pops-folder-file-list-breadcrumb-primary">
@@ -16373,7 +16971,7 @@ ${err.stack}`);
                     <div class="pops-folder-list-table__body-div">
                     <table class="pops-folder-list-table__body">
                         <colgroup>
-                        ${pops.isPhone() ? `<col width="100%">` : `
+                        ${popsUtils.isPhone() ? `<col width="100%">` : `
                             <col width="52%">
                             <col width="24%">
                             <col width="16%">`}
@@ -16613,7 +17211,7 @@ ${err.stack}`);
         } else {
           console.error("获取导航按钮失败");
         }
-        let loadingMask = pops.loading({
+        let loadingMask = PopsLoading.init({
           parent: $content,
           content: {
             text: "获取文件列表中..."
@@ -16632,7 +17230,7 @@ ${err.stack}`);
       }
       async function refreshFolderInfoClickEvent(event, _config_) {
         clearFolerRow();
-        let loadingMask = pops.loading({
+        let loadingMask = PopsLoading.init({
           parent: $content,
           content: {
             text: "获取文件列表中..."
@@ -16775,13 +17373,13 @@ ${err.stack}`);
         sortFolderConfig(_config_, config.sort.name, config.sort.isDesc);
         _config_.forEach((item) => {
           if (item["isFolder"]) {
-            let { folderELement, fileNameElement } = pops.isPhone() ? createMobileFolderRowElement(item["fileName"], "", "", true) : createFolderRowElement(item["fileName"], "", "", true);
+            let { folderELement, fileNameElement } = popsUtils.isPhone() ? createMobileFolderRowElement(item["fileName"], "", "", true) : createFolderRowElement(item["fileName"], "", "", true);
             popsDOMUtils.on(fileNameElement, "click", (event) => {
               refreshFolderInfoClickEvent(event, item);
             });
             folderListBodyElement.appendChild(folderELement);
           } else {
-            let { folderELement, fileNameElement } = pops.isPhone() ? createMobileFolderRowElement(item["fileName"], item.latestTime, item.fileSize, false) : createFolderRowElement(item["fileName"], item.latestTime, item.fileSize, false);
+            let { folderELement, fileNameElement } = popsUtils.isPhone() ? createMobileFolderRowElement(item["fileName"], item.latestTime, item.fileSize, false) : createFolderRowElement(item["fileName"], item.latestTime, item.fileSize, false);
             setFileClickEvent(fileNameElement, item);
             folderListBodyElement.appendChild(folderELement);
           }
@@ -16875,8 +17473,8 @@ ${err.stack}`);
         $shadowContainer,
         $shadowRoot
       });
-      let result2 = PopsHandler.handleResultDetails(eventDetails);
-      return result2;
+      let result = PopsHandler.handleResultDetails(eventDetails);
+      return result;
     }
   };
   const PopsPanelConfig = () => {
@@ -17009,6 +17607,7 @@ ${err.stack}`);
                 return "50";
               },
               callback(event, value) {
+                popsDOMUtils.preventEvent(event);
                 console.log("输入框内容改变：", value);
               },
               placeholder: "请输入内容"
@@ -17024,6 +17623,7 @@ ${err.stack}`);
                 return "123456";
               },
               callback(event, value) {
+                popsDOMUtils.preventEvent(event);
                 console.log("密码输入框内容改变：", value);
               },
               isPassword: true,
@@ -17040,6 +17640,7 @@ ${err.stack}`);
                 return "50";
               },
               callback(event, value) {
+                popsDOMUtils.preventEvent(event);
                 console.log("textarea输入框内容改变：", value);
               },
               placeholder: "请输入内容"
@@ -17337,12 +17938,12 @@ ${err.stack}`);
       let number1length, number2length, powValue;
       try {
         number1length = number1.toString().split(".")[1].length;
-      } catch (error2) {
+      } catch (error) {
         number1length = 0;
       }
       try {
         number2length = number2.toString().split(".")[1].length;
-      } catch (error2) {
+      } catch (error) {
         number2length = 0;
       }
       powValue = Math.pow(10, Math.max(number1length, number2length));
@@ -17357,12 +17958,12 @@ ${err.stack}`);
       let number1length, number2length, powValue;
       try {
         number1length = number1.toString().split(".")[1].length;
-      } catch (error2) {
+      } catch (error) {
         number1length = 0;
       }
       try {
         number2length = number2.toString().split(".")[1].length;
-      } catch (error2) {
+      } catch (error) {
         number2length = 0;
       }
       powValue = Math.pow(10, Math.max(number1length, number2length));
@@ -17378,17 +17979,513 @@ ${err.stack}`);
       let number1length, number2length, number1ReplaceValue, number2ReplaceValue;
       try {
         number1length = number1.toString().split(".")[1].length;
-      } catch (error2) {
+      } catch (error) {
         number1length = 0;
       }
       try {
         number2length = number2.toString().split(".")[1].length;
-      } catch (error2) {
+      } catch (error) {
         number2length = 0;
       }
       number1ReplaceValue = Number(number1.toString().replace(".", ""));
       number2ReplaceValue = Number(number2.toString().replace(".", ""));
       return number1ReplaceValue / number2ReplaceValue * Math.pow(10, number2length - number1length);
+    }
+  };
+  const PopsTooltipConfig = () => {
+    return {
+      useShadowRoot: true,
+      target: null,
+      content: "默认文字",
+      isDiffContent: false,
+      position: "top",
+      className: "",
+      isFixed: false,
+      alwaysShow: false,
+      triggerShowEventName: "mouseenter touchstart",
+      triggerCloseEventName: "mouseleave touchend",
+      zIndex: 1e4,
+      only: false,
+      eventOption: {
+        passive: false,
+        capture: true,
+        once: false
+      },
+      showBeforeCallBack() {
+      },
+      showAfterCallBack() {
+      },
+      closeBeforeCallBack() {
+      },
+      closeAfterCallBack() {
+      },
+      delayCloseTime: 100,
+      showArrow: true,
+      arrowDistance: 12.5,
+      otherDistance: 0,
+      style: "",
+      beforeAppendToPageCallBack() {
+      }
+    };
+  };
+  class ToolTip {
+    constructor(config, guid, ShadowInfo) {
+      __publicField(this, "$el", {
+        $shadowContainer: null,
+        $shadowRoot: null,
+        $toolTip: null,
+        $content: null,
+        $arrow: null
+      });
+      __publicField(this, "$data", {
+        config: null,
+        guid: null,
+        timeId_close_TouchEvent: [],
+        timeId_close_MouseEvent: []
+      });
+      this.$data.config = config;
+      this.$data.guid = guid;
+      this.$el.$shadowContainer = ShadowInfo.$shadowContainer;
+      this.$el.$shadowRoot = ShadowInfo.$shadowRoot;
+      this.show = this.show.bind(this);
+      this.close = this.close.bind(this);
+      this.toolTipAnimationFinishEvent = this.toolTipAnimationFinishEvent.bind(this);
+      this.toolTipMouseEnterEvent = this.toolTipMouseEnterEvent.bind(this);
+      this.toolTipMouseLeaveEvent = this.toolTipMouseLeaveEvent.bind(this);
+      this.init();
+    }
+    init() {
+      let toolTipInfo = this.createToolTip();
+      this.$el.$toolTip = toolTipInfo.$toolTipContainer;
+      this.$el.$content = toolTipInfo.$toolTipContent;
+      this.$el.$arrow = toolTipInfo.$toolTipArrow;
+      this.changeContent();
+      this.changeZIndex();
+      this.changePosition();
+      if (!this.$data.config.alwaysShow) {
+        this.offEvent();
+        this.onEvent();
+      }
+    }
+    /**
+     * 创建提示元素
+     */
+    createToolTip() {
+      let $toolTipContainer = popsDOMUtils.createElement("div", {
+        className: "pops-tip",
+        innerHTML: (
+          /*html*/
+          `
+				<div class="pops-tip-content" style="text-align: center;"></div>
+				<div class="pops-tip-arrow"></div>
+			`
+        )
+      }, {
+        "data-position": this.$data.config.isFixed ? "fixed" : "absolute",
+        "data-guid": this.$data.guid
+      });
+      let $toolTipContent = $toolTipContainer.querySelector(".pops-tip-content");
+      let $toolTipArrow = $toolTipContainer.querySelector(".pops-tip-arrow");
+      if (typeof this.$data.config.className === "string" && this.$data.config.className.trim() !== "") {
+        popsDOMUtils.addClassName($toolTipContainer, this.$data.config.className);
+      }
+      $toolTipContainer.style.zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex).toString();
+      if (this.$data.config.style != null) {
+        let cssNode = popsDOMUtils.createElement("style", {
+          type: "text/css",
+          innerHTML: this.$data.config.style
+        });
+        $toolTipContainer.appendChild(cssNode);
+      }
+      if (!this.$data.config.showArrow) {
+        $toolTipArrow.remove();
+      }
+      return {
+        $toolTipContainer,
+        $toolTipArrow,
+        $toolTipContent
+      };
+    }
+    /**
+     * 获取提示的内容
+     */
+    getContent() {
+      return typeof this.$data.config.content === "function" ? this.$data.config.content() : this.$data.config.content;
+    }
+    /**
+     * 修改提示的内容
+     * @param text
+     */
+    changeContent(text) {
+      if (text == null) {
+        text = this.getContent();
+      }
+      if (this.$data.config.isDiffContent) {
+        let contentPropKey = "data-content";
+        let originContentText = this.$el.$content[contentPropKey];
+        if (typeof originContentText === "string") {
+          if (originContentText === text) {
+            return;
+          }
+        }
+        this.$el.$content[contentPropKey] = text;
+      }
+      PopsSafeUtils.setSafeHTML(this.$el.$content, text);
+    }
+    /**
+     * 获取z-index
+     */
+    getZIndex() {
+      const zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex);
+      return zIndex;
+    }
+    /**
+     * 动态修改z-index
+     */
+    changeZIndex() {
+      const zIndex = this.getZIndex();
+      this.$el.$toolTip.style.setProperty("z-index", zIndex.toString());
+    }
+    /**
+     * 计算 提示框的位置
+     * @param event 触发的事件
+     * @param targetElement 目标元素
+     * @param arrowDistance 箭头和目标元素的距离
+     * @param otherDistance 其它位置的偏移
+     */
+    calcToolTipPosition(targetElement, arrowDistance, otherDistance, event) {
+      let offsetInfo = popsDOMUtils.offset(targetElement, !this.$data.config.isFixed);
+      let targetElement_width = offsetInfo.width;
+      let targetElement_height = offsetInfo.height;
+      let targetElement_top = offsetInfo.top;
+      let targetElement_left = offsetInfo.left;
+      let toolTipElement_width = popsDOMUtils.outerWidth(this.$el.$toolTip);
+      let toolTipElement_height = popsDOMUtils.outerHeight(this.$el.$toolTip);
+      let targetElement_X_center_pos = targetElement_left + targetElement_width / 2 - toolTipElement_width / 2;
+      let targetElement_Y_center_pos = targetElement_top + targetElement_height / 2 - toolTipElement_height / 2;
+      let mouseX = 0;
+      let mouseY = 0;
+      if (event != null) {
+        if (event instanceof MouseEvent || event instanceof PointerEvent) {
+          mouseX = event.pageX;
+          mouseY = event.y;
+        } else if (event instanceof TouchEvent) {
+          let touchEvent = event.touches[0];
+          mouseX = touchEvent.pageX;
+          mouseY = touchEvent.pageY;
+        } else {
+          if (typeof event.clientX === "number") {
+            mouseX = event.clientX;
+          }
+          if (typeof event.clientY === "number") {
+            mouseY = event.clientY;
+          }
+        }
+      }
+      return {
+        TOP: {
+          left: targetElement_X_center_pos - otherDistance,
+          top: targetElement_top - toolTipElement_height - arrowDistance,
+          arrow: "bottom",
+          motion: "fadeInTop"
+        },
+        RIGHT: {
+          left: targetElement_left + targetElement_width + arrowDistance,
+          top: targetElement_Y_center_pos + otherDistance,
+          arrow: "left",
+          motion: "fadeInRight"
+        },
+        BOTTOM: {
+          left: targetElement_X_center_pos - otherDistance,
+          top: targetElement_top + targetElement_height + arrowDistance,
+          arrow: "top",
+          motion: "fadeInBottom"
+        },
+        LEFT: {
+          left: targetElement_left - toolTipElement_width - arrowDistance,
+          top: targetElement_Y_center_pos + otherDistance,
+          arrow: "right",
+          motion: "fadeInLeft"
+        },
+        FOLLOW: {
+          left: mouseX + otherDistance,
+          top: mouseY + otherDistance,
+          arrow: "follow",
+          motion: ""
+        }
+      };
+    }
+    /**
+     * 动态修改tooltip的位置
+     */
+    changePosition(event) {
+      let positionInfo = this.calcToolTipPosition(this.$data.config.target, this.$data.config.arrowDistance, this.$data.config.otherDistance, event);
+      let positionKey = this.$data.config.position.toUpperCase();
+      let positionDetail = positionInfo[positionKey];
+      if (positionDetail) {
+        this.$el.$toolTip.style.left = positionDetail.left + "px";
+        this.$el.$toolTip.style.top = positionDetail.top + "px";
+        this.$el.$toolTip.setAttribute("data-motion", positionDetail.motion);
+        this.$el.$arrow.setAttribute("data-position", positionDetail.arrow);
+      } else {
+        console.error("不存在该位置", this.$data.config.position);
+      }
+    }
+    /**
+     * 事件绑定
+     */
+    onEvent() {
+      this.onToolTipAnimationFinishEvent();
+      this.onShowEvent();
+      this.onCloseEvent();
+      this.onToolTipMouseEnterEvent();
+      this.onToolTipMouseLeaveEvent();
+    }
+    /**
+     * 取消事件绑定
+     */
+    offEvent() {
+      this.offToolTipAnimationFinishEvent();
+      this.offShowEvent();
+      this.offCloseEvent();
+      this.offToolTipMouseEnterEvent();
+      this.offToolTipMouseLeaveEvent();
+    }
+    /**
+     * 添加关闭的timeId
+     * @param type
+     * @param timeId
+     */
+    addCloseTimeoutId(type, timeId) {
+      if (type === "MouseEvent") {
+        this.$data.timeId_close_MouseEvent.push(timeId);
+      } else {
+        this.$data.timeId_close_TouchEvent.push(timeId);
+      }
+    }
+    /**
+     * 清除延迟的timeId
+     * @param type 事件类型
+     */
+    clearCloseTimeoutId(type, timeId) {
+      let timeIdList = type === "MouseEvent" ? this.$data.timeId_close_MouseEvent : this.$data.timeId_close_TouchEvent;
+      for (let index = 0; index < timeIdList.length; index++) {
+        const currentTimeId = timeIdList[index];
+        if (typeof timeId === "number") {
+          if (timeId == currentTimeId) {
+            popsUtils.clearTimeout(timeId);
+            timeIdList.splice(index, 1);
+            break;
+          }
+        } else {
+          popsUtils.clearTimeout(currentTimeId);
+          timeIdList.splice(index, 1);
+          index--;
+        }
+      }
+    }
+    /**
+     * 显示提示框
+     */
+    show(...args) {
+      let event = args[0];
+      let eventType = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
+      this.clearCloseTimeoutId(eventType);
+      if (typeof this.$data.config.showBeforeCallBack === "function") {
+        let result = this.$data.config.showBeforeCallBack(this.$el.$toolTip);
+        if (typeof result === "boolean" && !result) {
+          return;
+        }
+      }
+      if (!popsUtils.contains(this.$el.$shadowRoot, this.$el.$toolTip)) {
+        this.init();
+        popsDOMUtils.append(this.$el.$shadowRoot, this.$el.$toolTip);
+      }
+      if (!popsUtils.contains(this.$el.$shadowContainer)) {
+        if (typeof this.$data.config.beforeAppendToPageCallBack === "function") {
+          this.$data.config.beforeAppendToPageCallBack(this.$el.$shadowRoot, this.$el.$shadowContainer);
+        }
+        popsDOMUtils.append(document.body, this.$el.$shadowContainer);
+      }
+      this.changeContent();
+      this.changePosition(event);
+      if (typeof this.$data.config.showAfterCallBack === "function") {
+        this.$data.config.showAfterCallBack(this.$el.$toolTip);
+      }
+    }
+    /**
+     * 绑定 显示事件
+     */
+    onShowEvent() {
+      popsDOMUtils.on(this.$data.config.target, this.$data.config.triggerShowEventName, this.show, this.$data.config.eventOption);
+    }
+    /**
+     * 取消绑定 显示事件
+     */
+    offShowEvent() {
+      popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerShowEventName, this.show, {
+        capture: true
+      });
+    }
+    /**
+     * 关闭提示框
+     */
+    close(...args) {
+      let event = args[0];
+      let eventType = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
+      if (event && event instanceof MouseEvent) {
+        let $target = event.composedPath()[0];
+        if ($target != this.$data.config.target && $target != this.$el.$toolTip) {
+          return;
+        }
+      }
+      if (typeof this.$data.config.closeBeforeCallBack === "function") {
+        let result = this.$data.config.closeBeforeCallBack(this.$el.$toolTip);
+        if (typeof result === "boolean" && !result) {
+          return;
+        }
+      }
+      if (this.$data.config.delayCloseTime == null || typeof this.$data.config.delayCloseTime === "number" && this.$data.config.delayCloseTime <= 0) {
+        this.$data.config.delayCloseTime = 100;
+      }
+      let timeId = popsUtils.setTimeout(() => {
+        this.clearCloseTimeoutId(eventType, timeId);
+        if (this.$el.$toolTip == null) {
+          return;
+        }
+        let motion = this.$el.$toolTip.getAttribute("data-motion");
+        if (motion == null || motion.trim() === "") {
+          this.toolTipAnimationFinishEvent();
+        } else {
+          this.$el.$toolTip.setAttribute("data-motion", this.$el.$toolTip.getAttribute("data-motion").replace("fadeIn", "fadeOut"));
+        }
+      }, this.$data.config.delayCloseTime);
+      this.addCloseTimeoutId(eventType, timeId);
+      if (typeof this.$data.config.closeAfterCallBack === "function") {
+        this.$data.config.closeAfterCallBack(this.$el.$toolTip);
+      }
+    }
+    /**
+     * 绑定 关闭事件
+     */
+    onCloseEvent() {
+      popsDOMUtils.on(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close, this.$data.config.eventOption);
+    }
+    /**
+     * 取消绑定 关闭事件
+     */
+    offCloseEvent() {
+      popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close, {
+        capture: true
+      });
+    }
+    /**
+     * 销毁元素
+     */
+    destory() {
+      if (this.$el.$toolTip) {
+        this.$el.$shadowRoot.removeChild(this.$el.$toolTip);
+      }
+      this.$el.$toolTip = null;
+      this.$el.$arrow = null;
+      this.$el.$content = null;
+    }
+    /**
+     * 动画结束事件
+     */
+    toolTipAnimationFinishEvent() {
+      if (!this.$el.$toolTip) {
+        return;
+      }
+      if (this.$el.$toolTip.getAttribute("data-motion").includes("In")) {
+        return;
+      }
+      this.destory();
+    }
+    /**
+     * 监听tooltip的动画结束
+     */
+    onToolTipAnimationFinishEvent() {
+      popsDOMUtils.on(this.$el.$toolTip, popsDOMUtils.getAnimationEndNameList(), this.toolTipAnimationFinishEvent);
+    }
+    /**
+     * 取消tooltip监听动画结束
+     */
+    offToolTipAnimationFinishEvent() {
+      popsDOMUtils.off(this.$el.$toolTip, popsDOMUtils.getAnimationEndNameList(), this.toolTipAnimationFinishEvent);
+    }
+    /**
+     * 鼠标|触摸进入事件
+     */
+    toolTipMouseEnterEvent() {
+      this.clearCloseTimeoutId("MouseEvent");
+      this.clearCloseTimeoutId("TouchEvent");
+    }
+    /**
+     * 监听鼠标|触摸事件
+     */
+    onToolTipMouseEnterEvent() {
+      this.clearCloseTimeoutId("MouseEvent");
+      this.clearCloseTimeoutId("TouchEvent");
+      popsDOMUtils.on(this.$el.$toolTip, "mouseenter touchstart", this.toolTipMouseEnterEvent, this.$data.config.eventOption);
+    }
+    /**
+     * 取消监听鼠标|触摸事件
+     */
+    offToolTipMouseEnterEvent() {
+      popsDOMUtils.off(this.$el.$toolTip, "mouseenter touchstart", this.toolTipMouseEnterEvent, this.$data.config.eventOption);
+    }
+    /**
+     * 鼠标|触摸离开事件
+     */
+    toolTipMouseLeaveEvent(event) {
+      this.close(event);
+    }
+    /**
+     * 监听鼠标|触摸离开事件
+     */
+    onToolTipMouseLeaveEvent() {
+      popsDOMUtils.on(this.$el.$toolTip, "mouseleave touchend", this.toolTipMouseLeaveEvent, this.$data.config.eventOption);
+    }
+    /**
+     * 取消监听鼠标|触摸离开事件
+     */
+    offToolTipMouseLeaveEvent() {
+      popsDOMUtils.off(this.$el.$toolTip, "mouseleave touchend", this.toolTipMouseLeaveEvent, this.$data.config.eventOption);
+    }
+  }
+  const PopsTooltip = {
+    init(details) {
+      const guid = popsUtils.getRandomGUID();
+      const PopsType = "tooltip";
+      let config = PopsTooltipConfig();
+      config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+      config = popsUtils.assign(config, details);
+      if (!(config.target instanceof HTMLElement)) {
+        throw new TypeError("config.target 必须是HTMLElement类型");
+      }
+      config = PopsHandler.handleOnly(PopsType, config);
+      const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
+      PopsHandler.handleInit($shadowRoot, [
+        PopsCSS.index,
+        PopsCSS.anim,
+        PopsCSS.common,
+        PopsCSS.tooltipCSS
+      ]);
+      let toolTip = new ToolTip(config, guid, {
+        $shadowContainer,
+        $shadowRoot
+      });
+      if (config.alwaysShow) {
+        toolTip.show();
+      }
+      return {
+        guid,
+        config,
+        $shadowContainer,
+        $shadowRoot,
+        toolTip
+      };
     }
   };
   const PanelHandleContentDetails = () => {
@@ -17702,7 +18799,7 @@ ${err.stack}`);
             return value;
           }
         };
-        let tooltip = pops.tooltip({
+        let tooltip = PopsTooltip.init({
           target: rangeInputElement.parentElement,
           content: () => {
             return getToolTipContent(rangeInputElement.value);
@@ -17852,11 +18949,11 @@ ${err.stack}`);
             let isSuccess = false;
             let oldTotalWidth = this.$data.totalWidth;
             let timer = void 0;
-            let interval = popsUtils.setInterval(() => {
+            let interval = setInterval(() => {
               if (isSuccess) {
                 this.$interval.isCheck = false;
-                popsUtils.clearTimeout(timer);
-                popsUtils.clearInterval(interval);
+                clearTimeout(timer);
+                clearInterval(interval);
               } else {
                 this.initTotalWidth();
                 if (this.$data.totalWidth !== 0) {
@@ -17872,8 +18969,8 @@ ${err.stack}`);
                 }
               }
             }, checkStepTime);
-            timer = popsUtils.setTimeout(() => {
-              popsUtils.clearInterval(interval);
+            timer = setTimeout(() => {
+              clearInterval(interval);
             }, maxTime);
           },
           /**
@@ -17998,14 +19095,14 @@ ${err.stack}`);
            * @param dragX
            */
           getDragInfo(dragX) {
-            let result2 = this.$data.stepBlockMap.get(0);
+            let result = this.$data.stepBlockMap.get(0);
             for (const [, stepBlockInfo] of this.$data.stepBlockMap.entries()) {
               if (stepBlockInfo.pxLeft <= dragX && dragX < stepBlockInfo.pxRight) {
-                result2 = stepBlockInfo;
+                result = stepBlockInfo;
                 break;
               }
             }
-            return result2;
+            return result;
           },
           /**
            * 获取滑块的当前脱拖拽占据的百分比
@@ -18192,16 +19289,16 @@ ${err.stack}`);
               return;
             }
             this.$data.isCheckingStopDragMove = true;
-            let interval = popsUtils.setInterval(() => {
+            let interval = setInterval(() => {
               if (!this.$data.isMove) {
                 this.$data.isCheckingStopDragMove = false;
                 this.closeToolTip();
-                popsUtils.clearInterval(interval);
+                clearInterval(interval);
               }
             }, 200);
-            popsUtils.setTimeout(() => {
+            setTimeout(() => {
               this.$data.isCheckingStopDragMove = false;
-              popsUtils.clearInterval(interval);
+              clearInterval(interval);
             }, 2e3);
           },
           /**
@@ -18215,7 +19312,7 @@ ${err.stack}`);
                 return PopsPanelSlider.value;
               }
             }
-            let tooltip = pops.tooltip({
+            let tooltip = PopsTooltip.init({
               target: this.$ele.button,
               content: getToolTipContent,
               zIndex: () => {
@@ -18304,11 +19401,11 @@ ${err.stack}`);
             this.initEle();
             this.setInputValue(this.$data.value);
             if (formConfig.isPassword) {
-              this.setCircleIcon(pops.config.iconSVG.view);
+              this.setCircleIcon(PopsIcon.getIcon("view"));
               this.setCircleIconClickEvent();
             } else {
               if (this.$ele.input.value != "") {
-                this.setCircleIcon(pops.config.iconSVG.circleClose);
+                this.setCircleIcon(PopsIcon.getIcon("circleClose"));
                 this.setCircleIconClickEvent();
               }
             }
@@ -18380,9 +19477,9 @@ ${err.stack}`);
           },
           /**
            * 添加清空图标按钮
-           * @param [svgHTML=pops.config.iconSVG.circleClose] svg图标，默认为清空的图标
+           * @param [svgHTML=PopsIcon.getIcon("circleClose")] svg图标，默认为清空的图标
            */
-          setCircleIcon(svgHTML = pops.config.iconSVG.circleClose) {
+          setCircleIcon(svgHTML = PopsIcon.getIcon("circleClose")) {
             PopsSafeUtils.setSafeHTML(this.$ele.icon, svgHTML);
           },
           /**
@@ -18398,11 +19495,11 @@ ${err.stack}`);
                 if (this.$data.isView) {
                   this.$data.isView = false;
                   this.setInputType("text");
-                  this.setCircleIcon(pops.config.iconSVG.hide);
+                  this.setCircleIcon(PopsIcon.getIcon("hide"));
                 } else {
                   this.$data.isView = true;
                   this.setInputType("password");
-                  this.setCircleIcon(pops.config.iconSVG.view);
+                  this.setCircleIcon(PopsIcon.getIcon("view"));
                 }
               } else {
                 this.setInputValue("");
@@ -18419,7 +19516,7 @@ ${err.stack}`);
               this.$data.value = this.$ele.input.value;
               if (!formConfig.isPassword) {
                 if (this.$ele.input.value !== "" && this.$ele.icon.innerHTML === "") {
-                  this.setCircleIcon(pops.config.iconSVG.circleClose);
+                  this.setCircleIcon(PopsIcon.getIcon("circleClose"));
                   this.setCircleIconClickEvent();
                 } else if (this.$ele.input.value === "") {
                   this.removeCircleIcon();
@@ -19015,7 +20112,7 @@ ${err.stack}`);
             var _a2;
             return Array.from(((_a2 = this.$el.$selectContainer) == null ? void 0 : _a2.querySelectorAll(".select-item")) ?? []).map(($select) => {
               let data = this.getSelectedItemInfo($select);
-              let result2 = {
+              let result = {
                 /** 选项信息数据 */
                 data,
                 /** 选项元素 */
@@ -19024,11 +20121,11 @@ ${err.stack}`);
               if (onlySelected) {
                 let isSelected = this.isSelectItemSelected($select);
                 if (isSelected) {
-                  return result2;
+                  return result;
                 }
                 return;
               } else {
-                return result2;
+                return result;
               }
             }).filter((item) => {
               return item != null;
@@ -19225,7 +20322,7 @@ ${err.stack}`);
 								`
                 )
               }, userConfirmDetails);
-              let $dialog = pops.alert(confirmDetails);
+              let $dialog = PopsAlert.init(confirmDetails);
               let $selectContainer = $dialog.$shadowRoot.querySelector(".select-container");
               this.$el.$selectContainer = $selectContainer;
               formConfig.data.forEach((item) => {
@@ -19244,13 +20341,13 @@ ${err.stack}`);
             popsDOMUtils.on(data.$closeIcon, "click", (event) => {
               popsDOMUtils.preventEvent(event);
               if (typeof formConfig.closeIconClickCallBack === "function") {
-                let result2 = formConfig.closeIconClickCallBack(event, {
+                let result = formConfig.closeIconClickCallBack(event, {
                   $tag: data.$tag,
                   $closeIcon: data.$closeIcon,
                   value: data.value,
                   text: typeof data.text === "function" ? data.text.bind(data) : data.text
                 });
-                if (typeof result2 === "boolean" && !result2) {
+                if (typeof result === "boolean" && !result) {
                   return;
                 }
               }
@@ -19371,8 +20468,8 @@ ${err.stack}`);
           },
           initButton() {
             if (typeof formConfig.buttonIcon === "string" && formConfig.buttonIcon.trim() !== "") {
-              if (formConfig.buttonIcon in pops.config.iconSVG) {
-                this.setIconSVG(pops.config.iconSVG[formConfig.buttonIcon]);
+              if (PopsIcon.hasIcon(formConfig.buttonIcon)) {
+                this.setIconSVG(PopsIcon.getIcon(formConfig.buttonIcon));
               } else {
                 this.setIconSVG(formConfig.buttonIcon);
               }
@@ -19490,7 +20587,7 @@ ${err.stack}`);
         let arrowRightIcon = typeof formConfig.arrowRightIcon === "boolean" ? formConfig.arrowRightIcon : true;
         let arrowRightIconHTML = "";
         if (arrowRightIcon) {
-          arrowRightIconHTML = `<i class="pops-panel-deepMenu-arrowRight-icon">${pops.config.iconSVG.arrowRight}</i>`;
+          arrowRightIconHTML = `<i class="pops-panel-deepMenu-arrowRight-icon">${PopsIcon.getIcon("arrowRight")}</i>`;
         }
         let rightText = "";
         if (formConfig.rightText) {
@@ -19614,7 +20711,7 @@ ${err.stack}`);
             });
             let $headerLeftArrow = popsDOMUtils.createElement("i", {
               className: "pops-panel-deepMenu-container-left-arrow-icon",
-              innerHTML: pops.config.iconSVG.arrowLeft
+              innerHTML: PopsIcon.getIcon("arrowLeft")
             });
             popsDOMUtils.on($headerLeftArrow, "click", void 0, (event2) => {
               event2 == null ? void 0 : event2.preventDefault();
@@ -19649,8 +20746,8 @@ ${err.stack}`);
           setLiClickEvent() {
             popsDOMUtils.on($li, "click", void 0, async (event) => {
               if (typeof formConfig.clickCallBack === "function") {
-                let result2 = await formConfig.clickCallBack(event, formConfig);
-                if (result2) {
+                let result = await formConfig.clickCallBack(event, formConfig);
+                if (result) {
                   return;
                 }
               }
@@ -19825,7 +20922,7 @@ ${err.stack}`);
       }
     };
   };
-  const PopsPanel$1 = {
+  const PopsPanel = {
     init(details) {
       const guid = popsUtils.getRandomGUID();
       const PopsType = "panel";
@@ -19838,13 +20935,13 @@ ${err.stack}`);
       config = PopsHandler.handleOnly(PopsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
-        pops.config.cssText.index,
-        pops.config.cssText.ninePalaceGridPosition,
-        pops.config.cssText.scrollbar,
-        pops.config.cssText.button,
-        pops.config.cssText.anim,
-        pops.config.cssText.common,
-        pops.config.cssText.panelCSS
+        PopsCSS.index,
+        PopsCSS.ninePalaceGridPosition,
+        PopsCSS.scrollbar,
+        PopsCSS.button,
+        PopsCSS.anim,
+        PopsCSS.common,
+        PopsCSS.panelCSS
       ]);
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
       let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
@@ -19871,7 +20968,7 @@ ${err.stack}`);
       );
       let $anim = PopsElementHandler.parseElement(animHTML);
       let { popsElement: $pops, headerCloseBtnElement: $headerCloseBtn, titleElement: $title, contentElement: $content, contentAsideElement: $contentAside, contentSectionContainerElement: $contentSectionContainer } = PopsHandler.handleQueryElement($anim, PopsType);
-      if (config.isMobile || pops.isPhone()) {
+      if (config.isMobile || popsUtils.isPhone()) {
         popsDOMUtils.addClassName($pops, config.mobileClassName);
       }
       let $mask = null;
@@ -19923,8 +21020,8 @@ ${err.stack}`);
           endCallBack: config.dragEndCallBack
         });
       }
-      let result2 = PopsHandler.handleResultDetails(eventDetails);
-      return result2;
+      let result = PopsHandler.handleResultDetails(eventDetails);
+      return result;
     }
   };
   const rightClickMenuConfig = () => {
@@ -19933,7 +21030,7 @@ ${err.stack}`);
       targetSelector: null,
       data: [
         {
-          icon: pops.config.iconSVG.search,
+          icon: PopsIcon.getIcon("search"),
           iconIsLoading: false,
           text: "搜索",
           item: [],
@@ -19946,7 +21043,7 @@ ${err.stack}`);
           }
         },
         {
-          icon: pops.config.iconSVG.documentCopy,
+          icon: PopsIcon.getIcon("documentCopy"),
           iconIsLoading: false,
           text: "复制",
           item: [],
@@ -19959,7 +21056,7 @@ ${err.stack}`);
           }
         },
         {
-          icon: pops.config.iconSVG.delete,
+          icon: PopsIcon.getIcon("delete"),
           text: "删除",
           iconIsLoading: false,
           item: [],
@@ -19972,7 +21069,7 @@ ${err.stack}`);
           }
         },
         {
-          icon: pops.config.iconSVG.loading,
+          icon: PopsIcon.getIcon("loading"),
           iconIsLoading: true,
           text: "加载",
           item: [],
@@ -19986,7 +21083,7 @@ ${err.stack}`);
           }
         },
         {
-          icon: pops.config.iconSVG.elemePlus,
+          icon: PopsIcon.getIcon("elemePlus"),
           iconIsLoading: true,
           text: "饿了么",
           callback(clickEvent, contextMenuEvent, liElement) {
@@ -20024,7 +21121,7 @@ ${err.stack}`);
               },
               item: [
                 {
-                  icon: pops.config.iconSVG.view,
+                  icon: PopsIcon.getIcon("view"),
                   iconIsLoading: false,
                   text: "查看",
                   item: [],
@@ -20041,6 +21138,8 @@ ${err.stack}`);
           ]
         }
       ],
+      chileMenuLeftOrRightDistance: 0,
+      childMenuTopOrBottomDistance: 0,
       useShadowRoot: true,
       className: "",
       isAnimation: true,
@@ -20068,10 +21167,10 @@ ${err.stack}`);
       }
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
-        pops.config.cssText.index,
-        pops.config.cssText.anim,
-        pops.config.cssText.common,
-        pops.config.cssText.rightClickMenu
+        PopsCSS.index,
+        PopsCSS.anim,
+        PopsCSS.common,
+        PopsCSS.rightClickMenu
       ]);
       if (config.style != null) {
         let cssNode = popsDOMUtils.createElement("style", {
@@ -20152,8 +21251,9 @@ ${err.stack}`);
         /**
          * contextmenu事件
          * @param event
+         * @param selectorTarget
          */
-        contextMenuEvent(event) {
+        contextMenuEvent(event, selectorTarget) {
           if (config.preventDefault) {
             popsDOMUtils.preventEvent(event);
           }
@@ -20161,7 +21261,7 @@ ${err.stack}`);
           if (PopsContextMenu.rootElement) {
             PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
           }
-          let rootElement = PopsContextMenu.showMenu(event, config.data);
+          let rootElement = PopsContextMenu.showMenu(event, config.data, selectorTarget);
           PopsContextMenu.rootElement = rootElement;
           if (config.only) {
             PopsHandler.handlePush(PopsType, {
@@ -20198,13 +21298,13 @@ ${err.stack}`);
          */
         animationCloseMenu(element) {
           function transitionEndEvent(event) {
-            popsDOMUtils.off(element, popsDOMUtils.getTransitionEndNameList(), void 0, transitionEndEvent, {
+            popsDOMUtils.off(element, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
               capture: true
             });
             element.remove();
           }
           if (element.classList.contains(`pops-${PopsType}-anim-show`)) {
-            popsDOMUtils.on(element, popsDOMUtils.getTransitionEndNameList(), void 0, transitionEndEvent, {
+            popsDOMUtils.on(element, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
               capture: true
             });
             element.classList.remove(`pops-${PopsType}-anim-show`);
@@ -20265,37 +21365,82 @@ ${err.stack}`);
         },
         /**
          * 获取left、top偏移
-         * @param menuElement 菜单元素
-         * @param x
-         * @param y
+         * @param menuElement 当前生成的菜单元素
+         * @param mousePosition 鼠标位置信息
+         * @param isMainMenu 是否是主菜单
          */
-        getOffset(menuElement, x2, y2) {
+        getOffset(menuElement, mousePosition, parentInfo) {
+          let result = {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0
+          };
           let menuElementWidth = popsDOMUtils.width(menuElement);
           let menuElementHeight = popsDOMUtils.height(menuElement);
-          let maxLeftOffset = popsDOMUtils.width(globalThis) - menuElementWidth - 1;
-          let maxTopOffset = popsDOMUtils.height(globalThis) - menuElementHeight - 8;
-          let currentLeftOffset = x2;
-          let currentTopOffset = y2;
+          let limitDistance = 1;
+          let maxPageLeftOffset = popsDOMUtils.width(globalThis) - limitDistance;
+          let maxPageTopOffset = popsDOMUtils.height(globalThis) - limitDistance;
+          let maxLeftOffset = maxPageLeftOffset - menuElementWidth;
+          let maxTopOffset = maxPageTopOffset - menuElementHeight;
+          let chileMenuLeftOrRightDistance = config.chileMenuLeftOrRightDistance;
+          let childMenuTopOrBottomDistance = config.childMenuTopOrBottomDistance;
+          let currentLeftOffset = mousePosition.x;
+          let currentTopOffset = mousePosition.y;
           currentLeftOffset = currentLeftOffset < 0 ? 0 : currentLeftOffset;
-          currentLeftOffset = currentLeftOffset < maxLeftOffset ? currentLeftOffset : maxLeftOffset;
+          if (currentLeftOffset + chileMenuLeftOrRightDistance >= maxLeftOffset) {
+            if (parentInfo) {
+              let mainMenuOffset = popsDOMUtils.offset(parentInfo.$menu);
+              currentLeftOffset = maxPageLeftOffset - mainMenuOffset.left - chileMenuLeftOrRightDistance + limitDistance;
+            } else {
+              currentLeftOffset = limitDistance + chileMenuLeftOrRightDistance;
+            }
+            if (currentLeftOffset < 0) {
+              currentLeftOffset = 0;
+            } else if (currentLeftOffset > maxLeftOffset) {
+              currentLeftOffset = maxLeftOffset;
+            }
+            result.right = currentLeftOffset;
+            Reflect.deleteProperty(result, "left");
+          } else {
+            currentLeftOffset = currentLeftOffset + chileMenuLeftOrRightDistance;
+            result.left = currentLeftOffset;
+            Reflect.deleteProperty(result, "right");
+          }
           currentTopOffset = currentTopOffset < 0 ? 0 : currentTopOffset;
-          currentTopOffset = currentTopOffset < maxTopOffset ? currentTopOffset : maxTopOffset;
-          return {
-            left: currentLeftOffset,
-            top: currentTopOffset
-          };
+          if (currentTopOffset + childMenuTopOrBottomDistance >= maxTopOffset) {
+            if (parentInfo) {
+              let parentItemOffset = popsDOMUtils.offset(parentInfo.$parentItem, false);
+              currentTopOffset = maxPageTopOffset - parentItemOffset.bottom - childMenuTopOrBottomDistance + limitDistance;
+            } else {
+              currentTopOffset = limitDistance + childMenuTopOrBottomDistance;
+            }
+            if (currentTopOffset < 0) {
+              currentTopOffset = limitDistance;
+            } else if (currentTopOffset > maxTopOffset) {
+              currentTopOffset = maxTopOffset;
+            }
+            result.bottom = currentTopOffset;
+            Reflect.deleteProperty(result, "top");
+          } else {
+            currentTopOffset = currentTopOffset + childMenuTopOrBottomDistance;
+            result.top = currentTopOffset;
+            Reflect.deleteProperty(result, "bottom");
+          }
+          return result;
         },
         /**
          * 显示菜单
          * @param menuEvent 触发的事件
          * @param _config_
+         * @param menuListenerRootNode 右键菜单监听的元素
          */
-        showMenu(menuEvent, _config_) {
+        showMenu(menuEvent, _config_, menuListenerRootNode) {
           let menuElement = this.getMenuContainerElement(false);
           Reflect.set(menuElement, "__menuData__", {
             child: []
           });
-          PopsContextMenu.addMenuLiELement(menuEvent, menuElement, menuElement, _config_);
+          PopsContextMenu.addMenuLiELement(menuEvent, menuElement, menuElement, _config_, menuListenerRootNode);
           popsDOMUtils.css(menuElement, {
             display: "none"
           });
@@ -20306,10 +21451,12 @@ ${err.stack}`);
             }
             popsDOMUtils.appendBody($shadowContainer);
           }
-          let { left: menuLeftOffset, top: menuTopOffset } = this.getOffset(menuElement, menuEvent.clientX, menuEvent.clientY);
+          let offset = this.getOffset(menuElement, {
+            x: menuEvent.clientX,
+            y: menuEvent.clientY
+          }, null);
           popsDOMUtils.css(menuElement, {
-            left: menuLeftOffset,
-            top: menuTopOffset,
+            ...offset,
             display: ""
           });
           if (config.isAnimation) {
@@ -20324,8 +21471,9 @@ ${err.stack}`);
          * @param  _config_
          * @param rootElement 根菜单元素
          * @param targetLiElement 父li项元素
+         * @param menuListenerRootNode 右键菜单监听的元素
          */
-        showClildMenu(menuEvent, posInfo, _config_, rootElement, targetLiElement) {
+        showClildMenu(menuEvent, posInfo, _config_, rootElement, targetLiElement, menuListenerRootNode) {
           let menuElement = this.getMenuContainerElement(true);
           Reflect.set(menuElement, "__menuData__", {
             parent: targetLiElement,
@@ -20333,17 +21481,20 @@ ${err.stack}`);
           });
           let rootElementMenuData = Reflect.get(rootElement, "__menuData__");
           rootElementMenuData.child.push(menuElement);
-          PopsContextMenu.addMenuLiELement(menuEvent, rootElement, menuElement, _config_);
+          PopsContextMenu.addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRootNode);
           popsDOMUtils.css(menuElement, {
             display: "none"
           });
           popsDOMUtils.append($shadowRoot, menuElement);
-          let { left: menuLeftOffset, top: menuTopOffset } = this.getOffset(menuElement, posInfo.clientX, posInfo.clientY);
-          popsDOMUtils.css(menuElement, {
-            left: menuLeftOffset,
-            top: menuTopOffset,
-            display: ""
+          let $parentMenu = targetLiElement.closest(".pops-rightClickMenu");
+          let offset = this.getOffset(menuElement, {
+            x: posInfo.clientX,
+            y: posInfo.clientY
+          }, {
+            $menu: $parentMenu,
+            $parentItem: targetLiElement
           });
+          popsDOMUtils.css(menuElement, { ...offset, display: "" });
           if (config.isAnimation) {
             popsDOMUtils.addClassName(menuElement, `pops-${PopsType}-anim-show`);
           }
@@ -20355,17 +21506,18 @@ ${err.stack}`);
          * @param rootElement 根元素
          * @param menuElement 菜单元素
          * @param _config_ 配置
+         * @param menuListenerRootNode 右键菜单监听的元素
          */
-        addMenuLiELement(menuEvent, rootElement, menuElement, _config_) {
+        addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRootNode) {
           let menuEventTarget = menuEvent.target;
           let menuULElement = menuElement.querySelector("ul");
           _config_.forEach((item) => {
-            let menuLiElement = popsUtils.parseTextToDOM(`<li></li>`);
+            let menuLiElement = popsDOMUtils.parseTextToDOM(`<li></li>`);
             if (typeof item.icon === "string" && item.icon.trim() !== "") {
-              let iconSVGHTML = pops.config.iconSVG[item.icon] ?? item.icon;
-              let iconElement = popsUtils.parseTextToDOM(
+              let iconSVGHTML = PopsIcon.getIcon(item.icon) ?? item.icon;
+              let iconElement = popsDOMUtils.parseTextToDOM(
                 /*html*/
-                `<i class="pops-${PopsType}-icon" is-loading="${item.iconIsLoading}">${iconSVGHTML}</i>`
+                `<i class="pops-${PopsType}-icon" is-loading="${item.iconIsLoading ?? false}">${iconSVGHTML}</i>`
               );
               menuLiElement.appendChild(iconElement);
             }
@@ -20405,19 +21557,22 @@ ${err.stack}`);
               let childMenu = PopsContextMenu.showClildMenu(menuEvent, {
                 clientX: rect.left + popsDOMUtils.outerWidth(menuLiElement),
                 clientY: rect.top
-              }, item.item, rootElement, menuLiElement);
+              }, item.item, rootElement, menuLiElement, menuListenerRootNode);
               menuLiElement.__menuData__ = {
                 child: childMenu
               };
             }
             async function liElementClickEvent(clickEvent) {
               if (typeof item.callback === "function") {
-                OriginPrototype.Object.defineProperty(menuEvent, "target", {
-                  get() {
-                    return menuEventTarget;
-                  }
-                });
-                let callbackResult = await item.callback(clickEvent, menuEvent, menuLiElement);
+                try {
+                  OriginPrototype.Object.defineProperty(menuEvent, "target", {
+                    get() {
+                      return menuEventTarget;
+                    }
+                  });
+                } catch (error) {
+                }
+                let callbackResult = await item.callback(clickEvent, menuEvent, menuLiElement, menuListenerRootNode);
                 if (typeof callbackResult === "boolean" && callbackResult == false) {
                   return;
                 }
@@ -20519,9 +21674,9 @@ ${err.stack}`);
       }
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
-        pops.config.cssText.index,
-        pops.config.cssText.anim,
-        pops.config.cssText.common
+        PopsCSS.index,
+        PopsCSS.anim,
+        PopsCSS.common
       ]);
       if (config.style != null) {
         let cssNode = document.createElement("style");
@@ -20966,7 +22121,7 @@ ${err.stack}`);
         clear() {
           this.$data.isEmpty = true;
           this.clearAllSearchItemLi();
-          this.$el.$hintULContainer.appendChild(popsUtils.parseTextToDOM(config.toSearhNotResultHTML));
+          this.$el.$hintULContainer.appendChild(popsDOMUtils.parseTextToDOM(config.toSearhNotResultHTML));
           if (config.toHideWithNotResult) {
             this.hide();
           }
@@ -20987,590 +22142,19 @@ ${err.stack}`);
       return SearchSuggestion;
     }
   };
-  const PopsTooltipConfig = () => {
-    return {
-      useShadowRoot: true,
-      target: null,
-      content: "默认文字",
-      isDiffContent: false,
-      position: "top",
-      className: "",
-      isFixed: false,
-      alwaysShow: false,
-      triggerShowEventName: "mouseenter touchstart",
-      triggerCloseEventName: "mouseleave touchend",
-      zIndex: 1e4,
-      only: false,
-      eventOption: {
-        passive: false,
-        capture: true,
-        once: false
-      },
-      showBeforeCallBack() {
-      },
-      showAfterCallBack() {
-      },
-      closeBeforeCallBack() {
-      },
-      closeAfterCallBack() {
-      },
-      delayCloseTime: 100,
-      showArrow: true,
-      arrowDistance: 12.5,
-      otherDistance: 0,
-      style: "",
-      beforeAppendToPageCallBack() {
-      }
-    };
-  };
-  class ToolTip {
-    constructor(config, guid, ShadowInfo) {
-      __publicField(this, "$el", {
-        $shadowContainer: null,
-        $shadowRoot: null,
-        $toolTip: null,
-        $content: null,
-        $arrow: null
-      });
-      __publicField(this, "$data", {
-        config: null,
-        guid: null,
-        timeId_close_TouchEvent: [],
-        timeId_close_MouseEvent: []
-      });
-      this.$data.config = config;
-      this.$data.guid = guid;
-      this.$el.$shadowContainer = ShadowInfo.$shadowContainer;
-      this.$el.$shadowRoot = ShadowInfo.$shadowRoot;
-      this.show = this.show.bind(this);
-      this.close = this.close.bind(this);
-      this.toolTipAnimationFinishEvent = this.toolTipAnimationFinishEvent.bind(this);
-      this.toolTipMouseEnterEvent = this.toolTipMouseEnterEvent.bind(this);
-      this.toolTipMouseLeaveEvent = this.toolTipMouseLeaveEvent.bind(this);
-      this.init();
-    }
-    init() {
-      let toolTipInfo = this.createToolTip();
-      this.$el.$toolTip = toolTipInfo.$toolTipContainer;
-      this.$el.$content = toolTipInfo.$toolTipContent;
-      this.$el.$arrow = toolTipInfo.$toolTipArrow;
-      this.changeContent();
-      this.changeZIndex();
-      this.changePosition();
-      if (!this.$data.config.alwaysShow) {
-        this.offEvent();
-        this.onEvent();
-      }
-    }
-    /**
-     * 创建提示元素
-     */
-    createToolTip() {
-      let $toolTipContainer = popsDOMUtils.createElement("div", {
-        className: "pops-tip",
-        innerHTML: (
-          /*html*/
-          `
-				<div class="pops-tip-content" style="text-align: center;"></div>
-				<div class="pops-tip-arrow"></div>
-			`
-        )
-      }, {
-        "data-position": this.$data.config.isFixed ? "fixed" : "absolute",
-        "data-guid": this.$data.guid
-      });
-      let $toolTipContent = $toolTipContainer.querySelector(".pops-tip-content");
-      let $toolTipArrow = $toolTipContainer.querySelector(".pops-tip-arrow");
-      if (typeof this.$data.config.className === "string" && this.$data.config.className.trim() !== "") {
-        popsDOMUtils.addClassName($toolTipContainer, this.$data.config.className);
-      }
-      $toolTipContainer.style.zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex).toString();
-      if (this.$data.config.style != null) {
-        let cssNode = popsDOMUtils.createElement("style", {
-          type: "text/css",
-          innerHTML: this.$data.config.style
-        });
-        $toolTipContainer.appendChild(cssNode);
-      }
-      if (!this.$data.config.showArrow) {
-        $toolTipArrow.remove();
-      }
-      return {
-        $toolTipContainer,
-        $toolTipArrow,
-        $toolTipContent
-      };
-    }
-    /**
-     * 获取提示的内容
-     */
-    getContent() {
-      return typeof this.$data.config.content === "function" ? this.$data.config.content() : this.$data.config.content;
-    }
-    /**
-     * 修改提示的内容
-     * @param text
-     */
-    changeContent(text) {
-      if (text == null) {
-        text = this.getContent();
-      }
-      if (this.$data.config.isDiffContent) {
-        let contentPropKey = "data-content";
-        let originContentText = this.$el.$content[contentPropKey];
-        if (typeof originContentText === "string") {
-          if (originContentText === text) {
-            return;
-          }
-        }
-        this.$el.$content[contentPropKey] = text;
-      }
-      PopsSafeUtils.setSafeHTML(this.$el.$content, text);
-    }
-    /**
-     * 获取z-index
-     */
-    getZIndex() {
-      const zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex);
-      return zIndex;
-    }
-    /**
-     * 动态修改z-index
-     */
-    changeZIndex() {
-      const zIndex = this.getZIndex();
-      this.$el.$toolTip.style.setProperty("z-index", zIndex.toString());
-    }
-    /**
-     * 计算 提示框的位置
-     * @param event 触发的事件
-     * @param targetElement 目标元素
-     * @param arrowDistance 箭头和目标元素的距离
-     * @param otherDistance 其它位置的偏移
-     */
-    calcToolTipPosition(targetElement, arrowDistance, otherDistance, event) {
-      let offsetInfo = popsDOMUtils.offset(targetElement, !this.$data.config.isFixed);
-      let targetElement_width = offsetInfo.width;
-      let targetElement_height = offsetInfo.height;
-      let targetElement_top = offsetInfo.top;
-      let targetElement_left = offsetInfo.left;
-      let toolTipElement_width = popsDOMUtils.outerWidth(this.$el.$toolTip);
-      let toolTipElement_height = popsDOMUtils.outerHeight(this.$el.$toolTip);
-      let targetElement_X_center_pos = targetElement_left + targetElement_width / 2 - toolTipElement_width / 2;
-      let targetElement_Y_center_pos = targetElement_top + targetElement_height / 2 - toolTipElement_height / 2;
-      let mouseX = 0;
-      let mouseY = 0;
-      if (event != null) {
-        if (event instanceof MouseEvent || event instanceof PointerEvent) {
-          mouseX = event.pageX;
-          mouseY = event.y;
-        } else if (event instanceof TouchEvent) {
-          let touchEvent = event.touches[0];
-          mouseX = touchEvent.pageX;
-          mouseY = touchEvent.pageY;
-        } else {
-          if (typeof event.clientX === "number") {
-            mouseX = event.clientX;
-          }
-          if (typeof event.clientY === "number") {
-            mouseY = event.clientY;
-          }
-        }
-      }
-      return {
-        TOP: {
-          left: targetElement_X_center_pos - otherDistance,
-          top: targetElement_top - toolTipElement_height - arrowDistance,
-          arrow: "bottom",
-          motion: "fadeInTop"
-        },
-        RIGHT: {
-          left: targetElement_left + targetElement_width + arrowDistance,
-          top: targetElement_Y_center_pos + otherDistance,
-          arrow: "left",
-          motion: "fadeInRight"
-        },
-        BOTTOM: {
-          left: targetElement_X_center_pos - otherDistance,
-          top: targetElement_top + targetElement_height + arrowDistance,
-          arrow: "top",
-          motion: "fadeInBottom"
-        },
-        LEFT: {
-          left: targetElement_left - toolTipElement_width - arrowDistance,
-          top: targetElement_Y_center_pos + otherDistance,
-          arrow: "right",
-          motion: "fadeInLeft"
-        },
-        FOLLOW: {
-          left: mouseX + otherDistance,
-          top: mouseY + otherDistance,
-          arrow: "follow",
-          motion: ""
-        }
-      };
-    }
-    /**
-     * 动态修改tooltip的位置
-     */
-    changePosition(event) {
-      let positionInfo = this.calcToolTipPosition(this.$data.config.target, this.$data.config.arrowDistance, this.$data.config.otherDistance, event);
-      let positionKey = this.$data.config.position.toUpperCase();
-      let positionDetail = positionInfo[positionKey];
-      if (positionDetail) {
-        this.$el.$toolTip.style.left = positionDetail.left + "px";
-        this.$el.$toolTip.style.top = positionDetail.top + "px";
-        this.$el.$toolTip.setAttribute("data-motion", positionDetail.motion);
-        this.$el.$arrow.setAttribute("data-position", positionDetail.arrow);
-      } else {
-        console.error("不存在该位置", this.$data.config.position);
-      }
-    }
-    /**
-     * 事件绑定
-     */
-    onEvent() {
-      this.onToolTipAnimationFinishEvent();
-      this.onShowEvent();
-      this.onCloseEvent();
-      this.onToolTipMouseEnterEvent();
-      this.onToolTipMouseLeaveEvent();
-    }
-    /**
-     * 取消事件绑定
-     */
-    offEvent() {
-      this.offToolTipAnimationFinishEvent();
-      this.offShowEvent();
-      this.offCloseEvent();
-      this.offToolTipMouseEnterEvent();
-      this.offToolTipMouseLeaveEvent();
-    }
-    /**
-     * 添加关闭的timeId
-     * @param type
-     * @param timeId
-     */
-    addCloseTimeoutId(type, timeId) {
-      if (type === "MouseEvent") {
-        this.$data.timeId_close_MouseEvent.push(timeId);
-      } else {
-        this.$data.timeId_close_TouchEvent.push(timeId);
-      }
-    }
-    /**
-     * 清除延迟的timeId
-     * @param type 事件类型
-     */
-    clearCloseTimeoutId(type, timeId) {
-      let timeIdList = type === "MouseEvent" ? this.$data.timeId_close_MouseEvent : this.$data.timeId_close_TouchEvent;
-      for (let index = 0; index < timeIdList.length; index++) {
-        const currentTimeId = timeIdList[index];
-        if (typeof timeId === "number") {
-          if (timeId == currentTimeId) {
-            popsUtils.clearTimeout(timeId);
-            timeIdList.splice(index, 1);
-            break;
-          }
-        } else {
-          popsUtils.clearTimeout(currentTimeId);
-          timeIdList.splice(index, 1);
-          index--;
-        }
-      }
-    }
-    /**
-     * 显示提示框
-     */
-    show(...args2) {
-      let event = args2[0];
-      let eventType = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
-      this.clearCloseTimeoutId(eventType);
-      if (typeof this.$data.config.showBeforeCallBack === "function") {
-        let result2 = this.$data.config.showBeforeCallBack(this.$el.$toolTip);
-        if (typeof result2 === "boolean" && !result2) {
-          return;
-        }
-      }
-      if (!popsUtils.contains(this.$el.$shadowRoot, this.$el.$toolTip)) {
-        this.init();
-        popsDOMUtils.append(this.$el.$shadowRoot, this.$el.$toolTip);
-      }
-      if (!popsUtils.contains(this.$el.$shadowContainer)) {
-        if (typeof this.$data.config.beforeAppendToPageCallBack === "function") {
-          this.$data.config.beforeAppendToPageCallBack(this.$el.$shadowRoot, this.$el.$shadowContainer);
-        }
-        popsDOMUtils.append(document.body, this.$el.$shadowContainer);
-      }
-      this.changeContent();
-      this.changePosition(event);
-      if (typeof this.$data.config.showAfterCallBack === "function") {
-        this.$data.config.showAfterCallBack(this.$el.$toolTip);
-      }
-    }
-    /**
-     * 绑定 显示事件
-     */
-    onShowEvent() {
-      popsDOMUtils.on(this.$data.config.target, this.$data.config.triggerShowEventName, this.show, this.$data.config.eventOption);
-    }
-    /**
-     * 取消绑定 显示事件
-     */
-    offShowEvent() {
-      popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerShowEventName, this.show, {
-        capture: true
-      });
-    }
-    /**
-     * 关闭提示框
-     */
-    close(...args2) {
-      let event = args2[0];
-      let eventType = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
-      if (event && event instanceof MouseEvent) {
-        let $target = event.composedPath()[0];
-        if ($target != this.$data.config.target && $target != this.$el.$toolTip) {
-          return;
-        }
-      }
-      if (typeof this.$data.config.closeBeforeCallBack === "function") {
-        let result2 = this.$data.config.closeBeforeCallBack(this.$el.$toolTip);
-        if (typeof result2 === "boolean" && !result2) {
-          return;
-        }
-      }
-      if (this.$data.config.delayCloseTime == null || typeof this.$data.config.delayCloseTime === "number" && this.$data.config.delayCloseTime <= 0) {
-        this.$data.config.delayCloseTime = 100;
-      }
-      let timeId = popsUtils.setTimeout(() => {
-        this.clearCloseTimeoutId(eventType, timeId);
-        if (this.$el.$toolTip == null) {
-          return;
-        }
-        let motion = this.$el.$toolTip.getAttribute("data-motion");
-        if (motion == null || motion.trim() === "") {
-          this.toolTipAnimationFinishEvent();
-        } else {
-          this.$el.$toolTip.setAttribute("data-motion", this.$el.$toolTip.getAttribute("data-motion").replace("fadeIn", "fadeOut"));
-        }
-      }, this.$data.config.delayCloseTime);
-      this.addCloseTimeoutId(eventType, timeId);
-      if (typeof this.$data.config.closeAfterCallBack === "function") {
-        this.$data.config.closeAfterCallBack(this.$el.$toolTip);
-      }
-    }
-    /**
-     * 绑定 关闭事件
-     */
-    onCloseEvent() {
-      popsDOMUtils.on(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close, this.$data.config.eventOption);
-    }
-    /**
-     * 取消绑定 关闭事件
-     */
-    offCloseEvent() {
-      popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close, {
-        capture: true
-      });
-    }
-    /**
-     * 销毁元素
-     */
-    destory() {
-      if (this.$el.$toolTip) {
-        this.$el.$shadowRoot.removeChild(this.$el.$toolTip);
-      }
-      this.$el.$toolTip = null;
-      this.$el.$arrow = null;
-      this.$el.$content = null;
-    }
-    /**
-     * 动画结束事件
-     */
-    toolTipAnimationFinishEvent() {
-      if (!this.$el.$toolTip) {
-        return;
-      }
-      if (this.$el.$toolTip.getAttribute("data-motion").includes("In")) {
-        return;
-      }
-      this.destory();
-    }
-    /**
-     * 监听tooltip的动画结束
-     */
-    onToolTipAnimationFinishEvent() {
-      popsDOMUtils.on(this.$el.$toolTip, popsDOMUtils.getAnimationEndNameList(), this.toolTipAnimationFinishEvent);
-    }
-    /**
-     * 取消tooltip监听动画结束
-     */
-    offToolTipAnimationFinishEvent() {
-      popsDOMUtils.off(this.$el.$toolTip, popsDOMUtils.getAnimationEndNameList(), this.toolTipAnimationFinishEvent);
-    }
-    /**
-     * 鼠标|触摸进入事件
-     */
-    toolTipMouseEnterEvent() {
-      this.clearCloseTimeoutId("MouseEvent");
-      this.clearCloseTimeoutId("TouchEvent");
-    }
-    /**
-     * 监听鼠标|触摸事件
-     */
-    onToolTipMouseEnterEvent() {
-      this.clearCloseTimeoutId("MouseEvent");
-      this.clearCloseTimeoutId("TouchEvent");
-      popsDOMUtils.on(this.$el.$toolTip, "mouseenter touchstart", this.toolTipMouseEnterEvent, this.$data.config.eventOption);
-    }
-    /**
-     * 取消监听鼠标|触摸事件
-     */
-    offToolTipMouseEnterEvent() {
-      popsDOMUtils.off(this.$el.$toolTip, "mouseenter touchstart", this.toolTipMouseEnterEvent, this.$data.config.eventOption);
-    }
-    /**
-     * 鼠标|触摸离开事件
-     */
-    toolTipMouseLeaveEvent(event) {
-      this.close(event);
-    }
-    /**
-     * 监听鼠标|触摸离开事件
-     */
-    onToolTipMouseLeaveEvent() {
-      popsDOMUtils.on(this.$el.$toolTip, "mouseleave touchend", this.toolTipMouseLeaveEvent, this.$data.config.eventOption);
-    }
-    /**
-     * 取消监听鼠标|触摸离开事件
-     */
-    offToolTipMouseLeaveEvent() {
-      popsDOMUtils.off(this.$el.$toolTip, "mouseleave touchend", this.toolTipMouseLeaveEvent, this.$data.config.eventOption);
-    }
-  }
-  const PopsTooltip = {
-    init(details) {
-      const guid = popsUtils.getRandomGUID();
-      const PopsType = "tooltip";
-      let config = PopsTooltipConfig();
-      config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
-      if (!(config.target instanceof HTMLElement)) {
-        throw new TypeError("config.target 必须是HTMLElement类型");
-      }
-      config = PopsHandler.handleOnly(PopsType, config);
-      const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
-      PopsHandler.handleInit($shadowRoot, [
-        pops.config.cssText.index,
-        pops.config.cssText.anim,
-        pops.config.cssText.common,
-        pops.config.cssText.tooltipCSS
-      ]);
-      let toolTip = new ToolTip(config, guid, {
-        $shadowContainer,
-        $shadowRoot
-      });
-      if (config.alwaysShow) {
-        toolTip.show();
-      }
-      return {
-        guid,
-        config,
-        $shadowContainer,
-        $shadowRoot,
-        toolTip
-      };
-    }
-  };
   class Pops {
     constructor() {
       /** 配置 */
       __publicField(this, "config", {
         /** 版本号 */
-        version: "2025.5.26",
-        cssText: {
-          /** 主CSS */
-          index: indexCSS,
-          /** 九宫格位置CSS */
-          ninePalaceGridPosition: ninePalaceGridPositionCSS,
-          /** 滚动条CSS */
-          scrollbar: scrollbarCSS,
-          /** 按钮CSS */
-          button: buttonCSS,
-          /** 通用的CSS */
-          common: commonCSS,
-          /** 动画 */
-          anim: animCSS,
-          /** pops.alert */
-          alertCSS,
-          /** pops.cponfirm */
-          confirmCSS,
-          /** pops.prompt */
-          promptCSS,
-          /** pops.loading */
-          loadingCSS,
-          /** pops.iframe */
-          iframeCSS,
-          /** pops.tooltip */
-          tooltipCSS,
-          /** pops.drawer */
-          drawerCSS,
-          /** pops.folder */
-          folderCSS,
-          /** pops.folder */
-          panelCSS,
-          /** pops.rightClickMenu */
-          rightClickMenu: rightClickMenuCSS
-        },
+        version: "2025.6.10",
+        cssText: PopsCSS,
         /** icon图标的svg代码 */
-        iconSVG: {
-          min: SVG_min,
-          mise: SVG_mise,
-          max: SVG_max,
-          close: SVG_close,
-          edit: SVG_edit,
-          share: SVG_share,
-          delete: SVG_delete,
-          search: SVG_search,
-          upload: SVG_upload,
-          loading: SVG_loading,
-          next: SVG_next,
-          prev: SVG_prev,
-          eleme: SVG_eleme,
-          elemePlus: SVG_elemePlus,
-          chromeFilled: SVG_chromeFilled,
-          cpu: SVG_cpu,
-          videoPlay: SVG_videoPlay,
-          videoPause: SVG_videoPause,
-          headset: SVG_headset,
-          monitor: SVG_monitor,
-          documentCopy: SVG_documentCopy,
-          picture: SVG_picture,
-          circleClose: SVG_circleClose,
-          view: SVG_view,
-          hide: SVG_hide,
-          keyboard: SVG_keyboard,
-          arrowRight: SVG_arrowRight,
-          arrowLeft: SVG_arrowLeft
-        },
+        iconSVG: PopsIcon.$data,
         /** 当前已配置的动画@keyframes名字映射(初始化时生成) */
-        animation: {},
-        /** 是否初始化 */
-        isInit: false,
+        animation: PopsAnimation.$data,
         /** 存储已创建的元素 */
-        layer: {
-          alert: [],
-          confirm: [],
-          prompt: [],
-          loading: [],
-          iframe: [],
-          tooltip: [],
-          drawer: [],
-          folder: [],
-          panel: [],
-          rightClickMenu: []
-        },
+        layer: PopsLayer,
         /** 禁止滚动 */
         forbiddenScroll: {
           event(event) {
@@ -21661,7 +22245,7 @@ ${err.stack}`);
        * @param details 配置
        */
       __publicField(this, "panel", (details) => {
-        let dialog = PopsPanel$1.init(details);
+        let dialog = PopsPanel.init(details);
         return dialog;
       });
       /**
@@ -21682,17 +22266,6 @@ ${err.stack}`);
       });
     }
     init() {
-      if (!this.config.isInit) {
-        this.config.isInit = true;
-        let animationStyle = document.createElement("style");
-        PopsSafeUtils.setSafeHTML(animationStyle, this.config.cssText.anim);
-        popsDOMUtils.appendHead(animationStyle);
-        this.config.animation = null;
-        this.config.animation = PopsInstanceUtils.getKeyFrames(animationStyle.sheet);
-        popsUtils.setTimeout(() => {
-          animationStyle.remove();
-        }, 50);
-      }
     }
     /**
      * 释放原有的pops控制权
@@ -21712,13 +22285,1251 @@ ${err.stack}`);
      * 通过navigator.userAgent判断是否是手机访问
      * @param userAgent
      */
-    isPhone(userAgent = PopsCore.globalThis.navigator.userAgent) {
-      return Boolean(/(iPhone|iPad|iPod|iOS|Android)/i.test(userAgent));
+    isPhone(userAgent) {
+      return popsUtils.isPhone(userAgent);
     }
   }
   const pops = new Pops();
-  const PanelKeyConfig = {
-    asideLastVisit: "aside-last-visit"
+  const CommonUtil2 = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     * @example
+     * setGMResourceCSS({
+     *   keyName: "ViewerCSS",
+     *   url: "https://example.com/example.css",
+     * })
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtil2.loadStyleLink(resourceMapData.url);
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.css")
+     */
+    async loadStyleLink(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      domUtils$2.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 添加<script>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.js")
+     */
+    async loadScript(url) {
+      let $script = document.createElement("script");
+      $script.src = url;
+      return new Promise((resolve) => {
+        $script.onload = () => {
+          resolve(null);
+        };
+        (document.head || document.documentElement).appendChild($script);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlInstance = new URL(url);
+      urlInstance.protocol = "https:";
+      return urlInstance.toString();
+    },
+    /**
+     * 禁止页面滚动，默认锁定html和body
+     * @example
+     * lockScroll();
+     * @example
+     * lockScroll(document.body);
+     */
+    lockScroll(...args) {
+      let $hidden = document.createElement("style");
+      $hidden.innerHTML = /*css*/
+      `
+			.pops-overflow-hidden-important {
+				overflow: hidden !important;
+			}
+		`;
+      let $elList = [document.documentElement, document.body].concat(
+        ...args || []
+      );
+      $elList.forEach(($el) => {
+        $el.classList.add("pops-overflow-hidden-important");
+      });
+      (document.head || document.documentElement).appendChild($hidden);
+      return {
+        /**
+         * 解除锁定
+         */
+        recovery() {
+          $elList.forEach(($el) => {
+            $el.classList.remove("pops-overflow-hidden-important");
+          });
+          $hidden.remove();
+        }
+      };
+    },
+    /**
+     * 获取剪贴板文本
+     */
+    async getClipboardText() {
+      function readClipboardText(resolve) {
+        navigator.clipboard.readText().then((clipboardText) => {
+          resolve(clipboardText);
+        }).catch((error) => {
+          log.error("读取剪贴板内容失败👉", error);
+          resolve("");
+        });
+      }
+      function requestPermissionsWithClipboard(resolve) {
+        navigator.permissions.query({
+          // @ts-ignore
+          name: "clipboard-read"
+        }).then((permissionStatus) => {
+          readClipboardText(resolve);
+        }).catch((error) => {
+          log.error(
+            "申请剪贴板权限失败，尝试直接读取👉",
+            error.message ?? error.name ?? error.stack
+          );
+          readClipboardText(resolve);
+        });
+      }
+      function checkClipboardApi() {
+        var _a2, _b;
+        if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
+          return false;
+        }
+        if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
+          return false;
+        }
+        return true;
+      }
+      return new Promise((resolve) => {
+        if (!checkClipboardApi()) {
+          resolve("");
+          return;
+        }
+        if (document.hasFocus()) {
+          requestPermissionsWithClipboard(resolve);
+        } else {
+          window.addEventListener(
+            "focus",
+            () => {
+              requestPermissionsWithClipboard(resolve);
+            },
+            {
+              once: true
+            }
+          );
+        }
+      });
+    },
+    /**
+     * html转义
+     * @param unsafe
+     */
+    escapeHtml(unsafe) {
+      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    }
+  };
+  const PanelSettingConfig = {
+    /** Toast位置 */
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom"
+    },
+    /** 最多显示的数量 */
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3
+    },
+    /** 逆序弹出 */
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false
+    }
+  };
+  const utils = utils$1.noConflict();
+  const domUtils = domUtils$2.noConflict();
+  const __pops = pops;
+  const log = new utils.Log(
+    _GM_info,
+    _unsafeWindow.console || _monkeyWindow.console
+  );
+  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  pops.config.Utils.AnyTouch();
+  const DEBUG = false;
+  log.config({
+    debug: DEBUG,
+    logMaxCount: 1e3,
+    autoClearConsole: true,
+    tag: true
+  });
+  qmsg.config(
+    Object.defineProperties(
+      {
+        html: true,
+        autoClose: true,
+        showClose: false
+      },
+      {
+        position: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_position.key,
+              PanelSettingConfig.qmsg_config_position.defaultValue
+            );
+          }
+        },
+        maxNums: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_maxnums.key,
+              PanelSettingConfig.qmsg_config_maxnums.defaultValue
+            );
+          }
+        },
+        showReverse: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_showreverse.key,
+              PanelSettingConfig.qmsg_config_showreverse.defaultValue
+            );
+          }
+        },
+        zIndex: {
+          get() {
+            let maxZIndex = utils$1.getMaxZIndex();
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+            return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+          }
+        }
+      }
+    )
+  );
+  __pops.GlobalConfig.setGlobalConfig({
+    zIndex: () => {
+      let maxZIndex = utils$1.getMaxZIndex(void 0, void 0, ($ele) => {
+        var _a2;
+        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+          return false;
+        }
+        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+          return false;
+        }
+      });
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    },
+    mask: {
+      // 开启遮罩层
+      enable: true,
+      // 取消点击遮罩层的事件
+      clickEvent: {
+        toClose: false,
+        toHide: false
+      }
+    }
+  });
+  const GM_Menu = new utils.GM_Menu({
+    GM_getValue: _GM_getValue,
+    GM_setValue: _GM_setValue,
+    GM_registerMenuCommand: _GM_registerMenuCommand,
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+  });
+  const httpx = new utils.Httpx({
+    xmlHttpRequest: _GM_xmlhttpRequest,
+    logDetails: DEBUG
+  });
+  httpx.interceptors.request.use((data) => {
+    return data;
+  });
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error("拦截器-请求错误", data);
+    if (data.type === "onabort") {
+      qmsg.warning("请求取消", { consoleLogContent: true });
+    } else if (data.type === "onerror") {
+      qmsg.error("请求异常", { consoleLogContent: true });
+    } else if (data.type === "ontimeout") {
+      qmsg.error("请求超时", { consoleLogContent: true });
+    } else {
+      qmsg.error("其它错误", { consoleLogContent: true });
+    }
+    return data;
+  });
+  ({
+    Object: {
+      defineProperty: _unsafeWindow.Object.defineProperty
+    },
+    Function: {
+      apply: _unsafeWindow.Function.prototype.apply,
+      call: _unsafeWindow.Function.prototype.call
+    },
+    Element: {
+      appendChild: _unsafeWindow.Element.prototype.appendChild
+    },
+    setTimeout: _unsafeWindow.setTimeout
+  });
+  const addStyle = utils.addStyle.bind(utils);
+  document.querySelector.bind(document);
+  document.querySelectorAll.bind(document);
+  new utils.GM_Cookie();
+  const KEY = "GM_Panel";
+  const ATTRIBUTE_INIT = "data-init";
+  const ATTRIBUTE_KEY = "data-key";
+  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      get width() {
+        if (window.innerWidth < 550) {
+          return "88vw";
+        } else if (window.innerWidth < 700) {
+          return "550px";
+        } else {
+          return "700px";
+        }
+      },
+      get height() {
+        if (window.innerHeight < 450) {
+          return "70vh";
+        } else if (window.innerHeight < 550) {
+          return "450px";
+        } else {
+          return "550px";
+        }
+      }
+    },
+    /**
+     * 功能丰富，aside铺满了的设置界面，要稍微大一点
+     */
+    settingBig: {
+      get width() {
+        return window.innerWidth < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return window.innerHeight < 600 ? "80vh" : "600px";
+      }
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
+    }
+  };
+  class StorageUtils {
+    /**
+     * 存储的键名，可以是多层的，如：a.b.c
+     *
+     * 那就是
+     * {
+     *  "a": {
+     *     "b": {
+     *       "c": {
+     *         ...你的数据
+     *       }
+     *     }
+     *   }
+     * }
+     * @param key
+     */
+    constructor(key) {
+      /** 存储的键名 */
+      __publicField(this, "storageKey");
+      __publicField(this, "listenerData");
+      if (typeof key === "string") {
+        let trimKey = key.trim();
+        if (trimKey == "") {
+          throw new Error("key参数不能为空字符串");
+        }
+        this.storageKey = trimKey;
+      } else {
+        throw new Error("key参数类型错误，必须是字符串");
+      }
+      this.listenerData = new utils$1.Dictionary();
+    }
+    /**
+     * 获取本地值
+     */
+    getLocalValue() {
+      let localValue = _GM_getValue(this.storageKey);
+      if (localValue == null) {
+        localValue = {};
+        this.setLocalValue(localValue);
+      }
+      return localValue;
+    }
+    /**
+     * 设置本地值
+     * @param value
+     */
+    setLocalValue(value) {
+      _GM_setValue(this.storageKey, value);
+    }
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    set(key, value) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.set(localValue, key, value);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, value);
+    }
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    get(key, defaultValue) {
+      let localValue = this.getLocalValue();
+      return Reflect.get(localValue, key) ?? defaultValue;
+    }
+    /**
+     * 获取所有值
+     */
+    getAll() {
+      let localValue = this.getLocalValue();
+      return localValue;
+    }
+    /**
+     * 删除值
+     * @param key 键
+     */
+    delete(key) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.deleteProperty(localValue, key);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, void 0);
+    }
+    /**
+     * 判断是否存在该值
+     */
+    has(key) {
+      let localValue = this.getLocalValue();
+      return Reflect.has(localValue, key);
+    }
+    /**
+     * 获取所有键
+     */
+    keys() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue);
+    }
+    /**
+     * 获取所有值
+     */
+    values() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue).map(
+        (key) => Reflect.get(localValue, key)
+      );
+    }
+    /**
+     * 清空所有值
+     */
+    clear() {
+      _GM_deleteValue(this.storageKey);
+    }
+    /**
+     * 监听值改变
+     * + .set
+     * + .delete
+     * @param key 监听的键
+     * @param callback 值改变的回调函数
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = Math.random();
+      let listenerData = this.listenerData.get(key) || [];
+      listenerData.push({
+        id: listenerId,
+        key,
+        callback
+      });
+      this.listenerData.set(key, listenerData);
+      return listenerId;
+    }
+    /**
+     * 移除监听
+     * @param listenerId 监听的id或键名
+     */
+    removeValueChangeListener(listenerId) {
+      let flag = false;
+      for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+            listenerData.splice(index, 1);
+            index--;
+            flag = true;
+          }
+        }
+        this.listenerData.set(key, listenerData);
+      }
+      return flag;
+    }
+    /**
+     * 主动触发监听器
+     * @param key 键
+     * @param oldValue （可选）旧值
+     * @param newValue （可选）新值
+     */
+    triggerValueChangeListener(key, oldValue, newValue) {
+      if (!this.listenerData.has(key)) {
+        return;
+      }
+      let listenerData = this.listenerData.get(key);
+      for (let index = 0; index < listenerData.length; index++) {
+        const data = listenerData[index];
+        if (typeof data.callback === "function") {
+          let value = this.get(key);
+          let __newValue;
+          let __oldValue;
+          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+            __oldValue = oldValue;
+          } else {
+            __oldValue = value;
+          }
+          if (typeof newValue !== "undefined" && arguments.length > 2) {
+            __newValue = newValue;
+          } else {
+            __newValue = value;
+          }
+          data.callback(key, __oldValue, __newValue);
+        }
+      }
+    }
+  }
+  const PopsPanelStorageApi = new StorageUtils(KEY);
+  const PanelContent = {
+    $data: {
+      /**
+       * @private
+       */
+      __contentConfig: null,
+      get contentConfig() {
+        if (this.__contentConfig == null) {
+          this.__contentConfig = new utils.Dictionary();
+        }
+        return this.__contentConfig;
+      }
+    },
+    /**
+     * 设置所有配置项，用于初始化默认的值
+     *
+     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
+     * @param configList 配置项
+     */
+    addContentConfig(configList2) {
+      if (!Array.isArray(configList2)) {
+        configList2 = [configList2];
+      }
+      let index = this.$data.contentConfig.keys().length;
+      this.$data.contentConfig.set(index, configList2);
+    },
+    /**
+     * 获取所有的配置内容，用于初始化默认的值
+     */
+    getAllContentConfig() {
+      return this.$data.contentConfig.values().flat();
+    },
+    /**
+     * 获取配置内容
+     * @param index 配置索引
+     */
+    getConfig(index = 0) {
+      return this.$data.contentConfig.get(index) ?? [];
+    }
+  };
+  const PanelMenu = {
+    $data: {
+      __menuOption: [
+        {
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            Panel.showPanel(PanelContent.getConfig(0));
+          }
+        }
+      ],
+      get menuOption() {
+        return this.__menuOption;
+      }
+    },
+    init() {
+      this.initExtensionsMenu();
+    },
+    /**
+     * 初始化菜单项
+     */
+    initExtensionsMenu() {
+      if (!Panel.isTopWindow()) {
+        return;
+      }
+      GM_Menu.add(this.$data.menuOption);
+    },
+    /**
+     * 添加菜单项
+     * @param option 菜单配置
+     */
+    addMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      this.$data.menuOption.push(...option);
+    },
+    /**
+     * 更新菜单项
+     * @param option 菜单配置
+     */
+    updateMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      option.forEach((optionItem) => {
+        let findIndex = this.$data.menuOption.findIndex((it) => {
+          return it.key === optionItem.key;
+        });
+        if (findIndex !== -1) {
+          this.$data.menuOption[findIndex] = optionItem;
+        }
+      });
+    },
+    /**
+     * 获取菜单项
+     * @param index 索引
+     */
+    getMenuOption(index) {
+      return this.$data.menuOption[index];
+    }
+  };
+  const Panel = {
+    /** 数据 */
+    $data: {
+      /**
+       * @private
+       */
+      __configDefaultValueData: null,
+      /**
+       * @private
+       */
+      __onceExecMenuData: null,
+      /**
+       * @private
+       */
+      __onceExecData: null,
+      /**
+       * @private
+       */
+      __panelConfig: {},
+      $panel: null,
+      /**
+       * 菜单项的默认值
+       */
+      get configDefaultValueData() {
+        if (this.__configDefaultValueData == null) {
+          this.__configDefaultValueData = new utils.Dictionary();
+        }
+        return this.__configDefaultValueData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecMenuData() {
+        if (this.__onceExecMenuData == null) {
+          this.__onceExecMenuData = new utils.Dictionary();
+        }
+        return this.__onceExecMenuData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecData() {
+        if (this.__onceExecData == null) {
+          this.__onceExecData = new utils.Dictionary();
+        }
+        return this.__onceExecData;
+      },
+      /** 脚本名，一般用在设置的标题上 */
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
+      get panelConfig() {
+        return this.__panelConfig;
+      },
+      set panelConfig(value) {
+        this.__panelConfig = value;
+      },
+      /** 菜单项的总值在本地数据配置的键名 */
+      key: KEY,
+      /** 菜单项在attributes上配置的菜单键 */
+      attributeKeyName: ATTRIBUTE_KEY,
+      /** 菜单项在attributes上配置的菜单默认值 */
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+    },
+    init() {
+      this.initContentDefaultValue();
+      PanelMenu.init();
+    },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
+    },
+    /** 初始化菜单项的默认值保存到本地数据中 */
+    initContentDefaultValue() {
+      const initDefaultValue = (config) => {
+        if (!config.attributes) {
+          return;
+        }
+        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+          return;
+        }
+        let needInitConfig = {};
+        let key = config.attributes[ATTRIBUTE_KEY];
+        if (key != null) {
+          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
+        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (initMoreValue && typeof initMoreValue === "object") {
+          Object.assign(needInitConfig, initMoreValue);
+        }
+        let needInitConfigList = Object.keys(needInitConfig);
+        if (!needInitConfigList.length) {
+          log.warn(["请先配置键", config]);
+          return;
+        }
+        needInitConfigList.forEach((__key) => {
+          let __defaultValue = needInitConfig[__key];
+          this.setDefaultValue(__key, __defaultValue);
+        });
+      };
+      const loopInitDefaultValue = (configList2) => {
+        for (let index = 0; index < configList2.length; index++) {
+          let configItem = configList2[index];
+          initDefaultValue(configItem);
+          let childForms = configItem.forms;
+          if (childForms && Array.isArray(childForms)) {
+            loopInitDefaultValue(childForms);
+          }
+        }
+      };
+      const contentConfigList = [...PanelContent.getAllContentConfig()];
+      for (let index = 0; index < contentConfigList.length; index++) {
+        let leftContentConfigItem = contentConfigList[index];
+        if (!leftContentConfigItem.forms) {
+          continue;
+        }
+        const rightContentConfigList = leftContentConfigItem.forms;
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
+        }
+      }
+    },
+    /**
+     * 设置初始化使用的默认值
+     */
+    setDefaultValue(key, defaultValue) {
+      if (this.$data.configDefaultValueData.has(key)) {
+        log.warn("请检查该key(已存在): " + key);
+      }
+      this.$data.configDefaultValueData.set(key, defaultValue);
+    },
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    setValue(key, value) {
+      PopsPanelStorageApi.set(key, value);
+    },
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    getValue(key, defaultValue) {
+      let localValue = PopsPanelStorageApi.get(key);
+      if (localValue == null) {
+        if (this.$data.configDefaultValueData.has(key)) {
+          return this.$data.configDefaultValueData.get(key);
+        }
+        return defaultValue;
+      }
+      return localValue;
+    },
+    /**
+     * 删除值
+     * @param key 键
+     */
+    deleteValue(key) {
+      PopsPanelStorageApi.delete(key);
+    },
+    /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasKey(key) {
+      return PopsPanelStorageApi.has(key);
+    },
+    /**
+     * 监听调用setValue、deleteValue
+     * @param key 需要监听的键
+     * @param callback
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(
+        key,
+        (__key, __newValue, __oldValue) => {
+          callback(key, __oldValue, __newValue);
+        }
+      );
+      return listenerId;
+    },
+    /**
+     * 移除监听
+     * @param listenerId 监听的id
+     */
+    removeValueChangeListener(listenerId) {
+      PopsPanelStorageApi.removeValueChangeListener(listenerId);
+    },
+    /**
+     * 主动触发菜单值改变的回调
+     * @param key 菜单键
+     * @param newValue 想要触发的新值，默认使用当前值
+     * @param oldValue 想要触发的旧值，默认使用当前值
+     */
+    triggerMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.onceExecMenuData.delete(key);
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag;
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      this.$data.onceExecData.delete(key);
+    },
+    /**
+     * 执行菜单
+     *
+     * @param queryKey 键|键数组
+     * @param callback 执行的回调函数
+     * @param checkExec 判断是否执行回调
+     *
+     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
+     *
+     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
+     *
+     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
+     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
+     * @param once 是否只执行一次，默认true
+     *
+     * + true （默认）只执行一次，且会监听键的值改变
+     * + false 不会监听键的值改变
+     */
+    exec(queryKey, callback, checkExec, once = true) {
+      const that = this;
+      let queryKeyFn;
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
+        queryKeyFn = () => queryKey;
+      } else {
+        queryKeyFn = queryKey;
+      }
+      let isArrayKey = false;
+      let queryKeyResult = queryKeyFn();
+      let keyList = [];
+      if (Array.isArray(queryKeyResult)) {
+        isArrayKey = true;
+        keyList = queryKeyResult;
+      } else {
+        keyList.push(queryKeyResult);
+      }
+      let findNotInDataKey = keyList.find(
+        (it) => !this.$data.configDefaultValueData.has(it)
+      );
+      if (findNotInDataKey) {
+        log.warn(`${findNotInDataKey} 键不存在`);
+        return;
+      }
+      let storageKey = JSON.stringify(keyList);
+      if (once) {
+        if (this.$data.onceExecMenuData.has(storageKey)) {
+          return;
+        }
+        this.$data.onceExecMenuData.set(storageKey, 1);
+      }
+      let storeStyleElements = [];
+      let listenerIdList = [];
+      let dynamicPushStyleNode = (value, $style) => {
+        let dynamicResultList = [];
+        if ($style instanceof HTMLStyleElement) {
+          dynamicResultList = [$style];
+        } else if (Array.isArray($style)) {
+          dynamicResultList = [
+            ...$style.filter(
+              (item) => item != null && item instanceof HTMLStyleElement
+            )
+          ];
+        }
+        {
+          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+        }
+      };
+      let getMenuValue = (key) => {
+        let value = this.getValue(key);
+        return value;
+      };
+      let clearStoreStyleElements = () => {
+        for (let index = 0; index < storeStyleElements.length; index++) {
+          let $css = storeStyleElements[index];
+          $css.remove();
+          storeStyleElements.splice(index, 1);
+          index--;
+        }
+      };
+      let __checkExec__ = () => {
+        let flag = false;
+        if (typeof checkExec === "function") {
+          flag = checkExec(keyList);
+        } else {
+          flag = keyList.every((key) => getMenuValue(key));
+        }
+        return flag;
+      };
+      let valueChange = (valueOption) => {
+        let execFlag = __checkExec__();
+        let resultList = [];
+        if (execFlag) {
+          let valueList = keyList.map((key) => this.getValue(key));
+          let $styles = callback({
+            addStyleElement: (...args) => {
+              return dynamicPushStyleNode(true, ...args);
+            },
+            value: isArrayKey ? valueList : valueList[0]
+          });
+          if ($styles instanceof HTMLStyleElement) {
+            resultList.push($styles);
+          } else if (Array.isArray($styles)) {
+            resultList.push(
+              ...$styles.filter(
+                (item) => item != null && item instanceof HTMLStyleElement
+              )
+            );
+          }
+        }
+        clearStoreStyleElements();
+        storeStyleElements = [...resultList];
+      };
+      once && keyList.forEach((key) => {
+        let listenerId = this.addValueChangeListener(
+          key,
+          (key2, newValue, oldValue) => {
+            valueChange();
+          }
+        );
+        listenerIdList.push(listenerId);
+      });
+      valueChange();
+      let result = {
+        /**
+         * 清空菜单执行情况
+         *
+         * + 清空存储的元素列表
+         * + 清空值改变的监听器
+         * + 清空存储的一次执行的键
+         */
+        clear() {
+          this.clearStoreStyleElements();
+          this.removeValueChangeListener();
+          once && that.$data.onceExecMenuData.delete(storageKey);
+        },
+        /**
+         * 清空存储的元素列表
+         */
+        clearStoreStyleElements: () => {
+          return clearStoreStyleElements();
+        },
+        /**
+         * 移除值改变的监听器
+         */
+        removeValueChangeListener: () => {
+          listenerIdList.forEach((listenerId) => {
+            this.removeValueChangeListener(listenerId);
+          });
+        }
+      };
+      return result;
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调
+     * @param key
+     * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
+     */
+    execMenu(key, callback, isReverse = false) {
+      return this.exec(
+        key,
+        (option) => {
+          return callback(option);
+        },
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            isReverse && (flag = !flag);
+            return flag;
+          });
+          return execFlag;
+        },
+        false
+      );
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     *
+     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
+     * @param key
+     * @param callback 回调
+     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     */
+    execMenuOnce(key, callback) {
+      return this.exec(
+        key,
+        callback,
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            return flag;
+          });
+          return execFlag;
+        },
+        true
+      );
+    },
+    /**
+     * 根据key执行一次
+     * @param key 键
+     * @param callback 回调
+     */
+    onceExec(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (this.$data.onceExecData.has(key)) {
+        return;
+      }
+      callback();
+      this.$data.onceExecData.set(key, 1);
+    },
+    /**
+     * 显示设置面板
+     * @param content 显示的内容配置
+     * @param [title] 标题
+     */
+    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
+      let $panel = __pops.panel({
+        ...{
+          title: {
+            text: `${SCRIPT_NAME}-设置`,
+            position: "center",
+            html: false,
+            style: ""
+          },
+          content,
+          btn: {
+            close: {
+              enable: true,
+              callback: (details, event) => {
+                details.close();
+                this.$data.$panel = null;
+              }
+            }
+          },
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: true,
+              toHide: false
+            },
+            clickCallBack: (originalRun, config) => {
+              originalRun();
+              this.$data.$panel = null;
+            }
+          },
+          width: PanelUISize.setting.width,
+          height: PanelUISize.setting.height,
+          drag: true,
+          only: true
+        },
+        ...this.$data.panelConfig
+      });
+      this.$data.$panel = $panel;
+    }
+  };
+  let injectDocumentTime = "";
+  if (document.documentElement) {
+    if (document.head) {
+      if (document.body) {
+        injectDocumentTime = `<html>
+    <head>
+	    ...${document.head.childNodes.length} nodes
+	</head>
+    <body>
+        ...${document.body.childNodes.length} nodes
+    </body>
+</html>
+
+注入速度等级：4
+`;
+      } else {
+        if (document.head.childNodes.length) {
+          injectDocumentTime = `<html>
+	<head>
+	    ...${document.head.childNodes.length} nodes
+	</head>
+</html>
+		
+注入速度等级：3`;
+        } else {
+          injectDocumentTime = `<html>
+	<head></head>
+</html>
+
+注入速度等级：2`;
+        }
+      }
+    } else {
+      injectDocumentTime = `<html>
+</html>
+
+注入速度等级：1`;
+    }
+  } else {
+    injectDocumentTime = `document.documentElement is null
+	
+注入速度等级：0`;
+  }
+  const setTimeoutLog = (handler, timeout, ...args) => {
+    return setTimeout(() => {
+      try {
+        handler(...args);
+      } catch (error) {
+        qmsg.error(error.toString(), { consoleLogContent: true });
+      }
+    }, timeout);
   };
   const Tag = {
     success: "√ ",
@@ -21761,7 +23572,7 @@ ${err.stack}`);
     }
   };
   const UIInfo = (config) => {
-    let result2 = {
+    let result = {
       type: "own",
       getLiElementCallBack(liElement) {
         let detail = config();
@@ -21806,99 +23617,17 @@ ${err.stack}`);
               $leftText: $text,
               $leftDesc: $desc
             });
-          } catch (error2) {
-            console.log(error2);
-            TagUtil.setTag($text, "error", "afterRender 函数执行错误" + error2);
+          } catch (error) {
+            console.log(error);
+            TagUtil.setTag($text, "error", "afterRender 函数执行错误" + error);
           }
         }
       }
     };
-    return result2;
+    return result;
   };
-  const CommonUtil = {
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args2) {
-      let selectorList = [];
-      if (args2.length === 0) {
-        return;
-      }
-      if (args2.length === 1 && typeof args2[0] === "string" && args2[0].trim() === "") {
-        return;
-      }
-      args2.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     */
-    setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-      if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
-      } else {
-        CommonUtil.addLinkNode(resourceMapData.url);
-      }
-    },
-    /**
-     * 添加<link>标签
-     * @param url
-     */
-    async addLinkNode(url) {
-      let $link = document.createElement("link");
-      $link.rel = "stylesheet";
-      $link.type = "text/css";
-      $link.href = url;
-      domUtils.ready(() => {
-        document.head.appendChild($link);
-      });
-      return $link;
-    },
-    /**
-     * 将url修复，例如只有search的链接/sss/xxx?sss=xxxx
-     * @param url 需要修复的链接
-     */
-    fixUrl(url) {
-      url = url.trim();
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
-        url = window.location.origin + url;
-        return url;
-      }
-    },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
-      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
-    },
-    /**
-     * 获取文档的超链接文本
-     * @param navName 链接导航锚点名
-     * @param text 超链接显示的文本
-     */
-    getTampoerMonkeyApiUrl(navName, text) {
-      text = text ?? navName;
-      return `<a href="https://www.tampermonkey.net/documentation.php?ext=gcal&version=#api:${navName}" target="_blank">${text}</a>`;
-    }
+  const PanelKeyConfig = {
+    asideLastVisit: "aside-last-visit"
   };
   const GlobalUtil = {
     getWindow() {
@@ -21917,6 +23646,17 @@ ${err.stack}`);
   }
   class ApiAsyncTestBase extends ApiTestBase {
   }
+  const TamperMonkeyUtils = {
+    /**
+     * 获取文档的超链接文本
+     * @param navName 链接导航锚点名
+     * @param text 超链接显示的文本
+     */
+    getApiDocUrl(navName, text) {
+      text = text ?? navName;
+      return `<a href="https://www.tampermonkey.net/documentation.php?ext=gcal&version=#api:${navName}" target="_blank">${text}</a>`;
+    }
+  };
   class ApiTest_addElement extends ApiAsyncTestBase {
     getApiName() {
       return "GM_addElement";
@@ -21933,10 +23673,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -21980,7 +23720,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             let $test = null;
             let $page_test = null;
@@ -22006,13 +23746,13 @@ ${err.stack}`);
               }
               Reflect.deleteProperty(win, "GM_addElement_test_str");
               return {
-                text: CommonUtil.escapeHtml("支持添加<script>元素且执行js"),
+                text: CommonUtil2.escapeHtml("支持添加<script>元素且执行js"),
                 tag: "success"
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -22062,10 +23802,10 @@ ${err.stack}`);
                 text: "支持3个参数并返回元素对象",
                 tag: "success"
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -22074,7 +23814,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_addStyle extends ApiAsyncTestBase {
@@ -22093,10 +23833,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-GM_addStyle" + apiName,
         title: apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -22140,7 +23880,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             let $test = null;
             let $testCSS = null;
@@ -22172,13 +23912,13 @@ ${err.stack}`);
                 };
               }
               return {
-                text: CommonUtil.escapeHtml("支持添加CSS字符串并返回元素对象"),
+                text: CommonUtil2.escapeHtml("支持添加CSS字符串并返回元素对象"),
                 tag: "success"
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -22188,7 +23928,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_addValueChangeListener extends ApiAsyncTestBase {
@@ -22207,10 +23947,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -22254,7 +23994,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           (() => {
             let localStorageDataKey = apiName + "_key_1";
             return UIInfo(() => {
@@ -22356,8 +24096,8 @@ ${err.stack}`);
                         TagUtil.setTagList(container.$leftText, tagTextList);
                       }, 3e3);
                       _GM_setValue(localStorageDataKey, delaySetValue);
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
@@ -22366,44 +24106,9 @@ ${err.stack}`);
           })()
         );
       }
-      return result2;
+      return result;
     }
   }
-  const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
-      get width() {
-        return window.innerWidth < 550 ? "88vw" : "550px";
-      },
-      get height() {
-        return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
-     * 功能丰富，aside铺满了的设置界面，要稍微大一点
-     */
-    settingBig: {
-      get width() {
-        return window.innerWidth < 800 ? "92vw" : "800px";
-      },
-      get height() {
-        return window.innerHeight < 600 ? "80vh" : "600px";
-      }
-    },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
-      get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
-      },
-      get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
-      }
-    }
-  };
   class ApiTest_cookie extends ApiAsyncTestBase {
     isSupport() {
       return (typeof _GM_cookie === "object" || typeof _GM_cookie === "function") && _GM_cookie != null;
@@ -22433,10 +24138,10 @@ ${err.stack}`);
       let apiName = this.getApiName();
       let apiInfo = this.getApiOption();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName + ".list",
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -22470,7 +24175,7 @@ ${err.stack}`);
           }
         ]
       };
-      let firstFormList = result2["forms"][0].forms;
+      let firstFormList = result["forms"][0].forms;
       if (this.isSupport()) {
         firstFormList.push(
           UIInfo(() => {
@@ -22545,11 +24250,11 @@ ${err.stack}`);
           value: "1",
           expirationDate: (Date.now() + 24 * 60 * 60 * 1e3) / 1e3
         };
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               return {
-                text: CommonUtil.escapeHtml("测试list获取所有Cookie"),
+                text: CommonUtil2.escapeHtml("测试list获取所有Cookie"),
                 tag: "info",
                 description: "点击按钮进行测试",
                 afterRender(container) {
@@ -22569,10 +24274,10 @@ ${err.stack}`);
                   domUtils.on($button, "click", (event) => {
                     try {
                       utils.preventEvent(event);
-                      _GM_cookie.list({}, (cookies, error2) => {
+                      _GM_cookie.list({}, (cookies, error) => {
                         console.log(cookies);
-                        if (error2) {
-                          qmsg.error(error2);
+                        if (error) {
+                          qmsg.error(error);
                         } else {
                           if (Array.isArray(cookies)) {
                             __pops.alert({
@@ -22604,8 +24309,8 @@ ${err.stack}`);
                           }
                         }
                       });
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), {
+                    } catch (error) {
+                      qmsg.error(error.toString(), {
                         consoleLogContent: true
                       });
                     }
@@ -22613,10 +24318,10 @@ ${err.stack}`);
                   domUtils.after(container.$leftContainer, $button);
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -22625,7 +24330,7 @@ ${err.stack}`);
           UIInfo(() => {
             try {
               return {
-                text: CommonUtil.escapeHtml("测试set新增Cookie"),
+                text: CommonUtil2.escapeHtml("测试set新增Cookie"),
                 tag: "info",
                 description: JSON.stringify(newCookieInfo),
                 afterRender(container) {
@@ -22645,17 +24350,17 @@ ${err.stack}`);
                   domUtils.on($button, "click", (event) => {
                     try {
                       utils.preventEvent(event);
-                      _GM_cookie.set(newCookieInfo, (error2) => {
-                        if (error2) {
-                          qmsg.error(error2, {
+                      _GM_cookie.set(newCookieInfo, (error) => {
+                        if (error) {
+                          qmsg.error(error, {
                             consoleLogContent: true
                           });
                         } else {
                           qmsg.success("set cookie success");
                         }
                       });
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), {
+                    } catch (error) {
+                      qmsg.error(error.toString(), {
                         consoleLogContent: true
                       });
                     }
@@ -22663,10 +24368,10 @@ ${err.stack}`);
                   domUtils.after(container.$leftContainer, $button);
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -22678,7 +24383,7 @@ ${err.stack}`);
                 name: "test"
               };
               return {
-                text: CommonUtil.escapeHtml("测试delete删除Cookie"),
+                text: CommonUtil2.escapeHtml("测试delete删除Cookie"),
                 tag: "info",
                 description: JSON.stringify(deleteCookieInfo),
                 afterRender(container) {
@@ -22698,17 +24403,17 @@ ${err.stack}`);
                   domUtils.on($button, "click", (event) => {
                     try {
                       utils.preventEvent(event);
-                      _GM_cookie.delete(deleteCookieInfo, (error2) => {
-                        if (error2) {
-                          qmsg.error(error2, {
+                      _GM_cookie.delete(deleteCookieInfo, (error) => {
+                        if (error) {
+                          qmsg.error(error, {
                             consoleLogContent: true
                           });
                         } else {
                           qmsg.success("delete cookie success");
                         }
                       });
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), {
+                    } catch (error) {
+                      qmsg.error(error.toString(), {
                         consoleLogContent: true
                       });
                     }
@@ -22716,10 +24421,10 @@ ${err.stack}`);
                   domUtils.after(container.$leftContainer, $button);
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -22727,7 +24432,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_deleteValue extends ApiAsyncTestBase {
@@ -22746,10 +24451,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -22793,7 +24498,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           (() => {
             let localStorageDataKey = "Test GM_deleteValue null";
             let localStorageDataValue = null;
@@ -22828,8 +24533,8 @@ ${err.stack}`);
                       } else {
                         qmsg.success("成功删除该值");
                       }
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
@@ -22838,7 +24543,7 @@ ${err.stack}`);
           })()
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_deleteValues extends ApiAsyncTestBase {
@@ -22857,10 +24562,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -22904,7 +24609,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           (() => {
             let localStorageDataValue = {
               GM_deleteValues_key_1: 555,
@@ -22952,8 +24657,8 @@ ${err.stack}`);
                         );
                         console.log(values2);
                       }
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
@@ -22962,7 +24667,7 @@ ${err.stack}`);
           })()
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_download extends ApiAsyncTestBase {
@@ -22981,10 +24686,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -23028,10 +24733,10 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             return {
-              text: CommonUtil.escapeHtml("TODO"),
+              text: CommonUtil2.escapeHtml("TODO"),
               tag: "info",
               afterRender(container) {
                 var _a2;
@@ -23041,7 +24746,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_getResourceText extends ApiAsyncTestBase {
@@ -23060,10 +24765,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -23107,27 +24812,27 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               let resourceText = _GM_getResourceText("ViewerCSS");
               if (typeof resourceText === "string") {
                 return {
-                  text: CommonUtil.escapeHtml("支持通过@resource引用资源字符串"),
+                  text: CommonUtil2.escapeHtml("支持通过@resource引用资源字符串"),
                   tag: "success"
                 };
               } else {
                 return {
-                  text: CommonUtil.escapeHtml(
+                  text: CommonUtil2.escapeHtml(
                     "GM_getResourceText return is not string"
                   ),
                   tag: "error"
                 };
               }
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -23135,7 +24840,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_getResourceUrl extends ApiAsyncTestBase {
@@ -23154,10 +24859,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -23201,41 +24906,41 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               let resourceUrl = _GM_getResourceURL("ViewerCSS");
               if (typeof resourceUrl === "string") {
                 if (resourceUrl.trim().startsWith("data:text/css;base64")) {
                   return {
-                    text: CommonUtil.escapeHtml(
+                    text: CommonUtil2.escapeHtml(
                       "支持通过@resource引用资源并进行base64编码"
                     ),
                     tag: "success"
                   };
                 }
                 return {
-                  text: CommonUtil.escapeHtml(
+                  text: CommonUtil2.escapeHtml(
                     "支持通过@resource引用资源，但是未对资源进行base64编码"
                   ),
                   tag: "warn"
                 };
               } else {
                 return {
-                  text: CommonUtil.escapeHtml(
+                  text: CommonUtil2.escapeHtml(
                     "GM_getResourceURL return is not string"
                   ),
                   tag: "error"
                 };
               }
               return {
-                text: CommonUtil.escapeHtml("TODO"),
+                text: CommonUtil2.escapeHtml("TODO"),
                 tag: "info"
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -23243,7 +24948,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_getTab extends ApiAsyncTestBase {
@@ -23262,10 +24967,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -23309,7 +25014,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           (() => {
             return UIInfo(() => {
               return {
@@ -23372,8 +25077,8 @@ ${err.stack}`);
                           ]);
                         }
                       });
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
@@ -23382,7 +25087,7 @@ ${err.stack}`);
           })()
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_getTabs extends ApiAsyncTestBase {
@@ -23401,10 +25106,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -23448,17 +25153,17 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
+                text: CommonUtil2.escapeHtml("TODO"),
                 tag: "info"
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -23466,7 +25171,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_getValue extends ApiAsyncTestBase {
@@ -23485,10 +25190,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -23532,7 +25237,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           ...[
             {
               key: "Test GM_getValue boolean",
@@ -23634,8 +25339,8 @@ ${err.stack}`);
                         } else {
                           qmsg.error("读取成功，但存储类型和读取类型不同");
                         }
-                      } catch (error2) {
-                        qmsg.error(error2.toString(), { consoleLogContent: true });
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
                       }
                     });
                   }
@@ -23679,8 +25384,8 @@ ${err.stack}`);
                       } else {
                         qmsg.error("读取的值不是存储的值：" + value);
                       }
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
@@ -23722,8 +25427,8 @@ ${err.stack}`);
                       } else {
                         qmsg.error("读取的值不是默认值：" + value);
                       }
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
@@ -23732,7 +25437,7 @@ ${err.stack}`);
           })()
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_getValues extends ApiAsyncTestBase {
@@ -23751,10 +25456,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -23798,7 +25503,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           (() => {
             return UIInfo(() => {
               return {
@@ -23826,8 +25531,8 @@ ${err.stack}`);
                       let value = _GM_getValues();
                       qmsg.info("请在控制台查看读取的数据");
                       console.log(value);
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
@@ -23871,8 +25576,8 @@ ${err.stack}`);
                       } else {
                         qmsg.error("读取成功，但读取的数据和默认值不同");
                       }
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
@@ -23918,8 +25623,8 @@ ${err.stack}`);
                       } else {
                         qmsg.error("读取成功，但写入的数据和读取的数据不同");
                       }
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
@@ -23928,7 +25633,7 @@ ${err.stack}`);
           })()
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_info extends ApiAsyncTestBase {
@@ -23948,10 +25653,10 @@ ${err.stack}`);
       var _a2, _b;
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -23995,7 +25700,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           ...[
             {
               value: _GM_info == null ? void 0 : _GM_info.scriptHandler,
@@ -24041,10 +25746,10 @@ ${err.stack}`);
                     tag: "error"
                   };
                 }
-              } catch (error2) {
-                console.error(error2);
+              } catch (error) {
+                console.error(error);
                 return {
-                  text: "执行错误 " + error2,
+                  text: "执行错误 " + error,
                   tag: "error"
                 };
               } finally {
@@ -24053,7 +25758,7 @@ ${err.stack}`);
           )
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_listValues extends ApiAsyncTestBase {
@@ -24072,10 +25777,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -24119,7 +25824,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             return {
               text: "查看存储的所有键名",
@@ -24155,8 +25860,8 @@ ${err.stack}`);
                     } else {
                       qmsg.error("返回值不是数组");
                     }
-                  } catch (error2) {
-                    qmsg.error(error2.toString(), { consoleLogContent: true });
+                  } catch (error) {
+                    qmsg.error(error.toString(), { consoleLogContent: true });
                   }
                 });
               }
@@ -24164,7 +25869,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_log extends ApiAsyncTestBase {
@@ -24183,10 +25888,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -24230,12 +25935,12 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               let logText = "test GM_log";
               return {
-                text: CommonUtil.escapeHtml("请在控制台查看输出"),
+                text: CommonUtil2.escapeHtml("请在控制台查看输出"),
                 tag: "info",
                 description: "test GM_log",
                 afterRender(container) {
@@ -24256,17 +25961,17 @@ ${err.stack}`);
                     utils.preventEvent(event);
                     try {
                       _GM_log(logText);
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                   domUtils.after(container.$leftContainer, $button);
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -24274,7 +25979,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_notification extends ApiAsyncTestBase {
@@ -24293,10 +25998,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -24340,7 +26045,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               let $target = void 0;
@@ -24408,8 +26113,8 @@ ${err.stack}`);
                       isClick = false;
                       isDone = false;
                       isPrevent = false;
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   }, 800);
                   domUtils.on($button, "click", (event) => {
@@ -24420,9 +26125,9 @@ ${err.stack}`);
                       let timeCount = 10;
                       let calcTimeCount = timeCount;
                       let tipInfoText = () => {
-                        let result22 = `正在等待触发回调，请在规定时间内点击弹窗的【关闭】按钮或者内容：${calcTimeCount}s`;
+                        let result2 = `正在等待触发回调，请在规定时间内点击弹窗的【关闭】按钮或者内容：${calcTimeCount}s`;
                         calcTimeCount--;
-                        return result22;
+                        return result2;
                       };
                       domUtils.text(container.$leftText, tipInfoText());
                       domUtils.text(container.$leftDesc, this.text);
@@ -24455,17 +26160,17 @@ ${err.stack}`);
                           updateText();
                         }
                       });
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                   domUtils.after($info, $button);
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -24474,7 +26179,7 @@ ${err.stack}`);
           UIInfo(() => {
             try {
               return {
-                text: CommonUtil.escapeHtml("点击通知的内容跳转链接"),
+                text: CommonUtil2.escapeHtml("点击通知的内容跳转链接"),
                 tag: "info",
                 afterRender(container) {
                   let $target = container.target;
@@ -24499,24 +26204,24 @@ ${err.stack}`);
                         text: "测试 GM_notification 内容",
                         url: "https:/example.com/"
                       });
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                   domUtils.after(container.$leftContainer, $button);
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             }
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_openInTab extends ApiAsyncTestBase {
@@ -24535,10 +26240,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -24582,7 +26287,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               return {
@@ -24608,18 +26313,18 @@ ${err.stack}`);
                       utils.preventEvent(event);
                       domUtils.text(container.$leftDesc, this.text);
                       domUtils.show(container.$leftDesc, false);
-                      let result22 = _GM_openInTab("https://www.example.com/");
-                      if (typeof result22 === "object") {
-                        if (result22 == null) {
+                      let result2 = _GM_openInTab("https://www.example.com/");
+                      if (typeof result2 === "object") {
+                        if (result2 == null) {
                           TagUtil.setTag(
                             container.$leftText,
                             "error",
                             "返回值为null"
                           );
                         } else {
-                          let support_close = "close" in result22 && typeof result22.close === "function";
-                          let support_closed = "closed" in result22 && typeof result22.closed === "boolean";
-                          let support_onclose = "onclose" in result22;
+                          let support_close = "close" in result2 && typeof result2.close === "function";
+                          let support_closed = "closed" in result2 && typeof result2.closed === "boolean";
+                          let support_onclose = "onclose" in result2;
                           domUtils.html(
                             container.$leftText,
                             /*html*/
@@ -24634,20 +26339,20 @@ ${err.stack}`);
                         TagUtil.setTag(
                           container.$leftText,
                           "error",
-                          "返回值不是对象：" + typeof result22
+                          "返回值不是对象：" + typeof result2
                         );
                       }
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                   domUtils.after(container.$leftContainer, $button);
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             }
@@ -24713,17 +26418,17 @@ ${err.stack}`);
                           "测试超时，未打开新标签页并获取焦点"
                         );
                       }, 3e3);
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                   domUtils.after(container.$leftContainer, $button);
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             }
@@ -24760,21 +26465,21 @@ ${err.stack}`);
                       );
                       domUtils.text(container.$leftDesc, this.text);
                       domUtils.show(container.$leftDesc, false);
-                      let result22 = _GM_openInTab("https://www.example.com/");
-                      if (result22 && typeof (result22 == null ? void 0 : result22.close) === "function") {
+                      let result2 = _GM_openInTab("https://www.example.com/");
+                      if (result2 && typeof (result2 == null ? void 0 : result2.close) === "function") {
                         timeId = setTimeoutLog(() => {
                           try {
-                            result22.close();
+                            result2.close();
                             TagUtil.setTag(
                               container.$leftText,
                               "success",
                               "成功调用 .close()"
                             );
-                          } catch (error2) {
+                          } catch (error) {
                             TagUtil.setTag(
                               container.$leftText,
                               "error",
-                              "调用 .close() 方法失败 " + error2
+                              "调用 .close() 方法失败 " + error
                             );
                           }
                         }, 1e3);
@@ -24785,17 +26490,17 @@ ${err.stack}`);
                           "返回对象中不支持 .close() 方法"
                         );
                       }
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                   domUtils.after(container.$leftContainer, $button);
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             }
@@ -24834,9 +26539,9 @@ ${err.stack}`);
                       );
                       domUtils.text(container.$leftDesc, this.text);
                       domUtils.show(container.$leftDesc, false);
-                      let result22 = _GM_openInTab("https://www.example.com/");
-                      if (typeof result22 === "object" && result22 != null) {
-                        result22.onclose = () => {
+                      let result2 = _GM_openInTab("https://www.example.com/");
+                      if (typeof result2 === "object" && result2 != null) {
+                        result2.onclose = () => {
                           clearTimeout(timeId);
                           clearTimeout(timeId2);
                           TagUtil.setTag(
@@ -24846,10 +26551,10 @@ ${err.stack}`);
                           );
                         };
                       }
-                      if (result22 && typeof (result22 == null ? void 0 : result22.close) === "function") {
+                      if (result2 && typeof (result2 == null ? void 0 : result2.close) === "function") {
                         timeId = setTimeoutLog(() => {
                           try {
-                            result22.close();
+                            result2.close();
                             timeId2 = setTimeoutLog(() => {
                               TagUtil.setTag(
                                 container.$leftText,
@@ -24857,11 +26562,11 @@ ${err.stack}`);
                                 "测试超时，未触发回调 .onclose"
                               );
                             }, 2e3);
-                          } catch (error2) {
+                          } catch (error) {
                             TagUtil.setTag(
                               container.$leftText,
                               "error",
-                              "调用 .close() 方法失败 " + error2
+                              "调用 .close() 方法失败 " + error
                             );
                           }
                         }, 1e3);
@@ -24872,24 +26577,24 @@ ${err.stack}`);
                           "返回对象中不支持 .close() 方法"
                         );
                       }
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                   domUtils.after(container.$leftContainer, $button);
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             }
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_registerMenuCommand extends ApiAsyncTestBase {
@@ -24908,10 +26613,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -24955,7 +26660,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               return {
@@ -24987,9 +26692,9 @@ ${err.stack}`);
                       domUtils.show(container.$leftDesc, false);
                       let intervalCheckCount = 10;
                       let setCheckText = () => {
-                        let result22 = `已执行注册菜单，请在${intervalCheckCount}s内点击菜单项`;
+                        let result2 = `已执行注册菜单，请在${intervalCheckCount}s内点击菜单项`;
                         intervalCheckCount--;
-                        return result22;
+                        return result2;
                       };
                       TagUtil.setTag(container.$leftText, "info", setCheckText());
                       intervalId = setInterval(() => {
@@ -25047,23 +26752,23 @@ ${err.stack}`);
                                 (it) => `<p class="${it.tag}">${it.text}</p>`
                               ).join("\n")
                             );
-                          } catch (error2) {
-                            qmsg.error(error2.toString(), {
+                          } catch (error) {
+                            qmsg.error(error.toString(), {
                               consoleLogContent: true
                             });
                           }
                         }
                       );
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -25115,16 +26820,16 @@ ${err.stack}`);
                         );
                         qmsg.success("已执行更新菜单命令，请自行验证");
                       }, 3e3);
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -25132,7 +26837,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_removeValueChangeListener extends ApiAsyncTestBase {
@@ -25151,10 +26856,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -25198,7 +26903,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           (() => {
             let localStorageDataKey = apiName + "_key_1";
             return UIInfo(() => {
@@ -25252,8 +26957,8 @@ ${err.stack}`);
                       });
                       TagUtil.setTagList(container.$leftText, tagTextList);
                       _GM_setValue(localStorageDataKey, delaySetValue);
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
@@ -25262,7 +26967,7 @@ ${err.stack}`);
           })()
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_saveTab extends ApiAsyncTestBase {
@@ -25281,10 +26986,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -25328,17 +27033,17 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
+                text: CommonUtil2.escapeHtml("TODO"),
                 tag: "info"
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -25346,7 +27051,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_setClipboard extends ApiAsyncTestBase {
@@ -25365,10 +27070,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -25412,7 +27117,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             return {
               text: "复制内容到剪贴板：Test GM_setClipboard",
@@ -25453,8 +27158,8 @@ ${err.stack}`);
                         "支持触发回调函数"
                       );
                     });
-                  } catch (error2) {
-                    qmsg.error(error2.toString(), { consoleLogContent: true });
+                  } catch (error) {
+                    qmsg.error(error.toString(), { consoleLogContent: true });
                   }
                 });
               }
@@ -25462,7 +27167,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_setValue extends ApiAsyncTestBase {
@@ -25481,10 +27186,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -25528,7 +27233,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           ...[
             {
               key: "Test GM_setValue boolean",
@@ -25619,8 +27324,8 @@ ${err.stack}`);
                       try {
                         _GM_setValue(localStorageDataKey, localStorageDataValue);
                         qmsg.info("执行写入完毕，请自行查看是否成功写入");
-                      } catch (error2) {
-                        qmsg.error(error2.toString(), { consoleLogContent: true });
+                      } catch (error) {
+                        qmsg.error(error.toString(), { consoleLogContent: true });
                       }
                     });
                   }
@@ -25630,7 +27335,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_setValues extends ApiAsyncTestBase {
@@ -25649,10 +27354,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -25696,7 +27401,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           (() => {
             let localStorageDataValue = { foo: 1, bar: 2 };
             return UIInfo(() => {
@@ -25724,8 +27429,8 @@ ${err.stack}`);
                     try {
                       _GM_setValues(localStorageDataValue);
                       qmsg.info("执行写入完毕，请自行查看是否成功写入");
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
@@ -25734,7 +27439,7 @@ ${err.stack}`);
           })()
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_unregisterMenuCommand extends ApiAsyncTestBase {
@@ -25753,10 +27458,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -25800,7 +27505,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               return {
@@ -25840,16 +27545,16 @@ ${err.stack}`);
                         _GM_unregisterMenuCommand(menuCommandId);
                         qmsg.success("已执行卸载菜单命令，请自行验证");
                       }, 10 * 1e3);
-                    } catch (error2) {
-                      qmsg.error(error2.toString(), { consoleLogContent: true });
+                    } catch (error) {
+                      qmsg.error(error.toString(), { consoleLogContent: true });
                     }
                   });
                 }
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -25857,7 +27562,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_unsafeWindow extends ApiAsyncTestBase {
@@ -25872,10 +27577,10 @@ ${err.stack}`);
     }
     getUIOption() {
       let apiName = this.getApiName();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(apiName)}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -25907,7 +27612,7 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             let key = "test-gm-window";
             let flag = _monkeyWindow == _unsafeWindow;
@@ -25928,7 +27633,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_webRequest extends ApiAsyncTestBase {
@@ -25947,10 +27652,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -25994,17 +27699,17 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
+                text: CommonUtil2.escapeHtml("TODO"),
                 tag: "info"
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -26012,7 +27717,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_xmlHttpRequest extends ApiAsyncTestBase {
@@ -26031,10 +27736,10 @@ ${err.stack}`);
     getUIOption() {
       let apiName = this.getApiName();
       let apiAsyncInfo = this.getAsyncApiOption();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
         apiName,
         `${apiName} & ${apiAsyncInfo.name}`
       )}`,
@@ -26078,17 +27783,17 @@ ${err.stack}`);
         ]
       };
       if (this.isSupport()) {
-        result2["forms"][1].forms.push(
+        result["forms"][1].forms.push(
           UIInfo(() => {
             try {
               return {
-                text: CommonUtil.escapeHtml("TODO"),
+                text: CommonUtil2.escapeHtml("TODO"),
                 tag: "info"
               };
-            } catch (error2) {
-              console.error(error2);
+            } catch (error) {
+              console.error(error);
               return {
-                text: "执行错误 " + error2,
+                text: "执行错误 " + error,
                 tag: "error"
               };
             } finally {
@@ -26096,7 +27801,7 @@ ${err.stack}`);
           })
         );
       }
-      return result2;
+      return result;
     }
   }
   class ApiTest_GM extends ApiAsyncTestBase {
@@ -26211,120 +27916,6 @@ ${err.stack}`);
       }
     }
   };
-  const _SCRIPT_NAME_ = "Monkey Api Test";
-  const utils = utils$1.noConflict();
-  const domUtils = domUtils$1.noConflict();
-  const __pops = pops;
-  const log = new utils.Log(_GM_info, window.console);
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
-  const DEBUG = false;
-  log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
-    autoClearConsole: true,
-    tag: true
-  });
-  qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-position", "bottom");
-          }
-        },
-        maxNums: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-maxnums", 5);
-          }
-        },
-        showReverse: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-showreverse", true);
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = utils$1.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
-            return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
-      }
-    )
-  );
-  const GM_Menu = new utils.GM_Menu({
-    GM_getValue: GMTotal.getValue.isSupport() ? _GM_getValue : StorageApi.get,
-    GM_setValue: GMTotal.setValue.isSupport() ? _GM_setValue : StorageApi.set,
-    GM_registerMenuCommand: GMTotal.registerMenuCommand.isSupport() ? _GM_registerMenuCommand : () => {
-    },
-    GM_unregisterMenuCommand: GMTotal.unregisterMenuCommand.isSupport() ? _GM_unregisterMenuCommand : () => {
-    }
-  });
-  const addStyle = utils.addStyle.bind(utils);
-  document.querySelector.bind(document);
-  document.querySelectorAll.bind(document);
-  let injectDocumentTime = "";
-  if (document.documentElement) {
-    if (document.head) {
-      if (document.body) {
-        injectDocumentTime = `<html>
-    <head>
-	    ...${document.head.childNodes.length} nodes
-	</head>
-    <body>
-        ...${document.body.childNodes.length} nodes
-    </body>
-</html>
-
-注入速度等级：4
-`;
-      } else {
-        if (document.head.childNodes.length) {
-          injectDocumentTime = `<html>
-	<head>
-	    ...${document.head.childNodes.length} nodes
-	</head>
-</html>
-		
-注入速度等级：3`;
-        } else {
-          injectDocumentTime = `<html>
-	<head></head>
-</html>
-
-注入速度等级：2`;
-        }
-      }
-    } else {
-      injectDocumentTime = `<html>
-</html>
-
-注入速度等级：1`;
-    }
-  } else {
-    injectDocumentTime = `document.documentElement is null
-	
-注入速度等级：0`;
-  }
-  const setTimeoutLog = (handler, timeout, ...args2) => {
-    return setTimeout(() => {
-      try {
-        handler(...args2);
-      } catch (error2) {
-        qmsg.error(error2.toString(), { consoleLogContent: true });
-      }
-    }, timeout);
-  };
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_INIT = "data-init";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const Component_Common = () => {
     let supportApiNameList = [];
     let notSupportApiNameList = [];
@@ -26415,11 +28006,11 @@ ${err.stack}`);
       forms: [
         {
           type: "forms",
-          text: "@run-at document-start<br>注：注入速度等级越低，注入的速度越快",
+          text: "@run-at document-start<br>注：注入速度等级越低，注入的速度越快<br>范围：0~4",
           forms: [
             UIInfo(() => {
               return {
-                text: CommonUtil.escapeHtml(injectDocumentTime),
+                text: CommonUtil2.escapeHtml(injectDocumentTime),
                 tag: "info"
               };
             })
@@ -26506,10 +28097,10 @@ ${err.stack}`);
     }
     getUIOption() {
       let apiName = this.getApiName();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(apiName)}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -26525,7 +28116,7 @@ ${err.stack}`);
               UIInfo(() => {
                 try {
                   return {
-                    text: CommonUtil.escapeHtml("测试window.onurlchange"),
+                    text: CommonUtil2.escapeHtml("测试window.onurlchange"),
                     tag: "info",
                     description: "点击按钮进行测试",
                     afterRender(container) {
@@ -26568,8 +28159,8 @@ ${err.stack}`);
                           } else {
                             qmsg.error("window.onurlchange is not null");
                           }
-                        } catch (error2) {
-                          qmsg.error(error2.toString(), {
+                        } catch (error) {
+                          qmsg.error(error.toString(), {
                             consoleLogContent: true
                           });
                         }
@@ -26577,10 +28168,10 @@ ${err.stack}`);
                       domUtils.after(container.$leftContainer, $button);
                     }
                   };
-                } catch (error2) {
-                  console.error(error2);
+                } catch (error) {
+                  console.error(error);
                   return {
-                    text: "执行错误 " + error2,
+                    text: "执行错误 " + error,
                     tag: "error"
                   };
                 } finally {
@@ -26590,7 +28181,7 @@ ${err.stack}`);
           }
         ]
       };
-      return result2;
+      return result;
     }
   }
   class GrantTest_close extends ApiTestBase {
@@ -26605,10 +28196,10 @@ ${err.stack}`);
     }
     getUIOption() {
       let apiName = this.getApiName();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(apiName)}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -26624,7 +28215,7 @@ ${err.stack}`);
               UIInfo(() => {
                 try {
                   return {
-                    text: CommonUtil.escapeHtml("测试window.close"),
+                    text: CommonUtil2.escapeHtml("测试window.close"),
                     tag: "info",
                     description: "点击按钮执行该函数",
                     afterRender(container) {
@@ -26645,8 +28236,8 @@ ${err.stack}`);
                         utils.preventEvent(event);
                         try {
                           _monkeyWindow.close();
-                        } catch (error2) {
-                          qmsg.error(error2.toString(), {
+                        } catch (error) {
+                          qmsg.error(error.toString(), {
                             consoleLogContent: true
                           });
                         }
@@ -26654,10 +28245,10 @@ ${err.stack}`);
                       domUtils.after(container.$leftContainer, $button);
                     }
                   };
-                } catch (error2) {
-                  console.error(error2);
+                } catch (error) {
+                  console.error(error);
                   return {
-                    text: "执行错误 " + error2,
+                    text: "执行错误 " + error,
                     tag: "error"
                   };
                 } finally {
@@ -26667,7 +28258,7 @@ ${err.stack}`);
           }
         ]
       };
-      return result2;
+      return result;
     }
   }
   class GrantTest_focus extends ApiTestBase {
@@ -26682,10 +28273,10 @@ ${err.stack}`);
     }
     getUIOption() {
       let apiName = this.getApiName();
-      let result2 = {
+      let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${CommonUtil.getTampoerMonkeyApiUrl(apiName)}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -26701,7 +28292,7 @@ ${err.stack}`);
               UIInfo(() => {
                 try {
                   return {
-                    text: CommonUtil.escapeHtml("测试window.focus"),
+                    text: CommonUtil2.escapeHtml("测试window.focus"),
                     tag: "info",
                     description: "点击按钮执行该函数",
                     afterRender(container) {
@@ -26736,8 +28327,8 @@ ${err.stack}`);
                           qmsg.info(
                             "请切换至其它Tab页面，切换完毕3秒后会自动调用该函数"
                           );
-                        } catch (error2) {
-                          qmsg.error(error2.toString(), {
+                        } catch (error) {
+                          qmsg.error(error.toString(), {
                             consoleLogContent: true
                           });
                         }
@@ -26745,10 +28336,10 @@ ${err.stack}`);
                       domUtils.after(container.$leftContainer, $button);
                     }
                   };
-                } catch (error2) {
-                  console.error(error2);
+                } catch (error) {
+                  console.error(error);
                   return {
-                    text: "执行错误 " + error2,
+                    text: "执行错误 " + error,
                     tag: "error"
                   };
                 } finally {
@@ -26758,550 +28349,73 @@ ${err.stack}`);
           }
         ]
       };
-      return result2;
+      return result;
     }
   }
-  const PopsPanel = {
-    /** 数据 */
-    $data: {
-      __data: null,
-      __oneSuccessExecMenu: null,
-      __onceExec: null,
-      __listenData: null,
-      /**
-       * 菜单项的默认值
-       */
-      get data() {
-        if (PopsPanel.$data.__data == null) {
-          PopsPanel.$data.__data = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__data;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get oneSuccessExecMenu() {
-        if (PopsPanel.$data.__oneSuccessExecMenu == null) {
-          PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__oneSuccessExecMenu;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get onceExec() {
-        if (PopsPanel.$data.__onceExec == null) {
-          PopsPanel.$data.__onceExec = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__onceExec;
-      },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
-        return SCRIPT_NAME;
-      },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
-    },
-    /** 监听器 */
-    $listener: {
-      /**
-       * 值改变的监听器
-       */
-      get listenData() {
-        if (PopsPanel.$data.__listenData == null) {
-          PopsPanel.$data.__listenData = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__listenData;
-      }
-    },
-    init() {
-      try {
-        this.initPanelDefaultValue();
-        this.initExtensionsMenu();
-      } catch (error2) {
-        console.error(error2);
-      }
-    },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
-      if (GMTotal.unsafeWindow.isSupport()) {
-        return _unsafeWindow.top === _unsafeWindow.self;
-      } else {
-        return window.top === window.self;
-      }
-    },
-    /** 初始化进行注册油猴菜单 */
-    initExtensionsMenu() {
-      if (!this.isTopWindow()) {
-        return;
-      }
-      GM_Menu.add([
-        {
-          key: "show_pops_panel_setting",
-          text: "⚙ 设置",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            this.showPanel();
-          }
-        }
-      ]);
-    },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initPanelDefaultValue() {
-      let that = this;
-      function initDefaultValue(config) {
-        if (!config.attributes) {
-          return;
-        }
-        let needInitConfig = {};
-        let key = config.attributes[ATTRIBUTE_KEY];
-        if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
-        }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-        if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
-        }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
-        }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          log.warn(["请先配置键", config]);
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
-          if (that.$data.data.has(__key)) {
-            log.warn("请检查该key(已存在): " + __key);
-          }
-          that.$data.data.set(__key, __defaultValue);
-        });
-      }
-      function loopInitDefaultValue(configList) {
-        for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
-          initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
-          }
-        }
-      }
-      let contentConfigList = this.getPanelContentConfig();
-      for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
-          continue;
-        }
-        let rightContentConfigList = leftContentConfigItem.forms;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
-          loopInitDefaultValue(rightContentConfigList);
-        }
-      }
-    },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
-      let locaData = StorageApi.get(KEY, {});
-      let oldValue = locaData[key];
-      locaData[key] = value;
-      StorageApi.set(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, value);
-      }
-    },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
-      let locaData = StorageApi.get(KEY, {});
-      let localValue = locaData[key];
-      if (localValue == null) {
-        if (this.$data.data.has(key)) {
-          return this.$data.data.get(key);
-        }
-        return defaultValue;
-      }
-      return localValue;
-    },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
-      let locaData = StorageApi.get(KEY, {});
-      let oldValue = locaData[key];
-      Reflect.deleteProperty(locaData, key);
-      StorageApi.set(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
-      }
-    },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback2, option) {
-      let listenerId = Math.random();
-      this.$listener.listenData.set(key, {
-        id: listenerId,
-        key,
-        callback: callback2
-      });
-      if (option) {
-        if (option.immediate) {
-          callback2(key, this.getValue(key), this.getValue(key));
-        }
-      }
-      return listenerId;
-    },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
-      let deleteKey = null;
-      for (const [key, value] of this.$listener.listenData.entries()) {
-        if (value.id === listenerId) {
-          deleteKey = key;
-          break;
-        }
-      }
-      if (typeof deleteKey === "string") {
-        this.$listener.listenData.delete(deleteKey);
-      } else {
-        console.warn("没有找到对应的监听器");
-      }
-    },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
-      if (this.$listener.listenData.has(key)) {
-        let listenData = this.$listener.listenData.get(key);
-        if (typeof listenData.callback === "function") {
-          let value = this.getValue(key);
-          let __newValue = value;
-          let __oldValue = value;
-          if (typeof newValue !== "undefined" && arguments.length > 1) {
-            __newValue = newValue;
-          }
-          if (typeof oldValue !== "undefined" && arguments.length > 2) {
-            __oldValue = oldValue;
-          }
-          listenData.callback(key, __oldValue, __newValue);
-        }
-      }
-    },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
-      let locaData = StorageApi.get(KEY, {});
-      return key in locaData;
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用
-     * @param checkEnableCallBack 自定义检测菜单的值，可自行决定是否强制启用菜单，true是启用菜单，false是不启用菜单
-     */
-    execMenu(key, callback2, isReverse = false, checkEnableCallBack) {
-      if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
-        throw new TypeError("key 必须是字符串或者字符串数组");
-      }
-      let runKeyList = [];
-      if (typeof key === "object" && Array.isArray(key)) {
-        runKeyList = [...key];
-      } else {
-        runKeyList.push(key);
-      }
-      let value = void 0;
-      for (let index = 0; index < runKeyList.length; index++) {
-        const runKey = runKeyList[index];
-        if (!this.$data.data.has(runKey)) {
-          log.warn(`${key} 键不存在`);
-          return;
-        }
-        let runValue = PopsPanel.getValue(runKey);
-        if (isReverse) {
-          runValue = !runValue;
-        }
-        if (typeof checkEnableCallBack === "function") {
-          let checkResult = checkEnableCallBack(runKey, runValue);
-          if (typeof checkResult === "boolean") {
-            runValue = checkResult;
-          }
-        }
-        if (!runValue) {
-          break;
-        }
-        value = runValue;
-      }
-      if (value) {
-        callback2(value);
-      }
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key
-     * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
-     * @param checkEnableCallBack 自定义检测菜单的值，可自行决定是否强制启用菜单，true是启用菜单，false是不启用菜单
-     */
-    execMenuOnce(key, callback2, getValueFn, handleValueChangeFn, checkEnableCallBack) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
-      }
-      if (this.$data.oneSuccessExecMenu.has(key)) {
-        return;
-      }
-      this.$data.oneSuccessExecMenu.set(key, 1);
-      let __getValue = () => {
-        let localValue = PopsPanel.getValue(key);
-        return typeof getValueFn === "function" ? getValueFn(key, localValue) : localValue;
-      };
-      let resultStyleList = [];
-      let dynamicPushStyleNode = ($style) => {
-        let __value = __getValue();
-        let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
-        }
-        if (__value) {
-          resultStyleList = resultStyleList.concat(dynamicResultList);
-        } else {
-          for (let index = 0; index < dynamicResultList.length; index++) {
-            let $css = dynamicResultList[index];
-            $css.remove();
-            dynamicResultList.splice(index, 1);
-            index--;
-          }
-        }
-      };
-      let checkMenuEnableCallBack = (currentValue) => {
-        return typeof checkEnableCallBack === "function" ? checkEnableCallBack(key, currentValue) : currentValue;
-      };
-      let changeCallBack = (currentValue) => {
-        let resultList = [];
-        if (checkMenuEnableCallBack(currentValue)) {
-          let result2 = callback2(currentValue, dynamicPushStyleNode);
-          if (result2 instanceof HTMLStyleElement) {
-            resultList = [result2];
-          } else if (Array.isArray(result2)) {
-            resultList = [
-              ...result2.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            ];
-          }
-        }
-        for (let index = 0; index < resultStyleList.length; index++) {
-          let $css = resultStyleList[index];
-          $css.remove();
-          resultStyleList.splice(index, 1);
-          index--;
-        }
-        resultStyleList = [...resultList];
-      };
-      this.addValueChangeListener(
-        key,
-        (__key, oldValue, newValue) => {
-          let __newValue = newValue;
-          if (typeof handleValueChangeFn === "function") {
-            __newValue = handleValueChangeFn(__key, newValue, oldValue);
-          }
-          changeCallBack(__newValue);
-        }
-      );
-      let value = __getValue();
-      if (value) {
-        changeCallBack(value);
-      }
-    },
-    /**
-     * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key 菜单键
-     * @param childKey 子菜单键
-     * @param callback 回调
-     * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
-     */
-    execInheritMenuOnce(key, childKey, callback2, replaceValueFn) {
-      let that = this;
-      const handleInheritValue = (key2, childKey2) => {
-        let mainValue = that.getValue(key2);
-        let childValue = that.getValue(childKey2);
-        if (typeof replaceValueFn === "function") {
-          let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue != null) {
-            return changedMainValue;
-          }
-        }
-        return mainValue;
-      };
-      this.execMenuOnce(
-        key,
-        callback2,
-        () => {
-          return handleInheritValue(key, childKey);
-        },
-        () => {
-          return handleInheritValue(key, childKey);
-        }
-      );
-      this.execMenuOnce(
-        childKey,
-        () => {
-        },
-        () => false,
-        () => {
-          this.triggerMenuValueChange(key);
-          return false;
-        }
-      );
-    },
-    /**
-     * 根据自定义key只执行一次
-     * @param key 自定义key
-     */
-    onceExec(key, callback2) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExec.has(key)) {
-        return;
-      }
-      callback2();
-      this.$data.onceExec.set(key, 1);
-    },
-    /**
-     * 显示设置面板
-     */
-    showPanel() {
-      __pops.panel({
-        title: {
-          text: `${SCRIPT_NAME}-设置`,
-          position: "center",
-          html: false,
-          style: ""
-        },
-        content: this.getPanelContentConfig(),
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: true,
-            toHide: false
-          }
-        },
-        width: PanelUISize.settingBig.width,
-        height: PanelUISize.settingBig.height,
-        drag: true,
-        only: true,
-        style: (
-          /*css*/
-          `
-			.success{
-				color: green;
-			}
-			.error{
-				color: red;
-			}
-			.warn,.warning{
-				color: orange;
-			}
-			.info{
-				color: #909090;
-			}
-			.support-info{
-				font-weight: bold;
-			}
-
-
-			.gm-api-features-not-support,
-			.gm-api-features-support{
-				display: flex;
-				gap: 8px;
-				flex-wrap: wrap;
-			}
-			.gm-api-features-item{
-				display: flex;
-				align-items: center;
-				width: 200px;
-				max-width: 200px !important;
-    			justify-content: space-between;
-				cursor: pointer;
-				transition: all ease-out .1s;
-				padding: 8px 16px;
-				border-radius: 4px;
-				font-size: 14px;
-			}
-			.gm-api-features-item:hover{
-				box-shadow: 0 2px 5px 3px #0000001a;
-			}
-			.gm-api-features-item__label{
-			}
-			.gm-api-features-item__value span{
-				display: flex;
-    			align-items: center;
-			}
-			`
-        )
-      });
-    },
-    /**
-     * 获取配置内容
-     */
-    getPanelContentConfig() {
-      let configList = [Component_Common()];
-      Object.keys(GMTotal).forEach((keyName) => {
-        let value = GMTotal[keyName];
-        let option = value.getUIOption();
-        if (option) {
-          configList.push(option);
-        }
-      });
-      configList.push(new GrantTest_onurlchange().getUIOption());
-      configList.push(new GrantTest_close().getUIOption());
-      configList.push(new GrantTest_focus().getUIOption());
-      return configList;
+  let configList = [Component_Common()];
+  Object.keys(GMTotal).forEach((keyName) => {
+    let value = GMTotal[keyName];
+    let option = value.getUIOption();
+    if (option) {
+      configList.push(option);
     }
+  });
+  configList.push(new GrantTest_onurlchange().getUIOption());
+  configList.push(new GrantTest_close().getUIOption());
+  configList.push(new GrantTest_focus().getUIOption());
+  PanelContent.addContentConfig(configList);
+  Panel.$data.panelConfig = {
+    style: (
+      /*css*/
+      `
+		.success{
+			color: green;
+		}
+		.error{
+			color: red;
+		}
+		.warn,.warning{
+			color: orange;
+		}
+		.info{
+			color: #909090;
+		}
+		.support-info{
+			font-weight: bold;
+		}
+
+
+		.gm-api-features-not-support,
+		.gm-api-features-support{
+			display: flex;
+			gap: 8px;
+			flex-wrap: wrap;
+		}
+		.gm-api-features-item{
+			display: flex;
+			align-items: center;
+			width: 200px;
+			max-width: 200px !important;
+			justify-content: space-between;
+			cursor: pointer;
+			transition: all ease-out .1s;
+			padding: 8px 16px;
+			border-radius: 4px;
+			font-size: 14px;
+		}
+		.gm-api-features-item:hover{
+			box-shadow: 0 2px 5px 3px #0000001a;
+		}
+		.gm-api-features-item__label{
+		}
+		.gm-api-features-item__value span{
+			display: flex;
+			align-items: center;
+		}
+	`
+    )
   };
-  PopsPanel.init();
-  PopsPanel.showPanel();
+  Panel.init();
+  Panel.showPanel(PanelContent.getConfig());
 
 })();
