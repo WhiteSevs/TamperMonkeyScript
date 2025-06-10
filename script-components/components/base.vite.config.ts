@@ -29,7 +29,13 @@ const GenerateUserConfig = async (option: {
 	/**
 	 * 油猴配置
 	 */
-	monkeyOption: Partial<__MonkeyOption__>;
+	monkeyOption: Partial<__MonkeyOption__> & {
+		/**
+		 * 是否禁用默认的externalGlobals属性
+		 * @default false
+		 */
+		disableExternalGlobals?: boolean;
+	};
 	/**
 	 * vite配置
 	 */
@@ -134,6 +140,15 @@ const GenerateUserConfig = async (option: {
 	/* -------------以下配置不需要动------------- */
 	/* -------------以下配置不需要动------------- */
 	/* -------------以下配置不需要动------------- */
+	if (option.monkeyOption.disableExternalGlobals) {
+		delete option.monkeyOption.disableExternalGlobals;
+		if (
+			typeof DefaultMonkeyOption.build?.externalGlobals === "object" &&
+			DefaultMonkeyOption.build.externalGlobals != null
+		) {
+			DefaultMonkeyOption.build!.externalGlobals = {};
+		}
+	}
 	DefaultMonkeyOption = viteUtils.assign(
 		DefaultMonkeyOption,
 		option.monkeyOption,

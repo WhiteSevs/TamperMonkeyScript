@@ -238,4 +238,31 @@ export const CommonUtil = {
 			}
 		});
 	},
+	/**
+	 * html转义
+	 * @param unsafe
+	 */
+	escapeHtml(unsafe: string): string {
+		return unsafe
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#039;")
+			.replace(/©/g, "&copy;")
+			.replace(/®/g, "&reg;")
+			.replace(/™/g, "&trade;")
+			.replace(/→/g, "&rarr;")
+			.replace(/←/g, "&larr;")
+			.replace(/↑/g, "&uarr;")
+			.replace(/↓/g, "&darr;")
+			.replace(/—/g, "&mdash;")
+			.replace(/–/g, "&ndash;")
+			.replace(/…/g, "&hellip;")
+			.replace(/ /g, "&nbsp;")
+			.replace(/\r\n/g, "<br>") // 转义 Windows 换行符
+			.replace(/\r/g, "<br>") // 转义 Mac 换行符
+			.replace(/\n/g, "<br>")
+			.replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;"); // 转义制表符，用四个空格表示
+	},
 };

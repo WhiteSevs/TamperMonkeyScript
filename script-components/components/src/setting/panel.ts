@@ -47,7 +47,7 @@ const Panel = {
 		/**
 		 * @private
 		 */
-		__panelConfig: {} as PopsPanelDetails,
+		__panelConfig: {} as Partial<PopsPanelDetails>,
 		$panel: null as ReturnType<typeof pops.panel> | null,
 		/**
 		 * 菜单项的默认值
