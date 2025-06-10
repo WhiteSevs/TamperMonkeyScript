@@ -14,12 +14,13 @@ import { PanelContent } from "@components/setting/panel-content";
 import { PanelUI_allSetting } from "./setting/view/all-setting";
 import { PanelMenu } from "@components/setting/panel-menu";
 import { NetDiskUserRuleUI } from "./main/rule/user-rule/NetDiskUserRuleUI";
+import { NetDiskGlobalSettingView } from "./main/view/global-setting/NetDiskGlobalSettingView";
 
-Object.assign(
-	NetDiskUI.src.icon,
-	// @ts-ignore
-	typeof RESOURCE_ICON === "undefined" ? {} : RESOURCE_ICON
-);
+try {
+	Object.assign(NetDiskUI.src.icon, RESOURCE_ICON ?? {});
+} catch (error) {
+	console.error(error);
+}
 // 初始化网站规则
 WebsiteRule.init();
 // 初始化用户规则
@@ -29,6 +30,12 @@ NetDiskRule.init();
 // 初始化配置默认
 // 注册油猴菜单
 PanelContent.addContentConfig([PanelUI_allSetting]);
+PanelContent.addContentConfig(NetDiskRule.getRulePanelContent());
+let settingMenu = PanelMenu.getMenuOption(0);
+settingMenu.callback = () => {
+	NetDiskGlobalSettingView.show();
+};
+PanelMenu.updateMenuOption(settingMenu);
 PanelMenu.addMenuOption([
 	{
 		key: "showNetDiskHistoryMatch",
