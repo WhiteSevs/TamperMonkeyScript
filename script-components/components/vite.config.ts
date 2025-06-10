@@ -40,15 +40,6 @@ let userConfig = await GenerateUserConfig({
 			},
 		},
 	},
-	userConfig: {
-		resolve: {
-			alias: {
-				"@": Utils.getAbsolutePath("./src"),
-				"@lib": Utils.getAbsolutePath("./../../lib"),
-				"@components": Utils.getAbsolutePath("./../../script-components/src"),
-			},
-		},
-	},
 });
 
 export default defineConfig(userConfig);
