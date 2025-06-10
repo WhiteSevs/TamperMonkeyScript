@@ -1,0 +1,7 @@
+{
+	"name": "script-components",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"description": "油猴脚本使用的通用组件"
+}
