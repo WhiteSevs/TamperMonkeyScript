@@ -342,10 +342,25 @@ export const MTDyncmicAvatar = {
 		}
 		let data = dataMatch[dataMatch.length - 1];
 		let data_split = data.split(",");
-		let uploadUrl = data_split[data_split.indexOf("src") + 1].replace(
-			"images/camera.swf?inajax=1",
-			"index.php?m=user&a=rectavatar&base64=yes"
+		let srcIndex = data_split.indexOf("stl_src");
+		if (srcIndex === -1) {
+			srcIndex = data_split.indexOf("src");
+		}
+		if (srcIndex === -1) {
+			Qmsg.error("动态头像：获取上传地址失败");
+			return;
+		}
+		let uploadUrl = data_split[srcIndex + 1];
+		let uploadUrlInst = new URL(uploadUrl);
+		uploadUrlInst.pathname = uploadUrlInst.pathname.replace(
+			"/images/camera.swf",
+			"/index.php"
 		);
+		uploadUrlInst.searchParams.delete("inajax");
+		uploadUrlInst.searchParams.set("m", "user");
+		uploadUrlInst.searchParams.set("a", "rectavatar");
+		uploadUrlInst.searchParams.set("base64", "yes");
+		uploadUrl = uploadUrlInst.toString();
 		log.info(`上传地址：` + uploadUrl);
 		return uploadUrl;
 	},
