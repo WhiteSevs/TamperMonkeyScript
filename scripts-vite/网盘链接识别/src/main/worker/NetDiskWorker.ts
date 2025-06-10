@@ -99,7 +99,6 @@ export const NetDiskWorker = {
 			workerUrl = workerPolicy.createScriptURL(workerUrl);
 		}
 		NetDiskWorker.blobUrl = workerUrl;
-		log.info(`Worker Blob Link ===> ${NetDiskWorker.blobUrl}`);
 	},
 	/**
 	 * 处理规则匹配
@@ -223,7 +222,7 @@ export const NetDiskWorker = {
 			NetDiskWorker.GM_matchWorker = new Worker(NetDiskWorker.blobUrl);
 			NetDiskWorker.GM_matchWorker.onmessage = NetDiskWorker.onMessage;
 			NetDiskWorker.GM_matchWorker.onerror = NetDiskWorker.onError;
-			// globalThis.URL.revokeObjectURL(NetDiskWorker.blobUrl);
+			log.info(`Worker Blob Link ===> ${NetDiskWorker.blobUrl}`);
 		} catch (error: any) {
 			this.workerInitError = error;
 			// @ts-ignore
@@ -255,6 +254,10 @@ export const NetDiskWorker = {
 					});
 				},
 			};
+		} finally {
+			// 释放
+			globalThis.URL.revokeObjectURL(NetDiskWorker.blobUrl);
+			NetDiskWorker.blobUrl = "";
 		}
 	},
 	/**
