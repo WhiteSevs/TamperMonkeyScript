@@ -1,8 +1,8 @@
-import { addStyle, DOMUtils, GM_Menu, httpx, log, pops, utils } from "@/env";
+import { DOMUtils, GM_Menu, httpx, log, pops, utils } from "@/env";
 import Qmsg from "qmsg";
 import blackHomeCSS from "./css/black-home.css?raw";
 import { MTUtils } from "@/utils/MTUtils";
-import { PanelUISize } from "@/setting/panel-ui-size";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 
 type BlackUserInfo = {
 	action: string;
@@ -354,29 +354,19 @@ export const MTBlackHome = {
 		);
 
 		// 添加黑名单头像点击事件
-		DOMUtils.on(
-			$item,
-			"click",
-			".blackhome-user img",
-			function () {
-				window.open(
-					`home.php?mod=space&uid=${userInfo.uid}&do=profile`,
-					"_blank"
-				);
-			}
-		);
+		DOMUtils.on($item, "click", ".blackhome-user img", function () {
+			window.open(
+				`home.php?mod=space&uid=${userInfo.uid}&do=profile`,
+				"_blank"
+			);
+		});
 		// 添加操作人头像点击事件
-		DOMUtils.on(
-			$item,
-			"click",
-			".blackhome-operator-user img",
-			function () {
-				window.open(
-					`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`,
-					"_blank"
-				);
-			}
-		);
+		DOMUtils.on($item, "click", ".blackhome-operator-user img", function () {
+			window.open(
+				`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`,
+				"_blank"
+			);
+		});
 		return $item;
 	},
 };

@@ -1,14 +1,13 @@
 import { DOMUtils, GM_Menu, httpx, log, pops, utils } from "@/env";
-import { Router } from "@/router/router";
-import { UIInput } from "@/setting/components/ui-input";
-import { UISwitch } from "@/setting/components/ui-switch";
+import { MTRouter } from "@/router/MTRouter";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "@/setting/panel-config";
-import { MTElementUtil } from "@/utils/MTElementUtil";
-import { RuleView } from "@/utils/RuleView";
+} from "@components/setting/panel-config";
+import { RuleView } from "@components/utils/RuleView";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 
@@ -117,7 +116,7 @@ export const MTProductListingReminder = {
 			return productInfoList;
 		}
 
-		if (Router.isPointsMall()) {
+		if (MTRouter.isPointsMall()) {
 			// 不在积分商城内进行提示
 			return;
 		}

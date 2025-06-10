@@ -3,7 +3,7 @@ import Qmsg from "qmsg";
 import { GM_Menu, httpx, pops, utils } from "@/env";
 import DOMUtils from "@whitesev/domutils";
 import { MTUtils } from "@/utils/MTUtils";
-import { PanelUISize } from "@/setting/panel-ui-size";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 
 type OnlineUserInfo = {
 	uid: string;

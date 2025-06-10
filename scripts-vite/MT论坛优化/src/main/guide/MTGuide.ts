@@ -1,5 +1,5 @@
 import { $$, addStyle, DOMUtils, httpx, log, utils } from "@/env";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { MTUtils } from "@/utils/MTUtils";
 import { unsafeWindow } from "ViteGM";
 

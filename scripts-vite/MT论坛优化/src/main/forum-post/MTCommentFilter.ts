@@ -1,12 +1,11 @@
 import { $$, GM_Menu, log, pops, utils } from "@/env";
-import { Router } from "@/router/router";
-import { UIInput } from "@/setting/components/ui-input";
-import { UISwitch } from "@/setting/components/ui-switch";
-import { UITextArea } from "@/setting/components/ui-textarea";
-import { PROPS_STORAGE_API } from "@/setting/panel-config";
-import { MTElementUtil } from "@/utils/MTElementUtil";
+import { MTRouter } from "@/router/MTRouter";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { UITextArea } from "@components/setting/components/ui-textarea";
+import { PROPS_STORAGE_API } from "@components/setting/panel-config";
 import { MTRegExp } from "@/utils/MTRegExp";
-import { RuleEditView } from "@/utils/RuleEditView";
+import { RuleEditView } from "@components/utils/RuleEditView";
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 type FilterOption = {
@@ -72,7 +71,7 @@ export const MTCommentFilter = {
 	},
 	init() {
 		this.registerMenu();
-		if (Router.isPost()) {
+		if (MTRouter.isPost()) {
 			let allData = this.getData();
 			if (!allData.enable) {
 				return;

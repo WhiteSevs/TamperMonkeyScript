@@ -1,13 +1,13 @@
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { MTIdentifyLinks } from "./MTIdentifyLinks";
 import { MTAutoSignIn } from "./sign/MTAutoSignIn";
-import { addStyle, DOMUtils, log, utils } from "@/env";
-import { Router } from "@/router/router";
+import { DOMUtils, log } from "@/env";
+import { MTRouter } from "@/router/MTRouter";
 import { MTForumPost } from "./forum-post/MTForumPost";
 import { MTGuide } from "./guide/MTGuide";
 import { MTCommentFilter } from "./forum-post/MTCommentFilter";
 import { MTProductListingReminder } from "./MTProductListingReminder";
-import { GM, GM_cookie, unsafeWindow } from "ViteGM";
+import { GM } from "ViteGM";
 import { MTBlackHome } from "./MTBlackHome";
 import { MTOnlineUser } from "./MTOnlineUser";
 
@@ -19,10 +19,10 @@ export const MT = {
 		Panel.onceExec("mt-MTCommentFilter", () => {
 			MTCommentFilter.init();
 		});
-		if (Router.isPost()) {
+		if (MTRouter.isPost()) {
 			log.info(`Router: 帖子`);
 			MTForumPost.init();
-		} else if (Router.isGuide()) {
+		} else if (MTRouter.isGuide()) {
 			log.info(`Router: 导读`);
 			MTGuide.init();
 		} else {
