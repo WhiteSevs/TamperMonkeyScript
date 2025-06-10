@@ -53,150 +53,6 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const PanelSettingConfig = {
-    /** Toast位置 */
-    qmsg_config_position: {
-      key: "qmsg-config-position",
-      defaultValue: "bottom"
-    },
-    /** 最多显示的数量 */
-    qmsg_config_maxnums: {
-      key: "qmsg-config-maxnums",
-      defaultValue: 3
-    },
-    /** 逆序弹出 */
-    qmsg_config_showreverse: {
-      key: "qmsg-config-showreverse",
-      defaultValue: false
-    },
-    /** Cookie配置-启用 */
-    httpx_cookie_manager_enable: {
-      key: "httpx-use-cookie-enable",
-      defaultValue: false
-    },
-    /** Cookie配置-使用document.cookie */
-    httpx_cookie_manager_use_document_cookie: {
-      key: "httpx-use-document-cookie",
-      defaultValue: false
-    }
-  };
-  class HttpxCookieManager {
-    /**
-     * cookie规则，在这里填入
-     * @param cookieRule
-     * @example
-     * {
-     *     key: "cookie-example-com",
-     *     hostname: "example.com",
-     * }
-     */
-    constructor(cookieRule) {
-      __publicField(this, "$data", {
-        /** 是否启用 */
-        get enable() {
-          return Panel.getValue(
-            PanelSettingConfig.httpx_cookie_manager_enable.key,
-            PanelSettingConfig.httpx_cookie_manager_enable.defaultValue
-          );
-        },
-        /**
-         * 是否使用document.cookie
-         * + true 使用document.cookie额外添加cookie的header
-         */
-        get useDocumentCookie() {
-          return Panel.getValue(
-            PanelSettingConfig.httpx_cookie_manager_use_document_cookie.key,
-            PanelSettingConfig.httpx_cookie_manager_use_document_cookie.defaultValue
-          );
-        },
-        /**
-         * cookie规则，在这里填入
-         * @example
-         * {
-         *     key: "cookie-example-com",
-         *     hostname: "example.com",
-         * }
-         */
-        cookieRule: []
-      });
-      if (Array.isArray(cookieRule)) {
-        this.$data.cookieRule = cookieRule;
-      }
-    }
-    /**
-     * 补充cookie末尾分号
-     */
-    fixCookieSplit(str) {
-      if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
-        str += ";";
-      }
-      return str;
-    }
-    /**
-     * 合并两个cookie
-     */
-    concatCookie(targetCookie, newCookie) {
-      if (utils.isNull(targetCookie)) {
-        return newCookie;
-      }
-      targetCookie = targetCookie.trim();
-      newCookie = newCookie.trim();
-      targetCookie = this.fixCookieSplit(targetCookie);
-      if (newCookie.startsWith(";")) {
-        newCookie = newCookie.substring(1);
-      }
-      return targetCookie.concat(newCookie);
-    }
-    /**
-     * 处理cookie
-     * @param details
-     * @returns
-     */
-    handle(details) {
-      if (details.fetch) {
-        return;
-      }
-      if (!this.$data.enable) {
-        return;
-      }
-      let ownCookie = "";
-      let url = details.url;
-      if (url.startsWith("//")) {
-        url = window.location.protocol + url;
-      }
-      let urlObj = new URL(url);
-      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
-        window.location.hostname.split(".").slice(-2).join(".")
-      )) {
-        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
-      }
-      for (let index = 0; index < this.$data.cookieRule.length; index++) {
-        let rule = this.$data.cookieRule[index];
-        if (urlObj.hostname.match(rule.hostname)) {
-          let cookie = Panel.getValue(rule.key);
-          if (utils.isNull(cookie)) {
-            break;
-          }
-          ownCookie = this.concatCookie(ownCookie, cookie);
-        }
-      }
-      if (utils.isNotNull(ownCookie)) {
-        if (details.headers && details.headers["Cookie"]) {
-          details.headers.Cookie = this.concatCookie(
-            details.headers.Cookie,
-            ownCookie
-          );
-        } else {
-          details.headers["Cookie"] = ownCookie;
-        }
-        log.info(["Httpx => 设置cookie:", details]);
-      }
-      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
-        delete details.headers.Cookie;
-      }
-    }
-  }
-  const httpxCookieManager = new HttpxCookieManager([]);
   const CommonUtil = {
     /**
      * 添加屏蔽CSS
@@ -423,6 +279,23 @@
       url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css"
     }
   };
+  const PanelSettingConfig = {
+    /** Toast位置 */
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom"
+    },
+    /** 最多显示的数量 */
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3
+    },
+    /** 逆序弹出 */
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false
+    }
+  };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
@@ -515,7 +388,6 @@
     logDetails: DEBUG
   });
   httpx.interceptors.request.use((data) => {
-    httpxCookieManager.handle(data);
     return data;
   });
   httpx.interceptors.response.use(void 0, (data) => {
@@ -2867,7 +2739,7 @@
       });
     }
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
+  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
     let result = {
       text,
       type: "input",
@@ -2876,6 +2748,7 @@
       props: {},
       attributes: {},
       description,
+      afterAddToUListCallBack,
       getValue() {
         return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
@@ -4532,6 +4405,7 @@
               } else {
                 Qmsg.success(`成功获取 ${nextBlackListInfo2.data.length}条数据`);
               }
+              utils.dispatchEvent($filterInput, "input");
             }
           },
           cancel: {
