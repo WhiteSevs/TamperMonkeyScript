@@ -13,7 +13,6 @@ import DOMUtils from "@whitesev/domutils";
 import Utils from "@whitesev/utils";
 import pops from "@whitesev/pops";
 import { Panel } from "./setting/panel";
-import { httpxCookieManager } from "./utils/HttpxCookieManager";
 import { CommonUtil } from "./utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
 import { createApp } from "vue";
@@ -130,7 +129,6 @@ const httpx = new utils.Httpx({
 
 // 添加请求拦截器
 httpx.interceptors.request.use((data) => {
-	httpxCookieManager.handle(data);
 	return data;
 });
 
