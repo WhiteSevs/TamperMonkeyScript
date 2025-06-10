@@ -8,7 +8,7 @@ import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { WebsiteRuleDataKey } from "./data/NetDiskRuleDataKey";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { CharacterMapping } from "./character-mapping/CharacterMapping";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 
 export const NetDisk = {
 	$data: {
@@ -337,21 +337,29 @@ export const NetDisk = {
 	 * @param ruleIndex 规则的索引下标
 	 * @param shareCode 分享码
 	 * @param accessCode 访问码
-	 * @param matchText 匹配到的文本
+	 * @param matchText （可选）匹配到的文本
+	 * @param [showToast=true] （可选）如果规则不存在，会进行Toast提示，默认true
 	 */
 	handleLinkShow(
 		ruleKeyName: string,
 		ruleIndex: number,
 		shareCode: string,
 		accessCode: AccessCodeType,
-		matchText?: string
+		matchText?: string,
+		showToast: boolean = true
 	) {
-		let ruleConfig = NetDisk.$rule.ruleOption[ruleKeyName][ruleIndex];
-		if (ruleConfig == void 0) {
-			Qmsg.error("BUG: 获取uiLink规则失败");
-			log.error("BUG: 分析参数", ruleKeyName, ruleIndex, shareCode, accessCode);
-			throw new TypeError("获取uiLink规则失败");
+		let checkFlag = this.checkHasRuleOption(ruleKeyName, ruleIndex);
+		if (!checkFlag) {
+			log.error(`BUG: ${ruleKeyName}不存在，分析参数`, {
+				ruleKeyName,
+				ruleIndex,
+				shareCode,
+				accessCode,
+			});
+			showToast && Qmsg.error(`规则：${ruleKeyName}不存在`);
+			return;
 		}
+		let ruleConfig = NetDisk.$rule.ruleOption[ruleKeyName][ruleIndex];
 		let uiLink = NetDiskRuleUtils.replaceParam(ruleConfig["uiLinkShow"], {
 			shareCode: shareCode,
 		});
@@ -410,5 +418,20 @@ export const NetDisk = {
 			isForceAccessCode,
 			matchText,
 		};
+	},
+	/**
+	 * 判断规则是否存在
+	 */
+	checkHasRuleOption(ruleKeyName: string, ruleIndex?: number) {
+		let ruleConfig = NetDisk.$rule.ruleOption?.[ruleKeyName];
+		if (!Array.isArray(ruleConfig)) {
+			return false;
+		}
+		if (typeof ruleIndex === "number") {
+			if (ruleIndex < 0 || ruleConfig.length <= ruleIndex) {
+				return false;
+			}
+		}
+		return true;
 	},
 };

@@ -69,6 +69,9 @@ export const NetDiskNewAccessCodeView = function (
 							userInputAccessCode,
 							void 0
 						);
+						if (!uiLink) {
+							return;
+						}
 						let currentItemSelector = `.netdisk-url a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
 						let currentHistoryItemSelector = `.netdiskrecord-link a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
 						let currentItemElement =

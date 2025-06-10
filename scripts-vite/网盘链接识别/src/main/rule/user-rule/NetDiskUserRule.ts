@@ -16,7 +16,7 @@ import { NetDiskParse } from "../../parse/NetDiskParse";
 import { NetDiskRequire } from "./NetDiskRequire";
 import { NetDiskUI } from "../../ui/NetDiskUI";
 import { NetDiskRuleDataKEY } from "@/main/data/NetDiskRuleDataKey";
-import { StorageUtils } from "@/utils/StorageUtils";
+import { StorageUtils } from "@components/utils/StorageUtils";
 import { NetDiskRuleUtils } from "../NetDiskRuleUtils";
 import {
 	NetDiskUserRuleReplaceParam_matchRange_html,
@@ -26,11 +26,11 @@ import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary"
 import type {
 	RulePanelContentOption,
 	RuleSubscribeOption,
-} from "@/utils/RulePanelView";
+} from "@components/utils/RulePanelView";
 import { NetDiskUserRuleUI } from "./NetDiskUserRuleUI";
-import { PanelUISize } from "@/setting/panel-ui-size";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { PROPS_STORAGE_API } from "@/setting/panel-config";
+import { PROPS_STORAGE_API } from "@components/setting/panel-config";
 import { UIInput } from "@/setting/components/ui-input";
 import { NetDiskUserRuleSubscribeRule } from "./NetDiskUserRuleSubscribeRule";
 
@@ -1412,7 +1412,7 @@ export const NetDiskUserRule = {
 					"",
 					void 0,
 					"",
-					true
+					false
 				);
 				Reflect.set(
 					version_template.props!,

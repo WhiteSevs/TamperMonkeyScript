@@ -6,7 +6,6 @@ import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskUI } from "../../ui/NetDiskUI";
 import { NetDiskView } from "../NetDiskView";
 import indexCSS from "./index.css?raw";
-import { Panel } from "@/setting/panel";
 
 export const NetDiskHistoryMatchView = {
 	/**
@@ -20,7 +19,7 @@ export const NetDiskHistoryMatchView = {
 	/**
 	 * 分页
 	 */
-	dataPaging: void 0 as any,
+	dataPaging: void 0 as any as (typeof DataPaging)["prototype"],
 	/**
 	 * 显示弹窗
 	 */
@@ -29,16 +28,13 @@ export const NetDiskHistoryMatchView = {
 		let dataHTML = "";
 		let that = this;
 		data = this.orderNetDiskHistoryMatchData(data);
-		for (let index = 0; index < 10; index++) {
-			if (data[index]) {
-				dataHTML += that.getTableHTML(data[index]).html;
-			}
-		}
 		dataHTML = /*html*/ `
         <div class="netdiskrecord-search">
             <input type="text" placeholder="搜索链接/网址/网址标题，可正则搜索">
         </div>
-        <div class="netdiskrecord-table"><ul>${dataHTML}</ul></div>
+        <div class="netdiskrecord-table">
+			<ul></ul>
+		</div>
         <div class="netdiskrecord-page">
 
         </div>`;
@@ -55,29 +51,35 @@ export const NetDiskHistoryMatchView = {
 				btn: {
 					reverse: true,
 					position: "space-between",
-					ok: {
-						enable: true,
-						callback(event) {
-							event.close();
+					close: {
+						callback(details) {
+							details.close();
 							// @ts-ignore
 							NetDiskUI.Alias.historyAlias = void 0;
 						},
 					},
-					close: {
-						callback(event) {
-							event.close();
+					ok: {
+						enable: false,
+						callback(details) {
+							details.close();
 							// @ts-ignore
 							NetDiskUI.Alias.historyAlias = void 0;
 						},
 					},
 					cancel: {
-						enable: false,
+						enable: true,
+						text: "关闭",
+						callback(details) {
+							details.close();
+							// @ts-ignore
+							NetDiskUI.Alias.historyAlias = void 0;
+						},
 					},
 					other: {
 						enable: true,
 						text: `清空所有(${data.length})`,
 						type: "xiaomi-primary",
-						callback: (event) => {
+						callback: () => {
 							NetDiskPops.confirm({
 								title: {
 									text: "删除",
@@ -90,29 +92,23 @@ export const NetDiskHistoryMatchView = {
 								btn: {
 									ok: {
 										enable: true,
-										callback(okEvent) {
+										callback(clearAllDialog) {
 											that.clearStorageData();
-											DOMUtils.remove(
-												NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll(
-													".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul li"
-												)
-											);
-											okEvent.close();
-											DOMUtils.html(
+											that.clearLinkElements();
+											that.clearPageNavigator();
+											clearAllDialog.close();
+											let $recordPage =
 												NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLElement>(
-													".whitesevPopNetDiskHistoryMatch .netdiskrecord-page"
-												)!,
-												""
-											);
+													".netdiskrecord-page"
+												)!;
+											let $btnOther =
+												NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLElement>(
+													".pops-confirm-btn-other"
+												)!;
+											DOMUtils.html($recordPage, "");
 											DOMUtils.text(
-												NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLElement>(
-													".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
-												)!,
-												DOMUtils.text(
-													NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLElement>(
-														".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
-													)!
-												).replace(/[\d]+/gi, "0")
+												$btnOther,
+												DOMUtils.text($btnOther).replace(/[\d]+/gi, "0")
 											);
 										},
 									},
@@ -137,6 +133,7 @@ export const NetDiskHistoryMatchView = {
 			},
 			NetDiskUI.popsStyle.historyMatchView
 		);
+		this.addLinkElements(data.slice(0, 9));
 		this.setDataPaging(data);
 		this.setEvent(NetDiskUI.Alias.historyAlias.$shadowRoot);
 		this.setSearchEvent();
@@ -149,16 +146,38 @@ export const NetDiskHistoryMatchView = {
 		);
 	},
 	/**
-	 * 获取CSS
+	 * 获取链接项的容器
 	 */
-	getCSS() {},
+	getLinkContainer() {
+		let $linkContainer =
+			NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLUListElement>(
+				".netdiskrecord-table ul"
+			)!;
+		return $linkContainer;
+	},
 	/**
-	 * 获取显示出的每一项的html
+	 * 添加链接元素
+	 */
+	addLinkElements(data: NetDiskHistoryDataOption | NetDiskHistoryDataOption[]) {
+		if (!Array.isArray(data)) {
+			data = [data];
+		}
+		let documentFragment = document.createDocumentFragment();
+		for (let index = 0; index < data.length; index++) {
+			let dataItem = data[index];
+			let $item = this.createLinkItemElementInfo(dataItem);
+			documentFragment.appendChild($item.$liItemContainer);
+		}
+		let $linkContainer = this.getLinkContainer();
+		$linkContainer.appendChild(documentFragment);
+	},
+	/**
+	 * 获取显示出的每一项的信息
 	 * @param data
 	 */
-	getTableHTML(data: NetDiskHistoryDataOption) {
+	createLinkItemElementInfo(data: NetDiskHistoryDataOption) {
 		/** 获取处理后的显示的链接 */
-		let netDiskURL = NetDisk.handleLinkShow(
+		let uiLink = NetDisk.handleLinkShow(
 			data.ruleKeyName,
 			data.ruleIndex,
 			data.shareCode,
@@ -169,7 +188,7 @@ export const NetDiskHistoryMatchView = {
 			innerHTML: /*html*/ `
 			<div class="netdiskrecord-link">
 				<p>链接</p>
-				<a  href="javascript:;" isvisited="false">${netDiskURL}</a>
+				<a  href="javascript:;" isvisited="false">${uiLink}</a>
 			</div>
 			<div class="netdiskrecord-icon">
 				<p>网盘</p>
@@ -269,15 +288,29 @@ export const NetDiskHistoryMatchView = {
 		};
 	},
 	/**
+	 * 清空链接元素
+	 */
+	clearLinkElements() {
+		let $liItemContainer = this.getLinkContainer();
+		DOMUtils.empty($liItemContainer);
+	},
+	/**
+	 * 清空分页元素
+	 */
+	clearPageNavigator() {
+		DOMUtils.remove(
+			NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll<HTMLElement>(
+				".netdiskrecord-page > *"
+			)
+		);
+	},
+	/**
 	 * 设置只执行一次的事件
 	 * @param target
 	 */
 	setEvent(target: HTMLElement | ShadowRoot) {
 		let that = this;
-		NetDiskUI.view.setNetDiskUrlClickEvent(
-			target,
-			".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a"
-		);
+		NetDiskUI.view.setNetDiskUrlClickEvent(target, ".netdiskrecord-link a");
 
 		/**
 		 * 设置删除按钮点击事件
@@ -285,13 +318,14 @@ export const NetDiskHistoryMatchView = {
 		DOMUtils.on(
 			target,
 			"click",
-			".whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete",
+			".netdiskrecord-functions button.btn-delete",
 			function (event) {
+				let $btnOther = target.querySelector<HTMLElement>(
+					".pops-confirm-btn-other"
+				)!;
 				/* 删除中的遮罩层 */
 				let deleteLoading = NetDiskPops.loading({
-					parent: target.querySelector<HTMLUListElement>(
-						".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul"
-					)!,
+					parent: that.getLinkContainer(),
 					content: {
 						text: "删除中...",
 					},
@@ -303,11 +337,7 @@ export const NetDiskHistoryMatchView = {
 				clickNode.closest("li")?.remove();
 				that.deleteStorageData(dataJSON);
 				deleteLoading?.close();
-				let totalNumberText = DOMUtils.text(
-					target.querySelector<HTMLElement>(
-						".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
-					)!
-				);
+				let totalNumberText = DOMUtils.text($btnOther);
 				let totalNumberMatch = totalNumberText.match(/[\d]+/gi)!;
 				let totalNumber = parseInt(
 					totalNumberMatch[totalNumberMatch.length - 1]
@@ -317,12 +347,7 @@ export const NetDiskHistoryMatchView = {
 					/[\d]+/gi,
 					totalNumber.toString()
 				);
-				DOMUtils.text(
-					target.querySelector<HTMLElement>(
-						".whitesevPopNetDiskHistoryMatch .pops-confirm-btn-other"
-					)!,
-					totalNumberText
-				);
+				DOMUtils.text($btnOther, totalNumberText);
 				let data = that.getStorageData();
 				data = that.orderNetDiskHistoryMatchData(data);
 				that.dataPaging.refresh(data);
@@ -335,28 +360,11 @@ export const NetDiskHistoryMatchView = {
 	 * @param data
 	 * @param page
 	 */
-	pageChangeCallBack(data: any[], page: number) {
+	pageChangeCallBack(data: NetDiskHistoryDataOption[], page: number) {
 		let startIndex = (page - 1) * 10;
-		let dataHTML = "";
-		for (let index = 0; index < 10; index++) {
-			if (data[startIndex]) {
-				dataHTML += this.getTableHTML(data[startIndex]).html;
-			} else {
-				break;
-			}
-			startIndex++;
-		}
-		NetDiskUI.Alias.historyAlias.$shadowRoot
-			.querySelectorAll(
-				".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
-			)
-			.forEach((ele) => ele.remove());
-		DOMUtils.append(
-			NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLUListElement>(
-				".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul"
-			)!,
-			dataHTML
-		);
+		let startData = data.slice(startIndex, startIndex + 9);
+		this.clearLinkElements();
+		this.addLinkElements(startData);
 	},
 	/**
 	 * 设置分页
@@ -387,96 +395,71 @@ export const NetDiskHistoryMatchView = {
 	 */
 	setSearchEvent() {
 		let isSeaching = false; /* 当前搜索的状态 */
-		let searchLoading = void 0 as any; /* 搜索中的遮罩层 */
+		let $searchLoading = void 0 as
+			| undefined
+			| ReturnType<(typeof NetDiskPops)["loading"]>; /* 搜索中的遮罩层 */
 		let that = this;
 		function searchEvent() {
 			if (isSeaching) {
 				return;
 			}
 			isSeaching = true;
-			searchLoading = NetDiskPops.loading({
-				parent:
-					NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLUListElement>(
-						".whitesevPopNetDiskHistoryMatch .pops-confirm-content ul"
-					)!,
+			$searchLoading = NetDiskPops.loading({
+				parent: that.getLinkContainer(),
 				content: {
 					text: "搜索中...",
 				},
 				only: true,
 				addIndexCSS: false,
 			});
-			let inputText = NetDiskUI.Alias.historyAlias.$shadowRoot
+			let searchText = NetDiskUI.Alias.historyAlias.$shadowRoot
 				.querySelector<HTMLInputElement>(
 					".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input"
 				)!
 				.value.trim();
 			let data = that.getStorageData();
 			data = that.orderNetDiskHistoryMatchData(data);
-			if (inputText === "") {
+			if (searchText === "") {
 				/* 输入空就关闭遮罩层且恢复style */
-				let historyDataHTML = "";
-				data.forEach((item, index) => {
-					if (index > 9) {
-						return;
-					}
-					historyDataHTML += that.getTableHTML(item).html;
-				});
-				NetDiskUI.Alias.historyAlias.$shadowRoot
-					.querySelectorAll<HTMLLIElement>(
-						".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
-					)
-					.forEach((ele) => ele.remove());
-				DOMUtils.append(
-					NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLUListElement>(
-						".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul"
-					)!,
-					historyDataHTML
-				);
-				searchLoading?.close();
+				that.clearLinkElements();
+				that.clearPageNavigator();
+				that.addLinkElements(data.slice(0, 9));
+				$searchLoading?.close();
 				isSeaching = false;
 				that.setDataPaging(data);
 				return;
 			}
-			let isFind = false; /* 找到的状态 */
-
-			let isFindHTML = ""; /* 找到的链接文本 */
-			data.forEach((item) => {
-				let netDiskURL = NetDisk.handleLinkShow(
-					item.ruleKeyName,
-					item.ruleIndex,
-					item.shareCode,
-					item.accessCode,
-					item.matchText
+			log.info(`历史匹配记录-搜索：` + searchText);
+			/** 搜索到的链接 */
+			let searchData = data.filter((dataOption) => {
+				let uiLink = NetDisk.handleLinkShow(
+					dataOption.ruleKeyName,
+					dataOption.ruleIndex,
+					dataOption.shareCode,
+					dataOption.accessCode,
+					dataOption.matchText,
+					false
 				);
+				if (!uiLink) {
+					log.info(dataOption);
+				}
 				if (
-					netDiskURL.match(new RegExp(inputText, "ig")) ||
-					item.url.match(new RegExp(inputText, "ig")) ||
-					item.topURL.match(new RegExp(inputText, "ig")) ||
-					item.title.match(new RegExp(inputText, "ig"))
+					(typeof uiLink === "string" &&
+						uiLink.match(new RegExp(searchText, "i"))) ||
+					dataOption.shareCode.match(new RegExp(searchText, "i")) ||
+					dataOption.url.match(new RegExp(searchText, "i")) ||
+					dataOption.topURL.match(new RegExp(searchText, "i")) ||
+					dataOption.title.match(new RegExp(searchText, "i"))
 				) {
 					/* 匹配到 */
-					isFind = true;
-					isFindHTML += that.getTableHTML(item).html;
+					return true;
 				}
 			});
-			DOMUtils.remove(
-				NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll<HTMLLIElement>(
-					".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul li"
-				)
-			);
-			DOMUtils.append(
-				NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLUListElement>(
-					".whitesevPopNetDiskHistoryMatch .netdiskrecord-table ul"
-				)!,
-				isFindHTML
-			);
-			DOMUtils.remove(
-				NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll<HTMLElement>(
-					".whitesevPopNetDiskHistoryMatch .netdiskrecord-page > *"
-				)
-			);
-			searchLoading?.close();
-			searchLoading = void 0;
+			that.clearLinkElements();
+			that.clearPageNavigator();
+			that.addLinkElements(searchData);
+			$searchLoading?.close();
+			$searchLoading = void 0;
 			isSeaching = false;
 		}
 

@@ -5,18 +5,17 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "@/setting/panel-config";
+} from "@components/setting/panel-config";
 import type {
 	RulePanelContentOption,
-	RulePanelView,
 	RuleSubscribeOption,
-} from "@/utils/RulePanelView";
+} from "@components/utils/RulePanelView";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { NetDiskPops } from "../pops/NetDiskPops";
-import { PanelUISize } from "@/setting/panel-ui-size";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 import { CharacterMappingSubscribe } from "./CharacterMappingSubscribe";
-import { StorageUtils } from "@/utils/StorageUtils";
+import { StorageUtils } from "@components/utils/StorageUtils";
 
 /** 字符映射的存储操作Api */
 const CharacterMappingStorageApi = new StorageUtils("character-mapping-rule");
@@ -1467,7 +1466,7 @@ export const CharacterMapping = {
 					"",
 					void 0,
 					"",
-					true
+					false
 				);
 				Reflect.set(
 					version_template.props!,

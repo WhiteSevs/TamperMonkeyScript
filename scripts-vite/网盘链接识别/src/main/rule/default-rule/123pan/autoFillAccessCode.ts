@@ -1,5 +1,5 @@
 import { log, utils } from "@/env";
-import { ReactUtils } from "@/utils/ReactUtils";
+import { ReactUtils } from "@components/utils/ReactUtils";
 import Qmsg from "qmsg";
 
 export const NetDiskAutoFillAccessCode_123pan = function (

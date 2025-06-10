@@ -11,12 +11,12 @@ import { CharacterMapping } from "../character-mapping/CharacterMapping";
 import { GM_getValue } from "ViteGM";
 import { NetDiskPops } from "../pops/NetDiskPops";
 import { WebsiteRule } from "../website-rule/WebsiteRule";
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
 import { NetDiskWorkerInitError } from "./NetDiskWorkerInitError";
 import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
 import { NetDiskRuleManager } from "../NetDiskRuleManager";
-import { RulePanelView } from "@/utils/RulePanelView";
+import { RulePanelView } from "@components/utils/RulePanelView";
 
 /** Woker */
 export const NetDiskWorker = {

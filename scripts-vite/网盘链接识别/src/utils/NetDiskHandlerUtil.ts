@@ -1,5 +1,3 @@
-import { log } from "@/env";
-
 export const NetDiskHandlerUtil = {
 	/**
 	 * 替换文字

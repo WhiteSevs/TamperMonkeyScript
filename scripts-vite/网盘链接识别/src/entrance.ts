@@ -1,4 +1,4 @@
-import { Panel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { NetDisk } from "@/main/NetDisk";
 import { NetDiskRule } from "./main/rule/NetDiskRule";
 import { NetDiskUI } from "./main/ui/NetDiskUI";
@@ -10,6 +10,10 @@ import { NetDiskWorker } from "./main/worker/NetDiskWorker";
 import { NetDiskUserRule } from "./main/rule/user-rule/NetDiskUserRule";
 import { WebsiteRule } from "./main/website-rule/WebsiteRule";
 import { NetDiskRuleManager } from "./main/NetDiskRuleManager";
+import { PanelContent } from "@components/setting/panel-content";
+import { PanelUI_allSetting } from "./setting/view/all-setting";
+import { PanelMenu } from "@components/setting/panel-menu";
+import { NetDiskUserRuleUI } from "./main/rule/user-rule/NetDiskUserRuleUI";
 
 Object.assign(
 	NetDiskUI.src.icon,
@@ -24,6 +28,57 @@ NetDiskUserRule.init();
 NetDiskRule.init();
 // 初始化配置默认
 // 注册油猴菜单
+PanelContent.addContentConfig([PanelUI_allSetting]);
+PanelMenu.addMenuOption([
+	{
+		key: "showNetDiskHistoryMatch",
+		text: "⚙ 历史匹配记录",
+		autoReload: false,
+		isStoreValue: false,
+		showText(text) {
+			return text;
+		},
+		callback() {
+			NetDiskUI.netDiskHistoryMatch.show();
+		},
+	},
+	{
+		key: "ruleManager",
+		text: "⚙ 规则管理器",
+		autoReload: false,
+		isStoreValue: false,
+		showText(text) {
+			return text;
+		},
+		callback() {
+			NetDiskRuleManager.showView();
+		},
+	},
+	{
+		key: "showUserRule",
+		text: "⚙ 添加链接识别规则",
+		autoReload: false,
+		isStoreValue: false,
+		showText(text) {
+			return text;
+		},
+		callback() {
+			NetDiskUserRuleUI.show(false);
+		},
+	},
+	{
+		key: "showMatchPasteText",
+		text: "⚙ 识别文本",
+		autoReload: false,
+		isStoreValue: false,
+		showText(text) {
+			return text;
+		},
+		callback() {
+			NetDiskUI.matchPasteText.show();
+		},
+	},
+]);
 Panel.init();
 // 初始化配置数据
 NetDisk.init();

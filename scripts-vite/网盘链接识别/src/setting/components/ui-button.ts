@@ -1,8 +1,8 @@
-import { PopsPanelButtonDetails } from "@whitesev/pops/dist/types/src/components/panel/buttonType";
-import { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
-import { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
-import { PopsIconType } from "@whitesev/pops/dist/types/src/types/icon";
-import { ATTRIBUTE_INIT } from "../panel-config";
+import { UIButton as BaseUIButton } from "@components/setting/components/ui-button";
+import type { PopsPanelButtonDetails } from "@whitesev/pops/dist/types/src/components/panel/buttonType";
+import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
+import type { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
+import type { PopsIconType } from "@whitesev/pops/dist/types/src/types/icon";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 
 /**
@@ -19,6 +19,7 @@ import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/t
  * @param disable （可选）是否禁用该按钮
  */
 export const UIButton = function (
+	this: any,
 	text: string,
 	description: string | undefined,
 	buttonText: string | (() => string),
@@ -35,28 +36,10 @@ export const UIButton = function (
 		| undefined,
 	disable?: boolean | undefined | (() => boolean)
 ): PopsPanelButtonDetails {
-	let result: PopsPanelButtonDetails = {
-		text: text,
-		type: "button",
-		attributes: {},
-		description: description,
-		buttonIcon: buttonIcon,
-		buttonIsRightIcon: buttonIsRightIcon,
-		buttonIconIsLoading: buttonIconIsLoading,
-		buttonType: buttonType,
-		buttonText: buttonText,
-		callback(event: MouseEvent | PointerEvent) {
-			if (typeof clickCallBack === "function") {
-				clickCallBack(event);
-			}
-		},
-		afterAddToUListCallBack: afterAddToUListCallBack,
-	};
-	Reflect.set(result.attributes!, ATTRIBUTE_INIT, () => {
-		result.disable = Boolean(
-			typeof disable === "function" ? disable() : disable
-		);
-		return false;
-	});
+	let result = BaseUIButton.apply(
+		this,
+		// @ts-ignore
+		arguments
+	);
 	return result;
 };

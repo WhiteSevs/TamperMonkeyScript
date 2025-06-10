@@ -1,24 +1,20 @@
-import { log } from "@/env";
-import {
-	ATTRIBUTE_DEFAULT_VALUE,
-	ATTRIBUTE_KEY,
-	PROPS_STORAGE_API,
-} from "../panel-config";
-import { GM_getValue, GM_setValue } from "ViteGM";
-import type { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/switchType";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
+import { PROPS_STORAGE_API } from "@components/setting/panel-config";
+import { UISwitch as BaseUISwitch } from "@components/setting/components/ui-switch";
+import { GM_getValue, GM_setValue } from "ViteGM";
 
 /**
  * 获取checkbox按钮配置
  * @param text 文字
  * @param key 键
  * @param defaultValue 默认值
- * @param clickCallBack 点击回调
- * @param description 左边的文字下面的描述，可以是html格式
- * @param afterAddToUListCallBack 在添加到元素后触发该回调
+ * @param clickCallBack （可选）点击回调
+ * @param description （可选）左边的文字下面的描述，可以是html格式
+ * @param afterAddToUListCallBack （可选）在添加到元素后触发该回调
  */
 export const UISwitch = function (
+	this: any,
 	text: string,
 	key: string,
 	defaultValue: boolean | undefined,
@@ -33,32 +29,11 @@ export const UISwitch = function (
 		  ) => void)
 		| undefined
 ) {
-	let result: PopsPanelSwitchDetails = {
-		text: text,
-		type: "switch",
-		description: description,
-		attributes: {},
-		props: {},
-		getValue() {
-			return Boolean(
-				(this.props as any)[PROPS_STORAGE_API].get(key, defaultValue)
-			);
-		},
-		callback(event: MouseEvent | PointerEvent, __value: boolean) {
-			let value = Boolean(__value);
-			log.success(`${value ? "开启" : "关闭"} ${text}`);
-			if (typeof clickCallBack === "function") {
-				if (clickCallBack(event, value)) {
-					return;
-				}
-			}
-			(this.props as any)[PROPS_STORAGE_API].set(key, value);
-		},
-		afterAddToUListCallBack: afterAddToUListCallBack,
-	};
-
-	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
-	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+	let result = BaseUISwitch.apply(
+		this,
+		// @ts-ignore
+		arguments
+	);
 	Reflect.set(result.props!, PROPS_STORAGE_API, {
 		get<T>(key: string, defaultValue: T) {
 			return GM_getValue(key, defaultValue);

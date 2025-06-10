@@ -4,13 +4,13 @@ import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "@/setting/panel-config";
+} from "@components/setting/panel-config";
 import { UIInput } from "@/setting/components/ui-input";
 import { UIButton } from "@/setting/components/ui-button";
 import Qmsg from "qmsg";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { NetDiskPops } from "../pops/NetDiskPops";
-import { Panel, PanelContent } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { NetDiskRule } from "../rule/NetDiskRule";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import {
@@ -23,10 +23,11 @@ import panelIndexCSS from "./../view/global-setting/index.css?raw";
 import {
 	type RulePanelContentOption,
 	type RuleSubscribeOption,
-} from "@/utils/RulePanelView";
+} from "@components/utils/RulePanelView";
 import { WebsiteSubscribeRule } from "./WebsiteSubscribeRule";
-import { PanelUISize } from "@/setting/panel-ui-size";
-import { StorageUtils } from "@/utils/StorageUtils";
+import { PanelUISize } from "@components/setting/panel-ui-size";
+import { StorageUtils } from "@components/utils/StorageUtils";
+import { PanelContent } from "@components/setting/panel-content";
 
 /** 深拷贝 */
 function deepCopy<T>(obj: T): T {
@@ -389,7 +390,7 @@ export const WebsiteRule = {
 													utils.preventEvent(event);
 													// 先获取总设置和所有规则的content配置
 													let originPanelContentConfig = [
-														...PanelContent.getConfig(),
+														...PanelContent.getConfig(0),
 														...NetDiskRule.getRulePanelContent(),
 													];
 													// 新配置，原始直接覆盖是浅复制
@@ -857,7 +858,7 @@ export const WebsiteRule = {
 									utils.preventEvent(event);
 									// 先获取总设置和所有规则的content配置
 									let originPanelContentConfig = [
-										...PanelContent.getConfig(),
+										...PanelContent.getConfig(0),
 										...NetDiskRule.getRulePanelContent(),
 									];
 									// 新配置，原始直接覆盖是浅复制
@@ -1512,7 +1513,7 @@ export const WebsiteRule = {
 					"",
 					void 0,
 					"",
-					true
+					false
 				);
 				Reflect.set(
 					version_template.props!,

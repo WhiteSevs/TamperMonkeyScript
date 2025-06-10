@@ -1,4 +1,4 @@
-import { RuleSubscribe } from "@/utils/RuleSubscribe";
+import { RuleSubscribe } from "@components/utils/RuleSubscribe";
 
 export const CharacterMappingSubscribe =
 	new RuleSubscribe<CharacterMappingOption>({

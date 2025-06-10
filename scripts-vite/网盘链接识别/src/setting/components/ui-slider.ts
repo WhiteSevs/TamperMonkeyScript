@@ -1,10 +1,6 @@
-import { PopsPanelSliderDetails } from "@whitesev/pops/dist/types/src/components/panel/sliderType";
-import {
-	ATTRIBUTE_DEFAULT_VALUE,
-	ATTRIBUTE_KEY,
-	KEY,
-	PROPS_STORAGE_API,
-} from "../panel-config";
+import type { PopsPanelSliderDetails } from "@whitesev/pops/dist/types/src/components/panel/sliderType";
+import { PROPS_STORAGE_API } from "@components/setting/panel-config";
+import { UISlider as BaseUISlider } from "@components/setting/components/ui-slider";
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 /**
@@ -20,6 +16,7 @@ import { GM_getValue, GM_setValue } from "ViteGM";
  * @param step （可选）间隔
  */
 export const UISlider = function (
+	this: any,
 	text: string,
 	key: string,
 	defaultValue: number,
@@ -32,37 +29,11 @@ export const UISlider = function (
 	description?: string | undefined,
 	step?: number
 ): PopsPanelSliderDetails {
-	let result: PopsPanelSliderDetails = {
-		text: text,
-		type: "slider",
-		description: description,
-		attributes: {},
-		props: {},
-		getValue() {
-			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
-		},
-		getToolTipContent(value) {
-			if (typeof getToolTipContent === "function") {
-				return getToolTipContent(value);
-			} else {
-				return `${value}`;
-			}
-		},
-		callback(event, value) {
-			if (typeof changeCallBack === "function") {
-				if (changeCallBack(event, value)) {
-					return;
-				}
-			}
-			(this.props as any)[PROPS_STORAGE_API].set(key, value);
-		},
-		min: min,
-		max: max,
-		step: step,
-	};
-
-	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
-	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+	let result = BaseUISlider.apply(
+		this,
+		// @ts-ignore
+		arguments
+	);
 	Reflect.set(result.props!, PROPS_STORAGE_API, {
 		get<T>(key: string, defaultValue: T) {
 			return GM_getValue(key, defaultValue);

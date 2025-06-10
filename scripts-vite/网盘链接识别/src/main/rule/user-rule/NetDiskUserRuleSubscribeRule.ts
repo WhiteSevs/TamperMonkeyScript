@@ -1,10 +1,9 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { PanelUISize } from "@/setting/panel-ui-size";
-import type { RuleSubscribeOption } from "@/utils/RulePanelView";
-import { StorageUtils } from "@/utils/StorageUtils";
+import { PanelUISize } from "@components/setting/panel-ui-size";
+import type { RuleSubscribeOption } from "@components/utils/RulePanelView";
+import { StorageUtils } from "@components/utils/StorageUtils";
 import Qmsg from "qmsg";
-import { CommonUtil } from "@/utils/CommonUtil";
 
 type RuleSubscribeConstructOption = {
 	/**

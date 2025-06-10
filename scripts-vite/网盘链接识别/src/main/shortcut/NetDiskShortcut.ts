@@ -1,5 +1,5 @@
 import { log } from "@/env";
-import { ShortCut, type ShortCutOption } from "@/utils/ShortCut";
+import { ShortCut, type ShortCutOption } from "@components/utils/ShortCut";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { NetDiskGlobalSettingView } from "../view/global-setting/NetDiskGlobalSettingView";
 import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";

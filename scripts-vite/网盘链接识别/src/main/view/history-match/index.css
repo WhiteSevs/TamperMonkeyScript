@@ -1,3 +1,7 @@
+.whitesevPopNetDiskHistoryMatch .pops-confirm-content {
+	display: flex;
+	flex-direction: column;
+}
 .whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {
 }
 .whitesevPopNetDiskHistoryMatch .pops-confirm-content li {
@@ -12,17 +16,22 @@
 	padding: 10px;
 }
 .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {
-	height: 11%;
+	/*height: 11%;*/
+	flex: 0;
+	padding: 5px 0px;
 }
 .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {
-	height: calc(85% - 40px);
+	/*height: calc(85% - 40px);*/
 	overflow: auto;
+	flex: 1;
 }
 .whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	margin-top: 10px;
+	/*margin-top: 10px;*/
+	flex: 0;
+	padding: 5px 0px;
 }
 .whitesevPopNetDiskHistoryMatch
 	.pops-confirm-content

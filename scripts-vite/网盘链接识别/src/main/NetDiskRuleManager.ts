@@ -1,4 +1,7 @@
-import { RulePanelView, type RulePanelOption } from "@/utils/RulePanelView";
+import {
+	RulePanelView,
+	type RulePanelOption,
+} from "@components/utils/RulePanelView";
 import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { CharacterMapping } from "./character-mapping/CharacterMapping";
 import { WebsiteSubscribeRule } from "./website-rule/WebsiteSubscribeRule";

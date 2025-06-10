@@ -1,16 +1,16 @@
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISelect } from "../components/ui-select";
-import { UISwitch } from "../components/ui-switch";
+import { UISelect } from "@/setting/components/ui-select";
+import { UISwitch } from "@/setting/components/ui-switch";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
-import { UISlider } from "../components/ui-slider";
+import { UISlider } from "@/setting/components/ui-slider";
 import { utils } from "@/env";
 import Qmsg from "qmsg";
-import { UIButtonShortCut } from "../components/ui-button-shortcut";
+import { UIButtonShortCut } from "@/setting/components/ui-button-shortcut";
 import { NetDiskShortcut } from "@/main/shortcut/NetDiskShortcut";
-import { UIButton } from "../components/ui-button";
-import { UISelectMultiple } from "../components/ui-select-multiple";
-import { UIInput } from "../components/ui-input";
+import { UIButton } from "@/setting/components/ui-button";
+import { UISelectMultiple } from "@/setting/components/ui-select-multiple";
+import { UIInput } from "@/setting/components/ui-input";
 import DOMUtils from "@whitesev/domutils";
 
 export const PanelUI_allSetting: PopsPanelContentConfig = {

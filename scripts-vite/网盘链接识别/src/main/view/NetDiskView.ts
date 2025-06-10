@@ -384,8 +384,12 @@ export const NetDiskView = {
 					netDiskData["ruleIndex"]!,
 					shareCode,
 					netDiskData["accessCode"],
-					netDiskData["matchText"]
+					netDiskData["matchText"],
+					false
 				);
+				if (!uiLink) {
+					return;
+				}
 				let boxViewInfo = this.createViewBoxElementInfo(
 					NetDiskUI.src.icon[ruleKeyName],
 					ruleKeyName,
@@ -841,6 +845,9 @@ export const NetDiskView = {
 			accessCode,
 			matchText
 		);
+		if (!uiLink) {
+			return;
+		}
 		let boxViewInfo = this.createViewBoxElementInfo(
 			icon,
 			ruleKeyName,
@@ -899,6 +906,9 @@ export const NetDiskView = {
 			accessCode,
 			matchText
 		);
+		if (!uiLink) {
+			return;
+		}
 		let needChangeDOM =
 			NetDiskUI.Alias.uiLinkAlias.popsElement.querySelector<HTMLElement>(
 				`.netdisk-url a[data-sharecode='${shareCode}'][data-rule-index='${ruleIndex}']`
