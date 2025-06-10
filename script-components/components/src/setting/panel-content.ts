@@ -26,6 +26,8 @@ export const PanelContent = {
 	},
 	/**
 	 * 设置所有配置项，用于初始化默认的值
+	 *
+	 * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
 	 * @param configList 配置项
 	 */
 	addContentConfig(
