@@ -2458,117 +2458,118 @@
       }
     }
   };
-  const pathname = globalThis.location.pathname;
-  const search = globalThis.location.search;
-  new URLSearchParams(search);
-  const Router = {
+  const MTRouter = {
     /**
      * 克米签到页面
      */
     isKMiSign() {
-      return pathname.startsWith("/k_misign-sign.html");
+      return window.location.pathname.startsWith("/k_misign-sign.html");
     },
     /**
      * 帖子
      */
     isPost() {
-      return pathname.startsWith("/thread-") || pathname.startsWith("/forum.php") && search.startsWith("?mod=viewthread");
+      return window.location.pathname.startsWith("/thread-") || window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=viewthread");
     },
     /**
      * 首页、精华
      */
     isPage() {
-      return Boolean(pathname.match(/^\/page-([0-9]+).html/g));
+      return Boolean(window.location.pathname.match(/^\/page-([0-9]+).html/g));
     },
     /**
      * 导读链接
      */
     isGuide() {
-      return pathname.startsWith("/forum.php") && search.startsWith("?mod=guide");
+      return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=guide");
     },
     /**
      * 板块
      */
     isPlate() {
-      return Boolean(pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g));
+      return Boolean(
+        window.location.pathname.match(/\/forum-[0-9]{1,2}-[0-9]{1,2}.html/g)
+      );
     },
     /**
      * 搜索页面
      */
     isSearch() {
-      return pathname.startsWith("/search.php");
+      return window.location.pathname.startsWith("/search.php");
     },
     /**
      * 空间
      */
     isSpace() {
-      return pathname.startsWith("/home.php") && search.startsWith("?mod=space");
+      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space");
     },
     /**
      * 我的个人空间
      */
     isMySpace() {
-      return pathname.startsWith("/home.php") && search.startsWith("?mod=space&do=profile&mycenter");
+      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=profile&mycenter");
     },
     /**
      * 个人空间页的@点进去
      */
     isSpaceWithAt() {
-      return pathname.startsWith("/space-uid-");
+      return window.location.pathname.startsWith("/space-uid-");
     },
     /**
      * 社区列表
      */
     isForumList() {
-      return pathname.startsWith("/forum.php") && search.startsWith("?forumlist");
+      return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?forumlist");
     },
     /**
      * 消息提醒
      */
     isMessage() {
-      return pathname.startsWith("/home.php") && search.startsWith("?mod=space&do=notice");
+      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=notice");
     },
     /**
      * 消息提醒列表
      */
     isMessageList() {
-      return pathname.startsWith("/home.php") && search.startsWith("?mod=space&do=pm");
+      return window.location.pathname.startsWith("/home.php") && window.location.search.startsWith("?mod=space&do=pm");
     },
     /**
      * 积分商城
      */
     isPointsMall() {
-      return pathname.startsWith("/keke_integralmall-keke_integralmall.html") || pathname.startsWith("/plugin.php") && search.startsWith("?id=keke_integralmal");
+      return window.location.pathname.startsWith(
+        "/keke_integralmall-keke_integralmall.html"
+      ) || window.location.pathname.startsWith("/plugin.php") && window.location.search.startsWith("?id=keke_integralmal");
     },
     /**
      * 帖子发布/回复页面
      */
     isPostPublish() {
-      return pathname.startsWith("/forum.php") && search.startsWith("?mod=post");
+      return window.location.pathname.startsWith("/forum.php") && window.location.search.startsWith("?mod=post");
     },
     /**
      * 投票页面
      */
     isPostPublish_voting() {
-      return pathname.startsWith("/forum.php") && search.includes("&special=1") || search.includes("&fid=42");
+      return window.location.pathname.startsWith("/forum.php") && window.location.search.includes("&special=1") || window.location.search.includes("&fid=42");
     },
     /**
      * 帖子编辑页面
      */
     isPostPublish_edit() {
-      return this.isPostPublish() && search.includes("&action=edit");
+      return this.isPostPublish() && window.location.search.includes("&action=edit");
     },
     /**
      * 发帖页面，该页面是尚未存入草稿
      */
     isPostPublish_newthread() {
-      return this.isPostPublish() && search.includes("&action=newthread");
+      return this.isPostPublish() && window.location.search.includes("&action=newthread");
     },
     /**
      * 回复编辑页面
      */
     isPostPublish_reply() {
-      return this.isPostPublish() && search.includes("&action=reply");
+      return this.isPostPublish() && window.location.search.includes("&action=reply");
     }
   };
   const optimizationCSS$1 = '#comiis_foot_menu_beautify {\r\n	position: fixed;\r\n	display: inline-flex;\r\n	z-index: 90;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	width: 100%;\r\n	height: 48px;\r\n	overflow: hidden;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n#comiis_foot_menu_beautify_big {\r\n	position: fixed;\r\n	display: inline-flex;\r\n	flex-direction: column;\r\n	z-index: 92;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	width: 100%;\r\n	min-height: 120px;\r\n	overflow: hidden;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-webkit-input-placeholder {\r\n	padding-left: 10px;\r\n	color: #999;\r\n}\r\n#comiis_foot_menu_beautify input.bg_e.f_c::-moz-input-placeholder {\r\n	padding-left: 10px;\r\n	color: #999;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul li a {\r\n	display: block;\r\n	width: 22px;\r\n	height: 22px;\r\n	padding: 4px 8px;\r\n	margin: 8px 0;\r\n	position: relative;\r\n}\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n	display: inline-flex;\r\n	align-content: center;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area,\r\n#comiis_foot_menu_beautify .reply_area ul {\r\n	width: 100%;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a i {\r\n	width: 22px;\r\n	height: 22px;\r\n	line-height: 22px;\r\n	font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li a span {\r\n	position: absolute;\r\n	display: block;\r\n	font-size: 10px;\r\n	height: 14px;\r\n	line-height: 14px;\r\n	padding: 0 6px;\r\n	right: -8px;\r\n	top: 4px;\r\n	overflow: hidden;\r\n	border-radius: 20px;\r\n}\r\n#comiis_foot_menu_beautify li[data-attr="回帖"] input {\r\n	border: transparent;\r\n	border-radius: 15px;\r\n	height: 30px;\r\n	width: 100%;\r\n}\r\n#comiis_foot_menu_beautify_big .comiis_smiley_box {\r\n	padding: 6px 6px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area {\r\n	margin: 10px 0 5px 0;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_area ul {\r\n	display: inline-flex;\r\n	align-content: center;\r\n	justify-content: center;\r\n	align-items: flex-end;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] {\r\n	width: 75vw;\r\n	margin-right: 15px;\r\n}\r\n#comiis_foot_menu_beautify_big .reply_user_content {\r\n	width: 75vw;\r\n	word-wrap: break-word;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	margin: 8px 10px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new {\r\n	text-align: center;\r\n	margin-bottom: 28px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new i {\r\n	font-size: 22px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input {\r\n	width: 60px;\r\n	height: 30px;\r\n	border: transparent;\r\n	color: #fff;\r\n	background: #d1c9fc;\r\n	border-radius: 30px;\r\n	margin-bottom: 6px;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input[data-text="true"] {\r\n	background: #7a61fb;\r\n}\r\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] textarea {\r\n	padding: 10px 10px 10px 10px;\r\n	border: transparent;\r\n	border-radius: 6px;\r\n	min-height: 70px;\r\n	max-height: 180px;\r\n	background: #e9e8ec;\r\n	overflow-y: auto;\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li[data-attr="回帖"] {\r\n	width: 65%;\r\n	margin: 0 3%;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify .reply_area li:not(first-child) {\r\n	width: 7%;\r\n	text-align: -webkit-center;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area {\r\n	width: 100%;\r\n	text-align: center;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_icon a {\r\n	margin: 0 20px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area i {\r\n	font-size: 24px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area #comiis_insert_ubb_tab i {\r\n	font-size: 16px;\r\n}\r\n#comiis_foot_menu_beautify_big .other_area .menu_body {\r\n	background: #f4f4f4;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.comiis_optimization {\r\n	max-height: 140px;\r\n	overflow-y: auto;\r\n	flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.bqbox_t {\r\n	background: #fff;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.other_area\r\n	.menu_body\r\n	.comiis_smiley_box\r\n	.bqbox_t\r\n	ul#comiis_smilies_key\r\n	li\r\n	a.bg_f.b_l.b_r {\r\n	background: #f4f4f4 !important;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_pictitle_tab\r\n	#comiis_pictitle_key {\r\n	display: -webkit-box;\r\n	top: 0;\r\n	left: 0;\r\n	height: 42px;\r\n	line-height: 42px;\r\n	overflow: hidden;\r\n	overflow-x: auto;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_pictitle_tab\r\n	#comiis_pictitle_key\r\n	li {\r\n	padding: 0 10px;\r\n}\r\n#comiis_foot_menu_beautify_big\r\n	.menu_body\r\n	#comiis_insert_ubb_tab\r\n	.comiis_input_style,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab .comiis_upbox {\r\n	height: 140px;\r\n	overflow-y: auto;\r\n	flex-direction: column;\r\n}\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_hello,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_kggzs,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt,\r\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_z4a {\r\n	display: none;\r\n}\r\n@media screen and (max-width: 350px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 14.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 350px) and (max-width: 400px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 12.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 400px) and (max-width: 450px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 11%;\r\n	}\r\n}\r\n@media screen and (min-width: 450px) and (max-width: 500px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 10%;\r\n	}\r\n}\r\n@media screen and (min-width: 500px) and (max-width: 550px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 550px) and (max-width: 600px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 9%;\r\n	}\r\n}\r\n@media screen and (min-width: 600px) and (max-width: 650px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 650px) and (max-width: 700px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 8%;\r\n	}\r\n}\r\n@media screen and (min-width: 700px) and (max-width: 750px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 750px) and (max-width: 800px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 7%;\r\n	}\r\n}\r\n@media screen and (min-width: 800px) and (max-width: 850px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6.5%;\r\n	}\r\n}\r\n@media screen and (min-width: 850px) and (max-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 6%;\r\n	}\r\n}\r\n@media screen and (min-width: 1200px) {\r\n	.comiis_bqbox .bqbox_c li {\r\n		width: 4.5%;\r\n	}\r\n}\r\n#imglist_settings button {\r\n	font-size: 13.333px;\r\n	color: #9baacf;\r\n	outline: 0;\r\n	border: none;\r\n	height: 35px;\r\n	width: 80px;\r\n	border-radius: 10px;\r\n	box-shadow: 0.3rem 0.3rem 0.6rem #c8d0e7, -0.2rem -0.2rem 0.5rem #fff;\r\n	font-weight: 800;\r\n	line-height: 40px;\r\n	background: #efefef;\r\n	padding: 0;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n#imglist_settings button:active {\r\n	box-shadow: inset 0.2rem 0.2rem 0.5rem #c8d0e7,\r\n		inset -0.2rem -0.2rem 0.5rem #fff !important;\r\n	color: #638ffb !important;\r\n}\r\n\r\n#comiis_head .header_y {\r\n	display: flex;\r\n	align-content: center;\r\n	align-items: center;\r\n	justify-content: flex-end;\r\n	height: 100%;\r\n}\r\n#comiis_head .header_y input {\r\n	border: transparent;\r\n	background: 0 0;\r\n	text-align: center;\r\n	margin: 0 5px;\r\n}\r\n#comiis_head .header_y input[value="删除"] {\r\n	color: #d00;\r\n}\r\n#comiis_head .header_y input[value="保存"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="保存草稿"] {\r\n	color: #f90;\r\n}\r\n#comiis_head .header_y input[value="发表"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_head .header_y input[value="回复"] {\r\n	color: #b0ff6a;\r\n}\r\n#comiis_post_tab {\r\n	color: #000;\r\n}\r\n#comiis_pictitle_tab #imglist input {\r\n	display: none;\r\n}\r\n\r\n.comiis_post_imglist .delImg {\r\n	position: absolute;\r\n	top: -5px;\r\n	left: -5px;\r\n}\r\n\r\n.comiis_post_imglist .p_img a {\r\n	float: left;\r\n	height: 36px;\r\n}\r\n#imglist .p_img a {\r\n	float: left;\r\n	height: 36px;\r\n}\r\n#imglist .del a {\r\n	padding: 0;\r\n}\r\n';
@@ -6315,14 +6316,14 @@
      */
     repairEnterSpace() {
       log.info(`修复无法进入空间`);
-      if (Router.isSpace()) {
+      if (MTRouter.isSpace()) {
         let hrefParamsMatchArray = window.location.href.match(/home.php\?(.+)/gi);
         let href_params = hrefParamsMatchArray[hrefParamsMatchArray.length - 1];
         let params_split = href_params.split("&");
         if (params_split.length == 2 && href_params.indexOf("uid=") != -1 && href_params.indexOf("mod=space") != -1) {
           window.location.href = window.location.href + "&do=profile";
         }
-      } else if (Router.isSpaceWithAt()) {
+      } else if (MTRouter.isSpaceWithAt()) {
         let hrefParamsMatchArray = window.location.href.match(/space-uid-(.+).html/i);
         let href_params = hrefParamsMatchArray[hrefParamsMatchArray.length - 1];
         window.location.href = `${window.location.origin}/home.php?mod=space&uid=${href_params}&do=profile`;
@@ -6445,7 +6446,7 @@
     init() {
       this.registerMenu();
       let setTipForumPostList = this.getTipData();
-      if (Router.isPost()) {
+      if (MTRouter.isPost()) {
         let $kmren = document.querySelector("span.kmren");
         if ($kmren) {
           log.info("当前帖子存在需要购买主题");
@@ -6557,7 +6558,7 @@
         });
         return needTipNums;
       }
-      if (Router.isMySpace() || Router.isGuide() || Router.isForumList() || Router.isPlate()) {
+      if (MTRouter.isMySpace() || MTRouter.isGuide() || MTRouter.isForumList() || MTRouter.isPlate()) {
         let redBtn2 = document.querySelector(
           ".icon_msgs.bg_del.f_f"
         );
@@ -8540,7 +8541,7 @@
         }
         return false;
       }
-      if (Router.isGuide() || Router.isPlate() || Router.isPost()) {
+      if (MTRouter.isGuide() || MTRouter.isPlate() || MTRouter.isPost()) {
         this.getData();
         document.querySelectorAll(".comiis_forumlist .forumlist_li").forEach((item) => {
           var _a2;
@@ -8603,7 +8604,7 @@
           }
         });
       }
-      if (Router.isMessageList()) {
+      if (MTRouter.isMessageList()) {
         this.getData();
         $$(".comiis_pms_box .comiis_pmlist ul li").forEach(
           (item) => {
@@ -8740,7 +8741,7 @@
     },
     init() {
       this.registerMenu();
-      if (Router.isPost()) {
+      if (MTRouter.isPost()) {
         let allData = this.getData();
         if (!allData.enable) {
           return;
@@ -9189,7 +9190,7 @@
         });
         return productInfoList;
       }
-      if (Router.isPointsMall()) {
+      if (MTRouter.isPointsMall()) {
         return;
       }
       let allData = this.getData();
@@ -9484,7 +9485,7 @@
     },
     init() {
       this.registerMenu();
-      if (Router.isPage() || Router.isGuide() || Router.isPlate() || Router.isPost() || Router.isSearch() || Router.isSpace()) {
+      if (MTRouter.isPage() || MTRouter.isGuide() || MTRouter.isPlate() || MTRouter.isPost() || MTRouter.isSearch() || MTRouter.isSpace()) {
         let allData = this.getData();
         if (!allData.length) {
           return;
@@ -10589,7 +10590,7 @@
     $data: {
       db: new Utils.indexedDB("mt_full_reply_record", "input_text"),
       get type() {
-        return Router.isPostPublish_voting() ? "post-vote" : "post";
+        return MTRouter.isPostPublish_voting() ? "post-vote" : "post";
       },
       get tid() {
         return MTUtils.getThreadId(window.location.href);
@@ -10692,7 +10693,7 @@
         `${window.screen.height - top_height - fatie_toupiao - 48 - title_height - nav_bottom_height - 10}px`
       );
       domUtils.css("#needmessage", "marginBottom", extra_margin_bottom + "px");
-      if (Router.isPostPublish_edit() && domUtils.val("#needsubject") === "") {
+      if (MTRouter.isPostPublish_edit() && domUtils.val("#needsubject") === "") {
         domUtils.hide(".comiis_styli.comiis_flex", false);
       } else {
         domUtils.attr(
@@ -10736,9 +10737,9 @@
       let data = null;
       let save_callback = null;
       let delete_callback = null;
-      if (Router.isPostPublish_newthread()) {
+      if (MTRouter.isPostPublish_newthread()) {
         log.info(`新发布帖子的页面`);
-        if (Router.isPostPublish_voting()) {
+        if (MTRouter.isPostPublish_voting()) {
           log.info(`投票页面`);
           data = _GM_getValue(
             this.$key.noPublishVotingSerializeText
@@ -10753,7 +10754,7 @@
             _GM_deleteValue(this.$key.noPublishSerializeText);
           };
         }
-      } else if (Router.isPostPublish_edit()) {
+      } else if (MTRouter.isPostPublish_edit()) {
         log.info(`草稿的页面`);
         log.info(
           `type：${this.$data.type} tid：${this.$data.tid} pid：${this.$data.pid}`
@@ -10800,7 +10801,7 @@
             };
           }
         }
-      } else if (Router.isPostPublish_reply()) {
+      } else if (MTRouter.isPostPublish_reply()) {
         log.info(`回复页面`);
         if (Panel.getValue(
           "mt-forum-post-editorOptimizationNormal-recordInputText"
@@ -10823,7 +10824,7 @@
       if (!data) {
         return;
       }
-      if (Router.isPostPublish_voting()) {
+      if (MTRouter.isPostPublish_voting()) {
         save_callback = () => {
           let $title = that.$el.$form.querySelector(
             "input[name='subject']"
@@ -10861,7 +10862,7 @@
           return true;
         };
       } else {
-        if (Router.isPostPublish_reply()) {
+        if (MTRouter.isPostPublish_reply()) {
           save_callback = () => {
             let $content = that.$el.$form.querySelector(
               "textarea[name='message']"
@@ -10886,12 +10887,12 @@
           };
         }
       }
-      if (Router.isPostPublish_newthread()) {
+      if (MTRouter.isPostPublish_newthread()) {
         log.info(`新发布帖子的页面`);
         if (typeof save_callback === "function") {
           save_callback();
         }
-      } else if (Router.isPostPublish_edit()) {
+      } else if (MTRouter.isPostPublish_edit()) {
         log.info(`草稿的页面`);
         if (typeof save_callback === "function" && typeof delete_callback === "function") {
           __pops.confirm({
@@ -10930,7 +10931,7 @@
             height: "200px"
           });
         }
-      } else if (Router.isPostPublish_reply()) {
+      } else if (MTRouter.isPostPublish_reply()) {
         log.info(`回复页面`);
         if (typeof save_callback === "function") {
           save_callback();
@@ -10968,7 +10969,7 @@
           console.warn(result);
           return;
         }
-        let type = Router.isPostPublish_voting() ? "post-vote" : "post";
+        let type = MTRouter.isPostPublish_voting() ? "post-vote" : "post";
         let tid = MTUtils.getThreadId(window.location.href);
         let pid = MTUtils.getPostId(window.location.href);
         let localDataIndex = result.data.findIndex((item) => {
@@ -10997,7 +10998,7 @@
         ["input", "propertychange"],
         function(event) {
           let data = null;
-          if (Router.isPostPublish_voting()) {
+          if (MTRouter.isPostPublish_voting()) {
             let $title = that.$el.$form.querySelector(
               "input[name='subject']"
             );
@@ -11036,14 +11037,14 @@
               content: $content.value
             };
           }
-          if (Router.isPostPublish_newthread()) {
+          if (MTRouter.isPostPublish_newthread()) {
             log.info(`内容改变 ==> 新发布帖子的页面`);
-            if (Router.isPostPublish_voting()) {
+            if (MTRouter.isPostPublish_voting()) {
               _GM_setValue(that.$key.noPublishVotingSerializeText, data);
             } else {
               _GM_setValue(that.$key.noPublishSerializeText, data);
             }
-          } else if (Router.isPostPublish_edit()) {
+          } else if (MTRouter.isPostPublish_edit()) {
             log.info(`内容改变 ==> 草稿的页面`);
             that.$data.db.get("data").then((result) => {
               if (!result.success) {
@@ -11072,7 +11073,7 @@
               that.$data.db.save("data", result.data).then((result2) => {
               });
             });
-          } else if (Router.isPostPublish_reply()) {
+          } else if (MTRouter.isPostPublish_reply()) {
             log.info(`内容改变 ==> 回复页面`);
             Panel.execMenu(
               "mt-forum-post-editorOptimizationNormal-recordInputText",
@@ -11450,7 +11451,7 @@
       );
       let $select = $(`#select-post-section`);
       let currentSection = MTUtils.getForumId(window.location.href);
-      if (Router.isPostPublish_newthread()) {
+      if (MTRouter.isPostPublish_newthread()) {
         log.info(`发帖`);
         domUtils.on($select, "change", function() {
           let fid = domUtils.val($select);
@@ -11898,32 +11899,32 @@
       showUserUID_initCSS: false
     },
     init() {
-      if (Router.isPage() || Router.isGuide() || Router.isPlate() || Router.isPost() || Router.isSearch() || Router.isSpace()) {
+      if (MTRouter.isPage() || MTRouter.isGuide() || MTRouter.isPlate() || MTRouter.isPost() || MTRouter.isSearch() || MTRouter.isSpace()) {
         Panel.execMenuOnce("mt-show-user-uid", () => {
           this.showUserUID();
         });
       }
-      if (Router.isSearch() || Router.isGuide() || Router.isSpace() || Router.isPlate()) {
+      if (MTRouter.isSearch() || MTRouter.isGuide() || MTRouter.isSpace() || MTRouter.isPlate()) {
         Panel.execMenuOnce("mt-small-window", () => {
           MTSmallWindow.init();
         });
       }
-      if (Router.isPost()) {
+      if (MTRouter.isPost()) {
         log.info(`Router: 帖子`);
         MTForumPost.init();
-      } else if (Router.isSearch()) {
+      } else if (MTRouter.isSearch()) {
         log.info(`Router: 搜索`);
         MTSearch.init();
-      } else if (Router.isKMiSign()) {
+      } else if (MTRouter.isKMiSign()) {
         log.info(`Router: 签到`);
         MTSign.init();
-      } else if (Router.isSpace() || Router.isSpaceWithAt()) {
+      } else if (MTRouter.isSpace() || MTRouter.isSpaceWithAt()) {
         log.info(`Router: 空间`);
         MTSpace.init();
-      } else if (Router.isGuide()) {
+      } else if (MTRouter.isGuide()) {
         log.info(`Router: 导读`);
         MTGuide.init();
-      } else if (Router.isPostPublish()) {
+      } else if (MTRouter.isPostPublish()) {
         log.info("Router: 发帖页面");
         MTForumPostPublish.init();
       } else {
