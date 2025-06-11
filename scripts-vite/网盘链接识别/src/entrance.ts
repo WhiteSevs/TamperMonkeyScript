@@ -15,6 +15,11 @@ import { PanelUI_allSetting } from "./setting/view/all-setting";
 import { PanelMenu } from "@components/setting/panel-menu";
 import { NetDiskUserRuleUI } from "./main/rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskGlobalSettingView } from "./main/view/global-setting/NetDiskGlobalSettingView";
+import {
+	PanelComponents,
+	type PanelComponentsType,
+} from "@components/setting/panel-components";
+import { GM_getValue, GM_setValue } from "ViteGM";
 
 try {
 	Object.assign(NetDiskUI.src.icon, RESOURCE_ICON ?? {});
@@ -27,14 +32,35 @@ WebsiteRule.init();
 NetDiskUserRule.init();
 // 初始化规则
 NetDiskRule.init();
+// 更新面板组件存储Api
+(
+	[
+		"input",
+		"select-multiple",
+		"select",
+		"slider",
+		"switch",
+		"textarea",
+	] as PanelComponentsType[]
+).forEach((type) => {
+	PanelComponents.setStorageApi(type as PanelComponentsType, {
+		get<T>(key: string, defaultValue: T) {
+			return GM_getValue(key, defaultValue);
+		},
+		set(key: string, value: any) {
+			GM_setValue(key, value);
+		},
+	});
+});
+
 // 初始化配置默认
-// 注册油猴菜单
 PanelContent.addContentConfig([PanelUI_allSetting]);
 PanelContent.addContentConfig(NetDiskRule.getRulePanelContent());
 let settingMenu = PanelMenu.getMenuOption(0);
 settingMenu.callback = () => {
 	NetDiskGlobalSettingView.show();
 };
+// 注册油猴菜单
 PanelMenu.updateMenuOption(settingMenu);
 PanelMenu.addMenuOption([
 	{

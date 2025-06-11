@@ -1,4 +1,4 @@
-import { UIInput } from "@/setting/components/ui-input";
+import { UIInput } from "@components/setting/components/ui-input";
 
 export const NetDiskRule_chengtong: NetDiskRuleOption = {
 	/** 规则 */

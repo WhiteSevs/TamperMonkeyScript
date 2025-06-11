@@ -1,4 +1,4 @@
-import { UIInput } from "@/setting/components/ui-input";
+import { UIInput } from "@components/setting/components/ui-input";
 import { NetDiskParse_Lanzou_Config } from "./parse";
 
 export const NetDiskRule_lanzou = (): NetDiskRuleOption => {

@@ -1,6 +1,6 @@
 import { DOMUtils, httpx, log, pops, SCRIPT_NAME, utils } from "@/env";
-import { UIInput } from "@/setting/components/ui-input";
-import { UISwitch } from "@/setting/components/ui-switch";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,

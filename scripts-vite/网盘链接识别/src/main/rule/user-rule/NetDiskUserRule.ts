@@ -31,7 +31,7 @@ import { NetDiskUserRuleUI } from "./NetDiskUserRuleUI";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { PROPS_STORAGE_API } from "@components/setting/panel-config";
-import { UIInput } from "@/setting/components/ui-input";
+import { UIInput } from "@components/setting/components/ui-input";
 import { NetDiskUserRuleSubscribeRule } from "./NetDiskUserRuleSubscribeRule";
 
 const NetDiskUserRuleStorageApi = new StorageUtils("userRule");

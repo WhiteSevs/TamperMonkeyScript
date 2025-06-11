@@ -1,7 +1,7 @@
 import { httpx, log, pops, utils } from "@/env";
 import { GeneratePanelData } from "@/main/data/NetDiskDataUtils";
 import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
-import { UISwitch } from "@/setting/components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 
 const NetDiskRule_magnet_preview = {
 	MENU_KEY: "magnet-preview-tooltip-enable",

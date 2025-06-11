@@ -1,12 +1,12 @@
 import { DOMUtils, httpx, log, pops, SCRIPT_NAME, utils } from "@/env";
-import { UISwitch } from "@/setting/components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
 } from "@components/setting/panel-config";
-import { UIInput } from "@/setting/components/ui-input";
-import { UIButton } from "@/setting/components/ui-button";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UIButton } from "@components/setting/components/ui-button";
 import Qmsg from "qmsg";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { NetDiskPops } from "../pops/NetDiskPops";
