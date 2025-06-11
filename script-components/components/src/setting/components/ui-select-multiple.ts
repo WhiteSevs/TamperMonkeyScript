@@ -7,6 +7,10 @@ import {
 } from "../panel-config";
 import { Panel } from "../panel";
 import { log } from "../../base.env";
+import {
+	PanelComponents,
+	type PanelComponentsStorageApiValue,
+} from "../panel-components";
 
 /**
  * 下拉列表-多选
@@ -63,13 +67,18 @@ export const UISelectMultiple = function <T>(
 
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-	Reflect.set(result.props!, PROPS_STORAGE_API, {
-		get<T>(key: string, defaultValue: T) {
-			return Panel.getValue(key, defaultValue);
-		},
-		set(key: string, value: any) {
-			Panel.setValue(key, value);
-		},
-	});
+
+	PanelComponents.setComponentsStorageApiProperty(
+		"select-multiple",
+		result as Required<PopsPanelSelectMultipleDetails<T>>,
+		{
+			get<T>(key: string, defaultValue: T) {
+				return Panel.getValue(key, defaultValue);
+			},
+			set(key: string, value: any) {
+				Panel.setValue(key, value);
+			},
+		}
+	);
 	return result;
 };

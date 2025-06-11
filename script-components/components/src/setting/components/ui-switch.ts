@@ -8,6 +8,7 @@ import {
 	PROPS_STORAGE_API,
 } from "../panel-config";
 import { Panel } from "../panel";
+import { PanelComponents } from "../panel-components";
 
 /**
  * 获取checkbox按钮配置
@@ -59,14 +60,18 @@ export const UISwitch = function (
 
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-	Reflect.set(result.props!, PROPS_STORAGE_API, {
-		get<T>(key: string, defaultValue: T) {
-			return Panel.getValue(key, defaultValue);
-		},
-		set(key: string, value: any) {
-			Panel.setValue(key, value);
-		},
-	});
 
+	PanelComponents.setComponentsStorageApiProperty(
+		"switch",
+		result as Required<PopsPanelSwitchDetails>,
+		{
+			get<T>(key: string, defaultValue: T) {
+				return Panel.getValue(key, defaultValue);
+			},
+			set(key: string, value: any) {
+				Panel.setValue(key, value);
+			},
+		}
+	);
 	return result;
 };

@@ -5,6 +5,7 @@ import {
 	PROPS_STORAGE_API,
 } from "../panel-config";
 import { Panel } from "../panel";
+import { PanelComponents } from "../panel-components";
 
 /**
  * 获取多行输入框配置
@@ -54,14 +55,19 @@ export const UITextArea = function (
 
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-	Reflect.set(result.props!, PROPS_STORAGE_API, {
-		get<T>(key: string, defaultValue: T) {
-			return Panel.getValue(key, defaultValue);
-		},
-		set(key: string, value: any) {
-			Panel.setValue(key, value);
-		},
-	});
+
+	PanelComponents.setComponentsStorageApiProperty(
+		"switch",
+		result as Required<PopsPanelTextAreaDetails>,
+		{
+			get<T>(key: string, defaultValue: T) {
+				return Panel.getValue(key, defaultValue);
+			},
+			set(key: string, value: any) {
+				Panel.setValue(key, value);
+			},
+		}
+	);
 
 	return result;
 };

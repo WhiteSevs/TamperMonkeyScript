@@ -5,6 +5,10 @@ import {
 	PROPS_STORAGE_API,
 } from "../panel-config";
 import { Panel } from "../panel";
+import {
+	PanelComponents,
+	type PanelComponentsStorageApiValue,
+} from "../panel-components";
 
 /**
  * 获取输入框配置
@@ -59,13 +63,18 @@ export const UIInput = function <T extends boolean>(
 	};
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-	Reflect.set(result.props!, PROPS_STORAGE_API, {
-		get<T>(key: string, defaultValue: T) {
-			return Panel.getValue(key, defaultValue);
-		},
-		set(key: string, value: any) {
-			Panel.setValue(key, value);
-		},
-	});
+
+	PanelComponents.setComponentsStorageApiProperty(
+		"input",
+		result as Required<PopsPanelInputDetails>,
+		{
+			get<T>(key: string, defaultValue: T) {
+				return Panel.getValue(key, defaultValue);
+			},
+			set(key: string, value: any) {
+				Panel.setValue(key, value);
+			},
+		}
+	);
 	return result;
 };

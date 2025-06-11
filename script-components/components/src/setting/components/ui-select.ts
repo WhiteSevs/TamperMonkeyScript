@@ -6,6 +6,7 @@ import {
 } from "../panel-config";
 import { log } from "../../base.env";
 import { Panel } from "../panel";
+import { PanelComponents } from "../panel-components";
 
 /**
  * 下拉列表
@@ -69,13 +70,18 @@ export const UISelect = function <T extends any>(
 	};
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-	Reflect.set(result.props!, PROPS_STORAGE_API, {
-		get<T>(key: string, defaultValue: T) {
-			return Panel.getValue(key, defaultValue);
-		},
-		set(key: string, value: any) {
-			Panel.setValue(key, value);
-		},
-	});
+
+	PanelComponents.setComponentsStorageApiProperty(
+		"select",
+		result as Required<PopsPanelSelectDetails<T>>,
+		{
+			get<T>(key: string, defaultValue: T) {
+				return Panel.getValue(key, defaultValue);
+			},
+			set(key: string, value: any) {
+				Panel.setValue(key, value);
+			},
+		}
+	);
 	return result;
 };
