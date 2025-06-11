@@ -81,7 +81,7 @@ export const DouYin = {
 	 * 移除ads
 	 */
 	removeAds() {
-		if (DouYinRouter.isIndex() || DouYinRouter.isJingXuan()) {
+		if (DouYinRouter.isIndex()) {
 			utils
 				.waitNode<HTMLElement>(
 					() =>
@@ -96,6 +96,7 @@ export const DouYin = {
 					}
 					DOMUtils.remove($el);
 				});
+			// .basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')
 		}
 		return [addStyle(blockCSS)];
 	},
