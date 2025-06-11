@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.10
+// @version      2025.6.11
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -313,6 +313,13 @@
           );
         }
       });
+    },
+    /**
+     * html转义
+     * @param unsafe
+     */
+    escapeHtml(unsafe) {
+      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     }
   };
   const PanelSettingConfig = {
@@ -1954,7 +1961,58 @@
     DataPaging ?? window.DataPaging ?? _unsafeWindow.DataPaging
   );
   const Cryptojs = CryptoJS ?? window.CryptoJS ?? _unsafeWindow.CryptoJS;
-  const UISwitch$1 = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
+  const PanelComponents = {
+    $data: {
+      __storeApiFn: null,
+      get storeApiValue() {
+        if (!this.__storeApiFn) {
+          this.__storeApiFn = new Utils.Dictionary();
+        }
+        return this.__storeApiFn;
+      }
+    },
+    /**
+     * 获取自定义的存储接口
+     * @param type 组件类型
+     */
+    getStorageApi(type) {
+      if (!this.hasStorageApi(type)) {
+        return;
+      }
+      return this.$data.storeApiValue.get(type);
+    },
+    /**
+     * 判断是否存在自定义的存储接口
+     * @param type 组件类型
+     */
+    hasStorageApi(type) {
+      return this.$data.storeApiValue.has(type);
+    },
+    /**
+     * 设置自定义的存储接口
+     * @param type 组件类型
+     * @param storageApiValue 存储接口
+     */
+    setStorageApi(type, storageApiValue) {
+      this.$data.storeApiValue.set(type, storageApiValue);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param type 组件类型
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(type, config, storageApiValue) {
+      let propsStorageApi;
+      if (this.hasStorageApi(type)) {
+        propsStorageApi = this.getStorageApi(type);
+      } else {
+        propsStorageApi = storageApiValue;
+      }
+      Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+    }
+  };
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
@@ -1980,33 +2038,21 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+    PanelComponents.setComponentsStorageApiProperty(
+      "switch",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
-    return result;
-  };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
-    let result = UISwitch$1.apply(
-      this,
-      // @ts-ignore
-      arguments
     );
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return _GM_getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        _GM_setValue(key2, value);
-      }
-    });
     return result;
   };
-  const UIInput$1 = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
     let result = {
       text,
       type: "input",
@@ -2031,33 +2077,21 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+    PanelComponents.setComponentsStorageApiProperty(
+      "input",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
-    return result;
-  };
-  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
-    let result = UIInput$1.apply(
-      this,
-      // @ts-ignore
-      arguments
     );
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return _GM_getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        _GM_setValue(key2, value);
-      }
-    });
     return result;
   };
-  const UIButton$1 = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
     let result = {
       text,
       type: "button",
@@ -2077,17 +2111,9 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
       result.disable = Boolean(
-        typeof disable === "function" ? disable() : disable
+        disable
       );
     });
-    return result;
-  };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
-    let result = UIButton$1.apply(
-      this,
-      // @ts-ignore
-      arguments
-    );
     return result;
   };
   const NetDiskUISizeConfig = {
@@ -20171,7 +20197,7 @@
       }
     }
   };
-  const UISlider$1 = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
+  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
     let result = {
       text,
       type: "slider",
@@ -20202,33 +20228,21 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+    PanelComponents.setComponentsStorageApiProperty(
+      "slider",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
-    return result;
-  };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
-    let result = UISlider$1.apply(
-      this,
-      // @ts-ignore
-      arguments
     );
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return _GM_getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        _GM_setValue(key2, value);
-      }
-    });
     return result;
   };
-  const UISelect$1 = function(text, key, defaultValue, data, callback, description) {
+  const UISelect = function(text, key, defaultValue, data, callback, description) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -20248,38 +20262,23 @@
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
         this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof callback === "function") {
-          callback(event, value, isSelectedText);
-        }
       },
       data: selectData
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+    PanelComponents.setComponentsStorageApiProperty(
+      "select",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
-    return result;
-  };
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
-    let result = UISelect$1.apply(
-      this,
-      // @ts-ignore
-      arguments
     );
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return _GM_getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        _GM_setValue(key2, value);
-      }
-    });
     return result;
   };
   const NetDiskRule_115pan = {
@@ -24790,15 +24789,12 @@
       };
     }
   };
-  const UIButtonShortCut$1 = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {
-    let __defaultButtonText = typeof defaultButtonText === "function" ? defaultButtonText() : defaultButtonText;
-    if (typeof defaultValue === "object") {
-      shortCut.initConfig(key, defaultValue);
-    }
+  const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {
+    let __defaultButtonText = defaultButtonText;
     let getButtonText = () => {
       return shortCut.getShowText(key, __defaultButtonText);
     };
-    let result = UIButton$1(
+    let result = UIButton(
       text,
       description,
       getButtonText,
@@ -24850,15 +24846,7 @@
     });
     return result;
   };
-  const UIButtonShortCut = function(text, description, key, defaultValue, defaultButtonText, buttonType = "default", shortCut) {
-    let result = UIButtonShortCut$1.apply(
-      this,
-      // @ts-ignore
-      arguments
-    );
-    return result;
-  };
-  const UISelectMultiple$1 = function(text, key, defaultValue, data, callback, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails) {
+  const UISelectMultiple = function(text, key, defaultValue, data, callback, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -24883,43 +24871,29 @@
         });
         this.props[PROPS_STORAGE_API].set(key, value);
         log.info(`多选-选择：`, value);
-        if (typeof callback === "function") {
-          callback(selectInfo);
-        }
       },
       data: selectData
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+    PanelComponents.setComponentsStorageApiProperty(
+      "select-multiple",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
-    return result;
-  };
-  const UISelectMultiple = function(text, key, defaultValue, data, callback, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails) {
-    let result = UISelectMultiple$1.apply(
-      this,
-      // @ts-ignore
-      arguments
     );
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return _GM_getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        _GM_setValue(key2, value);
-      }
-    });
     return result;
   };
   const PanelUI_allSetting = {
     id: "netdisk-panel-config-all-setting",
-    title: "总设置",
+    title: "设置",
+    headerTitle: "总设置",
     isDefault: true,
     forms: [
       {
@@ -25786,6 +25760,23 @@
   WebsiteRule.init();
   NetDiskUserRule.init();
   NetDiskRule.init();
+  [
+    "input",
+    "select-multiple",
+    "select",
+    "slider",
+    "switch",
+    "textarea"
+  ].forEach((type) => {
+    PanelComponents.setStorageApi(type, {
+      get(key, defaultValue) {
+        return _GM_getValue(key, defaultValue);
+      },
+      set(key, value) {
+        _GM_setValue(key, value);
+      }
+    });
+  });
   PanelContent.addContentConfig([PanelUI_allSetting]);
   PanelContent.addContentConfig(NetDiskRule.getRulePanelContent());
   let settingMenu = PanelMenu.getMenuOption(0);
