@@ -1,19 +1,20 @@
 // ==UserScript==
 // @name         Demo_Script_Name
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.3.8
+// @version      2025.6.11
 // @author       WhiteSevs
-// @description  Script-Cli
+// @description  demo description
 // @license      GPL-3.0-only
-// @icon         https://favicon.yandex.net/favicon/v2/https://www.baidu.com/
+// @icon         https://avatars.githubusercontent.com/u/50544447?s=64&v=4
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
+// @grant        GM_deleteValue
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
@@ -29,8 +30,9 @@
 
   var __defProp = Object.defineProperty;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => __defNormalProp(obj, key + "" , value);
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
   var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
@@ -66,124 +68,6 @@
       defaultValue: false
     }
   };
-  class HttpxCookieManager {
-    /**
-     * cookie规则，在这里填入
-     * @param cookieRule
-     * @example
-     * {
-     *     key: "cookie-example-com",
-     *     hostname: "example.com",
-     * }
-     */
-    constructor(cookieRule) {
-      __publicField(this, "$data", {
-        /** 是否启用 */
-        get enable() {
-          return PopsPanel.getValue(
-            PanelSettingConfig.httpx_cookie_manager_enable.key,
-            PanelSettingConfig.httpx_cookie_manager_enable.defaultValue
-          );
-        },
-        /**
-         * 是否使用document.cookie
-         * + true 使用document.cookie额外添加cookie的header
-         */
-        get useDocumentCookie() {
-          return PopsPanel.getValue(
-            PanelSettingConfig.httpx_cookie_manager_use_document_cookie.key,
-            PanelSettingConfig.httpx_cookie_manager_use_document_cookie.defaultValue
-          );
-        },
-        /**
-         * cookie规则，在这里填入
-         * @example
-         * {
-         *     key: "cookie-example-com",
-         *     hostname: "example.com",
-         * }
-         */
-        cookieRule: []
-      });
-      if (Array.isArray(cookieRule)) {
-        this.$data.cookieRule = cookieRule;
-      }
-    }
-    /**
-     * 补充cookie末尾分号
-     */
-    fixCookieSplit(str) {
-      if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
-        str += ";";
-      }
-      return str;
-    }
-    /**
-     * 合并两个cookie
-     */
-    concatCookie(targetCookie, newCookie) {
-      if (utils.isNull(targetCookie)) {
-        return newCookie;
-      }
-      targetCookie = targetCookie.trim();
-      newCookie = newCookie.trim();
-      targetCookie = this.fixCookieSplit(targetCookie);
-      if (newCookie.startsWith(";")) {
-        newCookie = newCookie.substring(1);
-      }
-      return targetCookie.concat(newCookie);
-    }
-    /**
-     * 处理cookie
-     * @param details
-     * @returns
-     */
-    handle(details) {
-      if (details.fetch) {
-        return;
-      }
-      if (!this.$data.enable) {
-        return;
-      }
-      let ownCookie = "";
-      let url = details.url;
-      if (url.startsWith("//")) {
-        url = window.location.protocol + url;
-      }
-      let urlObj = new URL(url);
-      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
-        window.location.hostname.split(".").slice(-2).join(".")
-      )) {
-        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
-      }
-      for (let index = 0; index < this.$data.cookieRule.length; index++) {
-        let rule = this.$data.cookieRule[index];
-        if (urlObj.hostname.match(rule.hostname)) {
-          let cookie = PopsPanel.getValue(rule.key);
-          if (utils.isNull(cookie)) {
-            break;
-          }
-          ownCookie = this.concatCookie(ownCookie, cookie);
-        }
-      }
-      if (utils.isNotNull(ownCookie)) {
-        if (details.headers && details.headers["Cookie"]) {
-          details.headers.Cookie = this.concatCookie(
-            details.headers.Cookie,
-            ownCookie
-          );
-        } else {
-          details.headers["Cookie"] = ownCookie;
-        }
-        log.info(["Httpx => 设置cookie:", details]);
-      }
-      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
-        delete details.headers.Cookie;
-      }
-    }
-  }
-  const httpxCookieManager = new HttpxCookieManager([]);
-  const _SCRIPT_NAME_ = "Demo_Script_Name";
   const utils = Utils.noConflict();
   DOMUtils.noConflict();
   const __pops = pops;
@@ -191,7 +75,8 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
+  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -209,7 +94,7 @@
       {
         position: {
           get() {
-            return PopsPanel.getValue(
+            return Panel.getValue(
               PanelSettingConfig.qmsg_config_position.key,
               PanelSettingConfig.qmsg_config_position.defaultValue
             );
@@ -217,7 +102,7 @@
         },
         maxNums: {
           get() {
-            return PopsPanel.getValue(
+            return Panel.getValue(
               PanelSettingConfig.qmsg_config_maxnums.key,
               PanelSettingConfig.qmsg_config_maxnums.defaultValue
             );
@@ -225,7 +110,7 @@
         },
         showReverse: {
           get() {
-            return PopsPanel.getValue(
+            return Panel.getValue(
               PanelSettingConfig.qmsg_config_showreverse.key,
               PanelSettingConfig.qmsg_config_showreverse.defaultValue
             );
@@ -271,9 +156,11 @@
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand
   });
-  const httpx = new utils.Httpx(_GM_xmlhttpRequest);
+  const httpx = new utils.Httpx({
+    xmlHttpRequest: _GM_xmlhttpRequest,
+    logDetails: DEBUG
+  });
   httpx.interceptors.request.use((data) => {
-    httpxCookieManager.handle(data);
     return data;
   });
   httpx.interceptors.response.use(void 0, (data) => {
@@ -288,9 +175,6 @@
       Qmsg.error("其它错误", { consoleLogContent: true });
     }
     return data;
-  });
-  httpx.config({
-    logDetails: DEBUG
   });
   ({
     Object: {
@@ -308,12 +192,866 @@
   utils.addStyle.bind(utils);
   document.querySelector.bind(document);
   document.querySelectorAll.bind(document);
+  new utils.GM_Cookie();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      get width() {
+        if (window.innerWidth < 550) {
+          return "88vw";
+        } else if (window.innerWidth < 700) {
+          return "550px";
+        } else {
+          return "700px";
+        }
+      },
+      get height() {
+        if (window.innerHeight < 450) {
+          return "70vh";
+        } else if (window.innerHeight < 550) {
+          return "450px";
+        } else {
+          return "550px";
+        }
+      }
+    }
+  };
+  class StorageUtils {
+    /**
+     * 存储的键名，可以是多层的，如：a.b.c
+     *
+     * 那就是
+     * {
+     *  "a": {
+     *     "b": {
+     *       "c": {
+     *         ...你的数据
+     *       }
+     *     }
+     *   }
+     * }
+     * @param key
+     */
+    constructor(key) {
+      /** 存储的键名 */
+      __publicField(this, "storageKey");
+      __publicField(this, "listenerData");
+      if (typeof key === "string") {
+        let trimKey = key.trim();
+        if (trimKey == "") {
+          throw new Error("key参数不能为空字符串");
+        }
+        this.storageKey = trimKey;
+      } else {
+        throw new Error("key参数类型错误，必须是字符串");
+      }
+      this.listenerData = new Utils.Dictionary();
+    }
+    /**
+     * 获取本地值
+     */
+    getLocalValue() {
+      let localValue = _GM_getValue(this.storageKey);
+      if (localValue == null) {
+        localValue = {};
+        this.setLocalValue(localValue);
+      }
+      return localValue;
+    }
+    /**
+     * 设置本地值
+     * @param value
+     */
+    setLocalValue(value) {
+      _GM_setValue(this.storageKey, value);
+    }
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    set(key, value) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.set(localValue, key, value);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, value);
+    }
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    get(key, defaultValue) {
+      let localValue = this.getLocalValue();
+      return Reflect.get(localValue, key) ?? defaultValue;
+    }
+    /**
+     * 获取所有值
+     */
+    getAll() {
+      let localValue = this.getLocalValue();
+      return localValue;
+    }
+    /**
+     * 删除值
+     * @param key 键
+     */
+    delete(key) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.deleteProperty(localValue, key);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, void 0);
+    }
+    /**
+     * 判断是否存在该值
+     */
+    has(key) {
+      let localValue = this.getLocalValue();
+      return Reflect.has(localValue, key);
+    }
+    /**
+     * 获取所有键
+     */
+    keys() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue);
+    }
+    /**
+     * 获取所有值
+     */
+    values() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue).map(
+        (key) => Reflect.get(localValue, key)
+      );
+    }
+    /**
+     * 清空所有值
+     */
+    clear() {
+      _GM_deleteValue(this.storageKey);
+    }
+    /**
+     * 监听值改变
+     * + .set
+     * + .delete
+     * @param key 监听的键
+     * @param callback 值改变的回调函数
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = Math.random();
+      let listenerData = this.listenerData.get(key) || [];
+      listenerData.push({
+        id: listenerId,
+        key,
+        callback
+      });
+      this.listenerData.set(key, listenerData);
+      return listenerId;
+    }
+    /**
+     * 移除监听
+     * @param listenerId 监听的id或键名
+     */
+    removeValueChangeListener(listenerId) {
+      let flag = false;
+      for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+            listenerData.splice(index, 1);
+            index--;
+            flag = true;
+          }
+        }
+        this.listenerData.set(key, listenerData);
+      }
+      return flag;
+    }
+    /**
+     * 主动触发监听器
+     * @param key 键
+     * @param oldValue （可选）旧值
+     * @param newValue （可选）新值
+     */
+    triggerValueChangeListener(key, oldValue, newValue) {
+      if (!this.listenerData.has(key)) {
+        return;
+      }
+      let listenerData = this.listenerData.get(key);
+      for (let index = 0; index < listenerData.length; index++) {
+        const data = listenerData[index];
+        if (typeof data.callback === "function") {
+          let value = this.get(key);
+          let __newValue;
+          let __oldValue;
+          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+            __oldValue = oldValue;
+          } else {
+            __oldValue = value;
+          }
+          if (typeof newValue !== "undefined" && arguments.length > 2) {
+            __newValue = newValue;
+          } else {
+            __newValue = value;
+          }
+          data.callback(key, __oldValue, __newValue);
+        }
+      }
+    }
+  }
+  const PopsPanelStorageApi = new StorageUtils(KEY);
+  const PanelContent = {
+    $data: {
+      /**
+       * @private
+       */
+      __contentConfig: null,
+      get contentConfig() {
+        if (this.__contentConfig == null) {
+          this.__contentConfig = new utils.Dictionary();
+        }
+        return this.__contentConfig;
+      }
+    },
+    /**
+     * 设置所有配置项，用于初始化默认的值
+     *
+     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
+     * @param configList 配置项
+     */
+    addContentConfig(configList) {
+      if (!Array.isArray(configList)) {
+        configList = [configList];
+      }
+      let index = this.$data.contentConfig.keys().length;
+      this.$data.contentConfig.set(index, configList);
+    },
+    /**
+     * 获取所有的配置内容，用于初始化默认的值
+     */
+    getAllContentConfig() {
+      return this.$data.contentConfig.values().flat();
+    },
+    /**
+     * 获取配置内容
+     * @param index 配置索引
+     */
+    getConfig(index = 0) {
+      return this.$data.contentConfig.get(index) ?? [];
+    }
+  };
+  const PanelMenu = {
+    $data: {
+      __menuOption: [
+        {
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            Panel.showPanel(PanelContent.getConfig(0));
+          }
+        }
+      ],
+      get menuOption() {
+        return this.__menuOption;
+      }
+    },
+    init() {
+      this.initExtensionsMenu();
+    },
+    /**
+     * 初始化菜单项
+     */
+    initExtensionsMenu() {
+      if (!Panel.isTopWindow()) {
+        return;
+      }
+      GM_Menu.add(this.$data.menuOption);
+    },
+    /**
+     * 添加菜单项
+     * @param option 菜单配置
+     */
+    addMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      this.$data.menuOption.push(...option);
+    },
+    /**
+     * 更新菜单项
+     * @param option 菜单配置
+     */
+    updateMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      option.forEach((optionItem) => {
+        let findIndex = this.$data.menuOption.findIndex((it) => {
+          return it.key === optionItem.key;
+        });
+        if (findIndex !== -1) {
+          this.$data.menuOption[findIndex] = optionItem;
+        }
+      });
+    },
+    /**
+     * 获取菜单项
+     * @param index 索引
+     */
+    getMenuOption(index) {
+      return this.$data.menuOption[index];
+    }
+  };
+  const Panel = {
+    /** 数据 */
+    $data: {
+      /**
+       * @private
+       */
+      __configDefaultValueData: null,
+      /**
+       * @private
+       */
+      __onceExecMenuData: null,
+      /**
+       * @private
+       */
+      __onceExecData: null,
+      /**
+       * @private
+       */
+      __panelConfig: {},
+      $panel: null,
+      /**
+       * 菜单项的默认值
+       */
+      get configDefaultValueData() {
+        if (this.__configDefaultValueData == null) {
+          this.__configDefaultValueData = new utils.Dictionary();
+        }
+        return this.__configDefaultValueData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecMenuData() {
+        if (this.__onceExecMenuData == null) {
+          this.__onceExecMenuData = new utils.Dictionary();
+        }
+        return this.__onceExecMenuData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecData() {
+        if (this.__onceExecData == null) {
+          this.__onceExecData = new utils.Dictionary();
+        }
+        return this.__onceExecData;
+      },
+      /** 脚本名，一般用在设置的标题上 */
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
+      get panelConfig() {
+        return this.__panelConfig;
+      },
+      set panelConfig(value) {
+        this.__panelConfig = value;
+      },
+      /** 菜单项的总值在本地数据配置的键名 */
+      key: KEY,
+      /** 菜单项在attributes上配置的菜单键 */
+      attributeKeyName: ATTRIBUTE_KEY,
+      /** 菜单项在attributes上配置的菜单默认值 */
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+    },
+    init() {
+      this.initContentDefaultValue();
+      PanelMenu.init();
+    },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
+    },
+    /** 初始化菜单项的默认值保存到本地数据中 */
+    initContentDefaultValue() {
+      const initDefaultValue = (config) => {
+        if (!config.attributes) {
+          return;
+        }
+        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+          return;
+        }
+        let needInitConfig = {};
+        let key = config.attributes[ATTRIBUTE_KEY];
+        if (key != null) {
+          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
+        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (initMoreValue && typeof initMoreValue === "object") {
+          Object.assign(needInitConfig, initMoreValue);
+        }
+        let needInitConfigList = Object.keys(needInitConfig);
+        if (!needInitConfigList.length) {
+          log.warn(["请先配置键", config]);
+          return;
+        }
+        needInitConfigList.forEach((__key) => {
+          let __defaultValue = needInitConfig[__key];
+          this.setDefaultValue(__key, __defaultValue);
+        });
+      };
+      const loopInitDefaultValue = (configList) => {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
+          initDefaultValue(configItem);
+          let childForms = configItem.forms;
+          if (childForms && Array.isArray(childForms)) {
+            loopInitDefaultValue(childForms);
+          }
+        }
+      };
+      const contentConfigList = [...PanelContent.getAllContentConfig()];
+      for (let index = 0; index < contentConfigList.length; index++) {
+        let leftContentConfigItem = contentConfigList[index];
+        if (!leftContentConfigItem.forms) {
+          continue;
+        }
+        const rightContentConfigList = leftContentConfigItem.forms;
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
+        }
+      }
+    },
+    /**
+     * 设置初始化使用的默认值
+     */
+    setDefaultValue(key, defaultValue) {
+      if (this.$data.configDefaultValueData.has(key)) {
+        log.warn("请检查该key(已存在): " + key);
+      }
+      this.$data.configDefaultValueData.set(key, defaultValue);
+    },
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    setValue(key, value) {
+      PopsPanelStorageApi.set(key, value);
+    },
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    getValue(key, defaultValue) {
+      let localValue = PopsPanelStorageApi.get(key);
+      if (localValue == null) {
+        if (this.$data.configDefaultValueData.has(key)) {
+          return this.$data.configDefaultValueData.get(key);
+        }
+        return defaultValue;
+      }
+      return localValue;
+    },
+    /**
+     * 删除值
+     * @param key 键
+     */
+    deleteValue(key) {
+      PopsPanelStorageApi.delete(key);
+    },
+    /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasKey(key) {
+      return PopsPanelStorageApi.has(key);
+    },
+    /**
+     * 监听调用setValue、deleteValue
+     * @param key 需要监听的键
+     * @param callback
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(
+        key,
+        (__key, __newValue, __oldValue) => {
+          callback(key, __oldValue, __newValue);
+        }
+      );
+      return listenerId;
+    },
+    /**
+     * 移除监听
+     * @param listenerId 监听的id
+     */
+    removeValueChangeListener(listenerId) {
+      PopsPanelStorageApi.removeValueChangeListener(listenerId);
+    },
+    /**
+     * 主动触发菜单值改变的回调
+     * @param key 菜单键
+     * @param newValue 想要触发的新值，默认使用当前值
+     * @param oldValue 想要触发的旧值，默认使用当前值
+     */
+    triggerMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.onceExecMenuData.delete(key);
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag;
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      this.$data.onceExecData.delete(key);
+    },
+    /**
+     * 执行菜单
+     *
+     * @param queryKey 键|键数组
+     * @param callback 执行的回调函数
+     * @param checkExec 判断是否执行回调
+     *
+     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
+     *
+     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
+     *
+     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
+     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
+     * @param once 是否只执行一次，默认true
+     *
+     * + true （默认）只执行一次，且会监听键的值改变
+     * + false 不会监听键的值改变
+     */
+    exec(queryKey, callback, checkExec, once = true) {
+      const that = this;
+      let queryKeyFn;
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
+        queryKeyFn = () => queryKey;
+      } else {
+        queryKeyFn = queryKey;
+      }
+      let isArrayKey = false;
+      let queryKeyResult = queryKeyFn();
+      let keyList = [];
+      if (Array.isArray(queryKeyResult)) {
+        isArrayKey = true;
+        keyList = queryKeyResult;
+      } else {
+        keyList.push(queryKeyResult);
+      }
+      let findNotInDataKey = keyList.find(
+        (it) => !this.$data.configDefaultValueData.has(it)
+      );
+      if (findNotInDataKey) {
+        log.warn(`${findNotInDataKey} 键不存在`);
+        return;
+      }
+      let storageKey = JSON.stringify(keyList);
+      if (once) {
+        if (this.$data.onceExecMenuData.has(storageKey)) {
+          return;
+        }
+        this.$data.onceExecMenuData.set(storageKey, 1);
+      }
+      let storeStyleElements = [];
+      let listenerIdList = [];
+      let dynamicPushStyleNode = (value, $style) => {
+        let dynamicResultList = [];
+        if ($style instanceof HTMLStyleElement) {
+          dynamicResultList = [$style];
+        } else if (Array.isArray($style)) {
+          dynamicResultList = [
+            ...$style.filter(
+              (item) => item != null && item instanceof HTMLStyleElement
+            )
+          ];
+        }
+        {
+          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+        }
+      };
+      let getMenuValue = (key) => {
+        let value = this.getValue(key);
+        return value;
+      };
+      let clearStoreStyleElements = () => {
+        for (let index = 0; index < storeStyleElements.length; index++) {
+          let $css = storeStyleElements[index];
+          $css.remove();
+          storeStyleElements.splice(index, 1);
+          index--;
+        }
+      };
+      let __checkExec__ = () => {
+        let flag = false;
+        if (typeof checkExec === "function") {
+          flag = checkExec(keyList);
+        } else {
+          flag = keyList.every((key) => getMenuValue(key));
+        }
+        return flag;
+      };
+      let valueChange = (valueOption) => {
+        let execFlag = __checkExec__();
+        let resultList = [];
+        if (execFlag) {
+          let valueList = keyList.map((key) => this.getValue(key));
+          let $styles = callback({
+            addStyleElement: (...args) => {
+              return dynamicPushStyleNode(true, ...args);
+            },
+            value: isArrayKey ? valueList : valueList[0]
+          });
+          if ($styles instanceof HTMLStyleElement) {
+            resultList.push($styles);
+          } else if (Array.isArray($styles)) {
+            resultList.push(
+              ...$styles.filter(
+                (item) => item != null && item instanceof HTMLStyleElement
+              )
+            );
+          }
+        }
+        clearStoreStyleElements();
+        storeStyleElements = [...resultList];
+      };
+      once && keyList.forEach((key) => {
+        let listenerId = this.addValueChangeListener(
+          key,
+          (key2, newValue, oldValue) => {
+            valueChange();
+          }
+        );
+        listenerIdList.push(listenerId);
+      });
+      valueChange();
+      let result = {
+        /**
+         * 清空菜单执行情况
+         *
+         * + 清空存储的元素列表
+         * + 清空值改变的监听器
+         * + 清空存储的一次执行的键
+         */
+        clear() {
+          this.clearStoreStyleElements();
+          this.removeValueChangeListener();
+          once && that.$data.onceExecMenuData.delete(storageKey);
+        },
+        /**
+         * 清空存储的元素列表
+         */
+        clearStoreStyleElements: () => {
+          return clearStoreStyleElements();
+        },
+        /**
+         * 移除值改变的监听器
+         */
+        removeValueChangeListener: () => {
+          listenerIdList.forEach((listenerId) => {
+            this.removeValueChangeListener(listenerId);
+          });
+        }
+      };
+      return result;
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调
+     * @param key
+     * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
+     */
+    execMenu(key, callback, isReverse = false) {
+      return this.exec(
+        key,
+        (option) => {
+          return callback(option);
+        },
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            isReverse && (flag = !flag);
+            return flag;
+          });
+          return execFlag;
+        },
+        false
+      );
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     *
+     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
+     * @param key
+     * @param callback 回调
+     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     */
+    execMenuOnce(key, callback) {
+      return this.exec(
+        key,
+        callback,
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            return flag;
+          });
+          return execFlag;
+        },
+        true
+      );
+    },
+    /**
+     * 根据key执行一次
+     * @param key 键
+     * @param callback 回调
+     */
+    onceExec(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (this.$data.onceExecData.has(key)) {
+        return;
+      }
+      callback();
+      this.$data.onceExecData.set(key, 1);
+    },
+    /**
+     * 显示设置面板
+     * @param content 显示的内容配置
+     * @param [title] 标题
+     */
+    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
+      let $panel = __pops.panel({
+        ...{
+          title: {
+            text: `${SCRIPT_NAME}-设置`,
+            position: "center",
+            html: false,
+            style: ""
+          },
+          content,
+          btn: {
+            close: {
+              enable: true,
+              callback: (details, event) => {
+                details.close();
+                this.$data.$panel = null;
+              }
+            }
+          },
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: true,
+              toHide: false
+            },
+            clickCallBack: (originalRun, config) => {
+              originalRun();
+              this.$data.$panel = null;
+            }
+          },
+          width: PanelUISize.setting.width,
+          height: PanelUISize.setting.height,
+          drag: true,
+          only: true
+        },
+        ...this.$data.panelConfig
+      });
+      this.$data.$panel = $panel;
+    }
+  };
+  const DemoWebSite = {
+    init() {
+      log.info(`demo site init`);
+    }
+  };
+  const PanelComponents = {
+    $data: {
+      __storeApiFn: null,
+      get storeApiValue() {
+        if (!this.__storeApiFn) {
+          this.__storeApiFn = new Utils.Dictionary();
+        }
+        return this.__storeApiFn;
+      }
+    },
+    /**
+     * 获取自定义的存储接口
+     * @param type 组件类型
+     */
+    getStorageApi(type) {
+      if (!this.hasStorageApi(type)) {
+        return;
+      }
+      return this.$data.storeApiValue.get(type);
+    },
+    /**
+     * 判断是否存在自定义的存储接口
+     * @param type 组件类型
+     */
+    hasStorageApi(type) {
+      return this.$data.storeApiValue.has(type);
+    },
+    /**
+     * 设置自定义的存储接口
+     * @param type 组件类型
+     * @param storageApiValue 存储接口
+     */
+    setStorageApi(type, storageApiValue) {
+      this.$data.storeApiValue.set(type, storageApiValue);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param type 组件类型
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(type, config, storageApiValue) {
+      let propsStorageApi;
+      if (this.hasStorageApi(type)) {
+        propsStorageApi = this.getStorageApi(type);
+      } else {
+        propsStorageApi = storageApiValue;
+      }
+      Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+    }
+  };
   const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
     let result = {
       text,
@@ -335,14 +1073,18 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
+    PanelComponents.setComponentsStorageApiProperty(
+      "switch",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
+    );
     return result;
   };
   const UISelect = function(text, key, defaultValue, data, callback, description) {
@@ -373,14 +1115,18 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
+    PanelComponents.setComponentsStorageApiProperty(
+      "select",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
+    );
     return result;
   };
   const Component_Common = {
@@ -506,505 +1252,8 @@
       }
     ]
   };
-  const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
-      get width() {
-        return window.innerWidth < 550 ? "88vw" : "550px";
-      },
-      get height() {
-        return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    }
-  };
-  const PopsPanel = {
-    /** 数据 */
-    $data: {
-      __data: null,
-      __oneSuccessExecMenu: null,
-      __onceExec: null,
-      __listenData: null,
-      /**
-       * 菜单项的默认值
-       */
-      get data() {
-        if (PopsPanel.$data.__data == null) {
-          PopsPanel.$data.__data = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__data;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get oneSuccessExecMenu() {
-        if (PopsPanel.$data.__oneSuccessExecMenu == null) {
-          PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__oneSuccessExecMenu;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get onceExec() {
-        if (PopsPanel.$data.__onceExec == null) {
-          PopsPanel.$data.__onceExec = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__onceExec;
-      },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
-        return SCRIPT_NAME;
-      },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
-    },
-    /** 监听器 */
-    $listener: {
-      /**
-       * 值改变的监听器
-       */
-      get listenData() {
-        if (PopsPanel.$data.__listenData == null) {
-          PopsPanel.$data.__listenData = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__listenData;
-      }
-    },
-    init() {
-      let contentConfigList = this.getPanelContentConfig();
-      this.initPanelConfigDefaultValue([...contentConfigList]);
-      this.registerMenu();
-    },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
-    },
-    /** 初始化进行注册油猴菜单 */
-    registerMenu() {
-      if (!this.isTopWindow()) {
-        return;
-      }
-      GM_Menu.add([
-        {
-          key: "show_pops_panel_setting",
-          text: "⚙ 设置",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            this.showPanel();
-          }
-        }
-      ]);
-    },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initPanelConfigDefaultValue(contentConfigList) {
-      let that = this;
-      function initDefaultValue(config) {
-        if (!config.attributes) {
-          return;
-        }
-        let needInitConfig = {};
-        let key = config.attributes[ATTRIBUTE_KEY];
-        if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
-        }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-        if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
-        }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
-        }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          if (config.type !== "button") {
-            log.warn("请先配置键", config);
-          }
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
-          if (that.$data.data.has(__key)) {
-            log.warn("请检查该key(已存在): " + __key);
-          }
-          that.$data.data.set(__key, __defaultValue);
-        });
-      }
-      function loopInitDefaultValue(configList) {
-        for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
-          initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
-          }
-        }
-      }
-      for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
-          continue;
-        }
-        let rightContentConfigList = leftContentConfigItem.forms;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
-          loopInitDefaultValue(rightContentConfigList);
-        }
-      }
-    },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      locaData[key] = value;
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, value);
-      }
-    },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
-      let locaData = _GM_getValue(KEY, {});
-      let localValue = locaData[key];
-      if (localValue == null) {
-        if (this.$data.data.has(key)) {
-          return this.$data.data.get(key);
-        }
-        return defaultValue;
-      }
-      return localValue;
-    },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      Reflect.deleteProperty(locaData, key);
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
-      }
-    },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback, option) {
-      let listenerId = Math.random();
-      this.$listener.listenData.set(key, {
-        id: listenerId,
-        key,
-        callback
-      });
-      if (option) {
-        if (option.immediate) {
-          callback(key, this.getValue(key), this.getValue(key));
-        }
-      }
-      return listenerId;
-    },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
-      let deleteKey = null;
-      for (const [key, value] of this.$listener.listenData.entries()) {
-        if (value.id === listenerId) {
-          deleteKey = key;
-          break;
-        }
-      }
-      if (typeof deleteKey === "string") {
-        this.$listener.listenData.delete(deleteKey);
-      } else {
-        console.warn("没有找到对应的监听器");
-      }
-    },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
-      if (this.$listener.listenData.has(key)) {
-        let listenData = this.$listener.listenData.get(key);
-        if (typeof listenData.callback === "function") {
-          let value = this.getValue(key);
-          let __newValue = value;
-          let __oldValue = value;
-          if (typeof newValue !== "undefined" && arguments.length > 1) {
-            __newValue = newValue;
-          }
-          if (typeof oldValue !== "undefined" && arguments.length > 2) {
-            __oldValue = oldValue;
-          }
-          listenData.callback(key, __oldValue, __newValue);
-        }
-      }
-    },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
-      let locaData = _GM_getValue(KEY, {});
-      return key in locaData;
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用
-     * @param checkEnableCallBack 自定义检测菜单的值，可自行决定是否强制启用菜单，true是启用菜单，false是不启用菜单
-     */
-    execMenu(key, callback, isReverse = false, checkEnableCallBack) {
-      if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
-        throw new TypeError("key 必须是字符串或者字符串数组");
-      }
-      let runKeyList = [];
-      if (typeof key === "object" && Array.isArray(key)) {
-        runKeyList = [...key];
-      } else {
-        runKeyList.push(key);
-      }
-      let value = void 0;
-      for (let index = 0; index < runKeyList.length; index++) {
-        const runKey = runKeyList[index];
-        if (!this.$data.data.has(runKey)) {
-          log.warn(`${key} 键不存在`);
-          return;
-        }
-        let runValue = PopsPanel.getValue(runKey);
-        if (isReverse) {
-          runValue = !runValue;
-        }
-        if (typeof checkEnableCallBack === "function") {
-          let checkResult = checkEnableCallBack(runKey, runValue);
-          if (typeof checkResult === "boolean") {
-            runValue = checkResult;
-          }
-        }
-        if (!runValue) {
-          break;
-        }
-        value = runValue;
-      }
-      if (value) {
-        callback(value);
-      }
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key
-     * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
-     * @param checkEnableCallBack 自定义检测菜单的值，可自行决定是否强制启用菜单，true是启用菜单，false是不启用菜单
-     */
-    execMenuOnce(key, callback, getValueFn, handleValueChangeFn, checkEnableCallBack) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
-      }
-      if (this.$data.oneSuccessExecMenu.has(key)) {
-        return;
-      }
-      this.$data.oneSuccessExecMenu.set(key, 1);
-      let __getValue = () => {
-        let localValue = PopsPanel.getValue(key);
-        return typeof getValueFn === "function" ? getValueFn(key, localValue) : localValue;
-      };
-      let resultStyleList = [];
-      let dynamicPushStyleNode = ($style) => {
-        let __value = __getValue();
-        let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
-        }
-        if (__value) {
-          resultStyleList = resultStyleList.concat(dynamicResultList);
-        } else {
-          for (let index = 0; index < dynamicResultList.length; index++) {
-            let $css = dynamicResultList[index];
-            $css.remove();
-            dynamicResultList.splice(index, 1);
-            index--;
-          }
-        }
-      };
-      let checkMenuEnableCallBack = (currentValue) => {
-        return typeof checkEnableCallBack === "function" ? checkEnableCallBack(key, currentValue) : currentValue;
-      };
-      let changeCallBack = (currentValue) => {
-        let resultList = [];
-        if (checkMenuEnableCallBack(currentValue)) {
-          let result = callback(currentValue, dynamicPushStyleNode);
-          if (result instanceof HTMLStyleElement) {
-            resultList = [result];
-          } else if (Array.isArray(result)) {
-            resultList = [
-              ...result.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            ];
-          }
-        }
-        for (let index = 0; index < resultStyleList.length; index++) {
-          let $css = resultStyleList[index];
-          $css.remove();
-          resultStyleList.splice(index, 1);
-          index--;
-        }
-        resultStyleList = [...resultList];
-      };
-      this.addValueChangeListener(
-        key,
-        (__key, oldValue, newValue) => {
-          let __newValue = newValue;
-          if (typeof handleValueChangeFn === "function") {
-            __newValue = handleValueChangeFn(__key, newValue, oldValue);
-          }
-          changeCallBack(__newValue);
-        }
-      );
-      let value = __getValue();
-      if (value) {
-        changeCallBack(value);
-      }
-    },
-    /**
-     * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key 菜单键
-     * @param childKey 子菜单键
-     * @param callback 回调
-     * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
-     */
-    execInheritMenuOnce(key, childKey, callback, replaceValueFn) {
-      let that = this;
-      const handleInheritValue = (key2, childKey2) => {
-        let mainValue = that.getValue(key2);
-        let childValue = that.getValue(childKey2);
-        if (typeof replaceValueFn === "function") {
-          let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue != null) {
-            return changedMainValue;
-          }
-        }
-        return mainValue;
-      };
-      this.execMenuOnce(
-        key,
-        callback,
-        () => {
-          return handleInheritValue(key, childKey);
-        },
-        () => {
-          return handleInheritValue(key, childKey);
-        }
-      );
-      this.execMenuOnce(
-        childKey,
-        () => {
-        },
-        () => false,
-        () => {
-          this.triggerMenuValueChange(key);
-          return false;
-        }
-      );
-    },
-    /**
-     * 根据自定义key只执行一次
-     * @param key 自定义key
-     */
-    onceExec(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExec.has(key)) {
-        return;
-      }
-      callback();
-      this.$data.onceExec.set(key, 1);
-    },
-    /**
-     * 显示设置面板
-     */
-    showPanel() {
-      __pops.panel({
-        title: {
-          text: `${SCRIPT_NAME}-设置`,
-          position: "center",
-          html: false,
-          style: ""
-        },
-        content: this.getPanelContentConfig(),
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: true,
-            toHide: false
-          }
-        },
-        zIndex() {
-          let maxZIndex = Utils.getMaxZIndex();
-          let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-          return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-        },
-        width: PanelUISize.setting.width,
-        height: PanelUISize.setting.height,
-        drag: true,
-        only: true
-      });
-    },
-    /**
-     * 获取配置内容
-     */
-    getPanelContentConfig() {
-      let configList = [Component_Common];
-      return configList;
-    }
-  };
-  const DemoWebSite = {
-    init() {
-      log.info(`demo site init`);
-    }
-  };
-  PopsPanel.init();
+  PanelContent.addContentConfig([Component_Common]);
+  Panel.init();
   DemoWebSite.init();
 
 })(Qmsg, DOMUtils, Utils, pops);
