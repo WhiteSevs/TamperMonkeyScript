@@ -80,6 +80,9 @@ const Panel = {
 		get scriptName() {
 			return SCRIPT_NAME;
 		},
+		/**
+		 * pops.panel的默认配置
+		 */
 		get panelConfig() {
 			return this.__panelConfig;
 		},
