@@ -1,7 +1,10 @@
-import { PopsPanel } from "@/setting/setting";
 import { Image } from "@/main/image";
+import { PanelContent } from "@components/setting/panel-content";
+import { Component_Common } from "./setting/view/common";
+import { Panel } from "@components/setting/panel";
 
 (() => {
+	PanelContent.addContentConfig([Component_Common]);
 	if (!document.documentElement.hasAttribute("style")) {
 		return;
 	}
@@ -14,6 +17,6 @@ import { Image } from "@/main/image";
 	if (!document.querySelector('meta[name="viewport"]')) {
 		return;
 	}
-	PopsPanel.init();
+	Panel.init();
 	Image.init();
 })();
