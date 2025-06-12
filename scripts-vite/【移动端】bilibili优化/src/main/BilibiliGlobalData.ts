@@ -5,22 +5,27 @@ export const BilibiliGlobalData = {
 		isLogin: new Promise<boolean>(() => false),
 	},
 	$flag: {
+		isSetQueryLoginStatus: false,
 		isQueryLoginStatus: false,
 	},
-	async init() {
+	init() {
 		this.setLoginStatus();
 	},
 	setLoginStatus() {
-		let __isLogin__ = false;
+		if (this.$flag.isSetQueryLoginStatus) {
+			return;
+		}
+		this.$flag.isSetQueryLoginStatus = true;
+		let isLogin = false;
 		this.$data.isLogin = new Promise<boolean>(async (resolve) => {
 			if (!this.$flag.isQueryLoginStatus) {
 				this.$flag.isQueryLoginStatus = true;
 				let userNavInfo = await BilibiliUserApi.nav(false);
 				if (userNavInfo && userNavInfo.isLogin) {
-					__isLogin__ = true;
+					isLogin = true;
 				}
 			}
-			resolve(__isLogin__);
+			resolve(isLogin);
 		});
 	},
 };
