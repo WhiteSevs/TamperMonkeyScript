@@ -1,20 +1,20 @@
 import { DOMUtils, GM_Menu, httpx, log, pops, utils } from "@/env";
 import { NetWorkHook } from "@/hook/NetWorkHook";
-import { UIInput } from "@/setting/common-components/ui-input";
-import { UISwitch } from "@/setting/common-components/ui-switch";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
 	PROPS_STORAGE_API,
-} from "@/setting/panel-config";
-import { RuleView } from "@/utils/RuleView";
+} from "@components/setting/panel-config";
+import { RuleView } from "@components/utils/RuleView";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { M3U8Filter } from "./M3U8Filter";
-import { UITextArea } from "@/setting/common-components/ui-textarea";
+import { UITextArea } from "@components/setting/components/ui-textarea";
 import { M3U8Menu } from "./M3U8Menu";
 import { M3U8Parser } from "./M3U8Parser";
-import { PanelUISize } from "@/setting/panel-ui-size";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 
 type RuleOption = {
 	/** 唯一uuid */
