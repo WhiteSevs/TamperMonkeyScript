@@ -1,3 +1,62 @@
+declare type BilibiliNumberStatus = 0 | 1;
+/**
+ * vip 标签
+ */
+declare type BilibiliVipLabel = {
+	/**
+	 * 标签路径。
+	 */
+	path: string;
+	/**
+	 * 标签文本。
+	 */
+	text: string;
+	/**
+	 * 会员标签
+	 *
+	 * + vip: 大会员
+	 * + annual_vip: 年度大会员
+	 * + en_annual_vip: 十年大会员
+	 * + hundred_annual_vip: 百年大会员
+	 */
+	label_theme: "vip" | "annual_vip" | "en_annual_vip" | "hundred_annual_vip";
+	/**
+	 * 文本颜色。
+	 */
+	text_color: string;
+	/**
+	 * 背景样式。
+	 */
+	bg_style: number;
+	/**
+	 * 背景颜色。
+	 */
+	bg_color: string;
+	/**
+	 * 边框颜色。
+	 */
+	border_color: string;
+	/**
+	 * 是否使用图片标签。
+	 */
+	use_img_label: boolean;
+	/**
+	 * 简体中文图片标签 URL。
+	 */
+	img_label_uri_hans: string;
+	/**
+	 * 繁体中文图片标签 URL。
+	 */
+	img_label_uri_hant: string;
+	/**
+	 * 简体中文静态图片标签 URL。
+	 */
+	img_label_uri_hans_static: string;
+	/**
+	 * 繁体中文静态图片标签 URL。
+	 */
+	img_label_uri_hant_static: string;
+};
 /**
  * Bilibili 用户信息类型定义。
  */
@@ -9,7 +68,7 @@ declare interface BilibiliUserInfoType {
 	/**
 	 * 邮箱是否已验证。
 	 */
-	email_verified: 1 | 0;
+	email_verified: BilibiliNumberStatus;
 	/**
 	 * 用户头像 URL。
 	 */
@@ -53,7 +112,7 @@ declare interface BilibiliUserInfoType {
 	/**
 	 * 手机是否已验证。
 	 */
-	mobile_verified: 1 | 0;
+	mobile_verified: BilibiliNumberStatus;
 	/**
 	 * 用户余额。
 	 */
@@ -170,67 +229,7 @@ declare interface BilibiliUserInfoType {
 	/**
 	 * VIP 标签信息。
 	 */
-	vip_label: {
-		/**
-		 * 标签路径。
-		 */
-		path: string;
-
-		/**
-		 * 标签文本。
-		 */
-		text: string;
-
-		/**
-		 * 标签主题。
-		 */
-		label_theme: string;
-
-		/**
-		 * 文本颜色。
-		 */
-		text_color: string;
-
-		/**
-		 * 背景样式。
-		 */
-		bg_style: number;
-
-		/**
-		 * 背景颜色。
-		 */
-		bg_color: string;
-
-		/**
-		 * 边框颜色。
-		 */
-		border_color: string;
-
-		/**
-		 * 是否使用图片标签。
-		 */
-		use_img_label: boolean;
-
-		/**
-		 * 简体中文图片标签 URL。
-		 */
-		img_label_uri_hans: string;
-
-		/**
-		 * 繁体中文图片标签 URL。
-		 */
-		img_label_uri_hant: string;
-
-		/**
-		 * 简体中文静态图片标签 URL。
-		 */
-		img_label_uri_hans_static: string;
-
-		/**
-		 * 繁体中文静态图片标签 URL。
-		 */
-		img_label_uri_hant_static: string;
-	};
+	vip_label: BilibiliVipLabel;
 	/**
 	 * VIP 头像子脚本。
 	 */
@@ -242,147 +241,7 @@ declare interface BilibiliUserInfoType {
 	/**
 	 * VIP 详细信息。
 	 */
-	vip: {
-		/**
-		 * VIP 类型。
-		 */
-		type: number;
-
-		/**
-		 * VIP 状态。
-		 */
-		status: number;
-
-		/**
-		 * VIP 过期时间戳。
-		 */
-		due_date: number;
-
-		/**
-		 * VIP 支付类型。
-		 */
-		vip_pay_type: number;
-
-		/**
-		 * VIP 主题类型。
-		 */
-		theme_type: number;
-
-		/**
-		 * VIP 标签信息。
-		 */
-		label: {
-			/**
-			 * 标签路径。
-			 */
-			path: string;
-
-			/**
-			 * 标签文本。
-			 */
-			text: string;
-
-			/**
-			 * 标签主题。
-			 */
-			label_theme: string;
-
-			/**
-			 * 文本颜色。
-			 */
-			text_color: string;
-
-			/**
-			 * 背景样式。
-			 */
-			bg_style: number;
-
-			/**
-			 * 背景颜色。
-			 */
-			bg_color: string;
-
-			/**
-			 * 边框颜色。
-			 */
-			border_color: string;
-
-			/**
-			 * 是否使用图片标签。
-			 */
-			use_img_label: boolean;
-
-			/**
-			 * 简体中文图片标签 URL。
-			 */
-			img_label_uri_hans: string;
-
-			/**
-			 * 繁体中文图片标签 URL。
-			 */
-			img_label_uri_hant: string;
-
-			/**
-			 * 简体中文静态图片标签 URL。
-			 */
-			img_label_uri_hans_static: string;
-
-			/**
-			 * 繁体中文静态图片标签 URL。
-			 */
-			img_label_uri_hant_static: string;
-		};
-
-		/**
-		 * VIP 头像子脚本。
-		 */
-		avatar_subscript: number;
-
-		/**
-		 * VIP 昵称颜色。
-		 */
-		nickname_color: string;
-
-		/**
-		 * VIP 角色。
-		 */
-		role: number;
-
-		/**
-		 * VIP 头像子脚本 URL。
-		 */
-		avatar_subscript_url: string;
-
-		/**
-		 * TV VIP 状态。
-		 */
-		tv_vip_status: number;
-
-		/**
-		 * TV VIP 支付类型。
-		 */
-		tv_vip_pay_type: number;
-
-		/**
-		 * TV VIP 过期时间戳。
-		 */
-		tv_due_date: number;
-
-		/**
-		 * VIP 头像图标信息。
-		 */
-		avatar_icon: {
-			/**
-			 * 图标类型。
-			 */
-			icon_type: number;
-
-			/**
-			 * 图标资源。
-			 */
-			icon_resource: {};
-		};
-	};
+	vip: BilibiliVipLabel;
 	/**
 	 * 钱包信息。
 	 */
@@ -542,4 +401,193 @@ declare interface BilibiliUserFollowingInfoType {
 		desc: string;
 	};
 	[key: string]: any;
+}
+
+declare interface BilibiliUserNavInfoType {
+	/**
+	 * 是否已登录
+	 * + true 已登录
+	 * + false 未登录
+	 */
+	isLogin: boolean;
+	/**
+	 * 是否验证邮箱地址
+	 * + 0 未验证
+	 * + 1 已验证
+	 */
+	email_verified: BilibiliNumberStatus;
+	/**
+	 * 用户头像 url
+	 */
+	face: string;
+	/**
+	 * 等级信息
+	 */
+	level_info: {
+		/**
+		 * 等级
+		 */
+		current_level: number;
+		current_min: number;
+		current_exp: number;
+		next_exp: number;
+	};
+	/**
+	 * 用户mid
+	 */
+	mid: number;
+	/**
+	 * 是否验证手机号
+	 * + 0 未验证
+	 * + 1 已验证
+	 */
+	mobile_verified: BilibiliNumberStatus;
+	/**
+	 * 硬币数量
+	 */
+	money: number;
+	/**
+	 * 当前节操值（上限为70）
+	 */
+	moral: number;
+	/**
+	 * 认证信息
+	 */
+	official: {
+		role: number;
+		title: string;
+		desc: string;
+		type: number;
+	};
+	/**
+	 * 认证信息2
+	 */
+	officialVerify: {
+		type: number;
+		desc: string;
+	};
+	/**
+	 * 头像框信息
+	 */
+	pendant: {
+		pid: number;
+		name: string;
+		image: string;
+		expire: number;
+		image_enhance: string;
+		image_enhance_frame: string;
+		n_pid: number;
+	};
+	scores: number;
+	/**
+	 * 用户昵称
+	 */
+	uname: string;
+	/**
+	 * 会员到期时间（毫秒 时间戳）
+	 */
+	vipDueDate: number;
+	/**
+	 * 会员开通状态
+	 * + 0 无
+	 * + 1 有
+	 */
+	vipStatus: BilibiliNumberStatus;
+	/**
+	 * 会员类型
+	 * + 0 无
+	 * + 1 月度大会员
+	 * + 2 年度及以上大会员
+	 */
+	vipType: 0 | 1 | 2;
+	/**
+	 * 会员开通状态
+	 * + 0 无
+	 * + 1 有
+	 */
+	vip_pay_type: BilibiliNumberStatus;
+	vip_theme_type: number;
+	/**
+	 * 会员标签
+	 */
+	vip_label: BilibiliVipLabel;
+	/**
+	 * 是否显示会员图标
+	 * + 0: 不显示
+	 * + 1: 显示
+	 */
+	vip_avatar_subscript: BilibiliNumberStatus;
+	/**
+	 * 会员昵称颜色
+	 */
+	vip_nickname_color: string;
+	vip: {
+		type: number;
+		status: BilibiliNumberStatus;
+		due_date: number;
+		vip_pay_type: number;
+		theme_type: number;
+		label: BilibiliUserNavInfoType["vip_label"];
+		avatar_subscript: number;
+		nickname_color: string;
+		role: number;
+		avatar_subscript_url: string;
+		tv_vip_status: number;
+		tv_vip_pay_type: number;
+		tv_due_date: number;
+		avatar_icon: {
+			icon_type: number;
+			icon_resource: {};
+		};
+	};
+	/**
+	 * B币钱包信息
+	 */
+	wallet: {
+		/**
+		 * 登录用户mid
+		 */
+		mid: number;
+		/**
+		 * 拥有B币数
+		 */
+		bcoin_balance: number;
+		/**
+		 * 每月奖励B币数
+		 */
+		coupon_balance: number;
+		coupon_due_time: number;
+	};
+	/**
+	 * 是否拥有推广商品
+	 * + true 有
+	 * + false 无
+	 */
+	has_shop: boolean;
+	/**
+	 * 商品推广页面 url
+	 */
+	shop_url: string;
+	answer_status: number;
+	/**
+	 * 是否硬核会员
+	 * + 0 非硬核会员
+	 * + 1 硬核会员
+	 */
+	is_senior_member: BilibiliNumberStatus;
+	/**
+	 * Wbi 签名实时口令
+	 *
+	 * 该字段即使用户未登录也存在
+	 */
+	wbi_img: {
+		img_url: string;
+		sub_url: string;
+	};
+	/**
+	 * 是否是风纪委员
+	 * + true 风纪委员
+	 * + false 非风纪委员
+	 */
+	is_jury: boolean;
 }
