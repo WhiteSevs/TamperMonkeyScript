@@ -1,21 +1,21 @@
-import { PopsPanel } from "@/setting/setting";
 import blockCSS from "./css/block.css?raw";
 import { addStyle, DOMUtils, log, utils } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const XHSBlock = {
 	init() {
-		PopsPanel.execMenuOnce("pc-xhs-shieldAd", () => {
+		Panel.execMenuOnce("pc-xhs-shieldAd", () => {
 			return addStyle(blockCSS);
 		});
-		PopsPanel.execMenuOnce("pc-xhs-shield-select-text-search-position", () => {
+		Panel.execMenuOnce("pc-xhs-shield-select-text-search-position", () => {
 			return this.blockSelectTextVisibleSearchPosition();
 		});
-		PopsPanel.execMenuOnce("pc-xhs-shield-topToolbar", () => {
+		Panel.execMenuOnce("pc-xhs-shield-topToolbar", () => {
 			return this.blockTopToolbar();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("pc-xhs-shield-login-dialog", () => {
+			Panel.execMenuOnce("pc-xhs-shield-login-dialog", () => {
 				this.blockLoginContainer();
 			});
 		});

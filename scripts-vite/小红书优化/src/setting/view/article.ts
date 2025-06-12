@@ -1,6 +1,6 @@
 import { log } from "@/env";
-import { UISlider } from "../common-components/ui-slider";
-import { UISwitch } from "../common-components/ui-switch";
+import { UISlider } from "@components/setting/components/ui-slider";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const SettingUI_Article: PopsPanelContentConfig = {
@@ -16,7 +16,7 @@ const SettingUI_Article: PopsPanelContentConfig = {
 					"pc-xhs-article-showPubsliushTime",
 					false,
 					void 0,
-					""
+					"注：需要开启<code>通用</code>-<code>劫持/拦截</code>-<code>劫持Vue</code>"
 				),
 			],
 		},

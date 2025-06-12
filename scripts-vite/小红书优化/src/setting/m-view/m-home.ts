@@ -1,5 +1,5 @@
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../common-components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 
 const MSettingUI_Home: PopsPanelContentConfig = {
 	id: "little-red-book-panel-config-home",

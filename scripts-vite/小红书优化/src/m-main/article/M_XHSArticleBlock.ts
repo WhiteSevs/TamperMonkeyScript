@@ -1,5 +1,5 @@
 import { addStyle, log } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const M_XHSArticleBlock = {
 	/**

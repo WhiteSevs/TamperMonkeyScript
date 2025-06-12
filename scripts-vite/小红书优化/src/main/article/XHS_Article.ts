@@ -1,7 +1,7 @@
 import { XHSUrlApi } from "@/api/XHSUrlApi";
-import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
-import { VueUtils } from "@/utils/VueUtils";
+import { $$, addStyle, DOMUtils, log, utils } from "@/env";
+import { VueUtils } from "@components/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
 
 /**
@@ -24,12 +24,12 @@ import Qmsg from "qmsg";
 export const XHS_Article = {
 	init() {
 		if (
-			PopsPanel.getValue("pc-xhs-search-open-blank-btn") ||
-			PopsPanel.getValue("pc-xhs-search-open-blank-keyboard-enter")
+			Panel.getValue("pc-xhs-search-open-blank-btn") ||
+			Panel.getValue("pc-xhs-search-open-blank-keyboard-enter")
 		) {
 			this.optimizationSearch();
 		}
-		PopsPanel.execMenuOnce("pc-xhs-article-fullWidth", () => {
+		Panel.execMenuOnce("pc-xhs-article-fullWidth", () => {
 			return this.fullWidth();
 		});
 	},
@@ -57,7 +57,7 @@ export const XHS_Article = {
 		utils.waitNode<HTMLInputElement>("#search-input").then(($searchInput) => {
 			/* 搜索输入框 */
 			$searchInput.placeholder = "搜索小红书";
-			PopsPanel.execMenu("pc-xhs-search-open-blank-keyboard-enter", () => {
+			Panel.execMenu("pc-xhs-search-open-blank-keyboard-enter", () => {
 				DOMUtils.listenKeyboard(
 					$searchInput,
 					"keydown",
@@ -76,7 +76,7 @@ export const XHS_Article = {
 			.waitNode<HTMLDivElement>("#search-input + .input-button .search-icon")
 			.then(($searchIconBtn) => {
 				/* 右侧的搜索按钮 */
-				PopsPanel.execMenu("pc-xhs-search-open-blank-btn", () => {
+				Panel.execMenu("pc-xhs-search-open-blank-btn", () => {
 					DOMUtils.on<PointerEvent | MouseEvent>(
 						$searchIconBtn,
 						"click",
@@ -97,7 +97,7 @@ export const XHS_Article = {
 	 */
 	fullWidth() {
 		log.info("笔记宽屏");
-		let noteContainerWidth = PopsPanel.getValue(
+		let noteContainerWidth = Panel.getValue(
 			"pc-xhs-article-fullWidth-widthSize",
 			90
 		);

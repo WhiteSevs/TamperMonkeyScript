@@ -1,9 +1,16 @@
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
-import { PopsPanel } from "@/setting/setting";
 import { M_XHS } from "./m-main/M_XHS";
-import { addStyle, GM_Menu, log, utils } from "./env";
+import { addStyle, GM_Menu, log, SCRIPT_NAME, utils } from "./env";
 import { XHS } from "./main/XHS";
 import Qmsg from "qmsg";
+import { Panel } from "@components/setting/panel";
+import { PanelContent } from "@components/setting/panel-content";
+import { SettingUI_Common } from "./setting/view/common";
+import { SettingUI_Article } from "./setting/view/article";
+import { MSettingUI_Common } from "./setting/m-view/m-common";
+import { MSettingUI_Home } from "./setting/m-view/m-home";
+import { MSettingUI_Notes } from "./setting/m-view/m-note";
+import { PanelMenu } from "@components/setting/panel-menu";
 
 /* 修复一下Qmsg的loading图标问题 */
 addStyle(/*css*/ `
@@ -11,7 +18,28 @@ addStyle(/*css*/ `
     fill: none;
 }
 `);
-PopsPanel.init();
+PanelContent.addContentConfig([SettingUI_Common, SettingUI_Article]);
+PanelContent.addContentConfig([
+	MSettingUI_Common,
+	MSettingUI_Home,
+	MSettingUI_Notes,
+]);
+const defaultMenuOption = PanelMenu.getMenuOption();
+defaultMenuOption.text = "⚙ PC-设置";
+PanelMenu.updateMenuOption(defaultMenuOption);
+PanelMenu.addMenuOption({
+	key: "show_mobile_setting",
+	text: "⚙ 移动端-设置",
+	autoReload: false,
+	isStoreValue: false,
+	showText(text) {
+		return text;
+	},
+	callback: () => {
+		Panel.showPanel(PanelContent.getConfig(1), `${SCRIPT_NAME}-移动端设置`);
+	},
+});
+Panel.init();
 let isMobile = utils.isPhone();
 let CHANGE_ENV_SET_KEY = "change_env_set";
 let chooseMode = GM_getValue(CHANGE_ENV_SET_KEY);

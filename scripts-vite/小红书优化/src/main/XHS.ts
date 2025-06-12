@@ -1,25 +1,25 @@
 import { DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
 import { unsafeWindow } from "ViteGM";
 import { XHSBlock } from "./XHSBlock";
-import { XHS_Hook } from "@/hook/hook";
+import { XHS_Hook } from "@/hook/XHS_Hook";
 import { XHS_Article } from "./article/XHS_Article";
 import Qmsg from "qmsg";
 import { ScriptRouter } from "@/router/router";
+import { Panel } from "@components/setting/panel";
 
 export const XHS = {
 	init() {
-		PopsPanel.execMenuOnce("pc-xhs-hook-vue", () => {
-			XHS_Hook.webPackVue();
+		Panel.execMenuOnce("pc-xhs-hook-vue", () => {
+			XHS_Hook.hookVue();
 		});
-		PopsPanel.execMenuOnce("pc-xhs-allowCopy", () => {
+		Panel.execMenuOnce("pc-xhs-allowCopy", () => {
 			XHS.allowPCCopy();
 		});
-		PopsPanel.execMenuOnce("pc-xhs-open-blank-article", () => {
+		Panel.execMenuOnce("pc-xhs-open-blank-article", () => {
 			XHS.openBlankArticle();
 		});
 		XHSBlock.init();
-		PopsPanel.execMenuOnce("pc-xhs-article-showPubsliushTime", () => {
+		Panel.execMenuOnce("pc-xhs-article-showPubsliushTime", () => {
 			XHS_Article.transformPublishTime();
 		});
 		if (ScriptRouter.isArticle()) {

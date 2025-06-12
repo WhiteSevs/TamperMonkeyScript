@@ -1,11 +1,11 @@
 import { DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
 
 export const M_XHSHome = {
 	init() {
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("little-red-book-repariClick", () => {
+			Panel.execMenuOnce("little-red-book-repariClick", () => {
 				M_XHSHome.repariClick();
 			});
 		});
