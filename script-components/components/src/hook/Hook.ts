@@ -39,16 +39,31 @@ type HookFunctionApplyHandler = {
 	 * @returns
 	 * + void 不做处理
 	 * + object 替换所返回的内容
+	 * + false 阻止调用生成原始结果
 	 */
 	paramsHandler?: (
 		fn: Function,
 		thisArg: any,
 		argArray: any[]
-	) => {
-		fn: Function;
-		thisArg: any;
-		argArray: any[];
-	} | void;
+	) => void | {
+		/**
+		 * 函数参数信息
+		 */
+		args?: {
+			fn: Function;
+			thisArg: any;
+			argArray: any[];
+		};
+		/**
+		 * 阻止调用生成原始结果
+		 * @default false
+		 */
+		preventDefault?: boolean;
+		/**
+		 * 替换函数返回的内容
+		 */
+		result?: any;
+	};
 	/**
 	 * @returns
 	 */
@@ -67,16 +82,31 @@ type HookFunctionCallHandler = {
 	 * @returns
 	 * + void 不做处理
 	 * + object 替换所返回的内容
+	 * + false 阻止调用生成原始结果
 	 */
 	paramsHandler?: (
 		fn: Function,
 		thisArg: any,
 		argArray: any[]
-	) => {
-		fn: Function;
-		thisArg: any;
-		argArray: any[];
-	} | void;
+	) => void | {
+		/**
+		 * 函数参数信息
+		 */
+		args?: {
+			fn: Function;
+			thisArg: any;
+			argArray: any[];
+		};
+		/**
+		 * 阻止调用生成原始结果
+		 * @default false
+		 */
+		preventDefault?: boolean;
+		/**
+		 * 替换函数返回的内容
+		 */
+		result?: any;
+	};
 	/**
 	 * @returns
 	 */
@@ -388,34 +418,38 @@ export const Hook = {
 			return;
 		}
 		const that = this;
-		let originFunctionApply = unsafeWindow.Function.prototype.apply;
+		let originApply = unsafeWindow.Function.prototype.apply;
 		unsafeWindow.Function.prototype.apply = function (
-			this: Function,
-			...args: any[]
+			...args: [thisArg: any, argArray?: any]
 		): any {
 			let thisArg = args[0];
 			let argArray = args[1] as any[];
 			let fn = this;
 			for (let index = 0; index < that.$data.function_apply.length; index++) {
-				const item = that.$data.function_apply[index];
-				const result = item?.paramsHandler?.(fn, thisArg, argArray);
-				if (result != null) {
-					args[0] = result.thisArg;
-					args[1] = result.argArray;
-					fn = result.fn;
-					break;
+				let item = that.$data.function_apply[index];
+				if (typeof item.paramsHandler === "function") {
+					let handlerResult = item.paramsHandler(fn, thisArg, argArray);
+					if (handlerResult != null) {
+						if (handlerResult.args) {
+							args[0] = handlerResult.args.thisArg;
+							args[1] = handlerResult.args.argArray;
+							fn = handlerResult.args.fn;
+						}
+						if (handlerResult.preventDefault) {
+							if ("result" in handlerResult) {
+								return handlerResult.result;
+							}
+							return;
+						}
+						break;
+					}
 				}
 			}
-			let result = Reflect.apply(originFunctionApply, fn, args);
+			let result = originApply.call(fn, ...args);
 			for (let index = 0; index < that.$data.function_apply.length; index++) {
-				const item = that.$data.function_apply[index];
+				let item = that.$data.function_apply[index];
 				if (typeof item.returnsHandler === "function") {
-					const handlerResult = item.returnsHandler(
-						fn,
-						args[0],
-						args[1],
-						result
-					);
+					let handlerResult = item.returnsHandler(fn, args[0], args[1], result);
 					result = handlerResult.result;
 				}
 			}
@@ -433,34 +467,38 @@ export const Hook = {
 			return;
 		}
 		const that = this;
-		let originFunctionCall = unsafeWindow.Function.prototype.call;
+		let originCall = unsafeWindow.Function.prototype.call;
 		unsafeWindow.Function.prototype.call = function (
-			this: Function,
-			...args: any[]
-		): any {
+			...args: [thisArg: any, ...argArray: any[]]
+		) {
 			let thisArg = args[0];
 			let argArray = args.slice(1);
 			let fn = this;
 			for (let index = 0; index < that.$data.function_call.length; index++) {
-				const item = that.$data.function_call[index];
-				const result = item?.paramsHandler?.(fn, thisArg, argArray);
-				if (result != null) {
-					args[0] = result.thisArg;
-					args.splice(1, argArray.length, ...result.argArray);
-					fn = result.fn;
-					break;
+				let item = that.$data.function_call[index];
+				if (typeof item.paramsHandler === "function") {
+					let handlerResult = item.paramsHandler(fn, thisArg, argArray);
+					if (handlerResult != null) {
+						if (handlerResult.args) {
+							args[0] = handlerResult.args.thisArg;
+							args.splice(1, argArray.length, ...handlerResult.args.argArray);
+							fn = handlerResult.args.fn;
+						}
+						if (handlerResult.preventDefault) {
+							if ("result" in handlerResult) {
+								return handlerResult.result;
+							}
+							return;
+						}
+						break;
+					}
 				}
 			}
-			let result = Reflect.apply(originFunctionCall, fn, args);
+			let result = originCall.apply(fn, args);
 			for (let index = 0; index < that.$data.function_call.length; index++) {
-				const item = that.$data.function_call[index];
+				let item = that.$data.function_call[index];
 				if (typeof item.returnsHandler === "function") {
-					const handlerResult = item.returnsHandler(
-						fn,
-						args[0],
-						args[1],
-						result
-					);
+					let handlerResult = item.returnsHandler(fn, args[0], args[1], result);
 					result = handlerResult.result;
 				}
 			}
