@@ -1,26 +1,24 @@
 import { BilibiliData } from "@/data/BlibiliData";
-import { DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { CommonUtil } from "@/utils/CommonUtil";
-import { VueUtils } from "@/utils/VueUtils";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { VueUtils } from "@components/utils/VueUtils";
 import { BilibiliOpusVariable } from "./BilibiliOpusVariable";
+import { Panel } from "@components/setting/panel";
+import Qmsg from "qmsg";
 
 export const BilibiliOpus = {
 	init() {
 		BilibiliOpusVariable.init();
-		PopsPanel.execMenuOnce("bili-opus-cover-topicJump", () => {
+		Panel.execMenuOnce("bili-opus-cover-topicJump", () => {
 			this.coverTopicJump();
 		});
-		PopsPanel.execMenuOnce(
-			"bili-opus-automaticallyExpandToReadFullText",
-			() => {
-				BilibiliOpusVariable.isLimit();
-				return this.automaticallyExpandToReadFullText();
-			}
-		);
-		PopsPanel.execMenuOnce("bili-opus-cover-header", () => {
+		Panel.execMenuOnce("bili-opus-automaticallyExpandToReadFullText", () => {
+			BilibiliOpusVariable.isLimit();
+			return this.automaticallyExpandToReadFullText();
+		});
+		Panel.execMenuOnce("bili-opus-cover-header", () => {
 			this.coverHeaderJump();
 		});
 	},

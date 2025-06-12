@@ -1,18 +1,17 @@
 import { DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
 
 // 屏蔽元素
 const BilibiliLiveBlockNode = {
 	init() {
-		PopsPanel.execMenuOnce("bili-live-block-chatRoom", () => {
+		Panel.execMenuOnce("bili-live-block-chatRoom", () => {
 			return this.blockChatRoom();
 		});
-		PopsPanel.execMenuOnce("bili-live-block-brush-prompt", () => {
+		Panel.execMenuOnce("bili-live-block-brush-prompt", () => {
 			return this.blockBrushPrompt();
 		});
-		PopsPanel.execMenuOnce("bili-live-block-control-panel", () => {
+		Panel.execMenuOnce("bili-live-block-control-panel", () => {
 			return this.blockControlPanel();
 		});
 	},
@@ -42,7 +41,7 @@ const BilibiliLiveBlockNode = {
 export const BilibiliLive = {
 	init() {
 		BilibiliLiveBlockNode.init();
-		PopsPanel.execMenuOnce("bili-live-prevent-openAppBtn", () => {
+		Panel.execMenuOnce("bili-live-prevent-openAppBtn", () => {
 			this.preventOpenAppBtn();
 		});
 	},

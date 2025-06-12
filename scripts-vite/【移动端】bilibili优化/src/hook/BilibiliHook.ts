@@ -1,7 +1,8 @@
-import { $$, OriginPrototype, Qmsg, log, utils } from "@/env";
+import { $$, log, OriginPrototype, utils } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
+import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
 
 export const BilibiliHook = {

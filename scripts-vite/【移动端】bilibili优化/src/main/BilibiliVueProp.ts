@@ -1,26 +1,26 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { BilibiliHead } from "./head/BilibiliHead";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
+import { Panel } from "@components/setting/panel";
 
 export const BilibiliVueProp = {
 	init() {
-		PopsPanel.execMenu("bili-noCallApp", () => {
+		Panel.execMenu("bili-noCallApp", () => {
 			this.noCallApp();
 		});
-		PopsPanel.execMenu("bili-setLogin", () => {
+		Panel.execMenu("bili-setLogin", () => {
 			this.setLogin();
 		});
-		PopsPanel.execMenu("bili-setIsClient", () => {
+		Panel.execMenu("bili-setIsClient", () => {
 			this.setIsClient();
 		});
-		// PopsPanel.execMenu("bili-setTinyApp", () => {
+		// Panel.execMenu("bili-setTinyApp", () => {
 		// 	this.setTinyApp();
 		// 	DOMUtils.ready(() => {
 		// 		BilibiliHead.reconfigurationTinyAppSettingButton().then(() => {
-		// 			PopsPanel.execMenu("bili-beautifyTopNavBar", () => {
+		// 			Panel.execMenu("bili-beautifyTopNavBar", () => {
 		// 				BilibiliHead.beautifyTopNavBar();
 		// 			});
 		// 		});
@@ -178,7 +178,7 @@ export const BilibiliVueProp = {
 				set(vueIns) {
 					vueIns.$store.state.common.tinyApp = true;
 					log.success("成功设置参数 $store.state.common.tinyApp=true");
-					PopsPanel.onceExec("bili-tinyApp-init-css", () => {
+					Panel.onceExec("bili-tinyApp-init-css", () => {
 						// 开启tinyApp后会隐藏输入框
 						addStyle(/*css*/ `
 							.tiny-app .reply-input,.tiny-app .reply-item .info .name .right,.tiny-app .reply-item .info .toolbar,.tiny-app .sub-reply-input {

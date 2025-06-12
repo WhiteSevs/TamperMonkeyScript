@@ -1,10 +1,10 @@
 import { BilibiliApiResponseCheck } from "@/api/BilibiliApiResponseCheck";
 import { BilibiliApiConfig } from "@/api/BilibiliApiConfig";
 import { httpx, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
 import Artplayer from "artplayer";
 import type { Setting, SettingOption } from "artplayer/types/setting";
 import Chinese, { type CustomStr } from "s2t-chinese";
+import { Panel } from "@components/setting/panel";
 
 const TAG = "[artplayer-plugin-bilibiliCCSubTitle]：";
 /**
@@ -401,7 +401,7 @@ const SubTitle = {
 				console.error(TAG + "请求字幕链接信息失败", subTitleInfoResponse);
 			}
 		}
-		if (PopsPanel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
+		if (Panel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
 			// 繁体转简体
 			let subTitleHant = SubTitleData.allSubTitleInfo.find((item) => {
 				return item.lan === "zh-Hant" || item.name.includes("繁体");

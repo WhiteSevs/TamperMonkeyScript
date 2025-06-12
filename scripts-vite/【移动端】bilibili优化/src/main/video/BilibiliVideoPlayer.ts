@@ -1,13 +1,12 @@
 import { $, addStyle, DOMUtils, log, utils } from "@/env";
 import artPlayerCSS from "./artplayer/index.css?raw";
 import artPlayerCommonCSS from "@/player/player.css?raw";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import {
 	BilibiliVideoApi,
 	type TypeBilibiliVideoInfo_m4s,
 	type TypeBilibiliVideoInfo_mp4,
 } from "@/api/BilibiliVideoApi";
-import { PopsPanel } from "@/setting/panel";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import {
@@ -19,6 +18,7 @@ import { unsafeWindow } from "ViteGM";
 import type { VIDEO_EP_LIST, VIDEO_PART } from "./TypeVideo";
 import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
 import { BilibiliData } from "@/data/BlibiliData";
+import { Panel } from "@components/setting/panel";
 
 export type VideoInfo = {
 	/** 视频的bvid */
@@ -128,7 +128,7 @@ export const GenerateArtPlayerOption = async (option: VideoInfo) => {
 	// 解析清晰度信息
 	let qualityInfo: VideoQualityInfo[] = [];
 
-	if (PopsPanel.getValue("bili-video-playType", "mp4") === "mp4") {
+	if (Panel.getValue("bili-video-playType", "mp4") === "mp4") {
 		// mp4类型
 		const videoPlayInfo = (await BilibiliVideoApi.playUrl({
 			bvid: option.bvid,
@@ -140,7 +140,7 @@ export const GenerateArtPlayerOption = async (option: VideoInfo) => {
 			qn: 127,
 			setPlatformHTML5: true,
 		})) as TypeBilibiliVideoInfo_mp4;
-		log.info(videoPlayInfo);
+		log.info(["视频播放地址信息：", videoPlayInfo]);
 
 		if (!videoPlayInfo) {
 			// 未获取到信息
@@ -197,7 +197,7 @@ export const GenerateArtPlayerOption = async (option: VideoInfo) => {
 			qn: 127,
 			setPlatformHTML5: false,
 		})) as TypeBilibiliVideoInfo_m4s;
-		log.info(videoPlayInfo);
+		log.info(["视频播放地址信息：", videoPlayInfo]);
 
 		if (!videoPlayInfo) {
 			// 没获取到
@@ -213,7 +213,7 @@ export const GenerateArtPlayerOption = async (option: VideoInfo) => {
 				item.baseUrl,
 				item.backup_url
 			);
-			if (PopsPanel.getValue("bili-video-uposServerSelect-applyAudio")) {
+			if (Panel.getValue("bili-video-uposServerSelect-applyAudio")) {
 				// 给音频也替换
 				audioUrl = BilibiliCDNProxy.replaceVideoCDN(audioUrl);
 			}
@@ -308,7 +308,7 @@ export const BilibiliVideoPlayer = {
 		art: null as any as Artplayer,
 	},
 	init() {
-		PopsPanel.execMenu("bili-video-enableArtPlayer", () => {
+		Panel.execMenu("bili-video-enableArtPlayer", () => {
 			this.coverVideoPlayer();
 		});
 	},
@@ -331,7 +331,7 @@ export const BilibiliVideoPlayer = {
 			${artPlayerCSS}
 
 			`);
-			let controlsPadding = PopsPanel.getValue(
+			let controlsPadding = Panel.getValue(
 				"bili-video-artplayer-controlsPadding-left-right",
 				0
 			);
@@ -512,7 +512,7 @@ export const BilibiliVideoPlayer = {
 					// 强制初始化音量为1
 					that.$data.art.volume = 1;
 					that.$data.art.once("ready", () => {
-						PopsPanel.execMenu(
+						Panel.execMenu(
 							"bili-video-playerAutoPlayVideoFullScreen",
 							async () => {
 								log.info(`自动进入全屏`);

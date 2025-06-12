@@ -1,16 +1,17 @@
-import { $, $$, DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { $, $$, DOMUtils, addStyle, log, utils } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliData } from "@/data/BlibiliData";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { BilibiliVideoPlayer } from "./BilibiliVideoPlayer";
 import { MobileCommentModule } from "@/lib/MobileCommentModule";
 import MobileCommentModuleStyle from "@/lib/MobileCommentModule.css?raw";
-import { CommonUtil } from "@/utils/CommonUtil";
-import { GM_RESOURCE_MAPPING } from "@/GM_Resource_Mapping";
-import { GestureBack } from "@/utils/GestureBack";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { GestureBack } from "@components/utils/GestureBack";
+import { Panel } from "@components/setting/panel";
+import Qmsg from "qmsg";
+import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
 
 export const BilibiliVideo = {
 	$data: {
@@ -24,38 +25,38 @@ export const BilibiliVideo = {
 	init() {
 		BilibiliVideoPlayer.init();
 		/* 执行hook */
-		// PopsPanel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
+		// Panel.execMenuOnce("bili-video-repairVideoBottomAreaHeight", () => {
 		// 	return this.repairVideoBottomAreaHeight();
 		// });
-		// PopsPanel.execMenu("bili-video-beautify", () => {
+		// Panel.execMenu("bili-video-beautify", () => {
 		// 	this.beautify();
 		// });
-		PopsPanel.execMenuOnce("bili-video-cover-bottomRecommendVideo", () => {
+		Panel.execMenuOnce("bili-video-cover-bottomRecommendVideo", () => {
 			this.coverBottomRecommendVideo();
 		});
-		PopsPanel.execMenuOnce("bili-video-cover-UpWrapper", () => {
+		Panel.execMenuOnce("bili-video-cover-UpWrapper", () => {
 			this.coverUpWrapper();
 		});
-		// PopsPanel.execMenuOnce("bili-video-gestureReturnToCloseCommentArea", () => {
+		// Panel.execMenuOnce("bili-video-gestureReturnToCloseCommentArea", () => {
 		// 	this.gestureReturnToCloseCommentArea();
 		// });
-		PopsPanel.execMenuOnce("bili-video-cover-seasonNew", () => {
+		Panel.execMenuOnce("bili-video-cover-seasonNew", () => {
 			this.coverSeasonNew();
 		});
-		// PopsPanel.execMenuOnce("bili-video-repairLinkJump", () => {
+		// Panel.execMenuOnce("bili-video-repairLinkJump", () => {
 		// 	this.repairLinkJump();
 		// });
 		DOMUtils.ready(() => {
-			// PopsPanel.execMenuOnce("bili-video-optimizationScroll", () => {
+			// Panel.execMenuOnce("bili-video-optimizationScroll", () => {
 			// 	this.optimizationScroll();
 			// });
-			// PopsPanel.execMenu("bili-video-disableSwipeTab", () => {
+			// Panel.execMenu("bili-video-disableSwipeTab", () => {
 			// 	this.disableSwipeTab();
 			// });
-			PopsPanel.execMenu("bili-video-addCommentModule", () => {
+			Panel.execMenu("bili-video-addCommentModule", () => {
 				this.addCommentModule();
 			});
-			PopsPanel.execMenu("bili-video-addDescModule", () => {
+			Panel.execMenu("bili-video-addDescModule", () => {
 				this.addDescModule();
 			});
 		});

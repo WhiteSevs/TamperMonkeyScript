@@ -1,8 +1,8 @@
-import { $, DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { $, DOMUtils, log, utils } from "@/env";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import Qmsg from "qmsg";
-import { VueUtils } from "./VueUtils";
+import { Panel } from "@components/setting/panel";
+import { VueUtils } from "@components/utils/VueUtils";
 
 export const BilibiliUtils = {
 	/**
@@ -11,7 +11,7 @@ export const BilibiliUtils = {
 	 * @param [useRouter=false] 是否强制使用Router，默认false
 	 */
 	goToUrl(path: string, useRouter: boolean = false) {
-		let isGoToUrlBlank = PopsPanel.getValue("bili-go-to-url-blank");
+		let isGoToUrlBlank = Panel.getValue("bili-go-to-url-blank");
 		log.info("即将跳转URL：" + path);
 		if (useRouter) {
 			isGoToUrlBlank = false;
@@ -116,9 +116,9 @@ export const BilibiliUtils = {
 	 * 如：播放量、弹幕量、点赞、投币、收藏、转发
 	 *
 	 * 播放量：114514
-	 * 
+	 *
 	 * ↓
-	 * 
+	 *
 	 * 播放量：114.5万
 	 */
 	parseCount(count: number) {

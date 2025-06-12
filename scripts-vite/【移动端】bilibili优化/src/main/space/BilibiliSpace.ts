@@ -1,16 +1,16 @@
 import { BilibiliData } from "@/data/BlibiliData";
-import { $$, DOMUtils, log, Qmsg, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { BilibiliUrl } from "@/utils/BilibiliUrl";
+import { $$, DOMUtils, log, utils } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import Qmsg from "qmsg";
 
 export const BilibiliSpace = {
 	init() {
-		PopsPanel.execMenuOnce("bili-space-repairRealJump", () => {
+		Panel.execMenuOnce("bili-space-repairRealJump", () => {
 			this.repairRealJump();
 		});
-		PopsPanel.execMenuOnce("bili-space-coverDynamicStateCardVideo", () => {
+		Panel.execMenuOnce("bili-space-coverDynamicStateCardVideo", () => {
 			this.coverDynamicStateCardVideo();
 		});
 	},
@@ -39,39 +39,6 @@ export const BilibiliSpace = {
 			},
 		});
 		return;
-		DOMUtils.on(
-			document,
-			"click",
-			BilibiliData.className.space +
-				' .dynamic-list [data-type="archive"][data-oid]',
-			(event, $click) => {
-				let jump_url = VueUtils.getVue($click)?.data?.jump_url;
-				if (typeof jump_url === "string" && utils.isNotNull(jump_url)) {
-					BilibiliUtils.goToUrl(jump_url);
-				} else {
-					Qmsg.error("获取jump_url失败");
-				}
-			}
-			// {
-			// 	capture: true,
-			// }
-		);
-		DOMUtils.on(
-			document,
-			"click",
-			BilibiliData.className.space + " .dynamic-list .dyn-opus",
-			(event, $click) => {
-				let jump_url = VueUtils.getVue($click)?.data?.jump_url;
-				if (typeof jump_url === "string" && utils.isNotNull(jump_url)) {
-					BilibiliUtils.goToUrl(jump_url);
-				} else {
-					Qmsg.error("获取jump_url失败");
-				}
-			}
-			// {
-			// 	capture: true,
-			// }
-		);
 	},
 	/**
 	 * 覆盖动态视频的点击事件

@@ -24,7 +24,7 @@ export const BilibiliPlayList = {
 			${artPlayerCSS}
 			
 			`);
-			// let controlsPadding = PopsPanel.getValue(
+			// let controlsPadding = Panel.getValue(
 			// 	"bili-bangumi-artplayer-controlsPadding-left-right",
 			// 	0
 			// );

@@ -14,7 +14,6 @@ import {
 	type ArtPlayerPluginBilibiliSubTitleOption,
 	type ArtPlayerPluginBilibiliSubTitleResult,
 } from "@/player/plugins/artplayer-plugin-bilibiliCCSubtitle";
-import { PopsPanel } from "@/setting/panel";
 import {
 	ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY,
 	artplayerPluginTopToolBar,
@@ -49,6 +48,7 @@ import {
 } from "@/player/plugins/artplayer-plugin-airborneHelper";
 import { artplayerPluginVideoStatistics } from "@/player/plugins/artplayer-plugin-videoStatistics";
 import { ArtPlayerDanmakuCommonOption } from "@/player/ArtPlayerDanmakuCommonOption";
+import { Panel } from "@components/setting/panel";
 
 export type BilibiliBangumiArtPlayerOption = {
 	/** 容器 */
@@ -255,7 +255,7 @@ export const BilibiliBangumiArtPlayer = {
 			artOption.type = "mp4";
 		}
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
 			artOption.plugins!.push(
 				artplayerPluginDanmuku({
 					...ArtPlayerDanmakuCommonOption(),
@@ -291,7 +291,7 @@ export const BilibiliBangumiArtPlayer = {
 			);
 		}
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
 			artOption.plugins!.push(
 				artplayerPluginM4SAudioSupport({
 					from: BilibiliBangumiArtPlayer.$data.from,
@@ -301,7 +301,7 @@ export const BilibiliBangumiArtPlayer = {
 			);
 		}
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
 			artOption.plugins!.push(
 				artplayerPluginEpChoose({
 					EP_LIST: generateBangumiVideoSelectSetting(option),
@@ -310,7 +310,7 @@ export const BilibiliBangumiArtPlayer = {
 			);
 		}
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
 			artOption.plugins!.push(
 				artplayerPluginBilibiliCCSubTitle({
 					from: BilibiliBangumiArtPlayer.$data.from,
@@ -322,7 +322,7 @@ export const BilibiliBangumiArtPlayer = {
 			);
 		}
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
 			artOption.plugins!.push(
 				artplayerPluginTopToolBar({
 					onlineInfoParams: {
@@ -338,7 +338,7 @@ export const BilibiliBangumiArtPlayer = {
 			);
 		}
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
 			// 空降助手
 			artOption.plugins!.push(
 				artplayerPluginAirborneHelper({
@@ -347,7 +347,7 @@ export const BilibiliBangumiArtPlayer = {
 			);
 		}
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-statistics-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-statistics-enable")) {
 			artOption.plugins!.push(
 				artplayerPluginVideoStatistics({
 					data: [],
@@ -398,7 +398,7 @@ export const BilibiliBangumiArtPlayer = {
 		});
 		log.info(`更新画质`, option.quality);
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
 			// 更新弹幕信息
 			art.plugins.artplayerPluginDanmuku.config({
 				danmuku: option.danmukuUrl,
@@ -407,7 +407,7 @@ export const BilibiliBangumiArtPlayer = {
 			log.info(`更新弹幕姬`, option.danmukuUrl);
 		}
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
 			// 更新音频
 			let plugin_m4sAudioSupport = art.plugins[
 				ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY
@@ -418,7 +418,7 @@ export const BilibiliBangumiArtPlayer = {
 			});
 			log.info(`更新音频`, option.audioList);
 		}
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
 			// 更新选集信息
 			let plugin_epChoose = art.plugins[
 				ArtPlayer_PLUGIN_EP_CHOOSE_KEY
@@ -430,7 +430,7 @@ export const BilibiliBangumiArtPlayer = {
 			log.info(`更新选集信息`, option.epList);
 		}
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
 			// 更新字幕
 			let plugin_bilibiliCCSubTitle = art.plugins[
 				ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY
@@ -446,7 +446,7 @@ export const BilibiliBangumiArtPlayer = {
 			log.info(`更新字幕`, subTitleOption);
 		}
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
 			// 更新顶部标题
 			// 更新顶部在线观看人数来源
 			let plugin_topToolBar = art.plugins[
@@ -470,7 +470,7 @@ export const BilibiliBangumiArtPlayer = {
 			log.info(`更新顶部标题`, topToolBarOption);
 		}
 
-		if (PopsPanel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
+		if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
 			// 更新空降助手信息
 			let plugin_airborneHelper = art.plugins[
 				ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY

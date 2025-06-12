@@ -1,9 +1,9 @@
 import { BilibiliData } from "@/data/BlibiliData";
 import { log } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { BilibiliOpus } from "./BilibiliOpus";
+import { Panel } from "@components/setting/panel";
 
 /**
  * 变量设置
@@ -13,13 +13,13 @@ export const BilibiliOpusVariable = {
 		dispatchCallBackList: <Function[]>[],
 	},
 	init() {
-		PopsPanel.execMenu("bili-opus-variable-autoOpenApp", () => {
+		Panel.execMenu("bili-opus-variable-autoOpenApp", () => {
 			this.autoOpenApp();
 		});
-		PopsPanel.execMenu("bili-opus-variable-go404", () => {
+		Panel.execMenu("bili-opus-variable-go404", () => {
 			this.go404();
 		});
-		PopsPanel.execMenu("bili-opus-variable-handleFallback", () => {
+		Panel.execMenu("bili-opus-variable-handleFallback", () => {
 			this.dispatch((vueInstance, fnName) => {
 				if (
 					typeof fnName === "string" &&

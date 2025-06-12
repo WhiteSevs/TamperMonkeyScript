@@ -1,3 +1,4 @@
+import { BilibiliUserApi } from "@/api/BilibiliUserApi";
 import md5 from "md5";
 
 /**
@@ -10,11 +11,11 @@ export const wbi = async (params) => {
 	 */
 	async function getWbiQueryString(params) {
 		// get origin key
-		const { img_url, sub_url } = await fetch(
-			"https://api.bilibili.com/x/web-interface/nav"
-		)
-			.then((res) => res.json())
-			.then((json) => json.data.wbi_img);
+		const response = await BilibiliUserApi.nav(false);
+		if (!response) {
+			return;
+		}
+		const { img_url, sub_url } = response.wbi_img;
 		const imgKey = img_url.slice(
 			img_url.lastIndexOf("/") + 1,
 			img_url.lastIndexOf(".")

@@ -3,8 +3,7 @@ import "./css/common.css";
 import BilibiliBeautifyCSS from "./css/beautify.css?raw";
 import { BilibiliPCRouter, BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliVideo } from "./video/BilibiliVideo";
-import { $, $$, addStyle, DOMUtils, GMCookie, log, Qmsg, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { addStyle, DOMUtils, log } from "@/env";
 import { BilibiliBangumi } from "./bangumi/BilibiliBangumi";
 import { BilibiliSearch } from "./search/BilibiliSearch";
 import { BilibiliLive } from "./live/BilibiliLive";
@@ -16,16 +15,18 @@ import { BilibiliHead } from "./head/BilibiliHead";
 import { BilibiliReadMobile } from "./read/mobile/BilibiliReadMobile";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { BilibiliSpace } from "./space/BilibiliSpace";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { BilibiliVueProp } from "./BilibiliVueProp";
 import { BilibiliComponentDetection } from "./BilibiliComponentDetection";
 import { BilibiliPlayList } from "./playlist/BilibiliPlayList";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { BilibiliGlobalData } from "./BilibiliGlobalData";
 
 const Bilibili = {
 	init() {
+		BilibiliGlobalData.init();
 		BilibiliVueProp.init();
-		PopsPanel.execMenuOnce("bili-allowCopy", () => {
+		Panel.execMenuOnce("bili-allowCopy", () => {
 			return addStyle(/*css*/ `
 				.v-drawer{
 					-webkit-user-select: unset !important;
@@ -34,33 +35,33 @@ const Bilibili = {
 				}
 			`);
 		});
-		PopsPanel.onceExec("listenRouterChange", () => {
+		Panel.onceExec("listenRouterChange", () => {
 			this.listenRouterChange();
 		});
-		PopsPanel.execMenuOnce("bili-hookSetTimeout_autoOpenApp", () => {
+		Panel.execMenuOnce("bili-hookSetTimeout_autoOpenApp", () => {
 			log.info("hook  window.setTimeout autoOpenApp");
 			BilibiliHook.setTimeout("autoOpenApp");
 			BilibiliHook.setTimeout("bilibili://");
 			// bnagumi的
 			BilibiliHook.setTimeout("void 0 !== y && document[y]");
 		});
-		PopsPanel.execMenuOnce("bili-overrideLaunchAppBtn_Vue_openApp", () => {
+		Panel.execMenuOnce("bili-overrideLaunchAppBtn_Vue_openApp", () => {
 			log.info("覆盖元素.launch-app-btn上的openApp");
 			BilibiliHook.overRideLaunchAppBtn_Vue_openApp();
 		});
-		PopsPanel.execMenuOnce("bili-cover-bili-open-app-open", () => {
+		Panel.execMenuOnce("bili-cover-bili-open-app-open", () => {
 			log.info(`覆盖元素bili-open-app上的opener.open`);
 			BilibiliHook.overRideBiliOpenApp();
 		});
-		PopsPanel.execMenuOnce("bili-cover-wx-tag-handleClick", () => {
+		Panel.execMenuOnce("bili-cover-wx-tag-handleClick", () => {
 			log.info(`覆盖元素.wx-tag的handleClick函数`);
 			BilibiliHook.overRideWxTaghandleClick();
 		});
-		PopsPanel.execMenuOnce("bili-head-beautify", () => {
+		Panel.execMenuOnce("bili-head-beautify", () => {
 			log.info("添加美化CSS");
 			return addStyle(BilibiliBeautifyCSS);
 		});
-		PopsPanel.execMenuOnce("bili-componentDetection", () => {
+		Panel.execMenuOnce("bili-componentDetection", () => {
 			BilibiliComponentDetection.init();
 		});
 
@@ -102,7 +103,7 @@ const Bilibili = {
 		}
 
 		DOMUtils.ready(() => {
-			// PopsPanel.execMenu("common_auto_delete_cookie_buvid3", () => {
+			// Panel.execMenu("common_auto_delete_cookie_buvid3", () => {
 			// 	let intervalCount = 0;
 			// 	let intervalId = setInterval(() => {
 			// 		intervalCount++;
@@ -110,7 +111,7 @@ const Bilibili = {
 			// 			clearInterval(intervalId);
 			// 			return;
 			// 		}
-			// 		GMCookie.delete(
+			// 		cookieManager.delete(
 			// 			{
 			// 				name: "buvid3",
 			// 				firstPartyDomain: ".bilibili.com",
@@ -156,7 +157,7 @@ const Bilibili = {
 							next();
 							return;
 						}
-						if (PopsPanel.getValue("bili-repairVueRouter404")) {
+						if (Panel.getValue("bili-repairVueRouter404")) {
 							if (to.name === "space") {
 								// 修复空间跳转404
 								log.info(`修复空间跳转404`);
@@ -168,9 +169,7 @@ const Bilibili = {
 						if (to.fullPath.startsWith("/video")) {
 							if (
 								from.fullPath.startsWith("/video") &&
-								PopsPanel.getValue(
-									"bili-video-forceThisPageToRefreshAndRedirect"
-								)
+								Panel.getValue("bili-video-forceThisPageToRefreshAndRedirect")
 							) {
 								// 强制本页刷新
 								log.info(`强制本页刷新`);
@@ -178,7 +177,7 @@ const Bilibili = {
 								return;
 							} else if (
 								BilibiliRouter.isHead() &&
-								PopsPanel.getValue("bili-head-openVideoInNewTab")
+								Panel.getValue("bili-head-openVideoInNewTab")
 							) {
 								// 当前是首页，新标签页打开
 								log.info(`当前是首页，新标签页打开`);
@@ -194,7 +193,7 @@ const Bilibili = {
 								return;
 							} else if (
 								BilibiliRouter.isHead() &&
-								PopsPanel.getValue("bili-head-openVideoInNewTab")
+								Panel.getValue("bili-head-openVideoInNewTab")
 							) {
 								// 首页 => 番剧
 								log.info(`首页 => 番剧`);
@@ -220,7 +219,7 @@ const Bilibili = {
 							log.info("该路由变化判定为#/seeCommentReply，不重载");
 							return;
 						}
-						PopsPanel.execMenu("bili-listenRouterChange", () => {
+						Panel.execMenu("bili-listenRouterChange", () => {
 							Bilibili.init();
 						});
 					}

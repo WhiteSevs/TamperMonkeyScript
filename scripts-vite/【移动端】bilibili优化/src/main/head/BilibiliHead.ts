@@ -1,11 +1,12 @@
 import { BilibiliData } from "@/data/BlibiliData";
-import { DOMUtils, Qmsg, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { DOMUtils, addStyle, log, utils } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliRecommend } from "./recommend/BilibiliRecommend";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { BilibiliSearchApi } from "@/api/BilibiliSearchApi";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
+import { Panel } from "@components/setting/panel";
+import Qmsg from "qmsg";
 
 export const BilibiliHead = {
 	$flag: {
@@ -13,13 +14,13 @@ export const BilibiliHead = {
 		isInit_beautifyTopNavBar_css: false,
 	},
 	init() {
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"bili-head-supplementaryVideoStreamingInformation",
 			() => {
 				this.addVideoListUPInfo();
 			}
 		);
-		PopsPanel.execMenu("bili-head-recommend-enable", () => {
+		Panel.execMenu("bili-head-recommend-enable", () => {
 			BilibiliRecommend.init();
 		});
 	},

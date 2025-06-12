@@ -1,5 +1,6 @@
-import { log, Qmsg } from "@/env";
+import { log } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import Qmsg from "qmsg";
 
 export const BilibiliOpenApp = {
 	getUrl($ele: HTMLElement | null | Element) {

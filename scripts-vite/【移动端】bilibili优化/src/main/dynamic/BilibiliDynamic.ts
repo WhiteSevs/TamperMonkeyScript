@@ -1,22 +1,23 @@
 import { BilibiliData } from "@/data/BlibiliData";
-import { DOMUtils, Qmsg, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { DOMUtils, log, utils } from "@/env";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import Qmsg from "qmsg";
 
 export const BilibiliDynamic = {
 	init() {
-		PopsPanel.execMenuOnce("bili-dynamic-cover-topicJump", () => {
+		Panel.execMenuOnce("bili-dynamic-cover-topicJump", () => {
 			this.coverTopicJump();
 		});
-		PopsPanel.execMenuOnce("bili-dynamic-cover-atJump", () => {
+		Panel.execMenuOnce("bili-dynamic-cover-atJump", () => {
 			this.coverAtJump();
 		});
-		PopsPanel.execMenuOnce("bili-dynamic-cover-referenceJump", () => {
+		Panel.execMenuOnce("bili-dynamic-cover-referenceJump", () => {
 			this.coverReferenceJump();
 		});
-		PopsPanel.execMenuOnce("bili-dynamic-cover-header", () => {
+		Panel.execMenuOnce("bili-dynamic-cover-header", () => {
 			this.coverHeaderJump();
 		});
 	},

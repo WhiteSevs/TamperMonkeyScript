@@ -1,13 +1,13 @@
 import { BilibiliData } from "@/data/BlibiliData";
-import { $, DOMUtils, log, Qmsg } from "@/env";
-import { VueUtils } from "@/utils/VueUtils";
+import { $, DOMUtils, log } from "@/env";
+import { VueUtils } from "@components/utils/VueUtils";
 import {
 	BilibiliVideoPlayer,
 	GenerateArtPlayerOption,
 	type VideoInfo,
 } from "../video/BilibiliVideoPlayer";
 import { BilibiliVideoArtPlayer } from "../video/artplayer/ArtPlayer";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 
 type PlayListVideoInfo = {
 	/** aid */
@@ -207,7 +207,7 @@ export const BilibiliPlayListPlayer = {
 						// 强制初始化音量为1
 						that.$data.art.volume = 1;
 						that.$data.art.once("ready", () => {
-							PopsPanel.execMenu(
+							Panel.execMenu(
 								"bili-video-playerAutoPlayVideoFullScreen",
 								async () => {
 									log.info(`自动进入全屏`);

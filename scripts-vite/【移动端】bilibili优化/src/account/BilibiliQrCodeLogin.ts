@@ -1,6 +1,7 @@
-import { Qmsg, log, pops, QRCodeJS, utils } from "@/env";
+import { log, pops, QRCodeJS, utils } from "@/env";
 import { BilibiliLoginApi } from "../api/BilibiliLoginApi";
 import { GM_getValue, GM_setValue } from "ViteGM";
+import Qmsg from "qmsg";
 
 export const BilibiliQrCodeLogin = {
 	async init() {

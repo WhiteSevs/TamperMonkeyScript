@@ -1,13 +1,13 @@
 import { utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
 
 export const BilibiliSearchVueProp = {
 	init() {
-		PopsPanel.execMenuOnce("bili-search-vue-prop-noCallApp", () => {
+		Panel.execMenuOnce("bili-search-vue-prop-noCallApp", () => {
 			this.noCallApp();
 		});
-		PopsPanel.execMenuOnce("bili-search-vue-prop-openAppDialog", () => {
+		Panel.execMenuOnce("bili-search-vue-prop-openAppDialog", () => {
 			this.openAppDialog();
 		});
 	},

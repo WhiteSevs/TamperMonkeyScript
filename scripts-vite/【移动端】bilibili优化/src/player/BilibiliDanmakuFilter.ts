@@ -1,6 +1,6 @@
 import { utils } from "@/env";
+import { Panel } from "@components/setting/panel";
 import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
-import { PopsPanel } from "@/setting/panel";
 
 /** 弹幕过滤器 */
 export const BilibiliDanmakuFilter = {
@@ -40,7 +40,7 @@ export const BilibiliDanmakuFilter = {
 	filter(danmaConfig: DanmaConfig, totalRule: RegExp[]): boolean {
 		let filterFlag = false;
 		if (!filterFlag) {
-			if (PopsPanel.getValue("bili-danmaku-filter-type-roll")) {
+			if (Panel.getValue("bili-danmaku-filter-type-roll")) {
 				// 滚动
 				if (danmaConfig.mode === 1 || danmaConfig.mode === 6) {
 					filterFlag = true;
@@ -48,7 +48,7 @@ export const BilibiliDanmakuFilter = {
 			}
 		}
 		if (!filterFlag) {
-			if (PopsPanel.getValue("bili-danmaku-filter-type-top")) {
+			if (Panel.getValue("bili-danmaku-filter-type-top")) {
 				// 顶部
 				if (
 					danmaConfig.mode === 5 ||
@@ -60,7 +60,7 @@ export const BilibiliDanmakuFilter = {
 			}
 		}
 		if (!filterFlag) {
-			if (PopsPanel.getValue("bili-danmaku-filter-type-bottom")) {
+			if (Panel.getValue("bili-danmaku-filter-type-bottom")) {
 				// 底部
 				if (danmaConfig.mode === 4) {
 					filterFlag = true;
@@ -68,7 +68,7 @@ export const BilibiliDanmakuFilter = {
 			}
 		}
 		if (!filterFlag) {
-			if (PopsPanel.getValue("bili-danmaku-filter-type-colour")) {
+			if (Panel.getValue("bili-danmaku-filter-type-colour")) {
 				// 彩色
 				if (danmaConfig.color !== 16777215) {
 					filterFlag = true;
@@ -76,7 +76,7 @@ export const BilibiliDanmakuFilter = {
 			}
 		}
 		if (!filterFlag) {
-			if (PopsPanel.getValue("bili-danmaku-filter-type-repeat")) {
+			if (Panel.getValue("bili-danmaku-filter-type-repeat")) {
 				// 重复
 				let findIndex = this.$data.danmakuArray.findIndex(
 					(__danmaConfig__, __index__) => {
@@ -92,13 +92,13 @@ export const BilibiliDanmakuFilter = {
 			}
 		}
 		if (!filterFlag) {
-			// if (PopsPanel.getValue("bili-danmaku-filter-type-senior")) {
+			// if (Panel.getValue("bili-danmaku-filter-type-senior")) {
 			// 	// 高级
 			// }
 		}
 
 		if (!filterFlag) {
-			if (PopsPanel.getValue<boolean>("bili-danmaku-filter")) {
+			if (Panel.getValue<boolean>("bili-danmaku-filter")) {
 				// 自定义规则
 				for (let ruleIndex = 0; ruleIndex < totalRule.length; ruleIndex++) {
 					const rule = totalRule[ruleIndex];

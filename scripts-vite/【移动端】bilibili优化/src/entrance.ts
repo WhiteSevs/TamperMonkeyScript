@@ -1,8 +1,60 @@
-import { PopsPanel } from "@/setting/panel";
 import { Bilibili } from "@/main/Bilibili";
 import { pops } from "./env";
+import { PanelContent } from "@components/setting/panel-content";
+import { PanelMenu } from "@components/setting/panel-menu";
+import { BilibiliUtils } from "./utils/BilibiliUtils";
+import { BilibiliQrCodeLogin } from "./account/BilibiliQrCodeLogin";
+import { SettingUICommon } from "./setting/view/Common";
+import { SettingUIHead } from "./setting/view/Head";
+import { SettingUIVideo } from "./setting/view/Video";
+import { SettingUIOpus } from "./setting/view/Opus";
+import { SettingUIDynamic } from "./setting/view/Dynamic";
+import { SettingUIBangumi } from "./setting/view/Bangumi";
+import { SettingUISearch } from "./setting/view/Search";
+import { SettingUISpace } from "./setting/view/Space";
+import { SettingUILive } from "./setting/view/Live";
+import { SettingUITopicDetail } from "./setting/view/TopicDetail";
+import { Panel } from "@components/setting/panel";
 
-PopsPanel.init();
+PanelContent.addContentConfig([
+	SettingUICommon,
+	SettingUIHead,
+	SettingUIVideo,
+	SettingUIOpus,
+	SettingUIDynamic,
+	SettingUIBangumi,
+	SettingUITopicDetail,
+	SettingUISearch,
+	SettingUISpace,
+	SettingUILive,
+]);
+PanelMenu.addMenuOption([
+	{
+		key: "go_to_login",
+		text: "🛠 前往登录",
+		autoReload: false,
+		isStoreValue: false,
+		showText(text) {
+			return text;
+		},
+		callback() {
+			BilibiliUtils.goToLogin();
+		},
+	},
+	{
+		key: "go_to_login_to_parse_access_key",
+		text: "🛠 扫码并解析access_key",
+		autoReload: false,
+		isStoreValue: false,
+		showText(text) {
+			return text;
+		},
+		callback() {
+			BilibiliQrCodeLogin.init();
+		},
+	},
+]);
+Panel.init();
 Bilibili.init();
 
 pops.config.cssText.index += /*css*/ `

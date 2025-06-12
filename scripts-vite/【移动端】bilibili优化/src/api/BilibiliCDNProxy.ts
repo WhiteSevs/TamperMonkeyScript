@@ -1,8 +1,7 @@
 import { log, utils } from "@/env";
 import { BilibiliApiConfig } from "./BilibiliApiConfig";
-import { PopsPanel } from "@/setting/panel";
-import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
+import { Panel } from "@components/setting/panel";
 
 /**
  * 请求接口代理
@@ -23,20 +22,20 @@ export const BilibiliApiProxy = {
 				name: "中国大陆",
 				area: "",
 				host:
-					PopsPanel.getValue<string>(
+					Panel.getValue<string>(
 						"bili-bangumi-proxyApiServer-default",
 						""
 					).trim() || BilibiliApiConfig.web_host,
 			},
 		];
-		if (!PopsPanel.getValue("bili-bangumi-unlockAreaLimit")) {
+		if (!Panel.getValue("bili-bangumi-unlockAreaLimit")) {
 			// 不启用
 			return serverHost;
 		}
 		// 如果启用代理服务器，返回代理服务器
 		// 否则使用bilibili的api
 		/** 香港 */
-		let hk_host = PopsPanel.getValue<string>("bili-bangumi-proxyApiServer-hk");
+		let hk_host = Panel.getValue<string>("bili-bangumi-proxyApiServer-hk");
 		if (utils.isNotNull(hk_host)) {
 			serverHost.push({
 				name: "香港",
@@ -45,7 +44,7 @@ export const BilibiliApiProxy = {
 			});
 		}
 		/** 台湾 */
-		let tw_host = PopsPanel.getValue<string>("bili-bangumi-proxyApiServer-tw");
+		let tw_host = Panel.getValue<string>("bili-bangumi-proxyApiServer-tw");
 		if (utils.isNotNull(tw_host)) {
 			serverHost.push({
 				name: "台湾",
@@ -54,7 +53,7 @@ export const BilibiliApiProxy = {
 			});
 		}
 		/** 泰国/东南亚 */
-		let tha_host = PopsPanel.getValue<string>(
+		let tha_host = Panel.getValue<string>(
 			"bili-bangumi-proxyApiServer-tha-or-sea"
 		);
 		if (utils.isNotNull(tha_host)) {
@@ -86,7 +85,7 @@ export const BilibiliApiProxy = {
 			host: string;
 		}[] = [];
 		/** 香港 */
-		let hk_host = PopsPanel.getValue<string>("bili-search-proxyApiServer-hk");
+		let hk_host = Panel.getValue<string>("bili-search-proxyApiServer-hk");
 		if (utils.isNotNull(hk_host)) {
 			serverHost.push({
 				name: "香港",
@@ -100,7 +99,7 @@ export const BilibiliApiProxy = {
 			}
 		}
 		/** 台湾 */
-		let tw_host = PopsPanel.getValue<string>("bili-search-proxyApiServer-tw");
+		let tw_host = Panel.getValue<string>("bili-search-proxyApiServer-tw");
 		if (utils.isNotNull(tw_host)) {
 			serverHost.push({
 				name: "台湾",
@@ -114,7 +113,7 @@ export const BilibiliApiProxy = {
 			}
 		}
 		/** 泰国/东南亚 */
-		let tha_host = PopsPanel.getValue<string>(
+		let tha_host = Panel.getValue<string>(
 			"bili-search-proxyApiServer-tha-or-sea"
 		);
 		if (utils.isNotNull(tha_host)) {
@@ -199,9 +198,7 @@ export const BilibiliCDNProxy = {
 	 * @param url 视频url
 	 */
 	replaceBangumiVideoCDN(url: string) {
-		let userChooseCDN = PopsPanel.getValue<string>(
-			"bili-bangumi-uposServerSelect"
-		);
+		let userChooseCDN = Panel.getValue<string>("bili-bangumi-uposServerSelect");
 		return this.replaceVideoCDNHost(url, userChooseCDN);
 	},
 	/**
@@ -210,9 +207,7 @@ export const BilibiliCDNProxy = {
 	 *
 	 */
 	replaceVideoCDN(url: string) {
-		let userChooseCDN = PopsPanel.getValue<string>(
-			"bili-video-uposServerSelect"
-		);
+		let userChooseCDN = Panel.getValue<string>("bili-video-uposServerSelect");
 		return this.replaceVideoCDNHost(url, userChooseCDN);
 	},
 	/**

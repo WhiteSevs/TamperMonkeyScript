@@ -1,12 +1,13 @@
 import { BilibiliUserApi } from "@/api/BilibiliUserApi";
-import { $, $$, addStyle, DOMUtils, log, pops, Qmsg, utils } from "@/env";
-import { PanelUISize } from "@/setting/panel-ui-size";
-import { VueUtils } from "@/utils/VueUtils";
+import { $$, addStyle, DOMUtils, log, pops, utils } from "@/env";
+import { VueUtils } from "@components/utils/VueUtils";
 import {
 	BilibiliComponentDetectionRule,
 	type BilibiliUserLabelRule,
 } from "./BilibiliComponentDetectionRule";
 import { BilibiliUrl } from "@/utils/BilibiliUrl";
+import Qmsg from "qmsg";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 
 /** 匹配信息 */
 type MatchedInfo = {

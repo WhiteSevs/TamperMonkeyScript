@@ -1,7 +1,7 @@
 import { BilibiliRouter } from "@/router/BilibiliRouter";
-import { UISwitch } from "../components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UIInput } from "../components/ui-input";
+import { UIInput } from "@components/setting/components/ui-input";
 
 const SettingUISearch: PopsPanelContentConfig = {
 	id: "panel-search",

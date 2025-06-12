@@ -1,12 +1,12 @@
 import { BilibiliPCData } from "@/data/BlibiliData";
 import { addStyle, log } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
 
 export const BilibiliReadMobile = {
 	init() {
 		this.removeAds();
-		PopsPanel.onceExec("bili-pc-read-mobile-autoExpand", () => {
+		Panel.onceExec("bili-pc-read-mobile-autoExpand", () => {
 			return this.autoExpand();
 		});
 	},

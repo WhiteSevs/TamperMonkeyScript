@@ -1,6 +1,6 @@
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 
 export const SettingUISpace: PopsPanelContentConfig = {
 	id: "panel-space",

@@ -1,7 +1,8 @@
 import { AppKeyInfo } from "@/common/config";
 import { appSign } from "@/common/sign";
-import { httpx, utils, GMCookie, Qmsg, log } from "@/env";
+import { httpx, utils, log, cookieManager } from "@/env";
 import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
+import Qmsg from "qmsg";
 
 export const BilibiliLoginApi = {
 	/**
@@ -22,7 +23,7 @@ export const BilibiliLoginApi = {
 			// sign: "",
 			/** 平台标识 会被拼接到返回的 url query */
 			mobi_app: AppKeyInfo.ios.mobi_app,
-			csrf: GMCookie.get("bili_jct")?.value || "",
+			csrf: cookieManager.get("bili_jct")?.value || "",
 		};
 		let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
 		let postResp = await httpx.post(

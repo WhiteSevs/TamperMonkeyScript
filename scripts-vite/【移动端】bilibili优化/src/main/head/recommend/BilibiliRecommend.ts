@@ -1,12 +1,13 @@
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
-import { DOMUtils, Qmsg, addStyle, httpx, log, utils } from "@/env";
+import { DOMUtils, addStyle, httpx, log, utils } from "@/env";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
 import BilibiliRecommendCSS from "./BilibiliRecommend.css?raw";
 import { android } from "@/define/BilibiliRecommendDefine";
 import { av2bv } from "@mgdn/bvid";
-import { PopsPanel } from "@/setting/panel";
 import { BilibiliApiResponseCheck } from "@/api/BilibiliApiResponseCheck";
 import { AppKeyInfo } from "@/common/config";
+import Qmsg from "qmsg";
+import { Panel } from "@components/setting/panel";
 
 /**
  * 修复图片（http转换为https）
@@ -209,7 +210,7 @@ export const BilibiliRecommend = {
 		}
 		log.success("获取推荐视频信息", videoInfo);
 		let $fragment = document.createDocumentFragment();
-		let allowLoadPictureCard = PopsPanel.getValue(
+		let allowLoadPictureCard = Panel.getValue(
 			"bili-head-recommend-push-graphic"
 		);
 		videoInfo.forEach((videoInfoItem) => {

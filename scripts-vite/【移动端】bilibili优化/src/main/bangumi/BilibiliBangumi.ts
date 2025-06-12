@@ -1,5 +1,4 @@
-import { addStyle, DOMUtils, log, Qmsg, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { addStyle, DOMUtils, log, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
 import { BilibiliData } from "@/data/BlibiliData";
 import artPlayerCSS from "./artplayer/index.css?raw";
@@ -8,25 +7,27 @@ import type Artplayer from "artplayer";
 import { BilibiliOpenApp } from "./BilibiliOpenApp";
 import { BlibiliBangumiPlayer } from "./BilibiliBangumiPlayer";
 import { BilibiliUtils } from "@/utils/BilibiliUtils";
+import { Panel } from "@components/setting/panel";
+import Qmsg from "qmsg";
 
 export const BilibiliBangumi = {
 	$data: {
 		art: null as any as Artplayer,
 	},
 	init() {
-		PopsPanel.execMenuOnce("bili-bangumi-initialScale", () => {
+		Panel.execMenuOnce("bili-bangumi-initialScale", () => {
 			BilibiliUtils.initialScale();
 		});
-		PopsPanel.execMenuOnce("bili-bangumi-hook-callApp", () => {
+		Panel.execMenuOnce("bili-bangumi-hook-callApp", () => {
 			this.hookCallApp();
 		});
-		PopsPanel.execMenu("bili-bangumi-cover-clicl-event-chooseEp", () => {
+		Panel.execMenu("bili-bangumi-cover-clicl-event-chooseEp", () => {
 			this.setChooseEpClickEvent();
 		});
-		PopsPanel.execMenu("bili-bangumi-cover-clicl-event-other", () => {
+		Panel.execMenu("bili-bangumi-cover-clicl-event-other", () => {
 			this.setClickOtherVideo();
 		});
-		PopsPanel.execMenu("bili-bangumi-cover-clicl-event-recommend", () => {
+		Panel.execMenu("bili-bangumi-cover-clicl-event-recommend", () => {
 			this.setRecommendClickEvent();
 		});
 		this.coverVideoPlayer();
@@ -261,7 +262,7 @@ export const BilibiliBangumi = {
 				height: 100%;
 			}
 			`);
-			let controlsPadding = PopsPanel.getValue(
+			let controlsPadding = Panel.getValue(
 				"bili-bangumi-artplayer-controlsPadding-left-right",
 				0
 			);

@@ -3,10 +3,11 @@ import {
 	BilibiliSearchApi,
 	type BilibiliSearchBangumiResultEntity,
 } from "@/api/BilibiliSearchApi";
-import { addStyle, DOMUtils, log, pops, Qmsg, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { VueUtils } from "@/utils/VueUtils";
+import { addStyle, DOMUtils, log, pops, utils } from "@/env";
+import { VueUtils } from "@components/utils/VueUtils";
 import beautifyCSS from "./css/beautify.css?raw";
+import { Panel } from "@components/setting/panel";
+import Qmsg from "qmsg";
 
 /**
  * 额外搜索
@@ -18,7 +19,7 @@ export const BilibiliExtraSearch = {
 	init() {
 		addStyle(beautifyCSS);
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("bili-search-enableOtherAreaSearchBangumi", () => {
+			Panel.execMenu("bili-search-enableOtherAreaSearchBangumi", () => {
 				this.enableOtherAreaSearchBangumi();
 			});
 		});

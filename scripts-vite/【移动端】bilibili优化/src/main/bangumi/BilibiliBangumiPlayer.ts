@@ -8,16 +8,15 @@ import {
 	BilibiliBangumiArtPlayer,
 	type BilibiliBangumiArtPlayerOption,
 } from "./artplayer/ArtPlayer";
-import { PopsPanel } from "@/setting/panel";
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
 import type { EP_INFO, EP_LIST } from "./TypeBangumi";
 import type { ArtPlayerPluginQualityOption } from "@/player/plugins/artplayer-plugin-quality";
 import type { ArtPlayerPluginAirborneHelperOption } from "@/player/plugins/artplayer-plugin-airborneHelper";
 import { $, DOMUtils, log, utils } from "@/env";
-import { VueUtils } from "@/utils/VueUtils";
-import { ReactUtils } from "@/utils/ReactUtils";
+import { ReactUtils } from "@components/utils/ReactUtils";
 import { BilibiliData } from "@/data/BlibiliData";
+import { Panel } from "@components/setting/panel";
 
 type VideoQualityInfo = {
 	/** 画质文字 */
@@ -235,7 +234,7 @@ export const GenerateArtPlayerOption = async (
 	let flvInfo: BilibiliBangumiArtPlayerOption["flvInfo"] = [];
 	let flvTotalDuration = 0;
 	let flvTotalSize = 0;
-	if (PopsPanel.getValue("bili-bangumi-unlockAreaLimit")) {
+	if (Panel.getValue("bili-bangumi-unlockAreaLimit")) {
 		// 启用解除区域限制
 
 		// 请求番剧信息
@@ -293,7 +292,7 @@ export const GenerateArtPlayerOption = async (
 					item.baseUrl,
 					item.backup_url
 				);
-				if (PopsPanel.getValue("bili-bangumi-uposServerSelect-applyAudio")) {
+				if (Panel.getValue("bili-bangumi-uposServerSelect-applyAudio")) {
 					// 给音频也替换
 					audioUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(audioUrl);
 				}
