@@ -34,35 +34,61 @@ type HookSetIntervalHandler = (
 	intervalTime: number | undefined
 ) => false | void;
 
-/**
- * @returns
- * + void 不做处理
- * + object 替换所返回的内容
- */
-type HookFunctionApplyHandler = (
-	context: Function,
-	thisArg: any,
-	argArray: any[]
-) => {
-	context: Function;
-	thisArg: any;
-	argArray: any[];
-} | void;
+type HookFunctionApplyHandler = {
+	/**
+	 * @returns
+	 * + void 不做处理
+	 * + object 替换所返回的内容
+	 */
+	paramsHandler?: (
+		fn: Function,
+		thisArg: any,
+		argArray: any[]
+	) => {
+		fn: Function;
+		thisArg: any;
+		argArray: any[];
+	} | void;
+	/**
+	 * @returns
+	 */
+	returnsHandler?: (
+		fn: Function,
+		thisArg: any,
+		argArray: any[],
+		result: any
+	) => {
+		result: any;
+	};
+};
 
-/**
- * @returns
- * + void 不做处理
- * + object 替换所返回的内容
- */
-type HookFunctionCallHandler = (
-	context: Function,
-	thisArg: any,
-	argArray: any[]
-) => {
-	context: Function;
-	thisArg: any;
-	argArray: any[];
-} | void;
+type HookFunctionCallHandler = {
+	/**
+	 * @returns
+	 * + void 不做处理
+	 * + object 替换所返回的内容
+	 */
+	paramsHandler?: (
+		fn: Function,
+		thisArg: any,
+		argArray: any[]
+	) => {
+		fn: Function;
+		thisArg: any;
+		argArray: any[];
+	} | void;
+	/**
+	 * @returns
+	 */
+	returnsHandler?: (
+		fn: Function,
+		thisArg: any,
+		argArray: any[],
+		result: any
+	) => {
+		result: any;
+	};
+};
 
 /**
  * @returns
@@ -369,18 +395,31 @@ export const Hook = {
 		): any {
 			let thisArg = args[0];
 			let argArray = args[1] as any[];
-			let context = this;
+			let fn = this;
 			for (let index = 0; index < that.$data.function_apply.length; index++) {
 				const item = that.$data.function_apply[index];
-				const result = item(context, thisArg, argArray);
+				const result = item?.paramsHandler?.(fn, thisArg, argArray);
 				if (result != null) {
 					args[0] = result.thisArg;
 					args[1] = result.argArray;
-					context = result.context;
+					fn = result.fn;
 					break;
 				}
 			}
-			return Reflect.apply(originFunctionApply, context, args);
+			let result = Reflect.apply(originFunctionApply, fn, args);
+			for (let index = 0; index < that.$data.function_apply.length; index++) {
+				const item = that.$data.function_apply[index];
+				if (typeof item.returnsHandler === "function") {
+					const handlerResult = item.returnsHandler(
+						fn,
+						args[0],
+						args[1],
+						result
+					);
+					result = handlerResult.result;
+				}
+			}
+			return result;
 		};
 	},
 	/**
@@ -401,18 +440,31 @@ export const Hook = {
 		): any {
 			let thisArg = args[0];
 			let argArray = args.slice(1);
-			let context = this;
+			let fn = this;
 			for (let index = 0; index < that.$data.function_call.length; index++) {
 				const item = that.$data.function_call[index];
-				const result = item(context, thisArg, argArray);
+				const result = item?.paramsHandler?.(fn, thisArg, argArray);
 				if (result != null) {
 					args[0] = result.thisArg;
 					args.splice(1, argArray.length, ...result.argArray);
-					context = result.context;
+					fn = result.fn;
 					break;
 				}
 			}
-			return Reflect.apply(originFunctionCall, context, args);
+			let result = Reflect.apply(originFunctionCall, fn, args);
+			for (let index = 0; index < that.$data.function_call.length; index++) {
+				const item = that.$data.function_call[index];
+				if (typeof item.returnsHandler === "function") {
+					const handlerResult = item.returnsHandler(
+						fn,
+						args[0],
+						args[1],
+						result
+					);
+					result = handlerResult.result;
+				}
+			}
+			return result;
 		};
 	},
 	/**
