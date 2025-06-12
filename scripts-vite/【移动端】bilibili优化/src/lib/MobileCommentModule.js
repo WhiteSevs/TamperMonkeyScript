@@ -3,9 +3,13 @@ import Viewer from "viewerjs";
 import { wbi } from "./wbi";
 import { b2a } from "./b2a";
 import { unsafeWindow } from "ViteGM";
+import { httpx, utils } from "@components/base.env";
+import Qmsg from "qmsg";
+import Utils from "@whitesev/utils";
 /*
  * Comment module for https://greasyfork.org/scripts/497732
- * @version v0.0.1.20250408145554
+ * @version v0.0.1.20250510141049
+ * @link https://greasyfork.org/zh-CN/scripts/524844-bilibili-mobile-comment-module
  */
 export const MobileCommentModule = (function () {
 	"use strict";
@@ -25,8 +29,8 @@ export const MobileCommentModule = (function () {
 	const sortTypeConstant = { LATEST: 0, HOT: 2 };
 	let currentSortType;
 
-	// offset data for time sort
-	let timeSortOffsets;
+	//  pagination_str value
+	let nextOffset = "";
 
 	// use to prevent loading duplicated main reply
 	let replyPool;
@@ -150,7 +154,6 @@ export const MobileCommentModule = (function () {
 
 	async function loadFirstPagination(commentModuleWrapper) {
 		// reset offset data
-		timeSortOffsets = { 1: `{"offset":""}` };
 
 		// get data of first pagination
 		const { data: firstPaginationData, code: resultCode } =
@@ -199,15 +202,6 @@ export const MobileCommentModule = (function () {
 			navSortElement.innerHTML = `<div class="selected-sort">精选评论</div>`;
 		}
 
-		// get top reply data from latest sort mode
-		if (currentSortType === sortTypeConstant.HOT) {
-			currentSortType = sortTypeConstant.LATEST;
-			firstPaginationData.top_replies = await getPaginationData(1).then(
-				(result) => result.data.top_replies
-			);
-			currentSortType = sortTypeConstant.HOT;
-		}
-
 		// load the top reply if it exists
 		if (
 			firstPaginationData.top_replies &&
@@ -217,8 +211,16 @@ export const MobileCommentModule = (function () {
 			appendReplyItem(topReplyData, true);
 		}
 
+		// load normal replies
+		for (const replyData of firstPaginationData.replies) {
+			appendReplyItem(replyData);
+		}
+
 		// script ends here if there are no more replies
-		if (firstPaginationData.replies.length === 0) {
+		if (
+			firstPaginationData.replies.length === 0 ||
+			firstPaginationData.cursor.is_end
+		) {
 			const infoElement = document.createElement("p");
 			infoElement.classList.add("no-more-replies-info");
 			infoElement.style =
@@ -230,65 +232,48 @@ export const MobileCommentModule = (function () {
 			return;
 		}
 
-		// load normal replies
-		for (const replyData of firstPaginationData.replies) {
-			appendReplyItem(replyData);
-		}
-
 		// add page loader
 		addAnchor();
 	}
 
-	async function getPaginationData(paginationNumber) {
+	async function getPaginationData() {
 		const params = {
+			pagination_str: JSON.stringify({
+				offset: nextOffset || "",
+			}),
 			oid,
 			type: commentType,
 			wts: parseInt(Date.now() / 1000),
+			plat: 1,
+			web_location: 1315875,
 		};
 
 		if (currentSortType === sortTypeConstant.HOT) {
 			params.mode = 3;
-			params.pagination_str = `{"offset":"{\\"type\\":1,\\"data\\":{\\"pn\\":${paginationNumber}}}"}`;
-			return await fetch(
-				`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`
-			).then((res) => res.json());
-		}
-
-		if (currentSortType === sortTypeConstant.LATEST) {
-			params.mode = 2;
-			params.pagination_str = timeSortOffsets[paginationNumber];
-			const fetchResult = await fetch(
-				`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`
-			).then((res) => res.json());
-
-			// prepare offset data of next pagination
-			if (fetchResult.code === 0) {
-				const nextOffset = fetchResult.data.cursor.pagination_reply.next_offset;
-				let nextOffsetObject = null;
-				try {
-					// 例如这个视频下的评论区获取到的next_offset不是一个对象字符串，而是一个普通的字符串，进行序列化会发生错误
-					// https://m.bilibili.com/video/BV1tf5NzEE5r
-					nextOffset = JSON.parse(nextOffset);
-				} catch (error) {
-					console.warn(
-						"MobileCommentModule next_offset serialize error",
-						error
-					);
-				}
-				const cursor = nextOffset ? nextOffsetObject?.Data?.cursor : -1;
-				timeSortOffsets[
-					paginationNumber + 1
-				] = `{"offset":"{\\"type\\":3,\\"data\\":{\\"cursor\\":${cursor}}}"}`;
-			} else {
-				fetchResult.data = fetchResult.data || {};
+			if (!nextOffset) {
+				params.seek_rpid = "";
 			}
-
-			return fetchResult;
+		} else if (currentSortType === sortTypeConstant.LATEST) {
+			params.mode = 2;
 		}
+
+		const fetchResult = await httpx.get(
+			`https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`,
+			{
+				fetch: true,
+			}
+		);
+		const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
+		nextOffset =
+			fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
+		return fetchResultJSON;
 	}
 
 	function appendReplyItem(replyData, isTopReply) {
-		if (replyPool[replyData.rpid_str]) return;
+		if (replyPool[replyData.rpid_str]) {
+			// 评论重复了
+			return;
+		}
 
 		const replyItemElement = document.createElement("div");
 		replyItemElement.classList.add("reply-item");
@@ -649,11 +634,36 @@ export const MobileCommentModule = (function () {
 		paginationNumber
 	) {
 		// replace reply list with new replies
-		const subReplyData = await fetch(
-			`https://api.bilibili.com/x/v2/reply/reply?oid=${oid}&pn=${paginationNumber}&ps=10&root=${rootReplyID}&type=${commentType}`
-		)
-			.then((res) => res.json())
-			.then((json) => json.data);
+		const params = {
+			oid,
+			type: commentType,
+			root: rootReplyID,
+			ps: 10,
+			pn: paginationNumber,
+			web_location: 333.788,
+		};
+
+		const subReplyResponse = await httpx.get(
+			`https://api.bilibili.com/x/v2/reply/reply?${Utils.toSearchParamsStr(
+				params
+			)}`,
+			{
+				allowInterceptConfig: false,
+				fetch: true,
+			}
+		);
+		if (!subReplyResponse.status) {
+			log.error(subReplyResponse);
+			Qmsg.error("请求异常，获取评论的回复失败");
+			return;
+		}
+		const subReplyJSON = utils.toJSON(subReplyResponse.data.responseText);
+		if (subReplyJSON === -352) {
+			Qmsg.error("请登录后再进行操作");
+			console.error("you should login first", subReplyResponse);
+			return;
+		}
+		const subReplyData = subReplyJSON.data;
 		subReplyList.innerHTML = getSubReplyItems(subReplyData.replies);
 
 		// add page switcher
