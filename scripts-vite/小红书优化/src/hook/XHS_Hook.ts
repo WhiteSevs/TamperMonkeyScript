@@ -146,6 +146,7 @@ export const XHS_Hook = {
 	call() {
 		Hook.function_call({
 			paramsHandler(fn, thisArg, argArray) {
+				let fnStr = fn.toString();
 				if (
 					argArray[0]?.label === 0 &&
 					Array.isArray(argArray[0]?.ops) &&
@@ -154,9 +155,21 @@ export const XHS_Hook = {
 				) {
 					log.success([`成功劫持call唤醒`, fn, thisArg, argArray]);
 					return {
-						argArray: [],
-						fn: fn,
-						thisArg: thisArg,
+						args: {
+							fn: fn,
+							thisArg: thisArg,
+							// 置空
+							argArray: [],
+						},
+					};
+				} else if (
+					typeof thisArg === "string" &&
+					thisArg.startsWith("https://oia.xiaohongshu.com/oia")
+				) {
+					// .concat.call(...)
+					log.success([`成功劫持call跳转下载页面`, fn, thisArg, argArray]);
+					return {
+						preventDefault: true,
 					};
 				}
 			},
