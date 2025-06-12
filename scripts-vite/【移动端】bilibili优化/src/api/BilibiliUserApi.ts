@@ -1,8 +1,45 @@
-import { httpx, utils } from "@/env";
+import { httpx, log, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
 import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
+import Qmsg from "qmsg";
 
 export const BilibiliUserApi = {
+	/**
+	 * 获取导航栏用户信息
+	 * @param [checkCode=true] 校验返回JSON的状态码，设置false可以获取未登录状态下的wbi_img，用于请求参数处理
+	 */
+	async nav(checkCode: boolean = true) {
+		let response = await httpx.get(
+			"https://api.bilibili.com/x/web-interface/nav?web_location=333.401",
+			{
+				fetch: true,
+				responseType: "json",
+				allowInterceptConfig: false,
+			}
+		);
+		if (!response.status) {
+			log.error(response);
+			Qmsg.error("获取导航栏用户信息失败，请求异常", {
+				consoleLogContent: true,
+			});
+			return;
+		}
+		let data = utils.toJSON<{
+			code: number;
+			data: BilibiliUserNavInfoType;
+			message: string;
+			ttl: number;
+		}>(response.data.responseText);
+		if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data)) {
+			// 未登录也会
+			log.error(["获取导航栏用户信息失败：", data]);
+			Qmsg.error("获取导航栏用户信息失败", {
+				consoleLogContent: true,
+			});
+			return;
+		}
+		return data.data;
+	},
 	/**
 	 * 获取用户空间动态
 	 * @param mid 用户id
