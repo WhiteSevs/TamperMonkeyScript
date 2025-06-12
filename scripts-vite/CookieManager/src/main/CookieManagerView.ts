@@ -1,12 +1,12 @@
 import { DOMUtils, GM_Menu, log, pops, utils } from "@/env";
 import { CookieManager, type CookieManagerApiName } from "./CookieManager";
-import { PopsPanel } from "@/setting/panel";
-import { PanelUISize } from "@/setting/panel-ui-size";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 import Qmsg from "qmsg";
-import { UISwitch } from "@/setting/components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import { CookieManagerEditView } from "./CookieManagerEditView";
-import { UISelect } from "@/setting/components/ui-select";
+import { UISelect } from "@components/setting/components/ui-select";
 import { CookieRule } from "./CookieRule";
+import { Panel } from "@components/setting/panel";
 
 export const CookieManagerView = {
 	init() {
@@ -200,7 +200,7 @@ export const CookieManagerView = {
 				{
 					leftText: "value",
 					// 解码值
-					rightText: PopsPanel.getValue("decode-cookie-value")
+					rightText: Panel.getValue("decode-cookie-value")
 						? decodeURIComponent(cookieInfo.value)
 						: encodeURIComponent(cookieInfo.value),
 				},
@@ -386,7 +386,7 @@ export const CookieManagerView = {
 			DOMUtils.empty($cookieListWrapper);
 			let $fragment = document.createDocumentFragment();
 			cookieList.forEach((cookieItem) => {
-				if (PopsPanel.getValue("exclude-session-cookie")) {
+				if (Panel.getValue("exclude-session-cookie")) {
 					// 屏蔽session的cookie
 					// @ts-ignore
 					if (cookieItem.session) {
@@ -416,7 +416,7 @@ export const CookieManagerView = {
 			utils.debounce((event) => {
 				updateCookieListGroup((cookieItem) => {
 					let searchText = DOMUtils.val($search);
-					let enableRegExp = PopsPanel.getValue<boolean>(
+					let enableRegExp = Panel.getValue<boolean>(
 						"search-config-use-regexp"
 					);
 					return enableRegExp
@@ -516,7 +516,7 @@ export const CookieManagerView = {
 			CookieManager.queryAllCookie().then((cookieList) => {
 				cookieList = cookieList.filter((it) => {
 					// @ts-ignore
-					return !(it.session && PopsPanel.getValue("exclude-session-cookie"));
+					return !(it.session && Panel.getValue("exclude-session-cookie"));
 				});
 				if (cookieList.length === 0) {
 					Qmsg.warning("没有Cookie可以复制");

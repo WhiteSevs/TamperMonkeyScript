@@ -1,6 +1,6 @@
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../components/ui-switch";
-import { UIButton } from "../components/ui-button";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { UIButton } from "@components/setting/components/ui-button";
 import { CookieRule, CookieRuleData } from "@/main/CookieRule";
 
 export const Component_Rule: PopsPanelContentConfig = {

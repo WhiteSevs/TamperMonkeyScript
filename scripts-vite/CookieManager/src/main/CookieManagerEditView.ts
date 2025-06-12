@@ -1,10 +1,10 @@
 import { DOMUtils, pops, utils } from "@/env";
-import { PanelUISize } from "@/setting/panel-ui-size";
 import type { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/inputType";
 import type { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/selectType";
 import { CookieManager } from "./CookieManager";
 import Qmsg from "qmsg";
 import { CookieInfoTransform } from "@/main/CookieInfoTransform";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 
 /**
  * 编辑UI-输入框

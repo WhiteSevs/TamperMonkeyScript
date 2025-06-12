@@ -1,6 +1,6 @@
 import { GM_cookie, log, utilsCookieManager } from "@/env";
+import { Panel } from "@components/setting/panel";
 import { GM, unsafeWindow } from "ViteGM";
-import { PopsPanel } from "@/setting/panel";
 import Qmsg from "qmsg";
 
 export type CookieManagerApiName =
@@ -11,7 +11,7 @@ export type CookieManagerApiName =
 
 export const CookieManager = {
 	get cookieManagerApiName() {
-		let managerApi = PopsPanel.getValue(
+		let managerApi = Panel.getValue(
 			"cookie-manager-api",
 			"document.cookie" as CookieManagerApiName
 		);
