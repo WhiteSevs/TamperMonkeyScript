@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
-// @namespace    https://greasyfork.org/zh-CN/scripts/475228
-// @version      2025.5.26
+// @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
+// @version      2025.6.12
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -12,10 +12,10 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@d07c6a5fb222dd87da5e7cb5da06730e4a557711/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@85cf0165a124dc4672a939ab9b6d707850d58b25/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
 // @resource     Resource_erudaFeatures        https://fastly.jsdelivr.net/npm/eruda-features@2.1.0
@@ -29,6 +29,7 @@
 // @resource     Resource_erudaVue             https://fastly.jsdelivr.net/npm/eruda-vue@1.1.1
 // @resource     Resource_vConsoleVueDevtools  https://fastly.jsdelivr.net/npm/vue-vconsole-devtools@1.0.9
 // @connect      *
+// @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
@@ -48,6 +49,7 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
@@ -58,6 +60,1011 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  const PanelSettingConfig = {
+    /** Toast位置 */
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom"
+    },
+    /** 最多显示的数量 */
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3
+    },
+    /** 逆序弹出 */
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false
+    }
+  };
+  const utils = Utils.noConflict();
+  DOMUtils.noConflict();
+  const __pops = pops;
+  const log = new utils.Log(
+    _GM_info,
+    _unsafeWindow.console || _monkeyWindow.console
+  );
+  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  pops.config.Utils.AnyTouch();
+  const DEBUG = false;
+  log.config({
+    debug: DEBUG,
+    logMaxCount: 1e3,
+    autoClearConsole: true,
+    tag: true
+  });
+  Qmsg.config(
+    Object.defineProperties(
+      {
+        html: true,
+        autoClose: true,
+        showClose: false
+      },
+      {
+        position: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_position.key,
+              PanelSettingConfig.qmsg_config_position.defaultValue
+            );
+          }
+        },
+        maxNums: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_maxnums.key,
+              PanelSettingConfig.qmsg_config_maxnums.defaultValue
+            );
+          }
+        },
+        showReverse: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_showreverse.key,
+              PanelSettingConfig.qmsg_config_showreverse.defaultValue
+            );
+          }
+        },
+        zIndex: {
+          get() {
+            let maxZIndex = Utils.getMaxZIndex();
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+          }
+        }
+      }
+    )
+  );
+  __pops.GlobalConfig.setGlobalConfig({
+    zIndex: () => {
+      let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+        var _a2;
+        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+          return false;
+        }
+        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+          return false;
+        }
+      });
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    },
+    mask: {
+      // 开启遮罩层
+      enable: true,
+      // 取消点击遮罩层的事件
+      clickEvent: {
+        toClose: false,
+        toHide: false
+      }
+    }
+  });
+  const GM_Menu = new utils.GM_Menu({
+    GM_getValue: _GM_getValue,
+    GM_setValue: _GM_setValue,
+    GM_registerMenuCommand: _GM_registerMenuCommand,
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+  });
+  const httpx = new utils.Httpx({
+    xmlHttpRequest: _GM_xmlhttpRequest,
+    logDetails: DEBUG
+  });
+  httpx.interceptors.request.use((data) => {
+    return data;
+  });
+  httpx.interceptors.response.use(void 0, (data) => {
+    log.error("拦截器-请求错误", data);
+    if (data.type === "onabort") {
+      Qmsg.warning("请求取消", { consoleLogContent: true });
+    } else if (data.type === "onerror") {
+      Qmsg.error("请求异常", { consoleLogContent: true });
+    } else if (data.type === "ontimeout") {
+      Qmsg.error("请求超时", { consoleLogContent: true });
+    } else {
+      Qmsg.error("其它错误", { consoleLogContent: true });
+    }
+    return data;
+  });
+  ({
+    Object: {
+      defineProperty: _unsafeWindow.Object.defineProperty
+    },
+    Function: {
+      apply: _unsafeWindow.Function.prototype.apply,
+      call: _unsafeWindow.Function.prototype.call
+    },
+    Element: {
+      appendChild: _unsafeWindow.Element.prototype.appendChild
+    },
+    setTimeout: _unsafeWindow.setTimeout
+  });
+  utils.addStyle.bind(utils);
+  document.querySelector.bind(document);
+  document.querySelectorAll.bind(document);
+  new utils.GM_Cookie();
+  const KEY = "GM_Panel";
+  const ATTRIBUTE_INIT = "data-init";
+  const ATTRIBUTE_KEY = "data-key";
+  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const PROPS_STORAGE_API = "data-storage-api";
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      get width() {
+        if (window.innerWidth < 550) {
+          return "88vw";
+        } else if (window.innerWidth < 700) {
+          return "550px";
+        } else {
+          return "700px";
+        }
+      },
+      get height() {
+        if (window.innerHeight < 450) {
+          return "70vh";
+        } else if (window.innerHeight < 550) {
+          return "450px";
+        } else {
+          return "550px";
+        }
+      }
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
+    }
+  };
+  class StorageUtils {
+    /**
+     * 存储的键名，可以是多层的，如：a.b.c
+     *
+     * 那就是
+     * {
+     *  "a": {
+     *     "b": {
+     *       "c": {
+     *         ...你的数据
+     *       }
+     *     }
+     *   }
+     * }
+     * @param key
+     */
+    constructor(key) {
+      /** 存储的键名 */
+      __publicField(this, "storageKey");
+      __publicField(this, "listenerData");
+      if (typeof key === "string") {
+        let trimKey = key.trim();
+        if (trimKey == "") {
+          throw new Error("key参数不能为空字符串");
+        }
+        this.storageKey = trimKey;
+      } else {
+        throw new Error("key参数类型错误，必须是字符串");
+      }
+      this.listenerData = new Utils.Dictionary();
+    }
+    /**
+     * 获取本地值
+     */
+    getLocalValue() {
+      let localValue = _GM_getValue(this.storageKey);
+      if (localValue == null) {
+        localValue = {};
+        this.setLocalValue(localValue);
+      }
+      return localValue;
+    }
+    /**
+     * 设置本地值
+     * @param value
+     */
+    setLocalValue(value) {
+      _GM_setValue(this.storageKey, value);
+    }
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    set(key, value) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.set(localValue, key, value);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, value);
+    }
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    get(key, defaultValue) {
+      let localValue = this.getLocalValue();
+      return Reflect.get(localValue, key) ?? defaultValue;
+    }
+    /**
+     * 获取所有值
+     */
+    getAll() {
+      let localValue = this.getLocalValue();
+      return localValue;
+    }
+    /**
+     * 删除值
+     * @param key 键
+     */
+    delete(key) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.deleteProperty(localValue, key);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, void 0);
+    }
+    /**
+     * 判断是否存在该值
+     */
+    has(key) {
+      let localValue = this.getLocalValue();
+      return Reflect.has(localValue, key);
+    }
+    /**
+     * 获取所有键
+     */
+    keys() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue);
+    }
+    /**
+     * 获取所有值
+     */
+    values() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue).map(
+        (key) => Reflect.get(localValue, key)
+      );
+    }
+    /**
+     * 清空所有值
+     */
+    clear() {
+      _GM_deleteValue(this.storageKey);
+    }
+    /**
+     * 监听值改变
+     * + .set
+     * + .delete
+     * @param key 监听的键
+     * @param callback 值改变的回调函数
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = Math.random();
+      let listenerData = this.listenerData.get(key) || [];
+      listenerData.push({
+        id: listenerId,
+        key,
+        callback
+      });
+      this.listenerData.set(key, listenerData);
+      return listenerId;
+    }
+    /**
+     * 移除监听
+     * @param listenerId 监听的id或键名
+     */
+    removeValueChangeListener(listenerId) {
+      let flag = false;
+      for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+            listenerData.splice(index, 1);
+            index--;
+            flag = true;
+          }
+        }
+        this.listenerData.set(key, listenerData);
+      }
+      return flag;
+    }
+    /**
+     * 主动触发监听器
+     * @param key 键
+     * @param oldValue （可选）旧值
+     * @param newValue （可选）新值
+     */
+    triggerValueChangeListener(key, oldValue, newValue) {
+      if (!this.listenerData.has(key)) {
+        return;
+      }
+      let listenerData = this.listenerData.get(key);
+      for (let index = 0; index < listenerData.length; index++) {
+        const data = listenerData[index];
+        if (typeof data.callback === "function") {
+          let value = this.get(key);
+          let __newValue;
+          let __oldValue;
+          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+            __oldValue = oldValue;
+          } else {
+            __oldValue = value;
+          }
+          if (typeof newValue !== "undefined" && arguments.length > 2) {
+            __newValue = newValue;
+          } else {
+            __newValue = value;
+          }
+          data.callback(key, __oldValue, __newValue);
+        }
+      }
+    }
+  }
+  const PopsPanelStorageApi = new StorageUtils(KEY);
+  const PanelContent = {
+    $data: {
+      /**
+       * @private
+       */
+      __contentConfig: null,
+      get contentConfig() {
+        if (this.__contentConfig == null) {
+          this.__contentConfig = new utils.Dictionary();
+        }
+        return this.__contentConfig;
+      }
+    },
+    /**
+     * 设置所有配置项，用于初始化默认的值
+     *
+     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
+     * @param configList 配置项
+     */
+    addContentConfig(configList) {
+      if (!Array.isArray(configList)) {
+        configList = [configList];
+      }
+      let index = this.$data.contentConfig.keys().length;
+      this.$data.contentConfig.set(index, configList);
+    },
+    /**
+     * 获取所有的配置内容，用于初始化默认的值
+     */
+    getAllContentConfig() {
+      return this.$data.contentConfig.values().flat();
+    },
+    /**
+     * 获取配置内容
+     * @param index 配置索引
+     */
+    getConfig(index = 0) {
+      return this.$data.contentConfig.get(index) ?? [];
+    }
+  };
+  const PanelMenu = {
+    $data: {
+      __menuOption: [
+        {
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            Panel.showPanel(PanelContent.getConfig(0));
+          }
+        }
+      ],
+      get menuOption() {
+        return this.__menuOption;
+      }
+    },
+    init() {
+      this.initExtensionsMenu();
+    },
+    /**
+     * 初始化菜单项
+     */
+    initExtensionsMenu() {
+      if (!Panel.isTopWindow()) {
+        return;
+      }
+      GM_Menu.add(this.$data.menuOption);
+    },
+    /**
+     * 添加菜单项
+     * @param option 菜单配置
+     */
+    addMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      this.$data.menuOption.push(...option);
+    },
+    /**
+     * 更新菜单项
+     * @param option 菜单配置
+     */
+    updateMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      option.forEach((optionItem) => {
+        let findIndex = this.$data.menuOption.findIndex((it) => {
+          return it.key === optionItem.key;
+        });
+        if (findIndex !== -1) {
+          this.$data.menuOption[findIndex] = optionItem;
+        }
+      });
+    },
+    /**
+     * 获取菜单项
+     * @param [index=0] 索引
+     */
+    getMenuOption(index = 0) {
+      return this.$data.menuOption[index];
+    },
+    /**
+     * 删除菜单项
+     * @param [index=0] 索引
+     */
+    deleteMenuOption(index = 0) {
+      this.$data.menuOption.splice(index, 1);
+    }
+  };
+  const Panel = {
+    /** 数据 */
+    $data: {
+      /**
+       * @private
+       */
+      __configDefaultValueData: null,
+      /**
+       * @private
+       */
+      __onceExecMenuData: null,
+      /**
+       * @private
+       */
+      __onceExecData: null,
+      /**
+       * @private
+       */
+      __panelConfig: {},
+      $panel: null,
+      /**
+       * 菜单项的默认值
+       */
+      get configDefaultValueData() {
+        if (this.__configDefaultValueData == null) {
+          this.__configDefaultValueData = new utils.Dictionary();
+        }
+        return this.__configDefaultValueData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecMenuData() {
+        if (this.__onceExecMenuData == null) {
+          this.__onceExecMenuData = new utils.Dictionary();
+        }
+        return this.__onceExecMenuData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecData() {
+        if (this.__onceExecData == null) {
+          this.__onceExecData = new utils.Dictionary();
+        }
+        return this.__onceExecData;
+      },
+      /** 脚本名，一般用在设置的标题上 */
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
+      /**
+       * pops.panel的默认配置
+       */
+      get panelConfig() {
+        return this.__panelConfig;
+      },
+      set panelConfig(value) {
+        this.__panelConfig = value;
+      },
+      /** 菜单项的总值在本地数据配置的键名 */
+      key: KEY,
+      /** 菜单项在attributes上配置的菜单键 */
+      attributeKeyName: ATTRIBUTE_KEY,
+      /** 菜单项在attributes上配置的菜单默认值 */
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+    },
+    init() {
+      this.initContentDefaultValue();
+      PanelMenu.init();
+    },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
+    },
+    /** 初始化菜单项的默认值保存到本地数据中 */
+    initContentDefaultValue() {
+      const initDefaultValue = (config) => {
+        if (!config.attributes) {
+          return;
+        }
+        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+          return;
+        }
+        let needInitConfig = {};
+        let key = config.attributes[ATTRIBUTE_KEY];
+        if (key != null) {
+          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
+        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (initMoreValue && typeof initMoreValue === "object") {
+          Object.assign(needInitConfig, initMoreValue);
+        }
+        let needInitConfigList = Object.keys(needInitConfig);
+        if (!needInitConfigList.length) {
+          log.warn(["请先配置键", config]);
+          return;
+        }
+        needInitConfigList.forEach((__key) => {
+          let __defaultValue = needInitConfig[__key];
+          this.setDefaultValue(__key, __defaultValue);
+        });
+      };
+      const loopInitDefaultValue = (configList) => {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
+          initDefaultValue(configItem);
+          let childForms = configItem.forms;
+          if (childForms && Array.isArray(childForms)) {
+            loopInitDefaultValue(childForms);
+          }
+        }
+      };
+      const contentConfigList = [...PanelContent.getAllContentConfig()];
+      for (let index = 0; index < contentConfigList.length; index++) {
+        let leftContentConfigItem = contentConfigList[index];
+        if (!leftContentConfigItem.forms) {
+          continue;
+        }
+        const rightContentConfigList = leftContentConfigItem.forms;
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
+        }
+      }
+    },
+    /**
+     * 设置初始化使用的默认值
+     */
+    setDefaultValue(key, defaultValue) {
+      if (this.$data.configDefaultValueData.has(key)) {
+        log.warn("请检查该key(已存在): " + key);
+      }
+      this.$data.configDefaultValueData.set(key, defaultValue);
+    },
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    setValue(key, value) {
+      PopsPanelStorageApi.set(key, value);
+    },
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    getValue(key, defaultValue) {
+      let localValue = PopsPanelStorageApi.get(key);
+      if (localValue == null) {
+        if (this.$data.configDefaultValueData.has(key)) {
+          return this.$data.configDefaultValueData.get(key);
+        }
+        return defaultValue;
+      }
+      return localValue;
+    },
+    /**
+     * 删除值
+     * @param key 键
+     */
+    deleteValue(key) {
+      PopsPanelStorageApi.delete(key);
+    },
+    /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasKey(key) {
+      return PopsPanelStorageApi.has(key);
+    },
+    /**
+     * 监听调用setValue、deleteValue
+     * @param key 需要监听的键
+     * @param callback
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(
+        key,
+        (__key, __newValue, __oldValue) => {
+          callback(key, __oldValue, __newValue);
+        }
+      );
+      return listenerId;
+    },
+    /**
+     * 移除监听
+     * @param listenerId 监听的id
+     */
+    removeValueChangeListener(listenerId) {
+      PopsPanelStorageApi.removeValueChangeListener(listenerId);
+    },
+    /**
+     * 主动触发菜单值改变的回调
+     * @param key 菜单键
+     * @param newValue 想要触发的新值，默认使用当前值
+     * @param oldValue 想要触发的旧值，默认使用当前值
+     */
+    triggerMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.onceExecMenuData.delete(key);
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag;
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      this.$data.onceExecData.delete(key);
+    },
+    /**
+     * 执行菜单
+     *
+     * @param queryKey 键|键数组
+     * @param callback 执行的回调函数
+     * @param checkExec 判断是否执行回调
+     *
+     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
+     *
+     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
+     *
+     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
+     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
+     * @param once 是否只执行一次，默认true
+     *
+     * + true （默认）只执行一次，且会监听键的值改变
+     * + false 不会监听键的值改变
+     */
+    exec(queryKey, callback, checkExec, once = true) {
+      const that = this;
+      let queryKeyFn;
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
+        queryKeyFn = () => queryKey;
+      } else {
+        queryKeyFn = queryKey;
+      }
+      let isArrayKey = false;
+      let queryKeyResult = queryKeyFn();
+      let keyList = [];
+      if (Array.isArray(queryKeyResult)) {
+        isArrayKey = true;
+        keyList = queryKeyResult;
+      } else {
+        keyList.push(queryKeyResult);
+      }
+      let findNotInDataKey = keyList.find(
+        (it) => !this.$data.configDefaultValueData.has(it)
+      );
+      if (findNotInDataKey) {
+        log.warn(`${findNotInDataKey} 键不存在`);
+        return;
+      }
+      let storageKey = JSON.stringify(keyList);
+      if (once) {
+        if (this.$data.onceExecMenuData.has(storageKey)) {
+          return;
+        }
+        this.$data.onceExecMenuData.set(storageKey, 1);
+      }
+      let storeStyleElements = [];
+      let listenerIdList = [];
+      let dynamicPushStyleNode = (value, $style) => {
+        let dynamicResultList = [];
+        if ($style instanceof HTMLStyleElement) {
+          dynamicResultList = [$style];
+        } else if (Array.isArray($style)) {
+          dynamicResultList = [
+            ...$style.filter(
+              (item) => item != null && item instanceof HTMLStyleElement
+            )
+          ];
+        }
+        {
+          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+        }
+      };
+      let getMenuValue = (key) => {
+        let value = this.getValue(key);
+        return value;
+      };
+      let clearStoreStyleElements = () => {
+        for (let index = 0; index < storeStyleElements.length; index++) {
+          let $css = storeStyleElements[index];
+          $css.remove();
+          storeStyleElements.splice(index, 1);
+          index--;
+        }
+      };
+      let __checkExec__ = () => {
+        let flag = false;
+        if (typeof checkExec === "function") {
+          flag = checkExec(keyList);
+        } else {
+          flag = keyList.every((key) => getMenuValue(key));
+        }
+        return flag;
+      };
+      let valueChange = (valueOption) => {
+        let execFlag = __checkExec__();
+        let resultList = [];
+        if (execFlag) {
+          let valueList = keyList.map((key) => this.getValue(key));
+          let $styles = callback({
+            addStyleElement: (...args) => {
+              return dynamicPushStyleNode(true, ...args);
+            },
+            value: isArrayKey ? valueList : valueList[0]
+          });
+          if ($styles instanceof HTMLStyleElement) {
+            resultList.push($styles);
+          } else if (Array.isArray($styles)) {
+            resultList.push(
+              ...$styles.filter(
+                (item) => item != null && item instanceof HTMLStyleElement
+              )
+            );
+          }
+        }
+        clearStoreStyleElements();
+        storeStyleElements = [...resultList];
+      };
+      once && keyList.forEach((key) => {
+        let listenerId = this.addValueChangeListener(
+          key,
+          (key2, newValue, oldValue) => {
+            valueChange();
+          }
+        );
+        listenerIdList.push(listenerId);
+      });
+      valueChange();
+      let result = {
+        /**
+         * 清空菜单执行情况
+         *
+         * + 清空存储的元素列表
+         * + 清空值改变的监听器
+         * + 清空存储的一次执行的键
+         */
+        clear() {
+          this.clearStoreStyleElements();
+          this.removeValueChangeListener();
+          once && that.$data.onceExecMenuData.delete(storageKey);
+        },
+        /**
+         * 清空存储的元素列表
+         */
+        clearStoreStyleElements: () => {
+          return clearStoreStyleElements();
+        },
+        /**
+         * 移除值改变的监听器
+         */
+        removeValueChangeListener: () => {
+          listenerIdList.forEach((listenerId) => {
+            this.removeValueChangeListener(listenerId);
+          });
+        }
+      };
+      return result;
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调
+     * @param key
+     * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
+     */
+    execMenu(key, callback, isReverse = false) {
+      return this.exec(
+        key,
+        (option) => {
+          return callback(option);
+        },
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            isReverse && (flag = !flag);
+            return flag;
+          });
+          return execFlag;
+        },
+        false
+      );
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     *
+     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
+     * @param key
+     * @param callback 回调
+     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     */
+    execMenuOnce(key, callback) {
+      return this.exec(
+        key,
+        callback,
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            return flag;
+          });
+          return execFlag;
+        },
+        true
+      );
+    },
+    /**
+     * 根据key执行一次
+     * @param key 键
+     * @param callback 回调
+     */
+    onceExec(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (this.$data.onceExecData.has(key)) {
+        return;
+      }
+      callback();
+      this.$data.onceExecData.set(key, 1);
+    },
+    /**
+     * 显示设置面板
+     * @param content 显示的内容配置
+     * @param [title] 标题
+     */
+    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
+      let $panel = __pops.panel({
+        ...{
+          title: {
+            text: `${SCRIPT_NAME}-设置`,
+            position: "center",
+            html: false,
+            style: ""
+          },
+          content,
+          btn: {
+            close: {
+              enable: true,
+              callback: (details, event) => {
+                details.close();
+                this.$data.$panel = null;
+              }
+            }
+          },
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: true,
+              toHide: false
+            },
+            clickCallBack: (originalRun, config) => {
+              originalRun();
+              this.$data.$panel = null;
+            }
+          },
+          width: PanelUISize.setting.width,
+          height: PanelUISize.setting.height,
+          drag: true,
+          only: true
+        },
+        ...this.$data.panelConfig
+      });
+      this.$data.$panel = $panel;
+    }
+  };
+  const unsafeWin = _unsafeWindow;
+  const console = unsafeWin.console;
+  const copy = _GM_setClipboard || utils.setClip.bind(utils);
+  const WebSiteDebugUtil = {
+    /**
+     * 执行插件代码
+     * @param args
+     */
+    evalPlugin: (...args) => {
+      if (args.length === 0) {
+        return;
+      }
+      const codeText = args.join("\n");
+      return unsafeWin.eval(`
+(()=>{
+	try{
+		var exports=void 0;
+	}catch(error){
+		console.warn(error);
+	}
+
+	try{
+		var module=void 0;
+	}catch(error){
+		console.warn(error);
+	}
+
+	try{
+		var define=void 0;
+	}catch(error){
+		console.warn(error);
+	}
+		
+	${codeText}
+		
+})()
+`);
+    }
+  };
   const versionJSON = '{\n  "eruda": {\n    "version": "3.4.1",\n    "plugin": {\n      "eruda-monitor": "1.1.1",\n      "eruda-features": "2.1.0",\n      "eruda-timing": "2.0.1",\n      "eruda-code": "2.2.0",\n      "eruda-benchmark": "2.0.1",\n      "eruda-orientation": "2.1.1",\n      "eruda-vue": "1.1.1",\n      "eruda-touches": "2.1.0",\n      "eruda-outline-plugin": "0.0.5",\n      "eruda-pixel": "1.0.13"\n    }\n  },\n  "vconsole": {\n    "version": "3.15.1",\n    "plugin": {\n      "vue-vconsole-devtools": "1.0.9"\n    }\n  },\n  "@huolala-tech/page-spy-browser": {\n    "version": "2.2.4"\n  }\n}';
   const DebugToolVersionConfig = JSON.parse(versionJSON);
   const DebugToolConfig = {
@@ -100,27 +1107,7 @@
       }
     }
   };
-  const PanelSettingConfig = {
-    qmsg_config_position: {
-      key: "qmsg-config-position",
-      defaultValue: "bottom"
-    },
-    qmsg_config_maxnums: {
-      key: "qmsg-config-maxnums",
-      defaultValue: 3
-    },
-    qmsg_config_showreverse: {
-      key: "qmsg-config-showreverse",
-      defaultValue: false
-    },
-    httpx_cookie_manager_enable: {
-      key: "httpx-use-cookie-enable",
-      defaultValue: false
-    },
-    httpx_cookie_manager_use_document_cookie: {
-      key: "httpx-use-document-cookie",
-      defaultValue: false
-    },
+  const GlobalSettingConfig = {
     debugTool: {
       key: "currentDebug",
       defaultValue: "eruda"
@@ -366,2071 +1353,6 @@
       defaultValue: parseInt((window.innerHeight / 2).toString())
     }
   };
-  class HttpxCookieManager {
-    /**
-     * cookie规则，在这里填入
-     * @param cookieRule
-     * @example
-     * {
-     *     key: "cookie-example-com",
-     *     hostname: "example.com",
-     * }
-     */
-    constructor(cookieRule) {
-      __publicField(this, "$data", {
-        /** 是否启用 */
-        get enable() {
-          return PopsPanel.getValue(
-            PanelSettingConfig.httpx_cookie_manager_enable.key,
-            PanelSettingConfig.httpx_cookie_manager_enable.defaultValue
-          );
-        },
-        /**
-         * 是否使用document.cookie
-         * + true 使用document.cookie额外添加cookie的header
-         */
-        get useDocumentCookie() {
-          return PopsPanel.getValue(
-            PanelSettingConfig.httpx_cookie_manager_use_document_cookie.key,
-            PanelSettingConfig.httpx_cookie_manager_use_document_cookie.defaultValue
-          );
-        },
-        /**
-         * cookie规则，在这里填入
-         * @example
-         * {
-         *     key: "cookie-example-com",
-         *     hostname: "example.com",
-         * }
-         */
-        cookieRule: []
-      });
-      if (Array.isArray(cookieRule)) {
-        this.$data.cookieRule = cookieRule;
-      }
-    }
-    /**
-     * 补充cookie末尾分号
-     */
-    fixCookieSplit(str) {
-      if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
-        str += ";";
-      }
-      return str;
-    }
-    /**
-     * 合并两个cookie
-     */
-    concatCookie(targetCookie, newCookie) {
-      if (utils.isNull(targetCookie)) {
-        return newCookie;
-      }
-      targetCookie = targetCookie.trim();
-      newCookie = newCookie.trim();
-      targetCookie = this.fixCookieSplit(targetCookie);
-      if (newCookie.startsWith(";")) {
-        newCookie = newCookie.substring(1);
-      }
-      return targetCookie.concat(newCookie);
-    }
-    /**
-     * 处理cookie
-     * @param details
-     * @returns
-     */
-    handle(details) {
-      if (details.fetch) {
-        return;
-      }
-      if (!this.$data.enable) {
-        return;
-      }
-      let ownCookie = "";
-      let url = details.url;
-      if (url.startsWith("//")) {
-        url = window.location.protocol + url;
-      }
-      let urlObj = new URL(url);
-      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
-        window.location.hostname.split(".").slice(-2).join(".")
-      )) {
-        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
-      }
-      for (let index = 0; index < this.$data.cookieRule.length; index++) {
-        let rule = this.$data.cookieRule[index];
-        if (urlObj.hostname.match(rule.hostname)) {
-          let cookie = PopsPanel.getValue(rule.key);
-          if (utils.isNull(cookie)) {
-            break;
-          }
-          ownCookie = this.concatCookie(ownCookie, cookie);
-        }
-      }
-      if (utils.isNotNull(ownCookie)) {
-        if (details.headers && details.headers["Cookie"]) {
-          details.headers.Cookie = this.concatCookie(
-            details.headers.Cookie,
-            ownCookie
-          );
-        } else {
-          details.headers["Cookie"] = ownCookie;
-        }
-        log.info(["Httpx => 设置cookie:", details]);
-      }
-      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
-        delete details.headers.Cookie;
-      }
-    }
-  }
-  const httpxCookieManager = new HttpxCookieManager([]);
-  const unsafeWin = _unsafeWindow;
-  const console$1 = unsafeWin.console;
-  const _SCRIPT_NAME_ = "网页调试";
-  const utils = Utils.noConflict();
-  DOMUtils.noConflict();
-  const __pops = pops;
-  const log = new utils.Log(
-    _GM_info,
-    unsafeWin.console || _monkeyWindow.console
-  );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
-  const DEBUG = false;
-  log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
-    autoClearConsole: true,
-    tag: true
-  });
-  Qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return PopsPanel.getValue(
-              PanelSettingConfig.qmsg_config_position.key,
-              PanelSettingConfig.qmsg_config_position.defaultValue
-            );
-          }
-        },
-        maxNums: {
-          get() {
-            return PopsPanel.getValue(
-              PanelSettingConfig.qmsg_config_maxnums.key,
-              PanelSettingConfig.qmsg_config_maxnums.defaultValue
-            );
-          }
-        },
-        showReverse: {
-          get() {
-            return PopsPanel.getValue(
-              PanelSettingConfig.qmsg_config_showreverse.key,
-              PanelSettingConfig.qmsg_config_showreverse.defaultValue
-            );
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
-      }
-    )
-  );
-  const GM_Menu = new utils.GM_Menu({
-    GM_getValue: _GM_getValue,
-    GM_setValue: _GM_setValue,
-    GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
-  });
-  const httpx = new utils.Httpx({
-    xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG
-  });
-  httpx.interceptors.request.use((data) => {
-    httpxCookieManager.handle(data);
-    return data;
-  });
-  httpx.interceptors.response.use(void 0, (data) => {
-    log.error("拦截器-请求错误", data);
-    if (data.type === "onabort") {
-      Qmsg.warning("请求取消");
-    } else if (data.type === "onerror") {
-      Qmsg.error("请求异常");
-    } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时");
-    } else {
-      Qmsg.error("其它错误");
-    }
-    return data;
-  });
-  ({
-    Object: {
-      defineProperty: unsafeWin.Object.defineProperty
-    },
-    Function: {
-      apply: unsafeWin.Function.prototype.apply,
-      call: unsafeWin.Function.prototype.call
-    },
-    Element: {
-      appendChild: unsafeWin.Element.prototype.appendChild
-    },
-    setTimeout: unsafeWin.setTimeout
-  });
-  utils.addStyle.bind(utils);
-  document.querySelector.bind(document);
-  document.querySelectorAll.bind(document);
-  const copy = _GM_setClipboard || utils.setClip.bind(utils);
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_INIT = "data-init";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const PROPS_STORAGE_API = "data-storage-api";
-  const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
-      get width() {
-        return window.innerWidth < 550 ? "88vw" : "550px";
-      },
-      get height() {
-        return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
-      get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
-      },
-      get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
-      }
-    }
-  };
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
-    let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
-    let result = {
-      text,
-      type: "select",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      callback(event, isSelectedValue, isSelectedText) {
-        let value = isSelectedValue;
-        log.info(`选择：${isSelectedText}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
-      },
-      data: selectData
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
-      }
-    });
-    return result;
-  };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
-    let result = {
-      text,
-      type: "switch",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return Boolean(
-          this.props[PROPS_STORAGE_API].get(key, defaultValue)
-        );
-      },
-      callback(event, __value) {
-        let value = Boolean(__value);
-        log.success(`${value ? "开启" : "关闭"} ${text}`);
-        if (typeof clickCallBack === "function") {
-          if (clickCallBack(event, value)) {
-            return;
-          }
-        }
-        this.props[PROPS_STORAGE_API].set(key, value);
-      },
-      afterAddToUListCallBack
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
-      }
-    });
-    return result;
-  };
-  const PanelUI_globalSetting = {
-    id: "debug-panel-config-all",
-    title: "总设置",
-    headerTitle: "总设置",
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISelect(
-            "调试工具",
-            PanelSettingConfig.debugTool.key,
-            PanelSettingConfig.debugTool.defaultValue,
-            [
-              {
-                value: "eruda",
-                text: "Eruda"
-              },
-              {
-                value: "vconsole",
-                text: "VConsole"
-              },
-              {
-                value: "pagespy",
-                text: "PageSpy"
-              },
-              {
-                value: "chii",
-                text: "Chii"
-              }
-            ],
-            void 0,
-            void 0
-          ),
-          UISwitch(
-            "允许在iframe内加载",
-            PanelSettingConfig.allowRunInIframe.key,
-            PanelSettingConfig.allowRunInIframe.defaultValue,
-            void 0,
-            "如果指定本脚本的容器并没有在iframe内执行本脚本，那么该功能将不会生效"
-          ),
-          UISwitch(
-            "主动加载调试工具",
-            PanelSettingConfig.autoLoadDebugTool.key,
-            PanelSettingConfig.autoLoadDebugTool.defaultValue,
-            void 0,
-            "关闭后将会在脚本菜单注册按钮，有3种状态【加载并显示调试工具】、【隐藏调试工具】、【显示调试工具】"
-          )
-        ]
-      }
-    ]
-  };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
-    let result = {
-      text,
-      type: "button",
-      attributes: {},
-      description,
-      buttonIcon,
-      buttonIsRightIcon,
-      buttonIconIsLoading,
-      buttonType,
-      buttonText,
-      callback(event) {
-        if (typeof clickCallBack === "function") {
-          clickCallBack(event);
-        }
-      },
-      afterAddToUListCallBack
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(
-        typeof disable === "function" ? disable() : disable
-      );
-    });
-    return result;
-  };
-  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
-    let result = {
-      text,
-      type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
-      props: {},
-      attributes: {},
-      description,
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      callback(event, value) {
-        this.props[PROPS_STORAGE_API].set(key, value);
-      },
-      placeholder
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
-      }
-    });
-    return result;
-  };
-  const PanelUI_vConsole = {
-    id: "debug-panel-config-vconsole",
-    title: "vConsole",
-    headerTitle: `<a href='${DebugToolConfig.vConsole.settingDocUrl}' target='_blank'>vConsole设置</a>`,
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UIButton(
-            "当前版本",
-            "",
-            DebugToolConfig.vConsole.version,
-            void 0,
-            false,
-            false,
-            "primary",
-            (event) => {
-              utils.preventEvent(event);
-              window.open(DebugToolConfig.vConsole.homeUrl, "_blank");
-            }
-          ),
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let $left = document.createElement("div");
-              $left.className = "pops-panel-item-left-text";
-              $left.innerHTML = /*html*/
-              `
-                            <p class="pops-panel-item-left-main-text">最新版本</p>
-                        `;
-              let $right = document.createElement("div");
-              $right.className = "pops-panel-item-right-text";
-              $right.innerHTML = /*html*/
-              `
-                        <a href="${DebugToolConfig.vConsole.homeUrl}" target="_blank">
-                            <img src="https://img.shields.io/npm/v/vconsole/latest.svg?label=vConsole" alt="vConsole">
-                        </a>
-                        `;
-              liElement.appendChild($left);
-              liElement.appendChild($right);
-              return liElement;
-            }
-          },
-          UISwitch(
-            "自动打开面板",
-            PanelSettingConfig.vconsole_auto_open_panel.key,
-            PanelSettingConfig.vconsole_auto_open_panel.defaultValue,
-            void 0,
-            "加载完毕后自动显示面板内容"
-          ),
-          UISelect(
-            "默认展示的面板元素",
-            PanelSettingConfig.vconsole_default_show_panel_name.key,
-            PanelSettingConfig.vconsole_default_show_panel_name.defaultValue,
-            [
-              {
-                text: "Log",
-                value: "default"
-              },
-              {
-                text: "System",
-                value: "system",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.vConsole_panel_system.key
-                  );
-                }
-              },
-              {
-                text: "Network",
-                value: "network",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.vConsole_panel_network.key
-                  );
-                }
-              },
-              {
-                text: "Element",
-                value: "element",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.vConsole_panel_element.key
-                  );
-                }
-              },
-              {
-                text: "Storage",
-                value: "storage",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.vConsole_panel_storage.key
-                  );
-                }
-              },
-              {
-                text: "Stats",
-                value: "stats",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key
-                  );
-                }
-              },
-              {
-                text: "exportLog",
-                value: "exportlog",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key
-                  );
-                }
-              },
-              {
-                text: "Vue",
-                value: "vue",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key
-                  );
-                }
-              }
-            ],
-            void 0,
-            "开启【自动打开面板】才会生效"
-          )
-        ]
-      },
-      {
-        text: "面板",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "System",
-            PanelSettingConfig.vConsole_panel_system.key,
-            PanelSettingConfig.vConsole_panel_system.defaultValue,
-            void 0,
-            "控制台"
-          ),
-          UISwitch(
-            "Network",
-            PanelSettingConfig.vConsole_panel_network.key,
-            PanelSettingConfig.vConsole_panel_network.defaultValue,
-            void 0,
-            "元素"
-          ),
-          UISwitch(
-            "Element",
-            PanelSettingConfig.vConsole_panel_element.key,
-            PanelSettingConfig.vConsole_panel_element.defaultValue,
-            void 0,
-            "网络"
-          ),
-          UISwitch(
-            "Storage",
-            PanelSettingConfig.vConsole_panel_storage.key,
-            PanelSettingConfig.vConsole_panel_storage.defaultValue,
-            void 0,
-            "资源"
-          )
-        ]
-      },
-      {
-        text: "配置",
-        type: "forms",
-        forms: [
-          UISelect(
-            "主题",
-            PanelSettingConfig.vConsole_theme.key,
-            PanelSettingConfig.vConsole_theme.defaultValue,
-            [
-              {
-                value: "auto",
-                text: "自动"
-              },
-              {
-                value: "light",
-                text: "浅色主题"
-              },
-              {
-                value: "dark",
-                text: "深色主题"
-              }
-            ],
-            void 0,
-            void 0
-          ),
-          UISwitch(
-            "禁止Log自动滚动",
-            PanelSettingConfig.vconsole_disableLogScrolling.key,
-            PanelSettingConfig.vconsole_disableLogScrolling.defaultValue
-          ),
-          UISwitch(
-            "显示日志的输出时间",
-            PanelSettingConfig.vconsole_showTimestamps.key,
-            PanelSettingConfig.vconsole_showTimestamps.defaultValue
-          ),
-          UIInput(
-            "日志的上限数量",
-            PanelSettingConfig.vconsole_maxLogNumber.key,
-            PanelSettingConfig.vconsole_maxLogNumber.defaultValue,
-            "请输入数字",
-            void 0,
-            void 0,
-            true
-          ),
-          UIInput(
-            "请求记录的上限数量",
-            PanelSettingConfig.vconsole_maxNetworkNumber.key,
-            PanelSettingConfig.vconsole_maxNetworkNumber.defaultValue,
-            "请输入数字",
-            void 0,
-            void 0,
-            true
-          )
-        ]
-      },
-      {
-        text: "Storage配置",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "Cookies",
-            PanelSettingConfig.vConsole_storage_defaultStorages_cookies.key,
-            PanelSettingConfig.vConsole_storage_defaultStorages_cookies.defaultValue,
-            void 0,
-            "显示Cookies"
-          ),
-          UISwitch(
-            "LocalStorage",
-            PanelSettingConfig.vConsole_storage_defaultStorages_localStorage.key,
-            PanelSettingConfig.vConsole_storage_defaultStorages_localStorage.defaultValue,
-            void 0,
-            "显示LocalStorage"
-          ),
-          UISwitch(
-            "SessionStorage",
-            PanelSettingConfig.vConsole_storage_defaultStorages_sessionStorage.key,
-            PanelSettingConfig.vConsole_storage_defaultStorages_sessionStorage.defaultValue,
-            void 0,
-            "显示SessionStorage"
-          )
-        ]
-      },
-      {
-        text: "插件",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "vconsole-stats-plugin",
-            PanelSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key,
-            PanelSettingConfig.vConsole_plugin_Resource_vConsole_Stats.defaultValue,
-            void 0,
-            "A vConsole plugin which can show Stats in front-end."
-          ),
-          UISwitch(
-            "vconsole-outputlog-plugin",
-            PanelSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key,
-            PanelSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.defaultValue,
-            void 0,
-            "使用该插件可以复制或下载console中打印的log"
-          ),
-          UISwitch(
-            /*html*/
-            `
-                        <a class="plugin-anchor" href="https://github.com/Zippowxk/vue-vconsole-devtools" target="_blank">
-                            <img src="https://img.shields.io/npm/v/vue-vconsole-devtools/latest.svg?label=">
-                        </a>
-                        vue-vconsole-devtools
-                    `,
-            PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key,
-            PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.defaultValue,
-            void 0,
-            `
-                        v${DebugToolVersionConfig.vconsole.plugin["vue-vconsole-devtools"]}
-                        <br>
-                        Vue-vConsole-devtools 是一款vConsole插件，把Vue.js官方调试工具vue-devtools移植到移动端，可以直接在移动端查看调试Vue.js应用
-                    `
-          )
-        ]
-      }
-    ]
-  };
-  const PanelUI_eruda = {
-    id: "debug-panel-config-eruda",
-    title: "Eruda",
-    headerTitle: `<a href='${DebugToolConfig.eruda.settingDocUrl}' target='_blank'>Eruda设置</a>`,
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UIButton(
-            "当前版本",
-            "",
-            DebugToolConfig.eruda.version,
-            void 0,
-            false,
-            false,
-            "primary",
-            (event) => {
-              utils.preventEvent(event);
-              window.open(DebugToolConfig.eruda.homeUrl, "_blank");
-            }
-          ),
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let $left = document.createElement("div");
-              $left.className = "pops-panel-item-left-text";
-              $left.innerHTML = /*html*/
-              `
-                            <p class="pops-panel-item-left-main-text">最新版本</p>
-                        `;
-              let $right = document.createElement("div");
-              $right.className = "pops-panel-item-right-text";
-              $right.innerHTML = /*html*/
-              `
-                        <a href="${DebugToolConfig.eruda.homeUrl}" target="_blank">
-                            <img src="https://img.shields.io/npm/v/eruda/latest.svg?label=eruda" alt="eruda">
-                        </a>
-                        `;
-              liElement.appendChild($left);
-              liElement.appendChild($right);
-              return liElement;
-            }
-          },
-          UISwitch(
-            "自动打开面板",
-            PanelSettingConfig.eruda_auto_open_panel.key,
-            PanelSettingConfig.eruda_auto_open_panel.defaultValue,
-            void 0,
-            "加载完毕后自动显示面板内容"
-          ),
-          UISelect(
-            "默认展示的面板元素",
-            PanelSettingConfig.eruda_default_show_panel_name.key,
-            PanelSettingConfig.eruda_default_show_panel_name.defaultValue,
-            [
-              {
-                text: "Console",
-                value: "console",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_panel_console.key
-                  );
-                }
-              },
-              {
-                text: "Elements",
-                value: "elements",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_panel_elements.key
-                  );
-                }
-              },
-              {
-                text: "Network",
-                value: "network",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_panel_network.key
-                  );
-                }
-              },
-              {
-                text: "Resources",
-                value: "resources",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_panel_resources.key
-                  );
-                }
-              },
-              {
-                text: "Sources",
-                value: "sources",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_panel_sources.key
-                  );
-                }
-              },
-              {
-                text: "Info",
-                value: "info",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_panel_info.key
-                  );
-                }
-              },
-              {
-                text: "Snippets",
-                value: "snippets",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_panel_snippets.key
-                  );
-                }
-              },
-              {
-                text: "Monitor",
-                value: "monitor",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.key
-                  );
-                }
-              },
-              {
-                text: "Features",
-                value: "features",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.key
-                  );
-                }
-              },
-              {
-                text: "Timing",
-                value: "timing",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_plugin_Resource_erudaTiming.key
-                  );
-                }
-              },
-              {
-                text: "Code",
-                value: "code",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_plugin_Resource_erudaCode.key
-                  );
-                }
-              },
-              {
-                text: "Benchmark",
-                value: "benchmark",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.key
-                  );
-                }
-              },
-              {
-                text: "Geolocation",
-                value: "geolocation",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
-                  );
-                }
-              },
-              {
-                text: "Orientation",
-                value: "orientation",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.key
-                  );
-                }
-              },
-              {
-                text: "Touches",
-                value: "touches",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_plugin_Resource_erudaTouches.key
-                  );
-                }
-              },
-              {
-                text: "Outline",
-                value: "outline",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key
-                  );
-                }
-              },
-              {
-                text: "Pixel",
-                value: "pixel",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_plugin_Resource_erudaPixel.key
-                  );
-                }
-              },
-              {
-                text: "Vue",
-                value: "vue",
-                disable() {
-                  return !PopsPanel.getValue(
-                    PanelSettingConfig.eruda_plugin_Resource_erudaVue.key
-                  );
-                }
-              },
-              {
-                text: "Settings",
-                value: "settings"
-              }
-            ],
-            void 0,
-            "开启【自动打开面板】才会生效"
-          )
-        ]
-      },
-      {
-        text: "面板",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "Console",
-            PanelSettingConfig.eruda_panel_console.key,
-            PanelSettingConfig.eruda_panel_console.defaultValue,
-            void 0,
-            "控制台"
-          ),
-          UISwitch(
-            "Elements",
-            PanelSettingConfig.eruda_panel_elements.key,
-            PanelSettingConfig.eruda_panel_elements.defaultValue,
-            void 0,
-            "元素"
-          ),
-          UISwitch(
-            "Network",
-            PanelSettingConfig.eruda_panel_network.key,
-            PanelSettingConfig.eruda_panel_network.defaultValue,
-            void 0,
-            "网络"
-          ),
-          UISwitch(
-            "Resources",
-            PanelSettingConfig.eruda_panel_resources.key,
-            PanelSettingConfig.eruda_panel_resources.defaultValue,
-            void 0,
-            "资源"
-          ),
-          UISwitch(
-            "Sources",
-            PanelSettingConfig.eruda_panel_sources.key,
-            PanelSettingConfig.eruda_panel_sources.defaultValue,
-            void 0,
-            "源代码"
-          ),
-          UISwitch(
-            "Info",
-            PanelSettingConfig.eruda_panel_info.key,
-            PanelSettingConfig.eruda_panel_info.defaultValue,
-            void 0,
-            "信息"
-          ),
-          UISwitch(
-            "Snippets",
-            PanelSettingConfig.eruda_panel_snippets.key,
-            PanelSettingConfig.eruda_panel_snippets.defaultValue,
-            void 0,
-            "拓展"
-          )
-        ]
-      },
-      {
-        text: "插件",
-        type: "forms",
-        forms: [
-          UISwitch(
-            /*html*/
-            `
-                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-monitor" target="_blank">
-                        <img src="https://img.shields.io/npm/v/eruda-monitor/latest.svg?label=">
-                    </a>
-                    eruda-monitor
-                    `,
-            PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.key,
-            PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.defaultValue,
-            void 0,
-            `
-						v${DebugToolVersionConfig.eruda.plugin["eruda-monitor"]}
-						<br>
-						展示页面的 fps 和内存信息
-                    `
-          ),
-          UISwitch(
-            /*html*/
-            `
-                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-features" target="_blank">
-                        <img src="https://img.shields.io/npm/v/eruda-features/latest.svg?label=">
-                    </a>
-                    eruda-features
-                    `,
-            PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.key,
-            PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.defaultValue,
-            void 0,
-            `
-						v${DebugToolVersionConfig.eruda.plugin["eruda-features"]}
-						<br>
-						浏览器特性检测
-                    `
-          ),
-          UISwitch(
-            /*html*/
-            `
-                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-timing" target="_blank">
-                        <img src="https://img.shields.io/npm/v/eruda-timing/latest.svg?label=">
-                    </a>
-                    eruda-timing
-                    `,
-            PanelSettingConfig.eruda_plugin_Resource_erudaTiming.key,
-            PanelSettingConfig.eruda_plugin_Resource_erudaTiming.defaultValue,
-            void 0,
-            `
-						v${DebugToolVersionConfig["eruda"]["plugin"]["eruda-timing"]}
-						<br>
-						展示性能资源数据
-                    `
-          ),
-          UISwitch(
-            /*html*/
-            `
-                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-code" target="_blank">
-                        <img src="https://img.shields.io/npm/v/eruda-code/latest.svg?label=">
-                    </a>
-                    eruda-code
-                    `,
-            PanelSettingConfig.eruda_plugin_Resource_erudaCode.key,
-            PanelSettingConfig.eruda_plugin_Resource_erudaCode.defaultValue,
-            void 0,
-            `
-						v${DebugToolVersionConfig.eruda.plugin["eruda-code"]}
-						<br>
-						运行 JavaScript 代码
-                    `
-          ),
-          UISwitch(
-            /*html*/
-            `
-                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-benchmark" target="_blank">
-                        <img src="https://img.shields.io/npm/v/eruda-benchmark/latest.svg?label=">
-                    </a>
-                    eruda-benchmark
-                    `,
-            PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.key,
-            PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.defaultValue,
-            void 0,
-            `
-						v${DebugToolVersionConfig.eruda.plugin["eruda-benchmark"]}
-						<br>
-						运行 JavaScript 性能测试
-                    `
-          ),
-          UISwitch(
-            "eruda-geolocation",
-            PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.key,
-            PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.defaultValue,
-            void 0,
-            "测试地理位置接口"
-          ),
-          UISwitch(
-            /*html*/
-            `
-                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-orientation" target="_blank">
-                        <img src="https://img.shields.io/npm/v/eruda-orientation/latest.svg?label=">
-                    </a>
-                    eruda-orientation
-                    `,
-            PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.key,
-            PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.defaultValue,
-            void 0,
-            `
-						v${DebugToolVersionConfig.eruda.plugin["eruda-orientation"]}
-						<br>
-						测试重力感应接口
-                    `
-          ),
-          UISwitch(
-            /*html*/
-            `
-                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-vue" target="_blank">
-                        <img src="https://img.shields.io/npm/v/eruda-vue/latest.svg?label=">
-                    </a>
-                    eruda-vue
-                    `,
-            PanelSettingConfig.eruda_plugin_Resource_erudaVue.key,
-            PanelSettingConfig.eruda_plugin_Resource_erudaVue.defaultValue,
-            void 0,
-            `
-						v${DebugToolVersionConfig.eruda.plugin["eruda-vue"]}
-						<br>
-						Vue调试工具
-                    `
-          ),
-          UISwitch(
-            /*html*/
-            `
-                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-touches" target="_blank">
-                        <img src="https://img.shields.io/npm/v/eruda-touches/latest.svg?label=">
-                    </a>
-                    eruda-touches
-                    `,
-            PanelSettingConfig.eruda_plugin_Resource_erudaTouches.key,
-            PanelSettingConfig.eruda_plugin_Resource_erudaTouches.defaultValue,
-            void 0,
-            `
-						v${DebugToolVersionConfig.eruda.plugin["eruda-touches"]}
-						<br>
-						可视化屏幕 Touch 事件触发
-                    `
-          ),
-          UISwitch(
-            /*html*/
-            `
-                    <a class="plugin-anchor" href="https://github.com/pomelo-chuan/eruda-outline-plugin" target="_blank">
-                        <img src="https://img.shields.io/npm/v/eruda-outline-plugin/latest.svg?label=">
-                    </a>
-                    eruda-outline-plugin
-                    `,
-            PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key,
-            PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.defaultValue,
-            void 0,
-            `
-						v${DebugToolVersionConfig.eruda.plugin["eruda-outline-plugin"]}
-						<br>
-						给页面的元素添加边框
-					`
-          ),
-          UISwitch(
-            /*html*/
-            `
-                    <a class="plugin-anchor" href="https://github.com/Faithree/eruda-pixel" target="_blank">
-                        <img src="https://img.shields.io/npm/v/eruda-pixel/latest.svg?label=">
-                    </a>
-                    eruda-pixel
-                    `,
-            PanelSettingConfig.eruda_plugin_Resource_erudaPixel.key,
-            PanelSettingConfig.eruda_plugin_Resource_erudaPixel.defaultValue,
-            void 0,
-            `
-						v${DebugToolVersionConfig.eruda.plugin["eruda-pixel"]}
-						<br>
-						高精度的UI恢复辅助工具
-                    `
-          )
-        ]
-      }
-    ]
-  };
-  const PanelUI_pagespy = {
-    id: "debug-panel-config-pagespy",
-    title: "PageSpy",
-    headerTitle: `<a href='${DebugToolConfig.pageSpy.settingDocUrl}' target='_blank'>PageSpy设置</a>`,
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UIButton(
-            "注意！隐私保护！",
-            "",
-            "了解详情",
-            void 0,
-            false,
-            false,
-            "danger",
-            (event) => {
-              __pops.confirm({
-                title: {
-                  text: "提示",
-                  position: "center"
-                },
-                content: {
-                  text: `下面默认配置的${DebugToolConfig.pageSpy.defaultConfig.api}是仅供测试使用的，其他人也可以看到你的调试信息，包括Cookie等信息，如果想用，请自己搭建一个调试端`
-                },
-                btn: {
-                  reverse: true,
-                  position: "end",
-                  ok: {
-                    text: "前往了解更多",
-                    callback() {
-                      window.open(
-                        "https://github.com/HuolalaTech/page-spy-web/wiki/%F0%9F%90%9E-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94#user-content-testjikejishucom-%E6%98%AF%E5%AE%98%E6%96%B9%E6%8F%90%E4%BE%9B%E7%9A%84%E5%9F%9F%E5%90%8D%E5%90%97%E4%B8%80%E7%9B%B4%E5%8F%AF%E4%BB%A5%E7%94%A8%E5%90%97",
-                        "_blank"
-                      );
-                    }
-                  }
-                },
-                mask: {
-                  enable: true
-                },
-                width: PanelUISize.info.width,
-                height: PanelUISize.info.height
-              });
-            },
-            void 0
-          ),
-          UIButton(
-            "当前版本",
-            "",
-            DebugToolConfig.pageSpy.version,
-            void 0,
-            false,
-            false,
-            "primary",
-            (event) => {
-              utils.preventEvent(event);
-              window.open(DebugToolConfig.pageSpy.homeUrl, "_blank");
-            }
-          ),
-          {
-            type: "own",
-            getLiElementCallBack(liElement) {
-              let $left = document.createElement("div");
-              $left.className = "pops-panel-item-left-text";
-              $left.innerHTML = /*html*/
-              `
-                            <p class="pops-panel-item-left-main-text">最新版本</p>
-                        `;
-              let $right = document.createElement("div");
-              $right.className = "pops-panel-item-right-text";
-              $right.innerHTML = /*html*/
-              `
-                        <a href="${DebugToolConfig.pageSpy.homeUrl}" target="_blank">
-                            <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=pagespy" alt="page-spy-browser">
-                        </a>
-                        `;
-              liElement.appendChild($left);
-              liElement.appendChild($right);
-              return liElement;
-            }
-          },
-          UISwitch(
-            "禁止在调试端运行",
-            PanelSettingConfig.pagespy_disable_run_in_debug_client.key,
-            PanelSettingConfig.pagespy_disable_run_in_debug_client.defaultValue,
-            void 0,
-            "调试端是下面配置的api/clientOrigin地址"
-          )
-        ]
-      },
-      {
-        text: "配置",
-        type: "forms",
-        forms: [
-          UIInput(
-            "api",
-            PanelSettingConfig.pagespy_api.key,
-            PanelSettingConfig.pagespy_api.defaultValue,
-            "",
-            void 0,
-            "服务器地址的 Host"
-          ),
-          UIInput(
-            "clientOrigin",
-            PanelSettingConfig.pagespy_clientOrigin.key,
-            PanelSettingConfig.pagespy_clientOrigin.defaultValue,
-            "",
-            void 0,
-            "服务器地址的 Origin"
-          ),
-          UIInput(
-            "project",
-            PanelSettingConfig.pagespy_project.key,
-            PanelSettingConfig.pagespy_project.defaultValue,
-            void 0,
-            void 0,
-            "项目名称"
-          ),
-          UIInput(
-            "title",
-            PanelSettingConfig.pagespy_title.key,
-            PanelSettingConfig.pagespy_title.defaultValue,
-            void 0,
-            void 0,
-            "自定义标题"
-          ),
-          UISwitch(
-            "autoRender",
-            PanelSettingConfig.pagespy_autoRender.key,
-            PanelSettingConfig.pagespy_autoRender.defaultValue,
-            void 0,
-            "自动渲染「圆形白底带 Logo」"
-          ),
-          UISelect(
-            "enableSSL",
-            PanelSettingConfig.pagespy_enableSSL.key,
-            PanelSettingConfig.pagespy_enableSSL.defaultValue,
-            [
-              {
-                value: null,
-                text: "默认(自动分析)"
-              },
-              {
-                value: true,
-                text: "开启"
-              },
-              {
-                value: false,
-                text: "关闭"
-              }
-            ],
-            void 0,
-            "是否https"
-          ),
-          UISwitch(
-            "offline",
-            PanelSettingConfig.pagespy_offline.key,
-            PanelSettingConfig.pagespy_offline.defaultValue,
-            void 0,
-            `是否进入 "离线模式"，具体表现为 PageSpy 不会创建房间、建立 WebSocket 连接。`
-          ),
-          UISwitch(
-            "serializeData",
-            PanelSettingConfig.pagespy_serializeData.key,
-            PanelSettingConfig.pagespy_serializeData.defaultValue,
-            void 0,
-            `是否允许 SDK 在收集离线日志时，序列化非基本类型的数据，序列化的目的是方便在回放时查看`
-          ),
-          UISwitch(
-            "useSecret",
-            PanelSettingConfig.pagespy_useSecret.key,
-            PanelSettingConfig.pagespy_useSecret.defaultValue,
-            void 0,
-            `是否启用权限认证功能。启用后，SDK 会生成 6 位数的随机 “密钥”；调试端进入房间时要求输入对应的密钥`
-          ),
-          UIInput(
-            "messageCapacity",
-            PanelSettingConfig.pagespy_messageCapacity.key,
-            PanelSettingConfig.pagespy_messageCapacity.defaultValue,
-            "调试端进入房间后可以看到之前的数据量的大小",
-            void 0,
-            `指定 SDK 在本地最多缓存多少条数据记录`
-          )
-        ]
-      }
-    ]
-  };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
-    let result = {
-      text,
-      type: "slider",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      getToolTipContent(value) {
-        if (typeof getToolTipContent === "function") {
-          return getToolTipContent(value);
-        } else {
-          return `${value}`;
-        }
-      },
-      callback(event, value) {
-        if (typeof changeCallBack === "function") {
-          if (changeCallBack(event, value)) {
-            return;
-          }
-        }
-        this.props[PROPS_STORAGE_API].set(key, value);
-      },
-      min,
-      max,
-      step
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
-      }
-    });
-    return result;
-  };
-  const PanelUI_chii = {
-    id: "debug-panel-config-chii",
-    title: "Chii",
-    headerTitle: `<a href='${DebugToolConfig.chii.settingDocUrl}' target='_blank'>Chii设置</a>`,
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UIButton(
-            "调试页面",
-            "",
-            "前往",
-            void 0,
-            false,
-            false,
-            "primary",
-            (event) => {
-              let url = PopsPanel.getValue(
-                "chii-debug-url",
-                DebugToolConfig.chii.defaultConfig.url
-              );
-              window.open(url, "_blank");
-            },
-            void 0,
-            () => {
-              return Boolean(
-                PopsPanel.getValue(
-                  PanelSettingConfig.chii_script_embedded.key,
-                  PanelSettingConfig.chii_script_embedded.defaultValue
-                )
-              );
-            }
-          )
-        ]
-      },
-      {
-        text: "配置",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "本页展示",
-            PanelSettingConfig.chii_script_embedded.key,
-            PanelSettingConfig.chii_script_embedded.defaultValue,
-            (event, value) => {
-              let $shadowRoot = event.target.getRootNode();
-              let button = $shadowRoot.querySelector(
-                "li.pops-panel-forms-container-item ul > li > .pops-panel-button button"
-              );
-              if (value) {
-                button.setAttribute("disabled", "true");
-              } else {
-                button.removeAttribute("disabled");
-              }
-            },
-            "将调试器展示在同一页面中"
-          ),
-          UISwitch(
-            "禁止在调试端运行",
-            PanelSettingConfig.chii_disable_run_in_debug_url.key,
-            PanelSettingConfig.chii_disable_run_in_debug_url.defaultValue,
-            void 0,
-            "调试端是下面配置的【调试页面Url】"
-          ),
-          UISwitch(
-            "检测script加载",
-            PanelSettingConfig.chii_check_script_load.key,
-            PanelSettingConfig.chii_check_script_load.defaultValue,
-            void 0,
-            "失败会有alert提示弹出"
-          ),
-          UIInput(
-            "调试页面Url",
-            PanelSettingConfig.chii_debug_url.key,
-            PanelSettingConfig.chii_debug_url.defaultValue,
-            "请输入链接Url",
-            void 0,
-            "配置【调试页面】的Url"
-          ),
-          UIInput(
-            "来源js",
-            PanelSettingConfig.chii_target_js.key,
-            PanelSettingConfig.chii_target_js.defaultValue,
-            "请输入目标js文件",
-            void 0,
-            "用于注入页面来进行调试"
-          )
-        ]
-      },
-      {
-        text: "本页展示的配置",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "锁定高度",
-            PanelSettingConfig.chii_embedded_height_enable.key,
-            PanelSettingConfig.chii_embedded_height_enable.defaultValue,
-            void 0,
-            "开启后将自动覆盖面板高度"
-          ),
-          UISlider(
-            "高度设定",
-            PanelSettingConfig.chii_embedded_height.key,
-            PanelSettingConfig.chii_embedded_height.defaultValue,
-            0,
-            parseInt(window.innerHeight.toString()),
-            (_, value) => {
-              let $chobitsu = document.querySelector(
-                ".__chobitsu-hide__:has(iframe)"
-              );
-              $chobitsu && ($chobitsu.style.height = value + "px");
-            },
-            (value) => value + "px",
-            "可覆盖当前页面Chii面板的高度",
-            1
-          )
-        ]
-      }
-    ]
-  };
-  const PopsPanel = {
-    /** 数据 */
-    $data: {
-      __data: null,
-      __oneSuccessExecMenu: null,
-      __onceExec: null,
-      __listenData: null,
-      /**
-       * 菜单项的默认值
-       */
-      get data() {
-        if (PopsPanel.$data.__data == null) {
-          PopsPanel.$data.__data = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__data;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get oneSuccessExecMenu() {
-        if (PopsPanel.$data.__oneSuccessExecMenu == null) {
-          PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__oneSuccessExecMenu;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get onceExec() {
-        if (PopsPanel.$data.__onceExec == null) {
-          PopsPanel.$data.__onceExec = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__onceExec;
-      },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
-        return SCRIPT_NAME;
-      },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
-    },
-    /** 监听器 */
-    $listener: {
-      /**
-       * 值改变的监听器
-       */
-      get listenData() {
-        if (PopsPanel.$data.__listenData == null) {
-          PopsPanel.$data.__listenData = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__listenData;
-      }
-    },
-    init() {
-      let contentConfigList = this.getPanelContentConfig();
-      this.initPanelConfigDefaultValue([...contentConfigList]);
-      this.registerMenu();
-    },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
-      return window.top === window.self;
-    },
-    /** 初始化进行注册油猴菜单 */
-    registerMenu() {
-      if (!this.isTopWindow()) {
-        return;
-      }
-      GM_Menu.add([
-        {
-          key: "show_pops_panel_setting",
-          text: "⚙ 设置",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            this.showPanel();
-          }
-        }
-      ]);
-    },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initPanelConfigDefaultValue(contentConfigList) {
-      let that = this;
-      function initDefaultValue(config) {
-        if (!config.attributes) {
-          return;
-        }
-        let needInitConfig = {};
-        let key = config.attributes[ATTRIBUTE_KEY];
-        if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
-        }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-        if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
-        }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
-        }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          if (config.type !== "button") {
-            log.warn("请先配置键", config);
-          }
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
-          if (that.$data.data.has(__key)) {
-            log.warn("请检查该key(已存在): " + __key);
-          }
-          that.$data.data.set(__key, __defaultValue);
-        });
-      }
-      function loopInitDefaultValue(configList) {
-        for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
-          initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
-          }
-        }
-      }
-      for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
-          continue;
-        }
-        let rightContentConfigList = leftContentConfigItem.forms;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
-          loopInitDefaultValue(rightContentConfigList);
-        }
-      }
-    },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      locaData[key] = value;
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, value);
-      }
-    },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
-      let locaData = _GM_getValue(KEY, {});
-      let localValue = locaData[key];
-      if (localValue == null) {
-        if (this.$data.data.has(key)) {
-          return this.$data.data.get(key);
-        }
-        return defaultValue;
-      }
-      return localValue;
-    },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      Reflect.deleteProperty(locaData, key);
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
-      }
-    },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback, option) {
-      let listenerId = Math.random();
-      this.$listener.listenData.set(key, {
-        id: listenerId,
-        key,
-        callback
-      });
-      if (option) {
-        if (option.immediate) {
-          callback(key, this.getValue(key), this.getValue(key));
-        }
-      }
-      return listenerId;
-    },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
-      let deleteKey = null;
-      for (const [key, value] of this.$listener.listenData.entries()) {
-        if (value.id === listenerId) {
-          deleteKey = key;
-          break;
-        }
-      }
-      if (typeof deleteKey === "string") {
-        this.$listener.listenData.delete(deleteKey);
-      } else {
-        console.warn("没有找到对应的监听器");
-      }
-    },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
-      if (this.$listener.listenData.has(key)) {
-        let listenData = this.$listener.listenData.get(key);
-        if (typeof listenData.callback === "function") {
-          let value = this.getValue(key);
-          let __newValue = value;
-          let __oldValue = value;
-          if (typeof newValue !== "undefined" && arguments.length > 1) {
-            __newValue = newValue;
-          }
-          if (typeof oldValue !== "undefined" && arguments.length > 2) {
-            __oldValue = oldValue;
-          }
-          listenData.callback(key, __oldValue, __newValue);
-        }
-      }
-    },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
-      let locaData = _GM_getValue(KEY, {});
-      return key in locaData;
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用
-     * @param checkEnableCallBack 自定义检测菜单的值，可自行决定是否强制启用菜单，true是启用菜单，false是不启用菜单
-     */
-    execMenu(key, callback, isReverse = false, checkEnableCallBack) {
-      if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
-        throw new TypeError("key 必须是字符串或者字符串数组");
-      }
-      let runKeyList = [];
-      if (typeof key === "object" && Array.isArray(key)) {
-        runKeyList = [...key];
-      } else {
-        runKeyList.push(key);
-      }
-      let value = void 0;
-      for (let index = 0; index < runKeyList.length; index++) {
-        const runKey = runKeyList[index];
-        if (!this.$data.data.has(runKey)) {
-          log.warn(`${key} 键不存在`);
-          return;
-        }
-        let runValue = PopsPanel.getValue(runKey);
-        if (isReverse) {
-          runValue = !runValue;
-        }
-        if (typeof checkEnableCallBack === "function") {
-          let checkResult = checkEnableCallBack(runKey, runValue);
-          if (typeof checkResult === "boolean") {
-            runValue = checkResult;
-          }
-        }
-        if (!runValue) {
-          break;
-        }
-        value = runValue;
-      }
-      if (value) {
-        callback(value);
-      }
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key
-     * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
-     * @param checkEnableCallBack 自定义检测菜单的值，可自行决定是否强制启用菜单，true是启用菜单，false是不启用菜单
-     */
-    execMenuOnce(key, callback, getValueFn, handleValueChangeFn, checkEnableCallBack) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
-      }
-      if (this.$data.oneSuccessExecMenu.has(key)) {
-        return;
-      }
-      this.$data.oneSuccessExecMenu.set(key, 1);
-      let __getValue = () => {
-        let localValue = PopsPanel.getValue(key);
-        return typeof getValueFn === "function" ? getValueFn(key, localValue) : localValue;
-      };
-      let resultStyleList = [];
-      let dynamicPushStyleNode = ($style) => {
-        let __value = __getValue();
-        let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
-        }
-        if (__value) {
-          resultStyleList = resultStyleList.concat(dynamicResultList);
-        } else {
-          for (let index = 0; index < dynamicResultList.length; index++) {
-            let $css = dynamicResultList[index];
-            $css.remove();
-            dynamicResultList.splice(index, 1);
-            index--;
-          }
-        }
-      };
-      let checkMenuEnableCallBack = (currentValue) => {
-        return typeof checkEnableCallBack === "function" ? checkEnableCallBack(key, currentValue) : currentValue;
-      };
-      let changeCallBack = (currentValue) => {
-        let resultList = [];
-        if (checkMenuEnableCallBack(currentValue)) {
-          let result = callback(currentValue, dynamicPushStyleNode);
-          if (result instanceof HTMLStyleElement) {
-            resultList = [result];
-          } else if (Array.isArray(result)) {
-            resultList = [
-              ...result.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            ];
-          }
-        }
-        for (let index = 0; index < resultStyleList.length; index++) {
-          let $css = resultStyleList[index];
-          $css.remove();
-          resultStyleList.splice(index, 1);
-          index--;
-        }
-        resultStyleList = [...resultList];
-      };
-      this.addValueChangeListener(
-        key,
-        (__key, oldValue, newValue) => {
-          let __newValue = newValue;
-          if (typeof handleValueChangeFn === "function") {
-            __newValue = handleValueChangeFn(__key, newValue, oldValue);
-          }
-          changeCallBack(__newValue);
-        }
-      );
-      let value = __getValue();
-      if (value) {
-        changeCallBack(value);
-      }
-    },
-    /**
-     * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key 菜单键
-     * @param childKey 子菜单键
-     * @param callback 回调
-     * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
-     */
-    execInheritMenuOnce(key, childKey, callback, replaceValueFn) {
-      let that = this;
-      const handleInheritValue = (key2, childKey2) => {
-        let mainValue = that.getValue(key2);
-        let childValue = that.getValue(childKey2);
-        if (typeof replaceValueFn === "function") {
-          let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue != null) {
-            return changedMainValue;
-          }
-        }
-        return mainValue;
-      };
-      this.execMenuOnce(
-        key,
-        callback,
-        () => {
-          return handleInheritValue(key, childKey);
-        },
-        () => {
-          return handleInheritValue(key, childKey);
-        }
-      );
-      this.execMenuOnce(
-        childKey,
-        () => {
-        },
-        () => false,
-        () => {
-          this.triggerMenuValueChange(key);
-          return false;
-        }
-      );
-    },
-    /**
-     * 根据自定义key只执行一次
-     * @param key 自定义key
-     */
-    onceExec(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExec.has(key)) {
-        return;
-      }
-      callback();
-      this.$data.onceExec.set(key, 1);
-    },
-    /**
-     * 显示设置面板
-     */
-    showPanel() {
-      __pops.panel({
-        title: {
-          text: `${SCRIPT_NAME}-设置`,
-          position: "center",
-          html: false,
-          style: ""
-        },
-        content: this.getPanelContentConfig(),
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: true,
-            toHide: false
-          }
-        },
-        width: PanelUISize.setting.width,
-        height: PanelUISize.setting.height,
-        drag: true,
-        only: true,
-        zIndex() {
-          let maxZIndex = Utils.getMaxZIndex();
-          let popsMaxZIndex = __pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-          return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-        },
-        style: (
-          /*css*/
-          `
-				aside.pops-panel-aside{
-					width: 20%;
-				}
-				.plugin-anchor{
-					text-decoration: none;
-					display: inline-flex;
-    				vertical-align: text-bottom;
-				}
-			`
-        )
-      });
-    },
-    /**
-     * 获取配置内容
-     */
-    getPanelContentConfig() {
-      let configList = [
-        PanelUI_globalSetting,
-        PanelUI_eruda,
-        PanelUI_vConsole,
-        PanelUI_pagespy,
-        PanelUI_chii
-      ];
-      return configList;
-    }
-  };
-  const WebSiteDebugUtil = {
-    /**
-     * 执行插件代码
-     * @param args
-     */
-    evalPlugin: (...args) => {
-      if (args.length === 0) {
-        return;
-      }
-      const codeText = args.join("\n");
-      return unsafeWin.eval(`
-(()=>{
-	try{
-		var exports=void 0;
-	}catch(error){
-		console.warn(error);
-	}
-
-	try{
-		var module=void 0;
-	}catch(error){
-		console.warn(error);
-	}
-
-	try{
-		var define=void 0;
-	}catch(error){
-		console.warn(error);
-	}
-		
-	${codeText}
-		
-})()
-`);
-    }
-  };
   const Eruda = () => {
     initEruda("Eruda", unsafeWin);
     let Eruda2 = unsafeWin.Eruda || globalThis.Eruda;
@@ -2439,184 +1361,176 @@
       return;
     }
     let inintPanelList = [];
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_console.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_panel_console.key)) {
       inintPanelList.push("console");
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_elements.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_panel_elements.key)) {
       inintPanelList.push("elements");
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_network.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_panel_network.key)) {
       inintPanelList.push("network");
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_resources.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_panel_resources.key)) {
       inintPanelList.push("resources");
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_sources.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_panel_sources.key)) {
       inintPanelList.push("sources");
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_info.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_panel_info.key)) {
       inintPanelList.push("info");
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_snippets.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_panel_snippets.key)) {
       inintPanelList.push("snippets");
     }
     DebugToolConfig.eruda.version = Eruda2.version;
     Eruda2.init({
       tool: inintPanelList
     });
-    console$1.log(`eruda当前版本：${Eruda2.version}`);
-    console$1.log(`eruda项目地址：${DebugToolConfig.eruda.homeUrl}`);
-    console$1.log("eruda的全局变量名: Eruda");
-    if (PopsPanel.getValue(
-      PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.key
-    )) {
+    console.log(`eruda当前版本：${Eruda2.version}`);
+    console.log(`eruda项目地址：${DebugToolConfig.eruda.homeUrl}`);
+    console.log("eruda的全局变量名: Eruda");
+    if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.resource
+            GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.resource
           )
         );
         Eruda2.add(erudaMonitor);
       } catch (error) {
-        console$1.error("插件【eruda-monitor】加载失败，原因：", error);
+        console.error("插件【eruda-monitor】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(
-      PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.key
-    )) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.resource
+            GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.resource
           )
         );
         Eruda2.add(erudaFeatures);
       } catch (error) {
-        console$1.error("插件【eruda-features】加载失败，原因：", error);
+        console.error("插件【eruda-features】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaTiming.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.eruda_plugin_Resource_erudaTiming.resource
+            GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.resource
           )
         );
         Eruda2.add(erudaTiming);
       } catch (error) {
-        console$1.error("插件【eruda-timing】加载失败，原因：", error);
+        console.error("插件【eruda-timing】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaCode.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.eruda_plugin_Resource_erudaCode.resource
+            GlobalSettingConfig.eruda_plugin_Resource_erudaCode.resource
           )
         );
         Eruda2.add(erudaCode);
       } catch (error) {
-        console$1.error("插件【eruda-code】加载失败，原因：", error);
+        console.error("插件【eruda-code】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(
-      PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.key
-    )) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource
+            GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource
           )
         );
         Eruda2.add(erudaBenchmark);
       } catch (error) {
-        console$1.error("插件【eruda-benchmark】加载失败，原因：", error);
+        console.error("插件【eruda-benchmark】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(
-      PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
+    if (Panel.getValue(
+      GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
     )) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource
+            GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource
           )
         );
         Eruda2.add(erudaGeolocation);
       } catch (error) {
-        console$1.error("插件【eruda-geolocation】加载失败，原因：", error);
+        console.error("插件【eruda-geolocation】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(
-      PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.key
+    if (Panel.getValue(
+      GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key
     )) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.resource
+            GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.resource
           )
         );
         Eruda2.add(erudaOrientation);
       } catch (error) {
-        console$1.error("插件【eruda-orientation】加载失败，原因：", error);
+        console.error("插件【eruda-orientation】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(
-      PanelSettingConfig.eruda_plugin_Resource_erudaTouches.key
-    )) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.eruda_plugin_Resource_erudaTouches.resource
+            GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.resource
           )
         );
         Eruda2.add(erudaTouches);
       } catch (error) {
-        console$1.error("插件【eruda-touches】加载失败，原因：", error);
+        console.error("插件【eruda-touches】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(
-      PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key
+    if (Panel.getValue(
+      GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key
     )) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource
+            GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource
           )
         );
         Eruda2.add(erudaOutlinePlugin);
       } catch (error) {
-        console$1.error("插件【eruda-outline-plugin】加载失败，原因：", error);
+        console.error("插件【eruda-outline-plugin】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaPixel.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.eruda_plugin_Resource_erudaPixel.resource
+            GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.resource
           )
         );
         Eruda2.add(erudaPixel);
       } catch (error) {
-        console$1.error("插件【eruda-pixel】加载失败，原因：", error);
+        console.error("插件【eruda-pixel】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaVue.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key)) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.eruda_plugin_Resource_erudaVue.resource
+            GlobalSettingConfig.eruda_plugin_Resource_erudaVue.resource
           )
         );
         Eruda2.add(erudaVue);
       } catch (error) {
-        console$1.error("插件【eruda-vue】加载失败，原因：", error);
+        console.error("插件【eruda-vue】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_auto_open_panel.key)) {
-      let defaultShowName = PopsPanel.getValue(
-        PanelSettingConfig.eruda_default_show_panel_name.key,
-        PanelSettingConfig.eruda_default_show_panel_name.defaultValue
+    if (Panel.getValue(GlobalSettingConfig.eruda_auto_open_panel.key)) {
+      let defaultShowName = Panel.getValue(
+        GlobalSettingConfig.eruda_default_show_panel_name.key,
+        GlobalSettingConfig.eruda_default_show_panel_name.defaultValue
       );
       Eruda2.show();
       setTimeout(() => {
@@ -2853,7 +1767,7 @@
               const currentType = event.target.dataset.type;
               if (currentType.toString() === "2" && // @ts-ignore
               !(self.performance && self.performance.memory)) {
-                console$1.error(
+                console.error(
                   "浏览器不支持window.performance或者window.performance.memory"
                 );
                 return;
@@ -2962,7 +1876,7 @@
           "exportLog"
         );
         vConsoleExportLogs.on("ready", () => {
-          console$1.log("[vConsole-exportlog-plugin] -- load");
+          console.log("[vConsole-exportlog-plugin] -- load");
         });
         vConsoleExportLogs.on("renderTab", (callback) => {
           const html = (
@@ -2998,36 +1912,36 @@
       return;
     }
     let initPanelList = [];
-    if (PopsPanel.getValue(PanelSettingConfig.vConsole_panel_system.key)) {
+    if (Panel.getValue(GlobalSettingConfig.vConsole_panel_system.key)) {
       initPanelList.push("system");
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_network.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_panel_network.key)) {
       initPanelList.push("network");
     }
-    if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_elements.key)) {
+    if (Panel.getValue(GlobalSettingConfig.eruda_panel_elements.key)) {
       initPanelList.push("element");
     }
-    if (PopsPanel.getValue(PanelSettingConfig.vConsole_panel_storage.key)) {
+    if (Panel.getValue(GlobalSettingConfig.vConsole_panel_storage.key)) {
       initPanelList.push("storage");
     }
-    if (PopsPanel.getValue(PanelSettingConfig.vConsole_theme.key) === "auto") {
+    if (Panel.getValue(GlobalSettingConfig.vConsole_theme.key) === "auto") {
       if (utils.isThemeDark()) ;
     } else {
-      PopsPanel.getValue(PanelSettingConfig.vConsole_theme.key);
+      Panel.getValue(GlobalSettingConfig.vConsole_theme.key);
     }
     let defaultStorages = [];
-    if (PopsPanel.getValue(
-      PanelSettingConfig.vConsole_storage_defaultStorages_cookies.key
+    if (Panel.getValue(
+      GlobalSettingConfig.vConsole_storage_defaultStorages_cookies.key
     )) {
       defaultStorages.push("cookies");
     }
-    if (PopsPanel.getValue(
-      PanelSettingConfig.vConsole_storage_defaultStorages_localStorage.key
+    if (Panel.getValue(
+      GlobalSettingConfig.vConsole_storage_defaultStorages_localStorage.key
     )) {
       defaultStorages.push("localStorage");
     }
-    if (PopsPanel.getValue(
-      PanelSettingConfig.vConsole_storage_defaultStorages_sessionStorage.key
+    if (Panel.getValue(
+      GlobalSettingConfig.vConsole_storage_defaultStorages_sessionStorage.key
     )) {
       defaultStorages.push("sessionStorage");
     }
@@ -3035,24 +1949,24 @@
       defaultPlugins: initPanelList,
       theme: "light",
       onReady() {
-        if (PopsPanel.getValue(PanelSettingConfig.vconsole_auto_open_panel.key)) {
+        if (Panel.getValue(GlobalSettingConfig.vconsole_auto_open_panel.key)) {
           vConsole2.show();
         }
       },
-      disableLogScrolling: PopsPanel.getValue(
-        PanelSettingConfig.vconsole_disableLogScrolling.key
+      disableLogScrolling: Panel.getValue(
+        GlobalSettingConfig.vconsole_disableLogScrolling.key
       ),
       log: {
-        maxLogNumber: PopsPanel.getValue(
-          PanelSettingConfig.vconsole_maxLogNumber.key,
-          PanelSettingConfig.vconsole_maxLogNumber.defaultValue
+        maxLogNumber: Panel.getValue(
+          GlobalSettingConfig.vconsole_maxLogNumber.key,
+          GlobalSettingConfig.vconsole_maxLogNumber.defaultValue
         ),
-        showTimestamps: PopsPanel.getValue(
-          PanelSettingConfig.vconsole_showTimestamps.key
+        showTimestamps: Panel.getValue(
+          GlobalSettingConfig.vconsole_showTimestamps.key
         ),
-        maxNetworkNumber: PopsPanel.getValue(
-          PanelSettingConfig.vconsole_maxNetworkNumber.key,
-          PanelSettingConfig.vconsole_maxNetworkNumber.defaultValue
+        maxNetworkNumber: Panel.getValue(
+          GlobalSettingConfig.vconsole_maxNetworkNumber.key,
+          GlobalSettingConfig.vconsole_maxNetworkNumber.defaultValue
         )
       },
       storage: {
@@ -3061,49 +1975,49 @@
     });
     DebugToolConfig.vConsole.version = vConsole2.version;
     unsafeWin.vConsole = vConsole2;
-    console$1.log(`VConsole当前版本：${vConsole2.version}`);
-    console$1.log(`VConsole项目地址：${DebugToolConfig.vConsole.homeUrl}`);
-    console$1.log("VConsole的实例化的全局变量名: vConsole");
-    if (PopsPanel.getValue(
-      PanelSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key
+    console.log(`VConsole当前版本：${vConsole2.version}`);
+    console.log(`VConsole项目地址：${DebugToolConfig.vConsole.homeUrl}`);
+    console.log("VConsole的实例化的全局变量名: vConsole");
+    if (Panel.getValue(
+      GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key
     )) {
       try {
         vConsolePluginState(vConsole2, VConsole);
       } catch (error) {
-        console$1.error("插件【vconsole-stats-plugin】加载失败，原因：", error);
+        console.error("插件【vconsole-stats-plugin】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(
-      PanelSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key
+    if (Panel.getValue(
+      GlobalSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key
     )) {
       try {
         vConsolePluginExportLog(vConsole2, VConsole);
       } catch (error) {
-        console$1.error("插件【vconsole-outputlog-plugin】加载失败，原因：", error);
+        console.error("插件【vconsole-outputlog-plugin】加载失败，原因：", error);
       }
     }
-    if (PopsPanel.getValue(
-      PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key
+    if (Panel.getValue(
+      GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key
     )) {
       try {
         WebSiteDebugUtil.evalPlugin(
           _GM_getResourceText(
-            PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.resource
+            GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.resource
           )
         );
         const Devtools = unsafeWin.vueVconsoleDevtools;
         Devtools.initPlugin(vConsole2);
       } catch (error) {
-        console$1.error(
+        console.error(
           "插件【vconsole-vue-devtools-plugin】加载失败，原因：",
           error
         );
       }
     }
-    if (PopsPanel.getValue(PanelSettingConfig.vconsole_auto_open_panel.key)) {
-      let defaultShowName = PopsPanel.getValue(
-        PanelSettingConfig.vconsole_default_show_panel_name.key,
-        PanelSettingConfig.vconsole_default_show_panel_name.defaultValue
+    if (Panel.getValue(GlobalSettingConfig.vconsole_auto_open_panel.key)) {
+      let defaultShowName = Panel.getValue(
+        GlobalSettingConfig.vconsole_default_show_panel_name.key,
+        GlobalSettingConfig.vconsole_default_show_panel_name.defaultValue
       );
       vConsole2.show();
       setTimeout(() => {
@@ -3112,23 +2026,21 @@
     }
   };
   const PageSpy = () => {
-    let api = PopsPanel.getValue(
-      PanelSettingConfig.pagespy_api.key,
-      PanelSettingConfig.pagespy_api.defaultValue
+    let api = Panel.getValue(
+      GlobalSettingConfig.pagespy_api.key,
+      GlobalSettingConfig.pagespy_api.defaultValue
     );
-    let clientOrigin = PopsPanel.getValue(
-      PanelSettingConfig.pagespy_clientOrigin.key,
-      PanelSettingConfig.pagespy_clientOrigin.defaultValue
+    let clientOrigin = Panel.getValue(
+      GlobalSettingConfig.pagespy_clientOrigin.key,
+      GlobalSettingConfig.pagespy_clientOrigin.defaultValue
     );
-    if (PopsPanel.getValue(
-      PanelSettingConfig.pagespy_disable_run_in_debug_client.key
-    )) {
+    if (Panel.getValue(GlobalSettingConfig.pagespy_disable_run_in_debug_client.key)) {
       if (window.location.hostname.includes(api)) {
-        console$1.log("禁止在调试端运行 ==> hostname包含api");
+        console.log("禁止在调试端运行 ==> hostname包含api");
         return;
       }
       if (window.location.origin.includes(clientOrigin)) {
-        console$1.log("禁止在调试端运行 ==> origin包含clientOrigin");
+        console.log("禁止在调试端运行 ==> origin包含clientOrigin");
         return;
       }
     }
@@ -3146,21 +2058,21 @@
       api,
       clientOrigin,
       // project 作为信息的一种聚合，可以在调试端房间列表进行搜索
-      project: PopsPanel.getValue(
-        PanelSettingConfig.pagespy_project.key,
-        PanelSettingConfig.pagespy_project.defaultValue
+      project: Panel.getValue(
+        GlobalSettingConfig.pagespy_project.key,
+        GlobalSettingConfig.pagespy_project.defaultValue
       ),
       // title 供用户提供自定义参数，可以用于区分当前调试的客户端
       // 对应的信息显示在每个调试连接面板的「设备id」下方
-      title: PopsPanel.getValue(
-        PanelSettingConfig.pagespy_title.key,
-        PanelSettingConfig.pagespy_title.defaultValue
+      title: Panel.getValue(
+        GlobalSettingConfig.pagespy_title.key,
+        GlobalSettingConfig.pagespy_title.defaultValue
       ),
       // 指示 SDK 初始化完成，是否自动在客户端左下角渲染「圆形白底带 Logo」的控件
       // 如果设置为 false, 可以调用 window.$pageSpy.render() 手动渲染
-      autoRender: PopsPanel.getValue(
-        PanelSettingConfig.pagespy_autoRender.key,
-        PanelSettingConfig.pagespy_autoRender.defaultValue
+      autoRender: Panel.getValue(
+        GlobalSettingConfig.pagespy_autoRender.key,
+        GlobalSettingConfig.pagespy_autoRender.defaultValue
       ),
       // 手动指定 PageSpy 服务的 scheme。
       // 这在 SDK 无法正确分析出 scheme 可以使用，例如 PageSpy 的浏览器插件
@@ -3170,50 +2082,50 @@
       //   - 传递 boolean 值：
       //     - true：SDK 将通过 ["https://", "wss://"] 访问 PageSpy 服务
       //     - false：SDK 将通过 ["http://", "ws://"] 访问 PageSpy 服务
-      enableSSL: PopsPanel.getValue(
-        PanelSettingConfig.pagespy_enableSSL.key,
-        PanelSettingConfig.pagespy_enableSSL.defaultValue
+      enableSSL: Panel.getValue(
+        GlobalSettingConfig.pagespy_enableSSL.key,
+        GlobalSettingConfig.pagespy_enableSSL.defaultValue
       ),
       // 在 PageSpy@1.7.4 支持离线回放功能后，客户端集成的 SDK 可以不用和调试端建立连接，
       // 通过 DataHarborPlugin 收集数据、导出离线日志，成为新的使用方式。
       // 默认值 false。用户设置为其他值时，会进入 "离线模式"，具体表现为 PageSpy 不会创建房间、建立 WebSocket 连接。
       // 仅适用浏览器环境的 SDK
-      offline: PopsPanel.getValue(
-        PanelSettingConfig.pagespy_offline.key,
-        PanelSettingConfig.pagespy_offline.defaultValue
+      offline: Panel.getValue(
+        GlobalSettingConfig.pagespy_offline.key,
+        GlobalSettingConfig.pagespy_offline.defaultValue
       ),
       // PageSpy 内置的插件都是开箱即用的，你可以手动指定禁用哪些插件
       // disabledPlugins: [],
       // 是否允许 SDK 在收集离线日志时，序列化非基本类型的数据，序列化的目的是方便在回放时查看
-      serializeData: PopsPanel.getValue(
-        PanelSettingConfig.pagespy_serializeData.key,
-        PanelSettingConfig.pagespy_serializeData.defaultValue
+      serializeData: Panel.getValue(
+        GlobalSettingConfig.pagespy_serializeData.key,
+        GlobalSettingConfig.pagespy_serializeData.defaultValue
       ),
       // 是否启用权限认证功能。启用后，SDK 会生成 6 位数的随机 “密钥”；调试端进入房间时要求输入对应的密钥
-      useSecret: PopsPanel.getValue(
-        PanelSettingConfig.pagespy_useSecret.key,
-        PanelSettingConfig.pagespy_useSecret.defaultValue
+      useSecret: Panel.getValue(
+        GlobalSettingConfig.pagespy_useSecret.key,
+        GlobalSettingConfig.pagespy_useSecret.defaultValue
       ),
       // SDK 在调试端进入房间之前会在内存中缓存数据，以便于调试端进入房间后可以看到之前的数据。
       // 但数据体积会越来越大，因此可以指定 SDK 在本地最多缓存多少条数据记录。
-      messageCapacity: PopsPanel.getValue(
-        PanelSettingConfig.pagespy_messageCapacity.key,
-        PanelSettingConfig.pagespy_messageCapacity.defaultValue
+      messageCapacity: Panel.getValue(
+        GlobalSettingConfig.pagespy_messageCapacity.key,
+        GlobalSettingConfig.pagespy_messageCapacity.defaultValue
       )
     });
     unsafeWin.$pageSpy = $pageSpy;
-    console$1.log($pageSpy);
+    console.log($pageSpy);
     DebugToolConfig.pageSpy.version = unsafeWin.$pageSpy.version;
-    console$1.log("PageSpy全局变量：$pageSpy");
+    console.log("PageSpy全局变量：$pageSpy");
   };
   const ChiiPluginHeight = {
     $data: {
       get key() {
-        return PanelSettingConfig.chii_embedded_height.key;
+        return GlobalSettingConfig.chii_embedded_height.key;
       },
       winHeight: parseInt(window.innerHeight.toString()),
       get winHalfHeight() {
-        return PanelSettingConfig.chii_embedded_height.defaultValue;
+        return GlobalSettingConfig.chii_embedded_height.defaultValue;
       }
     },
     init() {
@@ -3241,7 +2153,7 @@
      */
     setLocalHeight(value) {
       if (typeof value !== "number") {
-        console$1.log(value);
+        console.log(value);
         throw new TypeError(`${this.$data.key}的值必须是number`);
       }
       let storageValue = value.toString();
@@ -3258,7 +2170,7 @@
      *
      */
     getGMLocalHeight() {
-      return PopsPanel.getValue(this.$data.key);
+      return Panel.getValue(this.$data.key);
     },
     /**
      *
@@ -3266,28 +2178,28 @@
      */
     setGMLocalHeight(value) {
       if (typeof value !== "number") {
-        console$1.log(value);
+        console.log(value);
         throw new TypeError(`${this.$data.key}的值必须是number`);
       }
-      PopsPanel.setValue(this.$data.key, value);
+      Panel.setValue(this.$data.key, value);
     }
   };
   const Chii = () => {
-    let debugUrl = PopsPanel.getValue(
-      PanelSettingConfig.chii_debug_url.key,
-      PanelSettingConfig.chii_debug_url.defaultValue
+    let debugUrl = Panel.getValue(
+      GlobalSettingConfig.chii_debug_url.key,
+      GlobalSettingConfig.chii_debug_url.defaultValue
     );
-    if (window.location.href.startsWith(debugUrl) && PopsPanel.getValue(
-      PanelSettingConfig.chii_check_script_load.key,
-      PanelSettingConfig.chii_disable_run_in_debug_url.defaultValue
+    if (window.location.href.startsWith(debugUrl) && Panel.getValue(
+      GlobalSettingConfig.chii_check_script_load.key,
+      GlobalSettingConfig.chii_disable_run_in_debug_url.defaultValue
     )) {
-      console$1.log("禁止在调试端运行 ==> href包含debugUrl");
+      console.log("禁止在调试端运行 ==> href包含debugUrl");
       return;
     }
-    PopsPanel.execMenu(PanelSettingConfig.chii_embedded_height_enable.key, () => {
+    Panel.execMenu(GlobalSettingConfig.chii_embedded_height_enable.key, () => {
       ChiiPluginHeight.init();
     });
-    if (PopsPanel.getValue(PanelSettingConfig.chii_check_script_load.key)) {
+    if (Panel.getValue(GlobalSettingConfig.chii_check_script_load.key)) {
       let checkChiiScriptLoad = function(event) {
         if (event.target === scriptNode) {
           globalThis.alert(
@@ -3304,13 +2216,13 @@
         capture: true
       });
     }
-    let scriptJsUrl = PopsPanel.getValue(
-      PanelSettingConfig.chii_target_js.key,
-      PanelSettingConfig.chii_target_js.defaultValue
+    let scriptJsUrl = Panel.getValue(
+      GlobalSettingConfig.chii_target_js.key,
+      GlobalSettingConfig.chii_target_js.defaultValue
     );
-    let scriptEmbedded = PopsPanel.getValue(
-      PanelSettingConfig.chii_script_embedded.key,
-      PanelSettingConfig.chii_script_embedded.defaultValue
+    let scriptEmbedded = Panel.getValue(
+      GlobalSettingConfig.chii_script_embedded.key,
+      GlobalSettingConfig.chii_script_embedded.defaultValue
     );
     let scriptNode = document.createElement("script");
     scriptNode.src = scriptJsUrl;
@@ -3339,17 +2251,17 @@
      * 处理当在iframe内加载时，是否允许执行，如果允许，那么把url添加到菜单中
      */
     handleToolWithIframe() {
-      if (PopsPanel.isTopWindow()) {
+      if (Panel.isTopWindow()) {
         return true;
       }
-      if (!PopsPanel.getValue(PanelSettingConfig.allowRunInIframe.key)) {
+      if (!Panel.getValue(GlobalSettingConfig.allowRunInIframe.key)) {
         return false;
       }
       this.$data.iframeUrlList.push(window.location.href);
       try {
         top.console.log("iframe信息：" + window.location.href);
       } catch (error) {
-        console$1.error(error);
+        console.error(error);
       }
       GM_Menu.add({
         key: "iframeUrl",
@@ -3369,11 +2281,9 @@
      * 执行当前的调试工具
      */
     execDebugTool() {
-      let debugTool = PopsPanel.getValue(
-        PanelSettingConfig.debugTool.key
-      );
+      let debugTool = Panel.getValue(GlobalSettingConfig.debugTool.key);
       debugTool = debugTool.toString().toLowerCase();
-      console$1.log(`网页调试：当前使用的调试工具【${debugTool}】`);
+      console.log(`网页调试：当前使用的调试工具【${debugTool}】`);
       if (debugTool === "vconsole") {
         this.$data.isLoadDebugTool = true;
         this.$data.loadDebugToolName = "vconsole";
@@ -3391,15 +2301,15 @@
         this.$data.loadDebugToolName = "chii";
         Chii();
       } else {
-        console$1.error("当前未配置该调试工具的运行");
+        console.error("当前未配置该调试工具的运行");
       }
     },
     /**
      * 在脚本菜单中添加控制当前的调试工具状态的菜单按钮
      */
     registerDebugToolMenuControls() {
-      if (!PopsPanel.isTopWindow()) {
-        console$1.warn("不在iframe内重复添加菜单按钮");
+      if (!Panel.isTopWindow()) {
+        console.warn("不在iframe内重复添加菜单按钮");
         return;
       }
       let menuData = {
@@ -3477,11 +2387,11 @@
      */
     hideCurrentDebugTool() {
       if (this.$ele.hideDebugToolCSSNode == null) {
-        console$1.log("未创建隐藏【调试工具】的style元素 => 创建元素");
+        console.log("未创建隐藏【调试工具】的style元素 => 创建元素");
         this.$ele.hideDebugToolCSSNode = this.createDebugToolHideCSS();
       }
       if (!this.isInjectDebugToolHideCSS()) {
-        console$1.log("页面不存在隐藏【调试工具】的style元素 => 添加元素");
+        console.log("页面不存在隐藏【调试工具】的style元素 => 添加元素");
         document.documentElement.appendChild(this.$ele.hideDebugToolCSSNode);
       }
     },
@@ -3490,12 +2400,12 @@
      */
     showCurrentDebugTool() {
       if (this.$ele.hideDebugToolCSSNode) {
-        console$1.log("页面存在隐藏【调试工具】的style元素 => 移除元素");
+        console.log("页面存在隐藏【调试工具】的style元素 => 移除元素");
         document.documentElement.removeChild(this.$ele.hideDebugToolCSSNode);
         this.$ele.hideDebugToolCSSNode = void 0;
       }
       if (!this.$data.isLoadDebugTool) {
-        console$1.log("尚未运行【调试工具】 => 运行调试工具");
+        console.log("尚未运行【调试工具】 => 运行调试工具");
         this.execDebugTool();
       }
     }
@@ -3503,7 +2413,7 @@
   const WebSiteDebug = {
     init() {
       if (DebugTool.handleToolWithIframe()) {
-        if (PopsPanel.getValue(PanelSettingConfig.autoLoadDebugTool.key)) {
+        if (Panel.getValue(GlobalSettingConfig.autoLoadDebugTool.key)) {
           DebugTool.execDebugTool();
         } else {
           DebugTool.registerDebugToolMenuControls();
@@ -3511,7 +2421,1376 @@
       }
     }
   };
-  PopsPanel.init();
+  const PanelComponents = {
+    $data: {
+      __storeApiFn: null,
+      get storeApiValue() {
+        if (!this.__storeApiFn) {
+          this.__storeApiFn = new Utils.Dictionary();
+        }
+        return this.__storeApiFn;
+      }
+    },
+    /**
+     * 获取自定义的存储接口
+     * @param type 组件类型
+     */
+    getStorageApi(type) {
+      if (!this.hasStorageApi(type)) {
+        return;
+      }
+      return this.$data.storeApiValue.get(type);
+    },
+    /**
+     * 判断是否存在自定义的存储接口
+     * @param type 组件类型
+     */
+    hasStorageApi(type) {
+      return this.$data.storeApiValue.has(type);
+    },
+    /**
+     * 设置自定义的存储接口
+     * @param type 组件类型
+     * @param storageApiValue 存储接口
+     */
+    setStorageApi(type, storageApiValue) {
+      this.$data.storeApiValue.set(type, storageApiValue);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param type 组件类型
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(type, config, storageApiValue) {
+      let propsStorageApi;
+      if (this.hasStorageApi(type)) {
+        propsStorageApi = this.getStorageApi(type);
+      } else {
+        propsStorageApi = storageApiValue;
+      }
+      Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+    }
+  };
+  const UISelect = function(text, key, defaultValue, data, callback, description) {
+    let selectData = [];
+    if (typeof data === "function") {
+      selectData = data();
+    } else {
+      selectData = data;
+    }
+    let result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(event, isSelectedValue, isSelectedText) {
+        let value = isSelectedValue;
+        log.info(`选择：${isSelectedText}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
+      },
+      data: selectData
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.setComponentsStorageApiProperty(
+      "select",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
+    let result = {
+      text,
+      type: "switch",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return Boolean(
+          this.props[PROPS_STORAGE_API].get(key, defaultValue)
+        );
+      },
+      callback(event, __value) {
+        let value = Boolean(__value);
+        log.success(`${value ? "开启" : "关闭"} ${text}`);
+        if (typeof clickCallBack === "function") {
+          if (clickCallBack(event, value)) {
+            return;
+          }
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+      },
+      afterAddToUListCallBack
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.setComponentsStorageApiProperty(
+      "switch",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  const PanelUI_globalSetting = {
+    id: "debug-panel-config-all",
+    title: "总设置",
+    headerTitle: "总设置",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISelect(
+            "调试工具",
+            GlobalSettingConfig.debugTool.key,
+            GlobalSettingConfig.debugTool.defaultValue,
+            [
+              {
+                value: "eruda",
+                text: "Eruda"
+              },
+              {
+                value: "vconsole",
+                text: "VConsole"
+              },
+              {
+                value: "pagespy",
+                text: "PageSpy"
+              },
+              {
+                value: "chii",
+                text: "Chii"
+              }
+            ],
+            void 0,
+            void 0
+          ),
+          UISwitch(
+            "允许在iframe内加载",
+            GlobalSettingConfig.allowRunInIframe.key,
+            GlobalSettingConfig.allowRunInIframe.defaultValue,
+            void 0,
+            "如果指定本脚本的容器并没有在iframe内执行本脚本，那么该功能将不会生效"
+          ),
+          UISwitch(
+            "主动加载调试工具",
+            GlobalSettingConfig.autoLoadDebugTool.key,
+            GlobalSettingConfig.autoLoadDebugTool.defaultValue,
+            void 0,
+            "关闭后将会在脚本菜单注册按钮，有3种状态【加载并显示调试工具】、【隐藏调试工具】、【显示调试工具】"
+          )
+        ]
+      }
+    ]
+  };
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
+    let result = {
+      text,
+      type: "button",
+      attributes: {},
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
+        }
+      },
+      afterAddToUListCallBack
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(
+        typeof disable === "function" ? disable() : disable
+      );
+    });
+    return result;
+  };
+  const PanelUI_eruda = {
+    id: "debug-panel-config-eruda",
+    title: "Eruda",
+    headerTitle: `<a href='${DebugToolConfig.eruda.settingDocUrl}' target='_blank'>Eruda设置</a>`,
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UIButton(
+            "当前版本",
+            "",
+            DebugToolConfig.eruda.version,
+            void 0,
+            false,
+            false,
+            "primary",
+            (event) => {
+              utils.preventEvent(event);
+              window.open(DebugToolConfig.eruda.homeUrl, "_blank");
+            }
+          ),
+          {
+            type: "own",
+            getLiElementCallBack(liElement) {
+              let $left = document.createElement("div");
+              $left.className = "pops-panel-item-left-text";
+              $left.innerHTML = /*html*/
+              `
+                            <p class="pops-panel-item-left-main-text">最新版本</p>
+                        `;
+              let $right = document.createElement("div");
+              $right.className = "pops-panel-item-right-text";
+              $right.innerHTML = /*html*/
+              `
+                        <a href="${DebugToolConfig.eruda.homeUrl}" target="_blank">
+                            <img src="https://img.shields.io/npm/v/eruda/latest.svg?label=eruda" alt="eruda">
+                        </a>
+                        `;
+              liElement.appendChild($left);
+              liElement.appendChild($right);
+              return liElement;
+            }
+          },
+          UISwitch(
+            "自动打开面板",
+            GlobalSettingConfig.eruda_auto_open_panel.key,
+            GlobalSettingConfig.eruda_auto_open_panel.defaultValue,
+            void 0,
+            "加载完毕后自动显示面板内容"
+          ),
+          UISelect(
+            "默认展示的面板元素",
+            GlobalSettingConfig.eruda_default_show_panel_name.key,
+            GlobalSettingConfig.eruda_default_show_panel_name.defaultValue,
+            [
+              {
+                text: "Console",
+                value: "console",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_panel_console.key
+                  );
+                }
+              },
+              {
+                text: "Elements",
+                value: "elements",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_panel_elements.key
+                  );
+                }
+              },
+              {
+                text: "Network",
+                value: "network",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_panel_network.key
+                  );
+                }
+              },
+              {
+                text: "Resources",
+                value: "resources",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_panel_resources.key
+                  );
+                }
+              },
+              {
+                text: "Sources",
+                value: "sources",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_panel_sources.key
+                  );
+                }
+              },
+              {
+                text: "Info",
+                value: "info",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_panel_info.key
+                  );
+                }
+              },
+              {
+                text: "Snippets",
+                value: "snippets",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_panel_snippets.key
+                  );
+                }
+              },
+              {
+                text: "Monitor",
+                value: "monitor",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key
+                  );
+                }
+              },
+              {
+                text: "Features",
+                value: "features",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key
+                  );
+                }
+              },
+              {
+                text: "Timing",
+                value: "timing",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key
+                  );
+                }
+              },
+              {
+                text: "Code",
+                value: "code",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key
+                  );
+                }
+              },
+              {
+                text: "Benchmark",
+                value: "benchmark",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key
+                  );
+                }
+              },
+              {
+                text: "Geolocation",
+                value: "geolocation",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
+                  );
+                }
+              },
+              {
+                text: "Orientation",
+                value: "orientation",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key
+                  );
+                }
+              },
+              {
+                text: "Touches",
+                value: "touches",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key
+                  );
+                }
+              },
+              {
+                text: "Outline",
+                value: "outline",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key
+                  );
+                }
+              },
+              {
+                text: "Pixel",
+                value: "pixel",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key
+                  );
+                }
+              },
+              {
+                text: "Vue",
+                value: "vue",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key
+                  );
+                }
+              },
+              {
+                text: "Settings",
+                value: "settings"
+              }
+            ],
+            void 0,
+            "开启【自动打开面板】才会生效"
+          )
+        ]
+      },
+      {
+        text: "面板",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "Console",
+            GlobalSettingConfig.eruda_panel_console.key,
+            GlobalSettingConfig.eruda_panel_console.defaultValue,
+            void 0,
+            "控制台"
+          ),
+          UISwitch(
+            "Elements",
+            GlobalSettingConfig.eruda_panel_elements.key,
+            GlobalSettingConfig.eruda_panel_elements.defaultValue,
+            void 0,
+            "元素"
+          ),
+          UISwitch(
+            "Network",
+            GlobalSettingConfig.eruda_panel_network.key,
+            GlobalSettingConfig.eruda_panel_network.defaultValue,
+            void 0,
+            "网络"
+          ),
+          UISwitch(
+            "Resources",
+            GlobalSettingConfig.eruda_panel_resources.key,
+            GlobalSettingConfig.eruda_panel_resources.defaultValue,
+            void 0,
+            "资源"
+          ),
+          UISwitch(
+            "Sources",
+            GlobalSettingConfig.eruda_panel_sources.key,
+            GlobalSettingConfig.eruda_panel_sources.defaultValue,
+            void 0,
+            "源代码"
+          ),
+          UISwitch(
+            "Info",
+            GlobalSettingConfig.eruda_panel_info.key,
+            GlobalSettingConfig.eruda_panel_info.defaultValue,
+            void 0,
+            "信息"
+          ),
+          UISwitch(
+            "Snippets",
+            GlobalSettingConfig.eruda_panel_snippets.key,
+            GlobalSettingConfig.eruda_panel_snippets.defaultValue,
+            void 0,
+            "拓展"
+          )
+        ]
+      },
+      {
+        text: "插件",
+        type: "forms",
+        forms: [
+          UISwitch(
+            /*html*/
+            `
+                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-monitor" target="_blank">
+                        <img src="https://img.shields.io/npm/v/eruda-monitor/latest.svg?label=">
+                    </a>
+                    eruda-monitor
+                    `,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.defaultValue,
+            void 0,
+            `
+						v${DebugToolVersionConfig.eruda.plugin["eruda-monitor"]}
+						<br>
+						展示页面的 fps 和内存信息
+                    `
+          ),
+          UISwitch(
+            /*html*/
+            `
+                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-features" target="_blank">
+                        <img src="https://img.shields.io/npm/v/eruda-features/latest.svg?label=">
+                    </a>
+                    eruda-features
+                    `,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.defaultValue,
+            void 0,
+            `
+						v${DebugToolVersionConfig.eruda.plugin["eruda-features"]}
+						<br>
+						浏览器特性检测
+                    `
+          ),
+          UISwitch(
+            /*html*/
+            `
+                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-timing" target="_blank">
+                        <img src="https://img.shields.io/npm/v/eruda-timing/latest.svg?label=">
+                    </a>
+                    eruda-timing
+                    `,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.defaultValue,
+            void 0,
+            `
+						v${DebugToolVersionConfig["eruda"]["plugin"]["eruda-timing"]}
+						<br>
+						展示性能资源数据
+                    `
+          ),
+          UISwitch(
+            /*html*/
+            `
+                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-code" target="_blank">
+                        <img src="https://img.shields.io/npm/v/eruda-code/latest.svg?label=">
+                    </a>
+                    eruda-code
+                    `,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaCode.defaultValue,
+            void 0,
+            `
+						v${DebugToolVersionConfig.eruda.plugin["eruda-code"]}
+						<br>
+						运行 JavaScript 代码
+                    `
+          ),
+          UISwitch(
+            /*html*/
+            `
+                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-benchmark" target="_blank">
+                        <img src="https://img.shields.io/npm/v/eruda-benchmark/latest.svg?label=">
+                    </a>
+                    eruda-benchmark
+                    `,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.defaultValue,
+            void 0,
+            `
+						v${DebugToolVersionConfig.eruda.plugin["eruda-benchmark"]}
+						<br>
+						运行 JavaScript 性能测试
+                    `
+          ),
+          UISwitch(
+            "eruda-geolocation",
+            GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.defaultValue,
+            void 0,
+            "测试地理位置接口"
+          ),
+          UISwitch(
+            /*html*/
+            `
+                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-orientation" target="_blank">
+                        <img src="https://img.shields.io/npm/v/eruda-orientation/latest.svg?label=">
+                    </a>
+                    eruda-orientation
+                    `,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.defaultValue,
+            void 0,
+            `
+						v${DebugToolVersionConfig.eruda.plugin["eruda-orientation"]}
+						<br>
+						测试重力感应接口
+                    `
+          ),
+          UISwitch(
+            /*html*/
+            `
+                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-vue" target="_blank">
+                        <img src="https://img.shields.io/npm/v/eruda-vue/latest.svg?label=">
+                    </a>
+                    eruda-vue
+                    `,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaVue.defaultValue,
+            void 0,
+            `
+						v${DebugToolVersionConfig.eruda.plugin["eruda-vue"]}
+						<br>
+						Vue调试工具
+                    `
+          ),
+          UISwitch(
+            /*html*/
+            `
+                    <a class="plugin-anchor" href="https://github.com/liriliri/eruda-touches" target="_blank">
+                        <img src="https://img.shields.io/npm/v/eruda-touches/latest.svg?label=">
+                    </a>
+                    eruda-touches
+                    `,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.defaultValue,
+            void 0,
+            `
+						v${DebugToolVersionConfig.eruda.plugin["eruda-touches"]}
+						<br>
+						可视化屏幕 Touch 事件触发
+                    `
+          ),
+          UISwitch(
+            /*html*/
+            `
+                    <a class="plugin-anchor" href="https://github.com/pomelo-chuan/eruda-outline-plugin" target="_blank">
+                        <img src="https://img.shields.io/npm/v/eruda-outline-plugin/latest.svg?label=">
+                    </a>
+                    eruda-outline-plugin
+                    `,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.defaultValue,
+            void 0,
+            `
+						v${DebugToolVersionConfig.eruda.plugin["eruda-outline-plugin"]}
+						<br>
+						给页面的元素添加边框
+					`
+          ),
+          UISwitch(
+            /*html*/
+            `
+                    <a class="plugin-anchor" href="https://github.com/Faithree/eruda-pixel" target="_blank">
+                        <img src="https://img.shields.io/npm/v/eruda-pixel/latest.svg?label=">
+                    </a>
+                    eruda-pixel
+                    `,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key,
+            GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.defaultValue,
+            void 0,
+            `
+						v${DebugToolVersionConfig.eruda.plugin["eruda-pixel"]}
+						<br>
+						高精度的UI恢复辅助工具
+                    `
+          )
+        ]
+      }
+    ]
+  };
+  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+    let result = {
+      text,
+      type: "input",
+      isNumber: Boolean(isNumber),
+      isPassword: Boolean(isPassword),
+      props: {},
+      attributes: {},
+      description,
+      afterAddToUListCallBack,
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(event, value) {
+        this.props[PROPS_STORAGE_API].set(key, value);
+      },
+      placeholder
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.setComponentsStorageApiProperty(
+      "input",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  const PanelUI_vConsole = {
+    id: "debug-panel-config-vconsole",
+    title: "vConsole",
+    headerTitle: `<a href='${DebugToolConfig.vConsole.settingDocUrl}' target='_blank'>vConsole设置</a>`,
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UIButton(
+            "当前版本",
+            "",
+            DebugToolConfig.vConsole.version,
+            void 0,
+            false,
+            false,
+            "primary",
+            (event) => {
+              utils.preventEvent(event);
+              window.open(DebugToolConfig.vConsole.homeUrl, "_blank");
+            }
+          ),
+          {
+            type: "own",
+            getLiElementCallBack(liElement) {
+              let $left = document.createElement("div");
+              $left.className = "pops-panel-item-left-text";
+              $left.innerHTML = /*html*/
+              `
+                            <p class="pops-panel-item-left-main-text">最新版本</p>
+                        `;
+              let $right = document.createElement("div");
+              $right.className = "pops-panel-item-right-text";
+              $right.innerHTML = /*html*/
+              `
+                        <a href="${DebugToolConfig.vConsole.homeUrl}" target="_blank">
+                            <img src="https://img.shields.io/npm/v/vconsole/latest.svg?label=vConsole" alt="vConsole">
+                        </a>
+                        `;
+              liElement.appendChild($left);
+              liElement.appendChild($right);
+              return liElement;
+            }
+          },
+          UISwitch(
+            "自动打开面板",
+            GlobalSettingConfig.vconsole_auto_open_panel.key,
+            GlobalSettingConfig.vconsole_auto_open_panel.defaultValue,
+            void 0,
+            "加载完毕后自动显示面板内容"
+          ),
+          UISelect(
+            "默认展示的面板元素",
+            GlobalSettingConfig.vconsole_default_show_panel_name.key,
+            GlobalSettingConfig.vconsole_default_show_panel_name.defaultValue,
+            [
+              {
+                text: "Log",
+                value: "default"
+              },
+              {
+                text: "System",
+                value: "system",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.vConsole_panel_system.key
+                  );
+                }
+              },
+              {
+                text: "Network",
+                value: "network",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.vConsole_panel_network.key
+                  );
+                }
+              },
+              {
+                text: "Element",
+                value: "element",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.vConsole_panel_element.key
+                  );
+                }
+              },
+              {
+                text: "Storage",
+                value: "storage",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.vConsole_panel_storage.key
+                  );
+                }
+              },
+              {
+                text: "Stats",
+                value: "stats",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key
+                  );
+                }
+              },
+              {
+                text: "exportLog",
+                value: "exportlog",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key
+                  );
+                }
+              },
+              {
+                text: "Vue",
+                value: "vue",
+                disable() {
+                  return !Panel.getValue(
+                    GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key
+                  );
+                }
+              }
+            ],
+            void 0,
+            "开启【自动打开面板】才会生效"
+          )
+        ]
+      },
+      {
+        text: "面板",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "System",
+            GlobalSettingConfig.vConsole_panel_system.key,
+            GlobalSettingConfig.vConsole_panel_system.defaultValue,
+            void 0,
+            "控制台"
+          ),
+          UISwitch(
+            "Network",
+            GlobalSettingConfig.vConsole_panel_network.key,
+            GlobalSettingConfig.vConsole_panel_network.defaultValue,
+            void 0,
+            "元素"
+          ),
+          UISwitch(
+            "Element",
+            GlobalSettingConfig.vConsole_panel_element.key,
+            GlobalSettingConfig.vConsole_panel_element.defaultValue,
+            void 0,
+            "网络"
+          ),
+          UISwitch(
+            "Storage",
+            GlobalSettingConfig.vConsole_panel_storage.key,
+            GlobalSettingConfig.vConsole_panel_storage.defaultValue,
+            void 0,
+            "资源"
+          )
+        ]
+      },
+      {
+        text: "配置",
+        type: "forms",
+        forms: [
+          UISelect(
+            "主题",
+            GlobalSettingConfig.vConsole_theme.key,
+            GlobalSettingConfig.vConsole_theme.defaultValue,
+            [
+              {
+                value: "auto",
+                text: "自动"
+              },
+              {
+                value: "light",
+                text: "浅色主题"
+              },
+              {
+                value: "dark",
+                text: "深色主题"
+              }
+            ],
+            void 0,
+            void 0
+          ),
+          UISwitch(
+            "禁止Log自动滚动",
+            GlobalSettingConfig.vconsole_disableLogScrolling.key,
+            GlobalSettingConfig.vconsole_disableLogScrolling.defaultValue
+          ),
+          UISwitch(
+            "显示日志的输出时间",
+            GlobalSettingConfig.vconsole_showTimestamps.key,
+            GlobalSettingConfig.vconsole_showTimestamps.defaultValue
+          ),
+          UIInput(
+            "日志的上限数量",
+            GlobalSettingConfig.vconsole_maxLogNumber.key,
+            GlobalSettingConfig.vconsole_maxLogNumber.defaultValue,
+            "请输入数字",
+            void 0,
+            void 0,
+            true
+          ),
+          UIInput(
+            "请求记录的上限数量",
+            GlobalSettingConfig.vconsole_maxNetworkNumber.key,
+            GlobalSettingConfig.vconsole_maxNetworkNumber.defaultValue,
+            "请输入数字",
+            void 0,
+            void 0,
+            true
+          )
+        ]
+      },
+      {
+        text: "Storage配置",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "Cookies",
+            GlobalSettingConfig.vConsole_storage_defaultStorages_cookies.key,
+            GlobalSettingConfig.vConsole_storage_defaultStorages_cookies.defaultValue,
+            void 0,
+            "显示Cookies"
+          ),
+          UISwitch(
+            "LocalStorage",
+            GlobalSettingConfig.vConsole_storage_defaultStorages_localStorage.key,
+            GlobalSettingConfig.vConsole_storage_defaultStorages_localStorage.defaultValue,
+            void 0,
+            "显示LocalStorage"
+          ),
+          UISwitch(
+            "SessionStorage",
+            GlobalSettingConfig.vConsole_storage_defaultStorages_sessionStorage.key,
+            GlobalSettingConfig.vConsole_storage_defaultStorages_sessionStorage.defaultValue,
+            void 0,
+            "显示SessionStorage"
+          )
+        ]
+      },
+      {
+        text: "插件",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "vconsole-stats-plugin",
+            GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key,
+            GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.defaultValue,
+            void 0,
+            "A vConsole plugin which can show Stats in front-end."
+          ),
+          UISwitch(
+            "vconsole-outputlog-plugin",
+            GlobalSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key,
+            GlobalSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.defaultValue,
+            void 0,
+            "使用该插件可以复制或下载console中打印的log"
+          ),
+          UISwitch(
+            /*html*/
+            `
+                        <a class="plugin-anchor" href="https://github.com/Zippowxk/vue-vconsole-devtools" target="_blank">
+                            <img src="https://img.shields.io/npm/v/vue-vconsole-devtools/latest.svg?label=">
+                        </a>
+                        vue-vconsole-devtools
+                    `,
+            GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key,
+            GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.defaultValue,
+            void 0,
+            `
+                        v${DebugToolVersionConfig.vconsole.plugin["vue-vconsole-devtools"]}
+                        <br>
+                        Vue-vConsole-devtools 是一款vConsole插件，把Vue.js官方调试工具vue-devtools移植到移动端，可以直接在移动端查看调试Vue.js应用
+                    `
+          )
+        ]
+      }
+    ]
+  };
+  const PanelUI_pagespy = {
+    id: "debug-panel-config-pagespy",
+    title: "PageSpy",
+    headerTitle: `<a href='${DebugToolConfig.pageSpy.settingDocUrl}' target='_blank'>PageSpy设置</a>`,
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UIButton(
+            "注意！隐私保护！",
+            "",
+            "了解详情",
+            void 0,
+            false,
+            false,
+            "danger",
+            (event) => {
+              __pops.confirm({
+                title: {
+                  text: "提示",
+                  position: "center"
+                },
+                content: {
+                  text: `下面默认配置的${DebugToolConfig.pageSpy.defaultConfig.api}是仅供测试使用的，其他人也可以看到你的调试信息，包括Cookie等信息，如果想用，请自己搭建一个调试端`
+                },
+                btn: {
+                  reverse: true,
+                  position: "end",
+                  ok: {
+                    text: "前往了解更多",
+                    callback() {
+                      window.open(
+                        "https://github.com/HuolalaTech/page-spy-web/wiki/%F0%9F%90%9E-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94#user-content-testjikejishucom-%E6%98%AF%E5%AE%98%E6%96%B9%E6%8F%90%E4%BE%9B%E7%9A%84%E5%9F%9F%E5%90%8D%E5%90%97%E4%B8%80%E7%9B%B4%E5%8F%AF%E4%BB%A5%E7%94%A8%E5%90%97",
+                        "_blank"
+                      );
+                    }
+                  }
+                },
+                mask: {
+                  enable: true
+                },
+                width: PanelUISize.info.width,
+                height: PanelUISize.info.height
+              });
+            },
+            void 0
+          ),
+          UIButton(
+            "当前版本",
+            "",
+            DebugToolConfig.pageSpy.version,
+            void 0,
+            false,
+            false,
+            "primary",
+            (event) => {
+              utils.preventEvent(event);
+              window.open(DebugToolConfig.pageSpy.homeUrl, "_blank");
+            }
+          ),
+          {
+            type: "own",
+            getLiElementCallBack(liElement) {
+              let $left = document.createElement("div");
+              $left.className = "pops-panel-item-left-text";
+              $left.innerHTML = /*html*/
+              `
+                            <p class="pops-panel-item-left-main-text">最新版本</p>
+                        `;
+              let $right = document.createElement("div");
+              $right.className = "pops-panel-item-right-text";
+              $right.innerHTML = /*html*/
+              `
+                        <a href="${DebugToolConfig.pageSpy.homeUrl}" target="_blank">
+                            <img src="https://img.shields.io/npm/v/@huolala-tech/page-spy-browser?label=pagespy" alt="page-spy-browser">
+                        </a>
+                        `;
+              liElement.appendChild($left);
+              liElement.appendChild($right);
+              return liElement;
+            }
+          },
+          UISwitch(
+            "禁止在调试端运行",
+            GlobalSettingConfig.pagespy_disable_run_in_debug_client.key,
+            GlobalSettingConfig.pagespy_disable_run_in_debug_client.defaultValue,
+            void 0,
+            "调试端是下面配置的api/clientOrigin地址"
+          )
+        ]
+      },
+      {
+        text: "配置",
+        type: "forms",
+        forms: [
+          UIInput(
+            "api",
+            GlobalSettingConfig.pagespy_api.key,
+            GlobalSettingConfig.pagespy_api.defaultValue,
+            "",
+            void 0,
+            "服务器地址的 Host"
+          ),
+          UIInput(
+            "clientOrigin",
+            GlobalSettingConfig.pagespy_clientOrigin.key,
+            GlobalSettingConfig.pagespy_clientOrigin.defaultValue,
+            "",
+            void 0,
+            "服务器地址的 Origin"
+          ),
+          UIInput(
+            "project",
+            GlobalSettingConfig.pagespy_project.key,
+            GlobalSettingConfig.pagespy_project.defaultValue,
+            void 0,
+            void 0,
+            "项目名称"
+          ),
+          UIInput(
+            "title",
+            GlobalSettingConfig.pagespy_title.key,
+            GlobalSettingConfig.pagespy_title.defaultValue,
+            void 0,
+            void 0,
+            "自定义标题"
+          ),
+          UISwitch(
+            "autoRender",
+            GlobalSettingConfig.pagespy_autoRender.key,
+            GlobalSettingConfig.pagespy_autoRender.defaultValue,
+            void 0,
+            "自动渲染「圆形白底带 Logo」"
+          ),
+          UISelect(
+            "enableSSL",
+            GlobalSettingConfig.pagespy_enableSSL.key,
+            GlobalSettingConfig.pagespy_enableSSL.defaultValue,
+            [
+              {
+                value: null,
+                text: "默认(自动分析)"
+              },
+              {
+                value: true,
+                text: "开启"
+              },
+              {
+                value: false,
+                text: "关闭"
+              }
+            ],
+            void 0,
+            "是否https"
+          ),
+          UISwitch(
+            "offline",
+            GlobalSettingConfig.pagespy_offline.key,
+            GlobalSettingConfig.pagespy_offline.defaultValue,
+            void 0,
+            `是否进入 "离线模式"，具体表现为 PageSpy 不会创建房间、建立 WebSocket 连接。`
+          ),
+          UISwitch(
+            "serializeData",
+            GlobalSettingConfig.pagespy_serializeData.key,
+            GlobalSettingConfig.pagespy_serializeData.defaultValue,
+            void 0,
+            `是否允许 SDK 在收集离线日志时，序列化非基本类型的数据，序列化的目的是方便在回放时查看`
+          ),
+          UISwitch(
+            "useSecret",
+            GlobalSettingConfig.pagespy_useSecret.key,
+            GlobalSettingConfig.pagespy_useSecret.defaultValue,
+            void 0,
+            `是否启用权限认证功能。启用后，SDK 会生成 6 位数的随机 “密钥”；调试端进入房间时要求输入对应的密钥`
+          ),
+          UIInput(
+            "messageCapacity",
+            GlobalSettingConfig.pagespy_messageCapacity.key,
+            GlobalSettingConfig.pagespy_messageCapacity.defaultValue,
+            "调试端进入房间后可以看到之前的数据量的大小",
+            void 0,
+            `指定 SDK 在本地最多缓存多少条数据记录`
+          )
+        ]
+      }
+    ]
+  };
+  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
+    let result = {
+      text,
+      type: "slider",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      getToolTipContent(value) {
+        if (typeof getToolTipContent === "function") {
+          return getToolTipContent(value);
+        } else {
+          return `${value}`;
+        }
+      },
+      callback(event, value) {
+        if (typeof changeCallBack === "function") {
+          if (changeCallBack(event, value)) {
+            return;
+          }
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+      },
+      min,
+      max,
+      step
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.setComponentsStorageApiProperty(
+      "slider",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  const PanelUI_chii = {
+    id: "debug-panel-config-chii",
+    title: "Chii",
+    headerTitle: `<a href='${DebugToolConfig.chii.settingDocUrl}' target='_blank'>Chii设置</a>`,
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UIButton(
+            "调试页面",
+            "",
+            "前往",
+            void 0,
+            false,
+            false,
+            "primary",
+            (event) => {
+              let url = Panel.getValue(
+                "chii-debug-url",
+                DebugToolConfig.chii.defaultConfig.url
+              );
+              window.open(url, "_blank");
+            },
+            void 0,
+            () => {
+              return Boolean(
+                Panel.getValue(
+                  GlobalSettingConfig.chii_script_embedded.key,
+                  GlobalSettingConfig.chii_script_embedded.defaultValue
+                )
+              );
+            }
+          )
+        ]
+      },
+      {
+        text: "配置",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "本页展示",
+            GlobalSettingConfig.chii_script_embedded.key,
+            GlobalSettingConfig.chii_script_embedded.defaultValue,
+            (event, value) => {
+              let $shadowRoot = event.target.getRootNode();
+              let button = $shadowRoot.querySelector(
+                "li.pops-panel-forms-container-item ul > li > .pops-panel-button button"
+              );
+              if (value) {
+                button.setAttribute("disabled", "true");
+              } else {
+                button.removeAttribute("disabled");
+              }
+            },
+            "将调试器展示在同一页面中"
+          ),
+          UISwitch(
+            "禁止在调试端运行",
+            GlobalSettingConfig.chii_disable_run_in_debug_url.key,
+            GlobalSettingConfig.chii_disable_run_in_debug_url.defaultValue,
+            void 0,
+            "调试端是下面配置的【调试页面Url】"
+          ),
+          UISwitch(
+            "检测script加载",
+            GlobalSettingConfig.chii_check_script_load.key,
+            GlobalSettingConfig.chii_check_script_load.defaultValue,
+            void 0,
+            "失败会有alert提示弹出"
+          ),
+          UIInput(
+            "调试页面Url",
+            GlobalSettingConfig.chii_debug_url.key,
+            GlobalSettingConfig.chii_debug_url.defaultValue,
+            "请输入链接Url",
+            void 0,
+            "配置【调试页面】的Url"
+          ),
+          UIInput(
+            "来源js",
+            GlobalSettingConfig.chii_target_js.key,
+            GlobalSettingConfig.chii_target_js.defaultValue,
+            "请输入目标js文件",
+            void 0,
+            "用于注入页面来进行调试"
+          )
+        ]
+      },
+      {
+        text: "本页展示的配置",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "锁定高度",
+            GlobalSettingConfig.chii_embedded_height_enable.key,
+            GlobalSettingConfig.chii_embedded_height_enable.defaultValue,
+            void 0,
+            "开启后将自动覆盖面板高度"
+          ),
+          UISlider(
+            "高度设定",
+            GlobalSettingConfig.chii_embedded_height.key,
+            GlobalSettingConfig.chii_embedded_height.defaultValue,
+            0,
+            parseInt(window.innerHeight.toString()),
+            (_, value) => {
+              let $chobitsu = document.querySelector(
+                ".__chobitsu-hide__:has(iframe)"
+              );
+              $chobitsu && ($chobitsu.style.height = value + "px");
+            },
+            (value) => value + "px",
+            "可覆盖当前页面Chii面板的高度",
+            1
+          )
+        ]
+      }
+    ]
+  };
+  PanelContent.addContentConfig([
+    PanelUI_globalSetting,
+    PanelUI_eruda,
+    PanelUI_vConsole,
+    PanelUI_pagespy,
+    PanelUI_chii
+  ]);
+  Panel.$data.panelConfig = {
+    style: (
+      /*css*/
+      `
+				aside.pops-panel-aside{
+					width: 20%;
+				}
+				.plugin-anchor{
+					text-decoration: none;
+					display: inline-flex;
+    				vertical-align: text-bottom;
+				}
+			`
+    )
+  };
+  Panel.init();
   WebSiteDebug.init();
 
 })(Qmsg, DOMUtils, Utils, pops);
