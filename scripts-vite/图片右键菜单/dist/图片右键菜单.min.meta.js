@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         图片右键菜单
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.25
+// @version      2025.6.12
 // @author       WhiteSevs
 // @description  在浏览器预览图片页面添加全局右键菜单，右键直接复制该图片的Uri编码，支持自动判断图片类型，包括：jpg、jpeg、png、gif、webp、ico，支持手动判断图片类型，包括：jpg、jpeg、png、gif。
 // @license      GPL-3.0-only
@@ -9,10 +9,11 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
+// @grant        GM_deleteValue
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_registerMenuCommand
