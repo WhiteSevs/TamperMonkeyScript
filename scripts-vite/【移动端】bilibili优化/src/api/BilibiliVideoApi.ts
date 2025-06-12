@@ -6,166 +6,6 @@ import { VideoQualityNameMap } from "@/video-info/VideoDict";
 import Qmsg from "qmsg";
 import { BilibiliGlobalData } from "@/main/BilibiliGlobalData";
 
-type BilibliPlayUrlCommonConfig = {
-	cid: string | number;
-	/** 画质 */
-	qn?: number;
-	/** 视频清晰度选择 */
-	high_quality?: number;
-	fnval?: number;
-	/** 固定0 */
-	fnver?: number;
-	/** 是否允许 4K 视频 */
-	fourk?: number;
-	/** 该值用于移动端html5播放，如果删除，虽然通过其它办法可以获取到，但是无法播放，因为源会鉴权referer为www.bilibili.com */
-	setPlatformHTML5?: boolean;
-};
-
-type TypeBilibiliVideoInfo = {
-	accept_description: string[];
-	accept_format: string;
-	/** 允许的清晰度 */
-	accept_quality: number[];
-	/** 画质 */
-	quality: number;
-	/** 支持解锁的画质列表 */
-	support_formats: {
-		codecs: null;
-		/** 描述 */
-		display_desc: string;
-		/** 类型如flv */
-		format: string;
-		/** 文字，一般用这个显示 */
-		new_description: string;
-		/** 画质值 */
-		quality: number;
-		superscript: string;
-	}[];
-};
-
-export type TypeBilibiliVideoInfo_mp4 = TypeBilibiliVideoInfo & {
-	format: string;
-	from: string;
-	/** 播放地址信息列表 */
-	durl: {
-		ahead: string;
-		/** 备用url */
-		backup_url: string[] | null;
-		length: number;
-		order: number;
-		/** 视频大小 */
-		size: number;
-		/** 链接 */
-		url: string;
-		vhead: string;
-	}[];
-	/**  */
-	timelength: number;
-	/** 视频编码 */
-	video_codecid: number;
-	[key: string]: any;
-};
-
-export type TypeBilibiliVideoInfo_m4s = TypeBilibiliVideoInfo & {
-	dash: {
-		audio: {
-			SegmentBase: {
-				Initialization: string;
-				indexRange: string;
-			};
-			/** 链接信息 */
-			backupUrl: string[];
-			/** 链接信息 */
-			backup_url: string[];
-			/** 带宽 */
-			bandwidth: number;
-			/** 链接信息 */
-			baseUrl: string;
-			/** 链接信息 */
-			base_url: TypeBilibiliVideoInfo_m4s["dash"]["audio"][0]["baseUrl"];
-			/** 编码格式，一般是0 */
-			codecid: number;
-			/** 编码格式描述 */
-			codecs: string;
-			/** 帧率信息 */
-			frameRate: "";
-			/** 帧率信息 */
-			frame_rate: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["frameRate"];
-			height: 0;
-			/** 音质代码 */
-			id: number;
-			/** 类型，一般是audio/mp4 */
-			mimeType: string;
-			/** 类型，一般是audio/mp4 */
-			mime_type: string;
-			/** 文件大小（视频没有） */
-			// size: number;
-			sar: "";
-			segment_base: TypeBilibiliVideoInfo_m4s["dash"]["audio"][0]["SegmentBase"];
-			startWithSap: 0;
-			start_with_sap: TypeBilibiliVideoInfo_m4s["dash"]["audio"][0]["startWithSap"];
-			width: 0;
-		}[];
-		dolby: {
-			audio: null;
-			type: number;
-		};
-		duration: number;
-		minBufferTime: number;
-		min_buffer_time: number;
-		video: {
-			SegmentBase: {
-				Initialization: string;
-				indexRange: string;
-			};
-			/** 链接信息 */
-			backupUrl: string[];
-			/** 链接信息 */
-			backup_url: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["backupUrl"];
-			/** 带宽 */
-			bandwidth: number;
-			/** 链接信息 */
-			baseUrl: string;
-			/** 链接信息 */
-			base_url: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["baseUrl"];
-			/** 编码格式 */
-			codecid: number;
-			/** 编码格式描述 */
-			codecs: string;
-			/** 帧率信息 */
-			frameRate: string;
-			/** 帧率信息 */
-			frame_rate: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["frameRate"];
-			/** 视频高度 */
-			height: number;
-			/** 画质代码 */
-			id: number;
-			/** 类型，一般是video/mp4 */
-			mimeType: string;
-			/** 类型，一般是video/mp4 */
-			mime_type: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["mimeType"];
-			/** 文件大小 */
-			// size: number;
-			/** 1:1 */
-			sar: string;
-			segment_base: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["SegmentBase"];
-			/** @default 1 */
-			startWithSap: number;
-			/** @default 1 */
-			start_with_sap: TypeBilibiliVideoInfo_m4s["dash"]["video"][0]["startWithSap"];
-			/** 视频宽度 */
-			width: number;
-		}[];
-	};
-	format: "flv";
-	from: "local";
-	last_play_cid: number;
-	last_play_time: number;
-	timelength: number;
-	/** 视频编码 */
-	video_codecid: number;
-	[key: string]: any;
-};
 export const BilibiliVideoApi = {
 	/**
 	 * 获取视频播放地址，avid或bvid必须给一个
@@ -195,20 +35,15 @@ export const BilibiliVideoApi = {
 			// 是否允许 4K 视频
 			fourk: config.fourk ?? 1,
 			// 为 1 时可以不登录拉到 64 和 80 清晰度，但是也会限制最高画质为80
-			try_look: 0,
-		};
-		if (!(await BilibiliGlobalData.$data.isLogin)) {
-			searchParamsData.try_look = 1;
-		}
-		if (config.setPlatformHTML5) {
+			try_look: (await BilibiliGlobalData.$data.isLogin) ? 0 : 1,
 			// 该值是用来请求可以在移动端播放的链接的
-			Reflect.set(searchParamsData, "platform", "html5");
-		}
+			platform: config.setPlatformHTML5 ? "html5" : "pc",
+		};
 		BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
 			searchParamsData,
 			config
 		);
-		if (typeof extraParams === "object") {
+		if (typeof extraParams === "object" && extraParams !== null) {
 			Object.assign(searchParamsData, extraParams);
 		}
 		let response = await httpx.get(

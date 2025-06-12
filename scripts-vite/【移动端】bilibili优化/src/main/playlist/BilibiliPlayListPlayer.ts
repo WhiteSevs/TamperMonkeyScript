@@ -201,9 +201,6 @@ export const BilibiliPlayListPlayer = {
 						} else {
 							return;
 						}
-						if (import.meta.hot) {
-							Reflect.set(window, "art", BilibiliVideoPlayer.$data.art);
-						}
 						// 强制初始化音量为1
 						that.$data.art.volume = 1;
 						that.$data.art.once("ready", () => {
