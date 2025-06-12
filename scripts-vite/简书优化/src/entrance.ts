@@ -1,11 +1,16 @@
-import { PopsPanel } from "@/setting/setting";
 import { Jianshu } from "@/main/Jianshu";
 import { GM_Menu, log, utils } from "./env";
 import { M_Jianshu } from "./m-main/m-Jianshu";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import Qmsg from "qmsg";
+import { PanelContent } from "@components/setting/panel-content";
+import { SettingUIMobile } from "./setting/view/mobile";
+import { SettingUICommon } from "./setting/view/common";
+import { SettingUIPC } from "./setting/view/pc";
+import { Panel } from "@components/setting/panel";
 
-PopsPanel.init();
+PanelContent.addContentConfig([SettingUICommon, SettingUIPC, SettingUIMobile]);
+Panel.init();
 
 let isMobile = utils.isPhone();
 let CHANGE_ENV_SET_KEY = "change_env_set";

@@ -1,8 +1,8 @@
 import blockCSS from "./css/block.css?raw";
-import { PopsPanel } from "@/setting/setting";
 import { addStyle, log, utils } from "@/env";
 import { JianshuRouter } from "@/router/JianshuRouter";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 /**
  * 移除元素（未出现也可以等待出现）
@@ -16,34 +16,34 @@ export const waitForElementToRemove = function (selectorText = "") {
 export const Jianshu = {
 	init() {
 		this.addCSS();
-		PopsPanel.execMenu("JianShuAutoJumpRedirect_PC", () => {
+		Panel.execMenu("JianShuAutoJumpRedirect_PC", () => {
 			this.jumpRedirect();
 		});
-		PopsPanel.execMenu("JianShuRemoveClipboardHijacking", () => {
+		Panel.execMenu("JianShuRemoveClipboardHijacking", () => {
 			this.removeClipboardHijacking();
 		});
-		PopsPanel.execMenu("JianShuAutoExpandFullText", () => {
+		Panel.execMenu("JianShuAutoExpandFullText", () => {
 			this.autoExpandFullText();
 		});
-		PopsPanel.execMenu("JianShuArticleCenter", () => {
+		Panel.execMenu("JianShuArticleCenter", () => {
 			return this.articleCenter();
 		});
-		PopsPanel.execMenu("JianShuShieldRelatedArticles", () => {
+		Panel.execMenu("JianShuShieldRelatedArticles", () => {
 			return this.blockRelatedArticles();
 		});
-		PopsPanel.execMenu("jianshu-shieldClientDialog", () => {
+		Panel.execMenu("jianshu-shieldClientDialog", () => {
 			this.blockClientDialog();
 		});
-		PopsPanel.execMenuOnce("JianShuShieldUserComments", () => {
+		Panel.execMenuOnce("JianShuShieldUserComments", () => {
 			return this.blockUserComments();
 		});
-		PopsPanel.execMenuOnce("JianShuShieldRecommendedReading", () => {
+		Panel.execMenuOnce("JianShuShieldRecommendedReading", () => {
 			return this.blockRecommendedReading();
 		});
-		PopsPanel.execMenuOnce("jianshu-shieldTopNav", () => {
+		Panel.execMenuOnce("jianshu-shieldTopNav", () => {
 			return this.blockTopNav();
 		});
-		PopsPanel.execMenuOnce("jianshu-shieldBottomToolbar", () => {
+		Panel.execMenuOnce("jianshu-shieldBottomToolbar", () => {
 			return this.blockBottomToolbar();
 		});
 	},

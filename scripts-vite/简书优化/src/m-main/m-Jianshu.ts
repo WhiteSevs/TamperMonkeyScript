@@ -1,29 +1,29 @@
 import { log } from "@/env";
 import { Jianshu } from "@/main/Jianshu";
-import { PopsPanel } from "@/setting/setting";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { unsafeWindow } from "ViteGM";
 
 export const M_Jianshu = {
 	init() {
 		this.addCSS();
-		PopsPanel.execMenu("JianShuAutoJumpRedirect_Mobile", () => {
+		Panel.execMenu("JianShuAutoJumpRedirect_Mobile", () => {
 			Jianshu.jumpRedirect();
 		});
-		PopsPanel.execMenu("JianShuHijackSchemeScriptLabel_Mobile", () => {
+		Panel.execMenu("JianShuHijackSchemeScriptLabel_Mobile", () => {
 			this.handlePrototype();
 		});
-		PopsPanel.execMenu("JianShuRemoveClipboardHijacking_Mobile", () => {
+		Panel.execMenu("JianShuRemoveClipboardHijacking_Mobile", () => {
 			Jianshu.removeClipboardHijacking();
 		});
 
-		PopsPanel.execMenu("JianShuAutoExpandFullText_Mobile", () => {
+		Panel.execMenu("JianShuAutoExpandFullText_Mobile", () => {
 			Jianshu.autoExpandFullText();
 		});
-		PopsPanel.execMenuOnce("JianShuremoveFooterRecommendRead", () => {
+		Panel.execMenuOnce("JianShuremoveFooterRecommendRead", () => {
 			return this.blockeFooterRecommendRead();
 		});
-		PopsPanel.execMenu("JianShuShieldUserCommentsMobile", () => {
+		Panel.execMenu("JianShuShieldUserCommentsMobile", () => {
 			return this.blockUserComments();
 		});
 	},
