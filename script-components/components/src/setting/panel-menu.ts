@@ -68,9 +68,16 @@ export const PanelMenu = {
 	},
 	/**
 	 * 获取菜单项
-	 * @param index 索引
+	 * @param [index=0] 索引
 	 */
-	getMenuOption(index: number) {
+	getMenuOption(index: number = 0) {
 		return this.$data.menuOption[index];
+	},
+	/**
+	 * 删除菜单项
+	 * @param [index=0] 索引
+	 */
+	deleteMenuOption(index: number = 0) {
+		this.$data.menuOption.splice(index, 1);
 	},
 };
