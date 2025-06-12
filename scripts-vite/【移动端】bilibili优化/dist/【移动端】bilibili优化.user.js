@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.28
+// @version      2025.6.12
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
@@ -46,2368 +46,14 @@
 
 (a=>{function e(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let p=document.createElement("style");return p.setAttribute("type","text/css"),p.innerHTML=n,document.head?document.head.appendChild(p):document.body?document.body.appendChild(p):document.documentElement.childNodes.length===0?document.documentElement.appendChild(p):document.documentElement.insertBefore(p,document.documentElement.childNodes[0]),p}if(typeof GM_addStyle=="function"){GM_addStyle(a);return}e(a)})(' @charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog{display:none!important}.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-head m-open-app{display:none!important}.m-home .launch-app-btn.home-float-openapp{display:none!important}.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp,.m-space m-open-app:has(>.m-fixed-openapp){display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp{display:none!important}#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-dynamic m-open-app:has(>.m-fixed-openapp){display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp{display:none!important}#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#__next m-open-app[class^=TopBar_download],#__next m-open-app:has([class^=GoApp]){display:none!important}#__next m-open-app[class^=MainButton_btnWrap]{visibility:hidden!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153} ');
 
-(function (Qmsg, Utils, DOMUtils, pops, md5, Artplayer, artplayerPluginDanmuku, Viewer, flvjs) {
+(function (Qmsg, DOMUtils, Utils, pops, md5, Artplayer, artplayerPluginDanmuku, Viewer, flvjs) {
   'use strict';
 
   var __defProp = Object.defineProperty;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
-  var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const HttpxCookieManager = {
-    $data: {
-      /** 是否启用 */
-      get enable() {
-        return PopsPanel.getValue("httpx-use-cookie-enable");
-      },
-      /** 是否使用document.cookie */
-      get useDocumentCookie() {
-        return PopsPanel.getValue("httpx-use-document-cookie");
-      },
-      cookieRule: [
-        {
-          key: "httpx-cookie-bilibili.com",
-          hostname: /bilibili.com/g
-        }
-      ]
-    },
-    /**
-     * 补充cookie末尾分号
-     */
-    fixCookieSplit(str) {
-      if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
-        str += ";";
-      }
-      return str;
-    },
-    /**
-     * 合并两个cookie
-     */
-    concatCookie(targetCookie, newCookie) {
-      if (utils.isNull(targetCookie)) {
-        return newCookie;
-      }
-      targetCookie = targetCookie.trim();
-      newCookie = newCookie.trim();
-      targetCookie = this.fixCookieSplit(targetCookie);
-      if (newCookie.startsWith(";")) {
-        newCookie = newCookie.substring(1);
-      }
-      return targetCookie.concat(newCookie);
-    },
-    /**
-     * 处理cookie
-     * @param details
-     * @returns
-     */
-    handle(details) {
-      if (details.fetch) {
-        return;
-      }
-      if (!this.$data.enable) {
-        return;
-      }
-      let ownCookie = "";
-      let url = details.url;
-      if (url.startsWith("//")) {
-        url = window.location.protocol + url;
-      }
-      let urlObj = new URL(url);
-      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
-        window.location.hostname.split(".").slice(-2).join(".")
-      )) {
-        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
-      }
-      for (let index = 0; index < this.$data.cookieRule.length; index++) {
-        let rule = this.$data.cookieRule[index];
-        if (urlObj.hostname.match(rule.hostname)) {
-          let cookie = PopsPanel.getValue(rule.key);
-          if (utils.isNull(cookie)) {
-            break;
-          }
-          ownCookie = this.concatCookie(ownCookie, cookie);
-        }
-      }
-      if (utils.isNotNull(ownCookie)) {
-        if (details.headers && details.headers["Cookie"]) {
-          details.headers.Cookie = this.concatCookie(
-            details.headers.Cookie,
-            ownCookie
-          );
-        } else {
-          details.headers["Cookie"] = ownCookie;
-        }
-        log.info("Httpx => 设置cookie:", details);
-      }
-      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
-        delete details.headers.Cookie;
-      }
-    }
-  };
-  const _SCRIPT_NAME_ = "【移动端】bilibili优化";
-  const utils = Utils.noConflict();
-  const domutils = DOMUtils.noConflict();
-  const __pops = pops;
-  const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
-  const log = new utils.Log(
-    _GM_info,
-    _unsafeWindow.console || _monkeyWindow.console
-  );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
-  const GMCookie = new utils.GM_Cookie();
-  const DEBUG = false;
-  log.config({
-    debug: DEBUG,
-    logMaxCount: 1e3,
-    autoClearConsole: true,
-    tag: true
-  });
-  Qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-position", "bottom");
-          }
-        },
-        maxNums: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-maxnums", 5);
-          }
-        },
-        showReverse: {
-          get() {
-            return PopsPanel.getValue("qmsg-config-showreverse", true);
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
-      }
-    )
-  );
-  const GM_Menu = new utils.GM_Menu({
-    GM_getValue: _GM_getValue,
-    GM_setValue: _GM_setValue,
-    GM_registerMenuCommand: _GM_registerMenuCommand,
-    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
-  });
-  const httpx = new utils.Httpx({
-    xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: DEBUG
-  });
-  httpx.interceptors.request.use((data2) => {
-    HttpxCookieManager.handle(data2);
-    return data2;
-  });
-  httpx.interceptors.response.use(void 0, (data2) => {
-    log.error("拦截器-请求错误", data2);
-    if (data2.type === "onabort") {
-      Qmsg.warning("请求取消");
-    } else if (data2.type === "onerror") {
-      Qmsg.error("请求异常");
-    } else if (data2.type === "ontimeout") {
-      Qmsg.error("请求超时");
-    } else {
-      Qmsg.error("其它错误");
-    }
-    return data2;
-  });
-  const OriginPrototype = {
-    Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty
-    },
-    Function: {
-      apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call
-    },
-    Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild
-    },
-    setTimeout: _unsafeWindow.setTimeout
-  };
-  const addStyle = utils.addStyle.bind(utils);
-  const $ = document.querySelector.bind(document);
-  const $$ = document.querySelectorAll.bind(document);
-  pops.GlobalConfig.setGlobalConfig({
-    mask: {
-      enable: true,
-      clickEvent: {
-        toClose: true
-      }
-    },
-    zIndex() {
-      let maxZIndex = Utils.getMaxZIndex();
-      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-    }
-  });
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_INIT = "data-init";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const PROPS_STORAGE_API = "data-storage-api";
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
-    let result = {
-      text,
-      type: "switch",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return Boolean(
-          this.props[PROPS_STORAGE_API].get(key, defaultValue)
-        );
-      },
-      callback(event, __value) {
-        let value = Boolean(__value);
-        log.success(`${value ? "开启" : "关闭"} ${text}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
-      },
-      afterAddToUListCallBack
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
-      }
-    });
-    return result;
-  };
-  const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
-    let result = {
-      text,
-      type: "textarea",
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      disabled,
-      getValue() {
-        let value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
-        if (Array.isArray(value)) {
-          return value.join("\n");
-        }
-        return value;
-      },
-      callback(event, value) {
-        this.props[PROPS_STORAGE_API].set(key, value);
-      }
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
-      }
-    });
-    return result;
-  };
-  const UISelect = function(text, key, defaultValue, data2, callback, description) {
-    let selectData = [];
-    if (typeof data2 === "function") {
-      selectData = data2();
-    } else {
-      selectData = data2;
-    }
-    let result = {
-      text,
-      type: "select",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      callback(event, isSelectedValue, isSelectedText) {
-        let value = isSelectedValue;
-        log.info(`选择：${isSelectedText}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof callback === "function") {
-          callback(event, value, isSelectedText);
-        }
-      },
-      data: selectData
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
-      }
-    });
-    return result;
-  };
-  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
-    let result = {
-      text,
-      type: "input",
-      isNumber: Boolean(isNumber),
-      isPassword: Boolean(isPassword),
-      props: {},
-      attributes: {},
-      description,
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      callback(event, value) {
-        if (typeof changeCallBack === "function") {
-          if (changeCallBack(event, value)) {
-            return;
-          }
-        }
-        this.props[PROPS_STORAGE_API].set(key, value);
-      },
-      placeholder
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
-      }
-    });
-    return result;
-  };
-  const AppKeyInfo = {
-    /** web_ios */
-    ios: {
-      appkey: "27eb53fc9058f8c3",
-      appsec: "c2ed53a74eeefe3cf99fbd01d8c9c375",
-      mobi_app: "ipnone"
-    }
-  };
-  function appSign(params, appkey, appsec) {
-    params.appkey = appkey;
-    const searchParams = new URLSearchParams(params);
-    searchParams.sort();
-    return md5(searchParams.toString() + appsec);
-  }
-  const BilibiliApiResponseCheck = {
-    /**
-     * check json has {code: 0, message: "0"}
-     */
-    isWebApiSuccess(json) {
-      return (json == null ? void 0 : json.code) === 0 && ((json == null ? void 0 : json.message) === "0" || (json == null ? void 0 : json.message) === "success");
-    },
-    /**
-     * 是否是区域限制
-     */
-    isAreaLimit(data2) {
-      let areaLimitCode = {
-        "6002003": "抱歉您所在地区不可观看！"
-      };
-      let flag = false;
-      Object.keys(areaLimitCode).forEach((code) => {
-        let codeMsg = areaLimitCode[code];
-        if (data2.code.toString() === code.toString() || data2.message.includes(codeMsg)) {
-          flag = true;
-        }
-      });
-      return flag;
-    }
-  };
-  const BilibiliLoginApi = {
-    /**
-     * 获取登录二维码信息（TV端）
-     * https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/login/login_action/QR.md#%E7%94%B3%E8%AF%B7%E4%BA%8C%E7%BB%B4%E7%A0%81(TV%E7%AB%AF)
-     */
-    async getQrCodeInfo() {
-      var _a2;
-      let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
-      let postData = {
-        /** APP 密钥 APP 方式必要 */
-        appkey: AppKeyInfo.ios.appkey,
-        /** TV 端 id */
-        local_id: "0",
-        /** 当前时间戳 APP 方式必要 */
-        ts: "0",
-        /** APP 签名 APP 方式必要 */
-        // sign: "",
-        /** 平台标识 会被拼接到返回的 url query */
-        mobi_app: AppKeyInfo.ios.mobi_app,
-        csrf: ((_a2 = GMCookie.get("bili_jct")) == null ? void 0 : _a2.value) || ""
-      };
-      let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
-      let postResp = await httpx.post(
-        Api,
-        {
-          data: utils.toSearchParamsStr({
-            ...postData,
-            sign
-          }),
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-          },
-          responseType: "json",
-          fetch: true
-        }
-        // sign: 'e134154ed6add881d28fbdf68653cd9c',
-      );
-      log.info(postResp);
-      if (!postResp.status) {
-        return;
-      }
-      let data2 = utils.toJSON(postResp.data.responseText);
-      if (data2.code !== 0) {
-        Qmsg.error(data2.message);
-        return;
-      }
-      let loginData = data2.data;
-      return loginData;
-    },
-    /**
-     * 获取auth_code对应的链接的扫码状态
-     * @param auth_code
-     * @returns
-     */
-    async poll(auth_code) {
-      let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
-      let postData = {
-        appkey: AppKeyInfo.ios.appkey,
-        auth_code,
-        local_id: "0",
-        ts: "0"
-      };
-      let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
-      let postResp = await httpx.post(Api, {
-        data: utils.toSearchParamsStr({
-          ...postData,
-          sign
-        }),
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        responseType: "json",
-        fetch: true
-      });
-      if (!postResp.status) {
-        return { success: false, message: "网络错误", action: void 0 };
-      }
-      const json = utils.toJSON(postResp.data.responseText);
-      log.info(json);
-      const msgMap = {
-        "0": "成功",
-        "-3": "API校验密匙错误",
-        "-400": "请求错误",
-        "-404": "啥都木有",
-        "86038": "二维码已失效",
-        "86039": "二维码尚未确认",
-        "86090": "二维码已扫码未确认"
-      };
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(json)) {
-        const code = json.code.toString();
-        const message = json.message || msgMap[code] || "未知错误";
-        if (code === "86038") {
-          return { success: false, message, action: "refresh" };
-        }
-        if (code === "86039" || code === "86090") {
-          return { success: false, message, action: "wait" };
-        }
-        return { success: false, message, action: void 0 };
-      }
-      const accessKey = json.data.access_token;
-      const accessKeyExpireAt = Date.now() + json.data.expires_in * 1e3;
-      return {
-        success: true,
-        message: "获取成功",
-        accessKey,
-        accessKeyExpireAt
-      };
-    }
-  };
-  const BilibiliQrCodeLogin = {
-    async init() {
-      Qmsg.info("正在申请二维码...");
-      let qrcodeInfo = await this.getQRCodeInfo();
-      if (!qrcodeInfo) {
-        return;
-      }
-      this.confirmScanQrcode(qrcodeInfo);
-    },
-    /**'
-     * 获取二维码信息
-     */
-    getQRCodeInfo: async function() {
-      log.info("正在申请二维码...");
-      let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
-      log.info("获取到二维码信息", qrcodeInfo);
-      return qrcodeInfo;
-    },
-    /**
-     * 确认扫码
-     * @param qrcodeInfo
-     */
-    async confirmScanQrcode(qrcodeInfo) {
-      let $alert = __pops.alert({
-        title: {
-          text: "请扫描二维码登录",
-          position: "center",
-          html: false,
-          style: ""
-        },
-        content: {
-          text: (
-            /*html*/
-            `<div id="bili-qrcode-canvas"></div>`
-          ),
-          html: true
-        },
-        btn: {
-          ok: {
-            enable: false
-          },
-          close: {
-            enable: true,
-            callback(event) {
-              isUserCloseScanDialog = true;
-              event.close();
-            }
-          }
-        },
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: false,
-            toHide: false
-          }
-        },
-        only: true,
-        width: "310px",
-        height: "365px",
-        drag: true,
-        dragLimit: true,
-        style: (
-          /*css*/
-          `
-            #bili-qrcode-canvas{
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100%;
-                height: 100%;
-            }
-            `
-        )
-      });
-      let $biliQrcodeCanvas = $alert.$shadowRoot.querySelector(
-        "#bili-qrcode-canvas"
-      );
-      let qrcode = new QRCodeJS($biliQrcodeCanvas, {
-        text: qrcodeInfo.url,
-        width: 300,
-        height: 300,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCodeJS.CorrectLevel.H
-      });
-      let isUserCloseScanDialog = false;
-      while (true) {
-        if (isUserCloseScanDialog) {
-          log.error("用户关闭扫码登录弹窗、取消扫码登录");
-          break;
-        }
-        log.info("正在等待扫码登录...");
-        let pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
-        if (pollInfo == null ? void 0 : pollInfo.success) {
-          this.setAccessTokenInfo({
-            access_token: pollInfo.accessKey,
-            expireAt: pollInfo.accessKeyExpireAt
-          });
-          log.info("扫码登录成功", pollInfo);
-          Qmsg.success("扫码登录成功");
-          break;
-        } else {
-          if ((pollInfo == null ? void 0 : pollInfo.action) === "refresh") {
-            log.info("刷新二维码");
-            Qmsg.info("刷新二维码");
-            let qrcodeInfo2 = await this.getQRCodeInfo();
-            if (qrcodeInfo2) {
-              qrcode.clear();
-              qrcode.makeCode(qrcodeInfo2.url);
-            }
-          } else if (pollInfo.action === "wait") {
-            if (pollInfo.message === "二维码已扫码未确认") {
-              log.info("已扫码，等待确认...");
-              __pops.loading({
-                parent: $biliQrcodeCanvas,
-                content: {
-                  text: "已扫码，等待确认"
-                },
-                mask: {
-                  enable: true
-                }
-              });
-            }
-          } else {
-            log.error(pollInfo.message);
-            Qmsg.error(pollInfo.message);
-            break;
-          }
-        }
-        await utils.sleep(1500);
-      }
-      $alert.close();
-    },
-    /**
-     * 生成过期时间
-     * @param monthNumber xx月后过期
-     * @returns
-     */
-    generateExpireAt(monthNumber = 6) {
-      return (/* @__PURE__ */ new Date()).getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
-    },
-    /**
-     * 设置获取到的access_token和过期时间
-     * @param data
-     */
-    setAccessTokenInfo(data2) {
-      _GM_setValue("bili-accessTokenInfo", data2);
-    },
-    /**
-     * 获取access_token和过期时间
-     * 自动根据过期时间处理数据
-     * @returns
-     */
-    getAccessTokenInfo() {
-      let data2 = _GM_getValue("bili-accessTokenInfo");
-      if (data2 && data2.expireAt > Date.now()) {
-        return data2;
-      } else {
-        return null;
-      }
-    },
-    /**
-     * 获取access_token
-     * @returns
-     */
-    getAccessToken() {
-      var _a2;
-      return ((_a2 = this.getAccessTokenInfo()) == null ? void 0 : _a2.access_token) || "";
-    }
-  };
-  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack) {
-    let result = {
-      text,
-      type: "button",
-      description,
-      buttonIcon,
-      buttonIsRightIcon,
-      buttonIconIsLoading,
-      buttonType,
-      buttonText,
-      callback(event) {
-        if (typeof clickCallBack === "function") {
-          clickCallBack(event);
-        }
-      },
-      afterAddToUListCallBack
-    };
-    return result;
-  };
-  const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
-      get width() {
-        return window.innerWidth < 550 ? "88vw" : "550px";
-      },
-      get height() {
-        return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
-      get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
-      },
-      get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
-      }
-    }
-  };
-  class RuleEditView {
-    constructor(option) {
-      __publicField(this, "option");
-      this.option = option;
-    }
-    /**
-     * 显示视图
-     */
-    async showView() {
-      var _a2;
-      let $dialog = __pops.confirm({
-        title: {
-          text: this.option.title,
-          position: "center"
-        },
-        content: {
-          text: (
-            /*html*/
-            `
-                    <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist">
-                            
-                        </ul>
-                        <input type="submit" style="display: none;" />
-                    </form>
-                    `
-          ),
-          html: true
-        },
-        btn: utils.assign(
-          {
-            ok: {
-              callback: async () => {
-                await submitSaveOption();
-              }
-            }
-          },
-          this.option.btn || {},
-          true
-        ),
-        drag: true,
-        mask: {
-          enable: true
-        },
-        style: (
-          /*css*/
-          `
-                ${__pops.config.cssText.panelCSS}
-                
-                .rule-form-container {
-                    
-                }
-                .rule-form-container li{
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 5px 20px;
-                    gap: 10px;
-                }
-				.rule-form-ulist-dynamic{
-					--button-margin-top: 0px;
-					--button-margin-right: 0px;
-					--button-margin-bottom: 0px;
-					--button-margin-left: 0px;
-					display: flex;
-					flex-direction: column;
-					align-items: flex-start;
-					padding: 5px 0px 5px 20px;
-				}
-				.rule-form-ulist-dynamic__inner{
-					width: 100%;
-				}
-				.rule-form-ulist-dynamic__inner-container{
-					display: flex;
-					align-items: center;
-				}
-				.dynamic-forms{
-					width: 100%;
-				}
-                .pops-panel-item-left-main-text{
-                    max-width: 150px;
-                }
-                .pops-panel-item-right-text{
-                    padding-left: 30px;
-                }
-                .pops-panel-item-right-text,
-                .pops-panel-item-right-main-text{
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    white-space: nowrap;
-                }
-				.pops-panel-item-left-desc-text{
-					line-height: normal;
-					margin-top: 6px;
-					font-size: 0.8em;
-					color: rgb(108, 108, 108);
-				}
-
-                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
-            `
-        ),
-        width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
-        height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
-      });
-      let $form = $dialog.$shadowRoot.querySelector(
-        ".rule-form-container"
-      );
-      $dialog.$shadowRoot.querySelector(
-        "input[type=submit]"
-      );
-      let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
-      let view = await this.option.getView(await this.option.data());
-      $ulist.appendChild(view);
-      const submitSaveOption = async () => {
-        let result = await this.option.onsubmit($form, await this.option.data());
-        if (!result.success) {
-          return;
-        }
-        $dialog.close();
-        await this.option.dialogCloseCallBack(true);
-      };
-    }
-  }
-  class RuleFilterView {
-    constructor(option) {
-      __publicField(this, "option");
-      this.option = option;
-    }
-    showView() {
-      let $alert = __pops.alert({
-        title: {
-          text: this.option.title,
-          position: "center"
-        },
-        content: {
-          text: (
-            /*html*/
-            `
-                <div class="filter-container"></div>
-                `
-          )
-        },
-        btn: {
-          ok: {
-            text: "关闭",
-            type: "default"
-          }
-        },
-        drag: true,
-        mask: {
-          enable: true
-        },
-        width: window.innerWidth > 500 ? "350px" : "80vw",
-        height: window.innerHeight > 500 ? "300px" : "70vh",
-        style: (
-          /*css*/
-          `
-            .filter-container{
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-            .filter-container button{
-                text-wrap: wrap;
-                padding: 8px;
-                height: auto;
-                text-align: left;
-            }
-            `
-        )
-      });
-      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
-      let $fragment = document.createDocumentFragment();
-      this.option.filterOption.forEach((filterOption) => {
-        let $button = document.createElement("button");
-        $button.innerText = filterOption.name;
-        let execFilterAndCloseDialog = async () => {
-          let allRuleInfo = await this.option.getAllRuleInfo();
-          allRuleInfo.forEach(async (ruleInfo) => {
-            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
-            if (!filterResult) {
-              domutils.hide(ruleInfo.$el, false);
-            } else {
-              domutils.show(ruleInfo.$el, false);
-            }
-          });
-          if (typeof this.option.execFilterCallBack === "function") {
-            await this.option.execFilterCallBack();
-          }
-          $alert.close();
-        };
-        domutils.on($button, "click", async (event) => {
-          utils.preventEvent(event);
-          if (typeof filterOption.callback === "function") {
-            let result = await filterOption.callback(
-              event,
-              execFilterAndCloseDialog
-            );
-            if (!result) {
-              return;
-            }
-          }
-          await execFilterAndCloseDialog();
-        });
-        $fragment.appendChild($button);
-      });
-      $filterContainer.appendChild($fragment);
-    }
-  }
-  class RuleView {
-    constructor(option) {
-      __publicField(this, "option");
-      this.option = option;
-    }
-    /**
-     * 显示视图
-     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
-     */
-    async showView(filterCallBack) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
-      let $popsConfirm = __pops.confirm({
-        title: {
-          text: this.option.title,
-          position: "center"
-        },
-        content: {
-          text: (
-            /*html*/
-            `
-                    <div class="rule-view-container">
-                    </div>
-                    `
-          ),
-          html: true
-        },
-        btn: {
-          merge: true,
-          reverse: false,
-          position: "space-between",
-          ok: {
-            enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
-            type: "primary",
-            text: "添加",
-            callback: async (event) => {
-              this.showEditView(
-                false,
-                await this.option.getAddData(),
-                $popsConfirm.$shadowRoot
-              );
-            }
-          },
-          close: {
-            enable: true,
-            callback(event) {
-              $popsConfirm.close();
-            }
-          },
-          cancel: {
-            enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
-            type: "default",
-            text: "过滤",
-            callback: (details, event) => {
-              var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
-              if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
-                this.option.bottomControls.filter.callback();
-              }
-              let getAllRuleElement = () => {
-                return Array.from(
-                  $popsConfirm.$shadowRoot.querySelectorAll(
-                    ".rule-view-container .rule-item"
-                  )
-                );
-              };
-              let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
-              if (domutils.text($button).includes("取消")) {
-                getAllRuleElement().forEach(($el) => {
-                  domutils.show($el, false);
-                });
-                domutils.text($button, "过滤");
-              } else {
-                let ruleFilterView = new RuleFilterView({
-                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
-                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
-                  execFilterCallBack() {
-                    domutils.text($button, "取消过滤");
-                  },
-                  getAllRuleInfo: () => {
-                    return getAllRuleElement().map(($el) => {
-                      return {
-                        data: this.parseRuleItemElement($el).data,
-                        $el
-                      };
-                    });
-                  }
-                });
-                ruleFilterView.showView();
-              }
-            }
-          },
-          other: {
-            enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
-            type: "xiaomi-primary",
-            text: `清空所有(${(await this.option.data()).length})`,
-            callback: (event) => {
-              let $askDialog = __pops.confirm({
-                title: {
-                  text: "提示",
-                  position: "center"
-                },
-                content: {
-                  text: "确定清空所有的数据？",
-                  html: false
-                },
-                btn: {
-                  ok: {
-                    enable: true,
-                    callback: async (popsEvent) => {
-                      var _a3, _b2, _c2;
-                      log.success("清空所有");
-                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
-                        this.option.bottomControls.clear.callback();
-                      }
-                      let data2 = await this.option.data();
-                      if (data2.length) {
-                        Qmsg.error("清理失败");
-                        return;
-                      } else {
-                        Qmsg.success("清理成功");
-                      }
-                      await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
-                      this.clearContent($popsConfirm.$shadowRoot);
-                      $askDialog.close();
-                    }
-                  },
-                  cancel: {
-                    text: "取消",
-                    enable: true
-                  }
-                },
-                mask: { enable: true },
-                width: "300px",
-                height: "200px"
-              });
-            }
-          }
-        },
-        mask: {
-          enable: true
-        },
-        width: window.innerWidth > 500 ? "500px" : "88vw",
-        height: window.innerHeight > 500 ? "500px" : "80vh",
-        style: (
-          /*css*/
-          `
-            ${__pops.config.cssText.panelCSS}
-            
-            .rule-item{
-                display: flex;
-                align-items: center;
-                line-height: normal;
-                font-size: 16px;
-                padding: 4px 8px;
-                gap: 8px;
-            }
-            .rule-name{
-                flex: 1;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-            }
-            .rule-controls{
-                display: flex;
-                align-items: center;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
-                gap: 8px;
-                padding: 0px;
-            }
-            .rule-controls-enable{
-                
-            }
-            .rule-controls-edit{
-                
-            }
-            .rule-controls-delete{
-                
-            }
-            .rule-controls-edit,
-            .rule-controls-delete{
-                width: 16px;
-                height: 16px;
-                cursor: pointer;
-            }
-            `
-        )
-      });
-      let allData = await this.option.data();
-      let changeButtonText = false;
-      for (let index = 0; index < allData.length; index++) {
-        let item = allData[index];
-        let $ruleItemList = await this.appendRuleItemElement(
-          $popsConfirm.$shadowRoot,
-          item
-        );
-        let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
-        if (!flag) {
-          changeButtonText = true;
-          $ruleItemList.forEach(($el) => {
-            domutils.hide($el, false);
-          });
-        }
-      }
-      if (changeButtonText) {
-        let $button = $popsConfirm.$shadowRoot.querySelector(
-          ".pops-confirm-btn-cancel span"
-        );
-        domutils.text($button, "取消过滤");
-      }
-    }
-    /**
-     * 显示编辑视图
-     * @param isEdit 是否是编辑状态
-     * @param editData 编辑的数据
-     * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
-     * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
-     * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
-     * @param submitCallBack （可选）添加/修改提交的回调
-     */
-    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
-      let dialogCloseCallBack = async (isSubmit) => {
-        if (isSubmit) {
-          if (typeof submitCallBack === "function") {
-            let newData = await this.option.getData(editData);
-            submitCallBack(newData);
-          }
-        } else {
-          if (!isEdit) {
-            await this.option.deleteData(editData);
-          }
-          if (typeof updateDataCallBack === "function") {
-            let newData = await this.option.getData(editData);
-            updateDataCallBack(newData);
-          }
-        }
-      };
-      let editView = new RuleEditView({
-        title: isEdit ? "编辑" : "添加",
-        data: () => {
-          return editData;
-        },
-        dialogCloseCallBack,
-        getView: async (data2) => {
-          return await this.option.itemControls.edit.getView(data2, isEdit);
-        },
-        btn: {
-          ok: {
-            enable: true,
-            text: isEdit ? "修改" : "添加"
-          },
-          cancel: {
-            callback: async (detail, event) => {
-              detail.close();
-              await dialogCloseCallBack(false);
-            }
-          },
-          close: {
-            callback: async (detail, event) => {
-              detail.close();
-              await dialogCloseCallBack(false);
-            }
-          }
-        },
-        onsubmit: async ($form, data2) => {
-          let result = await this.option.itemControls.edit.onsubmit(
-            $form,
-            isEdit,
-            data2
-          );
-          if (result.success) {
-            if (isEdit) {
-              Qmsg.success("修改成功");
-              $parentShadowRoot && await this.updateRuleItemElement(
-                result.data,
-                $editRuleItemElement,
-                $parentShadowRoot
-              );
-            } else {
-              $parentShadowRoot && await this.appendRuleItemElement(
-                $parentShadowRoot,
-                result.data
-              );
-            }
-          } else {
-            if (isEdit) {
-              log.error("修改失败");
-            }
-          }
-          return result;
-        },
-        style: this.option.itemControls.edit.style,
-        width: this.option.itemControls.edit.width,
-        height: this.option.itemControls.edit.height
-      });
-      editView.showView();
-    }
-    /**
-     * 解析弹窗内的各个元素
-     */
-    parseViewElement($shadowRoot) {
-      let $container = $shadowRoot.querySelector(
-        ".rule-view-container"
-      );
-      let $deleteBtn = $shadowRoot.querySelector(
-        ".pops-confirm-btn button.pops-confirm-btn-other"
-      );
-      return {
-        /** 容器 */
-        $container,
-        /** 左下角的清空按钮 */
-        $deleteBtn
-      };
-    }
-    /**
-     * 解析每一项的元素
-     */
-    parseRuleItemElement($ruleElement) {
-      let $enable = $ruleElement.querySelector(
-        ".rule-controls-enable"
-      );
-      let $enableSwitch = $enable.querySelector(".pops-panel-switch");
-      let $enableSwitchInput = $enable.querySelector(
-        ".pops-panel-switch__input"
-      );
-      let $enableSwitchCore = $enable.querySelector(
-        ".pops-panel-switch__core"
-      );
-      let $edit = $ruleElement.querySelector(".rule-controls-edit");
-      let $delete = $ruleElement.querySelector(
-        ".rule-controls-delete"
-      );
-      return {
-        /** 启用开关 */
-        $enable,
-        /** 启用开关的container */
-        $enableSwitch,
-        /** 启用开关的input */
-        $enableSwitchInput,
-        /** 启用开关的core */
-        $enableSwitchCore,
-        /** 编辑按钮 */
-        $edit,
-        /** 删除按钮 */
-        $delete,
-        /** 存储在元素上的数据 */
-        data: Reflect.get($ruleElement, "data-rule")
-      };
-    }
-    /**
-     * 创建一条规则元素
-     */
-    async createRuleItemElement(data2, $shadowRoot) {
-      let name = await this.option.getDataItemName(data2);
-      let $ruleItem = domutils.createElement("div", {
-        className: "rule-item",
-        innerHTML: (
-          /*html*/
-          `
-			<div class="rule-name">${name}</div>
-			<div class="rule-controls">
-				<div class="rule-controls-enable">
-					<div class="pops-panel-switch">
-						<input class="pops-panel-switch__input" type="checkbox">
-						<span class="pops-panel-switch__core">
-							<div class="pops-panel-switch__action">
-							</div>
-						</span>
-					</div>
-				</div>
-				<div class="rule-controls-edit">
-					${__pops.config.iconSVG.edit}
-				</div>
-				<div class="rule-controls-delete">
-					${__pops.config.iconSVG.delete}
-				</div>
-			</div>
-			`
-        )
-      });
-      Reflect.set($ruleItem, "data-rule", data2);
-      let switchCheckedClassName = "pops-panel-switch-is-checked";
-      const {
-        $enable,
-        $enableSwitch,
-        $enableSwitchCore,
-        $enableSwitchInput,
-        $delete,
-        $edit
-      } = this.parseRuleItemElement($ruleItem);
-      if (this.option.itemControls.enable.enable) {
-        domutils.on($enableSwitchCore, "click", async (event) => {
-          let isChecked = false;
-          if ($enableSwitch.classList.contains(switchCheckedClassName)) {
-            $enableSwitch.classList.remove(switchCheckedClassName);
-            isChecked = false;
-          } else {
-            $enableSwitch.classList.add(switchCheckedClassName);
-            isChecked = true;
-          }
-          $enableSwitchInput.checked = isChecked;
-          await this.option.itemControls.enable.callback(data2, isChecked);
-        });
-        if (await this.option.itemControls.enable.getEnable(data2)) {
-          $enableSwitch.classList.add(switchCheckedClassName);
-        }
-      } else {
-        $enable.remove();
-      }
-      if (this.option.itemControls.edit.enable) {
-        domutils.on($edit, "click", (event) => {
-          utils.preventEvent(event);
-          this.showEditView(true, data2, $shadowRoot, $ruleItem, (newData) => {
-            data2 = null;
-            data2 = newData;
-          });
-        });
-      } else {
-        $edit.remove();
-      }
-      if (this.option.itemControls.delete.enable) {
-        domutils.on($delete, "click", (event) => {
-          utils.preventEvent(event);
-          let $askDialog = __pops.confirm({
-            title: {
-              text: "提示",
-              position: "center"
-            },
-            content: {
-              text: "确定删除该条数据？",
-              html: false
-            },
-            btn: {
-              ok: {
-                enable: true,
-                callback: async (popsEvent) => {
-                  log.success("删除数据");
-                  let flag = await this.option.itemControls.delete.deleteCallBack(
-                    data2
-                  );
-                  if (flag) {
-                    Qmsg.success("成功删除该数据");
-                    $ruleItem.remove();
-                    await this.updateDeleteAllBtnText($shadowRoot);
-                    $askDialog.close();
-                  } else {
-                    Qmsg.error("删除该数据失败");
-                  }
-                }
-              },
-              cancel: {
-                text: "取消",
-                enable: true
-              }
-            },
-            mask: {
-              enable: true
-            },
-            width: "300px",
-            height: "200px"
-          });
-        });
-      } else {
-        $delete.remove();
-      }
-      return $ruleItem;
-    }
-    /**
-     * 添加一个规则元素
-     */
-    async appendRuleItemElement($shadowRoot, data2) {
-      let { $container } = this.parseViewElement($shadowRoot);
-      let $ruleItem = [];
-      let iteratorData = Array.isArray(data2) ? data2 : [data2];
-      for (let index = 0; index < iteratorData.length; index++) {
-        let item = iteratorData[index];
-        let $item = await this.createRuleItemElement(item, $shadowRoot);
-        $container.appendChild($item);
-        $ruleItem.push($item);
-      }
-      await this.updateDeleteAllBtnText($shadowRoot);
-      return $ruleItem;
-    }
-    /**
-     * 更新弹窗内容的元素
-     */
-    async updateRuleContaienrElement($shadowRoot) {
-      this.clearContent($shadowRoot);
-      const { $container } = this.parseViewElement($shadowRoot);
-      let data2 = await this.option.data();
-      await this.appendRuleItemElement($shadowRoot, data2);
-      await this.updateDeleteAllBtnText($shadowRoot);
-    }
-    /**
-     * 更新规则元素
-     */
-    async updateRuleItemElement(data2, $oldRuleItem, $shadowRoot) {
-      let $newRuleItem = await this.createRuleItemElement(data2, $shadowRoot);
-      $oldRuleItem.after($newRuleItem);
-      $oldRuleItem.remove();
-    }
-    /**
-     * 清空内容
-     */
-    clearContent($shadowRoot) {
-      const { $container } = this.parseViewElement($shadowRoot);
-      domutils.html($container, "");
-    }
-    /**
-     * 设置删除按钮的文字
-     */
-    setDeleteBtnText($shadowRoot, text, isHTML = false) {
-      const { $deleteBtn } = this.parseViewElement($shadowRoot);
-      if (isHTML) {
-        domutils.html($deleteBtn, text);
-      } else {
-        domutils.text($deleteBtn, text);
-      }
-    }
-    /**
-     * 更新【清空所有】的按钮的文字
-     * @param $shadowRoot
-     */
-    async updateDeleteAllBtnText($shadowRoot) {
-      let data2 = await this.option.data();
-      this.setDeleteBtnText($shadowRoot, `清空所有(${data2.length})`);
-    }
-  }
-  const BilibiliComponentDetectionRule = {
-    $data: {
-      /** 白名单用户id */
-      whiteList: [],
-      /** 规则数据 */
-      ruleData: []
-    },
-    $key: {
-      STORAGE_KEY: "bili-componentDetection-rule"
-    },
-    /** 初始化数据 */
-    init() {
-      this.$data.whiteList = [];
-      this.$data.ruleData = [];
-      let allData = this.getData();
-      allData.forEach((data2) => {
-        if (!data2.enable) {
-          return;
-        }
-        this.$data.ruleData.push(data2);
-      });
-    },
-    /**
-     * 显示视图
-     */
-    showView() {
-      let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
-      function generateStorageApi(data2, handler) {
-        return {
-          get(key, defaultValue) {
-            return data2[key] ?? defaultValue;
-          },
-          set(key, value) {
-            data2[key] = value;
-          }
-        };
-      }
-      let ruleView = new RuleView({
-        title: "成分检测",
-        data: () => {
-          return this.getData();
-        },
-        getAddData: () => {
-          return this.getTemplateData();
-        },
-        getDataItemName: (data2) => {
-          return data2["name"];
-        },
-        updateData: (data2) => {
-          return this.updateData(data2);
-        },
-        deleteData: (data2) => {
-          return this.deleteData(data2);
-        },
-        getData: (data2) => {
-          let allData = this.getData();
-          let findValue = allData.find((item) => item.uuid === data2.uuid);
-          return findValue ?? data2;
-        },
-        itemControls: {
-          enable: {
-            enable: true,
-            getEnable(data2) {
-              return data2.enable;
-            },
-            callback: (data2, enable) => {
-              data2.enable = enable;
-              this.updateData(data2);
-            }
-          },
-          edit: {
-            enable: true,
-            getView: (data2, isEdit) => {
-              let $fragment = document.createDocumentFragment();
-              let templateData = this.getTemplateData();
-              if (!isEdit) {
-                data2 = templateData;
-              }
-              let enable_template = UISwitch(
-                "启用",
-                "enable",
-                templateData.enable
-              );
-              Reflect.set(
-                enable_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data2)
-              );
-              let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
-                enable_template
-              );
-              let name_template = UIInput(
-                "规则名称",
-                "name",
-                "",
-                templateData.name,
-                void 0,
-                "必填"
-              );
-              Reflect.set(
-                name_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data2)
-              );
-              let $name = popsPanelContentUtils.createSectionContainerItem_input(
-                name_template
-              );
-              let isShowDisplayName_template = UISwitch(
-                "是否显示标签名称",
-                "isShowDisplayName",
-                templateData.data.isShowDisplayName
-              );
-              Reflect.set(
-                isShowDisplayName_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data2.data)
-              );
-              let $isShowDisplayName = popsPanelContentUtils.createSectionContainerItem_switch(
-                isShowDisplayName_template
-              );
-              let displayName_template = UIInput(
-                "标签名称",
-                "displayName",
-                templateData.data.displayName,
-                "例如：原神"
-              );
-              Reflect.set(
-                displayName_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data2.data)
-              );
-              let $displayName = popsPanelContentUtils.createSectionContainerItem_input(
-                displayName_template
-              );
-              let isShowDisplayIcon_template = UISwitch(
-                "是否显示标签图标",
-                "isShowDisplayIcon",
-                templateData.data.isShowDisplayIcon
-              );
-              Reflect.set(
-                isShowDisplayIcon_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data2.data)
-              );
-              let $isShowDisplayIcon = popsPanelContentUtils.createSectionContainerItem_switch(
-                isShowDisplayIcon_template
-              );
-              let displayIcon_template = UIInput(
-                "标签图标",
-                "displayIcon",
-                templateData.data.displayIcon,
-                "Url或base64"
-              );
-              Reflect.set(
-                displayIcon_template.props,
-                PROPS_STORAGE_API,
-                generateStorageApi(data2.data)
-              );
-              let $displayIcon = popsPanelContentUtils.createSectionContainerItem_input(
-                displayIcon_template
-              );
-              let keywords_template = UITextArea(
-                "关键词",
-                "keywords",
-                "",
-                "用于匹配标题、简介、转发内容的关键词",
-                void 0,
-                "多个关键词换行"
-              );
-              Reflect.set(keywords_template.props, PROPS_STORAGE_API, {
-                get(key, defaultValue) {
-                  let value = data2.data[key] ?? defaultValue;
-                  if (typeof value === "string") {
-                    return value.split("\n");
-                  }
-                  return value;
-                },
-                set(key, value) {
-                  if (typeof value === "string") {
-                    value = value.split("\n");
-                  }
-                  data2.data[key] = value;
-                }
-              });
-              let $keywords = popsPanelContentUtils.createSectionContainerItem_textarea(
-                keywords_template
-              );
-              let followings_template = UITextArea(
-                "关注的用户",
-                "followings",
-                "",
-                "用户id",
-                void 0,
-                "多个用户id换行"
-              );
-              Reflect.set(followings_template.props, PROPS_STORAGE_API, {
-                get(key, defaultValue) {
-                  let value = data2.data[key] ?? defaultValue;
-                  if (typeof value === "string") {
-                    return value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
-                  }
-                  return value;
-                },
-                set(key, value) {
-                  if (typeof value === "string") {
-                    value = value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
-                  }
-                  data2.data[key] = value;
-                }
-              });
-              let $followings = popsPanelContentUtils.createSectionContainerItem_textarea(
-                followings_template
-              );
-              let blacklist_template = UITextArea(
-                "黑名单",
-                "blacklist",
-                "",
-                "",
-                void 0,
-                "多个用户id换行"
-              );
-              Reflect.set(blacklist_template.props, PROPS_STORAGE_API, {
-                get(key, defaultValue) {
-                  let value = data2.data[key] ?? defaultValue;
-                  if (typeof value === "string") {
-                    return value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
-                  }
-                  return value;
-                },
-                set(key, value) {
-                  if (typeof value === "string") {
-                    value = value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
-                  }
-                  data2.data[key] = value;
-                }
-              });
-              let $blacklist = popsPanelContentUtils.createSectionContainerItem_textarea(
-                blacklist_template
-              );
-              $fragment.append(
-                $enable,
-                $name,
-                $isShowDisplayName,
-                $displayName,
-                $isShowDisplayIcon,
-                $displayIcon,
-                $keywords,
-                $followings,
-                $blacklist
-              );
-              return $fragment;
-            },
-            onsubmit: ($form, isEdit, editData) => {
-              let $ulist_li = $form.querySelectorAll(
-                ".rule-form-ulist > li"
-              );
-              let data2 = this.getTemplateData();
-              if (isEdit) {
-                data2.uuid = editData.uuid;
-              }
-              try {
-                $ulist_li.forEach(($li) => {
-                  let formConfig = Reflect.get($li, "__formConfig__");
-                  let attrs = Reflect.get(formConfig, "attributes");
-                  let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                  let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                  let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                  let value = storageApi.get(key, defaultValue);
-                  if (Reflect.has(data2, key)) {
-                    Reflect.set(data2, key, value);
-                  } else if (Reflect.has(data2.data, key)) {
-                    Reflect.set(data2.data, key, value);
-                  } else {
-                    log.error(`${key}不在数据中`);
-                  }
-                });
-                if (data2.name.trim() === "") {
-                  Qmsg.error("规则名称不能为空");
-                  return {
-                    success: false,
-                    data: data2
-                  };
-                }
-                if (isEdit) {
-                  return {
-                    success: this.updateData(data2),
-                    data: data2
-                  };
-                } else {
-                  return {
-                    success: this.addData(data2),
-                    data: data2
-                  };
-                }
-              } catch (error) {
-                log.error(error);
-                return {
-                  success: false,
-                  data: data2
-                };
-              } finally {
-                this.init();
-              }
-            },
-            style: (
-              /*css*/
-              `
-                    .pops-panel-textarea textarea{
-                        height: 150px;
-                    }
-					.pops-panel-item-left-desc-text{
-						line-height: normal;
-						margin-top: 6px;
-						font-size: 0.8em;
-						color: rgb(108, 108, 108);
-						max-width: 100px;
-					}
-                    `
-            )
-          },
-          delete: {
-            enable: true,
-            deleteCallBack: (data2) => {
-              return this.deleteData(data2);
-            }
-          }
-        }
-      });
-      ruleView.showView();
-    },
-    /**
-     * 获取模板数据
-     */
-    getTemplateData() {
-      return {
-        uuid: utils.generateUUID(),
-        enable: true,
-        name: "",
-        data: {
-          isShowDisplayIcon: true,
-          displayIcon: "",
-          isShowDisplayName: true,
-          displayName: "",
-          keywords: [],
-          blacklist: [],
-          followings: []
-        }
-      };
-    },
-    /**
-     * 获取数据
-     */
-    getData() {
-      return _GM_getValue(this.$key.STORAGE_KEY, []);
-    },
-    /**
-     * 设置数据
-     * @param data
-     */
-    setData(data2) {
-      _GM_setValue(this.$key.STORAGE_KEY, data2);
-    },
-    /**
-     * 添加数据
-     * @param data
-     */
-    addData(data2) {
-      let localData = this.getData();
-      let findIndex = localData.findIndex((item) => item.uuid == data2.uuid);
-      if (findIndex === -1) {
-        localData.push(data2);
-        _GM_setValue(this.$key.STORAGE_KEY, localData);
-        return true;
-      } else {
-        return false;
-      }
-    },
-    /**
-     * 更新数据
-     * @param data
-     */
-    updateData(data2) {
-      let localData = this.getData();
-      let index = localData.findIndex((item) => item.uuid == data2.uuid);
-      let updateFlag = false;
-      if (index !== -1) {
-        updateFlag = true;
-        localData[index] = data2;
-      }
-      this.setData(localData);
-      return updateFlag;
-    },
-    /**
-     * 删除数据
-     * @param data
-     */
-    deleteData(data2) {
-      let localData = this.getData();
-      let index = localData.findIndex((item) => item.uuid == data2.uuid);
-      let deleteFlag = false;
-      if (index !== -1) {
-        deleteFlag = true;
-        localData.splice(index, 1);
-      }
-      this.setData(localData);
-      return deleteFlag;
-    },
-    /**
-     * 清空数据
-     */
-    clearData() {
-      _GM_deleteValue(this.$key.STORAGE_KEY);
-    },
-    /**
-     * 导出规则
-     */
-    exportRule(fileName = "rule.json") {
-      let allRule = this.getData();
-      let blob = new Blob([JSON.stringify(allRule, null, 4)]);
-      let blobUrl = window.URL.createObjectURL(blob);
-      let $a = document.createElement("a");
-      $a.href = blobUrl;
-      $a.download = fileName;
-      $a.click();
-      setTimeout(() => {
-        window.URL.revokeObjectURL(blobUrl);
-      }, 1500);
-    },
-    /**
-     * 导入规则
-     */
-    importRule() {
-      let $alert = __pops.alert({
-        title: {
-          text: "请选择导入方式",
-          position: "center"
-        },
-        content: {
-          text: (
-            /*html*/
-            `
-                    <div class="import-mode" data-mode="local">本地导入</div>
-                    <div class="import-mode" data-mode="network">网络导入</div>
-                `
-          ),
-          html: true
-        },
-        width: PanelUISize.info.width,
-        height: PanelUISize.info.height,
-        style: (
-          /*css*/
-          `
-                .import-mode{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-            `
-        )
-      });
-      let $local = $alert.$shadowRoot.querySelector(
-        ".import-mode[data-mode='local']"
-      );
-      let $network = $alert.$shadowRoot.querySelector(
-        ".import-mode[data-mode='network']"
-      );
-      domutils.on($local, "click", (event) => {
-        utils.preventEvent(event);
-        $alert.close();
-        let $input = domutils.createElement("input", {
-          type: "file",
-          accept: ".json"
-        });
-        domutils.on($input, ["propertychange", "input"], (event2) => {
-          var _a2;
-          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
-            return;
-          }
-          let uploadFile = $input.files[0];
-          let fileReader = new FileReader();
-          fileReader.onload = () => {
-            let data2 = utils.toJSON(fileReader.result);
-            if (!Array.isArray(data2)) {
-              log.error("不是正确的规则文件", data2);
-              Qmsg.error("不是正确的规则文件");
-              return;
-            }
-            this.setData(data2);
-            Qmsg.success(`成功导入 ${data2.length}条规则`);
-          };
-          fileReader.readAsText(uploadFile, "UTF-8");
-        });
-        $input.click();
-      });
-      domutils.on($network, "click", (event) => {
-        utils.preventEvent(event);
-        $alert.close();
-        __pops.prompt({
-          title: {
-            text: "网络导入",
-            position: "center"
-          },
-          content: {
-            text: "",
-            placeholder: "url",
-            focus: true
-          },
-          btn: {
-            ok: {
-              callback: async (eventDetails, event2) => {
-                let url = eventDetails.text;
-                if (utils.isNull(url)) {
-                  Qmsg.error("请填入完整的url");
-                  return;
-                }
-                let response = await httpx.get(url);
-                if (!response.status) {
-                  return;
-                }
-                let data2 = utils.toJSON(response.data.responseText);
-                if (!Array.isArray(data2)) {
-                  log.error("不是正确的规则文件", response, data2);
-                  Qmsg.error("不是正确的规则文件");
-                  return;
-                }
-                this.setData(data2);
-                eventDetails.close();
-                Qmsg.success(`成功导入 ${data2.length}条规则`);
-              }
-            }
-          },
-          width: PanelUISize.info.width,
-          height: "auto"
-        });
-      });
-    }
-  };
-  const SettingUICommon = {
-    id: "panel-common",
-    title: "通用",
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "功能",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "监听路由-重载所有功能",
-                    "bili-listenRouterChange",
-                    true,
-                    void 0,
-                    "用于处理页面跳转(本页)时功能不生效问题"
-                  ),
-                  UISwitch(
-                    "修复VueRouter跳转404问题",
-                    "bili-repairVueRouter404",
-                    true,
-                    void 0,
-                    "例如：点击UP主正确进入空间"
-                  ),
-                  UISwitch(
-                    "新标签页打开",
-                    "bili-go-to-url-blank",
-                    false,
-                    void 0,
-                    "通过开启【覆盖点击事件】相关的设置，通过新标签页打开链接"
-                  ),
-                  UISwitch(
-                    "允许复制",
-                    "bili-allowCopy",
-                    true,
-                    void 0,
-                    "一般用于处理楼层的回复弹窗内无法选中复制问题"
-                  )
-                  // UISwitch(
-                  // 	"自动删除Cookie buvid3",
-                  // 	"common_auto_delete_cookie_buvid3",
-                  // 	true
-                  // ),
-                ]
-              }
-            ]
-          },
-          {
-            text: "变量设置",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "noCallApp",
-                    "bili-noCallApp",
-                    true,
-                    void 0,
-                    "$store.state.common.noCallApp=true"
-                  ),
-                  UISwitch(
-                    "isLogin",
-                    "bili-setLogin",
-                    true,
-                    void 0,
-                    [
-                      "$store.state.common.userInfo.isLogin=true",
-                      "$store.state.loginInfo.isLogin=true"
-                    ].join("<br>")
-                  ),
-                  UISwitch(
-                    "isClient",
-                    "bili-setIsClient",
-                    true,
-                    void 0,
-                    [
-                      "$store.state.video.isClient=true",
-                      "$store.state.opus.isClient=true",
-                      "$store.state.playlist.isClient=true",
-                      "$store.state.ver.bili=true",
-                      "$store.state.ver.biliVer=2333"
-                    ].join("<br>")
-                  )
-                  // UISwitch(
-                  // 	"tinyApp",
-                  // 	"bili-setTinyApp",
-                  // 	true,
-                  // 	void 0,
-                  // 	"$store.state.common.tinyApp=true"
-                  // ),
-                ]
-              }
-            ]
-          },
-          {
-            text: "劫持/拦截",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "覆盖.launch-app-btn openApp",
-                    "bili-overrideLaunchAppBtn_Vue_openApp",
-                    true,
-                    void 0,
-                    "覆盖.launch-app-btn元素上的openApp函数，可阻止点击唤醒/下载App"
-                  ),
-                  UISwitch(
-                    "覆盖bili-open-app opener.open",
-                    "bili-cover-bili-open-app-open",
-                    true,
-                    void 0,
-                    "覆盖bili-open-app/m-open-app元素上的opener.open函数，可阻止点击唤醒/下载App，如果存在有效链接，会自动跳转"
-                  ),
-                  UISwitch(
-                    "覆盖.wx-tag的handleClick",
-                    "bili-cover-wx-tag-handleClick",
-                    true,
-                    void 0,
-                    "覆盖.wx-tag元素上的点击事件，让它直接打开视频"
-                  ),
-                  UISwitch(
-                    "劫持setTimeout-autoOpenApp",
-                    "bili-hookSetTimeout_autoOpenApp",
-                    true,
-                    void 0,
-                    "阻止自动调用App"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            type: "deepMenu",
-            text: "成分检测",
-            forms: [
-              {
-                type: "forms",
-                text: "",
-                forms: [
-                  UISwitch(
-                    "启用",
-                    "bili-componentDetection",
-                    true,
-                    void 0,
-                    "启用后可检测用户的成分信息"
-                  ),
-                  UIButton(
-                    "自定义规则",
-                    "检测用户成分的规则",
-                    "管理",
-                    void 0,
-                    false,
-                    false,
-                    "primary",
-                    () => {
-                      BilibiliComponentDetectionRule.showView();
-                    }
-                  )
-                ]
-              },
-              {
-                type: "forms",
-                text: "",
-                forms: [
-                  UIButton(
-                    "数据导入",
-                    "导入自定义规则数据",
-                    "导入",
-                    void 0,
-                    false,
-                    false,
-                    "primary",
-                    () => {
-                      BilibiliComponentDetectionRule.importRule();
-                    }
-                  ),
-                  UIButton(
-                    "数据导出",
-                    "导出自定义规则数据",
-                    "导出",
-                    void 0,
-                    false,
-                    false,
-                    "primary",
-                    () => {
-                      BilibiliComponentDetectionRule.exportRule("成分检测.json");
-                    }
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "数据配置",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UIInput(
-                    "access_token",
-                    "bili-head-recommend-access_token",
-                    BilibiliQrCodeLogin.getAccessToken(),
-                    "填入access_token，可用于获取推荐视频数据、番剧搜索、番剧播放等",
-                    (event, value, valueAsNumber) => {
-                      BilibiliQrCodeLogin.setAccessTokenInfo({
-                        access_token: value,
-                        expireAt: BilibiliQrCodeLogin.generateExpireAt()
-                      });
-                    },
-                    void 0,
-                    false,
-                    true
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "Toast配置",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISelect(
-                    "Toast位置",
-                    "qmsg-config-position",
-                    "bottom",
-                    [
-                      {
-                        value: "topleft",
-                        text: "左上角"
-                      },
-                      {
-                        value: "top",
-                        text: "顶部"
-                      },
-                      {
-                        value: "topright",
-                        text: "右上角"
-                      },
-                      {
-                        value: "left",
-                        text: "左边"
-                      },
-                      {
-                        value: "center",
-                        text: "中间"
-                      },
-                      {
-                        value: "right",
-                        text: "右边"
-                      },
-                      {
-                        value: "bottomleft",
-                        text: "左下角"
-                      },
-                      {
-                        value: "bottom",
-                        text: "底部"
-                      },
-                      {
-                        value: "bottomright",
-                        text: "右下角"
-                      }
-                    ],
-                    (event, isSelectValue, isSelectText) => {
-                      log.info("设置当前Qmsg弹出位置" + isSelectText);
-                    },
-                    "Toast显示在页面九宫格的位置"
-                  ),
-                  UISelect(
-                    "最多显示的数量",
-                    "qmsg-config-maxnums",
-                    3,
-                    [
-                      {
-                        value: 1,
-                        text: "1"
-                      },
-                      {
-                        value: 2,
-                        text: "2"
-                      },
-                      {
-                        value: 3,
-                        text: "3"
-                      },
-                      {
-                        value: 4,
-                        text: "4"
-                      },
-                      {
-                        value: 5,
-                        text: "5"
-                      }
-                    ],
-                    void 0,
-                    "限制Toast显示的数量"
-                  ),
-                  UISwitch(
-                    "逆序弹出",
-                    "qmsg-config-showreverse",
-                    false,
-                    void 0,
-                    "修改Toast弹出的顺序"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "Cookie配置",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "启用",
-                    "httpx-use-cookie-enable",
-                    false,
-                    void 0,
-                    "启用后，将根据下面的配置进行添加cookie"
-                  ),
-                  UISwitch(
-                    "使用document.cookie",
-                    "httpx-use-document-cookie",
-                    false,
-                    void 0,
-                    "自动根据请求的域名来获取对应的cookie"
-                  ),
-                  UITextArea(
-                    "bilibili.com",
-                    "httpx-cookie-bilibili.com",
-                    "",
-                    void 0,
-                    void 0,
-                    "Cookie格式：xxx=xxxx;xxx=xxxx"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
+  const BilibiliBeautifyCSS = '@charset "UTF-8";\r\n/* 主页 */\r\n#app .m-head {\r\n	--bg-color: #f0f1f3;\r\n	--bg-rever-color: #ffffff;\r\n	--pd-width: 1.3333vmin;\r\n	--bd-circle: 1.3333vmin;\r\n	--card-height: 30vmin;\r\n	--icon-font-size: 3.2vmin;\r\n	--icon-text-font-size: 2.6vmin;\r\n	--icon-font-margin-right: 3vmin;\r\n	--title-font-size: 2.8vmin;\r\n	background-color: var(--bg-color);\r\n}\r\n#app .m-head .m-home {\r\n	background-color: var(--bg-color);\r\n}\r\n/* 美化视频卡片 */\r\n#app .m-head .video-list .card-box .v-card {\r\n	background-color: var(--bg-rever-color);\r\n	padding: 0px;\r\n	margin: 0px;\r\n	width: calc(50% - var(--pd-width) / 2);\r\n	border-radius: var(--bd-circle);\r\n	margin-top: var(--pd-width);\r\n	display: grid;\r\n	/* 视频封面区域 */\r\n}\r\n#app .m-head .video-list .card-box .v-card .card {\r\n	background: var(--bg-rever-color);\r\n	border-radius: unset;\r\n	border-top-left-radius: var(--bd-circle);\r\n	border-top-right-radius: var(--bd-circle);\r\n	height: var(--card-height);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count {\r\n	display: flex;\r\n	justify-content: safe flex-start;\r\n	padding-right: 0;\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count .iconfont {\r\n	font-size: var(--icon-text-font-size);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count > span {\r\n	font-size: var(--icon-text-font-size);\r\n	margin-right: var(--icon-font-margin-right);\r\n}\r\n/* 视频标题区域 */\r\n#app .m-head .video-list .card-box .v-card .title {\r\n	padding: 0;\r\n	margin: var(--pd-width);\r\n	font-size: var(--title-font-size);\r\n}\r\n/* 两列 => 左边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n-1) {\r\n	/*background-color: red;*/\r\n	margin-right: calc(var(--pd-width) / 2);\r\n}\r\n/* 两列 => 右边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n) {\r\n	/*background-color: rebeccapurple;*/\r\n	margin-left: calc(var(--pd-width) / 2);\r\n}\r\n';
   const BilibiliRouter = {
     /**
      * 视频页面
@@ -2506,8 +152,2296 @@
       return this.isPC() && window.location.pathname.startsWith("/read/mobile");
     }
   };
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  const KEY = "GM_Panel";
+  const ATTRIBUTE_INIT = "data-init";
+  const ATTRIBUTE_KEY = "data-key";
+  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  const PROPS_STORAGE_API = "data-storage-api";
+  const PanelUISize = {
+    /**
+     * 一般设置界面的尺寸
+     */
+    setting: {
+      get width() {
+        if (window.innerWidth < 550) {
+          return "88vw";
+        } else if (window.innerWidth < 700) {
+          return "550px";
+        } else {
+          return "700px";
+        }
+      },
+      get height() {
+        if (window.innerHeight < 450) {
+          return "70vh";
+        } else if (window.innerHeight < 550) {
+          return "450px";
+        } else {
+          return "550px";
+        }
+      }
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
+      }
+    }
+  };
+  class StorageUtils {
+    /**
+     * 存储的键名，可以是多层的，如：a.b.c
+     *
+     * 那就是
+     * {
+     *  "a": {
+     *     "b": {
+     *       "c": {
+     *         ...你的数据
+     *       }
+     *     }
+     *   }
+     * }
+     * @param key
+     */
+    constructor(key) {
+      /** 存储的键名 */
+      __publicField(this, "storageKey");
+      __publicField(this, "listenerData");
+      if (typeof key === "string") {
+        let trimKey = key.trim();
+        if (trimKey == "") {
+          throw new Error("key参数不能为空字符串");
+        }
+        this.storageKey = trimKey;
+      } else {
+        throw new Error("key参数类型错误，必须是字符串");
+      }
+      this.listenerData = new Utils.Dictionary();
+    }
+    /**
+     * 获取本地值
+     */
+    getLocalValue() {
+      let localValue = _GM_getValue(this.storageKey);
+      if (localValue == null) {
+        localValue = {};
+        this.setLocalValue(localValue);
+      }
+      return localValue;
+    }
+    /**
+     * 设置本地值
+     * @param value
+     */
+    setLocalValue(value) {
+      _GM_setValue(this.storageKey, value);
+    }
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    set(key, value) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.set(localValue, key, value);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, value);
+    }
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    get(key, defaultValue) {
+      let localValue = this.getLocalValue();
+      return Reflect.get(localValue, key) ?? defaultValue;
+    }
+    /**
+     * 获取所有值
+     */
+    getAll() {
+      let localValue = this.getLocalValue();
+      return localValue;
+    }
+    /**
+     * 删除值
+     * @param key 键
+     */
+    delete(key) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.deleteProperty(localValue, key);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, void 0);
+    }
+    /**
+     * 判断是否存在该值
+     */
+    has(key) {
+      let localValue = this.getLocalValue();
+      return Reflect.has(localValue, key);
+    }
+    /**
+     * 获取所有键
+     */
+    keys() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue);
+    }
+    /**
+     * 获取所有值
+     */
+    values() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue).map(
+        (key) => Reflect.get(localValue, key)
+      );
+    }
+    /**
+     * 清空所有值
+     */
+    clear() {
+      _GM_deleteValue(this.storageKey);
+    }
+    /**
+     * 监听值改变
+     * + .set
+     * + .delete
+     * @param key 监听的键
+     * @param callback 值改变的回调函数
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = Math.random();
+      let listenerData = this.listenerData.get(key) || [];
+      listenerData.push({
+        id: listenerId,
+        key,
+        callback
+      });
+      this.listenerData.set(key, listenerData);
+      return listenerId;
+    }
+    /**
+     * 移除监听
+     * @param listenerId 监听的id或键名
+     */
+    removeValueChangeListener(listenerId) {
+      let flag = false;
+      for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+            listenerData.splice(index, 1);
+            index--;
+            flag = true;
+          }
+        }
+        this.listenerData.set(key, listenerData);
+      }
+      return flag;
+    }
+    /**
+     * 主动触发监听器
+     * @param key 键
+     * @param oldValue （可选）旧值
+     * @param newValue （可选）新值
+     */
+    triggerValueChangeListener(key, oldValue, newValue) {
+      if (!this.listenerData.has(key)) {
+        return;
+      }
+      let listenerData = this.listenerData.get(key);
+      for (let index = 0; index < listenerData.length; index++) {
+        const data2 = listenerData[index];
+        if (typeof data2.callback === "function") {
+          let value = this.get(key);
+          let __newValue;
+          let __oldValue;
+          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+            __oldValue = oldValue;
+          } else {
+            __oldValue = value;
+          }
+          if (typeof newValue !== "undefined" && arguments.length > 2) {
+            __newValue = newValue;
+          } else {
+            __newValue = value;
+          }
+          data2.callback(key, __oldValue, __newValue);
+        }
+      }
+    }
+  }
+  const PopsPanelStorageApi = new StorageUtils(KEY);
+  const PanelContent = {
+    $data: {
+      /**
+       * @private
+       */
+      __contentConfig: null,
+      get contentConfig() {
+        if (this.__contentConfig == null) {
+          this.__contentConfig = new utils.Dictionary();
+        }
+        return this.__contentConfig;
+      }
+    },
+    /**
+     * 设置所有配置项，用于初始化默认的值
+     *
+     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
+     * @param configList 配置项
+     */
+    addContentConfig(configList) {
+      if (!Array.isArray(configList)) {
+        configList = [configList];
+      }
+      let index = this.$data.contentConfig.keys().length;
+      this.$data.contentConfig.set(index, configList);
+    },
+    /**
+     * 获取所有的配置内容，用于初始化默认的值
+     */
+    getAllContentConfig() {
+      return this.$data.contentConfig.values().flat();
+    },
+    /**
+     * 获取配置内容
+     * @param index 配置索引
+     */
+    getConfig(index = 0) {
+      return this.$data.contentConfig.get(index) ?? [];
+    }
+  };
+  const PanelMenu = {
+    $data: {
+      __menuOption: [
+        {
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            Panel.showPanel(PanelContent.getConfig(0));
+          }
+        }
+      ],
+      get menuOption() {
+        return this.__menuOption;
+      }
+    },
+    init() {
+      this.initExtensionsMenu();
+    },
+    /**
+     * 初始化菜单项
+     */
+    initExtensionsMenu() {
+      if (!Panel.isTopWindow()) {
+        return;
+      }
+      GM_Menu.add(this.$data.menuOption);
+    },
+    /**
+     * 添加菜单项
+     * @param option 菜单配置
+     */
+    addMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      this.$data.menuOption.push(...option);
+    },
+    /**
+     * 更新菜单项
+     * @param option 菜单配置
+     */
+    updateMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      option.forEach((optionItem) => {
+        let findIndex = this.$data.menuOption.findIndex((it) => {
+          return it.key === optionItem.key;
+        });
+        if (findIndex !== -1) {
+          this.$data.menuOption[findIndex] = optionItem;
+        }
+      });
+    },
+    /**
+     * 获取菜单项
+     * @param index 索引
+     */
+    getMenuOption(index) {
+      return this.$data.menuOption[index];
+    }
+  };
+  const Panel = {
+    /** 数据 */
+    $data: {
+      /**
+       * @private
+       */
+      __configDefaultValueData: null,
+      /**
+       * @private
+       */
+      __onceExecMenuData: null,
+      /**
+       * @private
+       */
+      __onceExecData: null,
+      /**
+       * @private
+       */
+      __panelConfig: {},
+      $panel: null,
+      /**
+       * 菜单项的默认值
+       */
+      get configDefaultValueData() {
+        if (this.__configDefaultValueData == null) {
+          this.__configDefaultValueData = new utils.Dictionary();
+        }
+        return this.__configDefaultValueData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecMenuData() {
+        if (this.__onceExecMenuData == null) {
+          this.__onceExecMenuData = new utils.Dictionary();
+        }
+        return this.__onceExecMenuData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecData() {
+        if (this.__onceExecData == null) {
+          this.__onceExecData = new utils.Dictionary();
+        }
+        return this.__onceExecData;
+      },
+      /** 脚本名，一般用在设置的标题上 */
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
+      get panelConfig() {
+        return this.__panelConfig;
+      },
+      set panelConfig(value) {
+        this.__panelConfig = value;
+      },
+      /** 菜单项的总值在本地数据配置的键名 */
+      key: KEY,
+      /** 菜单项在attributes上配置的菜单键 */
+      attributeKeyName: ATTRIBUTE_KEY,
+      /** 菜单项在attributes上配置的菜单默认值 */
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+    },
+    init() {
+      this.initContentDefaultValue();
+      PanelMenu.init();
+    },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
+    },
+    /** 初始化菜单项的默认值保存到本地数据中 */
+    initContentDefaultValue() {
+      const initDefaultValue = (config) => {
+        if (!config.attributes) {
+          return;
+        }
+        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+          return;
+        }
+        let needInitConfig = {};
+        let key = config.attributes[ATTRIBUTE_KEY];
+        if (key != null) {
+          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
+        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (initMoreValue && typeof initMoreValue === "object") {
+          Object.assign(needInitConfig, initMoreValue);
+        }
+        let needInitConfigList = Object.keys(needInitConfig);
+        if (!needInitConfigList.length) {
+          log$1.warn(["请先配置键", config]);
+          return;
+        }
+        needInitConfigList.forEach((__key) => {
+          let __defaultValue = needInitConfig[__key];
+          this.setDefaultValue(__key, __defaultValue);
+        });
+      };
+      const loopInitDefaultValue = (configList) => {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
+          initDefaultValue(configItem);
+          let childForms = configItem.forms;
+          if (childForms && Array.isArray(childForms)) {
+            loopInitDefaultValue(childForms);
+          }
+        }
+      };
+      const contentConfigList = [...PanelContent.getAllContentConfig()];
+      for (let index = 0; index < contentConfigList.length; index++) {
+        let leftContentConfigItem = contentConfigList[index];
+        if (!leftContentConfigItem.forms) {
+          continue;
+        }
+        const rightContentConfigList = leftContentConfigItem.forms;
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
+        }
+      }
+    },
+    /**
+     * 设置初始化使用的默认值
+     */
+    setDefaultValue(key, defaultValue) {
+      if (this.$data.configDefaultValueData.has(key)) {
+        log$1.warn("请检查该key(已存在): " + key);
+      }
+      this.$data.configDefaultValueData.set(key, defaultValue);
+    },
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    setValue(key, value) {
+      PopsPanelStorageApi.set(key, value);
+    },
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    getValue(key, defaultValue) {
+      let localValue = PopsPanelStorageApi.get(key);
+      if (localValue == null) {
+        if (this.$data.configDefaultValueData.has(key)) {
+          return this.$data.configDefaultValueData.get(key);
+        }
+        return defaultValue;
+      }
+      return localValue;
+    },
+    /**
+     * 删除值
+     * @param key 键
+     */
+    deleteValue(key) {
+      PopsPanelStorageApi.delete(key);
+    },
+    /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasKey(key) {
+      return PopsPanelStorageApi.has(key);
+    },
+    /**
+     * 监听调用setValue、deleteValue
+     * @param key 需要监听的键
+     * @param callback
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(
+        key,
+        (__key, __newValue, __oldValue) => {
+          callback(key, __oldValue, __newValue);
+        }
+      );
+      return listenerId;
+    },
+    /**
+     * 移除监听
+     * @param listenerId 监听的id
+     */
+    removeValueChangeListener(listenerId) {
+      PopsPanelStorageApi.removeValueChangeListener(listenerId);
+    },
+    /**
+     * 主动触发菜单值改变的回调
+     * @param key 菜单键
+     * @param newValue 想要触发的新值，默认使用当前值
+     * @param oldValue 想要触发的旧值，默认使用当前值
+     */
+    triggerMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.onceExecMenuData.delete(key);
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag;
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      this.$data.onceExecData.delete(key);
+    },
+    /**
+     * 执行菜单
+     *
+     * @param queryKey 键|键数组
+     * @param callback 执行的回调函数
+     * @param checkExec 判断是否执行回调
+     *
+     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
+     *
+     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
+     *
+     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
+     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
+     * @param once 是否只执行一次，默认true
+     *
+     * + true （默认）只执行一次，且会监听键的值改变
+     * + false 不会监听键的值改变
+     */
+    exec(queryKey, callback, checkExec, once = true) {
+      const that = this;
+      let queryKeyFn;
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
+        queryKeyFn = () => queryKey;
+      } else {
+        queryKeyFn = queryKey;
+      }
+      let isArrayKey = false;
+      let queryKeyResult = queryKeyFn();
+      let keyList = [];
+      if (Array.isArray(queryKeyResult)) {
+        isArrayKey = true;
+        keyList = queryKeyResult;
+      } else {
+        keyList.push(queryKeyResult);
+      }
+      let findNotInDataKey = keyList.find(
+        (it) => !this.$data.configDefaultValueData.has(it)
+      );
+      if (findNotInDataKey) {
+        log$1.warn(`${findNotInDataKey} 键不存在`);
+        return;
+      }
+      let storageKey = JSON.stringify(keyList);
+      if (once) {
+        if (this.$data.onceExecMenuData.has(storageKey)) {
+          return;
+        }
+        this.$data.onceExecMenuData.set(storageKey, 1);
+      }
+      let storeStyleElements = [];
+      let listenerIdList = [];
+      let dynamicPushStyleNode = (value, $style) => {
+        let dynamicResultList = [];
+        if ($style instanceof HTMLStyleElement) {
+          dynamicResultList = [$style];
+        } else if (Array.isArray($style)) {
+          dynamicResultList = [
+            ...$style.filter(
+              (item) => item != null && item instanceof HTMLStyleElement
+            )
+          ];
+        }
+        {
+          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+        }
+      };
+      let getMenuValue = (key) => {
+        let value = this.getValue(key);
+        return value;
+      };
+      let clearStoreStyleElements = () => {
+        for (let index = 0; index < storeStyleElements.length; index++) {
+          let $css = storeStyleElements[index];
+          $css.remove();
+          storeStyleElements.splice(index, 1);
+          index--;
+        }
+      };
+      let __checkExec__ = () => {
+        let flag = false;
+        if (typeof checkExec === "function") {
+          flag = checkExec(keyList);
+        } else {
+          flag = keyList.every((key) => getMenuValue(key));
+        }
+        return flag;
+      };
+      let valueChange = (valueOption) => {
+        let execFlag = __checkExec__();
+        let resultList = [];
+        if (execFlag) {
+          let valueList = keyList.map((key) => this.getValue(key));
+          let $styles = callback({
+            addStyleElement: (...args) => {
+              return dynamicPushStyleNode(true, ...args);
+            },
+            value: isArrayKey ? valueList : valueList[0]
+          });
+          if ($styles instanceof HTMLStyleElement) {
+            resultList.push($styles);
+          } else if (Array.isArray($styles)) {
+            resultList.push(
+              ...$styles.filter(
+                (item) => item != null && item instanceof HTMLStyleElement
+              )
+            );
+          }
+        }
+        clearStoreStyleElements();
+        storeStyleElements = [...resultList];
+      };
+      once && keyList.forEach((key) => {
+        let listenerId = this.addValueChangeListener(
+          key,
+          (key2, newValue, oldValue) => {
+            valueChange();
+          }
+        );
+        listenerIdList.push(listenerId);
+      });
+      valueChange();
+      let result = {
+        /**
+         * 清空菜单执行情况
+         *
+         * + 清空存储的元素列表
+         * + 清空值改变的监听器
+         * + 清空存储的一次执行的键
+         */
+        clear() {
+          this.clearStoreStyleElements();
+          this.removeValueChangeListener();
+          once && that.$data.onceExecMenuData.delete(storageKey);
+        },
+        /**
+         * 清空存储的元素列表
+         */
+        clearStoreStyleElements: () => {
+          return clearStoreStyleElements();
+        },
+        /**
+         * 移除值改变的监听器
+         */
+        removeValueChangeListener: () => {
+          listenerIdList.forEach((listenerId) => {
+            this.removeValueChangeListener(listenerId);
+          });
+        }
+      };
+      return result;
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调
+     * @param key
+     * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
+     */
+    execMenu(key, callback, isReverse = false) {
+      return this.exec(
+        key,
+        (option) => {
+          return callback(option);
+        },
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            isReverse && (flag = !flag);
+            return flag;
+          });
+          return execFlag;
+        },
+        false
+      );
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     *
+     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
+     * @param key
+     * @param callback 回调
+     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     */
+    execMenuOnce(key, callback) {
+      return this.exec(
+        key,
+        callback,
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            return flag;
+          });
+          return execFlag;
+        },
+        true
+      );
+    },
+    /**
+     * 根据key执行一次
+     * @param key 键
+     * @param callback 回调
+     */
+    onceExec(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (this.$data.onceExecData.has(key)) {
+        return;
+      }
+      callback();
+      this.$data.onceExecData.set(key, 1);
+    },
+    /**
+     * 显示设置面板
+     * @param content 显示的内容配置
+     * @param [title] 标题
+     */
+    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
+      let $panel = __pops.panel({
+        ...{
+          title: {
+            text: `${SCRIPT_NAME}-设置`,
+            position: "center",
+            html: false,
+            style: ""
+          },
+          content,
+          btn: {
+            close: {
+              enable: true,
+              callback: (details, event) => {
+                details.close();
+                this.$data.$panel = null;
+              }
+            }
+          },
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: true,
+              toHide: false
+            },
+            clickCallBack: (originalRun, config) => {
+              originalRun();
+              this.$data.$panel = null;
+            }
+          },
+          width: PanelUISize.setting.width,
+          height: PanelUISize.setting.height,
+          drag: true,
+          only: true
+        },
+        ...this.$data.panelConfig
+      });
+      this.$data.$panel = $panel;
+    }
+  };
+  const CommonUtil = {
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     * @example
+     * setGMResourceCSS({
+     *   keyName: "ViewerCSS",
+     *   url: "https://example.com/example.css",
+     * })
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtil.loadStyleLink(resourceMapData.url);
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.css")
+     */
+    async loadStyleLink(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      DOMUtils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 添加<script>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.js")
+     */
+    async loadScript(url) {
+      let $script = document.createElement("script");
+      $script.src = url;
+      return new Promise((resolve) => {
+        $script.onload = () => {
+          resolve(null);
+        };
+        (document.head || document.documentElement).appendChild($script);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlInstance = new URL(url);
+      urlInstance.protocol = "https:";
+      return urlInstance.toString();
+    },
+    /**
+     * 禁止页面滚动，默认锁定html和body
+     * @example
+     * lockScroll();
+     * @example
+     * lockScroll(document.body);
+     */
+    lockScroll(...args) {
+      let $hidden = document.createElement("style");
+      $hidden.innerHTML = /*css*/
+      `
+			.pops-overflow-hidden-important {
+				overflow: hidden !important;
+			}
+		`;
+      let $elList = [document.documentElement, document.body].concat(
+        ...args || []
+      );
+      $elList.forEach(($el) => {
+        $el.classList.add("pops-overflow-hidden-important");
+      });
+      (document.head || document.documentElement).appendChild($hidden);
+      return {
+        /**
+         * 解除锁定
+         */
+        recovery() {
+          $elList.forEach(($el) => {
+            $el.classList.remove("pops-overflow-hidden-important");
+          });
+          $hidden.remove();
+        }
+      };
+    },
+    /**
+     * 获取剪贴板文本
+     */
+    async getClipboardText() {
+      function readClipboardText(resolve) {
+        navigator.clipboard.readText().then((clipboardText) => {
+          resolve(clipboardText);
+        }).catch((error) => {
+          log$1.error("读取剪贴板内容失败👉", error);
+          resolve("");
+        });
+      }
+      function requestPermissionsWithClipboard(resolve) {
+        navigator.permissions.query({
+          // @ts-ignore
+          name: "clipboard-read"
+        }).then((permissionStatus) => {
+          readClipboardText(resolve);
+        }).catch((error) => {
+          log$1.error(
+            "申请剪贴板权限失败，尝试直接读取👉",
+            error.message ?? error.name ?? error.stack
+          );
+          readClipboardText(resolve);
+        });
+      }
+      function checkClipboardApi() {
+        var _a2, _b;
+        if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
+          return false;
+        }
+        if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
+          return false;
+        }
+        return true;
+      }
+      return new Promise((resolve) => {
+        if (!checkClipboardApi()) {
+          resolve("");
+          return;
+        }
+        if (document.hasFocus()) {
+          requestPermissionsWithClipboard(resolve);
+        } else {
+          window.addEventListener(
+            "focus",
+            () => {
+              requestPermissionsWithClipboard(resolve);
+            },
+            {
+              once: true
+            }
+          );
+        }
+      });
+    },
+    /**
+     * html转义
+     * @param unsafe
+     */
+    escapeHtml(unsafe) {
+      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    }
+  };
+  const GM_RESOURCE_MAPPING = {
+    Viewer: {
+      keyName: "ViewerCSS",
+      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css"
+    }
+  };
+  const PanelSettingConfig = {
+    /** Toast位置 */
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom"
+    },
+    /** 最多显示的数量 */
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3
+    },
+    /** 逆序弹出 */
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false
+    }
+  };
+  const utils = Utils.noConflict();
+  const domUtils = DOMUtils.noConflict();
+  const __pops = pops;
+  const log$1 = new utils.Log(
+    _GM_info,
+    _unsafeWindow.console || _monkeyWindow.console
+  );
+  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  pops.config.Utils.AnyTouch();
+  const DEBUG = false;
+  log$1.config({
+    debug: DEBUG,
+    logMaxCount: 1e3,
+    autoClearConsole: true,
+    tag: true
+  });
+  Qmsg.config(
+    Object.defineProperties(
+      {
+        html: true,
+        autoClose: true,
+        showClose: false
+      },
+      {
+        position: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_position.key,
+              PanelSettingConfig.qmsg_config_position.defaultValue
+            );
+          }
+        },
+        maxNums: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_maxnums.key,
+              PanelSettingConfig.qmsg_config_maxnums.defaultValue
+            );
+          }
+        },
+        showReverse: {
+          get() {
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_showreverse.key,
+              PanelSettingConfig.qmsg_config_showreverse.defaultValue
+            );
+          }
+        },
+        zIndex: {
+          get() {
+            let maxZIndex = Utils.getMaxZIndex();
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+          }
+        }
+      }
+    )
+  );
+  __pops.GlobalConfig.setGlobalConfig({
+    zIndex: () => {
+      let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+        var _a2;
+        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+          return false;
+        }
+        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+          return false;
+        }
+      });
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    },
+    mask: {
+      // 开启遮罩层
+      enable: true,
+      // 取消点击遮罩层的事件
+      clickEvent: {
+        toClose: false,
+        toHide: false
+      }
+    }
+  });
+  const GM_Menu = new utils.GM_Menu({
+    GM_getValue: _GM_getValue,
+    GM_setValue: _GM_setValue,
+    GM_registerMenuCommand: _GM_registerMenuCommand,
+    GM_unregisterMenuCommand: _GM_unregisterMenuCommand
+  });
+  const httpx = new utils.Httpx({
+    xmlHttpRequest: _GM_xmlhttpRequest,
+    logDetails: DEBUG
+  });
+  httpx.interceptors.request.use((data2) => {
+    return data2;
+  });
+  httpx.interceptors.response.use(void 0, (data2) => {
+    log$1.error("拦截器-请求错误", data2);
+    if (data2.type === "onabort") {
+      Qmsg.warning("请求取消", { consoleLogContent: true });
+    } else if (data2.type === "onerror") {
+      Qmsg.error("请求异常", { consoleLogContent: true });
+    } else if (data2.type === "ontimeout") {
+      Qmsg.error("请求超时", { consoleLogContent: true });
+    } else {
+      Qmsg.error("其它错误", { consoleLogContent: true });
+    }
+    return data2;
+  });
+  const OriginPrototype = {
+    Object: {
+      defineProperty: _unsafeWindow.Object.defineProperty
+    },
+    Function: {
+      apply: _unsafeWindow.Function.prototype.apply,
+      call: _unsafeWindow.Function.prototype.call
+    },
+    Element: {
+      appendChild: _unsafeWindow.Element.prototype.appendChild
+    },
+    setTimeout: _unsafeWindow.setTimeout
+  };
+  const addStyle = utils.addStyle.bind(utils);
+  const $ = document.querySelector.bind(document);
+  const $$ = document.querySelectorAll.bind(document);
+  const cookieManager = new utils.GM_Cookie();
+  const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
+  const VueUtils = {
+    /**
+     * 获取vue2实例
+     * @param element
+     */
+    getVue(element) {
+      if (element == null) {
+        return;
+      }
+      return element["__vue__"] || element["__Ivue__"] || element["__IVue__"];
+    },
+    /**
+     * 获取vue3实例
+     * @param element
+     */
+    getVue3(element) {
+      if (element == null) {
+        return;
+      }
+      return element["__vueParentComponent"];
+    },
+    /**
+     * 等待vue属性并进行设置
+     * @param $target 目标对象
+     * @param needSetList 需要设置的配置
+     */
+    waitVuePropToSet($target, needSetList) {
+      if (!Array.isArray(needSetList)) {
+        VueUtils.waitVuePropToSet($target, [needSetList]);
+        return;
+      }
+      function getTarget() {
+        let __target__ = null;
+        if (typeof $target === "string") {
+          __target__ = document.querySelector($target);
+        } else if (typeof $target === "function") {
+          __target__ = $target();
+        } else if ($target instanceof HTMLElement) {
+          __target__ = $target;
+        }
+        return __target__;
+      }
+      needSetList.forEach((needSetOption) => {
+        if (typeof needSetOption.msg === "string") {
+          log$1.info(needSetOption.msg);
+        }
+        function checkVue() {
+          let target = getTarget();
+          if (target == null) {
+            return false;
+          }
+          let vueInstance = VueUtils.getVue(target);
+          if (vueInstance == null) {
+            return false;
+          }
+          let needOwnCheck = needSetOption.check(vueInstance, target);
+          return Boolean(needOwnCheck);
+        }
+        utils.waitVueByInterval(
+          () => {
+            return getTarget();
+          },
+          checkVue,
+          250,
+          1e4
+        ).then((result) => {
+          if (!result) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(true);
+            }
+            return;
+          }
+          let target = getTarget();
+          let vueInstance = VueUtils.getVue(target);
+          if (vueInstance == null) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(false);
+            }
+            return;
+          }
+          needSetOption.set(vueInstance, target);
+        });
+      });
+    },
+    /**
+     * 观察vue属性的变化
+     * @param $target 目标对象
+     * @param key 需要观察的属性
+     * @param callback 监听回调
+     * @param watchConfig 监听配置
+     * @param failWait 当检测失败/超时触发该回调
+     */
+    watchVuePropChange($target, key, callback, watchConfig, failWait) {
+      let config = utils.assign(
+        {
+          immediate: true,
+          deep: false
+        },
+        watchConfig || {}
+      );
+      return new Promise((resolve) => {
+        VueUtils.waitVuePropToSet($target, {
+          check(vueInstance) {
+            return typeof (vueInstance == null ? void 0 : vueInstance.$watch) === "function";
+          },
+          set(vueInstance) {
+            let removeWatch = null;
+            if (typeof key === "function") {
+              removeWatch = vueInstance.$watch(
+                () => {
+                  return key(vueInstance);
+                },
+                (newValue, oldValue) => {
+                  callback(vueInstance, newValue, oldValue);
+                },
+                config
+              );
+            } else {
+              removeWatch = vueInstance.$watch(
+                key,
+                (newValue, oldValue) => {
+                  callback(vueInstance, newValue, oldValue);
+                },
+                config
+              );
+            }
+            resolve(removeWatch);
+          },
+          failWait
+        });
+      });
+    },
+    /**
+     * 前往网址
+     * @param $vueNode 包含vue属性的元素
+     * @param path 需要跳转的路径
+     * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转
+     */
+    goToUrl($vueNode, path, useRouter = false) {
+      if ($vueNode == null) {
+        Qmsg.error("跳转Url: $vueNode为空");
+        log$1.error("跳转Url: $vueNode为空：" + path);
+        return;
+      }
+      let vueInstance = VueUtils.getVue($vueNode);
+      if (vueInstance == null) {
+        Qmsg.error("获取vue属性失败", { consoleLogContent: true });
+        return;
+      }
+      let $router = vueInstance.$router;
+      let isBlank = true;
+      log$1.info("即将跳转URL：" + path);
+      if (useRouter) {
+        isBlank = false;
+      }
+      if (isBlank) {
+        window.open(path, "_blank");
+      } else {
+        if (path.startsWith("http") || path.startsWith("//")) {
+          if (path.startsWith("//")) {
+            path = window.location.protocol + path;
+          }
+          let urlObj = new URL(path);
+          if (urlObj.origin === window.location.origin) {
+            path = urlObj.pathname + urlObj.search + urlObj.hash;
+          } else {
+            log$1.info("不同域名，直接本页打开，不用Router：" + path);
+            window.location.href = path;
+            return;
+          }
+        }
+        log$1.info("$router push跳转Url：" + path);
+        $router.push(path);
+      }
+    },
+    /**
+     * 手势返回
+     * @param option 配置
+     */
+    hookGestureReturnByVueRouter(option) {
+      function popstateEvent() {
+        log$1.success("触发popstate事件");
+        resumeBack(true);
+      }
+      function banBack() {
+        log$1.success("监听地址改变");
+        option.vueInstance.$router.history.push(option.hash);
+        domUtils.on(_unsafeWindow, "popstate", popstateEvent);
+      }
+      async function resumeBack(isFromPopState = false) {
+        domUtils.off(_unsafeWindow, "popstate", popstateEvent);
+        let callbackResult = option.callback(isFromPopState);
+        if (callbackResult) {
+          return;
+        }
+        while (1) {
+          if (option.vueInstance.$router.history.current.hash === option.hash) {
+            log$1.info("后退！");
+            option.vueInstance.$router.back();
+            await utils.sleep(250);
+          } else {
+            return;
+          }
+        }
+      }
+      banBack();
+      return {
+        resumeBack
+      };
+    }
+  };
+  const BilibiliUtils = {
+    /**
+     * 前往网址
+     * @param path
+     * @param [useRouter=false] 是否强制使用Router，默认false
+     */
+    goToUrl(path, useRouter = false) {
+      let isGoToUrlBlank = Panel.getValue("bili-go-to-url-blank");
+      log$1.info("即将跳转URL：" + path);
+      if (useRouter) {
+        isGoToUrlBlank = false;
+      }
+      if (isGoToUrlBlank) {
+        window.open(path, "_blank");
+      } else {
+        if (path.startsWith("http") || path.startsWith("//")) {
+          if (path.startsWith("//")) {
+            path = window.location.protocol + path;
+          }
+          let urlObj = new URL(path);
+          if (urlObj.origin === window.location.origin) {
+            path = urlObj.pathname + urlObj.search + urlObj.hash;
+          } else {
+            log$1.info("不同域名，直接本页打开，不用Router：" + path);
+            window.location.href = path;
+            return;
+          }
+        }
+        log$1.info("$router push跳转Url：" + path);
+        let $app = $("#app");
+        if ($app == null) {
+          if (!useRouter) {
+            window.location.href = path;
+            return;
+          }
+          Qmsg.error("跳转Url: 获取根元素#app失败");
+          log$1.error("跳转Url: 获取根元素#app失败：" + path);
+          return;
+        }
+        let vueInstance = VueUtils.getVue($app);
+        if (vueInstance == null) {
+          if (!useRouter) {
+            window.location.href = path;
+            return;
+          }
+          log$1.error("获取#app的vue属性失败");
+          Qmsg.error("获取#app的vue属性失败");
+          return;
+        }
+        let $router = vueInstance.$router;
+        $router.push(path);
+      }
+    },
+    /**
+     * 前往登录
+     */
+    goToLogin(fromUrl = "") {
+      window.open(
+        `https://passport.bilibili.com/h5-app/passport/login?gourl=${encodeURIComponent(
+        fromUrl
+      )}`
+      );
+    },
+    /**
+     * 转换时长为显示的时长
+     *
+     * + 30 => 0:30
+     * + 120 => 2:00
+     * + 14400 => 4:00:00
+     * @param duration 秒
+     */
+    parseDuration(duration) {
+      if (typeof duration !== "number") {
+        duration = parseInt(duration);
+      }
+      if (isNaN(duration)) {
+        return duration.toString();
+      }
+      function zeroPadding(num) {
+        if (num < 10) {
+          return `0${num}`;
+        } else {
+          return num;
+        }
+      }
+      if (duration < 60) {
+        return `0:${zeroPadding(duration)}`;
+      } else if (duration >= 60 && duration < 3600) {
+        return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
+      } else {
+        return `${Math.floor(duration / 3600)}:${zeroPadding(
+        Math.floor(duration / 60) % 60
+      )}:${zeroPadding(duration % 60)}`;
+      }
+    },
+    /**
+     * 转换显示的文本
+     *
+     * 如：播放量、弹幕量、点赞、投币、收藏、转发
+     *
+     * 播放量：114514
+     *
+     * ↓
+     *
+     * 播放量：114.5万
+     */
+    parseCount(count) {
+      let countText = count.toString();
+      if (count > 1e4) {
+        let roundNum = (count / 1e4).toFixed(2).slice(0, -1);
+        if (roundNum.endsWith(".0")) {
+          roundNum = roundNum.slice(0, -2);
+        }
+        countText = `${roundNum}万`;
+      } else if (count > 1e4 * 1e4) {
+        let roundNum = (count / (1e4 * 1e4)).toFixed(2).slice(0, -1);
+        if (roundNum.endsWith(".0")) {
+          roundNum = roundNum.slice(0, -2);
+        }
+        countText = `${roundNum}亿`;
+      }
+      return countText;
+    },
+    /**
+     * 手势返回
+     */
+    hookGestureReturnByVueRouter(option) {
+      function popstateEvent() {
+        log$1.success("触发popstate事件");
+        resumeBack(true);
+      }
+      function banBack() {
+        log$1.success("监听地址改变");
+        option.vueObj.$router.history.push(option.hash);
+        domUtils.on(window, "popstate", popstateEvent);
+      }
+      async function resumeBack(isFromPopState = false) {
+        domUtils.off(window, "popstate", popstateEvent);
+        let callbackResult = option.callback(isFromPopState);
+        if (callbackResult) {
+          return;
+        }
+        while (1) {
+          if (option.vueObj.$router.history.current.hash === option.hash) {
+            log$1.info("后退！");
+            option.vueObj.$router.back();
+            await utils.sleep(250);
+          } else {
+            return;
+          }
+        }
+      }
+      banBack();
+      return {
+        resumeBack
+      };
+    },
+    /**
+     * 固定meta viewport缩放倍率为1
+     */
+    initialScale() {
+      log$1.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
+      domUtils.ready(() => {
+        let meta = domUtils.createElement(
+          "meta",
+          {},
+          {
+            name: "viewport",
+            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
+          }
+        );
+        domUtils.remove("meta[name='viewport']");
+        utils.waitNode("head").then(() => {
+          document.head.appendChild(meta);
+        });
+      });
+    }
+  };
+  const BilibiliUrl = {
+    /**
+     * 获取用户个人空间链接
+     * @param userId 用户id
+     */
+    getUserSpaceUrl(userId) {
+      return `https://m.bilibili.com/space/${userId}`;
+    },
+    /**
+     * 获取用户个人空间动态链接-dynamic
+     * @param id 该动态的id
+     */
+    getUserSpaceDynamicUrl(id) {
+      return `https://m.bilibili.com/dynamic/${id}`;
+    },
+    /**
+     * 获取用户个人空间动态链接-opus
+     * @param id 该动态的id
+     */
+    getUserSpaceOpusUrl(id) {
+      return `https://m.bilibili.com/opus/${id}`;
+    },
+    /**
+     * 获取视频链接
+     * @param id bv/av号
+     */
+    getVideoUrl(id) {
+      return `https://m.bilibili.com/video/${id}`;
+    }
+  };
+  const BilibiliData = {
+    className: {
+      bangumi: "#app.main-container",
+      bangumi_new: "body > #__next",
+      dynamic: "#app .m-dynamic",
+      opus: "#app .m-opus",
+      video: "#app .video",
+      mVideo: "#app .m-video",
+      head: "#app .m-head",
+      playlist: "#app .playlist",
+      space: "#app .m-space"
+    },
+    /** 主题色 */
+    theme: "#FB7299"
+  };
+  const BilibiliPCData = {
+    className: {
+      read: {
+        mobile: "#app .read-app-main"
+      }
+    }
+  };
+  const artPlayerCSS$1 = ".artplayer-container {\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	overflow: hidden;\r\n}";
+  const artPlayerCommonCSS = "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n	display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n	max-width: 100px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n	/* 修正小屏下宽度溢出 */\r\n	.art-controls .art-control {\r\n		max-width: 60px;\r\n		white-space: pre-wrap;\r\n	}\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: linear-gradient(to bottom, #000, transparent);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n	width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n	/* 放在右边 */\r\n	right: 0;\r\n	left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
+  const BilibiliApiRequestCheck = {
+    /**
+     * 合并并检查是否传入aid或者bvid
+     */
+    mergeAidOrBvidSearchParamsData(searchParamsData, config) {
+      if ("aid" in config && config["aid"] != null) {
+        Reflect.set(searchParamsData, "aid", config.aid);
+      } else if ("bvid" in config && config["bvid"] != null) {
+        Reflect.set(searchParamsData, "bvid", config.bvid);
+      } else {
+        throw new TypeError("avid or bvid must give one");
+      }
+    }
+  };
   const BilibiliApiConfig = {
     web_host: "api.bilibili.com"
+  };
+  const BilibiliApiResponseCheck = {
+    /**
+     * check json has {code: 0, message: "0"}
+     */
+    isWebApiSuccess(json) {
+      return (json == null ? void 0 : json.code) === 0 && ((json == null ? void 0 : json.message) === "0" || (json == null ? void 0 : json.message) === "success");
+    },
+    /**
+     * 是否是区域限制
+     */
+    isAreaLimit(data2) {
+      let areaLimitCode = {
+        "6002003": "抱歉您所在地区不可观看！"
+      };
+      let flag = false;
+      Object.keys(areaLimitCode).forEach((code) => {
+        let codeMsg = areaLimitCode[code];
+        if (data2.code.toString() === code.toString() || data2.message.includes(codeMsg)) {
+          flag = true;
+        }
+      });
+      return flag;
+    }
+  };
+  const VideoQualityNameMap = {
+    /**
+     * 仅mp4方式支持
+     * + 6
+     */
+    "240P 极速": 6,
+    /**
+     * 仅mp4方式支持
+     * + 16
+     */
+    "360P 流畅": 16,
+    /**
+     * 仅mp4方式支持
+     * + 32
+     */
+    "480P 清晰": 32,
+    /**
+     * web端默认值
+     *
+     * B站前端需要登录才能选择，但是直接发送请求可以不登录就拿到720P的取流地址
+     *
+     * 无720P时则为720P60
+     * + 64
+     */
+    "720P 高清": 64,
+    /**
+     * 需要认证登录账号
+     * + 74
+     */
+    "720P60 高帧率": 74,
+    /**
+     * TV端与APP端默认值
+     *
+     * 需要认证登录账号
+     * + 80
+     */
+    "1080P 高清": 80,
+    /**
+     * 大多情况需求认证大会员账号
+     * + 112
+     */
+    "1080P+ 高码率": 112,
+    /**
+     * 大多情况需求认证大会员账号
+     * + 116
+     */
+    "1080P60 高帧率": 116,
+    /**
+     * 需要fnval&128=128且fourk=1
+     *
+     * 大多情况需求认证大会员账号
+     * + 120
+     */
+    "4K 超清": 120,
+    /**
+     * 仅支持dash方式
+     *
+     * 需要fnval&64=64
+     * + 125
+     */
+    "HDR 真彩色": 125,
+    /**
+     * 仅支持dash方式
+     *
+     * 需要fnval&512=512
+     *
+     * 大多情况需求认证大会员账号
+     * + 126
+     */
+    杜比视界: 126,
+    /**
+     * 仅支持dash方式
+     *
+     * 需要fnval&1024=1024
+     *
+     * 大多情况需求认证大会员账号
+     * + 127
+     */
+    "8K 超高清": 127
+  };
+  const VideoQualityMap = {};
+  Object.keys(VideoQualityNameMap).forEach((qualityName) => {
+    let qualityValue = Reflect.get(VideoQualityNameMap, qualityName);
+    Reflect.set(VideoQualityMap, qualityValue, qualityName);
+  });
+  const BilibiliUserApi = {
+    /**
+     * 获取导航栏用户信息
+     * @param [checkCode=true] 校验返回JSON的状态码，设置false可以获取未登录状态下的wbi_img，用于请求参数处理
+     */
+    async nav(checkCode = true) {
+      let response = await httpx.get(
+        "https://api.bilibili.com/x/web-interface/nav?web_location=333.401",
+        {
+          fetch: true,
+          responseType: "json",
+          allowInterceptConfig: false
+        }
+      );
+      if (!response.status) {
+        log$1.error(response);
+        Qmsg.error("获取导航栏用户信息失败，请求异常", {
+          consoleLogContent: true
+        });
+        return;
+      }
+      let data2 = utils.toJSON(response.data.responseText);
+      if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        log$1.error(["获取导航栏用户信息失败：", data2]);
+        Qmsg.error("获取导航栏用户信息失败", {
+          consoleLogContent: true
+        });
+        return;
+      }
+      return data2.data;
+    },
+    /**
+     * 获取用户空间动态
+     * @param mid 用户id
+     * @param offset 分页偏移，默认是""
+     */
+    async space(mid, offset = "") {
+      let response = await httpx.get(
+        "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space",
+        {
+          data: {
+            host_mid: mid,
+            offset
+          },
+          fetch: true
+        }
+      );
+      if (!response.status) {
+        return;
+      }
+      let data2 = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        return;
+      }
+      return data2["data"];
+    },
+    /**
+     * 查询用户关注明细
+     * @param mid 用户id
+     * @param pn 页码 默认为 1
+     * @param ps 每页项数 默认为 50
+     */
+    async following(mid, pn = 1, ps = 50) {
+      let response = await httpx.get(
+        "https://api.bilibili.com/x/relation/followings",
+        {
+          data: {
+            vmid: mid,
+            ps,
+            pn
+          },
+          fetch: true
+        }
+      );
+      if (!response.status) {
+        return;
+      }
+      let data2 = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        return data2["message"];
+      }
+      return data2["data"];
+    }
+  };
+  const BilibiliGlobalData = {
+    $data: {
+      isLogin: new Promise(() => false)
+    },
+    $flag: {
+      isQueryLoginStatus: false
+    },
+    async init() {
+      this.setLoginStatus();
+    },
+    setLoginStatus() {
+      let __isLogin__ = false;
+      this.$data.isLogin = new Promise(async (resolve) => {
+        if (!this.$flag.isQueryLoginStatus) {
+          this.$flag.isQueryLoginStatus = true;
+          let userNavInfo = await BilibiliUserApi.nav(false);
+          if (userNavInfo && userNavInfo.isLogin) {
+            __isLogin__ = true;
+          }
+        }
+        resolve(__isLogin__);
+      });
+    }
+  };
+  const BilibiliVideoApi = {
+    /**
+     * 获取视频播放地址，avid或bvid必须给一个
+     * + /x/player/playurl
+     * @param config
+     * @param extraParams 额外参数，一般用于hook network参数内的判断
+     */
+    async playUrl(config, extraParams) {
+      let searchParamsData = {
+        cid: config.cid,
+        qn: config.qn ?? VideoQualityNameMap["1080P60 高帧率"],
+        high_quality: config.high_quality ?? 1,
+        fnval: config.fnval ?? 1,
+        // 固定0
+        fnver: config.fnver ?? 0,
+        // 是否允许 4K 视频
+        fourk: config.fourk ?? 1,
+        // 为 1 时可以不登录拉到 64 和 80 清晰度，但是也会限制最高画质为80
+        try_look: 0
+      };
+      if (!await BilibiliGlobalData.$data.isLogin) {
+        searchParamsData.try_look = 1;
+      }
+      if (config.setPlatformHTML5) {
+        Reflect.set(searchParamsData, "platform", "html5");
+      }
+      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
+        searchParamsData,
+        config
+      );
+      if (typeof extraParams === "object") {
+        Object.assign(searchParamsData, extraParams);
+      }
+      let response = await httpx.get(
+        "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(searchParamsData),
+        {
+          responseType: "json",
+          fetch: true
+        }
+      );
+      if (!response.status) {
+        return;
+      }
+      let data2 = utils.toJSON(response.data.responseText);
+      if (data2["code"] !== 0) {
+        return;
+      }
+      return data2["data"];
+    },
+    /**
+     * 获取视频在线观看人数
+     * + /x/player/online/total
+     */
+    async onlineTotal(config) {
+      let searchParamsData = {
+        cid: config.cid
+      };
+      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
+        searchParamsData,
+        config
+      );
+      let httpxResponse = await httpx.get(
+        `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
+        {
+          responseType: "json",
+          fetch: true
+        }
+      );
+      if (!httpxResponse.status) {
+        return;
+      }
+      let data2 = utils.toJSON(httpxResponse.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+        log$1.error(`获取在线观看人数失败: ${JSON.stringify(data2)}`);
+      }
+      return data2["data"];
+    },
+    /**
+     * 点赞视频（web端）
+     * @param config
+     */
+    async like(config) {
+      var _a2;
+      let searchParamsData = {
+        like: config.like,
+        csrf: ((_a2 = cookieManager.get("bili_jct")) == null ? void 0 : _a2.value) || ""
+      };
+      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
+        searchParamsData,
+        config
+      );
+      let getResp = await httpx.get(
+        "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(searchParamsData),
+        {
+          fetch: true
+        }
+      );
+      if (!getResp.status) {
+        return false;
+      }
+      let data2 = utils.toJSON(getResp.data.responseText);
+      const code = data2["code"];
+      if (code === 0) {
+        return true;
+      }
+      if (code === -101) {
+        Qmsg.error("账号未登录");
+      } else if (code === -111) {
+        Qmsg.error("csrf校验失败");
+      } else if (code === -400) {
+        Qmsg.error("请求错误");
+      } else if (code === -403) {
+        Qmsg.error("账号异常");
+      } else if (code === 10003) {
+        Qmsg.error("不存在该稿件");
+      } else if (code === 65004) {
+        Qmsg.error("取消点赞失败");
+      } else if (code === 65006) {
+        Qmsg.warning("重复点赞");
+      } else {
+        Qmsg.error("未知错误：" + data2["message"]);
+      }
+      return false;
+    }
+  };
+  const AppKeyInfo = {
+    /** web_ios */
+    ios: {
+      appkey: "27eb53fc9058f8c3",
+      appsec: "c2ed53a74eeefe3cf99fbd01d8c9c375",
+      mobi_app: "ipnone"
+    }
+  };
+  function appSign(params, appkey, appsec) {
+    params.appkey = appkey;
+    const searchParams = new URLSearchParams(params);
+    searchParams.sort();
+    return md5(searchParams.toString() + appsec);
+  }
+  const BilibiliLoginApi = {
+    /**
+     * 获取登录二维码信息（TV端）
+     * https://github.com/SocialSisterYi/bilibili-API-collect/blob/master/docs/login/login_action/QR.md#%E7%94%B3%E8%AF%B7%E4%BA%8C%E7%BB%B4%E7%A0%81(TV%E7%AB%AF)
+     */
+    async getQrCodeInfo() {
+      var _a2;
+      let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
+      let postData = {
+        /** APP 密钥 APP 方式必要 */
+        appkey: AppKeyInfo.ios.appkey,
+        /** TV 端 id */
+        local_id: "0",
+        /** 当前时间戳 APP 方式必要 */
+        ts: "0",
+        /** APP 签名 APP 方式必要 */
+        // sign: "",
+        /** 平台标识 会被拼接到返回的 url query */
+        mobi_app: AppKeyInfo.ios.mobi_app,
+        csrf: ((_a2 = cookieManager.get("bili_jct")) == null ? void 0 : _a2.value) || ""
+      };
+      let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
+      let postResp = await httpx.post(
+        Api,
+        {
+          data: utils.toSearchParamsStr({
+            ...postData,
+            sign
+          }),
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          responseType: "json",
+          fetch: true
+        }
+        // sign: 'e134154ed6add881d28fbdf68653cd9c',
+      );
+      log$1.info(postResp);
+      if (!postResp.status) {
+        return;
+      }
+      let data2 = utils.toJSON(postResp.data.responseText);
+      if (data2.code !== 0) {
+        Qmsg.error(data2.message);
+        return;
+      }
+      let loginData = data2.data;
+      return loginData;
+    },
+    /**
+     * 获取auth_code对应的链接的扫码状态
+     * @param auth_code
+     * @returns
+     */
+    async poll(auth_code) {
+      let Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
+      let postData = {
+        appkey: AppKeyInfo.ios.appkey,
+        auth_code,
+        local_id: "0",
+        ts: "0"
+      };
+      let sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
+      let postResp = await httpx.post(Api, {
+        data: utils.toSearchParamsStr({
+          ...postData,
+          sign
+        }),
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        responseType: "json",
+        fetch: true
+      });
+      if (!postResp.status) {
+        return { success: false, message: "网络错误", action: void 0 };
+      }
+      const json = utils.toJSON(postResp.data.responseText);
+      log$1.info(json);
+      const msgMap = {
+        "0": "成功",
+        "-3": "API校验密匙错误",
+        "-400": "请求错误",
+        "-404": "啥都木有",
+        "86038": "二维码已失效",
+        "86039": "二维码尚未确认",
+        "86090": "二维码已扫码未确认"
+      };
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(json)) {
+        const code = json.code.toString();
+        const message = json.message || msgMap[code] || "未知错误";
+        if (code === "86038") {
+          return { success: false, message, action: "refresh" };
+        }
+        if (code === "86039" || code === "86090") {
+          return { success: false, message, action: "wait" };
+        }
+        return { success: false, message, action: void 0 };
+      }
+      const accessKey = json.data.access_token;
+      const accessKeyExpireAt = Date.now() + json.data.expires_in * 1e3;
+      return {
+        success: true,
+        message: "获取成功",
+        accessKey,
+        accessKeyExpireAt
+      };
+    }
+  };
+  const BilibiliQrCodeLogin = {
+    async init() {
+      Qmsg.info("正在申请二维码...");
+      let qrcodeInfo = await this.getQRCodeInfo();
+      if (!qrcodeInfo) {
+        return;
+      }
+      this.confirmScanQrcode(qrcodeInfo);
+    },
+    /**'
+     * 获取二维码信息
+     */
+    getQRCodeInfo: async function() {
+      log$1.info("正在申请二维码...");
+      let qrcodeInfo = await BilibiliLoginApi.getQrCodeInfo();
+      log$1.info("获取到二维码信息", qrcodeInfo);
+      return qrcodeInfo;
+    },
+    /**
+     * 确认扫码
+     * @param qrcodeInfo
+     */
+    async confirmScanQrcode(qrcodeInfo) {
+      let $alert = __pops.alert({
+        title: {
+          text: "请扫描二维码登录",
+          position: "center",
+          html: false,
+          style: ""
+        },
+        content: {
+          text: (
+            /*html*/
+            `<div id="bili-qrcode-canvas"></div>`
+          ),
+          html: true
+        },
+        btn: {
+          ok: {
+            enable: false
+          },
+          close: {
+            enable: true,
+            callback(event) {
+              isUserCloseScanDialog = true;
+              event.close();
+            }
+          }
+        },
+        mask: {
+          enable: true,
+          clickEvent: {
+            toClose: false,
+            toHide: false
+          }
+        },
+        only: true,
+        width: "310px",
+        height: "365px",
+        drag: true,
+        dragLimit: true,
+        style: (
+          /*css*/
+          `
+            #bili-qrcode-canvas{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+            }
+            `
+        )
+      });
+      let $biliQrcodeCanvas = $alert.$shadowRoot.querySelector(
+        "#bili-qrcode-canvas"
+      );
+      let qrcode = new QRCodeJS($biliQrcodeCanvas, {
+        text: qrcodeInfo.url,
+        width: 300,
+        height: 300,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCodeJS.CorrectLevel.H
+      });
+      let isUserCloseScanDialog = false;
+      while (true) {
+        if (isUserCloseScanDialog) {
+          log$1.error("用户关闭扫码登录弹窗、取消扫码登录");
+          break;
+        }
+        log$1.info("正在等待扫码登录...");
+        let pollInfo = await BilibiliLoginApi.poll(qrcodeInfo.auth_code);
+        if (pollInfo == null ? void 0 : pollInfo.success) {
+          this.setAccessTokenInfo({
+            access_token: pollInfo.accessKey,
+            expireAt: pollInfo.accessKeyExpireAt
+          });
+          log$1.info("扫码登录成功", pollInfo);
+          Qmsg.success("扫码登录成功");
+          break;
+        } else {
+          if ((pollInfo == null ? void 0 : pollInfo.action) === "refresh") {
+            log$1.info("刷新二维码");
+            Qmsg.info("刷新二维码");
+            let qrcodeInfo2 = await this.getQRCodeInfo();
+            if (qrcodeInfo2) {
+              qrcode.clear();
+              qrcode.makeCode(qrcodeInfo2.url);
+            }
+          } else if (pollInfo.action === "wait") {
+            if (pollInfo.message === "二维码已扫码未确认") {
+              log$1.info("已扫码，等待确认...");
+              __pops.loading({
+                parent: $biliQrcodeCanvas,
+                content: {
+                  text: "已扫码，等待确认"
+                },
+                mask: {
+                  enable: true
+                }
+              });
+            }
+          } else {
+            log$1.error(pollInfo.message);
+            Qmsg.error(pollInfo.message);
+            break;
+          }
+        }
+        await utils.sleep(1500);
+      }
+      $alert.close();
+    },
+    /**
+     * 生成过期时间
+     * @param monthNumber xx月后过期
+     * @returns
+     */
+    generateExpireAt(monthNumber = 6) {
+      return (/* @__PURE__ */ new Date()).getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
+    },
+    /**
+     * 设置获取到的access_token和过期时间
+     * @param data
+     */
+    setAccessTokenInfo(data2) {
+      _GM_setValue("bili-accessTokenInfo", data2);
+    },
+    /**
+     * 获取access_token和过期时间
+     * 自动根据过期时间处理数据
+     * @returns
+     */
+    getAccessTokenInfo() {
+      let data2 = _GM_getValue("bili-accessTokenInfo");
+      if (data2 && data2.expireAt > Date.now()) {
+        return data2;
+      } else {
+        return null;
+      }
+    },
+    /**
+     * 获取access_token
+     * @returns
+     */
+    getAccessToken() {
+      var _a2;
+      return ((_a2 = this.getAccessTokenInfo()) == null ? void 0 : _a2.access_token) || "";
+    }
   };
   const BilibiliApiProxy = {
     /**
@@ -2520,16 +2454,16 @@
         {
           name: "中国大陆",
           area: "",
-          host: PopsPanel.getValue(
+          host: Panel.getValue(
             "bili-bangumi-proxyApiServer-default",
             ""
           ).trim() || BilibiliApiConfig.web_host
         }
       ];
-      if (!PopsPanel.getValue("bili-bangumi-unlockAreaLimit")) {
+      if (!Panel.getValue("bili-bangumi-unlockAreaLimit")) {
         return serverHost;
       }
-      let hk_host = PopsPanel.getValue("bili-bangumi-proxyApiServer-hk");
+      let hk_host = Panel.getValue("bili-bangumi-proxyApiServer-hk");
       if (utils.isNotNull(hk_host)) {
         serverHost.push({
           name: "香港",
@@ -2537,7 +2471,7 @@
           host: hk_host
         });
       }
-      let tw_host = PopsPanel.getValue("bili-bangumi-proxyApiServer-tw");
+      let tw_host = Panel.getValue("bili-bangumi-proxyApiServer-tw");
       if (utils.isNotNull(tw_host)) {
         serverHost.push({
           name: "台湾",
@@ -2545,7 +2479,7 @@
           host: tw_host
         });
       }
-      let tha_host = PopsPanel.getValue(
+      let tha_host = Panel.getValue(
         "bili-bangumi-proxyApiServer-tha-or-sea"
       );
       if (utils.isNotNull(tha_host)) {
@@ -2571,7 +2505,7 @@
     getSearchProxyHost() {
       let bangumiProxyHost = this.getBangumiProxyHost();
       let serverHost = [];
-      let hk_host = PopsPanel.getValue("bili-search-proxyApiServer-hk");
+      let hk_host = Panel.getValue("bili-search-proxyApiServer-hk");
       if (utils.isNotNull(hk_host)) {
         serverHost.push({
           name: "香港",
@@ -2584,7 +2518,7 @@
           serverHost.push(bangumi_hk_host);
         }
       }
-      let tw_host = PopsPanel.getValue("bili-search-proxyApiServer-tw");
+      let tw_host = Panel.getValue("bili-search-proxyApiServer-tw");
       if (utils.isNotNull(tw_host)) {
         serverHost.push({
           name: "台湾",
@@ -2597,7 +2531,7 @@
           serverHost.push(bangumi_tw_host);
         }
       }
-      let tha_host = PopsPanel.getValue(
+      let tha_host = Panel.getValue(
         "bili-search-proxyApiServer-tha-or-sea"
       );
       if (utils.isNotNull(tha_host)) {
@@ -2670,9 +2604,7 @@
      * @param url 视频url
      */
     replaceBangumiVideoCDN(url) {
-      let userChooseCDN = PopsPanel.getValue(
-        "bili-bangumi-uposServerSelect"
-      );
+      let userChooseCDN = Panel.getValue("bili-bangumi-uposServerSelect");
       return this.replaceVideoCDNHost(url, userChooseCDN);
     },
     /**
@@ -2681,9 +2613,7 @@
      *
      */
     replaceVideoCDN(url) {
-      let userChooseCDN = PopsPanel.getValue(
-        "bili-video-uposServerSelect"
-      );
+      let userChooseCDN = Panel.getValue("bili-video-uposServerSelect");
       return this.replaceVideoCDNHost(url, userChooseCDN);
     },
     /**
@@ -2707,14 +2637,14 @@
         let chooseUposCDNHost = chooseUposCDN.host;
         let originHost = urlObj.host;
         if (originHost.includes("mirror")) {
-          log.info(`原Host为：${originHost}`);
-          log.info(`替换CDN为：${JSON.stringify(chooseUposCDN)}`);
+          log$1.info(`原Host为：${originHost}`);
+          log$1.info(`替换CDN为：${JSON.stringify(chooseUposCDN)}`);
           urlObj.host = chooseUposCDNHost;
         }
         return urlObj.toString();
       } catch (error) {
-        log.error("视频upos替换失败", error);
-        log.error(error);
+        log$1.error("视频upos替换失败", error);
+        log$1.error(error);
         return url;
       }
     },
@@ -2822,2215 +2752,6 @@
         }
       ];
       return serverList;
-    }
-  };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
-    let result = {
-      text,
-      type: "slider",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      getToolTipContent(value) {
-        if (typeof getToolTipContent === "function") {
-          return getToolTipContent(value);
-        } else {
-          return `${value}`;
-        }
-      },
-      callback(event, value) {
-        this.props[PROPS_STORAGE_API].set(key, value);
-      },
-      min,
-      max,
-      step
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
-      }
-    });
-    return result;
-  };
-  const SettingUIVideo = {
-    id: "panel-video",
-    title: "视频",
-    isDefault() {
-      return BilibiliRouter.isVideo();
-    },
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "功能",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  // UISwitch(
-                  // 	"调整视频底部区域高度",
-                  // 	"bili-video-repairVideoBottomAreaHeight",
-                  // 	true,
-                  // 	void 0,
-                  // 	"添加margin-top"
-                  // ),
-                  // UISwitch(
-                  // 	"美化底部推荐视频",
-                  // 	"bili-video-beautify",
-                  // 	true,
-                  // 	void 0,
-                  // 	"调整底部推荐视频卡片样式类似哔哩哔哩App"
-                  // ),
-                  // UISwitch(
-                  // 	"手势返回关闭评论区",
-                  // 	"bili-video-gestureReturnToCloseCommentArea",
-                  // 	true,
-                  // 	void 0,
-                  // 	"当浏览器手势触发浏览器回退页面时，关闭评论区"
-                  // ),
-                  UISwitch(
-                    "强制本页刷新跳转",
-                    "bili-video-forceThisPageToRefreshAndRedirect",
-                    false,
-                    void 0,
-                    "用于处理内存泄露问题"
-                  ),
-                  // UISwitch(
-                  // 	"修复链接跳转",
-                  // 	"bili-video-repairLinkJump",
-                  // 	true,
-                  // 	void 0,
-                  // 	"如@用户、搜索"
-                  // ),
-                  UISwitch(
-                    "新增评论模块",
-                    "bili-video-addCommentModule",
-                    true,
-                    void 0,
-                    "用于查看当前视频的评论"
-                  ),
-                  UISwitch(
-                    "新增简介模块",
-                    "bili-video-addDescModule",
-                    true,
-                    void 0,
-                    "用于查看当前视频的播放量、简介、一键三连等信息"
-                  )
-                ]
-              }
-              // {
-              // 	type: "forms",
-              // 	text: "底部Tab",
-              // 	forms: [
-              // 		UISwitch(
-              // 			"滚动固钉Tab",
-              // 			"bili-video-optimizationScroll",
-              // 			true,
-              // 			void 0,
-              // 			"向下滚动时，自动跳转视频区域大小且对Tab进行吸附处理"
-              // 		),
-              // 		UISwitch(
-              // 			"禁止滑动切换Tab",
-              // 			"bili-video-disableSwipeTab",
-              // 			false,
-              // 			void 0,
-              // 			"禁止左右滑动切换Tab"
-              // 		),
-              // 	],
-              // },
-            ]
-          },
-          {
-            text: "ArtPlayer播放器",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "功能",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "启用",
-                    "bili-video-enableArtPlayer",
-                    true,
-                    void 0,
-                    "使用artplayer代替页面的播放器"
-                  ),
-                  UISelect(
-                    "播放的视频类型",
-                    "bili-video-playType",
-                    "mp4",
-                    [
-                      {
-                        text: "mp4",
-                        value: "mp4"
-                      },
-                      {
-                        text: "dash",
-                        value: "dash"
-                      }
-                    ],
-                    void 0,
-                    "当选择dash时会有画质更高的选项"
-                  ),
-                  UISwitch(
-                    "自动播放视频",
-                    "bili-video-playerAutoPlayVideo",
-                    false,
-                    void 0,
-                    ""
-                  ),
-                  UISwitch(
-                    "自动进入全屏",
-                    "bili-video-playerAutoPlayVideoFullScreen",
-                    false,
-                    void 0,
-                    ""
-                  )
-                ]
-              },
-              {
-                text: "控件设置",
-                type: "forms",
-                forms: [
-                  UISlider(
-                    "controls左右边距",
-                    "bili-video-artplayer-controlsPadding-left-right",
-                    0,
-                    0,
-                    50,
-                    void 0,
-                    (value) => {
-                      return value + "px";
-                    },
-                    "可用于全屏横屏适配屏幕",
-                    1
-                  )
-                ]
-              },
-              {
-                text: "插件",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "弹幕",
-                    "artplayer-plugin-video-danmaku-enable",
-                    true,
-                    void 0,
-                    "哔哩哔哩 (゜-゜)つロ 干杯~"
-                  ),
-                  UISwitch(
-                    "Dash Audio Support",
-                    "artplayer-plugin-video-m4sAudioSupport-enable",
-                    true,
-                    void 0,
-                    "视频类型为dash时，该插件可支持播放音频"
-                  ),
-                  UISwitch(
-                    "选集",
-                    "artplayer-plugin-video-epChoose-enable",
-                    true,
-                    void 0,
-                    "当视频播放完毕后会自动连播"
-                  ),
-                  UISwitch(
-                    "CC字幕",
-                    "artplayer-plugin-video-cc-subtitle-enable",
-                    true,
-                    void 0,
-                    "字幕支持插件，如果存在繁体字幕，则自动生成简体字幕"
-                  ),
-                  UISwitch(
-                    "顶部工具栏",
-                    "artplayer-plugin-video-toptoolbar-enable",
-                    true,
-                    void 0,
-                    "显示视频标题和当前观看人数"
-                  ),
-                  UISwitch(
-                    "视频统计信息",
-                    "artplayer-plugin-video-statistics-enable",
-                    true,
-                    void 0,
-                    "用于显示当前视频信息的弹窗"
-                  )
-                ]
-              },
-              {
-                text: "加速CDN设置",
-                type: "forms",
-                forms: [
-                  UISelect(
-                    "UPOS服务器设置",
-                    "bili-video-uposServerSelect",
-                    "",
-                    BilibiliCDNProxy.getUposCDNServerList().map((item) => {
-                      return {
-                        text: item.name,
-                        value: item.host
-                      };
-                    }),
-                    void 0,
-                    "设置视频流的服务器，可加快视频加载速度"
-                  ),
-                  UISwitch(
-                    "作用于Audio上",
-                    "bili-video-uposServerSelect-applyAudio",
-                    false,
-                    void 0,
-                    "把m4s类型的audio也进行upos替换"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "覆盖点击事件",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "UP主信息",
-                    "bili-video-cover-UpWrapper",
-                    true,
-                    void 0,
-                    "点击UP主头像/名称可跳转至UP主空间"
-                  ),
-                  UISwitch(
-                    "相关视频",
-                    "bili-video-cover-bottomRecommendVideo",
-                    true,
-                    void 0,
-                    "点击下面的相关视频可正确跳转至该视频"
-                  ),
-                  UISwitch(
-                    "选集",
-                    "bili-video-cover-seasonNew",
-                    true,
-                    void 0,
-                    "点击下面的选集列表内的视频可正确跳转至该视频"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "劫持/拦截",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "阻止调用App",
-                    "bili-video-hook-callApp",
-                    true,
-                    void 0,
-                    "处理函数: PlayerAgent"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const SettingUIBangumi = {
-    id: "panel-bangumi",
-    title: "番剧",
-    isDefault() {
-      return BilibiliRouter.isBangumi();
-    },
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "功能",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "固定缩放倍率",
-                    "bili-bangumi-initialScale",
-                    true,
-                    void 0,
-                    ""
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "ArtPlayer播放器",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "控件设置",
-                type: "forms",
-                forms: [
-                  UISlider(
-                    "controls左右边距",
-                    "bili-bangumi-artplayer-controlsPadding-left-right",
-                    0,
-                    0,
-                    50,
-                    void 0,
-                    (value) => {
-                      return value + "px";
-                    },
-                    "可用于全屏横屏适配屏幕",
-                    1
-                  )
-                ]
-              },
-              {
-                text: "插件",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "弹幕",
-                    "artplayer-plugin-bangumi-danmaku-enable",
-                    true,
-                    void 0,
-                    "哔哩哔哩 (゜-゜)つロ 干杯~"
-                  ),
-                  UISwitch(
-                    "Dash Audio Support",
-                    "artplayer-plugin-bangumi-m4sAudioSupport-enable",
-                    true,
-                    void 0,
-                    "视频类型为dash时，该插件可支持播放音频"
-                  ),
-                  UISwitch(
-                    "选集",
-                    "artplayer-plugin-bangumi-epChoose-enable",
-                    true,
-                    void 0,
-                    "当视频播放完毕后会自动连播"
-                  ),
-                  UISwitch(
-                    "CC字幕",
-                    "artplayer-plugin-bangumi-cc-subtitle-enable",
-                    true,
-                    void 0,
-                    "字幕支持插件，如果存在繁体字幕，则自动生成简体字幕"
-                  ),
-                  UISwitch(
-                    "顶部工具栏",
-                    "artplayer-plugin-bangumi-toptoolbar-enable",
-                    true,
-                    void 0,
-                    "显示视频标题和当前观看人数"
-                  ),
-                  UISwitch(
-                    "空降助手",
-                    "artplayer-plugin-bangumi-airborneHelper-enable",
-                    true,
-                    void 0,
-                    "如果获取到的信息中存在空降信息，如跳过片头片尾，那么会自动跳过"
-                  ),
-                  UISwitch(
-                    "视频统计信息",
-                    "artplayer-plugin-bangumi-statistics-enable",
-                    true,
-                    void 0,
-                    "用于显示当前视频信息的弹窗"
-                  )
-                ]
-              },
-              {
-                text: "解除区域限制",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "解锁番剧限制",
-                    "bili-bangumi-unlockAreaLimit",
-                    false,
-                    void 0,
-                    "使用户可以观看区域外版权番剧"
-                  ),
-                  UISwitch(
-                    "生成简中字幕",
-                    "bili-bangumi-generateSimpleChineseSubtitle",
-                    true,
-                    void 0,
-                    "根据繁体字幕自动生成简体中文字幕"
-                  )
-                ]
-              },
-              {
-                text: "加速CDN设置",
-                type: "forms",
-                forms: [
-                  UISelect(
-                    "UPOS服务器设置",
-                    "bili-bangumi-uposServerSelect",
-                    "",
-                    BilibiliCDNProxy.getUposCDNServerList().map((item) => {
-                      return {
-                        text: item.name,
-                        value: item.host
-                      };
-                    }),
-                    void 0,
-                    "设置解锁番剧的服务器，可加快视频加载速度"
-                  ),
-                  UISwitch(
-                    "作用于Audio上",
-                    "bili-bangumi-uposServerSelect-applyAudio",
-                    false,
-                    void 0,
-                    "把m4s类型的audio也进行upos替换"
-                  )
-                ]
-              },
-              {
-                text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>解析服务器</a>",
-                type: "forms",
-                forms: [
-                  UIInput(
-                    "中国大陆",
-                    "bili-bangumi-proxyApiServer-default",
-                    "",
-                    "用于请求播放地址的代理",
-                    void 0,
-                    "bilibili优化.example.com"
-                  ),
-                  UIInput(
-                    "香港",
-                    "bili-bangumi-proxyApiServer-hk",
-                    "",
-                    "用于请求播放地址的代理",
-                    void 0,
-                    "bilibili优化.example.com"
-                  ),
-                  UIInput(
-                    "台湾",
-                    "bili-bangumi-proxyApiServer-tw",
-                    "",
-                    "用于请求播放地址的代理",
-                    void 0,
-                    "bilibili优化.example.com"
-                  ),
-                  UIInput(
-                    "泰国/东南亚",
-                    "bili-bangumi-proxyApiServer-tha-or-sea",
-                    "",
-                    "用于请求播放地址的代理",
-                    void 0,
-                    "bilibili优化.example.com"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "覆盖点击事件",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "【选集】",
-                    "bili-bangumi-cover-clicl-event-chooseEp",
-                    true,
-                    void 0,
-                    "让【选集】的视频列表可点击跳转"
-                  ),
-                  UISwitch(
-                    "【其它】",
-                    "bili-bangumi-cover-clicl-event-other",
-                    true,
-                    void 0,
-                    "让【PV&其他】、【预告】、【主题曲】、【香境剧场】等的视频列表可点击跳转"
-                  ),
-                  UISwitch(
-                    "【更多推荐】",
-                    "bili-bangumi-cover-clicl-event-recommend",
-                    true,
-                    void 0,
-                    "让【更多推荐】的视频列表可点击跳转"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "劫持/拦截",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "阻止调用App",
-                    "bili-bangumi-hook-callApp",
-                    true,
-                    void 0,
-                    ""
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const SettingUISearch = {
-    id: "panel-search",
-    title: "搜索",
-    isDefault() {
-      return BilibiliRouter.isSearch();
-    },
-    forms: [
-      {
-        type: "forms",
-        text: "",
-        forms: [
-          {
-            type: "deepMenu",
-            text: "功能",
-            forms: [
-              {
-                type: "forms",
-                text: "",
-                forms: [
-                  UISwitch(
-                    "搜索框自动获取焦点",
-                    "bili-search-inputAutoFocus",
-                    true,
-                    void 0,
-                    ""
-                  ),
-                  UISwitch(
-                    "美化搜索结果",
-                    "bili-search-beautifySearchResult",
-                    true,
-                    void 0,
-                    "重构搜索结果的样式"
-                  ),
-                  UISwitch(
-                    "开启其它地区番剧搜索",
-                    "bili-search-enableOtherAreaSearchBangumi",
-                    false,
-                    void 0,
-                    "在搜索页面添加其它地区番剧搜索结果，需要解析服务器支持"
-                  )
-                ]
-              },
-              {
-                text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>搜索服务器</a>",
-                type: "forms",
-                forms: [
-                  UIInput(
-                    "香港",
-                    "bili-search-proxyApiServer-hk",
-                    "",
-                    "用于搜索番剧结果的代理",
-                    void 0,
-                    "bilibili优化.example.com"
-                  ),
-                  UIInput(
-                    "台湾",
-                    "bili-search-proxyApiServer-tw",
-                    "",
-                    "用于搜索番剧结果的代理",
-                    void 0,
-                    "bilibili优化.example.com"
-                  ),
-                  UIInput(
-                    "泰国/东南亚",
-                    "bili-search-proxyApiServer-tha-or-sea",
-                    "",
-                    "用于搜索番剧结果的代理",
-                    void 0,
-                    "bilibili优化.example.com"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            type: "deepMenu",
-            text: "覆盖点击事件",
-            forms: [
-              {
-                type: "forms",
-                text: "",
-                forms: [
-                  UISwitch(
-                    "取消",
-                    "bili-search-cover-cancel",
-                    false,
-                    void 0,
-                    "点击取消按钮回退至上一页"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "变量设置",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "noCallApp",
-                    "bili-search-vue-prop-noCallApp",
-                    true,
-                    void 0,
-                    "noCallApp = true"
-                  ),
-                  UISwitch(
-                    "openAppDialog",
-                    "bili-search-vue-prop-openAppDialog",
-                    true,
-                    void 0,
-                    "openAppDialog = false"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const SettingUILive = {
-    id: "panel-live",
-    title: "直播",
-    isDefault() {
-      return BilibiliRouter.isLive();
-    },
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "屏蔽",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "【屏蔽】聊天室",
-                    "bili-live-block-chatRoom",
-                    false,
-                    void 0,
-                    "直接不显示底部的聊天室"
-                  ),
-                  UISwitch(
-                    "【屏蔽】xxx进入直播间",
-                    "bili-live-block-brush-prompt",
-                    false,
-                    void 0,
-                    "直接不显示底部的xxx进入直播间"
-                  ),
-                  UISwitch(
-                    "【屏蔽】控制面板",
-                    "bili-live-block-control-panel",
-                    false,
-                    void 0,
-                    "屏蔽底部的发个弹幕、送礼"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "劫持/拦截",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "阻止open-app-btn元素点击事件触发",
-                    "bili-live-prevent-openAppBtn",
-                    true,
-                    void 0,
-                    "开启后可不跳转至唤醒App页面"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const SettingUIOpus = {
-    id: "panel-opus",
-    title: "专栏",
-    isDefault() {
-      return BilibiliRouter.isOpus();
-    },
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "功能",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "自动展开阅读全文",
-                    "bili-opus-automaticallyExpandToReadFullText",
-                    true,
-                    void 0,
-                    "屏蔽【展开阅读全文】按钮并自动处理全文高度"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "变量设置",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "autoOpenApp",
-                    "bili-opus-variable-autoOpenApp",
-                    true,
-                    void 0,
-                    "autoOpenApp函数置空"
-                  ),
-                  UISwitch(
-                    "go404",
-                    "bili-opus-variable-go404",
-                    true,
-                    void 0,
-                    "go404函数置空，可禁止前往404页面"
-                  ),
-                  UISwitch(
-                    "handleFallback",
-                    "bili-opus-variable-handleFallback",
-                    true,
-                    void 0,
-                    "禁止前往404页面"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "覆盖点击事件",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "话题",
-                    "bili-opus-cover-topicJump",
-                    true,
-                    void 0,
-                    "点击话题正确跳转"
-                  ),
-                  UISwitch(
-                    "header用户",
-                    "bili-opus-cover-header",
-                    true,
-                    void 0,
-                    "点击内容上的发布本动态的用户正确跳转个人空间"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const SettingUIDynamic = {
-    id: "panel-dynamic",
-    title: "动态",
-    isDefault() {
-      return BilibiliRouter.isDynamic();
-    },
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "覆盖点击事件",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "话题",
-                    "bili-dynamic-cover-topicJump",
-                    true,
-                    void 0,
-                    "点击话题正确跳转"
-                  ),
-                  UISwitch(
-                    "header用户",
-                    "bili-dynamic-cover-header",
-                    true,
-                    void 0,
-                    "点击内容上的发布本动态的用户正确跳转个人空间"
-                  ),
-                  UISwitch(
-                    "@用户",
-                    "bili-dynamic-cover-atJump",
-                    true,
-                    void 0,
-                    "点击@用户正确跳转个人空间"
-                  ),
-                  UISwitch(
-                    "引用",
-                    "bili-dynamic-cover-referenceJump",
-                    true,
-                    void 0,
-                    "点击引用的视频|用户正确跳转"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const SettingUIHead = {
-    id: "panel-head",
-    title: "首页",
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "功能",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "美化显示",
-                    "bili-head-beautify",
-                    true,
-                    void 0,
-                    "调整瀑布流视频卡片样式类似哔哩哔哩App"
-                  ),
-                  UISwitch(
-                    "美化顶部NavBar",
-                    "bili-beautifyTopNavBar",
-                    true,
-                    void 0,
-                    "类似哔哩哔哩App的样式"
-                  ),
-                  UISwitch(
-                    "补充推荐视频信息",
-                    "bili-head-supplementaryVideoStreamingInformation",
-                    true,
-                    void 0,
-                    "给视频添加UP主名，当前视频总时长信息"
-                  ),
-                  UISwitch(
-                    "新标签页打开",
-                    "bili-head-openVideoInNewTab",
-                    false,
-                    void 0,
-                    "包括视频、番剧"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "推荐视频",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "启用",
-                    "bili-head-recommend-enable",
-                    true,
-                    void 0,
-                    "添加【推荐】标签，数据来源为App端(如果填入了access_token的话)"
-                  ),
-                  UISwitch(
-                    "显示【图文】",
-                    "bili-head-recommend-push-graphic",
-                    true,
-                    void 0,
-                    "加载App端推送的【图文】卡片"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const VueUtils = {
-    /**
-     * 获取vue2实例
-     * @param element
-     * @returns
-     */
-    getVue(element) {
-      if (element == null) {
-        return;
-      }
-      return element["__vue__"] || element["__Ivue__"] || element["__IVue__"];
-    },
-    /**
-     * 获取vue3实例
-     * @param element
-     * @returns
-     */
-    getVue3(element) {
-      if (element == null) {
-        return;
-      }
-      return element["__vueParentComponent"];
-    },
-    /**
-     * 等待vue属性并进行设置
-     * @param $target 目标对象
-     * @param needSetList 需要设置的配置
-     */
-    waitVuePropToSet($target, needSetList) {
-      if (!Array.isArray(needSetList)) {
-        VueUtils.waitVuePropToSet($target, [needSetList]);
-        return;
-      }
-      function getTarget() {
-        let __target__ = null;
-        if (typeof $target === "string") {
-          __target__ = document.querySelector($target);
-        } else if (typeof $target === "function") {
-          __target__ = $target();
-        } else if ($target instanceof HTMLElement) {
-          __target__ = $target;
-        }
-        return __target__;
-      }
-      needSetList.forEach((needSetOption) => {
-        if (typeof needSetOption.msg === "string") {
-          log.info(needSetOption.msg);
-        }
-        function checkVue() {
-          let target = getTarget();
-          if (target == null) {
-            return false;
-          }
-          let vueInstance = VueUtils.getVue(target);
-          if (vueInstance == null) {
-            return false;
-          }
-          let needOwnCheck = needSetOption.check(vueInstance);
-          return Boolean(needOwnCheck);
-        }
-        utils.waitVueByInterval(
-          () => {
-            return getTarget();
-          },
-          checkVue,
-          250,
-          1e4
-        ).then((result) => {
-          if (!result) {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(true);
-            }
-            return;
-          }
-          let target = getTarget();
-          let vueInstance = VueUtils.getVue(target);
-          if (vueInstance == null) {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(false);
-            }
-            return;
-          }
-          needSetOption.set(vueInstance, target);
-        });
-      });
-    },
-    /**
-     * 观察vue属性的变化
-     * @param $target 目标对象
-     * @param key 需要观察的属性
-     * @param callback 监听回调
-     * @param watchConfig 监听配置
-     * @param failWait 当检测失败/超时触发该回调
-     */
-    watchVuePropChange($target, key, callback, watchConfig, failWait) {
-      let config = utils.assign(
-        {
-          immediate: true,
-          deep: false
-        },
-        watchConfig || {}
-      );
-      return new Promise((resolve) => {
-        VueUtils.waitVuePropToSet($target, {
-          check(vueInstance) {
-            return typeof (vueInstance == null ? void 0 : vueInstance.$watch) === "function";
-          },
-          set(vueInstance) {
-            let removeWatch = null;
-            if (typeof key === "function") {
-              removeWatch = vueInstance.$watch(
-                () => {
-                  return key(vueInstance);
-                },
-                (newValue, oldValue) => {
-                  callback(vueInstance, newValue, oldValue);
-                },
-                config
-              );
-            } else {
-              removeWatch = vueInstance.$watch(
-                key,
-                (newValue, oldValue) => {
-                  callback(vueInstance, newValue, oldValue);
-                },
-                config
-              );
-            }
-            resolve(removeWatch);
-          },
-          failWait
-        });
-      });
-    },
-    /**
-     * 前往网址
-     * @param $vueNode 包含vue属性的元素
-     * @param path 需要跳转的路径
-     * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转
-     */
-    goToUrl($vueNode, path, useRouter = false) {
-      if ($vueNode == null) {
-        Qmsg.error("跳转Url: $vueNode为空");
-        log.error("跳转Url: $vueNode为空：" + path);
-        return;
-      }
-      let vueObj = VueUtils.getVue($vueNode);
-      if (vueObj == null) {
-        Qmsg.error("获取vue属性失败", { consoleLogContent: true });
-        return;
-      }
-      let $router = vueObj.$router;
-      let isBlank = true;
-      log.info("即将跳转URL：" + path);
-      if (useRouter) {
-        isBlank = false;
-      }
-      if (isBlank) {
-        window.open(path, "_blank");
-      } else {
-        if (path.startsWith("http") || path.startsWith("//")) {
-          if (path.startsWith("//")) {
-            path = window.location.protocol + path;
-          }
-          let urlObj = new URL(path);
-          if (urlObj.origin === window.location.origin) {
-            path = urlObj.pathname + urlObj.search + urlObj.hash;
-          } else {
-            log.info("不同域名，直接本页打开，不用Router：" + path);
-            window.location.href = path;
-            return;
-          }
-        }
-        log.info("$router push跳转Url：" + path);
-        $router.push(path);
-      }
-    },
-    /**
-     * 手势返回
-     * @param option 配置
-     */
-    hookGestureReturnByVueRouter(option) {
-      function popstateEvent() {
-        log.success("触发popstate事件");
-        resumeBack(true);
-      }
-      function banBack() {
-        log.success("监听地址改变");
-        option.vueInstance.$router.history.push(option.hash);
-        domutils.on(_unsafeWindow, "popstate", popstateEvent);
-      }
-      async function resumeBack(isFromPopState = false) {
-        domutils.off(_unsafeWindow, "popstate", popstateEvent);
-        let callbackResult = option.callback(isFromPopState);
-        if (callbackResult) {
-          return;
-        }
-        while (1) {
-          if (option.vueInstance.$router.history.current.hash === option.hash) {
-            log.info("后退！");
-            option.vueInstance.$router.back();
-            await utils.sleep(250);
-          } else {
-            return;
-          }
-        }
-      }
-      banBack();
-      return {
-        resumeBack
-      };
-    }
-  };
-  const BilibiliUtils = {
-    /**
-     * 前往网址
-     * @param path
-     * @param [useRouter=false] 是否强制使用Router，默认false
-     */
-    goToUrl(path, useRouter = false) {
-      let isGoToUrlBlank = PopsPanel.getValue("bili-go-to-url-blank");
-      log.info("即将跳转URL：" + path);
-      if (useRouter) {
-        isGoToUrlBlank = false;
-      }
-      if (isGoToUrlBlank) {
-        window.open(path, "_blank");
-      } else {
-        if (path.startsWith("http") || path.startsWith("//")) {
-          if (path.startsWith("//")) {
-            path = window.location.protocol + path;
-          }
-          let urlObj = new URL(path);
-          if (urlObj.origin === window.location.origin) {
-            path = urlObj.pathname + urlObj.search + urlObj.hash;
-          } else {
-            log.info("不同域名，直接本页打开，不用Router：" + path);
-            window.location.href = path;
-            return;
-          }
-        }
-        log.info("$router push跳转Url：" + path);
-        let $app = $("#app");
-        if ($app == null) {
-          if (!useRouter) {
-            window.location.href = path;
-            return;
-          }
-          Qmsg.error("跳转Url: 获取根元素#app失败");
-          log.error("跳转Url: 获取根元素#app失败：" + path);
-          return;
-        }
-        let vueInstance = VueUtils.getVue($app);
-        if (vueInstance == null) {
-          if (!useRouter) {
-            window.location.href = path;
-            return;
-          }
-          log.error("获取#app的vue属性失败");
-          Qmsg.error("获取#app的vue属性失败");
-          return;
-        }
-        let $router = vueInstance.$router;
-        $router.push(path);
-      }
-    },
-    /**
-     * 前往登录
-     */
-    goToLogin(fromUrl = "") {
-      window.open(
-        `https://passport.bilibili.com/h5-app/passport/login?gourl=${encodeURIComponent(
-        fromUrl
-      )}`
-      );
-    },
-    /**
-     * 转换时长为显示的时长
-     *
-     * + 30 => 0:30
-     * + 120 => 2:00
-     * + 14400 => 4:00:00
-     * @param duration 秒
-     */
-    parseDuration(duration) {
-      if (typeof duration !== "number") {
-        duration = parseInt(duration);
-      }
-      if (isNaN(duration)) {
-        return duration.toString();
-      }
-      function zeroPadding(num) {
-        if (num < 10) {
-          return `0${num}`;
-        } else {
-          return num;
-        }
-      }
-      if (duration < 60) {
-        return `0:${zeroPadding(duration)}`;
-      } else if (duration >= 60 && duration < 3600) {
-        return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
-      } else {
-        return `${Math.floor(duration / 3600)}:${zeroPadding(
-        Math.floor(duration / 60) % 60
-      )}:${zeroPadding(duration % 60)}`;
-      }
-    },
-    /**
-     * 转换显示的文本
-     *
-     * 如：播放量、弹幕量、点赞、投币、收藏、转发
-     *
-     * 播放量：114514
-     * 
-     * ↓
-     * 
-     * 播放量：114.5万
-     */
-    parseCount(count) {
-      let countText = count.toString();
-      if (count > 1e4) {
-        let roundNum = (count / 1e4).toFixed(2).slice(0, -1);
-        if (roundNum.endsWith(".0")) {
-          roundNum = roundNum.slice(0, -2);
-        }
-        countText = `${roundNum}万`;
-      } else if (count > 1e4 * 1e4) {
-        let roundNum = (count / (1e4 * 1e4)).toFixed(2).slice(0, -1);
-        if (roundNum.endsWith(".0")) {
-          roundNum = roundNum.slice(0, -2);
-        }
-        countText = `${roundNum}亿`;
-      }
-      return countText;
-    },
-    /**
-     * 手势返回
-     */
-    hookGestureReturnByVueRouter(option) {
-      function popstateEvent() {
-        log.success("触发popstate事件");
-        resumeBack(true);
-      }
-      function banBack() {
-        log.success("监听地址改变");
-        option.vueObj.$router.history.push(option.hash);
-        domutils.on(window, "popstate", popstateEvent);
-      }
-      async function resumeBack(isFromPopState = false) {
-        domutils.off(window, "popstate", popstateEvent);
-        let callbackResult = option.callback(isFromPopState);
-        if (callbackResult) {
-          return;
-        }
-        while (1) {
-          if (option.vueObj.$router.history.current.hash === option.hash) {
-            log.info("后退！");
-            option.vueObj.$router.back();
-            await utils.sleep(250);
-          } else {
-            return;
-          }
-        }
-      }
-      banBack();
-      return {
-        resumeBack
-      };
-    },
-    /**
-     * 固定meta viewport缩放倍率为1
-     */
-    initialScale() {
-      log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
-      domutils.ready(() => {
-        let meta = domutils.createElement(
-          "meta",
-          {},
-          {
-            name: "viewport",
-            content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"
-          }
-        );
-        domutils.remove("meta[name='viewport']");
-        utils.waitNode("head").then(() => {
-          document.head.appendChild(meta);
-        });
-      });
-    }
-  };
-  const SettingUISpace = {
-    id: "panel-space",
-    title: "个人空间",
-    isDefault() {
-      return BilibiliRouter.isSpace();
-    },
-    forms: [
-      {
-        text: "",
-        type: "forms",
-        forms: [
-          {
-            text: "功能",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "修复正确跳转",
-                    "bili-space-repairRealJump",
-                    true,
-                    void 0,
-                    "修复视频|动态的正确跳转，避免跳转404"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "覆盖点击事件",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISwitch(
-                    "动态视频",
-                    "bili-space-coverDynamicStateCardVideo",
-                    true,
-                    void 0,
-                    "点击发布动态的视频可正常跳转至该视频"
-                  )
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-  const PopsPanel = {
-    /** 数据 */
-    $data: {
-      __data: null,
-      __oneSuccessExecMenu: null,
-      __onceExec: null,
-      __listenData: null,
-      /**
-       * 菜单项的默认值
-       */
-      get data() {
-        if (PopsPanel.$data.__data == null) {
-          PopsPanel.$data.__data = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__data;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get oneSuccessExecMenu() {
-        if (PopsPanel.$data.__oneSuccessExecMenu == null) {
-          PopsPanel.$data.__oneSuccessExecMenu = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__oneSuccessExecMenu;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get onceExec() {
-        if (PopsPanel.$data.__onceExec == null) {
-          PopsPanel.$data.__onceExec = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__onceExec;
-      },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
-        return SCRIPT_NAME;
-      },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
-    },
-    /** 监听器 */
-    $listener: {
-      /**
-       * 值改变的监听器
-       */
-      get listenData() {
-        if (PopsPanel.$data.__listenData == null) {
-          PopsPanel.$data.__listenData = new utils.Dictionary();
-        }
-        return PopsPanel.$data.__listenData;
-      }
-    },
-    init() {
-      this.initPanelDefaultValue();
-      this.initExtensionsMenu();
-    },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
-    },
-    initExtensionsMenu() {
-      if (!this.isTopWindow()) {
-        return;
-      }
-      GM_Menu.add([
-        {
-          key: "show_pops_panel_setting",
-          text: "⚙ 设置",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            this.showPanel();
-          }
-        },
-        {
-          key: "go_to_login",
-          text: "🛠 前往登录",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback() {
-            BilibiliUtils.goToLogin();
-          }
-        },
-        {
-          key: "go_to_login_to_parse_access_key",
-          text: "🛠 扫码并解析access_key",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback() {
-            BilibiliQrCodeLogin.init();
-          }
-        }
-      ]);
-    },
-    /** 初始化本地设置默认的值 */
-    initPanelDefaultValue() {
-      let that = this;
-      function initDefaultValue(config) {
-        if (!config.attributes) {
-          return;
-        }
-        let needInitConfig = {};
-        let key = config.attributes[ATTRIBUTE_KEY];
-        if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
-        }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-        if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
-        }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
-        }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          log.warn("请先配置键", config);
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
-          if (that.$data.data.has(__key)) {
-            log.warn("请检查该key(已存在): " + __key);
-          }
-          that.$data.data.set(__key, __defaultValue);
-        });
-      }
-      function loopInitDefaultValue(configList) {
-        for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
-          initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
-          }
-        }
-      }
-      let contentConfigList = this.getPanelContentConfig();
-      for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
-          continue;
-        }
-        let rightContentConfigList = leftContentConfigItem.forms;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
-          loopInitDefaultValue(rightContentConfigList);
-        }
-      }
-    },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      locaData[key] = value;
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, value);
-      }
-    },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
-      let locaData = _GM_getValue(KEY, {});
-      let localValue = locaData[key];
-      if (localValue == null) {
-        if (this.$data.data.has(key)) {
-          return this.$data.data.get(key);
-        }
-        return defaultValue;
-      }
-      return localValue;
-    },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      Reflect.deleteProperty(locaData, key);
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
-      }
-    },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
-      let listenerId = Math.random();
-      this.$listener.listenData.set(key, {
-        id: listenerId,
-        key,
-        callback
-      });
-      return listenerId;
-    },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
-      let deleteKey = null;
-      for (const [key, value] of this.$listener.listenData.entries()) {
-        if (value.id === listenerId) {
-          deleteKey = key;
-          break;
-        }
-      }
-      this.$listener.listenData.delete(deleteKey);
-    },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
-      if (this.$listener.listenData.has(key)) {
-        let listenData = this.$listener.listenData.get(key);
-        if (typeof listenData.callback === "function") {
-          let value = this.getValue(key);
-          let __newValue = value;
-          let __oldValue = value;
-          if (typeof newValue !== "undefined" && arguments.length > 1) {
-            __newValue = newValue;
-          }
-          if (typeof oldValue !== "undefined" && arguments.length > 2) {
-            __oldValue = oldValue;
-          }
-          listenData.callback(key, __oldValue, __newValue);
-        }
-      }
-    },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
-      let locaData = _GM_getValue(KEY, {});
-      return key in locaData;
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用
-     * @param checkEnableCallBack 自定义检测菜单的值，可自行决定是否强制启用菜单，true是启用菜单，false是不启用菜单
-     */
-    execMenu(key, callback, isReverse = false, checkEnableCallBack) {
-      if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
-        throw new TypeError("key 必须是字符串或者字符串数组");
-      }
-      let runKeyList = [];
-      if (typeof key === "object" && Array.isArray(key)) {
-        runKeyList = [...key];
-      } else {
-        runKeyList.push(key);
-      }
-      let value = void 0;
-      for (let index = 0; index < runKeyList.length; index++) {
-        const runKey = runKeyList[index];
-        if (!this.$data.data.has(runKey)) {
-          log.warn(`${key} 键不存在`);
-          return;
-        }
-        let runValue = PopsPanel.getValue(runKey);
-        if (isReverse) {
-          runValue = !runValue;
-        }
-        if (typeof checkEnableCallBack === "function") {
-          let checkResult = checkEnableCallBack(runKey, runValue);
-          if (typeof checkResult === "boolean") {
-            runValue = checkResult;
-          }
-        }
-        if (!runValue) {
-          break;
-        }
-        value = runValue;
-      }
-      if (value) {
-        callback(value);
-      }
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key
-     * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
-     * @param checkEnableCallBack 自定义检测菜单的值，可自行决定是否强制启用菜单，true是启用菜单，false是不启用菜单
-     */
-    execMenuOnce(key, callback, getValueFn, handleValueChangeFn, checkEnableCallBack) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
-      }
-      if (this.$data.oneSuccessExecMenu.has(key)) {
-        return;
-      }
-      this.$data.oneSuccessExecMenu.set(key, 1);
-      let __getValue = () => {
-        let localValue = PopsPanel.getValue(key);
-        return typeof getValueFn === "function" ? getValueFn(key, localValue) : localValue;
-      };
-      let resultStyleList = [];
-      let dynamicPushStyleNode = ($style) => {
-        let __value = __getValue();
-        let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
-        }
-        if (__value) {
-          resultStyleList = resultStyleList.concat(dynamicResultList);
-        } else {
-          for (let index = 0; index < dynamicResultList.length; index++) {
-            let $css = dynamicResultList[index];
-            $css.remove();
-            dynamicResultList.splice(index, 1);
-            index--;
-          }
-        }
-      };
-      let checkMenuEnableCallBack = (currentValue) => {
-        return typeof checkEnableCallBack === "function" ? checkEnableCallBack(key, currentValue) : currentValue;
-      };
-      let changeCallBack = (currentValue) => {
-        let resultList = [];
-        if (checkMenuEnableCallBack(currentValue)) {
-          let result = callback(currentValue, dynamicPushStyleNode);
-          if (result instanceof HTMLStyleElement) {
-            resultList = [result];
-          } else if (Array.isArray(result)) {
-            resultList = [
-              ...result.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            ];
-          }
-        }
-        for (let index = 0; index < resultStyleList.length; index++) {
-          let $css = resultStyleList[index];
-          $css.remove();
-          resultStyleList.splice(index, 1);
-          index--;
-        }
-        resultStyleList = [...resultList];
-      };
-      this.addValueChangeListener(
-        key,
-        (__key, oldValue, newValue) => {
-          let __newValue = newValue;
-          if (typeof handleValueChangeFn === "function") {
-            __newValue = handleValueChangeFn(__key, newValue, oldValue);
-          }
-          changeCallBack(__newValue);
-        }
-      );
-      let value = __getValue();
-      if (value) {
-        changeCallBack(value);
-      }
-    },
-    /**
-     * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key 菜单键
-     * @param childKey 子菜单键
-     * @param callback 回调
-     * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
-     */
-    execInheritMenuOnce(key, childKey, callback, replaceValueFn) {
-      let that = this;
-      const handleInheritValue = (key2, childKey2) => {
-        let mainValue = that.getValue(key2);
-        let childValue = that.getValue(childKey2);
-        if (typeof replaceValueFn === "function") {
-          let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue != null) {
-            return changedMainValue;
-          }
-        }
-        return mainValue;
-      };
-      this.execMenuOnce(
-        key,
-        callback,
-        () => {
-          return handleInheritValue(key, childKey);
-        },
-        () => {
-          return handleInheritValue(key, childKey);
-        }
-      );
-      this.execMenuOnce(
-        childKey,
-        () => {
-        },
-        () => false,
-        () => {
-          this.triggerMenuValueChange(key);
-          return false;
-        }
-      );
-    },
-    /**
-     * 根据key执行一次
-     * @param key
-     */
-    onceExec(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExec.has(key)) {
-        return;
-      }
-      callback();
-      this.$data.onceExec.set(key, 1);
-    },
-    /**
-     * 显示设置面板
-     */
-    showPanel() {
-      __pops.panel({
-        title: {
-          text: `${SCRIPT_NAME}-设置`,
-          position: "center",
-          html: false,
-          style: ""
-        },
-        content: this.getPanelContentConfig(),
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: true,
-            toHide: false
-          }
-        },
-        width: PanelUISize.setting.width,
-        height: PanelUISize.setting.height,
-        drag: true,
-        only: true
-      });
-    },
-    /**
-     * 获取配置内容
-     */
-    getPanelContentConfig() {
-      let configList = [
-        SettingUICommon,
-        SettingUIHead,
-        SettingUIVideo,
-        SettingUIOpus,
-        SettingUIDynamic,
-        SettingUIBangumi,
-        // SettingUITopicDetail,
-        SettingUISearch,
-        SettingUISpace,
-        SettingUILive
-      ];
-      return configList;
-    }
-  };
-  const BilibiliBeautifyCSS = '@charset "UTF-8";\r\n/* 主页 */\r\n#app .m-head {\r\n	--bg-color: #f0f1f3;\r\n	--bg-rever-color: #ffffff;\r\n	--pd-width: 1.3333vmin;\r\n	--bd-circle: 1.3333vmin;\r\n	--card-height: 30vmin;\r\n	--icon-font-size: 3.2vmin;\r\n	--icon-text-font-size: 2.6vmin;\r\n	--icon-font-margin-right: 3vmin;\r\n	--title-font-size: 2.8vmin;\r\n	background-color: var(--bg-color);\r\n}\r\n#app .m-head .m-home {\r\n	background-color: var(--bg-color);\r\n}\r\n/* 美化视频卡片 */\r\n#app .m-head .video-list .card-box .v-card {\r\n	background-color: var(--bg-rever-color);\r\n	padding: 0px;\r\n	margin: 0px;\r\n	width: calc(50% - var(--pd-width) / 2);\r\n	border-radius: var(--bd-circle);\r\n	margin-top: var(--pd-width);\r\n	display: grid;\r\n	/* 视频封面区域 */\r\n}\r\n#app .m-head .video-list .card-box .v-card .card {\r\n	background: var(--bg-rever-color);\r\n	border-radius: unset;\r\n	border-top-left-radius: var(--bd-circle);\r\n	border-top-right-radius: var(--bd-circle);\r\n	height: var(--card-height);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count {\r\n	display: flex;\r\n	justify-content: safe flex-start;\r\n	padding-right: 0;\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count .iconfont {\r\n	font-size: var(--icon-text-font-size);\r\n}\r\n#app .m-head .video-list .card-box .v-card .card .count > span {\r\n	font-size: var(--icon-text-font-size);\r\n	margin-right: var(--icon-font-margin-right);\r\n}\r\n/* 视频标题区域 */\r\n#app .m-head .video-list .card-box .v-card .title {\r\n	padding: 0;\r\n	margin: var(--pd-width);\r\n	font-size: var(--title-font-size);\r\n}\r\n/* 两列 => 左边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n-1) {\r\n	/*background-color: red;*/\r\n	margin-right: calc(var(--pd-width) / 2);\r\n}\r\n/* 两列 => 右边的 */\r\n#app .m-head .video-list .card-box .v-card:nth-child(2n) {\r\n	/*background-color: rebeccapurple;*/\r\n	margin-left: calc(var(--pd-width) / 2);\r\n}\r\n';
-  const BilibiliUrl = {
-    /**
-     * 获取用户个人空间链接
-     * @param userId 用户id
-     */
-    getUserSpaceUrl(userId) {
-      return `https://m.bilibili.com/space/${userId}`;
-    },
-    /**
-     * 获取用户个人空间动态链接-dynamic
-     * @param id 该动态的id
-     */
-    getUserSpaceDynamicUrl(id) {
-      return `https://m.bilibili.com/dynamic/${id}`;
-    },
-    /**
-     * 获取用户个人空间动态链接-opus
-     * @param id 该动态的id
-     */
-    getUserSpaceOpusUrl(id) {
-      return `https://m.bilibili.com/opus/${id}`;
-    },
-    /**
-     * 获取视频链接
-     * @param id bv/av号
-     */
-    getVideoUrl(id) {
-      return `https://m.bilibili.com/video/${id}`;
-    }
-  };
-  const BilibiliData = {
-    className: {
-      bangumi: "#app.main-container",
-      bangumi_new: "body > #__next",
-      dynamic: "#app .m-dynamic",
-      opus: "#app .m-opus",
-      video: "#app .video",
-      mVideo: "#app .m-video",
-      head: "#app .m-head",
-      playlist: "#app .playlist",
-      space: "#app .m-space"
-    },
-    /** 主题色 */
-    theme: "#FB7299"
-  };
-  const BilibiliPCData = {
-    className: {
-      read: {
-        mobile: "#app .read-app-main"
-      }
-    }
-  };
-  const artPlayerCSS$1 = ".artplayer-container {\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	overflow: hidden;\r\n}";
-  const artPlayerCommonCSS = "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n	display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n	width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n	display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n	backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n	max-width: 100px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n	/* 修正小屏下宽度溢出 */\r\n	.art-controls .art-control {\r\n		max-width: 60px;\r\n		white-space: pre-wrap;\r\n	}\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n	/* 隐藏 弹幕设置按钮 */\r\n	.artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		display: none !important;\r\n	}\r\n	/* 弹幕库靠右对齐 */\r\n	.artplayer-plugin-danmuku {\r\n		justify-content: right;\r\n	}\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n	/* 限制弹幕输入框的最大宽度 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n		max-width: 260px;\r\n	}\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n	/* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n	display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n	--layer-top-wrap-follow-text-font-size: 0.8em;\r\n	--layer-top-wrap-follow-icon-size: 1em;\r\n	width: 100%;\r\n	position: absolute;\r\n	top: 0px;\r\n	right: 0px;\r\n	color: #fff;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	left: 0;\r\n	-webkit-transition: all 0.2s ease-in-out;\r\n	transition: all 0.2s ease-in-out;\r\n	width: 100%;\r\n	background: linear-gradient(to bottom, #000, transparent);\r\n	padding: 10px calc(var(--art-padding));\r\n	z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n	width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-top-title-text {\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	overflow: hidden;\r\n	max-width: 100%;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n	transform: translateY(-60px);\r\n}\r\n/*.art-layer-top-wrap .art-player-top-wrap {\r\n}\r\n.art-layer-top-wrap .art-player-top-title-text {\r\n}*/\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-follow {\r\n	margin-top: var(--art-padding);\r\n	gap: var(--layer-top-wrap-follow-text-font-size);\r\n	font-size: var(--layer-top-wrap-follow-text-font-size);\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\r\n	width: var(--layer-top-wrap-follow-icon-size);\r\n	height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-follow-text {\r\n	text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n	/* 放在右边 */\r\n	right: 0;\r\n	left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
-  const BilibiliApiRequestCheck = {
-    /**
-     * 合并并检查是否传入aid或者bvid
-     */
-    mergeAidOrBvidSearchParamsData(searchParamsData, config) {
-      if ("aid" in config && config["aid"] != null) {
-        Reflect.set(searchParamsData, "aid", config.aid);
-      } else if ("bvid" in config && config["bvid"] != null) {
-        Reflect.set(searchParamsData, "bvid", config.bvid);
-      } else {
-        throw new TypeError("avid or bvid must give one");
-      }
-    }
-  };
-  const VideoQualityNameMap = {
-    /**
-     * 仅mp4方式支持
-     * + 6
-     */
-    "240P 极速": 6,
-    /**
-     * 仅mp4方式支持
-     * + 16
-     */
-    "360P 流畅": 16,
-    /**
-     * 仅mp4方式支持
-     * + 32
-     */
-    "480P 清晰": 32,
-    /**
-     * web端默认值
-     *
-     * B站前端需要登录才能选择，但是直接发送请求可以不登录就拿到720P的取流地址
-     *
-     * 无720P时则为720P60
-     * + 64
-     */
-    "720P 高清": 64,
-    /**
-     * 需要认证登录账号
-     * + 74
-     */
-    "720P60 高帧率": 74,
-    /**
-     * TV端与APP端默认值
-     *
-     * 需要认证登录账号
-     * + 80
-     */
-    "1080P 高清": 80,
-    /**
-     * 大多情况需求认证大会员账号
-     * + 112
-     */
-    "1080P+ 高码率": 112,
-    /**
-     * 大多情况需求认证大会员账号
-     * + 116
-     */
-    "1080P60 高帧率": 116,
-    /**
-     * 需要fnval&128=128且fourk=1
-     *
-     * 大多情况需求认证大会员账号
-     * + 120
-     */
-    "4K 超清": 120,
-    /**
-     * 仅支持dash方式
-     *
-     * 需要fnval&64=64
-     * + 125
-     */
-    "HDR 真彩色": 125,
-    /**
-     * 仅支持dash方式
-     *
-     * 需要fnval&512=512
-     *
-     * 大多情况需求认证大会员账号
-     * + 126
-     */
-    杜比视界: 126,
-    /**
-     * 仅支持dash方式
-     *
-     * 需要fnval&1024=1024
-     *
-     * 大多情况需求认证大会员账号
-     * + 127
-     */
-    "8K 超高清": 127
-  };
-  const VideoQualityMap = {};
-  Object.keys(VideoQualityNameMap).forEach((qualityName) => {
-    let qualityValue = Reflect.get(VideoQualityNameMap, qualityName);
-    Reflect.set(VideoQualityMap, qualityValue, qualityName);
-  });
-  const BilibiliVideoApi = {
-    /**
-     * 获取视频播放地址，avid或bvid必须给一个
-     * + /x/player/playurl
-     * @param config
-     * @param extraParams 额外参数，一般用于hook network参数内的判断
-     */
-    async playUrl(config, extraParams) {
-      let searchParamsData = {
-        cid: config.cid,
-        qn: config.qn ?? VideoQualityNameMap["1080P60 高帧率"],
-        high_quality: config.high_quality ?? 1,
-        fnval: config.fnval ?? 1,
-        // 固定0
-        fnver: config.fnver ?? 0,
-        // 是否允许 4K 视频
-        fourk: config.fourk ?? 1
-      };
-      if (config.setPlatformHTML5) {
-        Reflect.set(searchParamsData, "platform", "html5");
-      }
-      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
-        searchParamsData,
-        config
-      );
-      if (typeof extraParams === "object") {
-        Object.assign(searchParamsData, extraParams);
-      }
-      let getResp = await httpx.get(
-        "https://api.bilibili.com/x/player/playurl?" + utils.toSearchParamsStr(searchParamsData),
-        {
-          responseType: "json",
-          fetch: true
-        }
-      );
-      if (!getResp.status) {
-        return;
-      }
-      let data2 = utils.toJSON(getResp.data.responseText);
-      if (data2["code"] !== 0) {
-        return;
-      }
-      return data2["data"];
-    },
-    /**
-     * 获取视频在线观看人数
-     * + /x/player/online/total
-     */
-    async onlineTotal(config) {
-      let searchParamsData = {
-        cid: config.cid
-      };
-      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
-        searchParamsData,
-        config
-      );
-      let httpxResponse = await httpx.get(
-        `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
-        {
-          responseType: "json",
-          fetch: true
-        }
-      );
-      if (!httpxResponse.status) {
-        return;
-      }
-      let data2 = utils.toJSON(httpxResponse.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        log.error(`获取在线观看人数失败: ${JSON.stringify(data2)}`);
-      }
-      return data2["data"];
-    },
-    /**
-     * 点赞视频（web端）
-     * @param config
-     */
-    async like(config) {
-      var _a2;
-      let searchParamsData = {
-        like: config.like,
-        csrf: ((_a2 = GMCookie.get("bili_jct")) == null ? void 0 : _a2.value) || ""
-      };
-      BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
-        searchParamsData,
-        config
-      );
-      let getResp = await httpx.get(
-        "https://api.bilibili.com/x/web-interface/archive/like?" + utils.toSearchParamsStr(searchParamsData),
-        {
-          fetch: true
-        }
-      );
-      if (!getResp.status) {
-        return false;
-      }
-      let data2 = utils.toJSON(getResp.data.responseText);
-      const code = data2["code"];
-      if (code === 0) {
-        return true;
-      }
-      if (code === -101) {
-        Qmsg.error("账号未登录");
-      } else if (code === -111) {
-        Qmsg.error("csrf校验失败");
-      } else if (code === -400) {
-        Qmsg.error("请求错误");
-      } else if (code === -403) {
-        Qmsg.error("账号异常");
-      } else if (code === 10003) {
-        Qmsg.error("不存在该稿件");
-      } else if (code === 65004) {
-        Qmsg.error("取消点赞失败");
-      } else if (code === 65006) {
-        Qmsg.warning("重复点赞");
-      } else {
-        Qmsg.error("未知错误：" + data2["message"]);
-      }
-      return false;
     }
   };
   const VideoSoundQualityCode = {
@@ -5581,7 +3302,7 @@
         } else {
           M4SAudio.$data.art.setting.add(settingOption);
         }
-        log.info("加载m4s的音频：", currentSelectAudioInfo);
+        log$1.info("加载m4s的音频：", currentSelectAudioInfo);
         M4SAudio.handler.playUrl(currentSelectAudioInfo.url);
         this.bind();
         this.bindAudio();
@@ -6291,7 +4012,7 @@
           console.error(TAG$3 + "请求字幕链接信息失败", subTitleInfoResponse);
         }
       }
-      if (PopsPanel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
+      if (Panel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
         let subTitleHant = SubTitleData.allSubTitleInfo.find((item) => {
           return item.lan === "zh-Hant" || item.name.includes("繁体");
         });
@@ -7007,12 +4728,12 @@
         throw new TypeError("toast parent is null");
       }
       this.mutationMPlayerOriginToast($parent);
-      let $toast = domutils.createElement("div", {
+      let $toast = domUtils.createElement("div", {
         "data-from": "gm"
       });
-      domutils.addClass($toast, this.$config.prefix);
+      domUtils.addClass($toast, this.$config.prefix);
       if (config.showCloseBtn) {
-        let $closeBtn = domutils.createElement("div", {
+        let $closeBtn = domUtils.createElement("div", {
           className: this.$config.prefix + "-close",
           innerHTML: (
             /*html*/
@@ -7022,7 +4743,7 @@
           )
         });
         $toast.appendChild($closeBtn);
-        domutils.on(
+        domUtils.on(
           $closeBtn,
           "click",
           (event) => {
@@ -7034,25 +4755,25 @@
           }
         );
       }
-      let $text = domutils.createElement("span", {
+      let $text = domUtils.createElement("span", {
         className: this.$config.prefix + "-text",
         innerText: config.text
       });
       $toast.appendChild($text);
       if (typeof config.timeText === "string" && config.timeText.trim() != "") {
-        let $time = domutils.createElement("span", {
+        let $time = domUtils.createElement("span", {
           className: this.$config.prefix + "-time",
           innerText: config.timeText
         });
         $toast.appendChild($time);
       }
       if (typeof config.jumpText === "string" && config.jumpText.trim() != "") {
-        let $jump = domutils.createElement("span", {
+        let $jump = domUtils.createElement("span", {
           className: this.$config.prefix + "-jump",
           innerText: config.jumpText
         });
         $toast.appendChild($jump);
-        domutils.on(
+        domUtils.on(
           $jump,
           "click",
           (event) => {
@@ -7169,7 +4890,7 @@
       if ($mplayer.hasAttribute("data-mutation")) {
         return;
       }
-      log.success(`添加观察器，动态更新toast的位置`);
+      log$1.success(`添加观察器，动态更新toast的位置`);
       $mplayer.setAttribute("data-mutation", "gm");
       utils.mutationObserver($mplayer, {
         config: {
@@ -7229,7 +4950,7 @@
     setTransitionendEvent($toast, config) {
       let that = this;
       let animationEndNameList = this.getTransitionendEventNameList();
-      domutils.on(
+      domUtils.on(
         $toast,
         animationEndNameList,
         function(event) {
@@ -7751,7 +5472,7 @@
         ]
       };
       artOption.type = "mp4";
-      if (PopsPanel.getValue("artplayer-plugin-video-danmaku-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-danmaku-enable")) {
         artOption.plugins.push(
           artplayerPluginDanmuku({
             ...ArtPlayerDanmakuCommonOption(),
@@ -7785,7 +5506,7 @@
           })
         );
       }
-      if (PopsPanel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
         artOption.plugins.push(
           artplayerPluginM4SAudioSupport({
             from: "video",
@@ -7793,7 +5514,7 @@
           })
         );
       }
-      if (PopsPanel.getValue("artplayer-plugin-video-epChoose-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-epChoose-enable")) {
         artOption.plugins.push(
           artplayerPluginEpChoose({
             EP_LIST: generateVideoSelectSetting(option),
@@ -7801,7 +5522,7 @@
           })
         );
       }
-      if (PopsPanel.getValue("artplayer-plugin-video-cc-subtitle-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-cc-subtitle-enable")) {
         artOption.plugins.push(
           artplayerPluginBilibiliCCSubTitle({
             from: "video",
@@ -7811,7 +5532,7 @@
           })
         );
       }
-      if (PopsPanel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
         artOption.plugins.push(
           artplayerPluginTopToolBar({
             onlineInfoParams: {
@@ -7826,14 +5547,14 @@
           })
         );
       }
-      if (PopsPanel.getValue("artplayer-plugin-video-statistics-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-statistics-enable")) {
         artOption.plugins.push(
           artplayerPluginVideoStatistics({
             data: []
           })
         );
       }
-      if (PopsPanel.getValue("bili-video-playerAutoPlayVideo")) {
+      if (Panel.getValue("bili-video-playerAutoPlayVideo")) {
         artOption.muted = true;
         artOption.autoplay = true;
       }
@@ -7848,14 +5569,14 @@
     async update(art, option) {
       this.resetEnv(false);
       this.$data.currentOption = option;
-      log.info(`更新新的播放信息`, option);
+      log$1.info(`更新新的播放信息`, option);
       art.pause();
-      log.info(`暂停视频`);
+      log$1.info(`暂停视频`);
       art.currentTime = 0;
-      log.info(`重置播放进度`);
+      log$1.info(`重置播放进度`);
       this.updatePluginInfo(art, option);
       art.play();
-      log.info("播放");
+      log$1.info("播放");
     },
     /**
      * 更新插件数据
@@ -7868,31 +5589,31 @@
         from: "video",
         qualityList: option.quality
       });
-      log.info(`更新画质`, option.quality);
-      if (PopsPanel.getValue("artplayer-plugin-video-danmaku-enable")) {
+      log$1.info(`更新画质`, option.quality);
+      if (Panel.getValue("artplayer-plugin-video-danmaku-enable")) {
         art.plugins.artplayerPluginDanmuku.config({
           danmuku: option.danmukuUrl
         });
         art.plugins.artplayerPluginDanmuku.load();
-        log.info(`更新弹幕姬`, option.danmukuUrl);
+        log$1.info(`更新弹幕姬`, option.danmukuUrl);
       }
-      if (PopsPanel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
         let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
         plugin_m4sAudioSupport.update({
           from: "video",
           audioList: option.audioList || []
         });
-        log.info(`更新音频`, option.audioList);
+        log$1.info(`更新音频`, option.audioList);
       }
-      if (PopsPanel.getValue("artplayer-plugin-video-epChoose-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-epChoose-enable")) {
         let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
         plugin_epChoose.update({
           EP_LIST: generateVideoSelectSetting(option),
           automaticBroadcast: true
         });
-        log.info(`更新选集信息`, option.epList);
+        log$1.info(`更新选集信息`, option.epList);
       }
-      if (PopsPanel.getValue("artplayer-plugin-video-cc-subtitle-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-cc-subtitle-enable")) {
         let plugin_bilibiliCCSubTitle = art.plugins[ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY];
         const subTitleOption = {
           from: "video",
@@ -7901,9 +5622,9 @@
           cid: option.cid
         };
         plugin_bilibiliCCSubTitle.update(subTitleOption);
-        log.info(`更新字幕`, subTitleOption);
+        log$1.info(`更新字幕`, subTitleOption);
       }
-      if (PopsPanel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
         let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY];
         const topToolBarOption = {
           showRight: true,
@@ -7919,7 +5640,7 @@
           }
         };
         plugin_topToolBar.update(topToolBarOption);
-        log.info(`更新顶部标题`, topToolBarOption);
+        log$1.info(`更新顶部标题`, topToolBarOption);
       }
     }
   };
@@ -7959,7 +5680,7 @@
     var _a2, _b;
     const audioInfo = [];
     let qualityInfo = [];
-    if (PopsPanel.getValue("bili-video-playType", "mp4") === "mp4") {
+    if (Panel.getValue("bili-video-playType", "mp4") === "mp4") {
       const videoPlayInfo = await BilibiliVideoApi.playUrl({
         bvid: option.bvid,
         cid: option.cid,
@@ -7970,7 +5691,7 @@
         qn: 127,
         setPlatformHTML5: true
       });
-      log.info(videoPlayInfo);
+      log$1.info(["视频播放地址信息：", videoPlayInfo]);
       if (!videoPlayInfo) {
         return;
       }
@@ -8006,7 +5727,7 @@
         qn: 127,
         setPlatformHTML5: false
       });
-      log.info(videoPlayInfo);
+      log$1.info(["视频播放地址信息：", videoPlayInfo]);
       if (!videoPlayInfo) {
         return;
       }
@@ -8017,7 +5738,7 @@
           item.baseUrl,
           item.backup_url
         );
-        if (PopsPanel.getValue("bili-video-uposServerSelect-applyAudio")) {
+        if (Panel.getValue("bili-video-uposServerSelect-applyAudio")) {
           audioUrl = BilibiliCDNProxy.replaceVideoCDN(audioUrl);
         }
         audioInfo.push({
@@ -8033,7 +5754,7 @@
       audioInfo.sort((leftItem, rightItem) => {
         return rightItem.id - leftItem.id;
       });
-      log.info(`ArtPlayer: 获取的音频信息`, audioInfo);
+      log$1.info(`ArtPlayer: 获取的音频信息`, audioInfo);
       qualityInfo = [
         ...handleDashVideoQualityInfo$1({
           accept_quality: videoPlayInfo.accept_quality,
@@ -8041,7 +5762,7 @@
           video: videoPlayInfo.dash.video
         })
       ];
-      log.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
+      log$1.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
     }
     const currentVideoQuality = qualityInfo.map((item, index) => {
       return {
@@ -8091,7 +5812,7 @@
       art: null
     },
     init() {
-      PopsPanel.execMenu("bili-video-enableArtPlayer", () => {
+      Panel.execMenu("bili-video-enableArtPlayer", () => {
         this.coverVideoPlayer();
       });
     },
@@ -8100,7 +5821,7 @@
      */
     coverVideoPlayer() {
       if ($("#artplayer")) {
-        log.warn("已使用ArtPlayer覆盖原播放器，更新播放信息");
+        log$1.warn("已使用ArtPlayer覆盖原播放器，更新播放信息");
       } else {
         addStyle(
           /*css*/
@@ -8117,7 +5838,7 @@
 
 			`
         );
-        let controlsPadding = PopsPanel.getValue(
+        let controlsPadding = Panel.getValue(
           "bili-video-artplayer-controlsPadding-left-right",
           0
         );
@@ -8237,14 +5958,14 @@
               epList: epInfoList
             };
           }
-          log.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
+          log$1.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
           const artPlayerOption = await GenerateArtPlayerOption$1(videoInfo);
           if (artPlayerOption == null) {
             return;
           }
           let $artPlayer = $("#artplayer");
           if (!$artPlayer) {
-            const $artPlayerContainer = domutils.createElement("div", {
+            const $artPlayerContainer = domUtils.createElement("div", {
               className: "artplayer-container",
               innerHTML: (
                 /*html*/
@@ -8254,7 +5975,7 @@
               )
             });
             $artPlayer = $artPlayerContainer.querySelector("#artplayer");
-            domutils.append($mVideoPlayer, $artPlayerContainer);
+            domUtils.append($mVideoPlayer, $artPlayerContainer);
           }
           artPlayerOption.container = $artPlayer;
           if (that.$data.art == null) {
@@ -8266,13 +5987,13 @@
             }
             that.$data.art.volume = 1;
             that.$data.art.once("ready", () => {
-              PopsPanel.execMenu(
+              Panel.execMenu(
                 "bili-video-playerAutoPlayVideoFullScreen",
                 async () => {
-                  log.info(`自动进入全屏`);
+                  log$1.info(`自动进入全屏`);
                   that.$data.art.fullscreen = true;
                   that.$data.art.once("fullscreenError", () => {
-                    log.warn(
+                    log$1.warn(
                       "未成功进入全屏，需要用户交互操作，使用网页全屏代替"
                     );
                     that.$data.art.fullscreenWeb = true;
@@ -8290,9 +6011,11 @@
   };
   const wbi = async (params) => {
     async function getWbiQueryString(params2) {
-      const { img_url, sub_url } = await fetch(
-        "https://api.bilibili.com/x/web-interface/nav"
-      ).then((res) => res.json()).then((json) => json.data.wbi_img);
+      const response = await BilibiliUserApi.nav(false);
+      if (!response) {
+        return;
+      }
+      const { img_url, sub_url } = response.wbi_img;
       const imgKey = img_url.slice(
         img_url.lastIndexOf("/") + 1,
         img_url.lastIndexOf(".")
@@ -8400,7 +6123,7 @@
     let oid, createrID, commentType, replyList;
     const sortTypeConstant = { LATEST: 0, HOT: 2 };
     let currentSortType;
-    let timeSortOffsets;
+    let nextOffset = "";
     let replyPool;
     if (dynamicRE.test(global.location.href)) setupXHRInterceptor();
     addStyle2();
@@ -8490,8 +6213,7 @@
     }
     async function loadFirstPagination(commentModuleWrapper) {
       var _a2, _b, _c, _d, _e;
-      timeSortOffsets = { 1: `{"offset":""}` };
-      const { data: firstPaginationData, code: resultCode } = await getPaginationData(1);
+      const { data: firstPaginationData, code: resultCode } = await getPaginationData();
       createrID = firstPaginationData.upper.mid;
       replyList.innerHTML = "";
       replyPool = {};
@@ -8513,18 +6235,14 @@
         );
         navSortElement.innerHTML = `<div class="selected-sort">精选评论</div>`;
       }
-      if (currentSortType === sortTypeConstant.HOT) {
-        currentSortType = sortTypeConstant.LATEST;
-        firstPaginationData.top_replies = await getPaginationData(1).then(
-          (result) => result.data.top_replies
-        );
-        currentSortType = sortTypeConstant.HOT;
-      }
       if (firstPaginationData.top_replies && firstPaginationData.top_replies.length !== 0) {
         const topReplyData = firstPaginationData.top_replies[0];
         appendReplyItem(topReplyData, true);
       }
-      if (firstPaginationData.replies.length === 0) {
+      for (const replyData of firstPaginationData.replies) {
+        appendReplyItem(replyData);
+      }
+      if (firstPaginationData.replies.length === 0 || firstPaginationData.cursor.is_end) {
         const infoElement = document.createElement("p");
         infoElement.classList.add("no-more-replies-info");
         infoElement.style = "padding-bottom: 100px; text-align: center; color: #999;";
@@ -8532,51 +6250,42 @@
         document.querySelector(".comment-container .reply-warp").appendChild(infoElement);
         return;
       }
-      for (const replyData of firstPaginationData.replies) {
-        appendReplyItem(replyData);
-      }
       addAnchor();
     }
-    async function getPaginationData(paginationNumber) {
-      var _a2;
+    async function getPaginationData() {
+      var _a2, _b;
       const params = {
+        pagination_str: JSON.stringify({
+          offset: nextOffset || ""
+        }),
         oid,
         type: commentType,
-        wts: parseInt(Date.now() / 1e3)
+        wts: parseInt(Date.now() / 1e3),
+        plat: 1,
+        web_location: 1315875
       };
       if (currentSortType === sortTypeConstant.HOT) {
         params.mode = 3;
-        params.pagination_str = `{"offset":"{\\"type\\":1,\\"data\\":{\\"pn\\":${paginationNumber}}}"}`;
-        return await fetch(
-          `https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`
-        ).then((res) => res.json());
-      }
-      if (currentSortType === sortTypeConstant.LATEST) {
-        params.mode = 2;
-        params.pagination_str = timeSortOffsets[paginationNumber];
-        const fetchResult = await fetch(
-          `https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`
-        ).then((res) => res.json());
-        if (fetchResult.code === 0) {
-          const nextOffset = fetchResult.data.cursor.pagination_reply.next_offset;
-          try {
-            nextOffset = JSON.parse(nextOffset);
-          } catch (error) {
-            console.warn(
-              "MobileCommentModule next_offset serialize error",
-              error
-            );
-          }
-          const cursor = nextOffset ? (_a2 = void 0 ) == null ? void 0 : _a2.cursor : -1;
-          timeSortOffsets[paginationNumber + 1] = `{"offset":"{\\"type\\":3,\\"data\\":{\\"cursor\\":${cursor}}}"}`;
-        } else {
-          fetchResult.data = fetchResult.data || {};
+        if (!nextOffset) {
+          params.seek_rpid = "";
         }
-        return fetchResult;
+      } else if (currentSortType === sortTypeConstant.LATEST) {
+        params.mode = 2;
       }
+      const fetchResult = await httpx.get(
+        `https://api.bilibili.com/x/v2/reply/wbi/main?${await wbi(params)}`,
+        {
+          fetch: true
+        }
+      );
+      const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
+      nextOffset = ((_b = (_a2 = fetchResultJSON.data.cursor) == null ? void 0 : _a2.pagination_reply) == null ? void 0 : _b.next_offset) || "";
+      return fetchResultJSON;
     }
     function appendReplyItem(replyData, isTopReply) {
-      if (replyPool[replyData.rpid_str]) return;
+      if (replyPool[replyData.rpid_str]) {
+        return;
+      }
       const replyItemElement = document.createElement("div");
       replyItemElement.classList.add("reply-item");
       replyItemElement.innerHTML = `
@@ -8809,9 +6518,35 @@
       return result;
     }
     async function loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, paginationNumber) {
-      const subReplyData = await fetch(
-        `https://api.bilibili.com/x/v2/reply/reply?oid=${oid}&pn=${paginationNumber}&ps=10&root=${rootReplyID}&type=${commentType}`
-      ).then((res) => res.json()).then((json) => json.data);
+      const params = {
+        oid,
+        type: commentType,
+        root: rootReplyID,
+        ps: 10,
+        pn: paginationNumber,
+        web_location: 333.788
+      };
+      const subReplyResponse = await httpx.get(
+        `https://api.bilibili.com/x/v2/reply/reply?${Utils.toSearchParamsStr(
+        params
+      )}`,
+        {
+          allowInterceptConfig: false,
+          fetch: true
+        }
+      );
+      if (!subReplyResponse.status) {
+        log.error(subReplyResponse);
+        Qmsg.error("请求异常，获取评论的回复失败");
+        return;
+      }
+      const subReplyJSON = utils.toJSON(subReplyResponse.data.responseText);
+      if (subReplyJSON === -352) {
+        Qmsg.error("请登录后再进行操作");
+        console.error("you should login first", subReplyResponse);
+        return;
+      }
+      const subReplyData = subReplyJSON.data;
       subReplyList.innerHTML = getSubReplyItems(subReplyData.replies);
       addSubReplyPageSwitcher(
         rootReplyID,
@@ -8916,12 +6651,9 @@
       anchorElement.textContent = "正在加载...";
       anchorElement.style = `text-align: center; color: #61666d; transform: translateY(-50px);`;
       document.querySelector(".comment-container .reply-warp").appendChild(anchorElement);
-      let paginationCounter = 1;
       const ob = new IntersectionObserver(async (entries) => {
         if (!entries[0].isIntersecting) return;
-        const { data: newPaginationData } = await getPaginationData(
-          ++paginationCounter
-        );
+        const { data: newPaginationData } = await getPaginationData();
         if (!newPaginationData.replies || newPaginationData.replies.length === 0) {
           anchorElement.textContent = "所有评论已加载完毕";
           ob.disconnect();
@@ -9104,138 +6836,6 @@
     }
   }();
   const MobileCommentModuleStyle = ':root {\r\n	--v_xs: 5px;\r\n	--v_xsx: 4px;\r\n	--v_xxs: 6px;\r\n	--v_sm: 10px;\r\n	--v_smx: 8px;\r\n	--v_xsm: 12px;\r\n	--v_md: 15px;\r\n	--v_mdx: 14px;\r\n	--v_xmd: 16px;\r\n	--v_lg: 20px;\r\n	--v_lgx: 18px;\r\n	--v_xlg: 22px;\r\n	--v_xl: 25px;\r\n	--v_xlx: 24px;\r\n	--v_xxl: 26px;\r\n	--v_fs_1: 24px;\r\n	--v_fs_2: 18px;\r\n	--v_fs_3: 16px;\r\n	--v_fs_4: 14px;\r\n	--v_fs_5: 13px;\r\n	--v_fs_6: 12px;\r\n	--v_lh_xs: 1;\r\n	--v_lh_sm: 1.25;\r\n	--v_lh_md: 1.5;\r\n	--v_lh_lg: 1.75;\r\n	--v_lh_xl: 2;\r\n	--v_height_xs: 16px;\r\n	--v_height_sm: 24px;\r\n	--v_height_md: 32px;\r\n	--v_height_lg: 40px;\r\n	--v_height_xl: 48px;\r\n	--v_radius: 6px;\r\n	--v_radius_sm: 4px;\r\n	--v_radius_md: 8px;\r\n	--v_radius_lg: 10px;\r\n	--v_brand_pink: var(--brand_pink, #ff6699);\r\n	--v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\r\n	--v_brand_blue: var(--brand_blue, #00aeec);\r\n	--v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\r\n	--v_stress_red: var(--stress_red, #f85a54);\r\n	--v_stress_red_thin: var(--stress_red_thin, #feecea);\r\n	--v_success_green: var(--success_green, #2ac864);\r\n	--v_success_green_thin: var(--success_green_thin, #e4f8ea);\r\n	--v_operate_orange: var(--operate_orange, #ff7f24);\r\n	--v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\r\n	--v_pay_yellow: var(--pay_yellow, #ffb027);\r\n	--v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\r\n	--v_bg1: var(--bg1, #ffffff);\r\n	--v_bg2: var(--bg2, #f6f7f8);\r\n	--v_bg3: var(--bg3, #f1f2f3);\r\n	--v_bg1_float: var(--bg1_float, #ffffff);\r\n	--v_bg2_float: var(--bg2_float, #f1f2f3);\r\n	--v_text_white: var(--text_white, #ffffff);\r\n	--v_text1: var(--text1, #18191c);\r\n	--v_text2: var(--text2, #61666d);\r\n	--v_text3: var(--text3, #9499a0);\r\n	--v_text4: var(--text4, #c9ccd0);\r\n	--v_text_link: var(--text_link, #008ac5);\r\n	--v_text_notice: var(--text_notice, #e58900);\r\n	--v_line_light: var(--line_light, #f1f2f3);\r\n	--v_line_regular: var(--line_regular, #e3e5e7);\r\n	--v_line_bold: var(--line_bold, #c9ccd0);\r\n	--v_graph_white: var(--graph_white, #ffffff);\r\n	--v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\r\n	--v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\r\n	--v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\r\n	--v_graph_weak: var(--graph_weak, #c9ccd0);\r\n	--v_graph_medium: var(--graph_medium, #9499a0);\r\n	--v_graph_icon: var(--graph_icon, #61666d);\r\n	--v_shadow: var(--shadow, #000000);\r\n	--v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\r\n	--v_brand_pink_active: var(--brand_pink_active, #e84b85);\r\n	--v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\r\n	--v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\r\n	--v_brand_blue_active: var(--brand_blue_active, #008ac5);\r\n	--v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\r\n	--v_stress_red_hover: var(--stress_red_hover, #fa857f);\r\n	--v_stress_red_active: var(--stress_red_active, #e23d3d);\r\n	--v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\r\n	--v_text_hover: var(--text_hover, #797f87);\r\n	--v_text_active: var(--text_active, #61666d);\r\n	--v_text_disabled: var(--text_disabled, #c9ccd0);\r\n	--v_line_border: var(--line_border, #c9ccd0);\r\n	--v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\r\n	--v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\r\n	--v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\r\n}\r\n\r\n@font-face {\r\n	font-family: fanscard;\r\n	src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\r\n}\r\n\r\n.svg-icon {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n.svg-icon svg {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.svg-icon.use-color svg path {\r\n	fill: currentColor;\r\n	color: inherit;\r\n}\r\n\r\n.top-vote-card {\r\n	background-color: var(--graph_bg_thin);\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	height: 80px;\r\n	width: 100%;\r\n	margin-bottom: 24px;\r\n	padding: 12px 16px 12px 10px;\r\n	border-radius: 6px;\r\n}\r\n\r\n.top-vote-card__multi {\r\n	cursor: pointer;\r\n}\r\n\r\n.top-vote-card__multi:hover .vote-result-text {\r\n	color: var(--brand_blue);\r\n	transition: 0.2s;\r\n}\r\n\r\n.top-vote-card-left {\r\n	width: 40%;\r\n	max-width: calc(40% - 30px);\r\n	margin-right: 20px;\r\n	word-wrap: break-word;\r\n	font-size: 13px;\r\n	line-height: 18px;\r\n	color: var(--text1);\r\n}\r\n\r\n.top-vote-card-left__title {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.top-vote-card-left__title svg {\r\n	margin-right: 2px;\r\n	flex: none;\r\n}\r\n\r\n.top-vote-card-left__title span {\r\n	display: -webkit-box;\r\n	float: none;\r\n	height: 18px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	word-break: break-word;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-line-clamp: 1;\r\n}\r\n\r\n.top-vote-card-left__join {\r\n	height: 17px;\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 4px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.top-vote-card-left__join .vote-icon {\r\n	height: 12px;\r\n}\r\n\r\n.top-vote-card-left__join span {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.top-vote-card-right {\r\n	width: 60%;\r\n	font-size: var(--2fde2a28);\r\n	line-height: 17px;\r\n	display: flex;\r\n	--option-height: 40px;\r\n	--option-radius: 6px;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote {\r\n	opacity: 0.9;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\r\n	font-weight: 400 !important;\r\n}\r\n\r\n.top-vote-card-right .vote-text :first-child {\r\n	font-weight: 500;\r\n}\r\n\r\n.top-vote-card-right .vote-icon {\r\n	flex: none;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option {\r\n	position: relative;\r\n	display: flex;\r\n	min-width: 120px;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n	background-color: rgba(255, 102, 153, var(--212267a6));\r\n	height: var(--option-height);\r\n	width: var(--38c5ebb3);\r\n	padding-left: 10px;\r\n	border-radius: var(--option-radius) 0 0 var(--option-radius);\r\n	cursor: pointer;\r\n	margin-right: 30px;\r\n	color: var(--332a347e);\r\n	transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option {\r\n	position: absolute;\r\n	right: -20px;\r\n	top: 0;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\r\n	left: -8px;\r\n	background-color: #f69;\r\n	transform: skew(21deg);\r\n	border-top-right-radius: calc(var(--option-radius) - 2px);\r\n	border-bottom-right-radius: var(--option-radius);\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option {\r\n	height: 40px;\r\n	width: 20px;\r\n	overflow: hidden;\r\n	opacity: var(--212267a6);\r\n	pointer-events: none;\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option__fill {\r\n	pointer-events: all;\r\n	position: absolute;\r\n	top: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option {\r\n	position: relative;\r\n	display: flex;\r\n	min-width: 120px;\r\n	align-items: center;\r\n	flex-direction: row-reverse;\r\n	justify-content: space-between;\r\n	background-color: rgba(0, 174, 236, var(--212267a6));\r\n	height: var(--option-height);\r\n	width: var(--4b2970aa);\r\n	padding-right: 10px;\r\n	border-radius: 0 var(--option-radius) var(--option-radius) 0;\r\n	cursor: pointer;\r\n	color: var(--1e587827);\r\n	transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option {\r\n	position: absolute;\r\n	left: -20px;\r\n	top: 0;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\r\n	left: 8px;\r\n	background-color: #00aeec;\r\n	transform: skew(21deg);\r\n	border-top-left-radius: var(--option-radius);\r\n	border-bottom-left-radius: calc(var(--option-radius) - 2px);\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .vote-text {\r\n	text-align: right;\r\n}\r\n\r\n.top-vote-card-right .had_voted {\r\n	cursor: unset;\r\n}\r\n\r\n.reply-header .reply-notice {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	min-height: 40px;\r\n	padding: 4px 10px;\r\n	margin-bottom: 16px;\r\n	font-size: 13px;\r\n	border-radius: 2px;\r\n	color: var(--Ye5_u);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-notice:after {\r\n	content: "";\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	background-color: var(--Ye5_u);\r\n	opacity: 0.2;\r\n}\r\n\r\n.reply-header .reply-notice .notice-icon {\r\n	width: 16px;\r\n	height: 16px;\r\n	margin-right: 5px;\r\n}\r\n\r\n.reply-header .reply-notice .notice-content {\r\n	flex: 1;\r\n	padding: 0 5px;\r\n	vertical-align: top;\r\n	word-wrap: break-word;\r\n	word-break: break-all;\r\n}\r\n\r\n.reply-header .reply-notice .notice-close-icon {\r\n	position: relative;\r\n	z-index: 1;\r\n	width: 10px;\r\n	height: 10px;\r\n	margin-left: 5px;\r\n}\r\n\r\n.reply-header .reply-navigation {\r\n	margin-bottom: 22px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar {\r\n	display: flex;\r\n	align-items: center;\r\n	list-style: none;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title {\r\n		font-size: 20px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title {\r\n		font-size: 24px;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n	color: var(--text1);\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n	margin: 0 36px 0 6px;\r\n	font-weight: 400;\r\n	color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n		font-size: 14px;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n	color: var(--text1);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n		font-size: 16px;\r\n	}\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort {\r\n	display: flex;\r\n	align-items: center;\r\n	color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-sort {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-sort {\r\n		font-size: 16px;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n	height: 11px;\r\n	margin: 0 12px;\r\n	border-left: solid 1px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-operation-warp {\r\n	position: absolute;\r\n	right: 0;\r\n}\r\n\r\n/*\r\n   * @bilibili/userAvatar\r\n   * version: 1.2.0-beta.2. Powered by main-frontend\r\n   * 用户头像公共组件.\r\n   * author: wuxiuran\r\n   */\r\n.bili-avatar {\r\n	display: block;\r\n	position: relative;\r\n	background-image: url(data:image/gif;base64,R0lGODlhtAC0AOYAALzEy+To7rG6wb/Hzd/k6rK7wsPK0bvDybO8w9/j6dDW3NHX3eHl6+Hm7LnByLa+xeDl6+Lm7M/V27vDyt7j6dHX3r/Gzb/HzsLJ0LS9xLW+xbe/xtLY3s/V3OPn7dne5NXb4eDk67jAx7S8w+Dk6rrCybW9xMXM08TL0sLK0Nrf5cXM0tjd48zS2bO7wsrR17W+xLfAx8fO1La/xsbN07K7wbzEytzh573FzNLX3uLn7cDHzsbN1NPZ377Gzb7FzNbc4sjP1dfd49bb4tvg5svR2LfAxsnQ1s7U293h6Nbb4dTa4MrQ19fc4t3i6L7GzMnP1s7U2tXa4M3T2sDIz97i6N7i6dje5MjO1dfc473Ey8HJz9vg57jBx8jP1tPY38PL0cfO1dne5dXa4ePn7sHIz8vS2Nrf5tDW3djd5M3T2cDIztTZ4L3Fy7rCyMTL0czT2bC5wOXp7wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1OTQ4QTFCMzg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1OTQ4QTFCNDg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjU5NDhBMUIxODg0MDExRTU5MDY1QkZCODA3NUUwNDY1IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU5NDhBMUIyODg0MDExRTU5MDY1QkZCODA3NUUwNDY1Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAAAAAAAsAAAAALQAtAAAB/+AcoKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19sA6SCtTCakBCyuKOLmXKAGOOAhLiDkFoQzCOA9YEDyE5SHCBx9KhdhhMc6EBhMJeXDQMY6GjKIgXCgZR0jIQR4msDRxJRQBHyzjoHwpR0LODRI9keDI0kAAnoI8rMgJoyYnlTkBUEA6KMDSmTsxhTjIEsBAqlWvlowR9BIBCzmf9ANLyCrTrJP/SAzI+WMtW5EncmpIUwkCTpZaqtw9FIBGzgxlIRHgWvLH1MGIDLN8ACRSArQsfRCAnCgAj5wmsjwigbnkk80hA6hezbr1ajkeMoCu7Lq1HIM5C9yQU7v363EQFhxBMeGA8ePIkx+fMEFAzjgFmCtHPuHBcwEAik/fbnwCCiZfQHKzcoLk8/Po06tfr95BC7vWAkgQwb6+/fv4ETqocC2EgfwABihgRzToQM1ZJT0AwIIMNujggxBGKOGEFFYIgHkWYQCBNA0A0BEASOzmDAMS2NBRCh5AE4AMFiGAhIHSeIAEAhYdAQ0HFmkwxDVDmPBQAU2MiCECSiDiAQkhMBAC/wFMNunkk1ASkMCUUzJJAgQMMNDAllxyGUEEXTaQ5ZhjQmDmmRCEcOVRhyhBI0I2RNCMGRZ5cUgO5RWAQAYuCCBADYDW4OeghBZqqJ8FuLAnDBo84OijkDqqwaQwwGDCpRlkOsKmCHTaqQsjAIDFAocEYVEHzDCA4QMkFNIAGAgdcMEAtM5K6621XqDrrrz2uiuuFgQr7LDEFmsBrsjiWgJCYIg3CAnW6ZeiMgtYBEUhEfwQhwEqsFkMGSxw9IOchHjxIwjKBICBRS4R8pkZzHgWhwyFCGHRCcoQMIJFZxAyRBz4NhMADgIUOYgKFjnAQDJLOIeQboTQUAB8y3wgAP8PhHBRwEMCwEUMiw+Z8BhvJVChogMHeEuBbA+NkQysDxmxsCARbPBCNDs8QK4cDBhhUQvJrJHwtHJAAAMS0byQwYZJYRgHxsjM9VAJ3kJgAqrQoAFDCFUdYBEKyUiN0ASENCCCBNF0IIKzcpj4kAFhWwQAIRE4gDY0EjiwsxwePpRC3A+1Qbfd0eS9N2PbAo7QAIPf/YzhhBCFENxRW/T3IHU77gzkg6RgEeXHiB0HBmWfnXYMbK/7tuKjl72B5s10sMHMgqg+OeukD9LA62nPTojtiVf+0A+EMPAA7Mx08ADTgjxhOetzDwLBA1g/04EGzPP9vPBjEwKBBtU7o8D/1oS4jdDloVtE9iAhZBC+JVkg0YS3kQzhgAMoRBEkJgpk0OogMvEb61I2CH29LxJWWMIKROAcAUzACpIIgLYsIoITAGFvkVAAAlAjiADejnseIQQBEHDARlBAAT5gWUemIIkXPKcLGEhD9hyhABdwUA4eDF76HrI+QRCgAAqARADYYACHHUZEjvDAstAzAx54TBEKmBghcgg6Y4iuh3L4YRAbEQEFuGE96HoEA2awHgHIgAg0lCIAP8c6G4gQiIw4wwvIyJ5+QUIB9SkACpCYiCjCx3w6tKJFtCBCEnZmDGUwono20AP6OSIIG2NPAbAwskNo8IbOWx0I10AIEoyg/4RyIMJf2DMDNcwQEiowQCTXU4AjYHAQl/wdG0GIPjmQwH2HCIHT0jMCJtDOElWAwi7RgwNEKGAENwReFYshutz50JCGAJl6HuCFG2YiAl/oW3oQYMwNylKTO0SIM7MIzUL8Jz0bkIE1O8GCLfjoPA/oZjJnGc7WFdAFWyxEtZ4zAhpwwJGhSIAEnrDKjpDKkgWYJzgF+ZBxavEQHlhJRzSAAja80hQkmIIBNGCRGfySEH785gfrWcuHHuIDGajBBnBwAhb8DxYk+MAKLBCFdcJSjbWjJ0PPR4gEwBERViDCR4GhgBrAR5msq6JP8yk+AcDHcwtlpk6XGg0FOJUQUP8d6U4DmYAaMLUZVq3kObUq1YeAbRAJEMBXNUGCV3pgnR94YibCSoixBrKsCDmrINK6VkwoQQNlKAQRJpCBdgmCAQdAgFM6QddBoECneI2DXm+jVk98Jg5hFMRVCDkIF8YBeXMVQCUfG1ViiC5ggqBAZTvhhBhARAWCqMIq0QAbKDgHAVz4RGMFQVqymtYiNCCEavuKiRu41gUGKMIXNyCTAuxgiSOojG5FS4i8lHYYoqMXWn/qiSrkUABSaMASEaKF3ILCqvC5rG+xaxEsuA60mtABHKhQgi2EkQFH2IIBFABQTsiObWGA7G8fYiPMmQ4aamMbFATM3ofcDHOEw5v/3gjBBAYLQ3RFaFzhJjyIIlg4GBgmhA4i/DgOC8LD172wRZggYhJvzsRyqHCKQWyRFdDtwNZbGyHEctcBI8Rk0oMBKJOhABNwbRBUsAgYkiHR7klPA/AlMgyyl0PUGgN4VMOcEYAGDRTorCrjjUMQkmFdhMgMzFB7hhayfFifPYS2yEAxQhCQhB13gWipykBwB3GDNyFkf8cgQkFhO4h/9eAZLYiDwQSBsIfQORkNcJphBUGDDHxlGSoowJ4HYa+H7GAZnkWInegGAA0k5hhKGIEDYDQIUz2Ey8kQgwse8gBrRmBdFzDDAna9gBzkoALADrawh01sYP8a2LxOtrKX/83sZVfA19CuQAucN4E6i5CjCMlAJZGxBYuM2RALoEF1NDADGAigAHrylLo95YJ2o/vd8NbTCDLQqA1sIAYiEEEM9o3vfOvbCPYO+Axm8KhJaQABg0K3AEzwBgngWRAVESAzmrBKBGS2EAFIEwNIQAEKJOBJVAq5yBPQ8ZJ73EpYytKWyKSllbM8S2gKgcxJbnIKHNkQIPBzAQjNjN7GwQQXnwYI3omQazmjCl1oURRYXVU/xyFO0ACCCscmgUszowEc2IIiMSKNBSgSIRuwkNjHTvayN2iYIwj6MxZA9AG5/e3TVDs0WBBmuNv97k+3ozUIwARs4/3vAZpBC4ZaDf8CtMACdDzPuQvwdcBfx0/rEQEAWnBKbYRgCUsAgRSkMIYxLKAHIGjCFVRABC6ogAUg4IADII+QMHDg9bCHfQf29ZARKCD2uLdrHBDQgyawIK4fEAIQNL+EHoB+CJrvwReykAC2xaMHX/80Ij5QEmsbIgJ1j0MYJvFweARglLVfyCHk/JCDGuILLKmBXNkyhII+xOiGACRCrFwV8GeIMyKd6EsHsbKS4ACgQNB4D8NzSBEAZEAGqiEHNzBrOREFhrAELJEBFKMu57FMBcgmrpYTNsB0cpCBHQEXmXYeBYBGkNEAbvYcFxcAXsMSDlhd6WFjkNED6eEDGeN0FgFkguD/BO7HEo82GKKTE+o3CPvEEg7gLdKEHt/GFn2mHnpVZiXRgwQwdeehATYVEommHgIAQSNxHksgCKGmHiwEFgGQdOsRXCH4HPAyPfXRBRwYEiBQH9oWBeixAwEwBffBH1Thc+rxArqXIFZAH/bxA/1lDyFgg+mhARuAHgJgLvchAKdGED7xd9FyHxZ4D23gePmBAIIREkQggJioHmrwEl/4ifXBZvcQAMNEilj4iPOQBZ6oiuixfQRxhLBISs4nDx6QiLV4HxxwD1Kwi/gRWPbghMDIStYnD7tTjPcBa/KgBMp4HxPQfe7AY8+IhdIVDw3gWtVYH/TnDlmwjfaxAVWogg60CI7pkQPxQAbZZ47nUWDvcAWvyI7+N4jocIXyqB4FIH7tEADadI/p8WDtsIT+qB7R6A5IMJBltH7lkFUIiR7uqA7f05DqAQDSWA7/IpHpsXPsUI4YyRJhmA4S1JHpgYPo4AS0J5LPIQI3dw5v2BHnFo/+WAOTZg4yhpLnYX6xEAgAOw==);\r\n	-webkit-background-size: cover;\r\n	background-size: cover;\r\n	border-radius: 50%;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.bili-avatar * {\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.bili-avatar-face {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	-webkit-transform: translate(-50%, -50%);\r\n	-moz-transform: translate(-50%, -50%);\r\n	-ms-transform: translate(-50%, -50%);\r\n	-o-transform: translate(-50%, -50%);\r\n	transform: translate(-50%, -50%);\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.bili-avatar-pendent-dom {\r\n	height: 176.48%;\r\n	width: 176.48%;\r\n	position: absolute;\r\n	top: -38.33%;\r\n	left: -38.33%;\r\n	overflow: hidden;\r\n}\r\n\r\n.bili-avatar-pendent-dom img {\r\n	height: 100%;\r\n	min-width: 100%;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n}\r\n\r\n.bili-avatar-img {\r\n	border: none;\r\n	display: block;\r\n	-o-object-fit: cover;\r\n	object-fit: cover;\r\n	image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-img-radius {\r\n	border-radius: 50%;\r\n}\r\n\r\n.bili-avatar-img[src=""],\r\n.bili-avatar-img:not([src]) {\r\n	opacity: 0;\r\n}\r\n\r\n.bili-avatar-img.bili-avatar-img-error {\r\n	display: none;\r\n}\r\n\r\n.bili-avatar-right-icon {\r\n	width: 27.5%;\r\n	height: 27.5%;\r\n	position: absolute;\r\n	right: 0;\r\n	bottom: -1px;\r\n	-webkit-background-size: cover;\r\n	background-size: cover;\r\n	image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-nft-icon {\r\n	position: absolute;\r\n	width: 27.5%;\r\n	height: 27.5%;\r\n	right: -webkit-calc(27.5% - 1px);\r\n	right: -moz-calc(27.5% - 1px);\r\n	right: calc(27.5% - 1px);\r\n	bottom: -1px;\r\n	-webkit-background-size: cover;\r\n	background-size: cover;\r\n	image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n@-webkit-keyframes bili-avatar {\r\n	0% {\r\n		-webkit-transform: translate3d(0, 0, 0);\r\n		transform: translateZ(0);\r\n	}\r\n\r\n	to {\r\n		-webkit-transform: translate3d(-97.5%, 0, 0);\r\n		transform: translate3d(-97.5%, 0, 0);\r\n	}\r\n}\r\n\r\n@-moz-keyframes bili-avatar {\r\n	0% {\r\n		-moz-transform: translate3d(0, 0, 0);\r\n		transform: translateZ(0);\r\n	}\r\n\r\n	to {\r\n		-moz-transform: translate3d(-97.5%, 0, 0);\r\n		transform: translate3d(-97.5%, 0, 0);\r\n	}\r\n}\r\n\r\n@keyframes bili-avatar {\r\n	0% {\r\n		-webkit-transform: translate3d(0, 0, 0);\r\n		-moz-transform: translate3d(0, 0, 0);\r\n		transform: translateZ(0);\r\n	}\r\n\r\n	to {\r\n		-webkit-transform: translate3d(-97.5%, 0, 0);\r\n		-moz-transform: translate3d(-97.5%, 0, 0);\r\n		transform: translate3d(-97.5%, 0, 0);\r\n	}\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-80 {\r\n	width: 22px;\r\n	height: 22px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-60,\r\n.bili-avatar .bili-avatar-size-50,\r\n.bili-avatar .bili-avatar-size-48 {\r\n	width: 18px;\r\n	height: 18px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-40,\r\n.bili-avatar .bili-avatar-size-36 {\r\n	width: 14px;\r\n	height: 14px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-30,\r\n.bili-avatar .bili-avatar-size-24 {\r\n	width: 12px;\r\n	height: 12px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-80 {\r\n	width: 22px;\r\n	height: 22px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(22px - 1px);\r\n	right: -moz-calc(22px - 1px);\r\n	right: 21px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-60,\r\n.bili-avatar .bili-avatar-size-nft-50,\r\n.bili-avatar .bili-avatar-size-nft-48 {\r\n	width: 18px;\r\n	height: 18px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(18px - 1px);\r\n	right: -moz-calc(18px - 1px);\r\n	right: 17px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-40,\r\n.bili-avatar .bili-avatar-size-nft-36 {\r\n	width: 14px;\r\n	height: 14px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(14px - 1px);\r\n	right: -moz-calc(14px - 1px);\r\n	right: 13px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-30,\r\n.bili-avatar .bili-avatar-size-nft-24 {\r\n	width: 12px;\r\n	height: 12px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(12px - 1px);\r\n	right: -moz-calc(12px - 1px);\r\n	right: 11px;\r\n}\r\n\r\n.reply-image {\r\n	width: var(--3414c33c);\r\n	height: var(--822197ea);\r\n}\r\n\r\n.reply-image.b-img {\r\n	background-color: inherit;\r\n}\r\n\r\n.reply-image.b-img img {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.opacity-enter-active,\r\n.opacity-leave-active {\r\n	transition: opacity 0.15s ease;\r\n}\r\n\r\n.opacity-enter-from,\r\n.opacity-leave-to {\r\n	opacity: 0;\r\n}\r\n\r\n.reply-box {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-box .box-normal {\r\n	display: flex;\r\n	z-index: 2;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 80px;\r\n	height: 48px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp {\r\n	position: relative;\r\n	flex: 1;\r\n	transition: 0.2s;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 6px;\r\n	background-color: var(--bg3);\r\n	overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp.focus-within,\r\n.reply-box .box-normal .reply-box-warp:hover {\r\n	border-color: var(--line_regular);\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\r\n	padding: 8px 0;\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: 100%;\r\n	border-radius: 6px;\r\n	cursor: text;\r\n	overflow: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\r\n	margin-left: 10px;\r\n	margin-bottom: 4px;\r\n	height: 20px;\r\n	font-size: 12px;\r\n	line-height: 17px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\r\n	flex: none;\r\n	padding: 2px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 4px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\r\n	background-color: var(--Pi1);\r\n	color: var(--Pi5);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\r\n	background-color: var(--brand_blue_thin);\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\r\n	background-color: var(--graph_bg_regular);\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\r\n	max-width: calc(100% - 68px);\r\n	color: var(--text2);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\r\n	flex: none;\r\n	margin-left: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input {\r\n	padding: 0 8px;\r\n	width: 100%;\r\n	height: 100%;\r\n	border: 1px solid var(--Ga1);\r\n	border-radius: 6px;\r\n	background-color: var(--bg3);\r\n	font-family: inherit;\r\n	line-height: 20px;\r\n	color: var(--text1);\r\n	resize: none;\r\n	outline: none;\r\n	overflow-y: scroll;\r\n	overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\r\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\r\n	background-color: var(--bg1);\r\n	border-color: var(--graph_weak);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\r\n	padding: 0 8px;\r\n	width: 100%;\r\n	height: 32px;\r\n	border: none;\r\n	border-radius: 6px;\r\n	background-color: transparent;\r\n	font-family: inherit;\r\n	font-size: 14px;\r\n	line-height: 32px;\r\n	color: var(--text1);\r\n	resize: none;\r\n	outline: none;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\r\n	background: transparent;\r\n}\r\n\r\n.reply-box .box-expand {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	margin-left: 80px;\r\n	margin-top: 10px;\r\n	z-index: 1;\r\n	height: 32px;\r\n	transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand.hide {\r\n	margin-top: 0;\r\n	height: 0;\r\n	overflow: hidden;\r\n	transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand .box-left {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji {\r\n	width: 32px;\r\n	height: 26px;\r\n	margin-right: 6px;\r\n	position: relative;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 4px;\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .at-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 32px;\r\n	height: 26px;\r\n	margin-right: 6px;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 4px;\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 32px;\r\n	height: 26px;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 4px;\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn.disabled {\r\n	opacity: 0.4;\r\n}\r\n\r\n.reply-box .box-expand .image-btn .image-upload-input {\r\n	appearance: none;\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	opacity: 0;\r\n	font-size: 0;\r\n	user-select: auto;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-left: 16px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic .forward-input,\r\n.reply-box .box-expand .forward-to-dynamic .forward-label {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send {\r\n	float: right;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 70px;\r\n	height: 32px;\r\n	border-radius: 6px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send .send-text {\r\n	position: absolute;\r\n	z-index: 1;\r\n	font-size: 16px;\r\n	color: var(--text_white);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:after {\r\n	content: "";\r\n	position: absolute;\r\n	opacity: 0.5;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 4px;\r\n	background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:hover:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box.box-active\r\n	.box-normal\r\n	.reply-box-warp\r\n	.reply-box-textarea.send-active {\r\n	line-height: normal;\r\n}\r\n\r\n.reply-box.box-active .reply-box-send.send-active:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	z-index: 1;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 6px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled\r\n	.box-normal\r\n	.reply-box-warp\r\n	.disable-mask\r\n	.no-login-mask\r\n	.login-btn {\r\n	padding: 4px 9px;\r\n	margin: 0 3px;\r\n	border-radius: 4px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box.disabled\r\n	.box-normal\r\n	.reply-box-warp\r\n	.disable-mask\r\n	.no-login-mask\r\n	.login-btn:hover {\r\n	background-color: var(--Lb4);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .reply-box-send .send-text {\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box.disabled .reply-box-send:after {\r\n	opacity: 1;\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.fixed-box {\r\n	position: relative;\r\n	z-index: 2;\r\n	padding: 15px 0;\r\n	border-top: 0.5px solid var(--graph_bg_thick);\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.reply-content-container.fold .reply-content {\r\n	display: -webkit-box;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-line-clamp: 4;\r\n}\r\n\r\n.reply-content-container .reply-content {\r\n	color: var(--text1);\r\n	overflow: hidden;\r\n	word-wrap: break-word;\r\n	word-break: break-word;\r\n	white-space: pre-wrap;\r\n	line-height: 24px;\r\n	vertical-align: baseline;\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 1px 4px;\r\n	border-radius: 4px;\r\n	margin-right: 8px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	line-height: 20px;\r\n	vertical-align: bottom;\r\n	background-color: var(--bg2);\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix .note-icon {\r\n	width: 16px;\r\n	height: 16px;\r\n}\r\n\r\n.reply-content-container .reply-content .top-icon {\r\n	top: -2px;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 30px;\r\n	height: 18px;\r\n	border: 1px solid var(--brand_pink);\r\n	border-radius: 3px;\r\n	margin-right: 5px;\r\n	font-size: 12px;\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-small {\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-content-container .reply-content .emoji-small {\r\n		width: 20px;\r\n		height: 20px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-content-container .reply-content .emoji-small {\r\n		width: 22px;\r\n		height: 22px;\r\n	}\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-large {\r\n	width: 50px;\r\n	height: 50px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-container .reply-content .icon {\r\n	width: 20px;\r\n	height: 20px;\r\n	vertical-align: text-top;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-content-container .reply-content .icon {\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-content-container .reply-content .icon {\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.reply-content-container .reply-content .icon.search-word {\r\n	width: 12px;\r\n	display: inline-block;\r\n	background-size: contain;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.reply-content-container .reply-content .jump-link {\r\n	vertical-align: baseline;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-content-container .reply-content .jump-link {\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-content-container .reply-content .jump-link {\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.reply-content-container .expand-content {\r\n	color: var(--text_link);\r\n	cursor: pointer;\r\n	margin-left: 4px;\r\n}\r\n\r\n.reply-content-container .expand-content:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item {\r\n	position: relative;\r\n	padding: 8px 0 8px 42px;\r\n	border-radius: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.sub-reply-item {\r\n		font-size: 15px;\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.sub-reply-item {\r\n		font-size: 16px;\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.sub-reply-item.show-reply {\r\n	background-color: #dff6fb;\r\n	animation-name: enterAnimation-jumpReply-1f8a4018;\r\n	animation-duration: 2s;\r\n	animation-delay: 3s;\r\n	animation-fill-mode: forwards;\r\n}\r\n\r\n.sub-reply-item .sub-user-info {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	margin-right: 9px;\r\n	line-height: 24px;\r\n	vertical-align: baseline;\r\n	white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-reply-avatar {\r\n	position: absolute;\r\n	left: 8px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-name {\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n	margin-right: 5px;\r\n	color: var(--3bab3096);\r\n	cursor: pointer;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.sub-reply-item .sub-user-info .sub-user-name {\r\n		font-size: 13px;\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.sub-reply-item .sub-user-info .sub-user-name {\r\n		font-size: 14px;\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.sub-reply-item .sub-user-info .sub-user-name {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-level {\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-up-icon {\r\n	cursor: default;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	margin-top: 2px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-time {\r\n	margin-right: var(--7530c1e4);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-location {\r\n	margin-right: 20px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\r\n	margin-right: 5px;\r\n	color: #9499a0;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\r\n	color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\r\n	color: #9499a0;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\r\n	color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn {\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\r\n	position: absolute;\r\n	right: 40px;\r\n	opacity: 0;\r\n}\r\n\r\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\r\n	opacity: 1;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-1f8a4018 {\r\n	0% {\r\n		background-color: #dff6fb;\r\n	}\r\n\r\n	to {\r\n		background-color: #dff6fb00;\r\n	}\r\n}\r\n\r\n.sub-reply-list .view-more {\r\n	padding-left: 8px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn {\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination {\r\n	color: var(--text1);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\r\n	margin-right: 10px;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\r\n	margin: 0 4 0 14px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\r\n	margin: 0 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\r\n.sub-reply-list\r\n	.view-more\r\n	.view-more-pagination\r\n	.pagination-page-number.current-page {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\r\n	margin: 0 4px;\r\n	cursor: default;\r\n}\r\n\r\n.image-exhibition {\r\n	margin-top: 8px;\r\n	user-select: none;\r\n}\r\n\r\n.image-exhibition .preview-image-container {\r\n	max-width: var(--dacbf126);\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	row-gap: var(--77b1c8ee);\r\n	column-gap: var(--0c349aa2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: relative;\r\n	border-radius: var(--7fefecd2);\r\n	overflow: hidden;\r\n	cursor: zoom-in;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\r\n	flex-direction: column;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\r\n	justify-content: start;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: absolute;\r\n	right: 4px;\r\n	bottom: 4px;\r\n	height: 20px;\r\n	padding: 0 6px;\r\n	border-radius: 4px;\r\n	font-size: 13px;\r\n	color: var(--text_white);\r\n	font-weight: 500;\r\n	line-height: 18px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-child(3n + 1) {\r\n	border-bottom-right-radius: 0;\r\n	border-top-right-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-child(3n + 2) {\r\n	border-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-child(3n + 3) {\r\n	border-bottom-left-radius: 0;\r\n	border-top-left-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-last-child(1) {\r\n	border-bottom-right-radius: var(--7fefecd2);\r\n	border-top-right-radius: var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(1) {\r\n	border-radius: var(--7fefecd2) 0 0 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(3) {\r\n	border-radius: 0 var(--7fefecd2) 0 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(7) {\r\n	border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(9) {\r\n	border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(3n + 2) {\r\n	border-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp.expand-image-two-rows:nth-child(4) {\r\n	border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp.expand-image-two-rows:nth-child(6) {\r\n	border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.reply-user-sailing {\r\n	height: 48px;\r\n}\r\n\r\n.vote-warp {\r\n	display: flex;\r\n	width: 100%;\r\n	height: 80px;\r\n	border: 0.5px solid var(--graph_bg_thick);\r\n	border-radius: 4px;\r\n	margin: 10px 0;\r\n}\r\n\r\n.vote-warp .vote-icon-warp {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	flex-basis: 80px;\r\n	flex-shrink: 0;\r\n	border-top-left-radius: 4px;\r\n	border-bottom-left-radius: 4px;\r\n	background-color: var(--brand_blue_thin);\r\n}\r\n\r\n.vote-warp .vote-icon-warp .vote-icon {\r\n	width: 40px;\r\n	height: 40px;\r\n}\r\n\r\n.vote-warp .vote-container {\r\n	display: flex;\r\n	align-items: center;\r\n	flex: 1;\r\n	border-top-right-radius: 4px;\r\n	border-bottom-right-radius: 4px;\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp {\r\n	flex: 1;\r\n	padding-left: 15px;\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-title {\r\n	font-size: 14px;\r\n	color: var(--text1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-desc {\r\n	margin-top: 10px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	flex-basis: 90px;\r\n	flex-shrink: 0;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\r\n	width: 54px;\r\n	height: 28px;\r\n	border-radius: 4px;\r\n	font-size: 13px;\r\n	text-align: center;\r\n	line-height: 28px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n	cursor: pointer;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\r\n	background-color: var(--Lb4);\r\n}\r\n\r\n.vote-dialog {\r\n	max-height: 100vh;\r\n	overflow-y: auto;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar {\r\n	width: 4px;\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-thumb {\r\n	border-radius: 4px;\r\n	background-color: var(--graph_bg_thick);\r\n	transition: 0.3s ease-in-out;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-track {\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp {\r\n	height: 600px;\r\n	padding-top: 10px;\r\n	border-top: 0.5px solid var(--graph_weak);\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp .vote-iframe {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.reply-item {\r\n	position: relative;\r\n}\r\n\r\n.reply-item .login-limit-mask {\r\n	display: none;\r\n	position: absolute;\r\n	top: 0;\r\n	right: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	z-index: 10;\r\n	pointer-events: none;\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-top {\r\n	height: 80%;\r\n	background: linear-gradient(\r\n		180deg,\r\n		rgba(255, 255, 255, 0) 0%,\r\n		var(--bg1) 100%\r\n	);\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-bottom {\r\n	height: 20%;\r\n	background: var(--bg1);\r\n}\r\n\r\n.reply-item.login-limit-reply-end .login-limit-mask {\r\n	display: block;\r\n}\r\n\r\n.reply-item .root-reply-container {\r\n	padding: 22px 0 0 80px;\r\n}\r\n\r\n.reply-item .root-reply-container.show-reply {\r\n	animation-name: enterAnimation-jumpReply-7041f671;\r\n	animation-duration: 5s;\r\n	animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-item .root-reply-container .root-reply-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	left: 0;\r\n	width: 80px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp {\r\n	flex: 1;\r\n	position: relative;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate {\r\n	position: absolute;\r\n	top: 0;\r\n	right: 0;\r\n	user-select: none;\r\n	transform: translateY(-15px);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.easter-egg-label {\r\n	width: 82px;\r\n	height: 36px;\r\n	transform: translateY(6px);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.easter-egg-label\r\n	img {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.selected-reply\r\n	.selected-reply-icon {\r\n	width: var(--213e47ca);\r\n	height: var(--268890ba);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.user-sailing\r\n	.user-sailing-img {\r\n	height: 48px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.user-sailing\r\n	.user-sailing-text {\r\n	position: absolute;\r\n	right: 0;\r\n	font-size: 13px;\r\n	color: var(--2bd55d12);\r\n	line-height: 16px;\r\n	word-break: keep-all;\r\n	transform: scale(0.7);\r\n	transform-origin: center center;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.user-sailing\r\n	.user-sailing-text\r\n	.sailing-text {\r\n	font-family: fanscard;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-bottom: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .user-info {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .user-info {\r\n		font-size: 14px;\r\n	}\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n	margin-right: 5px;\r\n	color: var(--dc735352);\r\n	cursor: pointer;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-level {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\r\n	cursor: default;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: var(--697d5c46);\r\n	height: 12px;\r\n	padding: 2px;\r\n	border-radius: 2px;\r\n	background-color: var(--brand_pink_thin);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.contractor-box.originalFan {\r\n	border: 0.5px solid var(--brand_pink);\r\n	background-color: transparent;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.contractor-box\r\n	.contractor-text {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 16px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	position: absolute;\r\n	color: var(--brand_pink);\r\n	white-space: nowrap;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\r\n	display: flex;\r\n	align-items: center;\r\n	height: 14px;\r\n	padding-left: 5px;\r\n	border: 0.5px solid var(--3d3b5a1e);\r\n	border-radius: 10px;\r\n	margin-left: 5px;\r\n	background-image: var(--35269ce2);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-icon-wrap {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	width: var(--1f5204fd);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-icon-wrap\r\n	.badge-frist-icon {\r\n	position: absolute;\r\n	left: -8px;\r\n	width: 20px;\r\n	height: 20px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-icon-wrap\r\n	.badge-second-icon {\r\n	position: absolute;\r\n	right: 0;\r\n	width: 8px;\r\n	height: 11px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-name-wrap {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: var(--4f9eed68);\r\n	height: 100%;\r\n	margin-right: 4px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-name-wrap\r\n	.badge-name {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 18px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	color: var(--57e6be72);\r\n	font-weight: 500;\r\n	white-space: nowrap;\r\n	transform: scale(0.5) translate(-50%, -50%);\r\n	transform-origin: 0 0;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-level-wrap {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: relative;\r\n	width: 11.5px;\r\n	height: 11.5px;\r\n	border-radius: 50%;\r\n	margin-right: 0.5px;\r\n	background-color: var(--59f85baa);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-level-wrap\r\n	.badge-level {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 14px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	position: absolute;\r\n	top: 52%;\r\n	left: 50%;\r\n	font-family: Reeji-CloudHuPo-GBK;\r\n	color: var(--103312b6);\r\n	font-weight: 500;\r\n	white-space: nowrap;\r\n	line-height: 1;\r\n	transform: scale(0.5) translate(-50%, -43%);\r\n	transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info {\r\n	margin-bottom: 4px;\r\n	height: 20px;\r\n	font-size: 12px;\r\n	line-height: 17px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag {\r\n	padding: 2px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 4px;\r\n	flex: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\r\n	background-color: var(--Pi1);\r\n	color: var(--Pi5);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\r\n	background-color: var(--brand_blue_thin);\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\r\n	background-color: var(--graph_bg_regular);\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__text {\r\n	color: var(--Ga7_u);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply {\r\n	position: relative;\r\n	padding: 2px 0;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .root-reply {\r\n		font-size: 15px;\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .root-reply {\r\n		font-size: 16px;\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-content-container {\r\n	display: block;\r\n	overflow: hidden;\r\n	width: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	margin-top: 2px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-time {\r\n	margin-right: var(--472bae2d);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-location {\r\n	margin-right: 20px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like\r\n	.like-icon {\r\n	margin-right: 5px;\r\n	color: #9499a0;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like\r\n	.like-icon:hover,\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like\r\n	.like-icon.liked {\r\n	color: #00aeec;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike\r\n	.dislike-icon {\r\n	color: #9499a0;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike\r\n	.dislike-icon:hover,\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike\r\n	.dislike-icon.disliked {\r\n	color: #00aeec;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-btn {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-operation-warp {\r\n	position: absolute;\r\n	right: 20px;\r\n	display: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 6px;\r\n	font-size: 12px;\r\n	line-height: 17px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-tag-list\r\n	.reply-tag-item {\r\n	padding: 2px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 10px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container:hover\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-operation-warp {\r\n	display: block;\r\n}\r\n\r\n.reply-item .sub-reply-container {\r\n	padding-left: 72px;\r\n}\r\n\r\n.reply-item .reply-box-container {\r\n	padding: 25px 0 10px 80px;\r\n}\r\n\r\n.reply-item .bottom-line {\r\n	margin-left: 80px;\r\n	border-bottom: 1px solid var(--graph_bg_thick);\r\n	margin-top: 14px;\r\n}\r\n\r\n.reply-item .reply-dynamic-card {\r\n	position: absolute;\r\n	z-index: 10;\r\n	top: 30px;\r\n	left: 400px;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-7041f671 {\r\n	0% {\r\n		background-color: #dff6fb;\r\n	}\r\n\r\n	to {\r\n		background-color: #dff6fb00;\r\n	}\r\n}\r\n\r\n.reply-list {\r\n	margin-top: 14px;\r\n	padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n	height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading,\r\n.reply-list .view-all-reply {\r\n	margin-top: 20px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n	text-align: center;\r\n}\r\n\r\n.reply-list .view-all-reply:hover {\r\n	color: var(--brand_blue);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: calc(100% - 80px);\r\n	height: 50px;\r\n	margin: 16px 0 0 auto;\r\n	border-radius: 6px;\r\n	font-size: 14px;\r\n	color: var(--brand_blue);\r\n	background-color: var(--brand_blue_thin);\r\n	transition: 0.2s;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt:hover {\r\n	background-color: var(--Lb2);\r\n}\r\n\r\n.user-card {\r\n	position: absolute;\r\n	top: var(--555c4a14);\r\n	left: var(--8468e010);\r\n	z-index: 10;\r\n	width: 366px;\r\n	border: 0.5px solid var(--graph_weak);\r\n	border-radius: 8px;\r\n	background-color: var(--bg1);\r\n	box-shadow: 0 0 30px #0000001a;\r\n}\r\n\r\n.user-card .card-bg {\r\n	width: 100%;\r\n	height: 85px;\r\n	border-radius: 8px 8px 0 0;\r\n	overflow: hidden;\r\n	background-image: var(--71924242);\r\n	background-size: cover;\r\n	background-repeat: no-repeat;\r\n	background-position: center;\r\n}\r\n\r\n.user-card .user-card-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	width: 70px;\r\n	margin-top: 10px;\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card .card-content {\r\n	display: flex;\r\n	flex-direction: column;\r\n	padding: 12px 20px 16px 70px;\r\n}\r\n\r\n.user-card .card-content .card-user-info {\r\n	display: flex;\r\n	align-items: center;\r\n	color: var(--text1);\r\n	margin-bottom: 10px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-name {\r\n	max-width: 160px;\r\n	margin-right: 5px;\r\n	font-size: 16px;\r\n	font-weight: 600;\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	color: var(--text1);\r\n	color: var(--7ba58c95);\r\n	text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-sex {\r\n	width: 16px;\r\n	height: 16px;\r\n	margin-right: 5px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-level {\r\n	margin-right: 5px;\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: var(--7a718880);\r\n	height: 16px;\r\n	padding: 1px 4px;\r\n	border-radius: 2px;\r\n	color: var(--612d8511);\r\n	background-color: var(--29ab308e);\r\n	cursor: default;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 20px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	white-space: nowrap;\r\n	font-style: normal;\r\n}\r\n\r\n.user-card .card-content .card-social-info {\r\n	display: flex;\r\n	align-items: center;\r\n	font-size: 12px;\r\n	color: var(--text1);\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention,\r\n.user-card .card-content .card-social-info .card-user-fans,\r\n.user-card .card-content .card-social-info .card-user-like {\r\n	margin-right: 18px;\r\n	color: inherit;\r\n	text-decoration: none;\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-social-info\r\n	.card-user-attention\r\n	.social-info-title,\r\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\r\n	margin-left: 3px;\r\n	color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info {\r\n	padding-top: 10px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info .card-verify-icon {\r\n	vertical-align: text-bottom;\r\n	margin-right: 3px;\r\n}\r\n\r\n.user-card .card-content .card-sign {\r\n	padding-top: 8px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	word-break: break-all;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp {\r\n	display: flex;\r\n	margin-top: 16px;\r\n	font-size: 14px;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 100px;\r\n	height: 30px;\r\n	border-radius: 4px;\r\n	margin-right: 8px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n	transition: 0.4s;\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-btn-warp\r\n	.card-attention-btn\r\n	.cancel-attention-text {\r\n	display: none;\r\n	position: absolute;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\r\n	color: var(--text2);\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-btn-warp\r\n	.card-attention-btn.attention:hover\r\n	.attention-text {\r\n	display: none;\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-btn-warp\r\n	.card-attention-btn.attention:hover\r\n	.cancel-attention-text {\r\n	display: inline;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 100px;\r\n	height: 30px;\r\n	border: 1px solid var(--graph_weak);\r\n	border-radius: 4px;\r\n	color: var(--text2);\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\r\n	border-color: var(--brand_blue);\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.dynamic-card {\r\n	display: flex;\r\n	flex-direction: column;\r\n	position: absolute;\r\n	z-index: 10;\r\n	top: var(--7b058890);\r\n	left: 400px;\r\n	width: 710px;\r\n	height: 550px;\r\n	border-radius: 6px;\r\n	background-color: var(--bg1);\r\n	box-shadow: 0 0 25px #00000026;\r\n}\r\n\r\n.dynamic-card .card-header {\r\n	display: flex;\r\n	align-items: center;\r\n	flex-basis: 50px;\r\n	padding: 0 10px;\r\n	border-bottom: 0.5px solid var(--line_light);\r\n}\r\n\r\n.dynamic-card .card-header .card-title {\r\n	flex: 1;\r\n	text-align: center;\r\n	font-size: 16px;\r\n	color: var(--text1);\r\n}\r\n\r\n.dynamic-card .card-header .close-card {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: 30px;\r\n	height: 30px;\r\n	border-radius: 6px;\r\n	color: var(--text2);\r\n	transition: 0.2s;\r\n	cursor: pointer;\r\n}\r\n\r\n.dynamic-card .card-header .close-card:hover {\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.dynamic-card .card-content {\r\n	flex: 1;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar {\r\n	width: 4px;\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\r\n	border-radius: 4px;\r\n	background-color: var(--graph_bg_thick);\r\n	transition: 0.3s ease-in-out;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-track {\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content .dynamic-card-iframe {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.reply-view-image {\r\n	position: fixed;\r\n	z-index: 999999;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	background: rgba(24, 25, 28, 0.85);\r\n	transform: scale(1);\r\n	user-select: none;\r\n	cursor: default;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	-webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image,\r\n.reply-view-image * {\r\n	box-sizing: border-box;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: absolute;\r\n	z-index: 2;\r\n	width: 42px;\r\n	height: 42px;\r\n	border-radius: 50%;\r\n	color: var(--text_white);\r\n	background: rgba(0, 0, 0, 0.58);\r\n	transition: 0.2s;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon:hover {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\r\n	top: 16px;\r\n	right: 16px;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\r\n	top: 50%;\r\n	left: 16px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\r\n	top: 50%;\r\n	right: 16px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .show-image-wrap {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	max-height: 100%;\r\n	padding: 0 100px;\r\n	overflow: auto;\r\n}\r\n\r\n.reply-view-image .show-image-wrap .loading-svga {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	transform: translate(-50%, -50%);\r\n	width: 42px;\r\n	height: 42px;\r\n}\r\n\r\n.reply-view-image .show-image-wrap.vertical {\r\n	flex-direction: column;\r\n	justify-content: var(--c186e874);\r\n}\r\n\r\n.reply-view-image .show-image-wrap .image-content {\r\n	width: calc(100vw - 200px);\r\n	max-width: var(--34114ac9);\r\n	-webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image .preview-list {\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n	left: 50%;\r\n	bottom: 30px;\r\n	z-index: 2;\r\n	padding: 6px 10px;\r\n	border-radius: 8px;\r\n	background: rgba(24, 25, 28, 0.8);\r\n	backdrop-filter: blur(20px);\r\n	transform: translate(-50%);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box {\r\n	padding: 1px;\r\n	border: 2px solid transparent;\r\n	border-radius: 8px;\r\n	transition: 0.3s;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box.active {\r\n	border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\r\n	display: flex;\r\n	justify-content: center;\r\n	overflow: hidden;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 6px;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-view-image\r\n	.preview-list\r\n	.preview-item-box\r\n	.preview-item-wrap.extra-long {\r\n	justify-content: start;\r\n}\r\n\r\n.reply-view-image\r\n	.preview-list\r\n	.preview-item-box\r\n	.preview-item-wrap\r\n	.item-content {\r\n	-webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image--transition-enter-active,\r\n.reply-view-image--transition-leave-active {\r\n	transition: all 0.3s ease;\r\n}\r\n\r\n.reply-view-image--transition-enter-from,\r\n.reply-view-image--transition-leave-to {\r\n	transform: scale(0.4);\r\n	opacity: 0;\r\n}\r\n\r\n.reply-warp {\r\n	position: relative;\r\n}\r\n\r\n.reply-warp .fixed-reply-box {\r\n	position: fixed;\r\n	bottom: 0;\r\n	left: var(--3e88ddc5);\r\n	z-index: 10;\r\n	width: var(--d9a0b070);\r\n}\r\n\r\n.reply-warp .fixed-reply-box .reply-box-shadow {\r\n	position: absolute;\r\n	top: -10px;\r\n	z-index: 1;\r\n	width: 100%;\r\n	height: 36px;\r\n	border-radius: 50%;\r\n	background-color: #00000014;\r\n	filter: blur(10px);\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-active,\r\n.reply-warp .fixed-reply-box--transition-leave-active {\r\n	transition: opacity 0.5s ease;\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-from,\r\n.reply-warp .fixed-reply-box--transition-leave-to {\r\n	opacity: 0;\r\n}\r\n\r\n.bili-comment.browser-pc {\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.browser-pc * {\r\n	font-family: PingFang SC, HarmonyOS_Regular, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 400;\r\n	box-sizing: border-box;\r\n	-webkit-font-smoothing: antialiased;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.bili-comment.browser-pc * {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.bili-comment.browser-pc * ul {\r\n	padding: 0;\r\n	margin: 0;\r\n	list-style: none;\r\n}\r\n\r\n.bili-comment.browser-pc * a {\r\n	text-decoration: none;\r\n	background-color: transparent;\r\n	color: var(--text_link);\r\n	cursor: pointer;\r\n}\r\n\r\n.bili-comment.browser-pc * a:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.browser-pc * i {\r\n	font-style: normal;\r\n}\r\n\r\n.bili-comment.browser-pc * p {\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.bili-comment.browser-pc .comment-container {\r\n	animation-name: enterAnimation-commentContainer;\r\n	animation-duration: 1s;\r\n	animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-operation-client {\r\n	display: inline-flex;\r\n	position: relative;\r\n}\r\n\r\n.reply-operation-client .operation-icon {\r\n	border-radius: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-icon:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list {\r\n	display: flex;\r\n	flex-direction: column;\r\n	position: absolute;\r\n	top: 10px;\r\n	right: 0;\r\n	z-index: 10;\r\n	width: 180px;\r\n	padding: 12px 0;\r\n	border-radius: 6px;\r\n	font-size: 14px;\r\n	color: var(--text2);\r\n	background-color: var(--bg1_float);\r\n	box-shadow: 0 0 5px #0003;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option {\r\n	display: flex;\r\n	align-items: center;\r\n	height: 40px;\r\n	padding: 0 15px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 50%;\r\n	width: auto;\r\n	padding: 10px 20px;\r\n	border: 1px solid var(--graph_bg_thick);\r\n	border-radius: 8px;\r\n	margin-bottom: 100px;\r\n	font-size: 12px;\r\n	line-height: 12px;\r\n	text-align: center;\r\n	white-space: nowrap;\r\n	background-color: var(--bg1);\r\n	box-shadow: 0 0 5px #0003;\r\n	transform: translate(-50%, -100%);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.comfirm-delete {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 40px;\r\n	height: 20px;\r\n	border-radius: 4px;\r\n	margin-right: 20px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.comfirm-delete:hover {\r\n	background-color: var(--Lb4);\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.cancel-delete {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 40px;\r\n	height: 20px;\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.cancel-delete:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.select-reply-dialog-client .select-dialog-content {\r\n	text-align: left;\r\n}\r\n\r\n.select-reply-dialog-client .cancel-select-reply {\r\n	width: 130px;\r\n	margin-right: 20px;\r\n}\r\n\r\n.select-reply-dialog-client .comfirm-select-reply {\r\n	width: 130px;\r\n}\r\n\r\n.close-reply-dialog-client .close-reply-dialog-content {\r\n	text-align: left;\r\n}\r\n\r\n.close-reply-dialog-client .cancel-close-reply {\r\n	width: 130px;\r\n	margin-right: 20px;\r\n}\r\n\r\n.close-reply-dialog-client .comfirm-close-reply {\r\n	width: 130px;\r\n}\r\n\r\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\r\n	text-align: left;\r\n}\r\n\r\n.close-danmaku-dialog-client .cancel-close-danmaku {\r\n	width: 130px;\r\n	margin-right: 20px;\r\n}\r\n\r\n.close-danmaku-dialog-client .comfirm-close-danmaku {\r\n	width: 130px;\r\n}\r\n\r\n.blacklist-dialog-client .blacklist-dialog-content {\r\n	text-align: center;\r\n}\r\n\r\n.blacklist-dialog-client .comfirm-pull-blacklist {\r\n	margin-right: 20px;\r\n}\r\n\r\n.reply-header-client .reply-notice {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	height: 40px;\r\n	padding: 11px 14px;\r\n	margin-bottom: 10px;\r\n	font-size: 12px;\r\n	border-radius: 2px;\r\n	color: var(--text_notice);\r\n	background-color: var(--Or0);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-notice .notice-content {\r\n	flex: 1;\r\n	position: relative;\r\n	padding: 0 5px;\r\n	line-height: 18px;\r\n	vertical-align: top;\r\n	word-wrap: break-word;\r\n	word-break: break-all;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	transition: 2s;\r\n}\r\n\r\n.reply-header-client .reply-navigation {\r\n	margin: 12px 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	list-style: none;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\r\n	font-size: 12px;\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\r\n	display: flex;\r\n	align-items: center;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n	height: 10px;\r\n	margin: 0 8px;\r\n	border-left: solid 1px;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-operation-warp {\r\n	position: absolute;\r\n	right: 0;\r\n}\r\n\r\n.reply-box-client {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-box-client .reply-box-warp {\r\n	position: relative;\r\n	flex: 1;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea {\r\n	width: 100%;\r\n	height: 32px;\r\n	padding: 5px 12px;\r\n	border: 1px solid transparent;\r\n	border-radius: 6px;\r\n	line-height: 20px;\r\n	color: var(--text1);\r\n	background-color: var(--bg2);\r\n	resize: none;\r\n	outline: none;\r\n	transition: 0.2s;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\r\n	color: var(--text4);\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\r\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\r\n	border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 10px;\r\n	height: 32px;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji {\r\n	position: relative;\r\n	margin-right: auto;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 70px;\r\n	height: 100%;\r\n	border-radius: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\r\n	position: absolute;\r\n	z-index: 1;\r\n	color: var(--text_white);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:after {\r\n	content: "";\r\n	position: absolute;\r\n	opacity: 0.5;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 4px;\r\n	background-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\r\n	height: 60px;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-send.send-active:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	z-index: 1;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 6px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\r\n	cursor: not-allowed;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\r\n	opacity: 1;\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.note-prefix {\r\n	vertical-align: -3px;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 0 3px;\r\n	line-height: 19px;\r\n	border-radius: 4px;\r\n	margin-right: 6px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	background-color: var(--bg2);\r\n}\r\n\r\n.note-prefix .note-icon {\r\n	width: 16px;\r\n	height: 16px;\r\n}\r\n\r\n.reply-content-client {\r\n	color: var(--text1);\r\n	overflow: hidden;\r\n	word-wrap: break-word;\r\n	word-break: break-word;\r\n	white-space: pre-wrap;\r\n	vertical-align: baseline;\r\n	transition: 0.2s;\r\n}\r\n\r\n.reply-content-client.root {\r\n	line-height: 25px;\r\n}\r\n\r\n.reply-content-client.need-view-more {\r\n	display: -webkit-box;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n\r\n.reply-content-client.sub {\r\n	line-height: 20px;\r\n}\r\n\r\n.reply-content-client .top-icon {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 30px;\r\n	height: 18px;\r\n	border: 1px solid var(--brand_pink);\r\n	border-radius: 3px;\r\n	margin-right: 5px;\r\n	font-size: 12px;\r\n	color: var(--brand_pink);\r\n	vertical-align: 1px;\r\n}\r\n\r\n.reply-content-client .emoji-small {\r\n	width: 20px;\r\n	height: 20px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .emoji-large {\r\n	width: 36px;\r\n	height: 36px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .jump-link {\r\n	vertical-align: baseline;\r\n}\r\n\r\n.reply-content-client .icon {\r\n	width: 20px;\r\n	height: 20px;\r\n	vertical-align: text-top;\r\n}\r\n\r\n.reply-content-client .icon.vote {\r\n	width: 16px;\r\n	height: 16px;\r\n	margin-right: 3px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .icon.search-word {\r\n	width: 12px;\r\n	display: inline-block;\r\n	background-size: contain;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.view-more-reply {\r\n	font-size: 12px;\r\n	color: var(--text_link);\r\n	line-height: 17px;\r\n	cursor: pointer;\r\n}\r\n\r\n.view-more-reply:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.sub-reply-item-client {\r\n	display: -webkit-box;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-line-clamp: 2;\r\n	position: relative;\r\n	max-height: 42px;\r\n	padding: 3px 0;\r\n	font-size: 14px;\r\n	overflow: hidden;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	color: var(--text2);\r\n	line-height: 20px;\r\n	vertical-align: baseline;\r\n	white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-user-name {\r\n	margin-right: 5px;\r\n	font-size: 14px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-up-icon {\r\n	margin-right: 4px;\r\n	cursor: default;\r\n}\r\n\r\n.sub-reply-list-client {\r\n	border-radius: 4px;\r\n	padding: 7px 10px;\r\n	margin-top: 12px;\r\n	background-color: var(--bg2_float);\r\n}\r\n\r\n.sub-reply-list-client .view-more {\r\n	margin-top: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text {\r\n	font-size: 12px;\r\n	color: var(--text_link);\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.content-warp--blacklist .reply-content {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	padding: 4px;\r\n	border-radius: 4px;\r\n	color: var(--text1);\r\n	background-color: var(--bg2_float);\r\n}\r\n\r\n.content-warp--blacklist .reply-content .ban-icon {\r\n	margin-right: 4px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-bottom: 8px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	left: 0;\r\n	cursor: pointer;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\r\n	width: 30px;\r\n	height: 30px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-item-client {\r\n	position: relative;\r\n	padding: 10px 0 14px 42px;\r\n	border-bottom: 1px solid var(--line_light);\r\n}\r\n\r\n.reply-item-client .content-warp {\r\n	flex: 1;\r\n	position: relative;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-bottom: 8px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	left: -42px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\r\n	display: flex;\r\n	align-items: center;\r\n	font-size: 13px;\r\n	color: var(--text2);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.reply-header\r\n	.reply-info\r\n	.user-info\r\n	.user-name {\r\n	margin-right: 5px;\r\n	color: var(--be794234);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.reply-header\r\n	.reply-info\r\n	.user-info\r\n	.user-level {\r\n	margin-right: 5px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\r\n	cursor: default;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply {\r\n	position: relative;\r\n	font-size: 15px;\r\n	line-height: 25px;\r\n	transition: 0.2s;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	margin-top: 12px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n	line-height: 16px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-like\r\n	.like-icon {\r\n	margin-right: 5px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-like\r\n	.like-icon:hover,\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-like\r\n	.like-icon.liked {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike\r\n	.dislike-icon {\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike\r\n	.dislike-icon:hover,\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike\r\n	.dislike-icon.disliked {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-icon:hover {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.more-operation {\r\n	display: none;\r\n	position: absolute;\r\n	right: 20px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-item-box {\r\n	margin-top: 12px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 12px;\r\n	font-size: 12px;\r\n	line-height: 14px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\r\n	padding: 5px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 10px;\r\n	color: var(--text2);\r\n	background-color: var(--bg2_float);\r\n}\r\n\r\n.reply-item-client:hover\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.more-operation {\r\n	display: block;\r\n}\r\n\r\n.reply-list {\r\n	position: relative;\r\n	margin-top: 14px;\r\n	padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-empty {\r\n	margin-top: 100px;\r\n	text-align: center;\r\n	font-size: 14px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n	height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading {\r\n	margin-top: 20px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n	text-align: center;\r\n}\r\n\r\n.fixed-reply-box {\r\n	bottom: 0;\r\n	z-index: 20;\r\n	width: 100%;\r\n}\r\n\r\n.fixed-reply-box .reply-box-wrap {\r\n	background-color: var(--bg1);\r\n	padding: 14px 0;\r\n	border-top: 1px solid var(--line_light);\r\n}\r\n\r\n.fixed-reply-box .reply-box-shadow {\r\n	position: absolute;\r\n	top: -10px;\r\n	z-index: -1;\r\n	height: 36px;\r\n	border-radius: 50%;\r\n	background-color: #00000014;\r\n	filter: blur(10px);\r\n	width: calc(100% - 72px);\r\n	left: 50%;\r\n	transform: translate(-50%);\r\n}\r\n\r\n.reply-detail {\r\n	flex: 1;\r\n}\r\n\r\n.reply-detail .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	position: sticky;\r\n	z-index: 9;\r\n	top: 0;\r\n	left: 0;\r\n	height: 46px;\r\n	border-bottom: 1px solid var(--line_light);\r\n	margin-bottom: 14px;\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.reply-detail .reply-header .return-icon {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 32px;\r\n	height: 32px;\r\n	border-radius: 4px;\r\n	margin-right: 4px;\r\n	color: var(--text1);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-detail .reply-header .return-icon:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-detail .reply-header .reply-title {\r\n	font-size: 16px;\r\n	font-weight: 600;\r\n	color: var(--text1);\r\n}\r\n\r\n.dialog-reply {\r\n	flex: 1;\r\n}\r\n\r\n.dialog-reply .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	position: sticky;\r\n	z-index: 9;\r\n	top: 0;\r\n	left: 0;\r\n	height: 46px;\r\n	border-bottom: 1px solid var(--line_light);\r\n	margin-bottom: 14px;\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 32px;\r\n	height: 32px;\r\n	border-radius: 4px;\r\n	margin-right: 4px;\r\n	color: var(--text1);\r\n	cursor: pointer;\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.dialog-reply .reply-header .reply-title {\r\n	font-size: 16px;\r\n	font-weight: 600;\r\n	color: var(--text1);\r\n}\r\n\r\n.bili-comment.client {\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.client * {\r\n	box-sizing: border-box;\r\n	font-family: PingFang SC, HarmonyOS_Regular, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	-webkit-font-smoothing: antialiased;\r\n}\r\n\r\n.bili-comment.client * ul {\r\n	list-style: none;\r\n}\r\n\r\n.bili-comment.client * a {\r\n	text-decoration: none;\r\n	background-color: transparent;\r\n	color: var(--text_link);\r\n	cursor: pointer;\r\n}\r\n\r\n.bili-comment.client * a:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.client * i {\r\n	font-style: normal;\r\n}\r\n';
-  const CommonUtil = {
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-      if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
-      } else {
-        CommonUtil.loadStyleLink(resourceMapData.url);
-      }
-    },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
-      let $link = document.createElement("link");
-      $link.rel = "stylesheet";
-      $link.type = "text/css";
-      $link.href = url;
-      domutils.ready(() => {
-        document.head.appendChild($link);
-      });
-    },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
-      let $script = document.createElement("script");
-      $script.src = url;
-      return new Promise((resolve) => {
-        $script.onload = () => {
-          resolve(null);
-        };
-        (document.head || document.documentElement).appendChild($script);
-      });
-    },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
-      url = url.trim();
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
-        url = window.location.origin + url;
-        return url;
-      }
-    },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
-      let urlObj = new URL(url);
-      urlObj.protocol = "https:";
-      return urlObj.toString();
-    }
-  };
-  const GM_RESOURCE_MAPPING = {
-    Viewer: {
-      keyName: "ViewerCSS",
-      url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css"
-    }
-  };
   class GestureBack {
     constructor(config) {
       /**
@@ -9259,7 +6859,7 @@
      * @param event
      */
     popStateEvent(event) {
-      utils.preventEvent(event);
+      Utils.preventEvent(event);
       if (this.isBacking) {
         return;
       }
@@ -9269,7 +6869,7 @@
      * 进入手势模式
      */
     enterGestureBackMode() {
-      log.success("进入手势模式");
+      log$1.success("进入手势模式");
       let pushUrl = this.config.hash;
       if (!pushUrl.startsWith("#")) {
         if (!pushUrl.startsWith("/")) {
@@ -9281,8 +6881,8 @@
         pushUrl = this.config.win.location.origin + this.config.win.location.pathname + this.config.win.location.search + pushUrl;
       }
       this.config.win.history.pushState({}, "", pushUrl);
-      log.success("监听popstate事件");
-      domutils.on(this.config.win, "popstate", this.popStateEvent, {
+      log$1.success("监听popstate事件");
+      domUtils.on(this.config.win, "popstate", this.popStateEvent, {
         capture: true
       });
     }
@@ -9291,27 +6891,27 @@
      * @param isUrlChange 是否是url改变触发的
      */
     async quitGestureBackMode(isUrlChange = false) {
-      log.success("退出手势模式");
       this.isBacking = true;
+      log$1.success("退出手势模式");
       if (typeof this.config.beforeHistoryBackCallBack === "function") {
         this.config.beforeHistoryBackCallBack(isUrlChange);
       }
       let maxDate = Date.now() + 1e3 * 5;
       while (true) {
         if (Date.now() > maxDate) {
-          log.error("未知情况，history.back()失败，无法退出手势模式");
+          log$1.error("未知情况，history.back()失败，无法退出手势模式");
           break;
         }
         if (this.config.win.location.hash.endsWith(this.config.hash)) {
-          log.info("history.back()");
+          log$1.info("history.back()");
           this.config.win.history.back();
-          await utils.sleep(this.config.backDelayTime || 150);
+          await Utils.sleep(this.config.backDelayTime || 150);
         } else {
           break;
         }
       }
-      log.success("移除popstate事件");
-      domutils.off(this.config.win, "popstate", this.popStateEvent, {
+      log$1.success("移除popstate事件");
+      domUtils.off(this.config.win, "popstate", this.popStateEvent, {
         capture: true
       });
       this.isBacking = false;
@@ -9331,20 +6931,20 @@
     },
     init() {
       BilibiliVideoPlayer.init();
-      PopsPanel.execMenuOnce("bili-video-cover-bottomRecommendVideo", () => {
+      Panel.execMenuOnce("bili-video-cover-bottomRecommendVideo", () => {
         this.coverBottomRecommendVideo();
       });
-      PopsPanel.execMenuOnce("bili-video-cover-UpWrapper", () => {
+      Panel.execMenuOnce("bili-video-cover-UpWrapper", () => {
         this.coverUpWrapper();
       });
-      PopsPanel.execMenuOnce("bili-video-cover-seasonNew", () => {
+      Panel.execMenuOnce("bili-video-cover-seasonNew", () => {
         this.coverSeasonNew();
       });
-      domutils.ready(() => {
-        PopsPanel.execMenu("bili-video-addCommentModule", () => {
+      domUtils.ready(() => {
+        Panel.execMenu("bili-video-addCommentModule", () => {
           this.addCommentModule();
         });
-        PopsPanel.execMenu("bili-video-addDescModule", () => {
+        Panel.execMenu("bili-video-addDescModule", () => {
           this.addDescModule();
         });
       });
@@ -9353,7 +6953,7 @@
      * 美化显示
      */
     beautify() {
-      log.info("美化显示");
+      log$1.info("美化显示");
       if (!this.$data.isAddBeautifyCSS) {
         this.$data.isAddBeautifyCSS = true;
         addStyle(
@@ -9493,7 +7093,7 @@
         1e4
       ).then(($cardBox) => {
         if (!$cardBox) {
-          log.error("$cardBox is null");
+          log$1.error("$cardBox is null");
           return;
         }
         function handleVCardToApp($vCard) {
@@ -9505,16 +7105,16 @@
           if ($originTitle && $originLeft && vueObj && !isHandled) {
             let upName = (_b = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.owner) == null ? void 0 : _b.name;
             if (upName == null) {
-              log.error("美化显示-handleVCardToApp：获取up主名字失败");
+              log$1.error("美化显示-handleVCardToApp：获取up主名字失败");
               return;
             }
             $vCard.querySelector(".count");
             let $title = $originTitle.cloneNode(true);
             let $left = $originLeft.cloneNode(true);
-            domutils.hide($originTitle);
+            domUtils.hide($originTitle);
             let $isOpenAppWeakened = $vCard.querySelector(".open-app.weakened");
             if ($isOpenAppWeakened) {
-              domutils.hide($isOpenAppWeakened);
+              domUtils.hide($isOpenAppWeakened);
             }
             let $upInfo = document.createElement("div");
             $upInfo.className = "gm-up-name";
@@ -9530,7 +7130,7 @@
             let $rightBottom = document.createElement("div");
             $rightContainer.className = "gm-right-container";
             $rightBottom.className = "gm-right-bottom";
-            domutils.after($originTitle, $rightContainer);
+            domUtils.after($originTitle, $rightContainer);
             $rightContainer.appendChild($title);
             $rightContainer.appendChild($rightBottom);
             $rightBottom.appendChild($upInfo);
@@ -9546,17 +7146,17 @@
           if ($originTitle && $originCount && vueObj && !isHandled) {
             let duration = (_a2 = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _a2.duration;
             if (duration == null) {
-              log.error("美化显示-handleVCard：获取视频时长失败");
+              log$1.error("美化显示-handleVCard：获取视频时长失败");
               return;
             }
             let upName = (_c = (_b = vueObj == null ? void 0 : vueObj.info) == null ? void 0 : _b.owner) == null ? void 0 : _c.name;
             if (upName == null) {
-              log.error("美化显示-handleVCard：获取up主名字失败");
+              log$1.error("美化显示-handleVCard：获取up主名字失败");
               return;
             }
             let $cloneTitle = $originTitle.cloneNode(true);
             let $cloneCount = $originCount.cloneNode(true);
-            domutils.hide($originTitle);
+            domUtils.hide($originTitle);
             let $duration = document.createElement("div");
             $duration.className = "duration";
             $duration.innerText = BilibiliUtils.parseDuration(duration);
@@ -9576,7 +7176,7 @@
             let $rightBottom = document.createElement("div");
             $rightContainer.className = "gm-right-container";
             $rightBottom.className = "gm-right-bottom";
-            domutils.after($originTitle, $rightContainer);
+            domUtils.after($originTitle, $rightContainer);
             $rightContainer.appendChild($cloneTitle);
             $rightContainer.appendChild($rightBottom);
             $rightBottom.appendChild($upInfo);
@@ -9612,7 +7212,7 @@
             }
           });
         } else {
-          log.error("未找到视频根节点");
+          log$1.error("未找到视频根节点");
         }
       });
     },
@@ -9620,7 +7220,7 @@
      * 修复视频底部区域高度
      */
     repairVideoBottomAreaHeight() {
-      log.info("修复视频底部区域高度");
+      log$1.info("修复视频底部区域高度");
       return addStyle(
         /*css*/
         `
@@ -9654,8 +7254,8 @@
      * 修复up主信息区域的点击事件
      */
     coverUpWrapper() {
-      log.info(`修复up主信息区域的点击事件`);
-      domutils.on(
+      log$1.info(`修复up主信息区域的点击事件`);
+      domUtils.on(
         document,
         "click",
         [
@@ -9667,12 +7267,12 @@
           let $click = event.target;
           let $bottomWrapper = $click.closest(".bottom-wrapper");
           if (!$bottomWrapper) {
-            log.error("获取元素.bottom-wrapper失败");
+            log$1.error("获取元素.bottom-wrapper失败");
             return;
           }
           let vueInstance = VueUtils.getVue($bottomWrapper);
           if (!vueInstance) {
-            log.error("获取元素.bottom-wrapper的vue实例失败");
+            log$1.error("获取元素.bottom-wrapper的vue实例失败");
             return;
           }
           let mid = (_b = (_a2 = vueInstance == null ? void 0 : vueInstance.upInfo) == null ? void 0 : _a2.card) == null ? void 0 : _b.mid;
@@ -9691,8 +7291,8 @@
      * 覆盖视频标题区域的点击事件
      */
     coverBottomRecommendVideo() {
-      log.info("覆盖 相关视频 点击事件");
-      domutils.on(
+      log$1.info("覆盖 相关视频 点击事件");
+      domUtils.on(
         document,
         "click",
         [
@@ -9715,7 +7315,7 @@
               return;
             }
           }
-          log.info("相关视频的bvid: " + bvid);
+          log$1.info("相关视频的bvid: " + bvid);
           BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
           utils.preventEvent(event);
         },
@@ -9728,7 +7328,7 @@
      * 覆盖选集视频列表的点击事件
      */
     coverSeasonNew() {
-      log.info("覆盖 选集视频列表 点击事件");
+      log$1.info("覆盖 选集视频列表 点击事件");
       function ClickCallBack(event) {
         let $click = event.target;
         let vueObj = VueUtils.getVue($click);
@@ -9741,11 +7341,11 @@
           Qmsg.error("获取相关视频的bvid失败");
           return;
         }
-        log.info("相关视频的bvid: " + bvid);
+        log$1.info("相关视频的bvid: " + bvid);
         BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
         utils.preventEvent(event);
       }
-      domutils.on(
+      domUtils.on(
         document,
         "click",
         [
@@ -9757,7 +7357,7 @@
           capture: true
         }
       );
-      domutils.on(
+      domUtils.on(
         document,
         "click",
         [
@@ -9774,7 +7374,7 @@
      * 修复链接跳转
      */
     repairLinkJump() {
-      log.info(`修复链接跳转`);
+      log$1.info(`修复链接跳转`);
       let lockFn = new utils.LockFunction(() => {
         [
           "a.member-link:not([href])[data-url]",
@@ -9799,7 +7399,7 @@
      * 手势返回关闭评论区
      */
     gestureReturnToCloseCommentArea() {
-      log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
+      log$1.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
       utils.waitNode("#app").then(($app) => {
         utils.waitVueByInterval(
           $app,
@@ -9816,27 +7416,27 @@
         ).then((result) => {
           let appVue = VueUtils.getVue($app);
           if (!appVue) {
-            log.error("获取#app的vue属性失败");
+            log$1.error("获取#app的vue属性失败");
             return;
           }
           let oldScrollBehavior = appVue.$router.options.scrollBehavior;
           appVue.$router.options.scrollBehavior = function(to, from, scrollInfo) {
             if (to["hash"] === "#/seeCommentReply") {
-              log.info("当前操作为打开评论区，scrollBehavior返回null");
+              log$1.info("当前操作为打开评论区，scrollBehavior返回null");
               return null;
             } else if (to["hash"] === "" && from["hash"] === "#/seeCommentReply") {
-              log.info("当前操作为关闭评论区，scrollBehavior返回null");
+              log$1.info("当前操作为关闭评论区，scrollBehavior返回null");
               return null;
             }
             return oldScrollBehavior.call(this, ...arguments);
           };
         });
       });
-      domutils.on(document, "click", ".sub-reply-preview", function(event) {
+      domUtils.on(document, "click", ".sub-reply-preview", function(event) {
         let $app = document.querySelector("#app");
         let appVue = VueUtils.getVue($app);
         if (!appVue) {
-          log.error("获取#app元素失败");
+          log$1.error("获取#app元素失败");
           return;
         }
         let hookGestureReturnByVueRouter = BilibiliUtils.hookGestureReturnByVueRouter({
@@ -9850,13 +7450,13 @@
             if ($dialogCloseIcon) {
               $dialogCloseIcon.click();
             } else {
-              log.error("评论区关闭失败，原因：元素dialog-close-icon获取失败");
+              log$1.error("评论区关闭失败，原因：元素dialog-close-icon获取失败");
             }
             return true;
           }
         });
         utils.waitNode(".dialog-close-icon").then(($dialogCloseIcon) => {
-          domutils.on(
+          domUtils.on(
             $dialogCloseIcon,
             "click",
             function() {
@@ -9876,15 +7476,15 @@
     enterVideoFullScreen() {
       utils.waitNode(".mplayer-btn-widescreen", 5e3).then(($btnWideScreen) => {
         if (!$btnWideScreen) {
-          log.error("获取全屏按钮失败");
+          log$1.error("获取全屏按钮失败");
           Qmsg.error("获取全屏按钮失败");
           return;
         }
         if ($btnWideScreen.closest(".mplayer-wide")) {
-          log.warn("当前的全屏按钮是【退出全屏】，不点击");
+          log$1.warn("当前的全屏按钮是【退出全屏】，不点击");
           return;
         }
-        log.info(`进入全屏`);
+        log$1.info(`进入全屏`);
         $btnWideScreen.click();
       });
     },
@@ -9902,7 +7502,7 @@
       function checkNodeIsNull(checkNode) {
         return !document.contains(checkNode);
       }
-      domutils.on(
+      domUtils.on(
         document,
         "scroll",
         (event) => {
@@ -9915,8 +7515,8 @@
               const videoPlayerRect = $mVideoPlayer.getBoundingClientRect();
               videoPlayerMaxHeight = videoPlayerRect.height;
               videoPlayerMaxPaddingTop = videoPlayerRect.top;
-              log.info(`视频区域的最大高度为 ${videoPlayerMaxHeight}px`);
-              log.info(`视频区域的最大top为 ${videoPlayerMaxPaddingTop}px`);
+              log$1.info(`视频区域的最大高度为 ${videoPlayerMaxHeight}px`);
+              log$1.info(`视频区域的最大top为 ${videoPlayerMaxPaddingTop}px`);
             }
           }
           if (checkNodeIsNull($mVideoInfoNew)) {
@@ -9953,7 +7553,7 @@
           } else {
             $mVideoPlayer.style.paddingTop = "0px";
           }
-          let navbarHeight = domutils.height($mNavBar);
+          let navbarHeight = domUtils.height($mNavBar);
           let bottomTabTop = $bottomTab.getBoundingClientRect().top;
           if (bottomTabTop < navbarHeight) {
             if ($bottomTabVAffix.hasAttribute("data-is-fixed")) ;
@@ -9975,7 +7575,7 @@
      * 禁止滑动切换tab
      */
     disableSwipeTab() {
-      log.info(`禁止滑动切换tab`);
+      log$1.info(`禁止滑动切换tab`);
       VueUtils.waitVuePropToSet(".m-video-bottom-tab", {
         msg: "等待tab的vue属性touchstart、touchmove、touchend事件，_bindEvents函数",
         check(vueInstance) {
@@ -9998,7 +7598,7 @@
           );
           vueInstance.slider._bindEvents = () => {
           };
-          log.success(
+          log$1.success(
             `成功禁用滑动，清除touchstart、touchmove、touchend事件，覆盖_bindEvents函数`
           );
         }
@@ -10010,7 +7610,7 @@
      * + https://greasyfork.org/zh-CN/scripts/524844-bilibili-mobile-comment-module
      */
     addCommentModule() {
-      log.info(`新增评论模块`);
+      log$1.info(`新增评论模块`);
       if (!this.$data.isInitCommentModule) {
         this.$data.isInitCommentModule = true;
         CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
@@ -10074,12 +7674,12 @@
       }
       utils.waitNode(".m-video-info", 1e4).then(($videoInfo) => {
         if (!$videoInfo) {
-          log.error(`获取视频信息元素失败`);
+          log$1.error(`获取视频信息元素失败`);
           return;
         }
-        domutils.remove(".comment-module-show-btn");
-        domutils.remove(".close-comment-module-btn");
-        domutils.remove("#comment-module-wrapper");
+        domUtils.remove(".comment-module-show-btn");
+        domUtils.remove(".close-comment-module-btn");
+        domUtils.remove("#comment-module-wrapper");
         const history_hash = "comment-module";
         let gestureBack = new GestureBack({
           hash: history_hash,
@@ -10094,32 +7694,32 @@
             }
           }
         });
-        let $commentModuleShowBtn = domutils.createElement("div", {
+        let $commentModuleShowBtn = domUtils.createElement("div", {
           className: "comment-module-show-btn",
           innerHTML: `查看评论`
         });
-        let $closeCommentModuleBtn = domutils.createElement("span", {
+        let $closeCommentModuleBtn = domUtils.createElement("span", {
           className: "close-comment-module-btn",
           innerHTML: "×"
         });
-        domutils.on($commentModuleShowBtn, "click", (event) => {
+        domUtils.on($commentModuleShowBtn, "click", (event) => {
           utils.preventEvent(event);
-          domutils.css($commentModuleWrapper, { display: "block" });
-          domutils.css($closeCommentModuleBtn, { display: "flex" });
+          domUtils.css($commentModuleWrapper, { display: "block" });
+          domUtils.css($closeCommentModuleBtn, { display: "flex" });
           gestureBack.enterGestureBackMode();
         });
-        domutils.on($closeCommentModuleBtn, "click", (event) => {
+        domUtils.on($closeCommentModuleBtn, "click", (event) => {
           utils.preventEvent(event);
-          domutils.css($commentModuleWrapper, { display: "" });
-          domutils.css($closeCommentModuleBtn, { display: "" });
+          domUtils.css($commentModuleWrapper, { display: "" });
+          domUtils.css($closeCommentModuleBtn, { display: "" });
           gestureBack.quitGestureBackMode(false);
         });
-        domutils.append($videoInfo, $commentModuleShowBtn);
-        let $commentModuleWrapper = domutils.createElement("div", {
+        domUtils.append($videoInfo, $commentModuleShowBtn);
+        let $commentModuleWrapper = domUtils.createElement("div", {
           id: "comment-module-wrapper"
         });
-        domutils.append(document.body, $commentModuleWrapper);
-        domutils.after($commentModuleWrapper, $closeCommentModuleBtn);
+        domUtils.append(document.body, $commentModuleWrapper);
+        domUtils.after($commentModuleWrapper, $closeCommentModuleBtn);
         MobileCommentModule.init($commentModuleWrapper);
       });
     },
@@ -10127,7 +7727,7 @@
      * 新增简介模块
      */
     addDescModule() {
-      log.info(`新增简介模块`);
+      log$1.info(`新增简介模块`);
       if (!this.$data.isInitDescModule) {
         this.$data.isInitDescModule = true;
         addStyle(
@@ -10189,7 +7789,7 @@
 			`
         );
       }
-      domutils.remove(
+      domUtils.remove(
         BilibiliData.className.mVideo + "  .m-video-info .video-desc-wrapper"
       );
       VueUtils.waitVuePropToSet(
@@ -10213,7 +7813,7 @@
             let coin = info.stat.coin;
             let favorite = info.stat.favorite;
             let share = info.stat.share;
-            let $descWrapper = domutils.createElement("div", {
+            let $descWrapper = domUtils.createElement("div", {
               className: "video-desc-wrapper",
               innerHTML: (
                 /*html*/
@@ -10365,11 +7965,11 @@
           BilibiliUtils.goToUrl(url);
         } else {
           Qmsg.error("获取bili-open-app的Url失败");
-          log.error("获取bili-open-app的Url失败");
+          log$1.error("获取bili-open-app的Url失败");
         }
       } else {
         Qmsg.error("未获取到<bili-open-app>元素");
-        log.error("未获取到<bili-open-app>元素");
+        log$1.error("未获取到<bili-open-app>元素");
       }
     }
   };
@@ -10387,7 +7987,7 @@
      * 请求失败的信息弹窗
      */
     failToast(data2) {
-      log.error(data2);
+      log$1.error(data2);
       alert(JSON.stringify(data2, null, 4));
     }
   };
@@ -10413,11 +8013,11 @@
       };
       searchParamsData = utils.assign(searchParamsData, option);
       let serverHostList = BilibiliApiProxy.getBangumiProxyHost();
-      log.info(`番剧播放地址请求数据`);
+      log$1.info(`番剧播放地址请求数据`);
       let failReponseJSON = [];
       let result = void 0;
       const urlPath = "/pgc/player/web/playurl";
-      log.info(`请求路径：${urlPath}`);
+      log$1.info(`请求路径：${urlPath}`);
       for (let index = 0; index < serverHostList.length; index++) {
         const serverHostInfo = serverHostList[index];
         const serverHost = serverHostInfo.host;
@@ -10430,8 +8030,8 @@
             }),
             true
           );
-          log.info(`代理服务器数据: ${JSON.stringify(serverHostInfo)}`);
-          log.info(
+          log$1.info(`代理服务器数据: ${JSON.stringify(serverHostInfo)}`);
+          log$1.info(
             `代理服务器请求参数：${JSON.stringify(
             BilibiliLogUtils.filteringSensitiveSearchParamData(
               proxyServerSearchParamsData
@@ -10451,13 +8051,13 @@
           }
         });
         if (!getResponse.status) {
-          log.error(`代理服务器：${serverHost} 请求失败`);
+          log$1.error(`代理服务器：${serverHost} 请求失败`);
           continue;
         }
         let responseData = utils.toJSON(getResponse.data.responseText);
         responseData.result;
         if (!BilibiliApiResponseCheck.isWebApiSuccess(responseData) || BilibiliApiResponseCheck.isAreaLimit(responseData)) {
-          log.error(
+          log$1.error(
             `请求失败，当前代理服务器：${serverHost} ${JSON.stringify(
             responseData
           )}`
@@ -10490,7 +8090,7 @@
         // drm_tech_type: 2,
       };
       searchParamsData = utils.assign(searchParamsData, option);
-      log.info(`（原版api）番剧播放地址请求数据`);
+      log$1.info(`（原版api）番剧播放地址请求数据`);
       const urlPath = "/pgc/player/web/playurl/html5";
       let url = `https://${BilibiliApiConfig.web_host}${urlPath}?${utils.toSearchParamsStr(searchParamsData)}`;
       let getResponse = await httpx.get(url, {
@@ -10778,7 +8378,7 @@
       } else {
         artOption.type = "mp4";
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
         artOption.plugins.push(
           artplayerPluginDanmuku({
             ...ArtPlayerDanmakuCommonOption(),
@@ -10812,7 +8412,7 @@
           })
         );
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
         artOption.plugins.push(
           artplayerPluginM4SAudioSupport({
             from: BilibiliBangumiArtPlayer.$data.from,
@@ -10820,7 +8420,7 @@
           })
         );
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
         artOption.plugins.push(
           artplayerPluginEpChoose({
             EP_LIST: generateBangumiVideoSelectSetting(option),
@@ -10828,7 +8428,7 @@
           })
         );
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
         artOption.plugins.push(
           artplayerPluginBilibiliCCSubTitle({
             from: BilibiliBangumiArtPlayer.$data.from,
@@ -10839,7 +8439,7 @@
           })
         );
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
         artOption.plugins.push(
           artplayerPluginTopToolBar({
             onlineInfoParams: {
@@ -10854,14 +8454,14 @@
           })
         );
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
         artOption.plugins.push(
           artplayerPluginAirborneHelper({
             clip_info_list: option.clip_info_list
           })
         );
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-statistics-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-statistics-enable")) {
         artOption.plugins.push(
           artplayerPluginVideoStatistics({
             data: []
@@ -10880,14 +8480,14 @@
     async update(art, option) {
       this.resetEnv(false);
       this.$data.currentOption = option;
-      log.info(`更新新的播放信息`, option);
+      log$1.info(`更新新的播放信息`, option);
       art.pause();
-      log.info(`暂停视频`);
+      log$1.info(`暂停视频`);
       art.currentTime = 0;
-      log.info(`重置播放进度`);
+      log$1.info(`重置播放进度`);
       this.updatePluginInfo(art, option);
       art.play();
-      log.info("播放");
+      log$1.info("播放");
     },
     /**
      * 更新插件数据
@@ -10900,31 +8500,31 @@
         from: BilibiliBangumiArtPlayer.$data.from,
         qualityList: option.quality
       });
-      log.info(`更新画质`, option.quality);
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
+      log$1.info(`更新画质`, option.quality);
+      if (Panel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
         art.plugins.artplayerPluginDanmuku.config({
           danmuku: option.danmukuUrl
         });
         art.plugins.artplayerPluginDanmuku.load();
-        log.info(`更新弹幕姬`, option.danmukuUrl);
+        log$1.info(`更新弹幕姬`, option.danmukuUrl);
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
         let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
         plugin_m4sAudioSupport.update({
           from: BilibiliBangumiArtPlayer.$data.from,
           audioList: option.audioList || []
         });
-        log.info(`更新音频`, option.audioList);
+        log$1.info(`更新音频`, option.audioList);
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
         let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
         plugin_epChoose.update({
           EP_LIST: generateBangumiVideoSelectSetting(option),
           automaticBroadcast: true
         });
-        log.info(`更新选集信息`, option.epList);
+        log$1.info(`更新选集信息`, option.epList);
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
         let plugin_bilibiliCCSubTitle = art.plugins[ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY];
         const subTitleOption = {
           from: BilibiliBangumiArtPlayer.$data.from,
@@ -10933,9 +8533,9 @@
           ep_id: option.ep_id
         };
         plugin_bilibiliCCSubTitle.update(subTitleOption);
-        log.info(`更新字幕`, subTitleOption);
+        log$1.info(`更新字幕`, subTitleOption);
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
         let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY];
         const topToolBarOption = {
           showRight: true,
@@ -10951,14 +8551,14 @@
           }
         };
         plugin_topToolBar.update(topToolBarOption);
-        log.info(`更新顶部标题`, topToolBarOption);
+        log$1.info(`更新顶部标题`, topToolBarOption);
       }
-      if (PopsPanel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
         let plugin_airborneHelper = art.plugins[ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY];
         plugin_airborneHelper.update({
           clip_info_list: option.clip_info_list
         });
-        log.info(`更新空降助手信息`, option.clip_info_list);
+        log$1.info(`更新空降助手信息`, option.clip_info_list);
       }
     }
   };
@@ -10990,22 +8590,22 @@
       }
       needSetList.forEach((needSetOption) => {
         if (typeof needSetOption.msg === "string") {
-          log.info(needSetOption.msg);
+          log$1.info(needSetOption.msg);
         }
         function checkObj() {
           let target = getTarget();
           if (target == null) {
             return false;
           }
-          let targetObj = utils.getReactObj(target);
-          if (targetObj == null) {
+          let reactInstance = utils.getReactObj(target);
+          if (reactInstance == null) {
             return false;
           }
-          let targetObjProp = targetObj[propName];
-          if (targetObjProp == null) {
+          let reactInstanceProp = reactInstance[propName];
+          if (reactInstanceProp == null) {
             return false;
           }
-          let needOwnCheck = needSetOption.check(targetObjProp);
+          let needOwnCheck = needSetOption.check(reactInstanceProp, target);
           return Boolean(needOwnCheck);
         }
         utils.waitPropertyByInterval(
@@ -11018,26 +8618,17 @@
         ).then(() => {
           let target = getTarget();
           if (target == null) {
-            if (typeof needSetOption.overTimeCallBack === "function") {
-              needSetOption.overTimeCallBack();
-            }
             return;
           }
-          let targetObj = utils.getReactObj(target);
-          if (targetObj == null) {
-            if (typeof needSetOption.overTimeCallBack === "function") {
-              needSetOption.overTimeCallBack();
-            }
+          let reactInstance = utils.getReactObj(target);
+          if (reactInstance == null) {
             return;
           }
-          let targetObjProp = targetObj[propName];
-          if (targetObjProp == null) {
-            if (typeof needSetOption.overTimeCallBack === "function") {
-              needSetOption.overTimeCallBack();
-            }
+          let reactInstanceProp = reactInstance[propName];
+          if (reactInstanceProp == null) {
             return;
           }
-          needSetOption.set(targetObjProp);
+          needSetOption.set(reactInstanceProp, target);
         });
       });
     }
@@ -11092,7 +8683,7 @@
       ];
       if (qualityInfoList.length === 0) {
         if (dashBangumiInfo.dash.video.length !== 0) {
-          log.warn(
+          log$1.warn(
             `当前选择的视频编码id为: ${userChooseVideoCodingCode}，但是过滤出的视频没有一个符合的，所以直接放弃使用自定义选择视频编码`
           );
           qualityInfoList = [
@@ -11150,7 +8741,7 @@
   const GenerateArtPlayerOption = async (EP_INFO, EP_LIST) => {
     var _a2, _b;
     const { aid, bvid, cid, ep_id, title, long_title } = EP_INFO;
-    log.info(`解析番剧信息 aid:${aid} cid:${cid} ep_id:${ep_id}`);
+    log$1.info(`解析番剧信息 aid:${aid} cid:${cid} ep_id:${ep_id}`);
     const videoTitle = GenerateVideoTitle(title, long_title);
     const audioInfo = [];
     let qualityInfo = [];
@@ -11159,7 +8750,7 @@
     let flvInfo = [];
     let flvTotalDuration = 0;
     let flvTotalSize = 0;
-    if (PopsPanel.getValue("bili-bangumi-unlockAreaLimit")) {
+    if (Panel.getValue("bili-bangumi-unlockAreaLimit")) {
       const bangumiInfo = await BilibiliBangumiApi.getPlayUrl({
         avid: aid,
         cid,
@@ -11200,7 +8791,7 @@
             item.baseUrl,
             item.backup_url
           );
-          if (PopsPanel.getValue("bili-bangumi-uposServerSelect-applyAudio")) {
+          if (Panel.getValue("bili-bangumi-uposServerSelect-applyAudio")) {
             audioUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(audioUrl);
           }
           audioInfo.push({
@@ -11213,11 +8804,11 @@
             mimeType: item.mimeType || item.mime_type
           });
         });
-        log.info(`ArtPlayer: 获取的音频信息`, audioInfo);
+        log$1.info(`ArtPlayer: 获取的音频信息`, audioInfo);
         qualityInfo = qualityInfo.concat(
           handleQueryVideoQualityData(bangumiInfo)
         );
-        log.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
+        log$1.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
       } else {
         BilibiliLogUtils.failToast(
           "暂未适配的视频格式：" + bangumiInfo["format"]
@@ -11333,7 +8924,7 @@
             }
             let $artPlayer = $("#artplayer");
             if (!$artPlayer) {
-              const $artPlayerContainer = domutils.createElement("div", {
+              const $artPlayerContainer = domUtils.createElement("div", {
                 className: "artplayer-container",
                 innerHTML: (
                   /*html*/
@@ -11343,7 +8934,7 @@
                 )
               });
               $artPlayer = $artPlayerContainer.querySelector("#artplayer");
-              domutils.after($playerWrapper, $artPlayerContainer);
+              domUtils.after($playerWrapper, $artPlayerContainer);
             }
             artPlayerOption.container = $artPlayer;
             if (that.$data.art == null) {
@@ -11367,19 +8958,19 @@
       art: null
     },
     init() {
-      PopsPanel.execMenuOnce("bili-bangumi-initialScale", () => {
+      Panel.execMenuOnce("bili-bangumi-initialScale", () => {
         BilibiliUtils.initialScale();
       });
-      PopsPanel.execMenuOnce("bili-bangumi-hook-callApp", () => {
+      Panel.execMenuOnce("bili-bangumi-hook-callApp", () => {
         this.hookCallApp();
       });
-      PopsPanel.execMenu("bili-bangumi-cover-clicl-event-chooseEp", () => {
+      Panel.execMenu("bili-bangumi-cover-clicl-event-chooseEp", () => {
         this.setChooseEpClickEvent();
       });
-      PopsPanel.execMenu("bili-bangumi-cover-clicl-event-other", () => {
+      Panel.execMenu("bili-bangumi-cover-clicl-event-other", () => {
         this.setClickOtherVideo();
       });
-      PopsPanel.execMenu("bili-bangumi-cover-clicl-event-recommend", () => {
+      Panel.execMenu("bili-bangumi-cover-clicl-event-recommend", () => {
         this.setRecommendClickEvent();
       });
       this.coverVideoPlayer();
@@ -11392,7 +8983,7 @@
       _unsafeWindow.setTimeout = function(...args) {
         let callString = args[0].toString();
         if (callString.includes("autoOpenApp")) {
-          log.success("阻止唤醒App", args);
+          log$1.success("阻止唤醒App", args);
           return;
         }
         return Reflect.apply(oldSetTimeout, this, args);
@@ -11405,8 +8996,8 @@
       utils.waitNode(
         BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.ep-list-pre-container"
       ).then(($preContainer) => {
-        log.info("覆盖【选集】的点击事件");
-        domutils.on(
+        log$1.info("覆盖【选集】的点击事件");
+        domUtils.on(
           $preContainer,
           "click",
           "li.episode-item",
@@ -11422,8 +9013,8 @@
       utils.waitNode(
         BilibiliData.className.bangumi + " .ep-list-pre-wrapper ul.season-list-wrapper"
       ).then(($listWapper) => {
-        log.info("覆盖【xx季】的点击事件");
-        domutils.on(
+        log$1.info("覆盖【xx季】的点击事件");
+        domUtils.on(
           $listWapper,
           "click",
           "li",
@@ -11439,8 +9030,8 @@
       utils.waitNode(
         BilibiliData.className.bangumi + " .ep-list-pre-header"
       ).then(($preHeader) => {
-        log.info("覆盖【选集】右上角的【全xx话】Arrow的点击事件");
-        domutils.on(
+        log$1.info("覆盖【选集】右上角的【全xx话】Arrow的点击事件");
+        domUtils.on(
           $preHeader,
           "click",
           function(event) {
@@ -11451,7 +9042,7 @@
           }
         );
       });
-      domutils.on(
+      domUtils.on(
         document,
         "click",
         [
@@ -11480,8 +9071,8 @@
       utils.waitNode(
         BilibiliData.className.bangumi + " .section-preview-wrapper ul.ep-list-pre-container"
       ).then(($preContainer) => {
-        log.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
-        domutils.on(
+        log$1.info("覆盖【PV&其他】、【预告】、【主题曲】的点击事件");
+        domUtils.on(
           $preContainer,
           "click",
           "li.section-preview-item",
@@ -11497,10 +9088,10 @@
       utils.waitNode(
         BilibiliData.className.bangumi + " .section-preview-header"
       ).then(($previewHeader) => {
-        log.info(
+        log$1.info(
           "覆盖【PV&其他】、【预告】、【主题曲】右上角的Arrow的点击事件"
         );
-        domutils.on(
+        domUtils.on(
           $previewHeader,
           "click",
           function(event) {
@@ -11511,7 +9102,7 @@
           }
         );
       });
-      domutils.on(
+      domUtils.on(
         document,
         "click",
         BilibiliData.className.bangumi_new + ` [class^="SectionPanel_container"] m-open-app[universallink]`,
@@ -11535,8 +9126,8 @@
       utils.waitNode(
         BilibiliData.className.bangumi + " .recom-wrapper ul.recom-list"
       ).then(($recomList) => {
-        log.info("覆盖【更多推荐】番剧的点击事件");
-        domutils.on(
+        log$1.info("覆盖【更多推荐】番剧的点击事件");
+        domUtils.on(
           $recomList,
           "click",
           "li.recom-item-v2",
@@ -11549,7 +9140,7 @@
           }
         );
       });
-      domutils.on(
+      domUtils.on(
         document,
         "click",
         BilibiliData.className.bangumi_new + ` [class^="Footer_container"] m-open-app[universallink]`,
@@ -11571,7 +9162,7 @@
      */
     coverVideoPlayer() {
       if (document.querySelector("#artplayer")) {
-        log.warn("已存在播放器，更新播放信息");
+        log$1.warn("已存在播放器，更新播放信息");
       } else {
         addStyle(
           /*css*/
@@ -11592,7 +9183,7 @@
 			}
 			`
         );
-        let controlsPadding = PopsPanel.getValue(
+        let controlsPadding = Panel.getValue(
           "bili-bangumi-artplayer-controlsPadding-left-right",
           0
         );
@@ -11678,8 +9269,8 @@
       }
       let data2 = utils.toJSON(getResponse.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        log.error(`请求失败，当前代理服务器信息：${JSON.stringify(config.host)}`);
-        log.error(`请求失败，当前请求的响应信息：${JSON.stringify(data2)}`);
+        log$1.error(`请求失败，当前代理服务器信息：${JSON.stringify(config.host)}`);
+        log$1.error(`请求失败，当前请求的响应信息：${JSON.stringify(data2)}`);
         return {
           isSuccess: false,
           data: data2
@@ -11698,8 +9289,8 @@
     },
     init() {
       addStyle(beautifyCSS);
-      domutils.ready(() => {
-        PopsPanel.execMenu("bili-search-enableOtherAreaSearchBangumi", () => {
+      domUtils.ready(() => {
+        Panel.execMenu("bili-search-enableOtherAreaSearchBangumi", () => {
           this.enableOtherAreaSearchBangumi();
         });
       });
@@ -11742,7 +9333,7 @@
       utils.waitNode(".m-search-result .tabs:not(:has(.gm-tab-item))").then(($tabs) => {
         let enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
         enableSearchServer.forEach((proxyServerInfo) => {
-          let $tab = domutils.createElement(
+          let $tab = domUtils.createElement(
             "a",
             {
               className: "tab-item gm-tab-item",
@@ -11759,14 +9350,14 @@
           $tabs.querySelectorAll(".tab-item").forEach(($ele) => $tab != $ele && $ele.classList.remove("on"));
           $tab.classList.add("on");
         };
-        domutils.on($tabs, "click", ".tab-item", async (event) => {
+        domUtils.on($tabs, "click", ".tab-item", async (event) => {
           let $tab = event.target;
           refreshTabActive($tab);
           let $resultPanel = document.querySelector(".result-panel");
           let $oldGmResultPanel = document.querySelector(".gm-result-panel");
           if ($oldGmResultPanel) {
             $oldGmResultPanel.remove();
-            domutils.show($resultPanel);
+            domUtils.show($resultPanel);
           }
           if (!$tab.classList.contains("gm-tab-item")) {
             return;
@@ -11776,7 +9367,7 @@
           let $searchResult = document.querySelector(".m-search-result");
           let searchResultVueIns = VueUtils.getVue($searchResult);
           searchResultVueIns.switchTab(233);
-          domutils.hide($resultPanel);
+          domUtils.hide($resultPanel);
           let keyword = searchResultVueIns.keyword;
           let $loading = Qmsg.loading("搜索中，请稍后...");
           let searchBangumiResultInfo = await BilibiliSearchApi.getBangumiSearchResult({
@@ -11793,8 +9384,8 @@
             return;
           }
           let searchBangumiResultData = searchBangumiResultInfo.data;
-          log.info("搜索结果：", searchBangumiResultData);
-          let $gmResultPanel = domutils.createElement("div", {
+          log$1.info("搜索结果：", searchBangumiResultData);
+          let $gmResultPanel = domUtils.createElement("div", {
             className: "gm-result-panel",
             innerHTML: (
               /*html*/
@@ -11824,7 +9415,7 @@
      */
     createSearchResultVideoItem(option) {
       var _a2, _b;
-      let $item = domutils.createElement(
+      let $item = domUtils.createElement(
         "div",
         {
           className: "gm-card-item",
@@ -11866,7 +9457,7 @@
         }
       );
       Reflect.set($item, "data-option", option);
-      domutils.on($item, "click", (event) => {
+      domUtils.on($item, "click", (event) => {
         utils.preventEvent(event);
         window.open(option.url, "_blank");
       });
@@ -11882,7 +9473,7 @@
       }
       totalDisplayInfo = utils.uniqueArray(totalDisplayInfo, (item) => item.text);
       totalDisplayInfo.forEach((displayInfo) => {
-        let $displayInfoItem = domutils.createElement("span", {
+        let $displayInfoItem = domUtils.createElement("span", {
           className: "gm-card-badge-info-item",
           innerText: displayInfo.text
         });
@@ -11890,10 +9481,10 @@
           $displayInfoItem.style.border = `1px solid ${displayInfo.border_color}`;
           $displayInfoItem.style.color = displayInfo.border_color;
         }
-        domutils.append($displayInfo, $displayInfoItem);
+        domUtils.append($displayInfo, $displayInfoItem);
       });
       if (option.pubtime) {
-        domutils.append(
+        domUtils.append(
           $displayInfo,
           /*html*/
           `
@@ -11904,7 +9495,7 @@
       let areas = option.areas || Reflect.get(option, "area");
       if (areas) {
         if ($displayInfo.children.length) {
-          domutils.append(
+          domUtils.append(
             $displayInfo,
             /*html*/
             `
@@ -11912,7 +9503,7 @@
 				`
           );
         }
-        domutils.append(
+        domUtils.append(
           $displayInfo,
           /*html*/
           `
@@ -11922,7 +9513,7 @@
       }
       let $mediaScore = $item.querySelector(".gm-card-media_score");
       if (option.media_score && option.media_score.user_count) {
-        domutils.append(
+        domUtils.append(
           $mediaScore,
           /*html*/
           `
@@ -11939,7 +9530,7 @@
       epsList.forEach((epsItem) => {
         let title = epsItem.title || epsItem.long_title;
         let url = epsItem.url || Reflect.get(epsItem, "uri");
-        let $epItem = domutils.createElement(
+        let $epItem = domUtils.createElement(
           "div",
           {
             className: "gm-card-ep-conatiner",
@@ -11969,7 +9560,7 @@
         );
         if (Array.isArray(epsItem.badges) && epsItem.badges.length) {
           let epItemBadgeInfo = epsItem.badges[0];
-          let $badge = domutils.createElement("span", {
+          let $badge = domUtils.createElement("span", {
             className: "gm-card-ep-badge-top-right",
             innerText: epItemBadgeInfo.text
           });
@@ -11979,9 +9570,9 @@
           if (typeof epItemBadgeInfo.text_color === "string") {
             $badge.style.color = epItemBadgeInfo.text_color;
           }
-          domutils.append($epBadges, $badge);
+          domUtils.append($epBadges, $badge);
         }
-        domutils.on($epItem, "click", (event) => {
+        domUtils.on($epItem, "click", (event) => {
           utils.preventEvent(event);
           window.open(url, "_blank");
         });
@@ -12032,7 +9623,7 @@
               return;
             }
             let $newBangumiItem = BilibiliExtraSearch.createSearchResultVideoItem(info);
-            domutils.after($bangumiItem, $newBangumiItem);
+            domUtils.after($bangumiItem, $newBangumiItem);
             $bangumiItem.remove();
           });
         })
@@ -12041,10 +9632,10 @@
   };
   const BilibiliSearchVueProp = {
     init() {
-      PopsPanel.execMenuOnce("bili-search-vue-prop-noCallApp", () => {
+      Panel.execMenuOnce("bili-search-vue-prop-noCallApp", () => {
         this.noCallApp();
       });
-      PopsPanel.execMenuOnce("bili-search-vue-prop-openAppDialog", () => {
+      Panel.execMenuOnce("bili-search-vue-prop-openAppDialog", () => {
         this.openAppDialog();
       });
     },
@@ -12123,14 +9714,14 @@
         BilibiliExtraSearch.init();
       }
       BilibiliSearchVueProp.init();
-      PopsPanel.execMenuOnce("bili-search-cover-cancel", () => {
+      Panel.execMenuOnce("bili-search-cover-cancel", () => {
         this.coverCancel();
       });
-      PopsPanel.execMenu("bili-search-beautifySearchResult", () => {
+      Panel.execMenu("bili-search-beautifySearchResult", () => {
         BilibiliSearchBeautify.init();
       });
-      domutils.ready(() => {
-        PopsPanel.execMenu("bili-search-inputAutoFocus", () => {
+      domUtils.ready(() => {
+        Panel.execMenu("bili-search-inputAutoFocus", () => {
           this.inputAutoFocus();
         });
       });
@@ -12139,13 +9730,13 @@
      * 覆盖【取消】按钮的点击事件
      */
     coverCancel() {
-      log.info("覆盖【取消】按钮的点击事件");
-      domutils.on(
+      log$1.info("覆盖【取消】按钮的点击事件");
+      domUtils.on(
         document,
         "click",
         "a.cancel",
         (event) => {
-          log.info(`点击取消按钮`);
+          log$1.info(`点击取消按钮`);
           utils.preventEvent(event);
           window.history.back();
         },
@@ -12158,16 +9749,16 @@
     inputAutoFocus() {
       let searchParams = new URLSearchParams(window.location.search);
       if (searchParams.has("keyword")) {
-        log.warn(`当前在搜索结果页面，不执行输入框自动获取焦点`);
+        log$1.warn(`当前在搜索结果页面，不执行输入框自动获取焦点`);
         return;
       }
-      log.info(`输入框自动获取焦点`);
+      log$1.info(`输入框自动获取焦点`);
       utils.waitNode(
         `.m-search .m-search-search-bar input[type="search"]`,
         1e4
       ).then(($input) => {
         if (!$input) {
-          log.error("获取输入框失败");
+          log$1.error("获取输入框失败");
           return;
         }
         $input.focus();
@@ -12176,13 +9767,13 @@
   };
   const BilibiliLiveBlockNode = {
     init() {
-      PopsPanel.execMenuOnce("bili-live-block-chatRoom", () => {
+      Panel.execMenuOnce("bili-live-block-chatRoom", () => {
         return this.blockChatRoom();
       });
-      PopsPanel.execMenuOnce("bili-live-block-brush-prompt", () => {
+      Panel.execMenuOnce("bili-live-block-brush-prompt", () => {
         return this.blockBrushPrompt();
       });
-      PopsPanel.execMenuOnce("bili-live-block-control-panel", () => {
+      Panel.execMenuOnce("bili-live-block-control-panel", () => {
         return this.blockControlPanel();
       });
     },
@@ -12190,28 +9781,28 @@
      * 屏蔽聊天室
      */
     blockChatRoom() {
-      log.info("屏蔽聊天室");
+      log$1.info("屏蔽聊天室");
       return CommonUtil.addBlockCSS("#chat-items");
     },
     /**
      * 屏蔽xxx进入直播间
      */
     blockBrushPrompt() {
-      log.info("屏蔽xxx进入直播间");
+      log$1.info("屏蔽xxx进入直播间");
       return CommonUtil.addBlockCSS("#brush-prompt");
     },
     /**
      * 屏蔽底部工具栏
      */
     blockControlPanel() {
-      log.info("屏蔽底部工具栏");
+      log$1.info("屏蔽底部工具栏");
       return CommonUtil.addBlockCSS(".control-panel");
     }
   };
   const BilibiliLive = {
     init() {
       BilibiliLiveBlockNode.init();
-      PopsPanel.execMenuOnce("bili-live-prevent-openAppBtn", () => {
+      Panel.execMenuOnce("bili-live-prevent-openAppBtn", () => {
         this.preventOpenAppBtn();
       });
     },
@@ -12220,8 +9811,8 @@
      */
     preventOpenAppBtn() {
       utils.waitNode("body").then(($body) => {
-        log.info("阻止.open-app-btn元素触发点击事件");
-        domutils.on(
+        log$1.info("阻止.open-app-btn元素触发点击事件");
+        domUtils.on(
           $body,
           "click",
           ".open-app-btn",
@@ -12232,7 +9823,7 @@
             capture: true
           }
         );
-        domutils.on(
+        domUtils.on(
           $body,
           "click",
           "#web-player-controller-wrap-el",
@@ -12251,16 +9842,16 @@
       dispatchCallBackList: []
     },
     init() {
-      PopsPanel.execMenu("bili-opus-variable-autoOpenApp", () => {
+      Panel.execMenu("bili-opus-variable-autoOpenApp", () => {
         this.autoOpenApp();
       });
-      PopsPanel.execMenu("bili-opus-variable-go404", () => {
+      Panel.execMenu("bili-opus-variable-go404", () => {
         this.go404();
       });
-      PopsPanel.execMenu("bili-opus-variable-handleFallback", () => {
+      Panel.execMenu("bili-opus-variable-handleFallback", () => {
         this.dispatch((vueInstance, fnName) => {
           if (typeof fnName === "string" && fnName === "opus/handleFallback" && ![1, 2].includes(vueInstance.fallback.type)) {
-            log.success(`禁止调用handleFallback函数前往404`);
+            log$1.success(`禁止调用handleFallback函数前往404`);
             if (typeof (vueInstance == null ? void 0 : vueInstance.showComment) === "boolean" && vueInstance.showComment && typeof (vueInstance == null ? void 0 : vueInstance.initFullComment) === "function") {
               vueInstance.initFullComment();
             }
@@ -12275,13 +9866,13 @@
      * 作用：自动展开全文
      */
     isLimit() {
-      log.info(`等待 观察并覆盖变量isLimit`);
+      log$1.info(`等待 观察并覆盖变量isLimit`);
       VueUtils.watchVuePropChange(
         BilibiliData.className.opus,
         (vueInstance) => vueInstance.isLimit,
         (vueInstance) => {
           vueInstance.isLimit = false;
-          log.success(`观察者：覆盖变量isLimit=false`);
+          log$1.success(`观察者：覆盖变量isLimit=false`);
         }
       );
     },
@@ -12295,9 +9886,9 @@
           return typeof (vueInstance == null ? void 0 : vueInstance.autoOpenApp) === "function";
         },
         set(vueInstance) {
-          log.success(`成功 覆盖函数autoOpenApp`);
+          log$1.success(`成功 覆盖函数autoOpenApp`);
           vueInstance.autoOpenApp = function() {
-            log.success(`禁止调用autoOpenApp函数`);
+            log$1.success(`禁止调用autoOpenApp函数`);
           };
         }
       });
@@ -12312,9 +9903,9 @@
           return typeof (vueInstance == null ? void 0 : vueInstance.go404) === "function";
         },
         set(vueInstance) {
-          log.success(`成功 覆盖函数go404`);
+          log$1.success(`成功 覆盖函数go404`);
           vueInstance.go404 = function() {
-            log.success(`禁止调用go404函数`);
+            log$1.success(`禁止调用go404函数`);
           };
         }
       });
@@ -12331,12 +9922,12 @@
           return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.fallback) == null ? void 0 : _a2.type) === "number";
         },
         set(vueInstance) {
-          log.success(`成功 覆盖对象fallback`);
+          log$1.success(`成功 覆盖对象fallback`);
           vueInstance.$watch(
             () => vueInstance == null ? void 0 : vueInstance.fallback,
             () => {
               vueInstance.fallback = null;
-              log.success(`覆盖对象fallback`);
+              log$1.success(`覆盖对象fallback`);
             },
             {
               deep: true,
@@ -12357,7 +9948,7 @@
           return;
         }
       }
-      log.info(`添加dispatch回调判断`);
+      log$1.info(`添加dispatch回调判断`);
       this.$data.dispatchCallBackList.push(callback);
       if (this.$data.dispatchCallBackList.length > 1) {
         return;
@@ -12370,7 +9961,7 @@
           return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.$store) == null ? void 0 : _a2.dispatch) === "function";
         },
         set(vueInstance) {
-          log.success(`成功 覆盖函数dispatch`);
+          log$1.success(`成功 覆盖函数dispatch`);
           let originDispatch = vueInstance.$store.dispatch;
           vueInstance.$store.dispatch = function(...args) {
             let fnName = args[0];
@@ -12392,17 +9983,14 @@
   const BilibiliOpus = {
     init() {
       BilibiliOpusVariable.init();
-      PopsPanel.execMenuOnce("bili-opus-cover-topicJump", () => {
+      Panel.execMenuOnce("bili-opus-cover-topicJump", () => {
         this.coverTopicJump();
       });
-      PopsPanel.execMenuOnce(
-        "bili-opus-automaticallyExpandToReadFullText",
-        () => {
-          BilibiliOpusVariable.isLimit();
-          return this.automaticallyExpandToReadFullText();
-        }
-      );
-      PopsPanel.execMenuOnce("bili-opus-cover-header", () => {
+      Panel.execMenuOnce("bili-opus-automaticallyExpandToReadFullText", () => {
+        BilibiliOpusVariable.isLimit();
+        return this.automaticallyExpandToReadFullText();
+      });
+      Panel.execMenuOnce("bili-opus-cover-header", () => {
         this.coverHeaderJump();
       });
     },
@@ -12410,8 +9998,8 @@
      * 覆盖话题跳转点击事件
      */
     coverTopicJump() {
-      log.info("覆盖话题跳转点击事件");
-      domutils.on(
+      log$1.info("覆盖话题跳转点击事件");
+      domUtils.on(
         document,
         "click",
         BilibiliData.className.opus + " .launch-app-btn.opus-module-topic",
@@ -12429,7 +10017,7 @@
             Qmsg.error("获取话题的jump_url失败");
             return;
           }
-          log.info("话题的跳转信息: ", data2);
+          log$1.info("话题的跳转信息: ", data2);
           BilibiliUtils.goToUrl(jump_url);
         },
         {
@@ -12441,7 +10029,7 @@
      * 自动展开阅读全文
      */
     automaticallyExpandToReadFullText() {
-      log.info("自动展开阅读全文");
+      log$1.info("自动展开阅读全文");
       let result = [
         CommonUtil.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
         addStyle(
@@ -12460,8 +10048,8 @@
      * 覆盖header点击事件
      */
     coverHeaderJump() {
-      log.info("覆盖header点击事件");
-      domutils.on(
+      log$1.info("覆盖header点击事件");
+      domUtils.on(
         document,
         "click",
         BilibiliData.className.opus + " .opus-module-author",
@@ -12489,16 +10077,16 @@
   };
   const BilibiliDynamic = {
     init() {
-      PopsPanel.execMenuOnce("bili-dynamic-cover-topicJump", () => {
+      Panel.execMenuOnce("bili-dynamic-cover-topicJump", () => {
         this.coverTopicJump();
       });
-      PopsPanel.execMenuOnce("bili-dynamic-cover-atJump", () => {
+      Panel.execMenuOnce("bili-dynamic-cover-atJump", () => {
         this.coverAtJump();
       });
-      PopsPanel.execMenuOnce("bili-dynamic-cover-referenceJump", () => {
+      Panel.execMenuOnce("bili-dynamic-cover-referenceJump", () => {
         this.coverReferenceJump();
       });
-      PopsPanel.execMenuOnce("bili-dynamic-cover-header", () => {
+      Panel.execMenuOnce("bili-dynamic-cover-header", () => {
         this.coverHeaderJump();
       });
     },
@@ -12506,8 +10094,8 @@
      * 覆盖header点击事件
      */
     coverHeaderJump() {
-      log.info("覆盖header点击事件");
-      domutils.on(
+      log$1.info("覆盖header点击事件");
+      domUtils.on(
         document,
         "click",
         BilibiliData.className.dynamic + " .launch-app-btn .dyn-header",
@@ -12535,8 +10123,8 @@
      * 覆盖话题跳转点击事件
      */
     coverTopicJump() {
-      log.info("覆盖话题跳转点击事件");
-      domutils.on(
+      log$1.info("覆盖话题跳转点击事件");
+      domUtils.on(
         document,
         "click",
         BilibiliData.className.dynamic + " .launch-app-btn .bili-dyn-topic",
@@ -12555,7 +10143,7 @@
             Qmsg.error("获取jump_url失败");
             return;
           }
-          log.info("话题的跳转信息: ", data2);
+          log$1.info("话题的跳转信息: ", data2);
           BilibiliUtils.goToUrl(jump_url);
         },
         {
@@ -12567,8 +10155,8 @@
      * 覆盖@ 跳转
      */
     coverAtJump() {
-      log.info("覆盖@ 跳转");
-      domutils.on(
+      log$1.info("覆盖@ 跳转");
+      domUtils.on(
         document,
         "click",
         BilibiliData.className.dynamic + " .at",
@@ -12581,7 +10169,7 @@
             Qmsg.error("获取data-oid或rid失败");
             return;
           }
-          log.info("用户的oid: " + oid);
+          log$1.info("用户的oid: " + oid);
           BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceDynamicUrl(oid));
         },
         {
@@ -12593,8 +10181,8 @@
      * 覆盖引用的点击事件
      */
     coverReferenceJump() {
-      log.info("覆盖引用的点击事件");
-      domutils.on(
+      log$1.info("覆盖引用的点击事件");
+      domUtils.on(
         document,
         "click",
         BilibiliData.className.dynamic + " .dyn-content .reference .dyn-orig-author",
@@ -12612,7 +10200,7 @@
           capture: true
         }
       );
-      domutils.on(
+      domUtils.on(
         document,
         "click",
         BilibiliData.className.dynamic + " .dyn-content .reference .dyn-archive",
@@ -12662,7 +10250,7 @@
           return originObject;
         },
         set(newValue) {
-          log.success("成功劫持webpack，当前webpack名：" + webpackName);
+          log$1.success("成功劫持webpack，当前webpack名：" + webpackName);
           originObject = newValue;
           const originPush = originObject.push;
           originObject.push = function(...args) {
@@ -12692,13 +10280,13 @@
     setTimeout(matchStr) {
       this.$data.setTimeout.push(matchStr);
       if (this.$data.setTimeout.length > 1) {
-        log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
+        log$1.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
         return;
       }
       _unsafeWindow.setTimeout = function(...args) {
         let callBackString = args[0].toString();
         if (callBackString.match(matchStr)) {
-          log.success("劫持setTimeout的函数", callBackString);
+          log$1.success("劫持setTimeout的函数", callBackString);
           return;
         }
         return OriginPrototype.setTimeout.apply(this, args);
@@ -12723,7 +10311,7 @@
           return;
         }
         vueObj.openApp = function(...args) {
-          log.success("openApp：阻止唤醒App", args);
+          log$1.success("openApp：阻止唤醒App", args);
         };
       }
       utils.mutationObserver(document, {
@@ -12781,7 +10369,7 @@
             let originOpen = opener == null ? void 0 : opener.open;
             if (typeof originOpen === "function") {
               Reflect.set(opener, "open", (config) => {
-                log.success(
+                log$1.success(
                   `拦截bili-open-app.open跳转: ${JSON.stringify(config)}`
                 );
                 if (typeof (config == null ? void 0 : config.universalLink) === "string") {
@@ -12887,7 +10475,7 @@
     },
     init() {
       this.setCSS();
-      domutils.ready(() => {
+      domUtils.ready(() => {
         this.addRecommendTag();
       });
     },
@@ -12902,7 +10490,7 @@
      * 重置状态
      */
     reset() {
-      log.info("重置状态");
+      log$1.info("重置状态");
       this.$flag.isLoadingNextPage = false;
       this.removeScrollEvent();
       Object.keys(this.$ele).forEach((key) => {
@@ -12920,11 +10508,11 @@
         ".channel-menu .v-switcher"
       );
       if (!$vSwitcher) {
-        log.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
+        log$1.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
         Qmsg.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
         return;
       }
-      let $recommendTag = domutils.createElement(
+      let $recommendTag = domUtils.createElement(
         "a",
         {
           className: "v-switcher__header__tabs__item recommend-tag",
@@ -12934,7 +10522,7 @@
           href: "javascript:;"
         }
       );
-      let $recommendView = domutils.createElement("div", {
+      let $recommendView = domUtils.createElement("div", {
         className: "m-recommend-view",
         innerHTML: (
           /*html*/
@@ -12974,12 +10562,12 @@
       if ($myHead) {
         $myHead.appendChild($recommendView);
       }
-      domutils.on($recommendTag, "click", (event) => {
+      domUtils.on($recommendTag, "click", (event) => {
         utils.preventEvent(event);
         $recommendTag.classList.add("is-avtive");
         this.recommendClickEvent();
       });
-      domutils.on(
+      domUtils.on(
         $vSwitcher,
         "click",
         () => {
@@ -12989,15 +10577,15 @@
           capture: true
         }
       );
-      domutils.on(this.$ele.$cardBox, "click", ".v-card", (event) => {
+      domUtils.on(this.$ele.$cardBox, "click", ".v-card", (event) => {
         utils.preventEvent(event);
         let $click = event.target;
         window.open($click.href, "_blank");
       });
-      domutils.before($vSwitcher, $recommendTag);
+      domUtils.before($vSwitcher, $recommendTag);
       this.setScrollEvent();
       if (window.location.hash === "#/recommend/") {
-        log.info("当前hash为推荐视频，出动触发");
+        log$1.info("当前hash为推荐视频，出动触发");
         $recommendTag.click();
       }
     },
@@ -13011,7 +10599,7 @@
      * 设置滚动观察事件
      */
     setScrollEvent() {
-      log.success("推荐视频监听滚动: IntersectionObserver");
+      log$1.success("推荐视频监听滚动: IntersectionObserver");
       this.$data.intersectionObserver = new IntersectionObserver(
         async (entries) => {
           if (!this.$flag.isLoadingNextPage && entries[0].isIntersecting) {
@@ -13019,11 +10607,11 @@
             let flag = await this.scrollEvent();
             this.$flag.isLoadingNextPage = false;
             if (this.$data.loadNums <= 1 && flag) {
-              domutils.hide(this.$ele.$listViewShim, false);
+              domUtils.hide(this.$ele.$listViewShim, false);
               await utils.sleep(500);
-              domutils.show(this.$ele.$listViewShim, false);
+              domUtils.show(this.$ele.$listViewShim, false);
             } else {
-              domutils.show(this.$ele.$listViewShim, false);
+              domUtils.show(this.$ele.$listViewShim, false);
             }
           }
         },
@@ -13047,9 +10635,9 @@
       if (!videoInfo) {
         return false;
       }
-      log.success("获取推荐视频信息", videoInfo);
+      log$1.success("获取推荐视频信息", videoInfo);
       let $fragment = document.createDocumentFragment();
-      let allowLoadPictureCard = PopsPanel.getValue(
+      let allowLoadPictureCard = Panel.getValue(
         "bili-head-recommend-push-graphic"
       );
       videoInfo.forEach((videoInfoItem) => {
@@ -13067,7 +10655,7 @@
             return;
           }
         } else {
-          log.error("该goto暂未适配", videoInfoItem);
+          log$1.error("该goto暂未适配", videoInfoItem);
           return;
         }
         $fragment.appendChild($ele);
@@ -13118,7 +10706,7 @@
       let title = data2.title;
       let cover = fixCover(data2.cover);
       let likeCount = data2.cover_left_text_1;
-      let $vCard = domutils.createElement(
+      let $vCard = domUtils.createElement(
         "a",
         {
           className: "v-card",
@@ -13180,7 +10768,7 @@
       let playCount = data2.cover_left_text_1;
       let commentCount = data2.cover_left_text_2;
       let videoTime = data2.cover_right_text;
-      let $vCard = domutils.createElement(
+      let $vCard = domUtils.createElement(
         "a",
         {
           className: "v-card",
@@ -13248,13 +10836,13 @@
       isInit_beautifyTopNavBar_css: false
     },
     init() {
-      PopsPanel.execMenuOnce(
+      Panel.execMenuOnce(
         "bili-head-supplementaryVideoStreamingInformation",
         () => {
           this.addVideoListUPInfo();
         }
       );
-      PopsPanel.execMenu("bili-head-recommend-enable", () => {
+      Panel.execMenu("bili-head-recommend-enable", () => {
         BilibiliRecommend.init();
       });
     },
@@ -13262,7 +10850,7 @@
      * 添加视频列表UP主信息
      */
     addVideoListUPInfo() {
-      log.info("添加视频列表UP主信息");
+      log$1.info("添加视频列表UP主信息");
       addStyle(
         /*css*/
         `
@@ -13347,7 +10935,7 @@
      * 重构tinyApp右上角的设置按钮图标，改为用户头像什么的
      */
     async reconfigurationTinyAppSettingButton() {
-      log.info(`重构tinyApp右上角的设置按钮图标`);
+      log$1.info(`重构tinyApp右上角的设置按钮图标`);
       if (!this.$flag.isInit_reconfigurationTinyAppSettingButton) {
         this.$flag.isInit_reconfigurationTinyAppSettingButton = true;
         addStyle(
@@ -13394,7 +10982,7 @@
       }
       let $iconConfig = await utils.waitNode(".nav-bar .icon-config", 1e4);
       if (!$iconConfig) {
-        log.error("未找到设置按钮图标，无法重构");
+        log$1.error("未找到设置按钮图标，无法重构");
         return;
       }
       $iconConfig.outerHTML = /*html*/
@@ -13422,19 +11010,19 @@
             if (isLogin) {
               uid = userInfo == null ? void 0 : userInfo.mid;
               if (uid == null) {
-                log.warn(`当前是脚本设置的isLogin但其实未登录账号`);
+                log$1.warn(`当前是脚本设置的isLogin但其实未登录账号`);
                 isLogin = false;
                 return;
               }
               userInfo == null ? void 0 : userInfo.uname;
               $img.src = (userInfo == null ? void 0 : userInfo.face) || $img.src;
             } else {
-              log.warn(`经检测，Bilibili尚未登录账号`);
+              log$1.warn(`经检测，Bilibili尚未登录账号`);
             }
           }
         }
       ]);
-      domutils.on($gmFace, "click", (event) => {
+      domUtils.on($gmFace, "click", (event) => {
         utils.preventEvent(event);
         if (isLogin) {
           if (uid != null) {
@@ -13452,7 +11040,7 @@
      * 美化顶部navbar
      */
     beautifyTopNavBar() {
-      log.info(`美化顶部navbar`);
+      log$1.info(`美化顶部navbar`);
       if (!this.$flag.isInit_beautifyTopNavBar_css) {
         this.$flag.isInit_beautifyTopNavBar_css = true;
         addStyle(
@@ -13524,7 +11112,7 @@
         if ($iconSearch.parentElement.querySelector(".gm-input-area")) {
           return;
         }
-        let $inputAreaContainer = domutils.createElement("div", {
+        let $inputAreaContainer = domUtils.createElement("div", {
           className: "gm-input-area",
           innerHTML: (
             /*html*/
@@ -13535,14 +11123,14 @@
           )
         });
         let $input = $inputAreaContainer.querySelector("input");
-        domutils.on($inputAreaContainer, "click", (event) => {
+        domUtils.on($inputAreaContainer, "click", (event) => {
           utils.preventEvent(event);
           BilibiliUtils.goToUrl("/search", true);
         });
-        domutils.after($iconSearch, $inputAreaContainer);
+        domUtils.after($iconSearch, $inputAreaContainer);
         let hotWordInfo = await BilibiliSearchApi.getSearchInputPlaceholder();
         if (hotWordInfo != null) {
-          log.info(`热点信息：`, hotWordInfo);
+          log$1.info(`热点信息：`, hotWordInfo);
           $input.placeholder = hotWordInfo.show_name || hotWordInfo.name;
         }
       });
@@ -13551,7 +11139,7 @@
   const BilibiliReadMobile = {
     init() {
       this.removeAds();
-      PopsPanel.onceExec("bili-pc-read-mobile-autoExpand", () => {
+      Panel.onceExec("bili-pc-read-mobile-autoExpand", () => {
         return this.autoExpand();
       });
     },
@@ -13565,7 +11153,7 @@
      * 自动展开
      */
     autoExpand() {
-      log.info("自动展开");
+      log$1.info("自动展开");
       return [
         addStyle(
           /*css*/
@@ -13584,10 +11172,10 @@
   };
   const BilibiliSpace = {
     init() {
-      PopsPanel.execMenuOnce("bili-space-repairRealJump", () => {
+      Panel.execMenuOnce("bili-space-repairRealJump", () => {
         this.repairRealJump();
       });
-      PopsPanel.execMenuOnce("bili-space-coverDynamicStateCardVideo", () => {
+      Panel.execMenuOnce("bili-space-coverDynamicStateCardVideo", () => {
         this.coverDynamicStateCardVideo();
       });
     },
@@ -13621,8 +11209,8 @@
      * 覆盖动态视频的点击事件
      */
     coverDynamicStateCardVideo() {
-      log.info(`覆盖动态视频的点击事件`);
-      domutils.on(
+      log$1.info(`覆盖动态视频的点击事件`);
+      domUtils.on(
         document,
         "click",
         ".card-content .main .wings",
@@ -13654,13 +11242,13 @@
   };
   const BilibiliVueProp = {
     init() {
-      PopsPanel.execMenu("bili-noCallApp", () => {
+      Panel.execMenu("bili-noCallApp", () => {
         this.noCallApp();
       });
-      PopsPanel.execMenu("bili-setLogin", () => {
+      Panel.execMenu("bili-setLogin", () => {
         this.setLogin();
       });
-      PopsPanel.execMenu("bili-setIsClient", () => {
+      Panel.execMenu("bili-setIsClient", () => {
         this.setIsClient();
       });
     },
@@ -13676,7 +11264,7 @@
             return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.noCallApp) === "boolean";
           },
           set(vueIns) {
-            log.success("成功设置参数 $store.state.common.noCallApp=true");
+            log$1.success("成功设置参数 $store.state.common.noCallApp=true");
             vueIns.$store.state.common.noCallApp = true;
           }
         }
@@ -13693,7 +11281,7 @@
       let GM_Cookie = new utils.GM_Cookie();
       let cookie_DedeUserID = GM_Cookie.get("DedeUserID");
       if (cookie_DedeUserID != null) {
-        log.info("Cookie DedeUserID已存在：", cookie_DedeUserID.value);
+        log$1.info("Cookie DedeUserID已存在：", cookie_DedeUserID.value);
       } else {
         GM_Cookie.set(
           {
@@ -13702,9 +11290,9 @@
           },
           (error) => {
             if (error) {
-              log.error(error);
+              log$1.error(error);
             } else {
-              log.success("Cookie成功设置DedeUserID=>2333");
+              log$1.success("Cookie成功设置DedeUserID=>2333");
             }
           }
         );
@@ -13717,7 +11305,7 @@
             return typeof ((_d = (_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.common) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean";
           },
           set(vueObj) {
-            log.success("成功设置参数 $store.state.common.userInfo.isLogin=true");
+            log$1.success("成功设置参数 $store.state.common.userInfo.isLogin=true");
             vueObj.$store.state.common.userInfo.isLogin = true;
           }
         },
@@ -13728,7 +11316,7 @@
             return typeof ((_c = (_b = (_a2 = vueObj == null ? void 0 : vueObj.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.loginInfo) == null ? void 0 : _c.isLogin) === "boolean";
           },
           set(vueObj) {
-            log.success("成功设置参数 $store.state.loginInfo.isLogin=true");
+            log$1.success("成功设置参数 $store.state.loginInfo.isLogin=true");
             vueObj.$store.state.loginInfo.isLogin = true;
           }
         }
@@ -13752,7 +11340,7 @@
             return typeof typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.video) == null ? void 0 : _c.isClient) === "boolean";
           },
           set(vueIns) {
-            log.success("成功设置参数 $store.state.video.isClient=true");
+            log$1.success("成功设置参数 $store.state.video.isClient=true");
             vueIns.$store.state.video.isClient = true;
           }
         },
@@ -13763,7 +11351,7 @@
             return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.opus) == null ? void 0 : _c.isClient) === "boolean";
           },
           set(vueIns) {
-            log.success("成功设置参数 $store.state.opus.isClient");
+            log$1.success("成功设置参数 $store.state.opus.isClient");
             vueIns.$store.state.opus.isClient = true;
           }
         },
@@ -13774,7 +11362,7 @@
             return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.playlist) == null ? void 0 : _c.isClient) === "boolean";
           },
           set(vueIns) {
-            log.success("成功设置参数 $store.state.playlist.isClient=true");
+            log$1.success("成功设置参数 $store.state.playlist.isClient=true");
             vueIns.$store.state.playlist.isClient = true;
           }
         },
@@ -13785,7 +11373,7 @@
             return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.bili) === "boolean";
           },
           set(vueIns) {
-            log.success("成功设置参数 $store.state.ver.bili=true");
+            log$1.success("成功设置参数 $store.state.ver.bili=true");
             vueIns.$store.state.ver.bili = true;
           }
         },
@@ -13796,7 +11384,7 @@
             return typeof ((_c = (_b = (_a2 = vueIns == null ? void 0 : vueIns.$store) == null ? void 0 : _a2.state) == null ? void 0 : _b.ver) == null ? void 0 : _c.biliVer) === "number";
           },
           set(vueIns) {
-            log.success("成功设置参数 $store.state.ver.biliVer=2333333");
+            log$1.success("成功设置参数 $store.state.ver.biliVer=2333333");
             vueIns.$store.state.ver.biliVer = 2333333;
           }
         }
@@ -13817,8 +11405,8 @@
           },
           set(vueIns) {
             vueIns.$store.state.common.tinyApp = true;
-            log.success("成功设置参数 $store.state.common.tinyApp=true");
-            PopsPanel.onceExec("bili-tinyApp-init-css", () => {
+            log$1.success("成功设置参数 $store.state.common.tinyApp=true");
+            Panel.onceExec("bili-tinyApp-init-css", () => {
               addStyle(
                 /*css*/
                 `
@@ -13833,58 +11421,1443 @@
       ]);
     }
   };
-  const BilibiliUserApi = {
-    /**
-     * 获取用户空间动态
-     * @param mid 用户id
-     * @param offset 分页偏移，默认是""
-     */
-    async space(mid, offset = "") {
-      let response = await httpx.get(
-        "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space",
-        {
-          data: {
-            host_mid: mid,
-            offset
-          },
-          fetch: true
+  const PanelComponents = {
+    $data: {
+      __storeApiFn: null,
+      get storeApiValue() {
+        if (!this.__storeApiFn) {
+          this.__storeApiFn = new Utils.Dictionary();
         }
-      );
-      if (!response.status) {
-        return;
+        return this.__storeApiFn;
       }
-      let data2 = utils.toJSON(response.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        return;
-      }
-      return data2["data"];
     },
     /**
-     * 查询用户关注明细
-     * @param mid 用户id
-     * @param pn 页码 默认为 1
-     * @param ps 每页项数 默认为 50
+     * 获取自定义的存储接口
+     * @param type 组件类型
      */
-    async following(mid, pn = 1, ps = 50) {
-      let response = await httpx.get(
-        "https://api.bilibili.com/x/relation/followings",
-        {
-          data: {
-            vmid: mid,
-            ps,
-            pn
-          },
-          fetch: true
-        }
-      );
-      if (!response.status) {
+    getStorageApi(type) {
+      if (!this.hasStorageApi(type)) {
         return;
       }
-      let data2 = utils.toJSON(response.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        return data2["message"];
+      return this.$data.storeApiValue.get(type);
+    },
+    /**
+     * 判断是否存在自定义的存储接口
+     * @param type 组件类型
+     */
+    hasStorageApi(type) {
+      return this.$data.storeApiValue.has(type);
+    },
+    /**
+     * 设置自定义的存储接口
+     * @param type 组件类型
+     * @param storageApiValue 存储接口
+     */
+    setStorageApi(type, storageApiValue) {
+      this.$data.storeApiValue.set(type, storageApiValue);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param type 组件类型
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(type, config, storageApiValue) {
+      let propsStorageApi;
+      if (this.hasStorageApi(type)) {
+        propsStorageApi = this.getStorageApi(type);
+      } else {
+        propsStorageApi = storageApiValue;
       }
-      return data2["data"];
+      Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+    }
+  };
+  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+    let result = {
+      text,
+      type: "input",
+      isNumber: Boolean(isNumber),
+      isPassword: Boolean(isPassword),
+      props: {},
+      attributes: {},
+      description,
+      afterAddToUListCallBack,
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(event, value) {
+        if (typeof changeCallBack === "function") {
+          if (changeCallBack(event, value)) {
+            return;
+          }
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+      },
+      placeholder
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.setComponentsStorageApiProperty(
+      "input",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
+    let result = {
+      text,
+      type: "switch",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return Boolean(
+          this.props[PROPS_STORAGE_API].get(key, defaultValue)
+        );
+      },
+      callback(event, __value) {
+        let value = Boolean(__value);
+        log$1.success(`${value ? "开启" : "关闭"} ${text}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
+      },
+      afterAddToUListCallBack
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.setComponentsStorageApiProperty(
+      "switch",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
+    let result = {
+      text,
+      type: "textarea",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      disabled,
+      getValue() {
+        let value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        if (Array.isArray(value)) {
+          return value.join("\n");
+        }
+        return value;
+      },
+      callback(event, value) {
+        this.props[PROPS_STORAGE_API].set(key, value);
+      }
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.setComponentsStorageApiProperty(
+      "switch",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  class RuleEditView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    /**
+     * 显示视图
+     */
+    async showView() {
+      var _a2;
+      let $dialog = __pops.confirm({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <form class="rule-form-container" onsubmit="return false">
+                        <ul class="rule-form-ulist">
+                            
+                        </ul>
+                        <input type="submit" style="display: none;" />
+                    </form>
+                    `
+          ),
+          html: true
+        },
+        btn: utils.assign(
+          {
+            ok: {
+              callback: async () => {
+                await submitSaveOption();
+              }
+            }
+          },
+          this.option.btn || {},
+          true
+        ),
+        drag: true,
+        mask: {
+          enable: true
+        },
+        style: (
+          /*css*/
+          `
+                ${__pops.config.cssText.panelCSS}
+                
+                .rule-form-container {
+                    
+                }
+                .rule-form-container li{
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 5px 20px;
+                    gap: 10px;
+                }
+				.rule-form-ulist-dynamic{
+					--button-margin-top: 0px;
+					--button-margin-right: 0px;
+					--button-margin-bottom: 0px;
+					--button-margin-left: 0px;
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					padding: 5px 0px 5px 20px;
+				}
+				.rule-form-ulist-dynamic__inner{
+					width: 100%;
+				}
+				.rule-form-ulist-dynamic__inner-container{
+					display: flex;
+					align-items: center;
+				}
+				.dynamic-forms{
+					width: 100%;
+				}
+                .pops-panel-item-left-main-text{
+                    max-width: 150px;
+                }
+                .pops-panel-item-right-text{
+                    padding-left: 30px;
+                }
+                .pops-panel-item-right-text,
+                .pops-panel-item-right-main-text{
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
+				.pops-panel-item-left-desc-text{
+					line-height: normal;
+					margin-top: 6px;
+					font-size: 0.8em;
+					color: rgb(108, 108, 108);
+				}
+
+                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
+            `
+        ),
+        width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+        height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
+      });
+      let $form = $dialog.$shadowRoot.querySelector(
+        ".rule-form-container"
+      );
+      $dialog.$shadowRoot.querySelector(
+        "input[type=submit]"
+      );
+      let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
+      let view = await this.option.getView(await this.option.data());
+      $ulist.appendChild(view);
+      const submitSaveOption = async () => {
+        let result = await this.option.onsubmit($form, await this.option.data());
+        if (!result.success) {
+          return;
+        }
+        $dialog.close();
+        await this.option.dialogCloseCallBack(true);
+      };
+    }
+  }
+  class RuleFilterView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    showView() {
+      let $alert = __pops.alert({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                <div class="filter-container"></div>
+                `
+          )
+        },
+        btn: {
+          ok: {
+            text: "关闭",
+            type: "default"
+          }
+        },
+        drag: true,
+        mask: {
+          enable: true
+        },
+        width: window.innerWidth > 500 ? "350px" : "80vw",
+        height: window.innerHeight > 500 ? "300px" : "70vh",
+        style: (
+          /*css*/
+          `
+            .filter-container{
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .filter-container button{
+                text-wrap: wrap;
+                padding: 8px;
+                height: auto;
+                text-align: left;
+            }
+            `
+        )
+      });
+      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
+      let $fragment = document.createDocumentFragment();
+      this.option.filterOption.forEach((filterOption) => {
+        let $button = document.createElement("button");
+        $button.innerText = filterOption.name;
+        let execFilterAndCloseDialog = async () => {
+          let allRuleInfo = await this.option.getAllRuleInfo();
+          allRuleInfo.forEach(async (ruleInfo) => {
+            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
+            if (!filterResult) {
+              domUtils.hide(ruleInfo.$el, false);
+            } else {
+              domUtils.show(ruleInfo.$el, false);
+            }
+          });
+          if (typeof this.option.execFilterCallBack === "function") {
+            await this.option.execFilterCallBack();
+          }
+          $alert.close();
+        };
+        domUtils.on($button, "click", async (event) => {
+          utils.preventEvent(event);
+          if (typeof filterOption.callback === "function") {
+            let result = await filterOption.callback(
+              event,
+              execFilterAndCloseDialog
+            );
+            if (!result) {
+              return;
+            }
+          }
+          await execFilterAndCloseDialog();
+        });
+        $fragment.appendChild($button);
+      });
+      $filterContainer.appendChild($fragment);
+    }
+  }
+  class RuleView {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    /**
+     * 显示视图
+     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
+     */
+    async showView(filterCallBack) {
+      var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
+      let $popsConfirm = __pops.confirm({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <div class="rule-view-container">
+                    </div>
+                    `
+          ),
+          html: true
+        },
+        btn: {
+          merge: true,
+          reverse: false,
+          position: "space-between",
+          ok: {
+            enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
+            type: "primary",
+            text: "添加",
+            callback: async (event) => {
+              this.showEditView(
+                false,
+                await this.option.getAddData(),
+                $popsConfirm.$shadowRoot
+              );
+            }
+          },
+          close: {
+            enable: true,
+            callback(event) {
+              $popsConfirm.close();
+            }
+          },
+          cancel: {
+            enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
+            type: "default",
+            text: "过滤",
+            callback: (details, event) => {
+              var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
+              if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
+                this.option.bottomControls.filter.callback();
+              }
+              let getAllRuleElement = () => {
+                return Array.from(
+                  $popsConfirm.$shadowRoot.querySelectorAll(
+                    ".rule-view-container .rule-item"
+                  )
+                );
+              };
+              let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
+              if (domUtils.text($button).includes("取消")) {
+                getAllRuleElement().forEach(($el) => {
+                  domUtils.show($el, false);
+                });
+                domUtils.text($button, "过滤");
+              } else {
+                let ruleFilterView = new RuleFilterView({
+                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
+                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
+                  execFilterCallBack() {
+                    domUtils.text($button, "取消过滤");
+                  },
+                  getAllRuleInfo: () => {
+                    return getAllRuleElement().map(($el) => {
+                      return {
+                        data: this.parseRuleItemElement($el).data,
+                        $el
+                      };
+                    });
+                  }
+                });
+                ruleFilterView.showView();
+              }
+            }
+          },
+          other: {
+            enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
+            type: "xiaomi-primary",
+            text: `清空所有(${(await this.option.data()).length})`,
+            callback: (event) => {
+              let $askDialog = __pops.confirm({
+                title: {
+                  text: "提示",
+                  position: "center"
+                },
+                content: {
+                  text: "确定清空所有的数据？",
+                  html: false
+                },
+                btn: {
+                  ok: {
+                    enable: true,
+                    callback: async (popsEvent) => {
+                      var _a3, _b2, _c2;
+                      log$1.success("清空所有");
+                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
+                        this.option.bottomControls.clear.callback();
+                      }
+                      let data2 = await this.option.data();
+                      if (data2.length) {
+                        Qmsg.error("清理失败");
+                        return;
+                      } else {
+                        Qmsg.success("清理成功");
+                      }
+                      await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
+                      this.clearContent($popsConfirm.$shadowRoot);
+                      $askDialog.close();
+                    }
+                  },
+                  cancel: {
+                    text: "取消",
+                    enable: true
+                  }
+                },
+                mask: { enable: true },
+                width: "300px",
+                height: "200px"
+              });
+            }
+          }
+        },
+        mask: {
+          enable: true
+        },
+        width: window.innerWidth > 500 ? "500px" : "88vw",
+        height: window.innerHeight > 500 ? "500px" : "80vh",
+        style: (
+          /*css*/
+          `
+            ${__pops.config.cssText.panelCSS}
+            
+            .rule-item{
+                display: flex;
+                align-items: center;
+                line-height: normal;
+                font-size: 16px;
+                padding: 4px 8px;
+                gap: 8px;
+            }
+            .rule-name{
+                flex: 1;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+            .rule-controls{
+                display: flex;
+                align-items: center;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                gap: 8px;
+                padding: 0px;
+            }
+            .rule-controls-enable{
+                
+            }
+            .rule-controls-edit{
+                
+            }
+            .rule-controls-delete{
+                
+            }
+            .rule-controls-edit,
+            .rule-controls-delete{
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+            }
+            `
+        )
+      });
+      let allData = await this.option.data();
+      let changeButtonText = false;
+      for (let index = 0; index < allData.length; index++) {
+        let item = allData[index];
+        let $ruleItemList = await this.appendRuleItemElement(
+          $popsConfirm.$shadowRoot,
+          item
+        );
+        let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
+        if (!flag) {
+          changeButtonText = true;
+          $ruleItemList.forEach(($el) => {
+            domUtils.hide($el, false);
+          });
+        }
+      }
+      if (changeButtonText) {
+        let $button = $popsConfirm.$shadowRoot.querySelector(
+          ".pops-confirm-btn-cancel span"
+        );
+        domUtils.text($button, "取消过滤");
+      }
+    }
+    /**
+     * 显示编辑视图
+     * @param isEdit 是否是编辑状态
+     * @param editData 编辑的数据
+     * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
+     * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
+     * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
+     * @param submitCallBack （可选）添加/修改提交的回调
+     */
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+      let dialogCloseCallBack = async (isSubmit) => {
+        if (isSubmit) {
+          if (typeof submitCallBack === "function") {
+            let newData = await this.option.getData(editData);
+            submitCallBack(newData);
+          }
+        } else {
+          if (!isEdit) {
+            await this.option.deleteData(editData);
+          }
+          if (typeof updateDataCallBack === "function") {
+            let newData = await this.option.getData(editData);
+            updateDataCallBack(newData);
+          }
+        }
+      };
+      let editView = new RuleEditView({
+        title: isEdit ? "编辑" : "添加",
+        data: () => {
+          return editData;
+        },
+        dialogCloseCallBack,
+        getView: async (data2) => {
+          return await this.option.itemControls.edit.getView(data2, isEdit);
+        },
+        btn: {
+          ok: {
+            enable: true,
+            text: isEdit ? "修改" : "添加"
+          },
+          cancel: {
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
+            }
+          },
+          close: {
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
+            }
+          }
+        },
+        onsubmit: async ($form, data2) => {
+          let result = await this.option.itemControls.edit.onsubmit(
+            $form,
+            isEdit,
+            data2
+          );
+          if (result.success) {
+            if (isEdit) {
+              Qmsg.success("修改成功");
+              $parentShadowRoot && await this.updateRuleItemElement(
+                result.data,
+                $editRuleItemElement,
+                $parentShadowRoot
+              );
+            } else {
+              $parentShadowRoot && await this.appendRuleItemElement(
+                $parentShadowRoot,
+                result.data
+              );
+            }
+          } else {
+            if (isEdit) {
+              log$1.error("修改失败");
+            }
+          }
+          return result;
+        },
+        style: this.option.itemControls.edit.style,
+        width: this.option.itemControls.edit.width,
+        height: this.option.itemControls.edit.height
+      });
+      editView.showView();
+    }
+    /**
+     * 解析弹窗内的各个元素
+     */
+    parseViewElement($shadowRoot) {
+      let $container = $shadowRoot.querySelector(
+        ".rule-view-container"
+      );
+      let $deleteBtn = $shadowRoot.querySelector(
+        ".pops-confirm-btn button.pops-confirm-btn-other"
+      );
+      return {
+        /** 容器 */
+        $container,
+        /** 左下角的清空按钮 */
+        $deleteBtn
+      };
+    }
+    /**
+     * 解析每一项的元素
+     */
+    parseRuleItemElement($ruleElement) {
+      let $enable = $ruleElement.querySelector(
+        ".rule-controls-enable"
+      );
+      let $enableSwitch = $enable.querySelector(".pops-panel-switch");
+      let $enableSwitchInput = $enable.querySelector(
+        ".pops-panel-switch__input"
+      );
+      let $enableSwitchCore = $enable.querySelector(
+        ".pops-panel-switch__core"
+      );
+      let $edit = $ruleElement.querySelector(".rule-controls-edit");
+      let $delete = $ruleElement.querySelector(
+        ".rule-controls-delete"
+      );
+      return {
+        /** 启用开关 */
+        $enable,
+        /** 启用开关的container */
+        $enableSwitch,
+        /** 启用开关的input */
+        $enableSwitchInput,
+        /** 启用开关的core */
+        $enableSwitchCore,
+        /** 编辑按钮 */
+        $edit,
+        /** 删除按钮 */
+        $delete,
+        /** 存储在元素上的数据 */
+        data: Reflect.get($ruleElement, "data-rule")
+      };
+    }
+    /**
+     * 创建一条规则元素
+     */
+    async createRuleItemElement(data2, $shadowRoot) {
+      let name = await this.option.getDataItemName(data2);
+      let $ruleItem = domUtils.createElement("div", {
+        className: "rule-item",
+        innerHTML: (
+          /*html*/
+          `
+			<div class="rule-name">${name}</div>
+			<div class="rule-controls">
+				<div class="rule-controls-enable">
+					<div class="pops-panel-switch">
+						<input class="pops-panel-switch__input" type="checkbox">
+						<span class="pops-panel-switch__core">
+							<div class="pops-panel-switch__action">
+							</div>
+						</span>
+					</div>
+				</div>
+				<div class="rule-controls-edit">
+					${__pops.config.iconSVG.edit}
+				</div>
+				<div class="rule-controls-delete">
+					${__pops.config.iconSVG.delete}
+				</div>
+			</div>
+			`
+        )
+      });
+      Reflect.set($ruleItem, "data-rule", data2);
+      let switchCheckedClassName = "pops-panel-switch-is-checked";
+      const {
+        $enable,
+        $enableSwitch,
+        $enableSwitchCore,
+        $enableSwitchInput,
+        $delete,
+        $edit
+      } = this.parseRuleItemElement($ruleItem);
+      if (this.option.itemControls.enable.enable) {
+        domUtils.on($enableSwitchCore, "click", async (event) => {
+          let isChecked = false;
+          if ($enableSwitch.classList.contains(switchCheckedClassName)) {
+            $enableSwitch.classList.remove(switchCheckedClassName);
+            isChecked = false;
+          } else {
+            $enableSwitch.classList.add(switchCheckedClassName);
+            isChecked = true;
+          }
+          $enableSwitchInput.checked = isChecked;
+          await this.option.itemControls.enable.callback(data2, isChecked);
+        });
+        if (await this.option.itemControls.enable.getEnable(data2)) {
+          $enableSwitch.classList.add(switchCheckedClassName);
+        }
+      } else {
+        $enable.remove();
+      }
+      if (this.option.itemControls.edit.enable) {
+        domUtils.on($edit, "click", (event) => {
+          utils.preventEvent(event);
+          this.showEditView(true, data2, $shadowRoot, $ruleItem, (newData) => {
+            data2 = null;
+            data2 = newData;
+          });
+        });
+      } else {
+        $edit.remove();
+      }
+      if (this.option.itemControls.delete.enable) {
+        domUtils.on($delete, "click", (event) => {
+          utils.preventEvent(event);
+          let $askDialog = __pops.confirm({
+            title: {
+              text: "提示",
+              position: "center"
+            },
+            content: {
+              text: "确定删除该条数据？",
+              html: false
+            },
+            btn: {
+              ok: {
+                enable: true,
+                callback: async (popsEvent) => {
+                  log$1.success("删除数据");
+                  let flag = await this.option.itemControls.delete.deleteCallBack(
+                    data2
+                  );
+                  if (flag) {
+                    Qmsg.success("成功删除该数据");
+                    $ruleItem.remove();
+                    await this.updateDeleteAllBtnText($shadowRoot);
+                    $askDialog.close();
+                  } else {
+                    Qmsg.error("删除该数据失败");
+                  }
+                }
+              },
+              cancel: {
+                text: "取消",
+                enable: true
+              }
+            },
+            mask: {
+              enable: true
+            },
+            width: "300px",
+            height: "200px"
+          });
+        });
+      } else {
+        $delete.remove();
+      }
+      return $ruleItem;
+    }
+    /**
+     * 添加一个规则元素
+     */
+    async appendRuleItemElement($shadowRoot, data2) {
+      let { $container } = this.parseViewElement($shadowRoot);
+      let $ruleItem = [];
+      let iteratorData = Array.isArray(data2) ? data2 : [data2];
+      for (let index = 0; index < iteratorData.length; index++) {
+        let item = iteratorData[index];
+        let $item = await this.createRuleItemElement(item, $shadowRoot);
+        $container.appendChild($item);
+        $ruleItem.push($item);
+      }
+      await this.updateDeleteAllBtnText($shadowRoot);
+      return $ruleItem;
+    }
+    /**
+     * 更新弹窗内容的元素
+     */
+    async updateRuleContaienrElement($shadowRoot) {
+      this.clearContent($shadowRoot);
+      const { $container } = this.parseViewElement($shadowRoot);
+      let data2 = await this.option.data();
+      await this.appendRuleItemElement($shadowRoot, data2);
+      await this.updateDeleteAllBtnText($shadowRoot);
+    }
+    /**
+     * 更新规则元素
+     */
+    async updateRuleItemElement(data2, $oldRuleItem, $shadowRoot) {
+      let $newRuleItem = await this.createRuleItemElement(data2, $shadowRoot);
+      $oldRuleItem.after($newRuleItem);
+      $oldRuleItem.remove();
+    }
+    /**
+     * 清空内容
+     */
+    clearContent($shadowRoot) {
+      const { $container } = this.parseViewElement($shadowRoot);
+      domUtils.html($container, "");
+    }
+    /**
+     * 设置删除按钮的文字
+     */
+    setDeleteBtnText($shadowRoot, text, isHTML = false) {
+      const { $deleteBtn } = this.parseViewElement($shadowRoot);
+      if (isHTML) {
+        domUtils.html($deleteBtn, text);
+      } else {
+        domUtils.text($deleteBtn, text);
+      }
+    }
+    /**
+     * 更新【清空所有】的按钮的文字
+     * @param $shadowRoot
+     */
+    async updateDeleteAllBtnText($shadowRoot) {
+      let data2 = await this.option.data();
+      this.setDeleteBtnText($shadowRoot, `清空所有(${data2.length})`);
+    }
+  }
+  const BilibiliComponentDetectionRule = {
+    $data: {
+      /** 白名单用户id */
+      whiteList: [],
+      /** 规则数据 */
+      ruleData: []
+    },
+    $key: {
+      STORAGE_KEY: "bili-componentDetection-rule"
+    },
+    /** 初始化数据 */
+    init() {
+      this.$data.whiteList = [];
+      this.$data.ruleData = [];
+      let allData = this.getData();
+      allData.forEach((data2) => {
+        if (!data2.enable) {
+          return;
+        }
+        this.$data.ruleData.push(data2);
+      });
+    },
+    /**
+     * 显示视图
+     */
+    showView() {
+      let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
+      function generateStorageApi(data2, handler) {
+        return {
+          get(key, defaultValue) {
+            return data2[key] ?? defaultValue;
+          },
+          set(key, value) {
+            data2[key] = value;
+          }
+        };
+      }
+      let ruleView = new RuleView({
+        title: "成分检测",
+        data: () => {
+          return this.getData();
+        },
+        getAddData: () => {
+          return this.getTemplateData();
+        },
+        getDataItemName: (data2) => {
+          return data2["name"];
+        },
+        updateData: (data2) => {
+          return this.updateData(data2);
+        },
+        deleteData: (data2) => {
+          return this.deleteData(data2);
+        },
+        getData: (data2) => {
+          let allData = this.getData();
+          let findValue = allData.find((item) => item.uuid === data2.uuid);
+          return findValue ?? data2;
+        },
+        itemControls: {
+          enable: {
+            enable: true,
+            getEnable(data2) {
+              return data2.enable;
+            },
+            callback: (data2, enable) => {
+              data2.enable = enable;
+              this.updateData(data2);
+            }
+          },
+          edit: {
+            enable: true,
+            getView: (data2, isEdit) => {
+              let $fragment = document.createDocumentFragment();
+              let templateData = this.getTemplateData();
+              if (!isEdit) {
+                data2 = templateData;
+              }
+              let enable_template = UISwitch(
+                "启用",
+                "enable",
+                templateData.enable
+              );
+              Reflect.set(
+                enable_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2)
+              );
+              let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
+                enable_template
+              );
+              let name_template = UIInput(
+                "规则名称",
+                "name",
+                "",
+                templateData.name,
+                void 0,
+                "必填"
+              );
+              Reflect.set(
+                name_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2)
+              );
+              let $name = popsPanelContentUtils.createSectionContainerItem_input(
+                name_template
+              );
+              let isShowDisplayName_template = UISwitch(
+                "是否显示标签名称",
+                "isShowDisplayName",
+                templateData.data.isShowDisplayName
+              );
+              Reflect.set(
+                isShowDisplayName_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2.data)
+              );
+              let $isShowDisplayName = popsPanelContentUtils.createSectionContainerItem_switch(
+                isShowDisplayName_template
+              );
+              let displayName_template = UIInput(
+                "标签名称",
+                "displayName",
+                templateData.data.displayName,
+                "例如：原神"
+              );
+              Reflect.set(
+                displayName_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2.data)
+              );
+              let $displayName = popsPanelContentUtils.createSectionContainerItem_input(
+                displayName_template
+              );
+              let isShowDisplayIcon_template = UISwitch(
+                "是否显示标签图标",
+                "isShowDisplayIcon",
+                templateData.data.isShowDisplayIcon
+              );
+              Reflect.set(
+                isShowDisplayIcon_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2.data)
+              );
+              let $isShowDisplayIcon = popsPanelContentUtils.createSectionContainerItem_switch(
+                isShowDisplayIcon_template
+              );
+              let displayIcon_template = UIInput(
+                "标签图标",
+                "displayIcon",
+                templateData.data.displayIcon,
+                "Url或base64"
+              );
+              Reflect.set(
+                displayIcon_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data2.data)
+              );
+              let $displayIcon = popsPanelContentUtils.createSectionContainerItem_input(
+                displayIcon_template
+              );
+              let keywords_template = UITextArea(
+                "关键词",
+                "keywords",
+                "",
+                "用于匹配标题、简介、转发内容的关键词",
+                void 0,
+                "多个关键词换行"
+              );
+              Reflect.set(keywords_template.props, PROPS_STORAGE_API, {
+                get(key, defaultValue) {
+                  let value = data2.data[key] ?? defaultValue;
+                  if (typeof value === "string") {
+                    return value.split("\n");
+                  }
+                  return value;
+                },
+                set(key, value) {
+                  if (typeof value === "string") {
+                    value = value.split("\n");
+                  }
+                  data2.data[key] = value;
+                }
+              });
+              let $keywords = popsPanelContentUtils.createSectionContainerItem_textarea(
+                keywords_template
+              );
+              let followings_template = UITextArea(
+                "关注的用户",
+                "followings",
+                "",
+                "用户id",
+                void 0,
+                "多个用户id换行"
+              );
+              Reflect.set(followings_template.props, PROPS_STORAGE_API, {
+                get(key, defaultValue) {
+                  let value = data2.data[key] ?? defaultValue;
+                  if (typeof value === "string") {
+                    return value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                  }
+                  return value;
+                },
+                set(key, value) {
+                  if (typeof value === "string") {
+                    value = value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                  }
+                  data2.data[key] = value;
+                }
+              });
+              let $followings = popsPanelContentUtils.createSectionContainerItem_textarea(
+                followings_template
+              );
+              let blacklist_template = UITextArea(
+                "黑名单",
+                "blacklist",
+                "",
+                "",
+                void 0,
+                "多个用户id换行"
+              );
+              Reflect.set(blacklist_template.props, PROPS_STORAGE_API, {
+                get(key, defaultValue) {
+                  let value = data2.data[key] ?? defaultValue;
+                  if (typeof value === "string") {
+                    return value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                  }
+                  return value;
+                },
+                set(key, value) {
+                  if (typeof value === "string") {
+                    value = value.split("\n").map((it) => Number(it)).filter((it) => !isNaN(it));
+                  }
+                  data2.data[key] = value;
+                }
+              });
+              let $blacklist = popsPanelContentUtils.createSectionContainerItem_textarea(
+                blacklist_template
+              );
+              $fragment.append(
+                $enable,
+                $name,
+                $isShowDisplayName,
+                $displayName,
+                $isShowDisplayIcon,
+                $displayIcon,
+                $keywords,
+                $followings,
+                $blacklist
+              );
+              return $fragment;
+            },
+            onsubmit: ($form, isEdit, editData) => {
+              let $ulist_li = $form.querySelectorAll(
+                ".rule-form-ulist > li"
+              );
+              let data2 = this.getTemplateData();
+              if (isEdit) {
+                data2.uuid = editData.uuid;
+              }
+              try {
+                $ulist_li.forEach(($li) => {
+                  let formConfig = Reflect.get($li, "__formConfig__");
+                  let attrs = Reflect.get(formConfig, "attributes");
+                  let storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                  let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                  let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                  let value = storageApi.get(key, defaultValue);
+                  if (Reflect.has(data2, key)) {
+                    Reflect.set(data2, key, value);
+                  } else if (Reflect.has(data2.data, key)) {
+                    Reflect.set(data2.data, key, value);
+                  } else {
+                    log$1.error(`${key}不在数据中`);
+                  }
+                });
+                if (data2.name.trim() === "") {
+                  Qmsg.error("规则名称不能为空");
+                  return {
+                    success: false,
+                    data: data2
+                  };
+                }
+                if (isEdit) {
+                  return {
+                    success: this.updateData(data2),
+                    data: data2
+                  };
+                } else {
+                  return {
+                    success: this.addData(data2),
+                    data: data2
+                  };
+                }
+              } catch (error) {
+                log$1.error(error);
+                return {
+                  success: false,
+                  data: data2
+                };
+              } finally {
+                this.init();
+              }
+            },
+            style: (
+              /*css*/
+              `
+                    .pops-panel-textarea textarea{
+                        height: 150px;
+                    }
+					.pops-panel-item-left-desc-text{
+						line-height: normal;
+						margin-top: 6px;
+						font-size: 0.8em;
+						color: rgb(108, 108, 108);
+						max-width: 100px;
+					}
+                    `
+            )
+          },
+          delete: {
+            enable: true,
+            deleteCallBack: (data2) => {
+              return this.deleteData(data2);
+            }
+          }
+        }
+      });
+      ruleView.showView();
+    },
+    /**
+     * 获取模板数据
+     */
+    getTemplateData() {
+      return {
+        uuid: utils.generateUUID(),
+        enable: true,
+        name: "",
+        data: {
+          isShowDisplayIcon: true,
+          displayIcon: "",
+          isShowDisplayName: true,
+          displayName: "",
+          keywords: [],
+          blacklist: [],
+          followings: []
+        }
+      };
+    },
+    /**
+     * 获取数据
+     */
+    getData() {
+      return _GM_getValue(this.$key.STORAGE_KEY, []);
+    },
+    /**
+     * 设置数据
+     * @param data
+     */
+    setData(data2) {
+      _GM_setValue(this.$key.STORAGE_KEY, data2);
+    },
+    /**
+     * 添加数据
+     * @param data
+     */
+    addData(data2) {
+      let localData = this.getData();
+      let findIndex = localData.findIndex((item) => item.uuid == data2.uuid);
+      if (findIndex === -1) {
+        localData.push(data2);
+        _GM_setValue(this.$key.STORAGE_KEY, localData);
+        return true;
+      } else {
+        return false;
+      }
+    },
+    /**
+     * 更新数据
+     * @param data
+     */
+    updateData(data2) {
+      let localData = this.getData();
+      let index = localData.findIndex((item) => item.uuid == data2.uuid);
+      let updateFlag = false;
+      if (index !== -1) {
+        updateFlag = true;
+        localData[index] = data2;
+      }
+      this.setData(localData);
+      return updateFlag;
+    },
+    /**
+     * 删除数据
+     * @param data
+     */
+    deleteData(data2) {
+      let localData = this.getData();
+      let index = localData.findIndex((item) => item.uuid == data2.uuid);
+      let deleteFlag = false;
+      if (index !== -1) {
+        deleteFlag = true;
+        localData.splice(index, 1);
+      }
+      this.setData(localData);
+      return deleteFlag;
+    },
+    /**
+     * 清空数据
+     */
+    clearData() {
+      _GM_deleteValue(this.$key.STORAGE_KEY);
+    },
+    /**
+     * 导出规则
+     */
+    exportRule(fileName = "rule.json") {
+      let allRule = this.getData();
+      let blob = new Blob([JSON.stringify(allRule, null, 4)]);
+      let blobUrl = window.URL.createObjectURL(blob);
+      let $a = document.createElement("a");
+      $a.href = blobUrl;
+      $a.download = fileName;
+      $a.click();
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl);
+      }, 1500);
+    },
+    /**
+     * 导入规则
+     */
+    importRule() {
+      let $alert = __pops.alert({
+        title: {
+          text: "请选择导入方式",
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <div class="import-mode" data-mode="local">本地导入</div>
+                    <div class="import-mode" data-mode="network">网络导入</div>
+                `
+          ),
+          html: true
+        },
+        width: PanelUISize.info.width,
+        height: PanelUISize.info.height,
+        style: (
+          /*css*/
+          `
+                .import-mode{
+                    display: inline-block;
+                    margin: 10px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+            `
+        )
+      });
+      let $local = $alert.$shadowRoot.querySelector(
+        ".import-mode[data-mode='local']"
+      );
+      let $network = $alert.$shadowRoot.querySelector(
+        ".import-mode[data-mode='network']"
+      );
+      domUtils.on($local, "click", (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        let $input = domUtils.createElement("input", {
+          type: "file",
+          accept: ".json"
+        });
+        domUtils.on($input, ["propertychange", "input"], (event2) => {
+          var _a2;
+          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
+            return;
+          }
+          let uploadFile = $input.files[0];
+          let fileReader = new FileReader();
+          fileReader.onload = () => {
+            let data2 = utils.toJSON(fileReader.result);
+            if (!Array.isArray(data2)) {
+              log$1.error("不是正确的规则文件", data2);
+              Qmsg.error("不是正确的规则文件");
+              return;
+            }
+            this.setData(data2);
+            Qmsg.success(`成功导入 ${data2.length}条规则`);
+          };
+          fileReader.readAsText(uploadFile, "UTF-8");
+        });
+        $input.click();
+      });
+      domUtils.on($network, "click", (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        __pops.prompt({
+          title: {
+            text: "网络导入",
+            position: "center"
+          },
+          content: {
+            text: "",
+            placeholder: "url",
+            focus: true
+          },
+          btn: {
+            ok: {
+              callback: async (eventDetails, event2) => {
+                let url = eventDetails.text;
+                if (utils.isNull(url)) {
+                  Qmsg.error("请填入完整的url");
+                  return;
+                }
+                let response = await httpx.get(url);
+                if (!response.status) {
+                  return;
+                }
+                let data2 = utils.toJSON(response.data.responseText);
+                if (!Array.isArray(data2)) {
+                  log$1.error("不是正确的规则文件", response, data2);
+                  Qmsg.error("不是正确的规则文件");
+                  return;
+                }
+                this.setData(data2);
+                eventDetails.close();
+                Qmsg.success(`成功导入 ${data2.length}条规则`);
+              }
+            }
+          },
+          width: PanelUISize.info.width,
+          height: "auto"
+        });
+      });
     }
   };
   const BilibiliComponentDetection = {
@@ -13983,7 +12956,7 @@
 			}
         `
       );
-      domutils.ready(() => {
+      domUtils.ready(() => {
         let lockFn = new utils.LockFunction(async () => {
           $$(".reply-item:not([data-is-inject-search-label])").forEach(
             ($replyItem) => {
@@ -14002,7 +12975,7 @@
                 }
                 return mid;
               });
-              domutils.after($floorTime, $container);
+              domUtils.after($floorTime, $container);
             }
           );
           [
@@ -14035,7 +13008,7 @@
               }
               return mid;
             });
-            domutils.after($memberLink, $memberContainer);
+            domUtils.after($memberLink, $memberContainer);
           });
           $$(
             ".m-space-info .base:not([data-is-inject-search-label])"
@@ -14053,7 +13026,7 @@
               }
               return mid;
             });
-            domutils.after($base, $container);
+            domUtils.after($base, $container);
           });
         });
         utils.mutationObserver(document, {
@@ -14078,14 +13051,14 @@
       let followingPN = 1;
       let allFollowingData = [];
       while (true) {
-        log.info(`正在获取用户的关注：${mid} ==> 第${followingPN}页`);
+        log$1.info(`正在获取用户的关注：${mid} ==> 第${followingPN}页`);
         let followingData = await BilibiliUserApi.following(mid, followingPN);
         if (!followingData) {
-          log.error("获取关注列表失败");
+          log$1.error("获取关注列表失败");
           break;
         }
         if (typeof followingData === "string") {
-          log.error("获取关注列表失败，原因：" + followingData);
+          log$1.error("获取关注列表失败，原因：" + followingData);
           break;
         }
         if (!followingData.list.length) {
@@ -14102,14 +13075,14 @@
       let spacePNCount = 1;
       let allSpaceContentData = [];
       while (true) {
-        log.info(`正在获取用户的空间动态：${mid} ==> 偏移：${spaceOffset}`);
+        log$1.info(`正在获取用户的空间动态：${mid} ==> 偏移：${spaceOffset}`);
         let spaceData = await BilibiliUserApi.space(mid, spaceOffset);
         if (!spaceData) {
-          log.error("获取用户空间动态数据失败");
+          log$1.error("获取用户空间动态数据失败");
           break;
         }
         if (typeof spaceData === "string") {
-          log.error("获取用户空间动态数据失败，原因：" + spaceData);
+          log$1.error("获取用户空间动态数据失败，原因：" + spaceData);
           break;
         }
         if (spaceOffset === spaceData.offset && spaceOffset != "") {
@@ -14122,7 +13095,7 @@
         }
         spacePNCount++;
         if (spacePNCount > 5) {
-          log.info(`最多请求5页空间动态的数据`);
+          log$1.info(`最多请求5页空间动态的数据`);
           break;
         }
         utils.sleep(250);
@@ -14196,7 +13169,7 @@
      * @param queryMIDFn 查询mid的函数
      */
     createSearchButton(queryMIDFn) {
-      let $compositionCheckable = domutils.createElement("div", {
+      let $compositionCheckable = domUtils.createElement("div", {
         className: "composition-checkable",
         innerHTML: (
           /*html*/
@@ -14212,31 +13185,31 @@
       let $compositionNameControl = $compositionCheckable.querySelector(
         ".composition-name-control"
       );
-      domutils.on($compositionCheckable, "click", async (event) => {
+      domUtils.on($compositionCheckable, "click", async (event) => {
         utils.preventEvent(event);
         if ($compositionCheckable.hasAttribute("data-is-searching")) {
-          log.error("正在搜索中，请稍后再试");
+          log$1.error("正在搜索中，请稍后再试");
           return;
         }
         $compositionCheckable.setAttribute("data-is-searching", "");
-        domutils.html($compositionNameControl, "...");
+        domUtils.html($compositionNameControl, "...");
         try {
           if (BilibiliComponentDetectionRule.$data.ruleData.length === 0) {
             Qmsg.warning("未配置规则，请在设置中进行添加");
-            domutils.html($compositionNameControl, this.$data.searchIcon);
+            domUtils.html($compositionNameControl, this.$data.searchIcon);
             return;
           }
           let mid = queryMIDFn();
           this.clearLabel($compositionCheckable);
           let userInfo = await this.queryUserInfo(mid);
           this.handleShowLabel(mid, userInfo, $compositionCheckable);
-          domutils.html($compositionNameControl, this.$data.searchIcon);
+          domUtils.html($compositionNameControl, this.$data.searchIcon);
         } catch (error) {
-          log.error(error);
+          log$1.error(error);
           Qmsg.error(error.message, {
             timeout: 3500
           });
-          domutils.html($compositionNameControl, "重试");
+          domUtils.html($compositionNameControl, "重试");
         } finally {
           $compositionCheckable.removeAttribute("data-is-searching");
         }
@@ -14251,7 +13224,7 @@
      * @param data
      */
     createLabel(data2) {
-      let $label = domutils.createElement("div", {
+      let $label = domUtils.createElement("div", {
         className: "composition-checked",
         innerHTML: (
           /*html*/
@@ -14263,16 +13236,16 @@
       });
       let $badge = $label.querySelector(".composition-badge");
       if (data2.rule.data.isShowDisplayName) {
-        let $compositionName = domutils.createElement("span", {
+        let $compositionName = domUtils.createElement("span", {
           className: "composition-name",
           innerHTML: data2.rule.data.displayName
         });
-        domutils.append($badge, $compositionName);
+        domUtils.append($badge, $compositionName);
       }
       if (data2.rule.data.isShowDisplayIcon) {
         let $compositionIcon = null;
         if (data2.rule.data.displayIcon.startsWith("http")) {
-          $compositionIcon = domutils.createElement(
+          $compositionIcon = domUtils.createElement(
             "img",
             {
               className: "composition-icon",
@@ -14284,14 +13257,14 @@
             }
           );
         } else {
-          $compositionIcon = domutils.createElement("span", {
+          $compositionIcon = domUtils.createElement("span", {
             className: "composition-icon",
             innerHTML: data2.rule.data.displayIcon
           });
         }
-        domutils.append($badge, $compositionIcon);
+        domUtils.append($badge, $compositionIcon);
       }
-      domutils.on($badge, "click", (event) => {
+      domUtils.on($badge, "click", (event) => {
         utils.preventEvent(event);
         __pops.alert({
           title: {
@@ -14304,7 +13277,7 @@
               /*html*/
               `
 						${data2.matchedInfoList.map((it) => {
-              let $el = domutils.createElement("div", {
+              let $el = domUtils.createElement("div", {
                 className: "reason-container",
                 innerHTML: (
                   /*html*/
@@ -14320,7 +13293,7 @@
                 )
               });
               if (typeof it.reasonTime === "number") {
-                let $reasonTime = domutils.createElement("div", {
+                let $reasonTime = domUtils.createElement("div", {
                   className: "reason-text",
                   innerHTML: (
                     /*html*/
@@ -14329,7 +13302,7 @@
 										`
                   )
                 });
-                domutils.append($el, $reasonTime);
+                domUtils.append($el, $reasonTime);
               }
               return $el.outerHTML;
             }).join("\n")}
@@ -14368,7 +13341,7 @@
     clearLabel($ele) {
       var _a2;
       while (true) {
-        let $prev = domutils.prev($ele);
+        let $prev = domUtils.prev($ele);
         if (!$prev) {
           break;
         }
@@ -14482,7 +13455,7 @@
       );
       matchedAllRule.forEach((it) => {
         let $label = this.createLabel(it);
-        domutils.before($searchContainer, $label);
+        domUtils.before($searchContainer, $label);
       });
     }
   };
@@ -14521,7 +13494,7 @@
             let playerContainerVueInstance = VueUtils.getVue($playerContainer);
             let { aid, cid, bvid } = vueInstance;
             let { title, cover: pic } = playerContainerVueInstance.video;
-            log.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
+            log$1.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
             if (videoInfo == null) {
               videoInfo = {
                 aid,
@@ -14537,7 +13510,7 @@
             }
             let $artPlayer = $("#artplayer");
             if (!$artPlayer) {
-              const $artPlayerContainer = domutils.createElement("div", {
+              const $artPlayerContainer = domUtils.createElement("div", {
                 className: "artplayer-container",
                 innerHTML: (
                   /*html*/
@@ -14547,7 +13520,7 @@
                 )
               });
               $artPlayer = $artPlayerContainer.querySelector("#artplayer");
-              domutils.append($player, $artPlayerContainer);
+              domUtils.append($player, $artPlayerContainer);
             }
             artPlayerOption.container = $artPlayer;
             if (that.$data.art == null) {
@@ -14559,13 +13532,13 @@
               }
               that.$data.art.volume = 1;
               that.$data.art.once("ready", () => {
-                PopsPanel.execMenu(
+                Panel.execMenu(
                   "bili-video-playerAutoPlayVideoFullScreen",
                   async () => {
-                    log.info(`自动进入全屏`);
+                    log$1.info(`自动进入全屏`);
                     that.$data.art.fullscreen = true;
                     that.$data.art.once("fullscreenError", () => {
-                      log.warn(
+                      log$1.warn(
                         "未成功进入全屏，需要用户交互操作，使用网页全屏代替"
                       );
                       that.$data.art.fullscreenWeb = true;
@@ -14574,22 +13547,22 @@
                 );
               });
               that.$data.art.on("video:ended", () => {
-                log.info("视频播放结束，自动下一集");
+                log$1.info("视频播放结束，自动下一集");
                 let $controlPanel = $(
                   BilibiliData.className.playlist + " .control-panel"
                 );
                 if (!$controlPanel) {
-                  log.error("未找到播放列表，无法自动播放下一集");
+                  log$1.error("未找到播放列表，无法自动播放下一集");
                   return;
                 }
                 let controlVueInstance = VueUtils.getVue($controlPanel);
                 if (controlVueInstance == null) {
-                  log.error("未找到播放列表的Vue实例，无法自动播放下一集");
+                  log$1.error("未找到播放列表的Vue实例，无法自动播放下一集");
                   return;
                 }
                 let { playMode, mediaList, videoIndex } = vueInstance.$store.state.playlist;
                 if (videoIndex >= mediaList.length - 1) {
-                  log.info(`播放列表已播放完毕`);
+                  log$1.info(`播放列表已播放完毕`);
                 } else {
                   let $currentVideoCard = $(
                     `.video-card[index="${videoIndex}"]`
@@ -14602,13 +13575,13 @@
                     );
                     let nextVideoCardVueInstance = VueUtils.getVue($nextVideoCard);
                     nextVideoCardVueInstance.changeVideo();
-                    log.info(
+                    log$1.info(
                       `当前播放列表共：${mediaList.length - 1}个，即将播放下一个视频，第${videoIndex + 2}个`
                     );
                   } else {
                     p++;
                     currentVideoCardVueInstance.changeVideo(p);
-                    log.info(
+                    log$1.info(
                       `当前播放列表共：${mediaList.length - 1}个，即将播放第${videoIndex + 2}-${p}`
                     );
                   }
@@ -14634,7 +13607,7 @@
             if (!that.$flag.isWatchVideoChange) {
               that.$flag.isWatchVideoChange = true;
               vueInstance.$watch("cid", (newVal, oldVal) => {
-                log.info(`切换播放视频`);
+                log$1.info(`切换播放视频`);
                 that.updateArtPlayerVideoInfo();
               });
             }
@@ -14652,7 +13625,7 @@
      */
     coverVideoPlayer() {
       if (document.querySelector("#artplayer")) {
-        log.warn("已存在播放器，更新播放信息");
+        log$1.warn("已存在播放器，更新播放信息");
       } else {
         addStyle(
           /*css*/
@@ -14673,8 +13646,9 @@
   };
   const Bilibili = {
     init() {
+      BilibiliGlobalData.init();
       BilibiliVueProp.init();
-      PopsPanel.execMenuOnce("bili-allowCopy", () => {
+      Panel.execMenuOnce("bili-allowCopy", () => {
         return addStyle(
           /*css*/
           `
@@ -14686,70 +13660,70 @@
 			`
         );
       });
-      PopsPanel.onceExec("listenRouterChange", () => {
+      Panel.onceExec("listenRouterChange", () => {
         this.listenRouterChange();
       });
-      PopsPanel.execMenuOnce("bili-hookSetTimeout_autoOpenApp", () => {
-        log.info("hook  window.setTimeout autoOpenApp");
+      Panel.execMenuOnce("bili-hookSetTimeout_autoOpenApp", () => {
+        log$1.info("hook  window.setTimeout autoOpenApp");
         BilibiliHook.setTimeout("autoOpenApp");
         BilibiliHook.setTimeout("bilibili://");
         BilibiliHook.setTimeout("void 0 !== y && document[y]");
       });
-      PopsPanel.execMenuOnce("bili-overrideLaunchAppBtn_Vue_openApp", () => {
-        log.info("覆盖元素.launch-app-btn上的openApp");
+      Panel.execMenuOnce("bili-overrideLaunchAppBtn_Vue_openApp", () => {
+        log$1.info("覆盖元素.launch-app-btn上的openApp");
         BilibiliHook.overRideLaunchAppBtn_Vue_openApp();
       });
-      PopsPanel.execMenuOnce("bili-cover-bili-open-app-open", () => {
-        log.info(`覆盖元素bili-open-app上的opener.open`);
+      Panel.execMenuOnce("bili-cover-bili-open-app-open", () => {
+        log$1.info(`覆盖元素bili-open-app上的opener.open`);
         BilibiliHook.overRideBiliOpenApp();
       });
-      PopsPanel.execMenuOnce("bili-cover-wx-tag-handleClick", () => {
-        log.info(`覆盖元素.wx-tag的handleClick函数`);
+      Panel.execMenuOnce("bili-cover-wx-tag-handleClick", () => {
+        log$1.info(`覆盖元素.wx-tag的handleClick函数`);
         BilibiliHook.overRideWxTaghandleClick();
       });
-      PopsPanel.execMenuOnce("bili-head-beautify", () => {
-        log.info("添加美化CSS");
+      Panel.execMenuOnce("bili-head-beautify", () => {
+        log$1.info("添加美化CSS");
         return addStyle(BilibiliBeautifyCSS);
       });
-      PopsPanel.execMenuOnce("bili-componentDetection", () => {
+      Panel.execMenuOnce("bili-componentDetection", () => {
         BilibiliComponentDetection.init();
       });
       if (BilibiliRouter.isVideo()) {
-        log.info("Router: 视频稿件");
+        log$1.info("Router: 视频稿件");
         BilibiliVideo.init();
       } else if (BilibiliRouter.isOpus()) {
-        log.info("Router: 专栏稿件");
+        log$1.info("Router: 专栏稿件");
         BilibiliOpus.init();
       } else if (BilibiliPCRouter.isReadMobile()) {
-        log.info("PC-Router: 专栏稿件");
+        log$1.info("PC-Router: 专栏稿件");
         BilibiliReadMobile.init();
       } else if (BilibiliRouter.isDynamic()) {
-        log.info("Router: 动态");
+        log$1.info("Router: 动态");
         BilibiliDynamic.init();
       } else if (BilibiliRouter.isBangumi()) {
-        log.info("Router: 番剧");
+        log$1.info("Router: 番剧");
         BilibiliBangumi.init();
       } else if (BilibiliRouter.isSearch()) {
-        log.info("Router: 搜索");
+        log$1.info("Router: 搜索");
         BilibiliSearch.init();
       } else if (BilibiliRouter.isLive()) {
-        log.info("Router: 直播");
+        log$1.info("Router: 直播");
         BilibiliLive.init();
       } else if (BilibiliRouter.isTopicDetail()) {
-        log.info("Router: 话题");
+        log$1.info("Router: 话题");
       } else if (BilibiliRouter.isHead()) {
-        log.info("Router: 首页之类的");
+        log$1.info("Router: 首页之类的");
         BilibiliHead.init();
       } else if (BilibiliRouter.isSpace()) {
-        log.info("Router: 个人空间");
+        log$1.info("Router: 个人空间");
         BilibiliSpace.init();
       } else if (BilibiliRouter.isPlayList()) {
-        log.info(`Router: 播放列表`);
+        log$1.info(`Router: 播放列表`);
         BilibiliPlayList.init();
       } else {
-        log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
+        log$1.error("该Router暂未适配，可能是首页之类：" + window.location.href);
       }
-      domutils.ready(() => {
+      domUtils.ready(() => {
       });
     },
     /**
@@ -14763,46 +13737,44 @@
           return typeof ((_a2 = vueInstance == null ? void 0 : vueInstance.$router) == null ? void 0 : _a2.afterEach) === "function";
         },
         set: (vueInstance) => {
-          log.success("成功设置监听路由变化");
+          log$1.success("成功设置监听路由变化");
           vueInstance.$router.beforeHooks.splice(
             0,
             0,
             (to, from, next) => {
-              log.info("路由变化 => 更新前", {
+              log$1.info("路由变化 => 更新前", {
                 to,
                 from
               });
               if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
-                log.info("该路由变化判定为#/seeCommentReply");
+                log$1.info("该路由变化判定为#/seeCommentReply");
                 next();
                 return;
               }
-              if (PopsPanel.getValue("bili-repairVueRouter404")) {
+              if (Panel.getValue("bili-repairVueRouter404")) {
                 if (to.name === "space") {
-                  log.info(`修复空间跳转404`);
+                  log$1.info(`修复空间跳转404`);
                   window.location.href = to.fullPath;
                   return;
                 }
               }
               if (to.fullPath.startsWith("/video")) {
-                if (from.fullPath.startsWith("/video") && PopsPanel.getValue(
-                  "bili-video-forceThisPageToRefreshAndRedirect"
-                )) {
-                  log.info(`强制本页刷新`);
+                if (from.fullPath.startsWith("/video") && Panel.getValue("bili-video-forceThisPageToRefreshAndRedirect")) {
+                  log$1.info(`强制本页刷新`);
                   window.location.href = to.fullPath;
                   return;
-                } else if (BilibiliRouter.isHead() && PopsPanel.getValue("bili-head-openVideoInNewTab")) {
-                  log.info(`当前是首页，新标签页打开`);
+                } else if (BilibiliRouter.isHead() && Panel.getValue("bili-head-openVideoInNewTab")) {
+                  log$1.info(`当前是首页，新标签页打开`);
                   window.open(to.fullPath, "_blank");
                   return;
                 }
               } else if (to.fullPath.startsWith("/bangumi")) {
                 if (from.fullPath.startsWith("/bangumi")) {
-                  log.info(`番剧 => 番剧`);
+                  log$1.info(`番剧 => 番剧`);
                   window.location.href = to.fullPath;
                   return;
-                } else if (BilibiliRouter.isHead() && PopsPanel.getValue("bili-head-openVideoInNewTab")) {
-                  log.info(`首页 => 番剧`);
+                } else if (BilibiliRouter.isHead() && Panel.getValue("bili-head-openVideoInNewTab")) {
+                  log$1.info(`首页 => 番剧`);
                   window.open(to.fullPath, "_blank");
                   return;
                 }
@@ -14814,15 +13786,15 @@
             0,
             0,
             (to, from) => {
-              log.info("路由变化 => 更新后", {
+              log$1.info("路由变化 => 更新后", {
                 to,
                 from
               });
               if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
-                log.info("该路由变化判定为#/seeCommentReply，不重载");
+                log$1.info("该路由变化判定为#/seeCommentReply，不重载");
                 return;
               }
-              PopsPanel.execMenu("bili-listenRouterChange", () => {
+              Panel.execMenu("bili-listenRouterChange", () => {
                 Bilibili.init();
               });
             }
@@ -14831,7 +13803,1539 @@
       });
     }
   };
-  PopsPanel.init();
+  const UISelect = function(text, key, defaultValue, data2, callback, description) {
+    let selectData = [];
+    if (typeof data2 === "function") {
+      selectData = data2();
+    } else {
+      selectData = data2;
+    }
+    let result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(event, isSelectedValue, isSelectedText) {
+        let value = isSelectedValue;
+        log$1.info(`选择：${isSelectedText}`);
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof callback === "function") {
+          callback(event, value, isSelectedText);
+        }
+      },
+      data: selectData
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.setComponentsStorageApiProperty(
+      "select",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
+    let result = {
+      text,
+      type: "button",
+      attributes: {},
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
+        }
+      },
+      afterAddToUListCallBack
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(
+        disable
+      );
+    });
+    return result;
+  };
+  const SettingUICommon = {
+    id: "panel-common",
+    title: "通用",
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "监听路由-重载所有功能",
+                    "bili-listenRouterChange",
+                    true,
+                    void 0,
+                    "用于处理页面跳转(本页)时功能不生效问题"
+                  ),
+                  UISwitch(
+                    "修复VueRouter跳转404问题",
+                    "bili-repairVueRouter404",
+                    true,
+                    void 0,
+                    "例如：点击UP主正确进入空间"
+                  ),
+                  UISwitch(
+                    "新标签页打开",
+                    "bili-go-to-url-blank",
+                    false,
+                    void 0,
+                    "通过开启【覆盖点击事件】相关的设置，通过新标签页打开链接"
+                  ),
+                  UISwitch(
+                    "允许复制",
+                    "bili-allowCopy",
+                    true,
+                    void 0,
+                    "一般用于处理楼层的回复弹窗内无法选中复制问题"
+                  )
+                  // UISwitch(
+                  // 	"自动删除Cookie buvid3",
+                  // 	"common_auto_delete_cookie_buvid3",
+                  // 	true
+                  // ),
+                ]
+              }
+            ]
+          },
+          {
+            text: "变量设置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "noCallApp",
+                    "bili-noCallApp",
+                    true,
+                    void 0,
+                    "$store.state.common.noCallApp=true"
+                  ),
+                  UISwitch(
+                    "isLogin",
+                    "bili-setLogin",
+                    true,
+                    void 0,
+                    [
+                      "$store.state.common.userInfo.isLogin=true",
+                      "$store.state.loginInfo.isLogin=true"
+                    ].join("<br>")
+                  ),
+                  UISwitch(
+                    "isClient",
+                    "bili-setIsClient",
+                    true,
+                    void 0,
+                    [
+                      "$store.state.video.isClient=true",
+                      "$store.state.opus.isClient=true",
+                      "$store.state.playlist.isClient=true",
+                      "$store.state.ver.bili=true",
+                      "$store.state.ver.biliVer=2333"
+                    ].join("<br>")
+                  )
+                  // UISwitch(
+                  // 	"tinyApp",
+                  // 	"bili-setTinyApp",
+                  // 	true,
+                  // 	void 0,
+                  // 	"$store.state.common.tinyApp=true"
+                  // ),
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "覆盖.launch-app-btn openApp",
+                    "bili-overrideLaunchAppBtn_Vue_openApp",
+                    true,
+                    void 0,
+                    "覆盖.launch-app-btn元素上的openApp函数，可阻止点击唤醒/下载App"
+                  ),
+                  UISwitch(
+                    "覆盖bili-open-app opener.open",
+                    "bili-cover-bili-open-app-open",
+                    true,
+                    void 0,
+                    "覆盖bili-open-app/m-open-app元素上的opener.open函数，可阻止点击唤醒/下载App，如果存在有效链接，会自动跳转"
+                  ),
+                  UISwitch(
+                    "覆盖.wx-tag的handleClick",
+                    "bili-cover-wx-tag-handleClick",
+                    true,
+                    void 0,
+                    "覆盖.wx-tag元素上的点击事件，让它直接打开视频"
+                  ),
+                  UISwitch(
+                    "劫持setTimeout-autoOpenApp",
+                    "bili-hookSetTimeout_autoOpenApp",
+                    true,
+                    void 0,
+                    "阻止自动调用App"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "成分检测",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "bili-componentDetection",
+                    true,
+                    void 0,
+                    "启用后可检测用户的成分信息"
+                  ),
+                  UIButton(
+                    "自定义规则",
+                    "检测用户成分的规则",
+                    "管理",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      BilibiliComponentDetectionRule.showView();
+                    }
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UIButton(
+                    "数据导入",
+                    "导入自定义规则数据",
+                    "导入",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      BilibiliComponentDetectionRule.importRule();
+                    }
+                  ),
+                  UIButton(
+                    "数据导出",
+                    "导出自定义规则数据",
+                    "导出",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      BilibiliComponentDetectionRule.exportRule("成分检测.json");
+                    }
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "数据配置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UIInput(
+                    "access_token",
+                    "bili-head-recommend-access_token",
+                    BilibiliQrCodeLogin.getAccessToken(),
+                    "填入access_token，可用于获取推荐视频数据、番剧搜索、番剧播放等",
+                    (event, value, valueAsNumber) => {
+                      BilibiliQrCodeLogin.setAccessTokenInfo({
+                        access_token: value,
+                        expireAt: BilibiliQrCodeLogin.generateExpireAt()
+                      });
+                    },
+                    void 0,
+                    false,
+                    true
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "Toast配置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "Toast位置",
+                    "qmsg-config-position",
+                    "bottom",
+                    [
+                      {
+                        value: "topleft",
+                        text: "左上角"
+                      },
+                      {
+                        value: "top",
+                        text: "顶部"
+                      },
+                      {
+                        value: "topright",
+                        text: "右上角"
+                      },
+                      {
+                        value: "left",
+                        text: "左边"
+                      },
+                      {
+                        value: "center",
+                        text: "中间"
+                      },
+                      {
+                        value: "right",
+                        text: "右边"
+                      },
+                      {
+                        value: "bottomleft",
+                        text: "左下角"
+                      },
+                      {
+                        value: "bottom",
+                        text: "底部"
+                      },
+                      {
+                        value: "bottomright",
+                        text: "右下角"
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      log$1.info("设置当前Qmsg弹出位置" + isSelectText);
+                    },
+                    "Toast显示在页面九宫格的位置"
+                  ),
+                  UISelect(
+                    "最多显示的数量",
+                    "qmsg-config-maxnums",
+                    3,
+                    [
+                      {
+                        value: 1,
+                        text: "1"
+                      },
+                      {
+                        value: 2,
+                        text: "2"
+                      },
+                      {
+                        value: 3,
+                        text: "3"
+                      },
+                      {
+                        value: 4,
+                        text: "4"
+                      },
+                      {
+                        value: 5,
+                        text: "5"
+                      }
+                    ],
+                    void 0,
+                    "限制Toast显示的数量"
+                  ),
+                  UISwitch(
+                    "逆序弹出",
+                    "qmsg-config-showreverse",
+                    false,
+                    void 0,
+                    "修改Toast弹出的顺序"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "Cookie配置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "httpx-use-cookie-enable",
+                    false,
+                    void 0,
+                    "启用后，将根据下面的配置进行添加cookie"
+                  ),
+                  UISwitch(
+                    "使用document.cookie",
+                    "httpx-use-document-cookie",
+                    false,
+                    void 0,
+                    "自动根据请求的域名来获取对应的cookie"
+                  ),
+                  UITextArea(
+                    "bilibili.com",
+                    "httpx-cookie-bilibili.com",
+                    "",
+                    void 0,
+                    void 0,
+                    "Cookie格式：xxx=xxxx;xxx=xxxx"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const SettingUIHead = {
+    id: "panel-head",
+    title: "首页",
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "美化显示",
+                    "bili-head-beautify",
+                    true,
+                    void 0,
+                    "调整瀑布流视频卡片样式类似哔哩哔哩App"
+                  ),
+                  UISwitch(
+                    "美化顶部NavBar",
+                    "bili-beautifyTopNavBar",
+                    true,
+                    void 0,
+                    "类似哔哩哔哩App的样式"
+                  ),
+                  UISwitch(
+                    "补充推荐视频信息",
+                    "bili-head-supplementaryVideoStreamingInformation",
+                    true,
+                    void 0,
+                    "给视频添加UP主名，当前视频总时长信息"
+                  ),
+                  UISwitch(
+                    "新标签页打开",
+                    "bili-head-openVideoInNewTab",
+                    false,
+                    void 0,
+                    "包括视频、番剧"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "推荐视频",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "bili-head-recommend-enable",
+                    true,
+                    void 0,
+                    "添加【推荐】标签，数据来源为App端(如果填入了access_token的话)"
+                  ),
+                  UISwitch(
+                    "显示【图文】",
+                    "bili-head-recommend-push-graphic",
+                    true,
+                    void 0,
+                    "加载App端推送的【图文】卡片"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
+    let result = {
+      text,
+      type: "slider",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      getToolTipContent(value) {
+        if (typeof getToolTipContent === "function") {
+          return getToolTipContent(value);
+        } else {
+          return `${value}`;
+        }
+      },
+      callback(event, value) {
+        this.props[PROPS_STORAGE_API].set(key, value);
+      },
+      min,
+      max,
+      step
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.setComponentsStorageApiProperty(
+      "slider",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  const SettingUIVideo = {
+    id: "panel-video",
+    title: "视频",
+    isDefault() {
+      return BilibiliRouter.isVideo();
+    },
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  // UISwitch(
+                  // 	"调整视频底部区域高度",
+                  // 	"bili-video-repairVideoBottomAreaHeight",
+                  // 	true,
+                  // 	void 0,
+                  // 	"添加margin-top"
+                  // ),
+                  // UISwitch(
+                  // 	"美化底部推荐视频",
+                  // 	"bili-video-beautify",
+                  // 	true,
+                  // 	void 0,
+                  // 	"调整底部推荐视频卡片样式类似哔哩哔哩App"
+                  // ),
+                  // UISwitch(
+                  // 	"手势返回关闭评论区",
+                  // 	"bili-video-gestureReturnToCloseCommentArea",
+                  // 	true,
+                  // 	void 0,
+                  // 	"当浏览器手势触发浏览器回退页面时，关闭评论区"
+                  // ),
+                  UISwitch(
+                    "强制本页刷新跳转",
+                    "bili-video-forceThisPageToRefreshAndRedirect",
+                    false,
+                    void 0,
+                    "用于处理内存泄露问题"
+                  ),
+                  // UISwitch(
+                  // 	"修复链接跳转",
+                  // 	"bili-video-repairLinkJump",
+                  // 	true,
+                  // 	void 0,
+                  // 	"如@用户、搜索"
+                  // ),
+                  UISwitch(
+                    "新增评论模块",
+                    "bili-video-addCommentModule",
+                    true,
+                    void 0,
+                    "用于查看当前视频的评论"
+                  ),
+                  UISwitch(
+                    "新增简介模块",
+                    "bili-video-addDescModule",
+                    true,
+                    void 0,
+                    "用于查看当前视频的播放量、简介、一键三连等信息"
+                  )
+                ]
+              }
+              // {
+              // 	type: "forms",
+              // 	text: "底部Tab",
+              // 	forms: [
+              // 		UISwitch(
+              // 			"滚动固钉Tab",
+              // 			"bili-video-optimizationScroll",
+              // 			true,
+              // 			void 0,
+              // 			"向下滚动时，自动跳转视频区域大小且对Tab进行吸附处理"
+              // 		),
+              // 		UISwitch(
+              // 			"禁止滑动切换Tab",
+              // 			"bili-video-disableSwipeTab",
+              // 			false,
+              // 			void 0,
+              // 			"禁止左右滑动切换Tab"
+              // 		),
+              // 	],
+              // },
+            ]
+          },
+          {
+            text: "ArtPlayer播放器",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "功能",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "bili-video-enableArtPlayer",
+                    true,
+                    void 0,
+                    "使用artplayer代替页面的播放器"
+                  ),
+                  UISelect(
+                    "播放的视频类型",
+                    "bili-video-playType",
+                    "mp4",
+                    [
+                      {
+                        text: "mp4",
+                        value: "mp4"
+                      },
+                      {
+                        text: "dash",
+                        value: "dash"
+                      }
+                    ],
+                    void 0,
+                    "当选择dash时会有画质更高的选项"
+                  ),
+                  UISwitch(
+                    "自动播放视频",
+                    "bili-video-playerAutoPlayVideo",
+                    false,
+                    void 0,
+                    ""
+                  ),
+                  UISwitch(
+                    "自动进入全屏",
+                    "bili-video-playerAutoPlayVideoFullScreen",
+                    false,
+                    void 0,
+                    ""
+                  )
+                ]
+              },
+              {
+                text: "控件设置",
+                type: "forms",
+                forms: [
+                  UISlider(
+                    "controls左右边距",
+                    "bili-video-artplayer-controlsPadding-left-right",
+                    0,
+                    0,
+                    50,
+                    void 0,
+                    (value) => {
+                      return value + "px";
+                    },
+                    "可用于全屏横屏适配屏幕",
+                    1
+                  )
+                ]
+              },
+              {
+                text: "插件",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "弹幕",
+                    "artplayer-plugin-video-danmaku-enable",
+                    true,
+                    void 0,
+                    "哔哩哔哩 (゜-゜)つロ 干杯~"
+                  ),
+                  UISwitch(
+                    "Dash Audio Support",
+                    "artplayer-plugin-video-m4sAudioSupport-enable",
+                    true,
+                    void 0,
+                    "视频类型为dash时，该插件可支持播放音频"
+                  ),
+                  UISwitch(
+                    "选集",
+                    "artplayer-plugin-video-epChoose-enable",
+                    true,
+                    void 0,
+                    "当视频播放完毕后会自动连播"
+                  ),
+                  UISwitch(
+                    "CC字幕",
+                    "artplayer-plugin-video-cc-subtitle-enable",
+                    true,
+                    void 0,
+                    "字幕支持插件，如果存在繁体字幕，则自动生成简体字幕"
+                  ),
+                  UISwitch(
+                    "顶部工具栏",
+                    "artplayer-plugin-video-toptoolbar-enable",
+                    true,
+                    void 0,
+                    "显示视频标题和当前观看人数"
+                  ),
+                  UISwitch(
+                    "视频统计信息",
+                    "artplayer-plugin-video-statistics-enable",
+                    true,
+                    void 0,
+                    "用于显示当前视频信息的弹窗"
+                  )
+                ]
+              },
+              {
+                text: "加速CDN设置",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "UPOS服务器设置",
+                    "bili-video-uposServerSelect",
+                    "",
+                    BilibiliCDNProxy.getUposCDNServerList().map((item) => {
+                      return {
+                        text: item.name,
+                        value: item.host
+                      };
+                    }),
+                    void 0,
+                    "设置视频流的服务器，可加快视频加载速度"
+                  ),
+                  UISwitch(
+                    "作用于Audio上",
+                    "bili-video-uposServerSelect-applyAudio",
+                    false,
+                    void 0,
+                    "把m4s类型的audio也进行upos替换"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "覆盖点击事件",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "UP主信息",
+                    "bili-video-cover-UpWrapper",
+                    true,
+                    void 0,
+                    "点击UP主头像/名称可跳转至UP主空间"
+                  ),
+                  UISwitch(
+                    "相关视频",
+                    "bili-video-cover-bottomRecommendVideo",
+                    true,
+                    void 0,
+                    "点击下面的相关视频可正确跳转至该视频"
+                  ),
+                  UISwitch(
+                    "选集",
+                    "bili-video-cover-seasonNew",
+                    true,
+                    void 0,
+                    "点击下面的选集列表内的视频可正确跳转至该视频"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "阻止调用App",
+                    "bili-video-hook-callApp",
+                    true,
+                    void 0,
+                    "处理函数: PlayerAgent"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const SettingUIOpus = {
+    id: "panel-opus",
+    title: "专栏",
+    isDefault() {
+      return BilibiliRouter.isOpus();
+    },
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "自动展开阅读全文",
+                    "bili-opus-automaticallyExpandToReadFullText",
+                    true,
+                    void 0,
+                    "屏蔽【展开阅读全文】按钮并自动处理全文高度"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "变量设置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "autoOpenApp",
+                    "bili-opus-variable-autoOpenApp",
+                    true,
+                    void 0,
+                    "autoOpenApp函数置空"
+                  ),
+                  UISwitch(
+                    "go404",
+                    "bili-opus-variable-go404",
+                    true,
+                    void 0,
+                    "go404函数置空，可禁止前往404页面"
+                  ),
+                  UISwitch(
+                    "handleFallback",
+                    "bili-opus-variable-handleFallback",
+                    true,
+                    void 0,
+                    "禁止前往404页面"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "覆盖点击事件",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "话题",
+                    "bili-opus-cover-topicJump",
+                    true,
+                    void 0,
+                    "点击话题正确跳转"
+                  ),
+                  UISwitch(
+                    "header用户",
+                    "bili-opus-cover-header",
+                    true,
+                    void 0,
+                    "点击内容上的发布本动态的用户正确跳转个人空间"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const SettingUIDynamic = {
+    id: "panel-dynamic",
+    title: "动态",
+    isDefault() {
+      return BilibiliRouter.isDynamic();
+    },
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "覆盖点击事件",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "话题",
+                    "bili-dynamic-cover-topicJump",
+                    true,
+                    void 0,
+                    "点击话题正确跳转"
+                  ),
+                  UISwitch(
+                    "header用户",
+                    "bili-dynamic-cover-header",
+                    true,
+                    void 0,
+                    "点击内容上的发布本动态的用户正确跳转个人空间"
+                  ),
+                  UISwitch(
+                    "@用户",
+                    "bili-dynamic-cover-atJump",
+                    true,
+                    void 0,
+                    "点击@用户正确跳转个人空间"
+                  ),
+                  UISwitch(
+                    "引用",
+                    "bili-dynamic-cover-referenceJump",
+                    true,
+                    void 0,
+                    "点击引用的视频|用户正确跳转"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const SettingUIBangumi = {
+    id: "panel-bangumi",
+    title: "番剧",
+    isDefault() {
+      return BilibiliRouter.isBangumi();
+    },
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "固定缩放倍率",
+                    "bili-bangumi-initialScale",
+                    true,
+                    void 0,
+                    ""
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "ArtPlayer播放器",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "控件设置",
+                type: "forms",
+                forms: [
+                  UISlider(
+                    "controls左右边距",
+                    "bili-bangumi-artplayer-controlsPadding-left-right",
+                    0,
+                    0,
+                    50,
+                    void 0,
+                    (value) => {
+                      return value + "px";
+                    },
+                    "可用于全屏横屏适配屏幕",
+                    1
+                  )
+                ]
+              },
+              {
+                text: "插件",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "弹幕",
+                    "artplayer-plugin-bangumi-danmaku-enable",
+                    true,
+                    void 0,
+                    "哔哩哔哩 (゜-゜)つロ 干杯~"
+                  ),
+                  UISwitch(
+                    "Dash Audio Support",
+                    "artplayer-plugin-bangumi-m4sAudioSupport-enable",
+                    true,
+                    void 0,
+                    "视频类型为dash时，该插件可支持播放音频"
+                  ),
+                  UISwitch(
+                    "选集",
+                    "artplayer-plugin-bangumi-epChoose-enable",
+                    true,
+                    void 0,
+                    "当视频播放完毕后会自动连播"
+                  ),
+                  UISwitch(
+                    "CC字幕",
+                    "artplayer-plugin-bangumi-cc-subtitle-enable",
+                    true,
+                    void 0,
+                    "字幕支持插件，如果存在繁体字幕，则自动生成简体字幕"
+                  ),
+                  UISwitch(
+                    "顶部工具栏",
+                    "artplayer-plugin-bangumi-toptoolbar-enable",
+                    true,
+                    void 0,
+                    "显示视频标题和当前观看人数"
+                  ),
+                  UISwitch(
+                    "空降助手",
+                    "artplayer-plugin-bangumi-airborneHelper-enable",
+                    true,
+                    void 0,
+                    "如果获取到的信息中存在空降信息，如跳过片头片尾，那么会自动跳过"
+                  ),
+                  UISwitch(
+                    "视频统计信息",
+                    "artplayer-plugin-bangumi-statistics-enable",
+                    true,
+                    void 0,
+                    "用于显示当前视频信息的弹窗"
+                  )
+                ]
+              },
+              {
+                text: "解除区域限制",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "解锁番剧限制",
+                    "bili-bangumi-unlockAreaLimit",
+                    false,
+                    void 0,
+                    "使用户可以观看区域外版权番剧"
+                  ),
+                  UISwitch(
+                    "生成简中字幕",
+                    "bili-bangumi-generateSimpleChineseSubtitle",
+                    true,
+                    void 0,
+                    "根据繁体字幕自动生成简体中文字幕"
+                  )
+                ]
+              },
+              {
+                text: "加速CDN设置",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "UPOS服务器设置",
+                    "bili-bangumi-uposServerSelect",
+                    "",
+                    BilibiliCDNProxy.getUposCDNServerList().map((item) => {
+                      return {
+                        text: item.name,
+                        value: item.host
+                      };
+                    }),
+                    void 0,
+                    "设置解锁番剧的服务器，可加快视频加载速度"
+                  ),
+                  UISwitch(
+                    "作用于Audio上",
+                    "bili-bangumi-uposServerSelect-applyAudio",
+                    false,
+                    void 0,
+                    "把m4s类型的audio也进行upos替换"
+                  )
+                ]
+              },
+              {
+                text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>解析服务器</a>",
+                type: "forms",
+                forms: [
+                  UIInput(
+                    "中国大陆",
+                    "bili-bangumi-proxyApiServer-default",
+                    "",
+                    "用于请求播放地址的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  ),
+                  UIInput(
+                    "香港",
+                    "bili-bangumi-proxyApiServer-hk",
+                    "",
+                    "用于请求播放地址的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  ),
+                  UIInput(
+                    "台湾",
+                    "bili-bangumi-proxyApiServer-tw",
+                    "",
+                    "用于请求播放地址的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  ),
+                  UIInput(
+                    "泰国/东南亚",
+                    "bili-bangumi-proxyApiServer-tha-or-sea",
+                    "",
+                    "用于请求播放地址的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "覆盖点击事件",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【选集】",
+                    "bili-bangumi-cover-clicl-event-chooseEp",
+                    true,
+                    void 0,
+                    "让【选集】的视频列表可点击跳转"
+                  ),
+                  UISwitch(
+                    "【其它】",
+                    "bili-bangumi-cover-clicl-event-other",
+                    true,
+                    void 0,
+                    "让【PV&其他】、【预告】、【主题曲】、【香境剧场】等的视频列表可点击跳转"
+                  ),
+                  UISwitch(
+                    "【更多推荐】",
+                    "bili-bangumi-cover-clicl-event-recommend",
+                    true,
+                    void 0,
+                    "让【更多推荐】的视频列表可点击跳转"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "阻止调用App",
+                    "bili-bangumi-hook-callApp",
+                    true,
+                    void 0,
+                    ""
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const SettingUISearch = {
+    id: "panel-search",
+    title: "搜索",
+    isDefault() {
+      return BilibiliRouter.isSearch();
+    },
+    forms: [
+      {
+        type: "forms",
+        text: "",
+        forms: [
+          {
+            type: "deepMenu",
+            text: "功能",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "搜索框自动获取焦点",
+                    "bili-search-inputAutoFocus",
+                    true,
+                    void 0,
+                    ""
+                  ),
+                  UISwitch(
+                    "美化搜索结果",
+                    "bili-search-beautifySearchResult",
+                    true,
+                    void 0,
+                    "重构搜索结果的样式"
+                  ),
+                  UISwitch(
+                    "开启其它地区番剧搜索",
+                    "bili-search-enableOtherAreaSearchBangumi",
+                    false,
+                    void 0,
+                    "在搜索页面添加其它地区番剧搜索结果，需要解析服务器支持"
+                  )
+                ]
+              },
+              {
+                text: "<a href='https://github.com/yujincheng08/BiliRoaming/wiki/%E5%85%AC%E5%85%B1%E8%A7%A3%E6%9E%90%E6%9C%8D%E5%8A%A1%E5%99%A8' target='_blank'>搜索服务器</a>",
+                type: "forms",
+                forms: [
+                  UIInput(
+                    "香港",
+                    "bili-search-proxyApiServer-hk",
+                    "",
+                    "用于搜索番剧结果的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  ),
+                  UIInput(
+                    "台湾",
+                    "bili-search-proxyApiServer-tw",
+                    "",
+                    "用于搜索番剧结果的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  ),
+                  UIInput(
+                    "泰国/东南亚",
+                    "bili-search-proxyApiServer-tha-or-sea",
+                    "",
+                    "用于搜索番剧结果的代理",
+                    void 0,
+                    "bilibili优化.example.com"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            type: "deepMenu",
+            text: "覆盖点击事件",
+            forms: [
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UISwitch(
+                    "取消",
+                    "bili-search-cover-cancel",
+                    false,
+                    void 0,
+                    "点击取消按钮回退至上一页"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "变量设置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "noCallApp",
+                    "bili-search-vue-prop-noCallApp",
+                    true,
+                    void 0,
+                    "noCallApp = true"
+                  ),
+                  UISwitch(
+                    "openAppDialog",
+                    "bili-search-vue-prop-openAppDialog",
+                    true,
+                    void 0,
+                    "openAppDialog = false"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const SettingUISpace = {
+    id: "panel-space",
+    title: "个人空间",
+    isDefault() {
+      return BilibiliRouter.isSpace();
+    },
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "功能",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "修复正确跳转",
+                    "bili-space-repairRealJump",
+                    true,
+                    void 0,
+                    "修复视频|动态的正确跳转，避免跳转404"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "覆盖点击事件",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "动态视频",
+                    "bili-space-coverDynamicStateCardVideo",
+                    true,
+                    void 0,
+                    "点击发布动态的视频可正常跳转至该视频"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const SettingUILive = {
+    id: "panel-live",
+    title: "直播",
+    isDefault() {
+      return BilibiliRouter.isLive();
+    },
+    forms: [
+      {
+        text: "",
+        type: "forms",
+        forms: [
+          {
+            text: "屏蔽",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "【屏蔽】聊天室",
+                    "bili-live-block-chatRoom",
+                    false,
+                    void 0,
+                    "直接不显示底部的聊天室"
+                  ),
+                  UISwitch(
+                    "【屏蔽】xxx进入直播间",
+                    "bili-live-block-brush-prompt",
+                    false,
+                    void 0,
+                    "直接不显示底部的xxx进入直播间"
+                  ),
+                  UISwitch(
+                    "【屏蔽】控制面板",
+                    "bili-live-block-control-panel",
+                    false,
+                    void 0,
+                    "屏蔽底部的发个弹幕、送礼"
+                  )
+                ]
+              }
+            ]
+          },
+          {
+            text: "劫持/拦截",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "阻止open-app-btn元素点击事件触发",
+                    "bili-live-prevent-openAppBtn",
+                    true,
+                    void 0,
+                    "开启后可不跳转至唤醒App页面"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const SettingUITopicDetail = {
+    id: "panel-topic-detail",
+    title: "话题",
+    isDefault() {
+      return BilibiliRouter.isTopicDetail();
+    },
+    forms: []
+  };
+  PanelContent.addContentConfig([
+    SettingUICommon,
+    SettingUIHead,
+    SettingUIVideo,
+    SettingUIOpus,
+    SettingUIDynamic,
+    SettingUIBangumi,
+    SettingUITopicDetail,
+    SettingUISearch,
+    SettingUISpace,
+    SettingUILive
+  ]);
+  PanelMenu.addMenuOption([
+    {
+      key: "go_to_login",
+      text: "🛠 前往登录",
+      autoReload: false,
+      isStoreValue: false,
+      showText(text) {
+        return text;
+      },
+      callback() {
+        BilibiliUtils.goToLogin();
+      }
+    },
+    {
+      key: "go_to_login_to_parse_access_key",
+      text: "🛠 扫码并解析access_key",
+      autoReload: false,
+      isStoreValue: false,
+      showText(text) {
+        return text;
+      },
+      callback() {
+        BilibiliQrCodeLogin.init();
+      }
+    }
+  ]);
+  Panel.init();
   Bilibili.init();
   __pops.config.cssText.index += /*css*/
 `
@@ -14866,4 +15370,4 @@ aside.pops-panel-aside .pops-is-visited, aside.pops-panel-aside ul li:hover{
 }
 `  ;
 
-})(Qmsg, Utils, DOMUtils, pops, MD5, Artplayer, artplayerPluginDanmuku, Viewer, MD5);
+})(Qmsg, DOMUtils, Utils, pops, MD5, Artplayer, artplayerPluginDanmuku, Viewer, MD5);
