@@ -1,8 +1,10 @@
-import { GMCookie, httpx, log, Qmsg, utils } from "@/env";
+import { cookieManager, httpx, log, utils } from "@/env";
 import { BilibiliApiRequestCheck } from "./BilibiliApiRequestCheck";
 import { BilibiliApiConfig } from "./BilibiliApiConfig";
 import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
 import { VideoQualityNameMap } from "@/video-info/VideoDict";
+import Qmsg from "qmsg";
+import { BilibiliGlobalData } from "@/main/BilibiliGlobalData";
 
 type BilibliPlayUrlCommonConfig = {
 	cid: string | number;
@@ -192,7 +194,12 @@ export const BilibiliVideoApi = {
 			fnver: config.fnver ?? 0,
 			// 是否允许 4K 视频
 			fourk: config.fourk ?? 1,
+			// 为 1 时可以不登录拉到 64 和 80 清晰度，但是也会限制最高画质为80
+			try_look: 0,
 		};
+		if (!(await BilibiliGlobalData.$data.isLogin)) {
+			searchParamsData.try_look = 1;
+		}
 		if (config.setPlatformHTML5) {
 			// 该值是用来请求可以在移动端播放的链接的
 			Reflect.set(searchParamsData, "platform", "html5");
@@ -204,7 +211,7 @@ export const BilibiliVideoApi = {
 		if (typeof extraParams === "object") {
 			Object.assign(searchParamsData, extraParams);
 		}
-		let getResp = await httpx.get(
+		let response = await httpx.get(
 			"https://api.bilibili.com/x/player/playurl?" +
 				utils.toSearchParamsStr(searchParamsData),
 			{
@@ -212,10 +219,10 @@ export const BilibiliVideoApi = {
 				fetch: true,
 			}
 		);
-		if (!getResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let data = utils.toJSON(getResp.data.responseText);
+		let data = utils.toJSON(response.data.responseText);
 		if (data["code"] !== 0) {
 			return;
 		}
@@ -283,7 +290,7 @@ export const BilibiliVideoApi = {
 	) {
 		let searchParamsData = {
 			like: config.like,
-			csrf: GMCookie.get("bili_jct")?.value || "",
+			csrf: cookieManager.get("bili_jct")?.value || "",
 		};
 
 		BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
