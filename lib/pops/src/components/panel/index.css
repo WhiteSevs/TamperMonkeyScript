@@ -14,6 +14,9 @@
 	--pops-panel-forms-header-icon-size: 20px;
 	--pops-panel-forms-header-padding-top-bottom: 15px;
 	--pops-panel-forms-header-padding-left-right: 10px;
+	--pops-panel-forms-container-item-left-text-gap: 6px;
+	--pops-panel-forms-container-item-left-desc-text-size: 0.8em;
+	--pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;
 	--pops-panel-forms-container-item-bg-color: #ffffff;
 	--pops-panel-forms-container-item-title-color: #333;
 	--pops-panel-forms-container-item-border-radius: 6px;
@@ -191,22 +194,21 @@ section.pops-panel-container
 section.pops-panel-container .pops-panel-forms-container-item ul li:last-child {
 	border: 0;
 }
-/* 主文字 */
-/*section.pops-panel-container
-	.pops-panel-forms-container-item
-	.pops-panel-item-left-text
-	.pops-panel-item-left-main-text {
-	line-height: 2;
-}*/
-/* 描述文字 */
-section.pops-panel-container
-	.pops-panel-forms-container-item
-	.pops-panel-item-left-text
-	.pops-panel-item-left-desc-text {
-	line-height: normal;
-	margin-top: 6px;
-	font-size: 0.8em;
-	color: rgb(108, 108, 108);
+/* 左侧的文字 */
+section.pops-panel-container .pops-panel-item-left-text {
+	display: flex;
+	flex-direction: column;
+	gap: var(--pops-panel-forms-container-item-left-text-gap);
+}
+
+/* 左侧的主文字 */
+section.pops-panel-container .pops-panel-item-left-main-text {
+	/*line-height: 2;*/
+}
+/* 左侧的描述文字 */
+section.pops-panel-container .pops-panel-item-left-desc-text {
+	font-size: var(--pops-panel-forms-container-item-left-desc-text-size);
+	color: var(--pops-panel-forms-container-item-left-desc-text-color);
 }
 
 /* 折叠面板 */
@@ -1077,35 +1079,8 @@ section.pops-panel-container
 }
 /* deepMenu的css */
 
-/* <code> */
-.pops[type-value="panel"] code {
-	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-	font-size: 0.85em;
-	color: #000;
-	background-color: #f0f0f0;
-	border-radius: 3px;
-	border: 0;
-	padding: 0.2em 0;
-	white-space: normal;
-	background: #f5f5f5;
-	text-wrap: wrap;
-	text-align: left;
-	word-spacing: normal;
-	word-break: normal;
-	word-wrap: normal;
-	line-height: 1.4;
-	-moz-tab-size: 8;
-	-o-tab-size: 8;
-	tab-size: 8;
-	-webkit-hyphens: none;
-	-moz-hyphens: none;
-	-ms-hyphens: none;
-	hyphens: none;
-	direction: ltr;
-}
-
-.pops[type-value="panel"] code::before,
-.pops[type-value="panel"] code::after {
-	letter-spacing: -0.2em;
-	content: "\00a0";
+/* 文字对齐 */
+.pops-panel-item-left-desc-text:has(code) {
+	display: flex;
+	align-items: baseline;
 }

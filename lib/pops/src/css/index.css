@@ -145,3 +145,36 @@ button.pops-header-control i:hover {
 	-ms-user-select: none;
 	user-select: none;
 }
+
+/* <code> */
+.pops code {
+	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+	font-size: 0.85em;
+	color: #000;
+	background-color: #f0f0f0;
+	border-radius: 3px;
+	border: 0;
+	padding: 0.2em 0;
+	white-space: normal;
+	background: #f5f5f5;
+	text-wrap: wrap;
+	text-align: left;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.4;
+	-moz-tab-size: 8;
+	-o-tab-size: 8;
+	tab-size: 8;
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+}
+
+.pops code::before,
+.pops code::after {
+	letter-spacing: -0.2em;
+	content: "\00a0";
+}
