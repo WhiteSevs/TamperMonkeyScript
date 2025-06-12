@@ -1,19 +1,9 @@
 {
-	"compilerOptions": {
-		"composite": true,
-		"module": "ESNext",
-		"moduleResolution": "Node",
-		"allowSyntheticDefaultImports": true,
-		/* 上面是初始化默认的 */
-		"target": "ESNext",
-		"typeRoots": ["types"],
-		"rootDir": "./../../"
-	},
+	"extends": "./../../script-components/components/base.tsconfig.node.json",
 	"include": [
 		"vite.config.ts",
-		"plugin/**/*",
+		"./../../script-components/components/base.vite.config.ts",
 		"./../../vite.utils.ts",
-		"./../../vite-plugins/**/*",
 		"types"
 	]
 }

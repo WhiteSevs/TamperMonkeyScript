@@ -1,9 +1,9 @@
-import { PanelSettingConfig } from "@/setting/panel-setting-config";
-import { PopsPanel } from "@/setting/setting";
 import { WebSiteDebugUtil } from "@/utils/WebSiteDebugUtil";
 import { GM_getResourceText } from "ViteGM";
 import { DebugToolConfig } from "../DebugToolConfig";
 import { unsafeWin, console } from "@/env";
+import { Panel } from "@components/setting/panel";
+import { GlobalSettingConfig } from "@/setting/config";
 
 export const Eruda = () => {
 	initEruda("Eruda", unsafeWin);
@@ -14,25 +14,25 @@ export const Eruda = () => {
 		return;
 	}
 	let inintPanelList = [];
-	if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_console.key)) {
+	if (Panel.getValue(GlobalSettingConfig.eruda_panel_console.key)) {
 		inintPanelList.push("console");
 	}
-	if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_elements.key)) {
+	if (Panel.getValue(GlobalSettingConfig.eruda_panel_elements.key)) {
 		inintPanelList.push("elements");
 	}
-	if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_network.key)) {
+	if (Panel.getValue(GlobalSettingConfig.eruda_panel_network.key)) {
 		inintPanelList.push("network");
 	}
-	if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_resources.key)) {
+	if (Panel.getValue(GlobalSettingConfig.eruda_panel_resources.key)) {
 		inintPanelList.push("resources");
 	}
-	if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_sources.key)) {
+	if (Panel.getValue(GlobalSettingConfig.eruda_panel_sources.key)) {
 		inintPanelList.push("sources");
 	}
-	if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_info.key)) {
+	if (Panel.getValue(GlobalSettingConfig.eruda_panel_info.key)) {
 		inintPanelList.push("info");
 	}
-	if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_snippets.key)) {
+	if (Panel.getValue(GlobalSettingConfig.eruda_panel_snippets.key)) {
 		inintPanelList.push("snippets");
 	}
 	DebugToolConfig.eruda.version = Eruda.version;
@@ -43,14 +43,12 @@ export const Eruda = () => {
 	console.log(`eruda项目地址：${DebugToolConfig.eruda.homeUrl}`);
 	console.log("eruda的全局变量名: Eruda");
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.key
-		)
+		Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key)
 	) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.resource
+					GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.resource
 				)
 			);
 			Eruda.add(erudaMonitor);
@@ -59,14 +57,12 @@ export const Eruda = () => {
 		}
 	}
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.key
-		)
+		Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key)
 	) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.resource
+					GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.resource
 				)
 			);
 			Eruda.add(erudaFeatures);
@@ -75,12 +71,12 @@ export const Eruda = () => {
 		}
 	}
 	if (
-		PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaTiming.key)
+		Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key)
 	) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.eruda_plugin_Resource_erudaTiming.resource
+					GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.resource
 				)
 			);
 			Eruda.add(erudaTiming);
@@ -88,13 +84,11 @@ export const Eruda = () => {
 			console.error("插件【eruda-timing】加载失败，原因：", error);
 		}
 	}
-	if (
-		PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaCode.key)
-	) {
+	if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key)) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.eruda_plugin_Resource_erudaCode.resource
+					GlobalSettingConfig.eruda_plugin_Resource_erudaCode.resource
 				)
 			);
 			Eruda.add(erudaCode);
@@ -103,14 +97,12 @@ export const Eruda = () => {
 		}
 	}
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.key
-		)
+		Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key)
 	) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource
+					GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.resource
 				)
 			);
 			Eruda.add(erudaBenchmark);
@@ -119,14 +111,14 @@ export const Eruda = () => {
 		}
 	}
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
+		Panel.getValue(
+			GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
 		)
 	) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource
+					GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.resource
 				)
 			);
 			Eruda.add(erudaGeolocation);
@@ -135,14 +127,14 @@ export const Eruda = () => {
 		}
 	}
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.key
+		Panel.getValue(
+			GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key
 		)
 	) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.resource
+					GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.resource
 				)
 			);
 			Eruda.add(erudaOrientation);
@@ -151,14 +143,12 @@ export const Eruda = () => {
 		}
 	}
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.eruda_plugin_Resource_erudaTouches.key
-		)
+		Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key)
 	) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.eruda_plugin_Resource_erudaTouches.resource
+					GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.resource
 				)
 			);
 			Eruda.add(erudaTouches);
@@ -167,14 +157,14 @@ export const Eruda = () => {
 		}
 	}
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key
+		Panel.getValue(
+			GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key
 		)
 	) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource
+					GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.resource
 				)
 			);
 			Eruda.add(erudaOutlinePlugin);
@@ -183,12 +173,12 @@ export const Eruda = () => {
 		}
 	}
 	if (
-		PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaPixel.key)
+		Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key)
 	) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.eruda_plugin_Resource_erudaPixel.resource
+					GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.resource
 				)
 			);
 			Eruda.add(erudaPixel);
@@ -196,13 +186,11 @@ export const Eruda = () => {
 			console.error("插件【eruda-pixel】加载失败，原因：", error);
 		}
 	}
-	if (
-		PopsPanel.getValue(PanelSettingConfig.eruda_plugin_Resource_erudaVue.key)
-	) {
+	if (Panel.getValue(GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key)) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.eruda_plugin_Resource_erudaVue.resource
+					GlobalSettingConfig.eruda_plugin_Resource_erudaVue.resource
 				)
 			);
 			Eruda.add(erudaVue);
@@ -210,10 +198,10 @@ export const Eruda = () => {
 			console.error("插件【eruda-vue】加载失败，原因：", error);
 		}
 	}
-	if (PopsPanel.getValue(PanelSettingConfig.eruda_auto_open_panel.key)) {
-		let defaultShowName = PopsPanel.getValue(
-			PanelSettingConfig.eruda_default_show_panel_name.key,
-			PanelSettingConfig.eruda_default_show_panel_name.defaultValue
+	if (Panel.getValue(GlobalSettingConfig.eruda_auto_open_panel.key)) {
+		let defaultShowName = Panel.getValue(
+			GlobalSettingConfig.eruda_default_show_panel_name.key,
+			GlobalSettingConfig.eruda_default_show_panel_name.defaultValue
 		);
 		Eruda.show();
 		setTimeout(() => {

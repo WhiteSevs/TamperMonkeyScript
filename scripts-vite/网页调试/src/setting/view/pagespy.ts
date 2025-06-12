@@ -1,12 +1,12 @@
 import { pops, utils } from "@/env";
 import { DebugToolConfig } from "@/main/DebugToolConfig";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UIButton } from "../common-components/ui-button";
-import { UISwitch } from "../common-components/ui-switch";
-import { UIInput } from "../common-components/ui-input";
-import { PanelUISize } from "../panel-ui-size";
-import { UISelect } from "../common-components/ui-select";
-import { PanelSettingConfig } from "../panel-setting-config";
+import { UIButton } from "@components/setting/components/ui-button";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { UIInput } from "@components/setting/components/ui-input";
+import { PanelUISize } from "@components/setting/panel-ui-size";
+import { UISelect } from "@components/setting/components/ui-select";
+import { GlobalSettingConfig } from "../config";
 
 export const PanelUI_pagespy: PopsPanelContentConfig = {
 	id: "debug-panel-config-pagespy",
@@ -91,8 +91,8 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
 				},
 				UISwitch(
 					"禁止在调试端运行",
-					PanelSettingConfig.pagespy_disable_run_in_debug_client.key,
-					PanelSettingConfig.pagespy_disable_run_in_debug_client.defaultValue,
+					GlobalSettingConfig.pagespy_disable_run_in_debug_client.key,
+					GlobalSettingConfig.pagespy_disable_run_in_debug_client.defaultValue,
 					void 0,
 					"调试端是下面配置的api/clientOrigin地址"
 				),
@@ -104,47 +104,47 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
 			forms: [
 				UIInput(
 					"api",
-					PanelSettingConfig.pagespy_api.key,
-					PanelSettingConfig.pagespy_api.defaultValue,
+					GlobalSettingConfig.pagespy_api.key,
+					GlobalSettingConfig.pagespy_api.defaultValue,
 					"",
 					void 0,
 					"服务器地址的 Host"
 				),
 				UIInput(
 					"clientOrigin",
-					PanelSettingConfig.pagespy_clientOrigin.key,
-					PanelSettingConfig.pagespy_clientOrigin.defaultValue,
+					GlobalSettingConfig.pagespy_clientOrigin.key,
+					GlobalSettingConfig.pagespy_clientOrigin.defaultValue,
 					"",
 					void 0,
 					"服务器地址的 Origin"
 				),
 				UIInput(
 					"project",
-					PanelSettingConfig.pagespy_project.key,
-					PanelSettingConfig.pagespy_project.defaultValue,
+					GlobalSettingConfig.pagespy_project.key,
+					GlobalSettingConfig.pagespy_project.defaultValue,
 					void 0,
 					void 0,
 					"项目名称"
 				),
 				UIInput(
 					"title",
-					PanelSettingConfig.pagespy_title.key,
-					PanelSettingConfig.pagespy_title.defaultValue,
+					GlobalSettingConfig.pagespy_title.key,
+					GlobalSettingConfig.pagespy_title.defaultValue,
 					void 0,
 					void 0,
 					"自定义标题"
 				),
 				UISwitch(
 					"autoRender",
-					PanelSettingConfig.pagespy_autoRender.key,
-					PanelSettingConfig.pagespy_autoRender.defaultValue,
+					GlobalSettingConfig.pagespy_autoRender.key,
+					GlobalSettingConfig.pagespy_autoRender.defaultValue,
 					void 0,
 					"自动渲染「圆形白底带 Logo」"
 				),
 				UISelect(
 					"enableSSL",
-					PanelSettingConfig.pagespy_enableSSL.key,
-					PanelSettingConfig.pagespy_enableSSL.defaultValue,
+					GlobalSettingConfig.pagespy_enableSSL.key,
+					GlobalSettingConfig.pagespy_enableSSL.defaultValue,
 					[
 						{
 							value: null,
@@ -164,29 +164,29 @@ export const PanelUI_pagespy: PopsPanelContentConfig = {
 				),
 				UISwitch(
 					"offline",
-					PanelSettingConfig.pagespy_offline.key,
-					PanelSettingConfig.pagespy_offline.defaultValue,
+					GlobalSettingConfig.pagespy_offline.key,
+					GlobalSettingConfig.pagespy_offline.defaultValue,
 					void 0,
 					`是否进入 "离线模式"，具体表现为 PageSpy 不会创建房间、建立 WebSocket 连接。`
 				),
 				UISwitch(
 					"serializeData",
-					PanelSettingConfig.pagespy_serializeData.key,
-					PanelSettingConfig.pagespy_serializeData.defaultValue,
+					GlobalSettingConfig.pagespy_serializeData.key,
+					GlobalSettingConfig.pagespy_serializeData.defaultValue,
 					void 0,
 					`是否允许 SDK 在收集离线日志时，序列化非基本类型的数据，序列化的目的是方便在回放时查看`
 				),
 				UISwitch(
 					"useSecret",
-					PanelSettingConfig.pagespy_useSecret.key,
-					PanelSettingConfig.pagespy_useSecret.defaultValue,
+					GlobalSettingConfig.pagespy_useSecret.key,
+					GlobalSettingConfig.pagespy_useSecret.defaultValue,
 					void 0,
 					`是否启用权限认证功能。启用后，SDK 会生成 6 位数的随机 “密钥”；调试端进入房间时要求输入对应的密钥`
 				),
 				UIInput(
 					"messageCapacity",
-					PanelSettingConfig.pagespy_messageCapacity.key,
-					PanelSettingConfig.pagespy_messageCapacity.defaultValue,
+					GlobalSettingConfig.pagespy_messageCapacity.key,
+					GlobalSettingConfig.pagespy_messageCapacity.defaultValue,
 					"调试端进入房间后可以看到之前的数据量的大小",
 					void 0,
 					`指定 SDK 在本地最多缓存多少条数据记录`

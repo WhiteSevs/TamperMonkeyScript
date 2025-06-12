@@ -1,6 +1,4 @@
-import { PopsPanel } from "@/setting/setting";
 import { console, copy, DOMUtils, GM_Menu, unsafeWin, utils } from "@/env";
-import { PanelSettingConfig } from "@/setting/panel-setting-config";
 import type {
 	UtilsGMMenuClickCallBackData,
 	UtilsGMMenuOption,
@@ -9,6 +7,8 @@ import { Eruda } from "./Eruda/Eruda";
 import { vConsole } from "./vConsole/vConsole";
 import { PageSpy } from "./PageSpy/PageSpy";
 import { Chii } from "./Chii/Chii";
+import { Panel } from "@components/setting/panel";
+import { GlobalSettingConfig } from "@/setting/config";
 
 export const DebugTool = {
 	$data: {
@@ -27,10 +27,10 @@ export const DebugTool = {
 	 * 处理当在iframe内加载时，是否允许执行，如果允许，那么把url添加到菜单中
 	 */
 	handleToolWithIframe() {
-		if (PopsPanel.isTopWindow()) {
+		if (Panel.isTopWindow()) {
 			return true;
 		}
-		if (!PopsPanel.getValue(PanelSettingConfig.allowRunInIframe.key)) {
+		if (!Panel.getValue(GlobalSettingConfig.allowRunInIframe.key)) {
 			return false;
 		}
 		this.$data.iframeUrlList.push(window.location.href);
@@ -59,9 +59,7 @@ export const DebugTool = {
 	 */
 	execDebugTool() {
 		/* 当前的调试工具，默认为eruda */
-		let debugTool = PopsPanel.getValue<string>(
-			PanelSettingConfig.debugTool.key
-		);
+		let debugTool = Panel.getValue<string>(GlobalSettingConfig.debugTool.key);
 		debugTool = debugTool.toString().toLowerCase();
 		console.log(`网页调试：当前使用的调试工具【${debugTool}】`);
 		if (debugTool === "vconsole") {
@@ -92,7 +90,7 @@ export const DebugTool = {
 	 * 在脚本菜单中添加控制当前的调试工具状态的菜单按钮
 	 */
 	registerDebugToolMenuControls() {
-		if (!PopsPanel.isTopWindow()) {
+		if (!Panel.isTopWindow()) {
 			console.warn("不在iframe内重复添加菜单按钮");
 			return;
 		}

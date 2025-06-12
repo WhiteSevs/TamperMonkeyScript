@@ -1,12 +1,12 @@
 import { DebugToolConfig } from "@/main/DebugToolConfig";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UIButton } from "../common-components/ui-button";
+import { UIButton } from "@components/setting/components/ui-button";
 import { utils } from "@/env";
-import { UISwitch } from "../common-components/ui-switch";
-import { UISelect } from "../common-components/ui-select";
-import { PopsPanel } from "../setting";
-import { PanelSettingConfig } from "../panel-setting-config";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { UISelect } from "@components/setting/components/ui-select";
 import { DebugToolVersionConfig } from "@/main/DebugToolVersionConfig";
+import { GlobalSettingConfig } from "../config";
+import { Panel } from "@components/setting/panel";
 
 export const PanelUI_eruda: PopsPanelContentConfig = {
 	id: "debug-panel-config-eruda",
@@ -52,22 +52,22 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 				},
 				UISwitch(
 					"自动打开面板",
-					PanelSettingConfig.eruda_auto_open_panel.key,
-					PanelSettingConfig.eruda_auto_open_panel.defaultValue,
+					GlobalSettingConfig.eruda_auto_open_panel.key,
+					GlobalSettingConfig.eruda_auto_open_panel.defaultValue,
 					void 0,
 					"加载完毕后自动显示面板内容"
 				),
 				UISelect(
 					"默认展示的面板元素",
-					PanelSettingConfig.eruda_default_show_panel_name.key,
-					PanelSettingConfig.eruda_default_show_panel_name.defaultValue,
+					GlobalSettingConfig.eruda_default_show_panel_name.key,
+					GlobalSettingConfig.eruda_default_show_panel_name.defaultValue,
 					[
 						{
 							text: "Console",
 							value: "console",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_panel_console.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_panel_console.key
 								);
 							},
 						},
@@ -75,8 +75,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Elements",
 							value: "elements",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_panel_elements.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_panel_elements.key
 								);
 							},
 						},
@@ -84,8 +84,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Network",
 							value: "network",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_panel_network.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_panel_network.key
 								);
 							},
 						},
@@ -93,8 +93,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Resources",
 							value: "resources",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_panel_resources.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_panel_resources.key
 								);
 							},
 						},
@@ -102,8 +102,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Sources",
 							value: "sources",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_panel_sources.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_panel_sources.key
 								);
 							},
 						},
@@ -111,8 +111,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Info",
 							value: "info",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_panel_info.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_panel_info.key
 								);
 							},
 						},
@@ -120,8 +120,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Snippets",
 							value: "snippets",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_panel_snippets.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_panel_snippets.key
 								);
 							},
 						},
@@ -129,8 +129,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Monitor",
 							value: "monitor",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key
 								);
 							},
 						},
@@ -138,8 +138,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Features",
 							value: "features",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key
 								);
 							},
 						},
@@ -147,8 +147,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Timing",
 							value: "timing",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_plugin_Resource_erudaTiming.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key
 								);
 							},
 						},
@@ -156,8 +156,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Code",
 							value: "code",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_plugin_Resource_erudaCode.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key
 								);
 							},
 						},
@@ -165,8 +165,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Benchmark",
 							value: "benchmark",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key
 								);
 							},
 						},
@@ -174,8 +174,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Geolocation",
 							value: "geolocation",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key
 								);
 							},
 						},
@@ -183,8 +183,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Orientation",
 							value: "orientation",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key
 								);
 							},
 						},
@@ -192,8 +192,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Touches",
 							value: "touches",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_plugin_Resource_erudaTouches.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key
 								);
 							},
 						},
@@ -201,8 +201,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Outline",
 							value: "outline",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin
 										.key
 								);
 							},
@@ -211,8 +211,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Pixel",
 							value: "pixel",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_plugin_Resource_erudaPixel.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key
 								);
 							},
 						},
@@ -220,8 +220,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 							text: "Vue",
 							value: "vue",
 							disable() {
-								return !PopsPanel.getValue(
-									PanelSettingConfig.eruda_plugin_Resource_erudaVue.key
+								return !Panel.getValue(
+									GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key
 								);
 							},
 						},
@@ -241,50 +241,50 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 			forms: [
 				UISwitch(
 					"Console",
-					PanelSettingConfig.eruda_panel_console.key,
-					PanelSettingConfig.eruda_panel_console.defaultValue,
+					GlobalSettingConfig.eruda_panel_console.key,
+					GlobalSettingConfig.eruda_panel_console.defaultValue,
 					void 0,
 					"控制台"
 				),
 				UISwitch(
 					"Elements",
-					PanelSettingConfig.eruda_panel_elements.key,
-					PanelSettingConfig.eruda_panel_elements.defaultValue,
+					GlobalSettingConfig.eruda_panel_elements.key,
+					GlobalSettingConfig.eruda_panel_elements.defaultValue,
 					void 0,
 					"元素"
 				),
 				UISwitch(
 					"Network",
-					PanelSettingConfig.eruda_panel_network.key,
-					PanelSettingConfig.eruda_panel_network.defaultValue,
+					GlobalSettingConfig.eruda_panel_network.key,
+					GlobalSettingConfig.eruda_panel_network.defaultValue,
 					void 0,
 					"网络"
 				),
 				UISwitch(
 					"Resources",
-					PanelSettingConfig.eruda_panel_resources.key,
-					PanelSettingConfig.eruda_panel_resources.defaultValue,
+					GlobalSettingConfig.eruda_panel_resources.key,
+					GlobalSettingConfig.eruda_panel_resources.defaultValue,
 					void 0,
 					"资源"
 				),
 				UISwitch(
 					"Sources",
-					PanelSettingConfig.eruda_panel_sources.key,
-					PanelSettingConfig.eruda_panel_sources.defaultValue,
+					GlobalSettingConfig.eruda_panel_sources.key,
+					GlobalSettingConfig.eruda_panel_sources.defaultValue,
 					void 0,
 					"源代码"
 				),
 				UISwitch(
 					"Info",
-					PanelSettingConfig.eruda_panel_info.key,
-					PanelSettingConfig.eruda_panel_info.defaultValue,
+					GlobalSettingConfig.eruda_panel_info.key,
+					GlobalSettingConfig.eruda_panel_info.defaultValue,
 					void 0,
 					"信息"
 				),
 				UISwitch(
 					"Snippets",
-					PanelSettingConfig.eruda_panel_snippets.key,
-					PanelSettingConfig.eruda_panel_snippets.defaultValue,
+					GlobalSettingConfig.eruda_panel_snippets.key,
+					GlobalSettingConfig.eruda_panel_snippets.defaultValue,
 					void 0,
 					"拓展"
 				),
@@ -301,8 +301,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
                     </a>
                     eruda-monitor
                     `,
-					PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.key,
-					PanelSettingConfig.eruda_plugin_Resource_erudaMonitor.defaultValue,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.key,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaMonitor.defaultValue,
 					void 0,
 					`
 						v${DebugToolVersionConfig.eruda.plugin["eruda-monitor"]}
@@ -317,8 +317,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
                     </a>
                     eruda-features
                     `,
-					PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.key,
-					PanelSettingConfig.eruda_plugin_Resource_erudaFeatures.defaultValue,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.key,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaFeatures.defaultValue,
 					void 0,
 					`
 						v${DebugToolVersionConfig.eruda.plugin["eruda-features"]}
@@ -333,8 +333,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
                     </a>
                     eruda-timing
                     `,
-					PanelSettingConfig.eruda_plugin_Resource_erudaTiming.key,
-					PanelSettingConfig.eruda_plugin_Resource_erudaTiming.defaultValue,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.key,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaTiming.defaultValue,
 					void 0,
 					`
 						v${DebugToolVersionConfig["eruda"]["plugin"]["eruda-timing"]}
@@ -349,8 +349,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
                     </a>
                     eruda-code
                     `,
-					PanelSettingConfig.eruda_plugin_Resource_erudaCode.key,
-					PanelSettingConfig.eruda_plugin_Resource_erudaCode.defaultValue,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaCode.key,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaCode.defaultValue,
 					void 0,
 					`
 						v${DebugToolVersionConfig.eruda.plugin["eruda-code"]}
@@ -365,8 +365,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
                     </a>
                     eruda-benchmark
                     `,
-					PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.key,
-					PanelSettingConfig.eruda_plugin_Resource_erudaBenchmark.defaultValue,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.key,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaBenchmark.defaultValue,
 					void 0,
 					`
 						v${DebugToolVersionConfig.eruda.plugin["eruda-benchmark"]}
@@ -376,8 +376,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
 				),
 				UISwitch(
 					"eruda-geolocation",
-					PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation.key,
-					PanelSettingConfig.eruda_plugin_Resource_erudaGeolocation
+					GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation.key,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaGeolocation
 						.defaultValue,
 					void 0,
 					"测试地理位置接口"
@@ -389,8 +389,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
                     </a>
                     eruda-orientation
                     `,
-					PanelSettingConfig.eruda_plugin_Resource_erudaOrientation.key,
-					PanelSettingConfig.eruda_plugin_Resource_erudaOrientation
+					GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation.key,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaOrientation
 						.defaultValue,
 					void 0,
 					`
@@ -406,8 +406,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
                     </a>
                     eruda-vue
                     `,
-					PanelSettingConfig.eruda_plugin_Resource_erudaVue.key,
-					PanelSettingConfig.eruda_plugin_Resource_erudaVue.defaultValue,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaVue.key,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaVue.defaultValue,
 					void 0,
 					`
 						v${DebugToolVersionConfig.eruda.plugin["eruda-vue"]}
@@ -422,8 +422,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
                     </a>
                     eruda-touches
                     `,
-					PanelSettingConfig.eruda_plugin_Resource_erudaTouches.key,
-					PanelSettingConfig.eruda_plugin_Resource_erudaTouches.defaultValue,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.key,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaTouches.defaultValue,
 					void 0,
 					`
 						v${DebugToolVersionConfig.eruda.plugin["eruda-touches"]}
@@ -438,8 +438,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
                     </a>
                     eruda-outline-plugin
                     `,
-					PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key,
-					PanelSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin
+					GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin.key,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaOutlinePlugin
 						.defaultValue,
 					void 0,
 					`
@@ -455,8 +455,8 @@ export const PanelUI_eruda: PopsPanelContentConfig = {
                     </a>
                     eruda-pixel
                     `,
-					PanelSettingConfig.eruda_plugin_Resource_erudaPixel.key,
-					PanelSettingConfig.eruda_plugin_Resource_erudaPixel.defaultValue,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.key,
+					GlobalSettingConfig.eruda_plugin_Resource_erudaPixel.defaultValue,
 					void 0,
 					`
 						v${DebugToolVersionConfig.eruda.plugin["eruda-pixel"]}

@@ -1,11 +1,11 @@
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import { DebugTool } from "./DebugTool";
-import { PanelSettingConfig } from "@/setting/panel-setting-config";
+import { GlobalSettingConfig } from "@/setting/config";
 
 export const WebSiteDebug = {
 	init() {
 		if (DebugTool.handleToolWithIframe()) {
-			if (PopsPanel.getValue(PanelSettingConfig.autoLoadDebugTool.key)) {
+			if (Panel.getValue(GlobalSettingConfig.autoLoadDebugTool.key)) {
 				DebugTool.execDebugTool();
 			} else {
 				DebugTool.registerDebugToolMenuControls();

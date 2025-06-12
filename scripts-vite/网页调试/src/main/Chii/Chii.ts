@@ -1,27 +1,27 @@
-import { PanelSettingConfig } from "@/setting/panel-setting-config";
-import { PopsPanel } from "@/setting/setting";
 import { ChiiPluginHeight } from "./plugin/ChiiPluginHeight";
 import { unsafeWin, console } from "@/env";
+import { GlobalSettingConfig } from "@/setting/config";
+import { Panel } from "@components/setting/panel";
 
 export const Chii = () => {
-	let debugUrl = PopsPanel.getValue(
-		PanelSettingConfig.chii_debug_url.key,
-		PanelSettingConfig.chii_debug_url.defaultValue
+	let debugUrl = Panel.getValue(
+		GlobalSettingConfig.chii_debug_url.key,
+		GlobalSettingConfig.chii_debug_url.defaultValue
 	);
 	if (
 		window.location.href.startsWith(debugUrl) &&
-		PopsPanel.getValue(
-			PanelSettingConfig.chii_check_script_load.key,
-			PanelSettingConfig.chii_disable_run_in_debug_url.defaultValue
+		Panel.getValue(
+			GlobalSettingConfig.chii_check_script_load.key,
+			GlobalSettingConfig.chii_disable_run_in_debug_url.defaultValue
 		)
 	) {
 		console.log("禁止在调试端运行 ==> href包含debugUrl");
 		return;
 	}
-	PopsPanel.execMenu(PanelSettingConfig.chii_embedded_height_enable.key, () => {
+	Panel.execMenu(GlobalSettingConfig.chii_embedded_height_enable.key, () => {
 		ChiiPluginHeight.init();
 	});
-	if (PopsPanel.getValue(PanelSettingConfig.chii_check_script_load.key)) {
+	if (Panel.getValue(GlobalSettingConfig.chii_check_script_load.key)) {
 		function checkChiiScriptLoad(event: any) {
 			if (event.target === scriptNode) {
 				globalThis.alert(
@@ -38,13 +38,13 @@ export const Chii = () => {
 			capture: true,
 		});
 	}
-	let scriptJsUrl = PopsPanel.getValue(
-		PanelSettingConfig.chii_target_js.key,
-		PanelSettingConfig.chii_target_js.defaultValue
+	let scriptJsUrl = Panel.getValue(
+		GlobalSettingConfig.chii_target_js.key,
+		GlobalSettingConfig.chii_target_js.defaultValue
 	);
-	let scriptEmbedded = PopsPanel.getValue(
-		PanelSettingConfig.chii_script_embedded.key,
-		PanelSettingConfig.chii_script_embedded.defaultValue
+	let scriptEmbedded = Panel.getValue(
+		GlobalSettingConfig.chii_script_embedded.key,
+		GlobalSettingConfig.chii_script_embedded.defaultValue
 	);
 	let scriptNode = document.createElement("script");
 	scriptNode.src = scriptJsUrl;

@@ -1,15 +1,15 @@
-import { PopsPanel } from "@/setting/setting";
 import { console } from "@/env";
-import { PanelSettingConfig } from "@/setting/panel-setting-config";
+import { GlobalSettingConfig } from "@/setting/config";
+import { Panel } from "@components/setting/panel";
 
 export const ChiiPluginHeight = {
 	$data: {
 		get key() {
-			return PanelSettingConfig.chii_embedded_height.key;
+			return GlobalSettingConfig.chii_embedded_height.key;
 		},
 		winHeight: parseInt(window.innerHeight.toString()),
 		get winHalfHeight() {
-			return PanelSettingConfig.chii_embedded_height.defaultValue;
+			return GlobalSettingConfig.chii_embedded_height.defaultValue;
 		},
 	},
 	init() {
@@ -55,7 +55,7 @@ export const ChiiPluginHeight = {
 	 *
 	 */
 	getGMLocalHeight() {
-		return PopsPanel.getValue<number>(this.$data.key);
+		return Panel.getValue<number>(this.$data.key);
 	},
 	/**
 	 *
@@ -66,6 +66,6 @@ export const ChiiPluginHeight = {
 			console.log(value);
 			throw new TypeError(`${this.$data.key}的值必须是number`);
 		}
-		PopsPanel.setValue(this.$data.key, value);
+		Panel.setValue(this.$data.key, value);
 	},
 };

@@ -1,11 +1,11 @@
 import { unsafeWin, utils, console } from "@/env";
-import { PanelSettingConfig } from "@/setting/panel-setting-config";
-import { PopsPanel } from "@/setting/setting";
 import { WebSiteDebugUtil } from "@/utils/WebSiteDebugUtil";
 import { GM_getResourceText } from "ViteGM";
 import { DebugToolConfig } from "../DebugToolConfig";
 import { vConsolePluginState } from "./plugin/vConsolePluginState";
 import { vConsolePluginExportLog } from "./plugin/vConsolePluginExportLog";
+import { Panel } from "@components/setting/panel";
+import { GlobalSettingConfig } from "@/setting/config";
 
 export const vConsole = () => {
 	initVConsole("VConsole", unsafeWin);
@@ -16,44 +16,44 @@ export const vConsole = () => {
 		return;
 	}
 	let initPanelList: string[] = [];
-	if (PopsPanel.getValue(PanelSettingConfig.vConsole_panel_system.key)) {
+	if (Panel.getValue(GlobalSettingConfig.vConsole_panel_system.key)) {
 		initPanelList.push("system");
 	}
-	if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_network.key)) {
+	if (Panel.getValue(GlobalSettingConfig.eruda_panel_network.key)) {
 		initPanelList.push("network");
 	}
-	if (PopsPanel.getValue(PanelSettingConfig.eruda_panel_elements.key)) {
+	if (Panel.getValue(GlobalSettingConfig.eruda_panel_elements.key)) {
 		initPanelList.push("element");
 	}
-	if (PopsPanel.getValue(PanelSettingConfig.vConsole_panel_storage.key)) {
+	if (Panel.getValue(GlobalSettingConfig.vConsole_panel_storage.key)) {
 		initPanelList.push("storage");
 	}
 	let theme = "light";
-	if (PopsPanel.getValue(PanelSettingConfig.vConsole_theme.key) === "auto") {
+	if (Panel.getValue(GlobalSettingConfig.vConsole_theme.key) === "auto") {
 		if (utils.isThemeDark()) {
 			theme = "dark";
 		}
 	} else {
-		theme = PopsPanel.getValue(PanelSettingConfig.vConsole_theme.key);
+		theme = Panel.getValue(GlobalSettingConfig.vConsole_theme.key);
 	}
 	let defaultStorages = [];
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.vConsole_storage_defaultStorages_cookies.key
+		Panel.getValue(
+			GlobalSettingConfig.vConsole_storage_defaultStorages_cookies.key
 		)
 	) {
 		defaultStorages.push("cookies");
 	}
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.vConsole_storage_defaultStorages_localStorage.key
+		Panel.getValue(
+			GlobalSettingConfig.vConsole_storage_defaultStorages_localStorage.key
 		)
 	) {
 		defaultStorages.push("localStorage");
 	}
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.vConsole_storage_defaultStorages_sessionStorage.key
+		Panel.getValue(
+			GlobalSettingConfig.vConsole_storage_defaultStorages_sessionStorage.key
 		)
 	) {
 		defaultStorages.push("sessionStorage");
@@ -62,24 +62,24 @@ export const vConsole = () => {
 		defaultPlugins: initPanelList,
 		theme: "light",
 		onReady() {
-			if (PopsPanel.getValue(PanelSettingConfig.vconsole_auto_open_panel.key)) {
+			if (Panel.getValue(GlobalSettingConfig.vconsole_auto_open_panel.key)) {
 				vConsole.show();
 			}
 		},
-		disableLogScrolling: PopsPanel.getValue(
-			PanelSettingConfig.vconsole_disableLogScrolling.key
+		disableLogScrolling: Panel.getValue(
+			GlobalSettingConfig.vconsole_disableLogScrolling.key
 		),
 		log: {
-			maxLogNumber: PopsPanel.getValue(
-				PanelSettingConfig.vconsole_maxLogNumber.key,
-				PanelSettingConfig.vconsole_maxLogNumber.defaultValue
+			maxLogNumber: Panel.getValue(
+				GlobalSettingConfig.vconsole_maxLogNumber.key,
+				GlobalSettingConfig.vconsole_maxLogNumber.defaultValue
 			),
-			showTimestamps: PopsPanel.getValue(
-				PanelSettingConfig.vconsole_showTimestamps.key
+			showTimestamps: Panel.getValue(
+				GlobalSettingConfig.vconsole_showTimestamps.key
 			),
-			maxNetworkNumber: PopsPanel.getValue(
-				PanelSettingConfig.vconsole_maxNetworkNumber.key,
-				PanelSettingConfig.vconsole_maxNetworkNumber.defaultValue
+			maxNetworkNumber: Panel.getValue(
+				GlobalSettingConfig.vconsole_maxNetworkNumber.key,
+				GlobalSettingConfig.vconsole_maxNetworkNumber.defaultValue
 			),
 		},
 		storage: {
@@ -92,8 +92,8 @@ export const vConsole = () => {
 	console.log(`VConsole项目地址：${DebugToolConfig.vConsole.homeUrl}`);
 	console.log("VConsole的实例化的全局变量名: vConsole");
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key
+		Panel.getValue(
+			GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key
 		)
 	) {
 		try {
@@ -103,8 +103,8 @@ export const vConsole = () => {
 		}
 	}
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key
+		Panel.getValue(
+			GlobalSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key
 		)
 	) {
 		try {
@@ -114,14 +114,14 @@ export const vConsole = () => {
 		}
 	}
 	if (
-		PopsPanel.getValue(
-			PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key
+		Panel.getValue(
+			GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key
 		)
 	) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
 				GM_getResourceText(
-					PanelSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools
+					GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools
 						.resource
 				)
 			);
@@ -135,10 +135,10 @@ export const vConsole = () => {
 		}
 	}
 
-	if (PopsPanel.getValue(PanelSettingConfig.vconsole_auto_open_panel.key)) {
-		let defaultShowName = PopsPanel.getValue(
-			PanelSettingConfig.vconsole_default_show_panel_name.key,
-			PanelSettingConfig.vconsole_default_show_panel_name.defaultValue
+	if (Panel.getValue(GlobalSettingConfig.vconsole_auto_open_panel.key)) {
+		let defaultShowName = Panel.getValue(
+			GlobalSettingConfig.vconsole_default_show_panel_name.key,
+			GlobalSettingConfig.vconsole_default_show_panel_name.defaultValue
 		);
 		vConsole.show();
 		setTimeout(() => {
