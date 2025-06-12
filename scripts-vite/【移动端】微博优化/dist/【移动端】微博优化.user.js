@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.5.26
+// @version      2025.6.13
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,14 +13,14 @@
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.2/dist/index.umd.js
-// @connect      *
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
 // @connect      passport.weibo.com
+// @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
@@ -39,6 +39,7 @@
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   var _a;
+  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
   var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
@@ -48,96 +49,6 @@
   var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
-  const HttpxCookieManager = {
-    $data: {
-      /** 是否启用 */
-      get enable() {
-        return PopsPanel.getValue("httpx-use-cookie-enable");
-      },
-      /** 是否使用document.cookie */
-      get useDocumentCookie() {
-        return PopsPanel.getValue("httpx-use-document-cookie");
-      },
-      cookieRule: [
-        {
-          key: "httpx-cookie-weibo.com",
-          hostname: /weibo.com/g
-        }
-      ]
-    },
-    /**
-     * 补充cookie末尾分号
-     */
-    fixCookieSplit(str) {
-      if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
-        str += ";";
-      }
-      return str;
-    },
-    /**
-     * 合并两个cookie
-     */
-    concatCookie(targetCookie, newCookie) {
-      if (utils.isNull(targetCookie)) {
-        return newCookie;
-      }
-      targetCookie = targetCookie.trim();
-      newCookie = newCookie.trim();
-      targetCookie = this.fixCookieSplit(targetCookie);
-      if (newCookie.startsWith(";")) {
-        newCookie = newCookie.substring(1);
-      }
-      return targetCookie.concat(newCookie);
-    },
-    /**
-     * 处理cookie
-     * @param details
-     * @returns
-     */
-    handle(details) {
-      if (details.fetch) {
-        return;
-      }
-      if (!this.$data.enable) {
-        return;
-      }
-      let ownCookie = "";
-      let url = details.url;
-      if (url.startsWith("//")) {
-        url = window.location.protocol + url;
-      }
-      let urlObj = new URL(url);
-      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
-        window.location.hostname.split(".").slice(-2).join(".")
-      )) {
-        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
-      }
-      for (let index = 0; index < this.$data.cookieRule.length; index++) {
-        let rule = this.$data.cookieRule[index];
-        if (urlObj.hostname.match(rule.hostname)) {
-          let cookie = PopsPanel.getValue(rule.key);
-          if (utils.isNull(cookie)) {
-            break;
-          }
-          ownCookie = this.concatCookie(ownCookie, cookie);
-        }
-      }
-      if (utils.isNotNull(ownCookie)) {
-        if (details.headers && details.headers["Cookie"]) {
-          details.headers.Cookie = this.concatCookie(
-            details.headers.Cookie,
-            ownCookie
-          );
-        } else {
-          details.headers["Cookie"] = ownCookie;
-        }
-        log.info("Httpx => 设置cookie:", details);
-      }
-      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
-        delete details.headers.Cookie;
-      }
-    }
-  };
   const CommonUtil = {
     /**
      * 添加屏蔽CSS
@@ -174,7 +85,7 @@
      * })
      */
     setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
       } else {
@@ -192,7 +103,7 @@
       $link.rel = "stylesheet";
       $link.type = "text/css";
       $link.href = url;
-      domUtils.ready(() => {
+      DOMUtils.ready(() => {
         document.head.appendChild($link);
       });
     },
@@ -259,12 +170,125 @@
       if (!url.startsWith("http://")) {
         return url;
       }
-      let urlObj = new URL(url);
-      urlObj.protocol = "https:";
-      return urlObj.toString();
+      let urlInstance = new URL(url);
+      urlInstance.protocol = "https:";
+      return urlInstance.toString();
+    },
+    /**
+     * 禁止页面滚动，默认锁定html和body
+     * @example
+     * lockScroll();
+     * @example
+     * lockScroll(document.body);
+     */
+    lockScroll(...args) {
+      let $hidden = document.createElement("style");
+      $hidden.innerHTML = /*css*/
+      `
+			.pops-overflow-hidden-important {
+				overflow: hidden !important;
+			}
+		`;
+      let $elList = [document.documentElement, document.body].concat(
+        ...args || []
+      );
+      $elList.forEach(($el) => {
+        $el.classList.add("pops-overflow-hidden-important");
+      });
+      (document.head || document.documentElement).appendChild($hidden);
+      return {
+        /**
+         * 解除锁定
+         */
+        recovery() {
+          $elList.forEach(($el) => {
+            $el.classList.remove("pops-overflow-hidden-important");
+          });
+          $hidden.remove();
+        }
+      };
+    },
+    /**
+     * 获取剪贴板文本
+     */
+    async getClipboardText() {
+      function readClipboardText(resolve) {
+        navigator.clipboard.readText().then((clipboardText) => {
+          resolve(clipboardText);
+        }).catch((error) => {
+          log.error("读取剪贴板内容失败👉", error);
+          resolve("");
+        });
+      }
+      function requestPermissionsWithClipboard(resolve) {
+        navigator.permissions.query({
+          // @ts-ignore
+          name: "clipboard-read"
+        }).then((permissionStatus) => {
+          readClipboardText(resolve);
+        }).catch((error) => {
+          log.error(
+            "申请剪贴板权限失败，尝试直接读取👉",
+            error.message ?? error.name ?? error.stack
+          );
+          readClipboardText(resolve);
+        });
+      }
+      function checkClipboardApi() {
+        var _a2, _b;
+        if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
+          return false;
+        }
+        if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
+          return false;
+        }
+        return true;
+      }
+      return new Promise((resolve) => {
+        if (!checkClipboardApi()) {
+          resolve("");
+          return;
+        }
+        if (document.hasFocus()) {
+          requestPermissionsWithClipboard(resolve);
+        } else {
+          window.addEventListener(
+            "focus",
+            () => {
+              requestPermissionsWithClipboard(resolve);
+            },
+            {
+              once: true
+            }
+          );
+        }
+      });
+    },
+    /**
+     * html转义
+     * @param unsafe
+     */
+    escapeHtml(unsafe) {
+      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     }
   };
-  const _SCRIPT_NAME_ = "【移动端】微博优化";
+  const PanelSettingConfig = {
+    /** Toast位置 */
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom"
+    },
+    /** 最多显示的数量 */
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3
+    },
+    /** 逆序弹出 */
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false
+    }
+  };
   const utils = Utils.noConflict();
   const domUtils = DOMUtils.noConflict();
   const __pops = pops;
@@ -272,11 +296,12 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  const SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || _SCRIPT_NAME_;
+  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
     debug: DEBUG,
-    logMaxCount: 2e4,
+    logMaxCount: 1e3,
     autoClearConsole: true,
     tag: true
   });
@@ -290,29 +315,62 @@
       {
         position: {
           get() {
-            return PopsPanel.getValue("qmsg-config-position", "bottom");
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_position.key,
+              PanelSettingConfig.qmsg_config_position.defaultValue
+            );
           }
         },
         maxNums: {
           get() {
-            return PopsPanel.getValue("qmsg-config-maxnums", 5);
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_maxnums.key,
+              PanelSettingConfig.qmsg_config_maxnums.defaultValue
+            );
           }
         },
         showReverse: {
           get() {
-            return PopsPanel.getValue("qmsg-config-showreverse", true);
+            return Panel.getValue(
+              PanelSettingConfig.qmsg_config_showreverse.key,
+              PanelSettingConfig.qmsg_config_showreverse.defaultValue
+            );
           }
         },
         zIndex: {
           get() {
             let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(maxZIndex).zIndex;
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
             return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
       }
     )
   );
+  __pops.GlobalConfig.setGlobalConfig({
+    zIndex: () => {
+      let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
+        var _a2;
+        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+          return false;
+        }
+        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+          return false;
+        }
+      });
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    },
+    mask: {
+      // 开启遮罩层
+      enable: true,
+      // 取消点击遮罩层的事件
+      clickEvent: {
+        toClose: false,
+        toHide: false
+      }
+    }
+  });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
@@ -324,19 +382,18 @@
     logDetails: DEBUG
   });
   httpx.interceptors.request.use((data) => {
-    HttpxCookieManager.handle(data);
     return data;
   });
   httpx.interceptors.response.use(void 0, (data) => {
     log.error("拦截器-请求错误", data);
     if (data.type === "onabort") {
-      Qmsg.warning("请求取消");
+      Qmsg.warning("请求取消", { consoleLogContent: true });
     } else if (data.type === "onerror") {
-      Qmsg.error("请求异常");
+      Qmsg.error("请求异常", { consoleLogContent: true });
     } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时");
+      Qmsg.error("请求超时", { consoleLogContent: true });
     } else {
-      Qmsg.error("其它错误");
+      Qmsg.error("其它错误", { consoleLogContent: true });
     }
     return data;
   });
@@ -356,57 +413,836 @@
   const addStyle = utils.addStyle.bind(utils);
   const $ = document.querySelector.bind(document);
   const $$ = document.querySelectorAll.bind(document);
+  new utils.GM_Cookie();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
   const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
-  const WeiBoApi = {
+  const PanelUISize = {
     /**
-     * 获取组件播放信息
-     * @param oid 格式：xxxx:xxxxxxxxxxx
+     * 一般设置界面的尺寸
      */
-    async component(oid) {
-      let postParams = {
-        page: "/tv/show/" + oid
-      };
-      let postData = {
-        data: JSON.stringify({ Component_Play_Playinfo: { oid } })
-      };
-      let api = `https://www.weibo.com/tv/api/component?${utils.toSearchParamsStr(
-      postParams
-    )}`;
-      let response = await httpx.post(api, {
-        data: utils.toSearchParamsStr(postData),
-        headers: {
-          Accept: "application/json, text/plain, */*",
-          "Content-Type": "application/x-www-form-urlencoded",
-          Host: "www.weibo.com",
-          Origin: "https://www.weibo.com",
-          "Page-Referer": postParams.page,
-          Referer: "https://www.weibo.com" + postParams.page,
-          "User-Agent": utils.getRandomPCUA()
+    setting: {
+      get width() {
+        if (window.innerWidth < 550) {
+          return "88vw";
+        } else if (window.innerWidth < 700) {
+          return "550px";
+        } else {
+          return "700px";
+        }
+      },
+      get height() {
+        if (window.innerHeight < 450) {
+          return "70vh";
+        } else if (window.innerHeight < 550) {
+          return "450px";
+        } else {
+          return "550px";
+        }
+      }
+    }
+  };
+  class StorageUtils {
+    /**
+     * 存储的键名，可以是多层的，如：a.b.c
+     *
+     * 那就是
+     * {
+     *  "a": {
+     *     "b": {
+     *       "c": {
+     *         ...你的数据
+     *       }
+     *     }
+     *   }
+     * }
+     * @param key
+     */
+    constructor(key) {
+      /** 存储的键名 */
+      __publicField(this, "storageKey");
+      __publicField(this, "listenerData");
+      if (typeof key === "string") {
+        let trimKey = key.trim();
+        if (trimKey == "") {
+          throw new Error("key参数不能为空字符串");
+        }
+        this.storageKey = trimKey;
+      } else {
+        throw new Error("key参数类型错误，必须是字符串");
+      }
+      this.listenerData = new Utils.Dictionary();
+    }
+    /**
+     * 获取本地值
+     */
+    getLocalValue() {
+      let localValue = _GM_getValue(this.storageKey);
+      if (localValue == null) {
+        localValue = {};
+        this.setLocalValue(localValue);
+      }
+      return localValue;
+    }
+    /**
+     * 设置本地值
+     * @param value
+     */
+    setLocalValue(value) {
+      _GM_setValue(this.storageKey, value);
+    }
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    set(key, value) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.set(localValue, key, value);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, value);
+    }
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    get(key, defaultValue) {
+      let localValue = this.getLocalValue();
+      return Reflect.get(localValue, key) ?? defaultValue;
+    }
+    /**
+     * 获取所有值
+     */
+    getAll() {
+      let localValue = this.getLocalValue();
+      return localValue;
+    }
+    /**
+     * 删除值
+     * @param key 键
+     */
+    delete(key) {
+      let oldValue = this.get(key);
+      let localValue = this.getLocalValue();
+      Reflect.deleteProperty(localValue, key);
+      this.setLocalValue(localValue);
+      this.triggerValueChangeListener(key, oldValue, void 0);
+    }
+    /**
+     * 判断是否存在该值
+     */
+    has(key) {
+      let localValue = this.getLocalValue();
+      return Reflect.has(localValue, key);
+    }
+    /**
+     * 获取所有键
+     */
+    keys() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue);
+    }
+    /**
+     * 获取所有值
+     */
+    values() {
+      let localValue = this.getLocalValue();
+      return Reflect.ownKeys(localValue).map(
+        (key) => Reflect.get(localValue, key)
+      );
+    }
+    /**
+     * 清空所有值
+     */
+    clear() {
+      _GM_deleteValue(this.storageKey);
+    }
+    /**
+     * 监听值改变
+     * + .set
+     * + .delete
+     * @param key 监听的键
+     * @param callback 值改变的回调函数
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = Math.random();
+      let listenerData = this.listenerData.get(key) || [];
+      listenerData.push({
+        id: listenerId,
+        key,
+        callback
+      });
+      this.listenerData.set(key, listenerData);
+      return listenerId;
+    }
+    /**
+     * 移除监听
+     * @param listenerId 监听的id或键名
+     */
+    removeValueChangeListener(listenerId) {
+      let flag = false;
+      for (const [key, listenerData] of this.listenerData.entries()) {
+        for (let index = 0; index < listenerData.length; index++) {
+          const value = listenerData[index];
+          if (typeof listenerId === "string" && value.key === listenerId || typeof listenerId === "number" && value.id === listenerId) {
+            listenerData.splice(index, 1);
+            index--;
+            flag = true;
+          }
+        }
+        this.listenerData.set(key, listenerData);
+      }
+      return flag;
+    }
+    /**
+     * 主动触发监听器
+     * @param key 键
+     * @param oldValue （可选）旧值
+     * @param newValue （可选）新值
+     */
+    triggerValueChangeListener(key, oldValue, newValue) {
+      if (!this.listenerData.has(key)) {
+        return;
+      }
+      let listenerData = this.listenerData.get(key);
+      for (let index = 0; index < listenerData.length; index++) {
+        const data = listenerData[index];
+        if (typeof data.callback === "function") {
+          let value = this.get(key);
+          let __newValue;
+          let __oldValue;
+          if (typeof oldValue !== "undefined" && arguments.length >= 2) {
+            __oldValue = oldValue;
+          } else {
+            __oldValue = value;
+          }
+          if (typeof newValue !== "undefined" && arguments.length > 2) {
+            __newValue = newValue;
+          } else {
+            __newValue = value;
+          }
+          data.callback(key, __oldValue, __newValue);
+        }
+      }
+    }
+  }
+  const PopsPanelStorageApi = new StorageUtils(KEY);
+  const PanelContent = {
+    $data: {
+      /**
+       * @private
+       */
+      __contentConfig: null,
+      get contentConfig() {
+        if (this.__contentConfig == null) {
+          this.__contentConfig = new utils.Dictionary();
+        }
+        return this.__contentConfig;
+      }
+    },
+    /**
+     * 设置所有配置项，用于初始化默认的值
+     *
+     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
+     * @param configList 配置项
+     */
+    addContentConfig(configList) {
+      if (!Array.isArray(configList)) {
+        configList = [configList];
+      }
+      let index = this.$data.contentConfig.keys().length;
+      this.$data.contentConfig.set(index, configList);
+    },
+    /**
+     * 获取所有的配置内容，用于初始化默认的值
+     */
+    getAllContentConfig() {
+      return this.$data.contentConfig.values().flat();
+    },
+    /**
+     * 获取配置内容
+     * @param index 配置索引
+     */
+    getConfig(index = 0) {
+      return this.$data.contentConfig.get(index) ?? [];
+    }
+  };
+  const PanelMenu = {
+    $data: {
+      __menuOption: [
+        {
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            Panel.showPanel(PanelContent.getConfig(0));
+          }
+        }
+      ],
+      get menuOption() {
+        return this.__menuOption;
+      }
+    },
+    init() {
+      this.initExtensionsMenu();
+    },
+    /**
+     * 初始化菜单项
+     */
+    initExtensionsMenu() {
+      if (!Panel.isTopWindow()) {
+        return;
+      }
+      GM_Menu.add(this.$data.menuOption);
+    },
+    /**
+     * 添加菜单项
+     * @param option 菜单配置
+     */
+    addMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      this.$data.menuOption.push(...option);
+    },
+    /**
+     * 更新菜单项
+     * @param option 菜单配置
+     */
+    updateMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      option.forEach((optionItem) => {
+        let findIndex = this.$data.menuOption.findIndex((it) => {
+          return it.key === optionItem.key;
+        });
+        if (findIndex !== -1) {
+          this.$data.menuOption[findIndex] = optionItem;
         }
       });
-      if (!response.status) {
+    },
+    /**
+     * 获取菜单项
+     * @param [index=0] 索引
+     */
+    getMenuOption(index = 0) {
+      return this.$data.menuOption[index];
+    },
+    /**
+     * 删除菜单项
+     * @param [index=0] 索引
+     */
+    deleteMenuOption(index = 0) {
+      this.$data.menuOption.splice(index, 1);
+    }
+  };
+  const Panel = {
+    /** 数据 */
+    $data: {
+      /**
+       * @private
+       */
+      __configDefaultValueData: null,
+      /**
+       * @private
+       */
+      __onceExecMenuData: null,
+      /**
+       * @private
+       */
+      __onceExecData: null,
+      /**
+       * @private
+       */
+      __panelConfig: {},
+      $panel: null,
+      /**
+       * 菜单项的默认值
+       */
+      get configDefaultValueData() {
+        if (this.__configDefaultValueData == null) {
+          this.__configDefaultValueData = new utils.Dictionary();
+        }
+        return this.__configDefaultValueData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecMenuData() {
+        if (this.__onceExecMenuData == null) {
+          this.__onceExecMenuData = new utils.Dictionary();
+        }
+        return this.__onceExecMenuData;
+      },
+      /**
+       * 成功只执行了一次的项
+       */
+      get onceExecData() {
+        if (this.__onceExecData == null) {
+          this.__onceExecData = new utils.Dictionary();
+        }
+        return this.__onceExecData;
+      },
+      /** 脚本名，一般用在设置的标题上 */
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
+      /**
+       * pops.panel的默认配置
+       */
+      get panelConfig() {
+        return this.__panelConfig;
+      },
+      set panelConfig(value) {
+        this.__panelConfig = value;
+      },
+      /** 菜单项的总值在本地数据配置的键名 */
+      key: KEY,
+      /** 菜单项在attributes上配置的菜单键 */
+      attributeKeyName: ATTRIBUTE_KEY,
+      /** 菜单项在attributes上配置的菜单默认值 */
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+    },
+    init() {
+      this.initContentDefaultValue();
+      PanelMenu.init();
+    },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
+    },
+    /** 初始化菜单项的默认值保存到本地数据中 */
+    initContentDefaultValue() {
+      const initDefaultValue = (config) => {
+        if (!config.attributes) {
+          return;
+        }
+        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+          return;
+        }
+        let needInitConfig = {};
+        let key = config.attributes[ATTRIBUTE_KEY];
+        if (key != null) {
+          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+        }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
+        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (initMoreValue && typeof initMoreValue === "object") {
+          Object.assign(needInitConfig, initMoreValue);
+        }
+        let needInitConfigList = Object.keys(needInitConfig);
+        if (!needInitConfigList.length) {
+          log.warn(["请先配置键", config]);
+          return;
+        }
+        needInitConfigList.forEach((__key) => {
+          let __defaultValue = needInitConfig[__key];
+          this.setDefaultValue(__key, __defaultValue);
+        });
+      };
+      const loopInitDefaultValue = (configList) => {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
+          initDefaultValue(configItem);
+          let childForms = configItem.forms;
+          if (childForms && Array.isArray(childForms)) {
+            loopInitDefaultValue(childForms);
+          }
+        }
+      };
+      const contentConfigList = [...PanelContent.getAllContentConfig()];
+      for (let index = 0; index < contentConfigList.length; index++) {
+        let leftContentConfigItem = contentConfigList[index];
+        if (!leftContentConfigItem.forms) {
+          continue;
+        }
+        const rightContentConfigList = leftContentConfigItem.forms;
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
+        }
+      }
+    },
+    /**
+     * 设置初始化使用的默认值
+     */
+    setDefaultValue(key, defaultValue) {
+      if (this.$data.configDefaultValueData.has(key)) {
+        log.warn("请检查该key(已存在): " + key);
+      }
+      this.$data.configDefaultValueData.set(key, defaultValue);
+    },
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    setValue(key, value) {
+      PopsPanelStorageApi.set(key, value);
+    },
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    getValue(key, defaultValue) {
+      let localValue = PopsPanelStorageApi.get(key);
+      if (localValue == null) {
+        if (this.$data.configDefaultValueData.has(key)) {
+          return this.$data.configDefaultValueData.get(key);
+        }
+        return defaultValue;
+      }
+      return localValue;
+    },
+    /**
+     * 删除值
+     * @param key 键
+     */
+    deleteValue(key) {
+      PopsPanelStorageApi.delete(key);
+    },
+    /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasKey(key) {
+      return PopsPanelStorageApi.has(key);
+    },
+    /**
+     * 监听调用setValue、deleteValue
+     * @param key 需要监听的键
+     * @param callback
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(
+        key,
+        (__key, __newValue, __oldValue) => {
+          callback(key, __oldValue, __newValue);
+        }
+      );
+      return listenerId;
+    },
+    /**
+     * 移除监听
+     * @param listenerId 监听的id
+     */
+    removeValueChangeListener(listenerId) {
+      PopsPanelStorageApi.removeValueChangeListener(listenerId);
+    },
+    /**
+     * 主动触发菜单值改变的回调
+     * @param key 菜单键
+     * @param newValue 想要触发的新值，默认使用当前值
+     * @param oldValue 想要触发的旧值，默认使用当前值
+     */
+    triggerMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.onceExecMenuData.delete(key);
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag;
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      this.$data.onceExecData.delete(key);
+    },
+    /**
+     * 执行菜单
+     *
+     * @param queryKey 键|键数组
+     * @param callback 执行的回调函数
+     * @param checkExec 判断是否执行回调
+     *
+     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
+     *
+     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
+     *
+     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
+     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
+     * @param once 是否只执行一次，默认true
+     *
+     * + true （默认）只执行一次，且会监听键的值改变
+     * + false 不会监听键的值改变
+     */
+    exec(queryKey, callback, checkExec, once = true) {
+      const that = this;
+      let queryKeyFn;
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
+        queryKeyFn = () => queryKey;
+      } else {
+        queryKeyFn = queryKey;
+      }
+      let isArrayKey = false;
+      let queryKeyResult = queryKeyFn();
+      let keyList = [];
+      if (Array.isArray(queryKeyResult)) {
+        isArrayKey = true;
+        keyList = queryKeyResult;
+      } else {
+        keyList.push(queryKeyResult);
+      }
+      let findNotInDataKey = keyList.find(
+        (it) => !this.$data.configDefaultValueData.has(it)
+      );
+      if (findNotInDataKey) {
+        log.warn(`${findNotInDataKey} 键不存在`);
         return;
       }
-      let data = utils.toJSON(response.data.responseText);
-      if (data["code"] !== "100000") {
-        log.info(`获取播放信息失败`, response);
-        Qmsg.error("获取播放信息失败");
+      let storageKey = JSON.stringify(keyList);
+      if (once) {
+        if (this.$data.onceExecMenuData.has(storageKey)) {
+          return;
+        }
+        this.$data.onceExecMenuData.set(storageKey, 1);
+      }
+      let storeStyleElements = [];
+      let listenerIdList = [];
+      let dynamicPushStyleNode = (value, $style) => {
+        let dynamicResultList = [];
+        if ($style instanceof HTMLStyleElement) {
+          dynamicResultList = [$style];
+        } else if (Array.isArray($style)) {
+          dynamicResultList = [
+            ...$style.filter(
+              (item) => item != null && item instanceof HTMLStyleElement
+            )
+          ];
+        }
+        {
+          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+        }
+      };
+      let getMenuValue = (key) => {
+        let value = this.getValue(key);
+        return value;
+      };
+      let clearStoreStyleElements = () => {
+        for (let index = 0; index < storeStyleElements.length; index++) {
+          let $css = storeStyleElements[index];
+          $css.remove();
+          storeStyleElements.splice(index, 1);
+          index--;
+        }
+      };
+      let __checkExec__ = () => {
+        let flag = false;
+        if (typeof checkExec === "function") {
+          flag = checkExec(keyList);
+        } else {
+          flag = keyList.every((key) => getMenuValue(key));
+        }
+        return flag;
+      };
+      let valueChange = (valueOption) => {
+        let execFlag = __checkExec__();
+        let resultList = [];
+        if (execFlag) {
+          let valueList = keyList.map((key) => this.getValue(key));
+          let $styles = callback({
+            addStyleElement: (...args) => {
+              return dynamicPushStyleNode(true, ...args);
+            },
+            value: isArrayKey ? valueList : valueList[0]
+          });
+          if ($styles instanceof HTMLStyleElement) {
+            resultList.push($styles);
+          } else if (Array.isArray($styles)) {
+            resultList.push(
+              ...$styles.filter(
+                (item) => item != null && item instanceof HTMLStyleElement
+              )
+            );
+          }
+        }
+        clearStoreStyleElements();
+        storeStyleElements = [...resultList];
+      };
+      once && keyList.forEach((key) => {
+        let listenerId = this.addValueChangeListener(
+          key,
+          (key2, newValue, oldValue) => {
+            valueChange();
+          }
+        );
+        listenerIdList.push(listenerId);
+      });
+      valueChange();
+      let result = {
+        /**
+         * 清空菜单执行情况
+         *
+         * + 清空存储的元素列表
+         * + 清空值改变的监听器
+         * + 清空存储的一次执行的键
+         */
+        clear() {
+          this.clearStoreStyleElements();
+          this.removeValueChangeListener();
+          once && that.$data.onceExecMenuData.delete(storageKey);
+        },
+        /**
+         * 清空存储的元素列表
+         */
+        clearStoreStyleElements: () => {
+          return clearStoreStyleElements();
+        },
+        /**
+         * 移除值改变的监听器
+         */
+        removeValueChangeListener: () => {
+          listenerIdList.forEach((listenerId) => {
+            this.removeValueChangeListener(listenerId);
+          });
+        }
+      };
+      return result;
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调
+     * @param key
+     * @param callback 回调
+     * @param [isReverse=false] 逆反判断菜单启用
+     */
+    execMenu(key, callback, isReverse = false) {
+      return this.exec(
+        key,
+        (option) => {
+          return callback(option);
+        },
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            isReverse && (flag = !flag);
+            return flag;
+          });
+          return execFlag;
+        },
+        false
+      );
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     *
+     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
+     * @param key
+     * @param callback 回调
+     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
+     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     */
+    execMenuOnce(key, callback) {
+      return this.exec(
+        key,
+        callback,
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            return flag;
+          });
+          return execFlag;
+        },
+        true
+      );
+    },
+    /**
+     * 根据key执行一次
+     * @param key 键
+     * @param callback 回调
+     */
+    onceExec(key, callback) {
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (this.$data.onceExecData.has(key)) {
         return;
       }
-      let Component_Play_Playinfo = data["data"]["Component_Play_Playinfo"];
-      return Component_Play_Playinfo;
+      callback();
+      this.$data.onceExecData.set(key, 1);
+    },
+    /**
+     * 显示设置面板
+     * @param content 显示的内容配置
+     * @param [title] 标题
+     */
+    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
+      let $panel = __pops.panel({
+        ...{
+          title: {
+            text: `${SCRIPT_NAME}-设置`,
+            position: "center",
+            html: false,
+            style: ""
+          },
+          content,
+          btn: {
+            close: {
+              enable: true,
+              callback: (details, event) => {
+                details.close();
+                this.$data.$panel = null;
+              }
+            }
+          },
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: true,
+              toHide: false
+            },
+            clickCallBack: (originalRun, config) => {
+              originalRun();
+              this.$data.$panel = null;
+            }
+          },
+          width: PanelUISize.setting.width,
+          height: PanelUISize.setting.height,
+          drag: true,
+          only: true
+        },
+        ...this.$data.panelConfig
+      });
+      this.$data.$panel = $panel;
+    }
+  };
+  const blockAdsCSS$1 = "/* 底部中间的 登录/注册按钮 */\r\n#app div.main-wrap div.login-box,\r\n/* 主内容底部的小程序横幅推荐 */\r\n#app > div.lite-page-wrap > div > div.main > div > div.wrap,\r\n/* 底部悬浮的在微博内打开 */\r\n#app .woo-frame.blog-config-page div.weibo-btn-box,\r\n/* 顶部的新闻信息流 */\r\n#app .woo-frame div.woo-panel-container.news-banner,\r\n/* 夹杂在card中间的图片横幅，不确定是否会误伤其它正常内容 */\r\n.card .card-main .m-img-box > ul {\r\n	display: none !important;\r\n}\r\n/* 搜索域名下的 */\r\n.card.m-panel:has(+ .simple),\r\n.card.m-panel.simple {\r\n	display: none !important;\r\n}\r\n";
+  const WeiBoNetWorkHook = {
+    _ajaxHooker_: null,
+    get ajaxHooker() {
+      if (this._ajaxHooker_ == null) {
+        log.info("启用ajaxHooker拦截网络");
+        this._ajaxHooker_ = utils.ajaxHooker();
+        this._ajaxHooker_.protect();
+      }
+      return this._ajaxHooker_;
     }
   };
   const VueUtils = {
     /**
      * 获取vue2实例
      * @param element
-     * @returns
      */
     getVue(element) {
       if (element == null) {
@@ -417,7 +1253,6 @@
     /**
      * 获取vue3实例
      * @param element
-     * @returns
      */
     getVue3(element) {
       if (element == null) {
@@ -459,7 +1294,7 @@
           if (vueInstance == null) {
             return false;
           }
-          let needOwnCheck = needSetOption.check(vueInstance);
+          let needOwnCheck = needSetOption.check(vueInstance, target);
           return Boolean(needOwnCheck);
         }
         utils.waitVueByInterval(
@@ -484,7 +1319,7 @@
             }
             return;
           }
-          needSetOption.set(vueInstance);
+          needSetOption.set(vueInstance, target);
         });
       });
     },
@@ -548,12 +1383,12 @@
         log.error("跳转Url: $vueNode为空：" + path);
         return;
       }
-      let vueObj = VueUtils.getVue($vueNode);
-      if (vueObj == null) {
+      let vueInstance = VueUtils.getVue($vueNode);
+      if (vueInstance == null) {
         Qmsg.error("获取vue属性失败", { consoleLogContent: true });
         return;
       }
-      let $router = vueObj.$router;
+      let $router = vueInstance.$router;
       let isBlank = true;
       log.info("即将跳转URL：" + path);
       if (useRouter) {
@@ -613,6 +1448,754 @@
       return {
         resumeBack
       };
+    }
+  };
+  const WeiBoHook = {
+    /**
+     * 劫持Function.prototype.apply;
+     */
+    hookApply() {
+      log.info("劫持Function.prototype.apply");
+      let originApply = _unsafeWindow.Function.prototype.apply;
+      _unsafeWindow.Function.prototype.apply = function(...args) {
+        var _a2, _b;
+        let target = originApply;
+        if (args.length !== 2 || args.length === 2 && !Array.isArray(args[1]) || typeof args[1][0] !== "string") {
+          return Reflect.apply(target, this, args);
+        }
+        const ApiPath = args[1][0];
+        const ApiSearchParams = (_b = (_a2 = args[1]) == null ? void 0 : _a2[1]) == null ? void 0 : _b["params"];
+        if (ApiPath === "api/attitudes/create" && Panel.getValue("weibo_apply_attitudes_create")) {
+          log.success("拦截跳转登录");
+          return new Promise((resolve) => {
+            resolve({
+              data: {}
+            });
+          });
+        } else if (ApiPath === "api/likes/update" && Panel.getValue("weibo_apply_likes_update")) {
+          log.success("拦截点赞跳转登录");
+          return new Promise((resolve) => {
+            resolve({
+              data: {}
+            });
+          });
+        } else if (ApiPath === "api/comments/create" && Panel.getValue("weibo_apply_comments_create")) {
+          log.success("拦截评论跳转登录");
+          return new Promise((resolve) => {
+            resolve({
+              data: {}
+            });
+          });
+        } else if (ApiPath === "api/friendships/create" && Panel.getValue("weibo_apply_friendships_create")) {
+          log.success("拦截关注跳转登录");
+          return new Promise((resolve) => {
+            resolve({
+              data: {}
+            });
+          });
+        } else if (ApiPath === "api/comments/reply" && Panel.getValue("weibo_apply_comments_reply")) {
+          log.success("拦截回复跳转登录");
+          return new Promise((resolve, reject) => {
+            resolve({
+              data: {
+                ok: 200
+              }
+            });
+          });
+        } else if (ApiPath.startsWith("profile/info") && Panel.getValue("weibo_apply_profile_info")) {
+          log.success("优化跳转xx微博主页", ApiSearchParams);
+          let uidHomeUrl = `https://weibo.com/${ApiSearchParams["uid"]}`;
+          log.success("跳转微博主页：" + uidHomeUrl);
+          window.location.href = uidHomeUrl;
+          return null;
+        } else if (ApiPath === "comments/hotflow" && Panel.getValue("weibo_apply_comments_hotflow")) {
+          if (!("id" in ApiSearchParams && "max_id_type" in ApiSearchParams && "mid" in ApiSearchParams) || "id" in ApiSearchParams && "max_id" in ApiSearchParams && "max_id_type" in ApiSearchParams && "mid" in ApiSearchParams) {
+            log.success("拦截下拉加载更多评论跳转登录", ApiSearchParams);
+            return new Promise((resolve) => {
+              resolve({
+                ok: 1,
+                data: {
+                  data: [],
+                  total_number: 0
+                }
+              });
+            });
+          }
+        } else if (ApiPath === "comments/hotFlowChild" && Panel.getValue("weibo_apply_comments_hotFlowChild")) {
+          if ("max_id" in ApiSearchParams && ApiSearchParams["max_id"] !== 0) {
+            log.success(
+              "拦截评论中的评论下拉加载更多评论跳转登录",
+              ApiSearchParams
+            );
+            return new Promise((resolve) => {
+              resolve({
+                data: {
+                  ok: 1,
+                  data: [],
+                  rootComment: [],
+                  total_number: 0
+                }
+              });
+            });
+          }
+        } else if (ApiPath === "api/statuses/repostTimeline" && Panel.getValue("weibo_apply_statuses_repostTimeline")) {
+          log.success("拦截查看转发数据，因为需登录", ApiSearchParams);
+          return new Promise((resolve) => {
+            resolve({
+              data: {
+                ok: 1,
+                data: {
+                  data: [],
+                  total_number: 0
+                }
+              }
+            });
+          });
+        } else ;
+        return Reflect.apply(target, this, args);
+      };
+    },
+    /**
+     * 拦截网络
+     */
+    hookNetWork() {
+      WeiBoNetWorkHook.ajaxHooker.hook(function(request) {
+        let requestUrl = CommonUtil.fixUrl(request.url);
+        log.info("[ajaxHookr] " + requestUrl);
+        if (requestUrl.startsWith("https://m.weibo.cn/api/config") && Panel.getValue("weibo_request_api_config")) {
+          request.response = function(originResponse) {
+            let originResponseData = utils.toJSON(originResponse.responseText);
+            if (!originResponseData.data.login) {
+              log.error("由于未登录，伪装为已登录状态");
+              originResponseData.data.login = true;
+              originResponseData.data.uid = "";
+              originResponseData.preferQuickapp = 0;
+              Reflect.deleteProperty(originResponseData.data, "loginUrl");
+              Reflect.deleteProperty(originResponseData.data, "wx_callback");
+              Reflect.deleteProperty(originResponseData.data, "wx_authorize");
+              Reflect.deleteProperty(
+                originResponseData.data,
+                "passport_login_url"
+              );
+              originResponse.responseText = JSON.stringify(originResponseData);
+            }
+          };
+        } else if (requestUrl.startsWith("https://m.weibo.cn/comments/hot") && Panel.getValue("weibo_request_comments_hot")) {
+          request.response = function(originResponse) {
+            let originResponseData = utils.toJSON(originResponse.responseText);
+            if (originResponseData.ok !== 1) {
+              log.error("由于尚未登录，获取不到更多评论数据", originResponseData);
+              originResponseData = {
+                ok: 1
+              };
+              originResponse.responseText = JSON.stringify(originResponseData);
+            }
+          };
+        } else if (requestUrl.startsWith("https://m.weibo.cn/status/push?") && Panel.getValue("weibo_request_status_push")) {
+          request.response = function(originResponse) {
+            let originResponseData = utils.toJSON(originResponse.responseText);
+            Reflect.set(originResponse, "json", {});
+            log.info(`重构/status/push响应`, originResponseData);
+            originResponse.responseText = JSON.stringify(originResponseData);
+          };
+        } else if (requestUrl.startsWith("https://m.weibo.cn/api/container/getIndex") && Panel.getValue("weibo-request-blockArticleAds")) {
+          request.response = function(originResponse) {
+            var _a2;
+            let originResponseData = utils.toJSON(originResponse.responseText);
+            let cards = originResponseData["data"]["cards"];
+            if (Array.isArray(cards)) {
+              for (let index = 0; index < cards.length; index++) {
+                const card = cards[index];
+                let mblog = card == null ? void 0 : card.mblog;
+                if (mblog) {
+                  let id = mblog.id;
+                  let ad_state = mblog == null ? void 0 : mblog.ad_state;
+                  let cardText = mblog == null ? void 0 : mblog.text;
+                  (_a2 = mblog == null ? void 0 : mblog.page_info) == null ? void 0 : _a2.page_title;
+                  if (ad_state) {
+                    cards.splice(index, 1);
+                    index--;
+                    log.info(`移除广告url：https://m.weibo.cn/detail/` + id);
+                    log.info(`移除广告card：` + cardText);
+                  }
+                }
+              }
+            }
+            originResponse.responseText = JSON.stringify(originResponseData);
+          };
+        }
+      });
+    },
+    /**
+     * 劫持webpack
+     * @param webpackName 当前全局变量的webpack名
+     * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
+     * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
+     */
+    hookWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
+      let originObject = void 0;
+      Object.defineProperty(_unsafeWindow, webpackName, {
+        get() {
+          return originObject;
+        },
+        set(newValue) {
+          log.success("成功劫持webpack，当前webpack名：" + webpackName);
+          originObject = newValue;
+          const originPush = originObject.push;
+          originObject.push = function(...args) {
+            let _mainCoreData = args[0][0];
+            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
+              Object.keys(args[0][1]).forEach((keyName) => {
+                let originSwitchFunc = args[0][1][keyName];
+                args[0][1][keyName] = function(..._args) {
+                  let result = originSwitchFunc.call(this, ..._args);
+                  _args[0] = checkCallBack(_args[0]);
+                  return result;
+                };
+              });
+            }
+            return originPush.call(this, ...args);
+          };
+        }
+      });
+    },
+    /**
+     * 拦截Vue Router跳转
+     */
+    hookVueRouter() {
+      VueUtils.waitVuePropToSet("#app", [
+        {
+          msg: "等待获取属性 __vue__.$router",
+          check(vueIns) {
+            var _a2;
+            return typeof ((_a2 = vueIns == null ? void 0 : vueIns.$router) == null ? void 0 : _a2.push) === "function";
+          },
+          set(vueIns) {
+            log.success("拦截Vue路由跳转");
+            let beforeEachFn = (to, from, next) => {
+              var _a2;
+              if (to.name === "profile") {
+                if (Panel.getValue("weibo_router_profile_to_user_home")) {
+                  let uid = (_a2 = to == null ? void 0 : to.params) == null ? void 0 : _a2.uid;
+                  if (uid == null) {
+                    log.error("获取uid失败");
+                    Qmsg.error("获取uid失败");
+                    return;
+                  }
+                  log.success(`修复跳转${uid}微博主页`);
+                  let uidHomeUrl = `https://m.weibo.cn/u/${uid}`;
+                  window.location.href = uidHomeUrl;
+                  return;
+                }
+              } else if ((to == null ? void 0 : to.name) === "detail") ;
+              next();
+            };
+            vueIns.$router.beforeEach(beforeEachFn);
+            vueIns.$router.afterEach((to, from) => {
+              Panel.execMenu("weibo-listenRouterChange", () => {
+                log.info("路由更新，重载功能");
+                WeiBo.init();
+              });
+            });
+            let ownHookIndex = vueIns.$router.beforeHooks.findIndex(
+              (item) => item == beforeEachFn
+            );
+            if (ownHookIndex !== -1) {
+              let ownHook = vueIns.$router.beforeHooks.splice(ownHookIndex, 1);
+              vueIns.$router.beforeHooks.splice(0, 0, ...ownHook);
+            } else {
+              log.error("$router未在beforeHooks内找到自定义的beforeEach");
+            }
+          }
+        }
+      ]);
+    },
+    /**
+     * 禁止Service Worker注册
+     */
+    hookServiceWorkerRegister() {
+      log.info("hook => navigator.serviceWorker.register");
+      _unsafeWindow.Object.defineProperty(
+        _unsafeWindow.navigator.serviceWorker,
+        "register",
+        {
+          get() {
+            return function(...args) {
+              log.success("劫持navigator.serviceWorker.register: ", args);
+            };
+          }
+        }
+      );
+    }
+  };
+  const WeiBoRouter = {
+    /**
+     * 移动端微博
+     * @returns
+     */
+    isMWeiBo() {
+      return window.location.hostname === "m.weibo.cn";
+    },
+    /**
+     * 移动端微博-首页
+     */
+    isMWeiBoHome() {
+      return this.isMWeiBo() && window.location.pathname === "/";
+    },
+    /**
+     * 移动端微博-微博正文
+     */
+    isMWeiBo_detail() {
+      return this.isMWeiBo() && window.location.pathname.startsWith("/detail/");
+    },
+    /**
+     * 移动端微博-微博正文
+     */
+    isMWeiBo_status() {
+      return this.isMWeiBo() && window.location.pathname.startsWith("/status/");
+    },
+    /**
+     * 移动端微博-用户主页
+     */
+    isMWeiBo_userHome() {
+      return this.isMWeiBo() && window.location.pathname.startsWith("/u/");
+    },
+    /**
+     * 移动端微博-搜索
+     */
+    isMWeiBo_search() {
+      return this.isMWeiBo() && window.location.pathname.startsWith("/search");
+    },
+    /**
+     * 移动端微博-微博热搜
+     */
+    isMWeiBo_HotSearch() {
+      let searchParams = new URLSearchParams(globalThis.location.search);
+      let containerid = searchParams.get("containerid");
+      return this.isMWeiBo() && window.location.pathname.startsWith("/p/index") && typeof containerid === "string" && containerid.startsWith("106003");
+    },
+    /**
+     * 话题
+     */
+    isHuaTi() {
+      return window.location.hostname === "huati.weibo.cn";
+    },
+    /**
+     * 视频页
+     */
+    isVideo() {
+      return window.location.hostname === "h5.video.weibo.com";
+    },
+    /**
+     * 头条
+     */
+    isCard() {
+      return window.location.hostname === "card.weibo.com";
+    },
+    /**
+     * 头条文章
+     */
+    isCardArticle() {
+      return this.isCard() && window.location.pathname.startsWith("/article/");
+    },
+    /**
+     * 微博直播页面
+     */
+    isLive() {
+      return window.location.hostname === "weibo.com" && window.location.pathname.startsWith("/l/wblive/m/show/");
+    }
+  };
+  const WeiBoHuaTi = {
+    init() {
+      Panel.execMenu("huati_weibo_masquerade_weibo_client_app", () => {
+        this.isWeibo();
+      });
+      Panel.execMenuOnce(
+        "huati_weibo_get_more_celebrity_calendar_information",
+        () => {
+          this.hookNetWorkWithGetMoreCelebrityCalendarInformation();
+        }
+      );
+    },
+    /**
+     * 伪装微博
+     */
+    isWeibo() {
+      log.info("伪装微博");
+      VueUtils.waitVuePropToSet("#loadMore", [
+        {
+          msg: "等待设置属性 __vue__.isWeibo",
+          check(vueObj) {
+            return typeof vueObj.isWeibo === "boolean";
+          },
+          set(vueObj) {
+            vueObj.isWeibo = true;
+            log.success("成功设置属性 __vue__.isWeibo=true");
+          }
+        }
+      ]);
+    },
+    /**
+     * 劫持请求让获取更多名人日历信息
+     */
+    hookNetWorkWithGetMoreCelebrityCalendarInformation() {
+      WeiBoNetWorkHook.ajaxHooker.hook((request) => {
+        log.info("ajaxHookr: ", request.url);
+        if (!request.url.startsWith("/ajax/super/starschedule?")) {
+          return;
+        }
+        request.response = async (res) => {
+          let getResp = await httpx.get(request.url, {
+            headers: {
+              Host: globalThis.location.hostname,
+              Accept: "application/json, text/plain, */*",
+              "X-Requested-With": "XMLHttpRequest",
+              "sec-ch-ua-mobile": "?1",
+              "User-Agent": utils.getRandomAndroidUA() + " Weibo (__weibo__)",
+              "sec-ch-ua-platform": "Android",
+              "Sec-Fetch-Site": "same-origin",
+              "Sec-Fetch-Mode": "cors",
+              "Sec-Fetch-Dest": "empty",
+              Referer: globalThis.location.href,
+              "Accept-Encoding": "gzip, deflate, br",
+              "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+            }
+          });
+          res.response = getResp.data.responseText;
+          res.responseText = getResp.data.responseText;
+        };
+      });
+    }
+  };
+  const WeiBoVideoHook = {
+    init() {
+      this.hookWebpack();
+    },
+    /**
+     * 劫持webpack
+     */
+    hookWebpack() {
+      log.info("劫持webpack");
+      WeiBoHook.hookWebpack("webpackJsonp", "chunk-common", (webpackExports) => {
+        if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof webpackExports.exports["a"] === "object" && typeof webpackExports.exports["a"]["gotoApp"] === "function" && Panel.getValue("weibo_video_webpack_gotoApp")) {
+          log.success("成功劫持webpack调用函数", webpackExports);
+          webpackExports.exports["a"]["gotoApp"] = function(...args) {
+            log.info("阻止唤醒App：", args);
+          };
+          return webpackExports;
+        }
+      });
+    }
+  };
+  const WeiBoVideo = {
+    init() {
+      Panel.onceExec("weibo-video-init-hook", () => {
+        WeiBoVideoHook.init();
+      });
+      Panel.execMenuOnce("weibo_video_shield_bottom_toolbar", () => {
+        return this.shieldBottomToolBar();
+      });
+      Panel.execMenuOnce("weibo_video_shield_hot_comments", () => {
+        return this.shieldHotComments();
+      });
+      Panel.execMenuOnce("weibo_video_shield_recommend", () => {
+        return this.shieldRecommend();
+      });
+    },
+    /** 【屏蔽】底部工具栏 */
+    shieldBottomToolBar() {
+      log.info("【屏蔽】底部工具栏");
+      return CommonUtil.addBlockCSS(".woo-toolBar");
+    },
+    /** 【屏蔽】相关推荐 */
+    shieldRecommend() {
+      log.info("【屏蔽】相关推荐");
+      return CommonUtil.addBlockCSS(
+        '#app .woo-panel[class*="Playdetail_card_"]:nth-child(2)'
+      );
+    },
+    /** 【屏蔽】热门评论 */
+    shieldHotComments() {
+      log.info("【屏蔽】热门评论");
+      return CommonUtil.addBlockCSS(
+        '#app .woo-panel[class*="Playdetail_card_"]:nth-child(3)'
+      );
+    }
+  };
+  const blockAdsCSS = "/* 文章内容的底部的广告 */\r\n#app .ad-wrap {\r\n	display: none !important;\r\n}\r\n";
+  const WeiBoDetail = {
+    init() {
+      Panel.onceExec("weibo-detail-blockAds", () => {
+        return addStyle(blockAdsCSS);
+      });
+    },
+    /**
+     * 设置正文显示的时间为绝对时间
+     */
+    setArticleAbsoluteTime() {
+      log.info(`监听并设置正文显示的时间为绝对时间`);
+      utils.mutationObserver(document.documentElement, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          function handleCardMainTime() {
+            Array.from(
+              $$(
+                ".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])"
+              )
+            ).forEach(($time) => {
+              var _a2;
+              let $card = $time.closest(".card.m-panel");
+              let cardVueIns = VueUtils.getVue($card);
+              if (!cardVueIns) {
+                return;
+              }
+              let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
+              if (typeof createTime !== "string") {
+                return;
+              }
+              if ($time.innerText.includes("编辑")) {
+                return;
+              }
+              let createTimeObj = new Date(createTime);
+              let formatCreateTime = utils.formatTime(
+                createTimeObj,
+                "yyyy-MM-dd HH:mm:ss"
+              );
+              $time.innerText = formatCreateTime;
+              $time.setAttribute("data-gm-absolute-time", "true");
+            });
+          }
+          function handleCardLzlTime() {
+            let $litePageWrap = $(".lite-page-wrap");
+            let litePageWrapVueIns = VueUtils.getVue($litePageWrap);
+            if (litePageWrapVueIns) {
+              let curWeiboData = litePageWrapVueIns == null ? void 0 : litePageWrapVueIns.curWeiboData;
+              let $timeList = Array.from(
+                $$(
+                  ".lite-page-comment .card .card-main .m-box .time"
+                )
+              );
+              if ($timeList.length === curWeiboData.commentLists.length + 1) {
+                $timeList.forEach(($time, index) => {
+                  if ($time.hasAttribute("data-gm-absolute-time")) {
+                    return;
+                  }
+                  if (index === 0) {
+                    let createTimeObj = new Date(
+                      curWeiboData.rootComment.created_at
+                    );
+                    let formatCreateTime = utils.formatTime(
+                      createTimeObj,
+                      "yyyy-MM-dd HH:mm:ss"
+                    );
+                    $time.innerText = formatCreateTime;
+                  } else {
+                    let createTimeObj = new Date(
+                      curWeiboData.commentLists[index - 1].created_at
+                    );
+                    let formatCreateTime = utils.formatTime(
+                      createTimeObj,
+                      "yyyy-MM-dd HH:mm:ss"
+                    );
+                    $time.innerText = formatCreateTime;
+                  }
+                  $time.setAttribute("data-gm-absolute-time", "true");
+                });
+              } else {
+                if ($timeList.length !== 0) {
+                  log.warn("楼中楼时间设置失败，数量不一致");
+                }
+              }
+            }
+          }
+          function handleCardCommentTime() {
+            Array.from(
+              $$(
+                ".comment-content .card .m-box .time:not([data-gm-absolute-time])"
+              )
+            ).forEach(($time) => {
+              var _a2, _b;
+              let $card = $time.closest(".card");
+              let $cardParent = $card.parentElement;
+              let cardVueIns = VueUtils.getVue($card) || VueUtils.getVue($cardParent);
+              if (!cardVueIns) {
+                return;
+              }
+              let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
+              if (typeof createTime !== "string") {
+                return;
+              }
+              let createTimeObj = new Date(createTime);
+              let formatCreateTime = utils.formatTime(
+                createTimeObj,
+                "yyyy-MM-dd HH:mm:ss"
+              );
+              $time.innerText = `${formatCreateTime} ${((_b = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _b.source) || ""}`;
+              $time.setAttribute("data-gm-absolute-time", "true");
+            });
+          }
+          let searchParams = new URLSearchParams(window.location.search);
+          if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status()) {
+            if (searchParams.has("cid")) {
+              handleCardLzlTime();
+            } else {
+              handleCardMainTime();
+              handleCardCommentTime();
+            }
+          } else {
+            handleCardMainTime();
+          }
+        }
+      });
+    }
+  };
+  const WeiBoSearch = {
+    init() {
+      Panel.execMenuOnce("weibo-search-addOpenBlankBtn", () => {
+        this.addOpenBlankBtn();
+      });
+      domUtils.ready(() => {
+        Panel.execMenu("weibo-search-autoFocusSearchInput", () => {
+          this.autoFocusSearchInput();
+        });
+      });
+    },
+    /**
+     * 自动聚焦搜索框
+     */
+    autoFocusSearchInput() {
+      log.info(`自动聚焦搜索框`);
+      utils.waitNode(`.ntop-nav input[type="search"]`).then(($input) => {
+        if (!$input) {
+          log.error("未找到搜索框");
+          Qmsg.error("未找到搜索框");
+          return;
+        }
+        let searchParams = new URLSearchParams(window.location.search);
+        if (!searchParams.has("containerid")) {
+          log.warn("不存在containerid参数");
+          return;
+        }
+        let containeridSearchParams = new URLSearchParams(
+          searchParams.get("containerid")
+        );
+        if (containeridSearchParams.has("q")) {
+          log.warn("containerid参数中存在q参数，是搜索结果页面");
+          return;
+        }
+        log.success(
+          "containerid参数中不存在q参数，所以是主搜索页面，聚焦输入框"
+        );
+        setTimeout(() => {
+          $input.focus();
+        }, 250);
+      });
+    },
+    /**
+     * 新增新标签页打开按钮
+     */
+    addOpenBlankBtn() {
+      utils.mutationObserver(document.documentElement, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback() {
+          if (!WeiBoRouter.isMWeiBo_search()) {
+            return;
+          }
+          document.querySelectorAll(
+            ".card footer.m-ctrl-box:not(:has(.gm-open-blank))"
+          ).forEach(($footerCtrl) => {
+            if ($footerCtrl.querySelector(".gm-open-blank")) {
+              return;
+            }
+            let $ownDiyBtn = domUtils.createElement("div", {
+              innerHTML: (
+                /*html*/
+                `
+								<h4>新标签页打开</h4>
+							`
+              )
+            });
+            $ownDiyBtn.classList.add(
+              "m-diy-btn",
+              "m-box-col",
+              "m-box-center",
+              "m-box-center-a",
+              "gm-open-blank"
+            );
+            domUtils.on($ownDiyBtn, "click", (event) => {
+              var _a2;
+              utils.preventEvent(event);
+              let vueIns = VueUtils.getVue($footerCtrl);
+              if (!vueIns) {
+                Qmsg.error("没有找到对应的Vue实例");
+                return;
+              }
+              let id = (_a2 = vueIns == null ? void 0 : vueIns.item) == null ? void 0 : _a2.id;
+              if (typeof id !== "string") {
+                Qmsg.error("没有找到对应的id");
+                return;
+              }
+              let url = `${window.location.origin}/detail/${id}`;
+              log.info(`新标签页打开：${url}`);
+              window.open(url, "_blank");
+            });
+            let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
+            if ($diyBtnList.length) {
+              domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
+            } else {
+              domUtils.append($footerCtrl, $ownDiyBtn);
+            }
+          });
+        }
+      });
+    }
+  };
+  const WeiBoApi = {
+    /**
+     * 获取组件播放信息
+     * @param oid 格式：xxxx:xxxxxxxxxxx
+     */
+    async component(oid) {
+      let postParams = {
+        page: "/tv/show/" + oid
+      };
+      let postData = {
+        data: JSON.stringify({ Component_Play_Playinfo: { oid } })
+      };
+      let api = `https://www.weibo.com/tv/api/component?${utils.toSearchParamsStr(
+      postParams
+    )}`;
+      let response = await httpx.post(api, {
+        data: utils.toSearchParamsStr(postData),
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/x-www-form-urlencoded",
+          Host: "www.weibo.com",
+          Origin: "https://www.weibo.com",
+          "Page-Referer": postParams.page,
+          Referer: "https://www.weibo.com" + postParams.page,
+          "User-Agent": utils.getRandomPCUA()
+        }
+      });
+      if (!response.status) {
+        return;
+      }
+      let data = utils.toJSON(response.data.responseText);
+      if (data["code"] !== "100000") {
+        log.info(`获取播放信息失败`, response);
+        Qmsg.error("获取播放信息失败");
+        return;
+      }
+      let Component_Play_Playinfo = data["data"]["Component_Play_Playinfo"];
+      return Component_Play_Playinfo;
     }
   };
   const VideoQualityMap_Mobile = {
@@ -687,7 +2270,7 @@
           },
           set(vueObj) {
             let oldAddChild = vueObj.player.controlBar.addChild;
-            let userSetQuality = PopsPanel.getValue(
+            let userSetQuality = Panel.getValue(
               "weibo-common-lockVideoQuality"
             );
             let userSetQualitySign = -1;
@@ -867,6 +2450,402 @@
       }
     }
   }
+  const WeiBoCardArticle = {
+    init() {
+      Panel.execMenuOnce("card_weibo_com__autoExpandFullArticle", () => {
+        return this.autoExpandFullArticle();
+      });
+      Panel.execMenuOnce("card_weibo_com__blockComment", () => {
+        return this.blockComment();
+      });
+      Panel.execMenuOnce("card_weibo_com__repairArticleUserHomeJump", () => {
+        this.repairArticleUserHomeJump();
+      });
+    },
+    /**
+     * 自动展开全文
+     */
+    autoExpandFullArticle() {
+      log.info("自动展开全文");
+      return [
+        addStyle(
+          /*css*/
+          `
+			.m-container-max .f-art,
+			.m-container-max .art-con-new{
+				height: unset !important;
+				overflow: unset !important;
+			}    
+			`
+        ),
+        CommonUtil.addBlockCSS(".m-container-max .f-art-opt")
+      ];
+    },
+    /**
+     * 屏蔽评论
+     */
+    blockComment() {
+      log.info("【屏蔽】评论");
+      return CommonUtil.addBlockCSS(".m-container-max .m-panel1");
+    },
+    /**
+     * 修复文章用户主页跳转
+     */
+    repairArticleUserHomeJump() {
+      log.info("修复文章用户主页跳转");
+      domUtils.on(
+        document,
+        "click",
+        ".m-feed .f-art-user-v2",
+        (event) => {
+          let $click = event.target;
+          let jQueryEventName = Object.keys($click).find(
+            (key) => key.startsWith("jQuery")
+          );
+          if (!jQueryEventName) {
+            return;
+          }
+          utils.preventEvent(event);
+          let jQueryEvent = $click[jQueryEventName];
+          let data = jQueryEvent["events"]["click"][0]["data"];
+          log.success("跳转信息：", data);
+          let url = data["url"] || data["target_url"];
+          window.open(url, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
+  const WeiBoHome = {
+    init() {
+      Panel.execMenuOnce("weibo-home-blockMessageCount", () => {
+        return this.blockMessageCount();
+      });
+      Panel.execMenuOnce("weibo-home-addOpenBlankBtn", () => {
+        this.addOpenBlankBtn();
+      });
+      domUtils.ready(() => {
+        Panel.execMenuOnce("weibo-home-addSupertalkTab", () => {
+          this.addSupertalkTab();
+        });
+      });
+    },
+    /**
+     * 屏蔽右上角的信息红点（登录后）
+     */
+    blockMessageCount() {
+      log.info(`屏蔽右上角的信息红点（登录后）`);
+      return CommonUtil.addBlockCSS(".nav-right .m-bubble");
+    },
+    /**
+     * 新增Tab - 超话
+     */
+    addSupertalkTab() {
+      VueUtils.waitVuePropToSet(".main-top", {
+        check(vueObj) {
+          return Array.isArray(vueObj == null ? void 0 : vueObj.tabs);
+        },
+        set(vueObj) {
+          var _a2;
+          log.success(`添加顶部Tab - 超话`);
+          (_a2 = vueObj == null ? void 0 : vueObj.tabs) == null ? void 0 : _a2.push({
+            children: [
+              {
+                api: "api/container/getIndex?containerid=100803",
+                gid: "100803",
+                name: "超话社区",
+                type: 1
+              }
+            ]
+          });
+          return;
+        }
+      });
+    },
+    /**
+     * 新增新标签页打开按钮
+     */
+    addOpenBlankBtn() {
+      utils.mutationObserver(document.documentElement, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback() {
+          if (!WeiBoRouter.isMWeiBoHome()) {
+            return;
+          }
+          document.querySelectorAll(
+            ".main-wrap .wb-item .card .f-footer-ctrl:not(:has(.gm-open-blank))"
+          ).forEach(($footerCtrl) => {
+            if ($footerCtrl.querySelector(".gm-open-blank")) {
+              return;
+            }
+            let $ownDiyBtn = domUtils.createElement("div", {
+              innerHTML: (
+                /*html*/
+                `
+								<h4>新标签页打开</h4>
+							`
+              )
+            });
+            $ownDiyBtn.classList.add(
+              "m-diy-btn",
+              "m-box-center-a",
+              "gm-open-blank"
+            );
+            domUtils.on($ownDiyBtn, "click", (event) => {
+              var _a2;
+              utils.preventEvent(event);
+              let vueIns = VueUtils.getVue($footerCtrl);
+              if (!vueIns) {
+                Qmsg.error("没有找到对应的Vue实例");
+                return;
+              }
+              let id = (_a2 = vueIns == null ? void 0 : vueIns.item) == null ? void 0 : _a2.id;
+              if (typeof id !== "string") {
+                Qmsg.error("没有找到对应的id");
+                return;
+              }
+              let url = `${window.location.origin}/detail/${id}`;
+              log.info(`新标签页打开：${url}`);
+              window.open(url, "_blank");
+            });
+            let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
+            if ($diyBtnList.length) {
+              domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
+            } else {
+              domUtils.append($footerCtrl, $ownDiyBtn);
+            }
+          });
+        }
+      });
+    }
+  };
+  const WeiBoHotSearch = {
+    init() {
+      Panel.execMenuOnce("weibo-hot-search-openBlank", () => {
+        this.openBlank();
+      });
+    },
+    /**
+     * 新标签页打开链接
+     */
+    openBlank() {
+      DOMUtils.on(
+        document,
+        "click",
+        ".card-list .card",
+        (event, targetSelector) => {
+          utils.preventEvent(event);
+          let vueIns = VueUtils.getVue(targetSelector);
+          if (!vueIns) {
+            log.error("没有找到对应的Vue实例", vueIns);
+            Qmsg.error("没有找到对应的Vue实例");
+            return;
+          }
+          let carddata = vueIns == null ? void 0 : vueIns.carddata;
+          if (typeof (carddata == null ? void 0 : carddata.scheme) !== "string") {
+            log.error("没有找到对应的scheme", vueIns);
+            Qmsg.error("没有找到对应的scheme");
+            return;
+          }
+          let scheme = carddata.scheme;
+          log.success(`新标签页打开：` + scheme);
+          window.open(scheme, "_blank");
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
+  const blockCSS = "#app .bottombtn {\r\n	display: none !important;\r\n}\r\n";
+  const WeiBoLive = {
+    init() {
+      addStyle(blockCSS);
+    }
+  };
+  const WeiBo = {
+    $data: {
+      weiBoUnlockQuality: new WeiBoUnlockQuality()
+    },
+    init() {
+      Panel.execMenuOnce("weibo_hijack_navigator_service_worker_register", () => {
+        if ("serviceWorker" in window.navigator) {
+          WeiBoHook.hookServiceWorkerRegister();
+        }
+      });
+      Panel.execMenuOnce("weibo-common-clickImageToClosePreviewImage", () => {
+        this.clickImageToClosePreviewImage();
+      });
+      if (WeiBoRouter.isMWeiBo()) {
+        log.info("Router: 移动端微博");
+        Panel.onceExec("weibo-m-init", () => {
+          WeiBoHook.hookNetWork();
+          WeiBoHook.hookApply();
+          WeiBoHook.hookVueRouter();
+        });
+        Panel.execMenuOnce("weibo_remove_ads", () => {
+          return this.blockAds();
+        });
+        Panel.execMenuOnce("weibo_shield_bottom_bar", () => {
+          return this.shieldBottomBar();
+        });
+        this.$data.weiBoUnlockQuality.lockVideoQuality();
+        domUtils.ready(() => {
+          Panel.execMenuOnce("weibo-common-unlockVideoHigherQuality", () => {
+            this.unlockVideoHigherQuality();
+          });
+          Panel.execMenuOnce("weibo-detail-setArticleAbsoluteTime", () => {
+            WeiBoDetail.setArticleAbsoluteTime();
+          });
+        });
+        if (WeiBoRouter.isMWeiBoHome()) {
+          log.info(`Router: 移动端微博-首页`);
+          WeiBoHome.init();
+        } else if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status()) {
+          log.info("Router: 移动端微博-正文");
+          WeiBoDetail.init();
+        } else if (WeiBoRouter.isMWeiBo_userHome()) {
+          log.info("Router: 移动端微博-用户主页");
+        } else if (WeiBoRouter.isMWeiBo_search()) {
+          log.info("Router: 移动端微博-搜索");
+          WeiBoSearch.init();
+        } else if (WeiBoRouter.isMWeiBo_HotSearch()) {
+          log.info(`Router: 移动端微博-微博热搜`);
+          WeiBoHotSearch.init();
+        } else {
+          log.error("Router: 移动端微博未适配链接 => " + window.location.href);
+        }
+      } else if (WeiBoRouter.isHuaTi()) {
+        log.info("Router: 话题");
+        WeiBoHuaTi.init();
+      } else if (WeiBoRouter.isVideo()) {
+        log.info("Router: 视频页");
+        WeiBoVideo.init();
+      } else if (WeiBoRouter.isCard()) {
+        log.info("Router: 头条");
+        if (WeiBoRouter.isCardArticle()) {
+          log.info("Router: 头条文章");
+          WeiBoCardArticle.init();
+        } else {
+          log.error("Router: 头条未适配链接 => " + window.location.href);
+        }
+      } else if (WeiBoRouter.isLive()) {
+        log.info(`Router: 直播`);
+        WeiBoLive.init();
+      } else {
+        log.error("Router: 未适配 => " + window.location.href);
+      }
+    },
+    /**
+     * 屏蔽 广告
+     */
+    blockAds() {
+      log.info(`屏蔽 广告`);
+      return addStyle(blockAdsCSS$1);
+    },
+    /**
+     * 【屏蔽】底部工具栏
+     */
+    shieldBottomBar() {
+      log.info("【屏蔽】底部工具栏");
+      return CommonUtil.addBlockCSS(
+        "#app div.m-tab-bar.m-bar-panel.m-container-max"
+      );
+    },
+    /**
+     * 解锁微博视频高画质
+     **/
+    unlockVideoHigherQuality() {
+      let lock = new utils.LockFunction(() => {
+        this.$data.weiBoUnlockQuality.unlockVideoHigherQuality();
+      }, 15);
+      utils.mutationObserver(document.body, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        immediate: true,
+        callback: () => {
+          lock.run();
+        }
+      });
+    },
+    /**
+     * 设置监听事件，监听点击预览中的图片，从而关闭预览
+     */
+    clickImageToClosePreviewImage() {
+      let selectorList = [".pswp .pswp__item"];
+      selectorList.forEach((selector) => {
+        domUtils.on(document, "click", selector, (event) => {
+          event.target;
+          let $closeButton = $(".pswp .pswp__button--close");
+          if ($closeButton) {
+            $closeButton.click();
+          } else {
+            log.warn("未找到关闭预览按钮，使用history.back()");
+            window.history.back();
+          }
+        });
+      });
+    }
+  };
+  const PanelComponents = {
+    $data: {
+      __storeApiFn: null,
+      get storeApiValue() {
+        if (!this.__storeApiFn) {
+          this.__storeApiFn = new Utils.Dictionary();
+        }
+        return this.__storeApiFn;
+      }
+    },
+    /**
+     * 获取自定义的存储接口
+     * @param type 组件类型
+     */
+    getStorageApi(type) {
+      if (!this.hasStorageApi(type)) {
+        return;
+      }
+      return this.$data.storeApiValue.get(type);
+    },
+    /**
+     * 判断是否存在自定义的存储接口
+     * @param type 组件类型
+     */
+    hasStorageApi(type) {
+      return this.$data.storeApiValue.has(type);
+    },
+    /**
+     * 设置自定义的存储接口
+     * @param type 组件类型
+     * @param storageApiValue 存储接口
+     */
+    setStorageApi(type, storageApiValue) {
+      this.$data.storeApiValue.set(type, storageApiValue);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param type 组件类型
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(type, config, storageApiValue) {
+      let propsStorageApi;
+      if (this.hasStorageApi(type)) {
+        propsStorageApi = this.getStorageApi(type);
+      } else {
+        propsStorageApi = storageApiValue;
+      }
+      Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+    }
+  };
   const UISelect = function(text, key, defaultValue, data, callback, description) {
     let selectData = [];
     if (typeof data === "function") {
@@ -895,14 +2874,18 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
+    PanelComponents.setComponentsStorageApiProperty(
+      "select",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
+    );
     return result;
   };
   const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
@@ -926,14 +2909,18 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
+    PanelComponents.setComponentsStorageApiProperty(
+      "switch",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
+    );
     return result;
   };
   const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
@@ -946,7 +2933,11 @@
       placeholder,
       disabled,
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        if (Array.isArray(value)) {
+          return value.join("\n");
+        }
+        return value;
       },
       callback(event, value) {
         this.props[PROPS_STORAGE_API].set(key, value);
@@ -954,14 +2945,18 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return PopsPanel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        PopsPanel.setValue(key2, value);
+    PanelComponents.setComponentsStorageApiProperty(
+      "switch",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
+    );
     return result;
   };
   const SettingUICommon = {
@@ -1332,6 +3327,97 @@
       }
     ]
   };
+  const SettingUIHome = {
+    id: "weibo-panel-config-card-article",
+    title: "首页",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "新增超话Tab",
+            "weibo-home-addSupertalkTab",
+            false,
+            void 0,
+            "在首页添加超话Tab，方便快速查看超话"
+          ),
+          UISwitch(
+            "新增【新标签页打开】按钮",
+            "weibo-home-addOpenBlankBtn",
+            false,
+            void 0,
+            "在每个card下面的按钮区域添加该按钮，方便快速在新标签页中打开"
+          )
+        ]
+      },
+      {
+        text: "网络拦截",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "过滤掉信息流广告",
+            "weibo-request-blockArticleAds",
+            true,
+            void 0,
+            '夹杂在文章中间的"微博广告"'
+          )
+        ]
+      },
+      {
+        text: "屏蔽",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "屏蔽消息数量",
+            "weibo-home-blockMessageCount",
+            false,
+            void 0,
+            "即登录后右上角的消息提示数"
+          )
+        ]
+      }
+    ]
+  };
+  const SettingUIDetail = {
+    id: "weibo-panel-config-detail",
+    title: "正文",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch(
+            "修改发布时间显示为绝对时间",
+            "weibo-detail-setArticleAbsoluteTime",
+            false,
+            void 0,
+            "该功能全局生效包括但不限于微博正文、首页等"
+          )
+        ]
+      }
+    ]
+  };
+  const SettingUISearch = {
+    id: "weibo-panel-config-u",
+    title: "搜索",
+    forms: [
+      {
+        text: "功能",
+        type: "forms",
+        forms: [
+          UISwitch("自动聚焦搜索框", "weibo-search-autoFocusSearchInput", void 0),
+          UISwitch(
+            "新增【新标签页打开】按钮",
+            "weibo-search-addOpenBlankBtn",
+            false,
+            void 0,
+            "在每个card下面的按钮区域添加该按钮，方便快速在新标签页中打开"
+          )
+        ]
+      }
+    ]
+  };
   const SettingUIHuaTi = {
     id: "weibo-panel-config-huati",
     title: "话题",
@@ -1438,45 +3524,6 @@
       }
     ]
   };
-  const SettingUIDetail = {
-    id: "weibo-panel-config-detail",
-    title: "正文",
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "修改发布时间显示为绝对时间",
-            "weibo-detail-setArticleAbsoluteTime",
-            false,
-            void 0,
-            "该功能全局生效包括但不限于微博正文、首页等"
-          )
-        ]
-      }
-    ]
-  };
-  const SettingUISearch = {
-    id: "weibo-panel-config-u",
-    title: "搜索",
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch("自动聚焦搜索框", "weibo-search-autoFocusSearchInput", void 0),
-          UISwitch(
-            "新增【新标签页打开】按钮",
-            "weibo-search-addOpenBlankBtn",
-            false,
-            void 0,
-            "在每个card下面的按钮区域添加该按钮，方便快速在新标签页中打开"
-          )
-        ]
-      }
-    ]
-  };
   const SettingUICardArticle = {
     id: "weibo-panel-config-card-article",
     title: "头条文章",
@@ -1516,58 +3563,6 @@
       }
     ]
   };
-  const SettingUIHome = {
-    id: "weibo-panel-config-card-article",
-    title: "首页",
-    forms: [
-      {
-        text: "功能",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "新增超话Tab",
-            "weibo-home-addSupertalkTab",
-            false,
-            void 0,
-            "在首页添加超话Tab，方便快速查看超话"
-          ),
-          UISwitch(
-            "新增【新标签页打开】按钮",
-            "weibo-home-addOpenBlankBtn",
-            false,
-            void 0,
-            "在每个card下面的按钮区域添加该按钮，方便快速在新标签页中打开"
-          )
-        ]
-      },
-      {
-        text: "网络拦截",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "过滤掉信息流广告",
-            "weibo-request-blockArticleAds",
-            true,
-            void 0,
-            '夹杂在文章中间的"微博广告"'
-          )
-        ]
-      },
-      {
-        text: "屏蔽",
-        type: "forms",
-        forms: [
-          UISwitch(
-            "屏蔽消息数量",
-            "weibo-home-blockMessageCount",
-            false,
-            void 0,
-            "即登录后右上角的消息提示数"
-          )
-        ]
-      }
-    ]
-  };
   const SettingUIOther = {
     id: "weibo-panel-config-other",
     title: "其它",
@@ -1587,1573 +3582,30 @@
       }
     ]
   };
-  const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
-      get width() {
-        return window.innerWidth < 550 ? "88vw" : "550px";
-      },
-      get height() {
-        return window.innerHeight < 450 ? "70vh" : "450px";
-      }
-    }
+  PanelContent.addContentConfig([
+    SettingUICommon,
+    SettingUIHome,
+    SettingUIDetail,
+    // SettingUIUserHome,
+    SettingUISearch,
+    SettingUIHuaTi,
+    SettingUIVideo,
+    SettingUICardArticle,
+    SettingUIOther
+  ]);
+  Panel.$data.panelConfig = {
+    style: (
+      /*css*/
+      `
+        aside.pops-panel-aside{
+            width: auto !important;
+        }
+        .pops-panel-textarea textarea{
+            height: 100px;
+        }`
+    )
   };
-  const __PopsPanel__ = {
-    data: null,
-    oneSuccessExecMenu: null,
-    onceExec: null,
-    listenData: null
-  };
-  const PopsPanel = {
-    /** 数据 */
-    $data: {
-      /**
-       * 菜单项的默认值
-       */
-      get data() {
-        if (__PopsPanel__.data == null) {
-          __PopsPanel__.data = new utils.Dictionary();
-        }
-        return __PopsPanel__.data;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get oneSuccessExecMenu() {
-        if (__PopsPanel__.oneSuccessExecMenu == null) {
-          __PopsPanel__.oneSuccessExecMenu = new utils.Dictionary();
-        }
-        return __PopsPanel__.oneSuccessExecMenu;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get onceExec() {
-        if (__PopsPanel__.onceExec == null) {
-          __PopsPanel__.onceExec = new utils.Dictionary();
-        }
-        return __PopsPanel__.onceExec;
-      },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
-        return SCRIPT_NAME;
-      },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
-    },
-    /** 监听器 */
-    $listener: {
-      /**
-       * 值改变的监听器
-       */
-      get listenData() {
-        if (__PopsPanel__.listenData == null) {
-          __PopsPanel__.listenData = new utils.Dictionary();
-        }
-        return __PopsPanel__.listenData;
-      }
-    },
-    init() {
-      this.initPanelDefaultValue();
-      this.initExtensionsMenu();
-    },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
-    },
-    initExtensionsMenu() {
-      if (!this.isTopWindow()) {
-        return;
-      }
-      GM_Menu.add([
-        {
-          key: "show_pops_panel_setting",
-          text: "⚙ 设置",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            this.showPanel();
-          }
-        }
-      ]);
-    },
-    /** 初始化本地设置默认的值 */
-    initPanelDefaultValue() {
-      let that = this;
-      function initDefaultValue(config) {
-        if (!config.attributes) {
-          return;
-        }
-        let needInitConfig = {};
-        let key = config.attributes[ATTRIBUTE_KEY];
-        if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
-        }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-        if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
-        }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
-        }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          log.warn("请先配置键", config);
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
-          if (that.$data.data.has(__key)) {
-            log.warn("请检查该key(已存在): " + __key);
-          }
-          that.$data.data.set(__key, __defaultValue);
-        });
-      }
-      function loopInitDefaultValue(configList) {
-        for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
-          initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
-          }
-        }
-      }
-      let contentConfigList = this.getPanelContentConfig();
-      for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
-          continue;
-        }
-        let rightContentConfigList = leftContentConfigItem.forms;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
-          loopInitDefaultValue(rightContentConfigList);
-        }
-      }
-    },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      locaData[key] = value;
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, value);
-      }
-    },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
-      let locaData = _GM_getValue(KEY, {});
-      let localValue = locaData[key];
-      if (localValue == null) {
-        if (this.$data.data.has(key)) {
-          return this.$data.data.get(key);
-        }
-        return defaultValue;
-      }
-      return localValue;
-    },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
-      let locaData = _GM_getValue(KEY, {});
-      let oldValue = locaData[key];
-      Reflect.deleteProperty(locaData, key);
-      _GM_setValue(KEY, locaData);
-      if (this.$listener.listenData.has(key)) {
-        this.$listener.listenData.get(key).callback(key, oldValue, void 0);
-      }
-    },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
-      let listenerId = Math.random();
-      this.$listener.listenData.set(key, {
-        id: listenerId,
-        key,
-        callback
-      });
-      return listenerId;
-    },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
-      let deleteKey = null;
-      for (const [key, value] of this.$listener.listenData.entries()) {
-        if (value.id === listenerId) {
-          deleteKey = key;
-          break;
-        }
-      }
-      if (typeof deleteKey === "string") {
-        this.$listener.listenData.delete(deleteKey);
-      } else {
-        console.warn("没有找到对应的监听器");
-      }
-    },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
-      if (this.$listener.listenData.has(key)) {
-        let listenData = this.$listener.listenData.get(key);
-        if (typeof listenData.callback === "function") {
-          let value = this.getValue(key);
-          let __newValue = value;
-          let __oldValue = value;
-          if (typeof newValue !== "undefined" && arguments.length > 1) {
-            __newValue = newValue;
-          }
-          if (typeof oldValue !== "undefined" && arguments.length > 2) {
-            __oldValue = oldValue;
-          }
-          listenData.callback(key, __oldValue, __newValue);
-        }
-      }
-    },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
-      let locaData = _GM_getValue(KEY, {});
-      return key in locaData;
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key
-     * @param callback 回调
-     * @param [isReverse=false] 逆反判断菜单启用
-     */
-    execMenu(key, callback, isReverse = false) {
-      if (!(typeof key === "string" || typeof key === "object" && Array.isArray(key))) {
-        throw new TypeError("key 必须是字符串或者字符串数组");
-      }
-      let runKeyList = [];
-      if (typeof key === "object" && Array.isArray(key)) {
-        runKeyList = [...key];
-      } else {
-        runKeyList.push(key);
-      }
-      let value = void 0;
-      for (let index = 0; index < runKeyList.length; index++) {
-        const runKey = runKeyList[index];
-        if (!this.$data.data.has(runKey)) {
-          log.warn(`${key} 键不存在`);
-          return;
-        }
-        let runValue = PopsPanel.getValue(runKey);
-        if (isReverse) {
-          runValue = !runValue;
-        }
-        if (!runValue) {
-          break;
-        }
-        value = runValue;
-      }
-      if (value) {
-        callback(value);
-      }
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key
-     * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
-     */
-    execMenuOnce(key, callback, getValueFn, handleValueChangeFn) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (!this.$data.data.has(key)) {
-        log.warn(`${key} 键不存在`);
-        return;
-      }
-      if (this.$data.oneSuccessExecMenu.has(key)) {
-        return;
-      }
-      this.$data.oneSuccessExecMenu.set(key, 1);
-      let __getValue = () => {
-        let localValue = PopsPanel.getValue(key);
-        return typeof getValueFn === "function" ? getValueFn(key, localValue) : localValue;
-      };
-      let resultStyleList = [];
-      let dynamicPushStyleNode = ($style) => {
-        let __value = __getValue();
-        let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
-        }
-        if (__value) {
-          resultStyleList = resultStyleList.concat(dynamicResultList);
-        } else {
-          for (let index = 0; index < dynamicResultList.length; index++) {
-            let $css = dynamicResultList[index];
-            $css.remove();
-            dynamicResultList.splice(index, 1);
-            index--;
-          }
-        }
-      };
-      let changeCallBack = (currentValue) => {
-        let resultList = [];
-        if (currentValue) {
-          let result = callback(currentValue, dynamicPushStyleNode);
-          if (result instanceof HTMLStyleElement) {
-            resultList = [result];
-          } else if (Array.isArray(result)) {
-            resultList = [
-              ...result.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            ];
-          }
-        }
-        for (let index = 0; index < resultStyleList.length; index++) {
-          let $css = resultStyleList[index];
-          $css.remove();
-          resultStyleList.splice(index, 1);
-          index--;
-        }
-        resultStyleList = [...resultList];
-      };
-      this.addValueChangeListener(
-        key,
-        (__key, oldValue, newValue) => {
-          let __newValue = newValue;
-          if (typeof handleValueChangeFn === "function") {
-            __newValue = handleValueChangeFn(__key, newValue, oldValue);
-          }
-          changeCallBack(__newValue);
-        }
-      );
-      let value = __getValue();
-      if (value) {
-        changeCallBack(value);
-      }
-    },
-    /**
-     * 父子菜单联动，自动判断菜单是否启用，然后执行回调，只会执行一次
-     * @param key 菜单键
-     * @param childKey 子菜单键
-     * @param callback 回调
-     * @param replaceValueFn 用于修改mainValue，返回undefined则不做处理
-     */
-    execInheritMenuOnce(key, childKey, callback, replaceValueFn) {
-      let that = this;
-      const handleInheritValue = (key2, childKey2) => {
-        let mainValue = that.getValue(key2);
-        let childValue = that.getValue(childKey2);
-        if (typeof replaceValueFn === "function") {
-          let changedMainValue = replaceValueFn(mainValue, childValue);
-          if (changedMainValue !== void 0) {
-            return changedMainValue;
-          }
-        }
-        return mainValue;
-      };
-      this.execMenuOnce(
-        key,
-        callback,
-        () => {
-          return handleInheritValue(key, childKey);
-        },
-        () => {
-          return handleInheritValue(key, childKey);
-        }
-      );
-      this.execMenuOnce(
-        childKey,
-        () => {
-        },
-        () => false,
-        () => {
-          this.triggerMenuValueChange(key);
-          return false;
-        }
-      );
-    },
-    /**
-     * 根据key执行一次
-     * @param key
-     */
-    onceExec(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExec.has(key)) {
-        return;
-      }
-      callback();
-      this.$data.onceExec.set(key, 1);
-    },
-    /**
-     * 显示设置面板
-     */
-    showPanel() {
-      __pops.panel({
-        title: {
-          text: `${SCRIPT_NAME}-设置`,
-          position: "center",
-          html: false,
-          style: ""
-        },
-        content: this.getPanelContentConfig(),
-        mask: {
-          enable: true,
-          clickEvent: {
-            toClose: true,
-            toHide: false
-          }
-        },
-        width: PanelUISize.setting.width,
-        height: PanelUISize.setting.height,
-        drag: true,
-        only: true,
-        style: (
-          /*css*/
-          `
-			aside.pops-panel-aside{
-			  width: auto !important;
-			}
-			.pops-panel-textarea textarea{
-				height: 100px;
-			}
-			`
-        )
-      });
-    },
-    /**
-     * 获取配置内容
-     */
-    getPanelContentConfig() {
-      let configList = [
-        SettingUICommon,
-        SettingUIHome,
-        SettingUIDetail,
-        // SettingUIUserHome,
-        SettingUISearch,
-        SettingUIHuaTi,
-        SettingUIVideo,
-        SettingUICardArticle,
-        SettingUIOther
-      ];
-      return configList;
-    }
-  };
-  const blockAdsCSS$1 = "/* 底部中间的 登录/注册按钮 */\r\n#app div.main-wrap div.login-box,\r\n/* 主内容底部的小程序横幅推荐 */\r\n#app > div.lite-page-wrap > div > div.main > div > div.wrap,\r\n/* 底部悬浮的在微博内打开 */\r\n#app .woo-frame.blog-config-page div.weibo-btn-box,\r\n/* 顶部的新闻信息流 */\r\n#app .woo-frame div.woo-panel-container.news-banner,\r\n/* 夹杂在card中间的图片横幅，不确定是否会误伤其它正常内容 */\r\n.card .card-main .m-img-box > ul {\r\n	display: none !important;\r\n}\r\n/* 搜索域名下的 */\r\n.card.m-panel:has(+ .simple),\r\n.card.m-panel.simple {\r\n	display: none !important;\r\n}\r\n";
-  let _ajaxHooker_ = null;
-  const WeiBoNetWorkHook = {
-    get ajaxHooker() {
-      if (_ajaxHooker_ == null) {
-        log.info("启用ajaxHooker拦截网络");
-        _ajaxHooker_ = utils.ajaxHooker();
-        _ajaxHooker_.protect();
-      }
-      return _ajaxHooker_;
-    }
-  };
-  const WeiBoHook = {
-    /**
-     * 劫持Function.prototype.apply;
-     */
-    hookApply() {
-      log.info("劫持Function.prototype.apply");
-      let originApply = _unsafeWindow.Function.prototype.apply;
-      _unsafeWindow.Function.prototype.apply = function(...args) {
-        var _a2, _b;
-        let target = originApply;
-        if (args.length !== 2) {
-          return Reflect.apply(target, this, args);
-        }
-        if (args.length === 2 && !Array.isArray(args[1])) {
-          return Reflect.apply(target, this, args);
-        }
-        if (typeof args[1][0] !== "string") {
-          return Reflect.apply(target, this, args);
-        }
-        const ApiPath = args[1][0];
-        const ApiSearchParams = (_b = (_a2 = args[1]) == null ? void 0 : _a2[1]) == null ? void 0 : _b["params"];
-        if (ApiPath === "api/attitudes/create" && PopsPanel.getValue("weibo_apply_attitudes_create")) {
-          log.success("拦截跳转登录");
-          return new Promise((resolve) => {
-            resolve({
-              data: {}
-            });
-          });
-        } else if (ApiPath === "api/likes/update" && PopsPanel.getValue("weibo_apply_likes_update")) {
-          log.success("拦截点赞跳转登录");
-          return new Promise((resolve) => {
-            resolve({
-              data: {}
-            });
-          });
-        } else if (ApiPath === "api/comments/create" && PopsPanel.getValue("weibo_apply_comments_create")) {
-          log.success("拦截评论跳转登录");
-          return new Promise((resolve) => {
-            resolve({
-              data: {}
-            });
-          });
-        } else if (ApiPath === "api/friendships/create" && PopsPanel.getValue("weibo_apply_friendships_create")) {
-          log.success("拦截关注跳转登录");
-          return new Promise((resolve) => {
-            resolve({
-              data: {}
-            });
-          });
-        } else if (ApiPath === "api/comments/reply" && PopsPanel.getValue("weibo_apply_comments_reply")) {
-          log.success("拦截回复跳转登录");
-          return new Promise((resolve, reject) => {
-            resolve({
-              data: {
-                ok: 200
-              }
-            });
-          });
-        } else if (ApiPath.startsWith("profile/info") && PopsPanel.getValue("weibo_apply_profile_info")) {
-          log.success("优化跳转xx微博主页", ApiSearchParams);
-          let uidHomeUrl = `https://weibo.com/${ApiSearchParams["uid"]}`;
-          log.success("跳转微博主页：" + uidHomeUrl);
-          window.location.href = uidHomeUrl;
-          return null;
-        } else if (ApiPath === "comments/hotflow" && PopsPanel.getValue("weibo_apply_comments_hotflow")) {
-          if (!("id" in ApiSearchParams && "max_id_type" in ApiSearchParams && "mid" in ApiSearchParams) || "id" in ApiSearchParams && "max_id" in ApiSearchParams && "max_id_type" in ApiSearchParams && "mid" in ApiSearchParams) {
-            log.success("拦截下拉加载更多评论跳转登录", ApiSearchParams);
-            return new Promise((resolve) => {
-              resolve({
-                ok: 1,
-                data: {
-                  data: [],
-                  total_number: 0
-                }
-              });
-            });
-          }
-        } else if (ApiPath === "comments/hotFlowChild" && PopsPanel.getValue("weibo_apply_comments_hotFlowChild")) {
-          if ("max_id" in ApiSearchParams && ApiSearchParams["max_id"] !== 0) {
-            log.success(
-              "拦截评论中的评论下拉加载更多评论跳转登录",
-              ApiSearchParams
-            );
-            return new Promise((resolve) => {
-              resolve({
-                data: {
-                  ok: 1,
-                  data: [],
-                  rootComment: [],
-                  total_number: 0
-                }
-              });
-            });
-          }
-        } else if (ApiPath === "api/statuses/repostTimeline" && PopsPanel.getValue("weibo_apply_statuses_repostTimeline")) {
-          log.success("拦截查看转发数据，因为需登录", ApiSearchParams);
-          return new Promise((resolve) => {
-            resolve({
-              data: {
-                ok: 1,
-                data: {
-                  data: [],
-                  total_number: 0
-                }
-              }
-            });
-          });
-        } else ;
-        return Reflect.apply(target, this, args);
-      };
-    },
-    /**
-     * 拦截网络
-     */
-    hookNetWork() {
-      WeiBoNetWorkHook.ajaxHooker.hook(function(request) {
-        let requestUrl = CommonUtil.fixUrl(request.url);
-        log.info("[ajaxHookr] " + requestUrl);
-        if (requestUrl.startsWith("https://m.weibo.cn/api/config") && PopsPanel.getValue("weibo_request_api_config")) {
-          request.response = function(originResponse) {
-            let originResponseData = utils.toJSON(originResponse.responseText);
-            if (!originResponseData.data.login) {
-              log.error("由于未登录，伪装为已登录状态");
-              originResponseData.data.login = true;
-              originResponseData.data.uid = "";
-              originResponseData.preferQuickapp = 0;
-              Reflect.deleteProperty(originResponseData.data, "loginUrl");
-              Reflect.deleteProperty(originResponseData.data, "wx_callback");
-              Reflect.deleteProperty(originResponseData.data, "wx_authorize");
-              Reflect.deleteProperty(
-                originResponseData.data,
-                "passport_login_url"
-              );
-              originResponse.responseText = JSON.stringify(originResponseData);
-            }
-          };
-        } else if (requestUrl.startsWith("https://m.weibo.cn/comments/hot") && PopsPanel.getValue("weibo_request_comments_hot")) {
-          request.response = function(originResponse) {
-            let originResponseData = utils.toJSON(originResponse.responseText);
-            if (originResponseData.ok !== 1) {
-              log.error("由于尚未登录，获取不到更多评论数据", originResponseData);
-              originResponseData = {
-                ok: 1
-              };
-              originResponse.responseText = JSON.stringify(originResponseData);
-            }
-          };
-        } else if (requestUrl.startsWith("https://m.weibo.cn/status/push?") && PopsPanel.getValue("weibo_request_status_push")) {
-          request.response = function(originResponse) {
-            let originResponseData = utils.toJSON(originResponse.responseText);
-            Reflect.set(originResponse, "json", {});
-            log.info(`重构/status/push响应`, originResponseData);
-            originResponse.responseText = JSON.stringify(originResponseData);
-          };
-        } else if (requestUrl.startsWith("https://m.weibo.cn/api/container/getIndex") && PopsPanel.getValue("weibo-request-blockArticleAds")) {
-          request.response = function(originResponse) {
-            var _a2;
-            let originResponseData = utils.toJSON(originResponse.responseText);
-            let cards = originResponseData["data"]["cards"];
-            if (Array.isArray(cards)) {
-              for (let index = 0; index < cards.length; index++) {
-                const card = cards[index];
-                let mblog = card == null ? void 0 : card.mblog;
-                if (mblog) {
-                  let id = mblog.id;
-                  let ad_state = mblog == null ? void 0 : mblog.ad_state;
-                  let cardText = mblog == null ? void 0 : mblog.text;
-                  (_a2 = mblog == null ? void 0 : mblog.page_info) == null ? void 0 : _a2.page_title;
-                  if (ad_state) {
-                    cards.splice(index, 1);
-                    index--;
-                    log.info(`移除广告url：https://m.weibo.cn/detail/` + id);
-                    log.info(`移除广告card：` + cardText);
-                  }
-                }
-              }
-            }
-            originResponse.responseText = JSON.stringify(originResponseData);
-          };
-        }
-      });
-    },
-    /**
-     * 劫持webpack
-     * @param webpackName 当前全局变量的webpack名
-     * @param mainCoreData 需要劫持的webpack的顶部core，例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
-     * @param checkCallBack 如果mainCoreData匹配上，则调用此回调函数
-     */
-    hookWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
-      let originObject = void 0;
-      Object.defineProperty(_unsafeWindow, webpackName, {
-        get() {
-          return originObject;
-        },
-        set(newValue) {
-          log.success("成功劫持webpack，当前webpack名：" + webpackName);
-          originObject = newValue;
-          const originPush = originObject.push;
-          originObject.push = function(...args) {
-            let _mainCoreData = args[0][0];
-            if (mainCoreData == _mainCoreData || Array.isArray(mainCoreData) && Array.isArray(_mainCoreData) && JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData)) {
-              Object.keys(args[0][1]).forEach((keyName) => {
-                let originSwitchFunc = args[0][1][keyName];
-                args[0][1][keyName] = function(..._args) {
-                  let result = originSwitchFunc.call(this, ..._args);
-                  _args[0] = checkCallBack(_args[0]);
-                  return result;
-                };
-              });
-            }
-            return originPush.call(this, ...args);
-          };
-        }
-      });
-    },
-    /**
-     * 拦截Vue Router跳转
-     */
-    hookVueRouter() {
-      VueUtils.waitVuePropToSet("#app", [
-        {
-          msg: "等待获取属性 __vue__.$router",
-          check(vueIns) {
-            var _a2;
-            return typeof ((_a2 = vueIns == null ? void 0 : vueIns.$router) == null ? void 0 : _a2.push) === "function";
-          },
-          set(vueIns) {
-            log.success("拦截Vue路由跳转");
-            let beforeEachFn = (to, from, next) => {
-              var _a2;
-              if (to.name === "profile") {
-                if (PopsPanel.getValue("weibo_router_profile_to_user_home")) {
-                  let uid = (_a2 = to == null ? void 0 : to.params) == null ? void 0 : _a2.uid;
-                  if (uid == null) {
-                    log.error("获取uid失败");
-                    Qmsg.error("获取uid失败");
-                    return;
-                  }
-                  log.success(`修复跳转${uid}微博主页`);
-                  let uidHomeUrl = `https://m.weibo.cn/u/${uid}`;
-                  window.location.href = uidHomeUrl;
-                  return;
-                }
-              } else if ((to == null ? void 0 : to.name) === "detail") ;
-              next();
-            };
-            vueIns.$router.beforeEach(beforeEachFn);
-            vueIns.$router.afterEach((to, from) => {
-              PopsPanel.execMenu("weibo-listenRouterChange", () => {
-                log.info("路由更新，重载功能");
-                WeiBo.init();
-              });
-            });
-            let ownHookIndex = vueIns.$router.beforeHooks.findIndex(
-              (item) => item == beforeEachFn
-            );
-            if (ownHookIndex !== -1) {
-              let ownHook = vueIns.$router.beforeHooks.splice(ownHookIndex, 1);
-              vueIns.$router.beforeHooks.splice(0, 0, ...ownHook);
-            } else {
-              log.error("$router未在beforeHooks内找到自定义的beforeEach");
-            }
-          }
-        }
-      ]);
-    },
-    /**
-     * 禁止Service Worker注册
-     */
-    hookServiceWorkerRegister() {
-      log.info("hook => navigator.serviceWorker.register");
-      _unsafeWindow.Object.defineProperty(
-        _unsafeWindow.navigator.serviceWorker,
-        "register",
-        {
-          get() {
-            return function(...args) {
-              log.success("劫持navigator.serviceWorker.register: ", args);
-            };
-          }
-        }
-      );
-    }
-  };
-  const WeiBoRouter = {
-    /**
-     * 移动端微博
-     * @returns
-     */
-    isMWeiBo() {
-      return window.location.hostname === "m.weibo.cn";
-    },
-    /**
-     * 移动端微博-首页
-     */
-    isMWeiBoHome() {
-      return this.isMWeiBo() && window.location.pathname === "/";
-    },
-    /**
-     * 移动端微博-微博正文
-     */
-    isMWeiBo_detail() {
-      return this.isMWeiBo() && window.location.pathname.startsWith("/detail/");
-    },
-    /**
-     * 移动端微博-微博正文
-     */
-    isMWeiBo_status() {
-      return this.isMWeiBo() && window.location.pathname.startsWith("/status/");
-    },
-    /**
-     * 移动端微博-用户主页
-     */
-    isMWeiBo_userHome() {
-      return this.isMWeiBo() && window.location.pathname.startsWith("/u/");
-    },
-    /**
-     * 移动端微博-搜索
-     */
-    isMWeiBo_search() {
-      return this.isMWeiBo() && window.location.pathname.startsWith("/search");
-    },
-    /**
-     * 移动端微博-微博热搜
-     */
-    isMWeiBo_HotSearch() {
-      let searchParams = new URLSearchParams(globalThis.location.search);
-      let containerid = searchParams.get("containerid");
-      return this.isMWeiBo() && window.location.pathname.startsWith("/p/index") && typeof containerid === "string" && containerid.startsWith("106003");
-    },
-    /**
-     * 话题
-     */
-    isHuaTi() {
-      return window.location.hostname === "huati.weibo.cn";
-    },
-    /**
-     * 视频页
-     */
-    isVideo() {
-      return window.location.hostname === "h5.video.weibo.com";
-    },
-    /**
-     * 头条
-     */
-    isCard() {
-      return window.location.hostname === "card.weibo.com";
-    },
-    /**
-     * 头条文章
-     */
-    isCardArticle() {
-      return this.isCard() && window.location.pathname.startsWith("/article/");
-    },
-    /**
-     * 微博直播页面
-     */
-    isLive() {
-      return window.location.hostname === "weibo.com" && window.location.pathname.startsWith("/l/wblive/m/show/");
-    }
-  };
-  const WeiBoHuaTi = {
-    init() {
-      PopsPanel.execMenu("huati_weibo_masquerade_weibo_client_app", () => {
-        this.isWeibo();
-      });
-      PopsPanel.execMenuOnce(
-        "huati_weibo_get_more_celebrity_calendar_information",
-        () => {
-          this.hookNetWorkWithGetMoreCelebrityCalendarInformation();
-        }
-      );
-    },
-    /**
-     * 伪装微博
-     */
-    isWeibo() {
-      log.info("伪装微博");
-      VueUtils.waitVuePropToSet("#loadMore", [
-        {
-          msg: "等待设置属性 __vue__.isWeibo",
-          check(vueObj) {
-            return typeof vueObj.isWeibo === "boolean";
-          },
-          set(vueObj) {
-            vueObj.isWeibo = true;
-            log.success("成功设置属性 __vue__.isWeibo=true");
-          }
-        }
-      ]);
-    },
-    /**
-     * 劫持请求让获取更多名人日历信息
-     */
-    hookNetWorkWithGetMoreCelebrityCalendarInformation() {
-      WeiBoNetWorkHook.ajaxHooker.hook((request) => {
-        log.info("ajaxHookr: ", request.url);
-        if (!request.url.startsWith("/ajax/super/starschedule?")) {
-          return;
-        }
-        request.response = async (res) => {
-          let getResp = await httpx.get(request.url, {
-            headers: {
-              Host: globalThis.location.hostname,
-              Accept: "application/json, text/plain, */*",
-              "X-Requested-With": "XMLHttpRequest",
-              "sec-ch-ua-mobile": "?1",
-              "User-Agent": utils.getRandomAndroidUA() + " Weibo (__weibo__)",
-              "sec-ch-ua-platform": "Android",
-              "Sec-Fetch-Site": "same-origin",
-              "Sec-Fetch-Mode": "cors",
-              "Sec-Fetch-Dest": "empty",
-              Referer: globalThis.location.href,
-              "Accept-Encoding": "gzip, deflate, br",
-              "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
-            }
-          });
-          res.response = getResp.data.responseText;
-          res.responseText = getResp.data.responseText;
-        };
-      });
-    }
-  };
-  const WeiBoVideoHook = {
-    init() {
-      this.hookWebpack();
-    },
-    /**
-     * 劫持webpack
-     */
-    hookWebpack() {
-      log.info("劫持webpack");
-      WeiBoHook.hookWebpack("webpackJsonp", "chunk-common", (webpackExports) => {
-        if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof webpackExports.exports["a"] === "object" && typeof webpackExports.exports["a"]["gotoApp"] === "function" && PopsPanel.getValue("weibo_video_webpack_gotoApp")) {
-          log.success("成功劫持webpack调用函数", webpackExports);
-          webpackExports.exports["a"]["gotoApp"] = function(...args) {
-            log.info("阻止唤醒App：", args);
-          };
-          return webpackExports;
-        }
-      });
-    }
-  };
-  const WeiBoVideo = {
-    init() {
-      PopsPanel.onceExec("weibo-video-init-hook", () => {
-        WeiBoVideoHook.init();
-      });
-      PopsPanel.execMenuOnce("weibo_video_shield_bottom_toolbar", () => {
-        return this.shieldBottomToolBar();
-      });
-      PopsPanel.execMenuOnce("weibo_video_shield_hot_comments", () => {
-        return this.shieldHotComments();
-      });
-      PopsPanel.execMenuOnce("weibo_video_shield_recommend", () => {
-        return this.shieldRecommend();
-      });
-    },
-    /** 【屏蔽】底部工具栏 */
-    shieldBottomToolBar() {
-      log.info("【屏蔽】底部工具栏");
-      return CommonUtil.addBlockCSS(".woo-toolBar");
-    },
-    /** 【屏蔽】相关推荐 */
-    shieldRecommend() {
-      log.info("【屏蔽】相关推荐");
-      return CommonUtil.addBlockCSS(
-        '#app .woo-panel[class*="Playdetail_card_"]:nth-child(2)'
-      );
-    },
-    /** 【屏蔽】热门评论 */
-    shieldHotComments() {
-      log.info("【屏蔽】热门评论");
-      return CommonUtil.addBlockCSS(
-        '#app .woo-panel[class*="Playdetail_card_"]:nth-child(3)'
-      );
-    }
-  };
-  const blockAdsCSS = "/* 文章内容的底部的广告 */\r\n#app .ad-wrap {\r\n	display: none !important;\r\n}\r\n";
-  const WeiBoDetail = {
-    init() {
-      PopsPanel.onceExec("weibo-detail-blockAds", () => {
-        return addStyle(blockAdsCSS);
-      });
-    },
-    /**
-     * 设置正文显示的时间为绝对时间
-     */
-    setArticleAbsoluteTime() {
-      log.info(`监听并设置正文显示的时间为绝对时间`);
-      utils.mutationObserver(document.documentElement, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        immediate: true,
-        callback: () => {
-          function handleCardMainTime() {
-            Array.from(
-              $$(
-                ".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])"
-              )
-            ).forEach(($time) => {
-              var _a2;
-              let $card = $time.closest(".card.m-panel");
-              let cardVueIns = VueUtils.getVue($card);
-              if (!cardVueIns) {
-                return;
-              }
-              let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
-              if (typeof createTime !== "string") {
-                return;
-              }
-              if ($time.innerText.includes("编辑")) {
-                return;
-              }
-              let createTimeObj = new Date(createTime);
-              let formatCreateTime = utils.formatTime(
-                createTimeObj,
-                "yyyy-MM-dd HH:mm:ss"
-              );
-              $time.innerText = formatCreateTime;
-              $time.setAttribute("data-gm-absolute-time", "true");
-            });
-          }
-          function handleCardLzlTime() {
-            let $litePageWrap = $(".lite-page-wrap");
-            let litePageWrapVueIns = VueUtils.getVue($litePageWrap);
-            if (litePageWrapVueIns) {
-              let curWeiboData = litePageWrapVueIns == null ? void 0 : litePageWrapVueIns.curWeiboData;
-              let $timeList = Array.from(
-                $$(
-                  ".lite-page-comment .card .card-main .m-box .time"
-                )
-              );
-              if ($timeList.length === curWeiboData.commentLists.length + 1) {
-                $timeList.forEach(($time, index) => {
-                  if ($time.hasAttribute("data-gm-absolute-time")) {
-                    return;
-                  }
-                  if (index === 0) {
-                    let createTimeObj = new Date(
-                      curWeiboData.rootComment.created_at
-                    );
-                    let formatCreateTime = utils.formatTime(
-                      createTimeObj,
-                      "yyyy-MM-dd HH:mm:ss"
-                    );
-                    $time.innerText = formatCreateTime;
-                  } else {
-                    let createTimeObj = new Date(
-                      curWeiboData.commentLists[index - 1].created_at
-                    );
-                    let formatCreateTime = utils.formatTime(
-                      createTimeObj,
-                      "yyyy-MM-dd HH:mm:ss"
-                    );
-                    $time.innerText = formatCreateTime;
-                  }
-                  $time.setAttribute("data-gm-absolute-time", "true");
-                });
-              } else {
-                if ($timeList.length !== 0) {
-                  log.warn("楼中楼时间设置失败，数量不一致");
-                }
-              }
-            }
-          }
-          function handleCardCommentTime() {
-            Array.from(
-              $$(
-                ".comment-content .card .m-box .time:not([data-gm-absolute-time])"
-              )
-            ).forEach(($time) => {
-              var _a2, _b;
-              let $card = $time.closest(".card");
-              let $cardParent = $card.parentElement;
-              let cardVueIns = VueUtils.getVue($card) || VueUtils.getVue($cardParent);
-              if (!cardVueIns) {
-                return;
-              }
-              let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
-              if (typeof createTime !== "string") {
-                return;
-              }
-              let createTimeObj = new Date(createTime);
-              let formatCreateTime = utils.formatTime(
-                createTimeObj,
-                "yyyy-MM-dd HH:mm:ss"
-              );
-              $time.innerText = `${formatCreateTime} ${((_b = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _b.source) || ""}`;
-              $time.setAttribute("data-gm-absolute-time", "true");
-            });
-          }
-          let searchParams = new URLSearchParams(window.location.search);
-          if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status()) {
-            if (searchParams.has("cid")) {
-              handleCardLzlTime();
-            } else {
-              handleCardMainTime();
-              handleCardCommentTime();
-            }
-          } else {
-            handleCardMainTime();
-          }
-        }
-      });
-    }
-  };
-  const WeiBoSearch = {
-    init() {
-      PopsPanel.execMenuOnce("weibo-search-addOpenBlankBtn", () => {
-        this.addOpenBlankBtn();
-      });
-      domUtils.ready(() => {
-        PopsPanel.execMenu("weibo-search-autoFocusSearchInput", () => {
-          this.autoFocusSearchInput();
-        });
-      });
-    },
-    /**
-     * 自动聚焦搜索框
-     */
-    autoFocusSearchInput() {
-      log.info(`自动聚焦搜索框`);
-      utils.waitNode(`.ntop-nav input[type="search"]`).then(($input) => {
-        if (!$input) {
-          log.error("未找到搜索框");
-          Qmsg.error("未找到搜索框");
-          return;
-        }
-        let searchParams = new URLSearchParams(window.location.search);
-        if (!searchParams.has("containerid")) {
-          log.warn("不存在containerid参数");
-          return;
-        }
-        let containeridSearchParams = new URLSearchParams(
-          searchParams.get("containerid")
-        );
-        if (containeridSearchParams.has("q")) {
-          log.warn("containerid参数中存在q参数，是搜索结果页面");
-          return;
-        }
-        log.success(
-          "containerid参数中不存在q参数，所以是主搜索页面，聚焦输入框"
-        );
-        setTimeout(() => {
-          $input.focus();
-        }, 250);
-      });
-    },
-    /**
-     * 新增新标签页打开按钮
-     */
-    addOpenBlankBtn() {
-      utils.mutationObserver(document.documentElement, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        immediate: true,
-        callback() {
-          if (!WeiBoRouter.isMWeiBo_search()) {
-            return;
-          }
-          document.querySelectorAll(
-            ".card footer.m-ctrl-box:not(:has(.gm-open-blank))"
-          ).forEach(($footerCtrl) => {
-            if ($footerCtrl.querySelector(".gm-open-blank")) {
-              return;
-            }
-            let $ownDiyBtn = domUtils.createElement("div", {
-              innerHTML: (
-                /*html*/
-                `
-								<h4>新标签页打开</h4>
-							`
-              )
-            });
-            $ownDiyBtn.classList.add(
-              "m-diy-btn",
-              "m-box-col",
-              "m-box-center",
-              "m-box-center-a",
-              "gm-open-blank"
-            );
-            domUtils.on($ownDiyBtn, "click", (event) => {
-              var _a2;
-              utils.preventEvent(event);
-              let vueIns = VueUtils.getVue($footerCtrl);
-              if (!vueIns) {
-                Qmsg.error("没有找到对应的Vue实例");
-                return;
-              }
-              let id = (_a2 = vueIns == null ? void 0 : vueIns.item) == null ? void 0 : _a2.id;
-              if (typeof id !== "string") {
-                Qmsg.error("没有找到对应的id");
-                return;
-              }
-              let url = `${window.location.origin}/detail/${id}`;
-              log.info(`新标签页打开：${url}`);
-              window.open(url, "_blank");
-            });
-            let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
-            if ($diyBtnList.length) {
-              domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
-            } else {
-              domUtils.append($footerCtrl, $ownDiyBtn);
-            }
-          });
-        }
-      });
-    }
-  };
-  const WeiBoCardArticle = {
-    init() {
-      PopsPanel.execMenuOnce("card_weibo_com__autoExpandFullArticle", () => {
-        return this.autoExpandFullArticle();
-      });
-      PopsPanel.execMenuOnce("card_weibo_com__blockComment", () => {
-        return this.blockComment();
-      });
-      PopsPanel.execMenuOnce("card_weibo_com__repairArticleUserHomeJump", () => {
-        this.repairArticleUserHomeJump();
-      });
-    },
-    /**
-     * 自动展开全文
-     */
-    autoExpandFullArticle() {
-      log.info("自动展开全文");
-      return [
-        addStyle(
-          /*css*/
-          `
-			.m-container-max .f-art,
-			.m-container-max .art-con-new{
-				height: unset !important;
-				overflow: unset !important;
-			}    
-			`
-        ),
-        CommonUtil.addBlockCSS(".m-container-max .f-art-opt")
-      ];
-    },
-    /**
-     * 屏蔽评论
-     */
-    blockComment() {
-      log.info("【屏蔽】评论");
-      return CommonUtil.addBlockCSS(".m-container-max .m-panel1");
-    },
-    /**
-     * 修复文章用户主页跳转
-     */
-    repairArticleUserHomeJump() {
-      log.info("修复文章用户主页跳转");
-      domUtils.on(
-        document,
-        "click",
-        ".m-feed .f-art-user-v2",
-        (event) => {
-          let $click = event.target;
-          let jQueryEventName = Object.keys($click).find(
-            (key) => key.startsWith("jQuery")
-          );
-          if (!jQueryEventName) {
-            return;
-          }
-          utils.preventEvent(event);
-          let jQueryEvent = $click[jQueryEventName];
-          let data = jQueryEvent["events"]["click"][0]["data"];
-          log.success("跳转信息：", data);
-          let url = data["url"] || data["target_url"];
-          window.open(url, "_blank");
-        },
-        {
-          capture: true
-        }
-      );
-    }
-  };
-  const WeiBoHome = {
-    init() {
-      PopsPanel.execMenuOnce("weibo-home-blockMessageCount", () => {
-        return this.blockMessageCount();
-      });
-      PopsPanel.execMenuOnce("weibo-home-addOpenBlankBtn", () => {
-        this.addOpenBlankBtn();
-      });
-      domUtils.ready(() => {
-        PopsPanel.execMenuOnce("weibo-home-addSupertalkTab", () => {
-          this.addSupertalkTab();
-        });
-      });
-    },
-    /**
-     * 屏蔽右上角的信息红点（登录后）
-     */
-    blockMessageCount() {
-      log.info(`屏蔽右上角的信息红点（登录后）`);
-      return CommonUtil.addBlockCSS(".nav-right .m-bubble");
-    },
-    /**
-     * 新增Tab - 超话
-     */
-    addSupertalkTab() {
-      VueUtils.waitVuePropToSet(".main-top", {
-        check(vueObj) {
-          return Array.isArray(vueObj == null ? void 0 : vueObj.tabs);
-        },
-        set(vueObj) {
-          var _a2;
-          log.success(`添加顶部Tab - 超话`);
-          (_a2 = vueObj == null ? void 0 : vueObj.tabs) == null ? void 0 : _a2.push({
-            children: [
-              {
-                api: "api/container/getIndex?containerid=100803",
-                gid: "100803",
-                name: "超话社区",
-                type: 1
-              }
-            ]
-          });
-          return;
-        }
-      });
-    },
-    /**
-     * 新增新标签页打开按钮
-     */
-    addOpenBlankBtn() {
-      utils.mutationObserver(document.documentElement, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        immediate: true,
-        callback() {
-          if (!WeiBoRouter.isMWeiBoHome()) {
-            return;
-          }
-          document.querySelectorAll(
-            ".main-wrap .wb-item .card .f-footer-ctrl:not(:has(.gm-open-blank))"
-          ).forEach(($footerCtrl) => {
-            if ($footerCtrl.querySelector(".gm-open-blank")) {
-              return;
-            }
-            let $ownDiyBtn = domUtils.createElement("div", {
-              innerHTML: (
-                /*html*/
-                `
-								<h4>新标签页打开</h4>
-							`
-              )
-            });
-            $ownDiyBtn.classList.add(
-              "m-diy-btn",
-              "m-box-center-a",
-              "gm-open-blank"
-            );
-            domUtils.on($ownDiyBtn, "click", (event) => {
-              var _a2;
-              utils.preventEvent(event);
-              let vueIns = VueUtils.getVue($footerCtrl);
-              if (!vueIns) {
-                Qmsg.error("没有找到对应的Vue实例");
-                return;
-              }
-              let id = (_a2 = vueIns == null ? void 0 : vueIns.item) == null ? void 0 : _a2.id;
-              if (typeof id !== "string") {
-                Qmsg.error("没有找到对应的id");
-                return;
-              }
-              let url = `${window.location.origin}/detail/${id}`;
-              log.info(`新标签页打开：${url}`);
-              window.open(url, "_blank");
-            });
-            let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
-            if ($diyBtnList.length) {
-              domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
-            } else {
-              domUtils.append($footerCtrl, $ownDiyBtn);
-            }
-          });
-        }
-      });
-    }
-  };
-  const WeiBoHotSearch = {
-    init() {
-      PopsPanel.execMenuOnce("weibo-hot-search-openBlank", () => {
-        this.openBlank();
-      });
-    },
-    /**
-     * 新标签页打开链接
-     */
-    openBlank() {
-      DOMUtils.on(
-        document,
-        "click",
-        ".card-list .card",
-        (event) => {
-          utils.preventEvent(event);
-          let vueIns = VueUtils.getVue(event.target);
-          if (!vueIns) {
-            log.error("没有找到对应的Vue实例", vueIns);
-            Qmsg.error("没有找到对应的Vue实例");
-            return;
-          }
-          let carddata = vueIns == null ? void 0 : vueIns.carddata;
-          if (typeof (carddata == null ? void 0 : carddata.scheme) !== "string") {
-            log.error("没有找到对应的scheme", vueIns);
-            Qmsg.error("没有找到对应的scheme");
-            return;
-          }
-          let scheme = carddata.scheme;
-          log.success(`新标签页打开：` + scheme);
-          window.open(scheme, "_blank");
-        },
-        {
-          capture: true
-        }
-      );
-    }
-  };
-  const blockCSS = "#app .bottombtn {\r\n	display: none !important;\r\n}\r\n";
-  const WeiBoLive = {
-    init() {
-      addStyle(blockCSS);
-    }
-  };
-  const WeiBo = {
-    $data: {
-      weiBoUnlockQuality: new WeiBoUnlockQuality()
-    },
-    init() {
-      PopsPanel.execMenuOnce(
-        "weibo_hijack_navigator_service_worker_register",
-        () => {
-          if ("serviceWorker" in window.navigator) {
-            WeiBoHook.hookServiceWorkerRegister();
-          }
-        }
-      );
-      PopsPanel.execMenuOnce("weibo-common-clickImageToClosePreviewImage", () => {
-        this.clickImageToClosePreviewImage();
-      });
-      if (WeiBoRouter.isMWeiBo()) {
-        log.info("Router: 移动端微博");
-        PopsPanel.onceExec("weibo-m-init", () => {
-          WeiBoHook.hookNetWork();
-          WeiBoHook.hookApply();
-          WeiBoHook.hookVueRouter();
-        });
-        PopsPanel.execMenuOnce("weibo_remove_ads", () => {
-          return this.blockAds();
-        });
-        PopsPanel.execMenuOnce("weibo_shield_bottom_bar", () => {
-          return this.shieldBottomBar();
-        });
-        this.$data.weiBoUnlockQuality.lockVideoQuality();
-        domUtils.ready(() => {
-          PopsPanel.execMenuOnce("weibo-common-unlockVideoHigherQuality", () => {
-            this.unlockVideoHigherQuality();
-          });
-          PopsPanel.execMenuOnce("weibo-detail-setArticleAbsoluteTime", () => {
-            WeiBoDetail.setArticleAbsoluteTime();
-          });
-        });
-        if (WeiBoRouter.isMWeiBoHome()) {
-          log.info(`Router: 移动端微博-首页`);
-          WeiBoHome.init();
-        } else if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status()) {
-          log.info("Router: 移动端微博-正文");
-          WeiBoDetail.init();
-        } else if (WeiBoRouter.isMWeiBo_userHome()) {
-          log.info("Router: 移动端微博-用户主页");
-        } else if (WeiBoRouter.isMWeiBo_search()) {
-          log.info("Router: 移动端微博-搜索");
-          WeiBoSearch.init();
-        } else if (WeiBoRouter.isMWeiBo_HotSearch()) {
-          log.info(`Router: 移动端微博-微博热搜`);
-          WeiBoHotSearch.init();
-        } else {
-          log.error("Router: 移动端微博未适配链接 => " + window.location.href);
-        }
-      } else if (WeiBoRouter.isHuaTi()) {
-        log.info("Router: 话题");
-        WeiBoHuaTi.init();
-      } else if (WeiBoRouter.isVideo()) {
-        log.info("Router: 视频页");
-        WeiBoVideo.init();
-      } else if (WeiBoRouter.isCard()) {
-        log.info("Router: 头条");
-        if (WeiBoRouter.isCardArticle()) {
-          log.info("Router: 头条文章");
-          WeiBoCardArticle.init();
-        } else {
-          log.error("Router: 头条未适配链接 => " + window.location.href);
-        }
-      } else if (WeiBoRouter.isLive()) {
-        log.info(`Router: 直播`);
-        WeiBoLive.init();
-      } else {
-        log.error("Router: 未适配 => " + window.location.href);
-      }
-    },
-    /**
-     * 屏蔽 广告
-     */
-    blockAds() {
-      log.info(`屏蔽 广告`);
-      return addStyle(blockAdsCSS$1);
-    },
-    /**
-     * 【屏蔽】底部工具栏
-     */
-    shieldBottomBar() {
-      log.info("【屏蔽】底部工具栏");
-      return CommonUtil.addBlockCSS(
-        "#app div.m-tab-bar.m-bar-panel.m-container-max"
-      );
-    },
-    /**
-     * 解锁微博视频高画质
-     **/
-    unlockVideoHigherQuality() {
-      let lock = new utils.LockFunction(() => {
-        this.$data.weiBoUnlockQuality.unlockVideoHigherQuality();
-      }, 15);
-      utils.mutationObserver(document.body, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        immediate: true,
-        callback: () => {
-          lock.run();
-        }
-      });
-    },
-    /**
-     * 设置监听事件，监听点击预览中的图片，从而关闭预览
-     */
-    clickImageToClosePreviewImage() {
-      let selectorList = [".pswp .pswp__item"];
-      selectorList.forEach((selector) => {
-        domUtils.on(document, "click", selector, (event) => {
-          event.target;
-          let $closeButton = $(".pswp .pswp__button--close");
-          if ($closeButton) {
-            $closeButton.click();
-          } else {
-            log.warn("未找到关闭预览按钮，使用history.back()");
-            window.history.back();
-          }
-        });
-      });
-    }
-  };
-  PopsPanel.init();
+  Panel.init();
   WeiBo.init();
 
 })(Qmsg, DOMUtils, Utils, pops);
