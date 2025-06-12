@@ -2,11 +2,7 @@ import { $, addStyle, DOMUtils, log, utils } from "@/env";
 import artPlayerCSS from "./artplayer/index.css?raw";
 import artPlayerCommonCSS from "@/player/player.css?raw";
 import { VueUtils } from "@components/utils/VueUtils";
-import {
-	BilibiliVideoApi,
-	type TypeBilibiliVideoInfo_m4s,
-	type TypeBilibiliVideoInfo_mp4,
-} from "@/api/BilibiliVideoApi";
+import { BilibiliVideoApi } from "@/api/BilibiliVideoApi";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import {
@@ -305,7 +301,7 @@ export const GenerateArtPlayerOption = async (option: VideoInfo) => {
 
 export const BilibiliVideoPlayer = {
 	$data: {
-		art: null as any as Artplayer,
+		art: null as any as (typeof Artplayer)["prototype"],
 	},
 	init() {
 		Panel.execMenu("bili-video-enableArtPlayer", () => {
@@ -484,7 +480,7 @@ export const BilibiliVideoPlayer = {
 				// 如果页面不存在的话，添加到页面中
 				if (!$artPlayer) {
 					// 接下来就是添加播放器到页面中
-					const $artPlayerContainer = DOMUtils.createElement("div", {
+					const $artContainer = DOMUtils.createElement("div", {
 						className: "artplayer-container",
 						innerHTML: /*html*/ `
 								<div id="artplayer"></div>
@@ -492,9 +488,10 @@ export const BilibiliVideoPlayer = {
 					});
 					// 生成的art播放器
 					$artPlayer =
-						$artPlayerContainer.querySelector<HTMLDivElement>("#artplayer")!;
-					DOMUtils.append($mVideoPlayer, $artPlayerContainer);
+						$artContainer.querySelector<HTMLDivElement>("#artplayer")!;
+					DOMUtils.append($mVideoPlayer, $artContainer);
 				}
+
 				// 设置container参数
 				artPlayerOption!.container = $artPlayer;
 
@@ -505,9 +502,6 @@ export const BilibiliVideoPlayer = {
 						that.$data.art = art;
 					} else {
 						return;
-					}
-					if (import.meta.hot) {
-						Reflect.set(unsafeWindow, "art", that.$data.art);
 					}
 					// 强制初始化音量为1
 					that.$data.art.volume = 1;
@@ -527,6 +521,17 @@ export const BilibiliVideoPlayer = {
 						);
 					});
 				} else {
+					// 检测页面中的artplayer是否还存在
+					const $artContainer = $<HTMLElement>(".artplayer-container");
+					if (
+						$artContainer &&
+						!$artContainer.contains(that.$data.art.template.$container)
+					) {
+						// 可能是切换网页时移除了该dom
+						log.warn("artplayer-container的artplayer被移除了，重新添加元素");
+						DOMUtils.empty($artContainer);
+						DOMUtils.append($artContainer, that.$data.art.template.$container);
+					}
 					// 更新artplayer播放信息
 					await BilibiliVideoArtPlayer.update(that.$data.art, artPlayerOption);
 				}
@@ -538,3 +543,7 @@ export const BilibiliVideoPlayer = {
 		});
 	},
 };
+
+if (import.meta.env.DEV) {
+	Reflect.set(unsafeWindow, "BilibiliVideoPlayer", BilibiliVideoPlayer);
+}
