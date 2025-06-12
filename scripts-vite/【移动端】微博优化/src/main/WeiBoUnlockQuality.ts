@@ -1,27 +1,8 @@
 import { WeiBoApi } from "@/api/WeiBoApi";
 import { $$, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
-import { VueUtils } from "@/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import { VueUtils } from "@components/utils/VueUtils";
 import Qmsg from "qmsg";
-
-interface VideoQualityMapInfo {
-	label: string;
-	sign: number;
-	name: string;
-	/** 链接 */
-	src: string;
-}
-
-interface VideoQualityMapData {
-	[key: string]: {
-		/** 显示的选项名 */
-		label: string;
-		/** 值 */
-		sign: number;
-		/** 值 */
-		name: string;
-	};
-}
 
 /**
  * 手机端视频画质
@@ -106,7 +87,7 @@ export class WeiBoUnlockQuality {
 				},
 				set(vueObj) {
 					let oldAddChild = vueObj.player.controlBar.addChild;
-					let userSetQuality = PopsPanel.getValue(
+					let userSetQuality = Panel.getValue(
 						"weibo-common-lockVideoQuality"
 					) as string;
 					let userSetQualitySign = -1;

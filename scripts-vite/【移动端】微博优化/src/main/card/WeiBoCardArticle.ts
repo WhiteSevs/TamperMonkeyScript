@@ -1,17 +1,16 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
-import { CommonUtil } from "@/utils/CommonUtil";
-import { VueUtils } from "@/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const WeiBoCardArticle = {
 	init() {
-		PopsPanel.execMenuOnce("card_weibo_com__autoExpandFullArticle", () => {
+		Panel.execMenuOnce("card_weibo_com__autoExpandFullArticle", () => {
 			return this.autoExpandFullArticle();
 		});
-		PopsPanel.execMenuOnce("card_weibo_com__blockComment", () => {
+		Panel.execMenuOnce("card_weibo_com__blockComment", () => {
 			return this.blockComment();
 		});
-		PopsPanel.execMenuOnce("card_weibo_com__repairArticleUserHomeJump", () => {
+		Panel.execMenuOnce("card_weibo_com__repairArticleUserHomeJump", () => {
 			this.repairArticleUserHomeJump();
 		});
 	},

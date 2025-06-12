@@ -1,24 +1,20 @@
-import { WeiBoApi } from "@/api/WeiBoApi";
 import { log } from "@/env";
-import { WeiBoHook } from "@/hook/WeiBoHook";
-import { PopsPanel } from "@/setting/setting";
-import { VueUtils } from "@/utils/VueUtils";
-import { GM_addStyle } from "ViteGM";
 import { WeiBoVideoHook } from "./WeiBoVideoHook";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
 
 const WeiBoVideo = {
 	init() {
-		PopsPanel.onceExec("weibo-video-init-hook", () => {
+		Panel.onceExec("weibo-video-init-hook", () => {
 			WeiBoVideoHook.init();
 		});
-		PopsPanel.execMenuOnce("weibo_video_shield_bottom_toolbar", () => {
+		Panel.execMenuOnce("weibo_video_shield_bottom_toolbar", () => {
 			return this.shieldBottomToolBar();
 		});
-		PopsPanel.execMenuOnce("weibo_video_shield_hot_comments", () => {
+		Panel.execMenuOnce("weibo_video_shield_hot_comments", () => {
 			return this.shieldHotComments();
 		});
-		PopsPanel.execMenuOnce("weibo_video_shield_recommend", () => {
+		Panel.execMenuOnce("weibo_video_shield_recommend", () => {
 			return this.shieldRecommend();
 		});
 	},

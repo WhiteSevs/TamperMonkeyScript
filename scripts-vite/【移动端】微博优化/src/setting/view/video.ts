@@ -1,7 +1,6 @@
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISelect } from "../common-components/ui-select";
-import { UISwitch } from "../common-components/ui-switch";
-import { PopsPanel } from "../setting";
+import { UISelect } from "@components/setting/components/ui-select";
+import { UISwitch } from "@components/setting/components/ui-switch";
 
 const SettingUIVideo: PopsPanelContentConfig = {
 	id: "weibo-panel-config-video",

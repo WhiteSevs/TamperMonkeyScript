@@ -1,4 +1,3 @@
-import { PopsPanel } from "@/setting/setting";
 import blockAdsCSS from "./blockAds.css?raw";
 import { WeiBoHook } from "@/hook/WeiBoHook";
 import { WeiBoRouter } from "@/router/WeiBoRouter";
@@ -6,7 +5,7 @@ import { WeiBoHuaTi } from "./huati/WeiBoHuaTi";
 import { $, DOMUtils, addStyle, log, utils } from "@/env";
 import { WeiBoVideo } from "./video/WeiBoVideo";
 import { WeiBoDetail } from "./detail/WeiBoDetail";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { WeiBoUserHome } from "./u/WeiBoUserHome";
 import { WeiBoSearch } from "./search/WeiBoSearch";
 import { WeiBoUnlockQuality } from "./WeiBoUnlockQuality";
@@ -14,44 +13,42 @@ import { WeiBoCardArticle } from "./card/WeiBoCardArticle";
 import { WeiBoHome } from "./home/WeiBoHome";
 import { WeiBoHotSearch } from "./p/WeiBoHotSearch";
 import { WeiBoLive } from "./wblive/WeiBoLive";
+import { Panel } from "@components/setting/panel";
 
 const WeiBo = {
 	$data: {
 		weiBoUnlockQuality: new WeiBoUnlockQuality(),
 	},
 	init() {
-		PopsPanel.execMenuOnce(
-			"weibo_hijack_navigator_service_worker_register",
-			() => {
-				if ("serviceWorker" in window.navigator) {
-					WeiBoHook.hookServiceWorkerRegister();
-				}
+		Panel.execMenuOnce("weibo_hijack_navigator_service_worker_register", () => {
+			if ("serviceWorker" in window.navigator) {
+				WeiBoHook.hookServiceWorkerRegister();
 			}
-		);
-		PopsPanel.execMenuOnce("weibo-common-clickImageToClosePreviewImage", () => {
+		});
+		Panel.execMenuOnce("weibo-common-clickImageToClosePreviewImage", () => {
 			this.clickImageToClosePreviewImage();
 		});
 		// 不同域名不会触发Router改变，所以单独设定m.weibo.cn下监听路由改变
 		if (WeiBoRouter.isMWeiBo()) {
 			// 移动端微博
 			log.info("Router: 移动端微博");
-			PopsPanel.onceExec("weibo-m-init", () => {
+			Panel.onceExec("weibo-m-init", () => {
 				WeiBoHook.hookNetWork();
 				WeiBoHook.hookApply();
 				WeiBoHook.hookVueRouter();
 			});
-			PopsPanel.execMenuOnce("weibo_remove_ads", () => {
+			Panel.execMenuOnce("weibo_remove_ads", () => {
 				return this.blockAds();
 			});
-			PopsPanel.execMenuOnce("weibo_shield_bottom_bar", () => {
+			Panel.execMenuOnce("weibo_shield_bottom_bar", () => {
 				return this.shieldBottomBar();
 			});
 			this.$data.weiBoUnlockQuality.lockVideoQuality();
 			DOMUtils.ready(() => {
-				PopsPanel.execMenuOnce("weibo-common-unlockVideoHigherQuality", () => {
+				Panel.execMenuOnce("weibo-common-unlockVideoHigherQuality", () => {
 					this.unlockVideoHigherQuality();
 				});
-				PopsPanel.execMenuOnce("weibo-detail-setArticleAbsoluteTime", () => {
+				Panel.execMenuOnce("weibo-detail-setArticleAbsoluteTime", () => {
 					WeiBoDetail.setArticleAbsoluteTime();
 				});
 			});

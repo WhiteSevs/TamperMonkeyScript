@@ -1,12 +1,12 @@
 import { log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
-import { VueUtils } from "@/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import { VueUtils } from "@components/utils/VueUtils";
 import DOMUtils from "@whitesev/domutils";
 import Qmsg from "qmsg";
 
 export const WeiBoHotSearch = {
 	init() {
-		PopsPanel.execMenuOnce("weibo-hot-search-openBlank", () => {
+		Panel.execMenuOnce("weibo-hot-search-openBlank", () => {
 			this.openBlank();
 		});
 	},
@@ -18,9 +18,9 @@ export const WeiBoHotSearch = {
 			document,
 			"click",
 			".card-list .card",
-			(event) => {
+			(event, targetSelector) => {
 				utils.preventEvent(event);
-				let vueIns = VueUtils.getVue(event.target);
+				let vueIns = VueUtils.getVue(targetSelector);
 				if (!vueIns) {
 					log.error("没有找到对应的Vue实例", vueIns);
 					Qmsg.error("没有找到对应的Vue实例");

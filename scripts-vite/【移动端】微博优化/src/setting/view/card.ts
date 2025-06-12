@@ -1,5 +1,5 @@
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UISwitch } from "../common-components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 
 export const SettingUICardArticle: PopsPanelContentConfig = {
 	id: "weibo-panel-config-card-article",

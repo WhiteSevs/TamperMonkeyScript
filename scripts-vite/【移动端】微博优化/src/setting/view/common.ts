@@ -1,7 +1,7 @@
 import { VideoQualityMap } from "@/main/WeiBoUnlockQuality";
-import { UISelect } from "../common-components/ui-select";
-import { UISwitch } from "../common-components/ui-switch";
-import { UITextArea } from "../common-components/ui-textarea";
+import { UISelect } from "@components/setting/components/ui-select";
+import { UISwitch } from "@components/setting/components/ui-switch";
+import { UITextArea } from "@components/setting/components/ui-textarea";
 import { log } from "@/env";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 

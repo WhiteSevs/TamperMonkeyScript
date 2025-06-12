@@ -1,11 +1,11 @@
 import { $, $$, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
 import blockAdsCSS from "./blockAds.css?raw";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { WeiBoRouter } from "@/router/WeiBoRouter";
+import { Panel } from "@components/setting/panel";
 export const WeiBoDetail = {
 	init() {
-		PopsPanel.onceExec("weibo-detail-blockAds", () => {
+		Panel.onceExec("weibo-detail-blockAds", () => {
 			return addStyle(blockAdsCSS);
 		});
 	},

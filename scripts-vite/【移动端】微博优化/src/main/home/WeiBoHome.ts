@@ -1,20 +1,20 @@
 import { addStyle, DOMUtils, log, utils } from "@/env";
 import { WeiBoRouter } from "@/router/WeiBoRouter";
-import { PopsPanel } from "@/setting/setting";
-import { CommonUtil } from "@/utils/CommonUtil";
-import { VueUtils } from "@/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { VueUtils } from "@components/utils/VueUtils";
 import Qmsg from "qmsg";
 
 export const WeiBoHome = {
 	init() {
-		PopsPanel.execMenuOnce("weibo-home-blockMessageCount", () => {
+		Panel.execMenuOnce("weibo-home-blockMessageCount", () => {
 			return this.blockMessageCount();
 		});
-		PopsPanel.execMenuOnce("weibo-home-addOpenBlankBtn", () => {
+		Panel.execMenuOnce("weibo-home-addOpenBlankBtn", () => {
 			this.addOpenBlankBtn();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("weibo-home-addSupertalkTab", () => {
+			Panel.execMenuOnce("weibo-home-addSupertalkTab", () => {
 				this.addSupertalkTab();
 			});
 		});

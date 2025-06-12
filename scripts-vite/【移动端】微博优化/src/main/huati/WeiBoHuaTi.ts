@@ -1,14 +1,14 @@
 import { httpx, log, utils } from "@/env";
 import { WeiBoNetWorkHook } from "@/hook/WeiBoNetWorkHook";
-import { PopsPanel } from "@/setting/setting";
-import { VueUtils } from "@/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import { VueUtils } from "@components/utils/VueUtils";
 
 const WeiBoHuaTi = {
 	init() {
-		PopsPanel.execMenu("huati_weibo_masquerade_weibo_client_app", () => {
+		Panel.execMenu("huati_weibo_masquerade_weibo_client_app", () => {
 			this.isWeibo();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"huati_weibo_get_more_celebrity_calendar_information",
 			() => {
 				this.hookNetWorkWithGetMoreCelebrityCalendarInformation();

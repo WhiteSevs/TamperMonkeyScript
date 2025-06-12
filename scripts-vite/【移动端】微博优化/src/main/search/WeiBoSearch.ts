@@ -1,16 +1,16 @@
 import { DOMUtils, log, utils } from "@/env";
 import { WeiBoRouter } from "@/router/WeiBoRouter";
-import { PopsPanel } from "@/setting/setting";
-import { VueUtils } from "@/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import { VueUtils } from "@components/utils/VueUtils";
 import Qmsg from "qmsg";
 
 export const WeiBoSearch = {
 	init() {
-		PopsPanel.execMenuOnce("weibo-search-addOpenBlankBtn", () => {
+		Panel.execMenuOnce("weibo-search-addOpenBlankBtn", () => {
 			this.addOpenBlankBtn();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenu("weibo-search-autoFocusSearchInput", () => {
+			Panel.execMenu("weibo-search-autoFocusSearchInput", () => {
 				this.autoFocusSearchInput();
 			});
 		});
