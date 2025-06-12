@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.12
+// @version      2025.6.12.16
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -2006,22 +2006,27 @@
       isLogin: new Promise(() => false)
     },
     $flag: {
+      isSetQueryLoginStatus: false,
       isQueryLoginStatus: false
     },
-    async init() {
+    init() {
       this.setLoginStatus();
     },
     setLoginStatus() {
-      let __isLogin__ = false;
+      if (this.$flag.isSetQueryLoginStatus) {
+        return;
+      }
+      this.$flag.isSetQueryLoginStatus = true;
+      let isLogin = false;
       this.$data.isLogin = new Promise(async (resolve) => {
         if (!this.$flag.isQueryLoginStatus) {
           this.$flag.isQueryLoginStatus = true;
           let userNavInfo = await BilibiliUserApi.nav(false);
           if (userNavInfo && userNavInfo.isLogin) {
-            __isLogin__ = true;
+            isLogin = true;
           }
         }
-        resolve(__isLogin__);
+        resolve(isLogin);
       });
     }
   };
@@ -2043,19 +2048,15 @@
         // 是否允许 4K 视频
         fourk: config.fourk ?? 1,
         // 为 1 时可以不登录拉到 64 和 80 清晰度，但是也会限制最高画质为80
-        try_look: 0
+        try_look: await BilibiliGlobalData.$data.isLogin ? 0 : 1,
+        // 该值是用来请求可以在移动端播放的链接的
+        platform: config.setPlatformHTML5 ? "html5" : "pc"
       };
-      if (!await BilibiliGlobalData.$data.isLogin) {
-        searchParamsData.try_look = 1;
-      }
-      if (config.setPlatformHTML5) {
-        Reflect.set(searchParamsData, "platform", "html5");
-      }
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(
         searchParamsData,
         config
       );
-      if (typeof extraParams === "object") {
+      if (typeof extraParams === "object" && extraParams !== null) {
         Object.assign(searchParamsData, extraParams);
       }
       let response = await httpx.get(
@@ -5965,7 +5966,7 @@
           }
           let $artPlayer = $("#artplayer");
           if (!$artPlayer) {
-            const $artPlayerContainer = domUtils.createElement("div", {
+            const $artContainer = domUtils.createElement("div", {
               className: "artplayer-container",
               innerHTML: (
                 /*html*/
@@ -5974,8 +5975,8 @@
 							`
               )
             });
-            $artPlayer = $artPlayerContainer.querySelector("#artplayer");
-            domUtils.append($mVideoPlayer, $artPlayerContainer);
+            $artPlayer = $artContainer.querySelector("#artplayer");
+            domUtils.append($mVideoPlayer, $artContainer);
           }
           artPlayerOption.container = $artPlayer;
           if (that.$data.art == null) {
@@ -6002,6 +6003,12 @@
               );
             });
           } else {
+            const $artContainer = $(".artplayer-container");
+            if ($artContainer && !$artContainer.contains(that.$data.art.template.$container)) {
+              log$1.warn("artplayer-container的artplayer被移除了，重新添加元素");
+              domUtils.empty($artContainer);
+              domUtils.append($artContainer, that.$data.art.template.$container);
+            }
             await BilibiliVideoArtPlayer.update(that.$data.art, artPlayerOption);
           }
           $mVideoPlayer.style.paddingTop = "";
