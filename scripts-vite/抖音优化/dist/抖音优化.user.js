@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.10
+// @version      2025.6.14
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -291,6 +291,8 @@
     },
     /**
      * 设置所有配置项，用于初始化默认的值
+     *
+     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
      * @param configList 配置项
      */
     addContentConfig(configList) {
@@ -310,13 +312,26 @@
      * 获取配置内容
      * @param index 配置索引
      */
-    getConfig(index) {
+    getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     }
   };
   const PanelMenu = {
     $data: {
-      __menuOption: [],
+      __menuOption: [
+        {
+          key: "show_pops_panel_setting",
+          text: "⚙ 设置",
+          autoReload: false,
+          isStoreValue: false,
+          showText(text) {
+            return text;
+          },
+          callback: () => {
+            Panel.showPanel(PanelContent.getConfig(0));
+          }
+        }
+      ],
       get menuOption() {
         return this.__menuOption;
       }
@@ -331,30 +346,48 @@
       if (!Panel.isTopWindow()) {
         return;
       }
-      GM_Menu.add([
-        {
-          key: "show_pops_panel_setting",
-          text: "⚙ 设置",
-          autoReload: false,
-          isStoreValue: false,
-          showText(text) {
-            return text;
-          },
-          callback: () => {
-            Panel.showPanel(PanelContent.getConfig(0));
-          }
-        },
-        ...this.$data.menuOption
-      ]);
+      GM_Menu.add(this.$data.menuOption);
     },
     /**
      * 添加菜单项
+     * @param option 菜单配置
      */
     addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
+    },
+    /**
+     * 更新菜单项
+     * @param option 菜单配置
+     */
+    updateMenuOption(option) {
+      if (!Array.isArray(option)) {
+        option = [option];
+      }
+      option.forEach((optionItem) => {
+        let findIndex = this.$data.menuOption.findIndex((it) => {
+          return it.key === optionItem.key;
+        });
+        if (findIndex !== -1) {
+          this.$data.menuOption[findIndex] = optionItem;
+        }
+      });
+    },
+    /**
+     * 获取菜单项
+     * @param [index=0] 索引
+     */
+    getMenuOption(index = 0) {
+      return this.$data.menuOption[index];
+    },
+    /**
+     * 删除菜单项
+     * @param [index=0] 索引
+     */
+    deleteMenuOption(index = 0) {
+      this.$data.menuOption.splice(index, 1);
     }
   };
   const Panel = {
@@ -408,6 +441,9 @@
       get scriptName() {
         return SCRIPT_NAME;
       },
+      /**
+       * pops.panel的默认配置
+       */
       get panelConfig() {
         return this.__panelConfig;
       },
@@ -835,151 +871,21 @@
       this.$data.$panel = $panel;
     }
   };
-  const PanelSettingConfig = {
-    /** Toast位置 */
-    qmsg_config_position: {
-      key: "qmsg-config-position",
-      defaultValue: "bottom"
-    },
-    /** 最多显示的数量 */
-    qmsg_config_maxnums: {
-      key: "qmsg-config-maxnums",
-      defaultValue: 3
-    },
-    /** 逆序弹出 */
-    qmsg_config_showreverse: {
-      key: "qmsg-config-showreverse",
-      defaultValue: false
-    },
-    /** Cookie配置-启用 */
-    httpx_cookie_manager_enable: {
-      key: "httpx-use-cookie-enable",
-      defaultValue: false
-    },
-    /** Cookie配置-使用document.cookie */
-    httpx_cookie_manager_use_document_cookie: {
-      key: "httpx-use-document-cookie",
-      defaultValue: false
-    }
-  };
-  class HttpxCookieManager {
-    /**
-     * cookie规则，在这里填入
-     * @param cookieRule
-     * @example
-     * {
-     *     key: "cookie-example-com",
-     *     hostname: "example.com",
-     * }
-     */
-    constructor(cookieRule) {
-      __publicField(this, "$data", {
-        /** 是否启用 */
-        get enable() {
-          return Panel.getValue(
-            PanelSettingConfig.httpx_cookie_manager_enable.key,
-            PanelSettingConfig.httpx_cookie_manager_enable.defaultValue
-          );
-        },
-        /**
-         * 是否使用document.cookie
-         * + true 使用document.cookie额外添加cookie的header
-         */
-        get useDocumentCookie() {
-          return Panel.getValue(
-            PanelSettingConfig.httpx_cookie_manager_use_document_cookie.key,
-            PanelSettingConfig.httpx_cookie_manager_use_document_cookie.defaultValue
-          );
-        },
-        /**
-         * cookie规则，在这里填入
-         * @example
-         * {
-         *     key: "cookie-example-com",
-         *     hostname: "example.com",
-         * }
-         */
-        cookieRule: []
-      });
-      if (Array.isArray(cookieRule)) {
-        this.$data.cookieRule = cookieRule;
-      }
-    }
-    /**
-     * 补充cookie末尾分号
-     */
-    fixCookieSplit(str) {
-      if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
-        str += ";";
-      }
-      return str;
-    }
-    /**
-     * 合并两个cookie
-     */
-    concatCookie(targetCookie, newCookie) {
-      if (utils.isNull(targetCookie)) {
-        return newCookie;
-      }
-      targetCookie = targetCookie.trim();
-      newCookie = newCookie.trim();
-      targetCookie = this.fixCookieSplit(targetCookie);
-      if (newCookie.startsWith(";")) {
-        newCookie = newCookie.substring(1);
-      }
-      return targetCookie.concat(newCookie);
-    }
-    /**
-     * 处理cookie
-     * @param details
-     * @returns
-     */
-    handle(details) {
-      if (details.fetch) {
-        return;
-      }
-      if (!this.$data.enable) {
-        return;
-      }
-      let ownCookie = "";
-      let url = details.url;
-      if (url.startsWith("//")) {
-        url = window.location.protocol + url;
-      }
-      let urlObj = new URL(url);
-      if (this.$data.useDocumentCookie && urlObj.hostname.endsWith(
-        window.location.hostname.split(".").slice(-2).join(".")
-      )) {
-        ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
-      }
-      for (let index = 0; index < this.$data.cookieRule.length; index++) {
-        let rule = this.$data.cookieRule[index];
-        if (urlObj.hostname.match(rule.hostname)) {
-          let cookie = Panel.getValue(rule.key);
-          if (utils.isNull(cookie)) {
-            break;
-          }
-          ownCookie = this.concatCookie(ownCookie, cookie);
-        }
-      }
-      if (utils.isNotNull(ownCookie)) {
-        if (details.headers && details.headers["Cookie"]) {
-          details.headers.Cookie = this.concatCookie(
-            details.headers.Cookie,
-            ownCookie
-          );
-        } else {
-          details.headers["Cookie"] = ownCookie;
-        }
-        log.info(["Httpx => 设置cookie:", details]);
-      }
-      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
-        delete details.headers.Cookie;
-      }
-    }
-  }
-  const httpxCookieManager = new HttpxCookieManager([]);
   const CommonUtil = {
+    /**
+     * 移除元素（未出现也可以等待出现）
+     * @param selector 元素选择器
+     */
+    waitRemove(...args) {
+      args.forEach((selector) => {
+        if (typeof selector !== "string") {
+          return;
+        }
+        utils.waitNodeList(selector).then((nodeList) => {
+          nodeList.forEach(($el) => $el.remove());
+        });
+      });
+    },
     /**
      * 添加屏蔽CSS
      * @param args
@@ -1015,7 +921,7 @@
      * })
      */
     setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
       } else {
@@ -1193,6 +1099,30 @@
           );
         }
       });
+    },
+    /**
+     * html转义
+     * @param unsafe
+     */
+    escapeHtml(unsafe) {
+      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    }
+  };
+  const PanelSettingConfig = {
+    /** Toast位置 */
+    qmsg_config_position: {
+      key: "qmsg-config-position",
+      defaultValue: "bottom"
+    },
+    /** 最多显示的数量 */
+    qmsg_config_maxnums: {
+      key: "qmsg-config-maxnums",
+      defaultValue: 3
+    },
+    /** 逆序弹出 */
+    qmsg_config_showreverse: {
+      key: "qmsg-config-showreverse",
+      defaultValue: false
     }
   };
   const utils = Utils.noConflict();
@@ -1203,6 +1133,7 @@
     _unsafeWindow.console || _monkeyWindow.console
   );
   let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -1287,7 +1218,6 @@
     logDetails: DEBUG
   });
   httpx.interceptors.request.use((data) => {
-    httpxCookieManager.handle(data);
     return data;
   });
   httpx.interceptors.response.use(void 0, (data) => {
@@ -4043,14 +3973,23 @@
         ).then(() => {
           let target = getTarget();
           if (target == null) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(true);
+            }
             return;
           }
           let reactInstance = utils.getReactObj(target);
           if (reactInstance == null) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(false);
+            }
             return;
           }
           let reactInstanceProp = reactInstance[propName];
           if (reactInstanceProp == null) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(false);
+            }
             return;
           }
           needSetOption.set(reactInstanceProp, target);
@@ -4144,7 +4083,7 @@
      * 全屏（沉浸模式）
      */
     fullScreen() {
-      log.info("全屏");
+      log.info("沉浸模式");
       let result = [];
       result.push(
         CommonUtil.addBlockCSS(
@@ -4152,6 +4091,8 @@
           ".slider-video .positionBox",
           /* 中间底部的视频信息（描述、作者、话题等） */
           "#video-info-wrap",
+          /* 中间底部上面的 每周精选内容 */
+          "span:has(+#video-info-wrap):has(img)",
           /* 中间底部的视频控制工具栏 */
           "xg-controls.xgplayer-controls"
         )
@@ -6354,36 +6295,103 @@
       addStyle(blockCSS$6);
     }
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword) {
+  const PanelComponents = {
+    $data: {
+      __storeApiFn: null,
+      get storeApiValue() {
+        if (!this.__storeApiFn) {
+          this.__storeApiFn = new Utils.Dictionary();
+        }
+        return this.__storeApiFn;
+      }
+    },
+    /**
+     * 获取自定义的存储接口
+     * @param type 组件类型
+     */
+    getStorageApi(type) {
+      if (!this.hasStorageApi(type)) {
+        return;
+      }
+      return this.$data.storeApiValue.get(type);
+    },
+    /**
+     * 判断是否存在自定义的存储接口
+     * @param type 组件类型
+     */
+    hasStorageApi(type) {
+      return this.$data.storeApiValue.has(type);
+    },
+    /**
+     * 设置自定义的存储接口
+     * @param type 组件类型
+     * @param storageApiValue 存储接口
+     */
+    setStorageApi(type, storageApiValue) {
+      this.$data.storeApiValue.set(type, storageApiValue);
+    },
+    /**
+     * 初始化组件的存储接口属性
+     *
+     * @param type 组件类型
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    initComponentsStorageApi(type, config, storageApiValue) {
+      let propsStorageApi;
+      if (this.hasStorageApi(type)) {
+        propsStorageApi = this.getStorageApi(type);
+      } else {
+        propsStorageApi = storageApiValue;
+      }
+      this.setComponentsStorageApiProperty(config, propsStorageApi);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(config, storageApiValue) {
+      Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
+    }
+  };
+  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
     let result = {
       text,
       type: "input",
       isNumber: Boolean(isNumber),
       isPassword: Boolean(isPassword),
-      props: {},
       attributes: {},
+      props: {},
       description,
+      afterAddToUListCallBack,
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       callback(event, value) {
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       placeholder
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+    PanelComponents.initComponentsStorageApi(
+      "input",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
+    );
     return result;
   };
-  const UISelectMultiple = function(text, key, defaultValue, data, callback, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails) {
+  const UISelectMultiple = function(text, key, defaultValue, data, changeCallback, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -6398,32 +6406,38 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       selectConfirmDialogDetails,
       callback(selectInfo) {
+        let storageApiValue = this.props[PROPS_STORAGE_API];
         let value = [];
         selectInfo.forEach((selectedInfo) => {
           value.push(selectedInfo.value);
         });
-        this.props[PROPS_STORAGE_API].set(key, value);
         log.info(`多选-选择：`, value);
+        storageApiValue.set(key, value);
       },
       data: selectData
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+    PanelComponents.initComponentsStorageApi(
+      "select-multiple",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
+    );
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
@@ -6431,27 +6445,31 @@
       attributes: {},
       props: {},
       getValue() {
-        return Boolean(
-          this.props[PROPS_STORAGE_API].get(key, defaultValue)
-        );
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return Boolean(storageApiValue.get(key, defaultValue));
       },
       callback(event, __value) {
         let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+    PanelComponents.initComponentsStorageApi(
+      "switch",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
+    );
     return result;
   };
   class RuleEditView {
@@ -7595,7 +7613,7 @@
       }
     }
   }
-  const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
+  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled) {
     let result = {
       text,
       type: "textarea",
@@ -7605,26 +7623,32 @@
       placeholder,
       disabled,
       getValue() {
-        let value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        let value = storageApiValue.get(key, defaultValue);
         if (Array.isArray(value)) {
           return value.join("\n");
         }
         return value;
       },
       callback(event, value) {
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       }
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+    PanelComponents.initComponentsStorageApi(
+      "switch",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
+    );
     return result;
   };
   const DouYinVideoFilter = {
@@ -8936,19 +8960,17 @@
      * 移除ads
      */
     removeAds() {
-      if (DouYinRouter.isIndex() || DouYinRouter.isJingXuan()) {
-        utils.waitNode(
-          () => domUtils.selector(
-            '#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:contains("下载抖音精选|条条都是宝藏视频")'
-          ),
-          1e4
-        ).then(($el) => {
-          if (!$el) {
-            return;
-          }
-          domUtils.remove($el);
-        });
-      }
+      utils.waitNode(
+        () => domUtils.selector(
+          '#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:regexp("下载抖音精选|条条都是宝藏视频")'
+        ),
+        1e4
+      ).then(($el) => {
+        if (!$el) {
+          return;
+        }
+        domUtils.remove($el);
+      });
       return [addStyle(blockCSS$8)];
     },
     /**
@@ -9493,7 +9515,7 @@
       }
     }
   };
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
+  const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -9507,28 +9529,37 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof callback === "function") {
-          callback(event, value, isSelectedText);
+        if (typeof changeCallback === "function") {
+          let result2 = changeCallback(event, value, isSelectedText);
+          if (result2) {
+            return;
+          }
         }
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       data: selectData
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+    PanelComponents.initComponentsStorageApi(
+      "select",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
+    );
     return result;
   };
   const afterEnterDeepMenuCallBack = (formConfig, container) => {
@@ -10360,6 +10391,7 @@
       text,
       type: "button",
       attributes: {},
+      props: {},
       description,
       buttonIcon,
       buttonIsRightIcon,
@@ -10437,7 +10469,7 @@
     });
     return result;
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
+  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step) {
     let result = {
       text,
       type: "slider",
@@ -10445,7 +10477,8 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       getToolTipContent(value) {
         if (typeof getToolTipContent === "function") {
@@ -10455,7 +10488,8 @@
         }
       },
       callback(event, value) {
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       min,
       max,
@@ -10463,14 +10497,18 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    Reflect.set(result.props, PROPS_STORAGE_API, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
-      },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+    PanelComponents.initComponentsStorageApi(
+      "slider",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
       }
-    });
+    );
     return result;
   };
   const PanelVideoConfig = {
