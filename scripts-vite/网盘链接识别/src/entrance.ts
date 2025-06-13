@@ -22,16 +22,13 @@ import {
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 try {
-	Object.assign(NetDiskUI.src.icon, RESOURCE_ICON ?? {});
+	if (import.meta.env.DEV) {
+	} else {
+		Object.assign(NetDiskUI.src.icon, RESOURCE_ICON ?? {});
+	}
 } catch (error) {
 	console.error("init NetDisk icon error", error);
 }
-// 初始化网站规则
-WebsiteRule.init();
-// 初始化用户规则
-NetDiskUserRule.init();
-// 初始化规则
-NetDiskRule.init();
 // 更新面板组件存储Api
 (
 	[
@@ -52,6 +49,12 @@ NetDiskRule.init();
 		},
 	});
 });
+// 初始化网站规则
+WebsiteRule.init();
+// 初始化用户规则
+NetDiskUserRule.init();
+// 初始化规则
+NetDiskRule.init();
 
 // 初始化配置默认
 PanelContent.addContentConfig([PanelUI_allSetting]);
