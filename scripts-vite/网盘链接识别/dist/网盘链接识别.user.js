@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.11
+// @version      2025.6.13
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -805,10 +805,17 @@
     },
     /**
      * 获取菜单项
-     * @param index 索引
+     * @param [index=0] 索引
      */
-    getMenuOption(index) {
+    getMenuOption(index = 0) {
       return this.$data.menuOption[index];
+    },
+    /**
+     * 删除菜单项
+     * @param [index=0] 索引
+     */
+    deleteMenuOption(index = 0) {
+      this.$data.menuOption.splice(index, 1);
     }
   };
   const Panel = {
@@ -862,6 +869,9 @@
       get scriptName() {
         return SCRIPT_NAME;
       },
+      /**
+       * pops.panel的默认配置
+       */
       get panelConfig() {
         return this.__panelConfig;
       },
@@ -1997,22 +2007,31 @@
       this.$data.storeApiValue.set(type, storageApiValue);
     },
     /**
-     * 设置组件的存储接口属性
+     * 初始化组件的存储接口属性
+     *
      * @param type 组件类型
      * @param config 组件配置，必须包含prop属性
      * @param storageApiValue 存储接口
      */
-    setComponentsStorageApiProperty(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
       } else {
         propsStorageApi = storageApiValue;
       }
-      Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+      this.setComponentsStorageApiProperty(config, propsStorageApi);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(config, storageApiValue) {
+      Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
@@ -2020,25 +2039,26 @@
       attributes: {},
       props: {},
       getValue() {
-        return Boolean(
-          this.props[PROPS_STORAGE_API].get(key, defaultValue)
-        );
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return Boolean(storageApiValue.get(key, defaultValue));
       },
       callback(event, __value) {
         let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        if (typeof clickCallBack === "function") {
-          if (clickCallBack(event, value)) {
+        if (typeof clickCallback === "function") {
+          let result2 = clickCallback(event, value);
+          if (result2) {
             return;
           }
         }
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "switch",
       result,
       {
@@ -2052,32 +2072,35 @@
     );
     return result;
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
     let result = {
       text,
       type: "input",
       isNumber: Boolean(isNumber),
       isPassword: Boolean(isPassword),
-      props: {},
       attributes: {},
+      props: {},
       description,
       afterAddToUListCallBack,
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       callback(event, value) {
-        if (typeof changeCallBack === "function") {
-          if (changeCallBack(event, value)) {
+        if (typeof changeCallback === "function") {
+          let result2 = changeCallback(event, value);
+          if (result2) {
             return;
           }
         }
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       placeholder
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "input",
       result,
       {
@@ -2096,6 +2119,7 @@
       text,
       type: "button",
       attributes: {},
+      props: {},
       description,
       buttonIcon,
       buttonIsRightIcon,
@@ -10757,13 +10781,6 @@
             status: true,
             msg: "取第一个值: " + accessCode
           });
-          if (accessCode.startsWith("http")) {
-            logCallBack({
-              status: true,
-              msg: "排除不可能的accessCode，重置accessCode的值为空"
-            });
-            accessCode = "";
-          }
         }
       }
       if (utils.isNotNull(accessCode)) {
@@ -19086,9 +19103,9 @@
       /** 规则 */
       rule: [
         {
-          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[a-zA-Z0-9]{3,6}|)`,
-          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[a-zA-Z0-9]{3,6}|)`,
-          shareCode: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
+          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{3,6}|)`,
+          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/(tp/|u/|)([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{3,6}|)`,
+          shareCode: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)([0-9a-zA-Z_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{3,20})/gi,
           shareCodeNeedRemoveStr: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/(tp\/|u\/|)/gi,
           shareCodeExcludeRegular: ["lanzouyx"],
           checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
@@ -19099,9 +19116,9 @@
 密码：{#accessCode#}`
         },
         {
-          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[a-zA-Z0-9]{3,6}|)`,
-          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([a-zA-Z0-9_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{1,20})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[a-zA-Z0-9]{3,6}|)`,
-          shareCode: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\/([a-zA-Z0-9_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{1,20})/gi,
+          link_innerText: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{3,6}|)`,
+          link_innerHTML: `(lanzou[a-z]{0,1}|lan[a-z]{2}).com/s/([0-9a-zA-Z_-]{5,22}|[%0-9a-zA-Z]{4,90}|[\\u4e00-\\u9fa5]{3,20})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{3,6}|)`,
+          shareCode: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\/([0-9a-zA-Z_\-]{5,22}|[%0-9a-zA-Z]{4,90}|[\u4e00-\u9fa5]{3,20})/gi,
           shareCodeNeedRemoveStr: /(lanzou[a-z]{0,1}|lan[a-z]{2}).com\/s\//gi,
           shareCodeExcludeRegular: ["lanzouyx"],
           checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
@@ -20197,7 +20214,7 @@
       }
     }
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
+  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step) {
     let result = {
       text,
       type: "slider",
@@ -20205,7 +20222,8 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       getToolTipContent(value) {
         if (typeof getToolTipContent === "function") {
@@ -20215,12 +20233,14 @@
         }
       },
       callback(event, value) {
-        if (typeof changeCallBack === "function") {
-          if (changeCallBack(event, value)) {
+        if (typeof changeCallback === "function") {
+          let result2 = changeCallback(event, value);
+          if (result2) {
             return;
           }
         }
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       min,
       max,
@@ -20228,7 +20248,7 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "slider",
       result,
       {
@@ -20242,7 +20262,7 @@
     );
     return result;
   };
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
+  const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -20256,18 +20276,20 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       data: selectData
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "select",
       result,
       {
@@ -24105,7 +24127,7 @@
       /**
        * 使用该正则判断提取到的accessCode是否正确
        */
-      accessCodeNotMatchRegexpList: [/^(font)/gi],
+      accessCodeNotMatchRegexpList: [/^(font|http)/gi],
       /**
        * 当没有accessCode时，使用该正则去除不需要的字符串
        */
@@ -24208,7 +24230,7 @@
      */
     handleShareCode(ruleKeyName, ruleIndex, matchText) {
       var _a2;
-      let ruleConfig = NetDisk.$rule.ruleOption[ruleKeyName][ruleIndex];
+      let ruleConfig = this.$rule.ruleOption[ruleKeyName][ruleIndex];
       let shareCodeMatch = (_a2 = matchText.match(ruleConfig.shareCode)) == null ? void 0 : _a2.filter((item) => utils.isNotNull(item));
       if (utils.isNull(shareCodeMatch)) {
         log.error(`匹配shareCode为空`, {
@@ -24268,9 +24290,6 @@
         }
         if (accessCodeMatchArray.length) {
           accessCode = accessCodeMatchArray[0];
-          if (accessCode.startsWith("http")) {
-            accessCode = "";
-          }
         }
       }
       if (utils.isNotNull(accessCode)) {
@@ -24846,7 +24865,7 @@
     });
     return result;
   };
-  const UISelectMultiple = function(text, key, defaultValue, data, callback, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails) {
+  const UISelectMultiple = function(text, key, defaultValue, data, changeCallback, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -24861,22 +24880,24 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       selectConfirmDialogDetails,
       callback(selectInfo) {
+        let storageApiValue = this.props[PROPS_STORAGE_API];
         let value = [];
         selectInfo.forEach((selectedInfo) => {
           value.push(selectedInfo.value);
         });
-        this.props[PROPS_STORAGE_API].set(key, value);
         log.info(`多选-选择：`, value);
+        storageApiValue.set(key, value);
       },
       data: selectData
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "select-multiple",
       result,
       {
@@ -25755,7 +25776,7 @@
   try {
     Object.assign(NetDiskUI.src.icon, RESOURCE_ICON ?? {});
   } catch (error) {
-    console.error(error);
+    console.error("init NetDisk icon error", error);
   }
   WebsiteRule.init();
   NetDiskUserRule.init();
