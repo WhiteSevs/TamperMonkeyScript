@@ -118,7 +118,7 @@ export const DouYinVideoPlayer = {
 	 * 全屏（沉浸模式）
 	 */
 	fullScreen() {
-		log.info("全屏");
+		log.info("沉浸模式");
 		let result = [];
 		result.push(
 			CommonUtil.addBlockCSS(
@@ -126,6 +126,8 @@ export const DouYinVideoPlayer = {
 				".slider-video .positionBox",
 				/* 中间底部的视频信息（描述、作者、话题等） */
 				"#video-info-wrap",
+				/* 中间底部上面的 每周精选内容 */
+				"span:has(+#video-info-wrap):has(img)",
 				/* 中间底部的视频控制工具栏 */
 				"xg-controls.xgplayer-controls"
 			)
