@@ -22,10 +22,15 @@ import {
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 try {
+	let GLOBAL_RESOURCE_ICON = RESOURCE_ICON ?? {};
 	if (import.meta.env.DEV) {
-	} else {
-		Object.assign(NetDiskUI.src.icon, RESOURCE_ICON ?? {});
+		let RESOURCE_ICON_TEXT = (await import("@/../网盘链接识别-图标.js?raw"))
+			.default;
+		GLOBAL_RESOURCE_ICON = new Function(
+			`return (() => { ${RESOURCE_ICON_TEXT} ;return RESOURCE_ICON; })()`
+		)();
 	}
+	Object.assign(NetDiskUI.src.icon, GLOBAL_RESOURCE_ICON);
 } catch (error) {
 	console.error("init NetDisk icon error", error);
 }
