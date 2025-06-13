@@ -1,21 +1,21 @@
 import { addStyle, log } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import BaiJiaHaoShieldCSS from "./shield.css?raw";
 import { BaiJiaHaoHook } from "./BaiJiaHaoHook";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const BaiduBaiJiaHao = {
 	init() {
 		addStyle(BaiJiaHaoShieldCSS);
 		log.info("插入CSS规则");
 		BaiJiaHaoHook.init();
-		PopsPanel.execMenuOnce("baijiahao_shield_recommended_article", () => {
+		Panel.execMenuOnce("baijiahao_shield_recommended_article", () => {
 			return this.shieldRecommendArticle();
 		});
-		PopsPanel.execMenuOnce("baijiahao_shield_user_comment", () => {
+		Panel.execMenuOnce("baijiahao_shield_user_comment", () => {
 			return this.shieldUserComment();
 		});
-		PopsPanel.execMenuOnce("baijiahao_shield_user_comment_input_box", () => {
+		Panel.execMenuOnce("baijiahao_shield_user_comment_input_box", () => {
 			return this.shieldBottomToolBar();
 		});
 	},

@@ -1,6 +1,6 @@
 import { DOMUtils, log, utils, addStyle } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import SearchShieldCSS from "./shield.css?raw";
 import { BaiduHeadlth } from "./bh/SearchHealth";
 import { BaiduSearchHook } from "./SearchHook";
@@ -20,7 +20,7 @@ const UserCustomStyle = {
 	 * 获取用户自定义样式
 	 */
 	getUserStyle() {
-		return PopsPanel.getValue("baidu-search-user-style", "");
+		return Panel.getValue("baidu-search-user-style", "");
 	},
 };
 
@@ -29,7 +29,7 @@ const BaiduSearch = {
 		addStyle(UserCustomStyle.getUserStyle());
 		log.info("插入用户CSS规则");
 		BaiduSearchBlockRule.init();
-		PopsPanel.execMenuOnce("baidu-search-global-searchToolBar", () => {
+		Panel.execMenuOnce("baidu-search-global-searchToolBar", () => {
 			BaiduSearchToolBar.init();
 		});
 		if (BaiduRouter.isSearchBh()) {
@@ -43,7 +43,7 @@ const BaiduSearch = {
 			/* 默认的百度搜索 */
 			addStyle(SearchShieldCSS);
 			log.info("插入CSS规则");
-			PopsPanel.execMenu("baidu_search_hijack__onClick_to_blank", () => {
+			Panel.execMenu("baidu_search_hijack__onClick_to_blank", () => {
 				this.openResultBlank();
 			});
 			DOMUtils.ready(function () {
@@ -51,7 +51,7 @@ const BaiduSearch = {
 				BaiduHandleResultItem.originURLMap =
 					BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
 				/* 处理搜索结果 */
-				let baidu_search_handle_search_result_enable = PopsPanel.getValue(
+				let baidu_search_handle_search_result_enable = Panel.getValue(
 					"baidu_search_handle_search_result"
 				);
 				if (baidu_search_handle_search_result_enable) {
@@ -99,18 +99,18 @@ const BaiduSearch = {
 				// 		log.success(["删除sigma的CSS", nodeList]);
 				// 		nodeList.forEach((item) => item.remove());
 				// 	});
-				PopsPanel.execMenu("baidu_search_redirect_top_link", () => {
+				Panel.execMenu("baidu_search_redirect_top_link", () => {
 					BaiduHandleResultItem.redirectTopLink();
 				});
 				BaiduHandleResultItem.replaceScriptBaiDuTip();
-				PopsPanel.execMenu("baidu_search_refactoring_input_boxes", () => {
+				Panel.execMenu("baidu_search_refactoring_input_boxes", () => {
 					SearchInputEvent.init();
 				});
 				/* 处理自动加载下一页 */
-				if (PopsPanel.getValue("baidu_search_automatically_expand_next_page")) {
+				if (Panel.getValue("baidu_search_automatically_expand_next_page")) {
 					SearchNextPage.init();
 				} else if (
-					PopsPanel.getValue(
+					Panel.getValue(
 						"baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
 					)
 				) {

@@ -1,12 +1,12 @@
 import { addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import BaiKeTaShuoShieldCSS from "./shield.css?raw";
 
 const BaiduBaiKeTaShuo = {
 	init() {
 		addStyle(BaiKeTaShuoShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenuOnce("baidu_baike_tashuo_remove_bottom_ad", () => {
+		Panel.execMenuOnce("baidu_baike_tashuo_remove_bottom_ad", () => {
 			this.removeBottomAd();
 		});
 	},

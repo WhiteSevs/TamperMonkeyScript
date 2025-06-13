@@ -1,18 +1,18 @@
 import { addStyle, log } from "@/env";
 import AiQiChaShieldCSS from "./shield.css?raw";
 import { unsafeWindow } from "ViteGM";
-import { PopsPanel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const BaiduAiQiCha = {
 	init() {
 		addStyle(AiQiChaShieldCSS);
 		log.info("插入CSS规则");
 		this.camouflageBottomPopup();
-		PopsPanel.execMenuOnce("baidu_aiqicha_shield_carousel", () => {
+		Panel.execMenuOnce("baidu_aiqicha_shield_carousel", () => {
 			return this.shieldCarousel();
 		});
-		PopsPanel.execMenuOnce("baidu_aiqicha_shield_industry_host_news", () => {
+		Panel.execMenuOnce("baidu_aiqicha_shield_industry_host_news", () => {
 			return this.shieldIndustryHostNews();
 		});
 	},

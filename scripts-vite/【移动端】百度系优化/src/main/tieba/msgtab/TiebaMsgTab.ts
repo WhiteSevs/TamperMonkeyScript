@@ -1,5 +1,5 @@
 import { addStyle, MountVue, VUE_ELE_NAME_ID } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { TiebaMsgTabRouter } from "./router";
 import ElementPlus from "element-plus";
 import App from "./App.vue";

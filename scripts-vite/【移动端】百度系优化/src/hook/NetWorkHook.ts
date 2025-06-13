@@ -3,7 +3,7 @@ import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/a
 
 export const NetWorkHook = {
 	$data: {
-		__ajaxHooker: null as any as UtilsAjaxHookResult,
+		__ajaxHooker: null as null | UtilsAjaxHookResult,
 		get ajaxHooker() {
 			if (this.__ajaxHooker == null) {
 				this.__ajaxHooker = utils.ajaxHooker();

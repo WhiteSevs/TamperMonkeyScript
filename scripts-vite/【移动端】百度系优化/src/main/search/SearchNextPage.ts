@@ -9,10 +9,10 @@ import {
 	log,
 	utils,
 } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { BaiduHandleResultItem } from "./SearchHandleResultItem";
 import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { BaiduRouter } from "@/router/BaiduRouter";
 
 interface PageInfo {
@@ -413,7 +413,7 @@ const SearchNextPage = {
 				// 把下一页的搜索结果添加到页面中
 				currentResultsDOM.appendChild(nextPageSearchResultFragment);
 
-				if (PopsPanel.getValue("baidu_search_sync_next_page_address")) {
+				if (Panel.getValue("baidu_search_sync_next_page_address")) {
 					window.history.pushState(
 						"forward",
 						"",

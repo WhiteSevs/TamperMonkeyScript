@@ -1,5 +1,5 @@
 import { $, DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { BaiduGraphApi } from "./GraphApi";
 import GraphShieldCSS from "./shield.css?raw";
 
@@ -7,16 +7,16 @@ const BaiduGraph = {
 	init() {
 		addStyle(GraphShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenu("baidu-graph-repairHomeRecognitionPicture", () => {
+		Panel.execMenu("baidu-graph-repairHomeRecognitionPicture", () => {
 			this.repairHomeRecognitionPicture();
 		});
-		PopsPanel.execMenu("baidu-graph-baidu-graph-repairSearchButton", () => {
+		Panel.execMenu("baidu-graph-baidu-graph-repairSearchButton", () => {
 			this.repairSearchButton();
 		});
-		PopsPanel.execMenu("baidu-graph-baidu-graph-repairSearchNoResult", () => {
+		Panel.execMenu("baidu-graph-baidu-graph-repairSearchNoResult", () => {
 			this.repairSearchNoResult();
 		});
-		PopsPanel.execMenu("baidu-graph-baidu-graph-repairRetakeButton", () => {
+		Panel.execMenu("baidu-graph-baidu-graph-repairRetakeButton", () => {
 			this.repairRetakeButton();
 		});
 

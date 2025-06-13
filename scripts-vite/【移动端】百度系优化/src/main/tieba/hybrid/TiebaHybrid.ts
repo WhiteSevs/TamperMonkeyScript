@@ -1,14 +1,14 @@
 import { DOMUtils, addStyle, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
 export const TiebaHybrid = {
 	init() {
 		this.blockAds();
-		PopsPanel.execMenu("baidu_tieba_hybrid_search_openANewTab", () => {
+		Panel.execMenu("baidu_tieba_hybrid_search_openANewTab", () => {
 			this.openANewTab();
 		});
 	},

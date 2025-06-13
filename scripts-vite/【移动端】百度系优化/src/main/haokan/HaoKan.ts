@@ -1,21 +1,21 @@
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { BaiduHaoKanHook } from "./HaoKanHook";
 import { $, DOMUtils, addStyle, log, utils } from "@/env";
 import HaoKanShieldCSS from "./shield.css?raw";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const BaiduHaoKan = {
 	init() {
 		addStyle(HaoKanShieldCSS);
 		log.info("插入CSS规则");
 		BaiduHaoKanHook.init();
-		PopsPanel.execMenuOnce("baidu_haokan_shield_may_also_like", () => {
+		Panel.execMenuOnce("baidu_haokan_shield_may_also_like", () => {
 			return this.shieldMayAlsoLike();
 		});
-		PopsPanel.execMenuOnce("baidu_haokan_shield_today_s_hot_list", () => {
+		Panel.execMenuOnce("baidu_haokan_shield_today_s_hot_list", () => {
 			return this.shieldTodayHotList();
 		});
-		PopsPanel.execMenuOnce("baidu_haokan_shield_right_video_action", () => {
+		Panel.execMenuOnce("baidu_haokan_shield_right_video_action", () => {
 			return this.shieldRightVideoAction();
 		});
 		DOMUtils.ready(() => {
@@ -42,7 +42,7 @@ const BaiduHaoKan = {
 					utils
 						.getReactObj(currentPageSee)
 						["reactEventHandlers"]?.["onClick"]();
-					PopsPanel.execMenu(
+					Panel.execMenu(
 						"baidu_haokan_play_video_and_automatically_enter_full_screen",
 						() => {
 							if (utils.isFullscreenEnabled()) {

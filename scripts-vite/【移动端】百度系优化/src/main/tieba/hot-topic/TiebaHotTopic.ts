@@ -1,29 +1,29 @@
 import { $$, addStyle, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
-import { VueUtils } from "@/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { VueUtils } from "@components/utils/VueUtils";
 import Qmsg from "qmsg";
 import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
 export const TiebaHotTopic = {
 	init() {
 		// 屏蔽广告
-		PopsPanel.onceExec("tieba-hot-topic-blockAds", () => {
+		Panel.onceExec("tieba-hot-topic-blockAds", () => {
 			CommonUtil.addBlockCSS(
 				"body > .page-content .wise-swan-publish",
 				"body > .page-content .wise-navigation .right-action"
 			);
 		});
-		PopsPanel.execMenu("tieba-hot-topic-coverOpenApp", () => {
+		Panel.execMenu("tieba-hot-topic-coverOpenApp", () => {
 			this.coverOpenApp();
 		});
-		PopsPanel.execMenu("tieba-hot-topic-isTiebaApp", () => {
+		Panel.execMenu("tieba-hot-topic-isTiebaApp", () => {
 			this.isTiebaApp();
 		});
-		PopsPanel.execMenuOnce("tieba-hot-topic-isHarmony", () => {
+		Panel.execMenuOnce("tieba-hot-topic-isHarmony", () => {
 			this.coverCard_isHarmony();
 		});
-		PopsPanel.execMenuOnce("tieba-hot-topic-openBlank", () => {
+		Panel.execMenuOnce("tieba-hot-topic-openBlank", () => {
 			this.openBlank();
 		});
 	},

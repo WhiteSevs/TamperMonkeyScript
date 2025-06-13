@@ -1,14 +1,14 @@
 import { log } from "@/env";
 import { BaiduHook } from "@/hook/BaiduHook";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 
 const BaiJiaHaoHook = {
 	init() {
-		PopsPanel.execMenu("baijiahao_hijack_wakeup", () => {
+		Panel.execMenu("baijiahao_hijack_wakeup", () => {
 			log.success("hook: Function.property.call");
 			BaiduHook.functionCall("baijiahao_invoke");
 		});
-		PopsPanel.execMenu("baidu_baijiahao_hijack_iframe", () => {
+		Panel.execMenu("baidu_baijiahao_hijack_iframe", () => {
 			log.success("hook: Element.append");
 			BaiduHook.elementAppendChild(function (element) {
 				if (
@@ -20,11 +20,11 @@ const BaiJiaHaoHook = {
 				}
 			});
 		});
-		PopsPanel.execMenu("baidu_baijiahao_hijack_openbox", () => {
+		Panel.execMenu("baidu_baijiahao_hijack_openbox", () => {
 			log.success("hook: window.Box");
 			BaiduHook.windowOpenBox();
 		});
-		PopsPanel.execMenu("baidu_baijiahao_hijack_openContentBox", () => {
+		Panel.execMenu("baidu_baijiahao_hijack_openContentBox", () => {
 			log.success("hook: window.openContentBox");
 			BaiduHook.window_openContentBox();
 		});

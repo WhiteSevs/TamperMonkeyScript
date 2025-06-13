@@ -1,7 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
-import { PopsPanel } from "@/setting/panel";
-import { VueUtils } from "@/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import { VueUtils } from "@components/utils/VueUtils";
 import { unsafeWindow } from "ViteGM";
 
 /** 对vue属性进行赋值 */
@@ -9,7 +9,7 @@ export const BaiduSearchVSearchVueProp = {
 	init() {
 		DOMUtils.ready(() => {
 			if (BaiduRouter.isSearchVSearch_image_content()) {
-				PopsPanel.execMenuOnce("baidu_search_vsearch-isBaiduBox", () => {
+				Panel.execMenuOnce("baidu_search_vsearch-isBaiduBox", () => {
 					this.isBaiduBox();
 				});
 			}

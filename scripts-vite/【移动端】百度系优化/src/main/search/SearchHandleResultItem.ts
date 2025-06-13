@@ -1,5 +1,5 @@
 import { $$, DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { SearchHandleResultEveryOneSearch } from "./SearchHandleResultEveryOneSearch";
 import { BaiduSearchBlockRule } from "./SearchBlockRule";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
@@ -508,7 +508,7 @@ export const BaiduHandleResultItem = {
 	removeAds() {
 		const TAG = "删除广告 ==> ";
 		if (
-			PopsPanel.getValue("baidu_search_blocking_everyone_is_still_searching")
+			Panel.getValue("baidu_search_blocking_everyone_is_still_searching")
 		) {
 			let $conterEveryOneSearch = $$<HTMLDivElement>(
 				".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation"
@@ -592,7 +592,7 @@ export const BaiduHandleResultItem = {
 				// 直接删除播放视频的元素会导致如下副作用
 				// 1.在webview和Safari上第一个智能卡片上的按钮点击无法应，如更多按钮
 				// 2. 导致SearchCraft的简单搜索自动翻页时会自动跳转下一页的第一个搜索结果或者第一页的搜索结果或者404页面或者https://m.baidu.com/https://m.baidu.com/这种链接
-				if (PopsPanel.getValue("baidu-search-blockAutomaticVideoPlayback")) {
+				if (Panel.getValue("baidu-search-blockAutomaticVideoPlayback")) {
 					$result
 						.querySelectorAll("[class*='-video-player']")
 						.forEach((ele) => ele.remove());
@@ -609,7 +609,7 @@ export const BaiduHandleResultItem = {
 					}
 				}
 				if (
-					PopsPanel.getValue(
+					Panel.getValue(
 						"baidu_search_blocking_everyone_is_still_searching"
 					)
 				) {

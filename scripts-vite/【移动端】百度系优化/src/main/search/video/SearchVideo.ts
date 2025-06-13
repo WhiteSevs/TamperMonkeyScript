@@ -1,12 +1,12 @@
 import { log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
 
 // 屏蔽元素
 export const BaiduSearchVideoBlockNode = {
 	init() {
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"baidu-search-video-blockBottomRecommendVideo",
 			() => {
 				return this.blockBottomRecommendVideo();
@@ -25,7 +25,7 @@ export const BaiduSearchVideoBlockNode = {
 export const BaiduSearchVideo = {
 	init() {
 		BaiduSearchVideoBlockNode.init();
-		PopsPanel.execMenuOnce("baidu-search-video-autoJumpToOriginUrl", () => {
+		Panel.execMenuOnce("baidu-search-video-autoJumpToOriginUrl", () => {
 			this.autoJumpToOriginUrl();
 		});
 	},

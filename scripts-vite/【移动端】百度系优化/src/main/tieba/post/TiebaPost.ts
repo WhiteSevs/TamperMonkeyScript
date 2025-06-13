@@ -1,5 +1,5 @@
 import { $, DOMUtils, MountVue, addStyle, httpx, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { TiebaComment } from "./TiebaComment";
 import { TiebaData } from "../home/data";
 import { TieBaApi } from "../api/TiebaApi";
@@ -9,12 +9,12 @@ import Viewer from "viewerjs";
 import { TiebaReply } from "./TiebaReply";
 import App from "./App.vue";
 import pinia from "./stores";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
-import { GestureBack } from "@/utils/GestureBack";
+import { GestureBack } from "@components/utils/GestureBack";
 import { GeastureBackHashConfig } from "../uni-app-post/TiebaUniAppPost";
-import { CommonUtil } from "@/utils/CommonUtil";
-import { GM_RESOURCE_MAPPING } from "@/GM_Resource_Mapping";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
 
 interface PostImg {
 	bsize: string;
@@ -31,26 +31,26 @@ const TiebaPost = {
 	},
 	mainPostImgList: <PostImg[]>[],
 	init() {
-		PopsPanel.execMenu("baidu_tieba_repairErrorThread", () => {
+		Panel.execMenu("baidu_tieba_repairErrorThread", () => {
 			log.success("强制查看-帖子不存在|帖子已被删除|该帖子需要去app内查看哦");
 			this.repairErrorThread();
 		});
-		PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
+		Panel.execMenu("baidu_tieba_optimize_image_preview", () => {
 			log.success("优化图片预览");
 			this.optimizeImagePreview();
 		});
-		PopsPanel.execMenuOnce("baidu_tieba_lzl_ban_global_back", () => {
+		Panel.execMenuOnce("baidu_tieba_lzl_ban_global_back", () => {
 			this.overrideVueRouterMatch();
 		});
-		PopsPanel.execMenu("baidu-tieba-blockCommentInput", () => {
+		Panel.execMenu("baidu-tieba-blockCommentInput", () => {
 			CommonUtil.addBlockCSS(".comment-box-wrap");
 		});
-		PopsPanel.execMenu("baidu_tieba_optimize_see_comments", () => {
+		Panel.execMenu("baidu_tieba_optimize_see_comments", () => {
 			log.success("优化查看评论");
 			TiebaComment.init();
-			if (!PopsPanel.getValue("baidu-tieba-blockCommentInput")) {
+			if (!Panel.getValue("baidu-tieba-blockCommentInput")) {
 				/* 非屏蔽才启用 */
-				if (PopsPanel.getValue("baidu_tieba_optimize_comments_toolbar")) {
+				if (Panel.getValue("baidu_tieba_optimize_comments_toolbar")) {
 					CommonUtil.addBlockCSS(".comment-box-wrap");
 					TiebaReply.waitCommentBoxWrap(() => {
 						MountVue(App, [pinia]);
@@ -68,7 +68,7 @@ const TiebaPost = {
 		log.success("优化图片预览");
 		CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
 		let gestureback: typeof GestureBack.prototype | null = null;
-		if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
+		if (Panel.getValue("baidu_tieba_optimize_image_preview")) {
 			// 启用手势返回
 			gestureback = new GestureBack({
 				hash: GeastureBackHashConfig.viewerPreviewImage,
@@ -124,7 +124,7 @@ const TiebaPost = {
 			viewer.zoomTo(1);
 			viewer.show();
 			log.success("预览图片");
-			if (PopsPanel.getValue("baidu_tieba_optimize_image_preview")) {
+			if (Panel.getValue("baidu_tieba_optimize_image_preview")) {
 				gestureback?.enterGestureBackMode();
 			}
 		}

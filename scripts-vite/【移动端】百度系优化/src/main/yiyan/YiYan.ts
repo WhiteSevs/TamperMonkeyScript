@@ -1,18 +1,18 @@
 import { unsafeWindow } from "ViteGM";
 import { $, DOMUtils, addStyle, log } from "@/env";
 import YiYanShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/setting/panel";
-import { ReactUtils } from "../../utils/ReactUtils";
+import { Panel } from "@components/setting/panel";
+import { ReactUtils } from "@components/utils/ReactUtils";
 import Qmsg from "qmsg";
 
 const BaiduYiYan = {
 	init() {
 		addStyle(YiYanShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenuOnce("baidu_yiyan_remove_ai_mask", () => {
+		Panel.execMenuOnce("baidu_yiyan_remove_ai_mask", () => {
 			this.blockWaterMark();
 		});
-		PopsPanel.execMenu("baidu_yiyan-execByUrlSearchParams", () => {
+		Panel.execMenu("baidu_yiyan-execByUrlSearchParams", () => {
 			this.execByUrlSearchParams();
 		});
 	},
@@ -130,7 +130,7 @@ const BaiduYiYan = {
 					});
 				}
 			},
-			overTimeCallBack() {
+			failWait(isTimeout) {
 				$loading.close();
 			},
 		});
@@ -164,7 +164,7 @@ const BaiduYiYan = {
 					log.error("未找到发送按钮");
 				}
 			},
-			overTimeCallBack() {
+			failWait(isTimeout) {
 				$loading.close();
 			},
 		});

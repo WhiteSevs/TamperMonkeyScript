@@ -1,13 +1,13 @@
 import { log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { VueUtils } from "@/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import { VueUtils } from "@components/utils/VueUtils";
 import DOMUtils from "@whitesev/domutils";
 import Qmsg from "qmsg";
 import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
 export const TiebaCollectionCenter = {
 	init() {
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"tieba_collection_center_repair_card_click_jump",
 			() => {
 				this.repairCardClickJump();
@@ -39,7 +39,7 @@ export const TiebaCollectionCenter = {
 				/** 帖子的链接 */
 				let url = TiebaUrlHandler.getPost(tid);
 				if (
-					PopsPanel.getValue(
+					Panel.getValue(
 						"tieba_collection_center_repair_card_click_jump_open_new_tab"
 					)
 				) {

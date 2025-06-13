@@ -1,10 +1,10 @@
 import { $, DOMUtils, addStyle, httpx, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { LoadingView } from "@/utils/LoadingView";
 import { TiebaCore } from "./TiebaCore";
 import Qmsg from "qmsg";
 import { TiebaBaNei } from "./ba-nei/TiebaBaNei";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { TieBaApi } from "./api/TiebaApi";
 import { TiebaUrlHandler } from "./handler/TiebaUrlHandler";
 import { BaiduRouter } from "@/router/BaiduRouter";
@@ -423,7 +423,7 @@ const TiebaSearch = {
 						alert("请勿输入纯空格或空内容");
 						return;
 					}
-					if (PopsPanel.getValue("baidu_tieba_use_hybrid_search")) {
+					if (Panel.getValue("baidu_tieba_use_hybrid_search")) {
 						// 使用搜索综合
 						window.location.href = TiebaUrlHandler.getHybridSearch(
 							this.getSearchText()
@@ -487,7 +487,7 @@ const TiebaSearch = {
 					}
 				);
 
-				PopsPanel.execMenuOnce("baidu_tieba-execByUrlSearchParams", () => {
+				Panel.execMenuOnce("baidu_tieba-execByUrlSearchParams", () => {
 					this.execByUrlSearchParams();
 				});
 			});
@@ -1076,7 +1076,7 @@ const TiebaSearch = {
 			".search-result-bottom-toolbar"
 		) as HTMLElement;
 		/* 获取用户信息，替换用户头像 */
-		if (PopsPanel.getValue("baidu_tieba_search_opt_user_info")) {
+		if (Panel.getValue("baidu_tieba_search_opt_user_info")) {
 			TieBaApi.getUserHomeInfo({
 				un: data["author"],
 			}).then((userHomeInfo) => {

@@ -1,5 +1,5 @@
 import { addStyle, log } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import SearchHomeShieldCSS from "./shield.css?raw";
 import SearchHomeMinificationShieldCSS from "./minificationShield.css?raw";
 
@@ -7,7 +7,7 @@ const BaiduSearchHome = {
 	init() {
 		addStyle(SearchHomeShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenuOnce("baidu_search_home_homepage_minification", () => {
+		Panel.execMenuOnce("baidu_search_home_homepage_minification", () => {
 			return this.homepageMinification();
 		});
 	},

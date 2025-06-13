@@ -1,5 +1,5 @@
 import { BaiduRouter } from "@/router/BaiduRouter";
-import { UISwitch } from "@/setting/components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const PanelBaiJiaHaoSettingUI: PopsPanelContentConfig = {

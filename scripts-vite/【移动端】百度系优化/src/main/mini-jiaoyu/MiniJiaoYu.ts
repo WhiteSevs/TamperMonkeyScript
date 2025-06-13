@@ -1,19 +1,16 @@
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import MiniJiaoYuShieldCSS from "./shield.css?raw";
 
 const BaiduMiniJiaoYu = {
 	init() {
 		addStyle(MiniJiaoYuShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenuOnce(
-			"mini_baidu_jiaoyu_shield_bottom_pull_down_menu",
-			() => {
-				this.shieldBottomPullDownMenu();
-			}
-		);
-		PopsPanel.execMenuOnce("mini_baidu_jiaoyu-blockEveryOneSearch", () => {
+		Panel.execMenuOnce("mini_baidu_jiaoyu_shield_bottom_pull_down_menu", () => {
+			this.shieldBottomPullDownMenu();
+		});
+		Panel.execMenuOnce("mini_baidu_jiaoyu-blockEveryOneSearch", () => {
 			return this.blockEveryOneSearch();
 		});
 	},
@@ -33,7 +30,7 @@ const BaiduMiniJiaoYu = {
 			DOMUtils: typeof DOMUtils;
 		}) => void
 	) {
-		if (!PopsPanel.isTopWindow()) {
+		if (!Panel.isTopWindow()) {
 			return;
 		}
 		DOMUtils.ready(() => {

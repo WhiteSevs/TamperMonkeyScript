@@ -1,28 +1,28 @@
 import { addStyle, log } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import ISiteShieldCSS from "./shield.css?raw";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const BaiduISite = {
 	init() {
 		addStyle(ISiteShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"baidu_isite_wjz2tdly_shieldBottomBarRootContainer",
 			() => {
 				return this.shieldBottomBarRootContainer();
 			}
 		);
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"baidu_isite_wjz2tdly_shieldRightSeeMoreToolBar",
 			() => {
 				return this.shieldRightSeeMoreToolBar();
 			}
 		);
-		PopsPanel.execMenuOnce("baidu_isite_wjz2tdly_shieldArticleBottom", () => {
+		Panel.execMenuOnce("baidu_isite_wjz2tdly_shieldArticleBottom", () => {
 			return this.shieldArticleBottom();
 		});
-		PopsPanel.execMenuOnce("baidu_isite_wjz2tdly_autoExpandFullText", () => {
+		Panel.execMenuOnce("baidu_isite_wjz2tdly_autoExpandFullText", () => {
 			return this.autoExpandFullText();
 		});
 	},

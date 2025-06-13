@@ -1,10 +1,11 @@
 import { BaiduSearchBlockRule } from "@/main/search/SearchBlockRule";
 import { DOMUtils, utils } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
-import { PopsPanel } from "@/setting/panel";
-import { UISwitch } from "@/setting/components/ui-switch";
+import { Panel } from "@components/setting/panel";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import Qmsg from "qmsg";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { ATTRIBUTE_KEY } from "@components/setting/panel-config";
 
 const PanelSearchSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-search",
@@ -190,7 +191,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 									function (event, enable) {
 										if (
 											enable &&
-											PopsPanel.getValue(
+											Panel.getValue(
 												"baidu_search_automatically_expand_next_page"
 											)
 										) {
@@ -198,7 +199,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 											let $shadowRoot = $click.getRootNode() as ShadowRoot;
 											let $checkbox =
 												$shadowRoot.querySelector<HTMLSpanElement>(
-													`li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_expand_next_page"] span.pops-panel-switch__core`
+													`li[${ATTRIBUTE_KEY}="baidu_search_automatically_expand_next_page"] span.pops-panel-switch__core`
 												);
 											if (!$checkbox) {
 												throw new Error("未找到互斥元素");
@@ -215,7 +216,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 									function (event, enable) {
 										if (
 											enable &&
-											PopsPanel.getValue(
+											Panel.getValue(
 												"baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
 											)
 										) {
@@ -223,7 +224,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 											let $shadowRoot = $click.getRootNode() as ShadowRoot;
 											let $checkbox =
 												$shadowRoot.querySelector<HTMLSpanElement>(
-													`li[${PopsPanel.$data.attributeKeyName}="baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"] span.pops-panel-switch__core`
+													`li[${ATTRIBUTE_KEY}="baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"] span.pops-panel-switch__core`
 												);
 											if (!$checkbox) {
 												throw new Error("未找到互斥元素");
@@ -460,7 +461,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 											"textarea"
 										) as HTMLTextAreaElement;
 										/* 自定义样式 */
-										$textArea.value = PopsPanel.getValue(
+										$textArea.value = Panel.getValue(
 											"baidu-search-user-style",
 											""
 										);
@@ -470,7 +471,7 @@ const PanelSearchSettingUI: PopsPanelContentConfig = {
 											["input", "propertychange"],
 											void 0,
 											utils.debounce(function () {
-												PopsPanel.setValue(
+												Panel.setValue(
 													"baidu-search-user-style",
 													$textArea.value
 												);

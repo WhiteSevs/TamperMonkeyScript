@@ -1,16 +1,16 @@
 import { addStyle, log } from "@/env";
 import AiStudyShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const BaiduAiStudy = {
 	init() {
 		addStyle(AiStudyShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenuOnce("baidu_ai_study_shieldBottomToolBar", () => {
+		Panel.execMenuOnce("baidu_ai_study_shieldBottomToolBar", () => {
 			return this.shieldBottomToolBar();
 		});
-		PopsPanel.execMenuOnce("baidu_ai_study_autoExpandFullText", () => {
+		Panel.execMenuOnce("baidu_ai_study_autoExpandFullText", () => {
 			return this.autoExpandFullText();
 		});
 	},

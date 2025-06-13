@@ -1,12 +1,12 @@
 import { $, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 
 export const SearchHandleResultEveryOneSearch = {
 	/**
 	 * 是否重构大家都在搜
 	 */
 	get refactorEveryoneIsStillSearching() {
-		return PopsPanel.getValue(
+		return Panel.getValue(
 			"baidu_search_refactor_everyone_is_still_searching",
 			false
 		);

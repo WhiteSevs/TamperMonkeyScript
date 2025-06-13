@@ -1,47 +1,47 @@
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import EasyLearnShieldCSS from "./shield.css?raw";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 
 const BaiduEasyLearn = {
 	init() {
 		addStyle(EasyLearnShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenuOnce("baidu_easylearn_shield_this_question_paper", () => {
+		Panel.execMenuOnce("baidu_easylearn_shield_this_question_paper", () => {
 			return this.shieldQuestionPaper();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"baidu_easylearn_shield_good_questions_in_this_volume",
 			() => {
 				return this.shieldGoodQuestionsInThisVolume();
 			}
 		);
-		PopsPanel.execMenuOnce("baidu_easylearn_shield_related_test_papers", () => {
+		Panel.execMenuOnce("baidu_easylearn_shield_related_test_papers", () => {
 			return this.shieldRelatedTestPapers();
 		});
-		PopsPanel.execMenuOnce("baidu_easylearn_shield_video_explanation", () => {
+		Panel.execMenuOnce("baidu_easylearn_shield_video_explanation", () => {
 			return this.shieldVideoExplanation();
 		});
-		PopsPanel.execMenuOnce("baidu_easylearn_shield_xueba_notes", () => {
+		Panel.execMenuOnce("baidu_easylearn_shield_xueba_notes", () => {
 			return this.shieldXuebaNotes();
 		});
-		PopsPanel.execMenuOnce("baidu_easylearn_shield_bottom_toolbar", () => {
+		Panel.execMenuOnce("baidu_easylearn_shield_bottom_toolbar", () => {
 			return this.shieldBottomToolbar();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"baidu_easylearn_unlocking_the_upper_limit_of_search_questions",
 			() => {
 				this.hijackUserSearchQuestCount();
 			}
 		);
-		PopsPanel.execMenuOnce("baidu_easylearn_auto_show_answer", () => {
+		Panel.execMenuOnce("baidu_easylearn_auto_show_answer", () => {
 			this.showAnswerContent();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce(
+			Panel.execMenuOnce(
 				"baidu_easylearn_unlocking_top_search_input",
 				() => {
 					this.allowUserSearchInput();

@@ -10,7 +10,7 @@ import {
 	utils,
 } from "@/env";
 import { TieBaApi } from "../api/TiebaApi";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { TiebaCore } from "../TiebaCore";
 import { TiebaData } from "../home/data";
 import { LoadingView } from "@/utils/LoadingView";
@@ -19,7 +19,7 @@ import { ref } from "vue";
 import { Toolbar } from "./Toolbar";
 import Qmsg from "qmsg";
 import { TiebaPostApi } from "../api/TiebaPostApi";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { FloorCommentData, LzlItemData, PageComment } from "../types/PostsType";
 import { CommentData } from "../types/CommentType";
 import { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx";
@@ -1341,7 +1341,7 @@ const TiebaComment = {
 				userPortrait = userAvatarObjMatch[1];
 			}
 		}
-		if (PopsPanel.getValue("baidu_tieba_shield_commnets_baodating")) {
+		if (Panel.getValue("baidu_tieba_shield_commnets_baodating")) {
 			/* 屏蔽贴吧包打听 */
 			if (
 				TiebaPostApi.isRobot({
@@ -1412,7 +1412,7 @@ const TiebaComment = {
 							${
 								userForumLevel &&
 								userForumLevel >= 0 &&
-								PopsPanel.getValue("baidu_tieba_show_forum_level")
+								Panel.getValue("baidu_tieba_show_forum_level")
 									? `
 								<div class="forum-level-container">
 									<span class="forum-level" data-level="${userForumLevel}">Lv.${userForumLevel} ${userForumLevelName}</span>
@@ -1830,7 +1830,7 @@ const TiebaComment = {
 					${
 						data.userForumLevel &&
 						data.userForumLevel >= 0 &&
-						PopsPanel.getValue("baidu_tieba_show_forum_level")
+						Panel.getValue("baidu_tieba_show_forum_level")
 							? `
 						<div class="forum-level-container">
 							<span class="forum-level" data-level="${data.userForumLevel}">Lv.${data.userForumLevel}</span>
@@ -1974,7 +1974,7 @@ const TiebaComment = {
                       ${
 												data["userForumLevel"] &&
 												data["userForumLevel"] >= 0 &&
-												PopsPanel.getValue("baidu_tieba_show_forum_level")
+												Panel.getValue("baidu_tieba_show_forum_level")
 													? `
                           <div class="forum-level-container">
                             <span class="forum-level" data-level="${data["userForumLevel"]}">Lv.${data["userForumLevel"]} ${data["userForumLevelName"]}</span>
@@ -2070,7 +2070,7 @@ const TiebaComment = {
 				DOMUtils.off(dialog, utils.getTransitionEndNameList() as any);
 				log.success("关闭楼中楼回复弹窗_click");
 				dialog.remove();
-				if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
+				if (Panel.getValue("baidu_tieba_lzl_ban_global_back")) {
 					removePopStateEvent();
 				}
 			});
@@ -2238,7 +2238,7 @@ const TiebaComment = {
 				);
 			}
 			/* 懒加载用户本吧等级 */
-			if (PopsPanel.getValue("baidu_tieba_show_forum_level")) {
+			if (Panel.getValue("baidu_tieba_show_forum_level")) {
 				document
 					.querySelectorAll(
 						".whitesev-reply-dialog-sheet-other-content-item[data-lazy-load-level]"
@@ -2345,7 +2345,7 @@ const TiebaComment = {
 			);
 			this.vueRootView = $(".main-page-wrap") as HTMLDivElement;
 			log.success(["成功获取Vue根元素", VueUtils.getVue(this.vueRootView)]);
-			if (PopsPanel.getValue("baidu_tieba_lzl_ban_global_back")) {
+			if (Panel.getValue("baidu_tieba_lzl_ban_global_back")) {
 				setPopStateEvent();
 			}
 		}, 0);

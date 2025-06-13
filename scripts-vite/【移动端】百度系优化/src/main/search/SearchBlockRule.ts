@@ -1,5 +1,5 @@
 import { log } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 
 type BaiDuSearchRuleMode =
 	| "match-href"
@@ -64,27 +64,27 @@ match-attr##srcid##sp_purc_atom
 	rule: [] as BaiduSearchRuleConfig[],
 	init() {
 		let localRule = this.getLocalRule();
-		if (PopsPanel.getValue("baidu-search-blockNoteLead")) {
+		if (Panel.getValue("baidu-search-blockNoteLead")) {
 			this.defaultRule += "\n" + "match-attr##srcid##note_lead";
 		}
-		if (PopsPanel.getValue("baidu-search-enable-default-interception-rules")) {
+		if (Panel.getValue("baidu-search-enable-default-interception-rules")) {
 			localRule = this.defaultRule + "\n\n" + localRule;
 		}
 		this.rule = this.parseRule(localRule);
 	},
 	/** 获取本地存储的自定义拦截规则 */
 	getLocalRule() {
-		let localRule = PopsPanel.getValue("baidu-search-interception-rules", "");
+		let localRule = Panel.getValue("baidu-search-interception-rules", "");
 		localRule = localRule.trim();
 		return localRule;
 	},
 	/** 设置本地存储的自定义拦截规则 */
 	setLocalRule(rule: string) {
-		PopsPanel.setValue("baidu-search-interception-rules", rule);
+		Panel.setValue("baidu-search-interception-rules", rule);
 	},
 	/** 清空规则 */
 	clearLocalRule() {
-		PopsPanel.deleteValue("baidu-search-interception-rules");
+		Panel.deleteValue("baidu-search-interception-rules");
 	},
 	/**
 	 * 把规则进行转换

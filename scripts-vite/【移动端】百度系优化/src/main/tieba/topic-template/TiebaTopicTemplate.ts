@@ -1,12 +1,12 @@
 import { DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
-import { VueUtils } from "@/utils/VueUtils";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { VueUtils } from "@components/utils/VueUtils";
 import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 
 export const TiebaTopicTemplate = {
 	init() {
-		PopsPanel.execMenu("baidu_tieba_topic_redirect_jump", () => {
+		Panel.execMenu("baidu_tieba_topic_redirect_jump", () => {
 			this.redirectJump();
 		});
 	},
@@ -27,7 +27,7 @@ export const TiebaTopicTemplate = {
 				let pid = VueUtils.getVue(clickNode)?.item.tid;
 				let url = TiebaUrlHandler.getPost(pid);
 				log.success(`跳转至: ${url}`);
-				if (PopsPanel.getValue("baidu_tieba_topic_openANewTab")) {
+				if (Panel.getValue("baidu_tieba_topic_openANewTab")) {
 					window.open(url, "_blank");
 				} else {
 					window.open(url);

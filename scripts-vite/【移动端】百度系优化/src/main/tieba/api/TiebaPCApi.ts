@@ -1,5 +1,5 @@
 import { DOMUtils, httpx, utils } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const TiebaPCApi = {
 	/**

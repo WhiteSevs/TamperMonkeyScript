@@ -1,13 +1,13 @@
 import { httpx, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import md5 from "md5";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
 
 let tbs = "";
 let cuid = () => {
-	let __cuid__ = PopsPanel.getValue("baidu_tieba_index_msg_cuid");
-	let cookie = PopsPanel.getValue<string | null>(
+	let __cuid__ = Panel.getValue("baidu_tieba_index_msg_cuid");
+	let cookie = Panel.getValue<string | null>(
 		"httpx-cookie-tieba.baidu.com"
 	);
 	if (utils.isNull(__cuid__) && typeof cookie === "string") {

@@ -1,10 +1,10 @@
 import { log } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
 
 export const TiebaCheckUrl = {
 	init() {
-		PopsPanel.execMenu("baidu-tieba-checkUrl-autoJumpUrl", () => {
+		Panel.execMenu("baidu-tieba-checkUrl-autoJumpUrl", () => {
 			this.autoJumpUrl();
 		});
 	},

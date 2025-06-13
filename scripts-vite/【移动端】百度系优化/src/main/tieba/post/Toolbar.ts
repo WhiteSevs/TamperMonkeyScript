@@ -1,7 +1,7 @@
 import { $, DOMUtils, log } from "@/env";
 import Qmsg from "qmsg";
 import { TiebaComment } from "./TiebaComment";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 
 export const Toolbar = {
 	$data: {},

@@ -1,7 +1,7 @@
 import { addStyle, log } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import WenKuShieldCSS from "./shield.css?raw";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const BaiduWenKu = {
 	init() {
@@ -13,22 +13,22 @@ const BaiduWenKu = {
             margin-top: 56px !important;
         }
         `);
-		PopsPanel.execMenuOnce("baidu_wenku_block_member_picks", () => {
+		Panel.execMenuOnce("baidu_wenku_block_member_picks", () => {
 			return this.shieldVipPicks();
 		});
-		PopsPanel.execMenuOnce("baidu_wenku_blocking_app_featured", () => {
+		Panel.execMenuOnce("baidu_wenku_blocking_app_featured", () => {
 			return this.shieldAppPicks();
 		});
-		PopsPanel.execMenuOnce("baidu_wenku_blocking_related_documents", () => {
+		Panel.execMenuOnce("baidu_wenku_blocking_related_documents", () => {
 			return this.shieldRelatedDocuments();
 		});
-		PopsPanel.execMenuOnce("baidu_wenku_blocking_bottom_toolbar", () => {
+		Panel.execMenuOnce("baidu_wenku_blocking_bottom_toolbar", () => {
 			return this.shieldBottomToolBar();
 		});
-		PopsPanel.execMenuOnce("baidu_wenku_shield_next_btn", () => {
+		Panel.execMenuOnce("baidu_wenku_shield_next_btn", () => {
 			return this.shieldNextArticleButton();
 		});
-		PopsPanel.execMenuOnce("baidu_wenku_blockDocumentAssistant", () => {
+		Panel.execMenuOnce("baidu_wenku_blockDocumentAssistant", () => {
 			return this.blockDocumentAssistant();
 		});
 	},

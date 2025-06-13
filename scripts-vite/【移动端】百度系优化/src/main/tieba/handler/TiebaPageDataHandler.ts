@@ -1,5 +1,5 @@
 import { $, utils } from "@/env";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 
 export const TiebaPageDataHandler = {
 	/**

@@ -1,10 +1,10 @@
 import { $, DOMUtils, addStyle, log, utils } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
 import { TiebaPost } from "./TiebaPost";
 import { TiebaComment } from "./TiebaComment";
 import { ref } from "vue";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { TiebaUniAppPost } from "../uni-app-post/TiebaUniAppPost";
 
 interface TiebaVueCurrentReplyObj {

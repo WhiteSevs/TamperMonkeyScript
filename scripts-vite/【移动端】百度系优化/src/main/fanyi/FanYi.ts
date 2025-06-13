@@ -1,19 +1,19 @@
 import { addStyle, log, utils } from "@/env";
 import FanYiShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const BaiduFanYi = {
 	init() {
 		addStyle(FanYiShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenuOnce("baidu_fanyi_recommended_shielding_bottom", () => {
+		Panel.execMenuOnce("baidu_fanyi_recommended_shielding_bottom", () => {
 			return this.shieldRecommendBottom();
 		});
-		PopsPanel.execMenuOnce("baidu_fanyi_other_shielding_bottom", () => {
+		Panel.execMenuOnce("baidu_fanyi_other_shielding_bottom", () => {
 			return this.shieldBottom();
 		});
-		PopsPanel.execMenuOnce("baidu_fanyi_auto_focus", () => {
+		Panel.execMenuOnce("baidu_fanyi_auto_focus", () => {
 			this.autoFocus();
 		});
 	},

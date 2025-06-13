@@ -1,8 +1,8 @@
 import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { TieBaApi } from "../api/TiebaApi";
 import Qmsg from "qmsg";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2";
 import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 import { TiebaUniAppPost } from "../uni-app-post/TiebaUniAppPost";
@@ -49,25 +49,25 @@ interface BaNeiPostInfo {
  */
 export const TiebaBaNei = {
 	init() {
-		PopsPanel.execMenuOnce("baidu_tieba_banei_hook_iframe_call_app", () => {
+		Panel.execMenuOnce("baidu_tieba_banei_hook_iframe_call_app", () => {
 			BaiduHook.setTimeout("tiebaCallAppIframe");
 		});
-		PopsPanel.execMenuOnce("baidu_tieba_removeForumSignInLimit", () => {
+		Panel.execMenuOnce("baidu_tieba_removeForumSignInLimit", () => {
 			this.removeForumSignInLimit();
 		});
-		PopsPanel.execMenuOnce("baidu_tieba_banei_hookWakeUp", () => {
+		Panel.execMenuOnce("baidu_tieba_banei_hookWakeUp", () => {
 			this.hookWakeUp();
 		});
-		PopsPanel.execMenuOnce("baidu_tieba_banei_repair_card_click_jump", () => {
+		Panel.execMenuOnce("baidu_tieba_banei_repair_card_click_jump", () => {
 			this.repairCardClickJump();
 		});
-		PopsPanel.execMenu("baidu_tieba_add_search", () => {
+		Panel.execMenu("baidu_tieba_add_search", () => {
 			this.repairSearch();
 		});
-		// PopsPanel.execMenuOnce("baidu_tieba_remember_user_post_sort", () => {
+		// Panel.execMenuOnce("baidu_tieba_remember_user_post_sort", () => {
 		// 	this.rememberPostSort();
 		// });
-		// PopsPanel.execMenuOnce("baidu_tieba_filterDuplicatePosts", () => {
+		// Panel.execMenuOnce("baidu_tieba_filterDuplicatePosts", () => {
 		// 	this.filterDuplicatePosts();
 		// });
 	},
@@ -172,7 +172,7 @@ export const TiebaBaNei = {
 				log.info("帖子链接: " + newUrl);
 				if (
 					BaiduRouter.isTieBaNei() &&
-					PopsPanel.getValue("baidu_tieba_banei_openANewTab")
+					Panel.getValue("baidu_tieba_banei_openANewTab")
 				) {
 					// 吧内-新标签页打开
 					window.open(newUrl, "_blank");
@@ -194,7 +194,7 @@ export const TiebaBaNei = {
 	 */
 	rememberPostSort() {
 		let userSortModel = parseInt(
-			PopsPanel.getValue("baidu-tieba-sort-model", 3).toString()
+			Panel.getValue("baidu-tieba-sort-model", 3).toString()
 		);
 		utils
 			.waitNode<HTMLDivElement>(".tb-page__main .tb-sort .tab-pack")
@@ -202,7 +202,7 @@ export const TiebaBaNei = {
 				let originChange = VueUtils.getVue(element)?.change;
 				originChange(userSortModel);
 				(element as any).__vue__.change = function (index: number) {
-					PopsPanel.setValue("baidu-tieba-sort-model", index);
+					Panel.setValue("baidu-tieba-sort-model", index);
 					originChange(index);
 				};
 				log.info("注入记住当前选择的看帖排序");

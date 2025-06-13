@@ -1,11 +1,11 @@
 import { addStyle, log, utils } from "@/env";
 import blockCSS from "./css/block.css?raw";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import DOMUtils from "@whitesev/domutils";
 
 export const SmartAppsTieba = {
 	init() {
-		PopsPanel.onceExec("smartapps-tieba-blockAds", () => {
+		Panel.onceExec("smartapps-tieba-blockAds", () => {
 			return this.removeAds();
 		});
 	},

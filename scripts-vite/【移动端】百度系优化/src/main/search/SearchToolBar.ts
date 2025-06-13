@@ -1,7 +1,7 @@
 import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
 import searchToolBarCSS from "./search-toolbar.css?raw";
-import { PopsPanel } from "@/setting/panel";
-import { GestureBack } from "@/utils/GestureBack";
+import { Panel } from "@components/setting/panel";
+import { GestureBack } from "@components/utils/GestureBack";
 
 export const BaiduSearchToolBar = {
 	$el: {
@@ -60,7 +60,7 @@ export const BaiduSearchToolBar = {
 				this.$el.$input.select();
 			}, 150);
 
-			PopsPanel.execMenu(
+			Panel.execMenu(
 				"baidu-search-global-searchToolBar-gesture-back",
 				() => {
 					// 手势返回
@@ -303,7 +303,7 @@ export const BaiduSearchToolBar = {
 			utils.preventEvent(event);
 			log.success("点击返回");
 			this.hideToolBar();
-			PopsPanel.execMenu(
+			Panel.execMenu(
 				"baidu-search-global-searchToolBar-gesture-back",
 				() => {
 					// 退出手势模式

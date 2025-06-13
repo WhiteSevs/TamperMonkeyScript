@@ -1,20 +1,20 @@
 import { addStyle, log, utils } from "@/env";
 import FanYiAppShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const BaiduFanYiApp = {
 	init() {
 		addStyle(FanYiAppShieldCSS);
 		log.info("插入CSS规则");
 		this.repairContentHeight();
-		PopsPanel.execMenuOnce("baidu_fanyi_app_shield_column_information", () => {
+		Panel.execMenuOnce("baidu_fanyi_app_shield_column_information", () => {
 			return this.shieldColumnInformation();
 		});
-		PopsPanel.execMenuOnce("baidu_fanyi_app_shield_recommended_for_you", () => {
+		Panel.execMenuOnce("baidu_fanyi_app_shield_recommended_for_you", () => {
 			return this.shieldRecommendedForYou();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"baidu_fanyi_app_shield_i_need_to_follow_along",
 			() => {
 				return this.shieldINeedToFollowAlong();

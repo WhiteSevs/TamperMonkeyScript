@@ -1,8 +1,8 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import { TiebaCore } from "../TiebaCore";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 
 interface HonorGradeInfo {
 	count: number;

@@ -1,14 +1,14 @@
 import { DOMUtils, addStyle, log, utils } from "@/env";
 import ChatShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/setting/panel";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const BaiduChat = {
 	init() {
 		addStyle(ChatShieldCSS);
 		log.info("插入CSS规则");
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("baidu_chat_remove_ai_mask", () => {
+			Panel.execMenuOnce("baidu_chat_remove_ai_mask", () => {
 				this.removeAiMask();
 			});
 		});

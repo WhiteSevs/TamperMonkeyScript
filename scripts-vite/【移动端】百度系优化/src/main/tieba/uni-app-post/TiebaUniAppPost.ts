@@ -1,11 +1,11 @@
 import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 import Qmsg from "qmsg";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { TiebaUniAppComment } from "./TiebaUniAppComment";
 import { TiebaPostApi } from "../api/TiebaPostApi";
-import { GestureBack } from "@/utils/GestureBack";
+import { GestureBack } from "@components/utils/GestureBack";
 import { TiebaPost } from "../post/TiebaPost";
 import { TiebaUniAppCommentFilter } from "./TiebaUniAppCommentFilter";
 import { TiebaUniAppComponentDetection } from "./TiebaUniAppComponentDetection";
@@ -33,92 +33,89 @@ export const TiebaUniAppPost = {
 			log.warn(`删除检测到的手势hash参数：${findHashValue}`);
 			window.location.hash = "";
 		}
-		PopsPanel.onceExec("once-exec-tieba-post-uni-app-repairTbErrorPage", () => {
+		Panel.onceExec("once-exec-tieba-post-uni-app-repairTbErrorPage", () => {
 			this.repairTbErrorPage();
 		});
-		PopsPanel.onceExec(
+		Panel.onceExec(
 			"once-exec-tieba-post-uni-app-mutationRemoveWakeUpBtn",
 			() => {
 				this.mutationRemoveWakeUpBtn();
 			}
 		);
-		PopsPanel.onceExec("tieba-post-uni-app-comment-filter", () => {
+		Panel.onceExec("tieba-post-uni-app-comment-filter", () => {
 			TiebaUniAppCommentFilter.init();
 		});
 
-		PopsPanel.execMenuOnce("baidu-tieba-uni-app-comment-item-font-size", () => {
+		Panel.execMenuOnce("baidu-tieba-uni-app-comment-item-font-size", () => {
 			return addStyle(/*css*/ `
 				.pb-rich-text{
 					font-size: inherit !important;
 				}
 			`);
 		});
-		PopsPanel.execMenu("baidu_tieba_optimize_image_preview", () => {
+		Panel.execMenu("baidu_tieba_optimize_image_preview", () => {
 			TiebaPost.optimizeImagePreview();
 		});
-		PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-allow-user-select", () => {
+		Panel.execMenuOnce("baidu-tieba-uni-app-post-allow-user-select", () => {
 			return this.allowUserSelect();
 		});
-		PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-overloadLoadMore", () => {
+		Panel.execMenuOnce("baidu-tieba-uni-app-post-overloadLoadMore", () => {
 			this.overloadLoadMore();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"baidu-tieba-uni-app-post-repairPicGuideThreadWrapper",
 			() => {
 				this.repairPicGuideThreadWrapper();
 			}
 		);
-		PopsPanel.execMenuOnce(
-			"baidu-tieba-uni-app-post-repairClickToUserHome",
-			() => {
-				this.repairClickToUserHome();
-			}
-		);
-		PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-preventWakeApp", () => {
+		Panel.execMenuOnce("baidu-tieba-uni-app-post-repairClickToUserHome", () => {
+			this.repairClickToUserHome();
+		});
+		Panel.execMenuOnce("baidu-tieba-uni-app-post-preventWakeApp", () => {
 			this.preventWakeApp();
 		});
 
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"baidu-tieba-uni-app-post-addScrollTopButtonInForum",
-			(value) => {
-				return this.addScrollTopButton(value);
+			(option) => {
+				return this.addScrollTopButton(option.value);
 			}
 		);
-		PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-repairAnchorLink", () => {
+		Panel.execMenuOnce("baidu-tieba-uni-app-post-repairAnchorLink", () => {
 			this.repairAnchorLink();
 		});
-		PopsPanel.execMenu("baidu_tieba_add_search", () => {
+		Panel.execMenu("baidu_tieba_add_search", () => {
 			this.repairSearch();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce(
+			Panel.execMenuOnce(
 				"baidu-tieba-uni-app-post-rememberChooseSeeCommentSort",
 				() => {
 					this.rememberChooseSeeCommentSort();
 				}
 			);
-			PopsPanel.execMenuOnce(
+			Panel.execMenuOnce(
 				"baidu-tieba-uni-app-post-filterDuplicateComments",
 				() => {
 					this.filterDuplicateComments();
 				}
 			);
-			PopsPanel.execMenuOnce("baidu-tieba-uni-app-post-blockTieBaRobot", () => {
+			Panel.execMenuOnce("baidu-tieba-uni-app-post-blockTieBaRobot", () => {
 				this.blockTieBaRobot();
 			});
-			PopsPanel.execMenuOnce(
+			Panel.execMenuOnce(
 				"baidu-tieba-uni-app-post-optimizationLzlPostBackGestureReturn",
 				() => {
 					this.optimizationLzlPostBackGestureReturn();
 				}
 			);
-			PopsPanel.execMenuOnce(
+			Panel.execMenuOnce(
 				"baidu-tieba-uni-app-post-optimizationImagePreviewBackGestureReturn",
 				() => {
 					this.optimizationImagePreviewBackGestureReturn();
 				}
 			);
-			PopsPanel.execMenuOnce("baidu-tieba-componentDetection", () => {
+			Panel.execMenuOnce("baidu-tieba-componentDetection", () => {
 				TiebaUniAppComponentDetection.init();
 			});
 		});

@@ -1,6 +1,6 @@
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { addStyle, log } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import SearchHealthShieldCSS from "./shield.css?raw";
 
 /**
@@ -10,10 +10,10 @@ const BaiduHeadlth = {
 	init() {
 		addStyle(SearchHealthShieldCSS);
 		log.info("插入CSS规则");
-		PopsPanel.execMenuOnce("baidu_search_headlth_shield_other_info", () => {
+		Panel.execMenuOnce("baidu_search_headlth_shield_other_info", () => {
 			return this.shieldOtherInfo();
 		});
-		PopsPanel.execMenuOnce("baidu_search_headlth_shield_bottom_toolbar", () => {
+		Panel.execMenuOnce("baidu_search_headlth_shield_bottom_toolbar", () => {
 			return this.shieldServiceButtonsRow();
 		});
 	},

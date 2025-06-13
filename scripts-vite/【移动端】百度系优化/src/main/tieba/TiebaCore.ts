@@ -1,8 +1,8 @@
 import { unsafeWindow } from "ViteGM";
 import { $, DOMUtils, log, utils } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import Qmsg from "qmsg";
-import { VueUtils } from "@/utils/VueUtils";
+import { VueUtils } from "@components/utils/VueUtils";
 
 interface LandlordInfo {
 	id: number;

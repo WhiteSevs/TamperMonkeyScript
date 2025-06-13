@@ -1,6 +1,6 @@
 import { $, $$, addStyle, DOMUtils, log, pops, utils } from "@/env";
-import { PanelUISize } from "@/setting/panel-ui-size";
-import { VueUtils } from "@/utils/VueUtils";
+import { PanelUISize } from "@components/setting/panel-ui-size";
+import { VueUtils } from "@components/utils/VueUtils";
 import {
 	TiebaUniAppComponentDetectionRule,
 	type TiebaUserLabelRule,

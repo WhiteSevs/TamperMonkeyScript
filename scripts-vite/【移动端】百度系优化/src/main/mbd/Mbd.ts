@@ -1,8 +1,8 @@
 import { addStyle, log } from "@/env";
 import MbdShieldCSS from "./shield.css?raw";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 import { BaiduMbdHook } from "./MbdHook";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const BaiduMbd = {
 	init() {
@@ -14,13 +14,13 @@ const BaiduMbd = {
 		addStyle(MbdShieldCSS);
 		log.info("插入CSS规则");
 		BaiduMbdHook.init();
-		PopsPanel.execMenuOnce("baidu_mbd_block_exciting_comments", () => {
+		Panel.execMenuOnce("baidu_mbd_block_exciting_comments", () => {
 			return this.blockExcitingComments();
 		});
-		PopsPanel.execMenuOnce("baidu_mbd_block_exciting_recommendations", () => {
+		Panel.execMenuOnce("baidu_mbd_block_exciting_recommendations", () => {
 			return this.blockExcitingRecommendations();
 		});
-		PopsPanel.execMenuOnce("baidu_mbd_shield_bottom_toolbar", () => {
+		Panel.execMenuOnce("baidu_mbd_shield_bottom_toolbar", () => {
 			return this.shieldBottomToolbar();
 		});
 	},

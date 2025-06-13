@@ -1,7 +1,7 @@
 import { unsafeWindow } from "ViteGM";
 import { BaiduData } from "@/main/BaiduData";
 import { DOMUtils, OriginPrototype, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/panel";
+import { Panel } from "@components/setting/panel";
 
 type BaiduHookFunctionApplyMode = "copy" | "scheme";
 type BaiduHookFunctionCallMode = "baijiahao_invoke" | "map";
@@ -14,7 +14,7 @@ interface BaiduHookDefine {
 /**
  * 百度劫持
  */
-const BaiduHook = {
+export const BaiduHook = {
 	$isHook: {
 		windowBoxJSBefore: false,
 		objectDefineProperty_search: false,
@@ -279,7 +279,7 @@ const BaiduHook = {
 							return;
 						}
 						utils.preventEvent(event);
-						if (PopsPanel.getValue("baidu_search_hijack__onClick_to_blank")) {
+						if (Panel.getValue("baidu_search_hijack__onClick_to_blank")) {
 							log.success("新标签页打开: " + linkProps.href);
 							window.open(linkProps.href, "_blank");
 						} else {
@@ -680,5 +680,3 @@ const BaiduHook = {
 		});
 	},
 };
-
-export { BaiduHook };

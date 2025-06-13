@@ -1,14 +1,14 @@
 import { TieBaApi } from "@/main/tieba/api/TiebaApi";
 import { log, utils } from "@/env";
 import { BaiduRouter } from "@/router/BaiduRouter";
-import { UIButton } from "@/setting/components/ui-button";
-import { UISwitch } from "@/setting/components/ui-switch";
+import { UIButton } from "@components/setting/components/ui-button";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import Qmsg from "qmsg";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { TiebaPCApi } from "@/main/tieba/api/TiebaPCApi";
 import { TiebaUniAppCommentFilter } from "@/main/tieba/uni-app-post/TiebaUniAppCommentFilter";
 import { TiebaUniAppComponentDetectionRule } from "@/main/tieba/uni-app-post/TiebaUniAppComponentDetectionRule";
-import { UIInput } from "@/setting/components/ui-input";
+import { UIInput } from "@components/setting/components/ui-input";
 
 const PanelTieBaSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-tieba",
