@@ -47,7 +47,12 @@ const GenerateUserConfig = async (option: {
 }) => {
 	const inheritUtils = new ViteUtils(option.__dirname);
 	const pkg = inheritUtils.getPackageJSON();
-	const SCRIPT_NAME = option.monkeyOption.userscript.name;
+	let SCRIPT_NAME = option.monkeyOption.userscript.name;
+	if (typeof SCRIPT_NAME !== "string") {
+		SCRIPT_NAME = Object.values(SCRIPT_NAME).find(
+			(it) => typeof it === "string"
+		);
+	}
 
 	/**
 	 * 默认配置
