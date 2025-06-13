@@ -1,79 +1,88 @@
-import { $, DOMUtils, Qmsg, addStyle, log, pops, utils } from "@/env";
+import { $, DOMUtils, addStyle, log, pops, utils } from "@/env";
 import { CSDNBlogArticle } from "@/main/blog/CSDNBlogArticle";
-import { PopsPanel } from "@/setting/setting";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { M_CSDNBlogArticleRightToolBar } from "./m-CSDNBlogArticleRightToolBar";
 import {
 	CSDNFavoriteApi,
 	type CSDNFavoriteDataOption,
 } from "@/api/CSDNFavoriteApi";
 import { CSDNArticleStatusApi } from "@/api/CSDNArticleStatusApi";
-import { PanelUISize } from "@/setting/panel-ui-size";
 import { unsafeWindow } from "ViteGM";
 import { CSDNBlog } from "@/main/blog/CSDNBlog";
+import Qmsg from "qmsg";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 
 export const M_CSDNBlogArticle = {
 	init() {
 		// M_CSDNBlogRightToolBar.init();
-		PopsPanel.execMenuOnce(
+		Panel.exec(
 			"m-csdn-blog-shieldTopToolbar",
 			() => {
 				return this.shieldTopToolbar();
 			},
-			(_, value) => !value,
-			(_, value) => !value
+			(keyList) => {
+				return !Panel.getValue(keyList[0]);
+			},
+			true
 		);
-		PopsPanel.execMenuOnce("m-csdn-blog-notLimitCodePreMaxHeight", () => {
+		Panel.execMenuOnce("m-csdn-blog-notLimitCodePreMaxHeight", () => {
 			return this.notLimitCodePreMaxHeight();
 		});
-		PopsPanel.execMenuOnce("m-csdn-blog-notLimitCommentMaxHeight", () => {
+		Panel.execMenuOnce("m-csdn-blog-notLimitCommentMaxHeight", () => {
 			return this.notLimitCommentMaxHeight();
 		});
-		PopsPanel.execMenuOnce("m-csdn-blog-allowSelectText", () => {
+		Panel.execMenuOnce("m-csdn-blog-allowSelectText", () => {
 			return this.allowSelectText();
 		});
-		PopsPanel.execMenuOnce("m-csdn-blog-autoExpandContent", () => {
+		Panel.execMenuOnce("m-csdn-blog-autoExpandContent", () => {
 			return this.autoExpandContent();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.exec(
 			"m-csdn-blog-bottomArticleEnable",
 			() => {
 				return this.blockBottomArticle();
 			},
-			(_, value) => !value,
-			(_, value) => !value
+			(keyList) => {
+				return !Panel.getValue(keyList[0]);
+			},
+			true
 		);
-		PopsPanel.execMenuOnce(
+		Panel.exec(
 			"m-csdn-blog-comment-enable",
 			() => {
 				return this.blockComment();
 			},
-			(_, value) => !value,
-			(_, value) => !value
+			(keyList) => {
+				return !Panel.getValue(keyList[0]);
+			},
+			true
 		);
-		PopsPanel.execMenuOnce(
+		Panel.exec(
 			"m-csdn-blog-bottom-toolbar-enable",
 			() => {
 				return this.blockBottomToolBar();
 			},
-			(_, value) => !value,
-			(_, value) => !value
+			(keyList) => {
+				return !Panel.getValue(keyList[0]);
+			},
+			true
 		);
-		PopsPanel.execMenuOnce("m-csdn-blog-bottom-toolbar-always-bottom", () => {
+		Panel.execMenuOnce("m-csdn-blog-bottom-toolbar-always-bottom", () => {
 			return this.bottomToolBarAlwaysShow();
 		});
 
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("m-csdn-blog-removeAds", () => {
+			Panel.execMenuOnce("m-csdn-blog-removeAds", () => {
 				return this.removeAds();
 			});
-			PopsPanel.execMenuOnce("m-csdn-blog-refactoringRecommendation", () => {
+			Panel.execMenuOnce("m-csdn-blog-refactoringRecommendation", () => {
 				this.refactoringRecommendation();
 			});
-			PopsPanel.execMenuOnce("m-csdn-blog-unBlockCopy", () => {
+			Panel.execMenuOnce("m-csdn-blog-unBlockCopy", () => {
 				CSDNBlog.unBlockCopy();
 			});
-			PopsPanel.execMenuOnce(
+			Panel.execMenuOnce(
 				"m-csdn-blog-bottom-toolbar-optimizationCollectButton",
 				() => {
 					this.optimizationCollectButton();
@@ -173,7 +182,7 @@ export const M_CSDNBlogArticle = {
 					item.setAttribute("data-url", url);
 					item.innerHTML = `<div class="GM-csdn-title"><div class="left">${title}</div></div><div class="GM-csdn-content">${content}</div><div class="GM-csdn-img">${img}</div>`;
 					item.addEventListener("click", function () {
-						if (PopsPanel.getValue("m-csdn-blog-openNewTab")) {
+						if (Panel.getValue("m-csdn-blog-openNewTab")) {
 							window.open(url, "_blank");
 						} else {
 							window.location.href = url;
@@ -181,7 +190,7 @@ export const M_CSDNBlogArticle = {
 					});
 					if (
 						(isCSDNDownload || isCSDNEduDownload) &&
-						PopsPanel.getValue("m-csdn-blog-removeResourceArticle")
+						Panel.getValue("m-csdn-blog-removeResourceArticle")
 					) {
 						item.remove();
 					}
@@ -377,27 +386,23 @@ export const M_CSDNBlogArticle = {
 
 							// 点击进行收藏/取消收藏
 							DOMUtils.on($collectBtn, "click", async (event) => {
-								// @ts-ignore
 								let articleDetailUrl = unsafeWindow.articleDetailUrl;
 								if (articleDetailUrl == null) {
 									articleDetailUrl =
 										window.location.origin + window.location.pathname;
 								}
-								// @ts-ignore
 								let articleId = unsafeWindow.articleId;
 								if (articleId == null) {
 									log.error("获取文章ID失败");
 									Qmsg.error("获取文章ID失败");
 									return;
 								}
-								// @ts-ignore
 								let username = unsafeWindow.username;
 								if (username == null) {
 									log.error("获取文章作者失败");
 									Qmsg.error("获取文章作者失败");
 									return;
 								}
-								// @ts-ignore
 								let articleTitle = unsafeWindow.articleTitle;
 								if (articleTitle == null) {
 									articleTitle = document.title.replace(/-CSDN博客$/, "");
@@ -407,7 +412,6 @@ export const M_CSDNBlogArticle = {
 									Qmsg.error("获取文章标题失败");
 									return;
 								}
-								// @ts-ignore
 								let articleDesc = unsafeWindow.articleDesc;
 								if (articleDesc == null) {
 									let $meta = $("meta[name='description']");

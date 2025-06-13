@@ -1,13 +1,13 @@
 import { addStyle, log } from "@/env";
 import CSDNBlockCSS from "./block.css?raw";
-import { PopsPanel } from "@/setting/setting";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 export const M_CSDNDownload = {
 	init() {
-		PopsPanel.execMenuOnce("m-csdn-download-removeAds", () => {
+		Panel.execMenuOnce("m-csdn-download-removeAds", () => {
 			return addStyle(CSDNBlockCSS);
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"m-csdn-download-automaticallyExpandResourceIntroduction",
 			() => {
 				return this.automaticallyExpandResourceIntroduction();

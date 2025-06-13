@@ -1,9 +1,9 @@
 import { CSDNSoCKnow } from "@/main/so/cknow/CSDNSoCKnow";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 
 const M_CSDNSoCKnow = {
     init() {
-        PopsPanel.execMenu('m-csdn-so-cknow-removeMaskCover', () => {
+        Panel.execMenu('m-csdn-so-cknow-removeMaskCover', () => {
             CSDNSoCKnow.removeMaskCover();
         });
     }

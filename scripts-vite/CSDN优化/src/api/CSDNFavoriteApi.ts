@@ -1,5 +1,6 @@
-import { httpx, log, Qmsg, utils } from "@/env";
+import { httpx, log, utils } from "@/env";
 import { ApiResponseCheck } from "./ApiResponseCheck";
+import Qmsg from "qmsg";
 
 export type CSDNFavoriteDataOption = {
 	IsDefault: number;
@@ -37,19 +38,25 @@ export const CSDNFavoriteApi = {
 			}
 		);
 		log.info(response);
+		let data = utils.toJSON<{
+			data: {
+				result: CSDNFavoriteDataOption[];
+			};
+			msg: null | string;
+			code: number;
+		}>(response.data.responseText);
 		if (
 			!response.status ||
 			!ApiResponseCheck.isSuccessResponse(response.data.responseText)
 		) {
 			log.error("获取收藏夹信息失败，请求异常");
-			Qmsg.error("获取收藏夹信息失败");
+			if (typeof data.msg === "string") {
+				Qmsg.error(data.msg);
+			} else {
+				Qmsg.error("获取收藏夹信息失败");
+			}
 			return;
 		}
-		let data = utils.toJSON(response.data.responseText) as {
-			data: {
-				result: CSDNFavoriteDataOption[];
-			};
-		};
 
 		return data.data.result;
 	},

@@ -24,6 +24,8 @@ div.csdn-side-toolbar .activity-swiper-box,
 /* 右下角的登录提示 */
 .passport-login-tip-container,
 /* 全屏双十一红包 */
-.csdn-reapck-select {
+.csdn-reapck-select,
+/* 侧栏的618会员开通 */
+.csdn-side-toolbar  .sidecolumn-vip {
 	display: none !important;
 }

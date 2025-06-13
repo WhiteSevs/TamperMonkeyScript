@@ -1,36 +1,36 @@
 import { addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import ShieldCSS from "./css/shield.css?raw";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const CSDNHuaWeiCloud = {
 	init() {
 		addStyle(ShieldCSS);
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"csdn-hua-wei-cloud-shieldCloudDeveloperTaskChallengeEvent",
 			() => {
 				return this.shieldCloudDeveloperTaskChallengeEvent();
 			}
 		);
-		PopsPanel.execMenuOnce("csdn-hua-wei-cloud-autoExpandContent", () => {
+		Panel.execMenuOnce("csdn-hua-wei-cloud-autoExpandContent", () => {
 			return this.autoExpandContent();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"csdn-hua-wei-cloud-shieldLeftFloatingButton",
 			() => {
 				return this.shieldLeftFloatingButton();
 			}
 		);
-		PopsPanel.execMenuOnce("csdn-hua-wei-cloud-blockRightColumn", () => {
+		Panel.execMenuOnce("csdn-hua-wei-cloud-blockRightColumn", () => {
 			return this.blockRightColumn();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"csdn-hua-wei-cloud-blockRecommendedContentAtTheBottom",
 			() => {
 				return this.blockRecommendedContentAtTheBottom();
 			}
 		);
-		PopsPanel.execMenuOnce(
+		Panel.execMenuOnce(
 			"csdn-hua-wei-cloud-shieldTheBottomForMoreRecommendations",
 			() => {
 				return this.shieldTheBottomForMoreRecommendations();

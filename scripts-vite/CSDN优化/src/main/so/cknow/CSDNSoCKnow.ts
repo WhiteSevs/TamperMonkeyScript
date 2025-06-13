@@ -1,12 +1,12 @@
 import ShieldCSS from "./css/shield.css?raw";
 import { addStyle, log } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 
 export const CSDNSoCKnow = {
 	init() {
 		addStyle(ShieldCSS);
 		log.info("添加屏蔽CSS");
-		PopsPanel.execMenuOnce("csdn-so-cknow-removeMaskCover", () => {
+		Panel.execMenuOnce("csdn-so-cknow-removeMaskCover", () => {
 			return this.removeMaskCover();
 		});
 	},

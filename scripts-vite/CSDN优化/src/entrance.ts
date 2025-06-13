@@ -1,10 +1,82 @@
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import { CSDN } from "./main/CSDN";
-import { GM_Menu, Qmsg, log, utils } from "./env";
+import { GM_Menu, log, utils } from "./env";
 import { M_CSDN } from "./m-main/m-CSDN";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
+import Qmsg from "qmsg";
+import { PanelContent } from "@components/setting/panel-content";
+import { PanelMenu } from "@components/setting/panel-menu";
+import { SettingUICommon } from "./setting/view/PanelCommon";
+import { SettingUIBlog } from "./setting/view/PanelBlog";
+import { SettingUILink } from "./setting/view/PanelLink";
+import { SettingUIHuaWeiCloud } from "./setting/view/PanelHuaWeiCloud";
+import { SettingUIWenKu } from "./setting/view/PanelWenKu";
+import { SettingUISo } from "./setting/view/PanelSo";
+import { MSettingUICommon } from "./setting/m-view/MPanelCommon";
+import { MSettingUIBlog } from "./setting/m-view/MPanelBlog";
+import { MSettingUILink } from "./setting/m-view/MPanelLink";
+import { MSettingUIHuaWeiCloud } from "./setting/m-view/MPanelHuaWeiCloud";
+import { MSettingUIWenKu } from "./setting/m-view/MPanelWenKu";
+import { MSettingUISo } from "./setting/m-view/MPanelSo";
+import { MSettingUIDownload } from "./setting/m-view/MPanelDownload";
 
-PopsPanel.init();
+PanelMenu.deleteMenuOption(0);
+PanelMenu.addMenuOption([
+	{
+		key: "show_pops_panel_setting",
+		text: "⚙ PC端设置",
+		autoReload: false,
+		isStoreValue: false,
+		showText(text: string) {
+			return text;
+		},
+		callback: () => {
+			Panel.showPanel(PanelContent.getConfig(0));
+		},
+	},
+	{
+		key: "m_show_pops_panel_setting",
+		text: "⚙ 移动端端设置",
+		autoReload: false,
+		isStoreValue: false,
+		showText(text: string) {
+			return text;
+		},
+		callback: () => {
+			Panel.showPanel(PanelContent.getConfig(1));
+		},
+	},
+	{
+		key: "gotoCSDNCKnow",
+		text: "⚙ 前往C知道",
+		isStoreValue: false,
+		autoReload: false,
+		showText(text: string) {
+			return text;
+		},
+		callback() {
+			window.open("https://so.csdn.net/chat", "_blank");
+		},
+	},
+]);
+PanelContent.addContentConfig([
+	SettingUICommon,
+	SettingUIBlog,
+	SettingUILink,
+	SettingUIHuaWeiCloud,
+	SettingUIWenKu,
+	SettingUISo,
+]);
+PanelContent.addContentConfig([
+	MSettingUICommon,
+	MSettingUIBlog,
+	MSettingUILink,
+	MSettingUIHuaWeiCloud,
+	MSettingUIWenKu,
+	MSettingUISo,
+	MSettingUIDownload,
+]);
+Panel.init();
 
 let isMobile = utils.isPhone();
 let CHANGE_ENV_SET_KEY = "change_env_set";

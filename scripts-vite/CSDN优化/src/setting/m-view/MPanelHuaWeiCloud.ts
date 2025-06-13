@@ -1,5 +1,5 @@
 import { CSDNRouter } from "@/router/CSDNRouter";
-import { UISwitch } from "@/setting/common-components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 
 const MSettingUIHuaWeiCloud: PopsPanelContentConfig = {

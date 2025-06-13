@@ -1,12 +1,12 @@
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import ShieldCSS from "./css/shield.css?raw";
 import { addStyle, log } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const M_CSDNWenKu = {
 	init() {
 		addStyle(ShieldCSS);
-		PopsPanel.execMenuOnce("m-csdn-wenku-shieldBottomToolbar", () => {
+		Panel.execMenuOnce("m-csdn-wenku-shieldBottomToolbar", () => {
 			return this.shieldBottomToolbar();
 		});
 	},

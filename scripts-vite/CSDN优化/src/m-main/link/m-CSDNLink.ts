@@ -1,9 +1,9 @@
 import { CSDNLink } from "@/main/link/CSDNLink";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 
 export const M_CSDNLink = {
 	init() {
-		PopsPanel.execMenuOnce("m-csdn-link-jumpRedirect", () => {
+		Panel.execMenuOnce("m-csdn-link-jumpRedirect", () => {
 			CSDNLink.jumpRedirect();
 		});
 	},

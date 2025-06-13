@@ -3,21 +3,21 @@ import { CSDNBlogArticle } from "./CSDNBlogArticle";
 import { $$, addStyle, DOMUtils, log, utils } from "@/env";
 import BlogShieldCSS from "./css/shield.css?raw";
 import BlogCSS from "./css/CSDNBlog.css?raw";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import { unsafeWindow } from "ViteGM";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const CSDNBlog = {
 	init() {
 		this.addCSS();
-		PopsPanel.execMenuOnce("csdn-blog-shieldTopToolbar", () => {
+		Panel.execMenuOnce("csdn-blog-shieldTopToolbar", () => {
 			return this.shieldTopToolbar();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("csdn-blog-removeClipboardHijacking", () => {
+			Panel.execMenuOnce("csdn-blog-removeClipboardHijacking", () => {
 				this.removeClipboardHijacking();
 			});
-			PopsPanel.execMenuOnce("csdn-blog-unBlockCopy", () => {
+			Panel.execMenuOnce("csdn-blog-unBlockCopy", () => {
 				this.unBlockCopy();
 			});
 		});

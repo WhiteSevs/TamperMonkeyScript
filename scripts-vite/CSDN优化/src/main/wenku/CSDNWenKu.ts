@@ -1,20 +1,20 @@
 import WenkuCSS from "./css/wenku.css?raw";
 import ShieldCSS from "./css/shield.css?raw";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import { addStyle, log } from "@/env";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const CSDNWenKu = {
 	init() {
 		addStyle(WenkuCSS);
 		addStyle(ShieldCSS);
-		PopsPanel.execMenuOnce("csdn-wenku-shieldResourceRecommend", () => {
+		Panel.execMenuOnce("csdn-wenku-shieldResourceRecommend", () => {
 			return this.shieldResourceRecommend();
 		});
-		PopsPanel.execMenuOnce("csdn-wenku-shieldRightUserInfo", () => {
+		Panel.execMenuOnce("csdn-wenku-shieldRightUserInfo", () => {
 			return this.shieldRightUserInfo();
 		});
-		PopsPanel.execMenuOnce("csdn-wenku-shieldRightToolBar", () => {
+		Panel.execMenuOnce("csdn-wenku-shieldRightToolBar", () => {
 			return this.shieldRightToolBar();
 		});
 	},

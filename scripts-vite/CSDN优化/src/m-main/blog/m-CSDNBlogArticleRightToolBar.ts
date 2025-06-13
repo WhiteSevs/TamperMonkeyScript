@@ -1,14 +1,14 @@
 import { DOMUtils, log } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 
 export const M_CSDNBlogArticleRightToolBar = {
 	init() {
 		DOMUtils.ready(() => {
 			let $toolbar = this.createRightToolBar();
-			PopsPanel.execMenuOnce("m-csdn-blog-right-toolbar-like", () => {
+			Panel.execMenuOnce("m-csdn-blog-right-toolbar-like", () => {
 				this.addLike($toolbar);
 			});
-			PopsPanel.execMenuOnce("m-csdn-blog-right-toolbar-bury", () => {
+			Panel.execMenuOnce("m-csdn-blog-right-toolbar-bury", () => {
 				this.addBury($toolbar);
 			});
 		});

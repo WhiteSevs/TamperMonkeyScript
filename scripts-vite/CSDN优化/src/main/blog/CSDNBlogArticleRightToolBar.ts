@@ -1,42 +1,38 @@
 import { $, DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 const CSDNBlogArticleRightToolBar = {
 	init() {
-		PopsPanel.execMenuOnce(
+		Panel.exec(
 			"csdn-blog-rightToolbarEnable",
 			() => {
 				return this.shieldRightToolbar();
 			},
-			(_, value) => {
-				return !value;
-			},
-			(_, newValue) => {
-				return !newValue;
-			}
+			(keyList) => !Panel.getValue(keyList[0]),
+			true
 		);
-		PopsPanel.execMenuOnce("csdn-blog-rightToolbarCreativeCenter", () => {
+		Panel.execMenuOnce("csdn-blog-rightToolbarCreativeCenter", () => {
 			return this.shieldCreativeCenter();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-rightToolbarShowOrSidebar", () => {
+		Panel.execMenuOnce("csdn-blog-rightToolbarShowOrSidebar", () => {
 			return this.shieldShowOrSidebar();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-rightToolbarBeginnerGuidance", () => {
+		Panel.execMenuOnce("csdn-blog-rightToolbarBeginnerGuidance", () => {
 			return this.shieldBeginnerGuidance();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-rightToolbarCustomerService", () => {
+		Panel.execMenuOnce("csdn-blog-rightToolbarCustomerService", () => {
 			return this.shieldCustomerService();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-rightToolbarReport", () => {
+		Panel.execMenuOnce("csdn-blog-rightToolbarReport", () => {
 			return this.shieldReport();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-rightToolbarBackToTop", () => {
+		Panel.execMenuOnce("csdn-blog-rightToolbarBackToTop", () => {
 			return this.shieldBackToTop();
 		});
 		this.initRightToolbarOffset();
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("csdn-blog-addGotoRecommandButton", () => {
+			Panel.execMenuOnce("csdn-blog-addGotoRecommandButton", () => {
 				this.addGotoRecommandButton();
 			});
 		});
@@ -107,10 +103,9 @@ const CSDNBlogArticleRightToolBar = {
 			.then(($sideToolbar) => {
 				DOMUtils.css($sideToolbar, {
 					top:
-						parseInt(PopsPanel.getValue("csdn-blog-rightToolbarTopOffset")) +
-						"px",
+						parseInt(Panel.getValue("csdn-blog-rightToolbarTopOffset")) + "px",
 					right:
-						parseInt(PopsPanel.getValue("csdn-blog-rightToolbarRightOffset")) +
+						parseInt(Panel.getValue("csdn-blog-rightToolbarRightOffset")) +
 						"px",
 				});
 			});

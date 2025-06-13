@@ -1,9 +1,10 @@
-import { log, Qmsg } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { log } from "@/env";
+import { Panel } from "@components/setting/panel";
+import Qmsg from "qmsg";
 
 export const CSDNLink = {
 	init() {
-		PopsPanel.execMenuOnce("csdn-link-jumpRedirect", () => {
+		Panel.execMenuOnce("csdn-link-jumpRedirect", () => {
 			this.jumpRedirect();
 		});
 	},

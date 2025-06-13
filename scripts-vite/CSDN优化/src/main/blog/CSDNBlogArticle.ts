@@ -1,75 +1,67 @@
 import BlogArticleCenterCSS from "./css/articleCenter.css?raw";
 import { DOMUtils, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import { unsafeWindow } from "ViteGM";
 import { CSDNBlogRightToolBar } from "./CSDNBlogArticleRightToolBar";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const CSDNBlogArticle = {
 	init() {
 		CSDNBlogRightToolBar.init();
-		PopsPanel.execMenuOnce("csdn-blog-articleCenter", () => {
+		Panel.execMenuOnce("csdn-blog-articleCenter", () => {
 			return this.articleCenter();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-shieldLoginDialog", () => {
+		Panel.execMenuOnce("csdn-blog-shieldLoginDialog", () => {
 			return this.shieldLoginDialog();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-autoExpandContent", () => {
+		Panel.execMenuOnce("csdn-blog-autoExpandContent", () => {
 			return this.autoExpandContent();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-autoExpandCodeContent", () => {
+		Panel.execMenuOnce("csdn-blog-autoExpandCodeContent", () => {
 			return this.autoExpandCodeContent();
 		});
-		PopsPanel.execMenuOnce(
+		Panel.exec(
 			"csdn-blog-blockComment",
 			() => {
 				return this.blockComment();
 			},
-			(_, value) => {
-				return !value;
-			},
-			(_, newValue) => {
-				return !newValue;
-			}
+			(keyList) => !Panel.getValue(keyList[0]),
+			true
 		);
-		PopsPanel.execMenuOnce(
+		Panel.exec(
 			"csdn-blog-bottomRecommendArticleEnable",
 			() => {
 				return this.shieldBottomRecommendArticle();
 			},
-			(_, value) => {
-				return !value;
-			},
-			(_, newValue) => {
-				return !newValue;
-			}
+			(keyList) => !Panel.getValue(keyList[0]),
+			true
 		);
-		PopsPanel.execMenuOnce("csdn-blog-shieldBottomSkillTree", () => {
+		Panel.execMenuOnce("csdn-blog-shieldBottomSkillTree", () => {
 			return this.shieldBottomSkillTree();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-shieldBottomFloatingToolbar", () => {
+		Panel.execMenuOnce("csdn-blog-shieldBottomFloatingToolbar", () => {
 			return this.shieldBottomFloatingToolbar();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-shieldLeftBlogContainerAside", () => {
+		Panel.execMenuOnce("csdn-blog-shieldLeftBlogContainerAside", () => {
 			return this.shieldLeftBlogContainerAside();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-shieldRightDirectoryInformation", () => {
+		Panel.execMenuOnce("csdn-blog-shieldRightDirectoryInformation", () => {
 			return this.shieldRightDirectoryInformation();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-shieldArticleSearchTip", () => {
+		Panel.execMenuOnce("csdn-blog-shieldArticleSearchTip", () => {
 			return this.shieldArticleSearchTip();
 		});
-		PopsPanel.execMenuOnce("csdn-blog-allowSelectContent", () => {
+		Panel.execMenuOnce("csdn-blog-allowSelectContent", () => {
 			return this.allowSelectContent();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("csdn-blog-identityCSDNDownload", () => {
+			Panel.execMenuOnce("csdn-blog-identityCSDNDownload", () => {
 				this.identityCSDNDownload();
 			});
-			PopsPanel.execMenuOnce("csdn-blog-clickPreCodeAutomatically", () => {
+			Panel.execMenuOnce("csdn-blog-clickPreCodeAutomatically", () => {
 				this.clickPreCodeAutomatically();
 			});
-			PopsPanel.execMenuOnce("csdn-blog-restoreComments", () => {
+			Panel.execMenuOnce("csdn-blog-restoreComments", () => {
 				this.restoreComments();
 			});
 		});
@@ -125,7 +117,7 @@ export const CSDNBlogArticle = {
 				".recommend-item-box[data-url*='https://download.csdn.net/']"
 			)
 			.forEach((item) => {
-				if (PopsPanel.getValue("csdn-blog-removeResourceDownloadArticle")) {
+				if (Panel.getValue("csdn-blog-removeResourceDownloadArticle")) {
 					item.remove();
 				} else {
 					(
