@@ -14,7 +14,7 @@ let userConfig = await GenerateUserConfig({
 			// GM_xmlhttpRequest允许访问的域
 			connect: ["*"],
 			// 脚本描述
-			description: "demo description",
+			description: "demo_description",
 			// 脚本图标
 			icon: "https://avatars.githubusercontent.com/u/50544447?s=64&v=4",
 			// 脚本运行域
