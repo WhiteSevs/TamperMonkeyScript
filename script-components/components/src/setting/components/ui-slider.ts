@@ -5,7 +5,10 @@ import {
 	PROPS_STORAGE_API,
 } from "../panel-config";
 import { Panel } from "../panel";
-import { PanelComponents } from "../panel-components";
+import {
+	PanelComponents,
+	type PanelComponentsStorageApiValue,
+} from "../panel-components";
 
 /**
  * 获取checkbox按钮配置
@@ -14,7 +17,7 @@ import { PanelComponents } from "../panel-components";
  * @param defaultValue 默认值
  * @param min 最小值
  * @param max 最大值
- * @param changeCallBack （可选）点击回调
+ * @param changeCallback （可选）点击回调，如果返回true，则阻止默认行为（存储值）
  * @param getToolTipContent （可选）获取tooltip内容
  * @param description （可选）左边的文字下面的描述
  * @param step （可选）间隔
@@ -25,9 +28,9 @@ export const UISlider = function (
 	defaultValue: number,
 	min: number,
 	max: number,
-	changeCallBack?:
+	changeCallback?:
 		| ((event: InputEvent, value: number) => boolean | void)
-		| void,
+		| undefined,
 	getToolTipContent?: (value: number) => string,
 	description?: string | undefined,
 	step?: number
@@ -39,7 +42,10 @@ export const UISlider = function (
 		attributes: {},
 		props: {},
 		getValue() {
-			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
+			let storageApiValue = this.props![
+				PROPS_STORAGE_API as keyof typeof this.props
+			] as PanelComponentsStorageApiValue;
+			return storageApiValue.get(key, defaultValue);
 		},
 		getToolTipContent(value) {
 			if (typeof getToolTipContent === "function") {
@@ -49,12 +55,16 @@ export const UISlider = function (
 			}
 		},
 		callback(event, value) {
-			if (typeof changeCallBack === "function") {
-				if (changeCallBack(event, value)) {
+			if (typeof changeCallback === "function") {
+				let result = changeCallback(event, value);
+				if (result) {
 					return;
 				}
 			}
-			(this.props as any)[PROPS_STORAGE_API].set(key, value);
+			let storageApiValue = this.props![
+				PROPS_STORAGE_API as keyof typeof this.props
+			] as PanelComponentsStorageApiValue;
+			storageApiValue.set(key, value);
 		},
 		min: min,
 		max: max,
@@ -64,7 +74,7 @@ export const UISlider = function (
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-	PanelComponents.setComponentsStorageApiProperty(
+	PanelComponents.initComponentsStorageApi(
 		"slider",
 		result as Required<PopsPanelSliderDetails>,
 		{

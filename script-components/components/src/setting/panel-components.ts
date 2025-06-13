@@ -24,6 +24,11 @@ export type PanelComponentsStorageApiValue = {
 	 */
 	set(key: string, value: any): void;
 };
+export type PanelComponentsConfig = {
+	props: {
+		[key: string]: any;
+	};
+};
 export const PanelComponents = {
 	$data: {
 		__storeApiFn: null as null | UtilsDictionary<
@@ -66,14 +71,15 @@ export const PanelComponents = {
 		this.$data.storeApiValue.set(type, storageApiValue);
 	},
 	/**
-	 * 设置组件的存储接口属性
+	 * 初始化组件的存储接口属性
+	 *
 	 * @param type 组件类型
 	 * @param config 组件配置，必须包含prop属性
 	 * @param storageApiValue 存储接口
 	 */
-	setComponentsStorageApiProperty(
+	initComponentsStorageApi(
 		type: PanelComponentsType,
-		config: { props: any },
+		config: PanelComponentsConfig,
 		storageApiValue: PanelComponentsStorageApiValue
 	) {
 		let propsStorageApi: PanelComponentsStorageApiValue;
@@ -82,6 +88,17 @@ export const PanelComponents = {
 		} else {
 			propsStorageApi = storageApiValue;
 		}
-		Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+		this.setComponentsStorageApiProperty(config, propsStorageApi);
+	},
+	/**
+	 * 设置组件的存储接口属性
+	 * @param config 组件配置，必须包含prop属性
+	 * @param storageApiValue 存储接口
+	 */
+	setComponentsStorageApiProperty(
+		config: PanelComponentsConfig,
+		storageApiValue: PanelComponentsStorageApiValue
+	) {
+		Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
 	},
 };

@@ -13,7 +13,11 @@ import { ATTRIBUTE_INIT } from "../panel-config";
 export const UIOwn = function (
 	getLiElementCallBack: (liElement: HTMLLIElement) => HTMLLIElement,
 	initConfig?: { [key: string]: any },
-	props?: HTMLElement | undefined,
+	props?:
+		| {
+				[K in keyof HTMLElement]?: HTMLElement[K];
+		  }
+		| undefined,
 	afterAddToUListCallBack?:
 		| ((
 				formConfig: PopsPanelFormsTotalDetails,

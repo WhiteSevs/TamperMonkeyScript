@@ -5,7 +5,10 @@ import {
 	PROPS_STORAGE_API,
 } from "../panel-config";
 import { Panel } from "../panel";
-import { PanelComponents } from "../panel-components";
+import {
+	PanelComponents,
+	type PanelComponentsStorageApiValue,
+} from "../panel-components";
 
 /**
  * 获取多行输入框配置
@@ -13,7 +16,7 @@ import { PanelComponents } from "../panel-components";
  * @param key 键
  * @param defaultValue 默认值
  * @param description （可选）左边的文字下面的描述
- * @param changeCallBack （可选）输入框内容改变时的回调
+ * @param changeCallback （可选）输入框内容改变时的回调，如果返回true，则阻止默认行为（存储值）
  * @param placeholder （可选）输入框的默认提示内容，默认为空
  * @param disabled （可选）是否禁用
  */
@@ -22,7 +25,9 @@ export const UITextArea = function (
 	key: string,
 	defaultValue: string,
 	description?: string,
-	changeCallBack?: (event: InputEvent, value: string) => void | boolean,
+	changeCallback?:
+		| ((event: InputEvent, value: string) => void | boolean)
+		| undefined,
 	placeholder: string = "",
 	disabled?: boolean
 ) {
@@ -35,7 +40,11 @@ export const UITextArea = function (
 		placeholder: placeholder,
 		disabled: disabled,
 		getValue() {
-			let value = (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
+			let storageApiValue = this.props![
+				PROPS_STORAGE_API as keyof typeof this.props
+			] as PanelComponentsStorageApiValue;
+			let value = storageApiValue.get(key, defaultValue);
+
 			if (Array.isArray(value)) {
 				// 处理数组的情况
 				// 一般是换行合并
@@ -44,19 +53,23 @@ export const UITextArea = function (
 			return value;
 		},
 		callback(event, value) {
-			if (typeof changeCallBack === "function") {
-				if (changeCallBack(event, value)) {
+			if (typeof changeCallback === "function") {
+				let result = changeCallback(event, value);
+				if (result) {
 					return;
 				}
 			}
-			(this.props as any)[PROPS_STORAGE_API].set(key, value);
+			let storageApiValue = this.props![
+				PROPS_STORAGE_API as keyof typeof this.props
+			] as PanelComponentsStorageApiValue;
+			storageApiValue.set(key, value);
 		},
 	};
 
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-	PanelComponents.setComponentsStorageApiProperty(
+	PanelComponents.initComponentsStorageApi(
 		"switch",
 		result as Required<PopsPanelTextAreaDetails>,
 		{

@@ -18,7 +18,7 @@ import {
  * @param key 键
  * @param defaultValue 默认值
  * @param data 下拉列表的数据
- * @param callback （可选）选择列表的某一项的回调
+ * @param changeCallback （可选）选择列表的某一项的回调，如果返回true，则阻止默认行为（存储值）
  * @param description （可选）左边的文字下面的描述
  * @param selectConfirmDialogDetails （可选）弹窗配置
  */
@@ -29,7 +29,11 @@ export const UISelectMultiple = function <T>(
 	data:
 		| PopsPanelSelectMultipleDetails<T>["data"]
 		| (() => PopsPanelSelectMultipleDetails<T>["data"]),
-	callback?: (selectInfo: PopsPanelSelectMultipleDetails<T>["data"]) => void,
+	changeCallback?:
+		| ((
+				selectInfo: PopsPanelSelectMultipleDetails<T>["data"]
+		  ) => void | boolean)
+		| undefined,
 	description?: string,
 	placeholder = "请至少选择一个选项",
 	selectConfirmDialogDetails?: Partial<PopsAlertDetails>
@@ -48,19 +52,29 @@ export const UISelectMultiple = function <T>(
 		attributes: {},
 		props: {},
 		getValue() {
-			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
+			let storageApiValue = this.props![
+				PROPS_STORAGE_API as keyof typeof this.props
+			] as PanelComponentsStorageApiValue;
+			return storageApiValue.get(key, defaultValue);
 		},
 		selectConfirmDialogDetails: selectConfirmDialogDetails,
 		callback(selectInfo) {
+			let storageApiValue = this.props![
+				PROPS_STORAGE_API as keyof typeof this.props
+			] as PanelComponentsStorageApiValue;
 			let value: T[] = [];
 			selectInfo.forEach((selectedInfo) => {
 				value.push(selectedInfo.value);
 			});
-			(this.props as any)[PROPS_STORAGE_API].set(key, value);
 			log.info(`多选-选择：`, value);
-			if (typeof callback === "function") {
-				callback(selectInfo);
+
+			if (typeof changeCallback === "function") {
+				let result = changeCallback(selectInfo);
+				if (result) {
+					return;
+				}
 			}
+			storageApiValue.set(key, value);
 		},
 		data: selectData,
 	};
@@ -68,7 +82,7 @@ export const UISelectMultiple = function <T>(
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-	PanelComponents.setComponentsStorageApiProperty(
+	PanelComponents.initComponentsStorageApi(
 		"select-multiple",
 		result as Required<PopsPanelSelectMultipleDetails<T>>,
 		{

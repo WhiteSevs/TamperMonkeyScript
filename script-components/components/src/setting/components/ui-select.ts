@@ -6,7 +6,10 @@ import {
 } from "../panel-config";
 import { log } from "../../base.env";
 import { Panel } from "../panel";
-import { PanelComponents } from "../panel-components";
+import {
+	PanelComponents,
+	type PanelComponentsStorageApiValue,
+} from "../panel-components";
 
 /**
  * 下拉列表
@@ -14,7 +17,7 @@ import { PanelComponents } from "../panel-components";
  * @param key 键
  * @param defaultValue 默认值
  * @param data 下拉列表的数据
- * @param callback （可选）选择列表的某一项的回调
+ * @param changeCallback （可选）选择列表的某一项的回调，如果返回true，则阻止默认行为（存储值）
  * @param description （可选）左边的文字下面的描述
  */
 export const UISelect = function <T extends any>(
@@ -32,11 +35,13 @@ export const UISelect = function <T extends any>(
 				text: string;
 				disable?(value: T): boolean;
 		  }[]),
-	callback?: (
-		event: PointerEvent | TouchEvent,
-		isSelectedValue: T,
-		isSelectedText: string
-	) => void,
+	changeCallback?:
+		| ((
+				event: PointerEvent | TouchEvent,
+				isSelectedValue: T,
+				isSelectedText: string
+		  ) => void | boolean)
+		| undefined,
 	description?: string
 ): PopsPanelSelectDetails<T> {
 	let selectData: {
@@ -56,22 +61,32 @@ export const UISelect = function <T extends any>(
 		attributes: {},
 		props: {},
 		getValue() {
-			return (this.props as any)[PROPS_STORAGE_API].get(key, defaultValue);
+			let storageApiValue = this.props![
+				PROPS_STORAGE_API as keyof typeof this.props
+			] as PanelComponentsStorageApiValue;
+			return storageApiValue.get(key, defaultValue);
 		},
 		callback(event, isSelectedValue, isSelectedText) {
 			let value = isSelectedValue;
 			log.info(`选择：${isSelectedText}`);
-			(this.props as any)[PROPS_STORAGE_API].set(key, value);
-			if (typeof callback === "function") {
-				callback(event, value, isSelectedText);
+
+			if (typeof changeCallback === "function") {
+				let result = changeCallback(event, value, isSelectedText);
+				if (result) {
+					return;
+				}
 			}
+			let storageApiValue = this.props![
+				PROPS_STORAGE_API as keyof typeof this.props
+			] as PanelComponentsStorageApiValue;
+			storageApiValue.set(key, value);
 		},
 		data: selectData,
 	};
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-	PanelComponents.setComponentsStorageApiProperty(
+	PanelComponents.initComponentsStorageApi(
 		"select",
 		result as Required<PopsPanelSelectDetails<T>>,
 		{

@@ -8,14 +8,17 @@ import {
 	PROPS_STORAGE_API,
 } from "../panel-config";
 import { Panel } from "../panel";
-import { PanelComponents } from "../panel-components";
+import {
+	PanelComponents,
+	type PanelComponentsStorageApiValue,
+} from "../panel-components";
 
 /**
  * 获取checkbox按钮配置
  * @param text 文字
  * @param key 键
  * @param defaultValue 默认值
- * @param clickCallBack （可选）点击回调
+ * @param clickCallback （可选）点击回调，如果返回true，则阻止默认行为（存储值）
  * @param description （可选）左边的文字下面的描述，可以是html格式
  * @param afterAddToUListCallBack （可选）在添加到元素后触发该回调
  */
@@ -23,7 +26,7 @@ export const UISwitch = function (
 	text: string,
 	key: string,
 	defaultValue: boolean | undefined,
-	clickCallBack?:
+	clickCallback?:
 		| ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void)
 		| undefined,
 	description?: string | undefined,
@@ -41,19 +44,26 @@ export const UISwitch = function (
 		attributes: {},
 		props: {},
 		getValue() {
-			return Boolean(
-				(this.props as any)[PROPS_STORAGE_API].get(key, defaultValue)
-			);
+			let storageApiValue = this.props![
+				PROPS_STORAGE_API as keyof typeof this.props
+			] as PanelComponentsStorageApiValue;
+
+			return Boolean(storageApiValue.get(key, defaultValue));
 		},
 		callback(event: MouseEvent | PointerEvent, __value: boolean) {
 			let value = Boolean(__value);
 			log.success(`${value ? "开启" : "关闭"} ${text}`);
-			if (typeof clickCallBack === "function") {
-				if (clickCallBack(event, value)) {
+			if (typeof clickCallback === "function") {
+				let result = clickCallback(event, value);
+				if (result) {
 					return;
 				}
 			}
-			(this.props as any)[PROPS_STORAGE_API].set(key, value);
+
+			let storageApiValue = this.props![
+				PROPS_STORAGE_API as keyof typeof this.props
+			] as PanelComponentsStorageApiValue;
+			storageApiValue.set(key, value);
 		},
 		afterAddToUListCallBack: afterAddToUListCallBack,
 	};
@@ -61,7 +71,7 @@ export const UISwitch = function (
 	Reflect.set(result.attributes!, ATTRIBUTE_KEY, key);
 	Reflect.set(result.attributes!, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
 
-	PanelComponents.setComponentsStorageApiProperty(
+	PanelComponents.initComponentsStorageApi(
 		"switch",
 		result as Required<PopsPanelSwitchDetails>,
 		{
