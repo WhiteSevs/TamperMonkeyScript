@@ -27,6 +27,13 @@ type ReactWaitSetOption = {
 	 * @param target 目标元素
 	 */
 	set(reactInstance: any, target: HTMLElement): void;
+	/**
+	 * 当检测失败/超时触发该回调
+	 */
+	failWait?: (
+		/** 是否是检测超时 true超时，false未检测到vue实例 */
+		isTimeout: boolean
+	) => void;
 };
 
 export const ReactUtils = {
@@ -91,14 +98,23 @@ export const ReactUtils = {
 				.then(() => {
 					let target = getTarget();
 					if (target == null) {
+						if (typeof needSetOption.failWait === "function") {
+							needSetOption.failWait(true);
+						}
 						return;
 					}
 					let reactInstance = utils.getReactObj(target as HTMLElement);
 					if (reactInstance == null) {
+						if (typeof needSetOption.failWait === "function") {
+							needSetOption.failWait(false);
+						}
 						return;
 					}
 					let reactInstanceProp = reactInstance[propName];
 					if (reactInstanceProp == null) {
+						if (typeof needSetOption.failWait === "function") {
+							needSetOption.failWait(false);
+						}
 						return;
 					}
 					needSetOption.set(reactInstanceProp, target);
