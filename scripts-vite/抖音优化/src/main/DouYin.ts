@@ -81,23 +81,21 @@ export const DouYin = {
 	 * 移除ads
 	 */
 	removeAds() {
-		if (DouYinRouter.isIndex()) {
-			utils
-				.waitNode<HTMLElement>(
-					() =>
-						DOMUtils.selector<HTMLElement>(
-							'#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:contains("下载抖音精选|条条都是宝藏视频")'
-						),
-					10000
-				)
-				.then(($el) => {
-					if (!$el) {
-						return;
-					}
-					DOMUtils.remove($el);
-				});
-			// .basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')
-		}
+		utils
+			.waitNode<HTMLElement>(
+				() =>
+					DOMUtils.selector<HTMLElement>(
+						'#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:regexp("下载抖音精选|条条都是宝藏视频")'
+					),
+				10000
+			)
+			.then(($el) => {
+				if (!$el) {
+					return;
+				}
+				DOMUtils.remove($el);
+			});
+		// .basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')
 		return [addStyle(blockCSS)];
 	},
 	/**
