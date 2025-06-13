@@ -1,4 +1,4 @@
-const GreasyforkRouter = {
+export const GreasyforkRouter = {
 	/**
 	 * 主页
 	 *
@@ -173,5 +173,3 @@ const GreasyforkRouter = {
 		return window.location.pathname.startsWith("/vite/assets");
 	},
 };
-
-export { GreasyforkRouter };

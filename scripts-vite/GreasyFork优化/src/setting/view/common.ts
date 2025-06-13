@@ -1,20 +1,20 @@
 import Qmsg from "qmsg";
-import { UIButton } from "../components/ui-button";
-import { UIInput } from "../components/ui-input";
-import { UISwitch } from "../components/ui-switch";
-import { PopsPanel } from "../setting";
+import { UIButton } from "@components/setting/components/ui-button";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import { GreasyforkMenu } from "@/main/GreasyforkMenu";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import i18next from "i18next";
-import { UISelect } from "../components/ui-select";
+import { UISelect } from "@components/setting/components/ui-select";
 import { $$, DOMUtils, log, utils } from "@/env";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { UIButtonShortCut } from "../components/ui-button-shortcut";
+import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { GreasyforkShortCut } from "@/main/GreasyforkShortCut";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { GreasyforkRememberFormTextArea } from "@/main/GreasyforkRememberFormTextArea";
 import { PopsPanelUISetting } from "@/main/ui-setting/PopsPanelUISetting";
 import { GreasyforkScriptsFilter } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
+import { Panel } from "@components/setting/panel";
 
 export const SettingUICommon: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-account",
@@ -203,8 +203,8 @@ export const SettingUICommon: PopsPanelContentConfig = {
 									"default",
 									(event) => {
 										if (confirm(i18next.t("确定清空账号和密码？"))) {
-											PopsPanel.deleteValue("user");
-											PopsPanel.deleteValue("pwd");
+											Panel.deleteValue("user");
+											Panel.deleteValue("pwd");
 											Qmsg.success(i18next.t("已清空账号/密码"));
 											let $shadowRoot = (
 												event.target as HTMLInputElement
@@ -616,7 +616,7 @@ export const SettingUICommon: PopsPanelContentConfig = {
 									"primary",
 									(event) => {
 										if (!GreasyforkRouter.isUsers()) {
-											PopsPanel.setValue(
+											Panel.setValue(
 												"goto_updateSettingsAndSynchronize_scriptList",
 												true
 											);
@@ -650,7 +650,7 @@ export const SettingUICommon: PopsPanelContentConfig = {
 									"primary",
 									(event) => {
 										if (!GreasyforkRouter.isUsers()) {
-											PopsPanel.setValue(
+											Panel.setValue(
 												"goto_updateSettingsAndSynchronize_unlistedScriptList",
 												true
 											);
@@ -684,7 +684,7 @@ export const SettingUICommon: PopsPanelContentConfig = {
 									"primary",
 									(event) => {
 										if (!GreasyforkRouter.isUsers()) {
-											PopsPanel.setValue(
+											Panel.setValue(
 												"goto_updateSettingsAndSynchronize_libraryScriptList",
 												true
 											);

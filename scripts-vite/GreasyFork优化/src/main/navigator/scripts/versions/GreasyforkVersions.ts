@@ -1,7 +1,7 @@
 import { $, $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import beautifyVersionsPageCSS from "./css/beautifyVersionsPage.css?raw";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
@@ -10,13 +10,13 @@ import { GreasyforkApi } from "@/api/GreasyForkApi";
 
 export const GreasyforkVersions = {
 	init() {
-		PopsPanel.execMenuOnce("beautifyHistoryVersionPage", () => {
+		Panel.execMenuOnce("beautifyHistoryVersionPage", () => {
 			return this.beautifyHistoryVersionPage();
 		});
-		PopsPanel.execMenuOnce("scripts-versions-addExtraTagButton", () => {
+		Panel.execMenuOnce("scripts-versions-addExtraTagButton", () => {
 			this.addExtraTagButton();
 		});
-		PopsPanel.execMenuOnce("scripts-versions-addCompareCodeButton", () => {
+		Panel.execMenuOnce("scripts-versions-addCompareCodeButton", () => {
 			this.sourceDiffMonacoEditor();
 		});
 	},

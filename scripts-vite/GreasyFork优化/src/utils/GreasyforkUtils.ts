@@ -41,9 +41,7 @@ export const GreasyforkUtils = {
 			// 		}
 			// 	`);
 			// }
-			// @ts-ignore
 			if (unsafeWindow.monaco) {
-				// @ts-ignore
 				resolve(unsafeWindow.monaco);
 				return;
 			}

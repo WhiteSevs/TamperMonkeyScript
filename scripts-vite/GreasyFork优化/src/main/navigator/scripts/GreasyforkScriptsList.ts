@@ -3,7 +3,7 @@ import {
 	GreasyforkScriptsFilter,
 	ScriptFilterRule,
 } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import DOMUtils from "@whitesev/domutils";
 import i18next from "i18next";
 import { GreasyforkScriptsCollectEvent } from "./GreasyforkScripts";
@@ -15,10 +15,10 @@ import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 
 export const GreasyforkScriptsList = {
 	init() {
-		PopsPanel.execMenuOnce("gf-scripts-filter-enable", () => {
+		Panel.execMenuOnce("gf-scripts-filter-enable", () => {
 			GreasyforkScriptsFilter.init();
 		});
-		PopsPanel.execMenuOnce("beautifyCenterContent", () => {
+		Panel.execMenuOnce("beautifyCenterContent", () => {
 			return this.beautifyCenterContent();
 		});
 	},
@@ -44,7 +44,7 @@ export const GreasyforkScriptsList = {
 			let isRegisterScriptContainerNameList =
 				GreasyforkCheckVersion.getRegisterScriptContainerNameList();
 			/** 是否强制使用命名空间来查询信息 */
-			let isForceUseNameSpace = PopsPanel.getValue<boolean>(
+			let isForceUseNameSpace = Panel.getValue<boolean>(
 				"beautifyCenterContent-queryNameSpace"
 			);
 
@@ -204,7 +204,7 @@ export const GreasyforkScriptsList = {
 						GreasyforkScriptsCollectEvent(scriptInfo.scriptId);
 					});
 
-					if (PopsPanel.getValue("gf-scripts-filter-enable")) {
+					if (Panel.getValue("gf-scripts-filter-enable")) {
 						let $filter = DOMUtils.createElement("button", {
 							className: "script-filter-btn",
 							innerHTML: i18next.t("过滤"),

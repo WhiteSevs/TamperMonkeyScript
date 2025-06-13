@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import beautifyMarkdownCSS from "./css/beautifyMarkdown.css?raw";
 import beautifyButtonCSS from "./css/beautifyButton.css?raw";
 import beautifyRadioCSS from "./css/beautifyRadio.css?raw";
@@ -11,21 +11,21 @@ import beautifyHomeCSS from "./css/beautifyHome.css?raw";
 import beautifyFeedbackCSS from "./css/beautifyFeedback.css?raw";
 import { $, $$, addStyle, DOMUtils, log, utils } from "@/env";
 import i18next from "i18next";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 
 export const GreasyforkBeautify = {
 	init() {
-		PopsPanel.execMenuOnce("beautifyPage", () => {
+		Panel.execMenuOnce("beautifyPage", () => {
 			return this.beautifyPageElement();
 		});
-		PopsPanel.execMenuOnce("beautifyGreasyforkBeautify", () => {
+		Panel.execMenuOnce("beautifyGreasyforkBeautify", () => {
 			return this.beautifyGreasyforkBeautify();
 		});
-		PopsPanel.execMenuOnce("beautifyUploadImage", () => {
+		Panel.execMenuOnce("beautifyUploadImage", () => {
 			return this.beautifyUploadImage();
 		});
-		PopsPanel.execMenuOnce("beautifyTopNavigationBar", () => {
+		Panel.execMenuOnce("beautifyTopNavigationBar", () => {
 			return this.beautifyTopNavigationBar();
 		});
 	},

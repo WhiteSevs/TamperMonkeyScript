@@ -1,21 +1,21 @@
 import { $, DOMUtils, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
 import i18next from "i18next";
 import { GreasyforkScriptsList } from "../scripts/GreasyforkScriptsList";
 import { GreasyforkScriptsFilter } from "../scripts/GreasyforkScriptsFilter";
 import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
-import { PanelUISize } from "@/setting/panel-ui-size";
+import { CommonUtil } from "@components/utils/CommonUtil";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 
 export const GreasyforkUsers = {
 	init() {
-		PopsPanel.execMenuOnce("users-changeConsoleToTopNavigator", () => {
+		Panel.execMenuOnce("users-changeConsoleToTopNavigator", () => {
 			this.changeConsoleToTopNavigator();
 		});
-		PopsPanel.execMenuOnce("gf-scripts-filter-enable", () => {
+		Panel.execMenuOnce("gf-scripts-filter-enable", () => {
 			GreasyforkScriptsFilter.init();
 		});
-		PopsPanel.execMenuOnce("beautifyCenterContent", () => {
+		Panel.execMenuOnce("beautifyCenterContent", () => {
 			return GreasyforkScriptsList.beautifyCenterContent();
 		});
 	},

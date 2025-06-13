@@ -1,7 +1,7 @@
 import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { $, $$, GM_Menu, log, utils } from "@/env";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import i18next from "i18next";
 import Qmsg from "qmsg";
@@ -109,11 +109,11 @@ export const GreasyforkMenu = {
 	 * 处理本地的goto事件
 	 */
 	handleLocalGotoCallBack() {
-		if (PopsPanel.getValue("goto_updateSettingsAndSynchronize_scriptList")) {
-			PopsPanel.deleteValue("goto_updateSettingsAndSynchronize_scriptList");
+		if (Panel.getValue("goto_updateSettingsAndSynchronize_scriptList")) {
+			Panel.deleteValue("goto_updateSettingsAndSynchronize_scriptList");
 			if (!GreasyforkRouter.isUsers()) {
 				/* 当前不在用户主页 */
-				PopsPanel.setValue(
+				Panel.setValue(
 					"goto_updateSettingsAndSynchronize_scriptList",
 					true
 				);
@@ -135,14 +135,14 @@ export const GreasyforkMenu = {
 			});
 			GreasyforkMenu.updateScript(scriptUrlList);
 		} else if (
-			PopsPanel.getValue("goto_updateSettingsAndSynchronize_unlistedScriptList")
+			Panel.getValue("goto_updateSettingsAndSynchronize_unlistedScriptList")
 		) {
-			PopsPanel.deleteValue(
+			Panel.deleteValue(
 				"goto_updateSettingsAndSynchronize_unlistedScriptList"
 			);
 			if (!GreasyforkRouter.isUsers()) {
 				/* 当前不在用户主页 */
-				PopsPanel.setValue(
+				Panel.setValue(
 					"goto_updateSettingsAndSynchronize_unlistedScriptList",
 					true
 				);
@@ -164,14 +164,14 @@ export const GreasyforkMenu = {
 			});
 			GreasyforkMenu.updateScript(scriptUrlList);
 		} else if (
-			PopsPanel.getValue("goto_updateSettingsAndSynchronize_libraryScriptList")
+			Panel.getValue("goto_updateSettingsAndSynchronize_libraryScriptList")
 		) {
-			PopsPanel.deleteValue(
+			Panel.deleteValue(
 				"goto_updateSettingsAndSynchronize_libraryScriptList"
 			);
 			if (!GreasyforkRouter.isUsers()) {
 				/* 当前不在用户主页 */
-				PopsPanel.setValue(
+				Panel.setValue(
 					"goto_updateSettingsAndSynchronize_libraryScriptList",
 					true
 				);

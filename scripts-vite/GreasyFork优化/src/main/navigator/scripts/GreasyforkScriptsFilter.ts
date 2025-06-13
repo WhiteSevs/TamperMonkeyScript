@@ -1,5 +1,5 @@
 import { $$, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import { GreasyforkUtils } from "@/utils/GreasyforkUtils";
 import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 
@@ -105,7 +105,7 @@ export const GreasyforkScriptsFilter = {
 		});
 	},
 	setValue(value: string) {
-		PopsPanel.setValue(this.key, value);
+		Panel.setValue(this.key, value);
 	},
 	addValue(
 		key: keyof ScriptFilterRule,
@@ -124,6 +124,6 @@ export const GreasyforkScriptsFilter = {
 		this.setValue(localValue);
 	},
 	getValue() {
-		return PopsPanel.getValue(this.key, "");
+		return Panel.getValue(this.key, "");
 	},
 };

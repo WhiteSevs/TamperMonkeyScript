@@ -3,7 +3,7 @@ import {
 	DiscuessionsFilterRule,
 	GreasyforkDiscussionsFilter,
 } from "./GreasyforkDiscussionsFilter";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
@@ -12,14 +12,14 @@ export const GreasyforkForum = {
 	init() {
 		this.readBgColor();
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("greasyfork-discussions-filter-enable", () => {
+			Panel.execMenuOnce("greasyfork-discussions-filter-enable", () => {
 				this.filterEnable();
 			});
 			let lockFn = new utils.LockFunction(() => {
-				PopsPanel.execMenu("discussions-addShortcutOperationButton", () => {
+				Panel.execMenu("discussions-addShortcutOperationButton", () => {
 					this.addShortcutOperationButton();
 				});
-				PopsPanel.execMenu("discussions-addReportButton", () => {
+				Panel.execMenu("discussions-addReportButton", () => {
 					this.addReportButton();
 				});
 			});
@@ -47,7 +47,7 @@ export const GreasyforkForum = {
 	 */
 	readBgColor() {
 		log.info("设置已读背景颜色");
-		let color = PopsPanel.getValue("discussions-readBgColor");
+		let color = Panel.getValue("discussions-readBgColor");
 		return addStyle(/*css*/ `
         .discussion-read{
             background: ${color} !important;

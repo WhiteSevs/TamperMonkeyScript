@@ -1,4 +1,4 @@
-import { ShortCut, type ShortCutOption } from "@/utils/ShortCut";
+import { ShortCut, type ShortCutOption } from "@components/utils/ShortCut";
 import { $, log } from "@/env";
 
 export const GreasyforkShortCut = {

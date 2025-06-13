@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import beautifyContentCSS from "./css/beautifyContent.css?raw";
 import { $$, addStyle, DOMUtils, log } from "@/env";
 import i18next from "i18next";
@@ -6,11 +6,11 @@ import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 
 export const GreasyforkConversations = {
 	init() {
-		PopsPanel.execMenuOnce("conversations-beautifyDialogBox", () => {
+		Panel.execMenuOnce("conversations-beautifyDialogBox", () => {
 			return this.beautifyDialogBox();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("conversations-beautifyPrivateMessageList", () => {
+			Panel.execMenuOnce("conversations-beautifyPrivateMessageList", () => {
 				this.beautifyPrivateMessageList();
 			});
 		});

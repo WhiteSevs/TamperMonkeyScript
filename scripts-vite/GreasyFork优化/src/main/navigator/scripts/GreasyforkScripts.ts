@@ -2,14 +2,14 @@ import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { $, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import { GreasyforkMenu } from "@/main/GreasyforkMenu";
 import { GreasyforkRouter } from "@/router/GreasyforkRouter";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 import { GreasyforkScriptsCode } from "./code/GreasyforkScriptsCode";
 import { unsafeWindow } from "ViteGM";
 import { GreasyforkVersions } from "./versions/GreasyforkVersions";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
-import { PanelUISize } from "@/setting/panel-ui-size";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 
 let userCollection: {
 	id: string;
@@ -362,21 +362,21 @@ export const GreasyforkScripts = {
 			GreasyforkVersions.init();
 		}
 		if (GreasyforkRouter.isCodeStrict()) {
-			PopsPanel.execMenuOnce("fullScreenOptimization", () => {
+			Panel.execMenuOnce("fullScreenOptimization", () => {
 				this.fullScreenOptimization();
 			});
-			PopsPanel.execMenuOnce("addCopyCodeButton", () => {
+			Panel.execMenuOnce("addCopyCodeButton", () => {
 				this.addCopyCodeButton();
 			});
 		}
-		PopsPanel.execMenuOnce("addCollectionButton", () => {
+		Panel.execMenuOnce("addCollectionButton", () => {
 			this.addCollectionButton();
 		});
-		PopsPanel.execMenuOnce("addFindReferenceButton", () => {
+		Panel.execMenuOnce("addFindReferenceButton", () => {
 			this.setFindCodeSearchBtn();
 		});
 		DOMUtils.ready(() => {
-			PopsPanel.execMenuOnce("scriptHomepageAddedTodaySUpdate", () => {
+			Panel.execMenuOnce("scriptHomepageAddedTodaySUpdate", () => {
 				this.scriptHomepageAddedTodaySUpdate();
 			});
 		});

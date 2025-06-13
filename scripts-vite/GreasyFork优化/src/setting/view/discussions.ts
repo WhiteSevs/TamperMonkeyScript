@@ -1,9 +1,9 @@
 import { DOMUtils, log, utils } from "@/env";
-import { UISwitch } from "../components/ui-switch";
-import { PopsPanel } from "../setting";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import i18next from "i18next";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
 import { GreasyforkDiscussionsFilter } from "@/main/navigator/discussions/GreasyforkDiscussionsFilter";
+import { Panel } from "@components/setting/panel";
 
 export const SettingUIDiscuessions: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-discussions",
@@ -46,7 +46,7 @@ export const SettingUIDiscuessions: PopsPanelContentConfig = {
 											$right.querySelector<HTMLInputElement>(
 												".pops-color-choose"
 											)!;
-										$color.value = PopsPanel.getValue(key);
+										$color.value = Panel.getValue(key);
 										let $style = DOMUtils.createElement("style");
 										DOMUtils.append(document.head, $style);
 										DOMUtils.on(
@@ -59,7 +59,7 @@ export const SettingUIDiscuessions: PopsPanelContentConfig = {
 													background: ${$color.value} !important;
 												}
 												`;
-												PopsPanel.setValue(key, $color.value);
+												Panel.setValue(key, $color.value);
 											}
 										);
 

@@ -1,5 +1,5 @@
 import { $$, addStyle, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import i18next from "i18next";
 
@@ -82,7 +82,7 @@ export const GreasyforkDiscussionsFilter = {
 
 			if (
 				SNIPPET_MAP.has(discussionInfo.snippet) &&
-				PopsPanel.getValue("greasyfork-discussions-filter-duplicate-comments")
+				Panel.getValue("greasyfork-discussions-filter-duplicate-comments")
 			) {
 				// 过滤重复评论
 				let discussionTitleElement = SNIPPET_MAP.get(
@@ -230,9 +230,9 @@ export const GreasyforkDiscussionsFilter = {
 		const FILTER_POST_USER_KEY = "greasyfork-discussions-filter-post-user";
 		/** 回复用户 */
 		const FILTER_REPLY_USER_KEY = "greasyfork-discussions-filter-reply-user";
-		const filterScript = PopsPanel.getValue(FILTER_SCRIPT_KEY, "");
-		const filterPostUser = PopsPanel.getValue(FILTER_POST_USER_KEY, "");
-		const filterReplyUser = PopsPanel.getValue(FILTER_REPLY_USER_KEY, "");
+		const filterScript = Panel.getValue(FILTER_SCRIPT_KEY, "");
+		const filterPostUser = Panel.getValue(FILTER_POST_USER_KEY, "");
+		const filterReplyUser = Panel.getValue(FILTER_REPLY_USER_KEY, "");
 		const filterScriptList =
 			filterScript.trim() === "" ? [] : filterScript.split("\n");
 		const filterPostUserList =
@@ -257,12 +257,12 @@ export const GreasyforkDiscussionsFilter = {
 				utils.parseStringToRegExpString("^" + ruleValue + "$")
 			);
 		});
-		PopsPanel.deleteValue(FILTER_SCRIPT_KEY);
-		PopsPanel.deleteValue(FILTER_POST_USER_KEY);
-		PopsPanel.deleteValue(FILTER_REPLY_USER_KEY);
+		Panel.deleteValue(FILTER_SCRIPT_KEY);
+		Panel.deleteValue(FILTER_POST_USER_KEY);
+		Panel.deleteValue(FILTER_REPLY_USER_KEY);
 	},
 	setValue(value: string) {
-		PopsPanel.setValue(this.key, value);
+		Panel.setValue(this.key, value);
 	},
 	addValue(
 		key: keyof DiscuessionsFilterRule,
@@ -281,6 +281,6 @@ export const GreasyforkDiscussionsFilter = {
 		this.setValue(localValue);
 	},
 	getValue() {
-		return PopsPanel.getValue(this.key, "");
+		return Panel.getValue(this.key, "");
 	},
 };

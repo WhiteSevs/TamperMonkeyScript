@@ -1,5 +1,5 @@
 import { $$, DOMUtils, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import { indexedDB } from "@whitesev/utils/dist/types/src/indexedDB";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 
@@ -20,11 +20,11 @@ export const GreasyforkRememberFormTextArea = {
 	},
 	init() {
 		this.$data.db = this.getDB();
-		PopsPanel.execMenuOnce("rememberReplyContent", () => {
+		Panel.execMenuOnce("rememberReplyContent", () => {
 			this.rememberReplyContent();
 		});
-		PopsPanel.execMenu("gf-autoClearRememberReplayContent", (value) => {
-			this.autoClearRememberReplayContent(value);
+		Panel.execMenu("gf-autoClearRememberReplayContent", (option) => {
+			this.autoClearRememberReplayContent(option.value);
 		});
 	},
 	/**

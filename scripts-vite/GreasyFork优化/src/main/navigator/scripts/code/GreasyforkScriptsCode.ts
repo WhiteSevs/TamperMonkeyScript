@@ -1,7 +1,7 @@
 import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { addStyle, DOMUtils, httpx, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { GreasyforkUtils } from "@/utils/GreasyforkUtils";
 import i18next from "i18next";
@@ -9,10 +9,10 @@ import Qmsg from "qmsg";
 
 export const GreasyforkScriptsCode = {
 	init() {
-		PopsPanel.execMenuOnce("code-repairCodeLineNumber", () => {
+		Panel.execMenuOnce("code-repairCodeLineNumber", () => {
 			this.repairCodeLineNumber();
 		});
-		PopsPanel.execMenuOnce("code-use-monaco-editor", () => {
+		Panel.execMenuOnce("code-use-monaco-editor", () => {
 			this.coverEditorWithMonaco();
 		});
 	},
@@ -22,7 +22,7 @@ export const GreasyforkScriptsCode = {
 	 */
 	repairCodeLineNumber() {
 		log.info("修复代码的行号显示不够问题");
-		PopsPanel.execMenuOnce("beautifyGreasyforkBeautify", () => {
+		Panel.execMenuOnce("beautifyGreasyforkBeautify", () => {
 			/* 修复Greasyfork Beautify美化后的代码块 */
 			addStyle(/*css*/ `
 				.code-container pre code .marker{

@@ -1,4 +1,4 @@
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import "./css/OwnCSS.css";
 import { $, $$, addStyle, DOMUtils, httpx, log, pops, utils } from "@/env";
 import Qmsg from "qmsg";
@@ -14,7 +14,7 @@ import { GreasyforkForum as GreasyforkDiscussions } from "./navigator/discussion
 import i18next from "i18next";
 import { GreasyforkScripts } from "./navigator/scripts/GreasyforkScripts";
 import { GreasyforkScriptsList } from "./navigator/scripts/GreasyforkScriptsList";
-import { CommonUtil } from "@/utils/CommonUtil";
+import { CommonUtil } from "@components/utils/CommonUtil";
 import { GreasyforkUsers } from "./navigator/users/GreasyforkUsers";
 import { GreasyforkShortCut } from "./GreasyforkShortCut";
 import { GreasyforkConversations } from "./navigator/users/conversations/GreasyforkConversations";
@@ -22,7 +22,7 @@ import { GreasyforkRememberFormTextArea } from "./GreasyforkRememberFormTextArea
 import { GreasyforkScriptsSearch } from "./navigator/search/GreasyforkScriptsSearch";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";
 import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
-import { PanelUISize } from "@/setting/panel-ui-size";
+import { PanelUISize } from "@components/setting/panel-ui-size";
 
 const Greasyfork = {
 	init() {
@@ -30,7 +30,7 @@ const Greasyfork = {
 			log.info(`Router: 资源界面，不执行脚本功能`);
 			return;
 		}
-		PopsPanel.execMenu("checkPage", () => {
+		Panel.execMenu("checkPage", () => {
 			this.checkPage();
 		});
 		GreasyforkBeautify.init();
@@ -66,7 +66,7 @@ const Greasyfork = {
 			log.info(`Router: 脚本搜索页面`);
 			GreasyforkScriptsSearch.init();
 		}
-		PopsPanel.execMenuOnce("scripts-addOperationPanelBtnWithNavigator", () => {
+		Panel.execMenuOnce("scripts-addOperationPanelBtnWithNavigator", () => {
 			this.addOperationPanelBtnWithNavigator();
 		});
 		DOMUtils.ready(() => {
@@ -74,19 +74,19 @@ const Greasyfork = {
 			GreasyforkAccount.init();
 			GreasyforkRememberFormTextArea.init();
 			GreasyforkMenu.handleLocalGotoCallBack();
-			PopsPanel.execMenuOnce("fixImageWidth", () => {
+			Panel.execMenuOnce("fixImageWidth", () => {
 				Greasyfork.fixImageWidth();
 			});
 			Greasyfork.languageSelectorLocale();
-			PopsPanel.execMenuOnce("optimizeImageBrowsing", () => {
+			Panel.execMenuOnce("optimizeImageBrowsing", () => {
 				Greasyfork.optimizeImageBrowsing();
 			});
-			PopsPanel.execMenuOnce("overlayBedImageClickEvent", () => {
+			Panel.execMenuOnce("overlayBedImageClickEvent", () => {
 				Greasyfork.overlayBedImageClickEvent();
 			});
 			/* 不在/code页面添加Markdown复制按钮 */
 			if (!GreasyforkRouter.isCodeStrict()) {
-				PopsPanel.execMenuOnce("addMarkdownCopyButton", () => {
+				Panel.execMenuOnce("addMarkdownCopyButton", () => {
 					Greasyfork.addMarkdownCopyButton();
 				});
 			}
@@ -474,7 +474,7 @@ const Greasyfork = {
 	 * 固定当前语言
 	 */
 	languageSelectorLocale() {
-		let localeLanguage = PopsPanel.getValue<string>("language-selector-locale");
+		let localeLanguage = Panel.getValue<string>("language-selector-locale");
 		let currentLocaleLanguage = window.location.pathname
 			.split("/")
 			.filter((item) => Boolean(item))[0];
@@ -535,7 +535,7 @@ const Greasyfork = {
 						0
 					) as string
 				);
-				let checkPageTimeout = PopsPanel.getValue(
+				let checkPageTimeout = Panel.getValue(
 					"greasyfork-check-page-timeout",
 					5
 				);

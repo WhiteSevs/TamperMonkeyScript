@@ -1,10 +1,6 @@
 import i18next from "i18next";
-import { UISelect } from "../components/ui-select";
-import { UISwitch } from "../components/ui-switch";
+import { UISwitch } from "@components/setting/components/ui-switch";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { DOMUtils, utils } from "@/env";
-import { PopsPanel } from "../setting";
-import { GreasyforkScriptsFilter } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
 
 export const SettingUIScripts: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-scripts",

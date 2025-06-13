@@ -1,5 +1,5 @@
 import { $, DOMUtils, log, pops, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import i18next from "i18next";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { GreasyforkScriptsFilter } from "../scripts/GreasyforkScriptsFilter";
@@ -127,7 +127,7 @@ export const GreasyforkScriptsSearch = {
 					log.error("未找到脚本列表节点，无法继续执行");
 					return;
 				}
-				PopsPanel.onceExec("GreasyforkScriptsSearch", () => {
+				Panel.onceExec("GreasyforkScriptsSearch", () => {
 					let { $filterControl, $search } =
 						GreasyforkScriptsSearchElement.addFilterControls($scriptList);
 					this.addFilterControlsItem($search, $filterControl);
@@ -309,7 +309,7 @@ export const GreasyforkScriptsSearch = {
 				}
 			});
 		};
-		if (PopsPanel.getValue("gf-script-search-addFilterSearchInput")) {
+		if (Panel.getValue("gf-script-search-addFilterSearchInput")) {
 			let $searchInner =
 				panelHandleContentUtils.createSectionContainerItem_input({
 					type: "input",
@@ -317,7 +317,7 @@ export const GreasyforkScriptsSearch = {
 					getValue() {
 						let queryText = querySearchText();
 						return (
-							PopsPanel.getValue<string>(
+							Panel.getValue<string>(
 								"gf-script-search-addFilterSearchInput-text"
 							) ||
 							queryText ||
@@ -328,7 +328,7 @@ export const GreasyforkScriptsSearch = {
 					placeholder: i18next.t("过滤的关键词"),
 					text: i18next.t("关键词"),
 					callback: utils.debounce((event, value) => {
-						PopsPanel.setValue(
+						Panel.setValue(
 							"gf-script-search-addFilterSearchInput-text",
 							value.toString()
 						);
@@ -338,7 +338,7 @@ export const GreasyforkScriptsSearch = {
 			DOMUtils.append($search, $searchInner);
 		}
 		controlsConfig.forEach((controlConfig) => {
-			if (!PopsPanel.getValue(controlConfig.ENABLE_KEY)) {
+			if (!Panel.getValue(controlConfig.ENABLE_KEY)) {
 				return;
 			}
 			log.info(`添加按钮${controlConfig.name}`);

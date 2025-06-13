@@ -1,12 +1,12 @@
 import { $, DOMUtils, httpx, log, utils } from "@/env";
-import { PopsPanel } from "@/setting/setting";
+import { Panel } from "@components/setting/panel";
 import i18next from "i18next";
 import Qmsg from "qmsg";
 import * as OTPAuth from "otpauth";
 
 export const GreasyforkAccount = {
 	init() {
-		PopsPanel.execMenu("autoLogin", () => {
+		Panel.execMenu("autoLogin", () => {
 			this.autoLogin();
 		});
 	},
@@ -18,9 +18,9 @@ export const GreasyforkAccount = {
 		utils
 			.waitNode<HTMLAnchorElement>("span.sign-in-link a[rel=nofollow]")
 			.then(async () => {
-				let user = PopsPanel.getValue<string>("user");
-				let pwd = PopsPanel.getValue<string>("pwd");
-				let secret = PopsPanel.getValue<string>("secret");
+				let user = Panel.getValue<string>("user");
+				let pwd = Panel.getValue<string>("pwd");
+				let secret = Panel.getValue<string>("secret");
 				if (utils.isNull(user)) {
 					Qmsg.error(i18next.t("请先在菜单中录入账号"));
 					return;
