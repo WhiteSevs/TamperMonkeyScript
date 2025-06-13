@@ -5,7 +5,7 @@ import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/f
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
-import { ParseFileAbstract } from "@/main/parse/NetDiskParseObject";
+import { ParseFileAbstract } from "@/main/parse/NetDiskParseAbstract";
 import { NetDiskCommonUtils } from "@/utils/NetDiskCommonUtils";
 
 export class NetDiskParse_UC extends ParseFileAbstract {

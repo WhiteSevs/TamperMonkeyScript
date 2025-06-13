@@ -2,7 +2,7 @@ import { DOMUtils, httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
 import { unsafeWindow } from "ViteGM";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseObject";
+import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
 import {
 	NetDiskLinkClickMode,
 	NetDiskLinkClickModeUtils,

@@ -4,7 +4,7 @@ import Qmsg from "qmsg";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { ParseFileAbstract } from "@/main/parse/NetDiskParseObject";
+import { ParseFileAbstract } from "@/main/parse/NetDiskParseAbstract";
 
 const LanZouUtils = {
 	LanZouDiskApp: "lanZouY-disk-app",

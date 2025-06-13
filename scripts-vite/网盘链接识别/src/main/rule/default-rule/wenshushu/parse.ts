@@ -1,6 +1,6 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseObject";
+import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
 import {
 	NetDiskLinkClickMode,
 	NetDiskLinkClickModeUtils,

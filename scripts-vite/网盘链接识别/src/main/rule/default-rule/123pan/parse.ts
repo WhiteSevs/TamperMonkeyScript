@@ -3,7 +3,7 @@ import Qmsg from "qmsg";
 import { NetDiskFilterScheme } from "../../../scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "../../../ui/NetDiskUI";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseObject";
+import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskAuthorization_123pan_Authorization } from "./authorization";
 
 export class NetDiskParse_123pan extends ParseFileAbstract {

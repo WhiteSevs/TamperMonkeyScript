@@ -1,7 +1,7 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseObject";
+import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";

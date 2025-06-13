@@ -1,6 +1,6 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseObject";
+import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { GeneratePanelData } from "@/main/data/NetDiskDataUtils";

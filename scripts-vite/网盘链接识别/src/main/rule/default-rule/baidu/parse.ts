@@ -1,7 +1,7 @@
 import { log } from "@/env";
 import Qmsg from "qmsg";
 import { GM_getValue } from "ViteGM";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseObject";
+import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskRuleUtils } from "@/main/rule/NetDiskRuleUtils";
 import { NetDiskLinkClickMode } from "@/main/link-click-mode/NetDiskLinkClickMode";
 
