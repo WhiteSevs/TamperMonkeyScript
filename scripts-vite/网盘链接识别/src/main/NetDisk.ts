@@ -77,7 +77,7 @@ export const NetDisk = {
 		/**
 		 * 使用该正则判断提取到的accessCode是否正确
 		 */
-		accessCodeNotMatchRegexpList: [/^(font)/gi],
+		accessCodeNotMatchRegexpList: [/^(font|http)/gi],
 		/**
 		 * 当没有accessCode时，使用该正则去除不需要的字符串
 		 */
@@ -184,7 +184,7 @@ export const NetDisk = {
 	 */
 	handleShareCode(ruleKeyName: string, ruleIndex: number, matchText: string) {
 		/* 当前执行的规则 */
-		let ruleConfig = NetDisk.$rule.ruleOption[ruleKeyName][ruleIndex];
+		let ruleConfig = this.$rule.ruleOption[ruleKeyName][ruleIndex];
 		let shareCodeMatch = matchText
 			.match(ruleConfig.shareCode)
 			?.filter((item) => utils.isNotNull(item));
@@ -265,16 +265,10 @@ export const NetDisk = {
 				return "";
 			}
 			if (accessCodeMatchArray.length) {
-				/* 取第一个值 */
-				/**
-				 * 例如，匹配到的字符串是密码：oanm   大于150m
-				 * 如果是最后一个，那么会匹配到150m
-				 */
+				// 取第一个值
+				// 例如，匹配到的字符串是密码：oanm   大于150m
+				// 如果是最后一个，那么会匹配到150m
 				accessCode = accessCodeMatchArray[0];
-				if (accessCode.startsWith("http")) {
-					/* 排除不可能的accessCode */
-					accessCode = "";
-				}
 			}
 		}
 		if (utils.isNotNull(accessCode)) {

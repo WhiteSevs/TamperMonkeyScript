@@ -183,14 +183,6 @@ export const NetDiskDebug = {
 					status: true,
 					msg: "取第一个值: " + accessCode,
 				});
-				if (accessCode.startsWith("http")) {
-					/* 排除不可能的accessCode */
-					logCallBack({
-						status: true,
-						msg: "排除不可能的accessCode，重置accessCode的值为空",
-					});
-					accessCode = "";
-				}
 			}
 		}
 		if (utils.isNotNull(accessCode)) {
