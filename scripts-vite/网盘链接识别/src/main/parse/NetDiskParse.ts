@@ -2,9 +2,11 @@ import { NetDiskParse_123pan } from "../rule/default-rule/123pan/parse";
 import { NetDiskParse_Aliyun } from "../rule/default-rule/aliyun/parse";
 import { NetDiskParse_Baidu } from "../rule/default-rule/baidu/parse";
 import { NetDiskParse_Chengtong } from "../rule/default-rule/chengtong/parse";
+import { NetDiskParse_ed2k } from "../rule/default-rule/ed2k/parse";
 import { NetDiskParse_Jianguoyun } from "../rule/default-rule/jianguoyun/parse";
 import { NetDiskParse_Lanzou } from "../rule/default-rule/lanzou/parse";
 import { NetDiskParse_Lanzouyx } from "../rule/default-rule/lanzouyx/parse";
+import { NetDiskParse_magnet } from "../rule/default-rule/magnet/parse";
 import { NetDiskParse_nainiu } from "../rule/default-rule/nainiu/parse";
 import { NetDiskParse_Tianyiyun } from "../rule/default-rule/tianyiyun/parse";
 import { NetDiskParse_UC } from "../rule/default-rule/uc/parse";
@@ -61,5 +63,17 @@ export const NetDiskParse = {
 		 * + https://github.com/qinlili23333/ctfileGet
 		 */
 		chengtong: NetDiskParse_Chengtong,
+		/**
+		 * BT磁力
+		 *
+		 * @link https://whatslink.info/
+		 */
+		magnet: NetDiskParse_magnet,
+		/**
+		 * ed2k
+		 *
+		 * @link https://whatslink.info/
+		 */
+		ed2k: NetDiskParse_ed2k,
 	},
 };
