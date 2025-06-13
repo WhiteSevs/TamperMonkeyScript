@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.5.31
+// @version            2025.6.13
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,10 +13,10 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.8/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.8/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.0.10/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.6/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@25.2.1/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.0/dist/otpauth.umd.js
