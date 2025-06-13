@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.13
+// @version      2025.6.13.16
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -100,6 +100,20 @@
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const CommonUtil = {
+    /**
+     * 移除元素（未出现也可以等待出现）
+     * @param selector 元素选择器
+     */
+    waitRemove(...args) {
+      args.forEach((selector) => {
+        if (typeof selector !== "string") {
+          return;
+        }
+        utils.waitNodeList(selector).then((nodeList) => {
+          nodeList.forEach(($el) => $el.remove());
+        });
+      });
+    },
     /**
      * 添加屏蔽CSS
      * @param args
@@ -2573,14 +2587,23 @@
         ).then(() => {
           let target = getTarget();
           if (target == null) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(true);
+            }
             return;
           }
           let reactInstance = utils.getReactObj(target);
           if (reactInstance == null) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(false);
+            }
             return;
           }
           let reactInstanceProp = reactInstance[propName];
           if (reactInstanceProp == null) {
+            if (typeof needSetOption.failWait === "function") {
+              needSetOption.failWait(false);
+            }
             return;
           }
           needSetOption.set(reactInstanceProp, target);
@@ -5506,6 +5529,150 @@
       window.open(url, "_blank");
     }
   }
+  const MetaDataParser = {
+    /**
+     * 解析文件链接的元数据
+     */
+    async parseFileMetaInfo(url) {
+      const response = await httpx.get(
+        "https://whatslink.info/api/v1/link?url=" + url,
+        {
+          headers: {
+            Referer: "https://whatslink.info/"
+          },
+          allowInterceptConfig: false
+        }
+      );
+      let data = utils.toJSON(response.data.responseText);
+      if (!response.status) {
+        if (typeof data.error === "string" && data.error.trim() !== "") {
+          Qmsg.error(data.error);
+          return;
+        }
+        Qmsg.error("请求失败");
+        return;
+      }
+      return data;
+    },
+    /**
+     * 显示元数据弹窗
+     */
+    showFileMetaInfoDialog(metaInfo) {
+      NetDiskPops.alert({
+        title: {
+          text: "元数据信息",
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+						<div class="wrapper">
+							<div class="title">Summary</div>
+							<div class="content">
+								<div>Resource Name: ${metaInfo.name}</div>
+								<div>Number of Files: ${metaInfo.count}</div>
+								<div>Total File Size: ${utils.formatByteToSize(metaInfo.size)}</div>
+								<div>File Type: ${metaInfo.type.toLowerCase()}</div>
+							</div>
+						</div>
+						${Array.isArray(metaInfo.screenshots) ? (
+            /*html*/
+            `
+							<div class="wrapper">
+								<div class="title">Screenshots</div>
+								<div class="content">
+									<div class="image-list">
+										${metaInfo.screenshots.map(
+              (screenshot) => (
+                /*html*/
+                `
+											<div class="img">
+												<img src="${screenshot.screenshot}" alt="img">
+											</div>
+										`
+              )
+            ).join("")}
+										
+									</div>
+								</div>
+							</div>
+						`
+          ) : ""}
+						`
+          ),
+          html: true
+        },
+        btn: {
+          ok: {
+            enable: false
+          }
+        },
+        width: PanelUISize.setting.width,
+        height: "auto",
+        style: (
+          /*css*/
+          `
+                .pops-alert-content{
+                    padding: 0 15px;
+                }
+                .wrapper{
+                    border: 1px solid #2c3e50;
+                    margin: 24px 0;
+                    max-width: 100%;
+                }
+                .wrapper .title{
+                    font-size: 18px;
+                    font-weight: 700;
+                    padding: 8px 24px;
+                    border-bottom: 1px solid #2c3e50;
+                }
+                .wrapper .content{
+                    padding: 24px;
+                }
+                .wrapper .image-list{
+                    display: flex;
+                    max-width: 100%;
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    gap: 12px;
+                }
+                .wrapper .image-list .img{
+                    flex-shrink: 0;
+                    height: 120px;
+                    width: 160px;
+                }
+                .wrapper .image-list img{
+                    height: 100%;
+                    width: 100%;
+                    cursor: pointer;
+                }
+            `
+        )
+      });
+    }
+  };
+  class NetDiskParse_ed2k extends ParseFileAbstract {
+    async init(ruleIndex, shareCode, accessCode) {
+      log.info(ruleIndex, shareCode, accessCode);
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
+      let url = NetDiskLinkClickModeUtils.getBlankUrl(
+        "ed2k",
+        ruleIndex,
+        shareCode,
+        accessCode
+      );
+      let $loading = Qmsg.loading("正在请求Api中...");
+      let metaInfo = await MetaDataParser.parseFileMetaInfo(url);
+      $loading.close();
+      if (!metaInfo) {
+        return;
+      }
+      MetaDataParser.showFileMetaInfoDialog(metaInfo);
+    }
+  }
   class NetDiskParse_Jianguoyun extends ParseFileAbstract {
     constructor() {
       super(...arguments);
@@ -7222,6 +7389,27 @@
       );
     }
   }
+  class NetDiskParse_magnet extends ParseFileAbstract {
+    async init(ruleIndex, shareCode, accessCode) {
+      log.info(ruleIndex, shareCode, accessCode);
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
+      let url = NetDiskLinkClickModeUtils.getBlankUrl(
+        "magnet",
+        ruleIndex,
+        shareCode,
+        accessCode
+      );
+      let $loading = Qmsg.loading("正在请求Api中...");
+      let metaInfo = await MetaDataParser.parseFileMetaInfo(url);
+      $loading.close();
+      if (!metaInfo) {
+        return;
+      }
+      MetaDataParser.showFileMetaInfoDialog(metaInfo);
+    }
+  }
   const NetDiskCommonUtils = {
     /**
      * 测试是否支持GM_download
@@ -8867,7 +9055,19 @@
        *
        * + https://github.com/qinlili23333/ctfileGet
        */
-      chengtong: NetDiskParse_Chengtong
+      chengtong: NetDiskParse_Chengtong,
+      /**
+       * BT磁力
+       *
+       * @link https://whatslink.info/
+       */
+      magnet: NetDiskParse_magnet,
+      /**
+       * ed2k
+       *
+       * @link https://whatslink.info/
+       */
+      ed2k: NetDiskParse_ed2k
     }
   };
   const NetDiskHandlerUtil = {
@@ -19877,10 +20077,6 @@
       }
     }
   };
-  const NetDiskRule_magnet_preview = {
-    MENU_KEY: "magnet-preview-tooltip-enable",
-    MENU_DEFAULT_VALUE: true
-  };
   const NetDiskRule_magnet = {
     /** 规则 */
     rule: [
@@ -19906,6 +20102,15 @@
           linkClickMode: {
             openBlank: {
               default: true
+            },
+            "openBlank-closePopup": {
+              enable: true
+            },
+            parseFile: {
+              enable: true
+            },
+            "parseFile-closePopup": {
+              enable: true
             }
           }
         },
@@ -19913,140 +20118,8 @@
           enable: false,
           isForwardBlankLink: true,
           uri: ""
-        },
-        ownFormList: [
-          {
-            type: "forms",
-            text: (
-              /*html*/
-              `
-						<a href="https://whatslink.info/" target="_blank">元数据查询</a>
-					`
-            ),
-            forms: [
-              UISwitch(
-                "鼠标悬停预览",
-                NetDiskRule_magnet_preview.MENU_KEY,
-                NetDiskRule_magnet_preview.MENU_DEFAULT_VALUE,
-                void 0,
-                "注意：Api请求存在访问频率限制"
-              )
-            ]
-          }
-        ]
+        }
       }
-    },
-    async afterRenderUrlBox(option) {
-      const that = this;
-      let generateData = GeneratePanelData(
-        NetDiskRule_magnet_preview.MENU_KEY,
-        NetDiskRule_magnet_preview.MENU_DEFAULT_VALUE
-      );
-      if (!generateData.value) {
-        return;
-      }
-      let isQueryInfo = false;
-      let content = "正在请求Api中...";
-      let tooltip = __pops.tooltip({
-        target: option.$url,
-        content: () => {
-          return content;
-        },
-        isDiffContent: true,
-        position: "follow",
-        alwaysShow: false,
-        isFixed: true,
-        showArrow: false,
-        delayCloseTime: 300,
-        triggerShowEventName: "mouseenter touchstart mousemove touchmove",
-        otherDistance: 15,
-        className: "github-tooltip",
-        showBeforeCallBack($toolTip) {
-          if (isQueryInfo) {
-            return;
-          }
-          isQueryInfo = true;
-          let url = NetDiskLinkClickModeUtils.getBlankUrl(
-            that.setting.key,
-            option.ruleIndex,
-            option.shareCode,
-            option.accessCode
-          );
-          log.info(`正在获取magnet链接信息：${url}`);
-          httpx.get("https://whatslink.info/api/v1/link?url=" + url, {
-            headers: {
-              Referer: "https://whatslink.info/"
-            },
-            allowInterceptConfig: false
-          }).then((response) => {
-            let data = utils.toJSON(response.data.responseText);
-            if (!response.status) {
-              content = "请求失败";
-              if (typeof data.error === "string" && data.error.trim() !== "") {
-                content = content + "，" + data.error;
-              }
-              tooltip.toolTip.changeContent(content);
-              return;
-            }
-            content = /*html*/
-            `
-						<div class="wrapper">
-							<div class="title">Summary</div>
-							<div class="content">
-								<div>Resource Name: ${data.name}</div>
-								<div>Number of Files: ${data.count}</div>
-								<div>Total File Size: ${utils.formatByteToSize(data.size)}</div>
-								<div>File Type: ${data.type.toLowerCase()}</div>
-							</div>
-						</div>
-						${Array.isArray(data.screenshots) ? (
-            /*html*/
-            `
-							<div class="wrapper">
-								<div class="title">Screenshots</div>
-								<div class="content">
-									<div class="image-list">
-										${data.screenshots.map(
-              (screenshot) => (
-                /*html*/
-                `
-											<div class="img">
-												<img src="${screenshot.screenshot}" alt="img">
-											</div>
-										`
-              )
-            ).join("")}
-										
-									</div>
-								</div>
-							</div>
-						`
-          ) : ""}
-						`;
-            tooltip.toolTip.changeContent(content);
-          });
-        },
-        style: (
-          /*css*/
-          `
-				.pops-tip{
-					max-height: 500px;
-					overflow: hidden;
-				}
-				.wrapper .content{
-					text-align: left;
-				}
-				.wrapper .image-list{
-					overflow: auto;
-					display: flex;
-				}
-				.wrapper .image-list img{
-					max-width: 200px;
-					max-height: 200px;
-				}
-			`
-        )
-      });
     }
   };
   const NetDiskRule_jianguoyun = {
@@ -20354,10 +20427,6 @@
       }
     }
   };
-  const NetDiskRule_ed2k_preview = {
-    MENU_KEY: "ed2k-preview-tooltip-enable",
-    MENU_DEFAULT_VALUE: true
-  };
   const NetDiskRule_ed2k = {
     /** 规则 */
     rule: [
@@ -20384,6 +20453,15 @@
           linkClickMode: {
             openBlank: {
               default: true
+            },
+            "openBlank-closePopup": {
+              enable: true
+            },
+            parseFile: {
+              enable: true
+            },
+            "parseFile-closePopup": {
+              enable: true
             }
           }
         },
@@ -20391,140 +20469,8 @@
           enable: false,
           isForwardBlankLink: true,
           uri: ""
-        },
-        ownFormList: [
-          {
-            type: "forms",
-            text: (
-              /*html*/
-              `
-						<a href="https://whatslink.info/" target="_blank">元数据查询</a>
-					`
-            ),
-            forms: [
-              UISwitch(
-                "鼠标悬停预览",
-                NetDiskRule_ed2k_preview.MENU_KEY,
-                NetDiskRule_ed2k_preview.MENU_DEFAULT_VALUE,
-                void 0,
-                "注意：Api请求存在访问频率限制"
-              )
-            ]
-          }
-        ]
+        }
       }
-    },
-    afterRenderUrlBox(option) {
-      const that = this;
-      let generateData = GeneratePanelData(
-        NetDiskRule_ed2k_preview.MENU_KEY,
-        NetDiskRule_ed2k_preview.MENU_DEFAULT_VALUE
-      );
-      if (!generateData.value) {
-        return;
-      }
-      let isQueryInfo = false;
-      let content = "正在请求Api中...";
-      let tooltip = __pops.tooltip({
-        target: option.$url,
-        content: () => {
-          return content;
-        },
-        isDiffContent: true,
-        position: "follow",
-        alwaysShow: false,
-        isFixed: true,
-        showArrow: false,
-        delayCloseTime: 300,
-        triggerShowEventName: "mouseenter touchstart mousemove touchmove",
-        otherDistance: 15,
-        className: "github-tooltip",
-        showBeforeCallBack($toolTip) {
-          if (isQueryInfo) {
-            return;
-          }
-          isQueryInfo = true;
-          let url = NetDiskLinkClickModeUtils.getBlankUrl(
-            that.setting.key,
-            option.ruleIndex,
-            option.shareCode,
-            option.accessCode
-          );
-          log.info(`正在获取ed2k链接信息：${url}`);
-          httpx.get("https://whatslink.info/api/v1/link?url=" + url, {
-            headers: {
-              Referer: "https://whatslink.info/"
-            },
-            allowInterceptConfig: false
-          }).then((response) => {
-            let data = utils.toJSON(response.data.responseText);
-            if (!response.status) {
-              content = "请求失败";
-              if (typeof data.error === "string" && data.error.trim() !== "") {
-                content = content + "，" + data.error;
-              }
-              tooltip.toolTip.changeContent(content);
-              return;
-            }
-            content = /*html*/
-            `
-						<div class="wrapper">
-							<div class="title">Summary</div>
-							<div class="content">
-								<div>Resource Name: ${data.name}</div>
-								<div>Number of Files: ${data.count}</div>
-								<div>Total File Size: ${utils.formatByteToSize(data.size)}</div>
-								<div>File Type: ${data.type.toLowerCase()}</div>
-							</div>
-						</div>
-						${Array.isArray(data.screenshots) ? (
-            /*html*/
-            `
-							<div class="wrapper">
-								<div class="title">Screenshots</div>
-								<div class="content">
-									<div class="image-list">
-										${data.screenshots.map(
-              (screenshot) => (
-                /*html*/
-                `
-											<div class="img">
-												<img src="${screenshot.screenshot}" alt="img">
-											</div>
-										`
-              )
-            ).join("")}
-										
-									</div>
-								</div>
-							</div>
-						`
-          ) : ""}
-						`;
-            tooltip.toolTip.changeContent(content);
-          });
-        },
-        style: (
-          /*css*/
-          `
-				.pops-tip{
-					max-height: 500px;
-					overflow: hidden;
-				}
-				.wrapper .content{
-					text-align: left;
-				}
-				.wrapper .image-list{
-					overflow: auto;
-					display: flex;
-				}
-				.wrapper .image-list img{
-					max-width: 200px;
-					max-height: 200px;
-				}
-			`
-        )
-      });
     }
   };
   const NetDiskRule_360yunpan = {
@@ -25774,13 +25720,13 @@
     ]
   };
   try {
-    Object.assign(NetDiskUI.src.icon, RESOURCE_ICON ?? {});
+    if (false) ;
+    else {
+      Object.assign(NetDiskUI.src.icon, RESOURCE_ICON ?? {});
+    }
   } catch (error) {
     console.error("init NetDisk icon error", error);
   }
-  WebsiteRule.init();
-  NetDiskUserRule.init();
-  NetDiskRule.init();
   [
     "input",
     "select-multiple",
@@ -25798,6 +25744,9 @@
       }
     });
   });
+  WebsiteRule.init();
+  NetDiskUserRule.init();
+  NetDiskRule.init();
   PanelContent.addContentConfig([PanelUI_allSetting]);
   PanelContent.addContentConfig(NetDiskRule.getRulePanelContent());
   let settingMenu = PanelMenu.getMenuOption(0);
