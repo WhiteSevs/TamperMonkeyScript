@@ -90,6 +90,9 @@ export const DouYinLive = {
 			Panel.execMenu("live-autoEnterElementFullScreen", () => {
 				this.autoEnterElementFullScreen();
 			});
+			Panel.execMenu("dy-live-autoCloseChatRoom", () => {
+				this.autoCloseChatRoom();
+			});
 		});
 	},
 	/**
@@ -320,5 +323,19 @@ export const DouYinLive = {
 			visibility: hidden;
 		}
 		`);
+	},
+	/**
+	 * 自动关闭聊天室
+	 */
+	autoCloseChatRoom() {
+		utils
+			.waitNode<HTMLElement>("#chatroom .chatroom_close", 10000)
+			.then(($chatRoomClose) => {
+				if (!$chatRoomClose) {
+					return;
+				}
+				log.info(`自动关闭聊天室`);
+				$chatRoomClose.click();
+			});
 	},
 };

@@ -83,6 +83,13 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									"禁止直播视频区域双击点赞"
 								),
+								UISwitch(
+									"自动关闭聊天室",
+									"dy-live-autoCloseChatRoom",
+									false,
+									void 0,
+									"自动点击关闭聊天室按钮"
+								),
 							],
 						},
 						{
