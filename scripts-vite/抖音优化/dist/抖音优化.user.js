@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.14
+// @version      2025.6.15
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2823,12 +2823,9 @@
       Panel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
         return this.shieldUserCommentToolBar();
       });
-      Panel.execMenuOnce(
-        "dy-video-shieldUserCommentEveryOneAllSearch",
-        () => {
-          return this.shieldUserCommentEveryOneAllSearch();
-        }
-      );
+      Panel.execMenuOnce("dy-video-shieldUserCommentEveryOneAllSearch", () => {
+        return this.shieldUserCommentEveryOneAllSearch();
+      });
     },
     /**
      * 【屏蔽】评论工具栏
@@ -2855,6 +2852,9 @@
       });
       Panel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
         return this.shieldBottomVideoToolbarDanmuContainer();
+      });
+      Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
+        return this.shieldVideoUnderTitleTag();
       });
     },
     /**
@@ -2894,6 +2894,13 @@
           'xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]'
         )
       ];
+    },
+    /**
+     * 【屏蔽】视频标题下的标签
+     */
+    shieldVideoUnderTitleTag() {
+      log.info(`【屏蔽】视频标题下的标签`);
+      return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
     }
   };
   const DouYinVideoPlayerBlockElement_RightToolbar = {
@@ -5573,6 +5580,9 @@
         Panel.execMenu("live-autoEnterElementFullScreen", () => {
           this.autoEnterElementFullScreen();
         });
+        Panel.execMenu("dy-live-autoCloseChatRoom", () => {
+          this.autoCloseChatRoom();
+        });
       });
     },
     /**
@@ -5783,6 +5793,18 @@
 		}
 		`
       );
+    },
+    /**
+     * 自动关闭聊天室
+     */
+    autoCloseChatRoom() {
+      utils.waitNode("#chatroom .chatroom_close", 1e4).then(($chatRoomClose) => {
+        if (!$chatRoomClose) {
+          return;
+        }
+        log.info(`自动关闭聊天室`);
+        $chatRoomClose.click();
+      });
     }
   };
   const DouYinRedirect = {
@@ -11070,6 +11092,13 @@
                     false,
                     void 0,
                     "屏蔽元素，可代替【清屏】功能"
+                  ),
+                  UISwitch(
+                    "【屏蔽】视频标题下的标签",
+                    "dy-video-bottom-shieldVideoUnderTitleTag",
+                    false,
+                    void 0,
+                    "例如：相关搜索、AI搜索、合集...等"
                   )
                 ]
               },
@@ -11374,6 +11403,13 @@
                     false,
                     void 0,
                     "禁止直播视频区域双击点赞"
+                  ),
+                  UISwitch(
+                    "自动关闭聊天室",
+                    "dy-live-autoCloseChatRoom",
+                    false,
+                    void 0,
+                    "自动点击关闭聊天室按钮"
                   )
                 ]
               },
