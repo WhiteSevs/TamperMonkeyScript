@@ -10,12 +10,9 @@ export const DouYinVideoPlayerCommentBlockElement = {
 		Panel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
 			return this.shieldUserCommentToolBar();
 		});
-		Panel.execMenuOnce(
-			"dy-video-shieldUserCommentEveryOneAllSearch",
-			() => {
-				return this.shieldUserCommentEveryOneAllSearch();
-			}
-		);
+		Panel.execMenuOnce("dy-video-shieldUserCommentEveryOneAllSearch", () => {
+			return this.shieldUserCommentEveryOneAllSearch();
+		});
 	},
 
 	/**
@@ -44,6 +41,9 @@ export const DouYinVideoPlayerBlockElement_BottomToolbar = {
 		});
 		Panel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
 			return this.shieldBottomVideoToolbarDanmuContainer();
+		});
+		Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
+			return this.shieldVideoUnderTitleTag();
 		});
 	},
 	/**
@@ -82,6 +82,13 @@ export const DouYinVideoPlayerBlockElement_BottomToolbar = {
 				'xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]'
 			),
 		];
+	},
+	/**
+	 * 【屏蔽】视频标题下的标签
+	 */
+	shieldVideoUnderTitleTag() {
+		log.info(`【屏蔽】视频标题下的标签`);
+		return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
 	},
 };
 
