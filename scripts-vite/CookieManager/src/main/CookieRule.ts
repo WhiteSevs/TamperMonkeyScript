@@ -135,7 +135,6 @@ export const CookieRule = {
 						let $fragment = document.createDocumentFragment();
 						let templateData = this.getTemplateData();
 						if (!isEdit) {
-							// @ts-ignore
 							data = templateData;
 						}
 

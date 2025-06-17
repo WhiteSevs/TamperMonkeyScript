@@ -11,10 +11,10 @@ export const CookieInfoTransform = {
 		if (cookieManagerApiName === "cookieStore") {
 			// cookieStore的返回的值是expire不是expirationDate
 			// 所以赋值给expirationDate
-			// @ts-ignore
-			if (typeof cookieInfo.expires === "number") {
-				// @ts-ignore
-				cookieInfo.expirationDate = cookieInfo.expires;
+			if (typeof (cookieInfo as any as CookieStoreData).expires === "number") {
+				cookieInfo.expirationDate = (
+					cookieInfo as any as CookieStoreData
+				).expires;
 			}
 		} else if (
 			cookieManagerApiName === "GM_cookie" ||
@@ -38,8 +38,8 @@ export const CookieInfoTransform = {
 		} else if (cookieManagerApiName === "cookieStore") {
 			// 把 expirationDate 赋值给 expires
 			if (typeof cookieInfo.expirationDate === "number") {
-				// @ts-ignore
-				cookieInfo.expires = cookieInfo.expirationDate;
+				(cookieInfo as any as CookieStoreData).expires =
+					cookieInfo.expirationDate;
 			}
 		} else if (
 			cookieManagerApiName === "GM_cookie" ||
