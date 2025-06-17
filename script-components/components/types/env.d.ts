@@ -30,6 +30,12 @@ declare type RequiredProperty<T, K extends keyof T> = Omit<T, K> &
 	Required<Pick<T, K>>;
 
 /**
+ * 让对象的某个属性非空
+ */
+declare type NonNullableProperty<T, K extends keyof T> = Omit<T, K> & {
+	[P in K]-?: NonNullable<T[P]>;
+};
+/**
  * 修复无法识别.vue文件的问题
  */
 declare module "*.vue" {
