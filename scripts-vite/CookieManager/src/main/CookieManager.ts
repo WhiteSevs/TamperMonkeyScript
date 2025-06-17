@@ -32,10 +32,12 @@ export const CookieManager = {
 					cookieInfo: GMCookieInstance,
 					callback: (error?: string | null) => void
 				) {
-					// @ts-ignore
-					GM_cookie.set(cookieInfo, (result) => {
-						callback(result);
-					});
+					GM_cookie.set(
+						<NonNullableProperty<GMCookieInstance, "expirationDate">>cookieInfo,
+						(result) => {
+							callback(result);
+						}
+					);
 				},
 				delete(
 					cookieInfo: GMCookieInstance,
@@ -61,11 +63,13 @@ export const CookieManager = {
 					callback: (error?: Error | undefined | null) => void
 				) {
 					GM.cookie
-						// @ts-ignore
-						.set(cookieInfo)
+						.set(
+							<NonNullableProperty<GMCookieInstance, "expirationDate">>(
+								cookieInfo
+							)
+						)
 						.then((result) => {
-							// @ts-ignore
-							callback(result);
+							callback(result ?? null);
 						})
 						.catch((reason) => {
 							callback(reason);
@@ -78,8 +82,7 @@ export const CookieManager = {
 					GM.cookie
 						.delete(cookieInfo)
 						.then((result) => {
-							// @ts-ignore
-							callback(result);
+							callback(result ?? null);
 						})
 						.catch((reason) => {
 							callback(reason);
@@ -201,13 +204,16 @@ export const CookieManager = {
 	addCookie(cookieInfo: GMCookieInstance | CookieStoreData) {
 		return new Promise<string | Error | null | undefined>((resolve, reject) => {
 			try {
-				// @ts-ignore
-				delete cookieInfo.hostOnly;
-				// @ts-ignore
-				CookieManager.cookieManager.set(cookieInfo, (error) => {
-					log.info(["添加Cookie：" + cookieInfo.name, cookieInfo]);
-					resolve(error);
-				});
+				Reflect.deleteProperty(cookieInfo, "hostOnly");
+				CookieManager.cookieManager.set(
+					<NonNullableProperty<GMCookieInstance, "expirationDate">>cookieInfo,
+					(error) => {
+						if (import.meta.env.DEV) {
+							log.info(["添加Cookie：" + cookieInfo.name, cookieInfo]);
+						}
+						resolve(error);
+					}
+				);
 			} catch (error: any) {
 				log.error(error);
 				Qmsg.error(error.toString());
@@ -221,11 +227,15 @@ export const CookieManager = {
 	deleteCookie(cookieInfo: GMCookieInstance | CookieStoreData) {
 		return new Promise<string | Error | null | undefined>((resolve, reject) => {
 			try {
-				// @ts-ignore
-				CookieManager.cookieManager.delete(cookieInfo, (error) => {
-					log.info(["删除Cookie：" + cookieInfo.name, cookieInfo]);
-					resolve(error);
-				});
+				CookieManager.cookieManager.delete(
+					<NonNullableProperty<GMCookieInstance, "expirationDate">>cookieInfo,
+					(error) => {
+						if (import.meta.env.DEV) {
+							log.info(["删除Cookie：" + cookieInfo.name, cookieInfo]);
+						}
+						resolve(error);
+					}
+				);
 			} catch (error: any) {
 				log.error(error);
 				Qmsg.error(error.toString());
@@ -252,7 +262,9 @@ export const CookieManager = {
 				} catch (error: any) {
 					result = error;
 				} finally {
-					log.info(["更新Cookie：" + cookieInfo.name, cookieInfo]);
+					if (import.meta.env.DEV) {
+						log.info(["更新Cookie：" + cookieInfo.name, cookieInfo]);
+					}
 					resolve(result);
 				}
 			}
