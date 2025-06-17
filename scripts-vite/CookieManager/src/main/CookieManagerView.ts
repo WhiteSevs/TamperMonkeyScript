@@ -89,9 +89,14 @@ export const CookieManagerView = {
                 }
                 .cookie-search-inner input{
                     height: 30px;
-                    padding: 5px;
+                    padding: 5px 8px;
                     width: 100%;
+					border-radius: 6px;
                 }
+				.cookie-search-inner input::placeholder{
+					display: flex;
+					align-items: baseline;
+				}
                 .cookie-search-inner input:focus-visible{
                     outline: none;
                 }
@@ -388,25 +393,21 @@ export const CookieManagerView = {
 			cookieList.forEach((cookieItem) => {
 				if (Panel.getValue("exclude-session-cookie")) {
 					// 屏蔽session的cookie
-					// @ts-ignore
-					if (cookieItem.session) {
+					if ((cookieItem as GMCookieInstance).session) {
 						return;
 					}
 					if (
 						CookieManager.cookieManagerApiName === "cookieStore" &&
-						// @ts-ignore
-						cookieItem.expires == null
+						(cookieItem as CookieStoreData).expires == null
 					) {
 						// 如果Api是cookieStore的话,expires的值为空时就是session的cookie
 						return;
 					}
 				}
 				const $cookieItem = createCookieItemElement(cookieItem);
-				// @ts-ignore
-				DOMUtils.append($fragment, $cookieItem);
+				$fragment.appendChild($cookieItem);
 			});
-			// @ts-ignore
-			DOMUtils.append($cookieListWrapper, $fragment);
+			$cookieListWrapper.appendChild($fragment);
 		};
 		updateCookieListGroup();
 		// 设置搜索事件
@@ -515,8 +516,10 @@ export const CookieManagerView = {
 			utils.preventEvent(event);
 			CookieManager.queryAllCookie().then((cookieList) => {
 				cookieList = cookieList.filter((it) => {
-					// @ts-ignore
-					return !(it.session && Panel.getValue("exclude-session-cookie"));
+					return !(
+						(it as GMCookieInstance).session &&
+						Panel.getValue("exclude-session-cookie")
+					);
 				});
 				if (cookieList.length === 0) {
 					Qmsg.warning("没有Cookie可以复制");
