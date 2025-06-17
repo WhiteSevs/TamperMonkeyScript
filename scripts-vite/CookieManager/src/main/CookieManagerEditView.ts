@@ -40,16 +40,8 @@ let edit_ui_input = (
 let edit_ui_select = <T>(
 	text: string,
 	data:
-		| {
-				value: T;
-				text: string;
-				disable?(value: T): boolean;
-		  }[]
-		| (() => {
-				value: T;
-				text: string;
-				disable?(value: T): boolean;
-		  }[]),
+		| PopsPanelSelectDetails<T>["data"]
+		| (() => PopsPanelSelectDetails<T>["data"]),
 	getValue: () => T,
 	setValue: (selectedValue: T) => void,
 	disabled?: boolean
@@ -67,8 +59,7 @@ let edit_ui_select = <T>(
 			let value = isSelectedValue;
 			setValue(value);
 		},
-		// @ts-ignore
-		data: data,
+		data: typeof data === "function" ? data() : data,
 		disabled: Boolean(disabled),
 	};
 	return config;
