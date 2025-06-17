@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.12
+// @version      2025.6.17
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @grant        GM.cookie
@@ -399,6 +399,9 @@
       get scriptName() {
         return SCRIPT_NAME;
       },
+      /**
+       * pops.panel的默认配置
+       */
       get panelConfig() {
         return this.__panelConfig;
       },
@@ -1037,9 +1040,12 @@
             });
           },
           set(cookieInfo, callback) {
-            __GM_cookie__.set(cookieInfo, (result) => {
-              callback(result);
-            });
+            __GM_cookie__.set(
+              cookieInfo,
+              (result) => {
+                callback(result);
+              }
+            );
           },
           delete(cookieInfo, callback) {
             __GM_cookie__.delete(cookieInfo, (result) => {
@@ -1055,15 +1061,17 @@
             });
           },
           set(cookieInfo, callback) {
-            _GM.cookie.set(cookieInfo).then((result) => {
-              callback(result);
+            _GM.cookie.set(
+              cookieInfo
+            ).then((result) => {
+              callback(result ?? null);
             }).catch((reason) => {
               callback(reason);
             });
           },
           delete(cookieInfo, callback) {
             _GM.cookie.delete(cookieInfo).then((result) => {
-              callback(result);
+              callback(result ?? null);
             }).catch((reason) => {
               callback(reason);
             });
@@ -1161,11 +1169,14 @@
     addCookie(cookieInfo) {
       return new Promise((resolve, reject) => {
         try {
-          delete cookieInfo.hostOnly;
-          CookieManager.cookieManager.set(cookieInfo, (error) => {
-            log.info(["添加Cookie：" + cookieInfo.name, cookieInfo]);
-            resolve(error);
-          });
+          Reflect.deleteProperty(cookieInfo, "hostOnly");
+          CookieManager.cookieManager.set(
+            cookieInfo,
+            (error) => {
+              if (false) ;
+              resolve(error);
+            }
+          );
         } catch (error) {
           log.error(error);
           Qmsg.error(error.toString());
@@ -1179,10 +1190,13 @@
     deleteCookie(cookieInfo) {
       return new Promise((resolve, reject) => {
         try {
-          CookieManager.cookieManager.delete(cookieInfo, (error) => {
-            log.info(["删除Cookie：" + cookieInfo.name, cookieInfo]);
-            resolve(error);
-          });
+          CookieManager.cookieManager.delete(
+            cookieInfo,
+            (error) => {
+              if (false) ;
+              resolve(error);
+            }
+          );
         } catch (error) {
           log.error(error);
           Qmsg.error(error.toString());
@@ -1209,7 +1223,6 @@
           } catch (error) {
             result = error;
           } finally {
-            log.info(["更新Cookie：" + cookieInfo.name, cookieInfo]);
             resolve(result);
           }
         }
@@ -1252,22 +1265,31 @@
       this.$data.storeApiValue.set(type, storageApiValue);
     },
     /**
-     * 设置组件的存储接口属性
+     * 初始化组件的存储接口属性
+     *
      * @param type 组件类型
      * @param config 组件配置，必须包含prop属性
      * @param storageApiValue 存储接口
      */
-    setComponentsStorageApiProperty(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
       } else {
         propsStorageApi = storageApiValue;
       }
-      Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+      this.setComponentsStorageApiProperty(config, propsStorageApi);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(config, storageApiValue) {
+      Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
@@ -1275,25 +1297,26 @@
       attributes: {},
       props: {},
       getValue() {
-        return Boolean(
-          this.props[PROPS_STORAGE_API].get(key, defaultValue)
-        );
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return Boolean(storageApiValue.get(key, defaultValue));
       },
       callback(event, __value) {
         let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        if (typeof clickCallBack === "function") {
-          if (clickCallBack(event, value)) {
+        if (typeof clickCallback === "function") {
+          let result2 = clickCallback(event, value);
+          if (result2) {
             return;
           }
         }
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "switch",
       result,
       {
@@ -1379,8 +1402,7 @@
         let value = isSelectedValue;
         setValue(value);
       },
-      // @ts-ignore
-      data,
+      data: typeof data === "function" ? data() : data,
       disabled: Boolean(disabled)
     };
     return config;
@@ -1691,7 +1713,7 @@
       return true;
     }
   };
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
+  const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -1705,21 +1727,26 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof callback === "function") {
-          callback(event, value, isSelectedText);
+        if (typeof changeCallback === "function") {
+          let result2 = changeCallback(event, value, isSelectedText);
+          if (result2) {
+            return;
+          }
         }
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       data: selectData
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "select",
       result,
       {
@@ -1733,27 +1760,29 @@
     );
     return result;
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
     let result = {
       text,
       type: "input",
       isNumber: Boolean(isNumber),
       isPassword: Boolean(isPassword),
-      props: {},
       attributes: {},
+      props: {},
       description,
       afterAddToUListCallBack,
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       callback(event, value) {
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       placeholder
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "input",
       result,
       {
@@ -1767,7 +1796,7 @@
     );
     return result;
   };
-  const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
+  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled) {
     let result = {
       text,
       type: "textarea",
@@ -1777,19 +1806,21 @@
       placeholder,
       disabled,
       getValue() {
-        let value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        let value = storageApiValue.get(key, defaultValue);
         if (Array.isArray(value)) {
           return value.join("\n");
         }
         return value;
       },
       callback(event, value) {
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       }
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "switch",
       result,
       {
@@ -3163,9 +3194,14 @@
                 }
                 .cookie-search-inner input{
                     height: 30px;
-                    padding: 5px;
+                    padding: 5px 8px;
                     width: 100%;
+					border-radius: 6px;
                 }
+				.cookie-search-inner input::placeholder{
+					display: flex;
+					align-items: baseline;
+				}
                 .cookie-search-inner input:focus-visible{
                     outline: none;
                 }
@@ -3434,15 +3470,14 @@
             if (cookieItem.session) {
               return;
             }
-            if (CookieManager.cookieManagerApiName === "cookieStore" && // @ts-ignore
-            cookieItem.expires == null) {
+            if (CookieManager.cookieManagerApiName === "cookieStore" && cookieItem.expires == null) {
               return;
             }
           }
           const $cookieItem = createCookieItemElement(cookieItem);
-          domUtils.append($fragment, $cookieItem);
+          $fragment.appendChild($cookieItem);
         });
-        domUtils.append($cookieListWrapper, $fragment);
+        $cookieListWrapper.appendChild($fragment);
       };
       updateCookieListGroup();
       domUtils.on(
@@ -3794,6 +3829,7 @@
       text,
       type: "button",
       attributes: {},
+      props: {},
       description,
       buttonIcon,
       buttonIsRightIcon,
