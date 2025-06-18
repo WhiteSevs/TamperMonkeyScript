@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.18.21
+// @version      2025.6.19
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -3608,12 +3608,9 @@
         "x-app-version": "2.4.0"
       });
     }
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
-      log.info(ruleIndex, shareCode, accessCode);
-      that.ruleIndex = ruleIndex;
-      that.shareCode = shareCode;
-      that.accessCode = accessCode;
       that.panelList = [];
       that.Authorization = NetDiskAuthorization_123pan_Authorization.get();
       let checkLinkValidityStatus = await that.checkLinkValidity();
@@ -3728,7 +3725,11 @@
             that.shareCode,
             that.accessCode,
             (option) => {
-              that.init(that.ruleIndex, that.shareCode, option.accessCode);
+              that.init({
+                ruleIndex: that.ruleIndex,
+                shareCode: that.shareCode,
+                accessCode: option.accessCode
+              });
             }
           );
         } else {
@@ -3782,7 +3783,11 @@
           that.shareCode,
           that.accessCode,
           (option) => {
-            that.init(that.ruleIndex, that.shareCode, option.accessCode);
+            that.init({
+              ruleIndex: that.ruleIndex,
+              shareCode: that.shareCode,
+              accessCode: option.accessCode
+            });
           }
         );
       } else if (that.code[json_data["code"]]) {
@@ -4073,12 +4078,9 @@
        */
       __publicField(this, "X_Canary", "client=web,app=share,version=v2.3.1");
     }
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
-      log.info(ruleIndex, shareCode, accessCode);
-      that.ruleIndex = ruleIndex;
-      that.shareCode = shareCode;
-      that.accessCode = accessCode;
       that.X_Device_Id = that.get_X_Device_Id();
       log.info("生成X_Device_Id：" + that.X_Device_Id);
       if (globalThis.location.hostname !== "www.aliyundrive.com" && globalThis.location.hostname !== "www.alipan.com") {
@@ -4378,15 +4380,9 @@
   class NetDiskParse_Baidu extends ParseFileAbstract {
     /**
      * 入口
-     * @param ruleIndex 规则下标
-     * @param shareCode
-     * @param accessCode
      */
-    init(ruleIndex, shareCode, accessCode) {
-      log.info(ruleIndex, shareCode, accessCode);
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = _GM_getValue("baidu-baiduwp-php-url");
       let postForm = _GM_getValue("baidu-baiduwp-php-post-form");
       let enableCopy = _GM_getValue("baidu-baiduwp-php-copy-url");
@@ -5487,11 +5483,9 @@
   class NetDiskParse_Chengtong extends ParseFileAbstract {
     /**
      * 入口
-     * @param ruleIndex
-     * @param shareCode
-     * @param accessCode
      */
-    init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let ruleKeyName = "chengtong";
       if (ruleIndex !== 3) {
         log.warn(
@@ -5647,11 +5641,8 @@
     }
   };
   class NetDiskParse_ed2k extends ParseFileAbstract {
-    async init(ruleIndex, shareCode, accessCode) {
-      log.info(ruleIndex, shareCode, accessCode);
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName: "ed2k",
         ruleIndex,
@@ -5674,12 +5665,9 @@
         UnAuthorized: "请先登录坚果云账号"
       });
     }
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
-      log.info(ruleIndex, shareCode, accessCode);
-      that.ruleIndex = ruleIndex;
-      that.shareCode = shareCode;
-      that.accessCode = accessCode;
       let downloadParams = await that.getRequestDownloadParams();
       if (!downloadParams) {
         return;
@@ -5832,7 +5820,11 @@
             that.shareCode,
             that.accessCode,
             (option) => {
-              that.init(that.ruleIndex, that.shareCode, option.accessCode);
+              that.init({
+                ruleIndex: that.ruleIndex,
+                shareCode: that.shareCode,
+                accessCode: option.accessCode
+              });
             }
           );
           return;
@@ -5846,7 +5838,11 @@
             that.shareCode,
             that.accessCode,
             (option) => {
-              that.init(that.ruleIndex, that.shareCode, option.accessCode);
+              that.init({
+                ruleIndex: that.ruleIndex,
+                shareCode: that.shareCode,
+                accessCode: option.accessCode
+              });
             }
           );
           return;
@@ -5882,7 +5878,11 @@
           that.shareCode,
           that.accessCode,
           (option) => {
-            that.init(that.ruleIndex, that.shareCode, option.accessCode);
+            that.init({
+              ruleIndex: that.ruleIndex,
+              shareCode: that.shareCode,
+              accessCode: option.accessCode
+            });
           }
         );
       } else {
@@ -6178,15 +6178,9 @@
     }
     /**
      * 入口
-     * @param ruleIndex
-     * @param shareCode
-     * @param accessCode
      */
-    async init(ruleIndex, shareCode, accessCode) {
-      log.info(ruleIndex, shareCode, accessCode);
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       this.regexp.unicode.isUnicode = Boolean(
         shareCode.match(this.regexp.unicode.match)
       );
@@ -6836,7 +6830,11 @@
           shareCode,
           accessCode,
           (option) => {
-            this.init(this.ruleIndex, shareCode, option.accessCode);
+            this.init({
+              ruleIndex: this.ruleIndex,
+              shareCode,
+              accessCode: option.accessCode
+            });
           }
         );
       } else {
@@ -7023,17 +7021,11 @@
     }
     /**
      * 入口
-     * @param ruleIndex
-     * @param shareCode
-     * @param accessCode
      */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
       var _a2, _b, _c, _d;
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
-      log.info(ruleIndex, shareCode, accessCode);
-      that.ruleIndex = ruleIndex;
-      that.shareCode = shareCode;
-      that.accessCode = accessCode;
       that.shareCodeId = that.getDecodeShareCodeId(shareCode);
       that.uuid = that.getEncodeUUID();
       let linkInfo = await this.recommendList(
@@ -7384,11 +7376,8 @@
     }
   }
   class NetDiskParse_magnet extends ParseFileAbstract {
-    async init(ruleIndex, shareCode, accessCode) {
-      log.info(ruleIndex, shareCode, accessCode);
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName: "magnet",
         ruleIndex,
@@ -7424,12 +7413,9 @@
       __publicField(this, "panelContent", "");
       __publicField(this, "OK_CODE", "0000");
     }
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
-      log.info(ruleIndex, shareCode, accessCode);
-      that.ruleIndex = ruleIndex;
-      that.shareCode = shareCode;
-      that.accessCode = accessCode;
       that.panelList = [];
       that.panelContent = "";
       let checkLinkValidityInfo = await that.checkLinkValidity(
@@ -7531,7 +7517,11 @@
             that.shareCode,
             that.accessCode,
             (option) => {
-              that.init(that.ruleIndex, that.shareCode, option.accessCode);
+              that.init({
+                ruleIndex: that.ruleIndex,
+                shareCode: that.shareCode,
+                accessCode: option.accessCode
+              });
             }
           );
           return false;
@@ -7918,12 +7908,9 @@
         InvalidSessionKey: "天翼云PC端Cookie未生成，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC且在登录后要等待进入个人云空间后生成Cookie，不是手机端浏览的个人云空间，那样生成的Cookie无法使用)"
       });
     }
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
-      log.info(ruleIndex, shareCode, accessCode);
-      that.ruleIndex = ruleIndex;
-      that.shareCode = shareCode;
-      that.accessCode = accessCode;
       let shareInfoData = await that.getShareInfoByCodeV2(shareCode);
       if (!shareInfoData) {
         return;
@@ -7938,7 +7925,11 @@
           that.shareCode,
           that.accessCode,
           (option) => {
-            that.init(that.ruleIndex, that.shareCode, option.accessCode);
+            that.init({
+              ruleIndex: that.ruleIndex,
+              shareCode: that.shareCode,
+              accessCode: option.accessCode
+            });
           }
         );
         return;
@@ -8356,16 +8347,10 @@
   class NetDiskParse_UC extends ParseFileAbstract {
     /**
      * 入口
-     * @param ruleIndex
-     * @param shareCode
-     * @param accessCode
      */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
-      log.info(ruleIndex, shareCode, accessCode);
-      that.ruleIndex = ruleIndex;
-      that.shareCode = shareCode;
-      that.accessCode = accessCode;
       Qmsg.info("检查是否已登录UC网盘");
       let loginStatus = await that.isLogin();
       if (!Boolean(loginStatus)) {
@@ -8801,12 +8786,8 @@
         1088: "糟糕，您访问的页面不存在"
       });
     }
-    async init(ruleIndex, shareCode, accessCode) {
-      const that = this;
-      log.info(ruleIndex, shareCode, accessCode);
-      that.ruleIndex = ruleIndex;
-      that.shareCode = shareCode;
-      that.accessCode = accessCode;
+    async init(netDiskInfo) {
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       Qmsg.info("正在请求直链中...");
       let token = await this.getWssToken();
       if (!token) {
@@ -9271,8 +9252,17 @@
     async parseFile(ruleKeyName, ruleIndex, shareCode, accessCode) {
       log.success(`链接解析：`, [...arguments]);
       if (NetDiskParse.rule[ruleKeyName]) {
-        let parseObj = new NetDiskParse.rule[ruleKeyName]();
-        await parseObj.init(ruleIndex, shareCode, accessCode ?? "");
+        let parseInst = new NetDiskParse.rule[ruleKeyName]();
+        const netDiskInfo = {
+          ruleIndex,
+          shareCode,
+          accessCode: accessCode ?? ""
+        };
+        parseInst.ruleIndex = netDiskInfo.ruleIndex;
+        parseInst.shareCode = netDiskInfo.shareCode;
+        parseInst.accessCode = netDiskInfo.accessCode;
+        log.info(["文件解析：", netDiskInfo]);
+        await parseInst.init(netDiskInfo);
       } else {
         log.error(`${ruleKeyName} 未配置解析函数`, [
           ruleKeyName,
@@ -9362,12 +9352,8 @@
     }
   };
   const NetDiskCheckLinkValidity_baidu = {
-    /**
-     * @param ruleIndex 规则下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName: "baidu",
         ruleIndex,
@@ -9435,12 +9421,8 @@
     }
   };
   const NetDiskCheckLinkValidity_lanzou = {
-    /**
-     * @param ruleIndex 网盘名称索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName: "lanzou",
         ruleIndex,
@@ -9499,12 +9481,8 @@
     }
   };
   const NetDiskCheckLinkValidity_lanzouyx = {
-    /**
-     * @param ruleIndex 网盘名称索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let LanZouYX = new NetDiskParse.rule.lanzouyx();
       LanZouYX.shareCodeId = LanZouYX.getDecodeShareCodeId(shareCode);
       let timestamp = LanZouYX.getEncodeTimeStamp();
@@ -9564,12 +9542,8 @@
     }
   };
   const NetDiskCheckLinkValidity_tianyiyun = {
-    /**
-     * @param ruleIndex 网盘名称索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, AccessCodeType) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let response = await httpx.post(
         "https://api.cloud.189.cn/open/share/getShareInfoByCodeV2.action",
         {
@@ -9611,13 +9585,9 @@
     }
   };
   const NetDiskCheckLinkValidity_aliyun = {
-    /**
-     * @param ruleIndex 规则下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, AccessCodeType) {
+    async init(netDiskInfo) {
       var _a2;
+      const { shareCode } = netDiskInfo;
       let response = await httpx.post(
         "https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous?share_id=" + shareCode,
         {
@@ -9659,12 +9629,8 @@
     }
   };
   const NetDiskCheckLinkValidity_wenshushu = {
-    /**
-     * @param ruleIndex 规则下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let response = await httpx.post(
         "https://www.wenshushu.cn/ap/task/mgrtask",
         {
@@ -9708,12 +9674,8 @@
     }
   };
   const NetDiskCheckLinkValidity_nainiu = {
-    /**
-     * @param ruleIndex 网盘名称索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, AccessCodeType) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let response = await httpx.get(
         `https://cowtransfer.com/core/api/transfer/share?uniqueUrl=${shareCode}`,
         {
@@ -9752,12 +9714,8 @@
     }
   };
   const NetDiskCheckLinkValidity_123pan = {
-    /**
-     * @param ruleIndex 规则下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, AccessCodeType) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let response = await httpx.get(
         "https://www.123pan.com/api/share/info?shareKey=" + shareCode,
         {
@@ -9797,12 +9755,8 @@
     }
   };
   const NetDiskCheckLinkValidity_weiyun = {
-    /**
-     * @param ruleIndex 规则下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName: "weiyun",
         ruleIndex,
@@ -9844,12 +9798,8 @@
     }
   };
   const NetDiskCheckLinkValidity_xunlei = {
-    /**
-     * @param ruleIndex 规则下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let postResponse = await httpx.post(
         "https://xluser-ssl.xunlei.com/v1/shield/captcha/init",
         {
@@ -9931,12 +9881,8 @@
     }
   };
   const NetDiskCheckLinkValidity_chengtong = {
-    /**
-     * @param ruleIndex 网盘名称索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let blankUrl = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName: "chengtong",
         ruleIndex,
@@ -10000,12 +9946,8 @@
     }
   };
   const NetDiskCheckLinkValidity_kuake = {
-    /**
-     * @param ruleIndex 网盘名称索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let response = await httpx.post(
         "https://drive.quark.cn/1/clouddrive/share/sharepage/token?pr=ucpro&fr=pc",
         {
@@ -10107,12 +10049,8 @@
     }
   };
   const NetDiskCheckLinkValidity_jianguoyun = {
-    /**
-     * @param ruleIndex 规则下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName: "jianguoyun",
         ruleIndex,
@@ -10153,13 +10091,9 @@
     }
   };
   const NetDiskCheckLinkValidity_onedrive = {
-    /**
-     * @param ruleIndex 网盘名称索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
       var _a2, _b, _c;
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName: "onedrive",
         ruleIndex,
@@ -10215,12 +10149,8 @@
     }
   };
   const NetDiskCheckLinkValidity_uc = {
-    /**
-     * @param ruleIndex 网盘名称索引下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let response = await httpx.get("https://drive.uc.cn/s/" + shareCode, {
         headers: {
           "User-Agent": utils.getRandomAndroidUA(),
@@ -10271,12 +10201,8 @@
     }
   };
   const NetDiskCheckLinkValidity_115pan = {
-    /**
-     * @param ruleIndex 规则下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, accessCode) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let response = await httpx.get(
         `https://webapi.115.com/share/snap?share_code=${shareCode}&offset=0&limit=20&receive_code=&cid=`,
         {
@@ -10329,12 +10255,8 @@
     }
   };
   const NetDiskCheckLinkValidity_360yunpan = {
-    /**
-     * @param ruleIndex 规则下标
-     * @param shareCode 分享码
-     * @param accessCode 访问码
-     */
-    async init(ruleIndex, shareCode, AccessCodeType) {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = "https://www.yunpan.com/lk/surl_" + shareCode;
       let response = await httpx.get(url, {
         headers: {
@@ -10701,11 +10623,11 @@
         return;
       }
       this.status.loading.setView($checkValidStatus, checkInfo);
-      let checkStatusResult = await netDiskCheck.init(
-        checkInfo.ruleIndex,
-        checkInfo.shareCode,
-        checkInfo.accessCode
-      );
+      let checkStatusResult = await netDiskCheck.init({
+        ruleIndex: checkInfo.ruleIndex,
+        shareCode: checkInfo.shareCode,
+        accessCode: checkInfo.accessCode
+      });
       if (!checkStatusResult) {
         log.error("该验证函数的返回值不是有效值", [checkStatusResult, checkInfo]);
         return;
@@ -17833,9 +17755,7 @@
               ruleKey,
               {
                 init: new AsyncFunction(
-                  "ruleIndex",
-                  "shareCode",
-                  "accessCode",
+                  "netDiskInfo",
                   userRuleItemConfig.checkLinkValidityFunction
                   // 绑定作用域
                 ).bind(context)
