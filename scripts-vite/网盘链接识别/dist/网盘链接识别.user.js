@@ -9749,13 +9749,13 @@
         };
       }
       let responseText = response.data.responseText;
-      if (responseText.includes("已删除") || responseText.includes("违反相关法规") || responseText.includes("已过期") || responseText.includes("已经删除") || responseText.includes("目录无效")) {
+      if (responseText.includes("已删除") || responseText.includes("已被删除") || responseText.includes("已经删除") || responseText.includes("违反相关法规") || responseText.includes("已过期") || responseText.includes("目录无效")) {
         return {
           ...NetDiskCheckLinkValidity.status.failed,
           data: response
         };
       }
-      if (responseText.includes('"need_pwd":1') || responseText.includes('"pwd":"')) {
+      if (responseText.includes('"need_pwd":1') || responseText.includes('"pwd":"') && !responseText.includes('"pwd":""')) {
         return {
           ...NetDiskCheckLinkValidity.status.needAccessCode,
           data: response
