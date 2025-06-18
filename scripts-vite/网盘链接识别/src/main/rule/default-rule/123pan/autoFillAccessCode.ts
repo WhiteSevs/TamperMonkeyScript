@@ -10,13 +10,13 @@ export const NetDiskAutoFillAccessCode_123pan = function (
 		log.success("自动填写链接", netDiskInfo);
 		utils
 			.waitNode<HTMLInputElement>("#app .ca-fot input.ant-input[type=text]")
-			.then((element) => {
-				if (!utils.isVisible(element)) {
+			.then(($el) => {
+				if (!utils.isVisible($el)) {
 					log.error("输入框不可见，不输入密码");
 					return;
 				}
 				Qmsg.success("自动填充访问码");
-				ReactUtils.waitReactPropsToSet(element, "reactProps", {
+				ReactUtils.waitReactPropsToSet($el, "reactProps", {
 					check(reactInstance) {
 						return typeof reactInstance?.onChange === "function";
 					},
@@ -28,7 +28,7 @@ export const NetDiskAutoFillAccessCode_123pan = function (
 						});
 					},
 				});
-				let $next = element.nextSibling as HTMLElement;
+				let $next = $el.nextSibling as HTMLElement;
 				$next?.click();
 			});
 
@@ -37,13 +37,13 @@ export const NetDiskAutoFillAccessCode_123pan = function (
 		/* 移动端 */
 		utils
 			.waitNode<HTMLInputElement>("#app .appinput input.ant-input[type=text]")
-			.then((element) => {
-				if (!utils.isVisible(element)) {
+			.then(($el) => {
+				if (!utils.isVisible($el)) {
 					log.error("输入框不可见，不输入密码");
 					return;
 				}
 				Qmsg.success("自动填充访问码");
-				ReactUtils.waitReactPropsToSet(element, "reactProps", {
+				ReactUtils.waitReactPropsToSet($el, "reactProps", {
 					check(reactInstance) {
 						return typeof reactInstance?.onChange === "function";
 					},
@@ -55,7 +55,7 @@ export const NetDiskAutoFillAccessCode_123pan = function (
 						});
 					},
 				});
-				let $next = element.nextSibling as HTMLElement;
+				let $next = $el.nextSibling as HTMLElement;
 				$next?.click();
 			});
 	}
