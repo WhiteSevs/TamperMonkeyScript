@@ -12,7 +12,11 @@ export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceIn
 		 * @param shareCode 分享码
 		 * @param accessCode 访问码
 		 */
-		async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
+		async init(
+			ruleIndex: number,
+			shareCode: string,
+			accessCode: AccessCodeType
+		) {
 			let postResponse = await httpx.post(
 				"https://xluser-ssl.xunlei.com/v1/shield/captcha/init",
 				{
@@ -30,12 +34,12 @@ export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceIn
 					headers: {
 						"User-Agent": utils.getRandomPCUA(),
 						Host: "pan.xunlei.com",
-						Referer: NetDiskLinkClickModeUtils.getBlankUrl(
-							"xunlei",
+						Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+							ruleKeyName: "xunlei",
 							ruleIndex,
 							shareCode,
-							accessCode
-						),
+							accessCode,
+						}),
 						Origin: "https://pan.xunlei.com",
 					},
 					...NetDiskCheckLinkValidityRequestOption,
@@ -58,12 +62,12 @@ export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceIn
 					headers: {
 						"User-Agent": utils.getRandomPCUA(),
 						Host: "pan.xunlei.com",
-						Referer: NetDiskLinkClickModeUtils.getBlankUrl(
-							"xunlei",
+						Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+							ruleKeyName: "xunlei",
 							ruleIndex,
 							shareCode,
-							accessCode
-						),
+							accessCode,
+						}),
 						Origin: "https://pan.xunlei.com",
 						"x-captcha-token": token,
 						"x-client-id": "Xqp0kJBXWhwaTpB6",

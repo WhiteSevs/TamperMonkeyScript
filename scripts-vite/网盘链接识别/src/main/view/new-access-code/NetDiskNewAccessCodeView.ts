@@ -62,13 +62,12 @@ export const NetDiskNewAccessCodeView = function (
 						/* 把输入的新密码去空格 */
 						let userInputAccessCode = event.text.replace(/[\s]*/gi, "");
 						/* 处理已显示的链接 */
-						let uiLink = NetDisk.handleLinkShow(
+						let uiLink = NetDisk.handleLinkShow({
 							ruleKeyName,
 							ruleIndex,
 							shareCode,
-							userInputAccessCode,
-							void 0
-						);
+							accessCode: userInputAccessCode,
+						});
 						if (!uiLink) {
 							return;
 						}
@@ -120,7 +119,7 @@ export const NetDiskNewAccessCodeView = function (
 							let currentDict = netDiskDict.get(shareCode);
 							netDiskDict.set(
 								shareCode,
-								NetDisk.getLinkStorageInst(
+								NetDisk.createLinkStorageInst(
 									userInputAccessCode,
 									ruleIndex,
 									true,

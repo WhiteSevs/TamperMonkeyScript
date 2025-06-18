@@ -25,12 +25,12 @@ export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceIns
 						"Content-Type": "application/json;charset=UTF-8",
 						"User-Agent": utils.getRandomPCUA(),
 						Origin: "https://pan.quark.cn",
-						Referer: NetDiskLinkClickModeUtils.getBlankUrl(
-							"kuake",
+						Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+							ruleKeyName: "kuake",
 							ruleIndex,
 							shareCode,
-							accessCode
-						),
+							accessCode,
+						}),
 					},
 					...NetDiskCheckLinkValidityRequestOption,
 				}

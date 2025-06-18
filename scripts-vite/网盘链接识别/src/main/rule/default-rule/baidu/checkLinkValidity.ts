@@ -13,12 +13,12 @@ export const NetDiskCheckLinkValidity_baidu: NetDiskCheckLinkValidityEntranceIns
 		 * @param accessCode 访问码
 		 */
 		async init(ruleIndex: number, shareCode: string, accessCode) {
-			let url = NetDiskLinkClickModeUtils.getBlankUrl(
-				"baidu",
+			let url = NetDiskLinkClickModeUtils.getBlankUrl({
+				ruleKeyName: "baidu",
 				ruleIndex,
 				shareCode,
-				accessCode
-			);
+				accessCode,
+			});
 			let response = await httpx.get(url, {
 				headers: {
 					Accept:

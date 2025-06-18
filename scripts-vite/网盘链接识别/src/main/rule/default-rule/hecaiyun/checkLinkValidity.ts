@@ -21,12 +21,12 @@ export const NetDiskCheckLinkValidity_hecaiyun: NetDiskCheckLinkValidityEntrance
 					headers: {
 						"Content-Type": "application/x-www-form-urlencoded",
 						"User-Agent": utils.getRandomPCUA(),
-						Referer: NetDiskLinkClickModeUtils.getBlankUrl(
-							"hecaiyun",
+						Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+							ruleKeyName: "hecaiyun",
 							ruleIndex,
 							shareCode,
-							accessCode
-						),
+							accessCode,
+						}),
 					},
 					...NetDiskCheckLinkValidityRequestOption,
 				}

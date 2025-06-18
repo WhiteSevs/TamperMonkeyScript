@@ -16,12 +16,12 @@ export class NetDiskParse_magnet extends ParseFileAbstract {
 		this.accessCode = accessCode;
 		const that = this;
 
-		let url = NetDiskLinkClickModeUtils.getBlankUrl(
-			"magnet",
+		let url = NetDiskLinkClickModeUtils.getBlankUrl({
+			ruleKeyName: "magnet",
 			ruleIndex,
 			shareCode,
-			accessCode
-		);
+			accessCode,
+		});
 		let $loading = Qmsg.loading("正在请求Api中...");
 		let metaInfo = await MetaDataParser.parseFileMetaInfo(url);
 		$loading.close();

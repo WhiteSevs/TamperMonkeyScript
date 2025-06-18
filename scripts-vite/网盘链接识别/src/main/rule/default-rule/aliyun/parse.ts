@@ -28,7 +28,11 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 	 * header请求头 X-Canary
 	 */
 	X_Canary = "client=web,app=share,version=v2.3.1";
-	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
+	async init(
+		ruleIndex: number,
+		shareCode: string,
+		accessCode: AccessCodeNonNullType
+	) {
 		const that = this;
 		log.info(ruleIndex, shareCode, accessCode);
 		that.ruleIndex = ruleIndex;
@@ -40,12 +44,12 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 			globalThis.location.hostname !== "www.aliyundrive.com" &&
 			globalThis.location.hostname !== "www.alipan.com"
 		) {
-			let url = NetDiskLinkClickModeUtils.getBlankUrl(
-				"aliyun",
-				that.ruleIndex,
-				that.shareCode,
-				that.accessCode
-			);
+			let url = NetDiskLinkClickModeUtils.getBlankUrl({
+				ruleKeyName: "aliyun",
+				ruleIndex,
+				shareCode,
+				accessCode,
+			});
 			let $QmsgErrorTip = Qmsg.error(
 				`请在阿里云盘页面解析，<a href="${url}">点我前往</a>`,
 				{

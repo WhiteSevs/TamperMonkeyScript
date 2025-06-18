@@ -236,12 +236,12 @@ export const NetDiskUI = {
 							let $link = menuListenerRootNode;
 							const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 								NetDiskView.praseElementAttributeRuleInfo($link);
-							let url = NetDiskLinkClickModeUtils.getBlankUrl(
+							let url = NetDiskLinkClickModeUtils.getBlankUrl({
 								ruleKeyName,
 								ruleIndex,
 								shareCode,
-								accessCode
-							);
+								accessCode,
+							});
 							NetDiskLinkClickMode.openBlankUrl(
 								url,
 								ruleKeyName,
@@ -273,12 +273,12 @@ export const NetDiskUI = {
 							let $link = menuListenerRootNode;
 							const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 								NetDiskView.praseElementAttributeRuleInfo($link);
-							let url = NetDiskLinkClickModeUtils.getBlankUrl(
+							let url = NetDiskLinkClickModeUtils.getBlankUrl({
 								ruleKeyName,
 								ruleIndex,
 								shareCode,
-								accessCode
-							);
+								accessCode,
+							});
 							NetDiskLinkClickMode.openBlankUrl(
 								url,
 								ruleKeyName,
@@ -456,12 +456,12 @@ export const NetDiskUI = {
 									const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 										NetDiskView.praseElementAttributeRuleInfo($linkItem);
 									// 复制的文本
-									let copyUrlText = NetDiskLinkClickModeUtils.getCopyUrlInfo(
+									let copyUrlText = NetDiskLinkClickModeUtils.getCopyUrlInfo({
 										ruleKeyName,
 										ruleIndex,
 										shareCode,
-										accessCode
-									);
+										accessCode,
+									});
 									copyTextList.push(copyUrlText);
 								});
 							utils

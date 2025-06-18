@@ -13,12 +13,12 @@ export const NetDiskCheckLinkValidity_onedrive: NetDiskCheckLinkValidityEntrance
 		 * @param accessCode 访问码
 		 */
 		async init(ruleIndex: number, shareCode: string, accessCode) {
-			let url = NetDiskLinkClickModeUtils.getBlankUrl(
-				"onedrive",
+			let url = NetDiskLinkClickModeUtils.getBlankUrl({
+				ruleKeyName: "onedrive",
 				ruleIndex,
 				shareCode,
-				accessCode
-			);
+				accessCode,
+			});
 			let urlObj = new URL(url);
 			let response = await httpx.get(url, {
 				headers: {

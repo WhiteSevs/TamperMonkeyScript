@@ -9,6 +9,7 @@ import { WebsiteRuleDataKey } from "./data/NetDiskRuleDataKey";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { CharacterMapping } from "./character-mapping/CharacterMapping";
 import { Panel } from "@components/setting/panel";
+import type { NetDiskDebugHandlerConfig } from "./debug/NetDiskDebug";
 
 export const NetDisk = {
 	$data: {
@@ -70,14 +71,14 @@ export const NetDisk = {
 		/**
 		 * 使用该正则判断提取到的shareCode是否正确
 		 */
-		shareCodeNotMatchRegexpList: [
+		shareCodeNotMatchRegExpList: [
 			/vipstyle|notexist|ajax|file|download|ptqrshow|xy-privacy/g,
 			/comp|web|undefined|1125|unproved|console|account|favicon|setc/g,
 		],
 		/**
 		 * 使用该正则判断提取到的accessCode是否正确
 		 */
-		accessCodeNotMatchRegexpList: [/^(font|http)/gi],
+		accessCodeNotMatchRegExpList: [/^(font|http)/gi],
 		/**
 		 * 当没有accessCode时，使用该正则去除不需要的字符串
 		 */
@@ -159,18 +160,23 @@ export const NetDisk = {
 	 * @param ruleIndex 规则的索引下标
 	 * @param matchText 正在进行匹配的文本
 	 */
-	handleLink(ruleKeyName: string, ruleIndex: number, matchText: string) {
-		let shareCode = this.handleShareCode(ruleKeyName, ruleIndex, matchText);
+	handleLink(handlerConfig: {
+		/** 规则键名 */
+		ruleKeyName: string;
+		/** 规则的索引下标 */
+		ruleIndex: number;
+		/** 正在进行匹配的文本 */
+		matchText: string;
+	}) {
+		let shareCode = this.handleShareCode(handlerConfig);
 		if (utils.isNull(shareCode)) {
 			return;
 		}
-		let accessCode = this.handleAccessCode(ruleKeyName, ruleIndex, matchText);
-		accessCode = this.handleAccessCodeByUserRule(
-			ruleKeyName,
-			ruleIndex,
+		let accessCode = this.handleAccessCode(handlerConfig);
+		accessCode = this.handleAccessCodeByUserRule({
+			...handlerConfig,
 			accessCode,
-			matchText
-		);
+		});
 		return {
 			shareCode: shareCode,
 			accessCode: accessCode,
@@ -178,50 +184,120 @@ export const NetDisk = {
 	},
 	/**
 	 * 对传入的url进行处理，返回shareCode
-	 * @param ruleKeyName 规则键名
-	 * @param ruleIndex 规则的索引下标
-	 * @param matchText 正在进行匹配的文本
+	 * @param handlerConfig 配置
 	 */
-	handleShareCode(ruleKeyName: string, ruleIndex: number, matchText: string) {
+	handleShareCode(handlerConfig: {
+		/** 规则键名 */
+		ruleKeyName: string;
+		/** 规则的索引下标 */
+		ruleIndex: number;
+		/** 正在进行匹配的文本 */
+		matchText: string;
+		/**
+		 * （可选）当前调试的配置
+		 */
+		debugConfig?: NetDiskDebugHandlerConfig;
+	}) {
 		/* 当前执行的规则 */
-		let ruleConfig = this.$rule.ruleOption[ruleKeyName][ruleIndex];
-		let shareCodeMatch = matchText
+		let ruleConfig =
+			handlerConfig?.debugConfig?.config ??
+			this.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
+		let shareCodeMatch = handlerConfig.matchText
 			.match(ruleConfig.shareCode)
 			?.filter((item) => utils.isNotNull(item));
+		handlerConfig.debugConfig?.logCallBack?.({
+			status: true,
+			msg: [
+				`正则: shareCode`,
+				"作用: 获取shareCode",
+				"结果: ",
+				JSON.stringify(shareCodeMatch),
+			],
+		});
 		if (utils.isNull(shareCodeMatch)) {
 			log.error(`匹配shareCode为空`, {
-				匹配的文本: matchText,
+				匹配的文本: handlerConfig.matchText,
 				规则: ruleConfig,
 				正在使用的规则: ruleConfig.shareCode,
-				网盘名称: ruleKeyName,
-				网盘名称索引下标: ruleIndex,
+				网盘名称: handlerConfig.ruleKeyName,
+				网盘名称索引下标: handlerConfig.ruleIndex,
+			});
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: false,
+				msg: `匹配shareCode为空`,
 			});
 			return;
 		}
 		/* 匹配到的网盘链接，取第一个值就行 */
 		let shareCode = shareCodeMatch[0];
+		handlerConfig.debugConfig?.logCallBack?.({
+			status: true,
+			msg: [`取第一个值: ` + shareCode],
+		});
 		if (ruleConfig.shareCodeNeedRemoveStr) {
+			let shareCodeNeedRemoveStrList = ruleConfig.shareCodeNeedRemoveStr;
 			/* 删除ShareCode前面不需要的字符串 */
-			shareCode = shareCode.replace(ruleConfig.shareCodeNeedRemoveStr, "");
+			if (!Array.isArray(shareCodeNeedRemoveStrList)) {
+				shareCodeNeedRemoveStrList = [shareCodeNeedRemoveStrList];
+			}
+			for (const shareCodeRemoveRegExp of shareCodeNeedRemoveStrList) {
+				/* 删除ShareCode前面不需要的字符串 */
+				shareCode = shareCode.replace(shareCodeRemoveRegExp, "");
+			}
+			if (shareCodeNeedRemoveStrList.length) {
+				handlerConfig.debugConfig?.logCallBack?.({
+					status: true,
+					msg: [
+						`正则: shareCodeNeedRemoveStr`,
+						"作用: 删除ShareCode前面不需要的字符串",
+						`结果: ${shareCode}`,
+					],
+				});
+			}
+		}
+		// 判断是否是黑名单中的分享码
+		// 如果是，强制返回
+		for (const shareCodeNotMatchRegExp of NetDisk.$extraRule
+			.shareCodeNotMatchRegExpList) {
+			if (shareCode.match(shareCodeNotMatchRegExp)) {
+				log.error(`不可能的shareCode => ${shareCode}`);
+				handlerConfig.debugConfig?.logCallBack?.({
+					status: false,
+					msg: [
+						`正则: 内置的shareCodeNotMatchRegExpList`,
+						"作用: 使用该正则判断提取到的shareCode是否正确",
+						`结果: true 该shareCode不是正确的`,
+					],
+				});
+				return;
+			}
 		}
 		let shareCodeNotMatch = ruleConfig.shareCodeNotMatch;
-		if (shareCodeNotMatch != void 0 && shareCode.match(shareCodeNotMatch)) {
-			if (import.meta.env.DEV || DEBUG) {
-				log.error(`不可能的shareCode => ${shareCode}`);
+		if (shareCodeNotMatch != null) {
+			if (!Array.isArray(shareCodeNotMatch)) {
+				shareCodeNotMatch = [shareCodeNotMatch];
 			}
-			return;
-		}
-		for (const shareCodeNotMatchRegexp of NetDisk.$extraRule
-			.shareCodeNotMatchRegexpList) {
-			if (shareCode.match(shareCodeNotMatchRegexp)) {
-				if (import.meta.env.DEV || DEBUG) {
+			for (const shareCodeNotMatchRegExp of shareCodeNotMatch) {
+				if (shareCode.match(shareCodeNotMatchRegExp)) {
 					log.error(`不可能的shareCode => ${shareCode}`);
+					handlerConfig.debugConfig?.logCallBack?.({
+						status: false,
+						msg: [
+							`正则: shareCodeNotMatch`,
+							"作用: 用于判断提取到的shareCode是否是错误的shareCode",
+							`结果: true 该shareCode不是正确的`,
+						],
+					});
+					return;
 				}
-				return;
 			}
 		}
 		/* %E7%BD%91%E7%9B%98 => 网盘 */
 		shareCode = decodeURI(shareCode);
+		handlerConfig.debugConfig?.logCallBack?.({
+			status: true,
+			msg: ["对shareCode进行解码: " + shareCode],
+		});
 		if (
 			NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.value &&
 			utils.isSameChars(
@@ -230,38 +306,93 @@ export const NetDisk = {
 			)
 		) {
 			/* 排除掉由相同字符组成的分享码 */
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: false,
+				msg: ["已开启【排除分享码】且该分享码命中该规则"],
+			});
 			return;
 		}
 		/* 排除掉以http|https结尾的分享码 */
 		if (shareCode.endsWith("http") || shareCode.endsWith("https")) {
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: false,
+				msg: ["该分享码以http|https结尾"],
+			});
 			return;
 		}
+		handlerConfig.debugConfig?.logCallBack?.({
+			status: true,
+			msg: "处理完毕的shareCode: " + shareCode,
+		});
 		return shareCode;
 	},
 	/**
 	 * 对传入的url进行处理，返回accessCode
-	 * @param ruleKeyName 规则键名
-	 * @param ruleIndex 规则的索引下标
-	 * @param matchText 正在进行匹配的文本
+	 * @param handlerConfig 配置
 	 * @returns "xxxx" || ""
 	 */
-	handleAccessCode(ruleKeyName: string, ruleIndex: number, matchText: string) {
+	handleAccessCode(handlerConfig: {
+		/** 规则键名 */
+		ruleKeyName: string;
+		/** 规则的索引下标 */
+		ruleIndex: number;
+		/** 正在进行匹配的文本 */
+		matchText: string;
+		/**
+		 * （可选）当前调试的配置
+		 */
+		debugConfig?: NetDiskDebugHandlerConfig;
+	}) {
 		/* 当前执行正则匹配的规则 */
-		let ruleConfig = this.$rule.ruleOption[ruleKeyName][ruleIndex];
+		let ruleConfig =
+			handlerConfig.debugConfig?.config ??
+			this.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
 		let accessCode = "";
 		if (!ruleConfig.checkAccessCode) {
 			/* 不存在匹配提取码的正则 */
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: "因未配置规则checkAccessCode，默认accessCode的值为空",
+			});
 			return "";
 		}
-		let accessCodeMatch = matchText.match(ruleConfig.checkAccessCode);
+		let accessCodeMatch = handlerConfig.matchText.match(
+			ruleConfig.checkAccessCode
+		);
+		handlerConfig.debugConfig?.logCallBack?.({
+			status: true,
+			msg: [
+				`正则: checkAccessCode`,
+				"作用: 用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码",
+				`结果: `,
+				JSON.stringify(accessCodeMatch),
+			],
+		});
 		if (accessCodeMatch) {
 			/* 匹配出带提取码的字符串 */
 			let accessCodeMatchValue = accessCodeMatch[accessCodeMatch.length - 1];
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: "取最后一个值: " + accessCodeMatchValue,
+			});
 			/* 进去提取码匹配，且过滤掉null或undefined或空字符串 */
 			let accessCodeMatchArray = accessCodeMatchValue
 				.match(ruleConfig.accessCode)
 				?.filter((item) => utils.isNotNull(item));
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: accessCode`,
+					"作用: 用来提取link_innerText或者link_innerHTML匹配到的字符串中的密码",
+					`结果: `,
+					JSON.stringify(accessCodeMatchArray),
+				],
+			});
 			if (utils.isNull(accessCodeMatchArray)) {
+				handlerConfig.debugConfig?.logCallBack?.({
+					status: true,
+					msg: "因↑匹配到的结果为空，默认accessCode的值为空",
+				});
 				return "";
 			}
 			if (accessCodeMatchArray.length) {
@@ -269,57 +400,95 @@ export const NetDisk = {
 				// 例如，匹配到的字符串是密码：oanm   大于150m
 				// 如果是最后一个，那么会匹配到150m
 				accessCode = accessCodeMatchArray[0];
+				handlerConfig.debugConfig?.logCallBack?.({
+					status: true,
+					msg: "取第一个值: " + accessCode,
+				});
 			}
 		}
 		if (utils.isNotNull(accessCode)) {
-			for (const accessCodeNotMatchRegexp of NetDisk.$extraRule
-				.accessCodeNotMatchRegexpList) {
-				if (accessCode.match(accessCodeNotMatchRegexp)) {
+			// 判断是否是黑名单中的访问码
+			// 如果是，访问码置空
+			for (const accessCodeNotMatchRegExp of NetDisk.$extraRule
+				.accessCodeNotMatchRegExpList) {
+				if (accessCode.match(accessCodeNotMatchRegExp)) {
 					accessCode = "";
+					handlerConfig.debugConfig?.logCallBack?.({
+						status: true,
+						msg: [
+							`正则: 内置的accessCodeNotMatchRegExpList`,
+							"作用: 使用该正则判断提取到的accessCode是否正确",
+							`结果: true 重置accessCode为空`,
+						],
+					});
 					break;
 				}
 			}
-			if (
-				ruleConfig.acceesCodeNotMatch &&
-				accessCode.match(ruleConfig.acceesCodeNotMatch)
-			) {
-				accessCode = "";
+			let accessCodeNotMatchRegExpList = ruleConfig.acceesCodeNotMatch;
+			if (accessCodeNotMatchRegExpList) {
+				if (!Array.isArray(accessCodeNotMatchRegExpList)) {
+					accessCodeNotMatchRegExpList = [accessCodeNotMatchRegExpList];
+				}
+				for (const accessCodeNotMatchRegExp of accessCodeNotMatchRegExpList) {
+					if (accessCode.match(accessCodeNotMatchRegExp)) {
+						accessCode = "";
+						handlerConfig.debugConfig?.logCallBack?.({
+							status: true,
+							msg: [
+								`正则: acceesCodeNotMatch`,
+								"作用: 用于判断提取到的accessCode是否是错误的accessCode",
+								`结果: true 重置accessCode为空`,
+							],
+						});
+						break;
+					}
+				}
 			}
 		}
+		handlerConfig.debugConfig?.logCallBack?.({
+			status: true,
+			msg: "处理完毕的accessCode: " + accessCode,
+		});
 		return accessCode;
 	},
 	/**
 	 * 对accessCode二次处理，使用自定义的访问码规则
-	 * @param ruleKeyName 规则键名
-	 * @param ruleIndex 规则的索引下标
-	 * @param accessCode 访问码
-	 * @param matchText 匹配到的文本
+	 * @param handlerConfig 配置
 	 */
-	handleAccessCodeByUserRule(
-		ruleKeyName: string,
-		ruleIndex: number,
-		accessCode: AccessCodeType,
-		matchText: string
-	) {
-		let matchedUrlRuleList = WebsiteRule.getUrlMatchedRule();
-		let result = accessCode;
+	handleAccessCodeByUserRule(handlerConfig: {
+		/** 规则键名 */
+		ruleKeyName: string;
+		/** 规则的索引下标 */
+		ruleIndex: number;
+		/** 访问码 */
+		accessCode: AccessCodeType;
+		/** 正在进行匹配的文本 */
+		matchText: string;
+	}) {
+		/* 当前执行正则匹配的规则 */
+		let ruleConfigList = WebsiteRule.getUrlMatchedRule();
+		let result = handlerConfig.accessCode;
 
-		for (let index = 0; index < matchedUrlRuleList.length; index++) {
-			const rule = matchedUrlRuleList[index];
-			let ruleData = WebsiteRule.getRuleData(rule);
+		for (let index = 0; index < ruleConfigList.length; index++) {
+			const ruleConfig = ruleConfigList[index];
+			let ruleData = WebsiteRule.getRuleData(ruleConfig);
 			/** 自定义的访问码 */
 			let customAccessCode = Reflect.get(
 				ruleData,
-				WebsiteRuleDataKey.features.customAccessCode(ruleKeyName)
+				WebsiteRuleDataKey.features.customAccessCode(handlerConfig.ruleKeyName)
 			);
 			/** 是否启用 */
 			let customAccessCodeEnable = Reflect.get(
 				ruleData,
-				WebsiteRuleDataKey.features.customAccessCodeEnable(ruleKeyName)
+				WebsiteRuleDataKey.features.customAccessCodeEnable(
+					handlerConfig.ruleKeyName
+				)
 			);
 			if (customAccessCodeEnable && typeof customAccessCode === "string") {
 				result = customAccessCode;
-				log.success(`使用自定义网站规则中的提取码 ${ruleKeyName} ${result}`);
+				log.success(
+					`使用自定义网站规则中的提取码 ${handlerConfig.ruleKeyName} ${result}`
+				);
 				break;
 			}
 		}
@@ -327,40 +496,74 @@ export const NetDisk = {
 	},
 	/**
 	 * 获取在弹窗中显示出的链接
-	 * @param ruleKeyName 规则键名
-	 * @param ruleIndex 规则的索引下标
-	 * @param shareCode 分享码
-	 * @param accessCode 访问码
-	 * @param matchText （可选）匹配到的文本
-	 * @param [showToast=true] （可选）如果规则不存在，会进行Toast提示，默认true
+	 * @param handlerConfig 配置
 	 */
-	handleLinkShow(
-		ruleKeyName: string,
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeType,
-		matchText?: string,
-		showToast: boolean = true
-	) {
-		let checkFlag = this.checkHasRuleOption(ruleKeyName, ruleIndex);
+	handleLinkShow(handlerConfig: {
+		/** 规则键名 */
+		ruleKeyName: string;
+		/** 规则的索引下标 */
+		ruleIndex: number;
+		/** 分享码 */
+		shareCode: string;
+		/** 访问码 */
+		accessCode: AccessCodeType;
+		/** （可选）匹配到的文本 */
+		matchText?: string;
+		/** （可选）如果规则不存在，会进行Toast提示，默认true */
+		showToast?: boolean;
+		/**
+		 * （可选）当前调试的配置
+		 */
+		debugConfig?: NetDiskDebugHandlerConfig;
+	}) {
+		let checkFlag = handlerConfig.debugConfig?.config
+			? true
+			: this.checkHasRuleOption(
+					handlerConfig.ruleKeyName,
+					handlerConfig.ruleIndex
+			  );
 		if (!checkFlag) {
-			log.error(`BUG: ${ruleKeyName}不存在，分析参数`, {
-				ruleKeyName,
-				ruleIndex,
-				shareCode,
-				accessCode,
-			});
-			showToast && Qmsg.error(`规则：${ruleKeyName}不存在`);
+			log.error(
+				`BUG: ${handlerConfig.ruleKeyName}不存在，分析参数`,
+				handlerConfig
+			);
+			(handlerConfig.showToast ?? true) &&
+				Qmsg.error(`规则：${handlerConfig.ruleKeyName}不存在`);
 			return;
 		}
-		let ruleConfig = NetDisk.$rule.ruleOption[ruleKeyName][ruleIndex];
-		let uiLink = NetDiskRuleUtils.replaceParam(ruleConfig["uiLinkShow"], {
-			shareCode: shareCode,
+		let ruleConfig =
+			handlerConfig.debugConfig?.config ??
+			NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][
+				handlerConfig.ruleIndex
+			];
+		let uiLink = NetDiskRuleUtils.replaceParam(ruleConfig.uiLinkShow, {
+			shareCode: handlerConfig.shareCode,
 		});
-		if (typeof accessCode === "string" && accessCode.trim() != "") {
+		handlerConfig.debugConfig?.logCallBack?.({
+			status: true,
+			msg: [
+				`正则: uiLinkShow`,
+				"作用: 用于显示在弹窗中的字符串",
+				"备注: 对shareCode进行参数替换",
+				`结果: ${uiLink}`,
+			],
+		});
+		if (
+			typeof handlerConfig.accessCode === "string" &&
+			handlerConfig.accessCode.trim() != ""
+		) {
 			// 替换{#accessCode#}占位符
 			uiLink = NetDiskRuleUtils.replaceParam(uiLink, {
-				accessCode: accessCode,
+				accessCode: handlerConfig.accessCode,
+			});
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: uiLinkShow`,
+					"作用: 用于显示在弹窗中的字符串",
+					"备注: 对accessCode进行参数替换",
+					`结果: ${uiLink}`,
+				],
 			});
 		} else {
 			uiLink = NetDiskHandlerUtil.replaceText(
@@ -368,17 +571,28 @@ export const NetDisk = {
 				NetDisk.$extraRule.noAccessCodeRegExp,
 				""
 			);
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: 内置的noAccessCodeRegExp`,
+					"作用: 因accessCode为空，使用该正则去除不需要的字符串",
+					`结果: ${uiLink}`,
+				],
+			});
 		}
 		if (ruleConfig.paramMatch) {
 			/**
 			 * 当前字典
 			 */
 			let currentDict = NetDisk.$match.matchedInfo
-				.get(ruleKeyName)
-				.get(shareCode);
-			matchText = matchText ?? currentDict?.matchText;
-			if (utils.isNotNull(matchText)) {
-				let paramMatchArray = matchText.match(ruleConfig.paramMatch);
+				.get(handlerConfig.ruleKeyName)
+				.get(handlerConfig.shareCode);
+			handlerConfig.matchText =
+				handlerConfig.matchText ?? currentDict?.matchText;
+			if (utils.isNotNull(handlerConfig.matchText)) {
+				let paramMatchArray = handlerConfig.matchText.match(
+					ruleConfig.paramMatch
+				);
 				let replaceParamData: {
 					[key: string]: string;
 				} = {};
@@ -389,18 +603,32 @@ export const NetDisk = {
 					}
 				}
 				uiLink = NetDiskRuleUtils.replaceParam(uiLink, replaceParamData);
+				handlerConfig.debugConfig?.logCallBack?.({
+					status: true,
+					msg: [
+						`正则: paramMatch`,
+						`作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
+						`参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+						`结果: ${uiLink}`,
+					],
+				});
 			}
 		}
+
+		handlerConfig.debugConfig?.logCallBack?.({
+			status: true,
+			msg: "处理完毕的uiLink: " + uiLink,
+		});
 		return uiLink;
 	},
 	/**
-	 * 获取已匹配到的链接的存储的对象
+	 *生成链接的存储的对象
 	 * @param accessCode 访问码
-	 * @param [ruleIndex=0] 规则的索引下标
+	 * @param [ruleIndex=0] 规则的索引下标，默认为0
 	 * @param isForceAccessCode 是否锁定访问码不允许修改，默认false
 	 * @param matchText 匹配到的文本
 	 */
-	getLinkStorageInst(
+	createLinkStorageInst(
 		accessCode: AccessCodeType,
 		ruleIndex: number = 0,
 		isForceAccessCode: boolean = false,

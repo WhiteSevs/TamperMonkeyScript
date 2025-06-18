@@ -17,12 +17,12 @@ export const NetDiskCheckLinkValidity_weiyun: NetDiskCheckLinkValidityEntranceIn
 			shareCode: string,
 			accessCode: AccessCodeType
 		) {
-			let url = NetDiskLinkClickModeUtils.getBlankUrl(
-				"weiyun",
+			let url = NetDiskLinkClickModeUtils.getBlankUrl({
+				ruleKeyName: "weiyun",
 				ruleIndex,
 				shareCode,
-				accessCode
-			);
+				accessCode,
+			});
 			let response = await httpx.get(url, {
 				headers: {
 					"User-Agent": utils.getRandomPCUA(),

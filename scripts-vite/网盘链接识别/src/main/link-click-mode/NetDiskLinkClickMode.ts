@@ -8,31 +8,59 @@ import { NetDisk } from "../NetDisk";
 import { NetDiskRuleUtils } from "../rule/NetDiskRuleUtils";
 import { NetDiskHandlerUtil } from "@/utils/NetDiskHandlerUtil";
 import { GM_openInTab } from "ViteGM";
+import type { NetDiskDebugHandlerConfig } from "../debug/NetDiskDebug";
 
 export const NetDiskLinkClickModeUtils = {
 	/**
 	 * 获取用于跳转的url
-	 * @param ruleKeyName
-	 * @param ruleIndex
-	 * @param shareCode
-	 * @param accessCode
+	 * @param handlerConfig 配置
 	 */
-	getBlankUrl(
-		ruleKeyName: string,
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeType
-	) {
-		let ruleConfig = NetDisk.$rule.ruleOption[ruleKeyName][ruleIndex];
+	getBlankUrl(handlerConfig: {
+		/** 规则键名 */
+		ruleKeyName: string;
+		/** 规则的索引下标 */
+		ruleIndex: number;
+		/** 分享码 */
+		shareCode: string;
+		/** 访问码 */
+		accessCode: AccessCodeType;
+		/**
+		 * （可选）当前调试的配置
+		 */
+		debugConfig?: NetDiskDebugHandlerConfig;
+	}) {
+		let ruleConfig =
+			handlerConfig.debugConfig?.config ??
+			NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][
+				handlerConfig.ruleIndex
+			];
 		let blankUrl = ruleConfig.blank;
-		if (shareCode) {
+		if (handlerConfig.shareCode) {
 			blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, {
-				shareCode: shareCode,
+				shareCode: handlerConfig.shareCode,
+			});
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: blank`,
+					"作用: 用于点击跳转的链接",
+					"备注: 对shareCode进行参数替换",
+					`结果: ${blankUrl}`,
+				],
 			});
 		}
-		if (accessCode && accessCode !== "") {
+		if (handlerConfig.accessCode && handlerConfig.accessCode !== "") {
 			blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, {
-				accessCode: accessCode,
+				accessCode: handlerConfig.accessCode,
+			});
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: blank`,
+					"作用: 用于点击跳转的链接",
+					"备注: 对accessCode进行参数替换",
+					`结果: ${blankUrl}`,
+				],
 			});
 		} else {
 			blankUrl = NetDiskHandlerUtil.replaceText(
@@ -40,48 +68,96 @@ export const NetDiskLinkClickModeUtils = {
 				NetDisk.$extraRule.noAccessCodeRegExp,
 				""
 			);
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: 内置的noAccessCodeRegExp`,
+					"作用: 因accessCode为空，使用该正则去除不需要的字符串",
+					`结果: ${blankUrl}`,
+				],
+			});
 		}
-		/**
-		 * 当前字典
-		 */
-		let currentDict = NetDisk.$match.matchedInfo
-			.get(ruleKeyName)
-			.get(shareCode);
 		if (ruleConfig.paramMatch) {
-			let paramMatchArray = currentDict.matchText.match(ruleConfig.paramMatch)!;
+			/**
+			 * 当前字典
+			 */
+			let currentDict = NetDisk.$match.matchedInfo
+				.get(handlerConfig.ruleKeyName)
+				.get(handlerConfig.shareCode);
+			let matchText =
+				handlerConfig.debugConfig?.matchText || currentDict.matchText;
+			let paramMatchArray = matchText.match(ruleConfig.paramMatch);
 			let replaceParamData: {
 				[key: string]: string;
 			} = {};
-			for (let index = 0; index < paramMatchArray.length; index++) {
-				replaceParamData[`$${index}`] = paramMatchArray[index];
+			if (paramMatchArray) {
+				for (let index = 0; index < paramMatchArray.length; index++) {
+					replaceParamData[`$${index}`] = paramMatchArray[index];
+				}
 			}
 			blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, replaceParamData);
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: paramMatch`,
+					`作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
+					`参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+					`结果: ${blankUrl}`,
+				],
+			});
 		}
 		return blankUrl;
 	},
 	/**
 	 * 获取用于复制到剪贴板的网盘信息
-	 * @param ruleKeyName
-	 * @param ruleIndex
-	 * @param shareCode
-	 * @param accessCode
+	 * @param handlerConfig 配置
 	 */
-	getCopyUrlInfo(
-		ruleKeyName: string,
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeType
-	) {
-		let ruleConfig = NetDisk.$rule.ruleOption[ruleKeyName][ruleIndex];
+	getCopyUrlInfo(handlerConfig: {
+		/** 规则键名 */
+		ruleKeyName: string;
+		/** 规则的索引下标 */
+		ruleIndex: number;
+		/** 分享码 */
+		shareCode: string;
+		/** 访问码 */
+		accessCode: AccessCodeType;
+		/**
+		 * （可选）当前调试的配置
+		 */
+		debugConfig?: NetDiskDebugHandlerConfig;
+	}) {
+		let ruleConfig =
+			handlerConfig.debugConfig?.config ??
+			NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][
+				handlerConfig.ruleIndex
+			];
 		let copyUrl = ruleConfig["copyUrl"];
-		if (shareCode) {
+		if (handlerConfig.shareCode) {
 			copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, {
-				shareCode: shareCode,
+				shareCode: handlerConfig.shareCode,
+			});
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: copyUrl`,
+					"作用: 用于复制到剪贴板的链接",
+					"备注: 对shareCode进行参数替换",
+					`结果: ${copyUrl}`,
+				],
 			});
 		}
-		if (accessCode && accessCode !== "") {
+		if (handlerConfig.accessCode && handlerConfig.accessCode !== "") {
 			copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, {
-				accessCode: accessCode,
+				accessCode: handlerConfig.accessCode,
+			});
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: copyUrl`,
+					"作用: 用于复制到剪贴板的链接",
+					"备注: 对accessCode进行参数替换",
+					`结果: ${copyUrl}`,
+				],
 			});
 		} else {
 			copyUrl = NetDiskHandlerUtil.replaceText(
@@ -89,23 +165,49 @@ export const NetDiskLinkClickModeUtils = {
 				NetDisk.$extraRule.noAccessCodeRegExp,
 				""
 			);
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: 内置的noAccessCodeRegExp`,
+					"作用: 因accessCode为空，使用该正则去除不需要的字符串",
+					`结果: ${copyUrl}`,
+				],
+			});
 		}
-		/**
-		 * 当前字典
-		 */
-		let currentDict = NetDisk.$match.matchedInfo
-			.get(ruleKeyName)
-			.get(shareCode);
 		if (ruleConfig.paramMatch) {
-			let paramMatchArray = currentDict.matchText.match(ruleConfig.paramMatch)!;
+			/**
+			 * 当前字典
+			 */
+			let currentDict = NetDisk.$match.matchedInfo
+				.get(handlerConfig.ruleKeyName)
+				.get(handlerConfig.shareCode);
+			let matchText =
+				handlerConfig.debugConfig?.matchText || currentDict.matchText;
+			let paramMatchArray = matchText.match(ruleConfig.paramMatch);
 			let replaceParamData: {
 				[key: string]: string;
 			} = {};
-			for (let index = 0; index < paramMatchArray.length; index++) {
-				replaceParamData[`$${index}`] = paramMatchArray[index];
+			if (paramMatchArray) {
+				for (let index = 0; index < paramMatchArray.length; index++) {
+					replaceParamData[`$${index}`] = paramMatchArray[index];
+				}
 			}
 			copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, replaceParamData);
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: paramMatch`,
+					`作用: 用于对matchText进行提取需要的关键内容，替换关键字：{#$1#}、{#$2#}...`,
+					`参数: ` + JSON.stringify(replaceParamData, void 0, 4),
+					`结果: ${copyUrl}`,
+				],
+			});
 		}
+
+		handlerConfig.debugConfig?.logCallBack?.({
+			status: true,
+			msg: "处理完毕的copyUrl: " + copyUrl,
+		});
 		return copyUrl;
 	},
 };
@@ -129,12 +231,12 @@ export const NetDiskLinkClickMode = {
 	) {
 		utils
 			.setClip(
-				NetDiskLinkClickModeUtils.getCopyUrlInfo(
+				NetDiskLinkClickModeUtils.getCopyUrlInfo({
 					ruleKeyName,
 					ruleIndex,
 					shareCode,
-					accessCode
-				)
+					accessCode,
+				})
 			)
 			.then((status) => {
 				if (status) {
@@ -266,12 +368,12 @@ export const NetDiskLinkClickMode = {
 		accessCode: AccessCodeType
 	) {
 		log.success("scheme新标签页打开", [...arguments]);
-		let url = NetDiskLinkClickModeUtils.getBlankUrl(
+		let url = NetDiskLinkClickModeUtils.getBlankUrl({
 			ruleKeyName,
 			ruleIndex,
 			shareCode,
-			accessCode
-		);
+			accessCode,
+		});
 		url = NetDiskFilterScheme.parseDataToSchemeUri(ruleKeyName, url);
 		window.open(url, "_blank");
 	},

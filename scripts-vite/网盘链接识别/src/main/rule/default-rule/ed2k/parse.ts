@@ -16,12 +16,12 @@ export class NetDiskParse_ed2k extends ParseFileAbstract {
 		this.accessCode = accessCode;
 		const that = this;
 
-		let url = NetDiskLinkClickModeUtils.getBlankUrl(
-			"ed2k",
+		let url = NetDiskLinkClickModeUtils.getBlankUrl({
+			ruleKeyName: "ed2k",
 			ruleIndex,
 			shareCode,
-			accessCode
-		);
+			accessCode,
+		});
 		let $loading = Qmsg.loading("正在请求Api中...");
 		let metaInfo = await MetaDataParser.parseFileMetaInfo(url);
 		$loading.close();

@@ -151,12 +151,12 @@ export class NetDiskParse_Wenshushu extends ParseFileAbstract {
 			if (jsonData["data"]["fileList"][0]["type"] === 2) {
 				Qmsg.error("该链接为多层级文件嵌套，跳转");
 				NetDiskLinkClickMode.openBlankUrl(
-					NetDiskLinkClickModeUtils.getBlankUrl(
-						"wenshushu",
-						that.ruleIndex,
-						that.shareCode,
-						that.accessCode
-					),
+					NetDiskLinkClickModeUtils.getBlankUrl({
+						ruleKeyName: "wenshushu",
+						ruleIndex: that.ruleIndex,
+						shareCode: that.shareCode,
+						accessCode: that.accessCode,
+					}),
 					"wenshushu",
 					that.ruleIndex,
 					that.shareCode,

@@ -12,17 +12,21 @@ export const NetDiskCheckLinkValidity_uc: NetDiskCheckLinkValidityEntranceInstan
 		 * @param shareCode 分享码
 		 * @param accessCode 访问码
 		 */
-		async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
+		async init(
+			ruleIndex: number,
+			shareCode: string,
+			accessCode: AccessCodeType
+		) {
 			let response = await httpx.get("https://drive.uc.cn/s/" + shareCode, {
 				headers: {
 					"User-Agent": utils.getRandomAndroidUA(),
 					Host: "drive.uc.cn",
-					Referer: NetDiskLinkClickModeUtils.getBlankUrl(
-						"uc",
+					Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+						ruleKeyName: "uc",
 						ruleIndex,
 						shareCode,
-						accessCode
-					),
+						accessCode,
+					}),
 					Origin: "https://drive.uc.cn",
 				},
 				...NetDiskCheckLinkValidityRequestOption,

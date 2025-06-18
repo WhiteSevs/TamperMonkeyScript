@@ -1,11 +1,12 @@
 import { DOMUtils, log, utils } from "@/env";
-import { NetDiskDebug } from "@/main/debug/NetDiskDebug";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import Qmsg from "qmsg";
-import { NetDiskUserRule } from "./NetDiskUserRule";
+import { NetDiskUserRule } from "../rule/user-rule/NetDiskUserRule";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskWorker } from "@/main/worker/NetDiskWorker";
 import { CharacterMapping } from "@/main/character-mapping/CharacterMapping";
+import { NetDisk } from "@/main/NetDisk";
+import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 
 /**
  * 调试用户规则
@@ -58,7 +59,7 @@ export const NetDiskUserRuleDebug = {
 	 * 清空日志
 	 */
 	clearLog() {
-		DOMUtils.html(this.$el.$log);
+		DOMUtils.empty(this.$el.$log);
 	},
 	/**
 	 * 显示调试规则的界面
@@ -162,7 +163,7 @@ export const NetDiskUserRuleDebug = {
                     margin-bottom: 0px;
                 }
                 .custom-rule-match-log-container p[data-tag]{
-                
+                	padding: 10px 0px;
                 }
                 .custom-rule-match-log-container p[data-tag="info"]{
 
@@ -231,9 +232,9 @@ export const NetDiskUserRuleDebug = {
 				/** 网盘索引下标 */
 				let ruleIndex = that.$el.$select.selectedIndex;
 				/** 选择的规则 */
-				let selectRegularOption = (
-					that.$el.$select.selectedOptions[ruleIndex] as any
-				)["data-value"] as NetDiskMatchRuleConfig;
+				let selectRegularOption = (that.$el.$select.options[ruleIndex] as any)[
+					"data-value"
+				] as NetDiskMatchRuleConfig;
 				log.info("当前选中的规则: ", selectRegularOption);
 				let testCustomRuleOption = <NetDiskMatchedRuleOption>{};
 				testCustomRuleOption[ruleJSON.key] = [selectRegularOption];
@@ -260,11 +261,16 @@ export const NetDiskUserRuleDebug = {
 				matchTextList.forEach((matchText, index) => {
 					that.setLog("success", "当前处理的字符串: " + matchText);
 					that.setLog("success", "当前执行: 对shareCode进行处理获取");
-					let shareCode = NetDiskDebug.handleShareCode(
-						matchText,
-						selectRegularOption,
-						logCallBack
-					);
+					let shareCode = NetDisk.handleShareCode({
+						ruleKeyName: ruleKeyName,
+						ruleIndex: ruleIndex,
+						matchText: matchText,
+						debugConfig: {
+							matchText,
+							config: selectRegularOption,
+							logCallBack,
+						},
+					});
 					if (utils.isNull(shareCode)) {
 						return;
 					}
@@ -272,44 +278,62 @@ export const NetDiskUserRuleDebug = {
 					that.setLog("info", `================分割线================`);
 					that.setLog("info", " ");
 					that.setLog("success", "当前执行: 对accessCode进行处理获取");
-					let accessCode = NetDiskDebug.handleAccessCode(
-						matchText,
-						selectRegularOption,
-						logCallBack
-					);
+					let accessCode = NetDisk.handleAccessCode({
+						ruleKeyName: ruleKeyName,
+						ruleIndex: ruleIndex,
+						matchText: matchText,
+						debugConfig: {
+							matchText,
+							config: selectRegularOption,
+							logCallBack,
+						},
+					});
 					that.setLog("info", " ");
 					that.setLog("info", `================分割线================`);
 					that.setLog("info", " ");
 					that.setLog("success", "当前执行: 对uiLinkShow进行处理获取");
-					let uiLinkShow = NetDiskDebug.handleLinkShow(
-						matchText,
-						selectRegularOption,
-						shareCode,
-						accessCode,
-						logCallBack
-					);
+					let uiLinkShow = NetDisk.handleLinkShow({
+						ruleKeyName: ruleKeyName,
+						ruleIndex: ruleIndex,
+						shareCode: shareCode,
+						accessCode: accessCode,
+						matchText: matchText,
+						debugConfig: {
+							matchText,
+							config: selectRegularOption,
+							logCallBack,
+						},
+					});
 					that.setLog("info", " ");
 					that.setLog("info", `================分割线================`);
 					that.setLog("info", " ");
 					that.setLog("success", "当前执行: 对blank进行处理获取");
-					let blankUrl = NetDiskDebug.handleBlank(
-						matchText,
-						selectRegularOption,
+					let blankUrl = NetDiskLinkClickModeUtils.getBlankUrl({
+						ruleKeyName,
+						ruleIndex,
 						shareCode,
 						accessCode,
-						logCallBack
-					);
+						debugConfig: {
+							matchText: matchText,
+							config: selectRegularOption,
+							logCallBack: logCallBack,
+						},
+					});
 					that.setLog("info", " ");
 					that.setLog("info", `================分割线================`);
 					that.setLog("info", " ");
 					that.setLog("success", "当前执行: 对copyUrl进行处理获取");
-					let copyUrl = NetDiskDebug.handleCopyUrl(
-						matchText,
-						selectRegularOption,
+					let copyUrl = NetDiskLinkClickModeUtils.getCopyUrlInfo({
+						ruleKeyName,
+						ruleIndex,
 						shareCode,
 						accessCode,
-						logCallBack
-					);
+						debugConfig: {
+							matchText,
+							config: selectRegularOption,
+							logCallBack,
+						},
+					});
 					that.setLog("success", "执行完毕");
 				});
 			} catch (error: any) {

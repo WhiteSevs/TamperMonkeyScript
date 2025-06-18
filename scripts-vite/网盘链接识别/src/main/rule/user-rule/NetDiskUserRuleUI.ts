@@ -1,6 +1,6 @@
 import Qmsg from "qmsg";
 import { NetDiskUserRule } from "./NetDiskUserRule";
-import { NetDiskUserRuleDebug } from "./NetDiskUserRuleDebug";
+import { NetDiskUserRuleDebug } from "../../debug/NetDiskUserRuleDebug";
 import { log } from "@/env";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";

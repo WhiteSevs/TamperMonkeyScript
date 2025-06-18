@@ -13,22 +13,22 @@ export const NetDiskCheckLinkValidity_jianguoyun: NetDiskCheckLinkValidityEntran
 		 * @param accessCode 访问码
 		 */
 		async init(ruleIndex: number, shareCode: string, accessCode) {
-			let url = NetDiskLinkClickModeUtils.getBlankUrl(
-				"jianguoyun",
+			let url = NetDiskLinkClickModeUtils.getBlankUrl({
+				ruleKeyName: "jianguoyun",
 				ruleIndex,
 				shareCode,
-				accessCode
-			);
+				accessCode,
+			});
 			let response = await httpx.get(url, {
 				headers: {
 					"User-Agent": utils.getRandomPCUA(),
 					Host: "www.jianguoyun.com",
-					Referer: NetDiskLinkClickModeUtils.getBlankUrl(
-						"jianguoyun",
+					Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+						ruleKeyName: "jianguoyun",
 						ruleIndex,
 						shareCode,
-						accessCode
-					),
+						accessCode,
+					}),
 					Origin: "https://www.jianguoyun.com",
 				},
 				...NetDiskCheckLinkValidityRequestOption,

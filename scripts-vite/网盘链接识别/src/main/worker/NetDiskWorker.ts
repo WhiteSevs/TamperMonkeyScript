@@ -521,11 +521,11 @@ export const NetDiskWorker = {
 			});
 
 			matchLinkSet.forEach((item) => {
-				let handleLink = NetDisk.handleLink(
-					matchData.ruleKeyName!,
-					matchData.ruleIndex!,
-					item
-				);
+				let handleLink = NetDisk.handleLink({
+					ruleKeyName: matchData.ruleKeyName!,
+					ruleIndex: matchData.ruleIndex!,
+					matchText: item,
+				});
 				if (handleLink) {
 					handleNetDiskList.push({
 						shareCode: handleLink.shareCode!,
@@ -641,7 +641,7 @@ export const NetDiskWorker = {
 
 				currentDict.set(
 					shareCode,
-					NetDisk.getLinkStorageInst(accessCode, ruleIndex, false, matchText)
+					NetDisk.createLinkStorageInst(accessCode, ruleIndex, false, matchText)
 				);
 				// 修改视图
 				NetDiskUI.view.changeLinkView(
@@ -676,7 +676,7 @@ export const NetDiskWorker = {
 				}
 				currentDict.set(
 					shareCode,
-					NetDisk.getLinkStorageInst(accessCode, ruleIndex, false, matchText)
+					NetDisk.createLinkStorageInst(accessCode, ruleIndex, false, matchText)
 				);
 				NetDiskUI.isMatchedNetDiskIconMap.add(ruleKeyName);
 				NetDiskUI.view.addLinkView(

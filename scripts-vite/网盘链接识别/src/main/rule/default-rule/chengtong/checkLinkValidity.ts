@@ -15,12 +15,12 @@ export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranc
 		async init(ruleIndex: number, shareCode: string, accessCode) {
 			/* 城通通用的检查api */
 			/* ref是来源 */
-			let blankUrl = NetDiskLinkClickModeUtils.getBlankUrl(
-				"chengtong",
+			let blankUrl = NetDiskLinkClickModeUtils.getBlankUrl({
+				ruleKeyName: "chengtong",
 				ruleIndex,
 				shareCode,
-				accessCode
-			);
+				accessCode,
+			});
 			let blankUrlObj = new URL(blankUrl);
 			/* f是文件 d是文件夹 */
 			const path = blankUrlObj.pathname.split("/")[1].trim();

@@ -379,14 +379,14 @@ export const NetDiskView = {
 			let netDiskDict = NetDisk.$match.matchedInfo.get(ruleKeyName);
 			let documentFragment = document.createDocumentFragment();
 			netDiskDict.forEach((netDiskData, shareCode) => {
-				let uiLink = NetDisk.handleLinkShow(
-					ruleKeyName,
-					netDiskData["ruleIndex"]!,
-					shareCode,
-					netDiskData["accessCode"],
-					netDiskData["matchText"],
-					false
-				);
+				let uiLink = NetDisk.handleLinkShow({
+					ruleKeyName: ruleKeyName,
+					ruleIndex: netDiskData["ruleIndex"]!,
+					shareCode: shareCode,
+					accessCode: netDiskData["accessCode"],
+					matchText: netDiskData["matchText"],
+					showToast: false,
+				});
 				if (!uiLink) {
 					return;
 				}
@@ -667,12 +667,12 @@ export const NetDiskView = {
 				$click.setAttribute("isvisited", "true");
 				// 解析数据
 				const data = NetDiskView.praseElementAttributeRuleInfo($click);
-				let url = NetDiskLinkClickModeUtils.getBlankUrl(
-					data.ruleKeyName,
-					data.ruleIndex,
-					data.shareCode,
-					data.accessCode
-				);
+				let url = NetDiskLinkClickModeUtils.getBlankUrl({
+					ruleKeyName: data.ruleKeyName,
+					ruleIndex: data.ruleIndex,
+					shareCode: data.shareCode,
+					accessCode: data.accessCode,
+				});
 				NetDiskLinkClickMode.openBlankUrl(
 					url,
 					data.ruleKeyName,
@@ -724,12 +724,12 @@ export const NetDiskView = {
 			linkClickMode === "openBlank-closePopup"
 		) {
 			// 新页打开
-			let url = NetDiskLinkClickModeUtils.getBlankUrl(
+			let url = NetDiskLinkClickModeUtils.getBlankUrl({
 				ruleKeyName,
 				ruleIndex,
 				shareCode,
-				accessCode
-			);
+				accessCode,
+			});
 			// 判断scheme转发新标签页链接是否开启
 			let isForwardBlankUrl =
 				NetDiskFilterScheme.isForwardBlankLink(ruleKeyName);
@@ -838,13 +838,13 @@ export const NetDiskView = {
 		}
 		log.info(ruleKeyName, ruleIndex, shareCode, accessCode);
 		let icon = NetDiskUI.src.icon[ruleKeyName];
-		let uiLink = NetDisk.handleLinkShow(
+		let uiLink = NetDisk.handleLinkShow({
 			ruleKeyName,
 			ruleIndex,
 			shareCode,
 			accessCode,
-			matchText
-		);
+			matchText,
+		});
 		if (!uiLink) {
 			return;
 		}
@@ -899,13 +899,13 @@ export const NetDiskView = {
 		if (!NetDiskUI.Alias.uiLinkAlias) {
 			return;
 		}
-		let uiLink = NetDisk.handleLinkShow(
+		let uiLink = NetDisk.handleLinkShow({
 			ruleKeyName,
 			ruleIndex,
 			shareCode,
 			accessCode,
-			matchText
-		);
+			matchText,
+		});
 		if (!uiLink) {
 			return;
 		}

@@ -12,7 +12,11 @@ export const NetDiskCheckLinkValidity_wenshushu: NetDiskCheckLinkValidityEntranc
 		 * @param shareCode 分享码
 		 * @param accessCode 访问码
 		 */
-		async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
+		async init(
+			ruleIndex: number,
+			shareCode: string,
+			accessCode: AccessCodeType
+		) {
 			let response = await httpx.post(
 				"https://www.wenshushu.cn/ap/task/mgrtask",
 				{
@@ -25,12 +29,12 @@ export const NetDiskCheckLinkValidity_wenshushu: NetDiskCheckLinkValidityEntranc
 						"x-token": "wss:7pmakczzw6i",
 						Host: "www.wenshushu.cn",
 						Origin: "https://www.wenshushu.cn",
-						Referer: NetDiskLinkClickModeUtils.getBlankUrl(
-							"wenshushu",
+						Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+							ruleKeyName: "wenshushu",
 							ruleIndex,
 							shareCode,
-							accessCode
-						),
+							accessCode,
+						}),
 					},
 					responseType: "json",
 					...NetDiskCheckLinkValidityRequestOption,

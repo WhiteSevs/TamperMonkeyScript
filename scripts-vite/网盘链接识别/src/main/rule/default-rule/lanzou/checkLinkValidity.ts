@@ -13,12 +13,12 @@ export const NetDiskCheckLinkValidity_lanzou: NetDiskCheckLinkValidityEntranceIn
 		 * @param accessCode 访问码
 		 */
 		async init(ruleIndex: number, shareCode: string, accessCode) {
-			let url = NetDiskLinkClickModeUtils.getBlankUrl(
-				"lanzou",
+			let url = NetDiskLinkClickModeUtils.getBlankUrl({
+				ruleKeyName: "lanzou",
 				ruleIndex,
 				shareCode,
-				accessCode
-			);
+				accessCode,
+			});
 			let urlInst = new URL(url);
 
 			let response = await httpx.get(url, {

@@ -177,13 +177,13 @@ export const NetDiskHistoryMatchView = {
 	 */
 	createLinkItemElementInfo(data: NetDiskHistoryDataOption) {
 		/** 获取处理后的显示的链接 */
-		let uiLink = NetDisk.handleLinkShow(
-			data.ruleKeyName,
-			data.ruleIndex,
-			data.shareCode,
-			data.accessCode,
-			data.matchText
-		);
+		let uiLink = NetDisk.handleLinkShow({
+			ruleKeyName: data.ruleKeyName,
+			ruleIndex: data.ruleIndex,
+			shareCode: data.shareCode,
+			accessCode: data.accessCode,
+			matchText: data.matchText,
+		});
 		let $liItemContainer = DOMUtils.createElement("li", {
 			innerHTML: /*html*/ `
 			<div class="netdiskrecord-link">
@@ -432,14 +432,14 @@ export const NetDiskHistoryMatchView = {
 			log.info(`历史匹配记录-搜索：` + searchText);
 			/** 搜索到的链接 */
 			let searchData = data.filter((dataOption) => {
-				let uiLink = NetDisk.handleLinkShow(
-					dataOption.ruleKeyName,
-					dataOption.ruleIndex,
-					dataOption.shareCode,
-					dataOption.accessCode,
-					dataOption.matchText,
-					false
-				);
+				let uiLink = NetDisk.handleLinkShow({
+					ruleKeyName: dataOption.ruleKeyName,
+					ruleIndex: dataOption.ruleIndex,
+					shareCode: dataOption.shareCode,
+					accessCode: dataOption.accessCode,
+					matchText: dataOption.matchText,
+					showToast: false,
+				});
 				if (!uiLink) {
 					log.info(dataOption);
 				}
