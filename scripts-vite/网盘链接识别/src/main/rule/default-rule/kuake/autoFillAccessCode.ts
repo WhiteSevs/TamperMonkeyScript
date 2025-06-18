@@ -10,27 +10,33 @@ export const NetDiskAutoFillAccessCode_kuake = function (
 		DOMUtils.ready(() => {
 			utils
 				.waitNode<HTMLInputElement>(
-					"#ice-container input.ant-input[class*=ShareReceive]"
+					"#ice-container input.ant-input[class*=ShareReceive][placeholder*='提取码']"
 				)
 				.then(($el) => {
 					ReactUtils.waitReactPropsToSet(
 						$el,
 						["reactProps", "reactEventHandlers"],
 						{
-							check(reactInstance) {
-								return typeof reactInstance?.onChange === "function";
+							check(reactPropInst) {
+								return (
+									typeof reactPropInst?.onChange === "function" ||
+									typeof reactPropInst?.memoizedProps?.onChange === "function"
+								);
 							},
-							set(reactInstance) {
+							set(reactPropInst) {
 								if (!utils.isVisible($el)) {
 									log.error("输入框不可见，不输入密码");
 									return;
 								}
-								Qmsg.success("自动填充访问码");
-								reactInstance.onChange({
-									target: {
-										value: netDiskInfo.accessCode,
-									},
+								$el.value = netDiskInfo.accessCode;
+								let onChange: Function =
+									reactPropInst?.onChange ||
+									reactPropInst?.memoizedProps?.onChange;
+								onChange({
+									currentTarget: $el,
+									target: $el,
 								});
+								Qmsg.success("自动填充访问码");
 							},
 						}
 					);

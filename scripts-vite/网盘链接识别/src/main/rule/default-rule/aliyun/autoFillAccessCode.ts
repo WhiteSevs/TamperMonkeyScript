@@ -17,11 +17,11 @@ export const NetDiskAutoFillAccessCode_aliyun = function (
 					"#root input[name=pwd][placeholder*='提取码']",
 				])
 				.then(($el) => {
-					ReactUtils.waitReactPropsToSet($el, ["reactFiber", "reactProps"], {
+					ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
 						check(reactPropInst) {
 							return (
-								typeof reactPropInst?.memoizedProps?.onChange === "function" ||
-								typeof reactPropInst?.onChange === "function"
+								typeof reactPropInst?.onChange === "function" ||
+								typeof reactPropInst?.memoizedProps?.onChange === "function"
 							);
 						},
 						set(reactPropInst) {
@@ -29,18 +29,18 @@ export const NetDiskAutoFillAccessCode_aliyun = function (
 								log.error("输入框不可见，不输入密码");
 								return;
 							}
-							Qmsg.success("自动填充访问码");
 							$el.value = netDiskInfo.accessCode;
-							let onChange =
-								reactPropInst?.memoizedProps?.onChange ||
-								reactPropInst?.onChange;
+							let onChange: Function =
+								reactPropInst?.onChange ||
+								reactPropInst?.memoizedProps?.onChange;
 							onChange({
 								currentTarget: $el,
 								target: $el,
 							});
+							Qmsg.success("自动填充访问码");
 							let $submit = $<HTMLElement>('#root button[type="submit"]');
 							if (!$submit) {
-								Qmsg.error("未找到提交按钮");
+								Qmsg.error("提交按钮不存在");
 								return;
 							}
 							$submit.click();
