@@ -4,23 +4,23 @@ import { unsafeWindow } from "ViteGM";
 import Qmsg from "qmsg";
 
 /** 等待设置vue某个值的配置 */
-type VueWaitSetOption = {
+type VueCheckOption = {
 	/**
 	 * 在检测前输出日志
 	 */
 	msg?: string;
 	/**
 	 * 检测属性的函数
-	 * @param vueInstance vue实例
-	 * @param target 目标元素
+	 * @param vueInst vue实例
+	 * @param $el 目标元素
 	 */
-	check(vueInstance: Vue2Instance, target: HTMLElement): boolean;
+	check(vueInst: Vue2Instance, $el: HTMLElement): boolean;
 	/**
 	 * 进行设置
 	 * @param vueInstance vue实例
-	 * @param target 目标元素
+	 * @param $el 目标元素
 	 */
-	set(vueInstance: Vue2Instance, target: HTMLElement): void;
+	set(vueInst: Vue2Instance, $el: HTMLElement): void;
 	/**
 	 * 当检测失败/超时触发该回调
 	 */
@@ -32,118 +32,139 @@ type VueWaitSetOption = {
 export const VueUtils = {
 	/**
 	 * 获取vue2实例
-	 * @param element
+	 * @param $el
 	 */
 	getVue(
-		element: Element | null | EventTarget | HTMLElement
+		$el: Element | null | EventTarget | HTMLElement
 	): Vue2Instance | undefined {
-		if (element == null) {
+		if ($el == null) {
 			return;
 		}
 		// @ts-ignore
-		return element["__vue__"] || element["__Ivue__"] || element["__IVue__"];
+		return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
 	},
 	/**
 	 * 获取vue3实例
-	 * @param element
+	 * @param $el
 	 */
-	getVue3(element: Element | null | EventTarget | HTMLElement) {
-		if (element == null) {
+	getVue3($el: Element | null | EventTarget | HTMLElement) {
+		if ($el == null) {
 			return;
 		}
 		// @ts-ignore
-		return element["__vueParentComponent"];
+		return $el["__vueParentComponent"];
 	},
 	/**
 	 * 等待vue属性并进行设置
-	 * @param $target 目标对象
-	 * @param needSetList 需要设置的配置
+	 * @param $el 目标对象
+	 * @param checkOption 需要设置的配置
 	 */
 	waitVuePropToSet(
-		$target: HTMLElement | (() => HTMLElement | null) | string,
-		needSetList: VueWaitSetOption[] | VueWaitSetOption
+		$el: HTMLElement | (() => HTMLElement | null | undefined) | string,
+		checkOption: VueCheckOption[] | VueCheckOption
 	) {
-		if (!Array.isArray(needSetList)) {
-			VueUtils.waitVuePropToSet($target, [needSetList]);
-			return;
+		if (!Array.isArray(checkOption)) {
+			checkOption = [checkOption];
 		}
+		/**
+		 * 获取检测的元素对象
+		 */
 		function getTarget() {
 			let __target__ = null;
-			if (typeof $target === "string") {
-				__target__ = document.querySelector<HTMLElement>($target);
-			} else if (typeof $target === "function") {
-				__target__ = $target();
-			} else if ($target instanceof HTMLElement) {
-				__target__ = $target;
+			if (typeof $el === "string") {
+				__target__ = DOMUtils.selector<HTMLElement>($el);
+			} else if (typeof $el === "function") {
+				__target__ = $el();
+			} else if ($el instanceof HTMLElement) {
+				__target__ = $el;
 			}
 			return __target__;
 		}
-		needSetList.forEach((needSetOption) => {
+		checkOption.forEach((needSetOption) => {
 			if (typeof needSetOption.msg === "string") {
 				log.info(needSetOption.msg);
 			}
 			/**
-			 * 检测vue实例
+			 * 检测vue的实例
 			 */
-			function checkVue() {
-				let target = getTarget();
-				if (target == null) {
-					return false;
+			function checkTarget(): {
+				/** 是否成功检测到目标属性 */
+				status: boolean;
+				/** 是否检测超时 */
+				isTimeout: boolean;
+				/** 实例 */
+				inst: any;
+				/** 目标元素 */
+				$el: HTMLElement | null | undefined;
+			} {
+				let $targetEl = getTarget();
+				if ($targetEl == null) {
+					return {
+						status: false,
+						isTimeout: true,
+						inst: null,
+						$el: $targetEl,
+					};
 				}
-				let vueInstance = VueUtils.getVue(target);
-				if (vueInstance == null) {
-					return false;
+				let vueInst = VueUtils.getVue($targetEl);
+				if (vueInst == null) {
+					return {
+						status: false,
+						isTimeout: false,
+						inst: null,
+						$el: $targetEl,
+					};
 				}
-				let needOwnCheck = needSetOption.check(vueInstance, target);
-				return Boolean(needOwnCheck);
+				let checkResult = needSetOption.check(vueInst, $targetEl);
+				checkResult = Boolean(checkResult);
+				return {
+					status: checkResult,
+					isTimeout: false,
+					inst: vueInst,
+					$el: $targetEl,
+				};
 			}
 			utils
 				.waitVueByInterval(
 					() => {
 						return getTarget();
 					},
-					checkVue,
+					() => checkTarget().status,
 					250,
 					10000
 				)
 				.then((result) => {
-					if (!result) {
+					let checkTargetResult = checkTarget();
+					if (checkTargetResult.status) {
+						let vueInst = checkTargetResult.inst;
+						needSetOption.set(vueInst, checkTargetResult.$el!);
+					} else {
 						if (typeof needSetOption.failWait === "function") {
-							needSetOption.failWait(true);
+							needSetOption.failWait(checkTargetResult.isTimeout);
 						}
-						return;
 					}
-					let target = getTarget();
-					let vueInstance = VueUtils.getVue(target as HTMLElement);
-					if (vueInstance == null) {
-						if (typeof needSetOption.failWait === "function") {
-							needSetOption.failWait(false);
-						}
-						return;
-					}
-					needSetOption.set(vueInstance, target!);
 				});
 		});
 	},
 	/**
 	 * 观察vue属性的变化
-	 * @param $target 目标对象
+	 * @param $el 目标对象
 	 * @param key 需要观察的属性
 	 * @param callback 监听回调
 	 * @param watchConfig 监听配置
 	 * @param failWait 当检测失败/超时触发该回调
 	 */
 	watchVuePropChange(
-		$target: HTMLElement | (() => HTMLElement | null) | string,
-		key: string | string[] | ((vueInstance: Vue2Instance) => any),
-		callback: (vueInstance: Vue2Instance, newValue: any, oldValue: any) => void,
+		$el: HTMLElement | (() => HTMLElement | null | undefined) | string,
+		key: string | string[] | ((vueInst: Vue2Instance) => any),
+		callback: (vueInst: Vue2Instance, newValue: any, oldValue: any) => void,
 		watchConfig?: {
 			/** 是否立即执行 @default true */
 			immediate?: boolean;
 			/** 是否深度监听 @default false */
 			deep?: boolean;
 		},
-		failWait?: VueWaitSetOption["failWait"]
+		failWait?: VueCheckOption["failWait"]
 	) {
 		let config = utils.assign(
 			{
@@ -153,7 +174,7 @@ export const VueUtils = {
 			watchConfig || {}
 		);
 		return new Promise<Function | null>((resolve) => {
-			VueUtils.waitVuePropToSet($target, {
+			VueUtils.waitVuePropToSet($el, {
 				check(vueInstance) {
 					return typeof vueInstance?.$watch === "function";
 				},
@@ -186,17 +207,17 @@ export const VueUtils = {
 	},
 	/**
 	 * 前往网址
-	 * @param $vueNode 包含vue属性的元素
+	 * @param $el 包含vue属性的元素
 	 * @param path 需要跳转的路径
-	 * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转
+	 * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转，默认false
 	 */
-	goToUrl($vueNode: Element, path: string, useRouter = false) {
-		if ($vueNode == null) {
+	goToUrl($el: Element, path: string, useRouter = false) {
+		if ($el == null) {
 			Qmsg.error("跳转Url: $vueNode为空");
 			log.error("跳转Url: $vueNode为空：" + path);
 			return;
 		}
-		let vueInstance = VueUtils.getVue($vueNode);
+		let vueInstance = VueUtils.getVue($el);
 		if (vueInstance == null) {
 			Qmsg.error("获取vue属性失败", { consoleLogContent: true });
 			return;
@@ -236,13 +257,14 @@ export const VueUtils = {
 	 */
 	hookGestureReturnByVueRouter(option: {
 		/** vue实例 */
-		vueInstance: Vue2Instance;
+		vueInst: Vue2Instance;
 		/** 改变的hash值 */
 		hash: string;
 		/**
 		 *
 		 * @param isFromPopState 是否由popstate触发
 		 * @returns
+		 * + true 阻止浏览器后退
 		 */
 		callback: (isFromPopState: boolean) => boolean;
 	}) {
@@ -260,7 +282,7 @@ export const VueUtils = {
 		function banBack() {
 			/* 监听地址改变 */
 			log.success("监听地址改变");
-			option.vueInstance.$router.history.push(option.hash);
+			option.vueInst.$router.history.push(option.hash);
 			DOMUtils.on(unsafeWindow, "popstate", popstateEvent);
 		}
 
@@ -275,9 +297,9 @@ export const VueUtils = {
 				return;
 			}
 			while (1) {
-				if (option.vueInstance.$router.history.current.hash === option.hash) {
+				if (option.vueInst.$router.history.current.hash === option.hash) {
 					log.info("后退！");
-					option.vueInstance.$router.back();
+					option.vueInst.$router.back();
 					await utils.sleep(250);
 				} else {
 					return;
