@@ -22,12 +22,9 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 	errorCode = {
 		UnAuthorized: "请先登录坚果云账号",
 	};
-	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
+	async init(netDiskInfo: ParseFileInitConfig) {
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		log.info(ruleIndex, shareCode, accessCode);
-		that.ruleIndex = ruleIndex;
-		that.shareCode = shareCode;
-		that.accessCode = accessCode;
 		let downloadParams = await that.getRequestDownloadParams();
 		if (!downloadParams) {
 			return;
@@ -191,7 +188,11 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 					that.shareCode,
 					that.accessCode,
 					(option) => {
-						that.init(that.ruleIndex, that.shareCode, option.accessCode);
+						that.init({
+							ruleIndex: that.ruleIndex,
+							shareCode: that.shareCode,
+							accessCode: option.accessCode,
+						});
 					}
 				);
 				return;
@@ -205,7 +206,11 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 					that.shareCode,
 					that.accessCode,
 					(option) => {
-						that.init(that.ruleIndex, that.shareCode, option.accessCode);
+						that.init({
+							ruleIndex: that.ruleIndex,
+							shareCode: that.shareCode,
+							accessCode: option.accessCode,
+						});
 					}
 				);
 				return;
@@ -241,7 +246,11 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 				that.shareCode,
 				that.accessCode,
 				(option) => {
-					that.init(that.ruleIndex, that.shareCode, option.accessCode);
+					that.init({
+						ruleIndex: that.ruleIndex,
+						shareCode: that.shareCode,
+						accessCode: option.accessCode,
+					});
 				}
 			);
 		} else {

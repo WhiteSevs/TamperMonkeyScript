@@ -7,12 +7,8 @@ import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkC
 
 export const NetDiskCheckLinkValidity_kuake: NetDiskCheckLinkValidityEntranceInstance =
 	{
-		/**
-		 * @param ruleIndex 网盘名称索引下标
-		 * @param shareCode 分享码
-		 * @param accessCode 访问码
-		 */
-		async init(ruleIndex: number, shareCode: string, accessCode) {
+		async init(netDiskInfo) {
+			const { ruleIndex, shareCode, accessCode } = netDiskInfo;
 			let response = await httpx.post(
 				"https://drive.quark.cn/1/clouddrive/share/sharepage/token?pr=ucpro&fr=pc",
 				{

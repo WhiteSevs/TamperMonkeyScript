@@ -11,12 +11,9 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 	panelList = [];
 	panelContent = "";
 	OK_CODE = "0000";
-	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
+	async init(netDiskInfo: ParseFileInitConfig) {
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		log.info(ruleIndex, shareCode, accessCode);
-		that.ruleIndex = ruleIndex;
-		that.shareCode = shareCode;
-		that.accessCode = accessCode;
 		that.panelList = [];
 		that.panelContent = "";
 		let checkLinkValidityInfo = await that.checkLinkValidity(
@@ -99,7 +96,10 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 	 * @param shareCode
 	 * @param accessCode
 	 */
-	async checkLinkValidity(shareCode: string, accessCode: AccessCodeNonNullType) {
+	async checkLinkValidity(
+		shareCode: string,
+		accessCode: AccessCodeNonNullType
+	) {
 		const that = this;
 		let resultJSON = await that.getShareByUniqueUrl(shareCode);
 		if (!resultJSON) {
@@ -122,7 +122,11 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 					that.shareCode,
 					that.accessCode,
 					(option) => {
-						that.init(that.ruleIndex, that.shareCode, option.accessCode);
+						that.init({
+							ruleIndex: that.ruleIndex,
+							shareCode: that.shareCode,
+							accessCode: option.accessCode,
+						});
 					}
 				);
 				return false;

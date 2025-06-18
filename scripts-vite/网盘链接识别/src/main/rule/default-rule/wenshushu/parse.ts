@@ -21,16 +21,9 @@ export class NetDiskParse_Wenshushu extends ParseFileAbstract {
 		1066: "对方设置的下载 / 预览次数已用完",
 		1088: "糟糕，您访问的页面不存在",
 	};
-	async init(
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeNonNullType
-	) {
+	async init(netDiskInfo: ParseFileInitConfig) {
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		log.info(ruleIndex, shareCode, accessCode);
-		that.ruleIndex = ruleIndex;
-		that.shareCode = shareCode;
-		that.accessCode = accessCode;
 		Qmsg.info("正在请求直链中...");
 		let token = await this.getWssToken();
 		if (!token) {

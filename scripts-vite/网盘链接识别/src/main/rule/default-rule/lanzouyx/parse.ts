@@ -142,20 +142,10 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 	shareCodeId = void 0 as any as number;
 	/**
 	 * 入口
-	 * @param ruleIndex
-	 * @param shareCode
-	 * @param accessCode
 	 */
-	async init(
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeNonNullType
-	) {
+	async init(netDiskInfo: ParseFileInitConfig) {
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		log.info(ruleIndex, shareCode, accessCode);
-		that.ruleIndex = ruleIndex;
-		that.shareCode = shareCode;
-		that.accessCode = accessCode;
 		that.shareCodeId = that.getDecodeShareCodeId(shareCode);
 		that.uuid = that.getEncodeUUID();
 		let linkInfo = await this.recommendList(

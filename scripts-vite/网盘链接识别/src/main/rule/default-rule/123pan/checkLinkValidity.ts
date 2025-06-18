@@ -6,12 +6,8 @@ import {
 
 export const NetDiskCheckLinkValidity_123pan: NetDiskCheckLinkValidityEntranceInstance =
 	{
-		/**
-		 * @param ruleIndex 规则下标
-		 * @param shareCode 分享码
-		 * @param accessCode 访问码
-		 */
-		async init(ruleIndex: number, shareCode: string, AccessCodeType) {
+		async init(netDiskInfo) {
+			const { ruleIndex, shareCode, accessCode } = netDiskInfo;
 			let response = await httpx.get(
 				"https://www.123pan.com/api/share/info?shareKey=" + shareCode,
 				{

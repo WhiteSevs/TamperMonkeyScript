@@ -6,16 +6,8 @@ import {
 
 export const NetDiskCheckLinkValidity_115pan: NetDiskCheckLinkValidityEntranceInstance =
 	{
-		/**
-		 * @param ruleIndex 规则下标
-		 * @param shareCode 分享码
-		 * @param accessCode 访问码
-		 */
-		async init(
-			ruleIndex: number,
-			shareCode: string,
-			accessCode: AccessCodeType
-		) {
+		async init(netDiskInfo) {
+			const { ruleIndex, shareCode, accessCode } = netDiskInfo;
 			let response = await httpx.get(
 				`https://webapi.115.com/share/snap?share_code=${shareCode}&offset=0&limit=20&receive_code=&cid=`,
 				{

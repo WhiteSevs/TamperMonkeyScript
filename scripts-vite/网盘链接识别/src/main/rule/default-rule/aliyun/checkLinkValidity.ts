@@ -6,12 +6,8 @@ import {
 
 export const NetDiskCheckLinkValidity_aliyun: NetDiskCheckLinkValidityEntranceInstance =
 	{
-		/**
-		 * @param ruleIndex 规则下标
-		 * @param shareCode 分享码
-		 * @param accessCode 访问码
-		 */
-		async init(ruleIndex: number, shareCode: string, AccessCodeType) {
+		async init(netDiskInfo) {
+			const { shareCode } = netDiskInfo;
 			let response = await httpx.post(
 				"https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous?share_id=" +
 					shareCode,

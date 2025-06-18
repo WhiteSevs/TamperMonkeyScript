@@ -7,12 +7,8 @@ import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkC
 
 export const NetDiskCheckLinkValidity_onedrive: NetDiskCheckLinkValidityEntranceInstance =
 	{
-		/**
-		 * @param ruleIndex 网盘名称索引下标
-		 * @param shareCode 分享码
-		 * @param accessCode 访问码
-		 */
-		async init(ruleIndex: number, shareCode: string, accessCode) {
+		async init(netDiskInfo) {
+			const { ruleIndex, shareCode, accessCode } = netDiskInfo;
 			let url = NetDiskLinkClickModeUtils.getBlankUrl({
 				ruleKeyName: "onedrive",
 				ruleIndex,

@@ -11,9 +11,5 @@ export abstract class ParseFileAbstract {
 	 * @param shareCode 分享码
 	 * @param accessCode 访问码
 	 */
-	abstract init(
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeNonNullType
-	): IPromise<void>;
+	abstract init(netDiskInfo: ParseFileInitConfig): IPromise<void>;
 }

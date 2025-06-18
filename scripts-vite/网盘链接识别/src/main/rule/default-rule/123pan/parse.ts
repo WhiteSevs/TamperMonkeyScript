@@ -25,16 +25,9 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 		"app-version": "61",
 		"x-app-version": "2.4.0",
 	};
-	async init(
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeNonNullType
-	) {
+	async init(netDiskInfo: ParseFileInitConfig) {
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		log.info(ruleIndex, shareCode, accessCode);
-		that.ruleIndex = ruleIndex;
-		that.shareCode = shareCode;
-		that.accessCode = accessCode;
 		that.panelList = [];
 		that.Authorization = NetDiskAuthorization_123pan_Authorization.get();
 		let checkLinkValidityStatus = await that.checkLinkValidity();
@@ -156,7 +149,11 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 					that.shareCode,
 					that.accessCode,
 					(option) => {
-						that.init(that.ruleIndex, that.shareCode, option.accessCode);
+						that.init({
+							ruleIndex: that.ruleIndex,
+							shareCode: that.shareCode,
+							accessCode: option.accessCode,
+						});
 					}
 				);
 			} else {
@@ -227,7 +224,11 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 				that.shareCode,
 				that.accessCode,
 				(option) => {
-					that.init(that.ruleIndex, that.shareCode, option.accessCode);
+					that.init({
+						ruleIndex: that.ruleIndex,
+						shareCode: that.shareCode,
+						accessCode: option.accessCode,
+					});
 				}
 			);
 		} else if (that.code[json_data["code"] as keyof typeof that.code]) {

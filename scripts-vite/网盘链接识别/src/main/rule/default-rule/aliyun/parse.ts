@@ -28,16 +28,9 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 	 * header请求头 X-Canary
 	 */
 	X_Canary = "client=web,app=share,version=v2.3.1";
-	async init(
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeNonNullType
-	) {
+	async init(netDiskInfo: ParseFileInitConfig) {
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		log.info(ruleIndex, shareCode, accessCode);
-		that.ruleIndex = ruleIndex;
-		that.shareCode = shareCode;
-		that.accessCode = accessCode;
 		that.X_Device_Id = that.get_X_Device_Id();
 		log.info("生成X_Device_Id：" + that.X_Device_Id);
 		if (

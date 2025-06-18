@@ -606,9 +606,7 @@ export const NetDiskUserRule = {
 						ruleKey,
 						{
 							init: new AsyncFunction(
-								"ruleIndex",
-								"shareCode",
-								"accessCode",
+								"netDiskInfo",
 								userRuleItemConfig.checkLinkValidityFunction
 								// 绑定作用域
 							).bind(context),

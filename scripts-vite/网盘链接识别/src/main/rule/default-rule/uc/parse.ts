@@ -11,16 +11,11 @@ import { NetDiskCommonUtils } from "@/utils/NetDiskCommonUtils";
 export class NetDiskParse_UC extends ParseFileAbstract {
 	/**
 	 * 入口
-	 * @param ruleIndex
-	 * @param shareCode
-	 * @param accessCode
 	 */
-	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
+	async init(netDiskInfo: ParseFileInitConfig) {
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		log.info(ruleIndex, shareCode, accessCode);
-		that.ruleIndex = ruleIndex;
-		that.shareCode = shareCode;
-		that.accessCode = accessCode;
+		
 		Qmsg.info("检查是否已登录UC网盘");
 		let loginStatus = await that.isLogin();
 		if (!Boolean(loginStatus)) {

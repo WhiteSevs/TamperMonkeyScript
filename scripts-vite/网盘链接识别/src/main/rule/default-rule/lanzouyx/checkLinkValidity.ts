@@ -7,12 +7,8 @@ import { NetDiskParse } from "../../../parse/NetDiskParse";
 
 export const NetDiskCheckLinkValidity_lanzouyx: NetDiskCheckLinkValidityEntranceInstance =
 	{
-		/**
-		 * @param ruleIndex 网盘名称索引下标
-		 * @param shareCode 分享码
-		 * @param accessCode 访问码
-		 */
-		async init(ruleIndex: number, shareCode: string, accessCode) {
+		async init(netDiskInfo) {
+			const { ruleIndex, shareCode, accessCode } = netDiskInfo;
 			let LanZouYX = new NetDiskParse.rule.lanzouyx();
 			LanZouYX.shareCodeId = LanZouYX.getDecodeShareCodeId(shareCode);
 			let timestamp = LanZouYX.getEncodeTimeStamp();

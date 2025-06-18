@@ -190,19 +190,9 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 	};
 	/**
 	 * 入口
-	 * @param ruleIndex
-	 * @param shareCode
-	 * @param accessCode
 	 */
-	async init(
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeNonNullType
-	) {
-		log.info(ruleIndex, shareCode, accessCode);
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
+	async init(netDiskInfo: ParseFileInitConfig) {
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		this.regexp.unicode.isUnicode = Boolean(
 			shareCode.match(this.regexp.unicode.match)
 		);
@@ -988,7 +978,11 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 				shareCode,
 				accessCode,
 				(option) => {
-					this.init(this.ruleIndex, shareCode, option.accessCode);
+					this.init({
+						ruleIndex: this.ruleIndex,
+						shareCode,
+						accessCode: option.accessCode,
+					});
 				}
 			);
 		} else {

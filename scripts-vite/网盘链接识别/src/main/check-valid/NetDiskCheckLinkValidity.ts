@@ -362,11 +362,11 @@ export const NetDiskCheckLinkValidity = {
 		}
 		this.status.loading.setView($checkValidStatus, checkInfo);
 
-		let checkStatusResult = await netDiskCheck.init(
-			checkInfo.ruleIndex,
-			checkInfo.shareCode,
-			checkInfo.accessCode
-		);
+		let checkStatusResult = await netDiskCheck.init({
+			ruleIndex: checkInfo.ruleIndex,
+			shareCode: checkInfo.shareCode,
+			accessCode: checkInfo.accessCode,
+		});
 		if (!checkStatusResult) {
 			log.error("该验证函数的返回值不是有效值", [checkStatusResult, checkInfo]);
 			return;

@@ -22,12 +22,9 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 		InvalidSessionKey:
 			"天翼云PC端Cookie未生成，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC且在登录后要等待进入个人云空间后生成Cookie，不是手机端浏览的个人云空间，那样生成的Cookie无法使用)",
 	};
-	async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
+	async init(netDiskInfo: ParseFileInitConfig) {
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		log.info(ruleIndex, shareCode, accessCode);
-		that.ruleIndex = ruleIndex;
-		that.shareCode = shareCode;
-		that.accessCode = accessCode;
 
 		let shareInfoData = await that.getShareInfoByCodeV2(shareCode);
 		if (!shareInfoData) {
@@ -44,7 +41,11 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 				that.shareCode,
 				that.accessCode,
 				(option) => {
-					that.init(that.ruleIndex, that.shareCode, option.accessCode);
+					that.init({
+						ruleIndex: that.ruleIndex,
+						shareCode: that.shareCode,
+						accessCode: option.accessCode,
+					});
 				}
 			);
 			return;

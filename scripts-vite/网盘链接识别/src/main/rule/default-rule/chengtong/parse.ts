@@ -7,15 +7,9 @@ import { GM_getValue } from "ViteGM";
 export class NetDiskParse_Chengtong extends ParseFileAbstract {
 	/**
 	 * 入口
-	 * @param ruleIndex
-	 * @param shareCode
-	 * @param accessCode
 	 */
-	init(
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeNonNullType
-	) {
+	async init(netDiskInfo: ParseFileInitConfig) {
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		let ruleKeyName = "chengtong";
 		if (ruleIndex !== 3) {
 			log.warn(

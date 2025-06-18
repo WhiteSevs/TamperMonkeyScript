@@ -3,23 +3,11 @@ import {
 	NetDiskCheckLinkValidity,
 	NetDiskCheckLinkValidityRequestOption,
 } from "@/main/check-valid/NetDiskCheckLinkValidity";
-import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
-import { NetDiskRule_360yunpan } from "./rule";
 
 export const NetDiskCheckLinkValidity_360yunpan: NetDiskCheckLinkValidityEntranceInstance =
 	{
-		/**
-		 * @param ruleIndex 规则下标
-		 * @param shareCode 分享码
-		 * @param accessCode 访问码
-		 */
-		async init(ruleIndex: number, shareCode: string, AccessCodeType) {
-			// let url = NetDiskLinkClickModeUtils.getBlankUrl(
-			// 	NetDiskRule_360yunpan.setting.key,
-			// 	ruleIndex,
-			// 	shareCode,
-			// 	accessCode
-			// );
+		async init(netDiskInfo) {
+			const { ruleIndex, shareCode, accessCode } = netDiskInfo;
 			let url = "https://www.yunpan.com/lk/surl_" + shareCode;
 			let response = await httpx.get(url, {
 				headers: {

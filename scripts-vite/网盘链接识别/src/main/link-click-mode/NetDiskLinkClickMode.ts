@@ -264,10 +264,21 @@ export const NetDiskLinkClickMode = {
 	) {
 		log.success(`链接解析：`, [...arguments]);
 		if (NetDiskParse.rule[ruleKeyName as keyof typeof NetDiskParse.rule]) {
-			let parseObj = new NetDiskParse.rule[
+			let parseInst = new NetDiskParse.rule[
 				ruleKeyName as keyof typeof NetDiskParse.rule
 			]();
-			await parseObj.init(ruleIndex, shareCode, accessCode ?? "");
+			const netDiskInfo: ParseFileInitConfig = {
+				ruleIndex,
+				shareCode,
+				accessCode: accessCode ?? "",
+			};
+			// 参数初始化
+			parseInst.ruleIndex = netDiskInfo.ruleIndex;
+			parseInst.shareCode = netDiskInfo.shareCode;
+			parseInst.accessCode = netDiskInfo.accessCode;
+			log.info(["文件解析：", netDiskInfo]);
+
+			await parseInst.init(netDiskInfo);
 		} else {
 			log.error(`${ruleKeyName} 未配置解析函数`, [
 				ruleKeyName,

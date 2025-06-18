@@ -8,15 +8,9 @@ import { NetDiskLinkClickMode } from "@/main/link-click-mode/NetDiskLinkClickMod
 export class NetDiskParse_Baidu extends ParseFileAbstract {
 	/**
 	 * 入口
-	 * @param ruleIndex 规则下标
-	 * @param shareCode
-	 * @param accessCode
 	 */
-	init(ruleIndex: number, shareCode: string, accessCode: AccessCodeNonNullType) {
-		log.info(ruleIndex, shareCode, accessCode);
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
+	async init(netDiskInfo: ParseFileInitConfig) {
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		let url = GM_getValue<string>("baidu-baiduwp-php-url");
 		let postForm = GM_getValue<string>("baidu-baiduwp-php-post-form");
 		let enableCopy = GM_getValue<boolean>("baidu-baiduwp-php-copy-url");

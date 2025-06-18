@@ -7,12 +7,8 @@ import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkC
 
 export const NetDiskCheckLinkValidity_baidu: NetDiskCheckLinkValidityEntranceInstance =
 	{
-		/**
-		 * @param ruleIndex 规则下标
-		 * @param shareCode 分享码
-		 * @param accessCode 访问码
-		 */
-		async init(ruleIndex: number, shareCode: string, accessCode) {
+		async init(netDiskInfo) {
+			const { ruleIndex, shareCode, accessCode } = netDiskInfo;
 			let url = NetDiskLinkClickModeUtils.getBlankUrl({
 				ruleKeyName: "baidu",
 				ruleIndex,

@@ -7,13 +7,8 @@ import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkC
 
 export const NetDiskCheckLinkValidity_hecaiyun: NetDiskCheckLinkValidityEntranceInstance =
 	{
-		/**
-		 * 新版和彩云校验已失效
-		 * @param ruleIndex 规则下标
-		 * @param shareCode 分享码
-		 * @param accessCode 访问码
-		 */
-		async init(ruleIndex: number, shareCode: string, accessCode) {
+		async init(netDiskInfo) {
+			const { ruleIndex, shareCode, accessCode } = netDiskInfo;
 			let response = await httpx.post(
 				"https://caiyun.139.com/stapi/custom/outlink/brief",
 				{

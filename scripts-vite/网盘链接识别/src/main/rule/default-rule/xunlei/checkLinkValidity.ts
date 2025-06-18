@@ -7,16 +7,8 @@ import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkC
 
 export const NetDiskCheckLinkValidity_xunlei: NetDiskCheckLinkValidityEntranceInstance =
 	{
-		/**
-		 * @param ruleIndex 规则下标
-		 * @param shareCode 分享码
-		 * @param accessCode 访问码
-		 */
-		async init(
-			ruleIndex: number,
-			shareCode: string,
-			accessCode: AccessCodeType
-		) {
+		async init(netDiskInfo) {
+			const { ruleIndex, shareCode, accessCode } = netDiskInfo;
 			let postResponse = await httpx.post(
 				"https://xluser-ssl.xunlei.com/v1/shield/captcha/init",
 				{
