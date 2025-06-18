@@ -102,10 +102,13 @@ export const NetDiskUserRule = {
 					msg: "regexp缺失的键名: shareCode，类型: string",
 				};
 			}
-			if (typeof ruleRegExp["shareCodeNeedRemoveStr"] !== "string") {
+			if (
+				typeof ruleRegExp["shareCodeNeedRemoveStr"] !== "string" &&
+				!Array.isArray(ruleRegExp["shareCodeNeedRemoveStr"])
+			) {
 				return {
 					success: false,
-					msg: "regexp缺失的键名: shareCodeNeedRemoveStr，类型: string",
+					msg: "regexp缺失的键名: shareCodeNeedRemoveStr，类型: string|string[]",
 				};
 			}
 			if (typeof ruleRegExp["uiLinkShow"] !== "string") {
@@ -286,7 +289,7 @@ export const NetDiskUserRule = {
 			userRuleConfig: NetDiskUserCustomRule,
 			ruleRegExp: NetDiskUserCustomRuleRegexp
 		): NetDiskMatchRuleConfig {
-			const {
+			let {
 				shareCode,
 				shareCodeNeedRemoveStr,
 				shareCodeNotMatch,
@@ -315,17 +318,25 @@ export const NetDiskUserRule = {
 			if (typeof shareCode === "string") {
 				netDiskRegularOption.shareCode = new RegExp(shareCode, "ig");
 			}
-			if (typeof shareCodeNeedRemoveStr === "string") {
-				netDiskRegularOption.shareCodeNeedRemoveStr = new RegExp(
-					shareCodeNeedRemoveStr,
-					"ig"
-				);
+			if (shareCodeNeedRemoveStr) {
+				if (typeof shareCodeNeedRemoveStr === "string") {
+					shareCodeNeedRemoveStr = [shareCodeNeedRemoveStr];
+				}
+				if (Array.isArray(shareCodeNeedRemoveStr)) {
+					netDiskRegularOption.shareCodeNeedRemoveStr = shareCodeNeedRemoveStr
+						.filter((item) => typeof item === "string")
+						.map((item) => new RegExp(item, "ig"));
+				}
 			}
-			if (typeof shareCodeNotMatch === "string") {
-				netDiskRegularOption.shareCodeNotMatch = new RegExp(
-					shareCodeNotMatch,
-					"ig"
-				);
+			if (shareCodeNotMatch) {
+				if (typeof shareCodeNotMatch === "string") {
+					shareCodeNotMatch = [shareCodeNotMatch];
+				}
+				if (Array.isArray(shareCodeNotMatch)) {
+					netDiskRegularOption.shareCodeNotMatch = shareCodeNotMatch
+						.filter((item) => typeof item === "string")
+						.map((item) => new RegExp(item, "ig"));
+				}
 			}
 			if (typeof checkAccessCode === "string") {
 				netDiskRegularOption.checkAccessCode = new RegExp(
@@ -336,11 +347,15 @@ export const NetDiskUserRule = {
 			if (typeof accessCode === "string") {
 				netDiskRegularOption.accessCode = new RegExp(accessCode, "ig");
 			}
-			if (typeof acceesCodeNotMatch === "string") {
-				netDiskRegularOption.acceesCodeNotMatch = new RegExp(
-					acceesCodeNotMatch,
-					"ig"
-				);
+			if (acceesCodeNotMatch) {
+				if (typeof acceesCodeNotMatch === "string") {
+					acceesCodeNotMatch = [acceesCodeNotMatch];
+				}
+				if (Array.isArray(acceesCodeNotMatch)) {
+					netDiskRegularOption.acceesCodeNotMatch = acceesCodeNotMatch.map(
+						(item) => new RegExp(item, "ig")
+					);
+				}
 			}
 			if (typeof paramMatch === "string") {
 				netDiskRegularOption.paramMatch = new RegExp(paramMatch, "i");

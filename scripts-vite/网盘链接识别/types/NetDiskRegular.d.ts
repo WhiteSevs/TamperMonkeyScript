@@ -27,11 +27,11 @@ declare interface NetDiskMatchRuleConfig {
 	/**
 	 * (可选)正则：用于判断提取到的shareCode是否是错误的shareCode
 	 */
-	shareCodeNotMatch?: RegExp;
+	shareCodeNotMatch?: RegExp | RegExp[];
 	/**
 	 * 正则：需要替换空的，比如pan.baidu.com/s/替换为空
 	 */
-	shareCodeNeedRemoveStr: RegExp;
+	shareCodeNeedRemoveStr: RegExp | RegExp[];
 	/** （可选）值为规则名，如果匹配到的shareCode在目标规则匹配到的shareCode中，那么取消匹配 */
 	shareCodeExcludeRegular?: string[];
 	/**
@@ -45,7 +45,7 @@ declare interface NetDiskMatchRuleConfig {
 	/**
 	 * （可选）正则：用于判断提取到的accessCode是否是错误的accessCode
 	 */
-	acceesCodeNotMatch?: RegExp;
+	acceesCodeNotMatch?: RegExp | RegExp[];
 	/**
 	 * （可选）用于对matchText进行提取需要的关键内容
 	 *

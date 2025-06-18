@@ -98,13 +98,13 @@ declare interface NetDiskUserCustomRuleRegexp {
 	/**
 	 * (可选)正则：用于判断提取到的shareCode是否是错误的shareCode
 	 */
-	shareCodeNotMatch?: string;
+	shareCodeNotMatch?: string | string[];
 	/**
 	 * 用于删除提取出的shareCode前面的域名、路径字符串
 	 *
 	 * 会自动进行正则转换，正则模式ig
 	 */
-	shareCodeNeedRemoveStr: string;
+	shareCodeNeedRemoveStr: string | string[];
 	/**
 	 * （可选）值为规则名，如果匹配到的shareCode在目标规则匹配到的shareCode中，那么取消匹配
 	 */
@@ -126,7 +126,7 @@ declare interface NetDiskUserCustomRuleRegexp {
 	 *
 	 * 会自动进行正则转换，正则模式ig
 	 */
-	acceesCodeNotMatch?: string;
+	acceesCodeNotMatch?: string | string[];
 	/**
 	 * （可选）用于对matchText进行提取需要的关键内容
 	 *
