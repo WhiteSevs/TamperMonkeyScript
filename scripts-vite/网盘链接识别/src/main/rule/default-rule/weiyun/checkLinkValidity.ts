@@ -12,7 +12,11 @@ export const NetDiskCheckLinkValidity_weiyun: NetDiskCheckLinkValidityEntranceIn
 		 * @param shareCode 分享码
 		 * @param accessCode 访问码
 		 */
-		async init(ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
+		async init(
+			ruleIndex: number,
+			shareCode: string,
+			accessCode: AccessCodeType
+		) {
 			let url = NetDiskLinkClickModeUtils.getBlankUrl(
 				"weiyun",
 				ruleIndex,
@@ -38,9 +42,10 @@ export const NetDiskCheckLinkValidity_weiyun: NetDiskCheckLinkValidityEntranceIn
 			let responseText = response.data.responseText;
 			if (
 				responseText.includes("已删除") ||
+				responseText.includes("已被删除") ||
+				responseText.includes("已经删除") ||
 				responseText.includes("违反相关法规") ||
 				responseText.includes("已过期") ||
-				responseText.includes("已经删除") ||
 				responseText.includes("目录无效")
 			) {
 				return {
@@ -50,7 +55,7 @@ export const NetDiskCheckLinkValidity_weiyun: NetDiskCheckLinkValidityEntranceIn
 			}
 			if (
 				responseText.includes('"need_pwd":1') ||
-				responseText.includes('"pwd":"')
+				(responseText.includes('"pwd":"') && !responseText.includes('"pwd":""'))
 			) {
 				return {
 					...NetDiskCheckLinkValidity.status.needAccessCode,
