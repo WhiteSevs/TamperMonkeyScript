@@ -225,7 +225,7 @@ table.pops-folder-list-table__body {
 	vertical-align: middle;
 }
 .pops-folder-list .pops-folder-file-list-breadcrumb-primary {
-	flex: 0;
+	flex: 1;
 	display: -webkit-box;
 	display: -webkit-flex;
 	display: -ms-flexbox;
