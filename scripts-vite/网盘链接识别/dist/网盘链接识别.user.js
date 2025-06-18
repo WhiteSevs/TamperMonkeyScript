@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.18
+// @version      2025.6.18.18
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -2634,10 +2634,10 @@
           "#root input.ant-input[placeholder*='提取码']",
           "#root input[name=pwd][placeholder*='提取码']"
         ]).then(($el) => {
-          ReactUtils.waitReactPropsToSet($el, ["reactFiber", "reactProps"], {
+          ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
             check(reactPropInst) {
               var _a2;
-              return typeof ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange) === "function" || typeof (reactPropInst == null ? void 0 : reactPropInst.onChange) === "function";
+              return typeof (reactPropInst == null ? void 0 : reactPropInst.onChange) === "function" || typeof ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange) === "function";
             },
             set(reactPropInst) {
               var _a2;
@@ -2645,16 +2645,16 @@
                 log.error("输入框不可见，不输入密码");
                 return;
               }
-              Qmsg.success("自动填充访问码");
               $el.value = netDiskInfo.accessCode;
-              let onChange = ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange) || (reactPropInst == null ? void 0 : reactPropInst.onChange);
+              let onChange = (reactPropInst == null ? void 0 : reactPropInst.onChange) || ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange);
               onChange({
                 currentTarget: $el,
                 target: $el
               });
+              Qmsg.success("自动填充访问码");
               let $submit = $('#root button[type="submit"]');
               if (!$submit) {
-                Qmsg.error("未找到提交按钮");
+                Qmsg.error("提交按钮不存在");
                 return;
               }
               $submit.click();
@@ -2667,47 +2667,38 @@
   const NetDiskAutoFillAccessCode_123pan = function(netDiskInfo) {
     if (window.location.hostname === "www.123pan.com") {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("#app .ca-fot input.ant-input[type=text]").then(($el) => {
-        if (!utils.isVisible($el)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        ReactUtils.waitReactPropsToSet($el, "reactProps", {
-          check(reactInstance) {
-            return typeof (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
-          },
-          set(reactInstance) {
-            reactInstance.onChange({
-              target: {
-                value: netDiskInfo.accessCode
+      domUtils.ready(() => {
+        utils.waitAnyNode([
+          "#app .ca-fot input.ant-input[type=text][placeholder*='提取码']",
+          "#app .appinput input.ant-input[type=text][placeholder*='提取码']"
+        ]).then(($el) => {
+          ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
+            check(reactPropInst) {
+              var _a2;
+              return typeof (reactPropInst == null ? void 0 : reactPropInst.onChange) === "function" || typeof ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange) === "function";
+            },
+            set(reactPropInst) {
+              var _a2;
+              if (!utils.isVisible($el)) {
+                log.error("输入框不可见，不输入密码");
+                return;
               }
-            });
-          }
-        });
-        let $next = $el.nextSibling;
-        $next == null ? void 0 : $next.click();
-      });
-      utils.waitNode("#app .appinput input.ant-input[type=text]").then(($el) => {
-        if (!utils.isVisible($el)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        ReactUtils.waitReactPropsToSet($el, "reactProps", {
-          check(reactInstance) {
-            return typeof (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
-          },
-          set(reactInstance) {
-            reactInstance.onChange({
-              target: {
-                value: netDiskInfo.accessCode
+              $el.value = netDiskInfo.accessCode;
+              let onChange = (reactPropInst == null ? void 0 : reactPropInst.onChange) || ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange);
+              onChange({
+                currentTarget: $el,
+                target: $el
+              });
+              Qmsg.success("自动填充访问码");
+              let $submit = $el.nextElementSibling;
+              if (!$submit) {
+                Qmsg.error("提交按钮不存在");
+                return;
               }
-            });
-          }
+              $submit.click();
+            }
+          });
         });
-        let $next = $el.nextSibling;
-        $next == null ? void 0 : $next.click();
       });
     }
   };
@@ -2786,26 +2777,29 @@
       log.success("自动填写链接", netDiskInfo);
       domUtils.ready(() => {
         utils.waitNode(
-          "#ice-container input.ant-input[class*=ShareReceive]"
+          "#ice-container input.ant-input[class*=ShareReceive][placeholder*='提取码']"
         ).then(($el) => {
           ReactUtils.waitReactPropsToSet(
             $el,
             ["reactProps", "reactEventHandlers"],
             {
-              check(reactInstance) {
-                return typeof (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
+              check(reactPropInst) {
+                var _a2;
+                return typeof (reactPropInst == null ? void 0 : reactPropInst.onChange) === "function" || typeof ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange) === "function";
               },
-              set(reactInstance) {
+              set(reactPropInst) {
+                var _a2;
                 if (!utils.isVisible($el)) {
                   log.error("输入框不可见，不输入密码");
                   return;
                 }
-                Qmsg.success("自动填充访问码");
-                reactInstance.onChange({
-                  target: {
-                    value: netDiskInfo.accessCode
-                  }
+                $el.value = netDiskInfo.accessCode;
+                let onChange = (reactPropInst == null ? void 0 : reactPropInst.onChange) || ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange);
+                onChange({
+                  currentTarget: $el,
+                  target: $el
                 });
+                Qmsg.success("自动填充访问码");
               }
             }
           );
