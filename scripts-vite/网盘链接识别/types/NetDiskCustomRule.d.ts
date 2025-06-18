@@ -328,9 +328,7 @@ declare interface NetDiskUserCustomRule {
 	setting: NetDiskUserCustomRuleSetting;
 	/**
 	 * （可选）验证链接有效性的函数
-	 * + `参数1`：netDiskIndex: number
-	 * + `参数2`：shareCode: string
-	 * + `参数3`：accessCode: string
+	 * + `参数`: netDiskInfo: [NetDiskCheckLinkValidityEntranceInstance](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskCheckLinkValidity.d.ts#L49-L76)
 	 *
 	 * `this`是`NetDiskUserCustomRuleContext`对象:
 	 *
@@ -387,20 +385,37 @@ declare interface NetDiskUserCustomRule {
 	 * （可选）自动添加访问码函数
 	 * 通过NetDiskParse.blank函数来打开网盘链接会触发该函数执行
 	 * 会判断条件，需要满足=>key相同、accessCode不为空、开启自动输入访问码功能、网址中存在该shareCode
-	 * + `参数1`: `netDiskInfo: NetDiskAutoFillAccessCodeOption`
+	 * + `参数`: netDiskInfo: [NetDiskAutoFillAccessCodeOption](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskAutoFillAccessCode.d.ts)
+	 * @example
+	 * if (window.location.hostname === "pan.baidu.com") {
+	 *   this.DOMUtils.ready(()=>{
+	 *      this.utils.waitNode("input", 10000).then( ($input)=>{
+	 *          if (!this.utils.isVisible($input)) {
+	 *			    log.error("输入框不可见，不输入密码");
+	 *			    return;
+	 *		    }
+	 *          $input && ($input.value = netDiskInfo.accessCode);
+	 *          this.Qmsg.success("自动填充访问码");
+	 *          let $submit = document.querySelector("button[type='submit']");
+	 *          if(!$submit){
+	 *              this.Qmsg.error("提交按钮不存在");
+	 *              return;
+	 *          }
+	 *          $submit?.click();
+	 *      })
+	 *   });
+	 * }
 	 */
 	AutoFillAccessCodeFunction?: string;
 	/**
 	 * （可选）解析网盘链接函数
 	 * 需要强制返回this
 	 * 入口函数为`init`
-	 * + `参数1`：`ruleIndex: number`
-	 * + `参数2`：`shareCode: string`
-	 * + `参数3`：`accessCode: string`
+	 * + `参数`：netDiskInfo: [ParseFileInitConfig](https://github.com/WhiteSevs/TamperMonkeyScript/blob/master/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/types/NetDiskParseFile.d.ts)
 	 * @example
 	 * let that = this;
-	 * this.init = async function(ruleIndex, shareCode, accessCode){
-	 *      console.log(ruleIndex, shareCode, accessCode);
+	 * this.init = async function(netDiskInfo){
+	 *      console.log(netDiskInfo);
 	 * }
 	 * return this;
 	 */

@@ -46,19 +46,23 @@ declare interface NetDiskCheckLinkValidityStatusInstance {
 		msg?: string
 	): void;
 }
+/**
+ * 有效性校验的入口传入参数配置
+ */
+declare type NetDiskCheckLinkValidityInitConfig = {
+	/** 规则的索引下标 */
+	ruleIndex: number;
+	/** 分享码 */
+	shareCode: string;
+	/** 访问码 */
+	accessCode: AccessCodeType;
+};
 declare interface NetDiskCheckLinkValidityEntranceInstance {
 	/**
 	 * 入口函数
-	 * @param ruleIndex 规则的索引下标
-	 * @param shareCode 分享码
-	 * @param accessCode 访问码
-	 * @returns
+	 * @param netDiskInfo 网盘信息
 	 */
-	init: (
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeType
-	) => IPromise<
+	init(netDiskInfo: NetDiskCheckLinkValidityInitConfig): IPromise<
 		NetDiskCheckLinkValidityStatusInstance & {
 			/**
 			 * 网络请求的数据
