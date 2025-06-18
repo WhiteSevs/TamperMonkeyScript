@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.13.16
+// @version      2025.6.18
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -2534,79 +2534,94 @@
   const ReactUtils = {
     /**
      * 等待react某个属性并进行设置
+     * @param $el 需要检测的元素对象
+     * @param reactPropNameOrNameList react属性的名称
+     * @param checkOption 检测的配置项
      */
-    async waitReactPropsToSet($target, propName, needSetList) {
-      if (!Array.isArray(needSetList)) {
-        this.waitReactPropsToSet($target, propName, [needSetList]);
-        return;
+    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
+      if (!Array.isArray(reactPropNameOrNameList)) {
+        reactPropNameOrNameList = [reactPropNameOrNameList];
+      }
+      if (!Array.isArray(checkOption)) {
+        checkOption = [checkOption];
       }
       function getTarget() {
         let __target__ = null;
-        if (typeof $target === "string") {
-          __target__ = document.querySelector($target);
-        } else if (typeof $target === "function") {
-          __target__ = $target();
-        } else if ($target instanceof HTMLElement) {
-          __target__ = $target;
+        if (typeof $el === "string") {
+          __target__ = domUtils.selector($el);
+        } else if (typeof $el === "function") {
+          __target__ = $el();
+        } else if ($el instanceof HTMLElement) {
+          __target__ = $el;
         }
         return __target__;
       }
-      if (typeof $target === "string") {
-        let $ele = await utils.waitNode($target, 1e4);
+      if (typeof $el === "string") {
+        let $ele = await utils.waitNode($el, 1e4);
         if (!$ele) {
           return;
         }
       }
-      needSetList.forEach((needSetOption) => {
+      checkOption.forEach((needSetOption) => {
         if (typeof needSetOption.msg === "string") {
           log.info(needSetOption.msg);
         }
-        function checkObj() {
-          let target = getTarget();
-          if (target == null) {
-            return false;
+        function checkTarget() {
+          let $targetEl = getTarget();
+          if ($targetEl == null) {
+            return {
+              status: false,
+              isTimeout: true,
+              inst: null,
+              $el: $targetEl
+            };
           }
-          let reactInstance = utils.getReactObj(target);
-          if (reactInstance == null) {
-            return false;
+          let reactInst = utils.getReactObj($targetEl);
+          if (reactInst == null) {
+            return {
+              status: false,
+              isTimeout: false,
+              inst: null,
+              $el: $targetEl
+            };
           }
-          let reactInstanceProp = reactInstance[propName];
-          if (reactInstanceProp == null) {
-            return false;
-          }
-          let needOwnCheck = needSetOption.check(reactInstanceProp, target);
-          return Boolean(needOwnCheck);
+          let findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex(
+            (__propName__) => {
+              let reactPropInst2 = reactInst[__propName__];
+              if (!reactPropInst2) {
+                return false;
+              }
+              let checkResult = needSetOption.check(reactPropInst2, $targetEl);
+              checkResult = Boolean(checkResult);
+              return checkResult;
+            }
+          );
+          let reactPropName = reactPropNameOrNameList[findPropNameIndex];
+          let reactPropInst = reactInst[reactPropName];
+          return {
+            status: findPropNameIndex !== -1,
+            isTimeout: false,
+            inst: reactPropInst,
+            $el: $targetEl
+          };
         }
         utils.waitPropertyByInterval(
           () => {
             return getTarget();
           },
-          checkObj,
+          () => checkTarget().status,
           250,
           1e4
         ).then(() => {
-          let target = getTarget();
-          if (target == null) {
+          let checkTargetResult = checkTarget();
+          if (checkTargetResult.status) {
+            let reactInst = checkTargetResult.inst;
+            needSetOption.set(reactInst, checkTargetResult.$el);
+          } else {
             if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(true);
+              needSetOption.failWait(checkTargetResult.isTimeout);
             }
-            return;
           }
-          let reactInstance = utils.getReactObj(target);
-          if (reactInstance == null) {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(false);
-            }
-            return;
-          }
-          let reactInstanceProp = reactInstance[propName];
-          if (reactInstanceProp == null) {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(false);
-            }
-            return;
-          }
-          needSetOption.set(reactInstanceProp, target);
         });
       });
     }
@@ -2614,60 +2629,46 @@
   const NetDiskAutoFillAccessCode_aliyun = function(netDiskInfo) {
     if (window.location.hostname === "www.aliyundrive.com" || window.location.hostname === "www.alipan.com") {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("#root input.ant-input").then((element) => {
-        if (!utils.isVisible(element)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        element.value = netDiskInfo.accessCode;
-        ReactUtils.waitReactPropsToSet(element, "reactFiber", {
-          check(reactInstance) {
-            var _a2;
-            return typeof ((_a2 = reactInstance == null ? void 0 : reactInstance.memoizedProps) == null ? void 0 : _a2.onChange) === "function";
-          },
-          set(reactInstance) {
-            reactInstance.memoizedProps.onChange({
-              currentTarget: element,
-              target: element
-            });
-          }
+      domUtils.ready(() => {
+        utils.waitAnyNode([
+          "#root input.ant-input[placeholder*='提取码']",
+          "#root input[name=pwd][placeholder*='提取码']"
+        ]).then(($el) => {
+          ReactUtils.waitReactPropsToSet($el, ["reactFiber", "reactProps"], {
+            check(reactPropInst) {
+              var _a2;
+              return typeof ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange) === "function" || typeof (reactPropInst == null ? void 0 : reactPropInst.onChange) === "function";
+            },
+            set(reactPropInst) {
+              var _a2;
+              if (!utils.isVisible($el)) {
+                log.error("输入框不可见，不输入密码");
+                return;
+              }
+              Qmsg.success("自动填充访问码");
+              $el.value = netDiskInfo.accessCode;
+              let onChange = ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange) || (reactPropInst == null ? void 0 : reactPropInst.onChange);
+              onChange({
+                currentTarget: $el,
+                target: $el
+              });
+              document.querySelector('#root button[type="submit"]').click();
+            }
+          });
         });
-        document.querySelector('#root button[type="submit"]').click();
-      });
-      utils.waitNode("#root input[name=pwd]").then((element) => {
-        if (!utils.isVisible(element)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        element.value = netDiskInfo.accessCode;
-        ReactUtils.waitReactPropsToSet(element, "reactFiber", {
-          check(reactInstance) {
-            var _a2;
-            return typeof ((_a2 = reactInstance == null ? void 0 : reactInstance.memoizedProps) == null ? void 0 : _a2.onChange) === "function";
-          },
-          set(reactInstance) {
-            reactInstance.memoizedProps.onChange({
-              currentTarget: element,
-              target: element
-            });
-          }
-        });
-        document.querySelector('#root button[type="submit"]').click();
       });
     }
   };
   const NetDiskAutoFillAccessCode_123pan = function(netDiskInfo) {
     if (window.location.hostname === "www.123pan.com") {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("#app .ca-fot input.ant-input[type=text]").then((element) => {
-        if (!utils.isVisible(element)) {
+      utils.waitNode("#app .ca-fot input.ant-input[type=text]").then(($el) => {
+        if (!utils.isVisible($el)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
-        ReactUtils.waitReactPropsToSet(element, "reactProps", {
+        ReactUtils.waitReactPropsToSet($el, "reactProps", {
           check(reactInstance) {
             return typeof (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
           },
@@ -2679,16 +2680,16 @@
             });
           }
         });
-        let $next = element.nextSibling;
+        let $next = $el.nextSibling;
         $next == null ? void 0 : $next.click();
       });
-      utils.waitNode("#app .appinput input.ant-input[type=text]").then((element) => {
-        if (!utils.isVisible(element)) {
+      utils.waitNode("#app .appinput input.ant-input[type=text]").then(($el) => {
+        if (!utils.isVisible($el)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
-        ReactUtils.waitReactPropsToSet(element, "reactProps", {
+        ReactUtils.waitReactPropsToSet($el, "reactProps", {
           check(reactInstance) {
             return typeof (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
           },
@@ -2700,7 +2701,7 @@
             });
           }
         });
-        let $next = element.nextSibling;
+        let $next = $el.nextSibling;
         $next == null ? void 0 : $next.click();
       });
     }
@@ -2778,37 +2779,31 @@
   const NetDiskAutoFillAccessCode_kuake = function(netDiskInfo) {
     if (window.location.hostname === "pan.quark.cn") {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode(
-        "#ice-container input.ant-input[class*=ShareReceive]"
-      ).then((element) => {
-        if (!utils.isVisible(element)) {
-          log.error("输入框不可见，不输入密码");
-          return;
-        }
-        Qmsg.success("自动填充访问码");
-        ReactUtils.waitReactPropsToSet(element, "reactProps", {
-          check(reactInstance) {
-            return (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
-          },
-          set(reactInstance) {
-            reactInstance.onChange({
-              target: {
-                value: netDiskInfo.accessCode
+      domUtils.ready(() => {
+        utils.waitNode(
+          "#ice-container input.ant-input[class*=ShareReceive]"
+        ).then(($el) => {
+          ReactUtils.waitReactPropsToSet(
+            $el,
+            ["reactProps", "reactEventHandlers"],
+            {
+              check(reactInstance) {
+                return typeof (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
+              },
+              set(reactInstance) {
+                if (!utils.isVisible($el)) {
+                  log.error("输入框不可见，不输入密码");
+                  return;
+                }
+                Qmsg.success("自动填充访问码");
+                reactInstance.onChange({
+                  target: {
+                    value: netDiskInfo.accessCode
+                  }
+                });
               }
-            });
-          }
-        });
-        ReactUtils.waitReactPropsToSet(element, "reactEventHandlers", {
-          check(reactInstance) {
-            return (reactInstance == null ? void 0 : reactInstance.onChange) === "function";
-          },
-          set(reactInstance) {
-            reactInstance.onChange({
-              target: {
-                value: netDiskInfo.accessCode
-              }
-            });
-          }
+            }
+          );
         });
       });
     }
@@ -25720,10 +25715,9 @@
     ]
   };
   try {
+    let GLOBAL_RESOURCE_ICON = RESOURCE_ICON ?? {};
     if (false) ;
-    else {
-      Object.assign(NetDiskUI.src.icon, RESOURCE_ICON ?? {});
-    }
+    Object.assign(NetDiskUI.src.icon, GLOBAL_RESOURCE_ICON);
   } catch (error) {
     console.error("init NetDisk icon error", error);
   }
