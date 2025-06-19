@@ -44,6 +44,7 @@ declare interface NetDiskWorkerOptions {
 		| "DOMChange"
 		| "PasteText"
 		| "Debug"
+		| "Xhr"
 		| "ShortCut-Select-Content";
 }
 declare interface NetDiskWorkerMatchOption {

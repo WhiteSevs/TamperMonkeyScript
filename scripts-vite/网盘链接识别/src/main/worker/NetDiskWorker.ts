@@ -17,6 +17,7 @@ import { NetDiskWorkerInitError } from "./NetDiskWorkerInitError";
 import type { UtilsGMMenuOption } from "@whitesev/utils/dist/types/src/types/UtilsGMMenu";
 import { NetDiskRuleManager } from "../NetDiskRuleManager";
 import { RulePanelView } from "@components/utils/RulePanelView";
+import { NetDiskXhrHook } from "./NetDiskXhrHook";
 
 /** Woker */
 export const NetDiskWorker = {
@@ -851,7 +852,7 @@ export const NetDiskWorker = {
 				toMatchedTextList.push(clipboardText);
 			}
 			/* 当前的网页链接 */
-			if (NetDiskGlobalData.match.allowMatchLocationHref) {
+			if (NetDiskGlobalData.match.allowMatchLocationHref.value) {
 				let decodeComponentUrl = NetDiskRuleUtils.getDecodeComponentUrl();
 				toMatchedTextList.push(decodeComponentUrl);
 			}
@@ -916,7 +917,7 @@ export const NetDiskWorker = {
 				}
 			}
 			/* 匹配input标签的内容 */
-			if (NetDiskGlobalData.match.toBeMatchedWithInputElementValue) {
+			if (NetDiskGlobalData.match.toBeMatchedWithInputElementValue.value) {
 				let inputValueList = NetDiskWorkerUtils.getInputElementValue(
 					document.documentElement,
 					isDepthAcquisitionWithShadowRoot
@@ -924,7 +925,7 @@ export const NetDiskWorker = {
 				toMatchedTextList.push(...inputValueList);
 			}
 			/* 匹配textarea标签的内容 */
-			if (NetDiskGlobalData.match.toBeMatchedTextAreaElementValue) {
+			if (NetDiskGlobalData.match.toBeMatchedTextAreaElementValue.value) {
 				let textAreaValueList = NetDiskWorkerUtils.getTextAreaElementValue(
 					document.documentElement,
 					isDepthAcquisitionWithShadowRoot
@@ -995,6 +996,14 @@ export const NetDiskWorker = {
 				}
 			}
 		}
+
+		/* 匹配网络请求的内容 */
+		NetDiskXhrHook.execMatch({
+			characterMapping: characterMapping,
+			matchTextRange: matchRange,
+			matchedRuleOption: matchedRuleOption,
+			startTime: Date.now(),
+		});
 		// 匹配模式 - MutationObserver
 		if (matchMode === "MutationObserver") {
 			utils.mutationObserver(document.documentElement, {
