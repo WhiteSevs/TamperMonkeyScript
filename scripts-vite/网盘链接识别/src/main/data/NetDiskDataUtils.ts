@@ -7,7 +7,7 @@ import { WebsiteProxyGlobalValue } from "../website-rule/WebsiteRuleStorage";
  * @param defaultValue 默认值，它的类型也是返回值类型
  * @param proxyValueCallBack 自定义处理value的回调，如果设置了它，请确保返回值类型与defaultValue相同
  */
-export const GenerateProxyData = function <T = any>(
+export const GenerateProxyStorage = function <T = any>(
 	key: string,
 	defaultValue: T,
 	proxyValueCallBack?: (key: string, value: T, defaultValue: T) => T
@@ -33,13 +33,13 @@ export const GenerateProxyData = function <T = any>(
 };
 
 /**
- * 生成在panel内的配置
+ * 生成在panel内的存储配置
  * @param key 键
  * @param defaultValue 默认值，它的类型也是返回值类型
  */
-export const GeneratePanelData = function <T = any>(
+export const GeneratePanelStorage = function <T = any>(
 	key: string,
 	defaultValue: T
 ) {
-	return GenerateProxyData(key, defaultValue, WebsiteProxyGlobalValue);
+	return GenerateProxyStorage(key, defaultValue, WebsiteProxyGlobalValue);
 };

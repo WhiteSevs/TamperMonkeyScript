@@ -1,5 +1,5 @@
 import { NetDiskRuleDataKEY } from "./NetDiskRuleDataKey";
-import { GeneratePanelData } from "./NetDiskDataUtils";
+import { GeneratePanelStorage } from "./NetDiskDataUtils";
 
 /**
  * 规则的数据
@@ -13,7 +13,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 20
 		 */
 		before(key: string, defaultValue: number = 20) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.matchRange_text.before(key),
 				defaultValue
 			);
@@ -25,7 +25,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 10
 		 */
 		after(key: string, defaultValue: number = 10) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.matchRange_text.after(key),
 				defaultValue
 			);
@@ -40,7 +40,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 100
 		 */
 		before(key: string, defaultValue: number = 100) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.matchRange_html.before(key),
 				defaultValue
 			);
@@ -52,7 +52,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 15
 		 */
 		after(key: string, defaultValue: number = 15) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.matchRange_html.after(key),
 				defaultValue
 			);
@@ -67,7 +67,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		enable(key: string, defaultValue: boolean = true) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.function.enable(key),
 				defaultValue
 			);
@@ -82,7 +82,7 @@ export const NetDiskRuleData = {
 			key: string,
 			defaultValue: NetDiskRuleSettingConfigurationInterface_linkClickMode = "copy"
 		) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.function.linkClickMode(key),
 				defaultValue
 			);
@@ -94,7 +94,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		checkLinkValidity(key: string, defaultValue: boolean = false) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.function.checkLinkValidity(key),
 				defaultValue
 			);
@@ -106,7 +106,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		checkLinlValidityHoverTip(key: string, defaultValue: boolean = true) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.function.checkLinkValidityHoverTip(key),
 				defaultValue
 			);
@@ -120,7 +120,7 @@ export const NetDiskRuleData = {
 		 * @param [defaultValue=true] 默认值: true
 		 */
 		openBlankAutoFilleAccessCode(key: string, defaultValue: boolean = true) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(key),
 				defaultValue
 			);
@@ -132,7 +132,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		openBlankWithCopyAccessCode(key: string, defaultValue: boolean = false) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(
 					key
 				),
@@ -148,7 +148,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		enable(key: string, defaultValue: boolean = false) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.schemeUri.enable(key),
 				defaultValue
 			);
@@ -160,7 +160,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		isForwardLinearChain(key: string, defaultValue: boolean = false) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.schemeUri.isForwardLinearChain(key),
 				defaultValue
 			);
@@ -172,7 +172,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		isForwardBlankLink(key: string, defaultValue: boolean = false) {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.schemeUri.isForwardBlankLink(key),
 				defaultValue
 			);
@@ -184,7 +184,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		uri(key: string, defaultValue: string = "") {
-			const panelData = GeneratePanelData(
+			const panelData = GeneratePanelStorage(
 				NetDiskRuleDataKEY.schemeUri.uri(key),
 				defaultValue
 			);
