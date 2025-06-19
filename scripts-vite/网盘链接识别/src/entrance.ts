@@ -62,7 +62,7 @@ NetDiskUserRule.init();
 NetDiskRule.init();
 
 // 初始化配置默认
-PanelContent.addContentConfig([PanelUI_allSetting]);
+PanelContent.addContentConfig([PanelUI_allSetting()]);
 PanelContent.addContentConfig(NetDiskRule.getRulePanelContent());
 let settingMenu = PanelMenu.getMenuOption(0);
 settingMenu.callback = () => {
