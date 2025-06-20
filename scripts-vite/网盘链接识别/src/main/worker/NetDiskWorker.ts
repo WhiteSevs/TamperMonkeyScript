@@ -63,6 +63,7 @@ export const NetDiskWorker = {
                 let matchedList = [];
                 ${NetDiskWorker.handleRegularMatch.name}(data,(matchData)=>{
                 	matchedList.push(matchData);
+					data.textList = matchData.textList;
                 })
                 matchedList = ${NetDiskWorker.uniqueArr.name}(matchedList);
                 this.postMessage({
@@ -116,6 +117,7 @@ export const NetDiskWorker = {
 		const ruleKeyNameList = Object.keys(workerOptionData.matchedRuleOption);
 
 		// 待匹配的文本
+		// 进行字符映射处理
 		const matchTextList = workerOptionData.textList.map((matchTextItem) => {
 			for (
 				let index = 0;
@@ -194,6 +196,7 @@ export const NetDiskWorker = {
 								ruleKeyName: ruleKeyName,
 								ruleIndex: index,
 								data: matchArray,
+								textList: matchTextList,
 							});
 						}
 					}
@@ -234,6 +237,7 @@ export const NetDiskWorker = {
 						try {
 							NetDiskWorker.handleRegularMatch(data, (matchData) => {
 								matchedList.push(matchData);
+								data.textList = matchData.textList;
 							});
 						} catch (error: any) {
 							NetDiskWorker.onError(error);
@@ -457,9 +461,7 @@ export const NetDiskWorker = {
 		message: NetDiskWorkerOptions,
 		options?: StructuredSerializeOptions
 	) {
-		if (DEBUG) {
-			log.info("Debug-传递数据给worker内进行处理匹配: ", message);
-		}
+		DEBUG && log.info("Debug-传递数据给worker内进行处理匹配: ", message);
 		NetDiskWorker.GM_matchWorker.postMessage(message, options);
 	},
 	/**
@@ -469,15 +471,15 @@ export const NetDiskWorker = {
 	 */
 	onMessage(event: MessageEvent<NetDiskWorkerCallBackOptions>) {
 		const data = event.data;
-		if (DEBUG) {
+		DEBUG &&
 			log.info(`Debug-匹配结束,用时${Date.now() - data.startTime}ms: `, data);
-		}
 		if (data.data.length) {
-			if (import.meta.env.DEV) {
+			DEBUG &&
 				log.success(
-					`成功匹配${data.data.length}个，用时${Date.now() - data.startTime}ms`
+					`Debug-成功匹配${data.data.length}个，用时${
+						Date.now() - data.startTime
+					}ms`
 				);
-			}
 		}
 		if (
 			data.options.from === "PasteText" ||

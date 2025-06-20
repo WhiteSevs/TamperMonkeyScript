@@ -54,6 +54,8 @@ declare interface NetDiskWorkerMatchOption {
 	ruleIndex?: number;
 	/** 匹配到的数据(字符串数组) */
 	data: RegExpMatchArray;
+	/** 待匹配的字符串数组，这里是返回处理过字符映射的文字 */
+	textList: NetDiskWorkerOptions["textList"];
 }
 /** worker处理完毕的的传递的数据 */
 declare interface NetDiskWorkerCallBackOptions {
