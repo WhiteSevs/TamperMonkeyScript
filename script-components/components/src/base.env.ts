@@ -34,7 +34,7 @@ const AnyTouch = pops.config.Utils.AnyTouch();
 /**
  * 是否为调试模式
  */
-const DEBUG = false;
+const DEBUG = import.meta.env.DEV ?? false;
 
 /* 配置控制台日志 */
 log.config({
