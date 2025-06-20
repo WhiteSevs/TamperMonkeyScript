@@ -5,6 +5,7 @@ import {
 	UserJSON,
 } from "../../api/TiebaApi";
 import { $, DOMUtils, httpx, log, utils } from "@/env";
+import type { UserConcernInfo } from "../../api/TiebaHomeApi";
 
 type UserSex = {
 	0: "保密";
@@ -61,12 +62,12 @@ interface UserInfo {
 	is_online?: boolean;
 	/** 其它数据 */
 	otherData?: {
-		PCUserInfo?: PCUserInfo;
+		PCUserInfo?: UserPCHomeInfo;
 		UserJSON?: UserJSON;
 		PanelUserInfo?: PanelUserInfo;
 	};
 }
-type PCUserInfo = {
+type UserPCHomeInfo = {
 	/** 用户名，简写是un */
 	userName: string;
 	/** 显示的用户名 */
@@ -104,6 +105,8 @@ type PCUserInfo = {
 		/** 帖子数据 */
 		data: HomePostsInfo[];
 	};
+	/** 关注的吧的信息列表 */
+	forumInfoList: UserConcernInfo[];
 	/** 用户留下的印记图片数组（历史记录、足迹等） */
 	imprint: string[];
 	/** 是否关注 */
@@ -116,50 +119,16 @@ const TiebaHomeData = {
 	 * 获取移动端用户主页的数据
 	 */
 	async getUserData(): Promise<UserInfo | undefined> {
-		let $name = $<HTMLAnchorElement>(".home_card_uname_link")!;
-		// 获取显示的用户名
-		let $showName = $<HTMLAnchorElement>(".home_card_uname_link")!;
-		let showName = $showName?.innerText;
-		// 获取用户头像
-		let $avatar = $<HTMLImageElement>("a.home_card_portrait_link img")!;
-		let avatar = $avatar.src;
-		// 获取关注按钮
-		let $followBtn = $<HTMLDivElement>(".home_card_operate_icon_follow");
-		let isLike = false;
-		if ($followBtn) {
-			isLike = $followBtn.classList.contains("icon_hide");
-		}
-
-		// 获取用户发帖数量
-		let $posts = $<HTMLSpanElement>(
-			".home_tab .home_tab_item:nth-child(1) .home_tab_item_num"
-		)!;
-		let postsNum = parseInt($posts.innerText);
-		// 获取用户关注吧的数量
-		let $forum = $<HTMLSpanElement>(
-			".home_tab .home_tab_item:nth-child(2) .home_tab_item_num"
-		)!;
-		let forumNum = parseInt($forum.innerText);
-		// 获取用户关注的数量
-		let $follow = $<HTMLSpanElement>(
-			".home_tab .home_tab_item:nth-child(3) .home_tab_item_num"
-		)!;
-		let followNum = parseInt($follow.innerText);
-		// 获取用户粉丝的数量
-		let $fans = $<HTMLSpanElement>(
-			".home_tab .home_tab_item:nth-child(4) .home_tab_item_num"
-		)!;
-		let fansNum = parseInt($fans.innerText);
-
 		// 请求PC端的数据
-		log.info("请求PC端的数据");
-		let pcUserInfo = await TiebaHomeData.getUserDataWithPCDoc();
-		if (!pcUserInfo) {
+		let userPCHomeInfo = await TiebaHomeData.getUserDataWithPCDoc();
+		if (!userPCHomeInfo) {
 			return;
 		}
-		log.info(["请求PC端的数据 => ", pcUserInfo]);
+		log.info(["成功获取PC端的数据", userPCHomeInfo]);
+		let $name = $<HTMLAnchorElement>(".home_card_uname_link");
 		let userName =
-			new URL($name.href).searchParams.get("un") || pcUserInfo.userName;
+			($name && new URL($name.href).searchParams.get("un")) ||
+			userPCHomeInfo.userName;
 		/* un可能为空，例如?un= */
 		if (utils.isNull(userName)) {
 			log.error("获取用户un为空");
@@ -167,71 +136,117 @@ const TiebaHomeData = {
 			return;
 		}
 		// 获取主页JSON数据
-		log.info("准备获取主页JSON数据");
-		let panelUserInfo = await TieBaApi.getUserHomeInfo({
+		let userHomeInfo = await TieBaApi.getUserHomeInfo({
 			un: userName,
 		});
-		if (!panelUserInfo) {
+		if (!userHomeInfo) {
 			return;
 		}
-		log.info(["成功获取主页JSON数据 => ", panelUserInfo]);
-		let userJson = await TieBaApi.getUserJSON(userName);
-		if (!userJson) {
+		log.info(["成功获取主页JSON数据 => ", userHomeInfo]);
+		let userInfo = await TieBaApi.getUserInfo(userName);
+		if (!userInfo) {
 			return;
 		}
-		log.info(["成功获取用户JSON数据 => ", userJson]);
-		let portrait = panelUserInfo.portrait.replace(/\?t=(.+)/, "");
+		log.info(["成功获取用户JSON数据 => ", userInfo]);
+		// 获取显示的用户名
+		let $showName = $<HTMLAnchorElement>(".home_card_uname_link");
+		let showName =
+			$showName?.innerText ||
+			userHomeInfo.name_show ||
+			userHomeInfo.show_nickname;
+		// 获取用户头像
+		let $avatar = $<HTMLImageElement>("a.home_card_portrait_link img");
+		let avatar = $avatar?.src || userPCHomeInfo.avatar;
+		// 获取关注按钮
+		let $followBtn = $<HTMLDivElement>(".home_card_operate_icon_follow");
+		let isLike = false;
+		if ($followBtn) {
+			isLike = $followBtn.classList.contains("icon_hide");
+		} else {
+			isLike = userPCHomeInfo.is_like;
+		}
+
+		// 获取用户发帖数量
+		let $posts = $<HTMLSpanElement>(
+			".home_tab .home_tab_item:nth-child(1) .home_tab_item_num"
+		);
+		let postsNum = Number($posts?.innerText || userPCHomeInfo.postInfo.post);
+		// 获取用户关注吧的数量
+		let $forum = $<HTMLSpanElement>(
+			".home_tab .home_tab_item:nth-child(2) .home_tab_item_num"
+		);
+		let forumNum = Number($forum?.innerText || userPCHomeInfo.postInfo.forum);
+		// 获取用户关注的数量
+		let $follow = $<HTMLSpanElement>(
+			".home_tab .home_tab_item:nth-child(3) .home_tab_item_num"
+		);
+		let followNum = Number(
+			$follow?.innerText || userPCHomeInfo.postInfo.follow
+		);
+		// 获取用户粉丝的数量
+		let $fans = $<HTMLSpanElement>(
+			".home_tab .home_tab_item:nth-child(4) .home_tab_item_num"
+		);
+		let fansNum = Number($fans?.innerText || userPCHomeInfo.postInfo.fans);
+
+		// 获赞的数量
+		let receivedLikes = userPCHomeInfo.postInfo.receivedLikes || 0;
+
+		log.info(["请求PC端的数据 => ", userPCHomeInfo]);
+		let portrait = userHomeInfo.portrait.replace(/\?t=(.+)/, "");
 		// 判断用户性别
 		let sex: keyof UserSex = 0;
-		if (panelUserInfo.sex === "male") {
+		if (userHomeInfo.sex === "male") {
 			sex = 1;
-		} else if (panelUserInfo.sex == "female") {
+		} else if (userHomeInfo.sex == "female") {
 			sex = 2;
 		}
 		// 印记图标
 		let imprint: string[] = [];
-		if (panelUserInfo.new_iconinfo) {
-			Object.values(panelUserInfo.new_iconinfo).forEach((iconItem: any) => {
+		if (userHomeInfo.new_iconinfo) {
+			Object.values(userHomeInfo.new_iconinfo).forEach((iconItem: any) => {
 				if (iconItem.icon) {
 					imprint.push(iconItem.icon);
 				}
 			});
 		}
 		return {
-			id: userJson?.id,
-			tbs: userJson?.tbs,
+			id: userInfo?.id,
+			tbs: userInfo?.tbs,
 			name: userName,
-			showName: panelUserInfo.show_nickname || panelUserInfo.name_show,
+			showName: userHomeInfo.show_nickname || userHomeInfo.name_show,
 			sex: sex,
 			ip: {
-				location: pcUserInfo.ip?.location,
+				location: userPCHomeInfo.ip?.location,
 			},
 			avatar: avatar,
 			portrait: portrait,
 			imprint: imprint,
-			is_vip: panelUserInfo.tb_vip,
+			is_vip: userHomeInfo.tb_vip,
 			is_like: isLike,
-			is_online: userJson?.creator?.is_online ?? false,
-			level: panelUserInfo.tb_age,
+			is_online: userInfo?.creator?.is_online ?? false,
+			level: userHomeInfo.tb_age,
 			postInfo: {
 				fans: fansNum,
 				follow: followNum,
-				forum: forumNum || pcUserInfo?.postInfo?.forum || 0,
-				receivedLikes: fansNum,
+				forum: forumNum || userPCHomeInfo?.postInfo?.forum || 0,
+				receivedLikes: receivedLikes,
 				post: postsNum,
 			},
 			otherData: {
-				PanelUserInfo: panelUserInfo,
-				UserJSON: userJson,
-				PCUserInfo: pcUserInfo,
+				PanelUserInfo: userHomeInfo,
+				UserJSON: userInfo,
+				PCUserInfo: userPCHomeInfo,
 			},
 		};
 	},
 	/**
 	 * 获取PC网页中的用户数据
 	 */
-	async getUserDataWithPCDoc(): Promise<PCUserInfo | undefined> {
-		let getResp = await httpx.get(window.location.href, {
+	async getUserDataWithPCDoc(
+		url: string = window.location.href
+	): Promise<UserPCHomeInfo | undefined> {
+		let response = await httpx.get(url, {
 			headers: {
 				Accept:
 					"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -243,10 +258,10 @@ const TiebaHomeData = {
 				"User-Agent": utils.getRandomPCUA(),
 			},
 		});
-		if (!getResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let pcDoc = DOMUtils.parseHTML(getResp.data.responseText, true, true);
+		let $doc = DOMUtils.parseHTML(response.data.responseText, true, true);
 		// let $personalSignature = pcDoc.querySelector("")
 		// 吧龄
 		let level = "0";
@@ -258,10 +273,10 @@ const TiebaHomeData = {
 		let userName = "";
 		// 显示的用户名
 		let showUserName =
-			pcDoc.querySelector<HTMLSpanElement>(".userinfo_username")!.textContent!;
+			$doc.querySelector<HTMLSpanElement>(".userinfo_username")!.textContent!;
 
 		// 他的主页|他的成就 按钮
-		let $navIcon = pcDoc.querySelector<HTMLAnchorElement>("a.nav_icon");
+		let $navIcon = $doc.querySelector<HTMLAnchorElement>("a.nav_icon");
 		if ($navIcon) {
 			let un = new URL($navIcon.href).searchParams.get("un");
 			if (un == null || un == "") {
@@ -271,7 +286,7 @@ const TiebaHomeData = {
 			}
 		}
 		// 解析吧龄、IP地址、发帖数量
-		pcDoc
+		$doc
 			.querySelectorAll<HTMLSpanElement>(".userinfo_userdata span")
 			.forEach((spanItem: HTMLSpanElement) => {
 				let spanText = spanItem.innerText.trim();
@@ -285,7 +300,7 @@ const TiebaHomeData = {
 			});
 		// 发帖数据列表
 		let postsList: HomePostsInfo[] = [];
-		pcDoc
+		$doc
 			.querySelectorAll<HTMLDivElement>("ul.new_list > div")
 			.forEach((listItem) => {
 				let postInfo: HomePostsInfo = {
@@ -329,7 +344,7 @@ const TiebaHomeData = {
 
 		// 性别
 		let sex: keyof UserSex = 0 as const;
-		let $sex = pcDoc.querySelector<HTMLSpanElement>(".userinfo_sex");
+		let $sex = $doc.querySelector<HTMLSpanElement>(".userinfo_sex");
 		if ($sex) {
 			if ($sex.className.includes("male")) {
 				sex = 1;
@@ -340,7 +355,7 @@ const TiebaHomeData = {
 
 		// 用户头像
 		let avatar = "";
-		let $avatar = pcDoc.querySelector<HTMLImageElement>("#j_userhead img");
+		let $avatar = $doc.querySelector<HTMLImageElement>("#j_userhead img");
 		if ($avatar) {
 			avatar = $avatar.src;
 		}
@@ -349,14 +364,24 @@ const TiebaHomeData = {
 		let personalSignature = "暂无";
 		// 暂无 收到的点赞数
 		let receivedLikes = 0;
-		// 暂无 关注数量
-		let follow = 0;
-		// 暂无 关注的贴吧数
-		let forum = pcDoc.querySelectorAll<HTMLAnchorElement>(
+		// 关注数量
+		let follow =
+			parseInt(
+				$doc.querySelector(
+					".ihome_aside_section:has(#concern_wrap_concern) .ihome_aside_title .concern_num a"
+				)?.textContent || ""
+			) || 0;
+		// 关注的贴吧数
+		let forum = $doc.querySelectorAll<HTMLAnchorElement>(
 			"#forum_group_wrap .u-f-item"
 		).length;
-		// 暂无 粉丝数量
-		let fans = 0;
+		// 粉丝数量
+		let fans =
+			parseInt(
+				$doc.querySelector(
+					".ihome_aside_section:has(#concern_wrap_fans) .ihome_aside_title .concern_num a"
+				)?.textContent || ""
+			) || 0;
 		// 暂无 是否关注
 		let is_like = false;
 		// 暂无 是否在线
@@ -364,7 +389,7 @@ const TiebaHomeData = {
 
 		// 用户留下的印记图片数组（历史记录、足迹等）
 		let imprint: string[] = [];
-		pcDoc
+		$doc
 			.querySelectorAll<HTMLAnchorElement>(".userinfo_honor a")
 			.forEach(($honorIcon) => {
 				let bgStyle = $honorIcon.style.background;
@@ -374,6 +399,36 @@ const TiebaHomeData = {
 				}
 			});
 
+		// 关注的吧的信息
+		let forumInfoList: UserPCHomeInfo["forumInfoList"] = [];
+		$doc
+			.querySelectorAll<HTMLAnchorElement>("#forum_group_wrap .u-f-item ")
+			.forEach(($el) => {
+				let forumName =
+					$el.querySelector("span:first-child")?.textContent || "";
+				let fid = Number($el.getAttribute("data-fid") || "");
+				let level = "0";
+				let $level = $el.querySelector<HTMLSpanElement>(".forum_level");
+				if ($level) {
+					let levelClassList = Array.from($level.classList);
+					for (const levelNodeClassName of levelClassList) {
+						let levelMatch = levelNodeClassName.match(/^lv([\d]+)/);
+						if (levelMatch) {
+							level = levelMatch[levelMatch.length - 1];
+							break;
+						}
+					}
+				}
+				let url = $el.href;
+				// 没有简介
+				let intro = "";
+				forumInfoList.push({
+					url: url,
+					forumName: forumName,
+					level: level,
+					intro: intro,
+				});
+			});
 		return {
 			userName: userName,
 			showUserName: showUserName,
@@ -395,6 +450,7 @@ const TiebaHomeData = {
 			imprint: imprint,
 			is_like: is_like,
 			is_online: is_online,
+			forumInfoList: forumInfoList,
 		};
 	},
 };

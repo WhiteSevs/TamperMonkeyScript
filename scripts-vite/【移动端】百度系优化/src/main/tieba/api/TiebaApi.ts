@@ -243,16 +243,19 @@ const TieBaApi = {
 	 * @param [pn=1] 第xx页
 	 */
 	async getUserPosts(un: string, pn = 1) {
-		let getResp = await httpx.get(
+		let response = await httpx.get(
 			`https://tieba.baidu.com/home/post?un=${un}&is_ajax=1&lp=&pn=${pn}`,
 			{
+				// 该请求为http，页面为https，会报错
 				fetch: true,
 				headers: {
 					"User-Agent": utils.getRandomPCUA(),
 				},
+				allowInterceptConfig: false,
 			}
 		);
-		if (!getResp.status) {
+		if (!response.status) {
+			log.error("获取用户帖子信息失败", response);
 			return;
 		}
 		let data = utils.toJSON<{
@@ -263,7 +266,7 @@ const TieBaApi = {
 				};
 			};
 			no: number;
-		}>(getResp.data.responseText);
+		}>(response.data.responseText);
 		if (data.no != 0) {
 			return;
 		}
@@ -327,7 +330,7 @@ const TieBaApi = {
 	 * 根据un获取用户信息
 	 * @param un 用户的un(userName)，自动进行gbk编码
 	 */
-	async getUserJSON(un: string) {
+	async getUserInfo(un: string) {
 		let gbkEncoder = new utils.GBKEncoder();
 		un = gbkEncoder.encode(un);
 		let getResp = await httpx.get(
@@ -425,7 +428,7 @@ const TieBaApi = {
 	 * /mo/q/sug
 	 */
 	async getUserAllLikeForum() {
-		let getResp = await httpx.get(
+		let response = await httpx.get(
 			"https://tieba.baidu.com/mo/q/sug?query=&is_ajax=1&sug=1",
 			{
 				headers: {
@@ -436,12 +439,12 @@ const TieBaApi = {
 				},
 			}
 		);
-		log.success(getResp);
-		if (!getResp.status) {
+		log.success(response);
+		if (!response.status) {
 			return;
 		}
 		let data = utils.toJSON(
-			getResp.data.responseText
+			response.data.responseText
 		) as NestedObjectWithToString;
 		log.success(data);
 		return data["data"]["like_forum"] as {

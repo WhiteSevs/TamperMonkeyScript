@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { VNodeRef, reactive, ref, watch } from "vue";
-import { UserInfo } from "../data/TiebaHomeData";
+import { VNodeRef, ref, watch } from "vue";
+import { TiebaHomeData, UserInfo } from "../data/TiebaHomeData";
 import TemplateFollowForum from "../template/TemplateFollowForum.vue";
 import { TiebaHomeApi, UserConcernInfo } from "../../api/TiebaHomeApi";
 import { log, utils } from "@/env";
@@ -65,7 +65,7 @@ const cancleLoadMoreObserve = () => {
 	observe.disconnect();
 	showIsLoading.value = false;
 	isLoadingEnd.value = true;
-	log.info(["移除滚动监听"]);
+	log.info("移除滚动监听");
 };
 const handleForumItemClick = (forumItem: UserConcernInfo) => {
 	window.open(forumItem.url, "_blank");
@@ -77,10 +77,13 @@ const loadMore = async () => {
 		isAsyncLoadEnd.value = false;
 		followForum.value = [];
 	}
+	const userName = props.UserData.name as string
 	let concernData = await TiebaHomeApi.getConcern(
-		props.UserData.name as string,
+		userName,
 		pageNumber.value
 	);
+	log.info(["Api获取到的关注的吧：", concernData]);
+	let userHomeInfo = await TiebaHomeData.getUserDataWithPCDoc();
 	showIsLoading.value = true;
 	if (concernData) {
 		if (concernData.data) {
@@ -88,10 +91,16 @@ const loadMore = async () => {
 			pageNumber.value++;
 		}
 		if (!concernData.has_more) {
+			// 没有更多
 			cancleLoadMoreObserve();
 		}
-	} else {
-		log.info(["获取关注的吧数据失败"]);
+	} else if (userHomeInfo) {
+		followForum.value = followForum.value.concat(userHomeInfo.forumInfoList);
+		// 没有更多
+		cancleLoadMoreObserve();
+	}
+	if (!followForum.value.length) {
+		log.info("获取关注的吧数据为空");
 		if (isFirstLoad) {
 			isAsyncLoadEnd.value = true;
 			cancleLoadMoreObserve();
@@ -99,7 +108,6 @@ const loadMore = async () => {
 			isLoadingEnd.value = false;
 		}
 	}
-	log.info(["获取到的关注的吧", concernData]);
 };
 </script>
 
@@ -114,7 +122,7 @@ const loadMore = async () => {
 				<div class="follow-forum-item-right-container">
 					<div class="follow-forum-item-name">{{ item.forumName }}</div>
 					<el-text class="follow-forum-item-info" type="info" size="small" truncated>{{ item.intro
-						}}</el-text>
+					}}</el-text>
 				</div>
 				<span class="follow-forum-item-level" :data-level="item.level">{{
 					item.level

@@ -57,7 +57,7 @@ interface UserFansInfoData extends UserFollowInfoData {}
 interface UserFansInfo extends UserFollowInfo {}
 const TiebaHomeApi = {
 	/**
-	 * 获取用户的关注的吧信息
+	 * 获取某个用户的关注的吧信息
 	 * User-Agent默认为移动端
 	 * @param un 用户名，不是show_nickname|nameshow
 	 * @param pn 第xx页
@@ -65,16 +65,16 @@ const TiebaHomeApi = {
 	async getConcern(un: string, pn = 1) {
 		let gbkEncoder = new utils.GBKEncoder();
 		un = gbkEncoder.encode(un.toString());
-		let getResp = await httpx.get(
+		let response = await httpx.get(
 			`https://tieba.baidu.com/home/concern?un=${un}&is_ajax=1&lp=home_main_concern_more&pn=${pn}`,
 			{
-				fetch: true,
+				fetch: utils.isWebView_Via(),
 			}
 		);
-		if (!getResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let data = utils.toJSON<UserConcernInfoData>(getResp.data.responseText);
+		let data = utils.toJSON<UserConcernInfoData>(response.data.responseText);
 		if (data.no != 0) {
 			return;
 		}
@@ -127,16 +127,16 @@ const TiebaHomeApi = {
 	 * @returns
 	 */
 	async getFollow(un: string, offset = 12, page_size = 12) {
-		let getResp = await httpx.get(
+		let response = await httpx.get(
 			`https://tieba.baidu.com/mo/q/follow?un=${un}&lp=home_main_follow_more&is_ajax=1&offset=${offset}&rn=${page_size}`,
 			{
-				fetch: true,
+				fetch: utils.isWebView_Via(),
 			}
 		);
-		if (!getResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let data = utils.toJSON<UserFollowInfoData>(getResp.data.responseText);
+		let data = utils.toJSON<UserFollowInfoData>(response.data.responseText);
 		if (data.no != 0) {
 			return;
 		}
@@ -183,16 +183,16 @@ const TiebaHomeApi = {
 	 * @returns
 	 */
 	async getFans(un: string, offset = 12, page_size = 12) {
-		let getResp = await httpx.get(
+		let response = await httpx.get(
 			`https://tieba.baidu.com/mo/q/fans?un=${un}&lp=home_main_fans_more&is_ajax=1&offset=${offset}&rn=${page_size}`,
 			{
-				fetch: true,
+				fetch: utils.isWebView_Via(),
 			}
 		);
-		if (!getResp.status) {
+		if (!response.status) {
 			return;
 		}
-		let data = utils.toJSON<UserFansInfoData>(getResp.data.responseText);
+		let data = utils.toJSON<UserFansInfoData>(response.data.responseText);
 		if (data.no != 0) {
 			return;
 		}
@@ -236,7 +236,7 @@ const TiebaHomeApi = {
 	 */
 	async getPost(un: string, pn = 1) {
 		let response = await httpx.get(`https://tieba.baidu.com/home/post`, {
-			fetch: true,
+			fetch: utils.isWebView_Via(),
 			data: {
 				un: un,
 				is_ajax: 1,
