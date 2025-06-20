@@ -215,13 +215,14 @@ export const NetDisk = {
 			],
 		});
 		if (utils.isNull(shareCodeMatch)) {
-			log.error(`匹配shareCode为空`, {
-				匹配的文本: handlerConfig.matchText,
-				规则: ruleConfig,
-				正在使用的规则: ruleConfig.shareCode,
-				网盘名称: handlerConfig.ruleKeyName,
-				网盘名称索引下标: handlerConfig.ruleIndex,
-			});
+			DEBUG &&
+				log.error(`Debug-匹配shareCode为空`, {
+					匹配的文本: handlerConfig.matchText,
+					规则: ruleConfig,
+					正在使用的规则: ruleConfig.shareCode,
+					网盘名称: handlerConfig.ruleKeyName,
+					网盘名称索引下标: handlerConfig.ruleIndex,
+				});
 			handlerConfig.debugConfig?.logCallBack?.({
 				status: false,
 				msg: `匹配shareCode为空`,
@@ -260,7 +261,7 @@ export const NetDisk = {
 		for (const shareCodeNotMatchRegExp of NetDisk.$extraRule
 			.shareCodeNotMatchRegExpList) {
 			if (shareCode.match(shareCodeNotMatchRegExp)) {
-				log.error(`不可能的shareCode => ${shareCode}`);
+				DEBUG && log.error(`Debug-不可能的shareCode => ${shareCode}`);
 				handlerConfig.debugConfig?.logCallBack?.({
 					status: false,
 					msg: [
@@ -279,7 +280,7 @@ export const NetDisk = {
 			}
 			for (const shareCodeNotMatchRegExp of shareCodeNotMatch) {
 				if (shareCode.match(shareCodeNotMatchRegExp)) {
-					log.error(`不可能的shareCode => ${shareCode}`);
+					DEBUG && log.error(`Debug-不可能的shareCode => ${shareCode}`);
 					handlerConfig.debugConfig?.logCallBack?.({
 						status: false,
 						msg: [
@@ -486,9 +487,10 @@ export const NetDisk = {
 			);
 			if (customAccessCodeEnable && typeof customAccessCode === "string") {
 				result = customAccessCode;
-				log.success(
-					`使用自定义网站规则中的提取码 ${handlerConfig.ruleKeyName} ${result}`
-				);
+				DEBUG &&
+					log.success(
+						`Debug-使用自定义网站规则中的提取码 ${handlerConfig.ruleKeyName} ${result}`
+					);
 				break;
 			}
 		}
