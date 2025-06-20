@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.19.17
+// @version      2025.6.21
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -15990,6 +15990,7 @@
                 let matchedList = [];
                 ${NetDiskWorker.handleRegularMatch.name}(data,(matchData)=>{
                 	matchedList.push(matchData);
+					data.textList = matchData.textList;
                 })
                 matchedList = ${NetDiskWorker.uniqueArr.name}(matchedList);
                 this.postMessage({
@@ -16089,7 +16090,8 @@
                 callback({
                   ruleKeyName,
                   ruleIndex: index,
-                  data: matchArray
+                  data: matchArray,
+                  textList: matchTextList
                 });
               }
             }
@@ -16126,6 +16128,7 @@
               try {
                 NetDiskWorker.handleRegularMatch(data, (matchData) => {
                   matchedList.push(matchData);
+                  data.textList = matchData.textList;
                 });
               } catch (error2) {
                 NetDiskWorker.onError(error2);
@@ -23834,13 +23837,6 @@
         ]
       });
       if (utils.isNull(shareCodeMatch)) {
-        log.error(`匹配shareCode为空`, {
-          匹配的文本: handlerConfig.matchText,
-          规则: ruleConfig,
-          正在使用的规则: ruleConfig.shareCode,
-          网盘名称: handlerConfig.ruleKeyName,
-          网盘名称索引下标: handlerConfig.ruleIndex
-        });
         (_f = (_e = handlerConfig.debugConfig) == null ? void 0 : _e.logCallBack) == null ? void 0 : _f.call(_e, {
           status: false,
           msg: `匹配shareCode为空`
@@ -23873,7 +23869,6 @@
       }
       for (const shareCodeNotMatchRegExp of NetDisk.$extraRule.shareCodeNotMatchRegExpList) {
         if (shareCode.match(shareCodeNotMatchRegExp)) {
-          log.error(`不可能的shareCode => ${shareCode}`);
           (_l = (_k = handlerConfig.debugConfig) == null ? void 0 : _k.logCallBack) == null ? void 0 : _l.call(_k, {
             status: false,
             msg: [
@@ -23892,7 +23887,6 @@
         }
         for (const shareCodeNotMatchRegExp of shareCodeNotMatch) {
           if (shareCode.match(shareCodeNotMatchRegExp)) {
-            log.error(`不可能的shareCode => ${shareCode}`);
             (_n = (_m = handlerConfig.debugConfig) == null ? void 0 : _m.logCallBack) == null ? void 0 : _n.call(_m, {
               status: false,
               msg: [
@@ -24056,9 +24050,6 @@
         );
         if (customAccessCodeEnable && typeof customAccessCode === "string") {
           result = customAccessCode;
-          log.success(
-            `使用自定义网站规则中的提取码 ${handlerConfig.ruleKeyName} ${result}`
-          );
           break;
         }
       }
