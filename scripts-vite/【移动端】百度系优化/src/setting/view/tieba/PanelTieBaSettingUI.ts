@@ -238,94 +238,6 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 						},
 					],
 				},
-				// {
-				// 	text: "帖内",
-				// 	description: "旧版本设置项，大部分功能已失效",
-				// 	type: "deepMenu",
-				// 	forms: [
-				// 		{
-				// 			text: "功能",
-				// 			type: "forms",
-				// 			forms: [
-				// 				UISwitch(
-				// 					"楼中楼回复弹窗手势返回",
-				// 					"baidu_tieba_lzl_ban_global_back",
-				// 					false,
-				// 					function (event, enable) {
-				// 						if (enable) {
-				// 							alert(
-				// 								"开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
-				// 							);
-				// 						}
-				// 					},
-				// 					"使浏览器后退变成关闭楼中楼弹窗"
-				// 				),
-				// 				UISwitch(
-				// 					"新增滚动到顶部按钮",
-				// 					"baidu_tieba_add_scroll_top_button_in_forum",
-				// 					true,
-				// 					void 0,
-				// 					"向下滚动的距离>页面高度*2就会出现按钮"
-				// 				),
-				// 				UISwitch(
-				// 					"优化查看评论",
-				// 					"baidu_tieba_optimize_see_comments",
-				// 					true,
-				// 					void 0,
-				// 					"可以查看更多的评论"
-				// 				),
-				// 				UISwitch(
-				// 					"优化评论工具栏",
-				// 					"baidu_tieba_optimize_comments_toolbar",
-				// 					true,
-				// 					void 0,
-				// 					"可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
-				// 				),
-				// 				UISwitch(
-				// 					"优化图片点击预览",
-				// 					"baidu_tieba_optimize_image_preview",
-				// 					true,
-				// 					void 0,
-				// 					"使用Viewer查看图片"
-				// 				),
-				// 				UISwitch(
-				// 					"强制查看被屏蔽的帖子",
-				// 					"baidu_tieba_repairErrorThread",
-				// 					false,
-				// 					function (event, enable) {
-				// 						if (enable) {
-				// 							window.alert(
-				// 								"开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
-				// 							);
-				// 						}
-				// 					},
-				// 					"PC端可以查看帖子该功能才能正确生效"
-				// 				),
-				// 				UISwitch(
-				// 					"点击楼主头像正确跳转主页",
-				// 					"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
-				// 					true,
-				// 					void 0,
-				// 					"点击头像正确跳转至用户主页"
-				// 				),
-				// 				UISwitch(
-				// 					"屏蔽机器人",
-				// 					"baidu_tieba_shield_commnets_baodating",
-				// 					true,
-				// 					void 0,
-				// 					"屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
-				// 				),
-				// 				UISwitch(
-				// 					"显示用户当前吧的等级头衔",
-				// 					"baidu_tieba_show_forum_level",
-				// 					true,
-				// 					void 0,
-				// 					"只对评论和楼中楼的用户进行显示处理"
-				// 				),
-				// 			],
-				// 		},
-				// 	],
-				// },
 				{
 					text: "帖内",
 					description: "新版的uni-app",
@@ -469,74 +381,151 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 					],
 				},
 				{
+					text: "主页",
 					type: "deepMenu",
-					text: "成分检测",
 					forms: [
 						{
 							type: "forms",
-							text: "",
+							text: "功能",
 							forms: [
 								UISwitch(
-									"启用",
-									"baidu-tieba-componentDetection",
+									"美化页面",
+									"baidu-tieba-beautify-home-page",
 									true,
 									void 0,
-									"启用后可检测用户的成分信息"
-								),
-								UIButton(
-									"自定义规则",
-									"检测用户成分的规则",
-									"管理",
-									void 0,
-									false,
-									false,
-									"primary",
-									() => {
-										TiebaUniAppComponentDetectionRule.showView();
-									}
-								),
-							],
-						},
-						{
-							type: "forms",
-							text: "",
-							forms: [
-								UIButton(
-									"数据导入",
-									"导入自定义规则数据",
-									"导入",
-									void 0,
-									false,
-									false,
-									"primary",
-									() => {
-										TiebaUniAppComponentDetectionRule.importRule();
-									}
-								),
-								UIButton(
-									"数据导出",
-									"导出自定义规则数据",
-									"导出",
-									void 0,
-									false,
-									false,
-									"primary",
-									() => {
-										TiebaUniAppComponentDetectionRule.exportRule(
-											"成分检测.json"
-										);
-									}
+									"重构页面样式，美化页面"
 								),
 							],
 						},
 					],
 				},
+				// {
+				// 	text: "帖内",
+				// 	description: "旧版本设置项，大部分功能已失效",
+				// 	type: "deepMenu",
+				// 	forms: [
+				// 		{
+				// 			text: "功能",
+				// 			type: "forms",
+				// 			forms: [
+				// 				UISwitch(
+				// 					"楼中楼回复弹窗手势返回",
+				// 					"baidu_tieba_lzl_ban_global_back",
+				// 					false,
+				// 					function (event, enable) {
+				// 						if (enable) {
+				// 							alert(
+				// 								"开启后，当在手机浏览器中使用屏幕左滑回退网页操作或者点击浏览器的回退到上一页按钮，不会触发回退上一页操作，而是会关闭当前查看的楼中楼的弹窗。注：某些浏览器不适用"
+				// 							);
+				// 						}
+				// 					},
+				// 					"使浏览器后退变成关闭楼中楼弹窗"
+				// 				),
+				// 				UISwitch(
+				// 					"新增滚动到顶部按钮",
+				// 					"baidu_tieba_add_scroll_top_button_in_forum",
+				// 					true,
+				// 					void 0,
+				// 					"向下滚动的距离>页面高度*2就会出现按钮"
+				// 				),
+				// 				UISwitch(
+				// 					"优化查看评论",
+				// 					"baidu_tieba_optimize_see_comments",
+				// 					true,
+				// 					void 0,
+				// 					"可以查看更多的评论"
+				// 				),
+				// 				UISwitch(
+				// 					"优化评论工具栏",
+				// 					"baidu_tieba_optimize_comments_toolbar",
+				// 					true,
+				// 					void 0,
+				// 					"可以进行评论区回复/楼中楼回复，需开启【优化查看评论】"
+				// 				),
+				// 				UISwitch(
+				// 					"优化图片点击预览",
+				// 					"baidu_tieba_optimize_image_preview",
+				// 					true,
+				// 					void 0,
+				// 					"使用Viewer查看图片"
+				// 				),
+				// 				UISwitch(
+				// 					"强制查看被屏蔽的帖子",
+				// 					"baidu_tieba_repairErrorThread",
+				// 					false,
+				// 					function (event, enable) {
+				// 						if (enable) {
+				// 							window.alert(
+				// 								"开启后，如果查看的帖子显示【贴子不存在或者已被删除】或【该帖子需要去app内查看哦】，且该帖子在PC端可以查看，那么该修复可以生效。"
+				// 							);
+				// 						}
+				// 					},
+				// 					"PC端可以查看帖子该功能才能正确生效"
+				// 				),
+				// 				UISwitch(
+				// 					"点击楼主头像正确跳转主页",
+				// 					"baidu_tieba_clickOnTheOwnerSAvatarToCorrectlyRedirectToTheHomepage",
+				// 					true,
+				// 					void 0,
+				// 					"点击头像正确跳转至用户主页"
+				// 				),
+				// 				UISwitch(
+				// 					"屏蔽机器人",
+				// 					"baidu_tieba_shield_commnets_baodating",
+				// 					true,
+				// 					void 0,
+				// 					"屏蔽【贴吧包打听】机器人，回答的评论都是牛头不对马嘴的"
+				// 				),
+				// 				UISwitch(
+				// 					"显示用户当前吧的等级头衔",
+				// 					"baidu_tieba_show_forum_level",
+				// 					true,
+				// 					void 0,
+				// 					"只对评论和楼中楼的用户进行显示处理"
+				// 				),
+				// 			],
+				// 		},
+				// 	],
+				// },
 			],
 		},
 		{
 			text: "",
 			type: "forms",
 			forms: [
+				{
+					text: "通用",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"检测骨架屏",
+									"baidu_tieba_checkSkeleton",
+									true,
+									void 0,
+									"当页面加载完毕后检测到还是骨架屏，将会自动刷新页面"
+								),
+								UISwitch(
+									"自动重定向至主域名",
+									"baidu_tieba_autoJumpToMainHost",
+									false,
+									void 0,
+									"域名为nba.baidu.com、static.tieba.baidu.com...等时自动重定向至tieba.baidu.com"
+								),
+								UISwitch(
+									"自动跳转链接",
+									"baidu-tieba-checkUrl-autoJumpUrl",
+									true,
+									void 0,
+									"在链接验证页面自动跳转链接"
+								),
+							],
+						},
+					],
+				},
 				{
 					text: "账号功能",
 					type: "deepMenu",
@@ -659,33 +648,63 @@ const PanelTieBaSettingUI: PopsPanelContentConfig = {
 					],
 				},
 				{
-					text: "通用",
 					type: "deepMenu",
+					text: "成分检测",
 					forms: [
 						{
-							text: "",
 							type: "forms",
+							text: "",
 							forms: [
 								UISwitch(
-									"检测骨架屏",
-									"baidu_tieba_checkSkeleton",
+									"启用",
+									"baidu-tieba-componentDetection",
 									true,
 									void 0,
-									"当页面加载完毕后检测到还是骨架屏，将会自动刷新页面"
+									"启用后可检测用户的成分信息"
 								),
-								UISwitch(
-									"自动重定向至主域名",
-									"baidu_tieba_autoJumpToMainHost",
+								UIButton(
+									"自定义规则",
+									"检测用户成分的规则",
+									"管理",
+									void 0,
 									false,
-									void 0,
-									"域名为nba.baidu.com、static.tieba.baidu.com...等时自动重定向至tieba.baidu.com"
+									false,
+									"primary",
+									() => {
+										TiebaUniAppComponentDetectionRule.showView();
+									}
 								),
-								UISwitch(
-									"自动跳转链接",
-									"baidu-tieba-checkUrl-autoJumpUrl",
-									true,
+							],
+						},
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UIButton(
+									"数据导入",
+									"导入自定义规则数据",
+									"导入",
 									void 0,
-									"在链接验证页面自动跳转链接"
+									false,
+									false,
+									"primary",
+									() => {
+										TiebaUniAppComponentDetectionRule.importRule();
+									}
+								),
+								UIButton(
+									"数据导出",
+									"导出自定义规则数据",
+									"导出",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										TiebaUniAppComponentDetectionRule.exportRule(
+											"成分检测.json"
+										);
+									}
 								),
 							],
 						},

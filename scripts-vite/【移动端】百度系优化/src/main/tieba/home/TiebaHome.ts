@@ -3,12 +3,16 @@ import App from "./App.vue";
 import { TiebaRouter } from "./router";
 import AppCSS from "./app.css?raw";
 import ElementPlus from "element-plus";
+import { Panel } from "@components/setting/panel";
 
 const TiebaHome = {
 	$data: {
 		appName: "vite-app",
 	},
 	init() {
+		if (!Panel.getValue("baidu-tieba-beautify-home-page")) {
+			return;
+		}
 		TiebaRouter.init();
 		MountVue(App, [TiebaRouter.router, ElementPlus]);
 		addStyle(/*css*/ `
