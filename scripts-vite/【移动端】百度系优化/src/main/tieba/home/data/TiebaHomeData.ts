@@ -382,8 +382,8 @@ const TiebaHomeData = {
 					".ihome_aside_section:has(#concern_wrap_fans) .ihome_aside_title .concern_num a"
 				)?.textContent || ""
 			) || 0;
-		// 暂无 是否关注
-		let is_like = false;
+		// 是否关注
+		let is_like = Boolean($(".userinfo_relation .btn_concern_done"));
 		// 暂无 是否在线
 		let is_online = false;
 

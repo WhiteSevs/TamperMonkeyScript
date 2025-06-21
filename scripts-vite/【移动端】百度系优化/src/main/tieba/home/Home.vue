@@ -11,7 +11,7 @@ import {
 	ArrowRight,
 	Check,
 } from "@element-plus/icons-vue";
-import { DOMUtils, utils } from "@/env";
+import { $, DOMUtils, log, utils } from "@/env";
 import { onBeforeMount, onMounted, reactive, ref, watch } from "vue";
 import { TiebaHomeData, UserInfo } from "./data/TiebaHomeData";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -38,49 +38,95 @@ const copyIdEvent = () => {
 	});
 };
 
-const changeFollowBtnStatus = (time: number = 5000) => {
-	let interval = setInterval(() => {
-		if (document.querySelector(".j_home_card_request_card:has(.icon_hide)")) {
-			props.UserData.is_like = true;
-		} else {
-			props.UserData.is_like = false;
-		}
-	}, 200);
-	setTimeout(() => {
-		clearInterval(interval);
-	}, time);
-};
+const changeFollowBtnStatus = new utils.LockFunction(async (maxTime: number = 5000) => {
+	let is_like = Boolean(props.UserData.is_like);
+	log.info(`关注状态检测：` + is_like);
+	await new Promise<boolean>(resolve => {
+		let intervalId = setInterval(() => {
+			let current_is_like = false;
+			if ($(".j_home_card_request_card:has(.icon_hide)") || $(".userinfo_relation .btn_concern_done")) {
+				current_is_like = true;
+			}
+			props.UserData.is_like = current_is_like;
+			if (is_like !== current_is_like) {
+				// 状态发生改变
+				log.info(`关注状态发生改变，检测完毕：` + current_is_like);
+				clearInterval(intervalId);
+				clearTimeout(timeId);
+				resolve(current_is_like);
+			}
+		}, 200);
+		let timeId = setTimeout(() => {
+			// 检测超时
+			log.warn(`关注状态检测超时，取消检测`);
+			clearInterval(intervalId);
+			resolve(is_like);
+		}, maxTime);
+	})
+});
 
-const clickFollowBtnEvent = () => {
-	let selector = ".j_home_card_request_card:not(:has(.icon_hide))";
-	let $btn = document.querySelector(selector) as HTMLAnchorElement;
-	$btn.click();
-	changeFollowBtnStatus();
+const followBtnEvent = () => {
+	let $btn =
+		$<HTMLAnchorElement>(".j_home_card_request_card:not(:has(.icon_hide))") ||
+		$<HTMLAnchorElement>(".userinfo_relation .btn-attention");
+	if ($btn) {
+		log.info("点击关注按钮");
+		$btn.click();
+	} else {
+		Qmsg.error("未找到页面原始的关注按钮");
+		return;
+	}
+	changeFollowBtnStatus.run();
 };
-const clickCancelFollowBtnEvent = () => {
-	let selector = ".j_home_card_request_card:has(.icon_hide)";
-	let $btn = document.querySelector(selector) as HTMLAnchorElement;
-	$btn.click();
-	utils.waitNode<HTMLDivElement>(".dia_wrapper").then(($ele) => {
+const cancelFollowBtnEvent = () => {
+	let $btn =
+		$<HTMLAnchorElement>(".j_home_card_request_card:has(.icon_hide)") ||
+		$<HTMLAnchorElement>(".userinfo_relation .btn_concern_done");
+	if ($btn) {
+		log.info("点击取消关注按钮");
+		$btn.click();
+	} else {
+		Qmsg.error("未找到页面原始的取消关注按钮");
+		return;
+	}
+	utils.waitNode<HTMLDivElement>(".dia_wrapper", 10000).then(($ele) => {
+		if (!$ele) {
+			return;
+		}
 		DOMUtils.on(
 			$ele,
 			"click",
 			".dia_btnwrapper a",
 			function () {
-				changeFollowBtnStatus();
+				changeFollowBtnStatus.run();
 			},
 			{
 				capture: true,
 			}
 		);
 	});
+	utils.waitNode<HTMLDivElement>(".userinfo_relation .btn-attention", 10000).then(($ele) => {
+		if (!$ele) {
+			return;
+		}
+		changeFollowBtnStatus.run();
+	});
 };
 
-const clickMessageBtnEvent = () => {
-	(document.querySelector(".j_home_card_chat ") as HTMLAnchorElement).click();
+const messageBtnEvent = () => {
+	let $chat =
+		$<HTMLAnchorElement>(".j_home_card_chat") ||
+		$<HTMLAnchorElement>(".userinfo_relation .btn_sendmsg");
+	if ($chat) {
+		log.info("点击私信按钮");
+		$chat.click();
+	} else {
+		Qmsg.error("未找到页面原始的私信按钮页面");
+		return;
+	}
 };
 
-const clickIpHelpEvent = () => {
+const ipHelpEvent = () => {
 	ElMessage({
 		// @ts-ignore
 		showClose: false,
@@ -94,7 +140,7 @@ const clickIpHelpEvent = () => {
 	});
 };
 
-const clickReceivedLikesEvent = () => {
+const receivedLikesEvent = () => {
 	ElMessageBox.confirm(
 		`${props.UserData.showName}共获得吧友${props.UserData.postInfo?.receivedLikes}次点赞`,
 		"",
@@ -154,13 +200,13 @@ watch(
 						<el-col :span="12" style="padding: 0;">
 							<el-row :justify="'end'" style="flex-wrap: nowrap">
 								<el-button class="user-handler-follow-btn" color="#7558FE" round :icon="Plus"
-									v-if="!props.UserData.is_like" @click="clickFollowBtnEvent">关注</el-button>
+									v-if="!props.UserData.is_like" @click="followBtnEvent">关注</el-button>
 								<el-button color="#7558FE" class="user-handler-cancel-follow-btn" plain round
 									:icon="Check" v-if="props.UserData.is_like"
-									@click="clickCancelFollowBtnEvent">取消关注</el-button>
+									@click="cancelFollowBtnEvent">取消关注</el-button>
 								<el-button color="#7558FE" class="user-handler-private-message-btn"
 									:plain="!props.UserData.is_like" round :icon="Message"
-									@click="clickMessageBtnEvent">私信</el-button>
+									@click="messageBtnEvent">私信</el-button>
 							</el-row>
 						</el-col>
 					</el-row>
@@ -201,7 +247,7 @@ watch(
 					<span v-if="utils.isNotNull(props.UserData.ip)"
 						style="display: flex; align-items: center; text-wrap: nowrap">
 						{{ props.UserData.ip?.location }}
-						<el-icon @click="clickIpHelpEvent">
+						<el-icon @click="ipHelpEvent">
 							<QuestionFilled />
 						</el-icon>
 					</span>
@@ -225,7 +271,7 @@ watch(
 				<!-- 获赞 关注 粉丝 -->
 				<el-row>
 					<el-space :size="25">
-						<el-col @click="clickReceivedLikesEvent">
+						<el-col @click="receivedLikesEvent">
 							<el-text :size="'large'" :class="'big-text'" style="margin-right: 0.5rem">{{
 								props.UserData.postInfo?.receivedLikes }}</el-text>
 							<el-text :type="'info'">获赞</el-text>

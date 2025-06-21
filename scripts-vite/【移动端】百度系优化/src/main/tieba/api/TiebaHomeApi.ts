@@ -65,12 +65,19 @@ const TiebaHomeApi = {
 	async getConcern(un: string, pn = 1) {
 		let gbkEncoder = new utils.GBKEncoder();
 		un = gbkEncoder.encode(un.toString());
-		let response = await httpx.get(
-			`https://tieba.baidu.com/home/concern?un=${un}&is_ajax=1&lp=home_main_concern_more&pn=${pn}`,
-			{
-				fetch: utils.isWebView_Via(),
-			}
-		);
+		let response = await httpx.get(`https://tieba.baidu.com/home/concern`, {
+			data: {
+				un: un,
+				is_ajax: 1,
+				lp: "home_main_concern_more",
+				pn: pn,
+			},
+			processData: true,
+			fetch: utils.isWebView_Via(),
+			headers: {
+				"User-Agent": utils.getRandomAndroidUA(),
+			},
+		});
 		if (!response.status) {
 			return;
 		}
@@ -127,12 +134,20 @@ const TiebaHomeApi = {
 	 * @returns
 	 */
 	async getFollow(un: string, offset = 12, page_size = 12) {
-		let response = await httpx.get(
-			`https://tieba.baidu.com/mo/q/follow?un=${un}&lp=home_main_follow_more&is_ajax=1&offset=${offset}&rn=${page_size}`,
-			{
-				fetch: utils.isWebView_Via(),
-			}
-		);
+		let response = await httpx.get(`https://tieba.baidu.com/mo/q/follow`, {
+			data: {
+				un: un,
+				lp: "home_main_follow_more",
+				is_ajax: 1,
+				offset: offset,
+				rn: page_size,
+			},
+			processData: true,
+			fetch: utils.isWebView_Via(),
+			headers: {
+				"User-Agent": utils.getRandomAndroidUA(),
+			},
+		});
 		if (!response.status) {
 			return;
 		}
@@ -183,12 +198,20 @@ const TiebaHomeApi = {
 	 * @returns
 	 */
 	async getFans(un: string, offset = 12, page_size = 12) {
-		let response = await httpx.get(
-			`https://tieba.baidu.com/mo/q/fans?un=${un}&lp=home_main_fans_more&is_ajax=1&offset=${offset}&rn=${page_size}`,
-			{
-				fetch: utils.isWebView_Via(),
-			}
-		);
+		let response = await httpx.get(`https://tieba.baidu.com/mo/q/fans`, {
+			data: {
+				un: un,
+				lp: "home_main_fans_more",
+				is_ajax: 1,
+				offset: offset,
+				rn: page_size,
+			},
+			processData: true,
+			fetch: utils.isWebView_Via(),
+			headers: {
+				"User-Agent": utils.getRandomAndroidUA(),
+			},
+		});
 		if (!response.status) {
 			return;
 		}
@@ -246,13 +269,14 @@ const TiebaHomeApi = {
 			processData: true,
 			headers: {
 				Accept: "application/json",
+				"User-Agent": utils.getRandomAndroidUA(),
 				"x-requested-with": "XMLHttpRequest",
 			},
 		});
 		if (!response.status) {
 			return;
 		}
-		let data = utils.toJSON(response.data.responseText) as {
+		let data = utils.toJSON<{
 			no: 0 | 1;
 			data: {
 				content: string;
@@ -260,7 +284,8 @@ const TiebaHomeApi = {
 					has_more: boolean;
 				};
 			};
-		};
+		}>(response.data.responseText);
+
 		if (data.no != 0) {
 			return;
 		}
