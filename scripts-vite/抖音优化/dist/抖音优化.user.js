@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.15
+// @version      2025.6.22
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -3927,79 +3927,94 @@
   const ReactUtils = {
     /**
      * 等待react某个属性并进行设置
+     * @param $el 需要检测的元素对象
+     * @param reactPropNameOrNameList react属性的名称
+     * @param checkOption 检测的配置项
      */
-    async waitReactPropsToSet($target, propName, needSetList) {
-      if (!Array.isArray(needSetList)) {
-        this.waitReactPropsToSet($target, propName, [needSetList]);
-        return;
+    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
+      if (!Array.isArray(reactPropNameOrNameList)) {
+        reactPropNameOrNameList = [reactPropNameOrNameList];
+      }
+      if (!Array.isArray(checkOption)) {
+        checkOption = [checkOption];
       }
       function getTarget() {
         let __target__ = null;
-        if (typeof $target === "string") {
-          __target__ = document.querySelector($target);
-        } else if (typeof $target === "function") {
-          __target__ = $target();
-        } else if ($target instanceof HTMLElement) {
-          __target__ = $target;
+        if (typeof $el === "string") {
+          __target__ = domUtils.selector($el);
+        } else if (typeof $el === "function") {
+          __target__ = $el();
+        } else if ($el instanceof HTMLElement) {
+          __target__ = $el;
         }
         return __target__;
       }
-      if (typeof $target === "string") {
-        let $ele = await utils.waitNode($target, 1e4);
+      if (typeof $el === "string") {
+        let $ele = await utils.waitNode($el, 1e4);
         if (!$ele) {
           return;
         }
       }
-      needSetList.forEach((needSetOption) => {
+      checkOption.forEach((needSetOption) => {
         if (typeof needSetOption.msg === "string") {
           log.info(needSetOption.msg);
         }
-        function checkObj() {
-          let target = getTarget();
-          if (target == null) {
-            return false;
+        function checkTarget() {
+          let $targetEl = getTarget();
+          if ($targetEl == null) {
+            return {
+              status: false,
+              isTimeout: true,
+              inst: null,
+              $el: $targetEl
+            };
           }
-          let reactInstance = utils.getReactObj(target);
-          if (reactInstance == null) {
-            return false;
+          let reactInst = utils.getReactObj($targetEl);
+          if (reactInst == null) {
+            return {
+              status: false,
+              isTimeout: false,
+              inst: null,
+              $el: $targetEl
+            };
           }
-          let reactInstanceProp = reactInstance[propName];
-          if (reactInstanceProp == null) {
-            return false;
-          }
-          let needOwnCheck = needSetOption.check(reactInstanceProp, target);
-          return Boolean(needOwnCheck);
+          let findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex(
+            (__propName__) => {
+              let reactPropInst2 = reactInst[__propName__];
+              if (!reactPropInst2) {
+                return false;
+              }
+              let checkResult = needSetOption.check(reactPropInst2, $targetEl);
+              checkResult = Boolean(checkResult);
+              return checkResult;
+            }
+          );
+          let reactPropName = reactPropNameOrNameList[findPropNameIndex];
+          let reactPropInst = reactInst[reactPropName];
+          return {
+            status: findPropNameIndex !== -1,
+            isTimeout: false,
+            inst: reactPropInst,
+            $el: $targetEl
+          };
         }
         utils.waitPropertyByInterval(
           () => {
             return getTarget();
           },
-          checkObj,
+          () => checkTarget().status,
           250,
           1e4
         ).then(() => {
-          let target = getTarget();
-          if (target == null) {
+          let checkTargetResult = checkTarget();
+          if (checkTargetResult.status) {
+            let reactInst = checkTargetResult.inst;
+            needSetOption.set(reactInst, checkTargetResult.$el);
+          } else {
             if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(true);
+              needSetOption.failWait(checkTargetResult.isTimeout);
             }
-            return;
           }
-          let reactInstance = utils.getReactObj(target);
-          if (reactInstance == null) {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(false);
-            }
-            return;
-          }
-          let reactInstanceProp = reactInstance[propName];
-          if (reactInstanceProp == null) {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(false);
-            }
-            return;
-          }
-          needSetOption.set(reactInstanceProp, target);
         });
       });
     }
@@ -4100,6 +4115,7 @@
           "#video-info-wrap",
           /* 中间底部上面的 每周精选内容 */
           "span:has(+#video-info-wrap):has(img)",
+          "span:has(+div #video-info-wrap):has(img)",
           /* 中间底部的视频控制工具栏 */
           "xg-controls.xgplayer-controls"
         )
