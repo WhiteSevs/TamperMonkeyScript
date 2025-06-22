@@ -128,6 +128,7 @@ export const DouYinVideoPlayer = {
 				"#video-info-wrap",
 				/* 中间底部上面的 每周精选内容 */
 				"span:has(+#video-info-wrap):has(img)",
+				"span:has(+div #video-info-wrap):has(img)",
 				/* 中间底部的视频控制工具栏 */
 				"xg-controls.xgplayer-controls"
 			)
