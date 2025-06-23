@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.22
+// @version      2025.6.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -7248,6 +7248,383 @@
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
   }
+  class RuleStorage {
+    constructor(option) {
+      __publicField(this, "option");
+      this.option = option;
+    }
+    /**
+     * 获取所有规则
+     */
+    getAllRule() {
+      let allRules = _GM_getValue(this.option.STORAGE_API_KEY, []);
+      return allRules;
+    }
+    /**
+     * 设置全部规则
+     */
+    setAllRule(rules) {
+      _GM_setValue(this.option.STORAGE_API_KEY, rules);
+    }
+    /**
+     * 清空所有规则
+     */
+    clearAllRule() {
+      this.setAllRule([]);
+    }
+    /**
+     * 获取规则
+     * @param uuid
+     */
+    getRule(uuid) {
+      let allRules = this.getAllRule();
+      let findIndex = allRules.findIndex((item) => item.uuid === uuid);
+      if (findIndex !== -1) {
+        let rule = allRules[findIndex];
+        return rule;
+      }
+    }
+    /**
+     * 设置规则（覆盖规则）
+     * @param rule 规则
+     * @returns
+     * + true 成功覆盖
+     * + false 未找到规则
+     */
+    setRule(rule) {
+      let allRules = this.getAllRule();
+      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      let updateFlag = false;
+      if (findIndex !== -1) {
+        allRules[findIndex] = rule;
+        this.setAllRule(allRules);
+        updateFlag = true;
+      }
+      return updateFlag;
+    }
+    /**
+     * 添加规则
+     */
+    addRule(rule) {
+      let allRules = this.getAllRule();
+      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      let addFlag = false;
+      if (findIndex !== -1) ;
+      else {
+        allRules.push(rule);
+        this.setAllRule(allRules);
+        addFlag = true;
+      }
+      return addFlag;
+    }
+    /**
+     * 规则规则（有就更新，没有就添加）
+     * @param rule 规则
+     */
+    updateRule(rule) {
+      let allRules = this.getAllRule();
+      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      if (findIndex !== -1) {
+        allRules[findIndex] = rule;
+      } else {
+        allRules.push(rule);
+      }
+      this.setAllRule(allRules);
+    }
+    /**
+     * 删除规则
+     * @param rule 规则/规则的uuid
+     */
+    deleteRule(rule) {
+      let allRules = this.getAllRule();
+      let ruleUUID = typeof rule === "string" ? rule : rule.uuid;
+      let findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
+      if (findIndex !== -1) {
+        allRules.splice(findIndex, 1);
+        this.setAllRule(allRules);
+        return true;
+      } else {
+        return false;
+      }
+    }
+    /**
+     * 导入规则
+     * @param importEndCallBack 导入完毕后的回调
+     */
+    importRules(importEndCallBack) {
+      let $alert = __pops.alert({
+        title: {
+          text: "请选择导入方式",
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <div class="btn-control" data-mode="local">本地导入</div>
+                    <div class="btn-control" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
+                `
+          ),
+          html: true
+        },
+        btn: {
+          ok: { enable: false },
+          close: {
+            enable: true,
+            callback(details, event) {
+              details.close();
+            }
+          }
+        },
+        mask: { enable: true },
+        drag: true,
+        width: PanelUISize.info.width,
+        height: PanelUISize.info.height,
+        style: (
+          /*css*/
+          `
+                .btn-control{
+                    display: inline-block;
+                    margin: 10px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+            `
+        )
+      });
+      let $local = $alert.$shadowRoot.querySelector(
+        ".btn-control[data-mode='local']"
+      );
+      let $network = $alert.$shadowRoot.querySelector(
+        ".btn-control[data-mode='network']"
+      );
+      let $clipboard = $alert.$shadowRoot.querySelector(
+        ".btn-control[data-mode='clipboard']"
+      );
+      let updateRuleToStorage = async (data) => {
+        let allData = this.getAllRule();
+        let addNewData = [];
+        let repeatData = [];
+        let isRepeat = false;
+        for (let index = 0; index < data.length; index++) {
+          const dataItem = data[index];
+          let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+          if (findIndex !== -1) {
+            repeatData.push({
+              index: findIndex,
+              data: dataItem
+            });
+          } else {
+            addNewData.push(dataItem);
+          }
+        }
+        if (repeatData.length) {
+          let confirmRepeat = await new Promise((resolve) => {
+            __pops.alert({
+              title: {
+                text: "覆盖规则",
+                position: "center"
+              },
+              content: {
+                text: `存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`,
+                html: true
+              },
+              btn: {
+                close: {
+                  callback(details, event) {
+                    details.close();
+                    resolve(false);
+                  }
+                },
+                ok: {
+                  text: "覆盖",
+                  callback(details, event) {
+                    details.close();
+                    resolve(true);
+                  }
+                }
+              },
+              width: PanelUISize.info.width,
+              height: PanelUISize.info.height,
+              mask: { enable: true },
+              drag: true
+            });
+          });
+          if (confirmRepeat) {
+            for (const repeatDataItem of repeatData) {
+              allData[repeatDataItem.index] = repeatDataItem.data;
+            }
+            isRepeat = true;
+          }
+        }
+        if (addNewData.length) {
+          allData = allData.concat(addNewData);
+        }
+        this.setAllRule(allData);
+        let message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
+        Qmsg.success(message);
+        importEndCallBack == null ? void 0 : importEndCallBack();
+      };
+      let importFile = (subscribeText) => {
+        return new Promise(async (resolve) => {
+          let data = utils.toJSON(subscribeText);
+          if (!Array.isArray(data)) {
+            log.error(data);
+            Qmsg.error("导入失败，格式不符合（不是数组）", {
+              consoleLogContent: true
+            });
+            resolve(false);
+            return;
+          }
+          if (!data.length) {
+            Qmsg.error("导入失败，解析出的数据为空", {
+              consoleLogContent: true
+            });
+            resolve(false);
+            return;
+          }
+          await updateRuleToStorage(data);
+          resolve(true);
+        });
+      };
+      domUtils.on($local, "click", (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        let $input = domUtils.createElement("input", {
+          type: "file",
+          accept: ".json"
+        });
+        domUtils.on($input, ["propertychange", "input"], (event2) => {
+          var _a2;
+          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
+            return;
+          }
+          let uploadFile = $input.files[0];
+          let fileReader = new FileReader();
+          fileReader.onload = () => {
+            importFile(fileReader.result);
+          };
+          fileReader.readAsText(uploadFile, "UTF-8");
+        });
+        $input.click();
+      });
+      domUtils.on($network, "click", (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        let $prompt = __pops.prompt({
+          title: {
+            text: "网络导入",
+            position: "center"
+          },
+          content: {
+            text: "",
+            placeholder: "请填写URL",
+            focus: true
+          },
+          btn: {
+            close: {
+              enable: true,
+              callback(details, event2) {
+                details.close();
+              }
+            },
+            ok: {
+              text: "导入",
+              callback: async (eventDetails, event2) => {
+                let url = eventDetails.text;
+                if (utils.isNull(url)) {
+                  Qmsg.error("请填入完整的url");
+                  return;
+                }
+                let $loading = Qmsg.loading("正在获取配置...");
+                let response = await httpx.get(url, {
+                  allowInterceptConfig: false
+                });
+                $loading.close();
+                if (!response.status) {
+                  log.error(response);
+                  Qmsg.error("获取配置失败", { consoleLogContent: true });
+                  return;
+                }
+                let flag = await importFile(response.data.responseText);
+                if (!flag) {
+                  return;
+                }
+                eventDetails.close();
+              }
+            },
+            cancel: {
+              enable: false
+            }
+          },
+          mask: { enable: true },
+          drag: true,
+          width: PanelUISize.info.width,
+          height: "auto"
+        });
+        let $promptInput = $prompt.$shadowRoot.querySelector("input");
+        let $promptOk = $prompt.$shadowRoot.querySelector(
+          ".pops-prompt-btn-ok"
+        );
+        domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+          let value = domUtils.val($promptInput);
+          if (value === "") {
+            domUtils.attr($promptOk, "disabled", "true");
+          } else {
+            domUtils.removeAttr($promptOk, "disabled");
+          }
+        });
+        domUtils.listenKeyboard(
+          $promptInput,
+          "keydown",
+          (keyName, keyValue, otherCodeList) => {
+            if (keyName === "Enter" && otherCodeList.length === 0) {
+              let value = domUtils.val($promptInput);
+              if (value !== "") {
+                utils.dispatchEvent($promptOk, "click");
+              }
+            }
+          }
+        );
+        utils.dispatchEvent($promptInput, "input");
+      });
+      domUtils.on($clipboard, "click", async (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        let clipboardInfo = await utils.getClipboardInfo();
+        if (clipboardInfo.error != null) {
+          Qmsg.error(clipboardInfo.error.toString());
+          return;
+        }
+        if (clipboardInfo.content.trim() === "") {
+          Qmsg.warning("获取到的剪贴板内容为空");
+          return;
+        }
+        let flag = await importFile(clipboardInfo.content);
+        if (!flag) {
+          return;
+        }
+      });
+    }
+    /**
+     * 导出规则
+     */
+    exportRules(fileName = "rule.json") {
+      let allRules = this.getAllRule();
+      let blob = new Blob([JSON.stringify(allRules, null, 4)]);
+      let blobUrl = globalThis.URL.createObjectURL(blob);
+      let $a = document.createElement("a");
+      $a.href = blobUrl;
+      $a.download = fileName;
+      $a.click();
+      setTimeout(() => {
+        globalThis.URL.revokeObjectURL(blobUrl);
+      }, 1500);
+    }
+  }
   class DouYinVideoFilterBase {
     constructor() {
       __publicField(this, "$data", {
@@ -7691,7 +8068,6 @@
   };
   const DouYinVideoFilter = {
     $key: {
-      STORAGE_KEY: "dy-video-filter-rule",
       ENABLE_KEY: "shieldVideo-exec-network-enable"
     },
     $data: {
@@ -7701,6 +8077,15 @@
        * 网络接口的视频信息字典
        */
       awemeInfoMap: new Utils.Dictionary(),
+      __videoFilterRuleStorage: null,
+      get videoFilterRuleStorage() {
+        if (this.__videoFilterRuleStorage == null) {
+          this.__videoFilterRuleStorage = new RuleStorage({
+            STORAGE_API_KEY: "dy-video-filter-rule"
+          });
+        }
+        return this.__videoFilterRuleStorage;
+      },
       /**
        * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
        */
@@ -7730,7 +8115,7 @@
           if (!Panel.getValue(that.$key.ENABLE_KEY)) {
             return [];
           }
-          let filterOptionList = that.getData();
+          let filterOptionList = that.$data.videoFilterRuleStorage.getAllRule();
           if (!filterOptionList.length) {
             return [];
           }
@@ -7839,7 +8224,9 @@
             if (Array.isArray(cards)) {
               for (let index = 0; index < cards.length; index++) {
                 let awemeItem = cards[index];
-                let awemeInfo = utils.toJSON((awemeItem == null ? void 0 : awemeItem["aweme"]) || "{}");
+                let awemeInfo = utils.toJSON(
+                  (awemeItem == null ? void 0 : awemeItem["aweme"]) || "{}"
+                );
                 let filterResult = filterBase.checkAwemeInfoIsFilter(
                   filterOptionList,
                   awemeInfo
@@ -7913,26 +8300,24 @@
         };
         DouYinNetWorkHook.ajaxHooker.hook((request) => {
           let url = CommonUtil.fixUrl(request.url);
-          let urlInstance = new URL(url);
-          if (urlInstance.pathname.startsWith("/aweme/v1/web/tab/feed")) {
+          let urlInst = new URL(url);
+          if (urlInst.pathname.startsWith("/aweme/v1/web/tab/feed")) {
             xhr_hook_callback_1("xhr-tab", request);
-          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/aweme/post/")) {
+          } else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/post/")) {
             xhr_hook_callback_1("xhr-userHome", request);
-          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/mix/aweme/")) {
+          } else if (urlInst.pathname.startsWith("/aweme/v1/web/mix/aweme/")) {
             xhr_hook_callback_1("xhr-mix", request);
-          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/aweme/related/")) {
+          } else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/related/")) {
             xhr_hook_callback_1("xhr-related", request);
-          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/follow/feed")) {
+          } else if (urlInst.pathname.startsWith("/aweme/v1/web/follow/feed")) {
             xhr_hook_callback_2("xhr-follow", request);
-          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/familiar/feed")) {
+          } else if (urlInst.pathname.startsWith("/aweme/v1/web/familiar/feed")) {
             xhr_hook_callback_2("xhr-familiar", request);
-          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/module/feed")) {
+          } else if (urlInst.pathname.startsWith("/aweme/v1/web/module/feed")) {
             xhr_hook_callback_3("xhr-module", request);
-          } else if (urlInstance.pathname.startsWith(
-            "/aweme/v1/web/general/search/single/"
-          )) {
+          } else if (urlInst.pathname.startsWith("/aweme/v1/web/general/search/single/")) {
             xhr_hook_callback_4("xhr-search", request);
-          } else if (urlInstance.pathname.startsWith("/aweme/v1/web/search/item/")) {
+          } else if (urlInst.pathname.startsWith("/aweme/v1/web/search/item/")) {
             xhr_hook_callback_4("xhr-search", request);
           }
         });
@@ -8120,6 +8505,7 @@
      * 获取规则视图实例
      */
     getRuleViewInstance() {
+      const that = this;
       let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
       function generateStorageApi(data) {
         return {
@@ -8134,7 +8520,7 @@
       let ruleView = new RuleView({
         title: "视频过滤器",
         data: () => {
-          return this.getData();
+          return that.$data.videoFilterRuleStorage.getAllRule();
         },
         getAddData: () => {
           return this.getTemplateData();
@@ -8143,13 +8529,13 @@
           return data["name"];
         },
         updateData: (data) => {
-          return this.updateData(data);
+          return that.$data.videoFilterRuleStorage.setRule(data);
         },
         deleteData: (data) => {
-          return this.deleteData(data);
+          return that.$data.videoFilterRuleStorage.deleteRule(data);
         },
         getData: (data) => {
-          let allData = this.getData();
+          let allData = DouYinVideoFilter.$data.videoFilterRuleStorage.getAllRule();
           let findValue = allData.find((item) => item.uuid === data.uuid);
           return findValue ?? data;
         },
@@ -8161,7 +8547,7 @@
             },
             callback: (data, enable) => {
               data.enable = enable;
-              this.updateData(data);
+              that.$data.videoFilterRuleStorage.setRule(data);
             }
           },
           edit: {
@@ -8524,12 +8910,12 @@
               }
               if (isEdit) {
                 return {
-                  success: this.updateData(data),
+                  success: that.$data.videoFilterRuleStorage.setRule(data),
                   data
                 };
               } else {
                 return {
-                  success: this.addData(data),
+                  success: that.$data.videoFilterRuleStorage.addRule(data),
                   data
                 };
               }
@@ -8584,7 +8970,7 @@
           delete: {
             enable: true,
             deleteCallBack: (data) => {
-              return this.deleteData(data);
+              return that.$data.videoFilterRuleStorage.deleteRule(data);
             }
           }
         },
@@ -8609,7 +8995,7 @@
           clear: {
             enable: true,
             callback: () => {
-              this.clearData();
+              that.$data.videoFilterRuleStorage.clearAllRule();
             }
           }
         }
@@ -8640,299 +9026,6 @@
         },
         dynamicData: []
       };
-    },
-    /**
-     * 获取数据
-     */
-    getData() {
-      return _GM_getValue(this.$key.STORAGE_KEY, []);
-    },
-    /**
-     * 设置数据
-     * @param data
-     */
-    setData(data) {
-      _GM_setValue(this.$key.STORAGE_KEY, data);
-    },
-    /**
-     * 添加数据
-     * @param data
-     */
-    addData(data) {
-      let localData = this.getData();
-      let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
-      if (findIndex === -1) {
-        localData.push(data);
-        _GM_setValue(this.$key.STORAGE_KEY, localData);
-        return true;
-      } else {
-        return false;
-      }
-    },
-    /**
-     * 更新数据
-     * @param data
-     */
-    updateData(data) {
-      let localData = this.getData();
-      let index = localData.findIndex((item) => item.uuid == data.uuid);
-      let updateFlag = false;
-      if (index !== -1) {
-        updateFlag = true;
-        localData[index] = data;
-      }
-      this.setData(localData);
-      return updateFlag;
-    },
-    /**
-     * 删除数据
-     * @param data
-     */
-    deleteData(data) {
-      let localData = this.getData();
-      let index = localData.findIndex((item) => item.uuid == data.uuid);
-      let deleteFlag = false;
-      if (index !== -1) {
-        deleteFlag = true;
-        localData.splice(index, 1);
-      }
-      this.setData(localData);
-      return deleteFlag;
-    },
-    /**
-     * 清空数据
-     */
-    clearData() {
-      _GM_deleteValue(this.$key.STORAGE_KEY);
-    },
-    /**
-     * 导出规则
-     */
-    exportRule(fileName = "rule.json") {
-      let allRule = this.getData();
-      let blob = new Blob([JSON.stringify(allRule, null, 4)]);
-      let blobUrl = window.URL.createObjectURL(blob);
-      let $a = document.createElement("a");
-      $a.href = blobUrl;
-      $a.download = fileName;
-      $a.click();
-      setTimeout(() => {
-        window.URL.revokeObjectURL(blobUrl);
-      }, 1500);
-    },
-    /**
-     * 导入规则
-     * @param importEndCallBack 导入完毕后的回调
-     */
-    importRule(importEndCallBack) {
-      let $alert = __pops.alert({
-        title: {
-          text: "请选择导入方式",
-          position: "center"
-        },
-        content: {
-          text: (
-            /*html*/
-            `
-                    <div class="btn-control" data-mode="local">本地导入</div>
-                    <div class="btn-control" data-mode="network">网络导入</div>
-                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
-                `
-          ),
-          html: true
-        },
-        btn: {
-          ok: { enable: false },
-          close: {
-            enable: true,
-            callback(details, event) {
-              details.close();
-            }
-          }
-        },
-        mask: { enable: true },
-        drag: true,
-        width: PanelUISize.info.width,
-        height: PanelUISize.info.height,
-        style: (
-          /*css*/
-          `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-            `
-        )
-      });
-      let $local = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='local']"
-      );
-      let $network = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='network']"
-      );
-      let $clipboard = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='clipboard']"
-      );
-      let updateRuleToStorage = (data) => {
-        let allData = this.getData();
-        let addNewData = [];
-        for (let index = 0; index < data.length; index++) {
-          const dataItem = data[index];
-          let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
-          if (findIndex !== -1) ;
-          else {
-            addNewData.push(dataItem);
-          }
-        }
-        allData = allData.concat(addNewData);
-        this.setData(allData);
-        Qmsg.success(`共 ${data.length} 条规则，新增 ${addNewData.length} 条`);
-        importEndCallBack == null ? void 0 : importEndCallBack();
-      };
-      let importFile = (subscribeText) => {
-        return new Promise((resolve) => {
-          let data = utils.toJSON(subscribeText);
-          if (!Array.isArray(data)) {
-            log.error(data);
-            Qmsg.error("导入失败，格式不符合（不是数组）", {
-              consoleLogContent: true
-            });
-            resolve(false);
-            return;
-          }
-          if (!data.length) {
-            Qmsg.error("导入失败，解析出的数据为空", {
-              consoleLogContent: true
-            });
-            resolve(false);
-            return;
-          }
-          updateRuleToStorage(data);
-          resolve(true);
-        });
-      };
-      domUtils.on($local, "click", (event) => {
-        utils.preventEvent(event);
-        $alert.close();
-        let $input = domUtils.createElement("input", {
-          type: "file",
-          accept: ".json"
-        });
-        domUtils.on($input, ["propertychange", "input"], (event2) => {
-          var _a2;
-          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
-            return;
-          }
-          let uploadFile = $input.files[0];
-          let fileReader = new FileReader();
-          fileReader.onload = () => {
-            importFile(fileReader.result);
-          };
-          fileReader.readAsText(uploadFile, "UTF-8");
-        });
-        $input.click();
-      });
-      domUtils.on($network, "click", (event) => {
-        utils.preventEvent(event);
-        $alert.close();
-        let $prompt = __pops.prompt({
-          title: {
-            text: "网络导入",
-            position: "center"
-          },
-          content: {
-            text: "",
-            placeholder: "请填写URL",
-            focus: true
-          },
-          btn: {
-            close: {
-              enable: true,
-              callback(details, event2) {
-                details.close();
-              }
-            },
-            ok: {
-              text: "导入",
-              callback: async (eventDetails, event2) => {
-                let url = eventDetails.text;
-                if (utils.isNull(url)) {
-                  Qmsg.error("请填入完整的url");
-                  return;
-                }
-                let $loading = Qmsg.loading("正在获取配置...");
-                let response = await httpx.get(url, {
-                  allowInterceptConfig: false
-                });
-                $loading.close();
-                if (!response.status) {
-                  log.error(response);
-                  Qmsg.error("获取配置失败", { consoleLogContent: true });
-                  return;
-                }
-                let flag = await importFile(response.data.responseText);
-                if (!flag) {
-                  return;
-                }
-                eventDetails.close();
-              }
-            },
-            cancel: {
-              enable: false
-            }
-          },
-          mask: { enable: true },
-          drag: true,
-          width: PanelUISize.info.width,
-          height: "auto"
-        });
-        let $promptInput = $prompt.$shadowRoot.querySelector("input");
-        let $promptOk = $prompt.$shadowRoot.querySelector(
-          ".pops-prompt-btn-ok"
-        );
-        domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
-          let value = domUtils.val($promptInput);
-          if (value === "") {
-            domUtils.attr($promptOk, "disabled", "true");
-          } else {
-            domUtils.removeAttr($promptOk, "disabled");
-          }
-        });
-        domUtils.listenKeyboard(
-          $promptInput,
-          "keydown",
-          (keyName, keyValue, otherCodeList) => {
-            if (keyName === "Enter" && otherCodeList.length === 0) {
-              let value = domUtils.val($promptInput);
-              if (value !== "") {
-                utils.dispatchEvent($promptOk, "click");
-              }
-            }
-          }
-        );
-        utils.dispatchEvent($promptInput, "input");
-      });
-      domUtils.on($clipboard, "click", async (event) => {
-        utils.preventEvent(event);
-        $alert.close();
-        let clipboardInfo = await utils.getClipboardInfo();
-        if (clipboardInfo.error != null) {
-          Qmsg.error(clipboardInfo.error.toString());
-          return;
-        }
-        if (clipboardInfo.content.trim() === "") {
-          Qmsg.warning("获取到的剪贴板内容为空");
-          return;
-        }
-        let flag = await importFile(clipboardInfo.content);
-        if (!flag) {
-          return;
-        }
-      });
     }
   };
   const blockCSS$5 = '/* 右侧视频信息里的 下载客户端，桌面快捷访问 */\r\n[data-e2e="note-detail"]\r\n	div:has(> [data-e2e="user-info"])\r\n	> div:has(a[download*="douyin-downloader"]) {\r\n	display: none !important;\r\n}\r\n';
@@ -10990,7 +11083,7 @@
                     false,
                     "primary",
                     () => {
-                      DouYinVideoFilter.importRule();
+                      DouYinVideoFilter.$data.videoFilterRuleStorage.importRules();
                     }
                   ),
                   UIButton(
@@ -11002,7 +11095,7 @@
                     false,
                     "primary",
                     () => {
-                      DouYinVideoFilter.exportRule(
+                      DouYinVideoFilter.$data.videoFilterRuleStorage.exportRules(
                         _SCRIPT_NAME_ + "-视频过滤规则.json"
                       );
                     }
