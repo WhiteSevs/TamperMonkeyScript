@@ -8,6 +8,7 @@ import {
 	PROPS_STORAGE_API,
 } from "@components/setting/panel-config";
 import { RuleView } from "@components/utils/RuleView";
+import { RuleStorage } from "@components/utils/RuleStorage";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import {
@@ -68,7 +69,6 @@ export type DouYinVideoFilterOption = {
 
 export const DouYinVideoFilter = {
 	$key: {
-		STORAGE_KEY: "dy-video-filter-rule",
 		ENABLE_KEY: "shieldVideo-exec-network-enable",
 	},
 	$data: {
@@ -89,6 +89,17 @@ export const DouYinVideoFilter = {
 				transformAwemeInfo: DouYinVideoHandlerInfo;
 			}
 		>(),
+		__videoFilterRuleStorage:
+			null as null | RuleStorage<DouYinVideoFilterOption>,
+		get videoFilterRuleStorage() {
+			if (this.__videoFilterRuleStorage == null) {
+				this.__videoFilterRuleStorage =
+					new RuleStorage<DouYinVideoFilterOption>({
+						STORAGE_API_KEY: "dy-video-filter-rule",
+					});
+			}
+			return this.__videoFilterRuleStorage;
+		},
 		/**
 		 * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
 		 */
@@ -131,7 +142,7 @@ export const DouYinVideoFilter = {
 				if (!Panel.getValue(that.$key.ENABLE_KEY)) {
 					return [];
 				}
-				let filterOptionList = that.getData();
+				let filterOptionList = that.$data.videoFilterRuleStorage.getAllRule();
 				if (!filterOptionList.length) {
 					// 无规则，不过滤
 					return [];
@@ -206,7 +217,7 @@ export const DouYinVideoFilter = {
 					let aweme_list = data["aweme_list"];
 					if (Array.isArray(aweme_list)) {
 						for (let index = 0; index < aweme_list.length; index++) {
-							let awemeInfo = aweme_list[index] || {};
+							let awemeInfo: DouYinVideoAwemeInfo = aweme_list[index] || {};
 							let filterResult = filterBase.checkAwemeInfoIsFilter(
 								filterOptionList,
 								awemeInfo
@@ -245,13 +256,13 @@ export const DouYinVideoFilter = {
 					if (Array.isArray(aweme_list)) {
 						for (let index = 0; index < aweme_list.length; index++) {
 							let awemeItem = aweme_list[index];
-							let awemeInfo = awemeItem["aweme"] || {};
+							let awemeInfo: DouYinVideoAwemeInfo = awemeItem["aweme"] || {};
 							// 如果cell_room不为空，这时候aweme是空的
 							if (
 								typeof awemeItem?.["cell_room"] === "object" &&
 								awemeItem?.["cell_room"] != null
 							) {
-								awemeInfo["cell_room"] = awemeItem?.["cell_room"];
+								(awemeInfo as any)["cell_room"] = awemeItem?.["cell_room"];
 							}
 							let filterResult = filterBase.checkAwemeInfoIsFilter(
 								filterOptionList,
@@ -291,7 +302,9 @@ export const DouYinVideoFilter = {
 					if (Array.isArray(cards)) {
 						for (let index = 0; index < cards.length; index++) {
 							let awemeItem = cards[index];
-							let awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
+							let awemeInfo: DouYinVideoAwemeInfo = utils.toJSON(
+								awemeItem?.["aweme"] || "{}"
+							);
 							let filterResult = filterBase.checkAwemeInfoIsFilter(
 								filterOptionList,
 								awemeInfo
@@ -330,7 +343,8 @@ export const DouYinVideoFilter = {
 					if (Array.isArray(aweme_list)) {
 						for (let index = 0; index < aweme_list.length; index++) {
 							let awemeItem = aweme_list[index];
-							let awemeInfo = awemeItem["aweme_info"] || {};
+							let awemeInfo: DouYinVideoAwemeInfo =
+								awemeItem["aweme_info"] || {};
 							let awemeMixInfo = awemeItem?.["aweme_mix_info"];
 							if (
 								awemeInfo == null &&
@@ -345,7 +359,8 @@ export const DouYinVideoFilter = {
 										mixIndex < awemeMixInfoItems.length;
 										mixIndex++
 									) {
-										let mixItem = awemeMixInfoItems[mixIndex];
+										let mixItem: DouYinVideoAwemeInfo =
+											awemeMixInfoItems[mixIndex];
 										let filterResult = filterBase.checkAwemeInfoIsFilter(
 											filterOptionList,
 											mixItem
@@ -390,103 +405,41 @@ export const DouYinVideoFilter = {
 			// xhr hook
 			DouYinNetWorkHook.ajaxHooker.hook((request) => {
 				let url = CommonUtil.fixUrl(request.url);
-				let urlInstance = new URL(url);
-				if (urlInstance.pathname.startsWith("/aweme/v1/web/tab/feed")) {
+				let urlInst = new URL(url);
+				if (urlInst.pathname.startsWith("/aweme/v1/web/tab/feed")) {
 					// 推荐
 					xhr_hook_callback_1("xhr-tab", request);
-				} else if (
-					urlInstance.pathname.startsWith("/aweme/v1/web/aweme/post/")
-				) {
+				} else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/post/")) {
 					// 用户主页视频
 					xhr_hook_callback_1("xhr-userHome", request);
-				} else if (
-					urlInstance.pathname.startsWith("/aweme/v1/web/mix/aweme/")
-				) {
+				} else if (urlInst.pathname.startsWith("/aweme/v1/web/mix/aweme/")) {
 					// 混合信息
 					xhr_hook_callback_1("xhr-mix", request);
 				} else if (
-					urlInstance.pathname.startsWith("/aweme/v1/web/aweme/related/")
+					urlInst.pathname.startsWith("/aweme/v1/web/aweme/related/")
 				) {
 					// 相关推荐
 					xhr_hook_callback_1("xhr-related", request);
-				} else if (
-					urlInstance.pathname.startsWith("/aweme/v1/web/follow/feed")
-				) {
+				} else if (urlInst.pathname.startsWith("/aweme/v1/web/follow/feed")) {
 					// 关注
 					xhr_hook_callback_2("xhr-follow", request);
-				} else if (
-					urlInstance.pathname.startsWith("/aweme/v1/web/familiar/feed")
-				) {
+				} else if (urlInst.pathname.startsWith("/aweme/v1/web/familiar/feed")) {
 					// 朋友
 					xhr_hook_callback_2("xhr-familiar", request);
-				} else if (
-					urlInstance.pathname.startsWith("/aweme/v1/web/module/feed")
-				) {
+				} else if (urlInst.pathname.startsWith("/aweme/v1/web/module/feed")) {
 					// 精选
 					// 游戏、二次元、音乐、美食、知识、体育从左侧边栏迁移到了这里面
 					xhr_hook_callback_3("xhr-module", request);
 				} else if (
-					urlInstance.pathname.startsWith(
-						"/aweme/v1/web/general/search/single/"
-					)
+					urlInst.pathname.startsWith("/aweme/v1/web/general/search/single/")
 				) {
 					// 搜索-综合
 					xhr_hook_callback_4("xhr-search", request);
-				} else if (
-					urlInstance.pathname.startsWith("/aweme/v1/web/search/item/")
-				) {
+				} else if (urlInst.pathname.startsWith("/aweme/v1/web/search/item/")) {
 					// 搜索-视频
 					xhr_hook_callback_4("xhr-search", request);
 				}
 			});
-
-			// 搜索页面的api过于乱，采用元素过滤
-			// if (DouYinRouter.isSearch()) {
-			// 	DOMUtils.ready(() => {
-			// 		DouYinElement.watchFeedVideoListChange(($os, observer) => {
-			// 			if (!DouYinRouter.isSearch()) {
-			// 				// 必须是在搜索页面
-			// 				return;
-			// 			}
-			// 			let filterOptionList = getScopeFilterOptionList("dom-search");
-			// 			if (!filterOptionList.length) {
-			// 				return;
-			// 			}
-			// 			let $awemeInfoList = Array.from(
-			// 				$$<HTMLLIElement>(
-			// 					'#search-content-area ul[data-e2e="scroll-list"] li'
-			// 				)
-			// 			);
-			// 			for (let index = 0; index < $awemeInfoList.length; index++) {
-			// 				const $li = $awemeInfoList[index];
-			// 				if ($awemeInfoList.length === 2) {
-			// 					break;
-			// 				}
-			// 				if (!document.contains($li)) {
-			// 					continue;
-			// 				}
-			// 				let reactProps = utils.getReactObj($li)?.reactProps;
-			// 				if (reactProps == null) {
-			// 					log.error("search-result ==> 元素上不存在reactProps属性", $li);
-			// 					continue;
-			// 				}
-			// 				let awemeInfo = reactProps?.children?.props?.data
-			// 					?.awemeInfo as DouYinVideoAwemeInfo;
-			// 				if (awemeInfo == null) {
-			// 					log.error("search-result ==> 元素上不存在awemeInfo属性", $li);
-			// 					continue;
-			// 				}
-			// 				let flag = filterBase.checkAwemeInfoIsFilter(
-			// 					filterOptionList,
-			// 					awemeInfo
-			// 				);
-			// 				if (flag) {
-			// 					filterBase.removeAweme($awemeInfoList, index--);
-			// 				}
-			// 			}
-			// 		});
-			// 	});
-			// }
 		});
 	},
 	/**
@@ -690,7 +643,7 @@ export const DouYinVideoFilter = {
 		let ruleView = new RuleView({
 			title: "视频过滤器",
 			data: () => {
-				return this.getData();
+				return that.$data.videoFilterRuleStorage.getAllRule();
 			},
 			getAddData: () => {
 				return this.getTemplateData();
@@ -699,13 +652,14 @@ export const DouYinVideoFilter = {
 				return data["name"];
 			},
 			updateData: (data) => {
-				return this.updateData(data);
+				return that.$data.videoFilterRuleStorage.setRule(data);
 			},
 			deleteData: (data) => {
-				return this.deleteData(data);
+				return that.$data.videoFilterRuleStorage.deleteRule(data);
 			},
 			getData: (data) => {
-				let allData = this.getData();
+				let allData =
+					DouYinVideoFilter.$data.videoFilterRuleStorage.getAllRule();
 				let findValue = allData.find((item) => item.uuid === data.uuid);
 				return findValue ?? data;
 			},
@@ -717,7 +671,7 @@ export const DouYinVideoFilter = {
 					},
 					callback: (data, enable) => {
 						data.enable = enable;
-						this.updateData(data);
+						that.$data.videoFilterRuleStorage.setRule(data);
 					},
 				},
 				edit: {
@@ -1157,12 +1111,12 @@ export const DouYinVideoFilter = {
 						}
 						if (isEdit) {
 							return {
-								success: this.updateData(data),
+								success: that.$data.videoFilterRuleStorage.setRule(data),
 								data: data,
 							};
 						} else {
 							return {
-								success: this.addData(data),
+								success: that.$data.videoFilterRuleStorage.addRule(data),
 								data: data,
 							};
 						}
@@ -1214,7 +1168,7 @@ export const DouYinVideoFilter = {
 				delete: {
 					enable: true,
 					deleteCallBack: (data) => {
-						return this.deleteData(data);
+						return that.$data.videoFilterRuleStorage.deleteRule(data);
 					},
 				},
 			},
@@ -1239,7 +1193,7 @@ export const DouYinVideoFilter = {
 				clear: {
 					enable: true,
 					callback: () => {
-						this.clearData();
+						that.$data.videoFilterRuleStorage.clearAllRule();
 					},
 				},
 			},
@@ -1270,309 +1224,5 @@ export const DouYinVideoFilter = {
 			},
 			dynamicData: [],
 		};
-	},
-	/**
-	 * 获取数据
-	 */
-	getData() {
-		return GM_getValue<DouYinVideoFilterOption[]>(this.$key.STORAGE_KEY, []);
-	},
-	/**
-	 * 设置数据
-	 * @param data
-	 */
-	setData(data: DouYinVideoFilterOption[]) {
-		GM_setValue(this.$key.STORAGE_KEY, data);
-	},
-	/**
-	 * 添加数据
-	 * @param data
-	 */
-	addData(data: DouYinVideoFilterOption) {
-		let localData = this.getData();
-		let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
-		if (findIndex === -1) {
-			localData.push(data);
-			GM_setValue(this.$key.STORAGE_KEY, localData);
-			return true;
-		} else {
-			return false;
-		}
-	},
-	/**
-	 * 更新数据
-	 * @param data
-	 */
-	updateData(data: DouYinVideoFilterOption) {
-		let localData = this.getData();
-		let index = localData.findIndex((item) => item.uuid == data.uuid);
-		let updateFlag = false;
-		if (index !== -1) {
-			updateFlag = true;
-			localData[index] = data;
-		}
-		this.setData(localData);
-		return updateFlag;
-	},
-	/**
-	 * 删除数据
-	 * @param data
-	 */
-	deleteData(data: DouYinVideoFilterOption) {
-		let localData = this.getData();
-		let index = localData.findIndex((item) => item.uuid == data.uuid);
-		let deleteFlag = false;
-		if (index !== -1) {
-			deleteFlag = true;
-			localData.splice(index, 1);
-		}
-		this.setData(localData);
-		return deleteFlag;
-	},
-	/**
-	 * 清空数据
-	 */
-	clearData() {
-		GM_deleteValue(this.$key.STORAGE_KEY);
-	},
-	/**
-	 * 导出规则
-	 */
-	exportRule(fileName = "rule.json") {
-		let allRule = this.getData();
-		let blob = new Blob([JSON.stringify(allRule, null, 4)]);
-		let blobUrl = window.URL.createObjectURL(blob);
-		let $a = document.createElement("a");
-		$a.href = blobUrl;
-		$a.download = fileName;
-		$a.click();
-		setTimeout(() => {
-			window.URL.revokeObjectURL(blobUrl);
-		}, 1500);
-	},
-	/**
-	 * 导入规则
-	 * @param importEndCallBack 导入完毕后的回调
-	 */
-	importRule(importEndCallBack?: () => void) {
-		let $alert = pops.alert({
-			title: {
-				text: "请选择导入方式",
-				position: "center",
-			},
-			content: {
-				text: /*html*/ `
-                    <div class="btn-control" data-mode="local">本地导入</div>
-                    <div class="btn-control" data-mode="network">网络导入</div>
-                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
-                `,
-				html: true,
-			},
-			btn: {
-				ok: { enable: false },
-				close: {
-					enable: true,
-					callback(details, event) {
-						details.close();
-					},
-				},
-			},
-			mask: { enable: true },
-			drag: true,
-			width: PanelUISize.info.width,
-			height: PanelUISize.info.height,
-			style: /*css*/ `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-            `,
-		});
-		/** 本地导入 */
-		let $local = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='local']"
-		)!;
-		/** 网络导入 */
-		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='network']"
-		)!;
-		/** 剪贴板导入 */
-		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='clipboard']"
-		)!;
-		/**
-		 * 将获取到的规则更新至存储
-		 */
-		let updateRuleToStorage = (data: any[]) => {
-			let allData = this.getData();
-			let addNewData: typeof allData = [];
-			for (let index = 0; index < data.length; index++) {
-				const dataItem = data[index];
-				let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
-				if (findIndex !== -1) {
-					// 存在相同的uuid的规则
-					// 不做处理
-				} else {
-					// 追加
-					addNewData.push(dataItem);
-				}
-			}
-			allData = allData.concat(addNewData);
-			this.setData(allData);
-
-			Qmsg.success(`共 ${data.length} 条规则，新增 ${addNewData.length} 条`);
-			importEndCallBack?.();
-		};
-		/**
-		 * @param subscribeText 订阅文件文本
-		 */
-		let importFile = (subscribeText: string) => {
-			return new Promise<boolean>((resolve) => {
-				let data = utils.toJSON(subscribeText);
-				if (!Array.isArray(data)) {
-					log.error(data);
-					Qmsg.error("导入失败，格式不符合（不是数组）", {
-						consoleLogContent: true,
-					});
-					resolve(false);
-					return;
-				}
-				if (!data.length) {
-					Qmsg.error("导入失败，解析出的数据为空", {
-						consoleLogContent: true,
-					});
-					resolve(false);
-					return;
-				}
-
-				updateRuleToStorage(data);
-				resolve(true);
-			});
-		};
-		// 本地导入
-		DOMUtils.on($local, "click", (event) => {
-			utils.preventEvent(event);
-			$alert.close();
-			let $input = DOMUtils.createElement("input", {
-				type: "file",
-				accept: ".json",
-			});
-			DOMUtils.on($input, ["propertychange", "input"], (event) => {
-				if (!$input.files?.length) {
-					return;
-				}
-				let uploadFile = $input.files![0];
-				let fileReader = new FileReader();
-				fileReader.onload = () => {
-					importFile(fileReader.result as string);
-				};
-				fileReader.readAsText(uploadFile, "UTF-8");
-			});
-			$input.click();
-		});
-		// 网络导入
-		DOMUtils.on($network, "click", (event) => {
-			utils.preventEvent(event);
-			$alert.close();
-			let $prompt = pops.prompt({
-				title: {
-					text: "网络导入",
-					position: "center",
-				},
-				content: {
-					text: "",
-					placeholder: "请填写URL",
-					focus: true,
-				},
-				btn: {
-					close: {
-						enable: true,
-						callback(details, event) {
-							details.close();
-						},
-					},
-					ok: {
-						text: "导入",
-						callback: async (eventDetails, event) => {
-							let url = eventDetails.text;
-							if (utils.isNull(url)) {
-								Qmsg.error("请填入完整的url");
-								return;
-							}
-							let $loading = Qmsg.loading("正在获取配置...");
-							let response = await httpx.get(url, {
-								allowInterceptConfig: false,
-							});
-							$loading.close();
-							if (!response.status) {
-								log.error(response);
-								Qmsg.error("获取配置失败", { consoleLogContent: true });
-								return;
-							}
-							let flag = await importFile(response.data.responseText);
-							if (!flag) {
-								return;
-							}
-							eventDetails.close();
-						},
-					},
-					cancel: {
-						enable: false,
-					},
-				},
-				mask: { enable: true },
-				drag: true,
-				width: PanelUISize.info.width,
-				height: "auto",
-			});
-			let $promptInput =
-				$prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
-			let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(
-				".pops-prompt-btn-ok"
-			)!;
-			DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
-				let value = DOMUtils.val($promptInput);
-				if (value === "") {
-					DOMUtils.attr($promptOk, "disabled", "true");
-				} else {
-					DOMUtils.removeAttr($promptOk, "disabled");
-				}
-			});
-			DOMUtils.listenKeyboard(
-				$promptInput,
-				"keydown",
-				(keyName, keyValue, otherCodeList) => {
-					if (keyName === "Enter" && otherCodeList.length === 0) {
-						let value = DOMUtils.val($promptInput);
-						if (value !== "") {
-							utils.dispatchEvent($promptOk, "click");
-						}
-					}
-				}
-			);
-			utils.dispatchEvent($promptInput, "input");
-		});
-		// 剪贴板导入
-		DOMUtils.on($clipboard, "click", async (event) => {
-			utils.preventEvent(event);
-			$alert.close();
-			let clipboardInfo = await utils.getClipboardInfo();
-			if (clipboardInfo.error != null) {
-				Qmsg.error(clipboardInfo.error.toString());
-				return;
-			}
-			if (clipboardInfo.content.trim() === "") {
-				Qmsg.warning("获取到的剪贴板内容为空");
-				return;
-			}
-			let flag = await importFile(clipboardInfo.content);
-			if (!flag) {
-				return;
-			}
-		});
 	},
 };

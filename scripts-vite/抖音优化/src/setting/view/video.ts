@@ -447,7 +447,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									false,
 									"primary",
 									() => {
-										DouYinVideoFilter.importRule();
+										DouYinVideoFilter.$data.videoFilterRuleStorage.importRules();
 									}
 								),
 								UIButton(
@@ -459,7 +459,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									false,
 									"primary",
 									() => {
-										DouYinVideoFilter.exportRule(
+										DouYinVideoFilter.$data.videoFilterRuleStorage.exportRules(
 											SCRIPT_NAME + "-视频过滤规则.json"
 										);
 									}
