@@ -406,23 +406,42 @@ export class RuleSubscribe<
 		/**
 		 * 将获取到的规则更新至存储
 		 */
-		let updateRuleToStorage = (data: any[]) => {
+		let updateRuleToStorage = async (data: RuleSubscribeOption<T>[]) => {
 			let allData = this.getAllSubscribe();
 			let addNewData: typeof allData = [];
+			let repeatData: {
+				index: number;
+				data: (typeof allData)["0"];
+			}[] = [];
 			for (let index = 0; index < data.length; index++) {
 				const dataItem = data[index];
 				let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
 				if (findIndex !== -1) {
 					// 存在相同的uuid的规则
-					// 不做处理
+					repeatData.push({
+						index: findIndex,
+						data: dataItem,
+					});
 				} else {
 					// 追加
 					addNewData.push(dataItem);
 				}
 			}
+			await new Promise<boolean>((resolve) => {
+				let confirmResult = globalThis.confirm(
+					`存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`
+				);
+				if (confirmResult) {
+					// 覆盖
+					for (const repeatDataItem of repeatData) {
+						allData[repeatDataItem.index] = repeatDataItem.data;
+					}
+				}
+				resolve(true);
+			});
+
 			allData = allData.concat(addNewData);
 			this.storageApi.set(this.option.STORAGE_KEY, allData);
-
 			Qmsg.success(`共 ${data.length} 条订阅，新增 ${addNewData.length} 条`);
 			importEndCallBack?.();
 		};
@@ -430,7 +449,7 @@ export class RuleSubscribe<
 		 * @param subscribeText 订阅文件文本
 		 */
 		let importFile = (subscribeText: string) => {
-			return new Promise<boolean>((resolve) => {
+			return new Promise<boolean>(async (resolve) => {
 				let data = utils.toJSON<RuleSubscribeOption<T>>(subscribeText);
 				if (!Array.isArray(data)) {
 					log.error(data);
@@ -447,7 +466,7 @@ export class RuleSubscribe<
 					resolve(false);
 					return;
 				}
-				let demoFirst = data[0] as RuleSubscribeOption<T>;
+				let demoFirst: RuleSubscribeOption<T> = data[0];
 				if (
 					!(
 						typeof demoFirst.data === "object" &&
@@ -464,7 +483,7 @@ export class RuleSubscribe<
 					return;
 				}
 
-				updateRuleToStorage(data);
+				await updateRuleToStorage(data);
 				resolve(true);
 			});
 		};
