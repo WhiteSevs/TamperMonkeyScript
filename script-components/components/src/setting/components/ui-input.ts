@@ -54,9 +54,9 @@ export const UIInput = function <T extends boolean>(
 			] as PanelComponentsStorageApiValue;
 			return storageApiValue.get<any>(key, defaultValue);
 		},
-		callback(event, value) {
+		callback(event, value, valueAsNumber) {
 			if (typeof changeCallback === "function") {
-				let result = changeCallback(event, value);
+				let result = changeCallback(event, value, valueAsNumber);
 				if (result) {
 					return;
 				}
