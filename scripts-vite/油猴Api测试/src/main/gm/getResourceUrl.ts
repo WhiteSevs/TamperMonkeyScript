@@ -7,6 +7,7 @@ import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/t
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 
 export class ApiTest_getResourceUrl extends ApiAsyncTestBase {
 	public isSupport() {
@@ -74,50 +75,84 @@ export class ApiTest_getResourceUrl extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
 		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					try {
-						let resourceUrl = GM_getResourceURL("ViewerCSS");
-						if (typeof resourceUrl === "string") {
-							if (resourceUrl.trim().startsWith("data:text/css;base64")) {
+			[
+				{
+					name: apiName,
+					fn: async (...args: any[]) => {
+						return new Promise<string>((resolve) => {
+							let fnResult = Reflect.apply(GM_getResourceURL, this, args);
+							resolve(fnResult);
+						});
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					fn: GM.getResourceUrl,
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				let apiNameTag = data.name.replace(".", "__async__");
+				data.formList.push(
+					UIInfo(async () => {
+						try {
+							let resourceBase64Data = await data.fn("ViewerCSS");
+							if (typeof resourceBase64Data !== "string") {
 								return {
 									text: CommonUtil.escapeHtml(
-										"支持通过@resource引用资源并进行base64编码"
+										`${data.name} return is not string`
 									),
-									tag: "success",
+									tag: "error",
 								};
 							}
+							resourceBase64Data = resourceBase64Data.trim();
+							if (resourceBase64Data.startsWith("data:text/css;base64")) {
+								if (
+									resourceBase64Data.startsWith(
+										"data:text/css;base64,LyohCiAqIFZpZXdlci5qcyB2MS4xMS43CiAqIGh0dHBzOi8vZmVuZ3"
+									)
+								) {
+									return {
+										text: CommonUtil.escapeHtml(
+											"支持通过@resource引用资源并进行base64编码"
+										),
+										tag: "success",
+									};
+								} else {
+									return {
+										text: CommonUtil.escapeHtml(
+											"支持通过@resource引用资源并进行base64编码，但是base64编码的实现方式不同"
+										),
+										tag: "warn",
+									};
+								}
+							} else {
+								return {
+									text: CommonUtil.escapeHtml(
+										"支持通过@resource引用资源，但是未对资源进行base64编码"
+									),
+									tag: "warn",
+								};
+							}
+						} catch (error) {
+							console.error(error);
 							return {
-								text: CommonUtil.escapeHtml(
-									"支持通过@resource引用资源，但是未对资源进行base64编码"
-								),
-								tag: "warn",
-							};
-						} else {
-							return {
-								text: CommonUtil.escapeHtml(
-									"GM_getResourceURL return is not string"
-								),
+								text: "执行错误 " + error,
 								tag: "error",
 							};
+						} finally {
 						}
-						return {
-							text: CommonUtil.escapeHtml("TODO"),
-							tag: "info",
-						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				})
-			);
+					})
+				);
+			});
 		}
 		return result;
 	}

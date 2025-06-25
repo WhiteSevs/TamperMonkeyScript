@@ -10,6 +10,7 @@ import { DOMUtils, setTimeoutLog, utils } from "@/env";
 import Qmsg from "qmsg";
 import { TagUtil } from "@/setting/tag";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 
 export class ApiTest_getTab extends ApiAsyncTestBase {
 	public isSupport() {
@@ -77,12 +78,37 @@ export class ApiTest_getTab extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
 		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				(() => {
-					return UIInfo(() => {
+			[
+				{
+					name: apiName,
+					fn: async () => {
+						return new Promise<any>((resolve) => {
+							GM_getTab((...args: any[]) => {
+								// @ts-ignore
+								resolve(...args);
+							});
+						});
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					fn: GM.getTab,
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				let apiNameTag = data.name.replace(".", "__async__");
+
+				data.formList.push(
+					UIInfo(() => {
 						return {
 							text: "测试获取当前Tab",
 							description: "",
@@ -103,55 +129,58 @@ export class ApiTest_getTab extends ApiAsyncTestBase {
 								DOMUtils.after(container.$leftContainer, $button);
 								// 点击事件
 								let timeId: number;
-								DOMUtils.on($button, "click", (event) => {
+								DOMUtils.on($button, "click", async (event) => {
 									utils.preventEvent(event);
-									DOMUtils.text(container.$leftDesc, this.text);
-									DOMUtils.show(container.$leftDesc, false);
 									try {
 										clearTimeout(timeId);
-										Qmsg.info("等待3s内触发回调函数");
+										TagUtil.setTag(
+											container.$leftText,
+											"error",
+											"等待3s内触发回调函数"
+										);
 										timeId = setTimeoutLog(() => {
 											TagUtil.setTag(
 												container.$leftText,
 												"error",
-												"不支持触发回调函数"
+												"超时，不支持触发回调函数"
 											);
 										}, 3000);
-										GM_getTab((tab) => {
-											clearTimeout(timeId);
-											if (typeof tab === "object" && tab != null) {
-												TagUtil.setTagList(container.$leftText, [
-													{
-														tag: "success",
-														text: "支持触发回调函数",
-													},
-													{
-														tag: "success",
-														text: "入参tab为object类型",
-													},
-												]);
-											} else {
-												TagUtil.setTagList(container.$leftText, [
-													{
-														tag: "success",
-														text: "支持触发回调函数",
-													},
-													{
-														tag: "error",
-														text: "入参tab不为object类型",
-													},
-												]);
-											}
-										});
+										let tab = await data.fn();
+										clearTimeout(timeId);
+										console.log(data.name + " callback tab", tab);
+										if (typeof tab === "object" && tab != null) {
+											TagUtil.setTagList(container.$leftText, [
+												{
+													tag: "success",
+													text: "支持触发回调函数",
+												},
+												{
+													tag: "success",
+													text: "入参tab为object类型",
+												},
+											]);
+										} else {
+											TagUtil.setTagList(container.$leftText, [
+												{
+													tag: "success",
+													text: "支持触发回调函数",
+												},
+												{
+													tag: "error",
+													text: "入参tab不为object类型",
+												},
+											]);
+										}
+										alert(JSON.stringify(tab));
 									} catch (error: any) {
 										Qmsg.error(error.toString(), { consoleLogContent: true });
 									}
 								});
 							},
 						};
-					});
-				})()
-			);
+					})
+				);
+			});
 		}
 		return result;
 	}

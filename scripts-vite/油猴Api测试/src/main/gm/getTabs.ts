@@ -7,6 +7,10 @@ import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/t
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import Qmsg from "qmsg";
+import { DOMUtils, setTimeoutLog, utils } from "@/env";
+import { TagUtil } from "@/setting/tag";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 
 export class ApiTest_getTabs extends ApiAsyncTestBase {
 	public isSupport() {
@@ -74,26 +78,71 @@ export class ApiTest_getTabs extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
 		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					try {
+			[
+				{
+					name: apiName,
+					fn: async () => {
+						return new Promise<any>((resolve) => {
+							GM_getTabs((...args: any[]) => {
+								// @ts-ignore
+								resolve(...args);
+							});
+						});
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					fn: GM.getTabs,
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				let apiNameTag = data.name.replace(".", "__async__");
+
+				data.formList.push(
+					UIInfo(() => {
 						return {
-							text: CommonUtil.escapeHtml("TODO"),
+							text: "测试获取所有Tab",
+							description: "",
 							tag: "info",
+							afterRender(container) {
+								let $button = DOMUtils.parseHTML(
+									/*html*/ `
+								<div class="pops-panel-button pops-panel-button-no-icon">
+									<button class="pops-panel-button_inner" type="default">
+										<i class="pops-bottom-icon" is-loading="false"></i>
+										<span class="pops-panel-button-text">点击测试</span>
+									</button>
+								</div>
+								`,
+									false,
+									false
+								);
+								DOMUtils.after(container.$leftContainer, $button);
+								// 点击事件
+								DOMUtils.on($button, "click", async (event) => {
+									try {
+										utils.preventEvent(event);
+										let tabs = await data.fn();
+										console.log(data.name + " callback tabs", tabs);
+										alert(JSON.stringify(tabs));
+									} catch (error: any) {
+										Qmsg.error(error.toString(), { consoleLogContent: true });
+									}
+								});
+							},
 						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-					}
-				})
-			);
+					})
+				);
+			});
 		}
 		return result;
 	}

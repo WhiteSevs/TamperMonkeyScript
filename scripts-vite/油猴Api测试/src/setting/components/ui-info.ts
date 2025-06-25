@@ -1,4 +1,4 @@
-import { DOMUtils } from "@/env";
+import { DOMUtils, utils } from "@/env";
 import type { PopsPanelOwnDetails } from "@whitesev/pops/dist/types/src/components/panel/ownType";
 import { Tag, TagUtil, type TagName } from "../tag";
 import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
@@ -12,6 +12,7 @@ export type UIInfoResultConfig = {
 	tag?: TagName;
 	/** 渲染到页面中时触发回调 */
 	afterRender?: (
+		this: UIInfoResultConfig,
 		container: PopsPanelRightAsideContainerOptions & {
 			$leftContainer: HTMLElement;
 			$leftText: HTMLElement;
@@ -20,49 +21,49 @@ export type UIInfoResultConfig = {
 	) => void;
 };
 export const UIInfo = (
-	config: () => UIInfoResultConfig
+	config: () => UIInfoResultConfig | Promise<UIInfoResultConfig>
 ): PopsPanelOwnDetails => {
 	let result: PopsPanelOwnDetails = {
 		type: "own",
-		getLiElementCallBack(liElement) {
-			let detail = config();
+		getLiElementCallBack($li) {
 			let $item = DOMUtils.createElement("div", {
 				className: "pops-panel-item-left-text",
 				innerHTML: /*html*/ `
-					<p class="pops-panel-item-left-main-text">${
-						detail.tag == null ? detail.text : Tag[detail.tag] + detail.text
-					}</p>
-					<p class="pops-panel-item-left-desc-text" style="${
-						detail.description == null || detail.description === ""
-							? "display: none;"
-							: ""
-					}">${detail.description || ""}</p>
+					<p class="pops-panel-item-left-main-text"></p>
+					<p class="pops-panel-item-left-desc-text"></p>
 				`,
 			});
-			let $leftText = $item.querySelector<HTMLElement>(
+			$li.appendChild($item);
+			return $li;
+		},
+		async afterAddToUListCallBack(formConfig, container) {
+			let $target = container.target!;
+			let $leftContainer = $target.querySelector<HTMLElement>(
+				".pops-panel-item-left-text"
+			)!;
+			let $text = $target.querySelector<HTMLElement>(
 				".pops-panel-item-left-main-text"
 			)!;
+			let $desc = $target.querySelector<HTMLElement>(
+				".pops-panel-item-left-desc-text"
+			)!;
+			let detail = await config();
+			if (detail.tag == null) {
+				DOMUtils.html($text, detail.text);
+			} else {
+				DOMUtils.html($text, Tag[detail.tag] + detail.text);
+			}
+			if (detail.description == null || detail.description === "") {
+				DOMUtils.hide($desc, false);
+			}
+			DOMUtils.html($desc, detail.description || "");
 			let classNameList = ["support-info"];
 			if (detail.tag != null) {
 				classNameList.push(detail.tag);
 			}
-			DOMUtils.addClass($leftText, classNameList);
-			liElement.appendChild($item);
-			return liElement;
-		},
-		afterAddToUListCallBack(formConfig, container) {
-			let detail = config();
+			DOMUtils.addClass($text, classNameList);
+
 			if (typeof detail.afterRender === "function") {
-				let $target = container.target!;
-				let $leftContainer = $target.querySelector<HTMLElement>(
-					".pops-panel-item-left-text"
-				)!;
-				let $text = $target.querySelector<HTMLElement>(
-					".pops-panel-item-left-main-text"
-				)!;
-				let $desc = $target.querySelector<HTMLElement>(
-					".pops-panel-item-left-desc-text"
-				)!;
 				try {
 					detail.afterRender({
 						...container,

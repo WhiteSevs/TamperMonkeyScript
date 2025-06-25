@@ -8,6 +8,7 @@ import { DOMUtils } from "@/env";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
 
 export class ApiTest_addStyle extends ApiAsyncTestBase {
 	public isSupport() {
@@ -73,54 +74,84 @@ export class ApiTest_addStyle extends ApiAsyncTestBase {
 					text: "功能测试",
 					forms: [],
 				},
+				{
+					type: "forms",
+					text: "功能测试（异步）",
+					forms: [],
+				},
 			],
 		};
 		if (this.isSupport()) {
-			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
-				UIInfo(() => {
-					let $test: null | HTMLElement = null;
-					let $testCSS: HTMLStyleElement | null = null;
-					try {
-						$test = DOMUtils.createElement("div", {
-							id: apiName,
-							innerText: apiName + " test",
+			[
+				{
+					name: apiName,
+					fn: async (...args: any[]) => {
+						return new Promise<HTMLStyleElement>((resolve) => {
+							let fnResult = Reflect.apply(GM_addStyle, this, args);
+							resolve(fnResult);
 						});
-						document.body.appendChild($test);
-						$testCSS = GM_addStyle(/*css*/ `
-                            #${apiName} {
-                                background-color: rgb(255, 0, 0);
-                            }
-                        `);
-						if ($testCSS == null) {
+					},
+					formList: (<PopsPanelFormsDetails>result["forms"][1]).forms,
+				},
+				{
+					name: apiAsyncInfo.name,
+					fn: GM.addStyle,
+					formList: (<PopsPanelFormsDetails>result["forms"][2]).forms,
+				},
+			].forEach((data) => {
+				let apiNameTag = data.name.replace(".", "__async__");
+
+				data.formList.push(
+					UIInfo(async () => {
+						let $test: null | HTMLElement = null;
+						let $testCSS: HTMLStyleElement | null = null;
+						try {
+							$test = DOMUtils.createElement("div", {
+								id: apiNameTag,
+								innerText: apiNameTag + " test",
+							});
+							document.body.appendChild($test);
+							$testCSS = await data.fn(/*css*/ `
+							#${apiNameTag} {
+								background-color: rgb(255, 0, 0);
+							}
+						`);
+							if ($testCSS == null) {
+								return {
+									text: `${data.name} returns is null`,
+									tag: "error",
+								};
+							}
+							if (!($testCSS instanceof HTMLStyleElement)) {
+								return {
+									text: `${data.name} returns is not HTMLStyleElement`,
+									tag: "error",
+								};
+							}
+							const computedStyle = window.getComputedStyle($test);
+							if (computedStyle.backgroundColor !== "rgb(255, 0, 0)") {
+								return {
+									text: `${data.name} test element background is not rgb(255, 0, 0)`,
+									tag: "error",
+								};
+							}
 							return {
-								text: apiName + " returns is null",
+								text: CommonUtil.escapeHtml("支持添加CSS字符串并返回元素对象"),
+								tag: "success",
+							};
+						} catch (error) {
+							console.error(error);
+							return {
+								text: "执行错误 " + error,
 								tag: "error",
 							};
+						} finally {
+							$test?.remove();
+							$testCSS?.remove();
 						}
-						const computedStyle = window.getComputedStyle($test);
-						if (computedStyle.backgroundColor !== "rgb(255, 0, 0)") {
-							return {
-								text:
-									apiName + " test element background is not rgb(255, 0, 0)",
-								tag: "error",
-							};
-						}
-						return {
-							text: CommonUtil.escapeHtml("支持添加CSS字符串并返回元素对象"),
-							tag: "success",
-						};
-					} catch (error) {
-						console.error(error);
-						return {
-							text: "执行错误 " + error,
-							tag: "error",
-						};
-					} finally {
-						$test?.remove();
-						$testCSS?.remove();
-					}
-				})
-			);
+					})
+				);
+			});
 		}
 		return result;
 	}
