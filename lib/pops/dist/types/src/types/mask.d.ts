@@ -1,3 +1,11 @@
+import type { PopsAlertDetails } from "../components/alert/indexType";
+import type { PopsDrawerDetails } from "../components/drawer/indexType";
+import type { PopsFolderDetails } from "../components/folder/indexType";
+import type { PopsIframeDetails } from "../components/iframe/indexType";
+import type { PopsLoadingDetails } from "../components/loading/indexType";
+import type { PopsPanelDetails } from "../components/panel/indexType";
+import type { PopsPromptDetails } from "../components/prompt/indexType";
+
 /**
  * 遮罩层配置
  */

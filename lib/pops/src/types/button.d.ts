@@ -1,5 +1,6 @@
 import { PopsEventDetails, PopsHandlerEventDetails } from "./event";
 import type { PopsIconType } from "./icon";
+import type { PopsMode } from "./main";
 
 /**
  * 按钮类型
@@ -105,7 +106,7 @@ export interface PopsButtonDetails<T = {}> {
 	text: string;
 	/**
 	 * 按钮点击的回调
-	 * 
+	 *
 	 * 如果传入该值，那么将不会自动关闭弹窗
 	 */
 	callback(
@@ -151,7 +152,7 @@ export interface PopsButtonDetailsAnyType<T = {}> {
 	text: string;
 	/**
 	 * 按钮点击的回调
-	 * 
+	 *
 	 * 如果传入该值，那么将不会自动关闭弹窗
 	 */
 	callback(

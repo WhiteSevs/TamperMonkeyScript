@@ -213,7 +213,7 @@ export declare interface PopsDOMUtilsEventListenerOptionsAttribute {
 	/**
 	 * 属性配置
 	 */
-	option: DOMUtilsEventListenerOption;
+	option: PopsDOMUtilsEventListenerOption;
 	/**
 	 * 用户添加的事件
 	 */

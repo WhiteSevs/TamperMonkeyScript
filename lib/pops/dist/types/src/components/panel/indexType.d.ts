@@ -13,6 +13,20 @@ import { PopsPanelSelectMultipleDetails } from "./selectMultipleType";
 /** panel的各种类型的配置项 */
 export type PopsPanelFormsTotalDetails = PopsPanelSwitchDetails | PopsPanelSliderDetails | PopsPanelInputDetails | PopsPanelTextAreaDetails | PopsPanelSelectDetails<any> | PopsPanelSelectMultipleDetails<any> | PopsPanelButtonDetails | PopsPanelDeepMenuDetails | PopsPanelOwnDetails;
 /**
+ * panel的内部事件
+ */
+export type PopsPanelEventType = {
+    /**
+     * 该事件在右侧容器内的元素改变时触发
+     */
+    "pops:renderRightContainer": {
+        /**
+         * 菜单配置
+         */
+        formConfig: PopsPanelContentConfig[] | PopsPanelDeepMenuDetails;
+    };
+};
+/**
  * pops.panel的content配置信息
  */
 export interface PopsPanelContentConfig {

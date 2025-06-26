@@ -7,16 +7,13 @@
 		// 允许 JavaScript 文件成为程序的一部分。使用checkJS从这些文件中获取错误的选项。
 		"allowJs": true,
 		// 在经过类型检查的 JavaScript 文件中启用错误报告。
-		"checkJs": false,
+		"checkJs": true,
 		// 当模块没有默认导出时允许“从 y 导入 x”。
 		"allowSyntheticDefaultImports": true,
 		// 指定生成什么模块代码。
-		"module": "ESNext",
+		"module": "esnext",
 		// 指定 TypeScript 如何从给定的模块说明符查找文件。
-		"moduleResolution": "Node",
-		// "module": "AMD",
-		// "moduleResolution": "Bundler",
-		// "resolveJsonModule": true,
+		"moduleResolution": "bundler",
 		// 启用严格模式
 		"strict": true,
 		// 当类型检查时，考虑null and undefined.
@@ -24,9 +21,9 @@
 		// 发出额外的 JavaScript 以简化对导入 CommonJS 模块的支持。这使得allowSyntheticDefaultImports为了类型兼容性
 		"esModuleInterop": true,
 		// 跳过默认库检查
-		"skipDefaultLibCheck": true,
+		"skipDefaultLibCheck": false,
 		// 跳过库检查
-		"skipLibCheck": true,
+		"skipLibCheck": false,
 		// 输出目录
 		"outDir": "./dist",
 		// 输出.d.ts声明文件

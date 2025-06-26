@@ -3,7 +3,7 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import type { PopsPanelDetails } from "./indexType";
+import type { PopsPanelDetails, PopsPanelEventType } from "./indexType";
 import { PopsPanelConfig } from "./config";
 import { PanelHandleContentDetails } from "./PanelHandleContentDetails";
 import { GlobalConfig } from "../../GlobalConfig";
@@ -142,6 +142,7 @@ export const PopsPanel = {
 		panelHandleContentDetails.init({
 			config: config,
 			$el: {
+				$pops: $pops,
 				$content: $content,
 				$contentAside: $contentAside,
 				$contentSectionContainer: $contentSectionContainer,
@@ -167,6 +168,23 @@ export const PopsPanel = {
 			});
 		}
 		let result = PopsHandler.handleResultDetails(eventDetails);
-		return result;
+
+		return {
+			...result,
+			addEventListener: <K extends keyof PopsPanelEventType>(
+				event: K,
+				listener: (evt: CustomEvent<PopsPanelEventType[K]>) => void,
+				options?: boolean | EventListenerOptions
+			) => {
+				$pops.addEventListener(event, listener as any, options);
+			},
+			removeEventListener: <K extends keyof PopsPanelEventType>(
+				event: K,
+				listener: (evt: CustomEvent<PopsPanelEventType[K]>) => void,
+				options?: boolean | EventListenerOptions
+			) => {
+				$pops.removeEventListener(event, listener as any, options);
+			},
+		};
 	},
 };

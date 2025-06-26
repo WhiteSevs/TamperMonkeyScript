@@ -26,6 +26,22 @@ export type PopsPanelFormsTotalDetails =
 	| PopsPanelButtonDetails
 	| PopsPanelDeepMenuDetails
 	| PopsPanelOwnDetails;
+
+/**
+ * panel的内部事件
+ */
+export type PopsPanelEventType = {
+	/**
+	 * 该事件在右侧容器内的元素改变时触发
+	 */
+	"pops:renderRightContainer": {
+		/**
+		 * 菜单配置
+		 */
+		formConfig: PopsPanelContentConfig[] | PopsPanelDeepMenuDetails;
+	};
+};
+
 /**
  * pops.panel的content配置信息
  */

@@ -212,16 +212,18 @@ declare class Pops {
             sectionContainerHeaderULElement: HTMLUListElement;
             sectionContainerULElement: HTMLUListElement;
             $el: {
-                $content: HTMLDivElement;
-                $contentAside: HTMLDivElement;
-                $contentSectionContainer: HTMLDivElement;
+                $pops: HTMLElement;
+                $content: HTMLElement;
+                $contentAside: HTMLElement;
+                $contentSectionContainer: HTMLElement;
             };
             init(details: {
                 config: Required<PopsPanelDetails>;
                 $el: {
-                    $content: HTMLDivElement;
-                    $contentAside: HTMLDivElement;
-                    $contentSectionContainer: HTMLDivElement;
+                    $pops: HTMLElement;
+                    $content: HTMLElement;
+                    $contentAside: HTMLElement;
+                    $contentSectionContainer: HTMLElement;
                 };
             }): void;
             clearContainer(): void;
@@ -243,6 +245,7 @@ declare class Pops {
             createSectionContainerItem_own(formConfig: import("./components/panel/ownType").PopsPanelOwnDetails): HTMLLIElement;
             createSectionContainerItem(formConfig: import("./components/panel/indexType").PopsPanelFormsTotalDetails): HTMLLIElement | undefined;
             createSectionContainerItem_forms(formConfig: import("./components/panel/indexType").PopsPanelContentConfig | import("./components/panel/formsType").PopsPanelFormsDetails): void;
+            triggerRenderRightContainer($container: HTMLElement): void;
             uListContainerAddItem(formConfig: import("./components/panel/indexType").PopsPanelFormsTotalDetails, containerOptions: Omit<import("./components/panel/commonType").PopsPanelRightAsideContainerOptions, "target">): void;
             setAsideItemClickEvent(asideLiElement: HTMLElement, asideConfig: import("./components/panel/indexType").PopsPanelContentConfig): void;
         };
@@ -381,7 +384,21 @@ declare class Pops {
      * 配置面板
      * @param details 配置
      */
-    panel: (details: PopsPanelDetails) => Omit<import("./types/event").PopsEventDetails, "function" | "type">;
+    panel: (details: PopsPanelDetails) => {
+        addEventListener: <K extends keyof import("./components/panel/indexType").PopsPanelEventType>(event: K, listener: (evt: CustomEvent<import("./components/panel/indexType").PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;
+        removeEventListener: <K extends keyof import("./components/panel/indexType").PopsPanelEventType>(event: K, listener: (evt: CustomEvent<import("./components/panel/indexType").PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;
+        close: () => Promise<void>;
+        hide: () => Promise<void>;
+        show: () => Promise<void>;
+        guid: string;
+        $shadowContainer: HTMLDivElement;
+        $shadowRoot: ShadowRoot | HTMLElement;
+        element: HTMLDivElement;
+        animElement: HTMLDivElement;
+        popsElement: HTMLDivElement;
+        maskElement?: HTMLDivElement | undefined;
+        mode: import("./types/main").PopsMode;
+    };
     /**
      * 右键菜单
      * @param details 配置

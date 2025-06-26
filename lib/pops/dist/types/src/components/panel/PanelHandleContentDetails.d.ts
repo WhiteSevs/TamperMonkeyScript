@@ -27,12 +27,14 @@ export declare const PanelHandleContentDetails: () => {
      * 元素
      */
     $el: {
+        /** pops主元素 */
+        $pops: HTMLElement;
         /** 内容 */
-        $content: HTMLDivElement;
+        $content: HTMLElement;
         /** 左侧容器 */
-        $contentAside: HTMLDivElement;
+        $contentAside: HTMLElement;
         /** 右侧容器 */
-        $contentSectionContainer: HTMLDivElement;
+        $contentSectionContainer: HTMLElement;
     };
     /**
      * 初始化
@@ -41,9 +43,10 @@ export declare const PanelHandleContentDetails: () => {
     init(details: {
         config: Required<PopsPanelDetails>;
         $el: {
-            $content: HTMLDivElement;
-            $contentAside: HTMLDivElement;
-            $contentSectionContainer: HTMLDivElement;
+            $pops: HTMLElement;
+            $content: HTMLElement;
+            $contentAside: HTMLElement;
+            $contentSectionContainer: HTMLElement;
         };
     }): void;
     /**
@@ -83,61 +86,62 @@ export declare const PanelHandleContentDetails: () => {
      */
     createAsideItem(asideConfig: PopsPanelContentConfig): HTMLLIElement;
     /**
-     * 创建中间容器的元素<li>
      * type ==> switch
+     * 创建中间容器的元素<li>
      * @param formConfig
      */
     createSectionContainerItem_switch(formConfig: PopsPanelSwitchDetails): HTMLLIElement;
     /**
-     * 获取中间容器的元素<li>
      * type ==> slider
+     * 获取中间容器的元素<li>
      * @param formConfig
      */
     createSectionContainerItem_slider(formConfig: PopsPanelSliderDetails): HTMLLIElement;
     /**
-     * 获取中间容器的元素<li>
      * type ==> slider
+     * 获取中间容器的元素<li>
      * @param formConfig
      */
     createSectionContainerItem_slider_new(formConfig: PopsPanelSliderDetails): HTMLLIElement;
     /**
-     * 获取中间容器的元素<li>
      * type ==> input
+     * 获取中间容器的元素<li>
      * @param formConfig
      */
     createSectionContainerItem_input(formConfig: PopsPanelInputDetails): HTMLLIElement;
     /**
-     * 获取中间容器的元素<li>
      * type ==> textarea
+     * 获取中间容器的元素<li>
      * @param formConfig
      */
     createSectionContainerItem_textarea(formConfig: PopsPanelTextAreaDetails): HTMLLIElement;
     /**
-     * 获取中间容器的元素<li>
      * type ==> select
+     * 获取中间容器的元素<li>
      * @param formConfig
      */
     createSectionContainerItem_select(formConfig: PopsPanelSelectDetails<any>): HTMLLIElement;
     /**
-     * 获取中间容器的元素<li>
      * type ==> select-multiple
+     * 获取中间容器的元素<li>
      * @param formConfig
      */
     createSectionContainerItem_select_multiple_new(formConfig: PopsPanelSelectMultipleDetails<any>): HTMLLIElement;
     /**
-     * 获取中间容器的元素<li>
      * type ==> button
+     * 获取中间容器的元素<li>
      * @param formConfig
      */
     createSectionContainerItem_button(formConfig: PopsPanelButtonDetails): HTMLLIElement;
     /**
+     * type ==> deepMenu
      * 获取深层容器的元素<li>
      * @param formConfig
      */
     createSectionContainerItem_deepMenu(formConfig: PopsPanelDeepMenuDetails): HTMLLIElement;
     /**
-     * 获取中间容器的元素<li>
      * type ===> own
+     * 获取中间容器的元素<li>
      * @param formConfig
      */
     createSectionContainerItem_own(formConfig: PopsPanelOwnDetails): HTMLLIElement;
@@ -152,6 +156,10 @@ export declare const PanelHandleContentDetails: () => {
      * @param formConfig
      */
     createSectionContainerItem_forms(formConfig: PopsPanelContentConfig | PopsPanelFormsDetails): void;
+    /**
+     * 触发触发渲染右侧容器的事件
+     */
+    triggerRenderRightContainer($container: HTMLElement): void;
     /**
      *
      * @param formConfig
