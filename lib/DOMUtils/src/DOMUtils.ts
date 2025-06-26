@@ -12,7 +12,7 @@ class DOMUtils extends DOMUtilsEvent {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2025.6.7";
+	version = "2025.6.26";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
