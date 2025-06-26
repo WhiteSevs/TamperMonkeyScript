@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.25
+// @version      2025.6.27
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -319,23 +319,23 @@
   const LAST_NUMBER_WEAK_MAP$3 = /* @__PURE__ */ new WeakMap();
   const cache$3 = createCache$3(LAST_NUMBER_WEAK_MAP$3);
   const generateUniqueNumber$3 = createGenerateUniqueNumber$3(cache$3, LAST_NUMBER_WEAK_MAP$3);
-  const isMessagePort$2 = (sender) => {
+  const isMessagePort$3 = (sender) => {
     return typeof sender.start === "function";
   };
-  const PORT_MAP$2 = /* @__PURE__ */ new WeakMap();
-  const extendBrokerImplementation$2 = (partialBrokerImplementation) => ({
+  const PORT_MAP$3 = /* @__PURE__ */ new WeakMap();
+  const extendBrokerImplementation$3 = (partialBrokerImplementation) => ({
     ...partialBrokerImplementation,
     connect: ({ call }) => {
       return async () => {
         const { port1, port2 } = new MessageChannel();
         const portId = await call("connect", { port: port1 }, [port1]);
-        PORT_MAP$2.set(port2, portId);
+        PORT_MAP$3.set(port2, portId);
         return port2;
       };
     },
     disconnect: ({ call }) => {
       return async (port) => {
-        const portId = PORT_MAP$2.get(port);
+        const portId = PORT_MAP$3.get(port);
         if (portId === void 0) {
           throw new Error("The given port is not connected.");
         }
@@ -346,19 +346,19 @@
       return () => call("isSupported");
     }
   });
-  const ONGOING_REQUESTS$2 = /* @__PURE__ */ new WeakMap();
-  const createOrGetOngoingRequests$2 = (sender) => {
-    if (ONGOING_REQUESTS$2.has(sender)) {
-      return ONGOING_REQUESTS$2.get(sender);
+  const ONGOING_REQUESTS$3 = /* @__PURE__ */ new WeakMap();
+  const createOrGetOngoingRequests$3 = (sender) => {
+    if (ONGOING_REQUESTS$3.has(sender)) {
+      return ONGOING_REQUESTS$3.get(sender);
     }
     const ongoingRequests = /* @__PURE__ */ new Map();
-    ONGOING_REQUESTS$2.set(sender, ongoingRequests);
+    ONGOING_REQUESTS$3.set(sender, ongoingRequests);
     return ongoingRequests;
   };
-  const createBroker$2 = (brokerImplementation) => {
-    const fullBrokerImplementation = extendBrokerImplementation$2(brokerImplementation);
+  const createBroker$3 = (brokerImplementation) => {
+    const fullBrokerImplementation = extendBrokerImplementation$3(brokerImplementation);
     return (sender) => {
-      const ongoingRequests = createOrGetOngoingRequests$2(sender);
+      const ongoingRequests = createOrGetOngoingRequests$3(sender);
       sender.addEventListener("message", ({ data: message }) => {
         const { id } = message;
         if (id !== null && ongoingRequests.has(id)) {
@@ -371,7 +371,7 @@
           }
         }
       });
-      if (isMessagePort$2(sender)) {
+      if (isMessagePort$3(sender)) {
         sender.start();
       }
       const call = (method, params = null, transferables = []) => {
@@ -395,25 +395,25 @@
       return { ...functions };
     };
   };
-  const scheduledIntervalsState$2 = /* @__PURE__ */ new Map([[0, null]]);
-  const scheduledTimeoutsState$2 = /* @__PURE__ */ new Map([[0, null]]);
-  const wrap$2 = createBroker$2({
+  const scheduledIntervalsState$3 = /* @__PURE__ */ new Map([[0, null]]);
+  const scheduledTimeoutsState$3 = /* @__PURE__ */ new Map([[0, null]]);
+  const wrap$3 = createBroker$3({
     clearInterval: ({ call }) => {
       return (timerId) => {
-        if (typeof scheduledIntervalsState$2.get(timerId) === "symbol") {
-          scheduledIntervalsState$2.set(timerId, null);
+        if (typeof scheduledIntervalsState$3.get(timerId) === "symbol") {
+          scheduledIntervalsState$3.set(timerId, null);
           call("clear", { timerId, timerType: "interval" }).then(() => {
-            scheduledIntervalsState$2.delete(timerId);
+            scheduledIntervalsState$3.delete(timerId);
           });
         }
       };
     },
     clearTimeout: ({ call }) => {
       return (timerId) => {
-        if (typeof scheduledTimeoutsState$2.get(timerId) === "symbol") {
-          scheduledTimeoutsState$2.set(timerId, null);
+        if (typeof scheduledTimeoutsState$3.get(timerId) === "symbol") {
+          scheduledTimeoutsState$3.set(timerId, null);
           call("clear", { timerId, timerType: "timeout" }).then(() => {
-            scheduledTimeoutsState$2.delete(timerId);
+            scheduledTimeoutsState$3.delete(timerId);
           });
         }
       };
@@ -421,21 +421,21 @@
     setInterval: ({ call }) => {
       return (func, delay = 0, ...args) => {
         const symbol = Symbol();
-        const timerId = generateUniqueNumber$3(scheduledIntervalsState$2);
-        scheduledIntervalsState$2.set(timerId, symbol);
+        const timerId = generateUniqueNumber$3(scheduledIntervalsState$3);
+        scheduledIntervalsState$3.set(timerId, symbol);
         const schedule = () => call("set", {
           delay,
           now: performance.timeOrigin + performance.now(),
           timerId,
           timerType: "interval"
         }).then(() => {
-          const state = scheduledIntervalsState$2.get(timerId);
+          const state = scheduledIntervalsState$3.get(timerId);
           if (state === void 0) {
             throw new Error("The timer is in an undefined state.");
           }
           if (state === symbol) {
             func(...args);
-            if (scheduledIntervalsState$2.get(timerId) === symbol) {
+            if (scheduledIntervalsState$3.get(timerId) === symbol) {
               schedule();
             }
           }
@@ -447,20 +447,20 @@
     setTimeout: ({ call }) => {
       return (func, delay = 0, ...args) => {
         const symbol = Symbol();
-        const timerId = generateUniqueNumber$3(scheduledTimeoutsState$2);
-        scheduledTimeoutsState$2.set(timerId, symbol);
+        const timerId = generateUniqueNumber$3(scheduledTimeoutsState$3);
+        scheduledTimeoutsState$3.set(timerId, symbol);
         call("set", {
           delay,
           now: performance.timeOrigin + performance.now(),
           timerId,
           timerType: "timeout"
         }).then(() => {
-          const state = scheduledTimeoutsState$2.get(timerId);
+          const state = scheduledTimeoutsState$3.get(timerId);
           if (state === void 0) {
             throw new Error("The timer is in an undefined state.");
           }
           if (state === symbol) {
-            scheduledTimeoutsState$2.delete(timerId);
+            scheduledTimeoutsState$3.delete(timerId);
             func(...args);
           }
         });
@@ -470,7 +470,7 @@
   });
   const load$3 = (url) => {
     const worker2 = new Worker(url);
-    return wrap$2(worker2);
+    return wrap$3(worker2);
   };
   const createLoadOrReturnBroker$3 = (loadBroker, worker2) => {
     let broker = null;
@@ -1386,142 +1386,158 @@
   const LAST_NUMBER_WEAK_MAP$2 = /* @__PURE__ */ new WeakMap();
   const cache$2 = createCache$2(LAST_NUMBER_WEAK_MAP$2);
   const generateUniqueNumber$2 = createGenerateUniqueNumber$2(cache$2, LAST_NUMBER_WEAK_MAP$2);
-  const isCallNotification = (message) => {
-    return message.method !== void 0 && message.method === "call";
+  const isMessagePort$2 = (sender) => {
+    return typeof sender.start === "function";
   };
-  const isClearResponse = (message) => {
-    return typeof message.id === "number" && typeof message.result === "boolean";
+  const PORT_MAP$2 = /* @__PURE__ */ new WeakMap();
+  const extendBrokerImplementation$2 = (partialBrokerImplementation) => ({
+    ...partialBrokerImplementation,
+    connect: ({ call }) => {
+      return async () => {
+        const { port1, port2 } = new MessageChannel();
+        const portId = await call("connect", { port: port1 }, [port1]);
+        PORT_MAP$2.set(port2, portId);
+        return port2;
+      };
+    },
+    disconnect: ({ call }) => {
+      return async (port) => {
+        const portId = PORT_MAP$2.get(port);
+        if (portId === void 0) {
+          throw new Error("The given port is not connected.");
+        }
+        await call("disconnect", { portId });
+      };
+    },
+    isSupported: ({ call }) => {
+      return () => call("isSupported");
+    }
+  });
+  const ONGOING_REQUESTS$2 = /* @__PURE__ */ new WeakMap();
+  const createOrGetOngoingRequests$2 = (sender) => {
+    if (ONGOING_REQUESTS$2.has(sender)) {
+      return ONGOING_REQUESTS$2.get(sender);
+    }
+    const ongoingRequests = /* @__PURE__ */ new Map();
+    ONGOING_REQUESTS$2.set(sender, ongoingRequests);
+    return ongoingRequests;
   };
-  const load$2 = (url) => {
-    const scheduledIntervalFunctions = /* @__PURE__ */ new Map([[0, () => {
-    }]]);
-    const scheduledTimeoutFunctions = /* @__PURE__ */ new Map([[0, () => {
-    }]]);
-    const unrespondedRequests = /* @__PURE__ */ new Map();
-    const worker2 = new Worker(url);
-    worker2.addEventListener("message", ({ data }) => {
-      if (isCallNotification(data)) {
-        const { params: { timerId, timerType } } = data;
-        if (timerType === "interval") {
-          const idOrFunc = scheduledIntervalFunctions.get(timerId);
-          if (typeof idOrFunc === void 0) {
-            throw new Error("The timer is in an undefined state.");
+  const createBroker$2 = (brokerImplementation) => {
+    const fullBrokerImplementation = extendBrokerImplementation$2(brokerImplementation);
+    return (sender) => {
+      const ongoingRequests = createOrGetOngoingRequests$2(sender);
+      sender.addEventListener("message", ({ data: message }) => {
+        const { id } = message;
+        if (id !== null && ongoingRequests.has(id)) {
+          const { reject, resolve } = ongoingRequests.get(id);
+          ongoingRequests.delete(id);
+          if (message.error === void 0) {
+            resolve(message.result);
+          } else {
+            reject(new Error(message.error.message));
           }
-          if (typeof idOrFunc === "number") {
-            const timerIdAndTimerType = unrespondedRequests.get(idOrFunc);
-            if (timerIdAndTimerType === void 0 || timerIdAndTimerType.timerId !== timerId || timerIdAndTimerType.timerType !== timerType) {
-              throw new Error("The timer is in an undefined state.");
-            }
-          } else if (typeof idOrFunc === "function") {
-            idOrFunc();
-          }
-        } else if (timerType === "timeout") {
-          const idOrFunc = scheduledTimeoutFunctions.get(timerId);
-          if (typeof idOrFunc === void 0) {
-            throw new Error("The timer is in an undefined state.");
-          }
-          if (typeof idOrFunc === "number") {
-            const timerIdAndTimerType = unrespondedRequests.get(idOrFunc);
-            if (timerIdAndTimerType === void 0 || timerIdAndTimerType.timerId !== timerId || timerIdAndTimerType.timerType !== timerType) {
-              throw new Error("The timer is in an undefined state.");
-            }
-          } else if (typeof idOrFunc === "function") {
-            idOrFunc();
-            scheduledTimeoutFunctions.delete(timerId);
-          }
-        }
-      } else if (isClearResponse(data)) {
-        const { id } = data;
-        const timerIdAndTimerType = unrespondedRequests.get(id);
-        if (timerIdAndTimerType === void 0) {
-          throw new Error("The timer is in an undefined state.");
-        }
-        const { timerId, timerType } = timerIdAndTimerType;
-        unrespondedRequests.delete(id);
-        if (timerType === "interval") {
-          scheduledIntervalFunctions.delete(timerId);
-        } else {
-          scheduledTimeoutFunctions.delete(timerId);
-        }
-      } else {
-        const { error: { message } } = data;
-        throw new Error(message);
-      }
-    });
-    const clearInterval2 = (timerId) => {
-      if (typeof scheduledIntervalFunctions.get(timerId) === "function") {
-        const id = generateUniqueNumber$2(unrespondedRequests);
-        unrespondedRequests.set(id, { timerId, timerType: "interval" });
-        scheduledIntervalFunctions.set(timerId, id);
-        worker2.postMessage({
-          id,
-          method: "clear",
-          params: { timerId, timerType: "interval" }
-        });
-      }
-    };
-    const clearTimeout2 = (timerId) => {
-      if (typeof scheduledTimeoutFunctions.get(timerId) === "function") {
-        const id = generateUniqueNumber$2(unrespondedRequests);
-        unrespondedRequests.set(id, { timerId, timerType: "timeout" });
-        scheduledTimeoutFunctions.set(timerId, id);
-        worker2.postMessage({
-          id,
-          method: "clear",
-          params: { timerId, timerType: "timeout" }
-        });
-      }
-    };
-    const setInterval2 = (func, delay = 0, ...args) => {
-      const timerId = generateUniqueNumber$2(scheduledIntervalFunctions);
-      scheduledIntervalFunctions.set(timerId, () => {
-        func(...args);
-        if (typeof scheduledIntervalFunctions.get(timerId) === "function") {
-          worker2.postMessage({
-            id: null,
-            method: "set",
-            params: {
-              delay,
-              now: performance.timeOrigin + performance.now(),
-              timerId,
-              timerType: "interval"
-            }
-          });
         }
       });
-      worker2.postMessage({
-        id: null,
-        method: "set",
-        params: {
+      if (isMessagePort$2(sender)) {
+        sender.start();
+      }
+      const call = (method, params = null, transferables = []) => {
+        return new Promise((resolve, reject) => {
+          const id = generateUniqueNumber$2(ongoingRequests);
+          ongoingRequests.set(id, { reject, resolve });
+          if (params === null) {
+            sender.postMessage({ id, method }, transferables);
+          } else {
+            sender.postMessage({ id, method, params }, transferables);
+          }
+        });
+      };
+      const notify = (method, params, transferables = []) => {
+        sender.postMessage({ id: null, method, params }, transferables);
+      };
+      let functions = {};
+      for (const [key, handler] of Object.entries(fullBrokerImplementation)) {
+        functions = { ...functions, [key]: handler({ call, notify }) };
+      }
+      return { ...functions };
+    };
+  };
+  const scheduledIntervalsState$2 = /* @__PURE__ */ new Map([[0, null]]);
+  const scheduledTimeoutsState$2 = /* @__PURE__ */ new Map([[0, null]]);
+  const wrap$2 = createBroker$2({
+    clearInterval: ({ call }) => {
+      return (timerId) => {
+        if (typeof scheduledIntervalsState$2.get(timerId) === "symbol") {
+          scheduledIntervalsState$2.set(timerId, null);
+          call("clear", { timerId, timerType: "interval" }).then(() => {
+            scheduledIntervalsState$2.delete(timerId);
+          });
+        }
+      };
+    },
+    clearTimeout: ({ call }) => {
+      return (timerId) => {
+        if (typeof scheduledTimeoutsState$2.get(timerId) === "symbol") {
+          scheduledTimeoutsState$2.set(timerId, null);
+          call("clear", { timerId, timerType: "timeout" }).then(() => {
+            scheduledTimeoutsState$2.delete(timerId);
+          });
+        }
+      };
+    },
+    setInterval: ({ call }) => {
+      return (func, delay = 0, ...args) => {
+        const symbol = Symbol();
+        const timerId = generateUniqueNumber$2(scheduledIntervalsState$2);
+        scheduledIntervalsState$2.set(timerId, symbol);
+        const schedule = () => call("set", {
           delay,
           now: performance.timeOrigin + performance.now(),
           timerId,
           timerType: "interval"
-        }
-      });
-      return timerId;
-    };
-    const setTimeout2 = (func, delay = 0, ...args) => {
-      const timerId = generateUniqueNumber$2(scheduledTimeoutFunctions);
-      scheduledTimeoutFunctions.set(timerId, () => func(...args));
-      worker2.postMessage({
-        id: null,
-        method: "set",
-        params: {
+        }).then(() => {
+          const state = scheduledIntervalsState$2.get(timerId);
+          if (state === void 0) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (state === symbol) {
+            func(...args);
+            if (scheduledIntervalsState$2.get(timerId) === symbol) {
+              schedule();
+            }
+          }
+        });
+        schedule();
+        return timerId;
+      };
+    },
+    setTimeout: ({ call }) => {
+      return (func, delay = 0, ...args) => {
+        const symbol = Symbol();
+        const timerId = generateUniqueNumber$2(scheduledTimeoutsState$2);
+        scheduledTimeoutsState$2.set(timerId, symbol);
+        call("set", {
           delay,
           now: performance.timeOrigin + performance.now(),
           timerId,
           timerType: "timeout"
-        }
-      });
-      return timerId;
-    };
-    return {
-      clearInterval: clearInterval2,
-      clearTimeout: clearTimeout2,
-      setInterval: setInterval2,
-      setTimeout: setTimeout2
-    };
+        }).then(() => {
+          const state = scheduledTimeoutsState$2.get(timerId);
+          if (state === void 0) {
+            throw new Error("The timer is in an undefined state.");
+          }
+          if (state === symbol) {
+            scheduledTimeoutsState$2.delete(timerId);
+            func(...args);
+          }
+        });
+        return timerId;
+      };
+    }
+  });
+  const load$2 = (url) => {
+    const worker2 = new Worker(url);
+    return wrap$2(worker2);
   };
   const createLoadOrReturnBroker$2 = (loadBroker, worker2) => {
     let broker = null;
@@ -1536,7 +1552,7 @@
       return broker;
     };
   };
-  const worker$2 = `(()=>{"use strict";const e=new Map,t=new Map,r=t=>{const r=e.get(t);return void 0!==r&&(clearTimeout(r),e.delete(t),!0)},s=e=>{const r=t.get(e);return void 0!==r&&(clearTimeout(r),t.delete(e),!0)},o=(e,t)=>{const r=performance.now(),s=e+t-r-performance.timeOrigin;return{expected:r+s,remainingDelay:s}},i=(e,t,r,s)=>{const o=r-performance.now();o>0?e.set(t,setTimeout(i,o,e,t,r,s)):(e.delete(t),postMessage({id:null,method:"call",params:{timerId:t,timerType:s}}))};addEventListener("message",(({data:n})=>{try{if("clear"===n.method){const{id:e,params:{timerId:t,timerType:o}}=n;if("interval"===o)postMessage({id:e,result:r(t)});else{if("timeout"!==o)throw new Error('The given type "'.concat(o,'" is not supported'));postMessage({id:e,result:s(t)})}}else{if("set"!==n.method)throw new Error('The given method "'.concat(n.method,'" is not supported'));{const{params:{delay:r,now:s,timerId:a,timerType:m}}=n;if("interval"===m)((t,r,s)=>{const{expected:n,remainingDelay:a}=o(t,s);e.set(r,setTimeout(i,a,e,r,n,"interval"))})(r,a,s);else{if("timeout"!==m)throw new Error('The given type "'.concat(m,'" is not supported'));((e,r,s)=>{const{expected:n,remainingDelay:a}=o(e,s);t.set(r,setTimeout(i,a,t,r,n,"timeout"))})(r,a,s)}}}}catch(e){postMessage({error:{message:e.message},id:n.id,result:null})}}))})();`;
+  const worker$2 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),d=t(c);e.addUniqueNumber=d,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const d=r instanceof Promise?await r:r;if(null===a){if(void 0!==d.result)throw s(i)}else{if(void 0===d.result)throw s(i);const{result:e,transferables:r=[]}=d;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),d=(e,t,r=()=>!0)=>{const n=c(d,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},l=e=>t=>{const r=e.get(t);if(void 0===r)return Promise.resolve(!1);const[n,o]=r;return clearTimeout(n),e.delete(t),o(!1),Promise.resolve(!0)},f=(e,t,r)=>(n,o,s)=>{const{expected:a,remainingDelay:i}=e(n,o);return new Promise((e=>{t.set(s,[setTimeout(r,i,a,t,e,s),e])}))},m=(e,t)=>{const r=performance.now(),n=e+t-r-performance.timeOrigin;return{expected:r+n,remainingDelay:n}},p=(e,t,r,n)=>{const o=e-performance.now();o>0?t.set(n,[setTimeout(p,o,e,t,r,n),r]):(t.delete(n),r(!0))},h=new Map,v=l(h),w=new Map,g=l(w),M=f(m,h,p),y=f(m,w,p);d(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?v(e):g(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?M:y)(e,t,r)})})})()})();`;
   const loadOrReturnBroker$2 = createLoadOrReturnBroker$2(load$2, worker$2);
   const clearInterval$3 = (timerId) => loadOrReturnBroker$2().clearInterval(timerId);
   const clearTimeout$2 = (timerId) => loadOrReturnBroker$2().clearTimeout(timerId);
@@ -2568,7 +2584,7 @@
       super(option);
     }
     /** 版本号 */
-    version = "2025.6.7";
+    version = "2025.6.26";
     attr(element, attrName, attrValue) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
@@ -4566,571 +4582,553 @@
       return result;
     }
   }
-  const AjaxHooker = function() {
-    return function() {
-      const version = "1.4.4";
-      const hookInst = {
-        hookFns: [],
-        filters: []
-      };
-      const win = window.unsafeWindow || document.defaultView || window;
-      let winAh = win.__ajaxHooker;
-      const resProto = win.Response.prototype;
-      const xhrResponses = ["response", "responseText", "responseXML"];
-      const fetchResponses = ["arrayBuffer", "blob", "formData", "json", "text"];
-      const fetchInitProps = [
-        "method",
-        "headers",
-        "body",
-        "mode",
-        "credentials",
-        "cache",
-        "redirect",
-        "referrer",
-        "referrerPolicy",
-        "integrity",
-        "keepalive",
-        "signal",
-        "priority"
-      ];
-      const xhrAsyncEvents = ["readystatechange", "load", "loadend"];
-      const getType = {}.toString.call.bind({}.toString);
-      const getDescriptor = Object.getOwnPropertyDescriptor.bind(Object);
-      const emptyFn = () => {
-      };
-      const errorFn = (e2) => console.error(e2);
-      function isThenable(obj) {
-        return obj && ["object", "function"].includes(typeof obj) && typeof obj.then === "function";
+  // @license      GNU LGPL-3.0
+  const ajaxHooker = function() {
+    const version = "1.4.6";
+    const hookInst = {
+      hookFns: [],
+      filters: []
+    };
+    const win = window.unsafeWindow || document.defaultView || window;
+    let winAh = win.__ajaxHooker;
+    const resProto = win.Response.prototype;
+    const xhrResponses = ["response", "responseText", "responseXML"];
+    const fetchResponses = ["arrayBuffer", "blob", "formData", "json", "text"];
+    const fetchInitProps = [
+      "method",
+      "headers",
+      "body",
+      "mode",
+      "credentials",
+      "cache",
+      "redirect",
+      "referrer",
+      "referrerPolicy",
+      "integrity",
+      "keepalive",
+      "signal",
+      "priority"
+    ];
+    const xhrAsyncEvents = ["readystatechange", "load", "loadend"];
+    const getType = {}.toString.call.bind({}.toString);
+    const getDescriptor = Object.getOwnPropertyDescriptor.bind(Object);
+    const emptyFn = () => {
+    };
+    const errorFn = (e2) => console.error(e2);
+    function isThenable(obj) {
+      return obj && ["object", "function"].includes(typeof obj) && typeof obj.then === "function";
+    }
+    function catchError(fn, ...args) {
+      try {
+        const result = fn(...args);
+        if (isThenable(result)) return result.then(null, errorFn);
+        return result;
+      } catch (err) {
+        console.error(err);
       }
-      function catchError(fn, ...args) {
-        try {
-          const result = fn(...args);
-          if (isThenable(result)) return result.then(null, errorFn);
-          return result;
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      function defineProp(obj, prop, getter, setter) {
-        Object.defineProperty(obj, prop, {
-          configurable: true,
-          enumerable: true,
-          get: getter,
-          set: setter
-        });
-      }
-      function readonly(obj, prop, value = obj[prop]) {
-        defineProp(obj, prop, () => value, emptyFn);
-      }
-      function writable(obj, prop, value = obj[prop]) {
-        Object.defineProperty(obj, prop, {
-          configurable: true,
-          enumerable: true,
-          writable: true,
-          value
-        });
-      }
-      function parseHeaders(obj) {
-        const headers = {};
-        switch (getType(obj)) {
-          case "[object String]":
-            for (const line of obj.trim().split(/[\r\n]+/)) {
-              const [header, value] = line.split(/\s*:\s*/);
-              if (!header) break;
-              const lheader = header.toLowerCase();
-              headers[lheader] = lheader in headers ? `${headers[lheader]}, ${value}` : value;
-            }
-            break;
-          case "[object Headers]":
-            for (const [key, val] of obj) {
-              headers[key] = val;
-            }
-            break;
-          case "[object Object]":
-            return { ...obj };
-        }
-        return headers;
-      }
-      function stopImmediatePropagation() {
-        this.ajaxHooker_isStopped = true;
-      }
-      class SyncThenable {
-        then(fn) {
-          fn && fn();
-          return new SyncThenable();
-        }
-      }
-      class AHRequest {
-        constructor(request) {
-          this.request = request;
-          this.requestClone = { ...this.request };
-        }
-        shouldFilter(filters) {
-          const { type, url, method, async } = this.request;
-          return filters.length && !filters.find((obj) => {
-            switch (true) {
-              case (obj.type && obj.type !== type):
-              case (getType(obj.url) === "[object String]" && !url.includes(obj.url)):
-              case (getType(obj.url) === "[object RegExp]" && !obj.url.test(url)):
-              case (obj.method && obj.method.toUpperCase() !== method.toUpperCase()):
-              case ("async" in obj && obj.async !== async):
-                return false;
-            }
-            return true;
-          });
-        }
-        waitForRequestKeys() {
-          const requestKeys = ["url", "method", "abort", "headers", "data"];
-          if (!this.request.async) {
-            win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
-              if (this.shouldFilter(filters)) return;
-              hookFns.forEach((fn) => {
-                if (getType(fn) === "[object Function]")
-                  catchError(fn, this.request);
-              });
-              requestKeys.forEach((key) => {
-                if (isThenable(this.request[key]))
-                  this.request[key] = this.requestClone[key];
-              });
-            });
-            return new SyncThenable();
+    }
+    function defineProp(obj, prop, getter, setter) {
+      Object.defineProperty(obj, prop, {
+        configurable: true,
+        enumerable: true,
+        get: getter,
+        set: setter
+      });
+    }
+    function readonly(obj, prop, value = obj[prop]) {
+      defineProp(obj, prop, () => value, emptyFn);
+    }
+    function writable(obj, prop, value = obj[prop]) {
+      Object.defineProperty(obj, prop, {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value
+      });
+    }
+    function parseHeaders(obj) {
+      const headers = {};
+      switch (getType(obj)) {
+        case "[object String]":
+          for (const line of obj.trim().split(/[\r\n]+/)) {
+            const [header, value] = line.split(new RegExp("(?<=^[^:]+)\\s*:\\s*"));
+            if (!value) continue;
+            const lheader = header.toLowerCase();
+            headers[lheader] = lheader in headers ? `${headers[lheader]}, ${value}` : value;
           }
-          const promises = [];
+          break;
+        case "[object Headers]":
+          for (const [key, val] of obj) {
+            headers[key] = val;
+          }
+          break;
+        case "[object Object]":
+          return { ...obj };
+      }
+      return headers;
+    }
+    function stopImmediatePropagation() {
+      this.ajaxHooker_isStopped = true;
+    }
+    class SyncThenable {
+      then(fn) {
+        fn && fn();
+        return new SyncThenable();
+      }
+    }
+    class AHRequest {
+      constructor(request) {
+        this.request = request;
+        this.requestClone = { ...this.request };
+      }
+      shouldFilter(filters) {
+        const { type, url, method, async } = this.request;
+        return filters.length && !filters.find((obj) => {
+          switch (true) {
+            case (obj.type && obj.type !== type):
+            case (getType(obj.url) === "[object String]" && !url.includes(obj.url)):
+            case (getType(obj.url) === "[object RegExp]" && !obj.url.test(url)):
+            case (obj.method && obj.method.toUpperCase() !== method.toUpperCase()):
+            case ("async" in obj && obj.async !== async):
+              return false;
+          }
+          return true;
+        });
+      }
+      waitForRequestKeys() {
+        const requestKeys = ["url", "method", "abort", "headers", "data"];
+        if (!this.request.async) {
           win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
             if (this.shouldFilter(filters)) return;
-            promises.push(
-              Promise.all(hookFns.map((fn) => catchError(fn, this.request))).then(
-                () => Promise.all(
-                  requestKeys.map(
-                    (key) => Promise.resolve(this.request[key]).then(
-                      (val) => this.request[key] = val,
-                      () => this.request[key] = this.requestClone[key]
-                    )
+            hookFns.forEach((fn) => {
+              if (getType(fn) === "[object Function]")
+                catchError(fn, this.request);
+            });
+            requestKeys.forEach((key) => {
+              if (isThenable(this.request[key]))
+                this.request[key] = this.requestClone[key];
+            });
+          });
+          return new SyncThenable();
+        }
+        const promises = [];
+        win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
+          if (this.shouldFilter(filters)) return;
+          promises.push(
+            Promise.all(hookFns.map((fn) => catchError(fn, this.request))).then(
+              () => Promise.all(
+                requestKeys.map(
+                  (key) => Promise.resolve(this.request[key]).then(
+                    (val) => this.request[key] = val,
+                    () => this.request[key] = this.requestClone[key]
                   )
                 )
               )
-            );
-          });
-          return Promise.all(promises);
-        }
-        waitForResponseKeys(response) {
-          const responseKeys = this.request.type === "xhr" ? xhrResponses : fetchResponses;
-          if (!this.request.async) {
-            if (getType(this.request.response) === "[object Function]") {
-              catchError(this.request.response, response);
-              responseKeys.forEach((key) => {
-                if ("get" in getDescriptor(response, key) || isThenable(response[key])) {
-                  delete response[key];
-                }
-              });
-            }
-            return new SyncThenable();
-          }
-          return Promise.resolve(
-            catchError(this.request.response, response)
-          ).then(
-            () => Promise.all(
-              responseKeys.map((key) => {
-                const descriptor = getDescriptor(response, key);
-                if (descriptor && "value" in descriptor) {
-                  return Promise.resolve(descriptor.value).then(
-                    (val) => response[key] = val,
-                    () => delete response[key]
-                  );
-                } else {
-                  delete response[key];
-                }
-              })
             )
           );
-        }
+        });
+        return Promise.all(promises);
       }
-      const proxyHandler = {
-        get(target, prop) {
-          const descriptor = getDescriptor(target, prop);
-          if (descriptor && !descriptor.configurable && !descriptor.writable && !descriptor.get)
-            return target[prop];
-          const ah = target.__ajaxHooker;
-          if (ah && ah.proxyProps) {
-            if (prop in ah.proxyProps) {
-              const pDescriptor = ah.proxyProps[prop];
-              if ("get" in pDescriptor) return pDescriptor.get();
-              if (typeof pDescriptor.value === "function")
-                return pDescriptor.value.bind(ah);
-              return pDescriptor.value;
-            }
-            if (typeof target[prop] === "function")
-              return target[prop].bind(target);
+      waitForResponseKeys(response) {
+        const responseKeys = this.request.type === "xhr" ? xhrResponses : fetchResponses;
+        if (!this.request.async) {
+          if (getType(this.request.response) === "[object Function]") {
+            catchError(this.request.response, response);
+            responseKeys.forEach((key) => {
+              if ("get" in getDescriptor(response, key) || isThenable(response[key])) {
+                delete response[key];
+              }
+            });
           }
+          return new SyncThenable();
+        }
+        return Promise.resolve(catchError(this.request.response, response)).then(
+          () => Promise.all(
+            responseKeys.map((key) => {
+              const descriptor = getDescriptor(response, key);
+              if (descriptor && "value" in descriptor) {
+                return Promise.resolve(descriptor.value).then(
+                  (val) => response[key] = val,
+                  () => delete response[key]
+                );
+              } else {
+                delete response[key];
+              }
+            })
+          )
+        );
+      }
+    }
+    const proxyHandler = {
+      get(target, prop) {
+        const descriptor = getDescriptor(target, prop);
+        if (descriptor && !descriptor.configurable && !descriptor.writable && !descriptor.get)
           return target[prop];
-        },
-        set(target, prop, value) {
-          const descriptor = getDescriptor(target, prop);
-          if (descriptor && !descriptor.configurable && !descriptor.writable && !descriptor.set)
-            return true;
-          const ah = target.__ajaxHooker;
-          if (ah && ah.proxyProps && prop in ah.proxyProps) {
+        const ah = target.__ajaxHooker;
+        if (ah && ah.proxyProps) {
+          if (prop in ah.proxyProps) {
             const pDescriptor = ah.proxyProps[prop];
-            pDescriptor.set ? pDescriptor.set(value) : pDescriptor.value = value;
-          } else {
-            target[prop] = value;
+            if ("get" in pDescriptor) return pDescriptor.get();
+            if (typeof pDescriptor.value === "function")
+              return pDescriptor.value.bind(ah);
+            return pDescriptor.value;
           }
+          if (typeof target[prop] === "function")
+            return target[prop].bind(target);
+        }
+        return target[prop];
+      },
+      set(target, prop, value) {
+        const descriptor = getDescriptor(target, prop);
+        if (descriptor && !descriptor.configurable && !descriptor.writable && !descriptor.set)
           return true;
+        const ah = target.__ajaxHooker;
+        if (ah && ah.proxyProps && prop in ah.proxyProps) {
+          const pDescriptor = ah.proxyProps[prop];
+          pDescriptor.set ? pDescriptor.set(value) : pDescriptor.value = value;
+        } else {
+          target[prop] = value;
         }
-      };
-      class XhrHooker {
-        constructor(xhr) {
-          const ah = this;
-          Object.assign(ah, {
-            originalXhr: xhr,
-            proxyXhr: new Proxy(xhr, proxyHandler),
-            resThenable: new SyncThenable(),
-            proxyProps: {},
-            proxyEvents: {}
-          });
-          xhr.addEventListener("readystatechange", (e2) => {
-            if (ah.proxyXhr.readyState === 4 && ah.request && typeof ah.request.response === "function") {
-              const response = {
-                finalUrl: ah.proxyXhr.responseURL,
-                status: ah.proxyXhr.status,
-                responseHeaders: parseHeaders(
-                  ah.proxyXhr.getAllResponseHeaders()
-                )
-              };
-              const tempValues = {};
-              for (const key of xhrResponses) {
-                try {
-                  tempValues[key] = ah.originalXhr[key];
-                } catch (err) {
-                }
-                defineProp(
-                  response,
-                  key,
-                  () => {
-                    return response[key] = tempValues[key];
-                  },
-                  (val) => {
-                    delete response[key];
-                    response[key] = val;
-                  }
-                );
-              }
-              ah.resThenable = new AHRequest(ah.request).waitForResponseKeys(response).then(() => {
-                for (const key of xhrResponses) {
-                  ah.proxyProps[key] = {
-                    get: () => {
-                      if (!(key in response)) response[key] = tempValues[key];
-                      return response[key];
-                    }
-                  };
-                }
-              });
-            }
-            ah.dispatchEvent(e2);
-          });
-          xhr.addEventListener("load", (e2) => ah.dispatchEvent(e2));
-          xhr.addEventListener("loadend", (e2) => ah.dispatchEvent(e2));
-          for (const evt of xhrAsyncEvents) {
-            const onEvt = "on" + evt;
-            ah.proxyProps[onEvt] = {
-              get: () => ah.proxyEvents[onEvt] || null,
-              set: (val) => ah.addEvent(onEvt, val)
+        return true;
+      }
+    };
+    class XhrHooker {
+      constructor(xhr) {
+        const ah = this;
+        Object.assign(ah, {
+          originalXhr: xhr,
+          proxyXhr: new Proxy(xhr, proxyHandler),
+          resThenable: new SyncThenable(),
+          proxyProps: {},
+          proxyEvents: {}
+        });
+        xhr.addEventListener("readystatechange", (e2) => {
+          if (ah.proxyXhr.readyState === 4 && ah.request && typeof ah.request.response === "function") {
+            const response = {
+              finalUrl: ah.proxyXhr.responseURL,
+              status: ah.proxyXhr.status,
+              responseHeaders: parseHeaders(ah.proxyXhr.getAllResponseHeaders())
             };
-          }
-          for (const method of [
-            "setRequestHeader",
-            "addEventListener",
-            "removeEventListener",
-            "open",
-            "send"
-          ]) {
-            ah.proxyProps[method] = { value: ah[method] };
-          }
-        }
-        toJSON() {
-        }
-        // Converting circular structure to JSON
-        addEvent(type, event) {
-          if (type.startsWith("on")) {
-            this.proxyEvents[type] = typeof event === "function" ? event : null;
-          } else {
-            if (typeof event === "object" && event !== null)
-              event = event.handleEvent;
-            if (typeof event !== "function") return;
-            this.proxyEvents[type] = this.proxyEvents[type] || /* @__PURE__ */ new Set();
-            this.proxyEvents[type].add(event);
-          }
-        }
-        removeEvent(type, event) {
-          if (type.startsWith("on")) {
-            this.proxyEvents[type] = null;
-          } else {
-            if (typeof event === "object" && event !== null)
-              event = event.handleEvent;
-            this.proxyEvents[type] && this.proxyEvents[type].delete(event);
-          }
-        }
-        dispatchEvent(e2) {
-          e2.stopImmediatePropagation = stopImmediatePropagation;
-          defineProp(e2, "target", () => this.proxyXhr);
-          defineProp(e2, "currentTarget", () => this.proxyXhr);
-          this.proxyEvents[e2.type] && this.proxyEvents[e2.type].forEach((fn) => {
-            this.resThenable.then(
-              () => !e2.ajaxHooker_isStopped && fn.call(this.proxyXhr, e2)
-            );
-          });
-          if (e2.ajaxHooker_isStopped) return;
-          const onEvent = this.proxyEvents["on" + e2.type];
-          onEvent && this.resThenable.then(onEvent.bind(this.proxyXhr, e2));
-        }
-        setRequestHeader(header, value) {
-          this.originalXhr.setRequestHeader(header, value);
-          if (!this.request) return;
-          const headers = this.request.headers;
-          headers[header] = header in headers ? `${headers[header]}, ${value}` : value;
-        }
-        addEventListener(...args) {
-          if (xhrAsyncEvents.includes(args[0])) {
-            this.addEvent(args[0], args[1]);
-          } else {
-            this.originalXhr.addEventListener(...args);
-          }
-        }
-        removeEventListener(...args) {
-          if (xhrAsyncEvents.includes(args[0])) {
-            this.removeEvent(args[0], args[1]);
-          } else {
-            this.originalXhr.removeEventListener(...args);
-          }
-        }
-        open(method, url, async = true, ...args) {
-          this.request = {
-            type: "xhr",
-            url: url.toString(),
-            method: method.toUpperCase(),
-            abort: false,
-            headers: {},
-            data: null,
-            response: null,
-            async: !!async
-          };
-          this.openArgs = args;
-          this.resThenable = new SyncThenable();
-          [
-            "responseURL",
-            "readyState",
-            "status",
-            "statusText",
-            ...xhrResponses
-          ].forEach((key) => {
-            delete this.proxyProps[key];
-          });
-          return this.originalXhr.open(method, url, async, ...args);
-        }
-        send(data) {
-          const ah = this;
-          const xhr = ah.originalXhr;
-          const request = ah.request;
-          if (!request) return xhr.send(data);
-          request.data = data;
-          new AHRequest(request).waitForRequestKeys().then(() => {
-            if (request.abort) {
-              if (typeof request.response === "function") {
-                Object.assign(ah.proxyProps, {
-                  responseURL: { value: request.url },
-                  readyState: { value: 4 },
-                  status: { value: 200 },
-                  statusText: { value: "OK" }
-                });
-                xhrAsyncEvents.forEach(
-                  (evt) => xhr.dispatchEvent(new Event(evt))
-                );
+            const tempValues = {};
+            for (const key of xhrResponses) {
+              try {
+                tempValues[key] = ah.originalXhr[key];
+              } catch (err) {
               }
-            } else {
-              xhr.open(
-                request.method,
-                request.url,
-                request.async,
-                ...ah.openArgs
+              defineProp(
+                response,
+                key,
+                () => {
+                  return response[key] = tempValues[key];
+                },
+                (val) => {
+                  delete response[key];
+                  response[key] = val;
+                }
               );
-              for (const header in request.headers) {
-                xhr.setRequestHeader(header, request.headers[header]);
-              }
-              xhr.send(request.data);
             }
-          });
+            ah.resThenable = new AHRequest(ah.request).waitForResponseKeys(response).then(() => {
+              for (const key of xhrResponses) {
+                ah.proxyProps[key] = {
+                  get: () => {
+                    if (!(key in response)) response[key] = tempValues[key];
+                    return response[key];
+                  }
+                };
+              }
+            });
+          }
+          ah.dispatchEvent(e2);
+        });
+        xhr.addEventListener("load", (e2) => ah.dispatchEvent(e2));
+        xhr.addEventListener("loadend", (e2) => ah.dispatchEvent(e2));
+        for (const evt of xhrAsyncEvents) {
+          const onEvt = "on" + evt;
+          ah.proxyProps[onEvt] = {
+            get: () => ah.proxyEvents[onEvt] || null,
+            set: (val) => ah.addEvent(onEvt, val)
+          };
+        }
+        for (const method of [
+          "setRequestHeader",
+          "addEventListener",
+          "removeEventListener",
+          "open",
+          "send"
+        ]) {
+          ah.proxyProps[method] = { value: ah[method] };
         }
       }
-      function fakeXHR() {
-        const xhr = new winAh.realXHR();
-        if ("__ajaxHooker" in xhr)
-          console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
-        xhr.__ajaxHooker = new XhrHooker(xhr);
-        return xhr.__ajaxHooker.proxyXhr;
+      toJSON() {
       }
-      fakeXHR.prototype = win.XMLHttpRequest.prototype;
-      Object.keys(win.XMLHttpRequest).forEach(
-        (key) => fakeXHR[key] = win.XMLHttpRequest[key]
-      );
-      function fakeFetch(url, options = {}) {
-        if (!url) return winAh.realFetch.call(win, url, options);
-        return new Promise(async (resolve, reject) => {
-          const init = {};
-          if (getType(url) === "[object Request]") {
-            for (const prop of fetchInitProps) init[prop] = url[prop];
-            if (url.body) init.body = await url.arrayBuffer();
-            url = url.url;
-          }
-          url = url.toString();
-          Object.assign(init, options);
-          init.method = init.method || "GET";
-          init.headers = init.headers || {};
-          const request = {
-            type: "fetch",
-            url,
-            method: init.method.toUpperCase(),
-            abort: false,
-            headers: parseHeaders(init.headers),
-            data: init.body,
-            response: null,
-            async: true
-          };
-          const req = new AHRequest(request);
-          await req.waitForRequestKeys();
+      // Converting circular structure to JSON
+      addEvent(type, event) {
+        if (type.startsWith("on")) {
+          this.proxyEvents[type] = typeof event === "function" ? event : null;
+        } else {
+          if (typeof event === "object" && event !== null)
+            event = event.handleEvent;
+          if (typeof event !== "function") return;
+          this.proxyEvents[type] = this.proxyEvents[type] || /* @__PURE__ */ new Set();
+          this.proxyEvents[type].add(event);
+        }
+      }
+      removeEvent(type, event) {
+        if (type.startsWith("on")) {
+          this.proxyEvents[type] = null;
+        } else {
+          if (typeof event === "object" && event !== null)
+            event = event.handleEvent;
+          this.proxyEvents[type] && this.proxyEvents[type].delete(event);
+        }
+      }
+      dispatchEvent(e2) {
+        e2.stopImmediatePropagation = stopImmediatePropagation;
+        defineProp(e2, "target", () => this.proxyXhr);
+        defineProp(e2, "currentTarget", () => this.proxyXhr);
+        this.proxyEvents[e2.type] && this.proxyEvents[e2.type].forEach((fn) => {
+          this.resThenable.then(
+            () => !e2.ajaxHooker_isStopped && fn.call(this.proxyXhr, e2)
+          );
+        });
+        if (e2.ajaxHooker_isStopped) return;
+        const onEvent = this.proxyEvents["on" + e2.type];
+        onEvent && this.resThenable.then(onEvent.bind(this.proxyXhr, e2));
+      }
+      setRequestHeader(header, value) {
+        this.originalXhr.setRequestHeader(header, value);
+        if (!this.request) return;
+        const headers = this.request.headers;
+        headers[header] = header in headers ? `${headers[header]}, ${value}` : value;
+      }
+      addEventListener(...args) {
+        if (xhrAsyncEvents.includes(args[0])) {
+          this.addEvent(args[0], args[1]);
+        } else {
+          this.originalXhr.addEventListener(...args);
+        }
+      }
+      removeEventListener(...args) {
+        if (xhrAsyncEvents.includes(args[0])) {
+          this.removeEvent(args[0], args[1]);
+        } else {
+          this.originalXhr.removeEventListener(...args);
+        }
+      }
+      open(method, url, async = true, ...args) {
+        this.request = {
+          type: "xhr",
+          url: url.toString(),
+          method: method.toUpperCase(),
+          abort: false,
+          headers: {},
+          data: null,
+          response: null,
+          async: !!async
+        };
+        this.openArgs = args;
+        this.resThenable = new SyncThenable();
+        [
+          "responseURL",
+          "readyState",
+          "status",
+          "statusText",
+          ...xhrResponses
+        ].forEach((key) => {
+          delete this.proxyProps[key];
+        });
+        return this.originalXhr.open(method, url, async, ...args);
+      }
+      send(data) {
+        const ah = this;
+        const xhr = ah.originalXhr;
+        const request = ah.request;
+        if (!request) return xhr.send(data);
+        request.data = data;
+        new AHRequest(request).waitForRequestKeys().then(() => {
           if (request.abort) {
             if (typeof request.response === "function") {
-              const response = {
-                finalUrl: request.url,
-                status: 200,
-                responseHeaders: {}
-              };
-              await req.waitForResponseKeys(response);
-              const key = fetchResponses.find((k) => k in response);
-              let val = response[key];
-              if (key === "json" && typeof val === "object") {
-                val = catchError(JSON.stringify.bind(JSON), val);
-              }
-              const res = new Response(val, {
-                status: 200,
-                statusText: "OK"
+              Object.assign(ah.proxyProps, {
+                responseURL: { value: request.url },
+                readyState: { value: 4 },
+                status: { value: 200 },
+                statusText: { value: "OK" }
               });
-              defineProp(res, "type", () => "basic");
-              defineProp(res, "url", () => request.url);
-              resolve(res);
-            } else {
-              reject(new DOMException("aborted", "AbortError"));
+              xhrAsyncEvents.forEach((evt) => xhr.dispatchEvent(new Event(evt)));
             }
-            return;
+          } else {
+            xhr.open(request.method, request.url, request.async, ...ah.openArgs);
+            for (const header in request.headers) {
+              xhr.setRequestHeader(header, request.headers[header]);
+            }
+            xhr.send(request.data);
           }
-          init.method = request.method;
-          init.headers = request.headers;
-          init.body = request.data;
-          winAh.realFetch.call(win, request.url, init).then((res) => {
-            if (typeof request.response === "function") {
-              const response = {
-                finalUrl: res.url,
-                status: res.status,
-                responseHeaders: parseHeaders(res.headers)
-              };
-              fetchResponses.forEach(
-                (key) => res[key] = function() {
-                  if (key in response) return Promise.resolve(response[key]);
-                  return resProto[key].call(this).then((val) => {
-                    response[key] = val;
-                    return req.waitForResponseKeys(response).then(() => key in response ? response[key] : val);
-                  });
-                }
-              );
-            }
-            resolve(res);
-          }, reject);
         });
       }
-      function fakeFetchClone() {
-        const descriptors = Object.getOwnPropertyDescriptors(this);
-        const res = winAh.realFetchClone.call(this);
-        Object.defineProperties(res, descriptors);
-        return res;
-      }
-      winAh = win.__ajaxHooker = winAh || {
-        version,
-        fakeXHR,
-        fakeFetch,
-        fakeFetchClone,
-        realXHR: win.XMLHttpRequest,
-        realFetch: win.fetch,
-        realFetchClone: resProto.clone,
-        hookInsts: /* @__PURE__ */ new Set()
-      };
-      if (winAh.version !== version)
+    }
+    function fakeXHR() {
+      const xhr = new winAh.realXHR();
+      if ("__ajaxHooker" in xhr)
         console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
-      win.XMLHttpRequest = winAh.fakeXHR;
-      win.fetch = winAh.fakeFetch;
-      resProto.clone = winAh.fakeFetchClone;
-      winAh.hookInsts.add(hookInst);
-      class AHFunction {
-        call(thisArg, ...args) {
-          if (thisArg && thisArg.__ajaxHooker && thisArg.__ajaxHooker.proxyXhr === thisArg) {
-            thisArg = thisArg.__ajaxHooker.originalXhr;
-          }
-          return Reflect.apply(this, thisArg, args);
+      xhr.__ajaxHooker = new XhrHooker(xhr);
+      return xhr.__ajaxHooker.proxyXhr;
+    }
+    fakeXHR.prototype = win.XMLHttpRequest.prototype;
+    Object.keys(win.XMLHttpRequest).forEach(
+      (key) => fakeXHR[key] = win.XMLHttpRequest[key]
+    );
+    function fakeFetch(url, options = {}) {
+      if (!url) return winAh.realFetch.call(win, url, options);
+      return new Promise(async (resolve, reject) => {
+        const init = {};
+        if (getType(url) === "[object Request]") {
+          for (const prop of fetchInitProps) init[prop] = url[prop];
+          if (url.body) init.body = await url.arrayBuffer();
+          url = url.url;
         }
-        apply(thisArg, args) {
-          if (thisArg && thisArg.__ajaxHooker && thisArg.__ajaxHooker.proxyXhr === thisArg) {
-            thisArg = thisArg.__ajaxHooker.originalXhr;
+        url = url.toString();
+        Object.assign(init, options);
+        init.method = init.method || "GET";
+        init.headers = init.headers || {};
+        const request = {
+          type: "fetch",
+          url,
+          method: init.method.toUpperCase(),
+          abort: false,
+          headers: parseHeaders(init.headers),
+          data: init.body,
+          response: null,
+          async: true
+        };
+        const req = new AHRequest(request);
+        await req.waitForRequestKeys();
+        if (request.abort) {
+          if (typeof request.response === "function") {
+            const response = {
+              finalUrl: request.url,
+              status: 200,
+              responseHeaders: {}
+            };
+            await req.waitForResponseKeys(response);
+            const key = fetchResponses.find((k) => k in response);
+            let val = response[key];
+            if (key === "json" && typeof val === "object") {
+              val = catchError(JSON.stringify.bind(JSON), val);
+            }
+            const res = new Response(val, {
+              status: 200,
+              statusText: "OK"
+            });
+            defineProp(res, "type", () => "basic");
+            defineProp(res, "url", () => request.url);
+            resolve(res);
+          } else {
+            reject(new DOMException("aborted", "AbortError"));
           }
-          return Reflect.apply(this, thisArg, args || []);
+          return;
         }
+        init.method = request.method;
+        init.headers = request.headers;
+        init.body = request.data;
+        winAh.realFetch.call(win, request.url, init).then((res) => {
+          if (typeof request.response === "function") {
+            const response = {
+              finalUrl: res.url,
+              status: res.status,
+              responseHeaders: parseHeaders(res.headers)
+            };
+            fetchResponses.forEach(
+              (key) => res[key] = function() {
+                if (key in response) return Promise.resolve(response[key]);
+                return resProto[key].call(this).then((val) => {
+                  response[key] = val;
+                  return req.waitForResponseKeys(response).then(() => key in response ? response[key] : val);
+                });
+              }
+            );
+          }
+          resolve(res);
+        }, reject);
+      });
+    }
+    function fakeFetchClone() {
+      const descriptors = Object.getOwnPropertyDescriptors(this);
+      const res = winAh.realFetchClone.call(this);
+      Object.defineProperties(res, descriptors);
+      return res;
+    }
+    winAh = win.__ajaxHooker = winAh || {
+      version,
+      fakeXHR,
+      fakeFetch,
+      fakeFetchClone,
+      realXHR: win.XMLHttpRequest,
+      realFetch: win.fetch,
+      realFetchClone: resProto.clone,
+      hookInsts: /* @__PURE__ */ new Set()
+    };
+    if (winAh.version !== version)
+      console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
+    win.XMLHttpRequest = winAh.fakeXHR;
+    win.fetch = winAh.fakeFetch;
+    resProto.clone = winAh.fakeFetchClone;
+    winAh.hookInsts.add(hookInst);
+    class AHFunction extends Function {
+      call(thisArg, ...args) {
+        if (thisArg && thisArg.__ajaxHooker && thisArg.__ajaxHooker.proxyXhr === thisArg) {
+          thisArg = thisArg.__ajaxHooker.originalXhr;
+        }
+        return Reflect.apply(this, thisArg, args);
       }
-      function hookSecsdk(csrf) {
-        Object.setPrototypeOf(
-          csrf.nativeXMLHttpRequestSetRequestHeader,
-          AHFunction.prototype
-        );
-        Object.setPrototypeOf(
-          csrf.nativeXMLHttpRequestOpen,
-          AHFunction.prototype
-        );
-        Object.setPrototypeOf(
-          csrf.nativeXMLHttpRequestSend,
-          AHFunction.prototype
-        );
+      apply(thisArg, args) {
+        if (thisArg && thisArg.__ajaxHooker && thisArg.__ajaxHooker.proxyXhr === thisArg) {
+          thisArg = thisArg.__ajaxHooker.originalXhr;
+        }
+        return Reflect.apply(this, thisArg, args || []);
       }
-      if (win.secsdk) {
-        if (win.secsdk.csrf && win.secsdk.csrf.nativeXMLHttpRequestOpen)
-          hookSecsdk(win.secsdk.csrf);
-      } else {
-        defineProp(win, "secsdk", emptyFn, (secsdk) => {
-          delete win.secsdk;
-          win.secsdk = secsdk;
-          defineProp(secsdk, "csrf", emptyFn, (csrf) => {
-            delete secsdk.csrf;
-            secsdk.csrf = csrf;
-            if (csrf.nativeXMLHttpRequestOpen) hookSecsdk(csrf);
-          });
+    }
+    function hookSecsdk(csrf) {
+      Object.setPrototypeOf(
+        csrf.nativeXMLHttpRequestSetRequestHeader,
+        AHFunction.prototype
+      );
+      Object.setPrototypeOf(csrf.nativeXMLHttpRequestOpen, AHFunction.prototype);
+      Object.setPrototypeOf(csrf.nativeXMLHttpRequestSend, AHFunction.prototype);
+    }
+    if (win.secsdk) {
+      if (win.secsdk.csrf && win.secsdk.csrf.nativeXMLHttpRequestOpen)
+        hookSecsdk(win.secsdk.csrf);
+    } else {
+      defineProp(win, "secsdk", emptyFn, (secsdk) => {
+        delete win.secsdk;
+        win.secsdk = secsdk;
+        defineProp(secsdk, "csrf", emptyFn, (csrf) => {
+          delete secsdk.csrf;
+          secsdk.csrf = csrf;
+          if (csrf.nativeXMLHttpRequestOpen) hookSecsdk(csrf);
         });
-      }
-      return {
-        hook: (fn) => hookInst.hookFns.push(fn),
-        filter: (arr) => {
-          if (Array.isArray(arr)) hookInst.filters = arr;
-        },
-        protect: () => {
-          readonly(win, "XMLHttpRequest", winAh.fakeXHR);
-          readonly(win, "fetch", winAh.fakeFetch);
-          readonly(resProto, "clone", winAh.fakeFetchClone);
-        },
-        unhook: () => {
-          winAh.hookInsts.delete(hookInst);
-          if (!winAh.hookInsts.size) {
-            writable(win, "XMLHttpRequest", winAh.realXHR);
-            writable(win, "fetch", winAh.realFetch);
-            writable(resProto, "clone", winAh.realFetchClone);
-            delete win.__ajaxHooker;
-          }
+      });
+    }
+    return {
+      hook: (fn) => hookInst.hookFns.push(fn),
+      filter: (arr) => {
+        if (Array.isArray(arr)) hookInst.filters = arr;
+      },
+      protect: () => {
+        readonly(win, "XMLHttpRequest", winAh.fakeXHR);
+        readonly(win, "fetch", winAh.fakeFetch);
+        readonly(resProto, "clone", winAh.fakeFetchClone);
+      },
+      unhook: () => {
+        winAh.hookInsts.delete(hookInst);
+        if (!winAh.hookInsts.size) {
+          writable(win, "XMLHttpRequest", winAh.realXHR);
+          writable(win, "fetch", winAh.realFetch);
+          writable(resProto, "clone", winAh.realFetchClone);
+          delete win.__ajaxHooker;
         }
-      };
-    }();
+      }
+    };
   };
   const AjaxHooker1_2_4 = function() {
     return function() {
@@ -8940,7 +8938,7 @@ ${err.stack}`);
       this.windowApi = new WindowApi2(option);
     }
     /** 版本号 */
-    version = "2025.6.7";
+    version = "2025.6.26";
     addStyle(cssText) {
       if (typeof cssText !== "string") {
         throw new Error("Utils.addStyle 参数cssText 必须为String类型");
@@ -9012,7 +9010,7 @@ ${err.stack}`);
      * ajax劫持库，支持xhr和fetch劫持。
      * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
      * + 作者：cxxjackie
-     * + 版本：1.4.4
+     * + 版本：1.4.6
      * + 旧版本：1.2.4
      * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
      * @param useOldVersion 是否使用旧版本，默认false
@@ -9021,7 +9019,7 @@ ${err.stack}`);
       if (useOldVersion) {
         return AjaxHooker1_2_4();
       } else {
-        return AjaxHooker();
+        return ajaxHooker();
       }
     };
     canvasClickByPosition(canvasElement, clientX = 0, clientY = 0, view = globalThis) {
@@ -18408,6 +18406,8 @@ ${err.stack}`);
        * 元素
        */
       $el: {
+        /** pops主元素 */
+        $pops: null,
         /** 内容 */
         $content: null,
         /** 左侧容器 */
@@ -18420,7 +18420,6 @@ ${err.stack}`);
        * @param details
        */
       init(details) {
-        this.$el = null;
         this.$el = {
           ...details.$el
         };
@@ -18468,16 +18467,17 @@ ${err.stack}`);
        * 清空container容器的元素
        */
       clearContainer() {
+        Reflect.deleteProperty(this.$el.$contentSectionContainer, "__formConfig__");
         PopsSafeUtils.setSafeHTML(this.sectionContainerHeaderULElement, "");
         PopsSafeUtils.setSafeHTML(this.sectionContainerULElement, "");
-        this.$el.$content?.querySelectorAll("section.pops-panel-deepMenu-container").forEach((ele) => ele.remove());
+        this.$el.$content?.querySelectorAll("section.pops-panel-deepMenu-container").forEach(($el) => $el.remove());
       },
       /**
        * 清空左侧容器已访问记录
        */
       clearAsideItemIsVisited() {
-        this.$el.$contentAside.querySelectorAll(".pops-is-visited").forEach((element) => {
-          popsDOMUtils.removeClassName(element, "pops-is-visited");
+        this.$el.$contentAside.querySelectorAll(".pops-is-visited").forEach(($el) => {
+          popsDOMUtils.removeClassName($el, "pops-is-visited");
         });
       },
       /**
@@ -18552,33 +18552,33 @@ ${err.stack}`);
        * @param  asideConfig
        */
       createAsideItem(asideConfig) {
-        let liElement = document.createElement("li");
-        liElement.id = asideConfig.id;
-        liElement["__forms__"] = asideConfig.forms;
-        PopsSafeUtils.setSafeHTML(liElement, asideConfig.title);
-        this.setElementClassName(liElement, asideConfig.className);
-        this.setElementAttributes(liElement, asideConfig.attributes);
-        this.setElementProps(liElement, asideConfig.props);
-        return liElement;
+        let $li = document.createElement("li");
+        $li.id = asideConfig.id;
+        Reflect.set($li, "__forms__", asideConfig.forms);
+        PopsSafeUtils.setSafeHTML($li, asideConfig.title);
+        this.setElementClassName($li, asideConfig.className);
+        this.setElementAttributes($li, asideConfig.attributes);
+        this.setElementProps($li, asideConfig.props);
+        return $li;
       },
       /**
-       * 创建中间容器的元素<li>
        * type ==> switch
+       * 创建中间容器的元素<li>
        * @param formConfig
        */
       createSectionContainerItem_switch(formConfig) {
-        let liElement = document.createElement("li");
-        liElement["__formConfig__"] = formConfig;
-        this.setElementClassName(liElement, formConfig.className);
-        this.setElementAttributes(liElement, formConfig.attributes);
-        this.setElementProps(liElement, formConfig.props);
+        let $li = document.createElement("li");
+        Reflect.set($li, "__formConfig__", formConfig);
+        this.setElementClassName($li, formConfig.className);
+        this.setElementAttributes($li, formConfig.attributes);
+        this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
           leftDescriptionText = /*html*/
           `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
-          liElement,
+          $li,
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
@@ -18597,9 +18597,9 @@ ${err.stack}`);
             value: Boolean(formConfig.getValue())
           },
           $ele: {
-            switch: liElement.querySelector(".pops-panel-switch"),
-            input: liElement.querySelector(".pops-panel-switch__input"),
-            core: liElement.querySelector(".pops-panel-switch__core")
+            switch: $li.querySelector(".pops-panel-switch"),
+            input: $li.querySelector(".pops-panel-switch__input"),
+            core: $li.querySelector(".pops-panel-switch__core")
           },
           init() {
             this.setStatus(this.$data.value);
@@ -18659,26 +18659,26 @@ ${err.stack}`);
           }
         };
         PopsPanelSwitch.init();
-        liElement["data-switch"] = PopsPanelSwitch;
-        return liElement;
+        Reflect.set($li, "data-switch", PopsPanelSwitch);
+        return $li;
       },
       /**
-       * 获取中间容器的元素<li>
        * type ==> slider
+       * 获取中间容器的元素<li>
        * @param formConfig
        */
       createSectionContainerItem_slider(formConfig) {
-        let liElement = document.createElement("li");
-        liElement["__formConfig__"] = formConfig;
-        this.setElementClassName(liElement, formConfig.className);
-        this.setElementAttributes(liElement, formConfig.attributes);
-        this.setElementProps(liElement, formConfig.props);
+        let $li = document.createElement("li");
+        Reflect.set($li, "__formConfig__", formConfig);
+        this.setElementClassName($li, formConfig.className);
+        this.setElementAttributes($li, formConfig.attributes);
+        this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
           leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
-          liElement,
+          $li,
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
@@ -18688,11 +18688,11 @@ ${err.stack}`);
 				</div>
 			`
         );
-        let rangeInputElement = liElement.querySelector(".pops-panel-slider input[type=range]");
+        let $rangeInput = $li.querySelector(".pops-panel-slider input[type=range]");
         if (formConfig.step) {
-          rangeInputElement.setAttribute("step", formConfig.step.toString());
+          $rangeInput.setAttribute("step", formConfig.step.toString());
         }
-        rangeInputElement.value = formConfig.getValue().toString();
+        $rangeInput.value = formConfig.getValue().toString();
         let getToolTipContent = function(value) {
           if (typeof formConfig.getToolTipContent === "function") {
             return formConfig.getToolTipContent(value);
@@ -18701,9 +18701,9 @@ ${err.stack}`);
           }
         };
         let tooltip = PopsTooltip.init({
-          target: rangeInputElement.parentElement,
+          target: $rangeInput.parentElement,
           content: () => {
-            return getToolTipContent(rangeInputElement.value);
+            return getToolTipContent($rangeInput.value);
           },
           zIndex: () => {
             return PopsInstanceUtils.getPopsMaxZIndex().zIndex;
@@ -18714,32 +18714,32 @@ ${err.stack}`);
           position: "top",
           arrowDistance: 10
         });
-        popsDOMUtils.on(rangeInputElement, ["input", "propertychange"], void 0, function(event) {
-          tooltip.toolTip.changeContent(getToolTipContent(rangeInputElement.value));
+        popsDOMUtils.on($rangeInput, ["input", "propertychange"], void 0, function(event) {
+          tooltip.toolTip.changeContent(getToolTipContent($rangeInput.value));
           if (typeof formConfig.callback === "function") {
-            formConfig.callback(event, event.target.value);
+            formConfig.callback(event, $rangeInput.valueAsNumber);
           }
         });
-        return liElement;
+        return $li;
       },
       /**
-       * 获取中间容器的元素<li>
        * type ==> slider
+       * 获取中间容器的元素<li>
        * @param formConfig
        */
       createSectionContainerItem_slider_new(formConfig) {
-        let liElement = document.createElement("li");
-        liElement["__formConfig__"] = formConfig;
-        this.setElementClassName(liElement, formConfig.className);
-        this.setElementAttributes(liElement, formConfig.attributes);
-        this.setElementProps(liElement, formConfig.props);
+        let $li = document.createElement("li");
+        Reflect.set($li, "__formConfig__", formConfig);
+        this.setElementClassName($li, formConfig.className);
+        this.setElementAttributes($li, formConfig.attributes);
+        this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
           leftDescriptionText = /*html*/
           `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
-          liElement,
+          $li,
           /*html*/
           `
 				<div class="pops-panel-item-left-text" style="flex: 1;">
@@ -18816,11 +18816,11 @@ ${err.stack}`);
             tooltip: null
           },
           $ele: {
-            slider: liElement.querySelector(".pops-slider"),
-            runAway: liElement.querySelector(".pops-slider__runway"),
-            bar: liElement.querySelector(".pops-slider__bar"),
-            buttonWrapper: liElement.querySelector(".pops-slider__button-wrapper"),
-            button: liElement.querySelector(".pops-slider__button")
+            slider: $li.querySelector(".pops-slider"),
+            runAway: $li.querySelector(".pops-slider__runway"),
+            bar: $li.querySelector(".pops-slider__bar"),
+            buttonWrapper: $li.querySelector(".pops-slider__button-wrapper"),
+            button: $li.querySelector(".pops-slider__button")
           },
           $interval: {
             isCheck: false
@@ -18882,10 +18882,10 @@ ${err.stack}`);
             this.$ele.slider.setAttribute("data-max", this.max.toString());
             this.$ele.slider.setAttribute("data-value", this.value.toString());
             this.$ele.slider.setAttribute("data-step", this.step.toString());
-            this.$ele.slider["data-min"] = this.min;
-            this.$ele.slider["data-max"] = this.max;
-            this.$ele.slider["data-value"] = this.value;
-            this.$ele.slider["data-step"] = this.step;
+            Reflect.set(this.$ele.slider, "data-min", this.min);
+            Reflect.set(this.$ele.slider, "data-max", this.max);
+            Reflect.set(this.$ele.slider, "data-value", this.value);
+            Reflect.set(this.$ele.slider, "data-step", this.step);
           },
           /**
            * 初始化滑块的总长度的数据(px)
@@ -18903,7 +18903,7 @@ ${err.stack}`);
             let widthPx = 0;
             for (let stepValue = this.min; stepValue <= this.max; stepValue += this.step) {
               let value = this.formatValue(stepValue);
-              let info = {};
+              let info;
               if (value === this.min) {
                 info = {
                   value,
@@ -18936,7 +18936,7 @@ ${err.stack}`);
             let widthPx = 0;
             for (let stepValue = this.min; stepValue <= this.max; stepValue = PopsMathFloatUtils.add(stepValue, this.step)) {
               let value = this.formatValue(stepValue);
-              let info = {};
+              let info;
               if (value === this.min) {
                 info = {
                   value,
@@ -19075,7 +19075,7 @@ ${err.stack}`);
               if (event.target !== this.$ele.runAway && event.target !== this.$ele.bar) {
                 return;
               }
-              let clickX = parseFloat(event.offsetX);
+              let clickX = parseFloat(event.offsetX.toString());
               this.dragStartCallBack();
               this.dragMoveCallBack(event, clickX, this.value);
               this.dragEndCallBack(clickX);
@@ -19210,7 +19210,7 @@ ${err.stack}`);
               if (typeof formConfig.getToolTipContent === "function") {
                 return formConfig.getToolTipContent(PopsPanelSlider.value);
               } else {
-                return PopsPanelSlider.value;
+                return PopsPanelSlider.value.toString();
               }
             }
             let tooltip = PopsTooltip.init({
@@ -19250,20 +19250,20 @@ ${err.stack}`);
           }
         };
         PopsPanelSlider.init();
-        liElement["data-slider"] = PopsPanelSlider;
-        return liElement;
+        Reflect.set($li, "data-slider", PopsPanelSlider);
+        return $li;
       },
       /**
-       * 获取中间容器的元素<li>
        * type ==> input
+       * 获取中间容器的元素<li>
        * @param formConfig
        */
       createSectionContainerItem_input(formConfig) {
-        let liElement = document.createElement("li");
-        liElement["__formConfig__"] = formConfig;
-        this.setElementClassName(liElement, formConfig.className);
-        this.setElementAttributes(liElement, formConfig.attributes);
-        this.setElementProps(liElement, formConfig.props);
+        let $li = document.createElement("li");
+        Reflect.set($li, "__formConfig__", formConfig);
+        this.setElementClassName($li, formConfig.className);
+        this.setElementAttributes($li, formConfig.attributes);
+        this.setElementProps($li, formConfig.props);
         let inputType = "text";
         if (formConfig.isPassword) {
           inputType = "password";
@@ -19275,7 +19275,7 @@ ${err.stack}`);
           leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
-          liElement,
+          $li,
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
@@ -19288,8 +19288,8 @@ ${err.stack}`);
         const PopsPanelInput = {
           [Symbol.toStringTag]: "PopsPanelInput",
           $ele: {
-            panelInput: liElement.querySelector(".pops-panel-input"),
-            input: liElement.querySelector("input"),
+            panelInput: $li.querySelector(".pops-panel-input"),
+            input: $li.querySelector("input"),
             inputSpanIcon: document.createElement("span"),
             inputSpanIconInner: null,
             icon: null
@@ -19315,7 +19315,7 @@ ${err.stack}`);
               this.disable();
             }
             if (typeof formConfig.handlerCallBack === "function") {
-              formConfig.handlerCallBack(liElement, this.$ele.input);
+              formConfig.handlerCallBack($li, this.$ele.input);
             }
           },
           /**
@@ -19434,26 +19434,26 @@ ${err.stack}`);
           }
         };
         PopsPanelInput.init();
-        liElement["data-input"] = PopsPanelInput;
-        return liElement;
+        Reflect.set($li, "data-input", PopsPanelInput);
+        return $li;
       },
       /**
-       * 获取中间容器的元素<li>
        * type ==> textarea
+       * 获取中间容器的元素<li>
        * @param formConfig
        */
       createSectionContainerItem_textarea(formConfig) {
-        let liElement = document.createElement("li");
-        liElement["__formConfig__"] = formConfig;
-        this.setElementClassName(liElement, formConfig.className);
-        this.setElementAttributes(liElement, formConfig.attributes);
-        this.setElementProps(liElement, formConfig.props);
+        let $li = document.createElement("li");
+        Reflect.set($li, "__formConfig__", formConfig);
+        this.setElementClassName($li, formConfig.className);
+        this.setElementAttributes($li, formConfig.attributes);
+        this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
           leftDescriptionText = `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
-          liElement,
+          $li,
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
@@ -19466,8 +19466,8 @@ ${err.stack}`);
         const PopsPanelTextArea = {
           [Symbol.toStringTag]: "PopsPanelTextArea",
           $ele: {
-            panelTextarea: liElement.querySelector(".pops-panel-textarea"),
-            textarea: liElement.querySelector(".pops-panel-textarea textarea")
+            panelTextarea: $li.querySelector(".pops-panel-textarea"),
+            textarea: $li.querySelector(".pops-panel-textarea textarea")
           },
           $data: {
             value: formConfig.getValue()
@@ -19498,36 +19498,37 @@ ${err.stack}`);
            */
           setChangeEvent() {
             popsDOMUtils.on(this.$ele.textarea, ["input", "propertychange"], void 0, (event) => {
-              this.$data.value = event.target.value;
+              let value = this.$ele.textarea.value;
+              this.$data.value = value;
               if (typeof formConfig.callback === "function") {
-                formConfig.callback(event, event.target.value);
+                formConfig.callback(event, value);
               }
             });
           }
         };
         PopsPanelTextArea.init();
-        liElement["data-textarea"] = PopsPanelTextArea;
-        return liElement;
+        Reflect.set($li, "data-textarea", PopsPanelTextArea);
+        return $li;
       },
       /**
-       * 获取中间容器的元素<li>
        * type ==> select
+       * 获取中间容器的元素<li>
        * @param formConfig
        */
       createSectionContainerItem_select(formConfig) {
         const that = this;
-        let liElement = document.createElement("li");
-        liElement["__formConfig__"] = formConfig;
-        this.setElementClassName(liElement, formConfig.className);
-        this.setElementAttributes(liElement, formConfig.attributes);
-        this.setElementProps(liElement, formConfig.props);
+        let $li = document.createElement("li");
+        Reflect.set($li, "__formConfig__", formConfig);
+        this.setElementClassName($li, formConfig.className);
+        this.setElementAttributes($li, formConfig.attributes);
+        this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
           leftDescriptionText = /*html*/
           `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
-          liElement,
+          $li,
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
@@ -19540,8 +19541,8 @@ ${err.stack}`);
         const PopsPanelSelect = {
           [Symbol.toStringTag]: "PopsPanelSelect",
           $ele: {
-            panelSelect: liElement.querySelector(".pops-panel-select"),
-            select: liElement.querySelector(".pops-panel-select select")
+            panelSelect: $li.querySelector(".pops-panel-select"),
+            select: $li.querySelector(".pops-panel-select select")
           },
           $eleKey: {
             disable: "__disable__",
@@ -19658,7 +19659,7 @@ ${err.stack}`);
            */
           setChangeEvent() {
             popsDOMUtils.on(this.$ele.select, "change", void 0, (event) => {
-              let $isSelectedElement = event.target[event.target.selectedIndex];
+              let $isSelectedElement = this.$ele.select[this.$ele.select.selectedIndex];
               let selectInfo = this.getSelectOptionInfo($isSelectedElement);
               this.setSelectOptionsDisableStatus();
               if (typeof formConfig.callback === "function") {
@@ -19667,16 +19668,16 @@ ${err.stack}`);
               let forms = typeof selectInfo.forms === "function" ? selectInfo.forms() : selectInfo.forms;
               if (Array.isArray(forms)) {
                 let childUListClassName = "pops-panel-select-child-forms";
-                while (liElement.nextElementSibling) {
-                  if (liElement.nextElementSibling.classList.contains(childUListClassName)) {
-                    liElement.nextElementSibling.remove();
+                while ($li.nextElementSibling) {
+                  if ($li.nextElementSibling.classList.contains(childUListClassName)) {
+                    $li.nextElementSibling.remove();
                   } else {
                     break;
                   }
                 }
                 let $childUList = document.createElement("ul");
                 $childUList.className = childUListClassName;
-                popsDOMUtils.after(liElement, $childUList);
+                popsDOMUtils.after($li, $childUList);
                 that.uListContainerAddItem(formConfig, {
                   ulElement: $childUList
                 });
@@ -19696,27 +19697,27 @@ ${err.stack}`);
           }
         };
         PopsPanelSelect.init();
-        Reflect.set(liElement, "data-select", PopsPanelSelect);
-        return liElement;
+        Reflect.set($li, "data-select", PopsPanelSelect);
+        return $li;
       },
       /**
-       * 获取中间容器的元素<li>
        * type ==> select-multiple
+       * 获取中间容器的元素<li>
        * @param formConfig
        */
       createSectionContainerItem_select_multiple_new(formConfig) {
-        let liElement = document.createElement("li");
-        Reflect.set(liElement, "__formConfig__", formConfig);
-        this.setElementClassName(liElement, formConfig.className);
-        this.setElementAttributes(liElement, formConfig.attributes);
-        this.setElementProps(liElement, formConfig.props);
+        let $li = document.createElement("li");
+        Reflect.set($li, "__formConfig__", formConfig);
+        this.setElementClassName($li, formConfig.className);
+        this.setElementAttributes($li, formConfig.attributes);
+        this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
           leftDescriptionText = /*html*/
           `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
-          liElement,
+          $li,
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
@@ -19792,13 +19793,13 @@ ${err.stack}`);
           },
           /** 初始化$el变量 */
           inintEl() {
-            this.$el.$container = liElement.querySelector(".pops-panel-select-multiple");
-            this.$el.$wrapper = liElement.querySelector(".el-select__wrapper");
-            this.$el.$section = liElement.querySelector(".el-select__selection");
-            this.$el.$selectedInputWrapper = liElement.querySelector(".el-select__selected-item.el-select__input-wrapper");
-            this.$el.$selectedPlaceHolderWrapper = liElement.querySelector(".el-select__selected-item.el-select__placeholder");
-            this.$el.$suffix = liElement.querySelector(".el-select__suffix");
-            this.$el.$suffixIcon = liElement.querySelector(".el-select__suffix .el-icon");
+            this.$el.$container = $li.querySelector(".pops-panel-select-multiple");
+            this.$el.$wrapper = $li.querySelector(".el-select__wrapper");
+            this.$el.$section = $li.querySelector(".el-select__selection");
+            this.$el.$selectedInputWrapper = $li.querySelector(".el-select__selected-item.el-select__input-wrapper");
+            this.$el.$selectedPlaceHolderWrapper = $li.querySelector(".el-select__selected-item.el-select__placeholder");
+            this.$el.$suffix = $li.querySelector(".el-select__suffix");
+            this.$el.$suffixIcon = $li.querySelector(".el-select__suffix .el-icon");
             this.hideInputWrapper();
           },
           /** 初始化提示文字 */
@@ -20317,27 +20318,27 @@ ${err.stack}`);
           }
         };
         PopsPanelSelectMultiple.init();
-        Reflect.set(liElement, "data-select-multiple", PopsPanelSelectMultiple);
-        return liElement;
+        Reflect.set($li, "data-select-multiple", PopsPanelSelectMultiple);
+        return $li;
       },
       /**
-       * 获取中间容器的元素<li>
        * type ==> button
+       * 获取中间容器的元素<li>
        * @param formConfig
        */
       createSectionContainerItem_button(formConfig) {
-        let liElement = document.createElement("li");
-        liElement["__formConfig__"] = formConfig;
-        this.setElementClassName(liElement, formConfig.className);
-        this.setElementAttributes(liElement, formConfig.attributes);
-        this.setElementProps(liElement, formConfig.props);
+        let $li = document.createElement("li");
+        Reflect.set($li, "__formConfig__", formConfig);
+        this.setElementClassName($li, formConfig.className);
+        this.setElementAttributes($li, formConfig.attributes);
+        this.setElementProps($li, formConfig.props);
         let leftDescriptionText = "";
         if (Boolean(formConfig.description)) {
           leftDescriptionText = /*html*/
           `<p class="pops-panel-item-left-desc-text">${formConfig.description}</p>`;
         }
         PopsSafeUtils.setSafeHTML(
-          liElement,
+          $li,
           /*html*/
           `
 				<div class="pops-panel-item-left-text">
@@ -20353,10 +20354,10 @@ ${err.stack}`);
         const PopsPanelButton = {
           [Symbol.toStringTag]: "PopsPanelButton",
           $ele: {
-            panelButton: liElement.querySelector(".pops-panel-button"),
-            button: liElement.querySelector(".pops-panel-button .pops-panel-button_inner"),
-            icon: liElement.querySelector(".pops-panel-button .pops-bottom-icon"),
-            spanText: liElement.querySelector(".pops-panel-button .pops-panel-button-text")
+            panelButton: $li.querySelector(".pops-panel-button"),
+            button: $li.querySelector(".pops-panel-button .pops-panel-button_inner"),
+            icon: $li.querySelector(".pops-panel-button .pops-bottom-icon"),
+            spanText: $li.querySelector(".pops-panel-button .pops-panel-button-text")
           },
           $data: {},
           init() {
@@ -20463,10 +20464,11 @@ ${err.stack}`);
           }
         };
         PopsPanelButton.init();
-        liElement["data-button"] = PopsPanelButton;
-        return liElement;
+        Reflect.set($li, "data-button", PopsPanelButton);
+        return $li;
       },
       /**
+       * type ==> deepMenu
        * 获取深层容器的元素<li>
        * @param formConfig
        */
@@ -20474,7 +20476,7 @@ ${err.stack}`);
         let that = this;
         let $li = document.createElement("li");
         $li.classList.add("pops-panel-deepMenu-nav-item");
-        $li["__formConfig__"] = formConfig;
+        Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
         this.setElementAttributes($li, formConfig.attributes);
         this.setElementProps($li, formConfig.props);
@@ -20597,6 +20599,7 @@ ${err.stack}`);
             let $deepMenuContainer = popsDOMUtils.createElement("section", {
               className: "pops-panel-container pops-panel-deepMenu-container"
             });
+            Reflect.set($deepMenuContainer, "__formConfig__", formConfig);
             let $deepMenuHeaderUL = popsDOMUtils.createElement("ul", {
               className: "pops-panel-deepMenu-container-header-ul"
             });
@@ -20610,12 +20613,12 @@ ${err.stack}`);
               className: "pops-panel-deepMenu-container-left-arrow-icon",
               innerHTML: PopsIcon.getIcon("arrowLeft")
             });
-            popsDOMUtils.on($headerLeftArrow, "click", void 0, (event2) => {
-              event2?.preventDefault();
-              event2?.stopPropagation();
+            popsDOMUtils.on($headerLeftArrow, "click", (event2) => {
+              popsDOMUtils.preventEvent(event2);
               let $prev = $deepMenuContainer.previousElementSibling;
               popsDOMUtils.cssShow($prev);
               $deepMenuContainer.remove();
+              that.triggerRenderRightContainer($prev);
             }, {
               once: true
             });
@@ -20638,6 +20641,7 @@ ${err.stack}`);
                 sectionBodyContainer: $deepMenuBodyUL
               });
             }
+            that.triggerRenderRightContainer($deepMenuContainer);
           },
           /** 设置项的点击事件 */
           setLiClickEvent() {
@@ -20653,22 +20657,22 @@ ${err.stack}`);
           }
         };
         PopsPanelDeepMenu.init();
-        $li["data-deepMenu"] = PopsPanelDeepMenu;
+        Reflect.set($li, "data-deepMenu", PopsPanelDeepMenu);
         return $li;
       },
       /**
-       * 获取中间容器的元素<li>
        * type ===> own
+       * 获取中间容器的元素<li>
        * @param formConfig
        */
       createSectionContainerItem_own(formConfig) {
-        let liElement = document.createElement("li");
-        liElement["__formConfig__"] = formConfig;
+        let $li = document.createElement("li");
+        Reflect.set($li, "__formConfig__", formConfig);
         if (formConfig.className) {
-          liElement.className = formConfig.className;
+          $li.className = formConfig.className;
         }
-        liElement = formConfig.getLiElementCallBack(liElement);
-        return liElement;
+        $li = formConfig.getLiElementCallBack($li);
+        return $li;
       },
       /**
        * 获取中间容器的元素<li>
@@ -20773,6 +20777,17 @@ ${err.stack}`);
         }
       },
       /**
+       * 触发触发渲染右侧容器的事件
+       */
+      triggerRenderRightContainer($container) {
+        let __formConfig__ = Reflect.get($container, "__formConfig__");
+        this.$el.$pops.dispatchEvent(new CustomEvent("pops:renderRightContainer", {
+          detail: {
+            formConfig: __formConfig__
+          }
+        }));
+      },
+      /**
        *
        * @param formConfig
        * @param containerOptions
@@ -20798,23 +20813,25 @@ ${err.stack}`);
         const that = this;
         popsDOMUtils.on(asideLiElement, "click", void 0, (event) => {
           this.clearContainer();
+          let rightContainerFormConfig = Reflect.get(asideLiElement, "__forms__");
+          Reflect.set(that.$el.$contentSectionContainer, "__formConfig__", rightContainerFormConfig);
           popsDOMUtils.cssShow(that.$el.$contentSectionContainer);
           this.clearAsideItemIsVisited();
           this.setAsideItemIsVisited(asideLiElement);
           let headerTitleText = asideConfig.headerTitle ?? asideConfig.title;
           if (typeof headerTitleText === "string" && headerTitleText.trim() !== "") {
-            let containerHeaderTitleLIElement = document.createElement("li");
-            containerHeaderTitleLIElement["__asideConfig__"] = asideConfig;
-            PopsSafeUtils.setSafeHTML(containerHeaderTitleLIElement, headerTitleText);
-            this.sectionContainerHeaderULElement.appendChild(containerHeaderTitleLIElement);
+            let $containerHeaderTitle = document.createElement("li");
+            Reflect.set($containerHeaderTitle, "__asideConfig__", asideConfig);
+            PopsSafeUtils.setSafeHTML($containerHeaderTitle, headerTitleText);
+            this.sectionContainerHeaderULElement.appendChild($containerHeaderTitle);
           }
-          let __forms__ = asideLiElement["__forms__"];
-          __forms__.forEach((formConfig) => {
+          rightContainerFormConfig.forEach((formConfig) => {
             this.createSectionContainerItem_forms(formConfig);
           });
           if (typeof asideConfig.callback === "function") {
             asideConfig.callback(event, this.sectionContainerHeaderULElement, this.sectionContainerULElement);
           }
+          that.triggerRenderRightContainer(that.$el.$contentSectionContainer);
         });
       }
     };
@@ -20895,6 +20912,7 @@ ${err.stack}`);
       panelHandleContentDetails.init({
         config,
         $el: {
+          $pops,
           $content,
           $contentAside,
           $contentSectionContainer
@@ -20918,7 +20936,15 @@ ${err.stack}`);
         });
       }
       let result = PopsHandler.handleResultDetails(eventDetails);
-      return result;
+      return {
+        ...result,
+        addEventListener: (event, listener, options) => {
+          $pops.addEventListener(event, listener, options);
+        },
+        removeEventListener: (event, listener, options) => {
+          $pops.removeEventListener(event, listener, options);
+        }
+      };
     }
   };
   const rightClickMenuConfig = () => {
@@ -22040,7 +22066,7 @@ ${err.stack}`);
     /** 配置 */
     config = {
       /** 版本号 */
-      version: "2025.6.18",
+      version: "2025.6.25",
       cssText: PopsCSS,
       /** icon图标的svg代码 */
       iconSVG: PopsIcon.$data,
