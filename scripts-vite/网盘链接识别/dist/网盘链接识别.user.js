@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.24
+// @version      2025.6.26
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -83,10 +83,6 @@
 (function (Qmsg, DOMUtils, Utils, pops, CryptoJS) {
   'use strict';
 
-  var __defProp = Object.defineProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  var _a;
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -299,11 +295,10 @@
         });
       }
       function checkClipboardApi() {
-        var _a2, _b;
-        if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
+        if (typeof navigator?.clipboard?.readText !== "function") {
           return false;
         }
-        if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
+        if (typeof navigator?.permissions?.query !== "function") {
           return false;
         }
         return true;
@@ -360,7 +355,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   const AnyTouch = pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -414,11 +409,10 @@
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        var _a2;
-        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+        if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
-        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
           return false;
         }
       });
@@ -532,6 +526,9 @@
     }
   };
   class StorageUtils {
+    /** 存储的键名 */
+    storageKey;
+    listenerData;
     /**
      * 存储的键名，可以是多层的，如：a.b.c
      *
@@ -548,9 +545,6 @@
      * @param key
      */
     constructor(key) {
-      /** 存储的键名 */
-      __publicField(this, "storageKey");
-      __publicField(this, "listenerData");
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -1315,223 +1309,223 @@
   };
   class Paging {
     /**
+     * @type {DeepRequired<PagingConfig>}
+     */
+    CONFIG = {
+      data: [],
+      pageCount: 5,
+      pageStep: 3,
+      currentPage: 1,
+      pageChangeCallBack: function(page) {
+      },
+      prevBtn: {
+        enable: true,
+        callBack: function() {
+        }
+      },
+      nextBtn: {
+        enable: true,
+        callBack: function() {
+        }
+      },
+      firstBtn: {
+        enable: true,
+        callBack: function() {
+        }
+      },
+      lastBtn: {
+        enable: true,
+        callBack: function() {
+        }
+      }
+    };
+    PAGE_CONFIG = {
+      /**
+       * 获取当前所在页
+       * @returns {Number}
+       */
+      getCurrentPage: () => {
+        return this.DOM_CONFIG.getAttributeWithPageId(
+          // @ts-ignore
+          this.DOM_CONFIG.getAttributeWithCurrentPage()
+        );
+      },
+      /** 最大页码 */
+      maxPage: 1
+    };
+    DOM_CONFIG = {
+      /* 整个分页元素 */
+      dataPagingNode: {
+        localName: "div",
+        id: "whitesev-datapaging",
+        dom: null
+      },
+      /* 第一页按钮 */
+      firstBtnNode: {
+        localName: "a",
+        className: "pg-first",
+        svgHTML: `<svg t="1694497357294" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4758" width="20"><path d="M730.639277 211.376748l60.943177 60.943176-301.698894 301.698893L428.940384 513.075641z" p-id="4759"></path><path d="M730.496772 814.924547l60.943176-60.943176-301.698893-301.698893L428.797879 513.225654z" p-id="4760"></path><path d="M298.666667 213.333333h85.333333v597.333334H298.666667z" p-id="4761"></path></svg>`,
+        get: () => {
+          return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
+            `${this.DOM_CONFIG.firstBtnNode.localName}.${this.DOM_CONFIG.firstBtnNode.className}`
+          );
+        }
+      },
+      /* 上一页按钮 */
+      prevBtnNode: {
+        localName: "a",
+        className: "pg-prev",
+        svgHTML: `<svg t="1694497840770" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5272" width="20"><path d="M620.322607 151.04875l60.943176 60.943176-362.038672 362.038672L258.283935 513.087422z" p-id="5273"></path><path d="M620.180101 875.252545l60.943177-60.943176-362.038672-362.038672L258.141429 513.213873z" p-id="5274"></path></svg>`,
+        get: () => {
+          return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
+            `${this.DOM_CONFIG.prevBtnNode.localName}.${this.DOM_CONFIG.prevBtnNode.className}`
+          );
+        }
+      },
+      /* 下一页按钮 */
+      nextBtnNode: {
+        localName: "a",
+        className: "pg-next",
+        svgHTML: `<svg t="1694497949481" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5465" width="20"><path d="M403.399239 151.02258l-60.943177 60.943177 362.038672 362.038672L765.437911 513.061252z" p-id="5466"></path><path d="M403.576858 875.263008l-60.943176-60.943176 362.038672-362.038672L765.61553 513.224336z" p-id="5467"></path></svg>`,
+        get: () => {
+          return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
+            `${this.DOM_CONFIG.nextBtnNode.localName}.${this.DOM_CONFIG.nextBtnNode.className}`
+          );
+        }
+      },
+      /* 最后一页按钮 */
+      lastBtnNode: {
+        localName: "a",
+        className: "pg-last",
+        svgHTML: `<svg t="1694498035538" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2299" width="20"><path d="M516.266667 490.666667L256 230.4 315.733333 170.666667l320 320L315.733333 810.666667 256 750.933333l260.266667-260.266666zM678.4 170.666667h85.333333v640h-85.333333V170.666667z" p-id="2300"></path></svg>`,
+        get: () => {
+          return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
+            `${this.DOM_CONFIG.lastBtnNode.localName}.${this.DOM_CONFIG.lastBtnNode.className}`
+          );
+        }
+      },
+      /**
+       * 设置 元素的 页码 值
+       * @param {HTMLElement} node
+       */
+      // @ts-ignore
+      setAttributeWithPageId: (node, page) => {
+        node.setAttribute("page-id", page);
+      },
+      /**
+       * 获取 元素 的页码属性
+       * @param {HTMLElement} node
+       * @returns {number|null}
+       */
+      getAttributeWithPageId: (node) => {
+        return node?.getAttribute("page-id") ? (
+          // @ts-ignore
+          parseInt(node.getAttribute("page-id"))
+        ) : null;
+      },
+      /**
+       * 判断 元素 是否存在页码属性
+       * @param {HTMLElement} node
+       * @returns {Boolean}
+       */
+      hasAttributeWithPageId: (node) => {
+        return node.hasAttribute("page-id");
+      },
+      /**
+       * 设置 元素的属性 为当前所在页码
+       * @param {HTMLElement} node
+       */
+      setAttributeWithCurrentPage: (node) => {
+        node.setAttribute("data-current-page", "");
+      },
+      /**
+       * 获取当前页码的元素
+       * @param {HTMLElement?} dataPagingNode
+       * @returns {HTMLElement|null}
+       */
+      getAttributeWithCurrentPage: (dataPagingNode) => {
+        return (
+          // @ts-ignore
+          (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
+            "a[data-current-page]"
+          )
+        );
+      },
+      /**
+       * 判断 元素 是否存在 当前页的属性
+       * @param {HTMLElement} node
+       * @returns
+       */
+      hasAttributeWithCurrentPage: (node) => {
+        return node.hasAttribute("data-current-page");
+      },
+      /**
+       * 移除 当前页码的属性
+       * @param {HTMLElement} node
+       */
+      removeAttributeWithCurrentPage: (node) => {
+        node.removeAttribute("data-current-page");
+      },
+      /**
+       * 设置 元素 禁用
+       * @param {HTMLElement} node
+       */
+      setAttributeWithDisabled: (node) => {
+        node.setAttribute("disabled", "true");
+      },
+      /**
+       * 移除当前页面的禁用的元素
+       * @param {HTMLElement|null} dataPagingNode
+       */
+      removeAllAttributeWithDisabled: (dataPagingNode) => {
+        (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelectorAll("a[class][disabled]").forEach((item) => {
+          item.removeAttribute("disabled");
+        });
+      },
+      /**
+       * 获取 第一页 元素节点
+       * @param {HTMLElement?} dataPagingNode
+       * @returns {HTMLElement|null}
+       */
+      getFirstPageNode: (dataPagingNode) => {
+        return (
+          // @ts-ignore
+          (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
+            "a[page-id='1']"
+          )
+        );
+      },
+      /**
+       * 获取 最后一页 元素节点
+       * @param {HTMLElement?} dataPagingNode
+       * @returns {HTMLElement|null}
+       */
+      getLastPageNode: (dataPagingNode) => {
+        return (
+          // @ts-ignore
+          (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
+            `a[page-id='${this.PAGE_CONFIG.maxPage}']`
+          )
+        );
+      },
+      /**
+       * 获取当前所有的页码元素节点
+       * @param {HTMLElement?} dataPagingNode
+       * @returns {NodeList}
+       */
+      getAllPageNode: (dataPagingNode) => {
+        return (
+          // @ts-ignore
+          (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelectorAll(
+            "a[page-id]"
+          )
+        );
+      }
+    };
+    /**
      * @param {PagingConfig} details
      */
     constructor(details) {
-      /**
-       * @type {DeepRequired<PagingConfig>}
-       */
-      __publicField(this, "CONFIG", {
-        data: [],
-        pageCount: 5,
-        pageStep: 3,
-        currentPage: 1,
-        pageChangeCallBack: function(page) {
-        },
-        prevBtn: {
-          enable: true,
-          callBack: function() {
-          }
-        },
-        nextBtn: {
-          enable: true,
-          callBack: function() {
-          }
-        },
-        firstBtn: {
-          enable: true,
-          callBack: function() {
-          }
-        },
-        lastBtn: {
-          enable: true,
-          callBack: function() {
-          }
-        }
-      });
-      __publicField(this, "PAGE_CONFIG", {
-        /**
-         * 获取当前所在页
-         * @returns {Number}
-         */
-        getCurrentPage: () => {
-          return this.DOM_CONFIG.getAttributeWithPageId(
-            // @ts-ignore
-            this.DOM_CONFIG.getAttributeWithCurrentPage()
-          );
-        },
-        /** 最大页码 */
-        maxPage: 1
-      });
-      __publicField(this, "DOM_CONFIG", {
-        /* 整个分页元素 */
-        dataPagingNode: {
-          localName: "div",
-          id: "whitesev-datapaging",
-          dom: null
-        },
-        /* 第一页按钮 */
-        firstBtnNode: {
-          localName: "a",
-          className: "pg-first",
-          svgHTML: `<svg t="1694497357294" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4758" width="20"><path d="M730.639277 211.376748l60.943177 60.943176-301.698894 301.698893L428.940384 513.075641z" p-id="4759"></path><path d="M730.496772 814.924547l60.943176-60.943176-301.698893-301.698893L428.797879 513.225654z" p-id="4760"></path><path d="M298.666667 213.333333h85.333333v597.333334H298.666667z" p-id="4761"></path></svg>`,
-          get: () => {
-            return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
-              `${this.DOM_CONFIG.firstBtnNode.localName}.${this.DOM_CONFIG.firstBtnNode.className}`
-            );
-          }
-        },
-        /* 上一页按钮 */
-        prevBtnNode: {
-          localName: "a",
-          className: "pg-prev",
-          svgHTML: `<svg t="1694497840770" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5272" width="20"><path d="M620.322607 151.04875l60.943176 60.943176-362.038672 362.038672L258.283935 513.087422z" p-id="5273"></path><path d="M620.180101 875.252545l60.943177-60.943176-362.038672-362.038672L258.141429 513.213873z" p-id="5274"></path></svg>`,
-          get: () => {
-            return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
-              `${this.DOM_CONFIG.prevBtnNode.localName}.${this.DOM_CONFIG.prevBtnNode.className}`
-            );
-          }
-        },
-        /* 下一页按钮 */
-        nextBtnNode: {
-          localName: "a",
-          className: "pg-next",
-          svgHTML: `<svg t="1694497949481" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5465" width="20"><path d="M403.399239 151.02258l-60.943177 60.943177 362.038672 362.038672L765.437911 513.061252z" p-id="5466"></path><path d="M403.576858 875.263008l-60.943176-60.943176 362.038672-362.038672L765.61553 513.224336z" p-id="5467"></path></svg>`,
-          get: () => {
-            return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
-              `${this.DOM_CONFIG.nextBtnNode.localName}.${this.DOM_CONFIG.nextBtnNode.className}`
-            );
-          }
-        },
-        /* 最后一页按钮 */
-        lastBtnNode: {
-          localName: "a",
-          className: "pg-last",
-          svgHTML: `<svg t="1694498035538" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2299" width="20"><path d="M516.266667 490.666667L256 230.4 315.733333 170.666667l320 320L315.733333 810.666667 256 750.933333l260.266667-260.266666zM678.4 170.666667h85.333333v640h-85.333333V170.666667z" p-id="2300"></path></svg>`,
-          get: () => {
-            return this.DOM_CONFIG.dataPagingNode.dom.querySelector(
-              `${this.DOM_CONFIG.lastBtnNode.localName}.${this.DOM_CONFIG.lastBtnNode.className}`
-            );
-          }
-        },
-        /**
-         * 设置 元素的 页码 值
-         * @param {HTMLElement} node
-         */
-        // @ts-ignore
-        setAttributeWithPageId: (node, page) => {
-          node.setAttribute("page-id", page);
-        },
-        /**
-         * 获取 元素 的页码属性
-         * @param {HTMLElement} node
-         * @returns {number|null}
-         */
-        getAttributeWithPageId: (node) => {
-          return (node == null ? void 0 : node.getAttribute("page-id")) ? (
-            // @ts-ignore
-            parseInt(node.getAttribute("page-id"))
-          ) : null;
-        },
-        /**
-         * 判断 元素 是否存在页码属性
-         * @param {HTMLElement} node
-         * @returns {Boolean}
-         */
-        hasAttributeWithPageId: (node) => {
-          return node.hasAttribute("page-id");
-        },
-        /**
-         * 设置 元素的属性 为当前所在页码
-         * @param {HTMLElement} node
-         */
-        setAttributeWithCurrentPage: (node) => {
-          node.setAttribute("data-current-page", "");
-        },
-        /**
-         * 获取当前页码的元素
-         * @param {HTMLElement?} dataPagingNode
-         * @returns {HTMLElement|null}
-         */
-        getAttributeWithCurrentPage: (dataPagingNode) => {
-          return (
-            // @ts-ignore
-            (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
-              "a[data-current-page]"
-            )
-          );
-        },
-        /**
-         * 判断 元素 是否存在 当前页的属性
-         * @param {HTMLElement} node
-         * @returns
-         */
-        hasAttributeWithCurrentPage: (node) => {
-          return node.hasAttribute("data-current-page");
-        },
-        /**
-         * 移除 当前页码的属性
-         * @param {HTMLElement} node
-         */
-        removeAttributeWithCurrentPage: (node) => {
-          node.removeAttribute("data-current-page");
-        },
-        /**
-         * 设置 元素 禁用
-         * @param {HTMLElement} node
-         */
-        setAttributeWithDisabled: (node) => {
-          node.setAttribute("disabled", "true");
-        },
-        /**
-         * 移除当前页面的禁用的元素
-         * @param {HTMLElement|null} dataPagingNode
-         */
-        removeAllAttributeWithDisabled: (dataPagingNode) => {
-          (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelectorAll("a[class][disabled]").forEach((item) => {
-            item.removeAttribute("disabled");
-          });
-        },
-        /**
-         * 获取 第一页 元素节点
-         * @param {HTMLElement?} dataPagingNode
-         * @returns {HTMLElement|null}
-         */
-        getFirstPageNode: (dataPagingNode) => {
-          return (
-            // @ts-ignore
-            (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
-              "a[page-id='1']"
-            )
-          );
-        },
-        /**
-         * 获取 最后一页 元素节点
-         * @param {HTMLElement?} dataPagingNode
-         * @returns {HTMLElement|null}
-         */
-        getLastPageNode: (dataPagingNode) => {
-          return (
-            // @ts-ignore
-            (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelector(
-              `a[page-id='${this.PAGE_CONFIG.maxPage}']`
-            )
-          );
-        },
-        /**
-         * 获取当前所有的页码元素节点
-         * @param {HTMLElement?} dataPagingNode
-         * @returns {NodeList}
-         */
-        getAllPageNode: (dataPagingNode) => {
-          return (
-            // @ts-ignore
-            (dataPagingNode || this.DOM_CONFIG.dataPagingNode.dom).querySelectorAll(
-              "a[page-id]"
-            )
-          );
-        }
-      });
       this.changeConfig(details);
     }
     /**
@@ -1943,9 +1937,8 @@
      * @param {Node} parentNode
      */
     append(parentNode) {
-      var _a2;
       let that = this;
-      (_a2 = that.DOM_CONFIG.dataPagingNode.dom) == null ? void 0 : _a2.remove();
+      that.DOM_CONFIG.dataPagingNode.dom?.remove();
       that.DOM_CONFIG.dataPagingNode.dom = null;
       parentNode.appendChild(that.getDataPagingNode());
     }
@@ -2385,7 +2378,6 @@
     if (window.location.hostname === "pan.baidu.com" && window.location.pathname === "/share/init" && window.location.search.startsWith("?surl=")) {
       log.success("自动填写链接", netDiskInfo);
       utils.waitNode("div.verify-form #accessCode").then(($ele) => {
-        var _a2;
         if (!utils.isVisible($ele)) {
           log.error("输入框不可见，不输入密码");
           return;
@@ -2393,7 +2385,7 @@
         Qmsg.success("自动填充访问码");
         $ele.value = netDiskInfo.accessCode;
         utils.dispatchEvent($ele, "input");
-        (_a2 = document.querySelector("div.verify-form #submitBtn")) == null ? void 0 : _a2.click();
+        document.querySelector("div.verify-form #submitBtn")?.click();
       });
     }
     if (window.location.hostname === "pan.baidu.com" && window.location.pathname === "/wap/init" && window.location.search.startsWith("?surl=")) {
@@ -2401,7 +2393,6 @@
       utils.waitNode(
         "div.extractWrap div.extract-content div.extractInputWrap.extract input[type=text]"
       ).then(($input) => {
-        var _a2;
         if (!utils.isVisible($input)) {
           log.error("输入框不可见，不输入密码");
           return;
@@ -2409,9 +2400,9 @@
         Qmsg.success("自动填充访问码");
         $input.value = netDiskInfo.accessCode;
         utils.dispatchEvent($input, "input");
-        (_a2 = document.querySelector(
+        document.querySelector(
           "div.extractWrap div.extract-content button.m-button"
-        )) == null ? void 0 : _a2.click();
+        )?.click();
       });
     }
   };
@@ -2419,7 +2410,6 @@
     if (window.location.hostname.match(/lanzou[a-z]{1}.com/gi)) {
       log.success("自动填写链接", netDiskInfo);
       utils.waitNode("#pwd").then(($input) => {
-        var _a2, _b;
         if (!utils.isVisible($input)) {
           log.error("输入框不可见，不输入密码");
           return;
@@ -2427,10 +2417,10 @@
         Qmsg.success("自动填充访问码");
         $input.value = netDiskInfo.accessCode;
         utils.dispatchEvent($input, "input");
-        (_a2 = document.querySelector(
+        (document.querySelector(
           "#passwddiv div.passwddiv-input > div"
-        ) || $input.nextElementSibling) == null ? void 0 : _a2.click();
-        (_b = document.querySelector("#sub")) == null ? void 0 : _b.click();
+        ) || $input.nextElementSibling)?.click();
+        document.querySelector("#sub")?.click();
       });
       utils.waitNode("#f_pwd").then((element) => {
         utils.mutationObserver(element, {
@@ -2439,7 +2429,6 @@
             attributeFilter: ["style"]
           },
           callback: (mutations, observer) => {
-            var _a2;
             let inputElement = document.querySelector("#f_pwd #pwd");
             if (!utils.isVisible(inputElement)) {
               log.error("输入框不可见，不输入密码");
@@ -2450,7 +2439,7 @@
             Qmsg.success("自动填充访问码");
             inputElement.value = netDiskInfo.accessCode;
             utils.dispatchEvent(inputElement, "input");
-            (_a2 = document.querySelector("#f_pwd #sub")) == null ? void 0 : _a2.click();
+            document.querySelector("#f_pwd #sub")?.click();
           }
         });
       });
@@ -2636,17 +2625,15 @@
         ]).then(($el) => {
           ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
             check(reactPropInst) {
-              var _a2;
-              return typeof (reactPropInst == null ? void 0 : reactPropInst.onChange) === "function" || typeof ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange) === "function";
+              return typeof reactPropInst?.onChange === "function" || typeof reactPropInst?.memoizedProps?.onChange === "function";
             },
             set(reactPropInst) {
-              var _a2;
               if (!utils.isVisible($el)) {
                 log.error("输入框不可见，不输入密码");
                 return;
               }
               $el.value = netDiskInfo.accessCode;
-              let onChange = (reactPropInst == null ? void 0 : reactPropInst.onChange) || ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange);
+              let onChange = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
               onChange({
                 currentTarget: $el,
                 target: $el
@@ -2674,17 +2661,15 @@
         ]).then(($el) => {
           ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
             check(reactPropInst) {
-              var _a2;
-              return typeof (reactPropInst == null ? void 0 : reactPropInst.onChange) === "function" || typeof ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange) === "function";
+              return typeof reactPropInst?.onChange === "function" || typeof reactPropInst?.memoizedProps?.onChange === "function";
             },
             set(reactPropInst) {
-              var _a2;
               if (!utils.isVisible($el)) {
                 log.error("输入框不可见，不输入密码");
                 return;
               }
               $el.value = netDiskInfo.accessCode;
-              let onChange = (reactPropInst == null ? void 0 : reactPropInst.onChange) || ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange);
+              let onChange = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
               onChange({
                 currentTarget: $el,
                 target: $el
@@ -2784,17 +2769,15 @@
             ["reactProps", "reactEventHandlers"],
             {
               check(reactPropInst) {
-                var _a2;
-                return typeof (reactPropInst == null ? void 0 : reactPropInst.onChange) === "function" || typeof ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange) === "function";
+                return typeof reactPropInst?.onChange === "function" || typeof reactPropInst?.memoizedProps?.onChange === "function";
               },
               set(reactPropInst) {
-                var _a2;
                 if (!utils.isVisible($el)) {
                   log.error("输入框不可见，不输入密码");
                   return;
                 }
                 $el.value = netDiskInfo.accessCode;
-                let onChange = (reactPropInst == null ? void 0 : reactPropInst.onChange) || ((_a2 = reactPropInst == null ? void 0 : reactPropInst.memoizedProps) == null ? void 0 : _a2.onChange);
+                let onChange = reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange;
                 onChange({
                   currentTarget: $el,
                   target: $el
@@ -2853,7 +2836,7 @@
         let $submit = $(
           "#extract-bg-container input.submit-btn"
         );
-        $submit == null ? void 0 : $submit.click();
+        $submit?.click();
       });
       utils.waitNode("#extractForm input.pwd-input").then(($el) => {
         if (!utils.isVisible($el)) {
@@ -2864,7 +2847,7 @@
         $el.value = netDiskInfo.accessCode;
         utils.dispatchEvent($el, "input");
         let $submit = $("#extractForm input.submit-btn");
-        $submit == null ? void 0 : $submit.click();
+        $submit?.click();
       });
     }
   };
@@ -3577,37 +3560,32 @@
     }
   };
   class ParseFileAbstract {
-    constructor() {
-      /** 所在规则的下标 */
-      __publicField(this, "ruleIndex", 0);
-      /** 分享码 */
-      __publicField(this, "shareCode", "");
-      /** 提取码 */
-      __publicField(this, "accessCode", "");
-    }
+    /** 所在规则的下标 */
+    ruleIndex = 0;
+    /** 分享码 */
+    shareCode = "";
+    /** 提取码 */
+    accessCode = "";
   }
   class NetDiskParse_123pan extends ParseFileAbstract {
-    constructor() {
-      super(...arguments);
-      __publicField(this, "panelList", []);
-      __publicField(this, "Authorization", "");
-      __publicField(this, "code", {
-        5113: "您今日下载流量已超出10GB限制，购买VIP会员即可体验无限流量下载",
-        5103: "分享码错误或者分享地址错误",
-        5104: "分享已过期",
-        "-1000": "获取出错",
-        "-2000": "请求异常",
-        "-3000": "请求意外中止",
-        "-4000": "请求超时",
-        104: "文件已失效"
-      });
-      __publicField(this, "Headers", {
-        "user-agent": "123pan/v2.4.0(Android_7.1.2;Xiaomi)",
-        platform: "android",
-        "app-version": "61",
-        "x-app-version": "2.4.0"
-      });
-    }
+    panelList = [];
+    Authorization = "";
+    code = {
+      5113: "您今日下载流量已超出10GB限制，购买VIP会员即可体验无限流量下载",
+      5103: "分享码错误或者分享地址错误",
+      5104: "分享已过期",
+      "-1000": "获取出错",
+      "-2000": "请求异常",
+      "-3000": "请求意外中止",
+      "-4000": "请求超时",
+      104: "文件已失效"
+    };
+    Headers = {
+      "user-agent": "123pan/v2.4.0(Android_7.1.2;Xiaomi)",
+      platform: "android",
+      "app-version": "61",
+      "x-app-version": "2.4.0"
+    };
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
@@ -3881,7 +3859,7 @@
                 } else if (downloadInfo && downloadInfo["code"] === 401) {
                   Qmsg.error("请登录后下载");
                 } else {
-                  Qmsg.error((downloadInfo == null ? void 0 : downloadInfo["message"]) || "获取下载链接失败");
+                  Qmsg.error(downloadInfo?.["message"] || "获取下载链接失败");
                 }
               } else {
                 let downloadUrl = item.DownloadUrl;
@@ -4062,22 +4040,19 @@
     }
   }
   class NetDiskParse_Aliyun extends ParseFileAbstract {
-    constructor() {
-      super(...arguments);
-      __publicField(this, "X_Share_Token_Data", {
-        expire_time: "2000-01-01T00:00:00.000Z",
-        expires_in: 7200,
-        share_token: ""
-      });
-      /**
-       * header请求头 X-Device-Id
-       */
-      __publicField(this, "X_Device_Id", null);
-      /**
-       * header请求头 X-Canary
-       */
-      __publicField(this, "X_Canary", "client=web,app=share,version=v2.3.1");
-    }
+    X_Share_Token_Data = {
+      expire_time: "2000-01-01T00:00:00.000Z",
+      expires_in: 7200,
+      share_token: ""
+    };
+    /**
+     * header请求头 X-Device-Id
+     */
+    X_Device_Id = null;
+    /**
+     * header请求头 X-Canary
+     */
+    X_Canary = "client=web,app=share,version=v2.3.1";
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
@@ -5219,9 +5194,9 @@
         data.push({
           text: item.text,
           callback: item.callback,
-          icon: (item == null ? void 0 : item.icon) ?? "",
-          iconIsLoading: (item == null ? void 0 : item.iconIsLoading) ?? false,
-          item: (item == null ? void 0 : item.item) ?? null
+          icon: item?.icon ?? "",
+          iconIsLoading: item?.iconIsLoading ?? false,
+          item: item?.item ?? null
         });
       });
       let detail = {
@@ -5363,7 +5338,7 @@
             );
             iterator = findGenerator.next();
           }
-          if (iterator == null ? void 0 : iterator.value) {
+          if (iterator?.value) {
             log.success("定位元素", iterator);
             if (iterator.value.nodeType === Node.ELEMENT_NODE && iterator.value.getClientRects().length) {
               iterator.value.scrollIntoView({
@@ -5659,12 +5634,9 @@
     }
   }
   class NetDiskParse_Jianguoyun extends ParseFileAbstract {
-    constructor() {
-      super(...arguments);
-      __publicField(this, "errorCode", {
-        UnAuthorized: "请先登录坚果云账号"
-      });
-    }
+    errorCode = {
+      UnAuthorized: "请先登录坚果云账号"
+    };
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
@@ -5896,7 +5868,6 @@
      * @param fileName 文件名
      */
     async getFileLink(fileHash = "", fileName = "") {
-      var _a2;
       const that = this;
       fileName = encodeURIComponent(fileName);
       let getResp = await httpx.get({
@@ -5908,7 +5879,7 @@
         allowInterceptConfig: false
       });
       if (!getResp.status) {
-        if (utils.isNotNull((_a2 = getResp.data) == null ? void 0 : _a2.responseText)) {
+        if (utils.isNotNull(getResp.data?.responseText)) {
           let errorData = utils.toJSON(getResp.data.responseText);
           log.error("坚果云", errorData);
           if (errorData["errorCode"] === "UnAuthorized") {
@@ -5941,7 +5912,6 @@
      * @param filePath
      */
     async getDirLink(fileHash = "", fileName = "", filePath = "/") {
-      var _a2;
       const that = this;
       fileName = encodeURIComponent(fileName);
       let getResp = await httpx.get({
@@ -5953,7 +5923,7 @@
         allowInterceptConfig: false
       });
       if (!getResp.status) {
-        if (utils.isNotNull((_a2 = getResp.data) == null ? void 0 : _a2.responseText)) {
+        if (utils.isNotNull(getResp.data?.responseText)) {
           let errorData = utils.toJSON(getResp.data.responseText);
           log.error("坚果云", errorData);
           if (errorData["errorCode"] === "UnAuthorized") {
@@ -6051,131 +6021,128 @@
     return text;
   };
   class NetDiskParse_Lanzou extends ParseFileAbstract {
-    constructor() {
-      super(...arguments);
+    /**
+     * 路由
+     */
+    router = {
       /**
-       * 路由
+       * 根路径
+       * + /
+       * @param pathName
        */
-      __publicField(this, "router", {
-        /**
-         * 根路径
-         * + /
-         * @param pathName
-         */
-        root(pathName = "") {
-          if (pathName.startsWith("/")) {
-            pathName = pathName.replace(/^\//, "");
-          }
-          return `https://${NetDiskParse_Lanzou_Config.hostname}/${pathName}`;
-        },
-        /**
-         * + /tp/
-         * @param pathName
-         */
-        root_tp(pathName = "") {
-          if (pathName.startsWith("/")) {
-            pathName = pathName.replace(/^\//, "");
-          }
-          return `https://${NetDiskParse_Lanzou_Config.hostname}/tp/${pathName}`;
-        },
-        /**
-         * + /s/
-         * @param pathName
-         */
-        root_s(pathName = "") {
-          if (pathName.startsWith("/")) {
-            pathName = pathName.replace(/^\//, "");
-          }
-          return `https://${NetDiskParse_Lanzou_Config.hostname}/s/${pathName}`;
+      root(pathName = "") {
+        if (pathName.startsWith("/")) {
+          pathName = pathName.replace(/^\//, "");
         }
-      });
-      __publicField(this, "regexp", {
-        unicode: {
-          /**
-           * 判断该链接是否是中文
-           */
-          match: /[%\u4e00-\u9fa5]+/g,
-          tip: "中文链接",
-          isUnicode: false
-        },
-        /**
-         * 蓝奏文件取消分享
-         */
-        noFile: {
-          match: /div>来晚啦...文件取消分享了<\/div>/g,
-          tip: "来晚啦...文件取消分享了"
-        },
-        /**
-         * 蓝奏文件链接错误
-         */
-        noExists: {
-          match: /div>文件不存在，或已删除<\/div>/g,
-          tip: "文件不存在，或已删除"
-        },
-        /**
-         * 链接失效
-         */
-        linkInValid: {
-          match: /div>文件链接失效，请获取新链接<\/div>/g,
-          tip: "文件链接失效，请获取新链接"
-        },
-        /**
-         * 2023-9-19 蓝奏云修改分享规则，需要vip用户才可以分享 apk、ipa 链接
-         */
-        needVipToShare: {
-          match: /class="fbox">非会员.+请先开通会员/gi,
-          tip: "该链接为非会员用户分享的文件，目前无法下载"
-        },
-        /**
-         * 蓝奏多文件
-         */
-        moreFile: {
-          match: /<span id=\"filemore\" onclick=\"more\(\);\">/g
-        },
-        /**
-         * 蓝奏设置了密码的单文件请求需要的sign值
-         */
-        sign: {
-          match: /var[\s]*(posign|postsign|vidksek|skdklds)[\s]*=[\s]*'(.+?)';/
-        },
-        /**
-         * 蓝奏文件名
-         */
-        fileName: {
-          match: /<title>(.*)<\/title>/
-        },
-        /**
-         * 蓝奏文件大小
-         */
-        fileSize: {
-          match: /<span class=\"mtt\">\((.*)\)<\/span>/
-        },
-        /**
-         * 蓝奏文件直链host
-         */
-        loadDownHost: {
-          match: /var[\s]*(vkjxld)[\s]*=[\s]*'(.+?)'/i
-        },
-        /**
-         * 蓝奏文件直链
-         */
-        loadDown: {
-          match: /var[\s]*(loaddown|oreferr|spototo|domianload|hyggid)[\s]*=[\s]*'(.+?)'/i
-        },
-        /**
-         * 蓝奏云之苹果使用类型的文件
-         */
-        appleDown: {
-          match: /var[\s]*appitem[\s]*=[\s]*'(.+?)'/i
-        },
-        /**
-         * 蓝奏云文件上传时间
-         */
-        uploadTime: {
-          match: /mt2\"\>时间:<\/span>(.+?)[\s]*<span/i
+        return `https://${NetDiskParse_Lanzou_Config.hostname}/${pathName}`;
+      },
+      /**
+       * + /tp/
+       * @param pathName
+       */
+      root_tp(pathName = "") {
+        if (pathName.startsWith("/")) {
+          pathName = pathName.replace(/^\//, "");
         }
-      });
-    }
+        return `https://${NetDiskParse_Lanzou_Config.hostname}/tp/${pathName}`;
+      },
+      /**
+       * + /s/
+       * @param pathName
+       */
+      root_s(pathName = "") {
+        if (pathName.startsWith("/")) {
+          pathName = pathName.replace(/^\//, "");
+        }
+        return `https://${NetDiskParse_Lanzou_Config.hostname}/s/${pathName}`;
+      }
+    };
+    regexp = {
+      unicode: {
+        /**
+         * 判断该链接是否是中文
+         */
+        match: /[%\u4e00-\u9fa5]+/g,
+        tip: "中文链接",
+        isUnicode: false
+      },
+      /**
+       * 蓝奏文件取消分享
+       */
+      noFile: {
+        match: /div>来晚啦...文件取消分享了<\/div>/g,
+        tip: "来晚啦...文件取消分享了"
+      },
+      /**
+       * 蓝奏文件链接错误
+       */
+      noExists: {
+        match: /div>文件不存在，或已删除<\/div>/g,
+        tip: "文件不存在，或已删除"
+      },
+      /**
+       * 链接失效
+       */
+      linkInValid: {
+        match: /div>文件链接失效，请获取新链接<\/div>/g,
+        tip: "文件链接失效，请获取新链接"
+      },
+      /**
+       * 2023-9-19 蓝奏云修改分享规则，需要vip用户才可以分享 apk、ipa 链接
+       */
+      needVipToShare: {
+        match: /class="fbox">非会员.+请先开通会员/gi,
+        tip: "该链接为非会员用户分享的文件，目前无法下载"
+      },
+      /**
+       * 蓝奏多文件
+       */
+      moreFile: {
+        match: /<span id=\"filemore\" onclick=\"more\(\);\">/g
+      },
+      /**
+       * 蓝奏设置了密码的单文件请求需要的sign值
+       */
+      sign: {
+        match: /var[\s]*(posign|postsign|vidksek|skdklds)[\s]*=[\s]*'(.+?)';/
+      },
+      /**
+       * 蓝奏文件名
+       */
+      fileName: {
+        match: /<title>(.*)<\/title>/
+      },
+      /**
+       * 蓝奏文件大小
+       */
+      fileSize: {
+        match: /<span class=\"mtt\">\((.*)\)<\/span>/
+      },
+      /**
+       * 蓝奏文件直链host
+       */
+      loadDownHost: {
+        match: /var[\s]*(vkjxld)[\s]*=[\s]*'(.+?)'/i
+      },
+      /**
+       * 蓝奏文件直链
+       */
+      loadDown: {
+        match: /var[\s]*(loaddown|oreferr|spototo|domianload|hyggid)[\s]*=[\s]*'(.+?)'/i
+      },
+      /**
+       * 蓝奏云之苹果使用类型的文件
+       */
+      appleDown: {
+        match: /var[\s]*appitem[\s]*=[\s]*'(.+?)'/i
+      },
+      /**
+       * 蓝奏云文件上传时间
+       */
+      uploadTime: {
+        match: /mt2\"\>时间:<\/span>(.+?)[\s]*<span/i
+      }
+    };
     /**
      * 入口
      */
@@ -6339,7 +6306,6 @@
      * 获取文件下载信息
      */
     async getFileDownloadInfo(shareCode, accessCode, responseData) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
       let fileDownloadInfo = void 0;
       let $pageDoc = domUtils.parseHTML(responseData.responseText, true, true);
       let pageText = deleteAnnotationCode(responseData.responseText);
@@ -6348,19 +6314,19 @@
         let iframeUrl = $pageIframe.getAttribute("src");
         log.error("该链接需要重新通过iframe地址访问获取信息", iframeUrl);
         Qmsg.info("正在请求下载信息");
-        let fileName = ((_a2 = $pageDoc.querySelector("body div.d > div")) == null ? void 0 : _a2.innerText) || ((_b = $pageDoc.querySelector("#filenajax")) == null ? void 0 : _b.innerText) || ((_d = (_c = $pageDoc.querySelector("title")) == null ? void 0 : _c.textContent) == null ? void 0 : _d.replace(/ - 蓝奏云$/i, ""));
-        let fileSize = pageText.match(/文件大小：<\/span>(.+?)<br>/i) || ((_e = $pageDoc.querySelector(
+        let fileName = $pageDoc.querySelector("body div.d > div")?.innerText || $pageDoc.querySelector("#filenajax")?.innerText || $pageDoc.querySelector("title")?.textContent?.replace(/ - 蓝奏云$/i, "");
+        let fileSize = pageText.match(/文件大小：<\/span>(.+?)<br>/i) || $pageDoc.querySelector(
           "div.n_box div.n_file div.n_filesize"
-        )) == null ? void 0 : _e.innerText) || ((_f = $pageDoc.querySelector(
+        )?.innerText || $pageDoc.querySelector(
           ".d2 table tr td .fileinfo:nth-child(1) .fileinforight"
-        )) == null ? void 0 : _f.innerText);
-        let fileUploadTime = pageText.match(/上传时间：<\/span>(.+?)<br>/i) || ((_g = $pageDoc.querySelector(
+        )?.innerText;
+        let fileUploadTime = pageText.match(/上传时间：<\/span>(.+?)<br>/i) || $pageDoc.querySelector(
           "#file[class=''] .n_file_info span.n_file_infos"
-        )) == null ? void 0 : _g.innerText) || ((_h = $pageDoc.querySelector(
+        )?.innerText || $pageDoc.querySelector(
           ".d2 table tr td .fileinfo:nth-child(3) .fileinforight"
-        )) == null ? void 0 : _h.innerText) || ((_i = $pageDoc.querySelector(
+        )?.innerText || $pageDoc.querySelector(
           "#file[class='filter'] .n_file_info span.n_file_infos"
-        )) == null ? void 0 : _i.innerText);
+        )?.innerText;
         if (fileSize) {
           if (Array.isArray(fileSize)) {
             fileSize = fileSize[fileSize.length - 1];
@@ -6631,7 +6597,6 @@
       let folders = Array.from(
         pageDoc.querySelectorAll("#folder a.mlink[href]")
       ).map(($link) => {
-        var _a2;
         let url2 = $link.href;
         let urlInst = new URL(url2);
         let shareCodeMatch = urlInst.pathname.match(/^\/([0-9a-zA-Z]{5,})/);
@@ -6640,7 +6605,7 @@
         }
         let __shareCode__ = shareCodeMatch[shareCodeMatch.length - 1];
         let $filename = $link.querySelector(".filename");
-        let filename = ((_a2 = $filename == null ? void 0 : $filename.firstChild) == null ? void 0 : _a2.textContent) || "";
+        let filename = $filename?.firstChild?.textContent || "";
         return {
           url: url2,
           shareCode: __shareCode__,
@@ -6675,7 +6640,7 @@
         if (zt !== 1) {
           if (zt === 4) {
             error = text;
-          } else if (info == null ? void 0 : info.includes("密码不正确")) {
+          } else if (info?.includes("密码不正确")) {
             Qmsg.error("密码不正确!");
             let newAccessCodeInfo = await new Promise((resolve) => {
               NetDiskUI.newAccessCodeView(
@@ -6698,7 +6663,7 @@
               return;
             }
             return await this.parseFiles(shareCode, newAccessCodeInfo.accssCode);
-          } else if (info == null ? void 0 : info.includes("没有了")) {
+          } else if (info?.includes("没有了")) {
             error = "没有文件了";
           } else {
             error = "未知错误";
@@ -6996,34 +6961,30 @@
     }
   };
   class NetDiskParse_Lanzouyx extends ParseFileAbstract {
-    constructor() {
-      super(...arguments);
-      __publicField(this, "$data", {
-        devType: 6,
-        devModel: "Chrome",
-        extra: 2,
-        type: 0,
-        offset: 1,
-        limit: 60
-      });
-      /**
-       * 获取的uuid
-       */
-      __publicField(this, "uuid");
-      /**
-       * 获取的userId
-       **/
-      __publicField(this, "userId");
-      /**
-       * 加密后的shareCode
-       */
-      __publicField(this, "shareCodeId");
-    }
+    $data = {
+      devType: 6,
+      devModel: "Chrome",
+      extra: 2,
+      type: 0,
+      offset: 1,
+      limit: 60
+    };
+    /**
+     * 获取的uuid
+     */
+    uuid = void 0;
+    /**
+     * 获取的userId
+     **/
+    userId = void 0;
+    /**
+     * 加密后的shareCode
+     */
+    shareCodeId = void 0;
     /**
      * 入口
      */
     async init(netDiskInfo) {
-      var _a2, _b, _c, _d;
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
       that.shareCodeId = that.getDecodeShareCodeId(shareCode);
@@ -7045,8 +7006,8 @@
       if (!linkInfo["list"].length) {
         return;
       }
-      if ((_b = (_a2 = linkInfo["list"][0]) == null ? void 0 : _a2["map"]) == null ? void 0 : _b["userId"]) {
-        that.userId = (_d = (_c = linkInfo["list"][0]) == null ? void 0 : _c["map"]) == null ? void 0 : _d["userId"];
+      if (linkInfo["list"][0]?.["map"]?.["userId"]) {
+        that.userId = linkInfo["list"][0]?.["map"]?.["userId"];
       } else {
         Qmsg.error("解析获取【userId】为空");
         return;
@@ -7407,12 +7368,9 @@
     }
   };
   class NetDiskParse_nainiu extends ParseFileAbstract {
-    constructor() {
-      super(...arguments);
-      __publicField(this, "panelList", []);
-      __publicField(this, "panelContent", "");
-      __publicField(this, "OK_CODE", "0000");
-    }
+    panelList = [];
+    panelContent = "";
+    OK_CODE = "0000";
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
@@ -7891,23 +7849,20 @@
     }
   }
   class NetDiskParse_Tianyiyun extends ParseFileAbstract {
-    constructor() {
-      super(...arguments);
-      __publicField(this, "shareId");
-      /* 猜测1是有密码，2是无密码 */
-      __publicField(this, "shareMode", 1);
-      __publicField(this, "code", {
-        ShareNotFoundFlatDir: "抱歉，该文件的分享平铺目录未找到",
-        ShareNotFound: "抱歉，您访问的页面地址有误，或者该页面不存在。",
-        ShareAuditNotPass: "抱歉，该内容审核不通过",
-        FileNotFound: "抱歉，文件不存在",
-        ShareExpiredError: "抱歉，您访问的页面地址有误，或者该页面不存在",
-        ShareAuditWaiting: "抱歉，该链接处于审核中",
-        ShareInfoNotFound: "抱歉，您访问的页面地址有误，或者该页面不存在",
-        FileTooLarge: "抱歉，文件太大，不支持下载",
-        InvalidSessionKey: "天翼云PC端Cookie未生成，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC且在登录后要等待进入个人云空间后生成Cookie，不是手机端浏览的个人云空间，那样生成的Cookie无法使用)"
-      });
-    }
+    shareId = void 0;
+    /* 猜测1是有密码，2是无密码 */
+    shareMode = 1;
+    code = {
+      ShareNotFoundFlatDir: "抱歉，该文件的分享平铺目录未找到",
+      ShareNotFound: "抱歉，您访问的页面地址有误，或者该页面不存在。",
+      ShareAuditNotPass: "抱歉，该内容审核不通过",
+      FileNotFound: "抱歉，文件不存在",
+      ShareExpiredError: "抱歉，您访问的页面地址有误，或者该页面不存在",
+      ShareAuditWaiting: "抱歉，该链接处于审核中",
+      ShareInfoNotFound: "抱歉，您访问的页面地址有误，或者该页面不存在",
+      FileTooLarge: "抱歉，文件太大，不支持下载",
+      InvalidSessionKey: "天翼云PC端Cookie未生成，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC且在登录后要等待进入个人云空间后生成Cookie，不是手机端浏览的个人云空间，那样生成的Cookie无法使用)"
+    };
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
@@ -8771,21 +8726,18 @@
     }
   }
   class NetDiskParse_Wenshushu extends ParseFileAbstract {
-    constructor() {
-      super(...arguments);
-      /**
-       * 用于header头x-token
-       * @type {string}
-       */
-      __publicField(this, "token");
-      __publicField(this, "code", {
-        1004: "no token",
-        1008: "您没有权限访问",
-        1013: "糟糕，此任务已过期销毁，下次要记得续期",
-        1066: "对方设置的下载 / 预览次数已用完",
-        1088: "糟糕，您访问的页面不存在"
-      });
-    }
+    /**
+     * 用于header头x-token
+     * @type {string}
+     */
+    token = void 0;
+    code = {
+      1004: "no token",
+      1008: "您没有权限访问",
+      1013: "糟糕，此任务已过期销毁，下次要记得续期",
+      1066: "对方设置的下载 / 预览次数已用完",
+      1088: "糟糕，您访问的页面不存在"
+    };
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       Qmsg.info("正在请求直链中...");
@@ -9069,14 +9021,13 @@
      * @param handlerConfig 配置
      */
     getBlankUrl(handlerConfig) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j;
-      let ruleConfig = ((_a2 = handlerConfig.debugConfig) == null ? void 0 : _a2.config) ?? NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
+      let ruleConfig = handlerConfig.debugConfig?.config ?? NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
       let blankUrl = ruleConfig.blank;
       if (handlerConfig.shareCode) {
         blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, {
           shareCode: handlerConfig.shareCode
         });
-        (_c = (_b = handlerConfig.debugConfig) == null ? void 0 : _b.logCallBack) == null ? void 0 : _c.call(_b, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
             `正则: blank`,
@@ -9090,7 +9041,7 @@
         blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, {
           accessCode: handlerConfig.accessCode
         });
-        (_e = (_d = handlerConfig.debugConfig) == null ? void 0 : _d.logCallBack) == null ? void 0 : _e.call(_d, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
             `正则: blank`,
@@ -9105,7 +9056,7 @@
           NetDisk.$extraRule.noAccessCodeRegExp,
           ""
         );
-        (_g = (_f = handlerConfig.debugConfig) == null ? void 0 : _f.logCallBack) == null ? void 0 : _g.call(_f, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
             `正则: 内置的noAccessCodeRegExp`,
@@ -9116,7 +9067,7 @@
       }
       if (ruleConfig.paramMatch) {
         let currentDict = NetDisk.$match.matchedInfo.get(handlerConfig.ruleKeyName).get(handlerConfig.shareCode);
-        let matchText = ((_h = handlerConfig.debugConfig) == null ? void 0 : _h.matchText) || currentDict.matchText;
+        let matchText = handlerConfig.debugConfig?.matchText || currentDict.matchText;
         let paramMatchArray = matchText.match(ruleConfig.paramMatch);
         let replaceParamData = {};
         if (paramMatchArray) {
@@ -9125,7 +9076,7 @@
           }
         }
         blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, replaceParamData);
-        (_j = (_i = handlerConfig.debugConfig) == null ? void 0 : _i.logCallBack) == null ? void 0 : _j.call(_i, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
             `正则: paramMatch`,
@@ -9142,14 +9093,13 @@
      * @param handlerConfig 配置
      */
     getCopyUrlInfo(handlerConfig) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
-      let ruleConfig = ((_a2 = handlerConfig.debugConfig) == null ? void 0 : _a2.config) ?? NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
+      let ruleConfig = handlerConfig.debugConfig?.config ?? NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
       let copyUrl = ruleConfig["copyUrl"];
       if (handlerConfig.shareCode) {
         copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, {
           shareCode: handlerConfig.shareCode
         });
-        (_c = (_b = handlerConfig.debugConfig) == null ? void 0 : _b.logCallBack) == null ? void 0 : _c.call(_b, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
             `正则: copyUrl`,
@@ -9163,7 +9113,7 @@
         copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, {
           accessCode: handlerConfig.accessCode
         });
-        (_e = (_d = handlerConfig.debugConfig) == null ? void 0 : _d.logCallBack) == null ? void 0 : _e.call(_d, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
             `正则: copyUrl`,
@@ -9178,7 +9128,7 @@
           NetDisk.$extraRule.noAccessCodeRegExp,
           ""
         );
-        (_g = (_f = handlerConfig.debugConfig) == null ? void 0 : _f.logCallBack) == null ? void 0 : _g.call(_f, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
             `正则: 内置的noAccessCodeRegExp`,
@@ -9189,7 +9139,7 @@
       }
       if (ruleConfig.paramMatch) {
         let currentDict = NetDisk.$match.matchedInfo.get(handlerConfig.ruleKeyName).get(handlerConfig.shareCode);
-        let matchText = ((_h = handlerConfig.debugConfig) == null ? void 0 : _h.matchText) || currentDict.matchText;
+        let matchText = handlerConfig.debugConfig?.matchText || currentDict.matchText;
         let paramMatchArray = matchText.match(ruleConfig.paramMatch);
         let replaceParamData = {};
         if (paramMatchArray) {
@@ -9198,7 +9148,7 @@
           }
         }
         copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, replaceParamData);
-        (_j = (_i = handlerConfig.debugConfig) == null ? void 0 : _i.logCallBack) == null ? void 0 : _j.call(_i, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
             `正则: paramMatch`,
@@ -9208,7 +9158,7 @@
           ]
         });
       }
-      (_l = (_k = handlerConfig.debugConfig) == null ? void 0 : _k.logCallBack) == null ? void 0 : _l.call(_k, {
+      handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: "处理完毕的copyUrl: " + copyUrl
       });
@@ -9283,7 +9233,6 @@
      * @param isOpenInBackEnd 是否使用后台打开，默认false
      */
     openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode, isOpenInBackEnd = false) {
-      var _a2;
       log.success(`新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`, [
         ...arguments
       ]);
@@ -9300,7 +9249,7 @@
       if (NetDiskFilterScheme.isForwardBlankLink(ruleKeyName)) {
         url = NetDiskFilterScheme.parseDataToSchemeUri(ruleKeyName, url);
       }
-      (_a2 = $("meta[name='referrer']")) == null ? void 0 : _a2.setAttribute("content", "no-referrer");
+      $("meta[name='referrer']")?.setAttribute("content", "no-referrer");
       let openUrl = () => {
         if (isOpenInBackEnd) {
           _GM_openInTab(url, {
@@ -9586,7 +9535,6 @@
   };
   const NetDiskCheckLinkValidity_aliyun = {
     async init(netDiskInfo) {
-      var _a2;
       const { shareCode } = netDiskInfo;
       let response = await httpx.post(
         "https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous?share_id=" + shareCode,
@@ -9616,7 +9564,7 @@
           ...NetDiskCheckLinkValidity.status.failed,
           data
         };
-      } else if (data["file_count"] === 0 || ((_a2 = data["file_infos"]) == null ? void 0 : _a2.length) === 0) {
+      } else if (data["file_count"] === 0 || data["file_infos"]?.length === 0) {
         return {
           ...NetDiskCheckLinkValidity.status.failed,
           data
@@ -10092,7 +10040,6 @@
   };
   const NetDiskCheckLinkValidity_onedrive = {
     async init(netDiskInfo) {
-      var _a2, _b, _c;
       const { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName: "onedrive",
@@ -10111,7 +10058,7 @@
         ...NetDiskCheckLinkValidityRequestOption
       });
       if (!response.status) {
-        let status = (_b = (_a2 = response.data) == null ? void 0 : _a2.status) == null ? void 0 : _b.toString();
+        let status = response.data?.status?.toString();
         if (status === "429") {
           return {
             ...NetDiskCheckLinkValidity.status.networkError,
@@ -10132,8 +10079,8 @@
       if (utils.isNotNull(responseText)) {
         try {
           let respDOM = domUtils.parseHTML(responseText, true, true);
-          let title = (_c = respDOM.querySelector("title")) == null ? void 0 : _c.innerHTML;
-          if (title == null ? void 0 : title.includes("错误")) {
+          let title = respDOM.querySelector("title")?.innerHTML;
+          if (title?.includes("错误")) {
             return {
               ...NetDiskCheckLinkValidity.status.failed,
               data: response
@@ -10879,7 +10826,7 @@
      */
     getPageText(target = document.documentElement, isCheckShadowRoot) {
       let strList = [];
-      strList.push((target == null ? void 0 : target.textContent) || (target == null ? void 0 : target.innerText) || "");
+      strList.push(target?.textContent || target?.innerText || "");
       if (isCheckShadowRoot) {
         let queryShadowRootAllNodeInfo = this.depthQueryShadowRootAllNode(target);
         if (queryShadowRootAllNodeInfo.length) {
@@ -11286,7 +11233,6 @@
         "click",
         ".netdiskrecord-functions button.btn-delete",
         function(event) {
-          var _a2;
           let $btnOther = target.querySelector(
             ".pops-confirm-btn-other"
           );
@@ -11300,9 +11246,9 @@
           });
           let clickNode = event.target;
           let dataJSON = clickNode.getAttribute("data-json");
-          (_a2 = clickNode.closest("li")) == null ? void 0 : _a2.remove();
+          clickNode.closest("li")?.remove();
           that.deleteStorageData(dataJSON);
-          deleteLoading == null ? void 0 : deleteLoading.close();
+          deleteLoading?.close();
           let totalNumberText = domUtils.text($btnOther);
           let totalNumberMatch = totalNumberText.match(/[\d]+/gi);
           let totalNumber = parseInt(
@@ -11384,7 +11330,7 @@
           that.clearLinkElements();
           that.clearPageNavigator();
           that.addLinkElements(data.slice(0, 9));
-          $searchLoading == null ? void 0 : $searchLoading.close();
+          $searchLoading?.close();
           isSeaching = false;
           that.setDataPaging(data);
           return;
@@ -11409,7 +11355,7 @@
         that.clearLinkElements();
         that.clearPageNavigator();
         that.addLinkElements(searchData);
-        $searchLoading == null ? void 0 : $searchLoading.close();
+        $searchLoading?.close();
         $searchLoading = void 0;
         isSeaching = false;
       }
@@ -11658,9 +11604,9 @@
     }
   };
   let RuleSubscribe$1 = class RuleSubscribe {
+    option;
+    storageApi;
     constructor(option) {
-      __publicField(this, "option");
-      __publicField(this, "storageApi");
       this.option = option;
       this.storageApi = new StorageUtils(option.STORAGE_API_KEY);
     }
@@ -12023,7 +11969,7 @@
         allData = allData.concat(addNewData);
         this.storageApi.set(this.option.STORAGE_KEY, allData);
         Qmsg.success(`共 ${data.length} 条订阅，新增 ${addNewData.length} 条`);
-        importEndCallBack == null ? void 0 : importEndCallBack();
+        importEndCallBack?.();
       };
       let importFile = (subscribeText) => {
         return new Promise(async (resolve) => {
@@ -12063,8 +12009,7 @@
           accept: ".json"
         });
         domUtils.on($input, ["propertychange", "input"], (event2) => {
-          var _a2;
-          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
+          if (!$input.files?.length) {
             return;
           }
           let uploadFile = $input.files[0];
@@ -12413,9 +12358,8 @@
                     option.ruleData.data.url
                   ),
                   data() {
-                    var _a2;
                     let currentData = CharacterMappingSubscribe.getSubscribe(subscribeUUID);
-                    return ((_a2 = currentData == null ? void 0 : currentData.subscribeData) == null ? void 0 : _a2.ruleData) ?? option.ruleData.subscribeData.ruleData;
+                    return currentData?.subscribeData?.ruleData ?? option.ruleData.subscribeData.ruleData;
                   },
                   getData(data) {
                     let currentData = CharacterMappingSubscribe.getSubscribeRule(
@@ -13461,7 +13405,7 @@
           };
           let exportCallBack = () => {
             let configData2 = CharacterMappingStorageApi.get(this.$data.EXPORT_CONFIG_KEY, {});
-            if ((configData2 == null ? void 0 : configData2.title) === "" || configData2.title == null) {
+            if (configData2?.title === "" || configData2.title == null) {
               Qmsg.error("订阅标题不能为空");
               return;
             }
@@ -13654,7 +13598,7 @@
         allData = allData.concat(addNewData);
         this.setData(allData);
         Qmsg.success(`共 ${data.length} 条规则，新增 ${addNewData.length} 条`);
-        importEndCallBack == null ? void 0 : importEndCallBack();
+        importEndCallBack?.();
       };
       let importFile = (subscribeText) => {
         return new Promise((resolve) => {
@@ -13686,8 +13630,7 @@
           accept: ".json"
         });
         domUtils.on($input, ["propertychange", "input"], (event2) => {
-          var _a2;
-          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
+          if (!$input.files?.length) {
             return;
           }
           let uploadFile = $input.files[0];
@@ -13856,8 +13799,8 @@
     }
   };
   class RuleFilterView {
+    option;
     constructor(option) {
-      __publicField(this, "option");
       this.option = option;
     }
     showView() {
@@ -13943,15 +13886,14 @@
     }
   }
   class RuleEditView {
+    option;
     constructor(option) {
-      __publicField(this, "option");
       this.option = option;
     }
     /**
      * 显示视图
      */
     async showView() {
-      var _a2;
       let $dialog = __pops.confirm({
         title: {
           text: this.option.title,
@@ -14040,7 +13982,7 @@
 					color: rgb(108, 108, 108);
 				}
 
-                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
+                ${this.option?.style ?? ""}
             `
         ),
         width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
@@ -14066,8 +14008,8 @@
     }
   }
   class RulePanelView {
+    option;
     constructor(option) {
-      __publicField(this, "option");
       this.option = option;
     }
     /**
@@ -14078,15 +14020,14 @@
       const that = this;
       let contentConfigList = this.option.contentConfig;
       contentConfigList.forEach((config) => {
-        var _a2, _b;
         config.forms = [];
         config.headerTitle = config.headerTitle || config.title;
-        if ((_a2 = config.subscribe) == null ? void 0 : _a2.enable) {
+        if (config.subscribe?.enable) {
           config.headerTitle = config.headerTitle + /*html*/
           `
                 <div class="subscribe-container">
                     <button class="subscribe-btn" type="subscribe" data-has-icon="false" data-righticon="false">
-                        <span>${((_b = config.subscribe) == null ? void 0 : _b.title) || "订阅"}</span>
+                        <span>${config.subscribe?.title || "订阅"}</span>
                     </button>
                 </div>
             `;
@@ -14100,12 +14041,11 @@
             let $subscribe = $panelRightHeader.querySelector(".subscribe-btn");
             const subscribeOption = config.subscribe;
             domUtils.on($subscribe, "click", async (event2) => {
-              var _a3;
               utils.preventEvent(event2);
-              await ((_a3 = subscribeOption == null ? void 0 : subscribeOption.callback) == null ? void 0 : _a3.call(subscribeOption));
+              await subscribeOption?.callback?.();
               let deepMenuElementInfo = this.enterDeepMenu(
                 $panelRightContainer,
-                (subscribeOption == null ? void 0 : subscribeOption.headerTitle) || (subscribeOption == null ? void 0 : subscribeOption.title) || "订阅",
+                subscribeOption?.headerTitle || subscribeOption?.title || "订阅",
                 () => {
                   this.updateRuleContaienrElement(
                     config.ruleOption,
@@ -14145,9 +14085,9 @@
                           log.info(`订阅：` + subscribeUrl);
                           let $loading = Qmsg.loading("正在获取订阅信息...");
                           try {
-                            let subscribeInfoResult = await (subscribeOption == null ? void 0 : subscribeOption.getSubscribeInfo(
+                            let subscribeInfoResult = await subscribeOption?.getSubscribeInfo(
                               subscribeUrl
-                            ));
+                            );
                             if (subscribeInfoResult.data) {
                               eventDetails.close();
                               let subscribeInfo = subscribeInfoResult.data;
@@ -14603,14 +14543,13 @@
      * @param addButtonCallBack 添加按钮的回调
      */
     createButtonControls($controlsParent, $rightContainer, option, addButtonCallBack) {
-      var _a2, _b, _c, _d, _e;
       let btnControlsOption = option.btnControls;
       let $ruleControls = domUtils.createElement("li", {
         className: "rule-controls"
       });
       domUtils.append($controlsParent, $ruleControls);
       let $ruleControlAdd = null;
-      if ((_a2 = btnControlsOption == null ? void 0 : btnControlsOption.add) == null ? void 0 : _a2.enable) {
+      if (btnControlsOption?.add?.enable) {
         $ruleControlAdd = domUtils.createElement(
           "button",
           {
@@ -14627,21 +14566,20 @@
           }
         );
         domUtils.on($ruleControlAdd, "click", async (event) => {
-          var _a3, _b2, _c2;
           utils.preventEvent(event);
-          let result = await ((_c2 = (_b2 = (_a3 = option.btnControls) == null ? void 0 : _a3.add) == null ? void 0 : _b2.callback) == null ? void 0 : _c2.call(this, {
+          let result = await option.btnControls?.add?.callback?.call(this, {
             event,
             $section: $rightContainer
-          }));
+          });
           if (typeof result === "boolean" && !result) {
             return;
           }
-          await (addButtonCallBack == null ? void 0 : addButtonCallBack());
+          await addButtonCallBack?.();
         });
         domUtils.append($ruleControls, $ruleControlAdd);
       }
       let $ruleControlFilter = null;
-      if ((_b = btnControlsOption == null ? void 0 : btnControlsOption.filter) == null ? void 0 : _b.enable) {
+      if (btnControlsOption?.filter?.enable) {
         $ruleControlFilter = domUtils.createElement(
           "button",
           {
@@ -14658,9 +14596,8 @@
           }
         );
         domUtils.on($ruleControlFilter, "click", async (event) => {
-          var _a3, _b2, _c2, _d2, _e2, _f, _g;
           utils.preventEvent(event);
-          let result = await ((_b2 = (_a3 = btnControlsOption == null ? void 0 : btnControlsOption.filter) == null ? void 0 : _a3.callback) == null ? void 0 : _b2.call(_a3));
+          let result = await btnControlsOption?.filter?.callback?.();
           if (typeof result === "boolean" && !result) {
             return;
           }
@@ -14680,16 +14617,16 @@
               domUtils.text($button, "过滤");
             } else {
               let filterTitle = "过滤规则";
-              if (typeof ((_c2 = btnControlsOption == null ? void 0 : btnControlsOption.filter) == null ? void 0 : _c2.title) === "function") {
-                filterTitle = (_d2 = btnControlsOption == null ? void 0 : btnControlsOption.filter) == null ? void 0 : _d2.title();
-              } else if (typeof ((_e2 = btnControlsOption == null ? void 0 : btnControlsOption.filter) == null ? void 0 : _e2.title) === "string") {
-                filterTitle = (_f = btnControlsOption == null ? void 0 : btnControlsOption.filter) == null ? void 0 : _f.title;
+              if (typeof btnControlsOption?.filter?.title === "function") {
+                filterTitle = btnControlsOption?.filter?.title();
+              } else if (typeof btnControlsOption?.filter?.title === "string") {
+                filterTitle = btnControlsOption?.filter?.title;
               }
               let ruleFilterView = new RuleFilterView(
                 {
                   title: filterTitle,
                   // @ts-ignore
-                  filterOption: ((_g = btnControlsOption == null ? void 0 : btnControlsOption.filter) == null ? void 0 : _g.option) || [],
+                  filterOption: btnControlsOption?.filter?.option || [],
                   execFilterCallBack() {
                     domUtils.text($button, "取消过滤");
                   },
@@ -14712,7 +14649,7 @@
         domUtils.append($ruleControls, $ruleControlFilter);
       }
       let $ruleControlClearAll = null;
-      if ((_c = btnControlsOption == null ? void 0 : btnControlsOption.clearAll) == null ? void 0 : _c.enable) {
+      if (btnControlsOption?.clearAll?.enable) {
         $ruleControlClearAll = domUtils.createElement(
           "button",
           {
@@ -14743,13 +14680,12 @@
               ok: {
                 enable: true,
                 callback: async (popsEvent) => {
-                  var _a3, _b2;
                   log.success("清空所有");
-                  let result = await ((_b2 = (_a3 = btnControlsOption == null ? void 0 : btnControlsOption.clearAll) == null ? void 0 : _a3.callback) == null ? void 0 : _b2.call(_a3));
+                  let result = await btnControlsOption?.clearAll?.callback?.();
                   if (typeof result === "boolean" && !result) {
                     return;
                   }
-                  let data = await (option == null ? void 0 : option.data());
+                  let data = await option?.data();
                   if (!data || data.length) {
                     Qmsg.error("清理失败");
                     return;
@@ -14777,7 +14713,7 @@
         domUtils.append($ruleControls, $ruleControlClearAll);
       }
       let $ruleControlImport = null;
-      if ((_d = btnControlsOption == null ? void 0 : btnControlsOption.import) == null ? void 0 : _d.enable) {
+      if (btnControlsOption?.import?.enable) {
         $ruleControlImport = domUtils.createElement(
           "button",
           {
@@ -14794,11 +14730,10 @@
           }
         );
         domUtils.on($ruleControlImport, "click", async (event) => {
-          var _a3, _b2;
           utils.preventEvent(event);
-          let result = await ((_b2 = (_a3 = btnControlsOption == null ? void 0 : btnControlsOption.import) == null ? void 0 : _a3.callback) == null ? void 0 : _b2.call(_a3, () => {
+          let result = await btnControlsOption?.import?.callback?.(() => {
             this.updateRuleContaienrElement(option, void 0, $rightContainer);
-          }));
+          });
           if (typeof result === "boolean" && !result) {
             return;
           }
@@ -14806,7 +14741,7 @@
         domUtils.append($ruleControls, $ruleControlImport);
       }
       let $ruleControlExport = null;
-      if ((_e = btnControlsOption == null ? void 0 : btnControlsOption.export) == null ? void 0 : _e.enable) {
+      if (btnControlsOption?.export?.enable) {
         $ruleControlExport = domUtils.createElement(
           "button",
           {
@@ -14823,11 +14758,10 @@
           }
         );
         domUtils.on($ruleControlExport, "click", async (event) => {
-          var _a3, _b2;
           utils.preventEvent(event);
-          let result = await ((_b2 = (_a3 = btnControlsOption == null ? void 0 : btnControlsOption.export) == null ? void 0 : _a3.callback) == null ? void 0 : _b2.call(_a3, {
+          let result = await btnControlsOption?.export?.callback?.({
             event
-          }));
+          });
           if (typeof result === "boolean" && !result) {
             return;
           }
@@ -14912,7 +14846,6 @@
      * @param $el 元素
      */
     async createRuleElement(option, subscribeOption, data, $el) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h;
       let ruleData = data;
       let name = await option.getDataItemName(ruleData);
       let $ruleItem = domUtils.createElement("div", {
@@ -14951,9 +14884,8 @@
         $delete,
         $edit
       } = this.parseRuleElement($ruleItem);
-      if ((_b = (_a2 = option.btnControls) == null ? void 0 : _a2.ruleEnable) == null ? void 0 : _b.enable) {
+      if (option.btnControls?.ruleEnable?.enable) {
         domUtils.on($enableSwitchCore, "click", async (event) => {
-          var _a3, _b2;
           let isChecked = false;
           if ($enableSwitch.classList.contains(switchCheckedClassName)) {
             $enableSwitch.classList.remove(switchCheckedClassName);
@@ -14963,7 +14895,7 @@
             isChecked = true;
           }
           $enableSwitchInput.checked = isChecked;
-          await ((_b2 = (_a3 = option == null ? void 0 : option.btnControls) == null ? void 0 : _a3.ruleEnable) == null ? void 0 : _b2.callback(ruleData, isChecked));
+          await option?.btnControls?.ruleEnable?.callback(ruleData, isChecked);
           if (isChecked && subscribeOption) {
             let subscribeData = data;
             let subscribeInfo = await subscribeOption.getSubscribeInfo(
@@ -14984,18 +14916,17 @@
             await this.updateRuleContaienrElement(option, subscribeOption, $el);
           }
         });
-        if (await ((_d = (_c = option == null ? void 0 : option.btnControls) == null ? void 0 : _c.ruleEnable) == null ? void 0 : _d.getEnable(ruleData))) {
+        if (await option?.btnControls?.ruleEnable?.getEnable(ruleData)) {
           $enableSwitch.classList.add(switchCheckedClassName);
         }
       } else {
         $enable.remove();
       }
-      if ((_f = (_e = option == null ? void 0 : option.btnControls) == null ? void 0 : _e.ruleEdit) == null ? void 0 : _f.enable) {
+      if (option?.btnControls?.ruleEdit?.enable) {
         domUtils.on($edit, "click", (event) => {
-          var _a3, _b2, _c2, _d2;
           utils.preventEvent(event);
-          if (typeof ((_b2 = (_a3 = option.btnControls) == null ? void 0 : _a3.ruleEdit) == null ? void 0 : _b2.callback) === "function") {
-            let result = (_d2 = (_c2 = option.btnControls) == null ? void 0 : _c2.ruleEdit) == null ? void 0 : _d2.callback({
+          if (typeof option.btnControls?.ruleEdit?.callback === "function") {
+            let result = option.btnControls?.ruleEdit?.callback({
               context: this,
               event,
               // @ts-ignore
@@ -15052,7 +14983,7 @@
       } else {
         $edit.remove();
       }
-      if ((_h = (_g = option == null ? void 0 : option.btnControls) == null ? void 0 : _g.ruleDelete) == null ? void 0 : _h.enable) {
+      if (option?.btnControls?.ruleDelete?.enable) {
         domUtils.on($delete, "click", (event) => {
           utils.preventEvent(event);
           let $askDialog = __pops.confirm({
@@ -15068,11 +14999,10 @@
               ok: {
                 enable: true,
                 callback: async (popsEvent) => {
-                  var _a3, _b2;
                   log.success("删除数据");
-                  let flag = await ((_b2 = (_a3 = option == null ? void 0 : option.btnControls) == null ? void 0 : _a3.ruleDelete) == null ? void 0 : _b2.deleteCallBack(
+                  let flag = await option?.btnControls?.ruleDelete?.deleteCallBack(
                     ruleData
-                  ));
+                  );
                   if (flag) {
                     Qmsg.success("成功删除该数据");
                     $ruleItem.remove();
@@ -15124,7 +15054,7 @@
           $el
         );
         documentFragment.appendChild($item);
-        addCallBack == null ? void 0 : addCallBack(item, $item);
+        addCallBack?.(item, $item);
         $ruleItem.push($item);
       }
       $container.appendChild(documentFragment);
@@ -15211,7 +15141,6 @@
      * @param submitCallBack 添加/修改提交的回调
      */
     showEditView(option, subscribeOption, isEdit, editData, $parent, $ruleItem, updateDataCallBack, submitCallBack) {
-      var _a2, _b, _c, _d, _e, _f;
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
           if (typeof submitCallBack === "function") {
@@ -15239,12 +15168,10 @@
         },
         dialogCloseCallBack,
         getView: async (data) => {
-          var _a3, _b2, _c2;
-          return await ((_c2 = (_b2 = (_a3 = option.btnControls) == null ? void 0 : _a3.ruleEdit) == null ? void 0 : _b2.getView) == null ? void 0 : _c2.call(
-            _b2,
+          return await option.btnControls?.ruleEdit?.getView?.(
             data,
             isEdit
-          ));
+          );
         },
         btn: {
           ok: {
@@ -15265,13 +15192,11 @@
           }
         },
         onsubmit: async ($form, data) => {
-          var _a3, _b2, _c2;
-          let result = await ((_c2 = (_b2 = (_a3 = option == null ? void 0 : option.btnControls) == null ? void 0 : _a3.ruleEdit) == null ? void 0 : _b2.onsubmit) == null ? void 0 : _c2.call(
-            _b2,
+          let result = await option?.btnControls?.ruleEdit?.onsubmit?.(
             $form,
             isEdit,
             data
-          ));
+          );
           if (result.success) {
             if (isEdit) {
               Qmsg.success("修改成功");
@@ -15297,9 +15222,9 @@
           }
           return result;
         },
-        style: (_b = (_a2 = option == null ? void 0 : option.btnControls) == null ? void 0 : _a2.ruleEdit) == null ? void 0 : _b.style,
-        width: (_d = (_c = option == null ? void 0 : option.btnControls) == null ? void 0 : _c.ruleEdit) == null ? void 0 : _d.viewWidth,
-        height: (_f = (_e = option == null ? void 0 : option.btnControls) == null ? void 0 : _e.ruleEdit) == null ? void 0 : _f.viewHeight
+        style: option?.btnControls?.ruleEdit?.style,
+        width: option?.btnControls?.ruleEdit?.viewWidth,
+        height: option?.btnControls?.ruleEdit?.viewHeight
       });
       editView.showView();
     }
@@ -15309,9 +15234,9 @@
     STORAGE_KEY: "rule-subscribe"
   });
   class RuleSubscribe2 {
+    option;
+    storageApi;
     constructor(option) {
-      __publicField(this, "option");
-      __publicField(this, "storageApi");
       this.option = option;
       this.storageApi = new StorageUtils(option.STORAGE_API_KEY);
     }
@@ -15657,7 +15582,7 @@
         allData = allData.concat(addNewData);
         this.storageApi.set(this.option.STORAGE_KEY, allData);
         Qmsg.success(`共 ${data.length} 条订阅，新增 ${addNewData.length} 条`);
-        importEndCallBack == null ? void 0 : importEndCallBack();
+        importEndCallBack?.();
       };
       let importFile = (subscribeText) => {
         return new Promise((resolve) => {
@@ -15697,8 +15622,7 @@
           accept: ".json"
         });
         domUtils.on($input, ["propertychange", "input"], (event2) => {
-          var _a2;
-          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
+          if (!$input.files?.length) {
             return;
           }
           let uploadFile = $input.files[0];
@@ -16181,7 +16105,7 @@
       const that = this;
       domUtils.on(window, "message", (event) => {
         let messageData = event.data;
-        if (typeof messageData === "object" && (messageData == null ? void 0 : messageData["type"]) === this.postMessageType) {
+        if (typeof messageData === "object" && messageData?.["type"] === this.postMessageType) {
           let data = messageData.data;
           that.registerWorkerInitErrorNeverTipToast(data.hostname);
           NetDiskPops.confirm(
@@ -16301,7 +16225,7 @@
      * 主动触发Worker初始化失败的弹窗
      */
     dispatchWorkerInitErrorDialog() {
-      top == null ? void 0 : top.postMessage(
+      top?.postMessage(
         {
           type: this.postMessageType,
           data: {
@@ -17171,7 +17095,7 @@
             NetDiskUserRule.addRule(userRule);
             Qmsg.success("添加成功");
           }
-          valueChangeCallBack == null ? void 0 : valueChangeCallBack(userRule);
+          valueChangeCallBack?.(userRule);
         } else {
           Qmsg.error(parseRuleResult.msg);
         }
@@ -17277,7 +17201,7 @@
             Qmsg.error("更新失败");
             return;
           }
-          valueChangeCallBack == null ? void 0 : valueChangeCallBack(userRule);
+          valueChangeCallBack?.(userRule);
         } else {
           Qmsg.error(parseRuleResult.msg);
         }
@@ -18053,9 +17977,8 @@
                     option.ruleData.data.url
                   ),
                   data() {
-                    var _a2;
                     let currentData = NetDiskUserRuleSubscribeRule.getSubscribe(subscribeUUID);
-                    return ((_a2 = currentData == null ? void 0 : currentData.subscribeData) == null ? void 0 : _a2.ruleData) ?? option.ruleData.subscribeData.ruleData;
+                    return currentData?.subscribeData?.ruleData ?? option.ruleData.subscribeData.ruleData;
                   },
                   getData(data) {
                     let currentData = NetDiskUserRuleSubscribeRule.getSubscribeRule(
@@ -18482,7 +18405,7 @@
           };
           let exportCallBack = () => {
             let configData2 = NetDiskUserRuleStorageApi.get(this.$data.EXPORT_CONFIG_KEY, {});
-            if ((configData2 == null ? void 0 : configData2.title) === "" || configData2.title == null) {
+            if (configData2?.title === "" || configData2.title == null) {
               Qmsg.error("订阅标题不能为空");
               return;
             }
@@ -18685,7 +18608,7 @@
         } else {
           Qmsg.error("未新增规则，请删除旧规则再重新导入");
         }
-        importEndCallBack == null ? void 0 : importEndCallBack();
+        importEndCallBack?.();
       };
       let importFile = (subscribeText) => {
         return new Promise((resolve) => {
@@ -18742,8 +18665,7 @@
           accept: ".json"
         });
         domUtils.on($input, ["propertychange", "input"], (event2) => {
-          var _a2;
-          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
+          if (!$input.files?.length) {
             return;
           }
           let uploadFile = $input.files[0];
@@ -20664,7 +20586,6 @@
   const panelIndexCSS = 'div[class^="netdisk-custom-rule-"] {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-left: 10px;\r\n	cursor: pointer;\r\n}\r\ndiv[class^="netdisk-custom-rule-"] svg,\r\ndiv[class^="netdisk-custom-rule-"] svg {\r\n	width: 1.2em;\r\n	height: 1.2em;\r\n}\r\n/* 控件被禁用的颜色 */\r\naside.pops-panel-aside li[data-key][data-function-enable="false"] {\r\n	color: #a8abb2;\r\n	filter: grayscale(100%);\r\n}\r\n/* 左侧网盘图标 */\r\naside.pops-panel-aside .netdisk-aside-icon {\r\n	width: 20px;\r\n	height: 20px;\r\n	background-size: 100% 100%;\r\n	background-repeat: no-repeat;\r\n}\r\n/* 设置间隔 */\r\naside.pops-panel-aside ul li {\r\n	gap: 4px;\r\n}\r\n\r\n/* mobile模式 */\r\n@media screen and (max-width: 600px) {\r\n	/* 隐藏左侧网盘图标 */\r\n	aside.pops-panel-aside .netdisk-aside-text {\r\n		display: none;\r\n	}\r\n}\r\n';
   const NetDiskGlobalSettingView = {
     show() {
-      var _a2;
       if (NetDiskUI.Alias.settingAlias) {
         log.error("设置界面已存在");
         Qmsg.error("设置界面已存在");
@@ -20676,7 +20597,7 @@
       let $panel = NetDiskPops.panel(
         {
           title: {
-            text: `${((_a2 = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a2.name) || _SCRIPT_NAME_}-设置`,
+            text: `${_GM_info?.script?.name || _SCRIPT_NAME_}-设置`,
             position: "center"
           },
           content,
@@ -20769,7 +20690,7 @@
                     } else if ($next) {
                       $next.click();
                     }
-                    asideElement == null ? void 0 : asideElement.remove();
+                    asideElement?.remove();
                     Qmsg.success("删除成功");
                     okEvent.close();
                   } else {
@@ -21246,18 +21167,17 @@
             text: "取消",
             callback(eventDetails, event) {
               accessCodeConfirm.close();
-              closeCallBack == null ? void 0 : closeCallBack();
+              closeCallBack?.();
             }
           },
           close: {
             callback(details, event) {
               details.close();
-              closeCallBack == null ? void 0 : closeCallBack();
+              closeCallBack?.();
             }
           },
           ok: {
             callback: (event) => {
-              var _a2, _b, _c, _d;
               let userInputAccessCode = event.text.replace(/[\s]*/gi, "");
               let uiLink = NetDisk.handleLinkShow({
                 ruleKeyName,
@@ -21270,10 +21190,10 @@
               }
               let currentItemSelector = `.netdisk-url a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
               let currentHistoryItemSelector = `.netdiskrecord-link a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
-              let currentItemElement = (_b = (_a2 = NetDiskUI.Alias.uiLinkAlias) == null ? void 0 : _a2.$shadowRoot) == null ? void 0 : _b.querySelector(
+              let currentItemElement = NetDiskUI.Alias.uiLinkAlias?.$shadowRoot?.querySelector(
                 currentItemSelector
               );
-              let currentHistoryItemElement = (_d = (_c = NetDiskUI.Alias.historyAlias) == null ? void 0 : _c.$shadowRoot) == null ? void 0 : _d.querySelector(
+              let currentHistoryItemElement = NetDiskUI.Alias.historyAlias?.$shadowRoot?.querySelector(
                 currentHistoryItemSelector
               );
               if (currentItemElement) {
@@ -21324,7 +21244,7 @@
               );
               okCallBack(callbackOption);
               event.close();
-              closeCallBack == null ? void 0 : closeCallBack();
+              closeCallBack?.();
             }
           }
         },
@@ -21380,10 +21300,9 @@
             ok: {
               text: "识别",
               callback() {
-                var _a2, _b;
-                let inputText = ((_b = (_a2 = popsConfirm.popsElement) == null ? void 0 : _a2.querySelector(
+                let inputText = popsConfirm.popsElement?.querySelector(
                   ".netdisk-match-paste-text"
-                )) == null ? void 0 : _b.value) || "";
+                )?.value || "";
                 if (inputText.trim() !== "") {
                   inputText = NetDiskRuleUtils.replaceChinese(inputText);
                   NetDiskWorker.postMessage({
@@ -21603,7 +21522,7 @@
               }
             },
             {
-              text: "访问",
+              text: "打开",
               icon: (
                 /*html*/
                 `
@@ -21617,7 +21536,6 @@
 							<path
 								d="M927.9 131.6v-0.5c-0.1-1.7-0.4-3.3-0.7-4.9 0-0.1 0-0.2-0.1-0.3-0.4-1.7-0.9-3.3-1.5-4.9v-0.1c-0.6-1.6-1.4-3.1-2.2-4.6 0-0.1-0.1-0.1-0.1-0.2-0.8-1.4-1.7-2.8-2.7-4.1-0.1-0.1-0.2-0.3-0.3-0.4-0.5-0.6-0.9-1.1-1.4-1.7 0-0.1-0.1-0.1-0.1-0.2-0.5-0.6-1-1.1-1.6-1.6l-0.4-0.4c-0.5-0.5-1.1-1-1.6-1.5l-0.1-0.1c-0.6-0.5-1.2-1-1.9-1.4-0.1-0.1-0.3-0.2-0.4-0.3-1.4-1-2.8-1.8-4.3-2.6l-0.1-0.1c-1.6-0.8-3.2-1.5-4.9-2-1.6-0.5-3.3-1-5-1.2-0.1 0-0.2 0-0.3-0.1l-2.4-0.3h-0.3c-0.7-0.1-1.3-0.1-2-0.1H640.1c-19.9 0-36 16.1-36 36s16.1 36 36 36h165L487.6 487.6c-14.1 14.1-14.1 36.9 0 50.9 7 7 16.2 10.5 25.5 10.5 9.2 0 18.4-3.5 25.5-10.5L856 221v162.8c0 19.9 16.1 36 36 36s36-16.1 36-36V134.1c0-0.8 0-1.7-0.1-2.5z"></path>
 						</svg>
-	
 						`
               ),
               callback: function(event, contextMenuEvent, liElement, menuListenerRootNode) {
@@ -21643,15 +21561,16 @@
               icon: (
                 /*html*/
                 `
-							<svg
-								class="icon"
-								viewBox="0 0 1024 1024"
-								version="1.1"
-								xmlns="http://www.w3.org/2000/svg">
-								<path
-									d="M819.2 864.711111 204.8 864.711111c-50.267022 0-91.022222-40.732444-91.022222-91.022222L113.777778 250.333867C113.777778 200.044089 154.532978 159.288889 204.8 159.288889l614.4 0c50.267022 0 91.022222 40.7552 91.022222 91.044978L910.222222 773.688889C910.222222 823.978667 869.467022 864.711111 819.2 864.711111zM864.711111 250.311111c0-25.122133-20.388978-45.511111-45.511111-45.511111L204.8 204.8c-25.122133 0-45.511111 20.388978-45.511111 45.511111l0 68.266667 705.422222 0 0 0L864.711111 250.311111zM864.711111 364.088889 864.711111 364.088889 159.288889 364.088889l0 409.6c0 25.122133 20.388978 45.511111 45.511111 45.511111l614.4 0c25.122133 0 45.511111-20.388978 45.511111-45.511111L864.711111 364.088889zM500.644978 714.387911c-1.115022 2.798933-2.776178 5.438578-5.028978 7.691378-4.983467 4.983467-11.628089 6.872178-18.136178 6.280533-5.848178 0.045511-11.696356-2.139022-16.156444-6.599111-1.501867-1.501867-2.389333-3.322311-3.367822-5.12l-133.12-131.913956c-8.897422-8.897422-8.897422-23.278933 0-32.176356s23.301689-8.897422 32.176356 0l121.309867 120.194844 211.5584-210.921244c8.8064-8.851911 23.119644-8.851911 31.926044 0 8.829156 8.874667 8.829156 23.233422 0 32.062578L500.644978 714.387911z">
-								</path>
-							</svg>
+						<svg
+							class="icon"
+							viewBox="0 0 1024 1024"
+							version="1.1"
+							xmlns="http://www.w3.org/2000/svg">
+							<path
+								d="M892 928.1H134c-19.9 0-36-16.1-36-36v-758c0-19.9 16.1-36 36-36h314.1c19.9 0 36 16.1 36 36s-16.1 36-36 36H170v686h686V579.6c0-19.9 16.1-36 36-36s36 16.1 36 36v312.5c0 19.9-16.1 36-36 36z"></path>
+							<path
+								d="M927.9 131.6v-0.5c-0.1-1.7-0.4-3.3-0.7-4.9 0-0.1 0-0.2-0.1-0.3-0.4-1.7-0.9-3.3-1.5-4.9v-0.1c-0.6-1.6-1.4-3.1-2.2-4.6 0-0.1-0.1-0.1-0.1-0.2-0.8-1.4-1.7-2.8-2.7-4.1-0.1-0.1-0.2-0.3-0.3-0.4-0.5-0.6-0.9-1.1-1.4-1.7 0-0.1-0.1-0.1-0.1-0.2-0.5-0.6-1-1.1-1.6-1.6l-0.4-0.4c-0.5-0.5-1.1-1-1.6-1.5l-0.1-0.1c-0.6-0.5-1.2-1-1.9-1.4-0.1-0.1-0.3-0.2-0.4-0.3-1.4-1-2.8-1.8-4.3-2.6l-0.1-0.1c-1.6-0.8-3.2-1.5-4.9-2-1.6-0.5-3.3-1-5-1.2-0.1 0-0.2 0-0.3-0.1l-2.4-0.3h-0.3c-0.7-0.1-1.3-0.1-2-0.1H640.1c-19.9 0-36 16.1-36 36s16.1 36 36 36h165L487.6 487.6c-14.1 14.1-14.1 36.9 0 50.9 7 7 16.2 10.5 25.5 10.5 9.2 0 18.4-3.5 25.5-10.5L856 221v162.8c0 19.9 16.1 36 36 36s36-16.1 36-36V134.1c0-0.8 0-1.7-0.1-2.5z"></path>
+						</svg>
 						`
               ),
               callback: function(event, contextMenuEvent, liElement, menuListenerRootNode) {
@@ -21676,7 +21595,7 @@
           ]
         },
         {
-          text: "访问码",
+          text: "密码",
           icon: (
             /*html*/
             `
@@ -22062,9 +21981,8 @@
                     option.ruleData.data.url
                   ),
                   data() {
-                    var _a2;
                     let currentData = WebsiteSubscribeRule.getSubscribe(subscribeUUID);
-                    return ((_a2 = currentData == null ? void 0 : currentData.subscribeData) == null ? void 0 : _a2.ruleData) ?? option.ruleData.subscribeData.ruleData;
+                    return currentData?.subscribeData?.ruleData ?? option.ruleData.subscribeData.ruleData;
                   },
                   getData(data) {
                     let currentData = WebsiteSubscribeRule.getSubscribeRule(
@@ -22218,7 +22136,7 @@
                             );
                             function iterativeTraversal(configList) {
                               configList.forEach((configItem) => {
-                                if (typeof (configItem == null ? void 0 : configItem.props) === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
+                                if (typeof configItem?.props === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
                                   let panelStorageApi = generateSubscribeRuleStorageApi(data.uuid);
                                   Reflect.set(
                                     configItem.props,
@@ -22237,7 +22155,7 @@
                               if (!leftContentConfigItem.forms) {
                                 continue;
                               }
-                              if (typeof leftContentConfigItem.afterRender === "function" && (leftContentConfigItem == null ? void 0 : leftContentConfigItem.id.toString().startsWith("netdisk-panel-config-"))) {
+                              if (typeof leftContentConfigItem.afterRender === "function" && leftContentConfigItem?.id.toString().startsWith("netdisk-panel-config-")) {
                                 leftContentConfigItem.afterRender = (__data) => {
                                   let ruleKey = __data.asideConfig.attributes["data-key"];
                                   let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
@@ -22613,7 +22531,7 @@
                     );
                     function iterativeTraversal(configList) {
                       configList.forEach((configItem) => {
-                        if (typeof (configItem == null ? void 0 : configItem.props) === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
+                        if (typeof configItem?.props === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
                           let panelStorageApi = generatePanelStorageApi(
                             data.uuid
                           );
@@ -22634,7 +22552,7 @@
                       if (!leftContentConfigItem.forms) {
                         continue;
                       }
-                      if (typeof leftContentConfigItem.afterRender === "function" && (leftContentConfigItem == null ? void 0 : leftContentConfigItem.id.toString().startsWith("netdisk-panel-config-"))) {
+                      if (typeof leftContentConfigItem.afterRender === "function" && leftContentConfigItem?.id.toString().startsWith("netdisk-panel-config-")) {
                         leftContentConfigItem.afterRender = (__data) => {
                           let ruleKey = __data.asideConfig.attributes["data-key"];
                           let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
@@ -23104,7 +23022,7 @@
           };
           let exportCallBack = () => {
             let configData2 = WebsiteRuleStorageApi.get(this.$data.EXPORT_CONFIG_KEY, {});
-            if ((configData2 == null ? void 0 : configData2.title) === "" || configData2.title == null) {
+            if (configData2?.title === "" || configData2.title == null) {
               Qmsg.error("订阅标题不能为空");
               return;
             }
@@ -23302,7 +23220,7 @@
         allData = allData.concat(addNewData);
         WebsiteRuleStorageApi.set(this.$data.STORAGE_KEY, allData);
         Qmsg.success(`共 ${data.length} 条规则，新增 ${addNewData.length} 条`);
-        importEndCallBack == null ? void 0 : importEndCallBack();
+        importEndCallBack?.();
       };
       let importFile = (subscribeText) => {
         return new Promise((resolve) => {
@@ -23334,8 +23252,7 @@
           accept: ".json"
         });
         domUtils.on($input, ["propertychange", "input"], (event2) => {
-          var _a2;
-          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
+          if (!$input.files?.length) {
             return;
           }
           let uploadFile = $input.files[0];
@@ -23840,10 +23757,9 @@
      * @param handlerConfig 配置
      */
     handleShareCode(handlerConfig) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v;
-      let ruleConfig = ((_a2 = handlerConfig == null ? void 0 : handlerConfig.debugConfig) == null ? void 0 : _a2.config) ?? this.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
-      let shareCodeMatch = (_b = handlerConfig.matchText.match(ruleConfig.shareCode)) == null ? void 0 : _b.filter((item) => utils.isNotNull(item));
-      (_d = (_c = handlerConfig.debugConfig) == null ? void 0 : _c.logCallBack) == null ? void 0 : _d.call(_c, {
+      let ruleConfig = handlerConfig?.debugConfig?.config ?? this.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
+      let shareCodeMatch = handlerConfig.matchText.match(ruleConfig.shareCode)?.filter((item) => utils.isNotNull(item));
+      handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: [
           `正则: shareCode`,
@@ -23853,14 +23769,14 @@
         ]
       });
       if (utils.isNull(shareCodeMatch)) {
-        (_f = (_e = handlerConfig.debugConfig) == null ? void 0 : _e.logCallBack) == null ? void 0 : _f.call(_e, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: false,
           msg: `匹配shareCode为空`
         });
         return;
       }
       let shareCode = shareCodeMatch[0];
-      (_h = (_g = handlerConfig.debugConfig) == null ? void 0 : _g.logCallBack) == null ? void 0 : _h.call(_g, {
+      handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: [`取第一个值: ` + shareCode]
       });
@@ -23873,7 +23789,7 @@
           shareCode = shareCode.replace(shareCodeRemoveRegExp, "");
         }
         if (shareCodeNeedRemoveStrList.length) {
-          (_j = (_i = handlerConfig.debugConfig) == null ? void 0 : _i.logCallBack) == null ? void 0 : _j.call(_i, {
+          handlerConfig.debugConfig?.logCallBack?.({
             status: true,
             msg: [
               `正则: shareCodeNeedRemoveStr`,
@@ -23885,7 +23801,7 @@
       }
       for (const shareCodeNotMatchRegExp of NetDisk.$extraRule.shareCodeNotMatchRegExpList) {
         if (shareCode.match(shareCodeNotMatchRegExp)) {
-          (_l = (_k = handlerConfig.debugConfig) == null ? void 0 : _k.logCallBack) == null ? void 0 : _l.call(_k, {
+          handlerConfig.debugConfig?.logCallBack?.({
             status: false,
             msg: [
               `正则: 内置的shareCodeNotMatchRegExpList`,
@@ -23903,7 +23819,7 @@
         }
         for (const shareCodeNotMatchRegExp of shareCodeNotMatch) {
           if (shareCode.match(shareCodeNotMatchRegExp)) {
-            (_n = (_m = handlerConfig.debugConfig) == null ? void 0 : _m.logCallBack) == null ? void 0 : _n.call(_m, {
+            handlerConfig.debugConfig?.logCallBack?.({
               status: false,
               msg: [
                 `正则: shareCodeNotMatch`,
@@ -23916,7 +23832,7 @@
         }
       }
       shareCode = decodeURI(shareCode);
-      (_p = (_o = handlerConfig.debugConfig) == null ? void 0 : _o.logCallBack) == null ? void 0 : _p.call(_o, {
+      handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: ["对shareCode进行解码: " + shareCode]
       });
@@ -23924,20 +23840,20 @@
         shareCode,
         NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient.value
       )) {
-        (_r = (_q = handlerConfig.debugConfig) == null ? void 0 : _q.logCallBack) == null ? void 0 : _r.call(_q, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: false,
           msg: ["已开启【排除分享码】且该分享码命中该规则"]
         });
         return;
       }
       if (shareCode.endsWith("http") || shareCode.endsWith("https")) {
-        (_t = (_s = handlerConfig.debugConfig) == null ? void 0 : _s.logCallBack) == null ? void 0 : _t.call(_s, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: false,
           msg: ["该分享码以http|https结尾"]
         });
         return;
       }
-      (_v = (_u = handlerConfig.debugConfig) == null ? void 0 : _u.logCallBack) == null ? void 0 : _v.call(_u, {
+      handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: "处理完毕的shareCode: " + shareCode
       });
@@ -23949,11 +23865,10 @@
      * @returns "xxxx" || ""
      */
     handleAccessCode(handlerConfig) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t;
-      let ruleConfig = ((_a2 = handlerConfig.debugConfig) == null ? void 0 : _a2.config) ?? this.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
+      let ruleConfig = handlerConfig.debugConfig?.config ?? this.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
       let accessCode = "";
       if (!ruleConfig.checkAccessCode) {
-        (_c = (_b = handlerConfig.debugConfig) == null ? void 0 : _b.logCallBack) == null ? void 0 : _c.call(_b, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: "因未配置规则checkAccessCode，默认accessCode的值为空"
         });
@@ -23962,7 +23877,7 @@
       let accessCodeMatch = handlerConfig.matchText.match(
         ruleConfig.checkAccessCode
       );
-      (_e = (_d = handlerConfig.debugConfig) == null ? void 0 : _d.logCallBack) == null ? void 0 : _e.call(_d, {
+      handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: [
           `正则: checkAccessCode`,
@@ -23973,12 +23888,12 @@
       });
       if (accessCodeMatch) {
         let accessCodeMatchValue = accessCodeMatch[accessCodeMatch.length - 1];
-        (_g = (_f = handlerConfig.debugConfig) == null ? void 0 : _f.logCallBack) == null ? void 0 : _g.call(_f, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: "取最后一个值: " + accessCodeMatchValue
         });
-        let accessCodeMatchArray = (_h = accessCodeMatchValue.match(ruleConfig.accessCode)) == null ? void 0 : _h.filter((item) => utils.isNotNull(item));
-        (_j = (_i = handlerConfig.debugConfig) == null ? void 0 : _i.logCallBack) == null ? void 0 : _j.call(_i, {
+        let accessCodeMatchArray = accessCodeMatchValue.match(ruleConfig.accessCode)?.filter((item) => utils.isNotNull(item));
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
             `正则: accessCode`,
@@ -23988,7 +23903,7 @@
           ]
         });
         if (utils.isNull(accessCodeMatchArray)) {
-          (_l = (_k = handlerConfig.debugConfig) == null ? void 0 : _k.logCallBack) == null ? void 0 : _l.call(_k, {
+          handlerConfig.debugConfig?.logCallBack?.({
             status: true,
             msg: "因↑匹配到的结果为空，默认accessCode的值为空"
           });
@@ -23996,7 +23911,7 @@
         }
         if (accessCodeMatchArray.length) {
           accessCode = accessCodeMatchArray[0];
-          (_n = (_m = handlerConfig.debugConfig) == null ? void 0 : _m.logCallBack) == null ? void 0 : _n.call(_m, {
+          handlerConfig.debugConfig?.logCallBack?.({
             status: true,
             msg: "取第一个值: " + accessCode
           });
@@ -24006,7 +23921,7 @@
         for (const accessCodeNotMatchRegExp of NetDisk.$extraRule.accessCodeNotMatchRegExpList) {
           if (accessCode.match(accessCodeNotMatchRegExp)) {
             accessCode = "";
-            (_p = (_o = handlerConfig.debugConfig) == null ? void 0 : _o.logCallBack) == null ? void 0 : _p.call(_o, {
+            handlerConfig.debugConfig?.logCallBack?.({
               status: true,
               msg: [
                 `正则: 内置的accessCodeNotMatchRegExpList`,
@@ -24025,7 +23940,7 @@
           for (const accessCodeNotMatchRegExp of accessCodeNotMatchRegExpList) {
             if (accessCode.match(accessCodeNotMatchRegExp)) {
               accessCode = "";
-              (_r = (_q = handlerConfig.debugConfig) == null ? void 0 : _q.logCallBack) == null ? void 0 : _r.call(_q, {
+              handlerConfig.debugConfig?.logCallBack?.({
                 status: true,
                 msg: [
                   `正则: acceesCodeNotMatch`,
@@ -24038,7 +23953,7 @@
           }
         }
       }
-      (_t = (_s = handlerConfig.debugConfig) == null ? void 0 : _s.logCallBack) == null ? void 0 : _t.call(_s, {
+      handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: "处理完毕的accessCode: " + accessCode
       });
@@ -24076,8 +23991,7 @@
      * @param handlerConfig 配置
      */
     handleLinkShow(handlerConfig) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
-      let checkFlag = ((_a2 = handlerConfig.debugConfig) == null ? void 0 : _a2.config) ? true : this.checkHasRuleOption(
+      let checkFlag = handlerConfig.debugConfig?.config ? true : this.checkHasRuleOption(
         handlerConfig.ruleKeyName,
         handlerConfig.ruleIndex
       );
@@ -24089,11 +24003,11 @@
         (handlerConfig.showToast ?? true) && Qmsg.error(`规则：${handlerConfig.ruleKeyName}不存在`);
         return;
       }
-      let ruleConfig = ((_b = handlerConfig.debugConfig) == null ? void 0 : _b.config) ?? NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
+      let ruleConfig = handlerConfig.debugConfig?.config ?? NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
       let uiLink = NetDiskRuleUtils.replaceParam(ruleConfig.uiLinkShow, {
         shareCode: handlerConfig.shareCode
       });
-      (_d = (_c = handlerConfig.debugConfig) == null ? void 0 : _c.logCallBack) == null ? void 0 : _d.call(_c, {
+      handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: [
           `正则: uiLinkShow`,
@@ -24106,7 +24020,7 @@
         uiLink = NetDiskRuleUtils.replaceParam(uiLink, {
           accessCode: handlerConfig.accessCode
         });
-        (_f = (_e = handlerConfig.debugConfig) == null ? void 0 : _e.logCallBack) == null ? void 0 : _f.call(_e, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
             `正则: uiLinkShow`,
@@ -24121,7 +24035,7 @@
           NetDisk.$extraRule.noAccessCodeRegExp,
           ""
         );
-        (_h = (_g = handlerConfig.debugConfig) == null ? void 0 : _g.logCallBack) == null ? void 0 : _h.call(_g, {
+        handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
             `正则: 内置的noAccessCodeRegExp`,
@@ -24132,7 +24046,7 @@
       }
       if (ruleConfig.paramMatch) {
         let currentDict = NetDisk.$match.matchedInfo.get(handlerConfig.ruleKeyName).get(handlerConfig.shareCode);
-        handlerConfig.matchText = handlerConfig.matchText ?? (currentDict == null ? void 0 : currentDict.matchText);
+        handlerConfig.matchText = handlerConfig.matchText ?? currentDict?.matchText;
         if (utils.isNotNull(handlerConfig.matchText)) {
           let paramMatchArray = handlerConfig.matchText.match(
             ruleConfig.paramMatch
@@ -24144,7 +24058,7 @@
             }
           }
           uiLink = NetDiskRuleUtils.replaceParam(uiLink, replaceParamData);
-          (_j = (_i = handlerConfig.debugConfig) == null ? void 0 : _i.logCallBack) == null ? void 0 : _j.call(_i, {
+          handlerConfig.debugConfig?.logCallBack?.({
             status: true,
             msg: [
               `正则: paramMatch`,
@@ -24155,7 +24069,7 @@
           });
         }
       }
-      (_l = (_k = handlerConfig.debugConfig) == null ? void 0 : _k.logCallBack) == null ? void 0 : _l.call(_k, {
+      handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: "处理完毕的uiLink: " + uiLink
       });
@@ -24180,8 +24094,7 @@
      * 判断规则是否存在
      */
     checkHasRuleOption(ruleKeyName, ruleIndex) {
-      var _a2;
-      let ruleConfig = (_a2 = NetDisk.$rule.ruleOption) == null ? void 0 : _a2[ruleKeyName];
+      let ruleConfig = NetDisk.$rule.ruleOption?.[ruleKeyName];
       if (!Array.isArray(ruleConfig)) {
         return false;
       }
@@ -24194,17 +24107,17 @@
     }
   };
   class ShortCut {
+    /** 存储的键 */
+    key = "short-cut";
+    /** 配置 */
+    $data;
+    /** 是否存在等待按下的按键 */
+    isWaitPress = false;
+    /**
+     * 当前等待按下的按键实例
+     */
+    currentWaitEnterPressInstanceHandler = null;
     constructor(key) {
-      /** 存储的键 */
-      __publicField(this, "key", "short-cut");
-      /** 配置 */
-      __publicField(this, "$data");
-      /** 是否存在等待按下的按键 */
-      __publicField(this, "isWaitPress", false);
-      /**
-       * 当前等待按下的按键实例
-       */
-      __publicField(this, "currentWaitEnterPressInstanceHandler", null);
       if (typeof key === "string") {
         this.key = key;
       }
@@ -24252,7 +24165,7 @@
     hasOptionValue(key) {
       if (this.hasOption(key)) {
         let option = this.getOption(key);
-        return !((option == null ? void 0 : option.value) == null);
+        return !(option?.value == null);
       } else {
         return false;
       }
@@ -24443,7 +24356,7 @@
             if (that.isWaitPress) {
               return;
             }
-            if (config == null ? void 0 : config.isPrevent) {
+            if (config?.isPrevent) {
               utils.preventEvent(event);
             }
             localOptions = that.getLocalAllOptions();
@@ -24467,7 +24380,7 @@
             }
           },
           {
-            capture: Boolean(config == null ? void 0 : config.capture)
+            capture: Boolean(config?.capture)
           }
         );
       }
@@ -24597,9 +24510,8 @@
       false,
       buttonType,
       async (event) => {
-        var _a2;
         let $click = event.target;
-        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
+        let $btn = $click.closest(".pops-panel-button")?.querySelector("span");
         if (shortCut.isWaitPress) {
           Qmsg.warning("请先执行当前的录入操作");
           return;
