@@ -1,7 +1,7 @@
 import { ColorConversion } from "./ColorConversion";
 import { GBKEncoder } from "./GBKEncoder";
 import { UtilsGMCookie } from "./UtilsGMCookie";
-import { AjaxHooker } from "./ajaxHooker/ajaxHooker.js";
+import { ajaxHooker } from "./ajaxHooker/ajaxHooker.js";
 import { AjaxHooker1_2_4 } from "./ajaxHooker/ajaxHooker1.2.4";
 import { GMMenu } from "./UtilsGMMenu";
 import { Hooks } from "./Hooks";
@@ -39,7 +39,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2025.6.7";
+	version = "2025.6.26";
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
 	 * @param cssText css字符串
@@ -148,7 +148,7 @@ class Utils {
 	 * ajax劫持库，支持xhr和fetch劫持。
 	 * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
 	 * + 作者：cxxjackie
-	 * + 版本：1.4.4
+	 * + 版本：1.4.6
 	 * + 旧版本：1.2.4
 	 * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
 	 * @param useOldVersion 是否使用旧版本，默认false
@@ -157,7 +157,7 @@ class Utils {
 		if (useOldVersion) {
 			return AjaxHooker1_2_4();
 		} else {
-			return AjaxHooker();
+			return ajaxHooker();
 		}
 	};
 	/**
