@@ -262,6 +262,9 @@ export const DouYinVideoPlayerBlockElement = {
 		Panel.execMenuOnce("dy-video-blockShopInfo", () => {
 			return this.blockShopInfo();
 		});
+		Panel.execMenuOnce("dy-video-blockTitleTopTag", () => {
+			return this.blobkTitleTopTag();
+		});
 		DouYinVideoPlayerBlockElement_BottomToolbar.init();
 		DouYinVideoPlayerBlockElement_RightToolbar.init();
 		DouYinVideoPlayerCommentBlockElement.init();
@@ -336,5 +339,18 @@ export const DouYinVideoPlayerBlockElement = {
 	blockShopInfo() {
 		log.info(`【屏蔽】购物信息`);
 		return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
+	},
+	/**
+	 * 【屏蔽】视频标题上的标签
+	 *
+	 * - 每周精选
+	 * - 抖音精选
+	 */
+	blobkTitleTopTag() {
+		log.info(`【屏蔽】视频标题上的标签`);
+		return CommonUtil.addBlockCSS(
+			"span:has(+#video-info-wrap):has(img)",
+			"span:has(+div #video-info-wrap):has(img)"
+		);
 	},
 };

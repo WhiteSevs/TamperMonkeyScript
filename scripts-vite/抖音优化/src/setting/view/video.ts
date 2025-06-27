@@ -568,6 +568,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									"屏蔽元素，可代替【清屏】功能"
 								),
 								UISwitch(
+									"【屏蔽】视频标题上的标签",
+									"dy-video-blockTitleTopTag",
+									false,
+									void 0,
+									"例如：每周精选、抖音精选"
+								),
+								UISwitch(
 									"【屏蔽】视频标题下的标签",
 									"dy-video-bottom-shieldVideoUnderTitleTag",
 									false,
