@@ -1,4 +1,4 @@
-import { $$, DOMUtils, GM_Menu, addStyle, log, pops, utils } from "@/env";
+import { $$, DOMUtils, addStyle, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveMessage } from "./DouYinLiveMessage";
@@ -289,23 +289,44 @@ export const DouYinLive = {
 	 * 暂停视频
 	 */
 	pauseVideo() {
-		log.info("禁止自动播放视频(直播)");
 		utils
-			.waitNode<HTMLVideoElement>('.basicPlayer[data-e2e="basicPlayer"] video')
+			.waitNode<HTMLVideoElement>(
+				'.basicPlayer[data-e2e="basicPlayer"] video',
+				10000
+			)
 			.then(($video) => {
+				if (!$video) {
+					return;
+				}
+				log.info("禁止自动播放视频(直播)");
 				$video.autoplay = false;
 				$video.pause();
-				DOMUtils.on(
-					$video,
-					"play",
-					() => {
-						$video.pause();
-					},
-					{
+				let isDelayRemoveListener = false;
+				let timeout = 5000;
+
+				/**
+				 * 移除监听
+				 */
+				let removeListener = () => {
+					DOMUtils.off($video, "play", playListener, {
 						capture: true,
-						once: true,
+					});
+				};
+				// 在firefox中video会重载，如果只触发一次，它依旧会自动播放
+				let playListener = (evt: Event) => {
+					utils.preventEvent(evt);
+					$video.autoplay = false;
+					$video.pause();
+					if (!isDelayRemoveListener) {
+						isDelayRemoveListener = true;
+						setTimeout(() => {
+							removeListener();
+						}, timeout);
 					}
-				);
+				};
+				DOMUtils.on($video, "play", playListener, {
+					capture: true,
+				});
 			});
 	},
 	/**
