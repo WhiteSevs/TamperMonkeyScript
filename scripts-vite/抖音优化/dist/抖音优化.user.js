@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.23
+// @version      2025.6.28
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -32,10 +32,6 @@
 (function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
-  var __defProp = Object.defineProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  var _a;
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -90,6 +86,9 @@
     }
   };
   class StorageUtils {
+    /** 存储的键名 */
+    storageKey;
+    listenerData;
     /**
      * 存储的键名，可以是多层的，如：a.b.c
      *
@@ -106,9 +105,6 @@
      * @param key
      */
     constructor(key) {
-      /** 存储的键名 */
-      __publicField(this, "storageKey");
-      __publicField(this, "listenerData");
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -1071,11 +1067,10 @@
         });
       }
       function checkClipboardApi() {
-        var _a2, _b;
-        if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
+        if (typeof navigator?.clipboard?.readText !== "function") {
           return false;
         }
-        if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
+        if (typeof navigator?.permissions?.query !== "function") {
           return false;
         }
         return true;
@@ -1132,7 +1127,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -1186,11 +1181,10 @@
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        var _a2;
-        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+        if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
-        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
           return false;
         }
       });
@@ -1563,7 +1557,7 @@
           'li.semi-dropdown-item[role="menuitem"]:contains("快捷访问")',
           1e4
         ).then(($semi) => {
-          $semi == null ? void 0 : $semi.remove();
+          $semi?.remove();
         });
       } else if (DouYinRouter.isLive()) ;
       return result;
@@ -2393,9 +2387,8 @@
     disableDoubleClickLike() {
       let latestClickTime = Date.now();
       Hook.element_addEventListener((target, eventName, listener, option) => {
-        var _a2;
         const listenerStr = listener.toString();
-        if (eventName === "click" && target instanceof HTMLElement && ((_a2 = target == null ? void 0 : target.classList) == null ? void 0 : _a2.contains("xgplayer")) && listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) {
+        if (eventName === "click" && target instanceof HTMLElement && target?.classList?.contains("xgplayer") && listenerStr.match(/video|innerContainer|video.__canvas|mouse/)) {
           return function(...eventArgs) {
             let currentClickTime = Date.now();
             if (currentClickTime - latestClickTime <= 288) {
@@ -2480,7 +2473,6 @@
       this.ajaxHooker.hook((request) => {
         let originResponse = request.response;
         request.response = (response) => {
-          var _a2, _b, _c;
           originResponse && originResponse(response);
           let data = utils.toJSON(response.responseText);
           if (typeof data["status_code"] === "number" && data["status_code"] !== 0) {
@@ -2489,9 +2481,9 @@
               data["status_msg"] = "";
             }
           }
-          if (typeof ((_a2 = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _a2["status_code"]) === "number" && ((_b = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _b["status_code"]) !== 0) {
+          if (typeof data?.["user_collect_count"]?.["status_code"] === "number" && data?.["user_collect_count"]?.["status_code"] !== 0) {
             data["user_collect_count"]["status_code"] = 0;
-            if (typeof ((_c = data == null ? void 0 : data["user_collect_count"]) == null ? void 0 : _c["status_msg"]) === "string") {
+            if (typeof data?.["user_collect_count"]?.["status_msg"] === "string") {
               data["user_collect_count"]["status_msg"] = "";
             }
           }
@@ -2601,29 +2593,28 @@
         close_consecutive_chat: 0
       };
       function getUserInfo(element) {
-        var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D;
         let userInfoList = [];
         let reactInstance = utils.getReactObj(element);
-        let reactFiber = reactInstance == null ? void 0 : reactInstance.reactFiber;
-        reactInstance == null ? void 0 : reactInstance.reactProps;
-        if ((_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.userInfo) {
+        let reactFiber = reactInstance?.reactFiber;
+        reactInstance?.reactProps;
+        if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
           userInfoList.push(
-            (_f = (_e = (_d = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _d.return) == null ? void 0 : _e.memoizedProps) == null ? void 0 : _f.userInfo
+            reactFiber?.alternate?.return?.memoizedProps?.userInfo
           );
         }
-        if ((_j = (_i = (_h = (_g = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _g.return) == null ? void 0 : _h.memoizedProps) == null ? void 0 : _i.userInfo) == null ? void 0 : _j.userInfo) {
+        if (reactFiber?.alternate?.return?.memoizedProps?.userInfo?.userInfo) {
           userInfoList.push(
-            (_m = (_l = (_k = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _k.return) == null ? void 0 : _l.memoizedProps) == null ? void 0 : _m.userInfo.userInfo
+            reactFiber?.alternate?.return?.memoizedProps?.userInfo.userInfo
           );
         }
-        if ((_q = (_p = (_o = (_n = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _n.return) == null ? void 0 : _o.return) == null ? void 0 : _p.memoizedProps) == null ? void 0 : _q.userInfo) {
+        if (reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo) {
           userInfoList.push(
-            (_u = (_t = (_s = (_r = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _r.return) == null ? void 0 : _s.return) == null ? void 0 : _t.memoizedProps) == null ? void 0 : _u.userInfo
+            reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo
           );
         }
-        if ((_z = (_y = (_x = (_w = (_v = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _v.return) == null ? void 0 : _w.return) == null ? void 0 : _x.memoizedProps) == null ? void 0 : _y.userInfo) == null ? void 0 : _z.userInfo) {
+        if (reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo?.userInfo) {
           userInfoList.push(
-            (_D = (_C = (_B = (_A = reactFiber == null ? void 0 : reactFiber.alternate) == null ? void 0 : _A.return) == null ? void 0 : _B.return) == null ? void 0 : _C.memoizedProps) == null ? void 0 : _D.userInfo.userInfo
+            reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo.userInfo
           );
         }
         return userInfoList;
@@ -2682,14 +2673,13 @@
         });
       } else if (DouYinRouter.isSearch()) {
         let setUserInfoBySearch = function($ele) {
-          var _a2, _b, _c, _d, _e, _f, _g;
           let $react = utils.getReactObj($ele);
-          $react == null ? void 0 : $react.reactFiber;
-          let reactProps = $react == null ? void 0 : $react.reactProps;
-          if (typeof ((_d = (_c = (_b = (_a2 = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _a2[1]) == null ? void 0 : _b.props) == null ? void 0 : _c.userInfo) == null ? void 0 : _d.isLogin) === "boolean") {
+          $react?.reactFiber;
+          let reactProps = $react?.reactProps;
+          if (typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin === "boolean") {
             Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
           }
-          if (typeof ((_g = (_f = (_e = reactProps == null ? void 0 : reactProps.children) == null ? void 0 : _e[1]) == null ? void 0 : _f.props) == null ? void 0 : _g.isClient) === "boolean") {
+          if (typeof reactProps?.children?.[1]?.props?.isClient === "boolean") {
             Reflect.set(reactProps.children[1].props, "isClient", true);
           }
         };
@@ -2723,7 +2713,6 @@
         CommonUtil.addBlockCSS('body > div[id^="login-full-panel-"]')
       ];
       let lockFn = new utils.LockFunction(() => {
-        var _a2;
         if (!Panel.getValue("watchLoginDialogToClose")) {
           return;
         }
@@ -2736,7 +2725,7 @@
           );
           if ($loginDialogCloseBtn) {
             let reactInstance = utils.getReactObj($loginDialogCloseBtn);
-            let onClick = (_a2 = reactInstance == null ? void 0 : reactInstance.reactProps) == null ? void 0 : _a2.onClick;
+            let onClick = reactInstance?.reactProps?.onClick;
             if (typeof onClick === "function") {
               onClick(new Event("click"));
             } else {
@@ -3082,6 +3071,9 @@
       Panel.execMenuOnce("dy-video-blockShopInfo", () => {
         return this.blockShopInfo();
       });
+      Panel.execMenuOnce("dy-video-blockTitleTopTag", () => {
+        return this.blobkTitleTopTag();
+      });
       DouYinVideoPlayerBlockElement_BottomToolbar.init();
       DouYinVideoPlayerBlockElement_RightToolbar.init();
       DouYinVideoPlayerCommentBlockElement.init();
@@ -3157,20 +3149,33 @@
     blockShopInfo() {
       log.info(`【屏蔽】购物信息`);
       return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
+    },
+    /**
+     * 【屏蔽】视频标题上的标签
+     *
+     * - 每周精选
+     * - 抖音精选
+     */
+    blobkTitleTopTag() {
+      log.info(`【屏蔽】视频标题上的标签`);
+      return CommonUtil.addBlockCSS(
+        "span:has(+#video-info-wrap):has(img)",
+        "span:has(+div #video-info-wrap):has(img)"
+      );
     }
   };
   class ShortCut {
+    /** 存储的键 */
+    key = "short-cut";
+    /** 配置 */
+    $data;
+    /** 是否存在等待按下的按键 */
+    isWaitPress = false;
+    /**
+     * 当前等待按下的按键实例
+     */
+    currentWaitEnterPressInstanceHandler = null;
     constructor(key) {
-      /** 存储的键 */
-      __publicField(this, "key", "short-cut");
-      /** 配置 */
-      __publicField(this, "$data");
-      /** 是否存在等待按下的按键 */
-      __publicField(this, "isWaitPress", false);
-      /**
-       * 当前等待按下的按键实例
-       */
-      __publicField(this, "currentWaitEnterPressInstanceHandler", null);
       if (typeof key === "string") {
         this.key = key;
       }
@@ -3218,7 +3223,7 @@
     hasOptionValue(key) {
       if (this.hasOption(key)) {
         let option = this.getOption(key);
-        return !((option == null ? void 0 : option.value) == null);
+        return !(option?.value == null);
       } else {
         return false;
       }
@@ -3409,7 +3414,7 @@
             if (that.isWaitPress) {
               return;
             }
-            if (config == null ? void 0 : config.isPrevent) {
+            if (config?.isPrevent) {
               utils.preventEvent(event);
             }
             localOptions = that.getLocalAllOptions();
@@ -3433,7 +3438,7 @@
             }
           },
           {
-            capture: Boolean(config == null ? void 0 : config.capture)
+            capture: Boolean(config?.capture)
           }
         );
       }
@@ -3562,12 +3567,12 @@
     }
   };
   class GestureBack {
+    /**
+     * 是否正在后退
+     */
+    isBacking = false;
+    config;
     constructor(config) {
-      /**
-       * 是否正在后退
-       */
-      __publicField(this, "isBacking", false);
-      __publicField(this, "config");
       this.config = config;
       this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
       this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
@@ -4113,13 +4118,11 @@
           ".slider-video .positionBox",
           /* 中间底部的视频信息（描述、作者、话题等） */
           "#video-info-wrap",
-          /* 中间底部上面的 每周精选内容 */
-          "span:has(+#video-info-wrap):has(img)",
-          "span:has(+div #video-info-wrap):has(img)",
           /* 中间底部的视频控制工具栏 */
           "xg-controls.xgplayer-controls"
         )
       );
+      result.push(DouYinVideoPlayerBlockElement.blobkTitleTopTag());
       result.push(DouYinVideoPlayerBlockElement.shieldSearchFloatingBar());
       result.push(
         addStyle(
@@ -4175,7 +4178,7 @@
             "reactProps",
             {
               check(reactInstance) {
-                return typeof (reactInstance == null ? void 0 : reactInstance.onClick) === "function";
+                return typeof reactInstance?.onClick === "function";
               },
               set: (reactInstance, $target) => {
                 this.$flag.isWaitEnterFullScreen = false;
@@ -4367,9 +4370,8 @@
         _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
         $$("xg-icon.xgplayer-playback-setting").forEach(
           ($playbackSetting) => {
-            var _a2, _b, _c, _d;
             let $container = utils.getReactObj($playbackSetting).reactContainer;
-            (_d = (_c = (_b = (_a2 = $container == null ? void 0 : $container.memoizedState) == null ? void 0 : _a2.element) == null ? void 0 : _b.props) == null ? void 0 : _c.xgCase) == null ? void 0 : _d.updatePlayBackRatio();
+            $container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
           }
         );
       }
@@ -4556,12 +4558,11 @@
         "click",
         'div[data-e2e="video-share-container"] div[data-inuser="false"] button + div',
         function(event) {
-          var _a2, _b, _c;
           utils.preventEvent(event);
           let clickElement = event.target;
-          let rectFiber = (_a2 = utils.getReactObj(
+          let rectFiber = utils.getReactObj(
             clickElement.parentElement
-          )) == null ? void 0 : _a2.reactFiber;
+          )?.reactFiber;
           if (!rectFiber) {
             Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
             return;
@@ -4574,7 +4575,7 @@
             }
             log.info([`解析的awemeInfo: `, awemeInfo]);
             let videoDownloadUrlList = [];
-            let bitRateList = (_b = awemeInfo == null ? void 0 : awemeInfo.video) == null ? void 0 : _b.bitRateList;
+            let bitRateList = awemeInfo?.video?.bitRateList;
             if (bitRateList != null && Array.isArray(bitRateList)) {
               videoDownloadUrlList = videoDownloadUrlList.concat(
                 bitRateList.map((item) => {
@@ -4636,7 +4637,7 @@
               uniqueVideoDownloadUrlList,
               (it) => it.width
             );
-            let downloadFileName = (((_c = awemeInfo == null ? void 0 : awemeInfo.authorInfo) == null ? void 0 : _c.nickname) || "未知作者") + " - " + ((awemeInfo == null ? void 0 : awemeInfo.desc) || "未知视频文案");
+            let downloadFileName = (awemeInfo?.authorInfo?.nickname || "未知作者") + " - " + (awemeInfo?.desc || "未知视频文案");
             showParseInfoDialog(downloadFileName, uniqueVideoDownloadUrlList);
           } catch (error) {
             log.error(error);
@@ -4658,31 +4659,29 @@
         "click",
         'div[data-e2e="video-share-container"] div[data-inuser="false"] button:contains("复制链接")',
         (event) => {
-          var _a2, _b, _c, _d, _e;
           utils.preventEvent(event);
           let clickElement = event.target;
-          let rectFiber = (_a2 = utils.getReactObj(
+          let rectFiber = utils.getReactObj(
             clickElement.parentElement
-          )) == null ? void 0 : _a2.reactFiber;
+          )?.reactFiber;
           if (!rectFiber) {
             Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
             return;
           }
-          let awemeInfo = (_d = (_c = (_b = rectFiber == null ? void 0 : rectFiber.return) == null ? void 0 : _b.return) == null ? void 0 : _c.memoizedProps) == null ? void 0 : _d.awemeInfo;
+          let awemeInfo = rectFiber?.return?.return?.memoizedProps?.awemeInfo;
           if (awemeInfo == null || typeof awemeInfo !== "object") {
             Qmsg.error("获取awemeInfo属性失败", { consoleLogContent: true });
             return;
           }
           log.info(`视频awemeInfo：`, awemeInfo);
-          let shareUrl = (_e = awemeInfo == null ? void 0 : awemeInfo.shareInfo) == null ? void 0 : _e.shareUrl;
+          let shareUrl = awemeInfo?.shareInfo?.shareUrl;
           if (typeof shareUrl !== "string") {
             Qmsg.error("获取shareUrl属性失败", { consoleLogContent: true });
             return;
           }
           log.info(`视频链接：` + shareUrl);
           utils.setClip(shareUrl).then((copyFlag) => {
-            var _a3, _b2, _c2;
-            let toast = (_c2 = (_b2 = (_a3 = rectFiber == null ? void 0 : rectFiber.return) == null ? void 0 : _a3.return) == null ? void 0 : _b2.memoizedProps) == null ? void 0 : _c2.toast;
+            let toast = rectFiber?.return?.return?.memoizedProps?.toast;
             if (copyFlag) {
               if (typeof toast === "function") {
                 toast("已复制链接");
@@ -4850,12 +4849,11 @@
       });
       const $closeSelector = `#relatedVideoCard .semi-tabs + div svg:has(path[d="M22.133 23.776a1.342 1.342 0 1 0 1.898-1.898l-4.112-4.113 4.112-4.112a1.342 1.342 0 0 0-1.898-1.898l-4.112 4.112-4.113-4.112a1.342 1.342 0 1 0-1.898 1.898l4.113 4.112-4.113 4.113a1.342 1.342 0 0 0 1.898 1.898l4.113-4.113 4.112 4.113z"])`;
       function closeComment() {
-        var _a2;
         let $close = $($closeSelector);
         if ($close) {
           let rect = utils.getReactObj($close);
           if (rect) {
-            let fn = (_a2 = rect.reactProps) == null ? void 0 : _a2.onClick;
+            let fn = rect.reactProps?.onClick;
             if (typeof fn === "function") {
               fn();
             } else {
@@ -4915,14 +4913,13 @@
           let $rect = utils.getReactObj($ele);
           if (typeof $rect.reactProps === "object") {
             let closeDialogFn = utils.queryProperty($rect.reactProps, (obj) => {
-              var _a2, _b;
-              if (typeof ((_a2 = obj == null ? void 0 : obj["props"]) == null ? void 0 : _a2["onClose"]) === "function") {
+              if (typeof obj?.["props"]?.["onClose"] === "function") {
                 return {
                   isFind: true,
                   data: obj["props"]["onClose"]
                 };
               } else {
-                let children = ((_b = obj == null ? void 0 : obj["props"]) == null ? void 0 : _b["children"]) ?? (obj == null ? void 0 : obj["children"]);
+                let children = obj?.["props"]?.["children"] ?? obj?.["children"];
                 return {
                   isFind: false,
                   data: Array.isArray(children) ? children[0] : children
@@ -5032,18 +5029,17 @@
      * @param from 来自
      */
     execMessageFilter(messageQueue, from) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
       for (let index = 0; index < messageQueue.length; index++) {
         let $danmu = messageQueue[index];
         let react = utils.getReactObj($danmu);
-        let messageIns = ((_c = (_b = (_a2 = react == null ? void 0 : react.reactFiber) == null ? void 0 : _a2.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.message) || ((_i = (_h = (_g = (_f = (_e = (_d = react == null ? void 0 : react.reactFiber) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.children) == null ? void 0 : _f.props) == null ? void 0 : _g.children) == null ? void 0 : _h.props) == null ? void 0 : _i.message);
+        let messageIns = react?.reactFiber?.return?.memoizedProps?.message || react?.reactFiber?.memoizedProps?.children?.props?.children?.props?.message;
         if (typeof messageIns !== "object" || messageIns == null) {
           continue;
         }
-        let message = ((_j = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _j.content) || ((_l = (_k = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _k.common) == null ? void 0 : _l.describe);
+        let message = messageIns?.payload?.content || messageIns?.payload?.common?.describe;
         let method = messageIns.method;
-        let chat_by = (_m = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _m.chat_by;
-        let biz_scene = (_n = messageIns == null ? void 0 : messageIns.payload) == null ? void 0 : _n.biz_scene;
+        let chat_by = messageIns?.payload?.chat_by;
+        let biz_scene = messageIns?.payload?.biz_scene;
         let flag = false;
         if (!flag) {
           if (method === "WebcastGiftMessage") {
@@ -5193,13 +5189,12 @@
             "xg-icon.pluginContainer > div:contains('屏蔽礼物特效')"
           );
         }, 1e4).then(($el) => {
-          var _a2, _b, _c, _d;
           if (!$el) {
             log.error("屏蔽礼物特效按钮不存在，获取超时");
             return;
           }
           let { reactFiber } = utils.getReactObj($el);
-          let onClick = (_d = (_c = (_b = (_a2 = reactFiber == null ? void 0 : reactFiber.memoizedProps) == null ? void 0 : _a2.children) == null ? void 0 : _b[1]) == null ? void 0 : _c.props) == null ? void 0 : _d.onClick;
+          let onClick = reactFiber?.memoizedProps?.children?.[1]?.props?.onClick;
           if (typeof onClick === "function") {
             log.info(`调用屏蔽礼物特效按钮的onClick函数`);
             onClick();
@@ -5428,18 +5423,16 @@
      * 解析元素上的播放器实例
      */
     parseElementPlayerIns($ele) {
-      var _a2, _b, _c, _d;
       let react = utils.getReactObj($ele);
-      return (_d = (_c = (_b = (_a2 = react == null ? void 0 : react.reactFiber) == null ? void 0 : _a2.child) == null ? void 0 : _b.child) == null ? void 0 : _c.memoizedProps) == null ? void 0 : _d.playerInstance;
+      return react?.reactFiber?.child?.child?.memoizedProps?.playerInstance;
     },
     /**
      * 显示解析的信息弹窗
      */
     showParseDialog() {
-      var _a2, _b, _c, _d;
       log.info(["解析的信息：", this.$data.playerInstance]);
-      let blobSrc = ((_a2 = this.$data.playerInstance) == null ? void 0 : _a2.url) || ((_b = this.$data.playerInstance) == null ? void 0 : _b.src);
-      let pushSrc = (_c = this.$data.playerInstance) == null ? void 0 : _c.config.url;
+      let blobSrc = this.$data.playerInstance?.url || this.$data.playerInstance?.src;
+      let pushSrc = this.$data.playerInstance?.config.url;
       __pops.alert({
         title: {
           text: "解析信息",
@@ -5462,7 +5455,7 @@
                     </div>
                     <div class="live-dy-parse-item">
                         <div class="live-dy-parse-item-name">播放器版本：</div>
-                        <div class="live-dy-parse-item-value">${(_d = this.$data.playerInstance) == null ? void 0 : _d.version}
+                        <div class="live-dy-parse-item-value">${this.$data.playerInstance?.version}
                         </div>
                     </div>
                 </div>
@@ -5611,8 +5604,7 @@
           "reactFiber",
           {
             check(reactInstance) {
-              var _a2;
-              return typeof ((_a2 = reactInstance == null ? void 0 : reactInstance.memoizedProps) == null ? void 0 : _a2.onClick) === "function";
+              return typeof reactInstance?.memoizedProps?.onClick === "function";
             },
             set(reactInstance, $target) {
               let $xgIcon = $target.closest("xg-icon");
@@ -5637,8 +5629,7 @@
         "reactProps",
         {
           check(reactInstance) {
-            var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
-            return typeof ((_d = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _a2.props) == null ? void 0 : _b.children) == null ? void 0 : _c.props) == null ? void 0 : _d.qualityHandler) === "object" && typeof ((_i = (_h = (_g = (_f = (_e = reactInstance == null ? void 0 : reactInstance.children) == null ? void 0 : _e.props) == null ? void 0 : _f.children) == null ? void 0 : _g.props) == null ? void 0 : _h.qualityHandler) == null ? void 0 : _i.getCurrentQualityList) === "function";
+            return typeof reactInstance?.children?.props?.children?.props?.qualityHandler === "object" && typeof reactInstance?.children?.props?.children?.props?.qualityHandler?.getCurrentQualityList === "function";
           },
           set(reactInstance) {
             let qualityHandler = reactInstance.children.props.children.props.qualityHandler;
@@ -5678,14 +5669,13 @@
         "click",
         'div[data-e2e="quality-selector"] > div',
         function(event, clickNode) {
-          var _a2, _b;
           utils.preventEvent(event);
           try {
             let reactInstance = utils.getReactObj(clickNode);
-            let key = (_a2 = reactInstance == null ? void 0 : reactInstance.reactFiber) == null ? void 0 : _a2["key"];
+            let key = reactInstance?.reactFiber?.["key"];
             let parent = clickNode.closest("div[data-index]");
             let parentReactInstance = utils.getReactObj(parent);
-            let current = (_b = parentReactInstance == null ? void 0 : parentReactInstance.reactProps) == null ? void 0 : _b["children"]["ref"]["current"];
+            let current = parentReactInstance?.reactProps?.["children"]["ref"]["current"];
             log.info("当前选择的画质: " + key);
             log.info(["所有的画质: ", current.getCurrentQualityList()]);
             current.setCurrentQuality(key);
@@ -5706,7 +5696,6 @@
     waitToRemovePauseDialog() {
       log.info("监听【长时间无操作，已暂停播放】弹窗");
       let checkDialogToClose = ($ele, from) => {
-        var _a2, _b, _c, _d, _e, _f;
         let eleText = domUtils.text($ele);
         if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
           Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`, {
@@ -5715,16 +5704,15 @@
           let $rect = utils.getReactObj($ele);
           if (typeof $rect.reactContainer === "object") {
             let closeDialogFn = utils.queryProperty($rect.reactContainer, (obj) => {
-              var _a3, _b2;
               if (typeof obj["onClose"] === "function") {
                 return {
                   isFind: true,
                   data: obj["onClose"]
                 };
-              } else if (typeof ((_a3 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _a3["onClose"]) === "function") {
+              } else if (typeof obj?.["memoizedProps"]?.["onClose"] === "function") {
                 return {
                   isFind: true,
-                  data: (_b2 = obj == null ? void 0 : obj["memoizedProps"]) == null ? void 0 : _b2["onClose"]
+                  data: obj?.["memoizedProps"]?.["onClose"]
                 };
               } else {
                 return {
@@ -5732,7 +5720,7 @@
                   data: obj["child"]
                 };
               }
-            }) || ((_f = (_e = (_d = (_c = (_b = (_a2 = $rect == null ? void 0 : $rect.reactContainer) == null ? void 0 : _a2.memoizedState) == null ? void 0 : _b.element) == null ? void 0 : _c.props) == null ? void 0 : _d.children) == null ? void 0 : _e.props) == null ? void 0 : _f.onClose);
+            }) || $rect?.reactContainer?.memoizedState?.element?.props?.children?.props?.onClose;
             if (typeof closeDialogFn === "function") {
               Qmsg.success(`检测${from}：调用函数关闭弹窗`, {
                 consoleLogContent: true
@@ -5774,21 +5762,37 @@
      * 暂停视频
      */
     pauseVideo() {
-      log.info("禁止自动播放视频(直播)");
-      utils.waitNode('.basicPlayer[data-e2e="basicPlayer"] video').then(($video) => {
+      utils.waitNode(
+        '.basicPlayer[data-e2e="basicPlayer"] video',
+        1e4
+      ).then(($video) => {
+        if (!$video) {
+          return;
+        }
+        log.info("禁止自动播放视频(直播)");
         $video.autoplay = false;
         $video.pause();
-        domUtils.on(
-          $video,
-          "play",
-          () => {
-            $video.pause();
-          },
-          {
-            capture: true,
-            once: true
+        let isDelayRemoveListener = false;
+        let timeout = 5e3;
+        let removeListener = () => {
+          domUtils.off($video, "play", playListener, {
+            capture: true
+          });
+        };
+        let playListener = (evt) => {
+          utils.preventEvent(evt);
+          $video.autoplay = false;
+          $video.pause();
+          if (!isDelayRemoveListener) {
+            isDelayRemoveListener = true;
+            setTimeout(() => {
+              removeListener();
+            }, timeout);
           }
-        );
+        };
+        domUtils.on($video, "play", playListener, {
+          capture: true
+        });
       });
     },
     /**
@@ -5966,10 +5970,9 @@
         "click",
         ".focusPanel",
         (event) => {
-          var _a2;
           utils.preventEvent(event);
           let $click = event.target;
-          let $parent = (_a2 = $click.parentElement) == null ? void 0 : _a2.parentElement;
+          let $parent = $click.parentElement?.parentElement;
           let $video = $parent.querySelector("video");
           if ($video) {
             if ($video.paused) {
@@ -6292,12 +6295,10 @@
         {
           msg: "显示UID",
           check(reactInstance) {
-            var _a2, _b, _c;
-            return typeof ((_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedProps) == null ? void 0 : _b.userInfo) == null ? void 0 : _c.uid) === "string";
+            return typeof reactInstance?.return?.memoizedProps?.userInfo?.uid === "string";
           },
           set(reactInstance, $target) {
-            var _a2, _b, _c;
-            let uid = (_c = (_b = (_a2 = reactInstance == null ? void 0 : reactInstance.return) == null ? void 0 : _a2.memoizedProps) == null ? void 0 : _b.userInfo) == null ? void 0 : _c.uid;
+            let uid = reactInstance?.return?.memoizedProps?.userInfo?.uid;
             domUtils.remove(
               $target.querySelectorAll(".gm-user-uid")
             );
@@ -6407,7 +6408,7 @@
         let storageApiValue = this.props[PROPS_STORAGE_API];
         return storageApiValue.get(key, defaultValue);
       },
-      callback(event, value) {
+      callback(event, value, valueAsNumber) {
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
       },
@@ -6511,15 +6512,14 @@
     return result;
   };
   class RuleEditView {
+    option;
     constructor(option) {
-      __publicField(this, "option");
       this.option = option;
     }
     /**
      * 显示视图
      */
     async showView() {
-      var _a2;
       let $dialog = __pops.confirm({
         title: {
           text: this.option.title,
@@ -6608,7 +6608,7 @@
 					color: rgb(108, 108, 108);
 				}
 
-                ${((_a2 = this.option) == null ? void 0 : _a2.style) ?? ""}
+                ${this.option?.style ?? ""}
             `
         ),
         width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
@@ -6634,8 +6634,8 @@
     }
   }
   class RuleFilterView {
+    option;
     constructor(option) {
-      __publicField(this, "option");
       this.option = option;
     }
     showView() {
@@ -6721,8 +6721,8 @@
     }
   }
   class RuleView {
+    option;
     constructor(option) {
-      __publicField(this, "option");
       this.option = option;
     }
     /**
@@ -6730,7 +6730,6 @@
      * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
      */
     async showView(filterCallBack) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i;
       let $popsConfirm = __pops.confirm({
         title: {
           text: this.option.title,
@@ -6751,7 +6750,7 @@
           reverse: false,
           position: "space-between",
           ok: {
-            enable: ((_c = (_b = (_a2 = this.option) == null ? void 0 : _a2.bottomControls) == null ? void 0 : _b.add) == null ? void 0 : _c.enable) || true,
+            enable: this.option?.bottomControls?.add?.enable || true,
             type: "primary",
             text: "添加",
             callback: async (event) => {
@@ -6769,12 +6768,11 @@
             }
           },
           cancel: {
-            enable: ((_f = (_e = (_d = this.option) == null ? void 0 : _d.bottomControls) == null ? void 0 : _e.filter) == null ? void 0 : _f.enable) || false,
+            enable: this.option?.bottomControls?.filter?.enable || false,
             type: "default",
             text: "过滤",
             callback: (details, event) => {
-              var _a3, _b2, _c2, _d2, _e2, _f2, _g2;
-              if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.filter) == null ? void 0 : _c2.callback) === "function") {
+              if (typeof this.option?.bottomControls?.filter?.callback === "function") {
                 this.option.bottomControls.filter.callback();
               }
               let getAllRuleElement = () => {
@@ -6792,8 +6790,8 @@
                 domUtils.text($button, "过滤");
               } else {
                 let ruleFilterView = new RuleFilterView({
-                  title: ((_e2 = (_d2 = this.option.bottomControls) == null ? void 0 : _d2.filter) == null ? void 0 : _e2.title) ?? "过滤规则",
-                  filterOption: ((_g2 = (_f2 = this.option.bottomControls) == null ? void 0 : _f2.filter) == null ? void 0 : _g2.option) || [],
+                  title: this.option.bottomControls?.filter?.title ?? "过滤规则",
+                  filterOption: this.option.bottomControls?.filter?.option || [],
                   execFilterCallBack() {
                     domUtils.text($button, "取消过滤");
                   },
@@ -6811,7 +6809,7 @@
             }
           },
           other: {
-            enable: ((_i = (_h = (_g = this.option) == null ? void 0 : _g.bottomControls) == null ? void 0 : _h.clear) == null ? void 0 : _i.enable) || true,
+            enable: this.option?.bottomControls?.clear?.enable || true,
             type: "xiaomi-primary",
             text: `清空所有(${(await this.option.data()).length})`,
             callback: (event) => {
@@ -6828,9 +6826,8 @@
                   ok: {
                     enable: true,
                     callback: async (popsEvent) => {
-                      var _a3, _b2, _c2;
                       log.success("清空所有");
-                      if (typeof ((_c2 = (_b2 = (_a3 = this.option) == null ? void 0 : _a3.bottomControls) == null ? void 0 : _b2.clear) == null ? void 0 : _c2.callback) === "function") {
+                      if (typeof this.option?.bottomControls?.clear?.callback === "function") {
                         this.option.bottomControls.clear.callback();
                       }
                       let data = await this.option.data();
@@ -7249,8 +7246,8 @@
     }
   }
   class RuleStorage {
+    option;
     constructor(option) {
-      __publicField(this, "option");
       this.option = option;
     }
     /**
@@ -7466,7 +7463,7 @@
         this.setAllRule(allData);
         let message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
         Qmsg.success(message);
-        importEndCallBack == null ? void 0 : importEndCallBack();
+        importEndCallBack?.();
       };
       let importFile = (subscribeText) => {
         return new Promise(async (resolve) => {
@@ -7498,8 +7495,7 @@
           accept: ".json"
         });
         domUtils.on($input, ["propertychange", "input"], (event2) => {
-          var _a2;
-          if (!((_a2 = $input.files) == null ? void 0 : _a2.length)) {
+          if (!$input.files?.length) {
             return;
           }
           let uploadFile = $input.files[0];
@@ -7626,55 +7622,52 @@
     }
   }
   class DouYinVideoFilterBase {
-    constructor() {
-      __publicField(this, "$data", {
-        dislike_request_queue: []
-      });
-    }
+    $data = {
+      dislike_request_queue: []
+    };
     /**
      * 解析awemeInfo转为规则过滤的字典
      * @param awemeInfo
      * @param showLog 是否显示日志输出
      */
     parseAwemeInfoDictData(awemeInfo, showLog = false) {
-      var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E;
-      let authorInfo = (awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) || // @ts-ignore
-      (awemeInfo == null ? void 0 : awemeInfo["author"]);
-      let nickname = (_a2 = authorInfo == null ? void 0 : authorInfo["nickname"]) == null ? void 0 : _a2.toString();
-      let uid = (_b = authorInfo == null ? void 0 : authorInfo["uid"]) == null ? void 0 : _b.toString();
-      let desc = (_c = awemeInfo == null ? void 0 : awemeInfo["desc"]) == null ? void 0 : _c.toString();
-      let musicAlbum = (_d = awemeInfo == null ? void 0 : awemeInfo["music"]) == null ? void 0 : _d["album"];
-      let musicAuthor = (_e = awemeInfo == null ? void 0 : awemeInfo["music"]) == null ? void 0 : _e["author"];
-      let musicTitle = (_f = awemeInfo == null ? void 0 : awemeInfo["music"]) == null ? void 0 : _f["title"];
-      let collectCount = ((_g = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _g["collectCount"]) || // @ts-ignore
-      ((_h = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _h["collect_count"]);
-      let commentCount = ((_i = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _i["commentCount"]) || // @ts-ignore
-      ((_j = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _j["comment_count"]);
-      let diggCount = ((_k = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _k["diggCount"]) || // @ts-ignore
-      ((_l = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _l["digg_count"]);
-      let shareCount = ((_m = awemeInfo == null ? void 0 : awemeInfo["stats"]) == null ? void 0 : _m["shareCount"]) || // @ts-ignore
-      ((_n = awemeInfo == null ? void 0 : awemeInfo["statistics"]) == null ? void 0 : _n["share_count"]);
-      let duration = (_o = awemeInfo == null ? void 0 : awemeInfo["video"]) == null ? void 0 : _o["duration"];
+      let authorInfo = awemeInfo?.["authorInfo"] || // @ts-ignore
+      awemeInfo?.["author"];
+      let nickname = authorInfo?.["nickname"]?.toString();
+      let uid = authorInfo?.["uid"]?.toString();
+      let desc = awemeInfo?.["desc"]?.toString();
+      let musicAlbum = awemeInfo?.["music"]?.["album"];
+      let musicAuthor = awemeInfo?.["music"]?.["author"];
+      let musicTitle = awemeInfo?.["music"]?.["title"];
+      let collectCount = awemeInfo?.["stats"]?.["collectCount"] || // @ts-ignore
+      awemeInfo?.["statistics"]?.["collect_count"];
+      let commentCount = awemeInfo?.["stats"]?.["commentCount"] || // @ts-ignore
+      awemeInfo?.["statistics"]?.["comment_count"];
+      let diggCount = awemeInfo?.["stats"]?.["diggCount"] || // @ts-ignore
+      awemeInfo?.["statistics"]?.["digg_count"];
+      let shareCount = awemeInfo?.["stats"]?.["shareCount"] || // @ts-ignore
+      awemeInfo?.["statistics"]?.["share_count"];
+      let duration = awemeInfo?.["video"]?.["duration"];
       let textExtraInstance = (
         // @ts-ignore
-        (awemeInfo == null ? void 0 : awemeInfo["textExtra"]) || (awemeInfo == null ? void 0 : awemeInfo["text_extra"])
+        awemeInfo?.["textExtra"] || awemeInfo?.["text_extra"]
       );
       let textExtra = [];
       let isLive = false;
       let isAds = false;
       let isSeriesInfo = false;
       let isMixInfo = false;
-      let riskInfoContent = ((_p = awemeInfo == null ? void 0 : awemeInfo["riskInfos"]) == null ? void 0 : _p.content) || // @ts-ignore
-      ((_q = awemeInfo == null ? void 0 : awemeInfo["risk_infos"]) == null ? void 0 : _q.content);
+      let riskInfoContent = awemeInfo?.["riskInfos"]?.content || // @ts-ignore
+      awemeInfo?.["risk_infos"]?.content;
       let seriesInfoName = void 0;
       let seriesInfoContentTypes = [];
       let isPicture = (
         // @ts-ignore
-        (awemeInfo == null ? void 0 : awemeInfo["aweme_type"]) === 68
+        awemeInfo?.["aweme_type"] === 68
       );
       if (typeof textExtraInstance === "object" && Array.isArray(textExtraInstance)) {
-        textExtraInstance == null ? void 0 : textExtraInstance.forEach((item) => {
-          let tagName = (item == null ? void 0 : item["hashtagName"]) || (item == null ? void 0 : item["hashtag_name"]);
+        textExtraInstance?.forEach((item) => {
+          let tagName = item?.["hashtagName"] || item?.["hashtag_name"];
           if (typeof tagName === "string" && tagName.trim() != "") {
             textExtra.push(tagName);
           }
@@ -7684,18 +7677,18 @@
       let mixInfoDesc = void 0;
       let videoTagInstance = (
         // @ts-ignore
-        (awemeInfo == null ? void 0 : awemeInfo["videoTag"]) || (awemeInfo == null ? void 0 : awemeInfo["video_tag"])
+        awemeInfo?.["videoTag"] || awemeInfo?.["video_tag"]
       );
       let videoTag = [];
       let videoTagId = [];
       let awemeId = (
         // @ts-ignore
-        (awemeInfo == null ? void 0 : awemeInfo["aweme_id"]) || (awemeInfo == null ? void 0 : awemeInfo["awemeId"])
+        awemeInfo?.["aweme_id"] || awemeInfo?.["awemeId"]
       );
       if (typeof videoTagInstance === "object" && Array.isArray(videoTagInstance)) {
         videoTagInstance.forEach((item) => {
-          let tagName = (item == null ? void 0 : item["tagName"]) || (item == null ? void 0 : item["tag_name"]);
-          let tagId = (item == null ? void 0 : item["tagId"]) || (item == null ? void 0 : item["tag_id"]);
+          let tagName = item?.["tagName"] || item?.["tag_name"];
+          let tagId = item?.["tagId"] || item?.["tag_id"];
           if (typeof tagName === "string" && tagName.trim() != "") {
             videoTag.push(tagName);
           }
@@ -7728,12 +7721,12 @@
           log.success("广告：rawAdData is not null");
         }
       } else if (awemeInfo["webRawData"]) {
-        if ((_s = (_r = awemeInfo["webRawData"]) == null ? void 0 : _r["brandAd"]) == null ? void 0 : _s["is_ad"]) {
+        if (awemeInfo["webRawData"]?.["brandAd"]?.["is_ad"]) {
           isAds = true;
           if (showLog) {
             log.success("广告：webRawData.brandAd.is_ad is true");
           }
-        } else if ((_u = (_t = awemeInfo["webRawData"]) == null ? void 0 : _t["insertInfo"]) == null ? void 0 : _u["is_ad"]) {
+        } else if (awemeInfo["webRawData"]?.["insertInfo"]?.["is_ad"]) {
           isAds = true;
           if (showLog) {
             log.success("广告：webRawData.insertInfo.is_ad is true");
@@ -7745,14 +7738,14 @@
       if (typeof riskInfoContent === "string" && riskInfoContent.trim() === "" || typeof riskInfoContent !== "string") {
         riskInfoContent = void 0;
       }
-      let series_info = (awemeInfo == null ? void 0 : awemeInfo["seriesInfo"]) || // @ts-ignore
-      (awemeInfo == null ? void 0 : awemeInfo["series_info"]);
+      let series_info = awemeInfo?.["seriesInfo"] || // @ts-ignore
+      awemeInfo?.["series_info"];
       if (typeof series_info === "object" && series_info != null) {
         isSeriesInfo = true;
-        seriesInfoName = (series_info == null ? void 0 : series_info["seriesName"]) || // @ts-ignore
-        (series_info == null ? void 0 : series_info["series_name"]);
-        let series_content_types = (series_info == null ? void 0 : series_info["seriesContentTypes"]) || // @ts-ignore
-        (series_info == null ? void 0 : series_info["series_content_types"]);
+        seriesInfoName = series_info?.["seriesName"] || // @ts-ignore
+        series_info?.["series_name"];
+        let series_content_types = series_info?.["seriesContentTypes"] || // @ts-ignore
+        series_info?.["series_content_types"];
         if (Array.isArray(series_content_types)) {
           series_content_types.forEach((it) => {
             let seriesInfoName2 = it["name"];
@@ -7760,11 +7753,11 @@
           });
         }
       }
-      let mixInfo = (awemeInfo == null ? void 0 : awemeInfo["mixInfo"]) || // @ts-ignore
-      (awemeInfo == null ? void 0 : awemeInfo["mix_info"]);
+      let mixInfo = awemeInfo?.["mixInfo"] || // @ts-ignore
+      awemeInfo?.["mix_info"];
       if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
-        mixInfoName = (mixInfo == null ? void 0 : mixInfo["mixName"]) || (mixInfo == null ? void 0 : mixInfo["mix_name"]);
-        mixInfoDesc = mixInfo == null ? void 0 : mixInfo["desc"];
+        mixInfoName = mixInfo?.["mixName"] || mixInfo?.["mix_name"];
+        mixInfoDesc = mixInfo?.["desc"];
       }
       if (isPicture) {
         duration = void 0;
@@ -7772,15 +7765,15 @@
       let suggestWord = [];
       let suggestWords = (
         // @ts-ignore
-        (awemeInfo == null ? void 0 : awemeInfo["suggest_words"]) || // @ts-ignore
-        ((_v = awemeInfo == null ? void 0 : awemeInfo["suggest_words"]) == null ? void 0 : _v["suggest_words"]) || (awemeInfo == null ? void 0 : awemeInfo["suggestWords"])
+        awemeInfo?.["suggest_words"] || // @ts-ignore
+        awemeInfo?.["suggest_words"]?.["suggest_words"] || awemeInfo?.["suggestWords"]
       );
       if (Array.isArray(suggestWords)) {
         suggestWords.forEach((suggestWordItem) => {
-          let words = suggestWordItem == null ? void 0 : suggestWordItem["words"];
+          let words = suggestWordItem?.["words"];
           if (Array.isArray(words)) {
             words.forEach((wordItem) => {
-              let word = wordItem == null ? void 0 : wordItem["word"];
+              let word = wordItem?.["word"];
               if (typeof word === "string" && word.trim() !== "") {
                 suggestWord.push(word);
               }
@@ -7792,7 +7785,7 @@
       let authorAccountCertInfo = "";
       let authorAccountCertInfoInsStr = (
         // @ts-ignore
-        (_w = awemeInfo == null ? void 0 : awemeInfo["author"]) == null ? void 0 : _w["account_cert_info"]
+        awemeInfo?.["author"]?.["account_cert_info"]
       );
       if (typeof authorAccountCertInfoInsStr === "string") {
         let authorAccountCertInfoJSON = utils.toJSON(authorAccountCertInfoInsStr);
@@ -7800,19 +7793,19 @@
           authorAccountCertInfo = authorAccountCertInfoJSON["label_text"];
         }
       } else {
-        if (typeof ((_y = (_x = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _x["accountCertInfo"]) == null ? void 0 : _y["labelText"]) === "string") {
-          authorAccountCertInfo = (_A = (_z = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _z["accountCertInfo"]) == null ? void 0 : _A["labelText"];
+        if (typeof awemeInfo?.["authorInfo"]?.["accountCertInfo"]?.["labelText"] === "string") {
+          authorAccountCertInfo = awemeInfo?.["authorInfo"]?.["accountCertInfo"]?.["labelText"];
         }
       }
       let authorCustomVerify = (
         // @ts-ignore
-        ((_B = awemeInfo == null ? void 0 : awemeInfo["author"]) == null ? void 0 : _B["custom_verify"]) || // @ts-ignore
-        ((_C = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _C["customVerify"]) || ""
+        awemeInfo?.["author"]?.["custom_verify"] || // @ts-ignore
+        awemeInfo?.["authorInfo"]?.["customVerify"] || ""
       );
       let authorEnterpriseVerifyReason = (
         // @ts-ignore
-        ((_D = awemeInfo == null ? void 0 : awemeInfo["author"]) == null ? void 0 : _D["enterprise_verify_reason"]) || // @ts-ignore
-        ((_E = awemeInfo == null ? void 0 : awemeInfo["authorInfo"]) == null ? void 0 : _E["enterpriseVerifyReason"]) || ""
+        awemeInfo?.["author"]?.["enterprise_verify_reason"] || // @ts-ignore
+        awemeInfo?.["authorInfo"]?.["enterpriseVerifyReason"] || ""
       );
       return {
         awemeId,
@@ -8021,7 +8014,7 @@
         if (typeof deleteIndex === "number") {
           let item = videoList[deleteIndex];
           if (item != null && item instanceof Element) {
-            item == null ? void 0 : item.remove();
+            item?.remove();
           }
           videoList.splice(deleteIndex, 1);
         }
@@ -8193,8 +8186,8 @@
               for (let index = 0; index < aweme_list.length; index++) {
                 let awemeItem = aweme_list[index];
                 let awemeInfo = awemeItem["aweme"] || {};
-                if (typeof (awemeItem == null ? void 0 : awemeItem["cell_room"]) === "object" && (awemeItem == null ? void 0 : awemeItem["cell_room"]) != null) {
-                  awemeInfo["cell_room"] = awemeItem == null ? void 0 : awemeItem["cell_room"];
+                if (typeof awemeItem?.["cell_room"] === "object" && awemeItem?.["cell_room"] != null) {
+                  awemeInfo["cell_room"] = awemeItem?.["cell_room"];
                 }
                 let filterResult = filterBase.checkAwemeInfoIsFilter(
                   filterOptionList,
@@ -8225,7 +8218,7 @@
               for (let index = 0; index < cards.length; index++) {
                 let awemeItem = cards[index];
                 let awemeInfo = utils.toJSON(
-                  (awemeItem == null ? void 0 : awemeItem["aweme"]) || "{}"
+                  awemeItem?.["aweme"] || "{}"
                 );
                 let filterResult = filterBase.checkAwemeInfoIsFilter(
                   filterOptionList,
@@ -8256,9 +8249,9 @@
               for (let index = 0; index < aweme_list.length; index++) {
                 let awemeItem = aweme_list[index];
                 let awemeInfo = awemeItem["aweme_info"] || {};
-                let awemeMixInfo = awemeItem == null ? void 0 : awemeItem["aweme_mix_info"];
+                let awemeMixInfo = awemeItem?.["aweme_mix_info"];
                 if (awemeInfo == null && typeof awemeMixInfo && awemeMixInfo != null) {
-                  let awemeMixInfoItems = awemeMixInfo == null ? void 0 : awemeMixInfo["mix_items"];
+                  let awemeMixInfoItems = awemeMixInfo?.["mix_items"];
                   if (Array.isArray(awemeMixInfoItems)) {
                     for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
                       let mixItem = awemeMixInfoItems[mixIndex];
@@ -8350,10 +8343,9 @@
       );
       let filterBase = new DouYinVideoFilterBase();
       let awemeInfoClickCallBack = ($basePlayerContainer) => {
-        var _a2, _b, _c, _d, _e, _f;
         let that = this;
-        let reactFiber = (_a2 = utils.getReactObj($basePlayerContainer)) == null ? void 0 : _a2.reactFiber;
-        let awemeInfo = ((_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.awemeInfo) || ((_f = (_e = (_d = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _d.return) == null ? void 0 : _e.memoizedProps) == null ? void 0 : _f.awemeInfo);
+        let reactFiber = utils.getReactObj($basePlayerContainer)?.reactFiber;
+        let awemeInfo = reactFiber?.return?.memoizedProps?.awemeInfo || reactFiber?.return?.return?.memoizedProps?.awemeInfo;
         if (awemeInfo == null) {
           Qmsg.error("未获取到awemeInfo信息", { consoleLogContent: true });
           return;
@@ -9254,21 +9246,20 @@
         "click",
         ".user-playlet-list .playlet-item",
         (event) => {
-          var _a2, _b, _c, _d;
           utils.preventEvent(event);
           let $click = event.target;
-          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
-          let key = reactFiber == null ? void 0 : reactFiber.key;
+          let reactFiber = utils.getReactObj($click)?.reactFiber;
+          let key = reactFiber?.key;
           if (key == null) {
             Qmsg.error("获取视频合集key失败");
             return;
           }
-          let index = reactFiber == null ? void 0 : reactFiber.index;
+          let index = reactFiber?.index;
           if (index == null) {
             Qmsg.error("获取视频合集index失败");
             return;
           }
-          let playletList = (_d = (_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.return) == null ? void 0 : _c.pendingProps) == null ? void 0 : _d.playletList;
+          let playletList = reactFiber?.return?.return?.pendingProps?.playletList;
           if (playletList == null) {
             Qmsg.error("获取视频合集playletList失败");
             return;
@@ -9291,12 +9282,11 @@
         "click",
         ".post-list-container .user-post-cover",
         (event) => {
-          var _a2, _b, _c, _d, _e;
           utils.preventEvent(event);
           let $click = event.target;
-          let reactFiber = (_a2 = utils.getReactObj($click)) == null ? void 0 : _a2.reactFiber;
-          if ((_c = (_b = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _b.memoizedProps) == null ? void 0 : _c.productionUrl) {
-            let url = (_e = (_d = reactFiber == null ? void 0 : reactFiber.return) == null ? void 0 : _d.memoizedProps) == null ? void 0 : _e.productionUrl;
+          let reactFiber = utils.getReactObj($click)?.reactFiber;
+          if (reactFiber?.return?.memoizedProps?.productionUrl) {
+            let url = reactFiber?.return?.memoizedProps?.productionUrl;
             window.open(url, "_blank");
           } else {
             Qmsg.error("获取视频链接失败");
@@ -9701,8 +9691,7 @@
       ".keyboard-oneClickClose"
     );
     let clickCallBack = (isOpen) => {
-      var _a2;
-      (_a2 = container.sectionBodyContainer) == null ? void 0 : _a2.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
+      container.sectionBodyContainer?.querySelectorAll(".pops-panel-switch").forEach(($ele) => {
         let $input = $ele.querySelector(
           ".pops-panel-switch__input"
         );
@@ -10557,9 +10546,8 @@
       false,
       buttonType,
       async (event) => {
-        var _a2;
         let $click = event.target;
-        let $btn = (_a2 = $click.closest(".pops-panel-button")) == null ? void 0 : _a2.querySelector("span");
+        let $btn = $click.closest(".pops-panel-button")?.querySelector("span");
         if (shortCut.isWaitPress) {
           Qmsg.warning("请先执行当前的录入操作");
           return;
@@ -11203,6 +11191,13 @@
                     "屏蔽元素，可代替【清屏】功能"
                   ),
                   UISwitch(
+                    "【屏蔽】视频标题上的标签",
+                    "dy-video-blockTitleTopTag",
+                    false,
+                    void 0,
+                    "例如：每周精选、抖音精选"
+                  ),
+                  UISwitch(
                     "【屏蔽】视频标题下的标签",
                     "dy-video-bottom-shieldVideoUnderTitleTag",
                     false,
@@ -11497,7 +11492,7 @@
                     "live-pauseVideo",
                     false,
                     void 0,
-                    "暂停直播播放"
+                    "5秒内禁止任何形式的播放"
                   ),
                   UISwitch(
                     "解析直播信息",
