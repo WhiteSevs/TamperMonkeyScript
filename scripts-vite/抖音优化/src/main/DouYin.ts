@@ -96,6 +96,7 @@ export const DouYin = {
 				DOMUtils.remove($el);
 			});
 		// .basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')
+		// `.basePlayerContainer > div > div:contains("及时接收作品更新提醒")`
 		return [addStyle(blockCSS)];
 	},
 	/**

@@ -67,7 +67,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 									"live-pauseVideo",
 									false,
 									void 0,
-									"5秒内禁止任何形式的播放"
+									"3秒内禁止任何形式的播放"
 								),
 								UISwitch(
 									"解析直播信息",

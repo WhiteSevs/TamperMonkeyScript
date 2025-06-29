@@ -6,7 +6,7 @@ import { DouYinRouter } from "@/router/DouYinRouter";
 import MobileCSS from "./css/mobile.css?raw";
 import Qmsg from "qmsg";
 import { DouYin } from "../DouYin";
-import { DouYinVideoPlayerBlockElement } from "./DouYinVideoPlayerBlockElement";
+import { DouYinVideoBlock } from "./DouYinVideoBlock";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
 import { GestureBack } from "@components/utils/GestureBack";
 import { DouYinGestureBackHashConfig } from "../DouYinGestureBackConfig";
@@ -33,7 +33,7 @@ export const DouYinVideoPlayer = {
 		isWaitEnterFullScreen: false,
 	},
 	init() {
-		DouYinVideoPlayerBlockElement.init();
+		DouYinVideoBlock.init();
 		Panel.onceExec("dy-short-cut", () => {
 			DouYinVideoPlayerShortCut.init();
 		});
@@ -130,8 +130,8 @@ export const DouYinVideoPlayer = {
 				"xg-controls.xgplayer-controls"
 			)
 		);
-		result.push(DouYinVideoPlayerBlockElement.blobkTitleTopTag());
-		result.push(DouYinVideoPlayerBlockElement.shieldSearchFloatingBar());
+		result.push(DouYinVideoBlock.blobkTitleTopTag());
+		result.push(DouYinVideoBlock.shieldSearchFloatingBar());
 		result.push(
 			addStyle(/*css*/ `
 			/* 视频全屏 */

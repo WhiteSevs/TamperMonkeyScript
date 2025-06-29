@@ -1,6 +1,5 @@
 import { $$, DOMUtils, addStyle, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
-import { DouYinLiveChatRoom } from "./DouYinLiveChatRoom";
 import { DouYinLiveMessage } from "./DouYinLiveMessage";
 import Qmsg from "qmsg";
 import { ReactUtils } from "@components/utils/ReactUtils";
@@ -79,7 +78,6 @@ export const DouYinLive = {
 		Panel.execMenuOnce("live-parsePlayerInstance", () => {
 			DouYinLivePlayerInstance.initMenu();
 		});
-		DouYinLiveChatRoom.init();
 		DOMUtils.ready(() => {
 			Panel.execMenu("live-chooseQuality", (option) => {
 				if (option.value === "auto") {
@@ -165,6 +163,45 @@ export const DouYinLive = {
 				},
 			}
 		);
+		ReactUtils.waitReactPropsToSet(
+			"#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div",
+			"reactFiber",
+			{
+				check(reactPropInst, $el) {
+					return (
+						typeof reactPropInst?.return?.memoizedProps?.qualityHandler
+							?.setCurrentQuality === "function" &&
+						Array.isArray(reactPropInst?.return?.memoizedProps?.qualityList)
+					);
+				},
+				set(reactPropInst, $el) {
+					let qualityHandler =
+						reactPropInst.return.memoizedProps.qualityHandler;
+					// 当前直播可选的画质
+					let currentQualityList: string[] =
+						reactPropInst?.return?.memoizedProps?.qualityList;
+					if (!currentQualityList.includes(quality)) {
+						Qmsg.warning(
+							"当前直播没有【" + quality + "】画质，自动选择最高画质"
+						);
+						currentQualityList.sort((a, b) => {
+							if (!VideoQualityMap[a]) {
+								log.error("画质【" + a + "】不存在");
+								return 0;
+							}
+							if (!VideoQualityMap[b]) {
+								log.error("画质【" + b + "】不存在");
+								return 0;
+							}
+							return VideoQualityMap[a].sign - VideoQualityMap[b].sign;
+						});
+						quality = currentQualityList[currentQualityList.length - 1];
+					}
+					qualityHandler.setCurrentQuality(quality);
+					log.success("成功设置画质为【" + quality + "】");
+				},
+			}
+		);
 	},
 	/**
 	 * 解锁画质选择
@@ -180,18 +217,39 @@ export const DouYinLive = {
 			function (event, clickNode) {
 				utils.preventEvent(event);
 				try {
-					let reactInstance = utils.getReactObj(clickNode);
-					let key = reactInstance?.reactFiber?.["key"];
-					let parent = clickNode.closest("div[data-index]");
-					let parentReactInstance = utils.getReactObj(parent as HTMLDivElement);
-					let current =
-						parentReactInstance?.reactProps?.["children"]["ref"]["current"];
-					log.info("当前选择的画质: " + key);
-					log.info(["所有的画质: ", current.getCurrentQualityList()]);
-					/* getCurrentQuality */
-					/* getCurrentQualityList */
-					/* setCurrentQuality */
-					current.setCurrentQuality(key);
+					let reactInst = utils.getReactObj(clickNode);
+					let parent =
+						clickNode.closest<HTMLElement>(".QualitySwitchNewPlugin > div") ||
+						clickNode.closest<HTMLElement>("div[data-index]");
+					let parentReactInst = utils.getReactObj(parent as HTMLDivElement);
+					let qualityHandler = {
+						getCurrentQuality(): string {
+							return reactInst?.reactFiber?.["key"];
+						},
+						getCurrentQualityList(): string[] {
+							return (
+								parentReactInst?.reactFiber?.return?.memoizedProps
+									?.qualityList ||
+								parentReactInst?.reactProps?.["children"]["ref"]["current"]
+							);
+						},
+						setCurrentQuality(quality: string) {
+							let setCurrentQuality =
+								parentReactInst?.reactFiber?.return?.memoizedProps
+									?.qualityHandler?.setCurrentQuality ||
+								parentReactInst?.reactProps?.["children"]?.["ref"]?.["current"]
+									?.setCurrentQuality;
+							if (typeof setCurrentQuality === "function") {
+								setCurrentQuality(quality);
+							} else {
+								throw new Error("not find function：setCurrentQuality ");
+							}
+						},
+					};
+					let currentQuality = qualityHandler.getCurrentQuality();
+					log.info("当前选择的画质: " + currentQuality);
+					log.info(["所有的画质: ", qualityHandler.getCurrentQualityList()]);
+					qualityHandler.setCurrentQuality(currentQuality);
 				} catch (error) {
 					log.error(error);
 					Qmsg.error("切换画质失败");
@@ -290,8 +348,11 @@ export const DouYinLive = {
 	 */
 	pauseVideo() {
 		utils
-			.waitNode<HTMLVideoElement>(
-				'.basicPlayer[data-e2e="basicPlayer"] video',
+			.waitAnyNode<HTMLVideoElement>(
+				[
+					'.basicPlayer[data-e2e="basicPlayer"] video',
+					"#PlayerLayout .douyin-player video",
+				],
 				10000
 			)
 			.then(($video) => {
@@ -301,8 +362,7 @@ export const DouYinLive = {
 				log.info("禁止自动播放视频(直播)");
 				$video.autoplay = false;
 				$video.pause();
-				let isDelayRemoveListener = false;
-				let timeout = 5000;
+				let timeout = 3000;
 
 				/**
 				 * 移除监听
@@ -317,16 +377,13 @@ export const DouYinLive = {
 					utils.preventEvent(evt);
 					$video.autoplay = false;
 					$video.pause();
-					if (!isDelayRemoveListener) {
-						isDelayRemoveListener = true;
-						setTimeout(() => {
-							removeListener();
-						}, timeout);
-					}
 				};
 				DOMUtils.on($video, "play", playListener, {
 					capture: true,
 				});
+				setTimeout(() => {
+					removeListener();
+				}, timeout);
 			});
 	},
 	/**
@@ -337,10 +394,12 @@ export const DouYinLive = {
 		log.info("修改视频背景颜色");
 		let color = Panel.getValue<string>("live-changeBackgroundColor");
 		return addStyle(/*css*/ `
-		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] div:has(>.xgplayer-dynamic-bg) {
+		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] div:has(>.xgplayer-dynamic-bg),
+		#LeftBackgroundLayout {
 			background: ${color} !important;
 		}
-		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] .xgplayer-dynamic-bg{
+		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] .xgplayer-dynamic-bg,
+		#LeftBackgroundLayout .douyin-player-dynamic-background{
 			visibility: hidden;
 		}
 		`);

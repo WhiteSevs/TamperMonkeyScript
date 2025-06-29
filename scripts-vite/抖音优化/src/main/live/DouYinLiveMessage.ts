@@ -30,11 +30,18 @@ export const DouYinMessageFilter = {
 	 */
 	change() {
 		this.execMessageFilter(
-			Array.from(
-				$$<HTMLElement>(
-					"xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
-				)
-			),
+			[
+				...Array.from(
+					$$<HTMLElement>(
+						"xg-danmu.xgplayer-danmu > div > div:not([data-is-filter])"
+					)
+				),
+				...Array.from(
+					$$<HTMLElement>(
+						"#DanmakuLayout .danmu > div > div:not([data-is-filter])"
+					)
+				),
+			],
 			"弹幕"
 		);
 		this.execMessageFilter(
@@ -49,9 +56,18 @@ export const DouYinMessageFilter = {
 			// 弹幕 - 表情包|emoji
 			// 它们的元素上没有message实例
 			DOMUtils.hide(
-				$$<HTMLElement>(
-					"xg-danmu.xgplayer-danmu > div:has(>img):not([data-is-filter])"
-				),
+				[
+					...Array.from(
+						$$<HTMLElement>(
+							"xg-danmu.xgplayer-danmu > div:has(>img):not([data-is-filter])"
+						)
+					),
+					...Array.from(
+						$$<HTMLElement>(
+							"#DanmakuLayout .danmu > div > div:has(>img):not([data-is-filter])"
+						)
+					),
+				],
 				false
 			);
 		}
@@ -69,7 +85,8 @@ export const DouYinMessageFilter = {
 			let messageIns =
 				react?.reactFiber?.return?.memoizedProps?.message ||
 				react?.reactFiber?.memoizedProps?.children?.props?.children?.props
-					?.message;
+					?.message ||
+				react?.reactContainer?.memoizedState?.element?.props?.message;
 			if (typeof messageIns !== "object" || messageIns == null) {
 				continue;
 			}
@@ -154,6 +171,9 @@ export const DouYinMessageFilter = {
 
 			if (flag) {
 				$danmu.setAttribute("data-is-filter", "true");
+				if (import.meta.env.DEV) {
+					log.info("过滤弹幕: " + message);
+				}
 				DOMUtils.hide($danmu, false);
 			}
 		}

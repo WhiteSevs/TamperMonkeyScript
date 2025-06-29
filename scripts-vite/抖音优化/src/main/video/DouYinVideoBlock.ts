@@ -1,11 +1,10 @@
 import { Panel } from "@components/setting/panel";
 import { addStyle, log } from "@/env";
-import { DouYinUtils } from "@/utils/DouYinUtils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { DouYinVideoPlayer } from "./DouYinVideoPlayer";
 
-export const DouYinVideoPlayerCommentBlockElement = {
+export const DouYinVideoBlock_Comment = {
 	init() {
 		Panel.execMenuOnce("dy-video-shieldUserCommentToolBar", () => {
 			return this.shieldUserCommentToolBar();
@@ -31,7 +30,7 @@ export const DouYinVideoPlayerCommentBlockElement = {
 	},
 };
 
-export const DouYinVideoPlayerBlockElement_BottomToolbar = {
+export const DouYinVideoBlock_BottomToolbar = {
 	init() {
 		Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
 			return this.shieldBottomVideoToolBar();
@@ -92,7 +91,7 @@ export const DouYinVideoPlayerBlockElement_BottomToolbar = {
 	},
 };
 
-export const DouYinVideoPlayerBlockElement_RightToolbar = {
+export const DouYinVideoBlock_RightToolbar = {
 	init() {
 		Panel.execMenuOnce("shieldPlaySwitchButton", () => {
 			return this.shieldPlaySwitchButton();
@@ -248,7 +247,7 @@ export const DouYinVideoPlayerBlockElement_RightToolbar = {
 		];
 	},
 };
-export const DouYinVideoPlayerBlockElement = {
+export const DouYinVideoBlock = {
 	init() {
 		Panel.execMenuOnce("shieldRightExpandCommentButton", () => {
 			return this.shieldRightExpandCommentButton();
@@ -265,9 +264,9 @@ export const DouYinVideoPlayerBlockElement = {
 		Panel.execMenuOnce("dy-video-blockTitleTopTag", () => {
 			return this.blobkTitleTopTag();
 		});
-		DouYinVideoPlayerBlockElement_BottomToolbar.init();
-		DouYinVideoPlayerBlockElement_RightToolbar.init();
-		DouYinVideoPlayerCommentBlockElement.init();
+		DouYinVideoBlock_BottomToolbar.init();
+		DouYinVideoBlock_RightToolbar.init();
+		DouYinVideoBlock_Comment.init();
 	},
 	/**
 	 * 【屏蔽】右侧的展开评论按钮
