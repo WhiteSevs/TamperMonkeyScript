@@ -101,9 +101,6 @@ export const MTBlackHome = {
 			width: PanelUISize.settingBig.width,
 			height: PanelUISize.settingBig.height,
 			style: blackHomeCSS,
-			mask: {
-				enable: true,
-			},
 		});
 
 		let $list = $confirm.$shadowRoot.querySelector<HTMLDivElement>(

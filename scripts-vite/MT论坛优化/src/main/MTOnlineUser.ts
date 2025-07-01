@@ -74,9 +74,6 @@ export const MTOnlineUser = {
 			width: PanelUISize.settingBig.width,
 			height: PanelUISize.settingBig.height,
 			style: onlineUserCSS,
-			mask: {
-				enable: true,
-			},
 		});
 
 		let $list =

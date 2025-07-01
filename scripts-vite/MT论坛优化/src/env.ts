@@ -1,4 +1,4 @@
-import { addStyle, SCRIPT_NAME } from "@components/base.env";
+import { addStyle, pops, SCRIPT_NAME } from "@components/base.env";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
 
@@ -18,6 +18,13 @@ if (import.meta.env.DEV) {
 } else {
 	CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Hljs);
 }
+
+pops.GlobalConfig.setGlobalConfig({
+	mask: {
+		enable: true,
+	},
+	drag: true,
+});
 
 export {
 	utils,

@@ -253,7 +253,7 @@ export const MTCommentFilter = {
 				},
 			};
 		}
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		let view = new RuleEditView({
 			title: "评论过滤器",
 			data: () => {
@@ -270,7 +270,7 @@ export const MTCommentFilter = {
 					generateStorageApi(data)
 				);
 				let $enable =
-					popsPanelContentUtils.createSectionContainerItem_switch(
+					panelHandlerComponents.createSectionContainerItem_switch(
 						enable_template
 					);
 
@@ -288,7 +288,7 @@ export const MTCommentFilter = {
 					generateStorageApi(data)
 				);
 				let $replyFlag =
-					popsPanelContentUtils.createSectionContainerItem_switch(
+					panelHandlerComponents.createSectionContainerItem_switch(
 						replyFlag_template
 					);
 
@@ -300,7 +300,7 @@ export const MTCommentFilter = {
 					generateStorageApi(data)
 				);
 				let $avatarFlag =
-					popsPanelContentUtils.createSectionContainerItem_switch(
+					panelHandlerComponents.createSectionContainerItem_switch(
 						avatarFlag_template
 					);
 				// 是否处理从"搜索页面"或"我的帖子提醒页面"进入的网站
@@ -315,7 +315,7 @@ export const MTCommentFilter = {
 					generateStorageApi(data)
 				);
 				let $viewthreadFlag =
-					popsPanelContentUtils.createSectionContainerItem_switch(
+					panelHandlerComponents.createSectionContainerItem_switch(
 						viewthreadFlag_template
 					);
 
@@ -334,7 +334,7 @@ export const MTCommentFilter = {
 					generateStorageApi(data)
 				);
 				let $minLength =
-					popsPanelContentUtils.createSectionContainerItem_input(
+					panelHandlerComponents.createSectionContainerItem_input(
 						minLength_template
 					);
 
@@ -353,7 +353,9 @@ export const MTCommentFilter = {
 					generateStorageApi(data)
 				);
 				let $keywordLength =
-					popsPanelContentUtils.createSectionContainerItem_input(keywordLength);
+					panelHandlerComponents.createSectionContainerItem_input(
+						keywordLength
+					);
 
 				let keywords_template = UITextArea(
 					"评论关键字",
@@ -369,7 +371,7 @@ export const MTCommentFilter = {
 					generateStorageApi(data)
 				);
 				let $keywords =
-					popsPanelContentUtils.createSectionContainerItem_textarea(
+					panelHandlerComponents.createSectionContainerItem_textarea(
 						keywords_template
 					);
 
@@ -386,7 +388,7 @@ export const MTCommentFilter = {
 					generateStorageApi(data)
 				);
 				let $userBlackList =
-					popsPanelContentUtils.createSectionContainerItem_textarea(
+					panelHandlerComponents.createSectionContainerItem_textarea(
 						userBlackList_template
 					);
 				let userWhiteList_template = UITextArea(
@@ -402,7 +404,7 @@ export const MTCommentFilter = {
 					generateStorageApi(data)
 				);
 				let $userWhiteList =
-					popsPanelContentUtils.createSectionContainerItem_textarea(
+					panelHandlerComponents.createSectionContainerItem_textarea(
 						userWhiteList_template
 					);
 
@@ -453,9 +455,6 @@ export const MTCommentFilter = {
                                 ${this.$el.isFilterElementHTML.join("\n")}
                                 `,
 								html: true,
-							},
-							mask: {
-								enable: true,
 							},
 							style: /*css*/ `
 							.plhin{

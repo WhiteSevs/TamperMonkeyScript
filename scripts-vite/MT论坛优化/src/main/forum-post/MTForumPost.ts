@@ -587,9 +587,6 @@ export const MTForumPost = {
 								},
 							},
 						},
-						mask: {
-							enable: true,
-						},
 						width: "400px",
 						height: "200px",
 					});
