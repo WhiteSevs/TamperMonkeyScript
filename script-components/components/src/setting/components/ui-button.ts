@@ -1,5 +1,5 @@
-import type { PopsPanelButtonDetails } from "@whitesev/pops/dist/types/src/components/panel/buttonType";
-import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
+import type { PopsPanelButtonDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-button";
+import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
 import type { PopsButtonStyleType } from "@whitesev/pops/dist/types/src/types/button";
 import type { PopsIconType } from "@whitesev/pops/dist/types/src/types/icon";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";

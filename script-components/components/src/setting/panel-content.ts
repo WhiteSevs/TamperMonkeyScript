@@ -1,4 +1,4 @@
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { utils } from "../base.env";
 

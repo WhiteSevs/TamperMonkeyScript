@@ -1,4 +1,4 @@
-import type { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/inputType";
+import type { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-input";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,

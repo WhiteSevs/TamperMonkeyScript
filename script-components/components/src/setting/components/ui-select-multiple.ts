@@ -1,5 +1,5 @@
-import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/selectMultipleType";
-import type { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/indexType";
+import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
+import type { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/types/index";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,

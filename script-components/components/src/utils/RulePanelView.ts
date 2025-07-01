@@ -1,6 +1,6 @@
 import { DOMUtils, log, pops, utils } from "../base.env";
 import { PanelUISize } from "../setting/panel-ui-size";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { RuleFilterView, type RuleFilterViewOption } from "./RuleFilterView";
 import Qmsg from "qmsg";
 import { RuleEditView } from "./RuleEditView";

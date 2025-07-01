@@ -2,8 +2,8 @@ import type {
 	PopsPanelContentConfig,
 	PopsPanelDetails,
 	PopsPanelFormsTotalDetails,
-} from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+} from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { unsafeWindow } from "ViteGM";
 import { log, pops, SCRIPT_NAME, utils } from "../base.env";

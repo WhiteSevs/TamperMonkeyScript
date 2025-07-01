@@ -1,4 +1,4 @@
-import type { PopsPanelTextAreaDetails } from "@whitesev/pops/dist/types/src/components/panel/textareaType";
+import type { PopsPanelTextAreaDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-textarea";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,

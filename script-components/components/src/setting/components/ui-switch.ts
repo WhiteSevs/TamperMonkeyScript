@@ -1,6 +1,6 @@
-import type { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/switchType";
-import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
+import type { PopsPanelSwitchDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-switch";
+import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
 import { log } from "../../base.env";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,

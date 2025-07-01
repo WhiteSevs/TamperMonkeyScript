@@ -1,4 +1,4 @@
-import type { PopsPanelSliderDetails } from "@whitesev/pops/dist/types/src/components/panel/sliderType";
+import type { PopsPanelSliderDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-slider";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,

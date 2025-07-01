@@ -1,4 +1,4 @@
-import type { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/selectType";
+import type { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-select";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_KEY,
