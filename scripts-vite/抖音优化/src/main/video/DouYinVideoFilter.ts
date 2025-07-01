@@ -24,7 +24,7 @@ import { UITextArea } from "@components/setting/components/ui-textarea";
 import Utils from "@whitesev/utils";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker";
-import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/selectMultipleType";
+import type { PopsPanelSelectMultipleDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-selectMultiple";
 
 type DouYinVideoFilterOptionScope =
 	| "all"
@@ -625,7 +625,7 @@ export const DouYinVideoFilter = {
 	 */
 	getRuleViewInstance() {
 		const that = this;
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		/**
 		 * 自定义存储api的配置
 		 * @param uuid
@@ -690,7 +690,7 @@ export const DouYinVideoFilter = {
 							generateStorageApi(data)
 						);
 						let $enable =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								enable_template
 							);
 
@@ -709,7 +709,7 @@ export const DouYinVideoFilter = {
 							generateStorageApi(data)
 						);
 						let $name =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								name_template
 							);
 
@@ -781,7 +781,7 @@ export const DouYinVideoFilter = {
 							generateStorageApi(data.data)
 						);
 						let $scope =
-							popsPanelContentUtils.createSectionContainerItem_select_multiple_new(
+							panelHandlerComponents.createSectionContainerItem_select_multiple_new(
 								scope_template
 							);
 
@@ -867,7 +867,7 @@ export const DouYinVideoFilter = {
 
 							// 属性值
 							let $ruleName =
-								popsPanelContentUtils.createSectionContainerItem_select_multiple_new(
+								panelHandlerComponents.createSectionContainerItem_select_multiple_new(
 									ruleName_template
 								);
 
@@ -884,7 +884,7 @@ export const DouYinVideoFilter = {
 								generateStorageApi(storageData)
 							);
 							let $ruleValue =
-								popsPanelContentUtils.createSectionContainerItem_textarea(
+								panelHandlerComponents.createSectionContainerItem_textarea(
 									ruleValue_template
 								);
 
@@ -902,7 +902,7 @@ export const DouYinVideoFilter = {
 								generateStorageApi(storageData)
 							);
 							let $remarks =
-								popsPanelContentUtils.createSectionContainerItem_textarea(
+								panelHandlerComponents.createSectionContainerItem_textarea(
 									remarks_template
 								);
 

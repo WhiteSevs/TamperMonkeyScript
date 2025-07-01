@@ -4,7 +4,7 @@ import { UISwitch } from "@components/setting/components/ui-switch";
 import { UIButton } from "@components/setting/components/ui-button";
 import { DouYinVideoPlayerShortCut } from "@/main/video/DouYinVideoPlayerShortCut";
 import { Panel } from "@components/setting/panel";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { UISlider } from "@components/setting/components/ui-slider";
 import { AutoOpenOrClose } from "../utils/all-open-or-close";
