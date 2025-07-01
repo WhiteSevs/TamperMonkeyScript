@@ -195,7 +195,7 @@ export const MTProductListingReminder = {
 	 */
 	showView() {
 		const that = this;
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 
 		/**
 		 * 自定义存储api的配置
@@ -261,7 +261,7 @@ export const MTProductListingReminder = {
 							generateStorageApi(data)
 						);
 						let $enable =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								enable_template
 							);
 
@@ -280,7 +280,7 @@ export const MTProductListingReminder = {
 							generateStorageApi(data)
 						);
 						let $name =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								name_template
 							);
 
@@ -299,7 +299,7 @@ export const MTProductListingReminder = {
 							generateStorageApi(data)
 						);
 						let $productName =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								productName_template
 							);
 

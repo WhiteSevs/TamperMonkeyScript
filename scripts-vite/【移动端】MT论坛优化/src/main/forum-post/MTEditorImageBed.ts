@@ -196,9 +196,7 @@ export class MTEditorImageBed<T> {
 						// @ts-ignore
 						chooseImage = needUploadImageFileArray;
 						if (
-							Panel.getValue<boolean>(
-								"mt-image-bed-watermark-autoAddWaterMark"
-							)
+							Panel.getValue<boolean>("mt-image-bed-watermark-autoAddWaterMark")
 						) {
 							await upload_callback(chooseImage);
 						} else {
@@ -240,7 +238,6 @@ export class MTEditorImageBed<T> {
 										},
 									},
 								},
-								drag: true,
 								width: "88vw",
 								height: "80vh",
 								style: /*css*/ `

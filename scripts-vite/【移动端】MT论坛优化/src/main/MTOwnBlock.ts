@@ -102,7 +102,7 @@ export const MTOwnBlock = {
 	 */
 	showView() {
 		const that = this;
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		/**
 		 * 自定义存储api的配置
 		 * @param uuid
@@ -167,7 +167,7 @@ export const MTOwnBlock = {
 							generateStorageApi(data)
 						);
 						let $enable =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								enable_template
 							);
 
@@ -186,7 +186,7 @@ export const MTOwnBlock = {
 							generateStorageApi(data)
 						);
 						let $name =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								name_template
 							);
 
@@ -205,7 +205,7 @@ export const MTOwnBlock = {
 							generateStorageApi(data.data)
 						);
 						let $data_userName =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								data_userName_template
 							);
 
@@ -224,7 +224,7 @@ export const MTOwnBlock = {
 							generateStorageApi(data.data)
 						);
 						let $data_userUID =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								data_userUID_template
 							);
 
@@ -243,7 +243,7 @@ export const MTOwnBlock = {
 							generateStorageApi(data.data)
 						);
 						let $data_userLevel =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								data_userLevel_template
 							);
 
@@ -262,7 +262,7 @@ export const MTOwnBlock = {
 							generateStorageApi(data.data)
 						);
 						let $data_postUrl =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								data_postUrl_template
 							);
 
@@ -281,7 +281,7 @@ export const MTOwnBlock = {
 							generateStorageApi(data.data)
 						);
 						let $data_postTitle =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								data_postTitle_template
 							);
 
@@ -300,7 +300,7 @@ export const MTOwnBlock = {
 							generateStorageApi(data.data)
 						);
 						let $data_postContent =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								data_postContent_template
 							);
 
@@ -319,7 +319,7 @@ export const MTOwnBlock = {
 							generateStorageApi(data.data)
 						);
 						let $data_postPlateName =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								data_postPlateName_template
 							);
 						$fragment.appendChild($enable);

@@ -83,7 +83,7 @@ export const MTCustomizeUserLabels = {
 	 */
 	showView() {
 		const that = this;
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		/**
 		 * 自定义存储api的配置
 		 * @param uuid
@@ -148,7 +148,7 @@ export const MTCustomizeUserLabels = {
 							generateStorageApi(data)
 						);
 						let $enable =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								enable_template
 							);
 
@@ -167,7 +167,7 @@ export const MTCustomizeUserLabels = {
 							generateStorageApi(data)
 						);
 						let $name =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								name_template
 							);
 
@@ -185,7 +185,7 @@ export const MTCustomizeUserLabels = {
 							generateStorageApi(data)
 						);
 						let $userUID =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								userUID_template
 							);
 
@@ -204,7 +204,7 @@ export const MTCustomizeUserLabels = {
 						);
 
 						let $labelName =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								labelName_template
 							);
 
@@ -221,7 +221,7 @@ export const MTCustomizeUserLabels = {
 							generateStorageApi(data)
 						);
 						let $labelColor =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								labelColor_template
 							);
 						let $labelColor_input = $labelColor.querySelector("input")!;
@@ -246,7 +246,7 @@ export const MTCustomizeUserLabels = {
 							generateStorageApi(data)
 						);
 						let $labelStyle =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								labelStyle_template
 							);
 
@@ -263,7 +263,7 @@ export const MTCustomizeUserLabels = {
 							generateStorageApi(data)
 						);
 						let $labelClickEvent =
-							popsPanelContentUtils.createSectionContainerItem_textarea(
+							panelHandlerComponents.createSectionContainerItem_textarea(
 								labelClickEvent_template
 							);
 

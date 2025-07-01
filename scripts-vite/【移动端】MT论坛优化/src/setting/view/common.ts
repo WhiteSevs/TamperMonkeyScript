@@ -2,7 +2,7 @@ import { DOMUtils, httpx, log, pops, utils } from "@/env";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { UITextArea } from "@components/setting/components/ui-textarea";
 import { UISelect } from "@components/setting/components/ui-select";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { UIButton } from "@components/setting/components/ui-button";
 import { UIOwn } from "@components/setting/components/ui-own";
 import { MTUtils } from "@/utils/MTUtils";

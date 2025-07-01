@@ -176,9 +176,6 @@ export const MTDyncmicAvatar = {
 					},
 				},
 			},
-			mask: {
-				enable: true,
-			},
 			width: "88vw",
 			height: "500px",
 			style: /*css*/ `

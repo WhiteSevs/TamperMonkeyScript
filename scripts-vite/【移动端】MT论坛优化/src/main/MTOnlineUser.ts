@@ -70,9 +70,6 @@ export const MTOnlineUser = {
 			width: "88vw",
 			height: "82vh",
 			style: onlineUserCSS,
-			mask: {
-				enable: true,
-			},
 		});
 
 		let $list =

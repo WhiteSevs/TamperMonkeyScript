@@ -1,4 +1,4 @@
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { MTAutoSignIn } from "@/main/sign/MTAutoSignIn";
 import Qmsg from "qmsg";
@@ -89,9 +89,6 @@ export const Component_Sign: PopsPanelContentConfig = {
 										event.close();
 									},
 								},
-							},
-							mask: {
-								enable: true,
 							},
 							width: "88vw",
 							height: "200px",

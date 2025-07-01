@@ -76,9 +76,6 @@ export const MTPaidThemePost = {
 									},
 								},
 							},
-							mask: {
-								enable: true,
-							},
 							width: "88vw",
 							height: "300px",
 						});
@@ -238,9 +235,6 @@ export const MTPaidThemePost = {
 					type: "default",
 				},
 			},
-			mask: {
-				enable: true,
-			},
 			width: "88vw",
 			height: "88vh",
 		});
@@ -374,9 +368,6 @@ export const MTPaidThemePost = {
 					content: {
 						text: "<p>确定移出付费主题白嫖列表？</p>",
 						html: true,
-					},
-					mask: {
-						enable: true,
 					},
 					btn: {
 						ok: {

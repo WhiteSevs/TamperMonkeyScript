@@ -97,9 +97,6 @@ export const MTBlackHome = {
 			width: "88vw",
 			height: "82vh",
 			style: blackHomeCSS,
-			mask: {
-				enable: true,
-			},
 		});
 
 		let $list = $confirm.$shadowRoot.querySelector<HTMLDivElement>(

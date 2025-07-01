@@ -1,4 +1,4 @@
-import { addStyle, httpx, SCRIPT_NAME } from "@components/base.env";
+import { addStyle, httpx, pops, SCRIPT_NAME } from "@components/base.env";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
 import { HttpxCookieManager } from "@components/utils/HttpxCookieManager";
@@ -30,6 +30,13 @@ const httpxCookieManager = new HttpxCookieManager([
 httpx.interceptors.request.use((data) => {
 	httpxCookieManager.handle(data);
 	return data;
+});
+
+pops.GlobalConfig.setGlobalConfig({
+	mask: {
+		enable: true,
+	},
+	drag: true,
 });
 
 export {
