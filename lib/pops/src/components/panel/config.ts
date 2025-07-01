@@ -1,5 +1,5 @@
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
-import type { PopsPanelDetails } from "./indexType";
+import type { PopsPanelDetails } from "./types";
 
 export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 	return {

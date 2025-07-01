@@ -1,17 +1,17 @@
-import type { PopsAlertDetails } from "../components/alert/indexType";
-import type { PopsConfirmDetails } from "../components/confirm/indexType";
-import type { PopsDrawerDetails } from "../components/drawer/indexType";
-import type { PopsFolderDetails } from "../components/folder/indexType";
-import type { PopsIframeDetails } from "../components/iframe/indexType";
-import type { PopsLoadingDetails } from "../components/loading/indexType";
-import type { PopsPanelDetails } from "../components/panel/indexType";
-import type { PopsPromptDetails } from "../components/prompt/indexType";
+import type { PopsAlertDetails } from "../components/alert/types";
+import type { PopsConfirmDetails } from "../components/confirm/types";
+import type { PopsDrawerDetails } from "../components/drawer/types";
+import type { PopsFolderDetails } from "../components/folder/types";
+import type { PopsIframeDetails } from "../components/iframe/types";
+import type { PopsLoadingDetails } from "../components/loading/types";
+import type { PopsPanelDetails } from "../components/panel/types";
+import type { PopsPromptDetails } from "../components/prompt/types/index";
 import type { PopsLayerCommonConfig } from "../types/layer";
 import type { PopsLayerMode } from "../types/main";
 import { popsDOMUtils } from "./PopsDOMUtils";
 import { popsUtils } from "./PopsUtils";
-import { PopsCore } from "../Core";
-import { PopsLayer } from "../PopsLayer";
+import { PopsCore } from "../PopsCore";
+import { PopsLayerData } from "../PopsLayer";
 import { PopsAnimation } from "../PopsAnimation";
 
 export const PopsInstanceUtils = {
@@ -121,8 +121,8 @@ export const PopsInstanceUtils = {
 		function isVisibleNode($css: CSSStyleDeclaration): boolean {
 			return $css.position !== "static" && $css.display !== "none";
 		}
-		Object.keys(PopsLayer).forEach((layerName) => {
-			let layerList = PopsLayer[layerName as PopsLayerMode];
+		Object.keys(PopsLayerData).forEach((layerName) => {
+			let layerList = PopsLayerData[layerName as PopsLayerMode];
 			for (let index = 0; index < layerList.length; index++) {
 				const layer = layerList[index];
 				let nodeStyle = window.getComputedStyle(layer.animElement);

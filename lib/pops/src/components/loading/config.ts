@@ -1,4 +1,4 @@
-import type { PopsLoadingDetails } from "./indexType";
+import type { PopsLoadingDetails } from "./types";
 
 export const PopsLoadingConfig = (): DeepRequired<PopsLoadingDetails> => {
 	return {

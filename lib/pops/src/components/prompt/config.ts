@@ -1,4 +1,4 @@
-import type { PopsPromptDetails } from "./indexType";
+import type { PopsPromptDetails } from "./types/index";
 
 export const PopsPromptConfig = (): DeepRequired<PopsPromptDetails> => {
 	return {

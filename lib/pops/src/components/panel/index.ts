@@ -3,9 +3,9 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
-import type { PopsPanelDetails, PopsPanelEventType } from "./indexType";
+import type { PopsPanelDetails, PopsPanelEventType } from "./types";
 import { PopsPanelConfig } from "./config";
-import { PanelHandleContentDetails } from "./PanelHandleContentDetails";
+import { PanelHandlerComponents } from "./handlerComponents";
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsCSS } from "../../PopsCSS";
 
@@ -135,11 +135,11 @@ export const PopsPanel = {
 		if ($mask != null) {
 			$anim.after($mask);
 		}
-		let panelHandleContentDetails = PanelHandleContentDetails();
+		let panelHandlerComponents = PanelHandlerComponents();
 		/**
 		 * 处理内部配置
 		 */
-		panelHandleContentDetails.init({
+		panelHandlerComponents.init({
 			config: config,
 			$el: {
 				$pops: $pops,

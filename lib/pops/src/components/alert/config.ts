@@ -1,4 +1,4 @@
-import type { PopsAlertDetails } from "./indexType";
+import type { PopsAlertDetails } from "./types";
 
 export const PopsAlertConfig = (): DeepRequired<PopsAlertDetails> => {
 	return {

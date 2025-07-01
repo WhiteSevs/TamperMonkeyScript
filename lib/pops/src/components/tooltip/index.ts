@@ -5,7 +5,7 @@ import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsTooltipConfig } from "./config";
-import type { PopsToolTipDetails } from "./indexType";
+import type { PopsToolTipDetails } from "./types/index";
 
 type ToolTipEventTypeName = "MouseEvent" | "TouchEvent";
 

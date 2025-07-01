@@ -1,4 +1,4 @@
-import { PopsCore } from "../Core";
+import { PopsCore } from "../PopsCore";
 import type { PopsUtilsOwnObject } from "../types/main";
 import {
 	clearInterval as WorkerClearInterval,

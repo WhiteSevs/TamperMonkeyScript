@@ -6,7 +6,7 @@ import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsPromptConfig } from "./config";
-import type { PopsPromptDetails } from "./indexType";
+import type { PopsPromptDetails } from "./types/index";
 
 export const PopsPrompt = {
 	init(details: PopsPromptDetails) {

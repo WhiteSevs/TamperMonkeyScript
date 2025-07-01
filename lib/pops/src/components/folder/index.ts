@@ -9,7 +9,7 @@ import { popsUtils } from "../../utils/PopsUtils";
 import { PopsLoading } from "../loading";
 import { PopsFolderConfig } from "./config";
 import { Folder_ICON } from "./folderIcon";
-import type { PopsFolderDataConfig, PopsFolderDetails } from "./indexType";
+import type { PopsFolderDataConfig, PopsFolderDetails } from "./types";
 
 export const PopsFolder = {
 	init(details: PopsFolderDetails) {

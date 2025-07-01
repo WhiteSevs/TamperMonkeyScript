@@ -4,7 +4,7 @@ import { popsUtils } from "../../utils/PopsUtils";
 import { searchSuggestionConfig as PopsSearchSuggestionConfig } from "./config";
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
-import type { PopsSearchSuggestionDetails } from "./indexType";
+import type { PopsSearchSuggestionDetails } from "./types/index";
 import { PopsCSS } from "../../PopsCSS";
 
 export const PopsSearchSuggestion = {

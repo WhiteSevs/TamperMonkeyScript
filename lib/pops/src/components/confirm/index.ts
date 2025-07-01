@@ -6,7 +6,7 @@ import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsConfirmConfig } from "./config";
-import type { PopsConfirmDetails } from "./indexType";
+import type { PopsConfirmDetails } from "./types";
 
 export const PopsConfirm = {
 	init(details: PopsConfirmDetails) {

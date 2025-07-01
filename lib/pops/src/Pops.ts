@@ -1,49 +1,49 @@
 import { popsDOMUtils } from "./utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "./utils/PopsInstanceUtils";
 import { popsUtils } from "./utils/PopsUtils";
-import { PopsCore } from "./Core";
+import { PopsCore } from "./PopsCore";
 import { PopsAlert } from "./components/alert";
-import type { PopsAlertDetails } from "./components/alert/indexType";
+import type { PopsAlertDetails } from "./components/alert/types";
 import { PopsConfirm } from "./components/confirm";
-import type { PopsConfirmDetails } from "./components/confirm/indexType";
-import type { PopsPromptDetails } from "./components/prompt/indexType";
+import type { PopsConfirmDetails } from "./components/confirm/types";
+import type { PopsPromptDetails } from "./components/prompt/types/index";
 import { PopsPrompt } from "./components/prompt";
-import type { PopsLoadingDetails } from "./components/loading/indexType";
+import type { PopsLoadingDetails } from "./components/loading/types";
 import { PopsLoading } from "./components/loading";
-import type { PopsIframeDetails } from "./components/iframe/indexType";
+import type { PopsIframeDetails } from "./components/iframe/types";
 import { PopsIframe } from "./components/iframe";
-import type { PopsToolTipDetails } from "./components/tooltip/indexType";
+import type { PopsToolTipDetails } from "./components/tooltip/types/index";
 import { PopsDrawer } from "./components/drawer";
-import type { PopsDrawerDetails } from "./components/drawer/indexType";
-import type { PopsFolderDetails } from "./components/folder/indexType";
+import type { PopsDrawerDetails } from "./components/drawer/types";
+import type { PopsFolderDetails } from "./components/folder/types";
 import { PopsFolder } from "./components/folder";
-import type { PopsPanelDetails } from "./components/panel/indexType";
+import type { PopsPanelDetails } from "./components/panel/types";
 import { PopsPanel } from "./components/panel";
 import { PopsRightClickMenu } from "./components/rightClickMenu";
-import type { PopsRightClickMenuDetails } from "./components/rightClickMenu/indexType";
-import type { PopsSearchSuggestionDetails } from "./components/searchSuggestion/indexType";
+import type { PopsRightClickMenuDetails } from "./components/rightClickMenu/types";
+import type { PopsSearchSuggestionDetails } from "./components/searchSuggestion/types/index";
 import { PopsSearchSuggestion } from "./components/searchSuggestion";
 import { PopsMathFloatUtils } from "./utils/PopsMathUtils";
-import { PanelHandleContentDetails } from "./components/panel/PanelHandleContentDetails";
+import { PanelHandlerComponents } from "./components/panel/handlerComponents";
 import { GlobalConfig } from "./GlobalConfig";
 import { PopsTooltip } from "./components/tooltip";
 import { PopsCSS } from "./PopsCSS";
 import { PopsIcon } from "./PopsIcon";
-import { PopsLayer } from "./PopsLayer";
+import { PopsLayerData } from "./PopsLayer";
 import { PopsAnimation } from "./PopsAnimation";
 
 class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2025.6.25",
+		version: "2025.7.1",
 		cssText: PopsCSS,
 		/** icon图标的svg代码 */
 		iconSVG: PopsIcon.$data,
 		/** 当前已配置的动画@keyframes名字映射(初始化时生成) */
 		animation: PopsAnimation.$data,
 		/** 存储已创建的元素 */
-		layer: PopsLayer,
+		layer: PopsLayerData,
 		/** 禁止滚动 */
 		forbiddenScroll: {
 			event(event: Event) {
@@ -59,7 +59,7 @@ class Pops {
 		/** pops处理float类型使用的工具类 */
 		MathFloatUtils: PopsMathFloatUtils,
 		/** pops.panel中用于处理各个类型的工具 */
-		panelHandleContentUtils: PanelHandleContentDetails,
+		PanelHandlerComponents: PanelHandlerComponents,
 	};
 	init() {}
 	/**

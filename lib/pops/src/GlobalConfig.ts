@@ -1,17 +1,19 @@
-import type { PopsCommonConfig } from "./types/components";
+import type { PopsCommonConfig, PopsDragConfig } from "./types/components";
 
 type EnterReturnType<T> = null | T | (() => T);
 
 type GlobalConfigOption = {
 	style?: EnterReturnType<string>;
 	zIndex?: EnterReturnType<number> | EnterReturnType<string>;
-} & Partial<PopsCommonConfig>;
+} & Partial<PopsCommonConfig> &
+	Partial<PopsDragConfig>;
 
 type ResultGlobalConfigOption<T> = T extends null | undefined
 	? never
 	: T extends (...args: any) => infer R
 	? R
 	: T;
+
 export const GlobalConfig = {
 	config: {} as GlobalConfigOption,
 	/**
@@ -39,8 +41,7 @@ export const GlobalConfig = {
 					configValue == null
 						? ""
 						: typeof configValue === "function"
-						? // @ts-ignore
-						  configValue()
+						? configValue()
 						: configValue;
 
 				if (typeof style === "string") {
@@ -55,7 +56,7 @@ export const GlobalConfig = {
 						? configValue()
 						: configValue;
 				if (typeof zIndex === "string") {
-					let newIndex = (zIndex = parseInt(zIndex));
+					let newIndex = (zIndex = Number(zIndex));
 					if (!isNaN(newIndex)) {
 						result.zIndex = newIndex;
 					}

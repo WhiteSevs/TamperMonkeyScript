@@ -1,5 +1,5 @@
 import { PopsIcon } from "../../PopsIcon";
-import type { PopsRightClickMenuDetails } from "./indexType";
+import type { PopsRightClickMenuDetails } from "./types";
 
 export const rightClickMenuConfig =
 	(): DeepRequired<PopsRightClickMenuDetails> => {

@@ -5,7 +5,7 @@ import { PopsCSS } from "../../PopsCSS";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsLoadingConfig } from "./config";
-import type { PopsLoadingDetails } from "./indexType";
+import type { PopsLoadingDetails } from "./types";
 
 export const PopsLoading = {
 	init(details: PopsLoadingDetails) {

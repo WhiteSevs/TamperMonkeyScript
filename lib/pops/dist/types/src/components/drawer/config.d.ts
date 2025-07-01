@@ -1,2 +1,2 @@
-import type { PopsDrawerDetails } from "./indexType";
+import type { PopsDrawerDetails } from "./types";
 export declare const PopsDrawerConfig: () => DeepRequired<PopsDrawerDetails>;

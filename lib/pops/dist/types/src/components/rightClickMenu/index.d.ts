@@ -1,9 +1,9 @@
-import type { PopsRightClickMenuDetails } from "./indexType";
+import type { PopsRightClickMenuDetails } from "./types";
 export declare const PopsRightClickMenu: {
     init(details: PopsRightClickMenuDetails): {
         guid: string;
         config: {
-            target: Node | HTMLElement | {
+            target: HTMLElement | Node | {
                 addEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) => void;
                 dispatchEvent: (event: Event) => boolean;
                 removeEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean) => void;

@@ -28,39 +28,41 @@ import SVG_keyboard from "./svg/keyboard.svg";
 import SVG_arrowRight from "./svg/arrowRight.svg";
 import SVG_arrowLeft from "./svg/arrowLeft.svg";
 
+const PopsIconData: {
+	[key in PopsIconType]: string;
+} = {
+	min: SVG_min,
+	mise: SVG_mise,
+	max: SVG_max,
+	close: SVG_close,
+	edit: SVG_edit,
+	share: SVG_share,
+	delete: SVG_delete,
+	search: SVG_search,
+	upload: SVG_upload,
+	loading: SVG_loading,
+	next: SVG_next,
+	prev: SVG_prev,
+	eleme: SVG_eleme,
+	elemePlus: SVG_elemePlus,
+	chromeFilled: SVG_chromeFilled,
+	cpu: SVG_cpu,
+	videoPlay: SVG_videoPlay,
+	videoPause: SVG_videoPause,
+	headset: SVG_headset,
+	monitor: SVG_monitor,
+	documentCopy: SVG_documentCopy,
+	picture: SVG_picture,
+	circleClose: SVG_circleClose,
+	view: SVG_view,
+	hide: SVG_hide,
+	keyboard: SVG_keyboard,
+	arrowRight: SVG_arrowRight,
+	arrowLeft: SVG_arrowLeft,
+};
+
 export const PopsIcon = {
-	$data: {
-		min: SVG_min,
-		mise: SVG_mise,
-		max: SVG_max,
-		close: SVG_close,
-		edit: SVG_edit,
-		share: SVG_share,
-		delete: SVG_delete,
-		search: SVG_search,
-		upload: SVG_upload,
-		loading: SVG_loading,
-		next: SVG_next,
-		prev: SVG_prev,
-		eleme: SVG_eleme,
-		elemePlus: SVG_elemePlus,
-		chromeFilled: SVG_chromeFilled,
-		cpu: SVG_cpu,
-		videoPlay: SVG_videoPlay,
-		videoPause: SVG_videoPause,
-		headset: SVG_headset,
-		monitor: SVG_monitor,
-		documentCopy: SVG_documentCopy,
-		picture: SVG_picture,
-		circleClose: SVG_circleClose,
-		view: SVG_view,
-		hide: SVG_hide,
-		keyboard: SVG_keyboard,
-		arrowRight: SVG_arrowRight,
-		arrowLeft: SVG_arrowLeft,
-	} as {
-		[key in PopsIconType]: string;
-	},
+	$data: PopsIconData,
 	/**
 	 * 判断是否存在某个icon
 	 * @param iconName 图标名

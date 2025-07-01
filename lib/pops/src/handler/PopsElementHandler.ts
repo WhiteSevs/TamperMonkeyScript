@@ -1,6 +1,6 @@
-import type { PopsAlertDetails } from "../components/alert/indexType";
-import type { PopsConfirmDetails } from "../components/confirm/indexType";
-import type { PopsIframeDetails } from "../components/iframe/indexType";
+import type { PopsAlertDetails } from "../components/alert/types";
+import type { PopsConfirmDetails } from "../components/confirm/types";
+import type { PopsIframeDetails } from "../components/iframe/types";
 import type { PopsIconType } from "../types/icon";
 import type {
 	PopsSupportAnim,

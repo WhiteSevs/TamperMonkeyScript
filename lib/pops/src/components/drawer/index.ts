@@ -5,7 +5,7 @@ import { PopsCSS } from "../../PopsCSS";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsDrawerConfig } from "./config";
-import type { PopsDrawerDetails } from "./indexType";
+import type { PopsDrawerDetails } from "./types";
 
 export const PopsDrawer = {
 	init(details: PopsDrawerDetails) {

@@ -1,4 +1,4 @@
-import { OriginPrototype } from "../../Core";
+import { OriginPrototype } from "../../PopsCore";
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
@@ -8,7 +8,7 @@ import { rightClickMenuConfig as PopsRightClickMenuConfig } from "./config";
 import type {
 	PopsRightClickMenuDataDetails,
 	PopsRightClickMenuDetails,
-} from "./indexType";
+} from "./types";
 import { PopsCSS } from "../../PopsCSS";
 import { PopsIcon } from "../../PopsIcon";
 

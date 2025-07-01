@@ -6,7 +6,7 @@ import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsAlertConfig } from "./config";
 import type { PopsMode } from "../../types/main";
-import type { PopsAlertDetails } from "./indexType";
+import type { PopsAlertDetails } from "./types";
 import { PopsCSS } from "../../PopsCSS";
 
 export const PopsAlert = {

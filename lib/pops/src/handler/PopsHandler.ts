@@ -1,14 +1,14 @@
-import type { PopsAlertDetails } from "../components/alert/indexType";
-import type { PopsConfirmDetails } from "../components/confirm/indexType";
-import type { PopsDrawerDetails } from "../components/drawer/indexType";
-import type { PopsFolderDetails } from "../components/folder/indexType";
-import type { PopsIframeDetails } from "../components/iframe/indexType";
-import type { PopsLoadingDetails } from "../components/loading/indexType";
-import type { PopsPanelDetails } from "../components/panel/indexType";
-import type { PopsPromptDetails } from "../components/prompt/indexType";
-import { PopsCore } from "../Core";
+import type { PopsAlertDetails } from "../components/alert/types";
+import type { PopsConfirmDetails } from "../components/confirm/types";
+import type { PopsDrawerDetails } from "../components/drawer/types";
+import type { PopsFolderDetails } from "../components/folder/types";
+import type { PopsIframeDetails } from "../components/iframe/types";
+import type { PopsLoadingDetails } from "../components/loading/types";
+import type { PopsPanelDetails } from "../components/panel/types";
+import type { PopsPromptDetails } from "../components/prompt/types/index";
+import { PopsCore } from "../PopsCore";
 import { PopsAnimation } from "../PopsAnimation";
-import { PopsLayer } from "../PopsLayer";
+import { PopsLayerData } from "../PopsLayer";
 import type { PopsCommonConfig } from "../types/components";
 import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
 import { PopsLayerCommonConfig } from "../types/layer";
@@ -114,7 +114,7 @@ export const PopsHandler = {
 		function clickEvent(event: MouseEvent | PointerEvent) {
 			popsDOMUtils.preventEvent(event);
 			// 获取该类型实例存储列表
-			let targetLayer = PopsLayer[details.type];
+			let targetLayer = PopsLayerData[details.type];
 			function originalRun() {
 				if (details.config.mask!.clickEvent!.toClose) {
 					/* 关闭 */
@@ -403,7 +403,7 @@ export const PopsHandler = {
 			close() {
 				return PopsInstanceUtils.close(
 					mode,
-					PopsLayer[mode],
+					PopsLayerData[mode],
 					guid,
 					config,
 					animElement
@@ -412,7 +412,7 @@ export const PopsHandler = {
 			hide() {
 				return PopsInstanceUtils.hide(
 					mode,
-					PopsLayer[mode],
+					PopsLayerData[mode],
 					guid,
 					config,
 					animElement,
@@ -422,7 +422,7 @@ export const PopsHandler = {
 			show() {
 				return PopsInstanceUtils.show(
 					mode,
-					PopsLayer[mode],
+					PopsLayerData[mode],
 					guid,
 					config,
 					animElement,
@@ -466,7 +466,7 @@ export const PopsHandler = {
 			close() {
 				return PopsInstanceUtils.close(
 					mode,
-					PopsLayer[mode],
+					PopsLayerData[mode],
 					guid,
 					config,
 					animElement
@@ -475,7 +475,7 @@ export const PopsHandler = {
 			hide() {
 				return PopsInstanceUtils.hide(
 					mode,
-					PopsLayer[mode],
+					PopsLayerData[mode],
 					guid,
 					config,
 					animElement,
@@ -485,7 +485,7 @@ export const PopsHandler = {
 			show() {
 				return PopsInstanceUtils.show(
 					mode,
-					PopsLayer[mode],
+					PopsLayerData[mode],
 					guid,
 					config,
 					animElement,
@@ -639,20 +639,20 @@ export const PopsHandler = {
 				type === "tooltip" ||
 				type === "rightClickMenu"
 			) {
-				let layer = PopsLayer[type as keyof typeof PopsLayer];
+				let layer = PopsLayerData[type as keyof typeof PopsLayerData];
 				if (layer) {
 					PopsInstanceUtils.removeInstance([layer], "", true);
 				}
 			} else {
 				PopsInstanceUtils.removeInstance(
 					[
-						PopsLayer.alert,
-						PopsLayer.confirm,
-						PopsLayer.prompt,
-						PopsLayer.iframe,
-						PopsLayer.drawer,
-						PopsLayer.folder,
-						PopsLayer.panel,
+						PopsLayerData.alert,
+						PopsLayerData.confirm,
+						PopsLayerData.prompt,
+						PopsLayerData.iframe,
+						PopsLayerData.drawer,
+						PopsLayerData.folder,
+						PopsLayerData.panel,
 					],
 					"",
 					true
@@ -677,6 +677,6 @@ export const PopsHandler = {
 	 * @param value
 	 */
 	handlePush(type: PopsLayerMode, value: PopsLayerCommonConfig) {
-		PopsLayer[type].push(value);
+		PopsLayerData[type].push(value);
 	},
 };

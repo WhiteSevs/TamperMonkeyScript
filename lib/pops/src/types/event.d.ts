@@ -1,4 +1,4 @@
-import type { PopsIframeDetails } from "../components/iframe/indexType";
+import type { PopsIframeDetails } from "../components/iframe/types";
 import type { PopsMode } from "./main";
 
 /**

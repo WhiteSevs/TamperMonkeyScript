@@ -1,4 +1,4 @@
-import type { PopsFolderDetails } from "./indexType";
+import type { PopsFolderDetails } from "./types";
 
 export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
 	return {

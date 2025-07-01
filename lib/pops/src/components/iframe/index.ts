@@ -1,15 +1,15 @@
-import { PopsCore } from "../../Core";
+import { PopsCore } from "../../PopsCore";
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
-import { PopsLayer } from "../../PopsLayer";
+import { PopsLayerData } from "../../PopsLayer";
 import type { PopsEventDetails } from "../../types/event";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsIframeConfig } from "./config";
-import type { PopsIframeDetails } from "./indexType";
+import type { PopsIframeDetails } from "./types";
 
 export const PopsIframe = {
 	init(details: PopsIframeDetails) {
@@ -305,7 +305,7 @@ export const PopsIframe = {
 			(event) => {
 				event.preventDefault();
 				event.stopPropagation();
-				PopsInstanceUtils.removeInstance([PopsLayer.iframe], guid, false);
+				PopsInstanceUtils.removeInstance([PopsLayerData.iframe], guid, false);
 				if (typeof config?.btn?.close?.callback === "function") {
 					config.btn.close.callback(eventDetails, event);
 				}

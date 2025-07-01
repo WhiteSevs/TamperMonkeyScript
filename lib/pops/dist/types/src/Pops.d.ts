@@ -1,14 +1,14 @@
-import type { PopsAlertDetails } from "./components/alert/indexType";
-import type { PopsConfirmDetails } from "./components/confirm/indexType";
-import type { PopsPromptDetails } from "./components/prompt/indexType";
-import type { PopsLoadingDetails } from "./components/loading/indexType";
-import type { PopsIframeDetails } from "./components/iframe/indexType";
-import type { PopsToolTipDetails } from "./components/tooltip/indexType";
-import type { PopsDrawerDetails } from "./components/drawer/indexType";
-import type { PopsFolderDetails } from "./components/folder/indexType";
-import type { PopsPanelDetails } from "./components/panel/indexType";
-import type { PopsRightClickMenuDetails } from "./components/rightClickMenu/indexType";
-import type { PopsSearchSuggestionDetails } from "./components/searchSuggestion/indexType";
+import type { PopsAlertDetails } from "./components/alert/types";
+import type { PopsConfirmDetails } from "./components/confirm/types";
+import type { PopsPromptDetails } from "./components/prompt/types/index";
+import type { PopsLoadingDetails } from "./components/loading/types";
+import type { PopsIframeDetails } from "./components/iframe/types";
+import type { PopsToolTipDetails } from "./components/tooltip/types/index";
+import type { PopsDrawerDetails } from "./components/drawer/types";
+import type { PopsFolderDetails } from "./components/folder/types";
+import type { PopsPanelDetails } from "./components/panel/types";
+import type { PopsRightClickMenuDetails } from "./components/rightClickMenu/types";
+import type { PopsSearchSuggestionDetails } from "./components/searchSuggestion/types/index";
 declare class Pops {
     /** 配置 */
     config: {
@@ -207,7 +207,7 @@ declare class Pops {
             division(number1: number, number2: number): number;
         };
         /** pops.panel中用于处理各个类型的工具 */
-        panelHandleContentUtils: () => {
+        PanelHandlerComponents: () => {
             asideULElement: HTMLUListElement;
             sectionContainerHeaderULElement: HTMLUListElement;
             sectionContainerULElement: HTMLUListElement;
@@ -232,22 +232,22 @@ declare class Pops {
             setElementAttributes(element: HTMLElement, attributes?: any): void;
             setElementProps(element: HTMLElement, props?: any): void;
             setElementClassName(element: HTMLElement, className?: string | string[] | (() => string | string[])): void;
-            createAsideItem(asideConfig: import("./components/panel/indexType").PopsPanelContentConfig): HTMLLIElement;
-            createSectionContainerItem_switch(formConfig: import("./components/panel/switchType").PopsPanelSwitchDetails): HTMLLIElement;
-            createSectionContainerItem_slider(formConfig: import("./components/panel/sliderType").PopsPanelSliderDetails): HTMLLIElement;
-            createSectionContainerItem_slider_new(formConfig: import("./components/panel/sliderType").PopsPanelSliderDetails): HTMLLIElement;
-            createSectionContainerItem_input(formConfig: import("./components/panel/inputType").PopsPanelInputDetails): HTMLLIElement;
-            createSectionContainerItem_textarea(formConfig: import("./components/panel/textareaType").PopsPanelTextAreaDetails): HTMLLIElement;
-            createSectionContainerItem_select(formConfig: import("./components/panel/selectType").PopsPanelSelectDetails<any>): HTMLLIElement;
-            createSectionContainerItem_select_multiple_new(formConfig: import("./components/panel/selectMultipleType").PopsPanelSelectMultipleDetails<any>): HTMLLIElement;
-            createSectionContainerItem_button(formConfig: import("./components/panel/buttonType").PopsPanelButtonDetails): HTMLLIElement;
-            createSectionContainerItem_deepMenu(formConfig: import("./components/panel/deepMenuType").PopsPanelDeepMenuDetails): HTMLLIElement;
-            createSectionContainerItem_own(formConfig: import("./components/panel/ownType").PopsPanelOwnDetails): HTMLLIElement;
-            createSectionContainerItem(formConfig: import("./components/panel/indexType").PopsPanelFormsTotalDetails): HTMLLIElement | undefined;
-            createSectionContainerItem_forms(formConfig: import("./components/panel/indexType").PopsPanelContentConfig | import("./components/panel/formsType").PopsPanelFormsDetails): void;
+            createAsideItem(asideConfig: import("./components/panel/types").PopsPanelContentConfig): HTMLLIElement;
+            createSectionContainerItem_switch(formConfig: import("./components/panel/types/components-switch").PopsPanelSwitchDetails): HTMLLIElement;
+            createSectionContainerItem_slider(formConfig: import("./components/panel/types/components-slider").PopsPanelSliderDetails): HTMLLIElement;
+            createSectionContainerItem_slider_new(formConfig: import("./components/panel/types/components-slider").PopsPanelSliderDetails): HTMLLIElement;
+            createSectionContainerItem_input(formConfig: import("./components/panel/types/components-input").PopsPanelInputDetails): HTMLLIElement;
+            createSectionContainerItem_textarea(formConfig: import("./components/panel/types/components-textarea").PopsPanelTextAreaDetails): HTMLLIElement;
+            createSectionContainerItem_select(formConfig: import("./components/panel/types/components-select").PopsPanelSelectDetails<any>): HTMLLIElement;
+            createSectionContainerItem_select_multiple_new(formConfig: import("./components/panel/types/components-selectMultiple").PopsPanelSelectMultipleDetails<any>): HTMLLIElement;
+            createSectionContainerItem_button(formConfig: import("./components/panel/types/components-button").PopsPanelButtonDetails): HTMLLIElement;
+            createSectionContainerItem_deepMenu(formConfig: import("./components/panel/types/components-deepMenu").PopsPanelDeepMenuDetails): HTMLLIElement;
+            createSectionContainerItem_own(formConfig: import("./components/panel/types/components-own").PopsPanelOwnDetails): HTMLLIElement;
+            createSectionContainerItem(formConfig: import("./components/panel/types").PopsPanelFormsTotalDetails): HTMLLIElement | undefined;
+            createSectionContainerItem_forms(formConfig: import("./components/panel/types").PopsPanelContentConfig | import("./components/panel/types/components-forms").PopsPanelFormsDetails): void;
             triggerRenderRightContainer($container: HTMLElement): void;
-            uListContainerAddItem(formConfig: import("./components/panel/indexType").PopsPanelFormsTotalDetails, containerOptions: Omit<import("./components/panel/commonType").PopsPanelRightAsideContainerOptions, "target">): void;
-            setAsideItemClickEvent(asideLiElement: HTMLElement, asideConfig: import("./components/panel/indexType").PopsPanelContentConfig): void;
+            uListContainerAddItem(formConfig: import("./components/panel/types").PopsPanelFormsTotalDetails, containerOptions: Omit<import("./components/panel/types/components-common").PopsPanelRightAsideContainerOptions, "target">): void;
+            setAsideItemClickEvent(asideLiElement: HTMLElement, asideConfig: import("./components/panel/types").PopsPanelContentConfig): void;
         };
     };
     init(): void;
@@ -269,11 +269,11 @@ declare class Pops {
         config: {
             style?: string | (() => string) | null;
             zIndex?: (number | (() => number) | null) | (string | (() => string) | null);
-        } & Partial<import("./types/components").PopsCommonConfig>;
+        } & Partial<import("./types/components").PopsCommonConfig> & Partial<import("./types/components").PopsDragConfig>;
         setGlobalConfig(config: {
             style?: string | (() => string) | null;
             zIndex?: (number | (() => number) | null) | (string | (() => string) | null);
-        } & Partial<import("./types/components").PopsCommonConfig>): void;
+        } & Partial<import("./types/components").PopsCommonConfig> & Partial<import("./types/components").PopsDragConfig>): void;
         getGlobalConfig(): {
             style?: string | undefined;
             zIndex?: string | number | undefined;
@@ -287,6 +287,11 @@ declare class Pops {
             mask?: import("./types/mask").PopsMaskDetails | undefined;
             forbiddenScroll?: boolean | undefined;
             beforeAppendToPageCallBack?: void;
+            drag?: boolean | undefined;
+            dragLimit?: boolean | undefined;
+            dragExtraDistance?: number | undefined;
+            dragMoveCallBack?: void;
+            dragEndCallBack?: void;
         };
     };
     /**
@@ -326,7 +331,7 @@ declare class Pops {
             target: HTMLElement;
             content: string | (() => string);
             isDiffContent: boolean;
-            position: import("./components/tooltip/indexType").PopsTooltipPosition;
+            position: import("./components/tooltip/types/index").PopsTooltipPosition;
             className: string;
             isFixed: boolean;
             alwaysShow: boolean;
@@ -385,8 +390,8 @@ declare class Pops {
      * @param details 配置
      */
     panel: (details: PopsPanelDetails) => {
-        addEventListener: <K extends keyof import("./components/panel/indexType").PopsPanelEventType>(event: K, listener: (evt: CustomEvent<import("./components/panel/indexType").PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;
-        removeEventListener: <K extends keyof import("./components/panel/indexType").PopsPanelEventType>(event: K, listener: (evt: CustomEvent<import("./components/panel/indexType").PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;
+        addEventListener: <K extends keyof import("./components/panel/types").PopsPanelEventType>(event: K, listener: (evt: CustomEvent<import("./components/panel/types").PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;
+        removeEventListener: <K extends keyof import("./components/panel/types").PopsPanelEventType>(event: K, listener: (evt: CustomEvent<import("./components/panel/types").PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;
         close: () => Promise<void>;
         hide: () => Promise<void>;
         show: () => Promise<void>;
@@ -406,7 +411,7 @@ declare class Pops {
     rightClickMenu: (details: PopsRightClickMenuDetails) => {
         guid: string;
         config: {
-            target: Node | HTMLElement | {
+            target: HTMLElement | Node | {
                 addEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) => void;
                 dispatchEvent: (event: Event) => boolean;
                 removeEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean) => void;
@@ -21068,7 +21073,7 @@ declare class Pops {
      * @param details 配置
      */
     searchSuggestion: <T = any>(details: PopsSearchSuggestionDetails<T>) => {
-        selfDocument: Document | ShadowRoot | (Document | ShadowRoot)[];
+        selfDocument: ShadowRoot | Document | (ShadowRoot | Document)[];
         $el: {
             root: HTMLElement;
             $hintULContainer: HTMLUListElement;

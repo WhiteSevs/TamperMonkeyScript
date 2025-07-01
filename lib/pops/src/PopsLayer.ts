@@ -1,17 +1,18 @@
 import type { PopsLayerCommonConfig } from "./types/layer";
 import type { PopsLayerMode } from "./types/main";
 
-export const PopsLayer = {
+export const PopsLayerData: {
+	[key in PopsLayerMode]: PopsLayerCommonConfig[];
+} = {
 	alert: [],
 	confirm: [],
-	prompt: [],
-	loading: [],
-	iframe: [],
-	tooltip: [],
 	drawer: [],
 	folder: [],
+	iframe: [],
+	loading: [],
 	panel: [],
+	prompt: [],
 	rightClickMenu: [],
-} as {
-	[key in PopsLayerMode]: PopsLayerCommonConfig[];
+	// 没有 searchSuggestion
+	tooltip: [],
 };

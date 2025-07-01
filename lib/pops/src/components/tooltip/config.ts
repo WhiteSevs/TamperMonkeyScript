@@ -1,4 +1,4 @@
-import type { PopsToolTipDetails } from "./indexType";
+import type { PopsToolTipDetails } from "./types/index";
 
 export const PopsTooltipConfig = (): DeepRequired<PopsToolTipDetails> => {
 	// @ts-ignore

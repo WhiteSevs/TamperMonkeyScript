@@ -7,8 +7,8 @@ import type {
 	PopsDOMUtils_Event,
 	PopsDOMUtilsElementEventType,
 } from "../types/PopsDOMUtilsEventType";
-import { SymbolEvents } from "../Config";
-import { OriginPrototype, PopsCore } from "../Core";
+import { SymbolEvents } from "./PopsDOMUtilsEventsConfig";
+import { OriginPrototype, PopsCore } from "../PopsCore";
 import { popsUtils } from "./PopsUtils";
 import { PopsSafeUtils } from "./PopsSafeUtils";
 

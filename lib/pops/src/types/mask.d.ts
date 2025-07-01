@@ -1,10 +1,10 @@
-import type { PopsAlertDetails } from "../components/alert/indexType";
-import type { PopsDrawerDetails } from "../components/drawer/indexType";
-import type { PopsFolderDetails } from "../components/folder/indexType";
-import type { PopsIframeDetails } from "../components/iframe/indexType";
-import type { PopsLoadingDetails } from "../components/loading/indexType";
-import type { PopsPanelDetails } from "../components/panel/indexType";
-import type { PopsPromptDetails } from "../components/prompt/indexType";
+import type { PopsAlertDetails } from "../components/alert/types";
+import type { PopsDrawerDetails } from "../components/drawer/types";
+import type { PopsFolderDetails } from "../components/folder/types";
+import type { PopsIframeDetails } from "../components/iframe/types";
+import type { PopsLoadingDetails } from "../components/loading/types";
+import type { PopsPanelDetails } from "../components/panel/types";
+import type { PopsPromptDetails } from "../components/prompt/types/index";
 
 /**
  * 遮罩层配置

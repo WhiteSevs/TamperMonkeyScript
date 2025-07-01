@@ -1,4 +1,4 @@
-import type { PopsIframeDetails } from "./indexType";
+import type { PopsIframeDetails } from "./types";
 
 export const PopsIframeConfig = (): DeepRequired<PopsIframeDetails> => {
 	return {

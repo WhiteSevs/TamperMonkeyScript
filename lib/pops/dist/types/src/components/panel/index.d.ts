@@ -1,4 +1,4 @@
-import type { PopsPanelDetails, PopsPanelEventType } from "./indexType";
+import type { PopsPanelDetails, PopsPanelEventType } from "./types";
 export declare const PopsPanel: {
     init(details: PopsPanelDetails): {
         addEventListener: <K extends keyof PopsPanelEventType>(event: K, listener: (evt: CustomEvent<PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;

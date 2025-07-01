@@ -1,4 +1,4 @@
-import type { PopsToolTipDetails } from "./indexType";
+import type { PopsToolTipDetails } from "./types/index";
 type ToolTipEventTypeName = "MouseEvent" | "TouchEvent";
 export declare class ToolTip {
     $el: {
@@ -185,7 +185,7 @@ export declare const PopsTooltip: {
             target: HTMLElement;
             content: string | (() => string);
             isDiffContent: boolean;
-            position: import("./indexType").PopsTooltipPosition;
+            position: import("./types/index").PopsTooltipPosition;
             className: string;
             isFixed: boolean;
             alwaysShow: boolean;

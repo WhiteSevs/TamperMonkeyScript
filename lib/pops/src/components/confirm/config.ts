@@ -1,4 +1,4 @@
-import type { PopsConfirmDetails } from "./indexType";
+import type { PopsConfirmDetails } from "./types";
 
 export const PopsConfirmConfig = (): DeepRequired<PopsConfirmDetails> => {
 	return {

@@ -1,4 +1,4 @@
-import type { PopsSearchSuggestionDetails } from "./indexType";
+import type { PopsSearchSuggestionDetails } from "./types/index";
 
 export const searchSuggestionConfig =
 	(): DeepRequired<PopsSearchSuggestionDetails> => {

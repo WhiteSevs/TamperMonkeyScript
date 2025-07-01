@@ -1,6 +1,34 @@
-import type { PopsIconType } from "./types/icon";
 export declare const PopsIcon: {
-    $data: { [key in PopsIconType]: string; };
+    $data: {
+        loading: string;
+        min: string;
+        max: string;
+        mise: string;
+        close: string;
+        edit: string;
+        share: string;
+        delete: string;
+        search: string;
+        upload: string;
+        next: string;
+        prev: string;
+        eleme: string;
+        elemePlus: string;
+        chromeFilled: string;
+        cpu: string;
+        videoPlay: string;
+        videoPause: string;
+        headset: string;
+        monitor: string;
+        documentCopy: string;
+        picture: string;
+        circleClose: string;
+        view: string;
+        hide: string;
+        keyboard: string;
+        arrowRight: string;
+        arrowLeft: string;
+    };
     /**
      * 判断是否存在某个icon
      * @param iconName 图标名
