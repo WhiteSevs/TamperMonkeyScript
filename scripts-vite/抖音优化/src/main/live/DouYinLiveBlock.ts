@@ -230,6 +230,9 @@ export const DouYinLiveBlock = {
 							"xg-icon.pluginContainer > div:contains('屏蔽礼物特效')"
 						) ||
 						DOMUtils.selector<HTMLElement>(
+							`xg-icon[classname*="pluginContainer"] > div:contains('屏蔽礼物特效')`
+						) ||
+						DOMUtils.selector<HTMLElement>(
 							'.douyin-player-controls-right > slot > div:has([data-e2e="effect-switch"])'
 						)
 					);
