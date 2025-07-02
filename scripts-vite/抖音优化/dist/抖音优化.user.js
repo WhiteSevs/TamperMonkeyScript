@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.29
+// @version      2025.7.2
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -5357,6 +5357,8 @@
           return domUtils.selector(
             "xg-icon.pluginContainer > div:contains('屏蔽礼物特效')"
           ) || domUtils.selector(
+            `xg-icon[classname*="pluginContainer"] > div:contains('屏蔽礼物特效')`
+          ) || domUtils.selector(
             '.douyin-player-controls-right > slot > div:has([data-e2e="effect-switch"])'
           );
         }, 1e4).then(($el) => {
@@ -8591,7 +8593,7 @@
      */
     getRuleViewInstance() {
       const that = this;
-      let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
+      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -8648,7 +8650,7 @@
                 PROPS_STORAGE_API,
                 generateStorageApi(data)
               );
-              let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(
                 enable_template
               );
               let name_template = UIInput(
@@ -8664,7 +8666,7 @@
                 PROPS_STORAGE_API,
                 generateStorageApi(data)
               );
-              let $name = popsPanelContentUtils.createSectionContainerItem_input(
+              let $name = panelHandlerComponents.createSectionContainerItem_input(
                 name_template
               );
               let scope_template = UISelectMultiple(
@@ -8723,7 +8725,7 @@
                 PROPS_STORAGE_API,
                 generateStorageApi(data.data)
               );
-              let $scope = popsPanelContentUtils.createSectionContainerItem_select_multiple_new(
+              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(
                 scope_template
               );
               let douYinVideoHandlerInfoKey = [
@@ -8777,7 +8779,7 @@
                   PROPS_STORAGE_API,
                   generateStorageApi(storageData)
                 );
-                let $ruleName2 = popsPanelContentUtils.createSectionContainerItem_select_multiple_new(
+                let $ruleName2 = panelHandlerComponents.createSectionContainerItem_select_multiple_new(
                   ruleName_template
                 );
                 let ruleValue_template = UITextArea(
@@ -8791,7 +8793,7 @@
                   PROPS_STORAGE_API,
                   generateStorageApi(storageData)
                 );
-                let $ruleValue2 = popsPanelContentUtils.createSectionContainerItem_textarea(
+                let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(
                   ruleValue_template
                 );
                 let remarks_template = UITextArea(
@@ -8805,7 +8807,7 @@
                   PROPS_STORAGE_API,
                   generateStorageApi(storageData)
                 );
-                let $remarks2 = popsPanelContentUtils.createSectionContainerItem_textarea(
+                let $remarks2 = panelHandlerComponents.createSectionContainerItem_textarea(
                   remarks_template
                 );
                 return {
