@@ -20,10 +20,14 @@ import { PanelMenu } from "./panel-menu";
 import { PanelContent } from "./panel-content";
 
 type ExecMenuCallBackOption = {
-	/** 主动添加<style>元素，一般用于异步函数使用 */
-	addStyleElement: (style: HTMLStyleElement | HTMLStyleElement[]) => void;
-	/** 值 */
+	/**
+	 * 当前菜单项的值
+	 */
 	value: any;
+	/**
+	 * 主动添加<style>元素，一般用于异步函数主动使用
+	 */
+	addStyleElement: (style: HTMLStyleElement | HTMLStyleElement[]) => void;
 };
 
 /**
@@ -322,6 +326,7 @@ const Panel = {
 		} else {
 			queryKeyFn = queryKey;
 		}
+		// 执行的键名是否是数组格式
 		let isArrayKey = false;
 		let queryKeyResult = queryKeyFn();
 		/** 所有的键名 */
@@ -351,30 +356,36 @@ const Panel = {
 			this.$data.onceExecMenuData.set(storageKey, 1);
 		}
 		/**
-		 * 存储的<style>标签列表
+		 * 存储菜单返回的值
+		 *
+		 * 例如：元素
 		 */
-		let storeStyleElements: HTMLStyleElement[] = [];
+		let storeValueList: HTMLStyleElement[] = [];
 		/** 所有监听的id列表 */
 		let listenerIdList: number[] = [];
 		/**
 		 * 主动添加<style>标签的回调
 		 */
-		let dynamicPushStyleNode = (
+		let dynamicAddStyleNodeCallback = (
 			value: boolean,
 			$style: HTMLStyleElement | HTMLStyleElement[]
 		) => {
 			let dynamicResultList: HTMLStyleElement[] = [];
-			if ($style instanceof HTMLStyleElement) {
-				dynamicResultList = [$style];
-			} else if (Array.isArray($style)) {
-				dynamicResultList = [
-					...$style.filter(
-						(item) => item != null && item instanceof HTMLStyleElement
-					),
-				];
+			if (!Array.isArray($style)) {
+				$style = [$style];
 			}
+			$style.forEach(($styleItem) => {
+				if ($styleItem == null) {
+					return;
+				}
+				if ($styleItem instanceof HTMLStyleElement) {
+					// 元素
+					dynamicResultList.push($styleItem);
+					return;
+				}
+			});
 			if (value) {
-				storeStyleElements = storeStyleElements.concat(dynamicResultList);
+				storeValueList = storeValueList.concat(dynamicResultList);
 			} else {
 				for (let index = 0; index < dynamicResultList.length; index++) {
 					let $css = dynamicResultList[index];
@@ -392,20 +403,20 @@ const Panel = {
 			return value;
 		};
 		/**
-		 * 清空存储的元素列表
+		 * 清空之前存储的值（例如：元素）
 		 */
-		let clearStoreStyleElements = () => {
-			for (let index = 0; index < storeStyleElements.length; index++) {
-				let $css = storeStyleElements[index];
+		let clearBeforeStoreValue = () => {
+			for (let index = 0; index < storeValueList.length; index++) {
+				let $css = storeValueList[index];
 				$css.remove();
-				storeStyleElements.splice(index, 1);
+				storeValueList.splice(index, 1);
 				index--;
 			}
 		};
 		/**
 		 * 判断执行
 		 */
-		let __checkExec__ = () => {
+		let checkMenuExec = () => {
 			let flag = false;
 			if (typeof checkExec === "function") {
 				flag = checkExec(keyList);
@@ -415,45 +426,52 @@ const Panel = {
 			return flag;
 		};
 		/** 值改变触发的回调 */
-		let valueChange = (valueOption?: {
+		let valueChangeCallback = (valueOption?: {
 			key: string;
 			newValue: any;
 			oldValue: any;
 		}) => {
-			let execFlag = __checkExec__();
+			let execFlag = checkMenuExec();
 			let resultList: HTMLStyleElement[] = [];
 			if (execFlag) {
 				// 开启，执行回调
 				let valueList = keyList.map((key) => this.getValue(key));
-				let $styles = callback({
-					addStyleElement: (...args) => {
-						return dynamicPushStyleNode(true, ...args);
-					},
+				let callbackResult = callback({
 					value: isArrayKey ? valueList : valueList[0],
+					addStyleElement: (...args) => {
+						return dynamicAddStyleNodeCallback(true, ...args);
+					},
 				});
-				if ($styles instanceof HTMLStyleElement) {
-					resultList.push($styles);
-				} else if (Array.isArray($styles)) {
-					resultList.push(
-						...$styles.filter(
-							(item) => item != null && item instanceof HTMLStyleElement
-						)
-					);
+				if (!Array.isArray(callbackResult)) {
+					callbackResult = [callbackResult];
 				}
+				callbackResult.forEach((it: any) => {
+					if (it == null) {
+						return;
+					}
+					if (it instanceof HTMLStyleElement) {
+						// 元素
+						resultList.push(it);
+						return;
+					}
+					if (typeof it === "function") {
+						// 函数
+					}
+				});
 			} else {
 				// 关闭状态
 			}
 			// 清理之前存储的元素列表
-			clearStoreStyleElements();
+			clearBeforeStoreValue();
 			// 存储元素列表
-			storeStyleElements = [...resultList];
+			storeValueList = [...resultList];
 		};
 		once &&
 			keyList.forEach((key) => {
 				let listenerId = this.addValueChangeListener(
 					key,
 					(key, newValue, oldValue) => {
-						valueChange({
+						valueChangeCallback({
 							key,
 							newValue,
 							oldValue,
@@ -462,7 +480,7 @@ const Panel = {
 				);
 				listenerIdList.push(listenerId);
 			});
-		valueChange();
+		valueChangeCallback();
 
 		let result = {
 			/**
@@ -481,7 +499,7 @@ const Panel = {
 			 * 清空存储的元素列表
 			 */
 			clearStoreStyleElements: () => {
-				return clearStoreStyleElements();
+				return clearBeforeStoreValue();
 			},
 			/**
 			 * 移除值改变的监听器
