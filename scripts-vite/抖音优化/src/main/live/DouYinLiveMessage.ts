@@ -1,4 +1,4 @@
-import { $$, DOMUtils, log, utils } from "@/env";
+import { $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { Panel } from "@components/setting/panel";
 import { GM_getValue, GM_setValue } from "ViteGM";
@@ -211,5 +211,14 @@ export const DouYinLiveMessage = {
 				},
 			});
 		});
+
+		return [
+			addStyle(/*css*/ `
+				/* 修复一下聊天室屏蔽了某些聊天导致上下抖动不停 */
+				.webcast-chatroom___list > div{
+					height: auto !important;
+				}
+			`),
+		];
 	},
 };

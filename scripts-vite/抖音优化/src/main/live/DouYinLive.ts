@@ -61,7 +61,7 @@ export const DouYinLive = {
 		DouYinLiveBlock.init();
 		DouYinLiveShortCut.init();
 		Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
-			DouYinLiveMessage.filterMessage();
+			return DouYinLiveMessage.filterMessage();
 		});
 		Panel.execMenu("live-unlockImageQuality", () => {
 			this.unlockImageQuality();
