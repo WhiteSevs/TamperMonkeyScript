@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.4
+// @version      2025.7.7
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5138,6 +5138,17 @@
           }
         });
       });
+      return [
+        addStyle(
+          /*css*/
+          `
+				/* 修复一下聊天室屏蔽了某些聊天导致上下抖动不停 */
+				.webcast-chatroom___list > div{
+					height: auto !important;
+				}
+			`
+        )
+      ];
     }
   };
   const DouYinLiveBlock_ChatRoom = {
@@ -5603,7 +5614,7 @@
       DouYinLiveBlock.init();
       DouYinLiveShortCut.init();
       Panel.execMenuOnce("live-danmu-shield-rule-enable", () => {
-        DouYinLiveMessage.filterMessage();
+        return DouYinLiveMessage.filterMessage();
       });
       Panel.execMenu("live-unlockImageQuality", () => {
         this.unlockImageQuality();
@@ -11969,52 +11980,52 @@
             true,
             void 0,
             "在用户信息区域下方显示当前用户的uid"
-          ),
-          UIButton(
-            "跳转至用户主页",
-            "输入用户UID自动跳转至用户主页",
-            "跳转",
-            void 0,
-            false,
-            false,
-            "default",
-            async (evt) => {
-              utils.preventEvent(evt);
-              let uid = prompt("请输入用户UID");
-              if (typeof uid !== "string") {
-                return;
-              }
-              let url = `https://www.toutiao.com/c/user/${uid}/`;
-              let urlInst = new URL(url);
-              let response = await httpx.options(url, {
-                allowInterceptConfig: false,
-                headers: {
-                  "User-Agent": utils.getRandomPCUA(),
-                  Host: urlInst.hostname,
-                  Origin: urlInst.origin,
-                  Referer: "https://www.toutiao.com/"
-                }
-              });
-              if (!response.status) {
-                log.error(response);
-                Qmsg.error("获取用户sec_uid失败", { consoleLogContent: true });
-                return;
-              }
-              let finalUrl = response.data.finalUrl;
-              let sec_uid_match = finalUrl.match(/\/user\/token\/(.+)\//);
-              if (!sec_uid_match) {
-                Qmsg.error("正则获取用户sec_uid失败", {
-                  consoleLogContent: true
-                });
-                return;
-              }
-              let sec_uid = sec_uid_match[sec_uid_match.length - 1];
-              let userHomeUrl = DouYinUrlUtils.getUserHomeUrl(sec_uid);
-              log.info(`用户sec_uid：` + sec_uid);
-              log.info(`用户主页链接：` + userHomeUrl);
-              window.open(userHomeUrl, "_blank");
-            }
           )
+          // UIButton(
+          // 	"跳转至用户主页",
+          // 	"输入用户UID自动跳转至用户主页",
+          // 	"跳转",
+          // 	void 0,
+          // 	false,
+          // 	false,
+          // 	"default",
+          // 	async (evt) => {
+          // 		utils.preventEvent(evt);
+          // 		let uid = prompt("请输入用户UID");
+          // 		if (typeof uid !== "string") {
+          // 			return;
+          // 		}
+          // 		let url = `https://www.toutiao.com/c/user/${uid}/`;
+          // 		let urlInst = new URL(url);
+          // 		let response = await httpx.options(url, {
+          // 			allowInterceptConfig: false,
+          // 			headers: {
+          // 				"User-Agent": utils.getRandomPCUA(),
+          // 				Host: urlInst.hostname,
+          // 				Origin: urlInst.origin,
+          // 				Referer: "https://www.toutiao.com/",
+          // 			},
+          // 		});
+          // 		if (!response.status) {
+          // 			log.error(response);
+          // 			Qmsg.error("获取用户sec_uid失败", { consoleLogContent: true });
+          // 			return;
+          // 		}
+          // 		let finalUrl = response.data.finalUrl;
+          // 		let sec_uid_match = finalUrl.match(/\/user\/token\/(.+)\//);
+          // 		if (!sec_uid_match) {
+          // 			Qmsg.error("正则获取用户sec_uid失败", {
+          // 				consoleLogContent: true,
+          // 			});
+          // 			return;
+          // 		}
+          // 		let sec_uid = sec_uid_match[sec_uid_match.length - 1];
+          // 		let userHomeUrl = DouYinUrlUtils.getUserHomeUrl(sec_uid);
+          // 		log.info(`用户sec_uid：` + sec_uid);
+          // 		log.info(`用户主页链接：` + userHomeUrl);
+          // 		window.open(userHomeUrl, "_blank");
+          // 	}
+          // ),
         ]
       }
     ]
