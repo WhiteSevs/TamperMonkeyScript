@@ -2,7 +2,7 @@ import { log } from "@/env";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { UITextArea } from "@components/setting/components/ui-textarea";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 
 export const PanelCommonSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-common",

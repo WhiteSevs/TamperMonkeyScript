@@ -1,6 +1,6 @@
 import { BaiduRouter } from "@/router/BaiduRouter";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 
 const PanelFanYiSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-fanyi",

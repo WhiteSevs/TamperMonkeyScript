@@ -4,7 +4,7 @@ import { BaiduRouter } from "@/router/BaiduRouter";
 import { UIButton } from "@components/setting/components/ui-button";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import Qmsg from "qmsg";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { TiebaPCApi } from "@/main/tieba/api/TiebaPCApi";
 import { TiebaUniAppCommentFilter } from "@/main/tieba/uni-app-post/TiebaUniAppCommentFilter";
 import { TiebaUniAppComponentDetectionRule } from "@/main/tieba/uni-app-post/TiebaUniAppComponentDetectionRule";

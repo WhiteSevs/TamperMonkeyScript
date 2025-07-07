@@ -4,7 +4,7 @@ import { BaiduRouter } from "@/router/BaiduRouter";
 import { Panel } from "@components/setting/panel";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import Qmsg from "qmsg";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { ATTRIBUTE_KEY } from "@components/setting/panel-config";
 
 const PanelSearchSettingUI: PopsPanelContentConfig = {

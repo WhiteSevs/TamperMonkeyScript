@@ -137,7 +137,7 @@ export const TiebaUniAppCommentFilter = {
 	 */
 	showView() {
 		const that = this;
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		/**
 		 * 自定义存储api的配置
 		 * @param uuid
@@ -202,7 +202,7 @@ export const TiebaUniAppCommentFilter = {
 							generateStorageApi(data)
 						);
 						let $enable =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								enable_template
 							);
 
@@ -221,7 +221,7 @@ export const TiebaUniAppCommentFilter = {
 							generateStorageApi(data)
 						);
 						let $name =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								name_template
 							);
 
@@ -240,7 +240,7 @@ export const TiebaUniAppCommentFilter = {
 							generateStorageApi(data)
 						);
 						let $author_id =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								author_id_template
 							);
 						// 用户显示的名字
@@ -259,7 +259,7 @@ export const TiebaUniAppCommentFilter = {
 						);
 
 						let $author_nameShow =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								author_nameShow_template
 							);
 
@@ -270,7 +270,7 @@ export const TiebaUniAppCommentFilter = {
 							generateStorageApi(data)
 						);
 						let $content =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								content_template
 							);
 

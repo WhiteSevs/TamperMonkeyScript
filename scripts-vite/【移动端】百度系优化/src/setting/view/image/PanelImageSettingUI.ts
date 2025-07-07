@@ -1,5 +1,5 @@
 import { BaiduRouter } from "@/router/BaiduRouter";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 
 const PanelImageSettingUI: PopsPanelContentConfig = {
 	id: "baidu-panel-config-image",
