@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.12
+// @version      2025.7.7
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -9,18 +9,18 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@d07c6a5fb222dd87da5e7cb5da06730e4a557711/lib/Eruda/index.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@734ba267afee2a5995d15dc419e754a19532cbf4/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@85cf0165a124dc4672a939ab9b6d707850d58b25/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
 // @resource     Resource_erudaFeatures        https://fastly.jsdelivr.net/npm/eruda-features@2.1.0
 // @resource     Resource_erudaGeolocation     https://fastly.jsdelivr.net/gh/WhiteSevs/eruda-geolocation@38b60386bcb6280de4cccac7b31169a2abdb2edf/eruda-geolocation.js
-// @resource     Resource_erudaMonitor         https://fastly.jsdelivr.net/npm/eruda-monitor@1.1.1
+// @resource     Resource_erudaMonitor         https://fastly.jsdelivr.net/npm/eruda-monitor@1.1.2
 // @resource     Resource_erudaOrientation     https://fastly.jsdelivr.net/npm/eruda-orientation@2.1.1
 // @resource     Resource_erudaOutlinePlugin   https://fastly.jsdelivr.net/npm/eruda-outline-plugin@0.0.5
 // @resource     Resource_erudaPixel           https://fastly.jsdelivr.net/npm/eruda-pixel@1.0.13
@@ -45,10 +45,6 @@
 (function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
-  var __defProp = Object.defineProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  var _a;
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -84,7 +80,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -138,11 +134,10 @@
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        var _a2;
-        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+        if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
-        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
           return false;
         }
       });
@@ -245,6 +240,9 @@
     }
   };
   class StorageUtils {
+    /** 存储的键名 */
+    storageKey;
+    listenerData;
     /**
      * 存储的键名，可以是多层的，如：a.b.c
      *
@@ -261,9 +259,6 @@
      * @param key
      */
     constructor(key) {
-      /** 存储的键名 */
-      __publicField(this, "storageKey");
-      __publicField(this, "listenerData");
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -818,36 +813,39 @@
         }
         this.$data.onceExecMenuData.set(storageKey, 1);
       }
-      let storeStyleElements = [];
+      let storeValueList = [];
       let listenerIdList = [];
-      let dynamicPushStyleNode = (value, $style) => {
+      let dynamicAddStyleNodeCallback = (value, $style) => {
         let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
+        if (!Array.isArray($style)) {
+          $style = [$style];
         }
+        $style.forEach(($styleItem) => {
+          if ($styleItem == null) {
+            return;
+          }
+          if ($styleItem instanceof HTMLStyleElement) {
+            dynamicResultList.push($styleItem);
+            return;
+          }
+        });
         {
-          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+          storeValueList = storeValueList.concat(dynamicResultList);
         }
       };
       let getMenuValue = (key) => {
         let value = this.getValue(key);
         return value;
       };
-      let clearStoreStyleElements = () => {
-        for (let index = 0; index < storeStyleElements.length; index++) {
-          let $css = storeStyleElements[index];
+      let clearBeforeStoreValue = () => {
+        for (let index = 0; index < storeValueList.length; index++) {
+          let $css = storeValueList[index];
           $css.remove();
-          storeStyleElements.splice(index, 1);
+          storeValueList.splice(index, 1);
           index--;
         }
       };
-      let __checkExec__ = () => {
+      let checkMenuExec = () => {
         let flag = false;
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
@@ -856,40 +854,43 @@
         }
         return flag;
       };
-      let valueChange = (valueOption) => {
-        let execFlag = __checkExec__();
+      let valueChangeCallback = (valueOption) => {
+        let execFlag = checkMenuExec();
         let resultList = [];
         if (execFlag) {
           let valueList = keyList.map((key) => this.getValue(key));
-          let $styles = callback({
+          let callbackResult = callback({
+            value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
-              return dynamicPushStyleNode(true, ...args);
-            },
-            value: isArrayKey ? valueList : valueList[0]
+              return dynamicAddStyleNodeCallback(true, ...args);
+            }
           });
-          if ($styles instanceof HTMLStyleElement) {
-            resultList.push($styles);
-          } else if (Array.isArray($styles)) {
-            resultList.push(
-              ...$styles.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            );
+          if (!Array.isArray(callbackResult)) {
+            callbackResult = [callbackResult];
           }
+          callbackResult.forEach((it) => {
+            if (it == null) {
+              return;
+            }
+            if (it instanceof HTMLStyleElement) {
+              resultList.push(it);
+              return;
+            }
+          });
         }
-        clearStoreStyleElements();
-        storeStyleElements = [...resultList];
+        clearBeforeStoreValue();
+        storeValueList = [...resultList];
       };
       once && keyList.forEach((key) => {
         let listenerId = this.addValueChangeListener(
           key,
           (key2, newValue, oldValue) => {
-            valueChange();
+            valueChangeCallback();
           }
         );
         listenerIdList.push(listenerId);
       });
-      valueChange();
+      valueChangeCallback();
       let result = {
         /**
          * 清空菜单执行情况
@@ -907,7 +908,7 @@
          * 清空存储的元素列表
          */
         clearStoreStyleElements: () => {
-          return clearStoreStyleElements();
+          return clearBeforeStoreValue();
         },
         /**
          * 移除值改变的监听器
@@ -1065,7 +1066,7 @@
 `);
     }
   };
-  const versionJSON = '{\n  "eruda": {\n    "version": "3.4.1",\n    "plugin": {\n      "eruda-monitor": "1.1.1",\n      "eruda-features": "2.1.0",\n      "eruda-timing": "2.0.1",\n      "eruda-code": "2.2.0",\n      "eruda-benchmark": "2.0.1",\n      "eruda-orientation": "2.1.1",\n      "eruda-vue": "1.1.1",\n      "eruda-touches": "2.1.0",\n      "eruda-outline-plugin": "0.0.5",\n      "eruda-pixel": "1.0.13"\n    }\n  },\n  "vconsole": {\n    "version": "3.15.1",\n    "plugin": {\n      "vue-vconsole-devtools": "1.0.9"\n    }\n  },\n  "@huolala-tech/page-spy-browser": {\n    "version": "2.2.4"\n  }\n}';
+  const versionJSON = '{\n  "eruda": {\n    "version": "3.4.3",\n    "plugin": {\n      "eruda-monitor": "1.1.2",\n      "eruda-features": "2.1.0",\n      "eruda-timing": "2.0.1",\n      "eruda-code": "2.2.0",\n      "eruda-benchmark": "2.0.1",\n      "eruda-orientation": "2.1.1",\n      "eruda-vue": "1.1.1",\n      "eruda-touches": "2.1.0",\n      "eruda-outline-plugin": "0.0.5",\n      "eruda-pixel": "1.0.13"\n    }\n  },\n  "vconsole": {\n    "version": "3.15.1",\n    "plugin": {\n      "vue-vconsole-devtools": "1.0.9"\n    }\n  },\n  "@huolala-tech/page-spy-browser": {\n    "version": "2.2.4"\n  }\n}';
   const DebugToolVersionConfig = JSON.parse(versionJSON);
   const DebugToolConfig = {
     eruda: {
@@ -1686,71 +1687,12 @@
       };
     };
     class VConsoleStatsPlugin {
+      vConsole;
+      VConsole;
+      dom;
+      requestID;
+      stats;
       constructor(vConsole22, VConsole2) {
-        __publicField(this, "vConsole");
-        __publicField(this, "VConsole");
-        __publicField(this, "dom");
-        __publicField(this, "requestID");
-        __publicField(this, "stats");
-        __publicField(this, "addStyle", (target) => {
-          if (target == null) {
-            target = document.head || document.body || document.documentElement;
-          }
-          const cssNode = document.createElement("style");
-          cssNode.setAttribute("type", "text/css");
-          cssNode.innerHTML = /*css*/
-          `
-            .vc-stats-button{
-                margin: 10px 10px;
-                background-color: #fbf9fe;
-                padding: 2px 4px;
-                cursor: pointer;
-                border-radius: 4px;
-                border: 1px solid;
-            }
-            .vc-button-container{
-                display: flex;
-                align-items: center;
-            }
-            .vc-description{
-                display: flex;
-                flex-direction: column;
-            }
-            .vc-description a.vc-link{
-                color: blue;
-            }`;
-          target.appendChild(cssNode);
-        });
-        __publicField(this, "show", () => {
-          if (!this.stats) {
-            this.stats = new Stats();
-            this.stats.showPanel(1);
-            this.dom = this.stats.dom;
-            document.body.appendChild(this.dom);
-            this.requestID = requestAnimationFrame(this.loop);
-          }
-        });
-        __publicField(this, "changePanel", (type) => {
-          if (!this.stats) {
-            this.show();
-          }
-          this.stats.setMode(Number(type));
-        });
-        __publicField(this, "loop", () => {
-          this.stats.update();
-          this.requestID = requestAnimationFrame(this.loop);
-        });
-        __publicField(this, "close", () => {
-          if (this.requestID) {
-            cancelAnimationFrame(this.requestID);
-          }
-          if (this.dom) {
-            document.body.removeChild(this.dom);
-          }
-          this.stats = null;
-          this.requestID = null;
-          this.dom = null;
-        });
         this.vConsole = vConsole22;
         this.VConsole = VConsole2;
         this.dom = null;
@@ -1821,48 +1763,76 @@
         this.vConsole.addPlugin(vConsoleStats);
         return vConsoleStats;
       }
+      addStyle = (target) => {
+        if (target == null) {
+          target = document.head || document.body || document.documentElement;
+        }
+        const cssNode = document.createElement("style");
+        cssNode.setAttribute("type", "text/css");
+        cssNode.innerHTML = /*css*/
+        `
+            .vc-stats-button{
+                margin: 10px 10px;
+                background-color: #fbf9fe;
+                padding: 2px 4px;
+                cursor: pointer;
+                border-radius: 4px;
+                border: 1px solid;
+            }
+            .vc-button-container{
+                display: flex;
+                align-items: center;
+            }
+            .vc-description{
+                display: flex;
+                flex-direction: column;
+            }
+            .vc-description a.vc-link{
+                color: blue;
+            }`;
+        target.appendChild(cssNode);
+      };
+      show = () => {
+        if (!this.stats) {
+          this.stats = new Stats();
+          this.stats.showPanel(1);
+          this.dom = this.stats.dom;
+          document.body.appendChild(this.dom);
+          this.requestID = requestAnimationFrame(this.loop);
+        }
+      };
+      changePanel = (type) => {
+        if (!this.stats) {
+          this.show();
+        }
+        this.stats.setMode(Number(type));
+      };
+      loop = () => {
+        this.stats.update();
+        this.requestID = requestAnimationFrame(this.loop);
+      };
+      close = () => {
+        if (this.requestID) {
+          cancelAnimationFrame(this.requestID);
+        }
+        if (this.dom) {
+          document.body.removeChild(this.dom);
+        }
+        this.stats = null;
+        this.requestID = null;
+        this.dom = null;
+      };
     }
     return new VConsoleStatsPlugin(vConsole2, VConsole);
   };
   const vConsolePluginExportLog = (vConsole2, VConsole) => {
     class VConsoleOutputLogsPlugin {
+      vConsole;
+      VConsole;
+      $;
+      dom;
+      logItemSelector;
       constructor(vConsole22, VConsole2, logItemSelector) {
-        __publicField(this, "vConsole");
-        __publicField(this, "VConsole");
-        __publicField(this, "$");
-        __publicField(this, "dom");
-        __publicField(this, "logItemSelector");
-        __publicField(this, "funDownload", (content, filename) => {
-          var eleLink = document.createElement("a");
-          eleLink.download = filename;
-          eleLink.style.display = "none";
-          var blob = new Blob([content]);
-          eleLink.href = URL.createObjectURL(blob);
-          document.body.appendChild(eleLink);
-          eleLink.click();
-          document.body.removeChild(eleLink);
-        });
-        __publicField(this, "getAllLogContent", () => {
-          let logRowsElement = document.querySelectorAll(this.logItemSelector);
-          let logText = "";
-          for (let index = 0; index < logRowsElement.length; index++) {
-            const ele = logRowsElement[index];
-            logText += `${ele.textContent}
-`;
-          }
-          return logText;
-        });
-        __publicField(this, "export", () => {
-          let logText = this.getAllLogContent();
-          this.funDownload(
-            logText,
-            `${(/* @__PURE__ */ new Date()).toLocaleDateString() + " " + (/* @__PURE__ */ new Date()).toLocaleTimeString()}.log`
-          );
-        });
-        __publicField(this, "copyText", () => {
-          let logText = this.getAllLogContent();
-          utils.setClip(logText);
-        });
         this.vConsole = vConsole22;
         this.VConsole = VConsole2;
         this.$ = vConsole22.$;
@@ -1901,6 +1871,37 @@
         this.vConsole.addPlugin(vConsoleExportLogs);
         return vConsoleExportLogs;
       }
+      funDownload = (content, filename) => {
+        var eleLink = document.createElement("a");
+        eleLink.download = filename;
+        eleLink.style.display = "none";
+        var blob = new Blob([content]);
+        eleLink.href = URL.createObjectURL(blob);
+        document.body.appendChild(eleLink);
+        eleLink.click();
+        document.body.removeChild(eleLink);
+      };
+      getAllLogContent = () => {
+        let logRowsElement = document.querySelectorAll(this.logItemSelector);
+        let logText = "";
+        for (let index = 0; index < logRowsElement.length; index++) {
+          const ele = logRowsElement[index];
+          logText += `${ele.textContent}
+`;
+        }
+        return logText;
+      };
+      export = () => {
+        let logText = this.getAllLogContent();
+        this.funDownload(
+          logText,
+          `${(/* @__PURE__ */ new Date()).toLocaleDateString() + " " + (/* @__PURE__ */ new Date()).toLocaleTimeString()}.log`
+        );
+      };
+      copyText = () => {
+        let logText = this.getAllLogContent();
+        utils.setClip(logText);
+      };
     }
     return new VConsoleOutputLogsPlugin(vConsole2, VConsole);
   };
@@ -2457,22 +2458,31 @@
       this.$data.storeApiValue.set(type, storageApiValue);
     },
     /**
-     * 设置组件的存储接口属性
+     * 初始化组件的存储接口属性
+     *
      * @param type 组件类型
      * @param config 组件配置，必须包含prop属性
      * @param storageApiValue 存储接口
      */
-    setComponentsStorageApiProperty(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
       } else {
         propsStorageApi = storageApiValue;
       }
-      Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+      this.setComponentsStorageApiProperty(config, propsStorageApi);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(config, storageApiValue) {
+      Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
+  const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -2486,18 +2496,20 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       data: selectData
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "select",
       result,
       {
@@ -2511,7 +2523,7 @@
     );
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
@@ -2519,25 +2531,26 @@
       attributes: {},
       props: {},
       getValue() {
-        return Boolean(
-          this.props[PROPS_STORAGE_API].get(key, defaultValue)
-        );
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return Boolean(storageApiValue.get(key, defaultValue));
       },
       callback(event, __value) {
         let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        if (typeof clickCallBack === "function") {
-          if (clickCallBack(event, value)) {
+        if (typeof clickCallback === "function") {
+          let result2 = clickCallback(event, value);
+          if (result2) {
             return;
           }
         }
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "switch",
       result,
       {
@@ -2608,6 +2621,7 @@
       text,
       type: "button",
       attributes: {},
+      props: {},
       description,
       buttonIcon,
       buttonIsRightIcon,
@@ -3096,27 +3110,29 @@
       }
     ]
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallBack, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
     let result = {
       text,
       type: "input",
       isNumber: Boolean(isNumber),
       isPassword: Boolean(isPassword),
-      props: {},
       attributes: {},
+      props: {},
       description,
       afterAddToUListCallBack,
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
-      callback(event, value) {
-        this.props[PROPS_STORAGE_API].set(key, value);
+      callback(event, value, valueAsNumber) {
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       placeholder
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "input",
       result,
       {
@@ -3603,7 +3619,7 @@
       }
     ]
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
+  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step) {
     let result = {
       text,
       type: "slider",
@@ -3611,7 +3627,8 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       getToolTipContent(value) {
         if (typeof getToolTipContent === "function") {
@@ -3621,12 +3638,14 @@
         }
       },
       callback(event, value) {
-        if (typeof changeCallBack === "function") {
-          if (changeCallBack(event, value)) {
+        if (typeof changeCallback === "function") {
+          let result2 = changeCallback(event, value);
+          if (result2) {
             return;
           }
         }
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       min,
       max,
@@ -3634,7 +3653,7 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "slider",
       result,
       {
