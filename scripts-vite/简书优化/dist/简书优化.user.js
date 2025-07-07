@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         简书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.12
+// @version      2025.7.7
 // @author       WhiteSevs
 // @description  支持手机端和PC端、屏蔽广告、优化浏览体验、重定向链接、全文居中、自动展开全文、允许复制文字、劫持唤醒/跳转App、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.jianshu.com/*
 // @match        *://*.jianshu.io/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @grant        GM_deleteValue
@@ -30,10 +30,6 @@
 (function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
-  var __defProp = Object.defineProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  var _a;
   const blockCSS = `.download-app-guidance,\r
 .call-app-btn,\r
 .collapse-tips,\r
@@ -125,6 +121,9 @@ footer > div > div {\r
     }
   };
   class StorageUtils {
+    /** 存储的键名 */
+    storageKey;
+    listenerData;
     /**
      * 存储的键名，可以是多层的，如：a.b.c
      *
@@ -141,9 +140,6 @@ footer > div > div {\r
      * @param key
      */
     constructor(key) {
-      /** 存储的键名 */
-      __publicField(this, "storageKey");
-      __publicField(this, "listenerData");
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -698,36 +694,39 @@ footer > div > div {\r
         }
         this.$data.onceExecMenuData.set(storageKey, 1);
       }
-      let storeStyleElements = [];
+      let storeValueList = [];
       let listenerIdList = [];
-      let dynamicPushStyleNode = (value, $style) => {
+      let dynamicAddStyleNodeCallback = (value, $style) => {
         let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
+        if (!Array.isArray($style)) {
+          $style = [$style];
         }
+        $style.forEach(($styleItem) => {
+          if ($styleItem == null) {
+            return;
+          }
+          if ($styleItem instanceof HTMLStyleElement) {
+            dynamicResultList.push($styleItem);
+            return;
+          }
+        });
         {
-          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+          storeValueList = storeValueList.concat(dynamicResultList);
         }
       };
       let getMenuValue = (key) => {
         let value = this.getValue(key);
         return value;
       };
-      let clearStoreStyleElements = () => {
-        for (let index = 0; index < storeStyleElements.length; index++) {
-          let $css = storeStyleElements[index];
+      let clearBeforeStoreValue = () => {
+        for (let index = 0; index < storeValueList.length; index++) {
+          let $css = storeValueList[index];
           $css.remove();
-          storeStyleElements.splice(index, 1);
+          storeValueList.splice(index, 1);
           index--;
         }
       };
-      let __checkExec__ = () => {
+      let checkMenuExec = () => {
         let flag = false;
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
@@ -736,40 +735,43 @@ footer > div > div {\r
         }
         return flag;
       };
-      let valueChange = (valueOption) => {
-        let execFlag = __checkExec__();
+      let valueChangeCallback = (valueOption) => {
+        let execFlag = checkMenuExec();
         let resultList = [];
         if (execFlag) {
           let valueList = keyList.map((key) => this.getValue(key));
-          let $styles = callback({
+          let callbackResult = callback({
+            value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
-              return dynamicPushStyleNode(true, ...args);
-            },
-            value: isArrayKey ? valueList : valueList[0]
+              return dynamicAddStyleNodeCallback(true, ...args);
+            }
           });
-          if ($styles instanceof HTMLStyleElement) {
-            resultList.push($styles);
-          } else if (Array.isArray($styles)) {
-            resultList.push(
-              ...$styles.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            );
+          if (!Array.isArray(callbackResult)) {
+            callbackResult = [callbackResult];
           }
+          callbackResult.forEach((it) => {
+            if (it == null) {
+              return;
+            }
+            if (it instanceof HTMLStyleElement) {
+              resultList.push(it);
+              return;
+            }
+          });
         }
-        clearStoreStyleElements();
-        storeStyleElements = [...resultList];
+        clearBeforeStoreValue();
+        storeValueList = [...resultList];
       };
       once && keyList.forEach((key) => {
         let listenerId = this.addValueChangeListener(
           key,
           (key2, newValue, oldValue) => {
-            valueChange();
+            valueChangeCallback();
           }
         );
         listenerIdList.push(listenerId);
       });
-      valueChange();
+      valueChangeCallback();
       let result = {
         /**
          * 清空菜单执行情况
@@ -787,7 +789,7 @@ footer > div > div {\r
          * 清空存储的元素列表
          */
         clearStoreStyleElements: () => {
-          return clearStoreStyleElements();
+          return clearBeforeStoreValue();
         },
         /**
          * 移除值改变的监听器
@@ -907,6 +909,20 @@ footer > div > div {\r
     }
   };
   const CommonUtil = {
+    /**
+     * 移除元素（未出现也可以等待出现）
+     * @param selector 元素选择器
+     */
+    waitRemove(...args) {
+      args.forEach((selector) => {
+        if (typeof selector !== "string") {
+          return;
+        }
+        utils.waitNodeList(selector).then((nodeList) => {
+          nodeList.forEach(($el) => $el.remove());
+        });
+      });
+    },
     /**
      * 添加屏蔽CSS
      * @param args
@@ -1092,11 +1108,10 @@ footer > div > div {\r
         });
       }
       function checkClipboardApi() {
-        var _a2, _b;
-        if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
+        if (typeof navigator?.clipboard?.readText !== "function") {
           return false;
         }
-        if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
+        if (typeof navigator?.permissions?.query !== "function") {
           return false;
         }
         return true;
@@ -1153,7 +1168,7 @@ footer > div > div {\r
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -1207,11 +1222,10 @@ footer > div > div {\r
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        var _a2;
-        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+        if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
-        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
           return false;
         }
       });
@@ -1378,12 +1392,11 @@ footer > div > div {\r
               return;
             }
             mutations.forEach((mutationItem) => {
-              var _a2;
               if (mutationItem.target.style["display"] != "none") {
                 log.success("自动展开全文-自动点击");
-                (_a2 = document.querySelector(
+                document.querySelector(
                   'div#homepage div[class*="dialog-"] .cancel'
-                )) == null ? void 0 : _a2.click();
+                )?.click();
               }
             });
           },
@@ -1440,9 +1453,8 @@ footer > div > div {\r
         utils.waitPropertyByInterval(
           element,
           () => {
-            var _a2, _b, _c, _d;
             let react = utils.getReactObj(element);
-            return (_d = (_c = (_b = (_a2 = react == null ? void 0 : react.reactInternalInstance) == null ? void 0 : _a2.return) == null ? void 0 : _b.return) == null ? void 0 : _c.memoizedProps) == null ? void 0 : _d.onClose;
+            return react?.reactInternalInstance?.return?.return?.memoizedProps?.onClose;
           },
           250,
           1e4
@@ -1581,22 +1593,31 @@ footer > div > div {\r
       this.$data.storeApiValue.set(type, storageApiValue);
     },
     /**
-     * 设置组件的存储接口属性
+     * 初始化组件的存储接口属性
+     *
      * @param type 组件类型
      * @param config 组件配置，必须包含prop属性
      * @param storageApiValue 存储接口
      */
-    setComponentsStorageApiProperty(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
       } else {
         propsStorageApi = storageApiValue;
       }
-      Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+      this.setComponentsStorageApiProperty(config, propsStorageApi);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(config, storageApiValue) {
+      Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
@@ -1604,20 +1625,20 @@ footer > div > div {\r
       attributes: {},
       props: {},
       getValue() {
-        return Boolean(
-          this.props[PROPS_STORAGE_API].get(key, defaultValue)
-        );
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return Boolean(storageApiValue.get(key, defaultValue));
       },
       callback(event, __value) {
         let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "switch",
       result,
       {
@@ -1715,7 +1736,7 @@ footer > div > div {\r
       }
     ]
   };
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
+  const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -1729,21 +1750,26 @@ footer > div > div {\r
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof callback === "function") {
-          callback(event, value, isSelectedText);
+        if (typeof changeCallback === "function") {
+          let result2 = changeCallback(event, value, isSelectedText);
+          if (result2) {
+            return;
+          }
         }
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       data: selectData
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "select",
       result,
       {
