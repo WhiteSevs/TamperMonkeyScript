@@ -119,7 +119,10 @@ export interface PopsButtonDetails<T = {}> {
 /**
  * 按钮配置（匹配任意类型）
  */
-export type PopsButtonDetailsAnyType<T = {}> = PopsButtonDetails<T> & {
+export type PopsButtonDetailsAnyType<T = {}> = Omit<
+	PopsButtonDetails<T>,
+	"type"
+> & {
 	/**
 	 * 按钮样式类型
 	 * @default "default"
