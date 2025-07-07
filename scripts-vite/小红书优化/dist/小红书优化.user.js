@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.12
+// @version      2025.7.7
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -31,10 +31,6 @@
 (function (Qmsg, DOMUtils, Utils, pops, Viewer) {
   'use strict';
 
-  var __defProp = Object.defineProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  var _a;
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -104,6 +100,9 @@
     }
   };
   class StorageUtils {
+    /** 存储的键名 */
+    storageKey;
+    listenerData;
     /**
      * 存储的键名，可以是多层的，如：a.b.c
      *
@@ -120,9 +119,6 @@
      * @param key
      */
     constructor(key) {
-      /** 存储的键名 */
-      __publicField(this, "storageKey");
-      __publicField(this, "listenerData");
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -677,36 +673,39 @@
         }
         this.$data.onceExecMenuData.set(storageKey, 1);
       }
-      let storeStyleElements = [];
+      let storeValueList = [];
       let listenerIdList = [];
-      let dynamicPushStyleNode = (value, $style) => {
+      let dynamicAddStyleNodeCallback = (value, $style) => {
         let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
+        if (!Array.isArray($style)) {
+          $style = [$style];
         }
+        $style.forEach(($styleItem) => {
+          if ($styleItem == null) {
+            return;
+          }
+          if ($styleItem instanceof HTMLStyleElement) {
+            dynamicResultList.push($styleItem);
+            return;
+          }
+        });
         {
-          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+          storeValueList = storeValueList.concat(dynamicResultList);
         }
       };
       let getMenuValue = (key) => {
         let value = this.getValue(key);
         return value;
       };
-      let clearStoreStyleElements = () => {
-        for (let index = 0; index < storeStyleElements.length; index++) {
-          let $css = storeStyleElements[index];
+      let clearBeforeStoreValue = () => {
+        for (let index = 0; index < storeValueList.length; index++) {
+          let $css = storeValueList[index];
           $css.remove();
-          storeStyleElements.splice(index, 1);
+          storeValueList.splice(index, 1);
           index--;
         }
       };
-      let __checkExec__ = () => {
+      let checkMenuExec = () => {
         let flag = false;
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
@@ -715,40 +714,43 @@
         }
         return flag;
       };
-      let valueChange = (valueOption) => {
-        let execFlag = __checkExec__();
+      let valueChangeCallback = (valueOption) => {
+        let execFlag = checkMenuExec();
         let resultList = [];
         if (execFlag) {
           let valueList = keyList.map((key) => this.getValue(key));
-          let $styles = callback({
+          let callbackResult = callback({
+            value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
-              return dynamicPushStyleNode(true, ...args);
-            },
-            value: isArrayKey ? valueList : valueList[0]
+              return dynamicAddStyleNodeCallback(true, ...args);
+            }
           });
-          if ($styles instanceof HTMLStyleElement) {
-            resultList.push($styles);
-          } else if (Array.isArray($styles)) {
-            resultList.push(
-              ...$styles.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            );
+          if (!Array.isArray(callbackResult)) {
+            callbackResult = [callbackResult];
           }
+          callbackResult.forEach((it) => {
+            if (it == null) {
+              return;
+            }
+            if (it instanceof HTMLStyleElement) {
+              resultList.push(it);
+              return;
+            }
+          });
         }
-        clearStoreStyleElements();
-        storeStyleElements = [...resultList];
+        clearBeforeStoreValue();
+        storeValueList = [...resultList];
       };
       once && keyList.forEach((key) => {
         let listenerId = this.addValueChangeListener(
           key,
           (key2, newValue, oldValue) => {
-            valueChange();
+            valueChangeCallback();
           }
         );
         listenerIdList.push(listenerId);
       });
-      valueChange();
+      valueChangeCallback();
       let result = {
         /**
          * 清空菜单执行情况
@@ -766,7 +768,7 @@
          * 清空存储的元素列表
          */
         clearStoreStyleElements: () => {
-          return clearStoreStyleElements();
+          return clearBeforeStoreValue();
         },
         /**
          * 移除值改变的监听器
@@ -886,6 +888,20 @@
     }
   };
   const CommonUtil = {
+    /**
+     * 移除元素（未出现也可以等待出现）
+     * @param selector 元素选择器
+     */
+    waitRemove(...args) {
+      args.forEach((selector) => {
+        if (typeof selector !== "string") {
+          return;
+        }
+        utils.waitNodeList(selector).then((nodeList) => {
+          nodeList.forEach(($el) => $el.remove());
+        });
+      });
+    },
     /**
      * 添加屏蔽CSS
      * @param args
@@ -1071,11 +1087,10 @@
         });
       }
       function checkClipboardApi() {
-        var _a2, _b;
-        if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
+        if (typeof navigator?.clipboard?.readText !== "function") {
           return false;
         }
-        if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
+        if (typeof navigator?.permissions?.query !== "function") {
           return false;
         }
         return true;
@@ -1138,7 +1153,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -1192,11 +1207,10 @@
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        var _a2;
-        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+        if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
-        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
           return false;
         }
       });
@@ -1759,8 +1773,7 @@
                     log.success(["成功劫持scheme唤醒", args_1]);
                     let oldD = args_1[2].d;
                     args_1[2].d = function(...args_2) {
-                      var _a2;
-                      if (args_2.length === 2 && typeof ((_a2 = args_2[1]) == null ? void 0 : _a2["Z"]) === "function") {
+                      if (args_2.length === 2 && typeof args_2[1]?.["Z"] === "function") {
                         let oldZ = args_2[1]["Z"];
                         if (oldZ.toString() === "function(){return y}") {
                           args_2[1]["Z"] = function(...args_3) {
@@ -1769,9 +1782,8 @@
                               return function() {
                                 return {
                                   jumpToApp(data) {
-                                    var _a3;
                                     log.success(["拦截唤醒", data]);
-                                    if ((_a3 = data["deeplink"]) == null ? void 0 : _a3.startsWith(
+                                    if (data["deeplink"]?.startsWith(
                                       "xhsdiscover://user/"
                                     )) {
                                       let userId = data["deeplink"].replace(
@@ -1808,8 +1820,7 @@
       const assign = _unsafeWindow.Object.assign;
       let isRun = false;
       _unsafeWindow.Object.assign = function(...args) {
-        var _a2;
-        if (args.length == 2 && ((_a2 = args[1]) == null ? void 0 : _a2.render) !== void 0 && !isRun) {
+        if (args.length == 2 && args[1]?.render !== void 0 && !isRun) {
           let b = args[1];
           const originRender = b.render;
           let isInject = false;
@@ -1847,9 +1858,8 @@
     call() {
       Hook.function_call({
         paramsHandler(fn, thisArg, argArray) {
-          var _a2, _b, _c, _d;
           fn.toString();
-          if (((_a2 = argArray[0]) == null ? void 0 : _a2.label) === 0 && Array.isArray((_b = argArray[0]) == null ? void 0 : _b.ops) && Array.isArray((_c = argArray[0]) == null ? void 0 : _c.trys) && typeof ((_d = argArray[0]) == null ? void 0 : _d.sent) === "function") {
+          if (argArray[0]?.label === 0 && Array.isArray(argArray[0]?.ops) && Array.isArray(argArray[0]?.trys) && typeof argArray[0]?.sent === "function") {
             log.success([`成功劫持call唤醒`, fn, thisArg, argArray]);
             return {
               args: {
@@ -1990,8 +2000,7 @@
         currentCursor: void 0,
         commentContainer: void 0,
         init() {
-          var _a2;
-          this.emojiMap = ((_a2 = utils.toJSON(_unsafeWindow.localStorage.getItem("redmoji"))) == null ? void 0 : _a2["redmojiMap"]) || {};
+          this.emojiMap = utils.toJSON(_unsafeWindow.localStorage.getItem("redmoji"))?.["redmojiMap"] || {};
           this.emojiNameList = Object.keys(this.emojiMap);
           this.scrollFunc = new utils.LockFunction(this.scrollEvent, this);
           const __INITIAL_STATE__ = (
@@ -2048,7 +2057,6 @@
          * @returns
          */
         getCommentElement(data) {
-          var _a2, _b;
           let content = data["content"];
           let create_time = data["create_time"] || parseInt(data["time"]);
           let id = data["id"];
@@ -2059,7 +2067,7 @@
           let sub_comments = data["sub_comments"] || data["subComments"];
           let user_avatar = (data["user_info"] || data["user"])["image"];
           let user_nickname = (data["user_info"] || data["user"])["nickname"];
-          let user_id = ((_a2 = data == null ? void 0 : data["user_info"]) == null ? void 0 : _a2["user_id"]) || ((_b = data == null ? void 0 : data["user"]) == null ? void 0 : _b["userId"]);
+          let user_id = data?.["user_info"]?.["user_id"] || data?.["user"]?.["userId"];
           content = Comments.converContent(content);
           let commentItemElement = domUtils.createElement("div", {
             className: "little-red-book-comments-item",
@@ -2427,24 +2435,23 @@
         "click",
         void 0,
         function(event) {
-          var _a2, _b, _c, _d, _e;
           let clickElement = event.target;
           log.info(["点击的按钮元素", clickElement]);
-          if ((_a2 = clickElement == null ? void 0 : clickElement.className) == null ? void 0 : _a2.includes("follow-btn")) {
+          if (clickElement?.className?.includes("follow-btn")) {
             log.success("点击-关注按钮");
-          } else if (clickElement == null ? void 0 : clickElement.closest("button.reds-button.message-btn")) {
+          } else if (clickElement?.closest("button.reds-button.message-btn")) {
             log.success("点击-私信按钮");
-          } else if (clickElement == null ? void 0 : clickElement.closest("div.reds-tab-item")) {
+          } else if (clickElement?.closest("div.reds-tab-item")) {
             log.success("点击-笔记/收藏按钮");
-          } else if (clickElement == null ? void 0 : clickElement.closest("section.reds-note-card")) {
+          } else if (clickElement?.closest("section.reds-note-card")) {
             log.success("点击-笔记卡片");
-            let sectionElement = clickElement == null ? void 0 : clickElement.closest(
+            let sectionElement = clickElement?.closest(
               "section.reds-note-card"
             );
-            let note_id = sectionElement.getAttribute("id") || ((_d = (_c = (_b = utils.toJSON(sectionElement.getAttribute("impression"))) == null ? void 0 : _b["noteTarget"]) == null ? void 0 : _c["value"]) == null ? void 0 : _d["noteId"]);
+            let note_id = sectionElement.getAttribute("id") || utils.toJSON(sectionElement.getAttribute("impression"))?.["noteTarget"]?.["value"]?.["noteId"];
             if (note_id) {
               window.open(
-                `https://www.xiaohongshu.com/discovery/item/${(_e = clickElement == null ? void 0 : clickElement.closest("section.reds-note-card")) == null ? void 0 : _e.getAttribute("id")}`,
+                `https://www.xiaohongshu.com/discovery/item/${clickElement?.closest("section.reds-note-card")?.getAttribute("id")}`,
                 "_blank"
               );
             } else {
@@ -2578,96 +2585,105 @@
   const VueUtils = {
     /**
      * 获取vue2实例
-     * @param element
+     * @param $el
      */
-    getVue(element) {
-      if (element == null) {
+    getVue($el) {
+      if ($el == null) {
         return;
       }
-      return element["__vue__"] || element["__Ivue__"] || element["__IVue__"];
+      return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
     },
     /**
      * 获取vue3实例
-     * @param element
+     * @param $el
      */
-    getVue3(element) {
-      if (element == null) {
+    getVue3($el) {
+      if ($el == null) {
         return;
       }
-      return element["__vueParentComponent"];
+      return $el["__vueParentComponent"];
     },
     /**
      * 等待vue属性并进行设置
-     * @param $target 目标对象
-     * @param needSetList 需要设置的配置
+     * @param $el 目标对象
+     * @param checkOption 需要设置的配置
      */
-    waitVuePropToSet($target, needSetList) {
-      if (!Array.isArray(needSetList)) {
-        VueUtils.waitVuePropToSet($target, [needSetList]);
-        return;
+    waitVuePropToSet($el, checkOption) {
+      if (!Array.isArray(checkOption)) {
+        checkOption = [checkOption];
       }
       function getTarget() {
         let __target__ = null;
-        if (typeof $target === "string") {
-          __target__ = document.querySelector($target);
-        } else if (typeof $target === "function") {
-          __target__ = $target();
-        } else if ($target instanceof HTMLElement) {
-          __target__ = $target;
+        if (typeof $el === "string") {
+          __target__ = domUtils.selector($el);
+        } else if (typeof $el === "function") {
+          __target__ = $el();
+        } else if ($el instanceof HTMLElement) {
+          __target__ = $el;
         }
         return __target__;
       }
-      needSetList.forEach((needSetOption) => {
+      checkOption.forEach((needSetOption) => {
         if (typeof needSetOption.msg === "string") {
           log.info(needSetOption.msg);
         }
-        function checkVue() {
-          let target = getTarget();
-          if (target == null) {
-            return false;
+        function checkTarget() {
+          let $targetEl = getTarget();
+          if ($targetEl == null) {
+            return {
+              status: false,
+              isTimeout: true,
+              inst: null,
+              $el: $targetEl
+            };
           }
-          let vueInstance = VueUtils.getVue(target);
-          if (vueInstance == null) {
-            return false;
+          let vueInst = VueUtils.getVue($targetEl);
+          if (vueInst == null) {
+            return {
+              status: false,
+              isTimeout: false,
+              inst: null,
+              $el: $targetEl
+            };
           }
-          let needOwnCheck = needSetOption.check(vueInstance, target);
-          return Boolean(needOwnCheck);
+          let checkResult = needSetOption.check(vueInst, $targetEl);
+          checkResult = Boolean(checkResult);
+          return {
+            status: checkResult,
+            isTimeout: false,
+            inst: vueInst,
+            $el: $targetEl
+          };
         }
         utils.waitVueByInterval(
           () => {
             return getTarget();
           },
-          checkVue,
+          () => checkTarget().status,
           250,
           1e4
         ).then((result) => {
-          if (!result) {
+          let checkTargetResult = checkTarget();
+          if (checkTargetResult.status) {
+            let vueInst = checkTargetResult.inst;
+            needSetOption.set(vueInst, checkTargetResult.$el);
+          } else {
             if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(true);
+              needSetOption.failWait(checkTargetResult.isTimeout);
             }
-            return;
           }
-          let target = getTarget();
-          let vueInstance = VueUtils.getVue(target);
-          if (vueInstance == null) {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(false);
-            }
-            return;
-          }
-          needSetOption.set(vueInstance, target);
         });
       });
     },
     /**
      * 观察vue属性的变化
-     * @param $target 目标对象
+     * @param $el 目标对象
      * @param key 需要观察的属性
      * @param callback 监听回调
      * @param watchConfig 监听配置
      * @param failWait 当检测失败/超时触发该回调
      */
-    watchVuePropChange($target, key, callback, watchConfig, failWait) {
+    watchVuePropChange($el, key, callback, watchConfig, failWait) {
       let config = utils.assign(
         {
           immediate: true,
@@ -2676,9 +2692,9 @@
         watchConfig || {}
       );
       return new Promise((resolve) => {
-        VueUtils.waitVuePropToSet($target, {
+        VueUtils.waitVuePropToSet($el, {
           check(vueInstance) {
-            return typeof (vueInstance == null ? void 0 : vueInstance.$watch) === "function";
+            return typeof vueInstance?.$watch === "function";
           },
           set(vueInstance) {
             let removeWatch = null;
@@ -2709,17 +2725,17 @@
     },
     /**
      * 前往网址
-     * @param $vueNode 包含vue属性的元素
+     * @param $el 包含vue属性的元素
      * @param path 需要跳转的路径
-     * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转
+     * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转，默认false
      */
-    goToUrl($vueNode, path, useRouter = false) {
-      if ($vueNode == null) {
+    goToUrl($el, path, useRouter = false) {
+      if ($el == null) {
         Qmsg.error("跳转Url: $vueNode为空");
         log.error("跳转Url: $vueNode为空：" + path);
         return;
       }
-      let vueInstance = VueUtils.getVue($vueNode);
+      let vueInstance = VueUtils.getVue($el);
       if (vueInstance == null) {
         Qmsg.error("获取vue属性失败", { consoleLogContent: true });
         return;
@@ -2761,7 +2777,7 @@
       }
       function banBack() {
         log.success("监听地址改变");
-        option.vueInstance.$router.history.push(option.hash);
+        option.vueInst.$router.history.push(option.hash);
         domUtils.on(_unsafeWindow, "popstate", popstateEvent);
       }
       async function resumeBack(isFromPopState = false) {
@@ -2771,9 +2787,9 @@
           return;
         }
         while (1) {
-          if (option.vueInstance.$router.history.current.hash === option.hash) {
+          if (option.vueInst.$router.history.current.hash === option.hash) {
             log.info("后退！");
-            option.vueInstance.$router.back();
+            option.vueInst.$router.back();
             await utils.sleep(250);
           } else {
             return;
@@ -2882,12 +2898,11 @@
       let lockFn = new utils.LockFunction(() => {
         $$(".note-content:not([data-edit-date])").forEach(
           ($noteContent) => {
-            var _a2, _b;
             let vueInstance = VueUtils.getVue($noteContent);
             if (!vueInstance) {
               return;
             }
-            let note = (_b = (_a2 = vueInstance == null ? void 0 : vueInstance._) == null ? void 0 : _a2.props) == null ? void 0 : _b.note;
+            let note = vueInstance?._?.props?.note;
             if (note == null) {
               return;
             }
@@ -2982,7 +2997,7 @@
           utils.preventEvent(event);
           let $click = event.target;
           let $url = $click.querySelector("a.cover[href]");
-          let url = $url == null ? void 0 : $url.href;
+          let url = $url?.href;
           if (url) {
             log.info("跳转文章: " + url);
             let urlInstance = new URL(url);
@@ -3038,22 +3053,31 @@
       this.$data.storeApiValue.set(type, storageApiValue);
     },
     /**
-     * 设置组件的存储接口属性
+     * 初始化组件的存储接口属性
+     *
      * @param type 组件类型
      * @param config 组件配置，必须包含prop属性
      * @param storageApiValue 存储接口
      */
-    setComponentsStorageApiProperty(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
       } else {
         propsStorageApi = storageApiValue;
       }
-      Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+      this.setComponentsStorageApiProperty(config, propsStorageApi);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(config, storageApiValue) {
+      Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
+  const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -3067,21 +3091,26 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof callback === "function") {
-          callback(event, value, isSelectedText);
+        if (typeof changeCallback === "function") {
+          let result2 = changeCallback(event, value, isSelectedText);
+          if (result2) {
+            return;
+          }
         }
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       data: selectData
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "select",
       result,
       {
@@ -3095,7 +3124,7 @@
     );
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
@@ -3103,20 +3132,20 @@
       attributes: {},
       props: {},
       getValue() {
-        return Boolean(
-          this.props[PROPS_STORAGE_API].get(key, defaultValue)
-        );
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return Boolean(storageApiValue.get(key, defaultValue));
       },
       callback(event, __value) {
         let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "switch",
       result,
       {
@@ -3348,7 +3377,7 @@
       }
     ]
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallBack, getToolTipContent, description, step) {
+  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step) {
     let result = {
       text,
       type: "slider",
@@ -3356,7 +3385,8 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       getToolTipContent(value) {
         if (typeof getToolTipContent === "function") {
@@ -3366,12 +3396,14 @@
         }
       },
       callback(event, value) {
-        if (typeof changeCallBack === "function") {
-          if (changeCallBack(event, value)) {
+        if (typeof changeCallback === "function") {
+          let result2 = changeCallback(event, value);
+          if (result2) {
             return;
           }
         }
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       min,
       max,
@@ -3379,7 +3411,7 @@
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "slider",
       result,
       {
