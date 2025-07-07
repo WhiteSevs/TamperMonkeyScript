@@ -134,7 +134,7 @@ export const M3U8Rule = {
 	 */
 	showView() {
 		const that = this;
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		/**
 		 * 自定义存储api的配置
 		 * @param uuid
@@ -199,7 +199,7 @@ export const M3U8Rule = {
 							generateStorageApi(data)
 						);
 						let $enable =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								enable_template
 							);
 
@@ -218,7 +218,7 @@ export const M3U8Rule = {
 							generateStorageApi(data)
 						);
 						let $name =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								name_template
 							);
 
@@ -237,7 +237,7 @@ export const M3U8Rule = {
 							generateStorageApi(data.data)
 						);
 						let $data_url =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								data_url_template
 							);
 
@@ -255,7 +255,7 @@ export const M3U8Rule = {
 							generateStorageApi(data.data)
 						);
 						let $data_commonFilterAdsSegmentsFilePathLength =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								data_commonFilterAdsSegmentsFilePathLength_template
 							);
 
@@ -273,7 +273,7 @@ export const M3U8Rule = {
 							generateStorageApi(data.data)
 						);
 						let $data_commonFilterAdsSegmentsFilePathSimilar =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								data_commonFilterAdsSegmentsFilePathSimilar_template
 							);
 
@@ -298,7 +298,7 @@ export const M3U8Rule = {
 							generateStorageApi(data.data)
 						);
 						let $data_ownFilterCode =
-							popsPanelContentUtils.createSectionContainerItem_textarea(
+							panelHandlerComponents.createSectionContainerItem_textarea(
 								data_ownFilterCode_template
 							);
 
