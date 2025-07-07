@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.26
+// @version      2025.7.7
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -1099,36 +1099,39 @@
         }
         this.$data.onceExecMenuData.set(storageKey, 1);
       }
-      let storeStyleElements = [];
+      let storeValueList = [];
       let listenerIdList = [];
-      let dynamicPushStyleNode = (value, $style) => {
+      let dynamicAddStyleNodeCallback = (value, $style) => {
         let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
+        if (!Array.isArray($style)) {
+          $style = [$style];
         }
+        $style.forEach(($styleItem) => {
+          if ($styleItem == null) {
+            return;
+          }
+          if ($styleItem instanceof HTMLStyleElement) {
+            dynamicResultList.push($styleItem);
+            return;
+          }
+        });
         {
-          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+          storeValueList = storeValueList.concat(dynamicResultList);
         }
       };
       let getMenuValue = (key) => {
         let value = this.getValue(key);
         return value;
       };
-      let clearStoreStyleElements = () => {
-        for (let index = 0; index < storeStyleElements.length; index++) {
-          let $css = storeStyleElements[index];
+      let clearBeforeStoreValue = () => {
+        for (let index = 0; index < storeValueList.length; index++) {
+          let $css = storeValueList[index];
           $css.remove();
-          storeStyleElements.splice(index, 1);
+          storeValueList.splice(index, 1);
           index--;
         }
       };
-      let __checkExec__ = () => {
+      let checkMenuExec = () => {
         let flag = false;
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
@@ -1137,40 +1140,43 @@
         }
         return flag;
       };
-      let valueChange = (valueOption) => {
-        let execFlag = __checkExec__();
+      let valueChangeCallback = (valueOption) => {
+        let execFlag = checkMenuExec();
         let resultList = [];
         if (execFlag) {
           let valueList = keyList.map((key) => this.getValue(key));
-          let $styles = callback({
+          let callbackResult = callback({
+            value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
-              return dynamicPushStyleNode(true, ...args);
-            },
-            value: isArrayKey ? valueList : valueList[0]
+              return dynamicAddStyleNodeCallback(true, ...args);
+            }
           });
-          if ($styles instanceof HTMLStyleElement) {
-            resultList.push($styles);
-          } else if (Array.isArray($styles)) {
-            resultList.push(
-              ...$styles.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            );
+          if (!Array.isArray(callbackResult)) {
+            callbackResult = [callbackResult];
           }
+          callbackResult.forEach((it) => {
+            if (it == null) {
+              return;
+            }
+            if (it instanceof HTMLStyleElement) {
+              resultList.push(it);
+              return;
+            }
+          });
         }
-        clearStoreStyleElements();
-        storeStyleElements = [...resultList];
+        clearBeforeStoreValue();
+        storeValueList = [...resultList];
       };
       once && keyList.forEach((key) => {
         let listenerId = this.addValueChangeListener(
           key,
           (key2, newValue, oldValue) => {
-            valueChange();
+            valueChangeCallback();
           }
         );
         listenerIdList.push(listenerId);
       });
-      valueChange();
+      valueChangeCallback();
       let result = {
         /**
          * 清空菜单执行情况
@@ -1188,7 +1194,7 @@
          * 清空存储的元素列表
          */
         clearStoreStyleElements: () => {
-          return clearStoreStyleElements();
+          return clearBeforeStoreValue();
         },
         /**
          * 移除值改变的监听器
@@ -12234,7 +12240,7 @@
      */
     getRulePanelViewOption(quickAddData) {
       const that = this;
-      let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
+      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       let addData = () => {
         return quickAddData ?? this.getTemplateData();
       };
@@ -12436,7 +12442,7 @@
                           PROPS_STORAGE_API,
                           generateStorageApi(data)
                         );
-                        let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
+                        let $enable = panelHandlerComponents.createSectionContainerItem_switch(
                           enable_template
                         );
                         let name_template = UIInput(
@@ -12452,7 +12458,7 @@
                           PROPS_STORAGE_API,
                           generateStorageApi(data)
                         );
-                        let $name = popsPanelContentUtils.createSectionContainerItem_input(
+                        let $name = panelHandlerComponents.createSectionContainerItem_input(
                           name_template
                         );
                         let url_template = UIInput(
@@ -12468,7 +12474,7 @@
                           PROPS_STORAGE_API,
                           generateStorageApi(data.data)
                         );
-                        let $data_url = popsPanelContentUtils.createSectionContainerItem_input(
+                        let $data_url = panelHandlerComponents.createSectionContainerItem_input(
                           url_template
                         );
                         let getDynamicPropElement = (storageData) => {
@@ -12486,7 +12492,7 @@
                             PROPS_STORAGE_API,
                             generateStorageApi(storageData)
                           );
-                          let $data_searchValue = popsPanelContentUtils.createSectionContainerItem_input(
+                          let $data_searchValue = panelHandlerComponents.createSectionContainerItem_input(
                             data_searchValue_template
                           );
                           let data_isRegExp_template = UISwitch(
@@ -12501,7 +12507,7 @@
                             PROPS_STORAGE_API,
                             generateStorageApi(data.data)
                           );
-                          let $data_isRegExp = popsPanelContentUtils.createSectionContainerItem_switch(
+                          let $data_isRegExp = panelHandlerComponents.createSectionContainerItem_switch(
                             data_isRegExp_template
                           );
                           let data_regExpFlag_template = UIInput(
@@ -12517,7 +12523,7 @@
                             PROPS_STORAGE_API,
                             generateStorageApi(data.data)
                           );
-                          let $data_regExpFlag = popsPanelContentUtils.createSectionContainerItem_input(
+                          let $data_regExpFlag = panelHandlerComponents.createSectionContainerItem_input(
                             data_regExpFlag_template
                           );
                           let data_replaceValue_template = UIInput(
@@ -12533,7 +12539,7 @@
                             PROPS_STORAGE_API,
                             generateStorageApi(data.data)
                           );
-                          let $data_replaceValue = popsPanelContentUtils.createSectionContainerItem_input(
+                          let $data_replaceValue = panelHandlerComponents.createSectionContainerItem_input(
                             data_replaceValue_template
                           );
                           return {
@@ -12863,7 +12869,7 @@
                   PROPS_STORAGE_API,
                   generateStorageApi(data)
                 );
-                let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
+                let $enable = panelHandlerComponents.createSectionContainerItem_switch(
                   enable_template
                 );
                 let name_template = UIInput(
@@ -12879,7 +12885,7 @@
                   PROPS_STORAGE_API,
                   generateStorageApi(data)
                 );
-                let $name = popsPanelContentUtils.createSectionContainerItem_input(
+                let $name = panelHandlerComponents.createSectionContainerItem_input(
                   name_template
                 );
                 let url_template = UIInput(
@@ -12895,7 +12901,7 @@
                   PROPS_STORAGE_API,
                   generateStorageApi(data.data)
                 );
-                let $data_url = popsPanelContentUtils.createSectionContainerItem_input(
+                let $data_url = panelHandlerComponents.createSectionContainerItem_input(
                   url_template
                 );
                 let getDynamicPropElement = (storageData) => {
@@ -12913,7 +12919,7 @@
                     PROPS_STORAGE_API,
                     generateStorageApi(storageData)
                   );
-                  let $data_searchValue = popsPanelContentUtils.createSectionContainerItem_input(
+                  let $data_searchValue = panelHandlerComponents.createSectionContainerItem_input(
                     data_searchValue_template
                   );
                   let data_isRegExp_template = UISwitch(
@@ -12928,7 +12934,7 @@
                     PROPS_STORAGE_API,
                     generateStorageApi(data.data)
                   );
-                  let $data_isRegExp = popsPanelContentUtils.createSectionContainerItem_switch(
+                  let $data_isRegExp = panelHandlerComponents.createSectionContainerItem_switch(
                     data_isRegExp_template
                   );
                   let data_regExpFlag_template = UIInput(
@@ -12944,7 +12950,7 @@
                     PROPS_STORAGE_API,
                     generateStorageApi(data.data)
                   );
-                  let $data_regExpFlag = popsPanelContentUtils.createSectionContainerItem_input(
+                  let $data_regExpFlag = panelHandlerComponents.createSectionContainerItem_input(
                     data_regExpFlag_template
                   );
                   let data_replaceValue_template = UIInput(
@@ -12960,7 +12966,7 @@
                     PROPS_STORAGE_API,
                     generateStorageApi(data.data)
                   );
-                  let $data_replaceValue = popsPanelContentUtils.createSectionContainerItem_input(
+                  let $data_replaceValue = panelHandlerComponents.createSectionContainerItem_input(
                     data_replaceValue_template
                   );
                   return {
@@ -13388,7 +13394,7 @@
             Qmsg.warning("规则为空，无需导出");
             return;
           }
-          let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
+          let panelHandlerComponents = __pops.config.PanelHandlerComponents();
           let generateStorageApi = function(data) {
             return {
               get(key, defaultValue) {
@@ -13483,7 +13489,7 @@
             PROPS_STORAGE_API,
             generateStorageApi(configData)
           );
-          let $title = popsPanelContentUtils.createSectionContainerItem_input(
+          let $title = panelHandlerComponents.createSectionContainerItem_input(
             title_template
           );
           let version_template = UIInput(
@@ -13500,7 +13506,7 @@
             PROPS_STORAGE_API,
             generateStorageApi(configData)
           );
-          let $version = popsPanelContentUtils.createSectionContainerItem_input(
+          let $version = panelHandlerComponents.createSectionContainerItem_input(
             version_template
           );
           let homePage_template = UIInput(
@@ -13516,7 +13522,7 @@
             PROPS_STORAGE_API,
             generateStorageApi(configData)
           );
-          let $homePage = popsPanelContentUtils.createSectionContainerItem_input(
+          let $homePage = panelHandlerComponents.createSectionContainerItem_input(
             homePage_template
           );
           domUtils.append($content, $title);
@@ -17863,7 +17869,6 @@
      */
     getRulePanelViewOption(quickAddData) {
       const that = this;
-      __pops.config.panelHandleContentUtils();
       let addData = () => {
         return quickAddData ?? this.getTemplateRule();
       };
@@ -18391,7 +18396,7 @@
             Qmsg.warning("规则为空，无需导出");
             return;
           }
-          let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
+          let panelHandlerComponents = __pops.config.PanelHandlerComponents();
           let generateStorageApi = function(data) {
             return {
               get(key, defaultValue) {
@@ -18483,7 +18488,7 @@
             PROPS_STORAGE_API,
             generateStorageApi(configData)
           );
-          let $title = popsPanelContentUtils.createSectionContainerItem_input(
+          let $title = panelHandlerComponents.createSectionContainerItem_input(
             title_template
           );
           let version_template = UIInput(
@@ -18500,7 +18505,7 @@
             PROPS_STORAGE_API,
             generateStorageApi(configData)
           );
-          let $version = popsPanelContentUtils.createSectionContainerItem_input(
+          let $version = panelHandlerComponents.createSectionContainerItem_input(
             version_template
           );
           let homePage_template = UIInput(
@@ -18516,7 +18521,7 @@
             PROPS_STORAGE_API,
             generateStorageApi(configData)
           );
-          let $homePage = popsPanelContentUtils.createSectionContainerItem_input(
+          let $homePage = panelHandlerComponents.createSectionContainerItem_input(
             homePage_template
           );
           domUtils.append($content, $title);
@@ -21858,7 +21863,7 @@
      */
     getRulePanelViewOption(quickAddData) {
       const that = this;
-      let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
+      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       let addData = () => {
         return quickAddData ?? this.getTemplateData();
       };
@@ -22082,7 +22087,7 @@
                           PROPS_STORAGE_API,
                           generateStorageApi(data)
                         );
-                        let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
+                        let $enable = panelHandlerComponents.createSectionContainerItem_switch(
                           enable_template
                         );
                         let name_template = UIInput(
@@ -22098,7 +22103,7 @@
                           PROPS_STORAGE_API,
                           generateStorageApi(data)
                         );
-                        let $name = popsPanelContentUtils.createSectionContainerItem_input(
+                        let $name = panelHandlerComponents.createSectionContainerItem_input(
                           name_template
                         );
                         let url_template = UIInput(
@@ -22114,7 +22119,7 @@
                           PROPS_STORAGE_API,
                           generateStorageApi(data)
                         );
-                        let $data_url = popsPanelContentUtils.createSectionContainerItem_input(
+                        let $data_url = panelHandlerComponents.createSectionContainerItem_input(
                           url_template
                         );
                         let coverSetting_template = UIButton(
@@ -22272,7 +22277,7 @@
                           },
                           void 0
                         );
-                        let $coverSetting_template = popsPanelContentUtils.createSectionContainerItem_button(
+                        let $coverSetting_template = panelHandlerComponents.createSectionContainerItem_button(
                           coverSetting_template
                         );
                         $fragment.appendChild($enable);
@@ -22477,7 +22482,7 @@
                   PROPS_STORAGE_API,
                   generateStorageApi(data)
                 );
-                let $enable = popsPanelContentUtils.createSectionContainerItem_switch(
+                let $enable = panelHandlerComponents.createSectionContainerItem_switch(
                   enable_template
                 );
                 let name_template = UIInput(
@@ -22493,7 +22498,7 @@
                   PROPS_STORAGE_API,
                   generateStorageApi(data)
                 );
-                let $name = popsPanelContentUtils.createSectionContainerItem_input(
+                let $name = panelHandlerComponents.createSectionContainerItem_input(
                   name_template
                 );
                 let url_template = UIInput(
@@ -22509,7 +22514,7 @@
                   PROPS_STORAGE_API,
                   generateStorageApi(data)
                 );
-                let $data_url = popsPanelContentUtils.createSectionContainerItem_input(
+                let $data_url = panelHandlerComponents.createSectionContainerItem_input(
                   url_template
                 );
                 let coverSetting_template = UIButton(
@@ -22668,7 +22673,7 @@
                   },
                   void 0
                 );
-                let $coverSetting_template = popsPanelContentUtils.createSectionContainerItem_button(
+                let $coverSetting_template = panelHandlerComponents.createSectionContainerItem_button(
                   coverSetting_template
                 );
                 $fragment.appendChild($enable);
@@ -23008,7 +23013,7 @@
             Qmsg.warning("规则为空，无需导出");
             return;
           }
-          let popsPanelContentUtils = __pops.config.panelHandleContentUtils();
+          let panelHandlerComponents = __pops.config.PanelHandlerComponents();
           let generateStorageApi = function(data) {
             return {
               get(key, defaultValue) {
@@ -23100,7 +23105,7 @@
             PROPS_STORAGE_API,
             generateStorageApi(configData)
           );
-          let $title = popsPanelContentUtils.createSectionContainerItem_input(
+          let $title = panelHandlerComponents.createSectionContainerItem_input(
             title_template
           );
           let version_template = UIInput(
@@ -23117,7 +23122,7 @@
             PROPS_STORAGE_API,
             generateStorageApi(configData)
           );
-          let $version = popsPanelContentUtils.createSectionContainerItem_input(
+          let $version = panelHandlerComponents.createSectionContainerItem_input(
             version_template
           );
           let homePage_template = UIInput(
@@ -23133,7 +23138,7 @@
             PROPS_STORAGE_API,
             generateStorageApi(configData)
           );
-          let $homePage = popsPanelContentUtils.createSectionContainerItem_input(
+          let $homePage = panelHandlerComponents.createSectionContainerItem_input(
             homePage_template
           );
           domUtils.append($content, $title);
