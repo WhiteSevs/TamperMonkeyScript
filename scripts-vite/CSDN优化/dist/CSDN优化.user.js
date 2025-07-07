@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.13
+// @version      2025.7.7
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
@@ -30,10 +30,6 @@
 (function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
-  var __defProp = Object.defineProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  var _a;
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -244,11 +240,10 @@
         });
       }
       function checkClipboardApi() {
-        var _a2, _b;
-        if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
+        if (typeof navigator?.clipboard?.readText !== "function") {
           return false;
         }
-        if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
+        if (typeof navigator?.permissions?.query !== "function") {
           return false;
         }
         return true;
@@ -305,7 +300,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -359,11 +354,10 @@
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        var _a2;
-        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+        if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
-        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
           return false;
         }
       });
@@ -455,6 +449,9 @@
     }
   };
   class StorageUtils {
+    /** 存储的键名 */
+    storageKey;
+    listenerData;
     /**
      * 存储的键名，可以是多层的，如：a.b.c
      *
@@ -471,9 +468,6 @@
      * @param key
      */
     constructor(key) {
-      /** 存储的键名 */
-      __publicField(this, "storageKey");
-      __publicField(this, "listenerData");
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -1028,36 +1022,39 @@
         }
         this.$data.onceExecMenuData.set(storageKey, 1);
       }
-      let storeStyleElements = [];
+      let storeValueList = [];
       let listenerIdList = [];
-      let dynamicPushStyleNode = (value, $style) => {
+      let dynamicAddStyleNodeCallback = (value, $style) => {
         let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
+        if (!Array.isArray($style)) {
+          $style = [$style];
         }
+        $style.forEach(($styleItem) => {
+          if ($styleItem == null) {
+            return;
+          }
+          if ($styleItem instanceof HTMLStyleElement) {
+            dynamicResultList.push($styleItem);
+            return;
+          }
+        });
         {
-          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+          storeValueList = storeValueList.concat(dynamicResultList);
         }
       };
       let getMenuValue = (key) => {
         let value = this.getValue(key);
         return value;
       };
-      let clearStoreStyleElements = () => {
-        for (let index = 0; index < storeStyleElements.length; index++) {
-          let $css = storeStyleElements[index];
+      let clearBeforeStoreValue = () => {
+        for (let index = 0; index < storeValueList.length; index++) {
+          let $css = storeValueList[index];
           $css.remove();
-          storeStyleElements.splice(index, 1);
+          storeValueList.splice(index, 1);
           index--;
         }
       };
-      let __checkExec__ = () => {
+      let checkMenuExec = () => {
         let flag = false;
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
@@ -1066,40 +1063,43 @@
         }
         return flag;
       };
-      let valueChange = (valueOption) => {
-        let execFlag = __checkExec__();
+      let valueChangeCallback = (valueOption) => {
+        let execFlag = checkMenuExec();
         let resultList = [];
         if (execFlag) {
           let valueList = keyList.map((key) => this.getValue(key));
-          let $styles = callback({
+          let callbackResult = callback({
+            value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
-              return dynamicPushStyleNode(true, ...args);
-            },
-            value: isArrayKey ? valueList : valueList[0]
+              return dynamicAddStyleNodeCallback(true, ...args);
+            }
           });
-          if ($styles instanceof HTMLStyleElement) {
-            resultList.push($styles);
-          } else if (Array.isArray($styles)) {
-            resultList.push(
-              ...$styles.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            );
+          if (!Array.isArray(callbackResult)) {
+            callbackResult = [callbackResult];
           }
+          callbackResult.forEach((it) => {
+            if (it == null) {
+              return;
+            }
+            if (it instanceof HTMLStyleElement) {
+              resultList.push(it);
+              return;
+            }
+          });
         }
-        clearStoreStyleElements();
-        storeStyleElements = [...resultList];
+        clearBeforeStoreValue();
+        storeValueList = [...resultList];
       };
       once && keyList.forEach((key) => {
         let listenerId = this.addValueChangeListener(
           key,
           (key2, newValue, oldValue) => {
-            valueChange();
+            valueChangeCallback();
           }
         );
         listenerIdList.push(listenerId);
       });
-      valueChange();
+      valueChangeCallback();
       let result = {
         /**
          * 清空菜单执行情况
@@ -1117,7 +1117,7 @@
          * 清空存储的元素列表
          */
         clearStoreStyleElements: () => {
-          return clearStoreStyleElements();
+          return clearBeforeStoreValue();
         },
         /**
          * 移除值改变的监听器
@@ -1612,13 +1612,12 @@
     clickPreCodeAutomatically() {
       log.info("点击代码块自动展开");
       document.addEventListener("click", function(event) {
-        var _a2;
         let $click = event.target;
         if ($click.localName !== "pre") {
           return;
         }
         $click.style.setProperty("height", "auto");
-        (_a2 = $click.querySelector(".hide-preCode-box")) == null ? void 0 : _a2.remove();
+        $click.querySelector(".hide-preCode-box")?.remove();
       });
     },
     /**
@@ -1938,9 +1937,8 @@
         }
       );
       utils.waitNode("#content_views").then(($content_views) => {
-        var _a2;
         if (_unsafeWindow.$) {
-          (_a2 = _unsafeWindow.$("#content_views")) == null ? void 0 : _a2.unbind("copy");
+          _unsafeWindow.$("#content_views")?.unbind("copy");
         }
         domUtils.on(
           $content_views,
@@ -1948,7 +1946,7 @@
           function(event) {
             utils.preventEvent(event);
             let selectText = _unsafeWindow.getSelection();
-            let copyText = selectText == null ? void 0 : selectText.toString();
+            let copyText = selectText?.toString();
             log.info(
               "Ctrl+C复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText)
             );
@@ -2038,7 +2036,7 @@
       if (typeof data === "string") {
         data = utils.toJSON(data);
       }
-      return (data == null ? void 0 : data.code) === 200;
+      return data?.code === 200;
     }
   };
   const CSDNFavoriteApi = {
@@ -2259,7 +2257,6 @@
     refactoringRecommendation() {
       function refactoring() {
         document.querySelectorAll(".container-fluid").forEach((item) => {
-          var _a2, _b;
           let url = "";
           let title = "";
           let content = "";
@@ -2268,11 +2265,11 @@
           let isCSDNEduDownload = false;
           if (item.hasAttribute("data-url")) {
             url = item.getAttribute("data-url");
-            title = (_a2 = item.querySelector(".recommend_title div.left")) == null ? void 0 : _a2.innerHTML;
+            title = item.querySelector(".recommend_title div.left")?.innerHTML;
             if (!item.querySelector(".text")) {
               return;
             }
-            content = (_b = item.querySelector(".text")) == null ? void 0 : _b.innerHTML;
+            content = item.querySelector(".text")?.innerHTML;
             if (item.querySelectorAll(".recommend-img").length) {
               item.querySelectorAll(".recommend-img").forEach((item2) => {
                 img += item2.innerHTML;
