@@ -78,7 +78,7 @@ export const BilibiliComponentDetectionRule = {
 	 */
 	showView() {
 		const that = this;
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		/**
 		 * 自定义存储api的配置
 		 * @param uuid
@@ -148,7 +148,7 @@ export const BilibiliComponentDetectionRule = {
 							generateStorageApi(data)
 						);
 						let $enable =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								enable_template
 							);
 
@@ -167,7 +167,7 @@ export const BilibiliComponentDetectionRule = {
 							generateStorageApi(data)
 						);
 						let $name =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								name_template
 							);
 
@@ -183,7 +183,7 @@ export const BilibiliComponentDetectionRule = {
 							generateStorageApi(data.data)
 						);
 						let $isShowDisplayName =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								isShowDisplayName_template
 							);
 
@@ -200,7 +200,7 @@ export const BilibiliComponentDetectionRule = {
 							generateStorageApi(data.data)
 						);
 						let $displayName =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								displayName_template
 							);
 
@@ -216,7 +216,7 @@ export const BilibiliComponentDetectionRule = {
 							generateStorageApi(data.data)
 						);
 						let $isShowDisplayIcon =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								isShowDisplayIcon_template
 							);
 
@@ -233,7 +233,7 @@ export const BilibiliComponentDetectionRule = {
 							generateStorageApi(data.data)
 						);
 						let $displayIcon =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								displayIcon_template
 							);
 
@@ -264,7 +264,7 @@ export const BilibiliComponentDetectionRule = {
 							},
 						});
 						let $keywords =
-							popsPanelContentUtils.createSectionContainerItem_textarea(
+							panelHandlerComponents.createSectionContainerItem_textarea(
 								keywords_template
 							);
 
@@ -301,7 +301,7 @@ export const BilibiliComponentDetectionRule = {
 							},
 						});
 						let $followings =
-							popsPanelContentUtils.createSectionContainerItem_textarea(
+							panelHandlerComponents.createSectionContainerItem_textarea(
 								followings_template
 							);
 
@@ -338,7 +338,7 @@ export const BilibiliComponentDetectionRule = {
 							},
 						});
 						let $blacklist =
-							popsPanelContentUtils.createSectionContainerItem_textarea(
+							panelHandlerComponents.createSectionContainerItem_textarea(
 								blacklist_template
 							);
 
