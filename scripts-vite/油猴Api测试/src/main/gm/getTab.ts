@@ -1,5 +1,5 @@
 import { GM, GM_getTab } from "ViteGM";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/components/ui-info";
@@ -10,7 +10,7 @@ import { DOMUtils, setTimeoutLog, utils } from "@/env";
 import Qmsg from "qmsg";
 import { TagUtil } from "@/setting/tag";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
-import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 export class ApiTest_getTab extends ApiAsyncTestBase {
 	public isSupport() {

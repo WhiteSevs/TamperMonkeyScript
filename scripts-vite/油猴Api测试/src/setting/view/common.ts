@@ -1,5 +1,5 @@
 import { DOMUtils, injectDocumentTime, log, utils } from "@/env";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { UIInfo } from "./../components/ui-info";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { StorageApi } from "@/main/StorageApi";

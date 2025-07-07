@@ -2,7 +2,7 @@ import { GM, GM_addElement } from "ViteGM";
 import type {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
-} from "@whitesev/pops/dist/types/src/components/panel/indexType";
+} from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo, type UIInfoResultConfig } from "@/setting/components/ui-info";
@@ -10,7 +10,7 @@ import { CommonUtil } from "@components/utils/CommonUtil";
 import { GlobalUtil } from "../GlobalUtil";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
-import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 export class ApiTest_addElement extends ApiAsyncTestBase {
 	public getApiName() {

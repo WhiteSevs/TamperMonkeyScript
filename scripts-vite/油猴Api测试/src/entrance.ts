@@ -1,6 +1,6 @@
 import { Panel } from "@components/setting/panel";
 import { PanelContent } from "@components/setting/panel-content";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { Component_Common } from "./setting/view/common";
 import { GMTotal } from "./main/GMTotal";
 import { GrantTest_onurlchange } from "./main/grant/onurlchange";

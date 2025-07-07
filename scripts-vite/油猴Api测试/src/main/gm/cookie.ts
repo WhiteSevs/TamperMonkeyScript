@@ -1,5 +1,5 @@
 import { GM, GM_cookie, type GmCookieType } from "ViteGM";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { StorageApi } from "../StorageApi";
 import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/types/main";
 import { CommonUtil } from "@components/utils/CommonUtil";

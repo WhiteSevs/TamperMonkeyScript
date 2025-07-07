@@ -1,7 +1,7 @@
 import { DOMUtils, utils } from "@/env";
-import type { PopsPanelOwnDetails } from "@whitesev/pops/dist/types/src/components/panel/ownType";
+import type { PopsPanelOwnDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-own";
 import { Tag, TagUtil, type TagName } from "../tag";
-import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/commonType";
+import type { PopsPanelRightAsideContainerOptions } from "@whitesev/pops/dist/types/src/components/panel/types/components-common";
 
 export type UIInfoResultConfig = {
 	/** 文字 */

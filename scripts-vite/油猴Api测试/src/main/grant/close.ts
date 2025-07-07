@@ -1,7 +1,7 @@
 import type {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
-} from "@whitesev/pops/dist/types/src/components/panel/indexType";
+} from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { ApiTestBase } from "../base/ApiTestBase";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";

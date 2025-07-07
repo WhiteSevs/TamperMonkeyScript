@@ -4,7 +4,7 @@ import {
 	type GmNotificationControl,
 	type GmNotificationOptions,
 } from "ViteGM";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { StorageApi } from "../StorageApi";
 import { PanelKeyConfig } from "@/setting/panel-key-config";
 import { UIInfo } from "@/setting/components/ui-info";
@@ -14,7 +14,7 @@ import { Tag, TagUtil, type TagName } from "@/setting/tag";
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import Qmsg from "qmsg";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
-import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 
 export class ApiTest_notification extends ApiAsyncTestBase {
 	public isSupport() {
