@@ -2,7 +2,7 @@ import { log } from "@/env";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { UITextArea } from "@components/setting/components/ui-textarea";
 import { UISelect } from "@components/setting/components/ui-select";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { PanelSettingConfig } from "@components/setting/panel-setting-config";
 
 export const Component_Common: PopsPanelContentConfig = {

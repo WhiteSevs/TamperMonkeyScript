@@ -1,6 +1,6 @@
 import { DOMUtils, pops, utils } from "@/env";
-import type { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/inputType";
-import type { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/selectType";
+import type { PopsPanelInputDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-input";
+import type { PopsPanelSelectDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-select";
 import { CookieManager } from "./CookieManager";
 import Qmsg from "qmsg";
 import { CookieInfoTransform } from "@/main/CookieInfoTransform";
@@ -191,8 +191,8 @@ export const CookieManagerEditView = {
 			".pops-confirm-content"
 		)!;
 
-		let panelHandleContentUtils = pops.config.panelHandleContentUtils();
-		let $name = panelHandleContentUtils.createSectionContainerItem_input(
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
+		let $name = panelHandlerComponents.createSectionContainerItem_input(
 			edit_ui_input(
 				"name",
 				() => cookieInfo.name,
@@ -200,21 +200,21 @@ export const CookieManagerEditView = {
 				isEdit
 			)
 		);
-		let $value = panelHandleContentUtils.createSectionContainerItem_input(
+		let $value = panelHandlerComponents.createSectionContainerItem_input(
 			edit_ui_input(
 				"value",
 				() => cookieInfo.value,
 				(value) => (cookieInfo.value = value)
 			)
 		);
-		let $domain = panelHandleContentUtils.createSectionContainerItem_input(
+		let $domain = panelHandlerComponents.createSectionContainerItem_input(
 			edit_ui_input(
 				"domain",
 				() => cookieInfo.domain,
 				(value) => (cookieInfo.domain = value)
 			)
 		);
-		let $path = panelHandleContentUtils.createSectionContainerItem_input(
+		let $path = panelHandlerComponents.createSectionContainerItem_input(
 			edit_ui_input(
 				"path",
 				() => cookieInfo.path,
@@ -224,7 +224,7 @@ export const CookieManagerEditView = {
 		let $expires: HTMLLIElement;
 		if (cookieInfo.session) {
 			// session的话就是 没有过期时间，变成输出框
-			$expires = panelHandleContentUtils.createSectionContainerItem_input(
+			$expires = panelHandlerComponents.createSectionContainerItem_input(
 				edit_ui_input(
 					"expires",
 					() => "会话",
@@ -233,7 +233,7 @@ export const CookieManagerEditView = {
 				)
 			);
 		} else {
-			$expires = panelHandleContentUtils.createSectionContainerItem_own({
+			$expires = panelHandlerComponents.createSectionContainerItem_own({
 				type: "own",
 				getLiElementCallBack: function (
 					liElement: HTMLLIElement
@@ -264,7 +264,7 @@ export const CookieManagerEditView = {
 				},
 			});
 		}
-		let $httpOnly = panelHandleContentUtils.createSectionContainerItem_select(
+		let $httpOnly = panelHandlerComponents.createSectionContainerItem_select(
 			edit_ui_select(
 				"httpOnly",
 				[
@@ -281,7 +281,7 @@ export const CookieManagerEditView = {
 				(value) => (cookieInfo.httpOnly = value)
 			)
 		);
-		let $secure = panelHandleContentUtils.createSectionContainerItem_select(
+		let $secure = panelHandlerComponents.createSectionContainerItem_select(
 			edit_ui_select(
 				"secure",
 				[
@@ -333,7 +333,7 @@ export const CookieManagerEditView = {
 				},
 			];
 		}
-		let $sameSite = panelHandleContentUtils.createSectionContainerItem_select(
+		let $sameSite = panelHandlerComponents.createSectionContainerItem_select(
 			edit_ui_select(
 				"sameSite",
 				sameSiteData,

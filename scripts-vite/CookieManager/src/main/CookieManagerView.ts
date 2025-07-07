@@ -480,17 +480,16 @@ export const CookieManagerView = {
 			let $content = $settingAlert.$shadowRoot.querySelector<HTMLDivElement>(
 				".pops-alert-content"
 			)!;
-			let panelHandleContentUtils = pops.config.panelHandleContentUtils();
-			let $useRegExp =
-				panelHandleContentUtils.createSectionContainerItem_switch(
-					UISwitch(
-						"启用正则表达式",
-						"search-config-use-regexp",
-						false,
-						void 0,
-						"使用正则表达式搜索Cookie名称"
-					)
-				);
+			let panelHandlerComponents = pops.config.PanelHandlerComponents();
+			let $useRegExp = panelHandlerComponents.createSectionContainerItem_switch(
+				UISwitch(
+					"启用正则表达式",
+					"search-config-use-regexp",
+					false,
+					void 0,
+					"使用正则表达式搜索Cookie名称"
+				)
+			);
 
 			DOMUtils.append($content, $useRegExp);
 		});
@@ -605,9 +604,9 @@ export const CookieManagerView = {
 			let $content = $settingAlert.$shadowRoot.querySelector<HTMLDivElement>(
 				".pops-alert-content"
 			)!;
-			let panelHandleContentUtils = pops.config.panelHandleContentUtils();
+			let panelHandlerComponents = pops.config.PanelHandlerComponents();
 			let $useGM_cookie =
-				panelHandleContentUtils.createSectionContainerItem_select(
+				panelHandlerComponents.createSectionContainerItem_select(
 					UISelect(
 						"CookieManager Api",
 						"cookie-manager-api",
@@ -637,7 +636,7 @@ export const CookieManagerView = {
 					)
 				);
 			let $decodeValue =
-				panelHandleContentUtils.createSectionContainerItem_switch(
+				panelHandlerComponents.createSectionContainerItem_switch(
 					UISwitch(
 						"解码Cookie值",
 						"decode-cookie-value",
@@ -649,7 +648,7 @@ export const CookieManagerView = {
 					)
 				);
 			let $excludeSessionCookie =
-				panelHandleContentUtils.createSectionContainerItem_switch(
+				panelHandlerComponents.createSectionContainerItem_switch(
 					UISwitch(
 						"排除Session Cookie",
 						"exclude-session-cookie",

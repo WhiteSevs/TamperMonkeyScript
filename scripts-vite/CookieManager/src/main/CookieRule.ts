@@ -81,7 +81,7 @@ export const CookieRule = {
 	 */
 	showView() {
 		const that = this;
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		/**
 		 * 自定义存储api的配置
 		 * @param uuid
@@ -150,7 +150,7 @@ export const CookieRule = {
 							generateStorageApi(data)
 						);
 						let $enable =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								enable_template
 							);
 
@@ -169,7 +169,7 @@ export const CookieRule = {
 							generateStorageApi(data)
 						);
 						let $name =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								name_template
 							);
 
@@ -188,7 +188,7 @@ export const CookieRule = {
 							generateStorageApi(data.data)
 						);
 						let $url =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								url_template
 							);
 
@@ -204,7 +204,7 @@ export const CookieRule = {
 							generateStorageApi(data.data)
 						);
 						let $enableRegExpToMatchUrl =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								enableRegExpToMatchUrl_template
 							);
 
@@ -223,7 +223,7 @@ export const CookieRule = {
 							generateStorageApi(data.data)
 						);
 						let $cookieName =
-							popsPanelContentUtils.createSectionContainerItem_input(
+							panelHandlerComponents.createSectionContainerItem_input(
 								cookieName_template
 							);
 
@@ -239,7 +239,7 @@ export const CookieRule = {
 							generateStorageApi(data.data)
 						);
 						let $enableRegExpToMatchCookieName =
-							popsPanelContentUtils.createSectionContainerItem_switch(
+							panelHandlerComponents.createSectionContainerItem_switch(
 								enableRegExpToMatchCookieName_template
 							);
 
@@ -276,7 +276,7 @@ export const CookieRule = {
 							generateStorageApi(data.data)
 						);
 						let $operationMode =
-							popsPanelContentUtils.createSectionContainerItem_select(
+							panelHandlerComponents.createSectionContainerItem_select(
 								operationMode_template
 							);
 
@@ -291,7 +291,7 @@ export const CookieRule = {
 							generateStorageApi(data.data)
 						);
 						let $remark =
-							popsPanelContentUtils.createSectionContainerItem_textarea(
+							panelHandlerComponents.createSectionContainerItem_textarea(
 								remark_template
 							);
 
