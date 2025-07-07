@@ -1,6 +1,6 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
-import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
+import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import { unsafeWindow } from "ViteGM";
 import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
 import {

@@ -53,7 +53,7 @@ export const CharacterMapping = {
 	 */
 	getRulePanelViewOption(quickAddData?: CharacterMappingOption) {
 		const that = this;
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		let addData = () => {
 			return quickAddData ?? this.getTemplateData();
 		};
@@ -282,7 +282,7 @@ export const CharacterMapping = {
 												generateStorageApi(data)
 											);
 											let $enable =
-												popsPanelContentUtils.createSectionContainerItem_switch(
+												panelHandlerComponents.createSectionContainerItem_switch(
 													enable_template
 												);
 
@@ -301,7 +301,7 @@ export const CharacterMapping = {
 												generateStorageApi(data)
 											);
 											let $name =
-												popsPanelContentUtils.createSectionContainerItem_input(
+												panelHandlerComponents.createSectionContainerItem_input(
 													name_template
 												);
 
@@ -320,7 +320,7 @@ export const CharacterMapping = {
 												generateStorageApi(data.data)
 											);
 											let $data_url =
-												popsPanelContentUtils.createSectionContainerItem_input(
+												panelHandlerComponents.createSectionContainerItem_input(
 													url_template
 												);
 
@@ -345,7 +345,7 @@ export const CharacterMapping = {
 													generateStorageApi(storageData)
 												);
 												let $data_searchValue =
-													popsPanelContentUtils.createSectionContainerItem_input(
+													panelHandlerComponents.createSectionContainerItem_input(
 														data_searchValue_template
 													);
 
@@ -363,7 +363,7 @@ export const CharacterMapping = {
 													generateStorageApi(data.data)
 												);
 												let $data_isRegExp =
-													popsPanelContentUtils.createSectionContainerItem_switch(
+													panelHandlerComponents.createSectionContainerItem_switch(
 														data_isRegExp_template
 													);
 
@@ -382,7 +382,7 @@ export const CharacterMapping = {
 													generateStorageApi(data.data)
 												);
 												let $data_regExpFlag =
-													popsPanelContentUtils.createSectionContainerItem_input(
+													panelHandlerComponents.createSectionContainerItem_input(
 														data_regExpFlag_template
 													);
 
@@ -401,7 +401,7 @@ export const CharacterMapping = {
 													generateStorageApi(data.data)
 												);
 												let $data_replaceValue =
-													popsPanelContentUtils.createSectionContainerItem_input(
+													panelHandlerComponents.createSectionContainerItem_input(
 														data_replaceValue_template
 													);
 
@@ -763,7 +763,7 @@ export const CharacterMapping = {
 								generateStorageApi(data)
 							);
 							let $enable =
-								popsPanelContentUtils.createSectionContainerItem_switch(
+								panelHandlerComponents.createSectionContainerItem_switch(
 									enable_template
 								);
 
@@ -782,7 +782,7 @@ export const CharacterMapping = {
 								generateStorageApi(data)
 							);
 							let $name =
-								popsPanelContentUtils.createSectionContainerItem_input(
+								panelHandlerComponents.createSectionContainerItem_input(
 									name_template
 								);
 
@@ -801,7 +801,7 @@ export const CharacterMapping = {
 								generateStorageApi(data.data)
 							);
 							let $data_url =
-								popsPanelContentUtils.createSectionContainerItem_input(
+								panelHandlerComponents.createSectionContainerItem_input(
 									url_template
 								);
 
@@ -826,7 +826,7 @@ export const CharacterMapping = {
 									generateStorageApi(storageData)
 								);
 								let $data_searchValue =
-									popsPanelContentUtils.createSectionContainerItem_input(
+									panelHandlerComponents.createSectionContainerItem_input(
 										data_searchValue_template
 									);
 
@@ -844,7 +844,7 @@ export const CharacterMapping = {
 									generateStorageApi(data.data)
 								);
 								let $data_isRegExp =
-									popsPanelContentUtils.createSectionContainerItem_switch(
+									panelHandlerComponents.createSectionContainerItem_switch(
 										data_isRegExp_template
 									);
 
@@ -863,7 +863,7 @@ export const CharacterMapping = {
 									generateStorageApi(data.data)
 								);
 								let $data_regExpFlag =
-									popsPanelContentUtils.createSectionContainerItem_input(
+									panelHandlerComponents.createSectionContainerItem_input(
 										data_regExpFlag_template
 									);
 
@@ -882,7 +882,7 @@ export const CharacterMapping = {
 									generateStorageApi(data.data)
 								);
 								let $data_replaceValue =
-									popsPanelContentUtils.createSectionContainerItem_input(
+									panelHandlerComponents.createSectionContainerItem_input(
 										data_replaceValue_template
 									);
 
@@ -1348,7 +1348,7 @@ export const CharacterMapping = {
 					Qmsg.warning("规则为空，无需导出");
 					return;
 				}
-				let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+				let panelHandlerComponents = pops.config.PanelHandlerComponents();
 				/**
 				 * 自定义存储api的配置
 				 * @param uuid
@@ -1454,7 +1454,7 @@ export const CharacterMapping = {
 					generateStorageApi(configData)
 				);
 				let $title =
-					popsPanelContentUtils.createSectionContainerItem_input(
+					panelHandlerComponents.createSectionContainerItem_input(
 						title_template
 					);
 
@@ -1474,7 +1474,7 @@ export const CharacterMapping = {
 					generateStorageApi(configData)
 				);
 				let $version =
-					popsPanelContentUtils.createSectionContainerItem_input(
+					panelHandlerComponents.createSectionContainerItem_input(
 						version_template
 					);
 
@@ -1493,7 +1493,7 @@ export const CharacterMapping = {
 					generateStorageApi(configData)
 				);
 				let $homePage =
-					popsPanelContentUtils.createSectionContainerItem_input(
+					panelHandlerComponents.createSectionContainerItem_input(
 						homePage_template
 					);
 

@@ -1,7 +1,7 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { GM_download } from "ViteGM";
-import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
+import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";

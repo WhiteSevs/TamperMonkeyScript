@@ -1,8 +1,8 @@
-import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 import type {
 	PopsPanelContentConfig,
 	PopsPanelFormsTotalDetails,
-} from "@whitesev/pops/dist/types/src/components/panel/indexType";
+} from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { NetDiskRule_baidu } from "./default-rule/baidu/rule";
 import { NetDiskRule_lanzou } from "./default-rule/lanzou/rule";
 import { NetDiskRule_lanzouyx } from "./default-rule/lanzouyx/rule";

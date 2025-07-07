@@ -4,7 +4,7 @@ import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { GeneratePanelStorage } from "@/main/data/NetDiskDataUtils";
-import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
+import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import type { HttpxResponseData } from "@whitesev/utils/src/types/Httpx";
 
 export const NetDiskParse_Lanzou_Config = {

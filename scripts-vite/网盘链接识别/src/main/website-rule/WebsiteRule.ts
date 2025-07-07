@@ -12,12 +12,12 @@ import { NetDiskUI } from "../ui/NetDiskUI";
 import { NetDiskPops } from "../pops/NetDiskPops";
 import { Panel } from "@components/setting/panel";
 import { NetDiskRule } from "../rule/NetDiskRule";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import {
 	NetDiskRuleDataKEY,
 	WebsiteRuleDataKey,
 } from "../data/NetDiskRuleDataKey";
-import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/formsType";
+import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 import panelSettingCSS from "./css/index.css?raw";
 import panelIndexCSS from "./../view/global-setting/index.css?raw";
 import {
@@ -76,7 +76,7 @@ export const WebsiteRule = {
 	 */
 	getRulePanelViewOption(quickAddData?: WebsiteRuleOption) {
 		const that = this;
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		let addData = () => {
 			return quickAddData ?? this.getTemplateData();
 		};
@@ -335,7 +335,7 @@ export const WebsiteRule = {
 												generateStorageApi(data)
 											);
 											let $enable =
-												popsPanelContentUtils.createSectionContainerItem_switch(
+												panelHandlerComponents.createSectionContainerItem_switch(
 													enable_template
 												);
 
@@ -354,7 +354,7 @@ export const WebsiteRule = {
 												generateStorageApi(data)
 											);
 											let $name =
-												popsPanelContentUtils.createSectionContainerItem_input(
+												panelHandlerComponents.createSectionContainerItem_input(
 													name_template
 												);
 
@@ -373,7 +373,7 @@ export const WebsiteRule = {
 												generateStorageApi(data)
 											);
 											let $data_url =
-												popsPanelContentUtils.createSectionContainerItem_input(
+												panelHandlerComponents.createSectionContainerItem_input(
 													url_template
 												);
 
@@ -584,7 +584,7 @@ export const WebsiteRule = {
 												void 0
 											);
 											let $coverSetting_template =
-												popsPanelContentUtils.createSectionContainerItem_button(
+												panelHandlerComponents.createSectionContainerItem_button(
 													coverSetting_template
 												);
 
@@ -803,7 +803,7 @@ export const WebsiteRule = {
 								generateStorageApi(data)
 							);
 							let $enable =
-								popsPanelContentUtils.createSectionContainerItem_switch(
+								panelHandlerComponents.createSectionContainerItem_switch(
 									enable_template
 								);
 
@@ -822,7 +822,7 @@ export const WebsiteRule = {
 								generateStorageApi(data)
 							);
 							let $name =
-								popsPanelContentUtils.createSectionContainerItem_input(
+								panelHandlerComponents.createSectionContainerItem_input(
 									name_template
 								);
 
@@ -841,7 +841,7 @@ export const WebsiteRule = {
 								generateStorageApi(data)
 							);
 							let $data_url =
-								popsPanelContentUtils.createSectionContainerItem_input(
+								panelHandlerComponents.createSectionContainerItem_input(
 									url_template
 								);
 
@@ -1048,7 +1048,7 @@ export const WebsiteRule = {
 								void 0
 							);
 							let $coverSetting_template =
-								popsPanelContentUtils.createSectionContainerItem_button(
+								panelHandlerComponents.createSectionContainerItem_button(
 									coverSetting_template
 								);
 
@@ -1400,7 +1400,7 @@ export const WebsiteRule = {
 					Qmsg.warning("规则为空，无需导出");
 					return;
 				}
-				let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+				let panelHandlerComponents = pops.config.PanelHandlerComponents();
 				/**
 				 * 自定义存储api的配置
 				 * @param uuid
@@ -1501,7 +1501,7 @@ export const WebsiteRule = {
 					generateStorageApi(configData)
 				);
 				let $title =
-					popsPanelContentUtils.createSectionContainerItem_input(
+					panelHandlerComponents.createSectionContainerItem_input(
 						title_template
 					);
 
@@ -1521,7 +1521,7 @@ export const WebsiteRule = {
 					generateStorageApi(configData)
 				);
 				let $version =
-					popsPanelContentUtils.createSectionContainerItem_input(
+					panelHandlerComponents.createSectionContainerItem_input(
 						version_template
 					);
 
@@ -1540,7 +1540,7 @@ export const WebsiteRule = {
 					generateStorageApi(configData)
 				);
 				let $homePage =
-					popsPanelContentUtils.createSectionContainerItem_input(
+					panelHandlerComponents.createSectionContainerItem_input(
 						homePage_template
 					);
 

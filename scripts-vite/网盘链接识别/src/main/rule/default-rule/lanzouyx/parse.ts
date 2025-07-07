@@ -1,5 +1,5 @@
 import { httpx, log, utils, Cryptojs } from "@/env";
-import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/indexType";
+import type { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import Qmsg from "qmsg";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";

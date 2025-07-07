@@ -1,13 +1,13 @@
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { pops, utils } from "@/env";
-import type { PopsPanelDetails } from "@whitesev/pops/dist/types/src/components/panel/indexType";
-import { PopsLoadingDetails } from "@whitesev/pops/dist/types/src/components/loading/indexType";
-import { PopsConfirmDetails } from "@whitesev/pops/dist/types/src/components/confirm/indexType";
-import { PopsFolderDetails } from "@whitesev/pops/dist/types/src/components/folder/indexType";
-import { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/indexType";
-import { PopsPromptDetails } from "@whitesev/pops/dist/types/src/components/prompt/indexType";
+import type { PopsPanelDetails } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import { PopsLoadingDetails } from "@whitesev/pops/dist/types/src/components/loading/types/index";
+import { PopsConfirmDetails } from "@whitesev/pops/dist/types/src/components/confirm/types/index";
+import { PopsFolderDetails } from "@whitesev/pops/dist/types/src/components/folder/types/index";
+import { PopsAlertDetails } from "@whitesev/pops/dist/types/src/components/alert/types/index";
+import { PopsPromptDetails } from "@whitesev/pops/dist/types/src/components/prompt/types/index";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
-import { PopsRightClickMenuDetails } from "@whitesev/pops/dist/types/src/components/rightClickMenu/indexType";
+import { PopsRightClickMenuDetails } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
 
 export type PopsSizeConfig = {
 	/** PC端 */

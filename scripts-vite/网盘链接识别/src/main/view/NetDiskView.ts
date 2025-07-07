@@ -7,7 +7,7 @@ import { NetDiskCheckLinkValidity } from "../check-valid/NetDiskCheckLinkValidit
 import {
 	PopsRightClickMenuDataDetails,
 	PopsRightClickMenuDetails,
-} from "@whitesev/pops/dist/types/src/components/rightClickMenu/indexType";
+} from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
 import Qmsg from "qmsg";
 import { NetDiskSuspensionConfig } from "./suspension/NetDiskSuspensionView";
 import {

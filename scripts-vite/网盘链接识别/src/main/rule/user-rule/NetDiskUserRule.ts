@@ -757,7 +757,6 @@ export const NetDiskUserRule = {
 	 */
 	getRulePanelViewOption(quickAddData?: NetDiskUserCustomRule) {
 		const that = this;
-		let popsPanelContentUtils = pops.config.panelHandleContentUtils();
 		let addData = () => {
 			return quickAddData ?? this.getTemplateRule();
 		};
@@ -1312,7 +1311,7 @@ export const NetDiskUserRule = {
 					Qmsg.warning("规则为空，无需导出");
 					return;
 				}
-				let popsPanelContentUtils = pops.config.panelHandleContentUtils();
+				let panelHandlerComponents = pops.config.PanelHandlerComponents();
 				/**
 				 * 自定义存储api的配置
 				 * @param uuid
@@ -1413,7 +1412,7 @@ export const NetDiskUserRule = {
 					generateStorageApi(configData)
 				);
 				let $title =
-					popsPanelContentUtils.createSectionContainerItem_input(
+					panelHandlerComponents.createSectionContainerItem_input(
 						title_template
 					);
 
@@ -1433,7 +1432,7 @@ export const NetDiskUserRule = {
 					generateStorageApi(configData)
 				);
 				let $version =
-					popsPanelContentUtils.createSectionContainerItem_input(
+					panelHandlerComponents.createSectionContainerItem_input(
 						version_template
 					);
 
@@ -1452,7 +1451,7 @@ export const NetDiskUserRule = {
 					generateStorageApi(configData)
 				);
 				let $homePage =
-					popsPanelContentUtils.createSectionContainerItem_input(
+					panelHandlerComponents.createSectionContainerItem_input(
 						homePage_template
 					);
 
