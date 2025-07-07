@@ -6,8 +6,15 @@ label[for="comment_attachments"] {
 input[type="file"] {
 	width: 100%;
 	font-size: 20px;
-	background: #e2e2e2;
+	background-color: #e2e2e2;
 	padding: 40px 0px;
 	border-radius: 10px;
 	text-align-last: center;
+}
+
+@media (prefers-color-scheme: dark) {
+	input[type="file"] {
+		background-color: transparent;
+		border: 1px solid #e2e2e2;
+	}
 }

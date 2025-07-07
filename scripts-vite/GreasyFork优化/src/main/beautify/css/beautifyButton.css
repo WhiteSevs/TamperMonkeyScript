@@ -82,3 +82,67 @@ input[type="url"]:hover {
 input[type="url"]:focus {
 	box-shadow: 0 0 0 1px #409eff inset;
 }
+
+/* 危险按钮 */
+button.pops-button--danger {
+	border-color: #ff4d4d;
+	background-color: #ffe6e6;
+	color: #ff0000;
+}
+button.pops-button--danger:hover {
+	border-color: #f56c6c;
+	background-color: #f56c6c;
+	color: #ffffff;
+}
+button.pops-button--danger:focus,
+button.pops-button--danger:active {
+	border-color: #f78989;
+	background-color: #f78989;
+	color: #ffffff;
+}
+
+/* 夜间模式 */
+@media (prefers-color-scheme: dark) {
+	input[type="submit"],
+	input[type="button"],
+	button {
+		border-color: #4c4d4f;
+		background-color: transparent;
+		color: #cfd3dc;
+	}
+	input[type="submit"]:hover,
+	input[type="button"]:hover,
+	button:hover {
+		border-color: #213d5b;
+		background-color: #18222c;
+		color: #409eff;
+	}
+	input[type="submit"]:focus,
+	input[type="button"]:focus,
+	button:focus,
+	input[type="submit"]:active,
+	input[type="button"]:active,
+	button:active {
+		border-color: #f78989;
+		background-color: #f78989;
+		color: #409eff;
+	}
+
+	/* 危险按钮 */
+	button.pops-button--danger {
+		border-color: rgb(132.5, 64, 64);
+		background-color: rgb(42.5, 28.8, 28.8);
+		color: #f56c6c;
+	}
+	button.pops-button--danger :hover {
+		border-color: #f56c6c;
+		background-color: #f56c6c;
+		color: #ffffff;
+	}
+	button.pops-button--danger :focus,
+	button.pops-button--danger :active {
+		border-color: #f78989;
+		background-color: #f78989;
+		color: #ffffff;
+	}
+}

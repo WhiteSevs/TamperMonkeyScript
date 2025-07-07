@@ -373,6 +373,25 @@ const Greasyfork = {
             border-color: rgba(31, 35, 40, 0.15);
             transition: none;
         }
+		@media (prefers-color-scheme: dark) {
+			.snippet-clipboard-content{
+				background-color: #151b23;
+			}
+			clipboard-copy.js-clipboard-copy{
+				border: 0;
+				background-color: transparent;
+				box-shadow: none;
+			}
+			clipboard-copy.js-clipboard-copy svg{
+				color: #9198a1;
+			}
+			clipboard-copy.js-clipboard-copy:hover,
+			clipboard-copy.js-clipboard-copy:focus,
+			clipboard-copy.js-clipboard-copy:active{
+				background-color: #262c36;
+				box-shadow: none;
+			}
+        }
         `);
 		addStyle(/*css*/ `
         .pops-tip.github-tooltip {

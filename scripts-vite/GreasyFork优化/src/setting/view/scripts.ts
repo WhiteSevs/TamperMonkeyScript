@@ -1,6 +1,6 @@
 import i18next from "i18next";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 
 export const SettingUIScripts: PopsPanelContentConfig = {
 	id: "greasy-fork-panel-config-scripts",

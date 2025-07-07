@@ -220,7 +220,7 @@ export const GreasyforkForum = {
 				{
 					className: "discussion-meta-item",
 					innerHTML: `
-					<button class="discussion-report-button" style="border-color: #ff4d4d;background-color: #ffe6e6;color: red;">${i18next.t(
+					<button class="discussion-report-button pops-button--danger">${i18next.t(
 						"举报"
 					)}</button>
 					`,

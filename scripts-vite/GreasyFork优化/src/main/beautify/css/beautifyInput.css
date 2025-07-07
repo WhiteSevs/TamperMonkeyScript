@@ -42,3 +42,7 @@ input[type="password"]:focus {
 	border-radius: 4px;
 	box-shadow: none;
 }
+
+@media (prefers-color-scheme: dark) {
+	
+}

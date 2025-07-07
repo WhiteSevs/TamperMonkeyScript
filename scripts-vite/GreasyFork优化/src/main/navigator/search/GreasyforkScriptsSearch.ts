@@ -142,7 +142,7 @@ export const GreasyforkScriptsSearch = {
 		$search: HTMLElement,
 		$filterControlsContainer: HTMLElement
 	) {
-		let panelHandleContentUtils = pops.config.panelHandleContentUtils();
+		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		let controlsConfig: {
 			/** 名称 */
 			name: string;
@@ -311,7 +311,7 @@ export const GreasyforkScriptsSearch = {
 		};
 		if (Panel.getValue("gf-script-search-addFilterSearchInput")) {
 			let $searchInner =
-				panelHandleContentUtils.createSectionContainerItem_input({
+				panelHandlerComponents.createSectionContainerItem_input({
 					type: "input",
 					className: "gm-script-search-input",
 					getValue() {
@@ -343,7 +343,7 @@ export const GreasyforkScriptsSearch = {
 			}
 			log.info(`添加按钮${controlConfig.name}`);
 			let $controlContainer =
-				panelHandleContentUtils.createSectionContainerItem_switch({
+				panelHandlerComponents.createSectionContainerItem_switch({
 					type: "switch",
 					className: "gm-script-control-item",
 					text: controlConfig.name,

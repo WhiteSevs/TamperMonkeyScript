@@ -9,15 +9,17 @@ ol.script-list {
 	gap: 20px;
 	background: transparent;
 	box-shadow: none;
+	--shadow-color: #dddddd;
+	--border-color: #dddddd;
 }
 ol.script-list .script-description {
 	overflow-wrap: anywhere;
 }
 ol.script-list li {
-	border: 1px solid rgb(221, 221, 221);
+	border: 1px solid var(--border-color);
 	border-radius: 5px;
 	flex: 1 1 45%;
-	box-shadow: rgb(221, 221, 221) 0px 0px 5px 2px;
+	box-shadow: var(--shadow-color) 0px 0px 5px 2px;
 }
 /* 收藏按钮 */
 .script-collect-btn {
@@ -61,4 +63,11 @@ ol.script-list li {
 	margin-top: -0.5em;
 	border-radius: 1em !important;
 	background: hsla(0, 0%, 100%, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+	ol.script-list {
+		--shadow-color: #3d3d3d;
+		--border-color: #3d3d3d;
+	}
 }

@@ -7,7 +7,7 @@ import { GreasyforkRouter } from "@/router/GreasyforkRouter";
 import i18next from "i18next";
 import { UISelect } from "@components/setting/components/ui-select";
 import { $$, DOMUtils, log, utils } from "@/env";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { UIButtonShortCut } from "@components/setting/components/ui-button-shortcut";
 import { GreasyforkShortCut } from "@/main/GreasyforkShortCut";
 import { GreasyforkUrlUtils } from "@/utils/GreasyforkUrlUtils";

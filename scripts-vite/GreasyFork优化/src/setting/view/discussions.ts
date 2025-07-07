@@ -1,7 +1,7 @@
 import { DOMUtils, log, utils } from "@/env";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import i18next from "i18next";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { GreasyforkDiscussionsFilter } from "@/main/navigator/discussions/GreasyforkDiscussionsFilter";
 import { Panel } from "@components/setting/panel";
 

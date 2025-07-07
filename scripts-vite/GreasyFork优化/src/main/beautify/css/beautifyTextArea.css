@@ -24,3 +24,10 @@ textarea:focus {
 	outline: none;
 	box-shadow: 0 0 0 1px #409eff inset;
 }
+
+@media (prefers-color-scheme: dark) {
+	textarea {
+		color: #cfd3dc;
+		background-color: transparent;
+	}
+}
