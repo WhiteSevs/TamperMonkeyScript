@@ -1,4 +1,4 @@
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 
 export const SettingUIU: PopsPanelContentConfig = {
 	id: "weibo-panel-config-user-home",
