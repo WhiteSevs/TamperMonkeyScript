@@ -1,6 +1,6 @@
 import { pops, utils } from "@/env";
 import { DebugToolConfig } from "@/main/DebugToolConfig";
-import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/indexType";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { UIButton } from "@components/setting/components/ui-button";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import { UIInput } from "@components/setting/components/ui-input";
