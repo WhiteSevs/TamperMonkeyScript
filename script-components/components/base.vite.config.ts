@@ -332,7 +332,10 @@ const GenerateUserConfig = async (option: {
 					 *
 					 * @link file://./src/GM_Resource_Mapping.ts
 					 */
-					ElementPlusResourceCSS: `https://fastly.jsdelivr.net/npm/element-plus@${pkg.devDependencies["element-plus"]}/dist/index.min.css`,
+					ElementPlusResourceCSS: `https://fastly.jsdelivr.net/npm/element-plus@${
+						pkg.devDependencies["element-plus"] ||
+						pkg.dependencies["element-plus"]
+					}/dist/index.min.css`,
 				},
 			},
 			build: {
