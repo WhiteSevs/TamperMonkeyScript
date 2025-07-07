@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.6.13
+// @version      2025.7.7
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.6.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -35,10 +35,6 @@
 (function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
-  var __defProp = Object.defineProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-  var _a;
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
   var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -50,6 +46,20 @@
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const CommonUtil = {
+    /**
+     * 移除元素（未出现也可以等待出现）
+     * @param selector 元素选择器
+     */
+    waitRemove(...args) {
+      args.forEach((selector) => {
+        if (typeof selector !== "string") {
+          return;
+        }
+        utils.waitNodeList(selector).then((nodeList) => {
+          nodeList.forEach(($el) => $el.remove());
+        });
+      });
+    },
     /**
      * 添加屏蔽CSS
      * @param args
@@ -235,11 +245,10 @@
         });
       }
       function checkClipboardApi() {
-        var _a2, _b;
-        if (typeof ((_a2 = navigator == null ? void 0 : navigator.clipboard) == null ? void 0 : _a2.readText) !== "function") {
+        if (typeof navigator?.clipboard?.readText !== "function") {
           return false;
         }
-        if (typeof ((_b = navigator == null ? void 0 : navigator.permissions) == null ? void 0 : _b.query) !== "function") {
+        if (typeof navigator?.permissions?.query !== "function") {
           return false;
         }
         return true;
@@ -296,7 +305,7 @@
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
-  let SCRIPT_NAME = ((_a = _GM_info == null ? void 0 : _GM_info.script) == null ? void 0 : _a.name) || void 0;
+  let SCRIPT_NAME = _GM_info?.script?.name || void 0;
   pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
@@ -350,11 +359,10 @@
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
-        var _a2;
-        if ((_a2 = $ele == null ? void 0 : $ele.classList) == null ? void 0 : _a2.contains("qmsg-shadow-container")) {
+        if ($ele?.classList?.contains("qmsg-shadow-container")) {
           return false;
         }
-        if (($ele == null ? void 0 : $ele.closest("qmsg")) && $ele.getRootNode() instanceof ShadowRoot) {
+        if ($ele?.closest("qmsg") && $ele.getRootNode() instanceof ShadowRoot) {
           return false;
         }
       });
@@ -446,6 +454,9 @@
     }
   };
   class StorageUtils {
+    /** 存储的键名 */
+    storageKey;
+    listenerData;
     /**
      * 存储的键名，可以是多层的，如：a.b.c
      *
@@ -462,9 +473,6 @@
      * @param key
      */
     constructor(key) {
-      /** 存储的键名 */
-      __publicField(this, "storageKey");
-      __publicField(this, "listenerData");
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -1019,36 +1027,39 @@
         }
         this.$data.onceExecMenuData.set(storageKey, 1);
       }
-      let storeStyleElements = [];
+      let storeValueList = [];
       let listenerIdList = [];
-      let dynamicPushStyleNode = (value, $style) => {
+      let dynamicAddStyleNodeCallback = (value, $style) => {
         let dynamicResultList = [];
-        if ($style instanceof HTMLStyleElement) {
-          dynamicResultList = [$style];
-        } else if (Array.isArray($style)) {
-          dynamicResultList = [
-            ...$style.filter(
-              (item) => item != null && item instanceof HTMLStyleElement
-            )
-          ];
+        if (!Array.isArray($style)) {
+          $style = [$style];
         }
+        $style.forEach(($styleItem) => {
+          if ($styleItem == null) {
+            return;
+          }
+          if ($styleItem instanceof HTMLStyleElement) {
+            dynamicResultList.push($styleItem);
+            return;
+          }
+        });
         {
-          storeStyleElements = storeStyleElements.concat(dynamicResultList);
+          storeValueList = storeValueList.concat(dynamicResultList);
         }
       };
       let getMenuValue = (key) => {
         let value = this.getValue(key);
         return value;
       };
-      let clearStoreStyleElements = () => {
-        for (let index = 0; index < storeStyleElements.length; index++) {
-          let $css = storeStyleElements[index];
+      let clearBeforeStoreValue = () => {
+        for (let index = 0; index < storeValueList.length; index++) {
+          let $css = storeValueList[index];
           $css.remove();
-          storeStyleElements.splice(index, 1);
+          storeValueList.splice(index, 1);
           index--;
         }
       };
-      let __checkExec__ = () => {
+      let checkMenuExec = () => {
         let flag = false;
         if (typeof checkExec === "function") {
           flag = checkExec(keyList);
@@ -1057,40 +1068,43 @@
         }
         return flag;
       };
-      let valueChange = (valueOption) => {
-        let execFlag = __checkExec__();
+      let valueChangeCallback = (valueOption) => {
+        let execFlag = checkMenuExec();
         let resultList = [];
         if (execFlag) {
           let valueList = keyList.map((key) => this.getValue(key));
-          let $styles = callback({
+          let callbackResult = callback({
+            value: isArrayKey ? valueList : valueList[0],
             addStyleElement: (...args) => {
-              return dynamicPushStyleNode(true, ...args);
-            },
-            value: isArrayKey ? valueList : valueList[0]
+              return dynamicAddStyleNodeCallback(true, ...args);
+            }
           });
-          if ($styles instanceof HTMLStyleElement) {
-            resultList.push($styles);
-          } else if (Array.isArray($styles)) {
-            resultList.push(
-              ...$styles.filter(
-                (item) => item != null && item instanceof HTMLStyleElement
-              )
-            );
+          if (!Array.isArray(callbackResult)) {
+            callbackResult = [callbackResult];
           }
+          callbackResult.forEach((it) => {
+            if (it == null) {
+              return;
+            }
+            if (it instanceof HTMLStyleElement) {
+              resultList.push(it);
+              return;
+            }
+          });
         }
-        clearStoreStyleElements();
-        storeStyleElements = [...resultList];
+        clearBeforeStoreValue();
+        storeValueList = [...resultList];
       };
       once && keyList.forEach((key) => {
         let listenerId = this.addValueChangeListener(
           key,
           (key2, newValue, oldValue) => {
-            valueChange();
+            valueChangeCallback();
           }
         );
         listenerIdList.push(listenerId);
       });
-      valueChange();
+      valueChangeCallback();
       let result = {
         /**
          * 清空菜单执行情况
@@ -1108,7 +1122,7 @@
          * 清空存储的元素列表
          */
         clearStoreStyleElements: () => {
-          return clearStoreStyleElements();
+          return clearBeforeStoreValue();
         },
         /**
          * 移除值改变的监听器
@@ -1242,96 +1256,105 @@
   const VueUtils = {
     /**
      * 获取vue2实例
-     * @param element
+     * @param $el
      */
-    getVue(element) {
-      if (element == null) {
+    getVue($el) {
+      if ($el == null) {
         return;
       }
-      return element["__vue__"] || element["__Ivue__"] || element["__IVue__"];
+      return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
     },
     /**
      * 获取vue3实例
-     * @param element
+     * @param $el
      */
-    getVue3(element) {
-      if (element == null) {
+    getVue3($el) {
+      if ($el == null) {
         return;
       }
-      return element["__vueParentComponent"];
+      return $el["__vueParentComponent"];
     },
     /**
      * 等待vue属性并进行设置
-     * @param $target 目标对象
-     * @param needSetList 需要设置的配置
+     * @param $el 目标对象
+     * @param checkOption 需要设置的配置
      */
-    waitVuePropToSet($target, needSetList) {
-      if (!Array.isArray(needSetList)) {
-        VueUtils.waitVuePropToSet($target, [needSetList]);
-        return;
+    waitVuePropToSet($el, checkOption) {
+      if (!Array.isArray(checkOption)) {
+        checkOption = [checkOption];
       }
       function getTarget() {
         let __target__ = null;
-        if (typeof $target === "string") {
-          __target__ = document.querySelector($target);
-        } else if (typeof $target === "function") {
-          __target__ = $target();
-        } else if ($target instanceof HTMLElement) {
-          __target__ = $target;
+        if (typeof $el === "string") {
+          __target__ = domUtils.selector($el);
+        } else if (typeof $el === "function") {
+          __target__ = $el();
+        } else if ($el instanceof HTMLElement) {
+          __target__ = $el;
         }
         return __target__;
       }
-      needSetList.forEach((needSetOption) => {
+      checkOption.forEach((needSetOption) => {
         if (typeof needSetOption.msg === "string") {
           log.info(needSetOption.msg);
         }
-        function checkVue() {
-          let target = getTarget();
-          if (target == null) {
-            return false;
+        function checkTarget() {
+          let $targetEl = getTarget();
+          if ($targetEl == null) {
+            return {
+              status: false,
+              isTimeout: true,
+              inst: null,
+              $el: $targetEl
+            };
           }
-          let vueInstance = VueUtils.getVue(target);
-          if (vueInstance == null) {
-            return false;
+          let vueInst = VueUtils.getVue($targetEl);
+          if (vueInst == null) {
+            return {
+              status: false,
+              isTimeout: false,
+              inst: null,
+              $el: $targetEl
+            };
           }
-          let needOwnCheck = needSetOption.check(vueInstance, target);
-          return Boolean(needOwnCheck);
+          let checkResult = needSetOption.check(vueInst, $targetEl);
+          checkResult = Boolean(checkResult);
+          return {
+            status: checkResult,
+            isTimeout: false,
+            inst: vueInst,
+            $el: $targetEl
+          };
         }
         utils.waitVueByInterval(
           () => {
             return getTarget();
           },
-          checkVue,
+          () => checkTarget().status,
           250,
           1e4
         ).then((result) => {
-          if (!result) {
+          let checkTargetResult = checkTarget();
+          if (checkTargetResult.status) {
+            let vueInst = checkTargetResult.inst;
+            needSetOption.set(vueInst, checkTargetResult.$el);
+          } else {
             if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(true);
+              needSetOption.failWait(checkTargetResult.isTimeout);
             }
-            return;
           }
-          let target = getTarget();
-          let vueInstance = VueUtils.getVue(target);
-          if (vueInstance == null) {
-            if (typeof needSetOption.failWait === "function") {
-              needSetOption.failWait(false);
-            }
-            return;
-          }
-          needSetOption.set(vueInstance, target);
         });
       });
     },
     /**
      * 观察vue属性的变化
-     * @param $target 目标对象
+     * @param $el 目标对象
      * @param key 需要观察的属性
      * @param callback 监听回调
      * @param watchConfig 监听配置
      * @param failWait 当检测失败/超时触发该回调
      */
-    watchVuePropChange($target, key, callback, watchConfig, failWait) {
+    watchVuePropChange($el, key, callback, watchConfig, failWait) {
       let config = utils.assign(
         {
           immediate: true,
@@ -1340,9 +1363,9 @@
         watchConfig || {}
       );
       return new Promise((resolve) => {
-        VueUtils.waitVuePropToSet($target, {
+        VueUtils.waitVuePropToSet($el, {
           check(vueInstance) {
-            return typeof (vueInstance == null ? void 0 : vueInstance.$watch) === "function";
+            return typeof vueInstance?.$watch === "function";
           },
           set(vueInstance) {
             let removeWatch = null;
@@ -1373,17 +1396,17 @@
     },
     /**
      * 前往网址
-     * @param $vueNode 包含vue属性的元素
+     * @param $el 包含vue属性的元素
      * @param path 需要跳转的路径
-     * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转
+     * @param [useRouter=false] 是否强制使用Vue的Router来进行跳转，默认false
      */
-    goToUrl($vueNode, path, useRouter = false) {
-      if ($vueNode == null) {
+    goToUrl($el, path, useRouter = false) {
+      if ($el == null) {
         Qmsg.error("跳转Url: $vueNode为空");
         log.error("跳转Url: $vueNode为空：" + path);
         return;
       }
-      let vueInstance = VueUtils.getVue($vueNode);
+      let vueInstance = VueUtils.getVue($el);
       if (vueInstance == null) {
         Qmsg.error("获取vue属性失败", { consoleLogContent: true });
         return;
@@ -1425,7 +1448,7 @@
       }
       function banBack() {
         log.success("监听地址改变");
-        option.vueInstance.$router.history.push(option.hash);
+        option.vueInst.$router.history.push(option.hash);
         domUtils.on(_unsafeWindow, "popstate", popstateEvent);
       }
       async function resumeBack(isFromPopState = false) {
@@ -1435,9 +1458,9 @@
           return;
         }
         while (1) {
-          if (option.vueInstance.$router.history.current.hash === option.hash) {
+          if (option.vueInst.$router.history.current.hash === option.hash) {
             log.info("后退！");
-            option.vueInstance.$router.back();
+            option.vueInst.$router.back();
             await utils.sleep(250);
           } else {
             return;
@@ -1458,13 +1481,12 @@
       log.info("劫持Function.prototype.apply");
       let originApply = _unsafeWindow.Function.prototype.apply;
       _unsafeWindow.Function.prototype.apply = function(...args) {
-        var _a2, _b;
         let target = originApply;
         if (args.length !== 2 || args.length === 2 && !Array.isArray(args[1]) || typeof args[1][0] !== "string") {
           return Reflect.apply(target, this, args);
         }
         const ApiPath = args[1][0];
-        const ApiSearchParams = (_b = (_a2 = args[1]) == null ? void 0 : _a2[1]) == null ? void 0 : _b["params"];
+        const ApiSearchParams = args[1]?.[1]?.["params"];
         if (ApiPath === "api/attitudes/create" && Panel.getValue("weibo_apply_attitudes_create")) {
           log.success("拦截跳转登录");
           return new Promise((resolve) => {
@@ -1600,18 +1622,17 @@
           };
         } else if (requestUrl.startsWith("https://m.weibo.cn/api/container/getIndex") && Panel.getValue("weibo-request-blockArticleAds")) {
           request.response = function(originResponse) {
-            var _a2;
             let originResponseData = utils.toJSON(originResponse.responseText);
             let cards = originResponseData["data"]["cards"];
             if (Array.isArray(cards)) {
               for (let index = 0; index < cards.length; index++) {
                 const card = cards[index];
-                let mblog = card == null ? void 0 : card.mblog;
+                let mblog = card?.mblog;
                 if (mblog) {
                   let id = mblog.id;
-                  let ad_state = mblog == null ? void 0 : mblog.ad_state;
-                  let cardText = mblog == null ? void 0 : mblog.text;
-                  (_a2 = mblog == null ? void 0 : mblog.page_info) == null ? void 0 : _a2.page_title;
+                  let ad_state = mblog?.ad_state;
+                  let cardText = mblog?.text;
+                  mblog?.page_info?.page_title;
                   if (ad_state) {
                     cards.splice(index, 1);
                     index--;
@@ -1667,16 +1688,14 @@
         {
           msg: "等待获取属性 __vue__.$router",
           check(vueIns) {
-            var _a2;
-            return typeof ((_a2 = vueIns == null ? void 0 : vueIns.$router) == null ? void 0 : _a2.push) === "function";
+            return typeof vueIns?.$router?.push === "function";
           },
           set(vueIns) {
             log.success("拦截Vue路由跳转");
             let beforeEachFn = (to, from, next) => {
-              var _a2;
               if (to.name === "profile") {
                 if (Panel.getValue("weibo_router_profile_to_user_home")) {
-                  let uid = (_a2 = to == null ? void 0 : to.params) == null ? void 0 : _a2.uid;
+                  let uid = to?.params?.uid;
                   if (uid == null) {
                     log.error("获取uid失败");
                     Qmsg.error("获取uid失败");
@@ -1687,7 +1706,7 @@
                   window.location.href = uidHomeUrl;
                   return;
                 }
-              } else if ((to == null ? void 0 : to.name) === "detail") ;
+              } else if (to?.name === "detail") ;
               next();
             };
             vueIns.$router.beforeEach(beforeEachFn);
@@ -1877,7 +1896,7 @@
     hookWebpack() {
       log.info("劫持webpack");
       WeiBoHook.hookWebpack("webpackJsonp", "chunk-common", (webpackExports) => {
-        if (typeof (webpackExports == null ? void 0 : webpackExports.exports) === "object" && typeof webpackExports.exports["a"] === "object" && typeof webpackExports.exports["a"]["gotoApp"] === "function" && Panel.getValue("weibo_video_webpack_gotoApp")) {
+        if (typeof webpackExports?.exports === "object" && typeof webpackExports.exports["a"] === "object" && typeof webpackExports.exports["a"]["gotoApp"] === "function" && Panel.getValue("weibo_video_webpack_gotoApp")) {
           log.success("成功劫持webpack调用函数", webpackExports);
           webpackExports.exports["a"]["gotoApp"] = function(...args) {
             log.info("阻止唤醒App：", args);
@@ -1947,13 +1966,12 @@
                 ".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])"
               )
             ).forEach(($time) => {
-              var _a2;
               let $card = $time.closest(".card.m-panel");
               let cardVueIns = VueUtils.getVue($card);
               if (!cardVueIns) {
                 return;
               }
-              let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
+              let createTime = cardVueIns?.item?.created_at;
               if (typeof createTime !== "string") {
                 return;
               }
@@ -1973,7 +1991,7 @@
             let $litePageWrap = $(".lite-page-wrap");
             let litePageWrapVueIns = VueUtils.getVue($litePageWrap);
             if (litePageWrapVueIns) {
-              let curWeiboData = litePageWrapVueIns == null ? void 0 : litePageWrapVueIns.curWeiboData;
+              let curWeiboData = litePageWrapVueIns?.curWeiboData;
               let $timeList = Array.from(
                 $$(
                   ".lite-page-comment .card .card-main .m-box .time"
@@ -2018,14 +2036,13 @@
                 ".comment-content .card .m-box .time:not([data-gm-absolute-time])"
               )
             ).forEach(($time) => {
-              var _a2, _b;
               let $card = $time.closest(".card");
               let $cardParent = $card.parentElement;
               let cardVueIns = VueUtils.getVue($card) || VueUtils.getVue($cardParent);
               if (!cardVueIns) {
                 return;
               }
-              let createTime = (_a2 = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _a2.created_at;
+              let createTime = cardVueIns?.item?.created_at;
               if (typeof createTime !== "string") {
                 return;
               }
@@ -2034,7 +2051,7 @@
                 createTimeObj,
                 "yyyy-MM-dd HH:mm:ss"
               );
-              $time.innerText = `${formatCreateTime} ${((_b = cardVueIns == null ? void 0 : cardVueIns.item) == null ? void 0 : _b.source) || ""}`;
+              $time.innerText = `${formatCreateTime} ${cardVueIns?.item?.source || ""}`;
               $time.setAttribute("data-gm-absolute-time", "true");
             });
           }
@@ -2131,14 +2148,13 @@
               "gm-open-blank"
             );
             domUtils.on($ownDiyBtn, "click", (event) => {
-              var _a2;
               utils.preventEvent(event);
               let vueIns = VueUtils.getVue($footerCtrl);
               if (!vueIns) {
                 Qmsg.error("没有找到对应的Vue实例");
                 return;
               }
-              let id = (_a2 = vueIns == null ? void 0 : vueIns.item) == null ? void 0 : _a2.id;
+              let id = vueIns?.item?.id;
               if (typeof id !== "string") {
                 Qmsg.error("没有找到对应的id");
                 return;
@@ -2247,12 +2263,12 @@
     ...VideoQualityMap_PC
   };
   class WeiBoUnlockQuality {
+    $src = VideoQualityMap_PC;
+    $data = {
+      newQualityNameList: [],
+      videoQualityMap: new utils.Dictionary()
+    };
     constructor() {
-      __publicField(this, "$src", VideoQualityMap_PC);
-      __publicField(this, "$data", {
-        newQualityNameList: [],
-        videoQualityMap: new utils.Dictionary()
-      });
       this.$data.newQualityNameList = [];
       this.$data.newQualityNameList.push(...Object.keys(this.$src));
     }
@@ -2360,11 +2376,10 @@
               VueUtils.waitVuePropToSet($ele, [
                 {
                   check(vueObj) {
-                    var _a2, _b, _c;
-                    if (typeof ((_a2 = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _a2.type) === "string" && ((_b = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _b.type) !== "video") {
+                    if (typeof vueObj?.item?.type === "string" && vueObj?.item?.type !== "video") {
                       return true;
                     }
-                    return typeof ((_c = vueObj == null ? void 0 : vueObj.item) == null ? void 0 : _c.object_id) === "string";
+                    return typeof vueObj?.item?.object_id === "string";
                   },
                   failWait() {
                     resolve();
@@ -2545,12 +2560,11 @@
     addSupertalkTab() {
       VueUtils.waitVuePropToSet(".main-top", {
         check(vueObj) {
-          return Array.isArray(vueObj == null ? void 0 : vueObj.tabs);
+          return Array.isArray(vueObj?.tabs);
         },
         set(vueObj) {
-          var _a2;
           log.success(`添加顶部Tab - 超话`);
-          (_a2 = vueObj == null ? void 0 : vueObj.tabs) == null ? void 0 : _a2.push({
+          vueObj?.tabs?.push({
             children: [
               {
                 api: "api/container/getIndex?containerid=100803",
@@ -2598,14 +2612,13 @@
               "gm-open-blank"
             );
             domUtils.on($ownDiyBtn, "click", (event) => {
-              var _a2;
               utils.preventEvent(event);
               let vueIns = VueUtils.getVue($footerCtrl);
               if (!vueIns) {
                 Qmsg.error("没有找到对应的Vue实例");
                 return;
               }
-              let id = (_a2 = vueIns == null ? void 0 : vueIns.item) == null ? void 0 : _a2.id;
+              let id = vueIns?.item?.id;
               if (typeof id !== "string") {
                 Qmsg.error("没有找到对应的id");
                 return;
@@ -2647,8 +2660,8 @@
             Qmsg.error("没有找到对应的Vue实例");
             return;
           }
-          let carddata = vueIns == null ? void 0 : vueIns.carddata;
-          if (typeof (carddata == null ? void 0 : carddata.scheme) !== "string") {
+          let carddata = vueIns?.carddata;
+          if (typeof carddata?.scheme !== "string") {
             log.error("没有找到对应的scheme", vueIns);
             Qmsg.error("没有找到对应的scheme");
             return;
@@ -2831,22 +2844,31 @@
       this.$data.storeApiValue.set(type, storageApiValue);
     },
     /**
-     * 设置组件的存储接口属性
+     * 初始化组件的存储接口属性
+     *
      * @param type 组件类型
      * @param config 组件配置，必须包含prop属性
      * @param storageApiValue 存储接口
      */
-    setComponentsStorageApiProperty(type, config, storageApiValue) {
+    initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
       } else {
         propsStorageApi = storageApiValue;
       }
-      Reflect.set(config.props, PROPS_STORAGE_API, propsStorageApi);
+      this.setComponentsStorageApiProperty(config, propsStorageApi);
+    },
+    /**
+     * 设置组件的存储接口属性
+     * @param config 组件配置，必须包含prop属性
+     * @param storageApiValue 存储接口
+     */
+    setComponentsStorageApiProperty(config, storageApiValue) {
+      Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UISelect = function(text, key, defaultValue, data, callback, description) {
+  const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -2860,21 +2882,26 @@
       attributes: {},
       props: {},
       getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
       },
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof callback === "function") {
-          callback(event, value, isSelectedText);
+        if (typeof changeCallback === "function") {
+          let result2 = changeCallback(event, value, isSelectedText);
+          if (result2) {
+            return;
+          }
         }
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       data: selectData
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "select",
       result,
       {
@@ -2888,7 +2915,7 @@
     );
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
     let result = {
       text,
       type: "switch",
@@ -2896,20 +2923,20 @@
       attributes: {},
       props: {},
       getValue() {
-        return Boolean(
-          this.props[PROPS_STORAGE_API].get(key, defaultValue)
-        );
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return Boolean(storageApiValue.get(key, defaultValue));
       },
       callback(event, __value) {
         let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       },
       afterAddToUListCallBack
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "switch",
       result,
       {
@@ -2923,7 +2950,7 @@
     );
     return result;
   };
-  const UITextArea = function(text, key, defaultValue, description, changeCallBack, placeholder = "", disabled) {
+  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled) {
     let result = {
       text,
       type: "textarea",
@@ -2933,19 +2960,21 @@
       placeholder,
       disabled,
       getValue() {
-        let value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        let value = storageApiValue.get(key, defaultValue);
         if (Array.isArray(value)) {
           return value.join("\n");
         }
         return value;
       },
       callback(event, value) {
-        this.props[PROPS_STORAGE_API].set(key, value);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
       }
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.setComponentsStorageApiProperty(
+    PanelComponents.initComponentsStorageApi(
       "switch",
       result,
       {
