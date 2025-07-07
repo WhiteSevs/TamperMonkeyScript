@@ -266,13 +266,13 @@ export const PopsElementHandler = {
 				flexStyle += "flex-direction: row;";
 			}
 			resultHTML = /*html*/ `
-            <div class="pops-${type}-btn" style="${btnStyle}">${ohterHTML}<div 
+            <div class="pops-botttom-btn-controls pops-${type}-btn" style="${btnStyle}">${ohterHTML}<div 
                     class="pops-${type}-btn-merge"
                     style="${flexStyle}">${okHTML}${cancelHTML}</div>
             </div>
             `;
 		} else {
-			resultHTML = /*html*/ `<div class="pops-${type}-btn" style="${btnStyle}">${okHTML}${cancelHTML}${ohterHTML}</div>`;
+			resultHTML = /*html*/ `<div class="pops-botttom-btn-controls pops-${type}-btn" style="${btnStyle}">${okHTML}${cancelHTML}${ohterHTML}</div>`;
 		}
 		return resultHTML;
 	},

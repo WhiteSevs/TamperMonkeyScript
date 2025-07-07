@@ -36,7 +36,7 @@ class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2025.7.1",
+		version: "2025.7.7",
 		cssText: PopsCSS,
 		/** icon图标的svg代码 */
 		iconSVG: PopsIcon.$data,
@@ -183,7 +183,20 @@ class Pops {
 
 	/**
 	 * 搜索建议
+	 *
+	 * 注意：调用后需要主动调用.init()和.setAllEvent()进行初始化
 	 * @param details 配置
+	 * @example
+	 * let $input = document.querySelector("#input");
+	 * let searchSuggestion = pops.searchSuggestion({
+	 *     target: $input,
+	 *     inputTarget: $input,
+	 *     getItemHTML: function (item) {
+	 *         return item.value;
+	 *     }
+	 * });
+	 * searchSuggestion.init();
+	 * searchSuggestion.setAllEvent();
 	 */
 	searchSuggestion = <T = any>(details: PopsSearchSuggestionDetails<T>) => {
 		let popsSearchSuggestion = PopsSearchSuggestion.init(details);

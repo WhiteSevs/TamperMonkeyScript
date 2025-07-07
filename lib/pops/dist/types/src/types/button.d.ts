@@ -16,7 +16,8 @@ export type PopsButtonStyleType =
 	| "success"
 	| "info"
 	| "warning"
-	| "danger";
+	| "danger"
+	| "violet";
 
 /**
  * 按钮大小
@@ -118,48 +119,13 @@ export interface PopsButtonDetails<T = {}> {
 /**
  * 按钮配置（匹配任意类型）
  */
-export interface PopsButtonDetailsAnyType<T = {}> {
-	/**
-	 * 是否启用按钮
-	 */
-	enable: boolean;
-	/**
-	 * 图标按钮，如果名字为内置的，则使用内置的，否则为自定义的svg
-	 */
-	icon: PopsIconType;
-	/**
-	 * 图标按钮是否放在右边
-	 */
-	rightIcon: boolean;
-	/**
-	 * 图标按钮是否是旋转360°
-	 * @default false
-	 */
-	iconIsLoading: boolean;
-	/**
-	 * 按钮尺寸大小
-	 * @default ""
-	 */
-	size: PopsButtonSize;
+export type PopsButtonDetailsAnyType<T = {}> = PopsButtonDetails<T> & {
 	/**
 	 * 按钮样式类型
+	 * @default "default"
 	 */
 	type: string;
-	/**
-	 * 按钮文字
-	 * @default ""
-	 */
-	text: string;
-	/**
-	 * 按钮点击的回调
-	 *
-	 * 如果传入该值，那么将不会自动关闭弹窗
-	 */
-	callback(
-		eventDetails: PopsHandlerEventDetails & T,
-		event: PointerEvent | MouseEvent
-	): void;
-}
+};
 
 /** prompt的点击回调 */
 export interface PopsPromptButtonDetails extends PopsButtonDetails {

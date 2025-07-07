@@ -4,7 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Document</title>
-		<script src="./dist//index.umd.js"></script>
+		<script src="./dist/index.umd.js"></script>
 	</head>
 	<style>
 		* {
@@ -57,7 +57,10 @@
 			<div class="pops-inst" data-type="panel" onclick="pops.panel()">
 				pops.panel
 			</div>
-			<div class="pops-inst" data-type="loading" onclick="pops.loading()">
+			<div
+				class="pops-inst"
+				data-type="loading"
+				onclick="pops.loading({mask:{clickEvent:{toClose:true}}})">
 				pops.loading
 			</div>
 			<div
@@ -78,9 +81,17 @@
 				onclick="pops.tooltip({target:this,content: ()=> '不建议使用本功能，若文件过大下载完成后有可能不会弹出窗口，此时请换用“RPC 下载 + Mortix”的组合<br/>基于浏览器的 Blob 文件流下载文件，下载完成可自动命名，适用于较新的浏览器，可以在此窗口中显示下载剩余时间和下载速度，此方式下载不会被 IDM 捕获下载链接',position:'follow',alwaysShow:false,isFixed:false,showArrow:false,triggerShowEventName:'mouseenter touchstart mousemove touchmove',otherDistance: 18,className:'github-tooltip'})">
 				pops.tooltip follow
 			</div>
+			<div class="pops-inst" data-type="suggestion">
+				<span>pops.searchSuggestion</span>
+				<input type="text" />
+			</div>
 		</div>
 	</body>
 	<script>
+		/**
+		 * @type {import("./dist/types/index.d.ts").default}
+		 */
+		let pops = window.pops;
 		let $tooltip = document.querySelector(".pops-inst[data-type='tooltip']");
 		let position = ["left", "right", "bottom", "top"];
 		position.forEach((item) => {
@@ -89,5 +100,23 @@
 				position: item,
 			});
 		});
+		pops.GlobalConfig.setGlobalConfig({
+			mask: {
+				enable: true,
+			},
+			drag: true,
+		});
+		let $input = document.querySelector(
+			".pops-inst[data-type='suggestion'] input"
+		);
+		let suggestion = pops.searchSuggestion({
+			target: $input,
+			inputTarget: $input,
+			getItemHTML: function (item) {
+				return item.value;
+			},
+		});
+		suggestion.init();
+		suggestion.setAllEvent();
 	</script>
 </html>

@@ -1,3 +1,8 @@
+.pops-rightClickMenu {
+	--right-context-menu-shadow-color: #cacaca;
+	--right-context-menu-row-visited-color: #dfdfdf;
+	--right-context-menu-row-hover-color: #dfdfdf;
+}
 .pops-rightClickMenu * {
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
@@ -14,7 +19,7 @@
 	font-size: 16px;
 	font-weight: 500;
 	background: #fff;
-	box-shadow: 0px 1px 6px 1px #cacaca;
+	box-shadow: 0px 1px 6px 1px var(--right-context-menu-shadow-color);
 }
 .pops-rightClickMenu-anim-grid {
 	display: grid;
@@ -25,7 +30,7 @@
 	grid-template-rows: 1fr;
 }
 .pops-rightClickMenu-is-visited {
-	background: #dfdfdf;
+	background: var(--right-context-menu-row-visited-color);
 }
 i.pops-rightClickMenu-icon {
 	height: 1em;
@@ -45,7 +50,7 @@ i.pops-rightClickMenu-icon[is-loading="true"] {
 	animation: rotating 2s linear infinite;
 }
 .pops-rightClickMenu li:hover {
-	background: #dfdfdf;
+	background: var(--right-context-menu-row-hover-color);
 	cursor: pointer;
 }
 .pops-rightClickMenu ul {
@@ -70,4 +75,10 @@ i.pops-rightClickMenu-icon[is-loading="true"] {
 	-moz-user-select: none;
 	-ms-user-select: none;
 	align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+	.pops-rightClickMenu {
+		--right-context-menu-shadow-color: #3c3c3c;
+	}
 }

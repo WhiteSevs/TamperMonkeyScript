@@ -49,14 +49,14 @@ export const PopsPanel = {
 			PopsType,
 			config,
 			/*html*/ `
-			<div class="pops-${PopsType}-title" style="text-align: ${
+			<div class="pops-title pops-${PopsType}-title" style="text-align: ${
 				config.title.position
 			};${headerStyle}">${
 				config.title.html
 					? config.title.text
 					: `<p pops style="${headerPStyle}">${config.title.text}</p>`
 			}${headerBtnHTML}</div>
-			<div class="pops-${PopsType}-content">
+			<div class="pops-content pops-${PopsType}-content">
 				<aside class="pops-${PopsType}-aside">
 					<ul></ul>
 				</aside>

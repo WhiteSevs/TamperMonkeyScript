@@ -130,6 +130,13 @@ export const PopsSearchSuggestion = {
 					-ms-animation: searchSelectFalIn 0.5s 1 linear;
 				}
 				.pops-${PopsType}-search-suggestion{
+					--search-suggestion-bg-color: #ffffff;
+					--search-suggestion-box-shadow-color: rgb(0 0 0 / 20%);
+					--search-suggestion-item-color: #515a6e;
+					--search-suggestion-item-none-color: #8e8e8e;
+					--search-suggestion-item-hover-bg-color: rgba(0, 0, 0, .1);
+				}
+				.pops-${PopsType}-search-suggestion{
 					border: initial;
 					overflow: initial;
 				}
@@ -142,10 +149,10 @@ export const PopsSearchSuggestion = {
 					overflow-x: hidden;
 					overflow-y: auto;
 					padding: 5px 0;
-					background-color: #fff;
+					background-color: var(--search-suggestion-bg-color);
 					box-sizing: border-box;
 					border-radius: 4px;
-					box-shadow: 0 1px 6px rgb(0 0 0 / 20%);
+					box-shadow: 0 1px 6px var(--search-suggestion-box-shadow-color);
 				}
 				/* 建议框在上面时 */
 				ul.pops-${PopsType}-search-suggestion-hint[data-top-reverse]{
@@ -159,7 +166,7 @@ export const PopsSearchSuggestion = {
 					padding: 7px;
 					margin: 0;
 					clear: both;
-					color: #515a6e;
+					color: var(--search-suggestion-item-color);
 					font-size: 14px;
 					list-style: none;
 					cursor: pointer;
@@ -171,10 +178,18 @@ export const PopsSearchSuggestion = {
 				ul.pops-${PopsType}-search-suggestion-hint li[data-none]{
 					text-align: center;
 					font-size: 12px;
-					color: #8e8e8e;
+					color: var(--search-suggestion-item-none-color);
 				}
 				ul.pops-${PopsType}-search-suggestion-hint li:hover{
-					background-color: rgba(0, 0, 0, .1);
+					background-color: var(--search-suggestion-item-hover-bg-color);
+				}
+
+				@media (prefers-color-scheme: dark){
+					.pops-${PopsType}-search-suggestion{
+						--search-suggestion-bg-color: #1d1e1f;
+						--search-suggestion-item-color: #cfd3d4;
+						--search-suggestion-item-hover-bg-color: rgba(175, 175, 175, .1);
+					}
 				}
 				`;
 			},

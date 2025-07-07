@@ -49,19 +49,19 @@ export const PopsPrompt = {
 			PopsType,
 			config,
 			/*html*/ `
-            <div class="pops-prompt-title" style="text-align: ${
-							config.title.position
-						};${headerStyle}">${
+            <div class="pops-title pops-${PopsType}-title" style="text-align: ${
+				config.title.position
+			};${headerStyle}">${
 				config.title.html
 					? config.title.text
 					: `<p pops style="${headerPStyle}">${config.title.text}</p>`
 			}${headerBtnHTML}</div>
-            <div class="pops-prompt-content" style="${contentPStyle}">${
+            <div class="pops-content pops-${PopsType}-content" style="${contentPStyle}">${
 				config.content.row
-					? '<textarea pops="" placeholder="' +
+					? '<textarea name="pops-input-text" pops="" placeholder="' +
 					  config.content.placeholder +
 					  '"></textarea>'
-					: '<input pops="" placeholder="' +
+					: '<input name="pops-input-text" pops="" placeholder="' +
 					  config.content.placeholder +
 					  '" type="' +
 					  (config.content.password ? "password" : "text") +

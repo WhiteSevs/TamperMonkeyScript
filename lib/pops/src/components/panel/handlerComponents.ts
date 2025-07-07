@@ -2159,6 +2159,7 @@ export const PanelHandlerComponents = () => {
 									--el-text-color-regular: #606266;
 									--el-color-primary: #409eff;
 									--el-fill-color-light: #f5f7fa;
+									--el-disable-color: #a8abb2;
 								}
 								.select-item{
 									cursor: pointer;
@@ -2176,7 +2177,7 @@ export const PanelHandlerComponents = () => {
 								.select-item[aria-disabled],
 								.select-item[disabled]{
 									cursor: not-allowed;
-									color: #a8abb2;
+									color: var(--el-disable-color);
 									background: unset;
 								}
 								.select-item:hover{
@@ -2204,6 +2205,16 @@ export const PanelHandlerComponents = () => {
 									width: 12px;
 									height: 12px;
 								}
+
+								
+								@media (prefers-color-scheme: dark) {
+									.select-container{
+										--el-text-color-regular: #f2f2f2;
+										--el-disable-color: #8D9095;
+										--el-fill-color-light: #262727;
+									}
+								}
+
 								${style || ""}
 								`,
 							} as PopsAlertDetails,

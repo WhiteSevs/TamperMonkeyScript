@@ -13,17 +13,37 @@
 	--pops-bd-opacity: 1;
 	--pops-font-size: 16px;
 	interpolate-size: allow-keywords;
+	--pops-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+	--pops-bd-color: rgb(235, 238, 245, var(--pops-bd-opacity));
+	--pops-box-shadow-color: rgba(0, 0, 0, 0.12);
+	--pops-title-color: #000000;
+	--pops-title-border-color: rgb(229, 229, 229, var(--pops-bd-opacity));
+	--pops-content-color: #000000;
+	--pops-bottom-btn-controls-border-color: rgb(
+		229,
+		229,
+		229,
+		var(--pops-bd-opacity)
+	);
 }
-.pops-mask {
-	--pops-mask-bg-opacity: 0.4;
+@media (prefers-color-scheme: dark) {
+	.pops {
+		--pops-mask-bg-opacity: 0.8;
+		--pops-bg-color: rgb(17, 17, 17, var(--pops-bg-opacity));
+		--pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));
+		--pops-box-shadow-color: rgba(81, 81, 81, 0.12);
+		--pops-title-color: #e8e8e8;
+		--pops-title-border-color: rgb(229, 229, 229, var(--pops-bd-opacity));
+		--pops-content-color: #e5e5e5;
+	}
 }
 .pops {
-	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+	background-color: var(--pops-bg-color);
+	border: 1px solid var(--pops-bd-color);
 	border-radius: 4px;
-	border: 1px solid rgb(235, 238, 245, var(--pops-bd-opacity));
 	font-size: var(--pops-font-size);
 	line-height: normal;
-	box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
+	box-shadow: 0 0 12px var(--pops-box-shadow-color);
 	box-sizing: border-box;
 	overflow: hidden;
 	transition: all 0.35s;
@@ -67,6 +87,10 @@
 
 /* 遮罩层样式 */
 .pops-mask {
+	--pops-mask-bg-opacity: 0.4;
+	--pops-mask-bg-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));
+}
+.pops-mask {
 	position: fixed;
 	top: 0;
 	right: 0;
@@ -76,7 +100,7 @@
 	height: 100%;
 	border: 0;
 	border-radius: 0;
-	background-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));
+	background-color: var(--pops-mask-bg-color);
 	box-shadow: none;
 	transition: none;
 }
@@ -138,15 +162,7 @@ button.pops-header-control i:hover {
 	gap: 6px;
 }
 
-/* 标题禁止选中文字 */
-.pops [class^="pops"][class*="-title"] p[pops] {
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
-/* <code> */
+/* 代码块 <code> */
 .pops code {
 	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 	font-size: 0.85em;
@@ -177,4 +193,60 @@ button.pops-header-control i:hover {
 .pops code::after {
 	letter-spacing: -0.2em;
 	content: "\00a0";
+}
+
+/* 标题 */
+.pops .pops-title {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-bottom: 1px solid var(--pops-title-border-color);
+	width: 100%;
+	height: var(--container-title-height);
+}
+/* 标题-普通文本 */
+.pops .pops-title p[pops] {
+	color: var(--pops-title-color);
+	width: 100%;
+	overflow: hidden;
+	text-indent: 15px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: 500;
+	line-height: normal;
+}
+
+/* 内容 */
+.pops .pops-content {
+	width: 100%;
+	/*height: calc(
+		100% - var(--container-title-height) - var(--container-bottom-btn-height)
+	);*/
+	flex: 1;
+	overflow: auto;
+	word-break: break-word;
+}
+/* 内容-普通文本 */
+.pops .pops-content p[pops] {
+	color: var(--pops-content-color);
+	padding: 5px 10px;
+	text-indent: 15px;
+}
+
+/* 底部-按钮组 */
+.pops .pops-botttom-btn-controls {
+	display: flex;
+	padding: 10px 10px 10px 10px;
+	width: 100%;
+	height: var(--container-bottom-btn-height);
+	max-height: var(--container-bottom-btn-height);
+	line-height: normal;
+	border-top: 1px solid var(--pops-bottom-btn-controls-border-color);
+	text-align: right;
+	align-items: center;
 }

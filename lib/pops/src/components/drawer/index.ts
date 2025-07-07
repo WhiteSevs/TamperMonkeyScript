@@ -49,15 +49,14 @@ export const PopsDrawer = {
 			/*html*/ `
             ${
 							config.title.enable
-								? /*html*/ `
-            <div class="pops-${PopsType}-title" style="${headerStyle}">${
+								? /*html*/ `<div class="pops-title pops-${PopsType}-title" style="${headerStyle}">${
 										config.title.html
 											? config.title.text
 											: /*html*/ `<p pops style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
 								  }${headerBtnHTML}</div>`
 								: ""
 						}
-            <div class="pops-${PopsType}-content" style="${contentStyle}">${
+            <div class="pops-content pops-${PopsType}-content" style="${contentStyle}">${
 				config.content.html
 					? config.content.text
 					: `<p pops style="${contentPStyle}">${config.content.text}</p>`

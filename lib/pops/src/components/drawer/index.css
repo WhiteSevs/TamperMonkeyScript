@@ -8,24 +8,7 @@
 	overflow: hidden;
 	transition: all 0.3s;
 }
-.pops[type-value] .pops-drawer-title {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
-.pops[type-value] .pops-drawer-title p[pops] {
-	line-height: normal;
-	align-content: center;
-}
 
-.pops-drawer-content {
-	flex: 1;
-	overflow: auto;
-}
-.pops[type-value="drawer"] .pops-drawer-btn {
-	padding-top: 10px;
-	padding-bottom: 10px;
-}
 .pops[type-value="drawer"][direction="top"] {
 	width: 100%;
 	left: 0;

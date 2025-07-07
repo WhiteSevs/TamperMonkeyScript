@@ -16,6 +16,262 @@
 
 	--container-title-height: 55px;
 	--container-bottom-btn-height: 55px;
+
+	/* default按钮 */
+	--button-default-color: #333333;
+	--button-default-bd-color: #dcdfe6;
+	--button-default-bg-color: #ffffff;
+	--button-default-active-color: #409eff;
+	--button-default-active-bd-color: #409eff;
+	--button-default-active-bg-color: #ecf5ff;
+	--button-default-hover-color: #409eff;
+	--button-default-hover-bd-color: #c6e2ff;
+	--button-default-hover-bg-color: #ecf5ff;
+	--button-default-focus-visible-outline-color: #a0cfff;
+	--button-default-focus-visible-outline: 2px solid
+		var(--button-default-focus-visible-outline-color);
+	--button-default-focus-visible-outline-offset: 1px;
+	--button-default-disabled-color: #a8abb2;
+	--button-default-disabled-bd-color: #ffffff;
+	--button-default-disabled-bg-color: #e4e7ed;
+
+	/* primary按钮 */
+	--button-primary-color: #ffffff;
+	--button-primary-bd-color: #409eff;
+	--button-primary-bg-color: #409eff;
+	--button-primary-active-color: #ffffff;
+	--button-primary-active-bd-color: #337ecc;
+	--button-primary-active-bg-color: #337ecc;
+	--button-primary-hover-color: #ffffff;
+	--button-primary-hover-bd-color: #79bbff;
+	--button-primary-hover-bg-color: #79bbff;
+	--button-primary-focus-visible-outline-color: #a0cfff;
+	--button-primary-focus-visible-outline: 2px solid
+		var(--button-primary-focus-visible-outline-color);
+	--button-primary-focus-visible-outline-offset: 1px;
+	--button-primary-disabled-color: #ffffff80;
+	--button-primary-disabled-bd-color: #a0cfff;
+	--button-primary-disabled-bg-color: #a0cfff;
+
+	/* success按钮 */
+	--button-success-color: #ffffff;
+	--button-success-bd-color: #4cae4c;
+	--button-success-bg-color: #5cb85c;
+	--button-success-active-color: #ffffff;
+	--button-success-active-bd-color: #529b2e;
+	--button-success-active-bg-color: #529b2e;
+	--button-success-hover-color: #ffffff;
+	--button-success-hover-bd-color: #95d475;
+	--button-success-hover-bg-color: #95d475;
+	--button-success-focus-visible-outline-color: #b3e19d;
+	--button-success-focus-visible-outline: 2px solid
+		var(--button-success-focus-visible-outline-color);
+	--button-success-focus-visible-outline-offset: 1px;
+	--button-success-disabled-color: #ffffff80;
+	--button-success-disabled-bd-color: #b3e19d;
+	--button-success-disabled-bg-color: #b3e19d;
+
+	/* info按钮 */
+	--button-info-color: #ffffff;
+	--button-info-bd-color: #909399;
+	--button-info-bg-color: #909399;
+	--button-info-active-color: #ffffff;
+	--button-info-active-bd-color: #73767a;
+	--button-info-active-bg-color: #73767a;
+	--button-info-hover-color: #ffffff;
+	--button-info-hover-bd-color: #b1b3b8;
+	--button-info-hover-bg-color: #b1b3b8;
+	--button-info-focus-visible-outline-color: #c8c9cc;
+	--button-info-focus-visible-outline: 2px solid
+		var(--button-info-focus-visible-outline-color);
+	--button-info-focus-visible-outline-offset: 1px;
+	--button-info-disabled-color: #ffffff80;
+	--button-info-disabled-bd-color: #c8c9cc;
+	--button-info-disabled-bg-color: #c8c9cc;
+
+	/* warning按钮 */
+	--button-warning-color: #ffffff;
+	--button-warning-bd-color: #e6a23c;
+	--button-warning-bg-color: #e6a23c;
+	--button-warning-active-color: #ffffff;
+	--button-warning-active-bd-color: #b88230;
+	--button-warning-active-bg-color: #b88230;
+	--button-warning-hover-color: #ffffff80;
+	--button-warning-hover-bd-color: #eebe77;
+	--button-warning-hover-bg-color: #eebe77;
+	--button-warning-focus-visible-outline-color: #f3d19e;
+	--button-warning-focus-visible-outline: 2px solid
+		var(--button-warning-focus-visible-outline-color);
+	--button-warning-focus-visible-outline-offset: 1px;
+	--button-warning-disabled-color: #ffffff80;
+	--button-warning-disabled-bd-color: #f3d19e;
+	--button-warning-disabled-bg-color: #f3d19e;
+
+	/* danger按钮 */
+	--button-danger-color: #ffffff;
+	--button-danger-bd-color: #f56c6c;
+	--button-danger-bg-color: #f56c6c;
+	--button-danger-active-color: #ffffff;
+	--button-danger-active-bd-color: #c45656;
+	--button-danger-active-bg-color: #c45656;
+	--button-danger-hover-color: #ffffff;
+	--button-danger-hover-bd-color: #f89898;
+	--button-danger-hover-bg-color: #f89898;
+	--button-danger-focus-visible-outline-color: #fab6b6;
+	--button-danger-focus-visible-outline: 2px solid
+		var(--button-danger-focus-visible-outline-color);
+	--button-danger-focus-visible-outline-offset: 1px;
+	--button-danger-disabled-color: #ffffff80;
+	--button-danger-disabled-bd-color: #fab6b6;
+	--button-danger-disabled-bg-color: #fab6b6;
+
+	/* xiaomi-primary按钮 */
+	--button-xiaomi-primary-color: #ffffff;
+	--button-xiaomi-primary-bd-color: #ff5c00;
+	--button-xiaomi-primary-bg-color: #ff5c00;
+	--button-xiaomi-primary-active-color: #ffffff;
+	--button-xiaomi-primary-active-bd-color: #da4f00;
+	--button-xiaomi-primary-active-bg-color: #da4f00;
+	--button-xiaomi-primary-hover-color: #ffffff;
+	--button-xiaomi-primary-hover-bd-color: #ff7e29;
+	--button-xiaomi-primary-hover-bg-color: #ff7e29;
+	--button-xiaomi-primary-focus-visible-outline-color: #ffa061;
+	--button-xiaomi-primary-focus-visible-outline: 2px solid
+		var(--button-xiaomi-primary-focus-visible-outline-color);
+	--button-xiaomi-primary-focus-visible-outline-offset: 1px;
+	--button-xiaomi-primary-disabled-color: #ffffff80;
+	--button-xiaomi-primary-disabled-bd-color: #fad5b6;
+	--button-xiaomi-primary-disabled-bg-color: #fad5b6;
+
+	/* violet按钮 */
+	--button-violet-color: #ffffff;
+	--button-violet-bd-color: #626aef;
+	--button-violet-bg-color: #626aef;
+	--button-violet-active-color: #ffffff;
+	--button-violet-active-bd-color: #8188f2;
+	--button-violet-active-bg-color: #8188f2;
+	--button-violet-hover-color: #ffffff;
+	--button-violet-hover-bd-color: #4b50ad;
+	--button-violet-hover-bg-color: #4b50ad;
+	--button-violet-focus-visible-outline-color: #2a598a;
+	--button-violet-focus-visible-outline: 2px solid
+		var(--button-violet-focus-visible-outline-color);
+	--button-violet-focus-visible-outline-offset: 1px;
+	--button-violet-disabled-color: #ffffff80;
+	--button-violet-disabled-bd-color: #3b3f82;
+	--button-violet-disabled-bg-color: #3b3f82;
+}
+
+@media (prefers-color-scheme: dark) {
+	.pops {
+		/* default按钮 */
+		--button-default-color: #cfd3dc;
+		--button-default-bd-color: #4c4d4f;
+		--button-default-bg-color: transparent;
+		--button-default-active-color: #409eff;
+		--button-default-active-bd-color: #409eff;
+		--button-default-active-bg-color: #18222c;
+		--button-default-hover-color: #409eff;
+		--button-default-hover-bd-color: #213d5b;
+		--button-default-hover-bg-color: #18222c;
+		--button-default-focus-visible-outline-color: #2a598a;
+		--button-default-focus-visible-outline: 2px solid
+			var(--button-default-focus-visible-outline-color);
+		--button-default-focus-visible-outline-offset: 1px;
+		--button-default-disabled-color: #ffffff80;
+		--button-default-disabled-bd-color: #414243;
+		--button-default-disabled-bg-color: transparent;
+
+		/* primary按钮 */
+		--button-primary-color: #ffffff;
+		--button-primary-bd-color: #409eff;
+		--button-primary-bg-color: #409eff;
+		--button-primary-active-color: #ffffff;
+		--button-primary-active-bd-color: #66b1ff;
+		--button-primary-active-bg-color: #66b1ff;
+		--button-primary-hover-color: #ffffff;
+		--button-primary-hover-bd-color: #3375b9;
+		--button-primary-hover-bg-color: #3375b9;
+		--button-primary-focus-visible-outline-color: #2a598a;
+		--button-primary-focus-visible-outline: 2px solid
+			var(--button-primary-focus-visible-outline-color);
+		--button-primary-focus-visible-outline-offset: 1px;
+		--button-primary-disabled-color: #ffffff80;
+		--button-primary-disabled-bd-color: #2a598a;
+		--button-primary-disabled-bg-color: #2a598a;
+
+		/* success按钮 */
+		--button-success-color: #ffffff;
+		--button-success-bd-color: #67c23a;
+		--button-success-bg-color: #67c23a;
+		--button-success-active-color: #ffffff;
+		--button-success-active-bd-color: #85ce61;
+		--button-success-active-bg-color: #85ce61;
+		--button-success-hover-color: #ffffff;
+		--button-success-hover-bd-color: #4e8e2f;
+		--button-success-hover-bg-color: #4e8e2f;
+		--button-success-focus-visible-outline-color: #3e6b27;
+		--button-success-focus-visible-outline: 2px solid
+			var(--button-success-focus-visible-outline-color);
+		--button-success-focus-visible-outline-offset: 1px;
+		--button-success-disabled-color: #ffffff80;
+		--button-success-disabled-bd-color: #3e6b27;
+		--button-success-disabled-bg-color: #3e6b27;
+
+		/* info按钮 */
+		--button-info-color: #ffffff;
+		--button-info-bd-color: #909399;
+		--button-info-bg-color: #909399;
+		--button-info-active-color: #ffffff;
+		--button-info-active-bd-color: #a6a9ad;
+		--button-info-active-bg-color: #a6a9ad;
+		--button-info-hover-color: #ffffff;
+		--button-info-hover-bd-color: #6b6d71;
+		--button-info-hover-bg-color: #6b6d71;
+		--button-info-focus-visible-outline-color: #525457;
+		--button-info-focus-visible-outline: 2px solid
+			var(--button-info-focus-visible-outline-color);
+		--button-info-focus-visible-outline-offset: 1px;
+		--button-info-disabled-color: #ffffff80;
+		--button-info-disabled-bd-color: #525457;
+		--button-info-disabled-bg-color: #525457;
+
+		/* warning按钮 */
+		--button-warning-color: #ffffff;
+		--button-warning-bd-color: #e6a23c;
+		--button-warning-bg-color: #e6a23c;
+		--button-warning-active-color: #ffffff;
+		--button-warning-active-bd-color: #ebb563;
+		--button-warning-active-bg-color: #ebb563;
+		--button-warning-hover-color: #ffffff80;
+		--button-warning-hover-bd-color: #a77730;
+		--button-warning-hover-bg-color: #a77730;
+		--button-warning-focus-visible-outline-color: #7d5b28;
+		--button-warning-focus-visible-outline: 2px solid
+			var(--button-warning-focus-visible-outline-color);
+		--button-warning-focus-visible-outline-offset: 1px;
+		--button-warning-disabled-color: #ffffff80;
+		--button-warning-disabled-bd-color: #7d5b28;
+		--button-warning-disabled-bg-color: #7d5b28;
+
+		/* danger按钮 */
+		--button-danger-color: #ffffff;
+		--button-danger-bd-color: #f56c6c;
+		--button-danger-bg-color: #f56c6c;
+		--button-danger-active-color: #ffffff;
+		--button-danger-active-bd-color: #f78989;
+		--button-danger-active-bg-color: #f78989;
+		--button-danger-hover-color: #ffffff;
+		--button-danger-hover-bd-color: #b25252;
+		--button-danger-hover-bg-color: #b25252;
+		--button-danger-focus-visible-outline-color: #854040;
+		--button-danger-focus-visible-outline: 2px solid
+			var(--button-danger-focus-visible-outline-color);
+		--button-danger-focus-visible-outline-offset: 1px;
+		--button-danger-disabled-color: #ffffff80;
+		--button-danger-disabled-bd-color: #854040;
+		--button-danger-disabled-bg-color: #854040;
+	}
 }
 .pops[data-bottom-btn="false"] {
 	--container-bottom-btn-height: 0px;
@@ -115,176 +371,176 @@
 }
 
 .pops button[type="default"] {
-	--button-color: #333333;
-	--button-bd-color: #dcdfe6;
-	--button-bg-color: #ffffff;
+	--button-color: var(--button-default-color);
+	--button-bd-color: var(--button-default-bd-color);
+	--button-bg-color: var(--button-default-bg-color);
 }
 .pops button[type="default"]:active {
-	--button-color: #409eff;
-	--button-bd-color: #409eff;
-	--button-bg-color: #ecf5ff;
+	--button-color: var(--button-default-active-color);
+	--button-bd-color: var(--button-default-active-bd-color);
+	--button-bg-color: var(--button-default-active-bg-color);
 }
 .pops button[type="default"]:hover {
-	--button-color: #409eff;
-	--button-bd-color: #c6e2ff;
-	--button-bg-color: #ecf5ff;
+	--button-color: var(--button-default-hover-color);
+	--button-bd-color: var(--button-default-hover-bd-color);
+	--button-bg-color: var(--button-default-hover-bg-color);
 }
 .pops button[type="default"]:focus-visible {
-	outline: 2px solid #a0cfff;
-	outline-offset: 1px;
+	outline: var(--button-default-focus-visible-outline);
+	outline-offset: var(--button-default-focus-visible-outline-offset);
 }
 .pops button[type="default"]:disabled {
-	--button-color: #a8abb2;
-	--button-bd-color: #fff;
-	--button-bg-color: #e4e7ed;
+	--button-color: var(--button-default-disabled-color);
+	--button-bd-color: var(--button-default-disabled-bd-color);
+	--button-bg-color: var(--button-default-disabled-bg-color);
 }
 
 .pops button[type="primary"] {
-	--button-color: #ffffff;
-	--button-bd-color: #409eff;
-	--button-bg-color: #409eff;
+	--button-color: var(--button-primary-color);
+	--button-bd-color: var(--button-primary-bd-color);
+	--button-bg-color: var(--button-primary-bg-color);
 }
 .pops button[type="primary"]:active {
-	--button-color: #ffffff;
-	--button-bd-color: #337ecc;
-	--button-bg-color: #337ecc;
+	--button-color: var(--button-primary-active-color);
+	--button-bd-color: var(--button-primary-active-bd-color);
+	--button-bg-color: var(--button-primary-active-bg-color);
 }
 .pops button[type="primary"]:hover {
-	--button-color: #ffffff;
-	--button-bd-color: #79bbff;
-	--button-bg-color: #79bbff;
+	--button-color: var(--button-primary-hover-color);
+	--button-bd-color: var(--button-primary-hover-bd-color);
+	--button-bg-color: var(--button-primary-hover-bg-color);
 }
 .pops button[type="primary"]:focus-visible {
-	outline: 2px solid #a0cfff;
-	outline-offset: 1px;
+	outline: var(--button-primary-focus-visible-outline);
+	outline-offset: var(--button-primary-focus-visible-outline-offset);
 }
 .pops button[type="primary"]:disabled {
-	--button-color: #ffffff;
-	--button-bd-color: #a0cfff;
-	--button-bg-color: #a0cfff;
+	--button-color: var(--button-primary-disabled-color);
+	--button-bd-color: var(--button-primary-disabled-bd-color);
+	--button-bg-color: var(--button-primary-disabled-bg-color);
 }
 
 .pops button[type="success"] {
-	--button-color: #ffffff;
-	--button-bd-color: #4cae4c;
-	--button-bg-color: #5cb85c;
+	--button-color: var(--button-success-color);
+	--button-bd-color: var(--button-success-bd-color);
+	--button-bg-color: var(--button-success-bg-color);
 }
 .pops button[type="success"]:active {
-	--button-color: #ffffff;
-	--button-bd-color: #529b2e;
-	--button-bg-color: #529b2e;
+	--button-color: var(--button-success-active-color);
+	--button-bd-color: var(--button-success-active-bd-color);
+	--button-bg-color: var(--button-success-active-bg-color);
 }
 .pops button[type="success"]:hover {
-	--button-color: #ffffff;
-	--button-bd-color: #95d475;
-	--button-bg-color: #95d475;
+	--button-color: var(--button-success-hover-color);
+	--button-bd-color: var(--button-success-hover-bd-color);
+	--button-bg-color: var(--button-success-hover-bg-color);
 }
 .pops button[type="success"]:focus-visible {
-	outline: 2px solid #b3e19d;
-	outline-offset: 1px;
+	outline: var(--button-success-focus-visible-outline);
+	outline-offset: var(--button-success-focus-visible-outline-offset);
 }
 .pops button[type="success"]:disabled {
-	--button-color: #ffffff;
-	--button-bd-color: #b3e19d;
-	--button-bg-color: #b3e19d;
+	--button-color: var(--button-success-disabled-color);
+	--button-bd-color: var(--button-success-disabled-bd-color);
+	--button-bg-color: var(--button-success-disabled-bg-color);
 }
 
 .pops button[type="info"] {
-	--button-color: #ffffff;
-	--button-bd-color: #909399;
-	--button-bg-color: #909399;
+	--button-color: var(--button-info-color);
+	--button-bd-color: var(--button-info-bd-color);
+	--button-bg-color: var(--button-info-bg-color);
 }
 .pops button[type="info"]:active {
-	--button-color: #ffffff;
-	--button-bd-color: #73767a;
-	--button-bg-color: #73767a;
+	--button-color: var(--button-info-active-color);
+	--button-bd-color: var(--button-info-active-bd-color);
+	--button-bg-color: var(--button-info-active-bg-color);
 }
 .pops button[type="info"]:hover {
-	--button-color: #ffffff;
-	--button-bd-color: #b1b3b8;
-	--button-bg-color: #b1b3b8;
+	--button-color: var(--button-info-hover-color);
+	--button-bd-color: var(--button-info-hover-bd-color);
+	--button-bg-color: var(--button-info-hover-bg-color);
 }
 .pops button[type="info"]:focus-visible {
-	outline: 2px solid #c8c9cc;
-	outline-offset: 1px;
+	outline: var(--button-info-focus-visible-outline);
+	outline-offset: var(--button-info-focus-visible-outline-offset);
 }
 .pops button[type="info"]:disabled {
-	--button-color: #ffffff;
-	--button-bd-color: #c8c9cc;
-	--button-bg-color: #c8c9cc;
+	--button-color: var(--button-success-disabled-color);
+	--button-bd-color: var(--button-success-disabled-bd-color);
+	--button-bg-color: var(--button-success-disabled-bg-color);
 }
 
 .pops button[type="warning"] {
-	--button-color: #ffffff;
-	--button-bd-color: #e6a23c;
-	--button-bg-color: #e6a23c;
+	--button-color: var(--button-warning-color);
+	--button-bd-color: var(--button-warning-bd-color);
+	--button-bg-color: var(--button-warning-bg-color);
 }
 .pops button[type="warning"]:active {
-	--button-color: #ffffff;
-	--button-bd-color: #b88230;
-	--button-bg-color: #b88230;
+	--button-color: var(--button-warning-active-color);
+	--button-bd-color: var(--button-warning-active-bd-color);
+	--button-bg-color: var(--button-warning-active-bg-color);
 }
 .pops button[type="warning"]:hover {
-	--button-color: #ffffff;
-	--button-bd-color: #eebe77;
-	--button-bg-color: #eebe77;
+	--button-color: var(--button-warning-hover-color);
+	--button-bd-color: var(--button-warning-hover-bd-color);
+	--button-bg-color: var(--button-warning-hover-bg-color);
 }
 .pops button[type="warning"]:focus-visible {
-	outline: 2px solid #f3d19e;
-	outline-offset: 1px;
+	outline: var(--button-warning-focus-visible-outline);
+	outline-offset: var(--button-warning-focus-visible-outline-offset);
 }
 .pops button[type="warning"]:disabled {
-	--button-color: #ffffff;
-	--button-bd-color: #f3d19e;
-	--button-bg-color: #f3d19e;
+	--button-color: var(--button-success-disabled-color);
+	--button-bd-color: var(--button-success-disabled-bd-color);
+	--button-bg-color: var(--button-success-disabled-bg-color);
 }
 
 .pops button[type="danger"] {
-	--button-color: #ffffff;
-	--button-bd-color: #f56c6c;
-	--button-bg-color: #f56c6c;
+	--button-color: var(--button-danger-color);
+	--button-bd-color: var(--button-danger-bd-color);
+	--button-bg-color: var(--button-danger-bg-color);
 }
 .pops button[type="danger"]:active {
-	--button-color: #ffffff;
-	--button-bd-color: #c45656;
-	--button-bg-color: #c45656;
+	--button-color: var(--button-danger-active-color);
+	--button-bd-color: var(--button-danger-active-bd-color);
+	--button-bg-color: var(--button-danger-active-bg-color);
 }
 .pops button[type="danger"]:hover {
-	--button-color: #ffffff;
-	--button-bd-color: #f89898;
-	--button-bg-color: #f89898;
+	--button-color: var(--button-danger-hover-color);
+	--button-bd-color: var(--button-danger-hover-bd-color);
+	--button-bg-color: var(--button-danger-hover-bg-color);
 }
 .pops button[type="danger"]:focus-visible {
-	outline: 2px solid #fab6b6;
-	outline-offset: 1px;
+	outline: var(--button-danger-focus-visible-outline);
+	outline-offset: var(--button-danger-focus-visible-outline-offset);
 }
 .pops button[type="danger"]:disabled {
-	--button-color: #ffffff;
-	--button-bd-color: #fab6b6;
-	--button-bg-color: #fab6b6;
+	--button-color: var(--button-success-disabled-color);
+	--button-bd-color: var(--button-success-disabled-bd-color);
+	--button-bg-color: var(--button-success-disabled-bg-color);
 }
 
 .pops button[type="xiaomi-primary"] {
-	--button-color: #ffffff;
-	--button-bd-color: #ff5c00;
-	--button-bg-color: #ff5c00;
+	--button-color: var(--button-xiaomi-primary-color);
+	--button-bd-color: var(--button-xiaomi-primary-bd-color);
+	--button-bg-color: var(--button-xiaomi-primary-bg-color);
 }
 .pops button[type="xiaomi-primary"]:active {
-	--button-color: #ffffff;
-	--button-bd-color: #da4f00;
-	--button-bg-color: #da4f00;
+	--button-color: var(--button-xiaomi-primary-active-color);
+	--button-bd-color: var(--button-xiaomi-primary-active-bd-color);
+	--button-bg-color: var(--button-xiaomi-primary-active-bg-color);
 }
 .pops button[type="xiaomi-primary"]:hover {
-	--button-color: #ffffff;
-	--button-bd-color: #ff7e29;
-	--button-bg-color: #ff7e29;
+	--button-color: var(--button-xiaomi-primary-hover-color);
+	--button-bd-color: var(--button-xiaomi-primary-hover-bd-color);
+	--button-bg-color: var(--button-xiaomi-primary-hover-bg-color);
 }
 .pops button[type="xiaomi-primary"]:focus-visible {
-	outline: 2px solid #fab6b6;
-	outline-offset: 1px;
+	outline: var(--button-xiaomi-primary-focus-visible-outline);
+	outline-offset: var(--button-xiaomi-primary-focus-visible-outline-offset);
 }
 .pops button[type="xiaomi-primary"]:disabled {
-	--button-color: #ffffff;
-	--button-bd-color: #fad5b6;
-	--button-bg-color: #fad5b6;
+	--button-color: var(--button-success-disabled-color);
+	--button-bd-color: var(--button-success-disabled-bd-color);
+	--button-bg-color: var(--button-success-disabled-bg-color);
 }

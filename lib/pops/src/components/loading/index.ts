@@ -30,15 +30,15 @@ export const PopsLoading = {
 			PopsType,
 			config,
 			/*html*/ `
-            <div class="pops-loading-content">${
-							config.addIndexCSS
-								? /*html*/ `
+            <div class="pops-content pops-${PopsType}-content">${
+				config.addIndexCSS
+					? /*html*/ `
                 <style data-model-name="index">${PopsCSS.index}</style>
                 <style data-model-name="anim">${PopsCSS.anim}</style>
                 <style data-model-name="common">${PopsCSS.common}</style>
                 `
-								: ""
-						}
+					: ""
+			}
                 <style data-model-name="loadingCSS">
                     ${PopsCSS.loadingCSS}
                 </style>

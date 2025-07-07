@@ -58,15 +58,15 @@ export const PopsIframe = {
 			PopsType,
 			config,
 			/*html*/ `
-            <div class="pops-iframe-title" style="text-align: ${
-							config.title.position
-						};${headerStyle}">${
+            <div class="pops-title pops-${PopsType}-title" style="text-align: ${
+				config.title.position
+			};${headerStyle}">${
 				config.title.html
 					? titleText
 					: `<p pops style="${headerPStyle}">${titleText}</p>`
 			}${headerBtnHTML}</div>
-			<div class="pops-iframe-content">
-                <div class="pops-iframe-content-global-loading"></div>
+			<div class="pops-content pops-${PopsType}-content">
+                <div class="pops-${PopsType}-content-global-loading"></div>
                 <iframe src="${config.url}" pops ${
 				config.sandbox
 					? "sandbox='allow-forms allow-same-origin allow-scripts'"

@@ -1,4 +1,11 @@
 .pops[type-value="loading"] {
+	--loading-bd-color: rgba(0, 0, 0, 0.2);
+	--loading-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+	--loading-box-shadow-color: rgb(0 0 0 / 50%);
+	--loading-icon-color: rgba(100, 149, 237, 0.1);
+	--loading-icon-bd-top-color: rgb(100, 149, 237, var(--pops-bd-opacity));
+}
+.pops[type-value="loading"] {
 	position: absolute;
 	top: 272.5px;
 	top: 50%;
@@ -11,10 +18,10 @@
 	max-height: 100%;
 	min-width: 0;
 	min-height: 0;
-	border: 1px solid rgba(0, 0, 0, 0.2);
+	border: 1px solid var(--loading-bd-color);
 	border-radius: 5px;
-	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));
-	box-shadow: 0 0 5px rgb(0 0 0 / 50%);
+	background-color: var(--loading-bg-color);
+	box-shadow: 0 0 5px var(--loading-box-shadow-color);
 	vertical-align: middle;
 	transition: all 0.35s;
 	transform: translate(-50%, -50%);
@@ -32,8 +39,8 @@
 	display: inline-block;
 	width: 2em;
 	height: 2em;
-	border: 0.3em solid rgba(100, 149, 237, 0.1);
-	border-top: 0.3em solid rgb(100, 149, 237, var(--pops-bd-opacity));
+	border: 0.3em solid var(--loading-icon-color);
+	border-top: 0.3em solid var(--loading-icon-bd-top-color);
 	border-radius: 50%;
 	content: " ";
 	vertical-align: middle;
@@ -51,11 +58,9 @@
 	line-height: normal;
 	align-content: center;
 }
-.pops[type-value="loading"] .pops-loading-content p[pops] {
-	display: inline-block;
-	padding: 5px 0px;
-	color: rgb(51, 51, 51);
-	text-indent: 15px;
-	font-size: inherit;
-	text-align: center;
+
+@media (prefers-color-scheme: dark) {
+	.pops[type-value="loading"] {
+		--loading-bg-color: #222222;
+	}
 }

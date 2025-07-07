@@ -122,14 +122,14 @@ export const PopsFolder = {
 			PopsType,
 			config,
 			/*html*/ `
-            <div class="pops-folder-title" style="text-align: ${
-							config.title.position
-						};${headerStyle}">${
+            <div class="pops-title pops-${PopsType}-title" style="text-align: ${
+				config.title.position
+			};${headerStyle}">${
 				config.title.html
 					? config.title.text
 					: `<p pops style="${headerPStyle}">${config.title.text}</p>`
 			}${headerBtnHTML}</div>
-			<div class="pops-folder-content ${
+			<div class="pops-content pops-${PopsType}-content ${
 				popsUtils.isPhone() ? "pops-mobile-folder-content" : ""
 			}">
                 <div class="pops-folder-list">

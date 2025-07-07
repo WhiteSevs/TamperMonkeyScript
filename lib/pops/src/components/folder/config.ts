@@ -27,16 +27,30 @@ export const PopsFolderConfig = (): DeepRequired<PopsFolderDetails> => {
 				clickEvent() {
 					return [
 						{
-							fileName: "内部-测试文件.zip",
-							fileSize: 1025000,
-							fileType: "zip",
-							createTime: 1702038410440,
-							latestTime: 1702039602126,
-							isFolder: false,
-							index: 1,
+							fileName: "测试文件夹2222",
+							fileSize: 0,
+							fileType: "",
+							createTime: 0,
+							latestTime: 0,
+							isFolder: true,
+							index: 0,
+							// @ts-ignore
 							clickEvent() {
-								console.log("下载文件：", this.fileName);
-								return "https://update.greasyfork.org/scripts/456485/pops.js";
+								return [
+									{
+										fileName: "内部-测试文件.zip",
+										fileSize: 1025000,
+										fileType: "zip",
+										createTime: 1702038410440,
+										latestTime: 1702039602126,
+										isFolder: false,
+										index: 1,
+										clickEvent() {
+											console.log("下载文件：", this.fileName);
+											return "https://update.greasyfork.org/scripts/456485/pops.js";
+										},
+									},
+								];
 							},
 						},
 					];

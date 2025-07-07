@@ -21070,7 +21070,20 @@ declare class Pops {
     };
     /**
      * 搜索建议
+     *
+     * 注意：调用后需要主动调用.init()和.setAllEvent()进行初始化
      * @param details 配置
+     * @example
+     * let $input = document.querySelector("#input");
+     * let searchSuggestion = pops.searchSuggestion({
+     *     target: $input,
+     *     inputTarget: $input,
+     *     getItemHTML: function (item) {
+     *         return item.value;
+     *     }
+     * });
+     * searchSuggestion.init();
+     * searchSuggestion.setAllEvent();
      */
     searchSuggestion: <T = any>(details: PopsSearchSuggestionDetails<T>) => {
         selfDocument: ShadowRoot | Document | (ShadowRoot | Document)[];
