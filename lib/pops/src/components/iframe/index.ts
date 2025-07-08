@@ -63,7 +63,7 @@ export const PopsIframe = {
 			};${headerStyle}">${
 				config.title.html
 					? titleText
-					: `<p pops style="${headerPStyle}">${titleText}</p>`
+					: `<p pops class="pops-${PopsType}-title-text" style="${headerPStyle}">${titleText}</p>`
 			}${headerBtnHTML}</div>
 			<div class="pops-content pops-${PopsType}-content">
                 <div class="pops-${PopsType}-content-global-loading"></div>

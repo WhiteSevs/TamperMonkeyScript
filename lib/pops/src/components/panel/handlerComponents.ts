@@ -34,9 +34,13 @@ import type { PopsPanelTextAreaDetails } from "./types/components-textarea";
 export const PanelHandlerComponents = () => {
 	return {
 		/**
-		 * 左侧的ul容器
+		 * 左侧上方的的ul容器
 		 */
 		asideULElement: null as any as HTMLUListElement,
+		/**
+		 * 左侧下方的ul容器
+		 */
+		asideBottomULElement: null as any as HTMLUListElement,
 		/**
 		 * 右侧主内容的顶部文字ul容器
 		 */
@@ -71,31 +75,48 @@ export const PanelHandlerComponents = () => {
 				$contentSectionContainer: HTMLElement;
 			};
 		}) {
+			const PopsType = "panel";
 			this.$el = {
 				...details.$el,
 			};
 
 			this.asideULElement =
-				this.$el.$contentAside.querySelector<HTMLUListElement>("ul")!;
+				this.$el.$contentAside.querySelector<HTMLUListElement>(
+					`ul.pops-${PopsType}-aside-top-container`
+				)!;
+			this.asideBottomULElement =
+				this.$el.$contentAside.querySelector<HTMLUListElement>(
+					`ul.pops-${PopsType}-aside-bottom-container`
+				)!;
 			this.sectionContainerHeaderULElement =
-				this.$el.$contentSectionContainer.querySelectorAll<HTMLUListElement>(
-					"ul"
-				)[0];
+				this.$el.$contentSectionContainer.querySelector<HTMLUListElement>(
+					`ul.pops-${PopsType}-container-header-ul`
+				)!;
 			this.sectionContainerULElement =
-				this.$el.$contentSectionContainer.querySelectorAll<HTMLUListElement>(
-					"ul"
-				)[1];
+				this.$el.$contentSectionContainer.querySelector<HTMLUListElement>(
+					`ul.pops-${PopsType}-container-main-ul`
+				)!;
 			/**
 			 * 默认点击的左侧容器项
 			 */
-			let $asideDefaultItemElement: HTMLLIElement | null = null;
+			let $defaultAsideItem: HTMLLIElement | null = null;
 			/** 是否滚动到默认位置（第一个项） */
 			let isScrollToDefaultView = false;
+			// 初始化配置
 			details.config.content.forEach((asideItemConfig) => {
 				let $asideLiElement = this.createAsideItem(asideItemConfig);
 				this.setAsideItemClickEvent($asideLiElement, asideItemConfig);
-				this.asideULElement.appendChild($asideLiElement);
-				if ($asideDefaultItemElement == null) {
+				// 是否处于底部
+				let isBottom =
+					typeof asideItemConfig.isBottom === "function"
+						? asideItemConfig.isBottom()
+						: asideItemConfig.isBottom;
+				if (isBottom) {
+					this.asideBottomULElement.appendChild($asideLiElement);
+				} else {
+					this.asideULElement.appendChild($asideLiElement);
+				}
+				if ($defaultAsideItem == null) {
 					let flag = false;
 					if (typeof asideItemConfig.isDefault === "function") {
 						flag = Boolean(asideItemConfig.isDefault());
@@ -103,7 +124,7 @@ export const PanelHandlerComponents = () => {
 						flag = Boolean(asideItemConfig.isDefault);
 					}
 					if (flag) {
-						$asideDefaultItemElement = $asideLiElement;
+						$defaultAsideItem = $asideLiElement;
 						isScrollToDefaultView = Boolean(
 							asideItemConfig.scrollToDefaultView
 						);
@@ -119,19 +140,15 @@ export const PanelHandlerComponents = () => {
 			});
 
 			/* 点击左侧列表 */
-			if (
-				$asideDefaultItemElement == null &&
-				this.asideULElement.children.length
-			) {
+			if ($defaultAsideItem == null && this.asideULElement.children.length) {
 				/* 默认第一个 */
-				$asideDefaultItemElement = this.asideULElement
-					.children[0] as HTMLLIElement;
+				$defaultAsideItem = <HTMLLIElement>this.asideULElement.children[0];
 			}
-			if ($asideDefaultItemElement) {
+			if ($defaultAsideItem) {
 				/* 点击选择的那一项 */
-				$asideDefaultItemElement.click();
+				$defaultAsideItem.click();
 				if (isScrollToDefaultView) {
-					$asideDefaultItemElement?.scrollIntoView();
+					$defaultAsideItem?.scrollIntoView();
 				}
 			} else {
 				console.error("pops.panel：左侧容器没有项");
@@ -239,11 +256,28 @@ export const PanelHandlerComponents = () => {
 			let $li = document.createElement("li");
 			$li.id = asideConfig.id;
 			Reflect.set($li, "__forms__", asideConfig.forms);
-			PopsSafeUtils.setSafeHTML($li, asideConfig.title);
+			let title =
+				typeof asideConfig.title === "function"
+					? asideConfig.title()
+					: asideConfig.title;
+			PopsSafeUtils.setSafeHTML($li, title);
 			/* 处理className */
 			this.setElementClassName($li, asideConfig.className);
 			this.setElementAttributes($li, asideConfig.attributes);
 			this.setElementProps($li, asideConfig.props);
+			/** 禁用左侧项的hover的CSS样式的类名 */
+			const disableAsideItemHoverCSSClassName =
+				"pops-panel-disabled-aside-hover-css";
+			/** 是否禁用左侧项的hover的CSS样式 */
+			let disableAsideItemHoverCSS =
+				typeof asideConfig.disableAsideItemHoverCSS === "function"
+					? asideConfig.disableAsideItemHoverCSS()
+					: asideConfig.disableAsideItemHoverCSS;
+			if (disableAsideItemHoverCSS) {
+				$li.classList.add(disableAsideItemHoverCSSClassName);
+			} else {
+				$li.classList.remove(disableAsideItemHoverCSSClassName);
+			}
 			return $li;
 		},
 		/**
@@ -2977,28 +3011,47 @@ export const PanelHandlerComponents = () => {
 			asideLiElement: HTMLElement,
 			asideConfig: PopsPanelContentConfig
 		) {
-			const that = this;
 			popsDOMUtils.on<MouseEvent | PointerEvent>(
 				asideLiElement,
 				"click",
-				void 0,
-				(event) => {
+				async (event) => {
+					if (typeof asideConfig.clickFirstCallback === "function") {
+						let clickFirstCallbackResult = await asideConfig.clickFirstCallback(
+							event,
+							this.sectionContainerHeaderULElement,
+							this.sectionContainerULElement
+						);
+						if (
+							typeof clickFirstCallbackResult === "boolean" &&
+							!clickFirstCallbackResult
+						) {
+							return;
+						}
+					}
 					this.clearContainer();
-					let rightContainerFormConfig = Reflect.get(
+					let rightContainerFormConfig: PopsPanelContentConfig[] = Reflect.get(
 						asideLiElement,
 						"__forms__"
-					) as PopsPanelContentConfig[];
+					);
 
 					Reflect.set(
-						that.$el.$contentSectionContainer,
+						this.$el.$contentSectionContainer,
 						"__formConfig__",
 						rightContainerFormConfig
 					);
-					popsDOMUtils.cssShow(that.$el.$contentSectionContainer);
+					popsDOMUtils.cssShow(this.$el.$contentSectionContainer);
 					this.clearAsideItemIsVisited();
 					this.setAsideItemIsVisited(asideLiElement);
 					/* 顶部标题栏，存在就设置 */
-					let headerTitleText = asideConfig.headerTitle ?? asideConfig.title;
+					let title =
+						typeof asideConfig.title === "function"
+							? asideConfig.title()
+							: asideConfig.title;
+					let headerTitleText =
+						typeof asideConfig.headerTitle === "function"
+							? asideConfig.headerTitle()
+							: asideConfig.headerTitle;
+					headerTitleText = headerTitleText ?? title;
 					if (
 						typeof headerTitleText === "string" &&
 						headerTitleText.trim() !== ""
@@ -3015,15 +3068,21 @@ export const PanelHandlerComponents = () => {
 						this.createSectionContainerItem_forms(formConfig);
 					});
 
-					if (typeof asideConfig.callback === "function") {
+					if (typeof asideConfig.clickCallback === "function") {
 						/* 执行回调 */
-						asideConfig.callback(
+						let asideClickCallbackResult = await asideConfig.clickCallback(
 							event,
 							this.sectionContainerHeaderULElement,
 							this.sectionContainerULElement
 						);
+						if (
+							typeof asideClickCallbackResult === "boolean" &&
+							!asideClickCallbackResult
+						) {
+							return;
+						}
 					}
-					that.triggerRenderRightContainer(that.$el.$contentSectionContainer);
+					this.triggerRenderRightContainer(this.$el.$contentSectionContainer);
 				}
 			);
 		},

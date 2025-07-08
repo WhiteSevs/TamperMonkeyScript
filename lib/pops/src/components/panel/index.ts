@@ -54,15 +54,16 @@ export const PopsPanel = {
 			};${headerStyle}">${
 				config.title.html
 					? config.title.text
-					: `<p pops style="${headerPStyle}">${config.title.text}</p>`
+					: `<p pops class="pops-${PopsType}-title-text" class="pops-${PopsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
 			}${headerBtnHTML}</div>
 			<div class="pops-content pops-${PopsType}-content">
 				<aside class="pops-${PopsType}-aside">
-					<ul></ul>
+					<ul class="pops-${PopsType}-aside-top-container"></ul>
+					<ul class="pops-${PopsType}-aside-bottom-container"></ul>
 				</aside>
 				<section class="pops-${PopsType}-container">
-					<ul class="pops-panel-container-header-ul"></ul>
-					<ul></ul>
+					<ul class="pops-${PopsType}-container-header-ul"></ul>
+					<ul class="pops-${PopsType}-container-main-ul"></ul>
 				</section>
 			</div>`,
 			"",

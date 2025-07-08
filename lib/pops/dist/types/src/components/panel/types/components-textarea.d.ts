@@ -12,7 +12,9 @@ export interface PopsPanelTextAreaDetails extends PopsPanelCommonDetails<PopsPan
      */
     attributes?: {
         [key: string]: any;
-    };
+    } | {
+        [key: string]: any;
+    }[];
     /**
      * （可选）自定义属性
      */

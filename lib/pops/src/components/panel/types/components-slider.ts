@@ -13,9 +13,13 @@ export interface PopsPanelSliderDetails
 	/**
 	 * 自定义元素属性
 	 */
-	attributes?: {
-		[key: string]: any;
-	};
+	attributes?:
+		| {
+				[key: string]: any;
+		  }
+		| {
+				[key: string]: any;
+		  }[];
 	/**
 	 * 自定义属性
 	 */

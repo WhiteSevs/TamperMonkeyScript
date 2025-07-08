@@ -14,9 +14,13 @@ export interface PopsPanelSelectDetails<T = any>
 	/**
 	 * （可选）自定义元素属性
 	 */
-	attributes?: {
-		[key: string]: any;
-	};
+	attributes?:
+		| {
+				[key: string]: any;
+		  }
+		| {
+				[key: string]: any;
+		  }[];
 	/**
 	 * （可选）自定义属性
 	 */

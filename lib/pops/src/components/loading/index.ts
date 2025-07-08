@@ -43,7 +43,9 @@ export const PopsLoading = {
                     ${PopsCSS.loadingCSS}
                 </style>
             ${config.style != null ? `<style>${config.style}</style>` : ""}
-            	<p pops style="${contentPStyle}">${config.content.text}</p>
+            	<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${
+				config.content.text
+			}</p>
             </div>`,
 			"",
 			zIndex

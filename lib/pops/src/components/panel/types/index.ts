@@ -51,37 +51,52 @@ export interface PopsPanelContentConfig {
 	 */
 	id: string;
 	/**
-	 * 元素的className
+	 * （可选）元素的className，值为空的话就不设置
+	 * @default ""
 	 */
 	className?: string | string[];
 	/**
 	 * 左侧的标题，可以是html格式
 	 */
-	title: string;
+	title: string | (() => string);
 	/**
-	 * （可选）中间顶部的标题
+	 * （可选）中间顶部的标题，如果为空，则使用title的值代替
+	 * @default title
 	 */
-	headerTitle?: string;
+	headerTitle?: string | (() => string);
 	/**
-	 * （可选）内容高度是否自动适应（与headerTitle的高度有关）
-	 */
-	autoAdaptionContentHeight?: string;
-	/**
-	 * （可选）是否是默认的，指打开弹窗的先显示出来的内容
+	 * （可选）是否是默认的，指打开弹窗的先显示出来的内容，默认为首位第一个项，如果多个配置都设置了isDefault的值为true，那么只有第一个值生效
+	 * @default false
 	 */
 	isDefault?: boolean | (() => boolean);
 	/**
+	 * （可选）是否是位于底部的
+	 *
+	 * 自上而下排序
+	 * @default false
+	 */
+	isBottom?: boolean | (() => boolean);
+	/**
+	 * （可选）是否禁用左侧项的hover的CSS样式
+	 */
+	disableAsideItemHoverCSS?: boolean | (() => boolean);
+	/**
 	 * （可选）是否自动滚动到默认的项
+	 * @default false
 	 */
 	scrollToDefaultView?: boolean;
 	/**
-	 * （可选）自定义元素属性
+	 * （可选）自定义元素属性.setAttribute、.getAttribute
 	 */
-	attributes?: {
-		[key: string]: any;
-	};
+	attributes?:
+		| {
+				[key: string]: any;
+		  }
+		| {
+				[key: string]: any;
+		  }[];
 	/**
-	 * （可选）自定义属性
+	 * （可选）自定义元素内部的属性值
 	 */
 	props?: {
 		[K in keyof HTMLElement]?: HTMLElement[K];
@@ -91,24 +106,39 @@ export interface PopsPanelContentConfig {
 	 */
 	forms: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[];
 	/**
-	 * 左侧容器的点击回调
+	 * 左侧容器的点击回调（点击后第一个触发该回调）
+	 * @returns
+	 * + false 阻止默认行为
 	 */
-	callback?: (
+	clickFirstCallback?: (
 		event: MouseEvent | PointerEvent,
 		rightHeaderElement: HTMLUListElement,
 		rightContainerElement: HTMLUListElement
-	) => void;
+	) => void | boolean | Promise<void | boolean>;
 	/**
-	 * 左侧容器添加到panel后的回调
-	 * @param rightHeaderElement
-	 * @param rightContainerElement
+	 * 左侧容器的点击回调
+	 * @returns
+	 * + false 阻止默认进入菜单详情
 	 */
-	afterRender?: (data: {
-		/** 容器配置 */
-		asideConfig: PopsPanelContentConfig;
-		/** 左侧容器的元素 */
-		$asideLiElement: HTMLLIElement;
-	}) => void;
+	clickCallback?: (
+		event: MouseEvent | PointerEvent,
+		rightHeaderElement: HTMLUListElement,
+		rightContainerElement: HTMLUListElement
+	) => void | boolean | Promise<void | boolean>;
+	/**
+	 * 左侧项添加到panel后的回调
+	 */
+	afterRender?: (
+		/**
+		 * 配置
+		 */
+		data: {
+			/** 容器配置 */
+			asideConfig: PopsPanelContentConfig;
+			/** 左侧容器的元素 */
+			$asideLiElement: HTMLLIElement;
+		}
+	) => void;
 }
 
 /**
@@ -123,16 +153,18 @@ export interface PopsPanelDetails
 	 */
 	content: PopsPanelContentConfig[];
 	/**
-	 * 按钮配置
+	 * 右上角的按钮配置
 	 */
 	btn?: {
 		/**
-		 * 右上角的关闭按钮
+		 * 关闭按钮
 		 */
 		close?: PopsHeaderCloseButtonDetails;
 	};
 	/**
-	 * 移动端适配的的className，默认为pops-panel-is-mobile
+	 * 移动端适配的的className
+	 *
+	 * @default "pops-panel-is-mobile"
 	 */
 	mobileClassName?: string;
 	/**

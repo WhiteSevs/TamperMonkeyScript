@@ -432,6 +432,52 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 					},
 				],
 			},
+			{
+				id: "whitesev-panel-bottom-config-1",
+				title: /*html*/ `
+					<a rel="nofollow" href="https://www.npmjs.com/package/@whitesev/pops" target="_blank"><img src="https://img.shields.io/npm/v/@whitesev/pops?label=pops" alt="npm pops version"></a>
+				`,
+				isBottom: true,
+				disableAsideItemHoverCSS: true,
+				attributes: [
+					{
+						"data-value": "value",
+						"data-value-2": "value2",
+					},
+				],
+				// @ts-ignore
+				props: {},
+				forms: [],
+				clickFirstCallback: function (
+					event: MouseEvent | PointerEvent,
+					rightHeaderElement: HTMLUListElement,
+					rightContainerElement: HTMLUListElement
+				) {
+					return false;
+				},
+			},
+			{
+				id: "whitesev-panel-bottom-config-2",
+				// @ts-ignore
+				title: "版本：" + pops.config.version,
+				isBottom: true,
+				attributes: [
+					{
+						"data-value": "value",
+						"data-value-2": "value2",
+					},
+				],
+				// @ts-ignore
+				props: {},
+				forms: [],
+				clickFirstCallback: function (
+					event: MouseEvent | PointerEvent,
+					rightHeaderElement: HTMLUListElement,
+					rightContainerElement: HTMLUListElement
+				) {
+					return false;
+				},
+			},
 		],
 		btn: {
 			close: {

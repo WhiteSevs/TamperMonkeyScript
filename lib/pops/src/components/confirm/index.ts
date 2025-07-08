@@ -53,12 +53,12 @@ export const PopsConfirm = {
 			};${headerStyle}">${
 				config.title.html
 					? config.title.text
-					: `<p pops style="${headerPStyle}">${config.title.text}</p>`
+					: `<p pops class="pops-${PopsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
 			}${headerBtnHTML}</div>
                         <div class="pops-content pops-${PopsType}-content" style="${contentStyle}">${
 				config.content.html
 					? config.content.text
-					: `<p pops style="${contentPStyle}">${config.content.text}</p>`
+					: `<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`
 			}</div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex

@@ -52,14 +52,14 @@ export const PopsDrawer = {
 								? /*html*/ `<div class="pops-title pops-${PopsType}-title" style="${headerStyle}">${
 										config.title.html
 											? config.title.text
-											: /*html*/ `<p pops style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
+											: /*html*/ `<p pops class="pops-${PopsType}-title-text" style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
 								  }${headerBtnHTML}</div>`
 								: ""
 						}
             <div class="pops-content pops-${PopsType}-content" style="${contentStyle}">${
 				config.content.html
 					? config.content.text
-					: `<p pops style="${contentPStyle}">${config.content.text}</p>`
+					: `<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`
 			}</div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex

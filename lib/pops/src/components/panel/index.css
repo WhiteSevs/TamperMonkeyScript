@@ -81,6 +81,9 @@ aside.pops-panel-aside {
 	background: var(--aside-bg-color);
 	border-right: 1px solid var(--aside-bg-color);
 	font-size: 0.9em;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 }
 aside.pops-panel-aside {
 	user-select: none;
@@ -134,7 +137,7 @@ aside.pops-panel-aside ul li {
 	justify-content: flex-start;
 }
 aside.pops-panel-aside .pops-is-visited,
-aside.pops-panel-aside ul li:hover {
+aside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {
 	color: var(--aside-hover-color);
 	background: var(--aside-hover-bg-color);
 }
@@ -197,9 +200,9 @@ section.pops-panel-container .pops-panel-item-left-text {
 }
 
 /* 左侧的主文字 */
-section.pops-panel-container .pops-panel-item-left-main-text {
-	/*line-height: 2;*/
-}
+/*section.pops-panel-container .pops-panel-item-left-main-text {
+	
+}*/
 /* 左侧的描述文字 */
 section.pops-panel-container .pops-panel-item-left-desc-text {
 	font-size: var(--pops-panel-forms-container-item-left-desc-text-size);
@@ -317,6 +320,25 @@ section.pops-panel-container
 }
 /* switch的CSS */
 .pops-panel-switch {
+	--panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));
+	--panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));
+	--panel-switch-circle-color: #dcdfe6;
+	--panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+	--panel-switch-checked-circle-color: #409eff;
+	--panel-switch-checked-core-bd-color: rgb(
+		64,
+		158,
+		255,
+		var(--pops-bd-opacity)
+	);
+	--panel-switch-checked-core-bg-color: rgb(
+		64,
+		158,
+		255,
+		var(--pops-bg-opacity)
+	);
+}
+.pops-panel-switch {
 	display: inline-flex;
 	flex-direction: row-reverse;
 	align-items: center;
@@ -353,11 +375,11 @@ section.pops-panel-container
 	align-items: center;
 	min-width: 40px;
 	height: 20px;
-	border: 1px solid rgb(220, 223, 230, var(--pops-bd-opacity));
+	border: 1px solid var(--panel-switch-core-bd-color);
 	outline: 0;
 	border-radius: 10px;
 	box-sizing: border-box;
-	background: rgb(220, 223, 230, var(--pops-bg-opacity));
+	background: var(--panel-switch-core-bg-color);
 	cursor: pointer;
 	transition: border-color 0.3s, background-color 0.3s;
 }
@@ -368,19 +390,19 @@ section.pops-panel-container
 	transition: all 0.3s;
 	width: 16px;
 	height: 16px;
-	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	color: rgb(220, 223, 230);
+	background-color: var(--panel-switch-circle-bg-color);
+	color: var(--panel-switch-circle-color);
 }
 .pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {
-	border-color: rgb(64, 158, 255, var(--pops-bd-opacity));
-	background-color: rgb(64, 158, 255, var(--pops-bg-opacity));
+	border-color: var(--panel-switch-checked-core-bd-color);
+	background-color: var(--panel-switch-checked-core-bg-color);
 }
 .pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {
 	left: calc(100% - 17px);
-	color: rgb(64, 158, 255);
+	color: var(--panel-switch-checked-circle-color);
 }
 /* switch的CSS */
 
@@ -1140,6 +1162,28 @@ section.pops-panel-container
 		fill: #f2f2f2;
 	}
 
+	/* switch的CSS */
+	.pops-panel-switch {
+		--panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));
+		--panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));
+		--panel-switch-circle-color: #dcdfe6;
+		--panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+		--panel-switch-checked-circle-color: #409eff;
+		--panel-switch-checked-core-bd-color: rgb(
+			64,
+			158,
+			255,
+			var(--pops-bd-opacity)
+		);
+		--panel-switch-checked-core-bg-color: rgb(
+			64,
+			158,
+			255,
+			var(--pops-bg-opacity)
+		);
+	}
+
+	/* select-multiple的CSS*/
 	.pops-panel-select-multiple {
 		--el-fill-color-blank: #141414;
 		--el-border-color: #4c4d4f;
@@ -1153,7 +1197,12 @@ section.pops-panel-container
 		--el-color-primary: #409eff;
 		--el-color-white: #ffffff;
 	}
+	/* select-multiple的CSS*/
 	.pops-panel-select-multiple .el-tag {
 		--el-color-info-light-9: #202121;
+	}
+	/* slider的CSS */
+	.pops-slider {
+		--pops-slider-border-color-light: #414243;
 	}
 }

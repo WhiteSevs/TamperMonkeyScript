@@ -127,7 +127,7 @@ export const PopsFolder = {
 			};${headerStyle}">${
 				config.title.html
 					? config.title.text
-					: `<p pops style="${headerPStyle}">${config.title.text}</p>`
+					: `<p pops class="pops-${PopsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
 			}${headerBtnHTML}</div>
 			<div class="pops-content pops-${PopsType}-content ${
 				popsUtils.isPhone() ? "pops-mobile-folder-content" : ""

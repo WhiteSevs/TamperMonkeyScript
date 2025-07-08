@@ -15,9 +15,13 @@ import type { PopsPanelTextAreaDetails } from "./types/components-textarea";
  */
 export declare const PanelHandlerComponents: () => {
     /**
-     * 左侧的ul容器
+     * 左侧上方的的ul容器
      */
     asideULElement: HTMLUListElement;
+    /**
+     * 左侧下方的ul容器
+     */
+    asideBottomULElement: HTMLUListElement;
     /**
      * 右侧主内容的顶部文字ul容器
      */

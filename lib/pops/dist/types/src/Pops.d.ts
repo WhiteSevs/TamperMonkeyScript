@@ -209,6 +209,7 @@ declare class Pops {
         /** pops.panel中用于处理各个类型的工具 */
         PanelHandlerComponents: () => {
             asideULElement: HTMLUListElement;
+            asideBottomULElement: HTMLUListElement;
             sectionContainerHeaderULElement: HTMLUListElement;
             sectionContainerULElement: HTMLUListElement;
             $el: {

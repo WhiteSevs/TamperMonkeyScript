@@ -13,7 +13,9 @@ export interface PopsPanelSliderDetails extends PopsPanelCommonDetails<PopsPanel
      */
     attributes?: {
         [key: string]: any;
-    };
+    } | {
+        [key: string]: any;
+    }[];
     /**
      * 自定义属性
      */
