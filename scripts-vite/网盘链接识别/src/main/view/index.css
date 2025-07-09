@@ -65,6 +65,7 @@
 	align-items: center;
 	width: 15px;
 	height: 15px;
+	color: #000000;
 }
 
 .netdisk-status[data-check-valid="failed"] {
