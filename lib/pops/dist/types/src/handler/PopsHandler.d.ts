@@ -23,10 +23,13 @@ export declare const PopsHandler: {
     };
     /**
      * 处理初始化
-     * @param $shadowRoot 所在的shadowRoot
-     * @param cssText 添加进ShadowRoot的CSS
+     * @param $styleParent style元素的父元素
+     * @param css 添加进ShadowRoot的CSS
      */
-    handleInit($shadowRoot?: ShadowRoot | HTMLElement, cssText?: string | string[]): void;
+    handleInit($styleParent?: ShadowRoot | HTMLElement, css?: string | string[] | {
+        name?: string;
+        css: string;
+    }[]): void;
     /**
      * 处理遮罩层
      *

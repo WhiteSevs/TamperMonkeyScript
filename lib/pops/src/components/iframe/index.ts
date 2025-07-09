@@ -27,12 +27,30 @@ export const PopsIframe = {
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			PopsCSS.index,
-			PopsCSS.ninePalaceGridPosition,
-			PopsCSS.scrollbar,
-			PopsCSS.anim,
-			PopsCSS.common,
-			PopsCSS.iframeCSS,
+			{
+				name: "index",
+				css: PopsCSS.index,
+			},
+			{
+				name: "ninePalaceGridPosition",
+				css: PopsCSS.ninePalaceGridPosition,
+			},
+			{
+				name: "scrollbar",
+				css: PopsCSS.scrollbar,
+			},
+			{
+				name: "anim",
+				css: PopsCSS.anim,
+			},
+			{
+				name: "common",
+				css: PopsCSS.common,
+			},
+			{
+				name: "iframeCSS",
+				css: PopsCSS.iframeCSS,
+			},
 		]);
 
 		let maskExtraStyle =

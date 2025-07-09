@@ -24,13 +24,34 @@ export const PopsFolder = {
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			PopsCSS.index,
-			PopsCSS.ninePalaceGridPosition,
-			PopsCSS.scrollbar,
-			PopsCSS.button,
-			PopsCSS.anim,
-			PopsCSS.common,
-			PopsCSS.folderCSS,
+			{
+				name: "index",
+				css: PopsCSS.index,
+			},
+			{
+				name: "ninePalaceGridPosition",
+				css: PopsCSS.ninePalaceGridPosition,
+			},
+			{
+				name: "scrollbar",
+				css: PopsCSS.scrollbar,
+			},
+			{
+				name: "button",
+				css: PopsCSS.button,
+			},
+			{
+				name: "anim",
+				css: PopsCSS.anim,
+			},
+			{
+				name: "common",
+				css: PopsCSS.common,
+			},
+			{
+				name: "folderCSS",
+				css: PopsCSS.folderCSS,
+			},
 		]);
 
 		/* 办公几件套 */

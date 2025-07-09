@@ -1,13 +1,11 @@
 .pops[type-value="panel"] {
-	--el-disabled-text-color: #a8abb2;
-	--el-disabled-bg-color: #f5f7fa;
-	--el-disabled-border-color: #e4e7ed;
 	--pops-bg-color: #f2f2f2;
 	--pops-color: #333333;
-	--title-bg-color: #ffffff;
-	--aside-bg-color: #ffffff;
-	--aside-hover-color: rgb(64, 158, 255);
-	--aside-hover-bg-color: rgba(64, 158, 255, 0.1);
+	--panel-title-bg-color: #ffffff;
+
+	--panel-aside-bg-color: #ffffff;
+	--panel-aside-hover-color: rgb(64, 158, 255);
+	--panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);
 
 	--pops-panel-forms-margin-top-bottom: 10px;
 	--pops-panel-forms-margin-left-right: 20px;
@@ -32,42 +30,13 @@
 	);
 	--pops-panel-forms-container-li-padding-top-bottom: 12px;
 	--pops-panel-forms-container-li-padding-left-right: 16px;
-
-	--pops-panel-components-input-text-color: #000000;
-	--pops-panel-components-input-text-bg-color: transparent;
-	--pops-panel-components-input-bd-color: #dcdfe6;
-	--pops-panel-components-input-bg-color: #ffffff;
-	--pops-panel-components-input-hover-bd-color: #c0c4cc;
-	--pops-panel-components-input-focus-bd-color: #409eff;
-	--pops-panel-components-input-suffix-color: #a8abb2;
-
-	--pops-panel-components-textarea-text-color: #000000;
-	--pops-panel-components-textarea-text-bg-color: #ffffff;
-	--pops-panel-components-textarea-bd-color: #dcdfe6;
-	--pops-panel-components-textarea-hover-bd-color: #c0c4cc;
-	--pops-panel-components-textarea-focus-bd-color: #409eff;
-
-	--pops-panel-components-select-text-color: #000000;
-	--pops-panel-components-select-bd-color: rgb(
-		184,
-		184,
-		184,
-		var(--pops-bd-opacity)
-	);
-	--pops-panel-components-select-bg-color: rgb(
-		255,
-		255,
-		255,
-		var(--pops-bg-opacity)
-	);
-	--pops-panel-components-select-hover-bd-color: #c0c4cc;
 }
 .pops[type-value="panel"] {
 	color: var(--pops-color);
 	background: var(--pops-bg-color);
 }
 .pops[type-value] .pops-panel-title {
-	background: var(--title-bg-color);
+	background: var(--panel-title-bg-color);
 }
 
 /* ↓panel的CSS↓ */
@@ -78,8 +47,8 @@ aside.pops-panel-aside {
 	max-width: 200px;
 	min-width: 100px;
 	height: 100%;
-	background: var(--aside-bg-color);
-	border-right: 1px solid var(--aside-bg-color);
+	background: var(--panel-aside-bg-color);
+	border-right: 1px solid var(--panel-aside-bg-color);
 	font-size: 0.9em;
 	display: flex;
 	flex-direction: column;
@@ -138,8 +107,8 @@ aside.pops-panel-aside ul li {
 }
 aside.pops-panel-aside .pops-is-visited,
 aside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {
-	color: var(--aside-hover-color);
-	background: var(--aside-hover-bg-color);
+	color: var(--panel-aside-hover-color);
+	background: var(--panel-aside-hover-bg-color);
 }
 section.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {
 	display: flex;
@@ -684,6 +653,19 @@ section.pops-panel-container
 
 /* input的CSS */
 .pops-panel-input {
+	--el-disabled-text-color: #a8abb2;
+	--el-disabled-bg-color: #f5f7fa;
+	--el-disabled-border-color: #e4e7ed;
+
+	--pops-panel-components-input-text-color: #000000;
+	--pops-panel-components-input-text-bg-color: transparent;
+	--pops-panel-components-input-bd-color: #dcdfe6;
+	--pops-panel-components-input-bg-color: #ffffff;
+	--pops-panel-components-input-hover-bd-color: #c0c4cc;
+	--pops-panel-components-input-focus-bd-color: #409eff;
+	--pops-panel-components-input-suffix-color: #a8abb2;
+}
+.pops-panel-input {
 	display: flex;
 	align-items: center;
 	border: 1px solid var(--pops-panel-components-input-bd-color);
@@ -800,6 +782,13 @@ section.pops-panel-container
 /* input的CSS */
 
 /* textarea的CSS */
+.pops-panel-textarea {
+	--pops-panel-components-textarea-text-color: #000000;
+	--pops-panel-components-textarea-text-bg-color: #ffffff;
+	--pops-panel-components-textarea-bd-color: #dcdfe6;
+	--pops-panel-components-textarea-hover-bd-color: #c0c4cc;
+	--pops-panel-components-textarea-focus-bd-color: #409eff;
+}
 .pops-panel-textarea textarea {
 	width: 100%;
 	/*vertical-align: bottom;*/
@@ -839,6 +828,22 @@ section.pops-panel-container
 /* textarea的CSS */
 
 /* select的CSS */
+.pops-panel-select {
+	--pops-panel-components-select-text-color: #000000;
+	--pops-panel-components-select-bd-color: rgb(
+		184,
+		184,
+		184,
+		var(--pops-bd-opacity)
+	);
+	--pops-panel-components-select-bg-color: rgb(
+		255,
+		255,
+		255,
+		var(--pops-bg-opacity)
+	);
+	--pops-panel-components-select-hover-bd-color: #c0c4cc;
+}
 .pops-panel-select {
 	border: 0;
 }
@@ -1121,8 +1126,8 @@ section.pops-panel-container
 	.pops[type-value="panel"] {
 		--pops-bg-color: #000000;
 		--pops-color: #f2f2f2;
-		--title-bg-color: #000000;
-		--aside-bg-color: #262626;
+		--panel-title-bg-color: #000000;
+		--panel-aside-bg-color: #262626;
 		--pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;
 		--pops-panel-forms-container-item-bg-color: #262626;
 		--pops-panel-forms-container-item-title-color: #c1c1c1;
@@ -1133,28 +1138,6 @@ section.pops-panel-container
 			51,
 			var(--pops-bd-opacity)
 		);
-
-		--pops-panel-components-input-text-color: #f2f2f2;
-		--pops-panel-components-input-bd-color: #4f5052;
-		--pops-panel-components-input-bg-color: #141414;
-		--pops-panel-components-input-hover-bd-color: #6f7175;
-		--pops-panel-components-input-focus-bd-color: #409eff;
-		--pops-panel-components-input-suffix-color: #a8abb2;
-
-		--pops-panel-components-textarea-text-color: #f2f2f2;
-		--pops-panel-components-textarea-text-bg-color: #141414;
-		--pops-panel-components-textarea-bd-color: #4f5052;
-		--pops-panel-components-textarea-hover-bd-color: #6f7175;
-		--pops-panel-components-textarea-focus-bd-color: #409eff;
-
-		--pops-panel-components-select-text-color: #f2f2f2;
-		--pops-panel-components-select-bd-color: rgb(
-			51,
-			51,
-			51,
-			var(--pops-bd-opacity)
-		);
-		--pops-panel-components-select-bg-color: #141414;
 	}
 	.pops[type-value="panel"]
 		.pops-panel-deepMenu-container
@@ -1182,7 +1165,17 @@ section.pops-panel-container
 			var(--pops-bg-opacity)
 		);
 	}
-
+	/* select的CSS */
+	.pops-panel-select {
+		--pops-panel-components-select-text-color: #f2f2f2;
+		--pops-panel-components-select-bd-color: rgb(
+			51,
+			51,
+			51,
+			var(--pops-bd-opacity)
+		);
+		--pops-panel-components-select-bg-color: #141414;
+	}
 	/* select-multiple的CSS*/
 	.pops-panel-select-multiple {
 		--el-fill-color-blank: #141414;
@@ -1204,5 +1197,22 @@ section.pops-panel-container
 	/* slider的CSS */
 	.pops-slider {
 		--pops-slider-border-color-light: #414243;
+	}
+	/* input的CSS */
+	.pops-panel-input {
+		--pops-panel-components-input-text-color: #f2f2f2;
+		--pops-panel-components-input-bd-color: #4f5052;
+		--pops-panel-components-input-bg-color: #141414;
+		--pops-panel-components-input-hover-bd-color: #6f7175;
+		--pops-panel-components-input-focus-bd-color: #409eff;
+		--pops-panel-components-input-suffix-color: #a8abb2;
+	}
+	/* textarea的CSS */
+	.pops-panel-textarea {
+		--pops-panel-components-textarea-text-color: #f2f2f2;
+		--pops-panel-components-textarea-text-bg-color: #141414;
+		--pops-panel-components-textarea-bd-color: #4f5052;
+		--pops-panel-components-textarea-hover-bd-color: #6f7175;
+		--pops-panel-components-textarea-focus-bd-color: #409eff;
 	}
 }

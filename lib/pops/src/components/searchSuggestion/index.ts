@@ -29,9 +29,18 @@ export const PopsSearchSuggestion = {
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			PopsCSS.index,
-			PopsCSS.anim,
-			PopsCSS.common,
+			{
+				name: "index",
+				css: PopsCSS.index,
+			},
+			{
+				name: "anim",
+				css: PopsCSS.anim,
+			},
+			{
+				name: "common",
+				css: PopsCSS.common,
+			},
 		]);
 
 		if (config.style != null) {

@@ -31,10 +31,22 @@ export const PopsRightClickMenu = {
 		}
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			PopsCSS.index,
-			PopsCSS.anim,
-			PopsCSS.common,
-			PopsCSS.rightClickMenu,
+			{
+				name: "index",
+				css: PopsCSS.index,
+			},
+			{
+				name: "anim",
+				css: PopsCSS.anim,
+			},
+			{
+				name: "common",
+				css: PopsCSS.common,
+			},
+			{
+				name: "rightClickMenu",
+				css: PopsCSS.rightClickMenu,
+			},
 		]);
 
 		if (config.style != null) {

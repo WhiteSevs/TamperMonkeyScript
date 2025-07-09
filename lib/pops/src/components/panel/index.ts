@@ -25,13 +25,34 @@ export const PopsPanel = {
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			PopsCSS.index,
-			PopsCSS.ninePalaceGridPosition,
-			PopsCSS.scrollbar,
-			PopsCSS.button,
-			PopsCSS.anim,
-			PopsCSS.common,
-			PopsCSS.panelCSS,
+			{
+				name: "index",
+				css: PopsCSS.index,
+			},
+			{
+				name: "ninePalaceGridPosition",
+				css: PopsCSS.ninePalaceGridPosition,
+			},
+			{
+				name: "scrollbar",
+				css: PopsCSS.scrollbar,
+			},
+			{
+				name: "button",
+				css: PopsCSS.button,
+			},
+			{
+				name: "anim",
+				css: PopsCSS.anim,
+			},
+			{
+				name: "common",
+				css: PopsCSS.common,
+			},
+			{
+				name: "panelCSS",
+				css: PopsCSS.panelCSS,
+			},
 		]);
 
 		// 先把z-index提取出来

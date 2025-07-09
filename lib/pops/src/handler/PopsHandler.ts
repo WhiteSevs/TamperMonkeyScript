@@ -44,32 +44,63 @@ export const PopsHandler = {
 	},
 	/**
 	 * 处理初始化
-	 * @param $shadowRoot 所在的shadowRoot
-	 * @param cssText 添加进ShadowRoot的CSS
+	 * @param $styleParent style元素的父元素
+	 * @param css 添加进ShadowRoot的CSS
 	 */
 	handleInit(
-		$shadowRoot?: ShadowRoot | HTMLElement,
-		cssText?: string | string[]
+		$styleParent?: ShadowRoot | HTMLElement,
+		css?:
+			| string
+			| string[]
+			| {
+					name?: string;
+					css: string;
+			  }[]
 	) {
 		PopsAnimation.init();
 		if (!arguments.length) {
 			return;
 		}
-		if (Array.isArray(cssText)) {
-			for (let index = 0; index < cssText.length; index++) {
-				this.handleInit($shadowRoot, cssText[index]);
+		if ($styleParent == null) {
+			return;
+		}
+		if (css == null) {
+			return;
+		}
+
+		if (typeof css === "string") {
+			if (css.trim() === "") {
+				return;
 			}
+			css = [
+				{
+					css: css,
+				},
+			];
 		} else {
+			css = css.map((item) => {
+				if (typeof item === "string") {
+					return {
+						css: item,
+					};
+				} else {
+					return item;
+				}
+			});
+		}
+		for (const cssItem of css) {
 			let $css = popsDOMUtils.createElement(
 				"style",
-				{
-					innerHTML: cssText,
-				},
+				{},
 				{
 					"data-type": "PopsHandler.handleInit",
 				}
 			);
-			$shadowRoot!.appendChild($css);
+			$css.textContent = cssItem.css;
+			if (typeof cssItem.name === "string") {
+				$css.setAttribute("data-name", cssItem.name);
+			}
+			$styleParent.appendChild($css);
 		}
 	},
 	/**

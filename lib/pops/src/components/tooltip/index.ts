@@ -613,10 +613,22 @@ export const PopsTooltip = {
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
-			PopsCSS.index,
-			PopsCSS.anim,
-			PopsCSS.common,
-			PopsCSS.tooltipCSS,
+			{
+				name: "index",
+				css: PopsCSS.index,
+			},
+			{
+				name: "anim",
+				css: PopsCSS.anim,
+			},
+			{
+				name: "common",
+				css: PopsCSS.common,
+			},
+			{
+				name: "tooltipCSS",
+				css: PopsCSS.tooltipCSS,
+			},
 		]);
 
 		let toolTip = new ToolTip(config, guid, {
