@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.7
+// @version      2025.7.10
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、用户状态查看、美化导航、动态头像上传、最新发表、评论过滤器等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -134,9 +134,7 @@
 			`;u.html(t,o);});}},ne={$data:{__storeApiFn:null,get storeApiValue(){return this.__storeApiFn||(this.__storeApiFn=new V.Dictionary),this.__storeApiFn}},getStorageApi(t){if(this.hasStorageApi(t))return this.$data.storeApiValue.get(t)},hasStorageApi(t){return this.$data.storeApiValue.has(t)},setStorageApi(t,e){this.$data.storeApiValue.set(t,e);},initComponentsStorageApi(t,e,a){let n;this.hasStorageApi(t)?n=this.getStorageApi(t):n=a,this.setComponentsStorageApiProperty(e,n);},setComponentsStorageApiProperty(t,e){Reflect.set(t.props,S,e);}},te=function(t,e,a,n,i,r="",l,o,s){let c={text:t,type:"input",isNumber:!!l,isPassword:false,attributes:{},props:{},description:n,afterAddToUListCallBack:s,getValue(){return this.props[S].get(e,a)},callback(p,g,w){this.props[S].set(e,g);},placeholder:r};return Reflect.set(c.attributes,z,e),Reflect.set(c.attributes,$,a),ne.initComponentsStorageApi("input",c,{get(p,g){return b.getValue(p,g)},set(p,g){b.setValue(p,g);}}),c},C=function(t,e,a,n,i,r){let l={text:t,type:"switch",description:i,attributes:{},props:{},getValue(){return !!this.props[S].get(e,a)},callback(o,s){let c=!!s;h.success(`${c?"开启":"关闭"} ${t}`),this.props[S].set(e,c);},afterAddToUListCallBack:r};return Reflect.set(l.attributes,z,e),Reflect.set(l.attributes,$,a),ne.initComponentsStorageApi("switch",l,{get(o,s){return b.getValue(o,s)},set(o,s){b.setValue(o,s);}}),l},ie=function(t,e,a,n,i,r="",l){let o={text:t,type:"textarea",attributes:{},props:{},description:n,placeholder:r,disabled:l,getValue(){let c=this.props[S].get(e,a);return Array.isArray(c)?c.join(`
 `):c},callback(s,c){this.props[S].set(e,c);}};return Reflect.set(o.attributes,z,e),Reflect.set(o.attributes,$,a),ne.initComponentsStorageApi("switch",o,{get(s,c){return b.getValue(s,c)},set(s,c){b.setValue(s,c);}}),o};class be{option;constructor(e){this.option=e;}async showView(){let e=I.confirm({title:{text:this.option.title,position:"center"},content:{text:`
                     <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist">
-                            
-                        </ul>
+                        <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
                     </form>
                     `,html:true},btn:m.assign({ok:{callback:async()=>{await r();}}},this.option.btn||{},true),drag:true,mask:{enable:true},style:`

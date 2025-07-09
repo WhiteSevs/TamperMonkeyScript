@@ -37,7 +37,7 @@ export class ApiTest_addStyle extends ApiAsyncTestBase {
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
 			},
-			callback(data) {
+			clickCallback(data) {
 				StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
 			},
 			forms: [

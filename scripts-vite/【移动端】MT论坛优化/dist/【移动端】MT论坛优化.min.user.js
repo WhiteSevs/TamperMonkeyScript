@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.7
+// @version      2025.7.10
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
@@ -1362,9 +1362,7 @@
                     <a href="${s.href}" title="${s.title}" target="_blank">${s.title}</a>
                 </li>`;});let n=document.querySelector(".comiis_forumlist.comiis_xznlist");Z.before(n,`<div class="comiis_mh_kxtxt bg_f comiis_mh_kxtxt_owm"><ul>${i}</ul></div>`);});}},ft={$data:{__storeApiFn:null,get storeApiValue(){return this.__storeApiFn||(this.__storeApiFn=new Y.Dictionary),this.__storeApiFn}},getStorageApi(e){if(this.hasStorageApi(e))return this.$data.storeApiValue.get(e)},hasStorageApi(e){return this.$data.storeApiValue.has(e)},setStorageApi(e,t){this.$data.storeApiValue.set(e,t);},initComponentsStorageApi(e,t,i){let n;this.hasStorageApi(e)?n=this.getStorageApi(e):n=i,this.setComponentsStorageApiProperty(t,n);},setComponentsStorageApiProperty(e,t){Reflect.set(e.props,L,t);}},U=function(e,t,i,n,s,o="",r,l,c){let m={text:e,type:"input",isNumber:!!r,isPassword:!!l,attributes:{},props:{},description:n,afterAddToUListCallBack:c,getValue(){return this.props[L].get(t,i)},callback(d,h,_){this.props[L].set(t,h);},placeholder:o};return Reflect.set(m.attributes,et,t),Reflect.set(m.attributes,it,i),ft.initComponentsStorageApi("input",m,{get(d,h){return v.getValue(d,h)},set(d,h){v.setValue(d,h);}}),m},I=function(e,t,i,n,s,o){let r={text:e,type:"switch",description:s,attributes:{},props:{},getValue(){return !!this.props[L].get(t,i)},callback(l,c){let m=!!c;u.success(`${m?"开启":"关闭"} ${e}`),this.props[L].set(t,m);},afterAddToUListCallBack:o};return Reflect.set(r.attributes,et,t),Reflect.set(r.attributes,it,i),ft.initComponentsStorageApi("switch",r,{get(l,c){return v.getValue(l,c)},set(l,c){v.setValue(l,c);}}),r};class Ot{option;constructor(t){this.option=t;}async showView(){let t=D.confirm({title:{text:this.option.title,position:"center"},content:{text:`
                     <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist">
-                            
-                        </ul>
+                        <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
                     </form>
                     `,html:true},btn:p.assign({ok:{callback:async()=>{await o();}}},this.option.btn||{},true),drag:true,mask:{enable:true},style:`

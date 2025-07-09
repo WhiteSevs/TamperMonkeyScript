@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.7
+// @version      2025.7.10
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
@@ -5473,9 +5473,7 @@ span.gm-card-media_score-score {\r
 						`);});}}]);}},Ne={$data:{__storeApiFn:null,get storeApiValue(){return this.__storeApiFn||(this.__storeApiFn=new pe.Dictionary),this.__storeApiFn}},getStorageApi(e){if(this.hasStorageApi(e))return this.$data.storeApiValue.get(e)},hasStorageApi(e){return this.$data.storeApiValue.has(e)},setStorageApi(e,t){this.$data.storeApiValue.set(e,t);},initComponentsStorageApi(e,t,r){let n;this.hasStorageApi(e)?n=this.getStorageApi(e):n=r,this.setComponentsStorageApiProperty(t,n);},setComponentsStorageApiProperty(e,t){Reflect.set(e.props,j,t);}},se=function(e,t,r,n,i,a="",o,l,s){let c={text:e,type:"input",isNumber:!!o,isPassword:!!l,attributes:{},props:{},description:n,afterAddToUListCallBack:s,getValue(){return this.props[j].get(t,r)},callback(m,h,x){if(typeof i=="function"&&i(m,h,x))return;this.props[j].set(t,h);},placeholder:a};return Reflect.set(c.attributes,we,t),Reflect.set(c.attributes,Ae,r),Ne.initComponentsStorageApi("input",c,{get(m,h){return f.getValue(m,h)},set(m,h){f.setValue(m,h);}}),c},y=function(e,t,r,n,i,a){let o={text:e,type:"switch",description:i,attributes:{},props:{},getValue(){return !!this.props[j].get(t,r)},callback(l,s){let c=!!s;u.success(`${c?"开启":"关闭"} ${e}`),this.props[j].set(t,c);},afterAddToUListCallBack:a};return Reflect.set(o.attributes,we,t),Reflect.set(o.attributes,Ae,r),Ne.initComponentsStorageApi("switch",o,{get(l,s){return f.getValue(l,s)},set(l,s){f.setValue(l,s);}}),o},Ge=function(e,t,r,n,i,a="",o){let l={text:e,type:"textarea",attributes:{},props:{},description:n,placeholder:a,disabled:o,getValue(){let c=this.props[j].get(t,r);return Array.isArray(c)?c.join(`
 `):c},callback(s,c){this.props[j].set(t,c);}};return Reflect.set(l.attributes,we,t),Reflect.set(l.attributes,Ae,r),Ne.initComponentsStorageApi("switch",l,{get(s,c){return f.getValue(s,c)},set(s,c){f.setValue(s,c);}}),l};class on{option;constructor(t){this.option=t;}async showView(){let t=Q.confirm({title:{text:this.option.title,position:"center"},content:{text:`
                     <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist">
-                            
-                        </ul>
+                        <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
                     </form>
                     `,html:true},btn:p.assign({ok:{callback:async()=>{await a();}}},this.option.btn||{},true),drag:true,mask:{enable:true},style:`

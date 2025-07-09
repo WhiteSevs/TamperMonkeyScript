@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.7
+// @version      2025.7.10
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @grant        GM.cookie
@@ -77,9 +77,7 @@
 						`}),A=S.querySelector("#cookie-item-property-expires");return A.valueAsNumber=i.expirationDate,d.on(A,["change","input","propertychange"],x=>{y.preventEvent(x),i.expirationDate=A.valueAsNumber;}),S}});let u=l.createSectionContainerItem_select(Y("httpOnly",[{text:"true",value:true},{text:"false",value:false}],()=>i.httpOnly,m=>i.httpOnly=m)),h=l.createSectionContainerItem_select(Y("secure",[{text:"true",value:true},{text:"false",value:false}],()=>i.secure,m=>i.secure=m)),g=[{text:"no_restriction",value:"no_restriction"},{text:"lax",value:"lax"},{text:"strict",value:"strict"},{text:"unspecified",value:"unspecified"}];k.cookieManagerApiName==="cookieStore"&&(g=[{text:"lax",value:"lax"},{text:"strict",value:"strict"},{text:"none",value:"none"}]);let v=l.createSectionContainerItem_select(Y("sameSite",g,()=>i.sameSite,m=>i.sameSite=m));d.append(n,[r,s]),k.cookieManagerApiName==="GM_cookie"||k.cookieManagerApiName==="GM.cookie"?d.append(n,[c,p,f,u,h,v]):k.cookieManagerApiName==="cookieStore"&&d.append(n,[c,p,f,v]);},validCookieInfo(t){return t.name==null||t.name==""?(w.error("name不能为空"),false):t.domain==null||t.domain==""?(w.error("domain不能为空"),false):t.path==null||t.path==""?(w.error("path不能为空"),false):true}},H=function(t,e,o,i,a,n){let l=[];typeof i=="function"?l=i():l=i;let r={text:t,type:"select",description:n,attributes:{},props:{},getValue(){return this.props[M].get(e,o)},callback(s,c,p){let f=c;if(C.info(`选择：${p}`),typeof a=="function"&&a(s,f,p))return;this.props[M].set(e,f);},data:l};return Reflect.set(r.attributes,O,e),Reflect.set(r.attributes,U,o),W.initComponentsStorageApi("select",r,{get(s,c){return V.getValue(s,c)},set(s,c){V.setValue(s,c);}}),r},Z=function(t,e,o,i,a,n="",l,r,s){let c={text:t,type:"input",isNumber:false,isPassword:false,attributes:{},props:{},description:i,afterAddToUListCallBack:s,getValue(){return this.props[M].get(e,o)},callback(p,f,u){this.props[M].set(e,f);},placeholder:n};return Reflect.set(c.attributes,O,e),Reflect.set(c.attributes,U,o),W.initComponentsStorageApi("input",c,{get(p,f){return V.getValue(p,f)},set(p,f){V.setValue(p,f);}}),c},ke=function(t,e,o,i,a,n="",l){let r={text:t,type:"textarea",attributes:{},props:{},description:i,placeholder:n,disabled:l,getValue(){let c=this.props[M].get(e,o);return Array.isArray(c)?c.join(`
 `):c},callback(s,c){this.props[M].set(e,c);}};return Reflect.set(r.attributes,O,e),Reflect.set(r.attributes,U,o),W.initComponentsStorageApi("switch",r,{get(s,c){return V.getValue(s,c)},set(s,c){V.setValue(s,c);}}),r};class be{option;constructor(e){this.option=e;}async showView(){let e=b.confirm({title:{text:this.option.title,position:"center"},content:{text:`
                     <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist">
-                            
-                        </ul>
+                        <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
                     </form>
                     `,html:true},btn:y.assign({ok:{callback:async()=>{await n();}}},this.option.btn||{},true),drag:true,mask:{enable:true},style:`

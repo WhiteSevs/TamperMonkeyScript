@@ -99,7 +99,7 @@ export const Component_Common = (): PopsPanelContentConfig => {
 				StorageApi.get(PanelKeyConfig.asideLastVisit) === "component-common"
 			);
 		},
-		callback(data) {
+		clickCallback(data) {
 			StorageApi.set(PanelKeyConfig.asideLastVisit, "component-common");
 		},
 		forms: [

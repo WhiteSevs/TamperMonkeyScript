@@ -449,8 +449,10 @@ export const WebsiteRule = {
 														) {
 															// 覆盖左侧的afterRender
 															leftContentConfigItem.afterRender = (__data) => {
-																let ruleKey =
-																	__data.asideConfig!.attributes!["data-key"];
+																let ruleKey = Reflect.get(
+																	__data.asideConfig.attributes!,
+																	"data-key"
+																);
 																let enableKey =
 																	NetDiskRuleDataKEY.function.enable(ruleKey);
 																let subscribeRule =
@@ -916,8 +918,10 @@ export const WebsiteRule = {
 										) {
 											// 覆盖左侧的afterRender
 											leftContentConfigItem.afterRender = (__data) => {
-												let ruleKey =
-													__data.asideConfig!.attributes!["data-key"];
+												let ruleKey = Reflect.get(
+													__data.asideConfig.attributes!,
+													"data-key"
+												);
 												let enableKey =
 													NetDiskRuleDataKEY.function.enable(ruleKey);
 												__data.$asideLiElement.setAttribute(

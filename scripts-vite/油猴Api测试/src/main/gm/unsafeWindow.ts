@@ -32,7 +32,7 @@ export class ApiTest_unsafeWindow extends ApiAsyncTestBase {
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
 			},
-			callback(data) {
+			clickCallback(data) {
 				StorageApi.set(PanelKeyConfig.asideLastVisit, apiName);
 			},
 			forms: [

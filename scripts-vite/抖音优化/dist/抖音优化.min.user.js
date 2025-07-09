@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.7
+// @version      2025.7.10
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -567,9 +567,7 @@ div[data-e2e="video-detail"]\r
 }\r
 `,It={init(){S(Et);}},he={$data:{__storeApiFn:null,get storeApiValue(){return this.__storeApiFn||(this.__storeApiFn=new U.Dictionary),this.__storeApiFn}},getStorageApi(t){if(this.hasStorageApi(t))return this.$data.storeApiValue.get(t)},hasStorageApi(t){return this.$data.storeApiValue.has(t)},setStorageApi(t,e){this.$data.storeApiValue.set(t,e);},initComponentsStorageApi(t,e,i){let o;this.hasStorageApi(t)?o=this.getStorageApi(t):o=i,this.setComponentsStorageApiProperty(e,o);},setComponentsStorageApiProperty(t,e){Reflect.set(t.props,I,e);}},Rt=function(t,e,i,o,n,a="",s,c,l){let d={text:t,type:"input",isNumber:false,isPassword:false,attributes:{},props:{},description:o,afterAddToUListCallBack:l,getValue(){return this.props[I].get(e,i)},callback(h,m,v){this.props[I].set(e,m);},placeholder:a};return Reflect.set(d.attributes,j,e),Reflect.set(d.attributes,q,i),he.initComponentsStorageApi("input",d,{get(h,m){return u.getValue(h,m)},set(h,m){u.setValue(h,m);}}),d},Pe=function(t,e,i,o,n,a,s="请至少选择一个选项",c){let l=[];typeof o=="function"?l=o():l=o;let d={text:t,type:"select-multiple",description:a,placeholder:s,attributes:{},props:{},getValue(){return this.props[I].get(e,i)},selectConfirmDialogDetails:c,callback(h){let m=this.props[I],v=[];h.forEach(b=>{v.push(b.value);}),r.info("多选-选择：",v),m.set(e,v);},data:l};return Reflect.set(d.attributes,j,e),Reflect.set(d.attributes,q,i),he.initComponentsStorageApi("select-multiple",d,{get(h,m){return u.getValue(h,m)},set(h,m){u.setValue(h,m);}}),d},p=function(t,e,i,o,n,a){let s={text:t,type:"switch",description:n,attributes:{},props:{},getValue(){return !!this.props[I].get(e,i)},callback(c,l){let d=!!l;r.success(`${d?"开启":"关闭"} ${t}`),this.props[I].set(e,d);},afterAddToUListCallBack:a};return Reflect.set(s.attributes,j,e),Reflect.set(s.attributes,q,i),he.initComponentsStorageApi("switch",s,{get(c,l){return u.getValue(c,l)},set(c,l){u.setValue(c,l);}}),s};class $t{option;constructor(e){this.option=e;}async showView(){let e=D.confirm({title:{text:this.option.title,position:"center"},content:{text:`
                     <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist">
-                            
-                        </ul>
+                        <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
                     </form>
                     `,html:true},btn:f.assign({ok:{callback:async()=>{await a();}}},this.option.btn||{},true),drag:true,mask:{enable:true},style:`
