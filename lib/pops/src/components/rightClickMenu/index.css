@@ -1,7 +1,10 @@
 .pops-rightClickMenu {
-	--right-context-menu-shadow-color: #cacaca;
-	--right-context-menu-row-visited-color: #dfdfdf;
-	--right-context-menu-row-hover-color: #dfdfdf;
+	--pops-right-context-color: #000000;
+	--pops-right-context-bg-color: #ffffff;
+	--pops-right-context-z-index: 10000;
+	--pops-right-context-menu-shadow-color: #cacaca;
+	--pops-right-context-menu-row-visited-color: #dfdfdf;
+	--pops-right-context-menu-row-hover-color: #dfdfdf;
 }
 .pops-rightClickMenu * {
 	-webkit-box-sizing: border-box;
@@ -13,13 +16,14 @@
 }
 .pops-rightClickMenu {
 	position: fixed;
-	z-index: 10000;
+	z-index: var(--pops-right-context-z-index);
 	text-align: center;
 	border-radius: 3px;
 	font-size: 16px;
 	font-weight: 500;
-	background: #fff;
-	box-shadow: 0px 1px 6px 1px var(--right-context-menu-shadow-color);
+	color: var(--pops-right-context-color);
+	background-color: var(--pops-right-context-bg-color);
+	box-shadow: 0px 1px 6px 1px var(--pops-right-context-menu-shadow-color);
 }
 .pops-rightClickMenu-anim-grid {
 	display: grid;
@@ -30,7 +34,7 @@
 	grid-template-rows: 1fr;
 }
 .pops-rightClickMenu-is-visited {
-	background: var(--right-context-menu-row-visited-color);
+	background: var(--pops-right-context-menu-row-visited-color);
 }
 i.pops-rightClickMenu-icon {
 	height: 1em;
@@ -50,7 +54,7 @@ i.pops-rightClickMenu-icon[is-loading="true"] {
 	animation: rotating 2s linear infinite;
 }
 .pops-rightClickMenu li:hover {
-	background: var(--right-context-menu-row-hover-color);
+	background: var(--pops-right-context-menu-row-hover-color);
 	cursor: pointer;
 }
 .pops-rightClickMenu ul {
@@ -79,6 +83,6 @@ i.pops-rightClickMenu-icon[is-loading="true"] {
 
 @media (prefers-color-scheme: dark) {
 	.pops-rightClickMenu {
-		--right-context-menu-shadow-color: #3c3c3c;
+		--pops-right-context-menu-shadow-color: #3c3c3c;
 	}
 }

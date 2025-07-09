@@ -13,6 +13,7 @@
 	--pops-bd-opacity: 1;
 	--pops-font-size: 16px;
 	interpolate-size: allow-keywords;
+	--pops-color: #000000;
 	--pops-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));
 	--pops-bd-color: rgb(235, 238, 245, var(--pops-bd-opacity));
 	--pops-box-shadow-color: rgba(0, 0, 0, 0.12);
@@ -29,6 +30,7 @@
 @media (prefers-color-scheme: dark) {
 	.pops {
 		--pops-mask-bg-opacity: 0.8;
+		--pops-color: #ffffff;
 		--pops-bg-color: rgb(17, 17, 17, var(--pops-bg-opacity));
 		--pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));
 		--pops-box-shadow-color: rgba(81, 81, 81, 0.12);
@@ -38,6 +40,7 @@
 	}
 }
 .pops {
+	color: var(--pops-color);
 	background-color: var(--pops-bg-color);
 	border: 1px solid var(--pops-bd-color);
 	border-radius: 4px;

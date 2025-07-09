@@ -2517,6 +2517,119 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		});
 		return result;
 	}
+	/**
+	 * 颜色转换函数
+	 * @method hexToRgb hex 颜色转 rgb 颜色
+	 * @method rgbToHex rgb 颜色转 Hex 颜色
+	 * @method getDarkColor 加深颜色值
+	 * @method getLightColor 变浅颜色值
+	 */
+	calcColor() {
+		function useChangeColor() {
+			/**
+			 * hex 颜色转 rgb 颜色
+			 */
+			const hexToRgb = (
+				/**
+				 * hex 颜色值
+				 */
+				str: string
+			): any => {
+				let hexs: any = "";
+				let reg = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
+				if (!reg.test(str)) {
+					console.warn("输入错误的hex");
+					return "";
+				}
+				str = str.replace("#", "");
+				hexs = str.match(/../g);
+				for (let i = 0; i < 3; i++) hexs[i] = parseInt(hexs[i], 16);
+				return hexs;
+			};
+
+			/**
+			 * rgb转hex
+			 */
+			const rgbToHex = (
+				/**
+				 * 红色
+				 */
+				r: any,
+				/**
+				 * 绿色
+				 */
+				g: any,
+				/**
+				 * 蓝色
+				 */
+				b: any
+			): string => {
+				let reg = /^\d{1,3}$/;
+				if (!reg.test(r) || !reg.test(g) || !reg.test(b)) {
+					console.warn("输入错误的rgb颜色值");
+					return "";
+				}
+				let hexs = [r.toString(16), g.toString(16), b.toString(16)];
+				for (let i = 0; i < 3; i++)
+					if (hexs[i].length == 1) hexs[i] = `0${hexs[i]}`;
+				return `#${hexs.join("")}`;
+			};
+
+			/** 
+			 * 获取深色
+			 */
+			const getDarkColor = (
+				/**
+				 * 颜色值字符串
+				 */
+				color: string,
+				/**
+				 * 加深的程度，限0-1之间
+				 */
+				level: number
+			): string => {
+				let reg = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
+				if (!reg.test(color)) {
+					console.warn("输入错误的hex颜色值");
+					return "";
+				}
+				let rgb = useChangeColor().hexToRgb(color);
+				for (let i = 0; i < 3; i++) rgb[i] = Math.floor(rgb[i] * (1 - level));
+				return useChangeColor().rgbToHex(rgb[0], rgb[1], rgb[2]);
+			};
+
+			/** 
+			 * 获取颜色变浅后的颜色值
+			 */
+			const getLightColor = (
+				/**
+				 * 颜色值字符串
+				 */
+				color: string,
+				/**
+				 * 加深的程度，限0-1之间
+				 */
+				level: number
+			): string => {
+				let reg = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
+				if (!reg.test(color)) {
+					console.warn("输入错误的hex颜色值");
+					return "";
+				}
+				let rgb = useChangeColor().hexToRgb(color);
+				for (let i = 0; i < 3; i++)
+					rgb[i] = Math.floor((255 - rgb[i]) * level + rgb[i]);
+				return useChangeColor().rgbToHex(rgb[0], rgb[1], rgb[2]);
+			};
+			return {
+				hexToRgb,
+				rgbToHex,
+				getDarkColor,
+				getLightColor,
+			};
+		}
+		return useChangeColor();
+	}
 }
 
 const popsDOMUtils = new PopsDOMUtils();
