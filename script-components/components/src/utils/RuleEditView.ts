@@ -63,9 +63,7 @@ export class RuleEditView<T> {
 			content: {
 				text: /*html*/ `
                     <form class="rule-form-container" onsubmit="return false">
-                        <ul class="rule-form-ulist">
-                            
-                        </ul>
+                        <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
                     </form>
                     `,

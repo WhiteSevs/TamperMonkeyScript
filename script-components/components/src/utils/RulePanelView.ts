@@ -419,8 +419,8 @@ export class RulePanelView<T> {
                 </div>
             `;
 			}
-			let originCallBack = config.callback;
-			config.callback = async (
+			let originCallBack = config.clickCallback;
+			config.clickCallback = async (
 				event,
 				$panelRightHeader,
 				$panelRightContainer
