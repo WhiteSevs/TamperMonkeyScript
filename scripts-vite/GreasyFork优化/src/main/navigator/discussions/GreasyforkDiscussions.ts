@@ -94,6 +94,9 @@ export const GreasyforkForum = {
 					GreasyforkDiscussionsFilter.parseDiscuessionListContainerInfo(
 						$listContainer
 					);
+				if (!discussionInfo) {
+					return;
+				}
 				let attr_filter_key = "data-filter-key";
 				let attr_filter_value = "data-filter-value";
 				let $dialog = pops.alert({
@@ -241,6 +244,9 @@ export const GreasyforkForum = {
 					GreasyforkDiscussionsFilter.parseDiscuessionListContainerInfo(
 						$listContainer
 					);
+				if (!discussionInfo) {
+					return;
+				}
 				let attr_filter_key = "data-filter-key";
 				let attr_filter_value = "data-filter-value";
 				let $dialog = pops.alert({
