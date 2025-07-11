@@ -64,11 +64,11 @@ export const PanelContent = {
 				isBottom: true,
 				forms: [],
 				clickFirstCallback(event, rightHeaderElement, rightContainerElement) {
-					window.open(
-						GM_info?.script?.namespace ||
-							"https://github.com/WhiteSevs/TamperMonkeyScript",
-						"_blank"
-					);
+					let supportURL =
+						GM_info?.script?.supportURL || GM_info?.script?.namespace;
+					if (typeof supportURL === "string" && utils.isNotNull(supportURL)) {
+						window.open(supportURL, "_blank");
+					}
 					return false;
 				},
 			},
