@@ -458,8 +458,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 			},
 			{
 				id: "whitesev-panel-bottom-config-2",
-				// @ts-ignore
-				title: "版本：" + pops.config.version,
+				title: "版本：xxx.xx.xx",
 				isBottom: true,
 				attributes: [
 					{
