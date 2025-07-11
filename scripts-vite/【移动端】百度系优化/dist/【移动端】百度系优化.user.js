@@ -59,7 +59,7 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_entrance_001 = __commonJS({
-    "entrance-BOFABBOv.js"(exports, module) {
+    "entrance-BpaAVVNV.js"(exports, module) {
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -688,10 +688,10 @@
               isBottom: true,
               forms: [],
               clickFirstCallback(event, rightHeaderElement, rightContainerElement) {
-                window.open(
-                  _GM_info?.script?.namespace || "https://github.com/WhiteSevs/TamperMonkeyScript",
-                  "_blank"
-                );
+                let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
+                if (typeof supportURL === "string" && utils.isNotNull(supportURL)) {
+                  window.open(supportURL, "_blank");
+                }
                 return false;
               }
             }
