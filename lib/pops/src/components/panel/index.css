@@ -41,7 +41,6 @@
 
 /* ↓panel的CSS↓ */
 aside.pops-panel-aside {
-	overflow: auto;
 	box-sizing: border-box;
 	flex-shrink: 0;
 	max-width: 200px;
@@ -59,6 +58,9 @@ aside.pops-panel-aside {
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
+}
+aside.pops-panel-aside .pops-panel-aside-top-container {
+	overflow: auto;
 }
 .pops-panel-content {
 	display: flex;
