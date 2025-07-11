@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.10
+// @version      2025.7.11
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -750,6 +750,26 @@
      */
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
+    },
+    /**
+     * 获取默认左侧底部的配置项
+     */
+    getDefaultBottomContentConfig() {
+      return [
+        {
+          id: "script-version",
+          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          isBottom: true,
+          forms: [],
+          clickFirstCallback(event, rightHeaderElement, rightContainerElement) {
+            window.open(
+              _GM_info?.script?.namespace || "https://github.com/WhiteSevs/TamperMonkeyScript",
+              "_blank"
+            );
+            return false;
+          }
+        }
+      ];
     }
   };
   const PanelMenu = {
@@ -1272,12 +1292,20 @@
      * 显示设置面板
      * @param content 显示的内容配置
      * @param [title] 标题
+     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号）
      */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
+    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false) {
+      let notHasBottomVersionContentConfig = content.some((it) => {
+        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+        return !isBottom && it.id !== "script-version";
+      });
+      if (!preventDefaultContentConfig && notHasBottomVersionContentConfig) {
+        content.push(...PanelContent.getDefaultBottomContentConfig());
+      }
       let $panel = __pops.panel({
         ...{
           title: {
-            text: `${SCRIPT_NAME}-设置`,
+            text: title,
             position: "center",
             html: false,
             style: ""
@@ -20596,7 +20624,10 @@
       }
       let content = PanelContent.getConfig(0);
       let ruleContent = NetDiskRule.getRulePanelContent();
-      content.push(...ruleContent);
+      content.push(
+        ...ruleContent,
+        ...PanelContent.getDefaultBottomContentConfig()
+      );
       let $panel = NetDiskPops.panel(
         {
           title: {

@@ -21,7 +21,10 @@ export const NetDiskGlobalSettingView = {
 		let content = PanelContent.getConfig(0);
 		// 规则的设置
 		let ruleContent = NetDiskRule.getRulePanelContent();
-		content.push(...ruleContent);
+		content.push(
+			...ruleContent,
+			...PanelContent.getDefaultBottomContentConfig()
+		);
 		let $panel = NetDiskPops.panel(
 			{
 				title: {

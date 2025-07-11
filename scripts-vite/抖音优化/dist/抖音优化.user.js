@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.10
+// @version      2025.7.11
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -310,6 +310,26 @@
      */
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
+    },
+    /**
+     * 获取默认左侧底部的配置项
+     */
+    getDefaultBottomContentConfig() {
+      return [
+        {
+          id: "script-version",
+          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          isBottom: true,
+          forms: [],
+          clickFirstCallback(event, rightHeaderElement, rightContainerElement) {
+            window.open(
+              _GM_info?.script?.namespace || "https://github.com/WhiteSevs/TamperMonkeyScript",
+              "_blank"
+            );
+            return false;
+          }
+        }
+      ];
     }
   };
   const PanelMenu = {
@@ -832,12 +852,20 @@
      * 显示设置面板
      * @param content 显示的内容配置
      * @param [title] 标题
+     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号）
      */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
+    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false) {
+      let notHasBottomVersionContentConfig = content.some((it) => {
+        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+        return !isBottom && it.id !== "script-version";
+      });
+      if (!preventDefaultContentConfig && notHasBottomVersionContentConfig) {
+        content.push(...PanelContent.getDefaultBottomContentConfig());
+      }
       let $panel = __pops.panel({
         ...{
           title: {
-            text: `${SCRIPT_NAME}-设置`,
+            text: title,
             position: "center",
             html: false,
             style: ""

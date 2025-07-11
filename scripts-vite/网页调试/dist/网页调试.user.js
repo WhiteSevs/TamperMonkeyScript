@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.10
+// @version      2025.7.11
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@85cf0165a124dc4672a939ab9b6d707850d58b25/lib/PageSpy/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -464,6 +464,26 @@
      */
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
+    },
+    /**
+     * 获取默认左侧底部的配置项
+     */
+    getDefaultBottomContentConfig() {
+      return [
+        {
+          id: "script-version",
+          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          isBottom: true,
+          forms: [],
+          clickFirstCallback(event, rightHeaderElement, rightContainerElement) {
+            window.open(
+              _GM_info?.script?.namespace || "https://github.com/WhiteSevs/TamperMonkeyScript",
+              "_blank"
+            );
+            return false;
+          }
+        }
+      ];
     }
   };
   const PanelMenu = {
@@ -986,12 +1006,20 @@
      * 显示设置面板
      * @param content 显示的内容配置
      * @param [title] 标题
+     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号）
      */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
+    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false) {
+      let notHasBottomVersionContentConfig = content.some((it) => {
+        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+        return !isBottom && it.id !== "script-version";
+      });
+      if (!preventDefaultContentConfig && notHasBottomVersionContentConfig) {
+        content.push(...PanelContent.getDefaultBottomContentConfig());
+      }
       let $panel = __pops.panel({
         ...{
           title: {
-            text: `${SCRIPT_NAME}-设置`,
+            text: title,
             position: "center",
             html: false,
             style: ""
