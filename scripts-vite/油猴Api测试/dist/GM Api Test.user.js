@@ -18031,8 +18031,7 @@ ${err.stack}`);
         },
         {
           id: "whitesev-panel-bottom-config-2",
-          // @ts-ignore
-          title: "版本：" + pops.config.version,
+          title: "版本：xxx.xx.xx",
           isBottom: true,
           attributes: [
             {
@@ -22596,7 +22595,7 @@ ${err.stack}`);
       return popsSearchSuggestion;
     };
   }
-  const pops$1 = new Pops();
+  const pops = new Pops();
   const CommonUtil2 = {
     /**
      * 移除元素（未出现也可以等待出现）
@@ -22852,13 +22851,13 @@ ${err.stack}`);
   };
   const utils = utils$1.noConflict();
   const domUtils = domUtils$2.noConflict();
-  const __pops = pops$1;
+  const __pops = pops;
   const log = new utils.Log(
     _GM_info,
     _unsafeWindow.console || _monkeyWindow.console
   );
   let SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  pops$1.config.Utils.AnyTouch();
+  pops.config.Utils.AnyTouch();
   const DEBUG = false;
   log.config({
     debug: DEBUG,
@@ -22901,7 +22900,7 @@ ${err.stack}`);
         zIndex: {
           get() {
             let maxZIndex = utils$1.getMaxZIndex();
-            let popsMaxZIndex = pops$1.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
             return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
           }
         }
@@ -22918,7 +22917,7 @@ ${err.stack}`);
           return false;
         }
       });
-      let popsMaxZIndex = pops$1.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
       return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
