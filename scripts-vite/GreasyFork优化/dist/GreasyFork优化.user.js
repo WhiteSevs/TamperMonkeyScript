@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.7.10
+// @version            2025.7.11
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -15,7 +15,7 @@
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.10/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.1.11/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require            https://fastly.jsdelivr.net/npm/i18next@25.3.1/i18next.min.js
@@ -726,6 +726,26 @@
      */
     getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
+    },
+    /**
+     * 获取默认左侧底部的配置项
+     */
+    getDefaultBottomContentConfig() {
+      return [
+        {
+          id: "script-version",
+          title: `版本：${_GM_info?.script?.version || "未知"}`,
+          isBottom: true,
+          forms: [],
+          clickFirstCallback(event, rightHeaderElement, rightContainerElement) {
+            window.open(
+              _GM_info?.script?.namespace || "https://github.com/WhiteSevs/TamperMonkeyScript",
+              "_blank"
+            );
+            return false;
+          }
+        }
+      ];
     }
   };
   const PanelMenu = {
@@ -1248,12 +1268,20 @@
      * 显示设置面板
      * @param content 显示的内容配置
      * @param [title] 标题
+     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号）
      */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`) {
+    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false) {
+      let notHasBottomVersionContentConfig = content.some((it) => {
+        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+        return !isBottom && it.id !== "script-version";
+      });
+      if (!preventDefaultContentConfig && notHasBottomVersionContentConfig) {
+        content.push(...PanelContent.getDefaultBottomContentConfig());
+      }
       let $panel = __pops.panel({
         ...{
           title: {
-            text: `${SCRIPT_NAME}-设置`,
+            text: title,
             position: "center",
             html: false,
             style: ""
@@ -3300,10 +3328,10 @@
      * 论坛-过滤
      */
     filter() {
-      this.transformOldRule();
       const SNIPPET_MAP = /* @__PURE__ */ new Map();
       this.getElementList().forEach(($listContainer, index) => {
         const discussionInfo = this.parseDiscuessionListContainerInfo($listContainer);
+        if (!discussionInfo) return;
         let localValueSplit = this.getValue().split("\n");
         if (SNIPPET_MAP.has(discussionInfo.snippet) && Panel.getValue("greasyfork-discussions-filter-duplicate-comments")) {
           let discussionTitleElement = SNIPPET_MAP.get(
@@ -3356,34 +3384,36 @@
      * 解析出元素上的属性
      */
     parseDiscuessionListContainerInfo($listContainer) {
-      let discussionUrl = $listContainer.querySelector("a.discussion-title").href;
+      let $title = $listContainer.querySelector("a.discussion-title");
+      if (!$title) {
+        return;
+      }
+      let discussionUrl = $title.href;
       let discuessionIdMatch = discussionUrl.match(
         /\/discussions(|\/greasyfork)\/([\d]+)/
       );
+      if (!discuessionIdMatch) {
+        return;
+      }
       let discuessionId = discuessionIdMatch[discuessionIdMatch.length - 1];
+      const $scriptName = $listContainer.querySelector(
+        ".discussion-meta-item-script-name"
+      );
+      const $scriptNameLink = $scriptName?.querySelector("a");
+      const $userLink = $listContainer.querySelector("a.user-link");
       const info = {
         /** 脚本名 */
-        scriptName: $listContainer.querySelector(
-          ".discussion-meta-item-script-name"
-        ).innerText,
+        scriptName: $scriptName.innerText,
         /** 脚本主页地址 */
-        scriptUrl: $listContainer.querySelector(
-          ".discussion-meta-item-script-name a"
-        )?.href,
+        scriptUrl: $scriptNameLink?.href,
         /** 脚本id */
-        scriptId: GreasyforkUrlUtils.getScriptId(
-          $listContainer.querySelector(
-            ".discussion-meta-item-script-name a"
-          )?.href
-        ),
+        scriptId: GreasyforkUrlUtils.getScriptId($scriptNameLink?.href),
         /** 发布的用户名 */
-        postUserName: $listContainer.querySelector("a.user-link").innerText,
+        postUserName: $userLink?.innerText,
         /** 发布的用户主页地址 */
-        postUserHomeUrl: $listContainer.querySelector("a.user-link").href,
+        postUserHomeUrl: $userLink?.href,
         /** 发布的用户id */
-        postUserId: GreasyforkUrlUtils.getUserId(
-          $listContainer.querySelector("a.user-link").href
-        ),
+        postUserId: GreasyforkUrlUtils.getUserId($userLink?.href),
         /** 发布的时间 */
         postTimeStamp: new Date(
           $listContainer.querySelector("relative-time").getAttribute("datetime")
@@ -3403,59 +3433,19 @@
         /** （如果有）回复的时间 */
         replyTimeStamp: void 0
       };
-      if ($listContainer.querySelector(
+      let $reply = $listContainer.querySelector(
         ".discussion-meta-item .discussion-meta-item"
-      )) {
-        info.replyUserName = $listContainer.querySelector(
-          ".discussion-meta-item .discussion-meta-item a.user-link"
-        ).innerText;
-        info.replyUserHomeUrl = $listContainer.querySelector(
-          ".discussion-meta-item .discussion-meta-item a.user-link"
-        ).href;
+      );
+      if ($reply) {
+        const $replyUserLink = $reply.querySelector("a.user-link");
+        info.replyUserName = $replyUserLink.innerText;
+        info.replyUserHomeUrl = $replyUserLink.href;
         info.replyUserId = GreasyforkUrlUtils.getUserId(info.replyUserHomeUrl);
         info.replyTimeStamp = new Date(
-          $listContainer.querySelector(
-            ".discussion-meta-item .discussion-meta-item relative-time"
-          )?.getAttribute("datetime")
+          $reply.querySelector("relative-time").getAttribute("datetime")
         );
       }
       return info;
-    },
-    /** 转换旧规则 @deprecated */
-    transformOldRule() {
-      if (Date.now() > (/* @__PURE__ */ new Date("2024-8-19")).getTime()) {
-        return;
-      }
-      const FILTER_SCRIPT_KEY = "greasyfork-discussions-filter-script";
-      const FILTER_POST_USER_KEY = "greasyfork-discussions-filter-post-user";
-      const FILTER_REPLY_USER_KEY = "greasyfork-discussions-filter-reply-user";
-      const filterScript = Panel.getValue(FILTER_SCRIPT_KEY, "");
-      const filterPostUser = Panel.getValue(FILTER_POST_USER_KEY, "");
-      const filterReplyUser = Panel.getValue(FILTER_REPLY_USER_KEY, "");
-      const filterScriptList = filterScript.trim() === "" ? [] : filterScript.split("\n");
-      const filterPostUserList = filterPostUser.trim() === "" ? [] : filterPostUser.split("\n");
-      const filterReplyUserList = filterReplyUser.trim() === "" ? [] : filterReplyUser.split("\n");
-      filterScriptList.forEach((ruleValue) => {
-        this.addValue(
-          "scriptId",
-          utils.parseStringToRegExpString("^" + ruleValue + "$")
-        );
-      });
-      filterPostUserList.forEach((ruleValue) => {
-        this.addValue(
-          "postUserId",
-          utils.parseStringToRegExpString("^" + ruleValue + "$")
-        );
-      });
-      filterReplyUserList.forEach((ruleValue) => {
-        this.addValue(
-          "replyUserId",
-          utils.parseStringToRegExpString("^" + ruleValue + "$")
-        );
-      });
-      Panel.deleteValue(FILTER_SCRIPT_KEY);
-      Panel.deleteValue(FILTER_POST_USER_KEY);
-      Panel.deleteValue(FILTER_REPLY_USER_KEY);
     },
     setValue(value) {
       Panel.setValue(this.key, value);
@@ -3562,6 +3552,9 @@
           const discussionInfo = GreasyforkDiscussionsFilter.parseDiscuessionListContainerInfo(
             $listContainer
           );
+          if (!discussionInfo) {
+            return;
+          }
           let attr_filter_key = "data-filter-key";
           let attr_filter_value = "data-filter-value";
           let $dialog = __pops.alert({
@@ -3704,6 +3697,9 @@
           const discussionInfo = GreasyforkDiscussionsFilter.parseDiscuessionListContainerInfo(
             $listContainer
           );
+          if (!discussionInfo) {
+            return;
+          }
           __pops.alert({
             title: {
               text: i18next.t("举报"),
