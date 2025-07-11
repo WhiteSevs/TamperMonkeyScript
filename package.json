@@ -19,7 +19,7 @@
 		"@element-plus/icons-vue": "^2.3.1",
 		"@mgdn/bvid": "^0.3.0",
 		"@whitesev/domutils": "^1.5.11",
-		"@whitesev/pops": "^2.1.10",
+		"@whitesev/pops": "^2.1.11",
 		"@whitesev/utils": "^2.7.0",
 		"artplayer": "^5.2.3",
 		"artplayer-plugin-danmuku": "^5.1.6",
