@@ -5,7 +5,7 @@ import type {
 } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { unsafeWindow } from "ViteGM";
+import { GM_info, unsafeWindow } from "ViteGM";
 import { log, pops, SCRIPT_NAME, utils } from "../base.env";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
@@ -586,12 +586,28 @@ const Panel = {
 	 * 显示设置面板
 	 * @param content 显示的内容配置
 	 * @param [title] 标题
+	 * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号）
 	 */
-	showPanel(content: PopsPanelContentConfig[], title = `${SCRIPT_NAME}-设置`) {
+	showPanel(
+		content: PopsPanelContentConfig[],
+		title: string = `${SCRIPT_NAME}-设置`,
+		preventDefaultContentConfig: boolean = false
+	) {
+		// 判断是否已有脚本版本号
+		let notHasBottomVersionContentConfig = content.some((it) => {
+			let isBottom =
+				typeof it.isBottom === "function"
+					? it.isBottom()
+					: Boolean(it.isBottom);
+			return !isBottom && it.id !== "script-version";
+		});
+		if (!preventDefaultContentConfig && notHasBottomVersionContentConfig) {
+			content.push(...PanelContent.getDefaultBottomContentConfig());
+		}
 		let $panel = pops.panel({
 			...{
 				title: {
-					text: `${SCRIPT_NAME}-设置`,
+					text: title,
 					position: "center",
 					html: false,
 					style: "",

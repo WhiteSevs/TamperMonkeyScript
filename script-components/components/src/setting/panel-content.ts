@@ -1,6 +1,7 @@
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
 import { utils } from "../base.env";
+import { GM_info } from "ViteGM";
 
 /**
  * 油猴菜单内容配置
@@ -51,5 +52,26 @@ export const PanelContent = {
 	 */
 	getConfig(index: number = 0): PopsPanelContentConfig[] {
 		return this.$data.contentConfig.get(index) ?? [];
+	},
+	/**
+	 * 获取默认左侧底部的配置项
+	 */
+	getDefaultBottomContentConfig(): PopsPanelContentConfig[] {
+		return [
+			{
+				id: "script-version",
+				title: `版本：${GM_info?.script?.version || "未知"}`,
+				isBottom: true,
+				forms: [],
+				clickFirstCallback(event, rightHeaderElement, rightContainerElement) {
+					window.open(
+						GM_info?.script?.namespace ||
+							"https://github.com/WhiteSevs/TamperMonkeyScript",
+						"_blank"
+					);
+					return false;
+				},
+			},
+		];
 	},
 };
