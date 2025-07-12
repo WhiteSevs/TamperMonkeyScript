@@ -850,6 +850,7 @@ export class RulePanelView<T> {
 					border-radius: var(--pops-panel-forms-container-item-border-radius);
 					padding: 5px 10px;
 					position: relative;
+					flex: 1;
 				}
 				.rule-view-container:empty{
 					display: none;
