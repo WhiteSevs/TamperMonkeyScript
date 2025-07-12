@@ -262,6 +262,7 @@ export const PanelHandlerComponents = () => {
 					: asideConfig.title;
 			PopsSafeUtils.setSafeHTML($li, title);
 			/* 处理className */
+			this.setElementClassName($li, "pops-panel-aside-item");
 			this.setElementClassName($li, asideConfig.className);
 			this.setElementAttributes($li, asideConfig.attributes);
 			this.setElementProps($li, asideConfig.props);
@@ -2879,11 +2880,11 @@ export const PanelHandlerComponents = () => {
 				let formContainerListElement = document.createElement("li");
 				/* 每一项<li>内的子<ul>元素 */
 				let formContainerULElement = document.createElement("ul");
-				formContainerULElement.classList.add(
-					"pops-panel-forms-container-item-formlist"
-				);
 				formContainerListElement.classList.add(
 					"pops-panel-forms-container-item"
+				);
+				formContainerULElement.classList.add(
+					"pops-panel-forms-container-item-formlist"
 				);
 				/* 区域头部的文字 */
 				let formHeaderDivElement = popsDOMUtils.createElement("div", {
@@ -3057,6 +3058,9 @@ export const PanelHandlerComponents = () => {
 						headerTitleText.trim() !== ""
 					) {
 						let $containerHeaderTitle = document.createElement("li");
+						$containerHeaderTitle.classList.add(
+							"pops-panel-container-header-title-text"
+						);
 						Reflect.set($containerHeaderTitle, "__asideConfig__", asideConfig);
 						PopsSafeUtils.setSafeHTML($containerHeaderTitle, headerTitleText);
 						this.sectionContainerHeaderULElement.appendChild(

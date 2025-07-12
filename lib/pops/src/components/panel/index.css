@@ -83,8 +83,10 @@ section.pops-panel-container .pops-panel-deepMenu-container-header-ul {
 	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));
 	flex: 0 auto;
 }
-section.pops-panel-container .pops-panel-container-header-ul li {
-	text-align: left;
+section.pops-panel-container .pops-panel-container-header-ul li,
+section.pops-panel-container
+	.pops-panel-container-header-ul
+	li.pops-panel-container-header-title-text {
 	display: flex;
 	justify-content: flex-start !important;
 	margin: 0px !important;
@@ -93,10 +95,11 @@ section.pops-panel-container .pops-panel-container-header-ul li {
 			var(--pops-panel-forms-margin-left-right) +
 				var(--pops-panel-forms-container-li-padding-left-right)
 		);
+	text-align: left;
 }
-section.pops-panel-container > ul:last-child {
+section.pops-panel-container ul.pops-panel-container-main-ul {
 	overflow: auto;
-	flex: 1;
+	/*flex: 1;*/
 }
 aside.pops-panel-aside ul li {
 	margin: 6px 8px;
