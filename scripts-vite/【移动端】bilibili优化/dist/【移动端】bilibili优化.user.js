@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.12
+// @version      2025.7.12.20
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -9710,10 +9710,10 @@
      */
     noCallApp() {
       let lockFn = new utils.LockFunction(() => {
-        document.querySelectorAll(
+        $$(
           ".video-list .card-box > div:not([data-gm-inject-no-call-app])"
-        ).forEach(($div) => {
-          let vueIns = VueUtils.getVue($div);
+        ).forEach(($card) => {
+          let vueIns = VueUtils.getVue($card);
           if (!vueIns) {
             return;
           }
@@ -9724,7 +9724,7 @@
               enumerable: true,
               configurable: true
             });
-            $div.setAttribute("data-gm-inject-no-call-app", "true");
+            $card.setAttribute("data-gm-inject-no-call-app", "true");
           }
         });
       });
@@ -9744,10 +9744,10 @@
      */
     openAppDialog() {
       let lockFn = new utils.LockFunction(() => {
-        document.querySelectorAll(
+        $$(
           ".video-list .card-box > div:not([data-gm-inject-openAppDialog])"
-        ).forEach(($div) => {
-          let vueIns = VueUtils.getVue($div);
+        ).forEach(($card) => {
+          let vueIns = VueUtils.getVue($card);
           if (!vueIns) {
             return;
           }
@@ -9758,7 +9758,7 @@
               enumerable: true,
               configurable: true
             });
-            $div.setAttribute("data-gm-inject-openAppDialog", "true");
+            $card.setAttribute("data-gm-inject-openAppDialog", "true");
           }
         });
       });
@@ -9784,6 +9784,9 @@
       });
       Panel.execMenu("bili-search-beautifySearchResult", () => {
         BilibiliSearchBeautify.init();
+      });
+      Panel.execMenuOnce("bili-search-cover-card-result-click-event", () => {
+        this.coverCardResultClickEvent();
       });
       domUtils.ready(() => {
         Panel.execMenu("bili-search-inputAutoFocus", () => {
@@ -9828,6 +9831,33 @@
         }
         $input.focus();
       });
+    },
+    /**
+     * 覆盖搜索结果点击事件
+     */
+    coverCardResultClickEvent() {
+      log$1.info(`覆盖搜索结果点击事件`);
+      domUtils.on(
+        document,
+        "click",
+        ".video-list .card-box > div",
+        (evt, selectorTarget) => {
+          let $card = selectorTarget;
+          let vueIns = VueUtils.getVue($card);
+          if (!vueIns) {
+            return;
+          }
+          let cardClick = vueIns.cardClick;
+          if (typeof cardClick !== "function") {
+            return;
+          }
+          utils.preventEvent(evt);
+          cardClick(evt);
+        },
+        {
+          capture: true
+        }
+      );
     }
   };
   const BilibiliLiveBlockNode = {
@@ -15184,6 +15214,13 @@
                     false,
                     void 0,
                     "点击取消按钮回退至上一页"
+                  ),
+                  UISwitch(
+                    "搜索结果",
+                    "bili-search-cover-card-result-click-event",
+                    true,
+                    void 0,
+                    "修复点击搜索结果不跳转视频的问题"
                   )
                 ]
               }

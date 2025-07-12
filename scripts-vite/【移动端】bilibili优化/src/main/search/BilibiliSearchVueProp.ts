@@ -1,4 +1,4 @@
-import { utils } from "@/env";
+import { $$, utils } from "@/env";
 import { VueUtils } from "@components/utils/VueUtils";
 import { Panel } from "@components/setting/panel";
 
@@ -17,25 +17,23 @@ export const BilibiliSearchVueProp = {
 	 */
 	noCallApp() {
 		let lockFn = new utils.LockFunction(() => {
-			document
-				.querySelectorAll<HTMLDivElement>(
-					".video-list .card-box > div:not([data-gm-inject-no-call-app])"
-				)
-				.forEach(($div) => {
-					let vueIns = VueUtils.getVue($div);
-					if (!vueIns) {
-						return;
-					}
-					if (typeof vueIns.noCallApp === "boolean") {
-						Object.defineProperty(vueIns, "noCallApp", {
-							value: true,
-							writable: false,
-							enumerable: true,
-							configurable: true,
-						});
-						$div.setAttribute("data-gm-inject-no-call-app", "true");
-					}
-				});
+			$$<HTMLDivElement>(
+				".video-list .card-box > div:not([data-gm-inject-no-call-app])"
+			).forEach(($card) => {
+				let vueIns = VueUtils.getVue($card);
+				if (!vueIns) {
+					return;
+				}
+				if (typeof vueIns.noCallApp === "boolean") {
+					Object.defineProperty(vueIns, "noCallApp", {
+						value: true,
+						writable: false,
+						enumerable: true,
+						configurable: true,
+					});
+					$card.setAttribute("data-gm-inject-no-call-app", "true");
+				}
+			});
 		});
 		utils.mutationObserver(document, {
 			config: {
@@ -53,25 +51,23 @@ export const BilibiliSearchVueProp = {
 	 */
 	openAppDialog() {
 		let lockFn = new utils.LockFunction(() => {
-			document
-				.querySelectorAll<HTMLDivElement>(
-					".video-list .card-box > div:not([data-gm-inject-openAppDialog])"
-				)
-				.forEach(($div) => {
-					let vueIns = VueUtils.getVue($div);
-					if (!vueIns) {
-						return;
-					}
-					if (typeof vueIns.openAppDialog === "boolean") {
-						Object.defineProperty(vueIns, "openAppDialog", {
-							value: false,
-							writable: false,
-							enumerable: true,
-							configurable: true,
-						});
-						$div.setAttribute("data-gm-inject-openAppDialog", "true");
-					}
-				});
+			$$<HTMLDivElement>(
+				".video-list .card-box > div:not([data-gm-inject-openAppDialog])"
+			).forEach(($card) => {
+				let vueIns = VueUtils.getVue($card);
+				if (!vueIns) {
+					return;
+				}
+				if (typeof vueIns.openAppDialog === "boolean") {
+					Object.defineProperty(vueIns, "openAppDialog", {
+						value: false,
+						writable: false,
+						enumerable: true,
+						configurable: true,
+					});
+					$card.setAttribute("data-gm-inject-openAppDialog", "true");
+				}
+			});
 		});
 		utils.mutationObserver(document, {
 			config: {

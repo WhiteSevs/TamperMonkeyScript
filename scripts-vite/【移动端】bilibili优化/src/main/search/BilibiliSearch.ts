@@ -1,11 +1,12 @@
-import { DOMUtils, log, utils } from "@/env";
+import { $$, DOMUtils, log, utils } from "@/env";
 import { BilibiliExtraSearch } from "./BilibiliExtraSearch";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { BilibiliSearchBeautify } from "./BilibiliSearchBeautify";
 import { BilibiliSearchVueProp } from "./BilibiliSearchVueProp";
 import { Panel } from "@components/setting/panel";
+import { VueUtils } from "@components/utils/VueUtils";
 
-const BilibiliSearch = {
+export const BilibiliSearch = {
 	init() {
 		if (BilibiliRouter.isSearchResult()) {
 			// 搜索结果页面
@@ -17,6 +18,9 @@ const BilibiliSearch = {
 		});
 		Panel.execMenu("bili-search-beautifySearchResult", () => {
 			BilibiliSearchBeautify.init();
+		});
+		Panel.execMenuOnce("bili-search-cover-card-result-click-event", () => {
+			this.coverCardResultClickEvent();
 		});
 		DOMUtils.ready(() => {
 			Panel.execMenu("bili-search-inputAutoFocus", () => {
@@ -64,6 +68,31 @@ const BilibiliSearch = {
 				$input.focus();
 			});
 	},
+	/**
+	 * 覆盖搜索结果点击事件
+	 */
+	coverCardResultClickEvent() {
+		log.info(`覆盖搜索结果点击事件`);
+		DOMUtils.on(
+			document,
+			"click",
+			".video-list .card-box > div",
+			(evt, selectorTarget) => {
+				let $card = selectorTarget;
+				let vueIns = VueUtils.getVue($card);
+				if (!vueIns) {
+					return;
+				}
+				let cardClick = vueIns.cardClick;
+				if (typeof cardClick !== "function") {
+					return;
+				}
+				utils.preventEvent(evt);
+				cardClick(evt);
+			},
+			{
+				capture: true,
+			}
+		);
+	},
 };
-
-export { BilibiliSearch };

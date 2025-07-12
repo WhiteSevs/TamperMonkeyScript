@@ -92,6 +92,13 @@ const SettingUISearch: PopsPanelContentConfig = {
 									void 0,
 									"点击取消按钮回退至上一页"
 								),
+								UISwitch(
+									"搜索结果",
+									"bili-search-cover-card-result-click-event",
+									true,
+									void 0,
+									"修复点击搜索结果不跳转视频的问题"
+								),
 							],
 						},
 					],
