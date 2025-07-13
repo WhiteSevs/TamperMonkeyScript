@@ -594,14 +594,15 @@ const Panel = {
 		preventDefaultContentConfig: boolean = false
 	) {
 		// 判断是否已有脚本版本号
-		let notHasBottomVersionContentConfig = content.some((it) => {
-			let isBottom =
-				typeof it.isBottom === "function"
-					? it.isBottom()
-					: Boolean(it.isBottom);
-			return !isBottom && it.id !== "script-version";
-		});
-		if (!preventDefaultContentConfig && notHasBottomVersionContentConfig) {
+		let checkHasBottomVersionContentConfig =
+			content.findIndex((it) => {
+				let isBottom =
+					typeof it.isBottom === "function"
+						? it.isBottom()
+						: Boolean(it.isBottom);
+				return isBottom && it.id === "script-version";
+			}) !== -1;
+		if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
 			content.push(...PanelContent.getDefaultBottomContentConfig());
 		}
 		let $panel = pops.panel({
