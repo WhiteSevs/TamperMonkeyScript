@@ -69,7 +69,7 @@ export interface PopsPanelDeepMenuDetails
 			/** 右侧的总容器的标题头容器 */
 			sectionContainerHeaderContainer: HTMLUListElement;
 			/** 右侧的总容器的标题头 */
-			sectionContainerHeader: HTMLDivElement;
+			sectionContainerHeader: HTMLLIElement;
 			/** 右侧的内容容器 */
 			sectionBodyContainer: HTMLUListElement;
 		}

@@ -2727,14 +2727,18 @@ export const PanelHandlerComponents = () => {
 					});
 					Reflect.set($deepMenuContainer, "__formConfig__", formConfig);
 					let $deepMenuHeaderUL = popsDOMUtils.createElement("ul", {
-						className: "pops-panel-deepMenu-container-header-ul",
+						className:
+							"pops-panel-container-header-ul pops-panel-deepMenu-container-header-ul",
 					});
-					let $deepMenuBodyUL = popsDOMUtils.createElement("ul");
+					let $deepMenuMain = popsDOMUtils.createElement("ul", {
+						className: "pops-panel-container-main-ul",
+					});
 					// 标题文字
 					let headerTitleText = formConfig.headerTitle ?? formConfig.text;
-					let $header = popsDOMUtils.createElement("div", {
-						className: "pops-panel-deepMenu-container-header",
-						innerHTML: `<p>${headerTitleText}</p>`,
+					let $header = popsDOMUtils.createElement("li", {
+						className:
+							"pops-panel-container-header-title-text pops-panel-deepMenu-container-header",
+						innerHTML: /*html*/ `<p class="pops-panel-deepMenu-container-header-title-text">${headerTitleText}</p>`,
 					});
 					let $headerLeftArrow = popsDOMUtils.createElement("i", {
 						className: "pops-panel-deepMenu-container-left-arrow-icon",
@@ -2763,12 +2767,12 @@ export const PanelHandlerComponents = () => {
 					);
 					$deepMenuHeaderUL.appendChild($header);
 					$deepMenuContainer.appendChild($deepMenuHeaderUL);
-					$deepMenuContainer.appendChild($deepMenuBodyUL);
+					$deepMenuContainer.appendChild($deepMenuMain);
 
 					if (formConfig.forms && Array.isArray(formConfig.forms)) {
 						for (let index = 0; index < formConfig.forms.length; index++) {
 							let formItemConfig = formConfig.forms[index];
-							this.initFormItem($deepMenuBodyUL, formItemConfig);
+							this.initFormItem($deepMenuMain, formItemConfig);
 						}
 					}
 					that.$el.$content?.appendChild($deepMenuContainer);
@@ -2778,7 +2782,7 @@ export const PanelHandlerComponents = () => {
 							sectionContainer: $deepMenuContainer,
 							sectionContainerHeaderContainer: $deepMenuHeaderUL,
 							sectionContainerHeader: $header,
-							sectionBodyContainer: $deepMenuBodyUL,
+							sectionBodyContainer: $deepMenuMain,
 						});
 					}
 					that.triggerRenderRightContainer($deepMenuContainer);

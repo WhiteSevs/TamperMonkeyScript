@@ -9,7 +9,9 @@
 
 	--pops-panel-forms-margin-top-bottom: 10px;
 	--pops-panel-forms-margin-left-right: 20px;
-	--pops-panel-forms-header-icon-size: 20px;
+	--pops-panel-forms-header-icon-size: calc(
+		var(--pops-panel-forms-container-li-padding-left-right) + 1px
+	);
 	--pops-panel-forms-header-padding-top-bottom: 15px;
 	--pops-panel-forms-header-padding-left-right: 10px;
 	--pops-panel-forms-container-item-left-text-gap: 6px;
@@ -139,13 +141,18 @@ section.pops-panel-container .pops-panel-forms-container-item-header-text {
 section.pops-panel-container li.pops-panel-forms-container-item {
 	display: block;
 }
-section.pops-panel-container .pops-panel-forms-container-item ul {
+section.pops-panel-container
+	.pops-panel-forms-container-item
+	ul.pops-panel-forms-container-item-formlist {
 	border-radius: var(--pops-panel-forms-container-item-border-radius);
 	background: var(--pops-panel-forms-container-item-bg-color);
 	margin: var(--pops-panel-forms-container-item-margin-top-bottom)
 		var(--pops-panel-forms-margin-left-right);
 }
-section.pops-panel-container .pops-panel-forms-container-item ul li {
+section.pops-panel-container
+	.pops-panel-forms-container-item
+	ul.pops-panel-forms-container-item-formlist
+	li {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -163,7 +170,10 @@ section.pops-panel-container
 	margin: 0px;
 	border-bottom: 0;
 }
-section.pops-panel-container .pops-panel-forms-container-item ul li:last-child {
+section.pops-panel-container
+	.pops-panel-forms-container-item
+	ul.pops-panel-forms-container-item-formlist
+	li:last-child {
 	border: 0;
 }
 /* 左侧的文字 */
@@ -1093,7 +1103,9 @@ section.pops-panel-container
 	display: flex;
 	align-items: center;
 }
-.pops-panel-deepMenu-container .pops-panel-deepMenu-container-header {
+section.pops-panel-deepMenu-container
+	.pops-panel-container-header-ul
+	li.pops-panel-deepMenu-container-header {
 	display: flex;
 	align-items: center;
 	width: -webkit-fill-available;
@@ -1104,6 +1116,7 @@ section.pops-panel-container
 				var(--pops-panel-forms-container-li-padding-left-right) -
 				var(--pops-panel-forms-header-icon-size)
 		);
+	gap: 0px;
 }
 .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {
 	width: var(--pops-panel-forms-header-icon-size);
