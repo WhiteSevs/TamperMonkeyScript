@@ -184,8 +184,8 @@ export const PopsRightClickMenu = {
 						guid: guid,
 						animElement: rootElement,
 						popsElement: rootElement,
-						beforeRemoveCallBack(layerCommonConfig) {
-							PopsContextMenu.closeAllMenu(layerCommonConfig.popsElement);
+						beforeRemoveCallBack(instCommonConfig) {
+							PopsContextMenu.closeAllMenu(instCommonConfig.popsElement);
 						},
 					});
 				}

@@ -8,15 +8,15 @@ import type { PopsPanelDetails } from "../components/panel/types";
 import type { PopsPromptDetails } from "../components/prompt/types/index";
 import { PopsCore } from "../PopsCore";
 import { PopsAnimation } from "../PopsAnimation";
-import { PopsLayerData } from "../PopsLayer";
+import { PopsInstData } from "../PopsInst";
 import type { PopsCommonConfig } from "../types/components";
 import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
-import { PopsLayerCommonConfig } from "../types/layer";
+import { PopsInstCommonConfig } from "../types/inst";
 import type {
-	PopsAllDetails,
-	PopsLayerMode,
-	PopsMode,
+	PopsDetails,
+	PopsInstStoreType,
 	PopsType,
+	PopsSupportAnimType,
 } from "../types/main";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../utils/PopsInstanceUtils";
@@ -145,13 +145,13 @@ export const PopsHandler = {
 		function clickEvent(event: MouseEvent | PointerEvent) {
 			popsDOMUtils.preventEvent(event);
 			// 获取该类型实例存储列表
-			let targetLayer = PopsLayerData[details.type];
+			let targetInst = PopsInstData[details.type];
 			function originalRun() {
 				if (details.config.mask!.clickEvent!.toClose) {
 					/* 关闭 */
 					return PopsInstanceUtils.close(
 						details.type,
-						targetLayer,
+						targetInst,
 						details.guid,
 						details.config,
 						details.animElement
@@ -160,7 +160,7 @@ export const PopsHandler = {
 					/* 隐藏 */
 					return PopsInstanceUtils.hide(
 						details.type,
-						targetLayer,
+						targetInst,
 						details.guid,
 						details.config,
 						details.animElement,
@@ -234,7 +234,7 @@ export const PopsHandler = {
 	 * @param animElement
 	 * @param type
 	 */
-	handleQueryElement(animElement: HTMLDivElement, type: PopsType) {
+	handleQueryElement(animElement: HTMLDivElement, type: PopsSupportAnimType) {
 		return {
 			/**
 			 * 主元素
@@ -408,7 +408,7 @@ export const PopsHandler = {
 		guid: string,
 		$shadowContainer: HTMLDivElement,
 		$shadowRoot: ShadowRoot | HTMLElement,
-		mode: PopsLayerMode,
+		mode: PopsInstStoreType,
 		animElement: HTMLDivElement,
 		popsElement: HTMLDivElement,
 		maskElement: HTMLDivElement,
@@ -434,7 +434,7 @@ export const PopsHandler = {
 			close() {
 				return PopsInstanceUtils.close(
 					mode,
-					PopsLayerData[mode],
+					PopsInstData[mode],
 					guid,
 					config,
 					animElement
@@ -443,7 +443,7 @@ export const PopsHandler = {
 			hide() {
 				return PopsInstanceUtils.hide(
 					mode,
-					PopsLayerData[mode],
+					PopsInstData[mode],
 					guid,
 					config,
 					animElement,
@@ -453,7 +453,7 @@ export const PopsHandler = {
 			show() {
 				return PopsInstanceUtils.show(
 					mode,
-					PopsLayerData[mode],
+					PopsInstData[mode],
 					guid,
 					config,
 					animElement,
@@ -497,7 +497,7 @@ export const PopsHandler = {
 			close() {
 				return PopsInstanceUtils.close(
 					mode,
-					PopsLayerData[mode],
+					PopsInstData[mode],
 					guid,
 					config,
 					animElement
@@ -506,7 +506,7 @@ export const PopsHandler = {
 			hide() {
 				return PopsInstanceUtils.hide(
 					mode,
-					PopsLayerData[mode],
+					PopsInstData[mode],
 					guid,
 					config,
 					animElement,
@@ -516,7 +516,7 @@ export const PopsHandler = {
 			show() {
 				return PopsInstanceUtils.show(
 					mode,
-					PopsLayerData[mode],
+					PopsInstData[mode],
 					guid,
 					config,
 					animElement,
@@ -660,8 +660,8 @@ export const PopsHandler = {
 	 * @param type 当前弹窗类型
 	 * @param config 配置
 	 */
-	handleOnly<T extends Required<PopsAllDetails[keyof PopsAllDetails]>>(
-		type: PopsMode,
+	handleOnly<T extends Required<PopsDetails[keyof PopsDetails]>>(
+		type: PopsType,
 		config: T
 	): T {
 		if (config.only) {
@@ -670,20 +670,20 @@ export const PopsHandler = {
 				type === "tooltip" ||
 				type === "rightClickMenu"
 			) {
-				let layer = PopsLayerData[type as keyof typeof PopsLayerData];
-				if (layer) {
-					PopsInstanceUtils.removeInstance([layer], "", true);
+				let inst = PopsInstData[type as keyof typeof PopsInstData];
+				if (inst) {
+					PopsInstanceUtils.removeInstance([inst], "", true);
 				}
 			} else {
 				PopsInstanceUtils.removeInstance(
 					[
-						PopsLayerData.alert,
-						PopsLayerData.confirm,
-						PopsLayerData.prompt,
-						PopsLayerData.iframe,
-						PopsLayerData.drawer,
-						PopsLayerData.folder,
-						PopsLayerData.panel,
+						PopsInstData.alert,
+						PopsInstData.confirm,
+						PopsInstData.prompt,
+						PopsInstData.iframe,
+						PopsInstData.drawer,
+						PopsInstData.folder,
+						PopsInstData.panel,
 					],
 					"",
 					true
@@ -707,7 +707,7 @@ export const PopsHandler = {
 	 * @param type 当前弹窗类型
 	 * @param value
 	 */
-	handlePush(type: PopsLayerMode, value: PopsLayerCommonConfig) {
-		PopsLayerData[type].push(value);
+	handlePush(type: PopsInstStoreType, value: PopsInstCommonConfig) {
+		PopsInstData[type].push(value);
 	},
 };

@@ -3,7 +3,7 @@ import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
-import { PopsLayerData } from "../../PopsLayer";
+import { PopsInstData } from "../../PopsInst";
 import type { PopsEventDetails } from "../../types/event";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
@@ -323,7 +323,7 @@ export const PopsIframe = {
 			(event) => {
 				event.preventDefault();
 				event.stopPropagation();
-				PopsInstanceUtils.removeInstance([PopsLayerData.iframe], guid, false);
+				PopsInstanceUtils.removeInstance([PopsInstData.iframe], guid, false);
 				if (typeof config?.btn?.close?.callback === "function") {
 					config.btn.close.callback(eventDetails, event);
 				}

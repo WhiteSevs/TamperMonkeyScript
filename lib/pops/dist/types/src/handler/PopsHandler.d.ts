@@ -8,8 +8,8 @@ import type { PopsPanelDetails } from "../components/panel/types";
 import type { PopsPromptDetails } from "../components/prompt/types/index";
 import type { PopsCommonConfig } from "../types/components";
 import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
-import { PopsLayerCommonConfig } from "../types/layer";
-import type { PopsAllDetails, PopsLayerMode, PopsMode, PopsType } from "../types/main";
+import { PopsInstCommonConfig } from "../types/inst";
+import type { PopsDetails, PopsInstStoreType, PopsType, PopsSupportAnimType } from "../types/main";
 export declare const PopsHandler: {
     /**
      * 创建shadow
@@ -50,7 +50,7 @@ export declare const PopsHandler: {
      * @param animElement
      * @param type
      */
-    handleQueryElement(animElement: HTMLDivElement, type: PopsType): {
+    handleQueryElement(animElement: HTMLDivElement, type: PopsSupportAnimType): {
         /**
          * 主元素
          */
@@ -163,7 +163,7 @@ export declare const PopsHandler: {
      * @param maskElement 遮罩层
      * @param config 当前配置
      */
-    handleEventDetails(guid: string, $shadowContainer: HTMLDivElement, $shadowRoot: ShadowRoot | HTMLElement, mode: PopsLayerMode, animElement: HTMLDivElement, popsElement: HTMLDivElement, maskElement: HTMLDivElement, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails): PopsEventDetails;
+    handleEventDetails(guid: string, $shadowContainer: HTMLDivElement, $shadowRoot: ShadowRoot | HTMLElement, mode: PopsInstStoreType, animElement: HTMLDivElement, popsElement: HTMLDivElement, maskElement: HTMLDivElement, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails): PopsEventDetails;
     /**
      * 获取loading的事件配置
      * @param guid
@@ -217,11 +217,11 @@ export declare const PopsHandler: {
      * @param type 当前弹窗类型
      * @param config 配置
      */
-    handleOnly<T extends Required<PopsAllDetails[keyof PopsAllDetails]>>(type: PopsMode, config: T): T;
+    handleOnly<T extends Required<PopsDetails[keyof PopsDetails]>>(type: PopsType, config: T): T;
     /**
      * 处理把已创建的元素保存到内部环境中
      * @param type 当前弹窗类型
      * @param value
      */
-    handlePush(type: PopsLayerMode, value: PopsLayerCommonConfig): void;
+    handlePush(type: PopsInstStoreType, value: PopsInstCommonConfig): void;
 };

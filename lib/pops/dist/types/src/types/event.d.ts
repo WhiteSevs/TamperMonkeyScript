@@ -1,5 +1,5 @@
 import type { PopsIframeDetails } from "../components/iframe/types";
-import type { PopsMode } from "./main";
+import type { PopsType } from "./main";
 
 /**
  * 事件配置
@@ -12,7 +12,7 @@ export interface PopsIframeEventDetails {
 	/**
 	 * 当前弹窗类型
 	 */
-	mode: PopsMode;
+	mode: PopsType;
 	/**
 	 * 动画层
 	 */
@@ -47,7 +47,7 @@ export interface PopsEventDetails {
 	/** 遮罩层 */
 	maskElement?: HTMLDivElement;
 	/** 当前弹窗类型 */
-	mode: PopsMode;
+	mode: PopsType;
 	guid: string;
 	close: () => Promise<void>;
 	hide: () => Promise<void>;

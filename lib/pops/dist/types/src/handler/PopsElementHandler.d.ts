@@ -1,4 +1,4 @@
-import type { PopsSupportAnim, PopsSupportBottomBtn, PopsSupportContent, PopsSupportHeaderTitle, PopsTypeSupportAnim, PopsTypeSupportBottomBtn, PopsTypeSupportContent, PopsTypeSupportHeaderTitle } from "../types/main";
+import type { PopsSupportAnim, PopsSupportBottomBtn, PopsSupportContent, PopsSupportHeaderTitle, PopsSupportAnimType, PopsTypeSupportBottomBtn, PopsTypeSupportContent, PopsTypeSupportHeaderTitle } from "../types/main";
 export declare const PopsElementHandler: {
     /**
      * 获取遮罩层HTML
@@ -16,7 +16,7 @@ export declare const PopsElementHandler: {
      * @param bottomBtnHTML
      * @param zIndex
      */
-    getAnimHTML(guid: string, type: PopsTypeSupportAnim, config: PopsSupportAnim[keyof PopsSupportAnim], html: string | undefined, bottomBtnHTML: string | undefined, zIndex: number): string;
+    getAnimHTML(guid: string, type: PopsSupportAnimType, config: PopsSupportAnim[keyof PopsSupportAnim], html: string | undefined, bottomBtnHTML: string | undefined, zIndex: number): string;
     /**
      * 获取顶部按钮层HTML
      * @param type

@@ -68,17 +68,17 @@ declare class Pops {
             [key: string]: CSSKeyframesRule;
         };
         /** 存储已创建的元素 */
-        layer: {
-            iframe: import("./types/layer").PopsLayerCommonConfig[];
-            loading: import("./types/layer").PopsLayerCommonConfig[];
-            folder: import("./types/layer").PopsLayerCommonConfig[];
-            alert: import("./types/layer").PopsLayerCommonConfig[];
-            confirm: import("./types/layer").PopsLayerCommonConfig[];
-            prompt: import("./types/layer").PopsLayerCommonConfig[];
-            drawer: import("./types/layer").PopsLayerCommonConfig[];
-            panel: import("./types/layer").PopsLayerCommonConfig[];
-            tooltip: import("./types/layer").PopsLayerCommonConfig[];
-            rightClickMenu: import("./types/layer").PopsLayerCommonConfig[];
+        instData: {
+            iframe: import("./types/inst").PopsInstCommonConfig[];
+            loading: import("./types/inst").PopsInstCommonConfig[];
+            folder: import("./types/inst").PopsInstCommonConfig[];
+            alert: import("./types/inst").PopsInstCommonConfig[];
+            confirm: import("./types/inst").PopsInstCommonConfig[];
+            prompt: import("./types/inst").PopsInstCommonConfig[];
+            tooltip: import("./types/inst").PopsInstCommonConfig[];
+            drawer: import("./types/inst").PopsInstCommonConfig[];
+            panel: import("./types/inst").PopsInstCommonConfig[];
+            rightClickMenu: import("./types/inst").PopsInstCommonConfig[];
         };
         /** 禁止滚动 */
         forbiddenScroll: {
@@ -189,10 +189,10 @@ declare class Pops {
                 isOverMaxZIndex: boolean;
             };
             getMaxZIndex(deviation?: number): number;
-            removeInstance(moreLayerConfigList: import("./types/layer").PopsLayerCommonConfig[][], guid: string, isAll?: boolean): import("./types/layer").PopsLayerCommonConfig[][];
-            hide(popsType: import("./types/main").PopsLayerMode, layerConfigList: import("./types/layer").PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement: HTMLElement): Promise<void>;
-            show(popsType: import("./types/main").PopsLayerMode, layerConfigList: import("./types/layer").PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement?: HTMLElement): Promise<void>;
-            close(popsType: string, layerConfigList: import("./types/layer").PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement): Promise<void>;
+            removeInstance(instConfigList: import("./types/inst").PopsInstCommonConfig[][], guid: string, isAll?: boolean): import("./types/inst").PopsInstCommonConfig[][];
+            hide(popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement: HTMLElement): Promise<void>;
+            show(popsType: import("./types/main").PopsInstStoreType, instConfigList: import("./types/inst").PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement?: HTMLElement): Promise<void>;
+            close(popsType: string, instConfigList: import("./types/inst").PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement): Promise<void>;
             drag(moveElement: HTMLElement, options: {
                 dragElement: HTMLElement;
                 limit: boolean;
@@ -409,7 +409,7 @@ declare class Pops {
         animElement: HTMLDivElement;
         popsElement: HTMLDivElement;
         maskElement?: HTMLDivElement | undefined;
-        mode: import("./types/main").PopsMode;
+        mode: import("./types/main").PopsType;
     };
     /**
      * 右键菜单

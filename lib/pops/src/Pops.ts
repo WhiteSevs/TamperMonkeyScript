@@ -29,7 +29,7 @@ import { GlobalConfig } from "./GlobalConfig";
 import { PopsTooltip } from "./components/tooltip";
 import { PopsCSS } from "./PopsCSS";
 import { PopsIcon } from "./PopsIcon";
-import { PopsLayerData } from "./PopsLayer";
+import { PopsInstData } from "./PopsInst";
 import { PopsAnimation } from "./PopsAnimation";
 
 class Pops {
@@ -43,7 +43,7 @@ class Pops {
 		/** 当前已配置的动画@keyframes名字映射(初始化时生成) */
 		animation: PopsAnimation.$data,
 		/** 存储已创建的元素 */
-		layer: PopsLayerData,
+		instData: PopsInstData,
 		/** 禁止滚动 */
 		forbiddenScroll: {
 			event(event: Event) {

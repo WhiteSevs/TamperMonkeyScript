@@ -6,8 +6,8 @@ import type { PopsIframeDetails } from "../components/iframe/types";
 import type { PopsLoadingDetails } from "../components/loading/types";
 import type { PopsPanelDetails } from "../components/panel/types";
 import type { PopsPromptDetails } from "../components/prompt/types/index";
-import type { PopsLayerCommonConfig } from "../types/layer";
-import type { PopsLayerMode } from "../types/main";
+import type { PopsInstCommonConfig } from "../types/inst";
+import type { PopsInstStoreType } from "../types/main";
 export declare const PopsInstanceUtils: {
     /**
      * 获取页面中最大的z-index的元素信息
@@ -44,40 +44,40 @@ export declare const PopsInstanceUtils: {
     getMaxZIndex(deviation?: number): number;
     /**
      * 删除配置中对应的对象
-     * @param moreLayerConfigList 配置实例列表
+     * @param instConfigList 配置实例列表
      * @param  guid 唯一标识
      * @param isAll 是否全部删除
      */
-    removeInstance(moreLayerConfigList: PopsLayerCommonConfig[][], guid: string, isAll?: boolean): PopsLayerCommonConfig[][];
+    removeInstance(instConfigList: PopsInstCommonConfig[][], guid: string, isAll?: boolean): PopsInstCommonConfig[][];
     /**
      * 隐藏
      * @param popsType
-     * @param layerConfigList
+     * @param instConfigList
      * @param guid
      * @param config
      * @param animElement
      * @param maskElement
      */
-    hide(popsType: PopsLayerMode, layerConfigList: PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement: HTMLElement): Promise<void>;
+    hide(popsType: PopsInstStoreType, instConfigList: PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement: HTMLElement): Promise<void>;
     /**
      * 显示
      * @param popsType
-     * @param layerConfigList
+     * @param instConfigList
      * @param guid
      * @param config
      * @param animElement
      * @param maskElement
      */
-    show(popsType: PopsLayerMode, layerConfigList: PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement?: HTMLElement): Promise<void>;
+    show(popsType: PopsInstStoreType, instConfigList: PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement, maskElement?: HTMLElement): Promise<void>;
     /**
      * 关闭
      * @param popsType
-     * @param layerConfigList
+     * @param instConfigList
      * @param guid
      * @param config
      * @param animElement
      */
-    close(popsType: string, layerConfigList: PopsLayerCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement): Promise<void>;
+    close(popsType: string, instConfigList: PopsInstCommonConfig[], guid: string, config: PopsAlertDetails | PopsDrawerDetails | PopsPromptDetails | PopsConfirmDetails | PopsIframeDetails | PopsLoadingDetails | PopsPanelDetails | PopsFolderDetails, animElement: HTMLElement): Promise<void>;
     /**
      * 拖拽元素
      * 说明：

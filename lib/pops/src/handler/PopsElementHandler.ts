@@ -7,7 +7,7 @@ import type {
 	PopsSupportBottomBtn,
 	PopsSupportContent,
 	PopsSupportHeaderTitle,
-	PopsTypeSupportAnim,
+	PopsSupportAnimType,
 	PopsTypeSupportBottomBtn,
 	PopsTypeSupportContent,
 	PopsTypeSupportHeaderTitle,
@@ -40,7 +40,7 @@ export const PopsElementHandler = {
 	 */
 	getAnimHTML(
 		guid: string,
-		type: PopsTypeSupportAnim,
+		type: PopsSupportAnimType,
 		config: PopsSupportAnim[keyof PopsSupportAnim],
 		html = "",
 		bottomBtnHTML = "",

@@ -13,6 +13,6 @@ export declare const PopsPanel: {
         animElement: HTMLDivElement;
         popsElement: HTMLDivElement;
         maskElement?: HTMLDivElement | undefined;
-        mode: import("../../types/main").PopsMode;
+        mode: import("../../types/main").PopsType;
     };
 };

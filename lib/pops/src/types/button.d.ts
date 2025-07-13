@@ -1,6 +1,6 @@
 import { PopsEventDetails, PopsHandlerEventDetails } from "./event";
 import type { PopsIconType } from "./icon";
-import type { PopsMode } from "./main";
+import type { PopsType } from "./main";
 
 /**
  * 按钮类型
@@ -51,7 +51,7 @@ export interface PopsBtnCallBackEvent {
 	/**
 	 * 调用的方法
 	 */
-	mode: PopsMode;
+	mode: PopsType;
 	/**
 	 * 唯一id
 	 */

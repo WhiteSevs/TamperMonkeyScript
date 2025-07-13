@@ -5,7 +5,7 @@ import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsAlertConfig } from "./config";
-import type { PopsMode } from "../../types/main";
+import type { PopsType } from "../../types/main";
 import type { PopsAlertDetails } from "./types";
 import { PopsCSS } from "../../PopsCSS";
 
@@ -13,7 +13,7 @@ export const PopsAlert = {
 	init(details: PopsAlertDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
-		const PopsType: PopsMode = "alert";
+		const PopsType: PopsType = "alert";
 		let config = PopsAlertConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);

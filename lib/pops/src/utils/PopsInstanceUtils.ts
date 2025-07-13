@@ -6,12 +6,12 @@ import type { PopsIframeDetails } from "../components/iframe/types";
 import type { PopsLoadingDetails } from "../components/loading/types";
 import type { PopsPanelDetails } from "../components/panel/types";
 import type { PopsPromptDetails } from "../components/prompt/types/index";
-import type { PopsLayerCommonConfig } from "../types/layer";
-import type { PopsLayerMode } from "../types/main";
+import type { PopsInstCommonConfig } from "../types/inst";
+import type { PopsInstStoreType } from "../types/main";
 import { popsDOMUtils } from "./PopsDOMUtils";
 import { popsUtils } from "./PopsUtils";
 import { PopsCore } from "../PopsCore";
-import { PopsLayerData } from "../PopsLayer";
+import { PopsInstData } from "../PopsInst";
 import { PopsAnimation } from "../PopsAnimation";
 
 export const PopsInstanceUtils = {
@@ -121,18 +121,18 @@ export const PopsInstanceUtils = {
 		function isVisibleNode($css: CSSStyleDeclaration): boolean {
 			return $css.position !== "static" && $css.display !== "none";
 		}
-		Object.keys(PopsLayerData).forEach((layerName) => {
-			let layerList = PopsLayerData[layerName as PopsLayerMode];
-			for (let index = 0; index < layerList.length; index++) {
-				const layer = layerList[index];
-				let nodeStyle = window.getComputedStyle(layer.animElement);
+		Object.keys(PopsInstData).forEach((instKeyName) => {
+			let instData = PopsInstData[instKeyName as PopsInstStoreType];
+			for (let index = 0; index < instData.length; index++) {
+				const inst = instData[index];
+				let nodeStyle = window.getComputedStyle(inst.animElement);
 				/* 不对position为static和display为none的元素进行获取它们的z-index */
 				if (isVisibleNode(nodeStyle)) {
 					let nodeZIndex = parseInt(nodeStyle.zIndex);
 					if (!isNaN(nodeZIndex)) {
 						if (nodeZIndex > zIndex) {
 							zIndex = nodeZIndex;
-							maxZIndexNode = layer.animElement;
+							maxZIndexNode = inst.animElement;
 						}
 					}
 				}
@@ -158,85 +158,85 @@ export const PopsInstanceUtils = {
 	},
 	/**
 	 * 删除配置中对应的对象
-	 * @param moreLayerConfigList 配置实例列表
+	 * @param instConfigList 配置实例列表
 	 * @param  guid 唯一标识
 	 * @param isAll 是否全部删除
 	 */
 	removeInstance(
-		moreLayerConfigList: PopsLayerCommonConfig[][],
+		instConfigList: PopsInstCommonConfig[][],
 		guid: string,
 		isAll = false
 	) {
 		/**
 		 * 移除元素实例
-		 * @param layerCommonConfig
+		 * @param instCommonConfig
 		 */
-		function removeItem(layerCommonConfig: PopsLayerCommonConfig) {
-			if (typeof layerCommonConfig.beforeRemoveCallBack === "function") {
+		function removeItem(instCommonConfig: PopsInstCommonConfig) {
+			if (typeof instCommonConfig.beforeRemoveCallBack === "function") {
 				// 调用移除签的回调
-				layerCommonConfig.beforeRemoveCallBack(layerCommonConfig);
+				instCommonConfig.beforeRemoveCallBack(instCommonConfig);
 			}
-			layerCommonConfig?.animElement?.remove();
-			layerCommonConfig?.popsElement?.remove();
-			layerCommonConfig?.maskElement?.remove();
-			layerCommonConfig?.$shadowContainer?.remove();
+			instCommonConfig?.animElement?.remove();
+			instCommonConfig?.popsElement?.remove();
+			instCommonConfig?.maskElement?.remove();
+			instCommonConfig?.$shadowContainer?.remove();
 		}
-		// [ layer[], layer[],...]
-		moreLayerConfigList.forEach((layerConfigList) => {
-			//  layer[]
-			layerConfigList.forEach((layerConfigItem, index) => {
+		// [ inst[], inst[],...]
+		instConfigList.forEach((instConfigList) => {
+			//  inst[]
+			instConfigList.forEach((instConfigItem, index) => {
 				// 移除全部或者guid相同
-				if (isAll || layerConfigItem["guid"] === guid) {
+				if (isAll || instConfigItem["guid"] === guid) {
 					// 判断是否有动画
-					let animName = layerConfigItem.animElement.getAttribute(
+					let animName = instConfigItem.animElement.getAttribute(
 						"anim"
 					) as string;
 					if (PopsAnimation.hasAnim(animName)) {
 						let reverseAnimName = animName + "-reverse";
-						layerConfigItem.animElement.style.width = "100%";
-						layerConfigItem.animElement.style.height = "100%";
-						(layerConfigItem.animElement.style as any)["animation-name"] =
+						instConfigItem.animElement.style.width = "100%";
+						instConfigItem.animElement.style.height = "100%";
+						(instConfigItem.animElement.style as any)["animation-name"] =
 							reverseAnimName;
 						if (
 							PopsAnimation.hasAnim(
-								(layerConfigItem.animElement.style as any)["animation-name"]
+								(instConfigItem.animElement.style as any)["animation-name"]
 							)
 						) {
 							popsDOMUtils.on(
-								layerConfigItem.animElement,
+								instConfigItem.animElement,
 								popsDOMUtils.getAnimationEndNameList(),
 								function () {
-									removeItem(layerConfigItem);
+									removeItem(instConfigItem);
 								},
 								{
 									capture: true,
 								}
 							);
 						} else {
-							removeItem(layerConfigItem);
+							removeItem(instConfigItem);
 						}
 					} else {
-						removeItem(layerConfigItem);
+						removeItem(instConfigItem);
 					}
-					layerConfigList.splice(index, 1);
+					instConfigList.splice(index, 1);
 				}
 			});
 		});
 
-		return moreLayerConfigList;
+		return instConfigList;
 	},
 	/**
 	 * 隐藏
 	 * @param popsType
-	 * @param layerConfigList
+	 * @param instConfigList
 	 * @param guid
 	 * @param config
 	 * @param animElement
 	 * @param maskElement
 	 */
 	hide(
-		popsType: PopsLayerMode,
-		layerConfigList: PopsLayerCommonConfig[],
+		popsType: PopsInstStoreType,
+		instConfigList: PopsInstCommonConfig[],
 		guid: string,
 		config:
 			| PopsAlertDetails
@@ -267,31 +267,33 @@ export const PopsInstanceUtils = {
 					resolve();
 				}, drawerConfig.closeDelay);
 			} else {
-				let findLayerIns = layerConfigList.find(
-					(layerConfigItem) => layerConfigItem.guid === guid
+				let fintInst = instConfigList.find(
+					(instConfigItem) => instConfigItem.guid === guid
 				);
-				if (findLayerIns) {
+				if (fintInst) {
 					/* 存在动画 */
-					let layerConfigItem = findLayerIns;
-					layerConfigItem.animElement.style.width = "100%";
-					layerConfigItem.animElement.style.height = "100%";
-					(layerConfigItem.animElement.style as any)["animation-name"] =
-						layerConfigItem.animElement.getAttribute("anim") + "-reverse";
+					let instConfigItem = fintInst;
+					instConfigItem.animElement.style.width = "100%";
+					instConfigItem.animElement.style.height = "100%";
+					// @ts-ignore
+					instConfigItem.animElement.style["animation-name"] =
+						instConfigItem.animElement.getAttribute("anim") + "-reverse";
 					if (
 						PopsAnimation.hasAnim(
-							(layerConfigItem.animElement.style as any)["animation-name"]
+							// @ts-ignore
+							instConfigItem.animElement.style["animation-name"]
 						)
 					) {
 						/**
 						 * 动画结束的回调
 						 */
 						function animationendCallBack() {
-							layerConfigItem.animElement.style.display = "none";
-							if (layerConfigItem.maskElement) {
-								layerConfigItem.maskElement.style.display = "none";
+							instConfigItem.animElement.style.display = "none";
+							if (instConfigItem.maskElement) {
+								instConfigItem.maskElement.style.display = "none";
 							}
 							popsDOMUtils.off(
-								layerConfigItem.animElement,
+								instConfigItem.animElement,
 								popsDOMUtils.getAnimationEndNameList(),
 								animationendCallBack,
 								{
@@ -301,7 +303,7 @@ export const PopsInstanceUtils = {
 							resolve();
 						}
 						popsDOMUtils.on(
-							layerConfigItem.animElement,
+							instConfigItem.animElement,
 							popsDOMUtils.getAnimationEndNameList(),
 							animationendCallBack,
 							{
@@ -309,9 +311,9 @@ export const PopsInstanceUtils = {
 							}
 						);
 					} else {
-						layerConfigItem.animElement.style.display = "none";
-						if (layerConfigItem.maskElement) {
-							layerConfigItem.maskElement.style.display = "none";
+						instConfigItem.animElement.style.display = "none";
+						if (instConfigItem.maskElement) {
+							instConfigItem.maskElement.style.display = "none";
 						}
 
 						resolve();
@@ -323,15 +325,15 @@ export const PopsInstanceUtils = {
 	/**
 	 * 显示
 	 * @param popsType
-	 * @param layerConfigList
+	 * @param instConfigList
 	 * @param guid
 	 * @param config
 	 * @param animElement
 	 * @param maskElement
 	 */
 	show(
-		popsType: PopsLayerMode,
-		layerConfigList: PopsLayerCommonConfig[],
+		popsType: PopsInstStoreType,
+		instConfigList: PopsInstCommonConfig[],
 		guid: string,
 		config:
 			| PopsAlertDetails
@@ -364,20 +366,21 @@ export const PopsInstanceUtils = {
 					resolve();
 				}, drawerConfig.openDelay ?? 0);
 			} else {
-				let findLayerIns = layerConfigList.find(
-					(layerConfigItem) => layerConfigItem.guid === guid
+				let fintInst = instConfigList.find(
+					(instConfigItem) => instConfigItem.guid === guid
 				);
-				if (findLayerIns) {
-					let layerConfigItem = findLayerIns;
-					layerConfigItem.animElement.style.width = "";
-					layerConfigItem.animElement.style.height = "";
-					(layerConfigItem.animElement.style as any)["animation-name"] =
-						layerConfigItem
-							.animElement!.getAttribute("anim")!
-							.replace("-reverse", "");
+				if (fintInst) {
+					let instConfigItem = fintInst;
+					instConfigItem.animElement.style.width = "";
+					instConfigItem.animElement.style.height = "";
+					// @ts-ignore
+					instConfigItem.animElement.style["animation-name"] = instConfigItem
+						.animElement!.getAttribute("anim")!
+						.replace("-reverse", "");
 					if (
 						PopsAnimation.hasAnim(
-							(layerConfigItem.animElement.style as any)["animation-name"]
+							// @ts-ignore
+							instConfigItem.animElement.style["animation-name"]
 						)
 					) {
 						/**
@@ -385,7 +388,7 @@ export const PopsInstanceUtils = {
 						 */
 						function animationendCallBack() {
 							popsDOMUtils.off(
-								layerConfigItem.animElement,
+								instConfigItem.animElement,
 								popsDOMUtils.getAnimationEndNameList(),
 								animationendCallBack,
 								{
@@ -394,12 +397,12 @@ export const PopsInstanceUtils = {
 							);
 							resolve();
 						}
-						layerConfigItem.animElement.style.display = "";
-						if (layerConfigItem.maskElement) {
-							layerConfigItem.maskElement.style.display = "";
+						instConfigItem.animElement.style.display = "";
+						if (instConfigItem.maskElement) {
+							instConfigItem.maskElement.style.display = "";
 						}
 						popsDOMUtils.on(
-							layerConfigItem.animElement,
+							instConfigItem.animElement,
 							popsDOMUtils.getAnimationEndNameList(),
 							animationendCallBack,
 							{
@@ -407,9 +410,9 @@ export const PopsInstanceUtils = {
 							}
 						);
 					} else {
-						layerConfigItem.animElement.style.display = "";
-						if (layerConfigItem.maskElement) {
-							layerConfigItem.maskElement.style.display = "";
+						instConfigItem.animElement.style.display = "";
+						if (instConfigItem.maskElement) {
+							instConfigItem.maskElement.style.display = "";
 						}
 						resolve();
 					}
@@ -420,14 +423,14 @@ export const PopsInstanceUtils = {
 	/**
 	 * 关闭
 	 * @param popsType
-	 * @param layerConfigList
+	 * @param instConfigList
 	 * @param guid
 	 * @param config
 	 * @param animElement
 	 */
 	close(
 		popsType: string,
-		layerConfigList: PopsLayerCommonConfig[],
+		instConfigList: PopsInstCommonConfig[],
 		guid: string,
 		config:
 			| PopsAlertDetails
@@ -461,7 +464,7 @@ export const PopsInstanceUtils = {
 						void 0,
 						closeCallBack
 					);
-					PopsInstanceUtils.removeInstance([layerConfigList], guid);
+					PopsInstanceUtils.removeInstance([instConfigList], guid);
 					resolve();
 				}
 				/* 监听过渡结束 */
@@ -498,7 +501,7 @@ export const PopsInstanceUtils = {
 					transitionendEvent();
 				}, drawerConfig.closeDelay);
 			} else {
-				PopsInstanceUtils.removeInstance([layerConfigList], guid);
+				PopsInstanceUtils.removeInstance([instConfigList], guid);
 				resolve();
 			}
 		});

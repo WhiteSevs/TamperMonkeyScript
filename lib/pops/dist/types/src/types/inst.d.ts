@@ -1,7 +1,7 @@
 /**
- * config内存储饿实例配置
+ * config实例配置
  */
-export interface PopsLayerConfig {
+export interface PopsInstConfig {
 	/** 固定id */
 	guid: string;
 	/** 动画元素 */
@@ -11,12 +11,14 @@ export interface PopsLayerConfig {
 	/** 遮罩层元素 */
 	maskElement?: HTMLDivElement;
 }
-
-export interface PopsLayerCommonConfig extends PopsLayerConfig {
+/**
+ * config实例通用配置
+ */
+export interface PopsInstCommonConfig extends PopsInstConfig {
 	/** shadow容器 */
 	$shadowContainer: HTMLDivElement;
 	/** shadow容器的shandowRoot */
 	$shadowRoot: ShadowRoot | HTMLElement;
 	/** 移除实例前的回调函数 */
-	beforeRemoveCallBack?: (layerCommonConfig: PopsLayerCommonConfig) => void;
+	beforeRemoveCallBack?: (instCommonConfig: PopsInstCommonConfig) => void;
 }

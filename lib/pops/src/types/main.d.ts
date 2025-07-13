@@ -22,7 +22,7 @@ export interface PopsUtilsOwnObject<V extends any> {
 }
 
 /** pops的所有类型配置 10个 */
-export interface PopsAllDetails {
+export interface PopsDetails {
 	alert: PopsAlertDetails;
 	confirm: PopsConfirmDetails;
 	prompt: PopsPromptDetails;
@@ -35,42 +35,17 @@ export interface PopsAllDetails {
 	rightClickMenu: PopsRightClickMenuDetails;
 }
 
-/** pops的类型配置 8个 */
-export interface PopsTypeDetails {
-	alert: PopsAlertDetails;
-	confirm: PopsConfirmDetails;
-	prompt: PopsPromptDetails;
-	loading: PopsLoadingDetails;
-	iframe: PopsIframeDetails;
-	// tooltip: PopsToolTipDetails;
-	drawer: PopsDrawerDetails;
-	folder: PopsFolderDetails;
-	panel: PopsPanelDetails;
-	// rightClickMenu: PopsRightClickMenuDetails;
-}
-
-/** pops的类型 8个 */
-export type PopsType = keyof PopsTypeDetails;
-
 /** pops所有的类型 10个 */
-export type PopsMode = PopsType | "tooltip" | "rightClickMenu";
+export type PopsType = keyof PopsDetails;
 
-/** 存储实例的类型 9个 */
-export type PopsLayerMode = PopsType | "tooltip" | "rightClickMenu";
+/** 存储实例的类型 10个 */
+export type PopsInstStoreType = PopsType;
 
-/** pops弹窗支持动画元素的配置 */
-export interface PopsSupportAnim {
-	alert: PopsAlertDetails;
-	confirm: PopsConfirmDetails;
-	prompt: PopsPromptDetails;
-	loading: PopsLoadingDetails;
-	iframe: PopsIframeDetails;
-	drawer: PopsDrawerDetails;
-	folder: PopsFolderDetails;
-	panel: PopsPanelDetails;
-}
+/** pops弹窗支持动画元素的配置 8个 */
+export type PopsSupportAnim = Omit<PopsDetails, "tooltip" | "rightClickMenu">;
+
 /** pops弹窗支持动画元素的类型 */
-export type PopsTypeSupportAnim = keyof PopsSupportAnim;
+export type PopsSupportAnimType = keyof PopsSupportAnim;
 
 /** pops弹窗支持标题栏的配置 */
 export interface PopsSupportHeaderTitle {
