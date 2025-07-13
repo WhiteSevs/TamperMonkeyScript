@@ -9,7 +9,7 @@ import type { PopsPromptDetails } from "../components/prompt/types/index";
 import type { PopsCommonConfig } from "../types/components";
 import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
 import { PopsInstCommonConfig } from "../types/inst";
-import type { PopsDetails, PopsInstStoreType, PopsType, PopsSupportAnimType } from "../types/main";
+import type { PopsInstStoreType, PopsType, PopsSupportAnimDetailsType, PopsSupportOnlyDetails } from "../types/main";
 export declare const PopsHandler: {
     /**
      * 创建shadow
@@ -50,7 +50,7 @@ export declare const PopsHandler: {
      * @param animElement
      * @param type
      */
-    handleQueryElement(animElement: HTMLDivElement, type: PopsSupportAnimType): {
+    handleQueryElement(animElement: HTMLDivElement, type: PopsSupportAnimDetailsType): {
         /**
          * 主元素
          */
@@ -217,7 +217,7 @@ export declare const PopsHandler: {
      * @param type 当前弹窗类型
      * @param config 配置
      */
-    handleOnly<T extends Required<PopsDetails[keyof PopsDetails]>>(type: PopsType, config: T): T;
+    handleOnly<T extends Required<PopsSupportOnlyDetails[keyof PopsSupportOnlyDetails]>>(type: PopsType, config: T): T;
     /**
      * 处理把已创建的元素保存到内部环境中
      * @param type 当前弹窗类型

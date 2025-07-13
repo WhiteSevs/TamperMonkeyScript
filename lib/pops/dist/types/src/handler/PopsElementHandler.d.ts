@@ -1,4 +1,4 @@
-import type { PopsSupportAnim, PopsSupportBottomBtn, PopsSupportContent, PopsSupportHeaderTitle, PopsSupportAnimType, PopsTypeSupportBottomBtn, PopsTypeSupportContent, PopsTypeSupportHeaderTitle } from "../types/main";
+import type { PopsSupportAnimDetails, PopsSupportBottomBtnDetails, PopsSupportContentDetails, PopsSupportHeaderTitleDetails, PopsSupportAnimDetailsType, PopsSupportBottomBtnDetailsType, PopsSupportContentDetailsType, PopsSupportHeaderTitleDetailsType } from "../types/main";
 export declare const PopsElementHandler: {
     /**
      * 获取遮罩层HTML
@@ -16,25 +16,25 @@ export declare const PopsElementHandler: {
      * @param bottomBtnHTML
      * @param zIndex
      */
-    getAnimHTML(guid: string, type: PopsSupportAnimType, config: PopsSupportAnim[keyof PopsSupportAnim], html: string | undefined, bottomBtnHTML: string | undefined, zIndex: number): string;
+    getAnimHTML(guid: string, type: PopsSupportAnimDetailsType, config: PopsSupportAnimDetails[keyof PopsSupportAnimDetails], html: string | undefined, bottomBtnHTML: string | undefined, zIndex: number): string;
     /**
      * 获取顶部按钮层HTML
      * @param type
      * @param config
      */
-    getHeaderBtnHTML(type: PopsTypeSupportHeaderTitle, config: PopsSupportHeaderTitle[keyof PopsSupportHeaderTitle]): string;
+    getHeaderBtnHTML(type: PopsSupportHeaderTitleDetailsType, config: PopsSupportHeaderTitleDetails[keyof PopsSupportHeaderTitleDetails]): string;
     /**
      * 获取底部按钮层HTML
      * @param type
      * @param config
      */
-    getBottomBtnHTML(type: PopsTypeSupportBottomBtn, config: Omit<PopsSupportBottomBtn[keyof PopsSupportBottomBtn], "content">): string;
+    getBottomBtnHTML(type: PopsSupportBottomBtnDetailsType, config: Omit<PopsSupportBottomBtnDetails[keyof PopsSupportBottomBtnDetails], "content">): string;
     /**
      * 获取标题style
      * @param type 弹窗类型
      * @param config 弹窗配置
      */
-    getHeaderStyle(type: PopsTypeSupportHeaderTitle, config: PopsSupportHeaderTitle[keyof PopsSupportHeaderTitle]): {
+    getHeaderStyle(type: PopsSupportHeaderTitleDetailsType, config: PopsSupportHeaderTitleDetails[keyof PopsSupportHeaderTitleDetails]): {
         headerStyle: string;
         headerPStyle: string;
     };
@@ -43,7 +43,7 @@ export declare const PopsElementHandler: {
      * @param type 弹窗类型
      * @param config 弹窗配置
      */
-    getContentStyle(type: PopsTypeSupportContent, config: PopsSupportContent[keyof PopsSupportContent]): {
+    getContentStyle(type: PopsSupportContentDetailsType, config: PopsSupportContentDetails[keyof PopsSupportContentDetails]): {
         contentStyle: string;
         contentPStyle: string;
     };

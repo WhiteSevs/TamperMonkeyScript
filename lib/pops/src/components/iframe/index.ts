@@ -10,12 +10,13 @@ import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsIframeConfig } from "./config";
 import type { PopsIframeDetails } from "./types";
+import type { PopsType } from "../../types/main";
 
 export const PopsIframe = {
 	init(details: PopsIframeDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
-		const PopsType = "iframe";
+		const popsType: PopsType = "iframe";
 
 		let config = PopsIframeConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -23,7 +24,7 @@ export const PopsIframe = {
 		if (config.url == null) {
 			throw new Error("config.url不能为空");
 		}
-		config = PopsHandler.handleOnly(PopsType, config);
+		config = PopsHandler.handleOnly(popsType, config);
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
@@ -63,28 +64,28 @@ export const PopsIframe = {
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);
 		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex, maskExtraStyle);
 
-		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
+		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(popsType, config);
 		let iframeLoadingHTML = '<div class="pops-loading"></div>';
 		let titleText =
 			config.title!.text!.trim() !== "" ? config.title.text : config.url;
 		let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(
-			PopsType,
+			popsType,
 			config
 		);
 		let animHTML = PopsElementHandler.getAnimHTML(
 			guid,
-			PopsType,
+			popsType,
 			config,
 			/*html*/ `
-            <div class="pops-title pops-${PopsType}-title" style="text-align: ${
+            <div class="pops-title pops-${popsType}-title" style="text-align: ${
 				config.title.position
 			};${headerStyle}">${
 				config.title.html
 					? titleText
-					: `<p pops class="pops-${PopsType}-title-text" style="${headerPStyle}">${titleText}</p>`
+					: `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${titleText}</p>`
 			}${headerBtnHTML}</div>
-			<div class="pops-content pops-${PopsType}-content">
-                <div class="pops-${PopsType}-content-global-loading"></div>
+			<div class="pops-content pops-${popsType}-content">
+                <div class="pops-${popsType}-content-global-loading"></div>
                 <iframe src="${config.url}" pops ${
 				config.sandbox
 					? "sandbox='allow-forms allow-same-origin allow-scripts'"
@@ -111,7 +112,7 @@ export const PopsIframe = {
 			headerMinBtnElement,
 			headerMaxBtnElement,
 			headerMiseBtnElement,
-		} = PopsHandler.handleQueryElement($anim, PopsType);
+		} = PopsHandler.handleQueryElement($anim, popsType);
 		let $iframeContainer = PopsCore.document.querySelector<HTMLDivElement>(
 			".pops-iframe-container"
 		);
@@ -133,7 +134,7 @@ export const PopsIframe = {
 
 		if (config.mask.enable) {
 			let _handleMask_ = PopsHandler.handleMask({
-				type: PopsType,
+				type: popsType,
 				guid: guid,
 
 				config: config,
@@ -148,7 +149,7 @@ export const PopsIframe = {
 			guid,
 			$shadowContainer,
 			$shadowRoot,
-			PopsType,
+			popsType,
 			$anim,
 
 			$pops!,
@@ -333,7 +334,7 @@ export const PopsIframe = {
 			}
 		);
 
-		PopsHandler.handlePush(PopsType, {
+		PopsHandler.handlePush(popsType, {
 			guid: guid,
 			animElement: $anim,
 

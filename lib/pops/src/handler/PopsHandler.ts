@@ -13,10 +13,10 @@ import type { PopsCommonConfig } from "../types/components";
 import { PopsEventDetails, PopsHandlerEventDetails } from "../types/event";
 import { PopsInstCommonConfig } from "../types/inst";
 import type {
-	PopsDetails,
 	PopsInstStoreType,
 	PopsType,
-	PopsSupportAnimType,
+	PopsSupportAnimDetailsType,
+	PopsSupportOnlyDetails,
 } from "../types/main";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../utils/PopsInstanceUtils";
@@ -234,7 +234,10 @@ export const PopsHandler = {
 	 * @param animElement
 	 * @param type
 	 */
-	handleQueryElement(animElement: HTMLDivElement, type: PopsSupportAnimType) {
+	handleQueryElement(
+		animElement: HTMLDivElement,
+		type: PopsSupportAnimDetailsType
+	) {
 		return {
 			/**
 			 * 主元素
@@ -660,11 +663,14 @@ export const PopsHandler = {
 	 * @param type 当前弹窗类型
 	 * @param config 配置
 	 */
-	handleOnly<T extends Required<PopsDetails[keyof PopsDetails]>>(
-		type: PopsType,
-		config: T
-	): T {
+	handleOnly<
+		T extends Required<PopsSupportOnlyDetails[keyof PopsSupportOnlyDetails]>
+	>(type: PopsType, config: T): T {
 		if (config.only) {
+			// .loading
+			// .tooltip
+			// .rightClickMenu
+			// 单独处理
 			if (
 				type === "loading" ||
 				type === "tooltip" ||

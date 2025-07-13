@@ -1,6 +1,7 @@
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
+import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import { popsUtils } from "../../utils/PopsUtils";
@@ -601,7 +602,7 @@ export const PopsTooltip = {
 	init(details: PopsToolTipDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
-		const PopsType = "tooltip";
+		const popsType: PopsType = "tooltip";
 
 		let config = PopsTooltipConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -609,7 +610,7 @@ export const PopsTooltip = {
 		if (!(config.target instanceof HTMLElement)) {
 			throw new TypeError("config.target 必须是HTMLElement类型");
 		}
-		config = PopsHandler.handleOnly(PopsType, config);
+		config = PopsHandler.handleOnly(popsType, config);
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [

@@ -16,12 +16,13 @@ import type { PopsPanelTextAreaDetails } from "../components/panel/types/compone
 import type { PopsPromptDetails } from "../components/prompt/types/index";
 import { PopsRightClickMenuDetails } from "../components/rightClickMenu/types";
 import { PopsToolTipDetails } from "../components/tooltip/types/index";
+import type { PopsSearchSuggestionDetails } from "../components/searchSuggestion/types";
 
 export interface PopsUtilsOwnObject<V extends any> {
 	[key: string]: V | PopsUtilsOwnObject<V>;
 }
 
-/** pops的所有类型配置 10个 */
+/** pops所有的类型配置 11个*/
 export interface PopsDetails {
 	alert: PopsAlertDetails;
 	confirm: PopsConfirmDetails;
@@ -33,53 +34,55 @@ export interface PopsDetails {
 	folder: PopsFolderDetails;
 	panel: PopsPanelDetails;
 	rightClickMenu: PopsRightClickMenuDetails;
+	searchSuggestion: PopsSearchSuggestionDetails;
 }
 
-/** pops所有的类型 10个 */
+/** pops的类型 */
 export type PopsType = keyof PopsDetails;
 
-/** 存储实例的类型 10个 */
-export type PopsInstStoreType = PopsType;
+/** pops中支持only的配置 */
+export type PopsSupportOnlyDetails = Omit<PopsDetails, "searchSuggestion">;
+
+/** 存储实例的类型 */
+export type PopsInstStoreType = keyof Omit<PopsDetails, "searchSuggestion">;
 
 /** pops弹窗支持动画元素的配置 8个 */
-export type PopsSupportAnim = Omit<PopsDetails, "tooltip" | "rightClickMenu">;
+export type PopsSupportAnimDetails = Omit<
+	PopsDetails,
+	"tooltip" | "rightClickMenu" | "searchSuggestion"
+>;
 
 /** pops弹窗支持动画元素的类型 */
-export type PopsSupportAnimType = keyof PopsSupportAnim;
+export type PopsSupportAnimDetailsType = keyof PopsSupportAnimDetails;
 
 /** pops弹窗支持标题栏的配置 */
-export interface PopsSupportHeaderTitle {
-	alert: PopsAlertDetails;
-	confirm: PopsConfirmDetails;
-	prompt: PopsPromptDetails;
-	iframe: PopsIframeDetails;
-	drawer: PopsDrawerDetails;
-	folder: PopsFolderDetails;
-	panel: PopsPanelDetails;
-}
+export type PopsSupportHeaderTitleDetails = Pick<
+	PopsDetails,
+	"alert" | "confirm" | "prompt" | "iframe" | "drawer" | "folder" | "panel"
+>;
+
 /** pops弹窗支持标题栏的类型 */
-export type PopsTypeSupportHeaderTitle = keyof PopsSupportHeaderTitle;
+export type PopsSupportHeaderTitleDetailsType =
+	keyof PopsSupportHeaderTitleDetails;
 
 /** pops支持底部按钮的配置 */
-export interface PopsSupportBottomBtn {
-	alert: PopsAlertDetails;
-	confirm: PopsConfirmDetails;
-	prompt: PopsPromptDetails;
-	drawer: PopsDrawerDetails;
-}
+export type PopsSupportBottomBtnDetails = Pick<
+	PopsDetails,
+	"alert" | "confirm" | "prompt" | "drawer"
+>;
+
 /** pops支持底部按钮的类型 */
-export type PopsTypeSupportBottomBtn = keyof PopsSupportHeaderTitle;
+export type PopsSupportBottomBtnDetailsType =
+	keyof PopsSupportHeaderTitleDetails;
 
 /** pops支持中间内容的配置 */
-export interface PopsSupportContent {
-	alert: PopsAlertDetails;
-	confirm: PopsConfirmDetails;
-	prompt: PopsPromptDetails;
-	drawer: PopsDrawerDetails;
-	loading: PopsLoadingDetails;
-}
+export type PopsSupportContentDetails = Pick<
+	PopsDetails,
+	"alert" | "confirm" | "prompt" | "drawer" | "loading"
+>;
+
 /** pops支持中间内容的类型 */
-export type PopsTypeSupportContent = keyof PopsSupportContent;
+export type PopsSupportContentDetailsType = keyof PopsSupportContentDetails;
 
 /** panel的各种类型的配置项 */
 export type PopsPanelFormsTotalDetails =

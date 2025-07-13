@@ -11,17 +11,18 @@ import type {
 } from "./types";
 import { PopsCSS } from "../../PopsCSS";
 import { PopsIcon } from "../../PopsIcon";
+import type { PopsType } from "../../types/main";
 
 export const PopsRightClickMenu = {
 	init(details: PopsRightClickMenuDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
-		const PopsType = "rightClickMenu";
+		const popsType: PopsType = "rightClickMenu";
 
 		let config = PopsRightClickMenuConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
-		config = PopsHandler.handleOnly(PopsType, config);
+		config = PopsHandler.handleOnly(popsType, config);
 		if (config.target == null) {
 			throw new Error("config.target 不能为空");
 		}
@@ -76,7 +77,7 @@ export const PopsRightClickMenu = {
 					return;
 				}
 				let $click = event.target as HTMLElement;
-				if ($click.closest(`.pops-${PopsType}`)) {
+				if ($click.closest(`.pops-${popsType}`)) {
 					return;
 				}
 				if (
@@ -97,7 +98,7 @@ export const PopsRightClickMenu = {
 					return;
 				}
 				let $click = event.target as HTMLElement;
-				if ($click.closest(`.pops-${PopsType}`)) {
+				if ($click.closest(`.pops-${popsType}`)) {
 					return;
 				}
 				PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
@@ -167,7 +168,7 @@ export const PopsRightClickMenu = {
 				if (config.preventDefault) {
 					popsDOMUtils.preventEvent(event);
 				}
-				PopsHandler.handleOnly(PopsType, config);
+				PopsHandler.handleOnly(popsType, config);
 				if (PopsContextMenu.rootElement) {
 					PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
 				}
@@ -178,7 +179,7 @@ export const PopsRightClickMenu = {
 				);
 				PopsContextMenu.rootElement = rootElement;
 				if (config.only) {
-					PopsHandler.handlePush(PopsType, {
+					PopsHandler.handlePush(popsType, {
 						$shadowRoot: $shadowRoot,
 						$shadowContainer: $shadowContainer,
 						guid: guid,
@@ -241,7 +242,7 @@ export const PopsRightClickMenu = {
 					);
 					element.remove();
 				}
-				if (element.classList.contains(`pops-${PopsType}-anim-show`)) {
+				if (element.classList.contains(`pops-${popsType}-anim-show`)) {
 					/* 有动画 */
 					popsDOMUtils.on(
 						element,
@@ -251,7 +252,7 @@ export const PopsRightClickMenu = {
 							capture: true,
 						}
 					);
-					element.classList.remove(`pops-${PopsType}-anim-show`);
+					element.classList.remove(`pops-${popsType}-anim-show`);
 				} else {
 					/* 无动画 */
 					element.remove();
@@ -283,7 +284,7 @@ export const PopsRightClickMenu = {
 			 */
 			getMenuContainerElement(isChildren: boolean) {
 				let $menu = popsDOMUtils.createElement("div", {
-					className: `pops-${PopsType}`,
+					className: `pops-${popsType}`,
 					innerHTML: /*html*/ `
 					<ul></ul>
 					`,
@@ -297,7 +298,7 @@ export const PopsRightClickMenu = {
 				}
 				/* 添加动画 */
 				if (config.isAnimation) {
-					popsDOMUtils.addClassName($menu, `pops-${PopsType}-anim-grid`);
+					popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-grid`);
 				}
 				return $menu;
 			},
@@ -456,7 +457,7 @@ export const PopsRightClickMenu = {
 				});
 				/* 过渡动画 */
 				if (config.isAnimation) {
-					popsDOMUtils.addClassName(menuElement, `pops-${PopsType}-anim-show`);
+					popsDOMUtils.addClassName(menuElement, `pops-${popsType}-anim-show`);
 				}
 				return menuElement;
 			},
@@ -518,7 +519,7 @@ export const PopsRightClickMenu = {
 				popsDOMUtils.css(menuElement, { ...offset, display: "" });
 				/* 过渡动画 */
 				if (config.isAnimation) {
-					popsDOMUtils.addClassName(menuElement, `pops-${PopsType}-anim-show`);
+					popsDOMUtils.addClassName(menuElement, `pops-${popsType}-anim-show`);
 				}
 				return menuElement;
 			},
@@ -546,7 +547,7 @@ export const PopsRightClickMenu = {
 					if (typeof item.icon === "string" && item.icon.trim() !== "") {
 						let iconSVGHTML = PopsIcon.getIcon(item.icon) ?? item.icon;
 						let iconElement = popsDOMUtils.parseTextToDOM(
-							/*html*/ `<i class="pops-${PopsType}-icon" is-loading="${
+							/*html*/ `<i class="pops-${popsType}-icon" is-loading="${
 								item.iconIsLoading ?? false
 							}">${iconSVGHTML}</i>`
 						);
@@ -559,7 +560,7 @@ export const PopsRightClickMenu = {
 					);
 					/* 如果存在子数据，显示 */
 					if (item.item && Array.isArray(item.item)) {
-						popsDOMUtils.addClassName(menuLiElement, `pops-${PopsType}-item`);
+						popsDOMUtils.addClassName(menuLiElement, `pops-${popsType}-item`);
 					}
 					/* 鼠标|触摸 移入事件 */
 					function liElementHoverEvent() {
@@ -568,7 +569,7 @@ export const PopsRightClickMenu = {
 						).forEach((liElement) => {
 							popsDOMUtils.removeClassName(
 								liElement,
-								`pops-${PopsType}-is-visited`
+								`pops-${popsType}-is-visited`
 							);
 							if (!(liElement as any).__menuData__) {
 								return;
@@ -600,7 +601,7 @@ export const PopsRightClickMenu = {
 						}
 						popsDOMUtils.addClassName(
 							menuLiElement,
-							`pops-${PopsType}-is-visited`
+							`pops-${popsType}-is-visited`
 						);
 						if (!item.item) {
 							return;

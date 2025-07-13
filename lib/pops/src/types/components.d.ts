@@ -21,17 +21,17 @@ export interface PopsTitleConfig {
 		 */
 		text?: string;
 		/**
-		 * 文字的位置
+		 * 标题文字的位置
 		 * @default "left"
 		 */
 		position?: PopsTextAlign;
 		/**
-		 * 文字是否是html
+		 * 标题文字是否是html
 		 * @default false
 		 */
 		html?: boolean;
 		/**
-		 * 文字的自定义CSS
+		 * 自定义CSS
 		 */
 		style?: string;
 	};
@@ -47,12 +47,12 @@ export interface PopsContentConfig {
 		 */
 		text?: string;
 		/**
-		 * 文字是否是html
+		 * 内容文字是否是html
 		 * @default false
 		 */
 		html?: boolean;
 		/**
-		 * 文字的自定义CSS
+		 * 自定义CSS
 		 */
 		style?: string;
 	};

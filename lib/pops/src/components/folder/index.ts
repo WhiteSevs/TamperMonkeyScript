@@ -2,6 +2,7 @@ import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
+import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsInstanceUtils } from "../../utils/PopsInstanceUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
@@ -15,12 +16,12 @@ export const PopsFolder = {
 	init(details: PopsFolderDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
-		const PopsType = "folder";
+		const popsType: PopsType = "folder";
 
 		let config = PopsFolderConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
-		config = PopsHandler.handleOnly(PopsType, config);
+		config = PopsHandler.handleOnly(popsType, config);
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
@@ -107,20 +108,16 @@ export const PopsFolder = {
 		let androidIconList = ["apk", "apkm", "xapk"];
 
 		zipIconList.forEach((keyName) => {
-			// @ts-ignore
-			Folder_ICON[keyName] = Folder_ICON.zip;
+			Folder_ICON[keyName as keyof typeof Folder_ICON] = Folder_ICON.zip;
 		});
 		imageIconList.forEach((keyName) => {
-			// @ts-ignore
-			Folder_ICON[keyName] = Folder_ICON.png;
+			Folder_ICON[keyName as keyof typeof Folder_ICON] = Folder_ICON.png;
 		});
 		codeLanguageIconList.forEach((keyName) => {
-			// @ts-ignore
-			Folder_ICON[keyName] = Folder_ICON.html;
+			Folder_ICON[keyName as keyof typeof Folder_ICON] = Folder_ICON.html;
 		});
 		androidIconList.forEach((keyName) => {
-			// @ts-ignore
-			Folder_ICON[keyName] = Folder_ICON.apk;
+			Folder_ICON[keyName as keyof typeof Folder_ICON] = Folder_ICON.apk;
 		});
 
 		if (details?.folder) {
@@ -132,122 +129,119 @@ export const PopsFolder = {
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);
 		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
 
-		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
-		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
+		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(popsType, config);
+		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(popsType, config);
 		let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(
-			PopsType,
+			popsType,
 			config
 		);
 		let animHTML = PopsElementHandler.getAnimHTML(
 			guid,
-			PopsType,
+			popsType,
 			config,
 			/*html*/ `
-            <div class="pops-title pops-${PopsType}-title" style="text-align: ${
+            <div class="pops-title pops-${popsType}-title" style="text-align: ${
 				config.title.position
 			};${headerStyle}">${
 				config.title.html
 					? config.title.text
-					: `<p pops class="pops-${PopsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
+					: `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
 			}${headerBtnHTML}</div>
-			<div class="pops-content pops-${PopsType}-content ${
+			<div class="pops-content pops-${popsType}-content ${
 				popsUtils.isPhone() ? "pops-mobile-folder-content" : ""
 			}">
                 <div class="pops-folder-list">
                     <div class="pops-folder-file-list-breadcrumb">
-                    <div class="pops-folder-file-list-breadcrumb-primary">
-                        <span class="pops-folder-file-list-breadcrumb-allFiles cursor-p" title="全部文件">
-                        <a>全部文件</a>
-                        </span>
-                    </div>
+						<div class="pops-folder-file-list-breadcrumb-primary">
+							<span class="pops-folder-file-list-breadcrumb-allFiles cursor-p" title="全部文件">
+								<a>全部文件</a>
+							</span>
+						</div>
                     </div>
                     <div class="pops-folder-list-table__header-div">
-                    <table class="pops-folder-list-table__header">
-                        <colgroup>
-                        <col width="52%">
-                        <col width="24%">
-                        <col width="16%">
-                        </colgroup>
-                        <thead>
-                        <tr class="pops-folder-list-table__header-row">
-                            <th class="pops-folder-list-table__header-th cursor-p">
-                            <div class="text-ellip content flex-a-i-center">
-                                <span>文件名</span>
-                                <div class="pops-folder-list-table__sort" data-sort="fileName">
-                                <div class="pops-folder-icon-arrow" data-sort="按文件名排序">
-                                    <svg
-                                    viewBox="0 0 1024 1024"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
-                                        class="pops-folder-icon-arrow-up"></path>
-                                    <path
-                                        d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
-                                        class="pops-folder-icon-arrow-down"></path>
-                                    </svg>
-                                </div>
-                                </div>
-                            </div>
-                            </th>
-                            <th class="pops-folder-list-table__header-th cursor-p">
-                            <div class="text-ellip content flex-a-i-center">
-                                <span>修改时间</span>
-                                <div class="pops-folder-list-table__sort" data-sort="latestTime">
-                                <div class="pops-folder-icon-arrow" title="按修改时间排序">
-                                    <svg
-                                    viewBox="0 0 1024 1024"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
-                                        class="pops-folder-icon-arrow-up"></path>
-                                    <path
-                                        d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
-                                        class="pops-folder-icon-arrow-down"></path>
-                                    </svg>
-                                </div>
-                                </div>
-                            </div>
-                            </th>
-                            <th class="pops-folder-list-table__header-th cursor-p">
-                            <div class="text-ellip content flex-a-i-center">
-                                <span>大小</span>
-                                <div class="pops-folder-list-table__sort" data-sort="fileSize">
-                                <div class="pops-folder-icon-arrow" title="按大小排序">
-                                    <svg
-                                    viewBox="0 0 1024 1024"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
-                                        class="pops-folder-icon-arrow-up"></path>
-                                    <path
-                                        d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
-                                        class="pops-folder-icon-arrow-down"></path>
-                                    </svg>
-                                </div>
-                                </div>
-                            </div>
-                            </th>
-                        </tr>
-                        </thead>
-                    </table>
+						<table class="pops-folder-list-table__header">
+							<colgroup>
+								<col width="52%">
+								<col width="24%">
+								<col width="16%">
+							</colgroup>
+							<thead>
+								<tr class="pops-folder-list-table__header-row">
+									<th class="pops-folder-list-table__header-th cursor-p">
+										<div class="text-ellip content flex-a-i-center">
+											<span>文件名</span>
+											<div class="pops-folder-list-table__sort" data-sort="fileName">
+												<div class="pops-folder-icon-arrow" data-sort="按文件名排序">
+													<svg
+														viewBox="0 0 1024 1024"
+														xmlns="http://www.w3.org/2000/svg">
+														<path
+															d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
+															class="pops-folder-icon-arrow-up"></path>
+														<path
+															d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
+															class="pops-folder-icon-arrow-down"></path>
+													</svg>
+												</div>
+											</div>
+										</div>
+									</th>
+									<th class="pops-folder-list-table__header-th cursor-p">
+										<div class="text-ellip content flex-a-i-center">
+											<span>修改时间</span>
+											<div class="pops-folder-list-table__sort" data-sort="latestTime">
+												<div class="pops-folder-icon-arrow" title="按修改时间排序">
+													<svg
+														viewBox="0 0 1024 1024"
+														xmlns="http://www.w3.org/2000/svg">
+														<path
+															d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
+															class="pops-folder-icon-arrow-up"></path>
+														<path
+															d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
+															class="pops-folder-icon-arrow-down"></path>
+													</svg>
+												</div>
+											</div>
+										</div>
+									</th>
+									<th class="pops-folder-list-table__header-th cursor-p">
+										<div class="text-ellip content flex-a-i-center">
+											<span>大小</span>
+											<div class="pops-folder-list-table__sort" data-sort="fileSize">
+												<div class="pops-folder-icon-arrow" title="按大小排序">
+													<svg
+														viewBox="0 0 1024 1024"
+														xmlns="http://www.w3.org/2000/svg">
+														<path
+															d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
+															class="pops-folder-icon-arrow-up"></path>
+														<path
+															d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
+															class="pops-folder-icon-arrow-down"></path>
+													</svg>
+												</div>
+											</div>
+										</div>
+									</th>
+								</tr>
+							</thead>
+						</table>
                     </div>
                     <div class="pops-folder-list-table__body-div">
-                    <table class="pops-folder-list-table__body">
-                        <colgroup>
-                        ${
-													popsUtils.isPhone()
-														? `<col width="100%">`
-														: `
-                            <col width="52%">
-                            <col width="24%">
-                            <col width="16%">`
-												}
-                        
-                        </colgroup>
-                        <tbody>
-                        
-                        </tbody>
-                    </table>
+						<table class="pops-folder-list-table__body">
+							<colgroup>
+							${
+								popsUtils.isPhone()
+									? `<col width="100%">`
+									: `
+								<col width="52%">
+								<col width="24%">
+								<col width="16%">`
+							}
+							</colgroup>
+							<tbody></tbody>
+						</table>
                     </div>
                 </div>
             </div>${bottomBtnHTML}`,
@@ -262,11 +256,8 @@ export const PopsFolder = {
 			popsElement: $pops,
 			titleElement: $title,
 			contentElement: $content,
-
 			// folderListElement,
-
 			// folderListHeaderElement,
-
 			// folderListHeaderRowElement,
 			folderListBodyElement,
 			folderFileListBreadcrumbPrimaryElement,
@@ -277,7 +268,7 @@ export const PopsFolder = {
 			folderListSortFileNameElement,
 			folderListSortLatestTimeElement,
 			folderListSortFileSizeElement,
-		} = PopsHandler.handleQueryElement($anim, PopsType);
+		} = PopsHandler.handleQueryElement($anim, popsType);
 
 		/**
 		 * 遮罩层元素
@@ -290,7 +281,7 @@ export const PopsFolder = {
 
 		if (config.mask.enable) {
 			let _handleMask_ = PopsHandler.handleMask({
-				type: PopsType,
+				type: popsType,
 				guid: guid,
 				config: config,
 				animElement: $anim,
@@ -304,7 +295,7 @@ export const PopsFolder = {
 			guid,
 			$shadowContainer,
 			$shadowRoot,
-			PopsType,
+			popsType,
 			$anim,
 			$pops,
 			$mask!,
@@ -441,13 +432,11 @@ export const PopsFolder = {
 				isFolder: isFolder,
 			};
 
-			(fileNameElement as any)["__value__"] = __value__;
+			Reflect.set(fileNameElement, "__value__", __value__);
+			Reflect.set(fileTimeElement, "__value__", __value__);
+			Reflect.set(fileFormatSize, "__value__", __value__);
+			Reflect.set(folderELement, "__value__", __value__);
 
-			(fileTimeElement as any)["__value__"] = __value__;
-
-			(fileFormatSize as any)["__value__"] = __value__;
-
-			(folderELement as any)["__value__"] = __value__;
 			folderELement.appendChild(fileNameElement);
 			folderELement.appendChild(fileTimeElement);
 			folderELement.appendChild(fileFormatSize);
@@ -523,10 +512,8 @@ export const PopsFolder = {
 				fileSize: origin_fileSize,
 				isFolder: isFolder,
 			};
-
-			(fileNameElement as any)["__value__"] = __value__;
-
-			(folderELement as any)["__value__"] = __value__;
+			Reflect.set(fileNameElement, "__value__", __value__);
+			Reflect.set(folderELement, "__value__", __value__);
 			folderELement.appendChild(fileNameElement);
 			return {
 				folderELement,
@@ -536,10 +523,13 @@ export const PopsFolder = {
 		/**
 		 * 清空每行的元素
 		 */
-		function clearFolerRow() {
+		function clearFolderRow() {
 			PopsSafeUtils.setSafeHTML(folderListBodyElement, "");
 		}
-		function getArrowIconElement() {
+		/**
+		 * 创建顶部导航的箭头图标
+		 */
+		function createHeaderArrowIcon() {
 			let iconArrowElement = popsDOMUtils.createElement("div", {
 				className: "iconArrow",
 			});
@@ -547,24 +537,22 @@ export const PopsFolder = {
 		}
 		/**
 		 * 添加顶部导航
-		 * @param name
-		 * @param _config_
-		 * @returns
+		 * @param folderName 文件夹名
+		 * @param folderDataConfig 文件夹配置
 		 */
-		function getBreadcrumbAllFilesElement(
-			name: string,
-			_config_: PopsFolderDataConfig
+		function createHeaderFileLinkNavgiation(
+			folderName: string,
+			folderDataConfig: PopsFolderDataConfig
 		) {
 			let spanElement = popsDOMUtils.createElement(
 				"span",
 				{
 					className: "pops-folder-file-list-breadcrumb-allFiles cursor-p",
-					innerHTML: `<a>${name}</a>`,
-
-					_config_: _config_,
+					innerHTML: `<a>${folderName}</a>`,
+					_config_: folderDataConfig,
 				},
 				{
-					title: "name",
+					title: folderName,
 				}
 			);
 			return spanElement;
@@ -573,15 +561,15 @@ export const PopsFolder = {
 		 * 顶部导航的点击事件
 		 * @param event
 		 * @param isTop 是否是全部文件按钮
-		 * @param _config_ 配置
+		 * @param folderDataConfigList 配置
 		 */
 
 		function breadcrumbAllFilesElementClickEvent(
 			event: Event,
 			isTop: boolean,
-			_config_: PopsFolderDataConfig[]
+			folderDataConfigList: PopsFolderDataConfig[]
 		) {
-			clearFolerRow();
+			clearFolderRow();
 			/* 获取当前的导航元素 */
 			let $click = event.target as HTMLElement;
 			let currentBreadcrumb = $click.closest<HTMLSpanElement>(
@@ -608,22 +596,21 @@ export const PopsFolder = {
 				},
 				addIndexCSS: false,
 			});
-			addFolderElement(_config_);
+			addFolderElement(folderDataConfigList);
 			loadingMask.close();
 		}
 		/**
 		 * 刷新文件列表界面信息
 		 * @param event
-		 * @param _config_
+		 * @param folderDataConfig
 		 */
 		async function refreshFolderInfoClickEvent(
 			event: MouseEvent | PointerEvent,
-			_config_: PopsFolderDataConfig
+			folderDataConfig: PopsFolderDataConfig
 		) {
-			clearFolerRow();
+			clearFolderRow();
 			let loadingMask = PopsLoading.init({
 				parent: $content,
-
 				content: {
 					text: "获取文件列表中...",
 				},
@@ -633,16 +620,18 @@ export const PopsFolder = {
 				},
 				addIndexCSS: false,
 			});
-			if (typeof _config_.clickEvent === "function") {
-				let childConfig = await _config_.clickEvent(event, _config_);
-				/* 添加顶部导航的箭头 */
-
-				folderFileListBreadcrumbPrimaryElement.appendChild(
-					getArrowIconElement()
+			if (typeof folderDataConfig.clickEvent === "function") {
+				let childConfig = await folderDataConfig.clickEvent(
+					event,
+					folderDataConfig
 				);
-				/* 获取顶部导航 */
-				let breadcrumbAllFilesElement = getBreadcrumbAllFilesElement(
-					_config_["fileName"],
+				/* 添加顶部导航的箭头 */
+				folderFileListBreadcrumbPrimaryElement.appendChild(
+					createHeaderArrowIcon()
+				);
+				/* 添加顶部导航的链接文字 */
+				let breadcrumbAllFilesElement = createHeaderFileLinkNavgiation(
+					folderDataConfig.fileName,
 					childConfig as any
 				);
 
@@ -658,12 +647,12 @@ export const PopsFolder = {
 						breadcrumbAllFilesElementClickEvent(
 							event,
 							false,
-							childConfig as any
+							childConfig as PopsFolderDataConfig[]
 						);
 					}
 				);
 
-				addFolderElement(childConfig as any);
+				addFolderElement(childConfig as PopsFolderDataConfig[]);
 			}
 			loadingMask.close();
 		}
@@ -1047,7 +1036,7 @@ export const PopsFolder = {
 				endCallBack: config.dragEndCallBack,
 			});
 		}
-		PopsHandler.handlePush(PopsType, {
+		PopsHandler.handlePush(popsType, {
 			guid: guid,
 			animElement: $anim,
 			popsElement: $pops,

@@ -1,4 +1,5 @@
 import type { PopsPanelDetails, PopsPanelEventType } from "./types";
+import type { PopsType } from "../../types/main";
 export declare const PopsPanel: {
     init(details: PopsPanelDetails): {
         addEventListener: <K extends keyof PopsPanelEventType>(event: K, listener: (evt: CustomEvent<PopsPanelEventType[K]>) => void, options?: boolean | EventListenerOptions) => void;
@@ -13,6 +14,6 @@ export declare const PopsPanel: {
         animElement: HTMLDivElement;
         popsElement: HTMLDivElement;
         maskElement?: HTMLDivElement | undefined;
-        mode: import("../../types/main").PopsType;
+        mode: PopsType;
     };
 };

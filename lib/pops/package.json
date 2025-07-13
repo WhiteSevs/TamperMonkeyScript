@@ -1,6 +1,6 @@
 {
 	"name": "@whitesev/pops",
-	"version": "2.2.1",
+	"version": "2.2.2",
 	"type": "module",
 	"description": "弹窗库",
 	"main": "dist/index.cjs.js",

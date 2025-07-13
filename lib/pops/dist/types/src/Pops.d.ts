@@ -21093,7 +21093,7 @@ declare class Pops {
      * searchSuggestion.setAllEvent();
      */
     searchSuggestion: <T = any>(details: PopsSearchSuggestionDetails<T>) => {
-        selfDocument: ShadowRoot | Document | (ShadowRoot | Document)[];
+        selfDocument: Document | ShadowRoot | (Document | ShadowRoot)[];
         $el: {
             root: HTMLElement;
             $hintULContainer: HTMLUListElement;

@@ -8,12 +8,13 @@ import { PopsPanelConfig } from "./config";
 import { PanelHandlerComponents } from "./handlerComponents";
 import { GlobalConfig } from "../../GlobalConfig";
 import { PopsCSS } from "../../PopsCSS";
+import type { PopsType } from "../../types/main";
 
 export const PopsPanel = {
 	init(details: PopsPanelDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
-		const PopsType = "panel";
+		const popsType: PopsType = "panel";
 
 		let config: Required<PopsPanelDetails> = PopsPanelConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -21,7 +22,7 @@ export const PopsPanel = {
 		if (details && Array.isArray(details.content)) {
 			config.content = details.content;
 		}
-		config = PopsHandler.handleOnly(PopsType, config);
+		config = PopsHandler.handleOnly(popsType, config);
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
@@ -59,32 +60,32 @@ export const PopsPanel = {
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);
 		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
 
-		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
+		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(popsType, config);
 		let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(
-			PopsType,
+			popsType,
 			config
 		);
 
 		let animHTML = PopsElementHandler.getAnimHTML(
 			guid,
-			PopsType,
+			popsType,
 			config,
 			/*html*/ `
-			<div class="pops-title pops-${PopsType}-title" style="text-align: ${
+			<div class="pops-title pops-${popsType}-title" style="text-align: ${
 				config.title.position
 			};${headerStyle}">${
 				config.title.html
 					? config.title.text
-					: `<p pops class="pops-${PopsType}-title-text" class="pops-${PopsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
+					: `<p pops class="pops-${popsType}-title-text" class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
 			}${headerBtnHTML}</div>
-			<div class="pops-content pops-${PopsType}-content">
-				<aside class="pops-${PopsType}-aside">
-					<ul class="pops-${PopsType}-aside-top-container"></ul>
-					<ul class="pops-${PopsType}-aside-bottom-container"></ul>
+			<div class="pops-content pops-${popsType}-content">
+				<aside class="pops-${popsType}-aside">
+					<ul class="pops-${popsType}-aside-top-container"></ul>
+					<ul class="pops-${popsType}-aside-bottom-container"></ul>
 				</aside>
-				<section class="pops-${PopsType}-container">
-					<ul class="pops-${PopsType}-container-header-ul"></ul>
-					<ul class="pops-${PopsType}-container-main-ul"></ul>
+				<section class="pops-${popsType}-container">
+					<ul class="pops-${popsType}-container-header-ul"></ul>
+					<ul class="pops-${popsType}-container-main-ul"></ul>
 				</section>
 			</div>`,
 			"",
@@ -102,7 +103,7 @@ export const PopsPanel = {
 			contentElement: $content,
 			contentAsideElement: $contentAside,
 			contentSectionContainerElement: $contentSectionContainer,
-		} = PopsHandler.handleQueryElement($anim, PopsType);
+		} = PopsHandler.handleQueryElement($anim, popsType);
 		if (config.isMobile || popsUtils.isPhone()) {
 			popsDOMUtils.addClassName($pops, config.mobileClassName);
 		}
@@ -118,7 +119,7 @@ export const PopsPanel = {
 		/* 遮罩层元素 */
 		if (config.mask.enable) {
 			let { maskElement } = PopsHandler.handleMask({
-				type: PopsType,
+				type: popsType,
 				guid: guid,
 				config: config,
 				animElement: $anim,
@@ -133,7 +134,7 @@ export const PopsPanel = {
 			guid,
 			$shadowContainer,
 			$shadowRoot,
-			PopsType,
+			popsType,
 			$anim,
 			$pops,
 			$mask!,
@@ -171,7 +172,7 @@ export const PopsPanel = {
 			},
 		});
 
-		PopsHandler.handlePush(PopsType, {
+		PopsHandler.handlePush(popsType, {
 			guid: guid,
 			animElement: $anim,
 			popsElement: $pops,

@@ -3,14 +3,14 @@ import type { PopsConfirmDetails } from "../components/confirm/types";
 import type { PopsIframeDetails } from "../components/iframe/types";
 import type { PopsIconType } from "../types/icon";
 import type {
-	PopsSupportAnim,
-	PopsSupportBottomBtn,
-	PopsSupportContent,
-	PopsSupportHeaderTitle,
-	PopsSupportAnimType,
-	PopsTypeSupportBottomBtn,
-	PopsTypeSupportContent,
-	PopsTypeSupportHeaderTitle,
+	PopsSupportAnimDetails,
+	PopsSupportBottomBtnDetails,
+	PopsSupportContentDetails,
+	PopsSupportHeaderTitleDetails,
+	PopsSupportAnimDetailsType,
+	PopsSupportBottomBtnDetailsType,
+	PopsSupportContentDetailsType,
+	PopsSupportHeaderTitleDetailsType,
 } from "../types/main";
 import { PopsIcon } from "../PopsIcon";
 import { popsDOMUtils } from "../utils/PopsDOMUtils";
@@ -40,8 +40,8 @@ export const PopsElementHandler = {
 	 */
 	getAnimHTML(
 		guid: string,
-		type: PopsSupportAnimType,
-		config: PopsSupportAnim[keyof PopsSupportAnim],
+		type: PopsSupportAnimDetailsType,
+		config: PopsSupportAnimDetails[keyof PopsSupportAnimDetails],
 		html = "",
 		bottomBtnHTML = "",
 		zIndex: number
@@ -80,8 +80,8 @@ export const PopsElementHandler = {
 	 * @param config
 	 */
 	getHeaderBtnHTML(
-		type: PopsTypeSupportHeaderTitle,
-		config: PopsSupportHeaderTitle[keyof PopsSupportHeaderTitle]
+		type: PopsSupportHeaderTitleDetailsType,
+		config: PopsSupportHeaderTitleDetails[keyof PopsSupportHeaderTitleDetails]
 	): string {
 		if (!config.btn) {
 			return "";
@@ -126,8 +126,8 @@ export const PopsElementHandler = {
 	 * @param config
 	 */
 	getBottomBtnHTML(
-		type: PopsTypeSupportBottomBtn,
-		config: Omit<PopsSupportBottomBtn[keyof PopsSupportBottomBtn], "content">
+		type: PopsSupportBottomBtnDetailsType,
+		config: Omit<PopsSupportBottomBtnDetails[keyof PopsSupportBottomBtnDetails], "content">
 	): string {
 		if (!config.btn) {
 			// 未设置btn参数
@@ -282,8 +282,8 @@ export const PopsElementHandler = {
 	 * @param config 弹窗配置
 	 */
 	getHeaderStyle(
-		type: PopsTypeSupportHeaderTitle,
-		config: PopsSupportHeaderTitle[keyof PopsSupportHeaderTitle]
+		type: PopsSupportHeaderTitleDetailsType,
+		config: PopsSupportHeaderTitleDetails[keyof PopsSupportHeaderTitleDetails]
 	) {
 		return {
 			headerStyle: config?.title?.html ? config?.title?.style || "" : "",
@@ -297,8 +297,8 @@ export const PopsElementHandler = {
 	 * @param config 弹窗配置
 	 */
 	getContentStyle(
-		type: PopsTypeSupportContent,
-		config: PopsSupportContent[keyof PopsSupportContent]
+		type: PopsSupportContentDetailsType,
+		config: PopsSupportContentDetails[keyof PopsSupportContentDetails]
 	) {
 		return {
 			contentStyle: (config?.content as any)?.html

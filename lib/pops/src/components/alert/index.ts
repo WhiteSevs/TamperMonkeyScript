@@ -13,11 +13,11 @@ export const PopsAlert = {
 	init(details: PopsAlertDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
-		const PopsType: PopsType = "alert";
+		const popsType: PopsType = "alert";
 		let config = PopsAlertConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
-		config = PopsHandler.handleOnly(PopsType, config);
+		config = PopsHandler.handleOnly(popsType, config);
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
@@ -54,32 +54,32 @@ export const PopsAlert = {
 		// 先把z-index提取出来
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);
 		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
-		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
-		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
+		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(popsType, config);
+		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(popsType, config);
 		let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(
-			PopsType,
+			popsType,
 			config
 		);
 		let { contentStyle, contentPStyle } = PopsElementHandler.getContentStyle(
-			PopsType,
+			popsType,
 			config
 		);
 		let animHTML = PopsElementHandler.getAnimHTML(
 			guid,
-			PopsType,
+			popsType,
 			config,
 			/*html*/ `
-			<div class="pops-title pops-${PopsType}-title" style="text-align: ${
+			<div class="pops-title pops-${popsType}-title" style="text-align: ${
 				config.title.position
 			};${headerStyle}">${
 				config.title.html
 					? config.title.text
-					: `<p pops class="pops-${PopsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
+					: `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
 			}${headerBtnHTML}</div>
-			<div class="pops-content pops-${PopsType}-content" style="${contentStyle}">${
+			<div class="pops-content pops-${popsType}-content" style="${contentStyle}">${
 				config.content.html
 					? config.content.text
-					: `<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`
+					: `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`
 			}</div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex
@@ -94,7 +94,7 @@ export const PopsAlert = {
 			headerCloseBtnElement: $headerCloseBtn,
 			btnOkElement,
 			titleElement: $title,
-		} = PopsHandler.handleQueryElement($anim, PopsType);
+		} = PopsHandler.handleQueryElement($anim, popsType);
 
 		/** 遮罩层元素 */
 		let $mask: HTMLDivElement | null = null;
@@ -105,7 +105,7 @@ export const PopsAlert = {
 
 		if (config.mask.enable) {
 			let _handleMask_ = PopsHandler.handleMask({
-				type: PopsType,
+				type: popsType,
 				guid: guid,
 				config: config,
 				animElement: $anim,
@@ -119,7 +119,7 @@ export const PopsAlert = {
 			guid,
 			$shadowContainer,
 			$shadowRoot,
-			PopsType,
+			popsType,
 			$anim,
 			$pops!,
 			$mask!,
@@ -153,7 +153,7 @@ export const PopsAlert = {
 			$anim.after($mask);
 		}
 		/* 保存 */
-		PopsHandler.handlePush(PopsType, {
+		PopsHandler.handlePush(popsType, {
 			guid: guid,
 
 			animElement: $anim,

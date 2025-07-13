@@ -6,12 +6,13 @@ import { GlobalConfig } from "../../GlobalConfig";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import type { PopsSearchSuggestionDetails } from "./types/index";
 import { PopsCSS } from "../../PopsCSS";
+import type { PopsType } from "../../types/main";
 
 export const PopsSearchSuggestion = {
 	init(details: PopsSearchSuggestionDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
-		const PopsType = "searchSuggestion";
+		const popsType: PopsType = "searchSuggestion";
 
 		let config = PopsSearchSuggestionConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
@@ -88,7 +89,7 @@ export const PopsSearchSuggestion = {
 
 				SearchSuggestion.hide();
 				if (config.isAnimation) {
-					SearchSuggestion.$el.root.classList.add(`pops-${PopsType}-animation`);
+					SearchSuggestion.$el.root.classList.add(`pops-${popsType}-animation`);
 				}
 				$shadowRoot.appendChild(SearchSuggestion.$el.root);
 				parentElement.appendChild($shadowContainer);
@@ -109,19 +110,19 @@ export const PopsSearchSuggestion = {
 				let element = popsDOMUtils.createElement(
 					"div",
 					{
-						className: `pops pops-${PopsType}-search-suggestion`,
+						className: `pops pops-${popsType}-search-suggestion`,
 						innerHTML: /*html*/ `
 						<style data-dynamic="true">
 							${this.getDynamicCSS()}
 						</style>
-						<ul class="pops-${PopsType}-search-suggestion-hint">${
+						<ul class="pops-${popsType}-search-suggestion-hint">${
 							config.toSearhNotResultHTML
 						}</ul>
          				 `,
 					},
 					{
 						"data-guid": guid,
-						"type-value": PopsType,
+						"type-value": popsType,
 					}
 				);
 				if (config.className !== "" && config.className != null) {
@@ -132,24 +133,24 @@ export const PopsSearchSuggestion = {
 			/** 动态获取CSS */
 			getDynamicCSS() {
 				return /*css*/ `
-				.pops-${PopsType}-animation{
+				.pops-${popsType}-animation{
 					-moz-animation: searchSelectFalIn 0.5s 1 linear;
 					-webkit-animation: searchSelectFalIn 0.5s 1 linear;
 					-o-animation: searchSelectFalIn 0.5s 1 linear;
 					-ms-animation: searchSelectFalIn 0.5s 1 linear;
 				}
-				.pops-${PopsType}-search-suggestion{
+				.pops-${popsType}-search-suggestion{
 					--search-suggestion-bg-color: #ffffff;
 					--search-suggestion-box-shadow-color: rgb(0 0 0 / 20%);
 					--search-suggestion-item-color: #515a6e;
 					--search-suggestion-item-none-color: #8e8e8e;
 					--search-suggestion-item-hover-bg-color: rgba(0, 0, 0, .1);
 				}
-				.pops-${PopsType}-search-suggestion{
+				.pops-${popsType}-search-suggestion{
 					border: initial;
 					overflow: initial;
 				}
-				ul.pops-${PopsType}-search-suggestion-hint{
+				ul.pops-${popsType}-search-suggestion-hint{
 					position: ${config.isAbsolute ? "absolute" : "fixed"};
 					z-index: ${PopsHandler.handleZIndex(config.zIndex)};
 					width: 0;
@@ -164,14 +165,14 @@ export const PopsSearchSuggestion = {
 					box-shadow: 0 1px 6px var(--search-suggestion-box-shadow-color);
 				}
 				/* 建议框在上面时 */
-				ul.pops-${PopsType}-search-suggestion-hint[data-top-reverse]{
+				ul.pops-${popsType}-search-suggestion-hint[data-top-reverse]{
 					display: flex;
 					flex-direction: column-reverse;
 				}
-				ul.pops-${PopsType}-search-suggestion-hint[data-top-reverse] li{
+				ul.pops-${popsType}-search-suggestion-hint[data-top-reverse] li{
 					flex-shrink: 0;
 				}
-				ul.pops-${PopsType}-search-suggestion-hint li{
+				ul.pops-${popsType}-search-suggestion-hint li{
 					padding: 7px;
 					margin: 0;
 					clear: both;
@@ -184,17 +185,17 @@ export const PopsSearchSuggestion = {
 					text-overflow: ellipsis;
 					width: 100%;
 				}
-				ul.pops-${PopsType}-search-suggestion-hint li[data-none]{
+				ul.pops-${popsType}-search-suggestion-hint li[data-none]{
 					text-align: center;
 					font-size: 12px;
 					color: var(--search-suggestion-item-none-color);
 				}
-				ul.pops-${PopsType}-search-suggestion-hint li:hover{
+				ul.pops-${popsType}-search-suggestion-hint li:hover{
 					background-color: var(--search-suggestion-item-hover-bg-color);
 				}
 
 				@media (prefers-color-scheme: dark){
-					.pops-${PopsType}-search-suggestion{
+					.pops-${popsType}-search-suggestion{
 						--search-suggestion-bg-color: #1d1e1f;
 						--search-suggestion-item-color: #cfd3d4;
 						--search-suggestion-item-hover-bg-color: rgba(175, 175, 175, .1);
@@ -209,7 +210,7 @@ export const PopsSearchSuggestion = {
 			 */
 			getSearchItemLiElement(data: any, index: number) {
 				return popsDOMUtils.createElement("li", {
-					className: `pops-${PopsType}-search-suggestion-hint-item pops-flex-items-center pops-flex-y-center`,
+					className: `pops-${popsType}-search-suggestion-hint-item pops-flex-items-center pops-flex-y-center`,
 					"data-index": index,
 					"data-value": SearchSuggestion.getItemDataValue(data),
 					innerHTML: `${config.getItemHTML(data)}${
@@ -236,7 +237,7 @@ export const PopsSearchSuggestion = {
 					(event) => {
 						popsDOMUtils.preventEvent(event);
 						let $click = event.target as HTMLLIElement;
-						if ($click.closest(`.pops-${PopsType}-delete-icon`)) {
+						if ($click.closest(`.pops-${popsType}-delete-icon`)) {
 							/* 点击的是删除按钮 */
 							if (typeof config.deleteIcon.callback === "function") {
 								config.deleteIcon.callback(
@@ -512,7 +513,7 @@ export const PopsSearchSuggestion = {
 			 */
 			getDeleteIconHTML(size = 16, fill = "#bababa") {
 				return /*html*/ `
-				<svg class="pops-${PopsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
+				<svg class="pops-${popsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
 					<path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
 					<path d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z"></path>
 				</svg>
@@ -523,7 +524,7 @@ export const PopsSearchSuggestion = {
 			 */
 			setPromptsInSearch() {
 				let isSearchingElement = popsDOMUtils.createElement("li", {
-					className: `pops-${PopsType}-search-suggestion-hint-searching-item`,
+					className: `pops-${popsType}-search-suggestion-hint-searching-item`,
 					innerHTML: config.searchingTip,
 				});
 				SearchSuggestion.$el.$hintULContainer.appendChild(isSearchingElement);
@@ -534,7 +535,7 @@ export const PopsSearchSuggestion = {
 			removePromptsInSearch() {
 				SearchSuggestion.$el.$hintULContainer
 					.querySelector<HTMLLIElement>(
-						`li.pops-${PopsType}-search-suggestion-hint-searching-item`
+						`li.pops-${popsType}-search-suggestion-hint-searching-item`
 					)
 					?.remove();
 			},

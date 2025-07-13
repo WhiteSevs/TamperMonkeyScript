@@ -2,6 +2,7 @@ import { GlobalConfig } from "../../GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
+import type { PopsType } from "../../types/main";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { PopsDrawerConfig } from "./config";
@@ -11,11 +12,11 @@ export const PopsDrawer = {
 	init(details: PopsDrawerDetails) {
 		const guid = popsUtils.getRandomGUID();
 		// 设置当前类型
-		const PopsType = "drawer";
+		const popsType: PopsType = "drawer";
 		let config = PopsDrawerConfig();
 		config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
 		config = popsUtils.assign(config, details);
-		config = PopsHandler.handleOnly(PopsType, config);
+		config = PopsHandler.handleOnly(popsType, config);
 
 		const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
 		PopsHandler.handleInit($shadowRoot, [
@@ -53,34 +54,34 @@ export const PopsDrawer = {
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);
 		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
 
-		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
-		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
+		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(popsType, config);
+		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(popsType, config);
 		let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(
-			PopsType,
+			popsType,
 			config
 		);
 		let { contentStyle, contentPStyle } = PopsElementHandler.getContentStyle(
-			PopsType,
+			popsType,
 			config
 		);
 		let animHTML = PopsElementHandler.getAnimHTML(
 			guid,
-			PopsType,
+			popsType,
 			config,
 			/*html*/ `
             ${
 							config.title.enable
-								? /*html*/ `<div class="pops-title pops-${PopsType}-title" style="${headerStyle}">${
+								? /*html*/ `<div class="pops-title pops-${popsType}-title" style="${headerStyle}">${
 										config.title.html
 											? config.title.text
-											: /*html*/ `<p pops class="pops-${PopsType}-title-text" style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
+											: /*html*/ `<p pops class="pops-${popsType}-title-text" style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
 								  }${headerBtnHTML}</div>`
 								: ""
 						}
-            <div class="pops-content pops-${PopsType}-content" style="${contentStyle}">${
+            <div class="pops-content pops-${popsType}-content" style="${contentStyle}">${
 				config.content.html
 					? config.content.text
-					: `<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`
+					: `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`
 			}</div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex
@@ -95,7 +96,7 @@ export const PopsDrawer = {
 			btnCancelElement,
 			btnOkElement,
 			btnOtherElement,
-		} = PopsHandler.handleQueryElement($anim, PopsType);
+		} = PopsHandler.handleQueryElement($anim, popsType);
 		let $pops = popsElement!;
 		let $headerCloseBtn = headerCloseBtnElement!;
 		let $btnCancel = btnCancelElement!;
@@ -112,7 +113,7 @@ export const PopsDrawer = {
 
 		if (config.mask.enable) {
 			let _handleMask_ = PopsHandler.handleMask({
-				type: PopsType,
+				type: popsType,
 				guid: guid,
 				config: config,
 				animElement: $anim,
@@ -125,7 +126,7 @@ export const PopsDrawer = {
 			guid,
 			$shadowContainer,
 			$shadowRoot,
-			PopsType,
+			popsType,
 			$anim,
 			$pops,
 			$mask!,
@@ -245,7 +246,7 @@ export const PopsDrawer = {
 			$anim.after($mask);
 		}
 
-		PopsHandler.handlePush(PopsType, {
+		PopsHandler.handlePush(popsType, {
 			guid: guid,
 			animElement: $anim,
 			popsElement: $pops,
