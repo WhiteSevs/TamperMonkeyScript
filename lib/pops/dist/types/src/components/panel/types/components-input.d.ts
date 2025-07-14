@@ -5,10 +5,12 @@ import type { PopsPanelCommonDetails } from "./components-common";
 export interface PopsPanelInputDetails extends PopsPanelCommonDetails<PopsPanelInputDetails> {
     /**
      * （可选）className属性
+     * @default ""
      */
     className?: string;
     /**
      * （可选）自定义元素属性
+     * @default {}
      */
     attributes?: {
         [key: string]: any;
@@ -17,6 +19,7 @@ export interface PopsPanelInputDetails extends PopsPanelCommonDetails<PopsPanelI
     }[];
     /**
      * （可选）自定义属性
+     * @default {}
      */
     props?: {
         [K in keyof HTMLElement]?: HTMLElement[K];
@@ -27,6 +30,7 @@ export interface PopsPanelInputDetails extends PopsPanelCommonDetails<PopsPanelI
     text: string;
     /**
      * （可选）左边的文字下面的描述
+     * @default ""
      */
     description?: string;
     /**
@@ -35,8 +39,9 @@ export interface PopsPanelInputDetails extends PopsPanelCommonDetails<PopsPanelI
     type: "input";
     /**
      * （可选）是否禁用
+     * @default false
      */
-    disabled?: boolean;
+    disabled?: boolean | (() => boolean);
     /**
      * 获取该项的值的回调函数
      */
@@ -50,14 +55,17 @@ export interface PopsPanelInputDetails extends PopsPanelCommonDetails<PopsPanelI
     callback(event: InputEvent, value: string, valueAsNumber?: number): void;
     /**
      * （可选）输入框内的提示
+     * @default ""
      */
     placeholder?: string;
     /**
      * （可选）是否是密码框
+     * @default false
      */
     isPassword?: boolean;
     /**
      * （可选）是否是数字框
+     * @default false
      */
     isNumber?: boolean;
     /**

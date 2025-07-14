@@ -7,10 +7,12 @@ export interface PopsPanelSwitchDetails
 	extends PopsPanelCommonDetails<PopsPanelSwitchDetails> {
 	/**
 	 * （可选）className属性
+	 * @default ""
 	 */
 	className?: string;
 	/**
 	 * （可选）自定义元素属性
+	 * @default {}
 	 */
 	attributes?:
 		| {
@@ -21,6 +23,7 @@ export interface PopsPanelSwitchDetails
 		  }[];
 	/**
 	 * （可选）自定义属性
+	 * @default {}
 	 */
 	props?: {
 		[K in keyof HTMLElement]?: HTMLElement[K];
@@ -31,6 +34,7 @@ export interface PopsPanelSwitchDetails
 	text: string;
 	/**
 	 * （可选）左边的文字下面的描述
+	 * @default ""
 	 */
 	description?: string;
 	/**
@@ -39,8 +43,9 @@ export interface PopsPanelSwitchDetails
 	type: "switch";
 	/**
 	 * （可选）是否禁用
+	 * @default false
 	 */
-	disabled?: false;
+	disabled?: boolean | (() => boolean);
 	/**
 	 * 获取该项的值的回调函数
 	 */

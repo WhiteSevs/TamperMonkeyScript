@@ -9,10 +9,12 @@ export interface PopsPanelSelectDetails<T = any>
 	extends PopsPanelCommonDetails<PopsPanelSelectDetails> {
 	/**
 	 * （可选）className属性
+	 * @default ""
 	 */
 	className?: string;
 	/**
 	 * （可选）自定义元素属性
+	 * @default {}
 	 */
 	attributes?:
 		| {
@@ -23,6 +25,7 @@ export interface PopsPanelSelectDetails<T = any>
 		  }[];
 	/**
 	 * （可选）自定义属性
+	 * @default {}
 	 */
 	props?: {
 		[K in keyof HTMLElement]?: HTMLElement[K];
@@ -33,6 +36,7 @@ export interface PopsPanelSelectDetails<T = any>
 	text: string;
 	/**
 	 * （可选）左边的文字下面的描述
+	 * @default ""
 	 */
 	description?: string;
 	/**
@@ -41,8 +45,9 @@ export interface PopsPanelSelectDetails<T = any>
 	type: "select";
 	/**
 	 * （可选）是否禁用
+	 * @default false
 	 */
-	disabled?: boolean;
+	disabled?: boolean | (() => boolean);
 	/**
 	 * 获取该项的值的回调函数
 	 */

@@ -324,7 +324,11 @@ export const PanelHandlerComponents = () => {
 				},
 				init() {
 					this.setStatus(this.$data.value);
-					if (formConfig.disabled) {
+					let disabled =
+						typeof formConfig.disabled === "function"
+							? formConfig.disabled()
+							: formConfig.disabled;
+					if (disabled) {
 						this.disable();
 					}
 					this.setClickEvent();
@@ -1109,9 +1113,11 @@ export const PanelHandlerComponents = () => {
 				$li,
 				/*html*/ `
 				<div class="pops-panel-item-left-text">
-					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
+					<p class="pops-panel-item-left-main-text">${
+						formConfig.text
+					}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-input pops-user-select-none">
-					<input type="${inputType}" placeholder="${formConfig.placeholder}">
+					<input type="${inputType}" placeholder="${formConfig.placeholder ?? ""}">
 				</div>
 				`
 			);
@@ -1144,7 +1150,12 @@ export const PanelHandlerComponents = () => {
 					}
 
 					this.setInputChangeEvent();
-					if (formConfig.disabled) {
+					// 是否禁用复选框
+					let disabled =
+						typeof formConfig.disabled === "function"
+							? formConfig.disabled()
+							: formConfig.disabled;
+					if (disabled) {
 						this.disable();
 					}
 					if (typeof formConfig.handlerCallBack === "function") {
@@ -1348,7 +1359,11 @@ export const PanelHandlerComponents = () => {
 				init() {
 					this.setValue(this.$data.value);
 					this.setChangeEvent();
-					if (formConfig.disabled) {
+					let disabled =
+						typeof formConfig.disabled === "function"
+							? formConfig.disabled()
+							: formConfig.disabled;
+					if (disabled) {
 						this.disable();
 					}
 				},
@@ -1450,7 +1465,11 @@ export const PanelHandlerComponents = () => {
 					this.initOption();
 					this.setChangeEvent();
 					this.setClickEvent();
-					if (formConfig.disabled) {
+					let disabled =
+						typeof formConfig.disabled === "function"
+							? formConfig.disabled()
+							: formConfig.disabled;
+					if (disabled) {
 						this.disable();
 					}
 				},
