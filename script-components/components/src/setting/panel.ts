@@ -39,7 +39,10 @@ const Panel = {
 		/**
 		 * @private
 		 */
-		__configDefaultValueData: null as UtilsDictionary<string, any> | null,
+		__contentConfigInitDefaultValue: null as UtilsDictionary<
+			string,
+			any
+		> | null,
 		/**
 		 * @private
 		 */
@@ -54,13 +57,13 @@ const Panel = {
 		__panelConfig: {} as Partial<PopsPanelDetails>,
 		$panel: null as ReturnType<typeof pops.panel> | null,
 		/**
-		 * 菜单项的默认值
+		 * 菜单项初始化的默认值
 		 */
-		get configDefaultValueData() {
-			if (this.__configDefaultValueData == null) {
-				this.__configDefaultValueData = new utils.Dictionary();
+		get contentConfigInitDefaultValue() {
+			if (this.__contentConfigInitDefaultValue == null) {
+				this.__contentConfigInitDefaultValue = new utils.Dictionary();
 			}
-			return this.__configDefaultValueData;
+			return this.__contentConfigInitDefaultValue;
 		},
 		/**
 		 * 成功只执行了一次的项
@@ -131,12 +134,32 @@ const Panel = {
 				return;
 			}
 
-			/* 初始化配置对象，每个是需要配置的键值对 */
-			let needInitConfig = <{ [key: string]: any }>{};
-			/* 获取键名 */
+			/**
+			 * 初始化配置对象，每个是需要配置的键值对
+			 *
+			 * key是菜单键
+			 *
+			 * value是默认值
+			 */
+			let menuDefaultConfig = new Map<string, any>();
+			/* 普通的 键名 */
 			let key = config.attributes[ATTRIBUTE_KEY];
 			if (key != null) {
-				needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+				// 键名对应的默认值
+				const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+				menuDefaultConfig.set(key, defaultValue);
+			}
+			/* 待初始化默认值的配置项 */
+			let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+			if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
+				// 追加|覆盖
+				Object.keys(moreMenuDefaultConfig).forEach((key) => {
+					menuDefaultConfig.set(key, moreMenuDefaultConfig[key]);
+				});
+			}
+			if (!menuDefaultConfig.size) {
+				log.warn(["请先配置键", config]);
+				return;
 			}
 
 			/* 调用初始化方法，返回false则阻止默认行为 */
@@ -147,22 +170,11 @@ const Panel = {
 					return;
 				}
 			}
-			/* 待初始化默认值的配置项 */
-			let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-			if (initMoreValue && typeof initMoreValue === "object") {
-				/* 覆盖进去 */
-				Object.assign(needInitConfig, initMoreValue);
-			}
-			let needInitConfigList = Object.keys(needInitConfig);
-			if (!needInitConfigList.length) {
-				log.warn(["请先配置键", config]);
-				return;
-			}
 			// 循环初始化默认值
-			needInitConfigList.forEach((__key) => {
-				let __defaultValue = needInitConfig[__key];
+			for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
+				// 设置默认值
 				this.setDefaultValue(__key, __defaultValue);
-			});
+			}
 		};
 		/** 嵌套循环初始化默认值 */
 		const loopInitDefaultValue = (
@@ -171,7 +183,7 @@ const Panel = {
 			for (let index = 0; index < configList.length; index++) {
 				let configItem = configList[index];
 				initDefaultValue(configItem);
-				let childForms = (configItem as any).forms;
+				let childForms = (<PopsPanelFormsDetails>configItem).forms;
 				if (childForms && Array.isArray(childForms)) {
 					/* 存在子配置forms */
 					loopInitDefaultValue(childForms);
@@ -197,10 +209,10 @@ const Panel = {
 	 */
 	setDefaultValue(key: string, defaultValue: any) {
 		/* 存储到缓存中*/
-		if (this.$data.configDefaultValueData.has(key)) {
+		if (this.$data.contentConfigInitDefaultValue.has(key)) {
 			log.warn("请检查该key(已存在): " + key);
 		}
-		this.$data.configDefaultValueData.set(key, defaultValue);
+		this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
 	},
 	/**
 	 * 设置值
@@ -219,10 +231,10 @@ const Panel = {
 		let localValue = PopsPanelStorageApi.get<T>(key);
 		if (localValue == null) {
 			/* 值不存在或值为null/undefined或只有键但无值 */
-			if (this.$data.configDefaultValueData.has(key)) {
+			if (this.$data.contentConfigInitDefaultValue.has(key)) {
 				/* 先判断是否是菜单配置的键 */
 				/* 是的话取出值并返回 */
-				return this.$data.configDefaultValueData.get(key);
+				return this.$data.contentConfigInitDefaultValue.get(key);
 			}
 			return defaultValue as T;
 		}
@@ -294,7 +306,7 @@ const Panel = {
 	/**
 	 * 执行菜单
 	 *
-	 * @param queryKey 键|键数组
+	 * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
 	 * @param callback 执行的回调函数
 	 * @param checkExec 判断是否执行回调
 	 *
@@ -339,7 +351,7 @@ const Panel = {
 		}
 
 		let findNotInDataKey = keyList.find(
-			(it) => !this.$data.configDefaultValueData.has(it)
+			(it) => !this.$data.contentConfigInitDefaultValue.has(it)
 		);
 		if (findNotInDataKey) {
 			log.warn(`${findNotInDataKey} 键不存在`);
@@ -515,7 +527,7 @@ const Panel = {
 	},
 	/**
 	 * 自动判断菜单是否启用，然后执行回调
-	 * @param key
+	 * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
 	 * @param callback 回调
 	 * @param [isReverse=false] 逆反判断菜单启用
 	 */
@@ -544,7 +556,7 @@ const Panel = {
 	 * 自动判断菜单是否启用，然后执行回调，只会执行一次
 	 *
 	 * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-	 * @param key
+	 * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
 	 * @param callback 回调
 	 * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
 	 * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调

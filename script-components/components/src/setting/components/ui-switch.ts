@@ -35,20 +35,23 @@ export const UISwitch = function (
 				formConfig: PopsPanelFormsTotalDetails,
 				container: PopsPanelRightAsideContainerOptions
 		  ) => void)
-		| undefined
+		| undefined,
+	disabled?: boolean | (() => boolean) | undefined
 ) {
 	let result: PopsPanelSwitchDetails = {
 		text: text,
 		type: "switch",
 		description: description,
+		disabled: disabled,
 		attributes: {},
 		props: {},
 		getValue() {
 			let storageApiValue = this.props![
 				PROPS_STORAGE_API as keyof typeof this.props
 			] as PanelComponentsStorageApiValue;
+			let value = storageApiValue.get(key, defaultValue)!;
 
-			return Boolean(storageApiValue.get(key, defaultValue));
+			return value;
 		},
 		callback(event: MouseEvent | PointerEvent, __value: boolean) {
 			let value = Boolean(__value);
@@ -78,7 +81,7 @@ export const UISwitch = function (
 			get<T>(key: string, defaultValue: T) {
 				return Panel.getValue(key, defaultValue);
 			},
-			set(key: string, value: any) {
+			set(key: string, value: boolean) {
 				Panel.setValue(key, value);
 			},
 		}
