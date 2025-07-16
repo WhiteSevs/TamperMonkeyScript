@@ -91,6 +91,14 @@ export const BlockTopNavigator = {
 			}
 		`)
 		);
+		result.push(
+			addStyle(/*css*/ `
+				#slidelist .page-recommend-container{
+					margin: 0 !important;
+					height: 100vh !important;
+				}
+			`)
+		);
 		if (DouYinRouter.isSearch()) {
 			// 搜索页面
 			result.push(

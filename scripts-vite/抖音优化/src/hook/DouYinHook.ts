@@ -206,6 +206,10 @@ export const DouYinHook = {
 							enableKey: "dy-keyboard-hook-relevantRecommendation",
 							code: ["KeyN"],
 						},
+						{
+							enableKey: "dy-keyboard-hook-listenToDouyin",
+							code: ["KeyT"],
+						},
 					];
 
 					if (DouYinRouter.isIndex()) {

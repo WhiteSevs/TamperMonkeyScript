@@ -14,10 +14,12 @@ import { MPanelShareChallengeConfig } from "./setting/mobile-view/shareChallenge
 import { MPanelShareVideoConfig } from "./setting/mobile-view/shareVideo";
 import { MPanelShareMusicConfig } from "./setting/mobile-view/shareMusic";
 import { PanelMenu } from "@components/setting/panel-menu";
+import { PanelRecommendConfig } from "./setting/view/recommend";
 
 PanelContent.addContentConfig([
 	PanelCommonConfig,
 	PanelVideoConfig,
+	PanelRecommendConfig,
 	PanelSearchConfig,
 	PanelLiveConfig,
 	PanelUserConfig,

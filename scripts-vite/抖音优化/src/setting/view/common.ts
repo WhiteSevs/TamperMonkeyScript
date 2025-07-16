@@ -382,6 +382,13 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
 									void 0,
 									"N"
 								),
+								UISwitch(
+									"听抖音",
+									"dy-keyboard-hook-listenToDouyin",
+									false,
+									void 0,
+									"T"
+								),
 							],
 						},
 					],

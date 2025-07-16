@@ -18,6 +18,7 @@ import { DouYinChannel } from "./channel/DouYinChannel";
 import { DouYinVideoFilter } from "./video/DouYinVideoFilter";
 import { DouYinNote } from "./note/DouYinNote";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
+import { DouYinRecommend } from "./recommend/DouYinRecommend";
 
 export const DouYin = {
 	init() {
@@ -55,7 +56,10 @@ export const DouYin = {
 		} else if (DouYinRouter.isIndex()) {
 			DouYinVideoPlayer.init();
 
-			if (DouYinRouter.isSearch()) {
+			if (DouYinRouter.isRecommend()) {
+				log.info(`Router: 推荐`);
+				DouYinRecommend.init();
+			} else if (DouYinRouter.isSearch()) {
 				log.info("Router: 搜索");
 				DouYinSearch.init();
 			} else if (DouYinRouter.isUser()) {
