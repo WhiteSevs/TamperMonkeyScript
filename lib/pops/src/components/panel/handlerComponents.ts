@@ -27,6 +27,7 @@ import type { PopsPanelSelectDetails } from "./types/components-select";
 import type { PopsPanelSliderDetails } from "./types/components-slider";
 import type { PopsPanelSwitchDetails } from "./types/components-switch";
 import type { PopsPanelTextAreaDetails } from "./types/components-textarea";
+import { PopsCommonCSSClassName } from "../../config/CommonCSSClassName";
 
 /**
  * 处理组件（把组件配置转为组件元素）
@@ -321,6 +322,9 @@ export const PanelHandlerComponents = () => {
 						".pops-panel-switch__input"
 					)!,
 					core: $li.querySelector<HTMLSpanElement>(".pops-panel-switch__core")!,
+					itemLeftTextContainer: $li.querySelector<HTMLDivElement>(
+						".pops-panel-item-left-text"
+					),
 				},
 				init() {
 					this.setStatus(this.$data.value);
@@ -333,9 +337,12 @@ export const PanelHandlerComponents = () => {
 					}
 					this.setClickEvent();
 				},
+				/**
+				 * 设置点击事件
+				 */
 				setClickEvent() {
 					let that = this;
-					popsDOMUtils.on(this.$ele.core, "click", void 0, function (event) {
+					popsDOMUtils.on(this.$ele.core, "click", function (event) {
 						if (
 							that.$ele.input.disabled ||
 							that.$ele.switch.hasAttribute("data-disabled")
@@ -388,13 +395,21 @@ export const PanelHandlerComponents = () => {
 				disable() {
 					this.$ele.input.disabled = true;
 					this.$ele.switch.setAttribute("data-disabled", "true");
+					popsDOMUtils.addClassName(
+						this.$ele.itemLeftTextContainer,
+						PopsCommonCSSClassName.textIsDisabled
+					);
 				},
 				/**
-				 * 启用复选框
+				 * 取消禁用复选框
 				 */
 				notDisable() {
 					this.$ele.input.disabled = false;
 					this.$ele.switch.removeAttribute("data-disabled");
+					popsDOMUtils.removeClassName(
+						this.$ele.itemLeftTextContainer,
+						PopsCommonCSSClassName.textIsDisabled
+					);
 				},
 			};
 
@@ -1116,7 +1131,7 @@ export const PanelHandlerComponents = () => {
 					<p class="pops-panel-item-left-main-text">${
 						formConfig.text
 					}</p>${leftDescriptionText}</div>
-				<div class="pops-panel-input pops-user-select-none">
+				<div class="pops-panel-input">
 					<input type="${inputType}" placeholder="${formConfig.placeholder ?? ""}">
 				</div>
 				`
@@ -1187,6 +1202,10 @@ export const PanelHandlerComponents = () => {
 						this.$ele.inputSpanIcon.querySelector<HTMLElement>(
 							".pops-panel-icon"
 						)!;
+					popsDOMUtils.addClassName(
+						this.$ele.panelInput,
+						PopsCommonCSSClassName.userSelectNone
+					);
 				},
 				/**
 				 * 禁用
@@ -1439,7 +1458,7 @@ export const PanelHandlerComponents = () => {
 				/*html*/ `
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
-				<div class="pops-panel-select pops-user-select-none">
+				<div class="pops-panel-select">
 					<select></select>
 				</div>
 				`
@@ -1462,6 +1481,10 @@ export const PanelHandlerComponents = () => {
 					defaultValue: formConfig.getValue(),
 				},
 				init() {
+					popsDOMUtils.addClassName(
+						this.$ele.panelSelect,
+						PopsCommonCSSClassName.userSelectNone
+					);
 					this.initOption();
 					this.setChangeEvent();
 					this.setClickEvent();
@@ -2672,12 +2695,19 @@ export const PanelHandlerComponents = () => {
 									formContainerListElement.setAttribute("data-fold-enable", "");
 								}
 							});
-							formHeaderDivElement.classList.add(
+							popsDOMUtils.addClassName(
+								formHeaderDivElement,
 								"pops-panel-forms-fold-container"
 							);
-							formHeaderDivElement.classList.add("pops-user-select-none");
+							popsDOMUtils.addClassName(
+								formHeaderDivElement,
+								PopsCommonCSSClassName.userSelectNone
+							);
 							formContainerListElement.setAttribute("data-fold-enable", "");
-							formContainerListElement.classList.add("pops-panel-forms-fold");
+							popsDOMUtils.addClassName(
+								formHeaderDivElement,
+								"pops-panel-forms-fold"
+							);
 							formContainerListElement.appendChild(formHeaderDivElement);
 						} else {
 							/* 加进容器内 */
@@ -2938,10 +2968,19 @@ export const PanelHandlerComponents = () => {
 							formContainerListElement.setAttribute("data-fold-enable", "");
 						}
 					});
-					formHeaderDivElement.classList.add("pops-panel-forms-fold-container");
-					formHeaderDivElement.classList.add("pops-user-select-none");
+					popsDOMUtils.addClassName(
+						formHeaderDivElement,
+						"pops-panel-forms-fold-container"
+					);
+					popsDOMUtils.addClassName(
+						formHeaderDivElement,
+						PopsCommonCSSClassName.userSelectNone
+					);
 					formContainerListElement.setAttribute("data-fold-enable", "");
-					formContainerListElement.classList.add("pops-panel-forms-fold");
+					popsDOMUtils.addClassName(
+						formHeaderDivElement,
+						"pops-panel-forms-fold"
+					);
 					formContainerListElement.appendChild(formHeaderDivElement);
 				} else {
 					/* 加进容器内 */

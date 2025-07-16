@@ -1,4 +1,4 @@
-import { GlobalConfig } from "../../GlobalConfig";
+import { GlobalConfig } from "../../config/GlobalConfig";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";
 import type { PopsType } from "../../types/main";

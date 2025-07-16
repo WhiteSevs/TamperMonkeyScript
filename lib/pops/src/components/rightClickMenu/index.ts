@@ -1,5 +1,5 @@
 import { OriginPrototype } from "../../PopsCore";
-import { GlobalConfig } from "../../GlobalConfig";
+import { GlobalConfig } from "../../config/GlobalConfig";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";

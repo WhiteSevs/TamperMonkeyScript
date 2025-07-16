@@ -1,4 +1,4 @@
-import type { PopsCommonConfig, PopsDragConfig } from "./types/components";
+import type { PopsCommonConfig, PopsDragConfig } from "../types/components";
 
 type EnterReturnType<T> = null | T | (() => T);
 

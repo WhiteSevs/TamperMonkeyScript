@@ -2,11 +2,12 @@ import { PopsHandler } from "../../handler/PopsHandler";
 import { popsDOMUtils } from "../../utils/PopsDOMUtils";
 import { popsUtils } from "../../utils/PopsUtils";
 import { searchSuggestionConfig as PopsSearchSuggestionConfig } from "./config";
-import { GlobalConfig } from "../../GlobalConfig";
+import { GlobalConfig } from "../../config/GlobalConfig";
 import { PopsSafeUtils } from "../../utils/PopsSafeUtils";
 import type { PopsSearchSuggestionDetails } from "./types/index";
 import { PopsCSS } from "../../PopsCSS";
 import type { PopsType } from "../../types/main";
+import { PopsCommonCSSClassName } from "../../config/CommonCSSClassName";
 
 export const PopsSearchSuggestion = {
 	init(details: PopsSearchSuggestionDetails) {
@@ -209,14 +210,17 @@ export const PopsSearchSuggestion = {
 			 * @param index 当前项的下标
 			 */
 			getSearchItemLiElement(data: any, index: number) {
-				return popsDOMUtils.createElement("li", {
-					className: `pops-${popsType}-search-suggestion-hint-item pops-flex-items-center pops-flex-y-center`,
+				let $li = popsDOMUtils.createElement("li", {
+					className: `pops-${popsType}-search-suggestion-hint-item`,
 					"data-index": index,
 					"data-value": SearchSuggestion.getItemDataValue(data),
 					innerHTML: `${config.getItemHTML(data)}${
 						config.deleteIcon.enable ? SearchSuggestion.getDeleteIconHTML() : ""
 					}`,
 				});
+				popsDOMUtils.addClassName($li, PopsCommonCSSClassName.flexCenter);
+				popsDOMUtils.addClassName($li, PopsCommonCSSClassName.flexYCenter);
+				return $li;
 			},
 			/**
 			 * 获取data-value值

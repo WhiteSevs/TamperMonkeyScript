@@ -35,10 +35,10 @@ declare class Pops {
         /** icon图标的svg代码 */
         iconSVG: {
             loading: string;
-            min: string;
-            max: string;
-            mise: string;
             close: string;
+            min: string;
+            mise: string;
+            max: string;
             edit: string;
             share: string;
             delete: string;
@@ -71,12 +71,12 @@ declare class Pops {
         instData: {
             iframe: import("./types/inst").PopsInstCommonConfig[];
             loading: import("./types/inst").PopsInstCommonConfig[];
-            folder: import("./types/inst").PopsInstCommonConfig[];
             alert: import("./types/inst").PopsInstCommonConfig[];
             confirm: import("./types/inst").PopsInstCommonConfig[];
             prompt: import("./types/inst").PopsInstCommonConfig[];
             tooltip: import("./types/inst").PopsInstCommonConfig[];
             drawer: import("./types/inst").PopsInstCommonConfig[];
+            folder: import("./types/inst").PopsInstCommonConfig[];
             panel: import("./types/inst").PopsInstCommonConfig[];
             rightClickMenu: import("./types/inst").PopsInstCommonConfig[];
         };
@@ -112,9 +112,9 @@ declare class Pops {
             height(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             outerWidth(element: HTMLElement | string | Window | Document, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             outerHeight(element: HTMLElement | string | Window, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
-            addClassName(element: HTMLElement, className: string): void;
-            removeClassName(element: HTMLElement, className: string): void;
-            containsClassName(element: HTMLElement, className: string): boolean;
+            addClassName(element: Element | undefined | null, className: string): void;
+            removeClassName(element: Element | undefined | null, className: string): void;
+            containsClassName(element: HTMLElement | undefined | null, className: string): boolean;
             css(element: HTMLElement | string, property: keyof CSSStyleDeclaration): string;
             css(element: HTMLElement | string, property: string): string;
             css(element: HTMLElement | string, property: keyof CSSStyleDeclaration & string, value: string | number): string;
@@ -372,14 +372,14 @@ declare class Pops {
             showArrow: boolean;
             arrowDistance: number;
             otherDistance: number;
+            style: string | null;
             useShadowRoot: boolean;
             only: boolean;
             zIndex: number | (() => number);
-            style: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: HTMLDivElement | ShadowRoot;
+        $shadowRoot: ShadowRoot | HTMLDivElement;
         toolTip: import("./components/tooltip").ToolTip;
     };
     /**
@@ -418,7 +418,7 @@ declare class Pops {
     rightClickMenu: (details: PopsRightClickMenuDetails) => {
         guid: string;
         config: {
-            target: HTMLElement | Node | {
+            target: Node | HTMLElement | {
                 addEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) => void;
                 dispatchEvent: (event: Event) => boolean;
                 removeEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean) => void;
@@ -21064,10 +21064,10 @@ declare class Pops {
             className: string;
             isAnimation: boolean;
             preventDefault: boolean;
+            style: string | null;
             useShadowRoot: boolean;
             only: boolean;
             zIndex: number | (() => number);
-            style: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         removeWindowCheckClickListener: () => void;

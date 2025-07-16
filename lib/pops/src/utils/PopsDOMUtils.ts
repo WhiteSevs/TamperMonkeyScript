@@ -11,6 +11,7 @@ import { SymbolEvents } from "./PopsDOMUtilsEventsConfig";
 import { OriginPrototype, PopsCore } from "../PopsCore";
 import { popsUtils } from "./PopsUtils";
 import { PopsSafeUtils } from "./PopsSafeUtils";
+import { PopsCommonCSSClassName } from "../config/CommonCSSClassName";
 
 class PopsDOMUtilsEvent {
 	/**
@@ -1783,7 +1784,10 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * @param element 目标元素
 	 * @param className className属性
 	 */
-	addClassName(element: HTMLElement, className: string) {
+	addClassName(element: Element | undefined | null, className: string) {
+		if (element == null) {
+			return;
+		}
 		if (typeof className !== "string") {
 			return;
 		}
@@ -1797,7 +1801,10 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * @param element 目标元素
 	 * @param className className属性
 	 */
-	removeClassName(element: HTMLElement, className: string) {
+	removeClassName(element: Element | undefined | null, className: string) {
+		if (element == null) {
+			return;
+		}
 		if (typeof className !== "string") {
 			return;
 		}
@@ -1811,7 +1818,13 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * @param element 目标元素
 	 * @param className className属性
 	 */
-	containsClassName(element: HTMLElement, className: string): boolean {
+	containsClassName(
+		element: HTMLElement | undefined | null,
+		className: string
+	): boolean {
+		if (element == null) {
+			return false;
+		}
 		if (typeof className !== "string") {
 			return false;
 		}
@@ -2226,9 +2239,9 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			return;
 		}
 		if (isImportant) {
-			ele.classList.add("pops-hide-important");
+			popsDOMUtils.addClassName(ele, PopsCommonCSSClassName.hideImportant);
 		} else {
-			ele.classList.add("pops-hide");
+			popsDOMUtils.addClassName(ele, PopsCommonCSSClassName.hide);
 		}
 	}
 	/**
@@ -2239,8 +2252,8 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		if (ele == null) {
 			return;
 		}
-		ele.classList.remove("pops-hide-important");
-		ele.classList.remove("pops-hide");
+		popsDOMUtils.removeClassName(ele, PopsCommonCSSClassName.hide);
+		popsDOMUtils.removeClassName(ele, PopsCommonCSSClassName.hideImportant);
 	}
 	/**
 	 * 将字符串转为Element元素
@@ -2575,7 +2588,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 				return `#${hexs.join("")}`;
 			};
 
-			/** 
+			/**
 			 * 获取深色
 			 */
 			const getDarkColor = (
@@ -2598,7 +2611,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 				return useChangeColor().rgbToHex(rgb[0], rgb[1], rgb[2]);
 			};
 
-			/** 
+			/**
 			 * 获取颜色变浅后的颜色值
 			 */
 			const getLightColor = (

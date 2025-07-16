@@ -6,7 +6,7 @@ import { popsUtils } from "../../utils/PopsUtils";
 import type { PopsPanelDetails, PopsPanelEventType } from "./types";
 import { PopsPanelConfig } from "./config";
 import { PanelHandlerComponents } from "./handlerComponents";
-import { GlobalConfig } from "../../GlobalConfig";
+import { GlobalConfig } from "../../config/GlobalConfig";
 import { PopsCSS } from "../../PopsCSS";
 import type { PopsType } from "../../types/main";
 

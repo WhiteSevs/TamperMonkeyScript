@@ -25,7 +25,7 @@ import type { PopsSearchSuggestionDetails } from "./components/searchSuggestion/
 import { PopsSearchSuggestion } from "./components/searchSuggestion";
 import { PopsMathFloatUtils } from "./utils/PopsMathUtils";
 import { PanelHandlerComponents } from "./components/panel/handlerComponents";
-import { GlobalConfig } from "./GlobalConfig";
+import { GlobalConfig } from "./config/GlobalConfig";
 import { PopsTooltip } from "./components/tooltip";
 import { PopsCSS } from "./PopsCSS";
 import { PopsIcon } from "./PopsIcon";
@@ -36,7 +36,7 @@ class Pops {
 	/** 配置 */
 	config = {
 		/** 版本号 */
-		version: "2025.7.15",
+		version: "2025.7.16",
 		cssText: PopsCSS,
 		/** icon图标的svg代码 */
 		iconSVG: PopsIcon.$data,

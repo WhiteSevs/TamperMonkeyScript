@@ -1,5 +1,5 @@
 import { PopsCore } from "../../PopsCore";
-import { GlobalConfig } from "../../GlobalConfig";
+import { GlobalConfig } from "../../config/GlobalConfig";
 import { PopsElementHandler } from "../../handler/PopsElementHandler";
 import { PopsHandler } from "../../handler/PopsHandler";
 import { PopsCSS } from "../../PopsCSS";

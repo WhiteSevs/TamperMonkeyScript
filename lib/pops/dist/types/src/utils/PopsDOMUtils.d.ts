@@ -502,19 +502,19 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
      * @param element 目标元素
      * @param className className属性
      */
-    addClassName(element: HTMLElement, className: string): void;
+    addClassName(element: Element | undefined | null, className: string): void;
     /**
      * 删除className
      * @param element 目标元素
      * @param className className属性
      */
-    removeClassName(element: HTMLElement, className: string): void;
+    removeClassName(element: Element | undefined | null, className: string): void;
     /**
      * 判断元素是否包含某个className
      * @param element 目标元素
      * @param className className属性
      */
-    containsClassName(element: HTMLElement, className: string): boolean;
+    containsClassName(element: HTMLElement | undefined | null, className: string): boolean;
     /**
      * 获取元素的样式属性值
      * @param element 目标元素

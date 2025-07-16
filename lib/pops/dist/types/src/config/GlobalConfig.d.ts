@@ -1,4 +1,4 @@
-import type { PopsCommonConfig, PopsDragConfig } from "./types/components";
+import type { PopsCommonConfig, PopsDragConfig } from "../types/components";
 type EnterReturnType<T> = null | T | (() => T);
 type GlobalConfigOption = {
     style?: EnterReturnType<string>;
@@ -21,9 +21,9 @@ export declare const GlobalConfig: {
         only?: boolean | undefined;
         width?: string | undefined;
         height?: string | undefined;
-        position?: import("./types/position").PopsPosition | undefined;
-        animation?: import("./types/animation").PopsAnimation | undefined;
-        mask?: import("./types/mask").PopsMaskDetails | undefined;
+        position?: import("../types/position").PopsPosition | undefined;
+        animation?: import("../types/animation").PopsAnimation | undefined;
+        mask?: import("../types/mask").PopsMaskDetails | undefined;
         forbiddenScroll?: boolean | undefined;
         beforeAppendToPageCallBack?: void;
         drag?: boolean | undefined;
