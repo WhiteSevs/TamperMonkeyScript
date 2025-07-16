@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.13
+// @version      2025.7.16
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
@@ -42,7 +42,7 @@
   var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
   var _monkeyWindow = /* @__PURE__ */ (() => window)();
   const blockCSS$2 = "/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar,\r\n/* 首页-顶部横幅 */\r\n#app .launch-app-container,\r\n/* 笔记-顶部横幅 */\r\n.note-view-container .nav-bar-box-expand ,\r\n.note-view-container .nav-bar-box-expand+.placeholder-expand,\r\n/* 404页面 顶部的打开看看 */\r\n.not-found-container .nav-bar-box-expand:has(.share-info-box):has(.launch-btn),\r\n/* 404页面 底部的-App内打开 */\r\n.not-found-container #fmp {\r\n	display: none !important;\r\n}\r\n";
-  const ScriptRouter = {
+  const XHSRouter = {
     /**
      * 判断是否是笔记页面
      */
@@ -96,6 +96,17 @@
         } else {
           return "550px";
         }
+      }
+    },
+    /**
+     * 信息界面，一般用于提示信息之类
+     */
+    info: {
+      get width() {
+        return window.innerWidth < 350 ? "350px" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 250 ? "250px" : "250px";
       }
     }
   };
@@ -426,7 +437,7 @@
       /**
        * @private
        */
-      __configDefaultValueData: null,
+      __contentConfigInitDefaultValue: null,
       /**
        * @private
        */
@@ -441,14 +452,18 @@
       __panelConfig: {},
       $panel: null,
       /**
-       * 菜单项的默认值
+       * 菜单项初始化的默认值
        */
-      get configDefaultValueData() {
-        if (this.__configDefaultValueData == null) {
-          this.__configDefaultValueData = new utils.Dictionary();
+      get contentConfigInitDefaultValue() {
+        if (this.__contentConfigInitDefaultValue == null) {
+          this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
-        return this.__configDefaultValueData;
+        return this.__contentConfigInitDefaultValue;
       },
+      /**
+       * 菜单项初始化时禁用的键
+       */
+      contentConfigInitDisabledKeys: [],
       /**
        * 成功只执行了一次的项
        */
@@ -504,10 +519,21 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let needInitConfig = {};
+        let menuDefaultConfig = /* @__PURE__ */ new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          menuDefaultConfig.set(key, defaultValue);
+        }
+        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
+          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
+            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+          });
+        }
+        if (!menuDefaultConfig.size) {
+          log.warn(["请先配置键", config]);
+          return;
         }
         let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
@@ -516,19 +542,17 @@
             return;
           }
         }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
+        if (config.type === "switch") {
+          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          if (typeof disabled === "boolean" && disabled) {
+            this.$data.contentConfigInitDisabledKeys.push(
+              ...menuDefaultConfig.keys()
+            );
+          }
         }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          log.warn(["请先配置键", config]);
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
           this.setDefaultValue(__key, __defaultValue);
-        });
+        }
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
@@ -551,15 +575,18 @@
           loopInitDefaultValue(rightContentConfigList);
         }
       }
+      this.$data.contentConfigInitDisabledKeys = [
+        ...new Set(this.$data.contentConfigInitDisabledKeys)
+      ];
     },
     /**
      * 设置初始化使用的默认值
      */
     setDefaultValue(key, defaultValue) {
-      if (this.$data.configDefaultValueData.has(key)) {
+      if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
-      this.$data.configDefaultValueData.set(key, defaultValue);
+      this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
     /**
      * 设置值
@@ -577,8 +604,8 @@
     getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.configDefaultValueData.has(key)) {
-          return this.$data.configDefaultValueData.get(key);
+        if (this.$data.contentConfigInitDefaultValue.has(key)) {
+          return this.$data.contentConfigInitDefaultValue.get(key);
         }
         return defaultValue;
       }
@@ -647,7 +674,7 @@
     /**
      * 执行菜单
      *
-     * @param queryKey 键|键数组
+     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 执行的回调函数
      * @param checkExec 判断是否执行回调
      *
@@ -680,7 +707,7 @@
         keyList.push(queryKeyResult);
       }
       let findNotInDataKey = keyList.find(
-        (it) => !this.$data.configDefaultValueData.has(it)
+        (it) => !this.$data.contentConfigInitDefaultValue.has(it)
       );
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
@@ -803,11 +830,12 @@
     },
     /**
      * 自动判断菜单是否启用，然后执行回调
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param [isReverse=false] 逆反判断菜单启用
+     * @param isReverse 逆反判断菜单启用，默认false
+     * @param once 是否是只执行一次，默认false
      */
-    execMenu(key, callback, isReverse = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -816,36 +844,29 @@
         (keyList) => {
           let execFlag = keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
+            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            if (disabled) {
+              flag = false;
+              log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+            }
             isReverse && (flag = !flag);
             return flag;
           });
           return execFlag;
         },
-        false
+        once
       );
     },
     /**
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      *
      * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     * @param isReverse 逆反判断菜单启用，默认false
      */
-    execMenuOnce(key, callback) {
-      return this.exec(
-        key,
-        callback,
-        (keyList) => {
-          let execFlag = keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            return flag;
-          });
-          return execFlag;
-        },
-        true
-      );
+    execMenuOnce(key, callback, isReverse = false) {
+      return this.execMenu(key, callback, isReverse, true);
     },
     /**
      * 根据key执行一次
@@ -1024,6 +1045,12 @@
     fixUrl(url) {
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else if (url.startsWith("//")) {
+        if (url.startsWith("///")) ;
+        else {
+          url = window.location.protocol + url;
+        }
         return url;
       } else {
         if (!url.startsWith("/")) {
@@ -1774,7 +1801,7 @@
       });
     }
   };
-  const XHS_Hook = {
+  const XHSHook = {
     /**
      * 劫持webpack
      * 笔记的
@@ -1984,8 +2011,8 @@
       addStyle(blockCSS$1);
       if (Panel.getValue("little-red-book-hijack-webpack-mask") || Panel.getValue("little-red-book-hijack-webpack-scheme")) {
         log.info("劫持webpack");
-        XHS_Hook.setTimeout();
-        XHS_Hook.call();
+        XHSHook.setTimeout();
+        XHSHook.call();
       }
       Panel.execMenuOnce("little-red-book-shieldBottomSearchFind", () => {
         return M_XHSArticleBlock.blockBottomSearchFind();
@@ -2504,9 +2531,9 @@
       Panel.execMenuOnce("little-red-book-allowCopy", () => {
         return M_XHS.allowCopy();
       });
-      if (ScriptRouter.isArticle()) {
+      if (XHSRouter.isArticle()) {
         M_XHSArticle.init();
-      } else if (ScriptRouter.isUserHome()) {
+      } else if (XHSRouter.isUserHome()) {
         M_XHSHome.init();
       }
     },
@@ -2603,8 +2630,8 @@
   const XHSUrlApi = {
     /**
      * 获取搜索链接
-     * @param searchText 
-     * @returns 
+     * @param searchText
+     * @returns
      */
     getSearchUrl(searchText) {
       return `https://www.xiaohongshu.com/search_result?keyword=${searchText}&source=web_explore_feed`;
@@ -2830,7 +2857,7 @@
       };
     }
   };
-  const XHS_Article = {
+  const XHSArticle = {
     init() {
       if (Panel.getValue("pc-xhs-search-open-blank-btn") || Panel.getValue("pc-xhs-search-open-blank-keyboard-enter")) {
         this.optimizationSearch();
@@ -2968,83 +2995,6 @@
       });
     }
   };
-  const XHS = {
-    init() {
-      Panel.execMenuOnce("pc-xhs-hook-vue", () => {
-        XHS_Hook.hookVue();
-      });
-      Panel.execMenuOnce("pc-xhs-allowCopy", () => {
-        XHS.allowPCCopy();
-      });
-      Panel.execMenuOnce("pc-xhs-open-blank-article", () => {
-        XHS.openBlankArticle();
-      });
-      XHSBlock.init();
-      Panel.execMenuOnce("pc-xhs-article-showPubsliushTime", () => {
-        XHS_Article.transformPublishTime();
-      });
-      if (ScriptRouter.isArticle()) {
-        log.info("Router: 笔记页面");
-        XHS_Article.init();
-      }
-    },
-    /**
-     * 允许复制
-     */
-    allowPCCopy() {
-      log.success("允许复制文字");
-      domUtils.on(
-        _unsafeWindow,
-        "copy",
-        void 0,
-        function(event) {
-          utils.preventEvent(event);
-          let selectText = _unsafeWindow.getSelection();
-          if (selectText) {
-            utils.setClip(selectText.toString());
-          } else {
-            log.error("未选中任何内容");
-          }
-          return false;
-        },
-        {
-          capture: true
-        }
-      );
-    },
-    /**
-     * 新标签页打开文章
-     */
-    openBlankArticle() {
-      log.success("新标签页打开文章");
-      domUtils.on(
-        document,
-        "click",
-        ".feeds-container .note-item",
-        function(event) {
-          utils.preventEvent(event);
-          let $click = event.target;
-          let $url = $click.querySelector("a.cover[href]");
-          let url = $url?.href;
-          if (url) {
-            log.info("跳转文章: " + url);
-            let urlInstance = new URL(url);
-            urlInstance.pathname = urlInstance.pathname.replace(
-              /^\/user\/profile\/[a-z0-9A-Z]+\//i,
-              "/discovery/item/"
-            );
-            url = urlInstance.toString();
-            window.open(url, "_blank");
-          } else {
-            Qmsg.error("未找到文章链接");
-          }
-        },
-        {
-          capture: true
-        }
-      );
-    }
-  };
   const PanelComponents = {
     $data: {
       __storeApiFn: null,
@@ -3105,6 +3055,2161 @@
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
+  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+    let result = {
+      text,
+      type: "input",
+      isNumber: Boolean(isNumber),
+      isPassword: Boolean(isPassword),
+      attributes: {},
+      props: {},
+      description,
+      afterAddToUListCallBack,
+      getValue() {
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      callback(event, value, valueAsNumber) {
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+      placeholder
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi(
+      "input",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack, disabled) {
+    let result = {
+      text,
+      type: "switch",
+      description,
+      disabled,
+      attributes: {},
+      props: {},
+      getValue() {
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        let value = storageApiValue.get(key, defaultValue);
+        return value;
+      },
+      callback(event, __value) {
+        let value = Boolean(__value);
+        log.success(`${value ? "开启" : "关闭"} ${text}`);
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      },
+      afterAddToUListCallBack
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi(
+      "switch",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  const UISelectMultiple = function(text, key, defaultValue, data, changeCallback, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails) {
+    let selectData = [];
+    if (typeof data === "function") {
+      selectData = data();
+    } else {
+      selectData = data;
+    }
+    let result = {
+      text,
+      type: "select-multiple",
+      description,
+      placeholder,
+      attributes: {},
+      props: {},
+      getValue() {
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        return storageApiValue.get(key, defaultValue);
+      },
+      selectConfirmDialogDetails,
+      callback(selectInfo) {
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        let value = [];
+        selectInfo.forEach((selectedInfo) => {
+          value.push(selectedInfo.value);
+        });
+        log.info(`多选-选择：`, value);
+        storageApiValue.set(key, value);
+      },
+      data: selectData
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi(
+      "select-multiple",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled) {
+    let result = {
+      text,
+      type: "textarea",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      disabled,
+      getValue() {
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        let value = storageApiValue.get(key, defaultValue);
+        if (Array.isArray(value)) {
+          return value.join("\n");
+        }
+        return value;
+      },
+      callback(event, value) {
+        let storageApiValue = this.props[PROPS_STORAGE_API];
+        storageApiValue.set(key, value);
+      }
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi(
+      "switch",
+      result,
+      {
+        get(key2, defaultValue2) {
+          return Panel.getValue(key2, defaultValue2);
+        },
+        set(key2, value) {
+          Panel.setValue(key2, value);
+        }
+      }
+    );
+    return result;
+  };
+  class RuleStorage {
+    option;
+    constructor(option) {
+      this.option = option;
+    }
+    /**
+     * 获取所有规则
+     */
+    getAllRule() {
+      let allRules = _GM_getValue(this.option.STORAGE_API_KEY, []);
+      return allRules;
+    }
+    /**
+     * 设置全部规则
+     */
+    setAllRule(rules) {
+      _GM_setValue(this.option.STORAGE_API_KEY, rules);
+    }
+    /**
+     * 清空所有规则
+     */
+    clearAllRule() {
+      this.setAllRule([]);
+    }
+    /**
+     * 获取规则
+     * @param uuid
+     */
+    getRule(uuid) {
+      let allRules = this.getAllRule();
+      let findIndex = allRules.findIndex((item) => item.uuid === uuid);
+      if (findIndex !== -1) {
+        let rule = allRules[findIndex];
+        return rule;
+      }
+    }
+    /**
+     * 设置规则（覆盖规则）
+     * @param rule 规则
+     * @returns
+     * + true 成功覆盖
+     * + false 未找到规则
+     */
+    setRule(rule) {
+      let allRules = this.getAllRule();
+      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      let updateFlag = false;
+      if (findIndex !== -1) {
+        allRules[findIndex] = rule;
+        this.setAllRule(allRules);
+        updateFlag = true;
+      }
+      return updateFlag;
+    }
+    /**
+     * 添加规则
+     */
+    addRule(rule) {
+      let allRules = this.getAllRule();
+      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      let addFlag = false;
+      if (findIndex !== -1) ;
+      else {
+        allRules.push(rule);
+        this.setAllRule(allRules);
+        addFlag = true;
+      }
+      return addFlag;
+    }
+    /**
+     * 规则规则（有就更新，没有就添加）
+     * @param rule 规则
+     */
+    updateRule(rule) {
+      let allRules = this.getAllRule();
+      let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      if (findIndex !== -1) {
+        allRules[findIndex] = rule;
+      } else {
+        allRules.push(rule);
+      }
+      this.setAllRule(allRules);
+    }
+    /**
+     * 删除规则
+     * @param rule 规则/规则的uuid
+     */
+    deleteRule(rule) {
+      let allRules = this.getAllRule();
+      let ruleUUID = typeof rule === "string" ? rule : rule.uuid;
+      let findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
+      if (findIndex !== -1) {
+        allRules.splice(findIndex, 1);
+        this.setAllRule(allRules);
+        return true;
+      } else {
+        return false;
+      }
+    }
+    /**
+     * 导入规则
+     * @param importEndCallBack 导入完毕后的回调
+     */
+    importRules(importEndCallBack) {
+      let $alert = __pops.alert({
+        title: {
+          text: "请选择导入方式",
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <div class="btn-control" data-mode="local">本地导入</div>
+                    <div class="btn-control" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
+                `
+          ),
+          html: true
+        },
+        btn: {
+          ok: { enable: false },
+          close: {
+            enable: true,
+            callback(details, event) {
+              details.close();
+            }
+          }
+        },
+        mask: { enable: true },
+        drag: true,
+        width: PanelUISize.info.width,
+        height: PanelUISize.info.height,
+        style: (
+          /*css*/
+          `
+                .btn-control{
+                    display: inline-block;
+                    margin: 10px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+            `
+        )
+      });
+      let $local = $alert.$shadowRoot.querySelector(
+        ".btn-control[data-mode='local']"
+      );
+      let $network = $alert.$shadowRoot.querySelector(
+        ".btn-control[data-mode='network']"
+      );
+      let $clipboard = $alert.$shadowRoot.querySelector(
+        ".btn-control[data-mode='clipboard']"
+      );
+      let updateRuleToStorage = async (data) => {
+        let allData = this.getAllRule();
+        let addNewData = [];
+        let repeatData = [];
+        let isRepeat = false;
+        for (let index = 0; index < data.length; index++) {
+          const dataItem = data[index];
+          let findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+          if (findIndex !== -1) {
+            repeatData.push({
+              index: findIndex,
+              data: dataItem
+            });
+          } else {
+            addNewData.push(dataItem);
+          }
+        }
+        if (repeatData.length) {
+          let confirmRepeat = await new Promise((resolve) => {
+            __pops.alert({
+              title: {
+                text: "覆盖规则",
+                position: "center"
+              },
+              content: {
+                text: `存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`,
+                html: true
+              },
+              btn: {
+                close: {
+                  callback(details, event) {
+                    details.close();
+                    resolve(false);
+                  }
+                },
+                ok: {
+                  text: "覆盖",
+                  callback(details, event) {
+                    details.close();
+                    resolve(true);
+                  }
+                }
+              },
+              width: PanelUISize.info.width,
+              height: PanelUISize.info.height,
+              mask: { enable: true },
+              drag: true
+            });
+          });
+          if (confirmRepeat) {
+            for (const repeatDataItem of repeatData) {
+              allData[repeatDataItem.index] = repeatDataItem.data;
+            }
+            isRepeat = true;
+          }
+        }
+        if (addNewData.length) {
+          allData = allData.concat(addNewData);
+        }
+        this.setAllRule(allData);
+        let message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
+        Qmsg.success(message);
+        importEndCallBack?.();
+      };
+      let importFile = (subscribeText) => {
+        return new Promise(async (resolve) => {
+          let data = utils.toJSON(subscribeText);
+          if (!Array.isArray(data)) {
+            log.error(data);
+            Qmsg.error("导入失败，格式不符合（不是数组）", {
+              consoleLogContent: true
+            });
+            resolve(false);
+            return;
+          }
+          if (!data.length) {
+            Qmsg.error("导入失败，解析出的数据为空", {
+              consoleLogContent: true
+            });
+            resolve(false);
+            return;
+          }
+          await updateRuleToStorage(data);
+          resolve(true);
+        });
+      };
+      domUtils.on($local, "click", (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        let $input = domUtils.createElement("input", {
+          type: "file",
+          accept: ".json"
+        });
+        domUtils.on($input, ["propertychange", "input"], (event2) => {
+          if (!$input.files?.length) {
+            return;
+          }
+          let uploadFile = $input.files[0];
+          let fileReader = new FileReader();
+          fileReader.onload = () => {
+            importFile(fileReader.result);
+          };
+          fileReader.readAsText(uploadFile, "UTF-8");
+        });
+        $input.click();
+      });
+      domUtils.on($network, "click", (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        let $prompt = __pops.prompt({
+          title: {
+            text: "网络导入",
+            position: "center"
+          },
+          content: {
+            text: "",
+            placeholder: "请填写URL",
+            focus: true
+          },
+          btn: {
+            close: {
+              enable: true,
+              callback(details, event2) {
+                details.close();
+              }
+            },
+            ok: {
+              text: "导入",
+              callback: async (eventDetails, event2) => {
+                let url = eventDetails.text;
+                if (utils.isNull(url)) {
+                  Qmsg.error("请填入完整的url");
+                  return;
+                }
+                let $loading = Qmsg.loading("正在获取配置...");
+                let response = await httpx.get(url, {
+                  allowInterceptConfig: false
+                });
+                $loading.close();
+                if (!response.status) {
+                  log.error(response);
+                  Qmsg.error("获取配置失败", { consoleLogContent: true });
+                  return;
+                }
+                let flag = await importFile(response.data.responseText);
+                if (!flag) {
+                  return;
+                }
+                eventDetails.close();
+              }
+            },
+            cancel: {
+              enable: false
+            }
+          },
+          mask: { enable: true },
+          drag: true,
+          width: PanelUISize.info.width,
+          height: "auto"
+        });
+        let $promptInput = $prompt.$shadowRoot.querySelector("input");
+        let $promptOk = $prompt.$shadowRoot.querySelector(
+          ".pops-prompt-btn-ok"
+        );
+        domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
+          let value = domUtils.val($promptInput);
+          if (value === "") {
+            domUtils.attr($promptOk, "disabled", "true");
+          } else {
+            domUtils.removeAttr($promptOk, "disabled");
+          }
+        });
+        domUtils.listenKeyboard(
+          $promptInput,
+          "keydown",
+          (keyName, keyValue, otherCodeList) => {
+            if (keyName === "Enter" && otherCodeList.length === 0) {
+              let value = domUtils.val($promptInput);
+              if (value !== "") {
+                utils.dispatchEvent($promptOk, "click");
+              }
+            }
+          }
+        );
+        utils.dispatchEvent($promptInput, "input");
+      });
+      domUtils.on($clipboard, "click", async (event) => {
+        utils.preventEvent(event);
+        $alert.close();
+        let clipboardInfo = await utils.getClipboardInfo();
+        if (clipboardInfo.error != null) {
+          Qmsg.error(clipboardInfo.error.toString());
+          return;
+        }
+        if (clipboardInfo.content.trim() === "") {
+          Qmsg.warning("获取到的剪贴板内容为空");
+          return;
+        }
+        let flag = await importFile(clipboardInfo.content);
+        if (!flag) {
+          return;
+        }
+      });
+    }
+    /**
+     * 导出规则
+     */
+    exportRules(fileName = "rule.json") {
+      let allRules = this.getAllRule();
+      let blob = new Blob([JSON.stringify(allRules, null, 4)]);
+      let blobUrl = globalThis.URL.createObjectURL(blob);
+      let $a = document.createElement("a");
+      $a.href = blobUrl;
+      $a.download = fileName;
+      $a.click();
+      setTimeout(() => {
+        globalThis.URL.revokeObjectURL(blobUrl);
+      }, 1500);
+    }
+  }
+  class RuleEditView {
+    option;
+    constructor(option) {
+      this.option = option;
+    }
+    /**
+     * 显示视图
+     */
+    async showView() {
+      let $dialog = __pops.confirm({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <form class="rule-form-container" onsubmit="return false">
+                        <ul class="rule-form-ulist"></ul>
+                        <input type="submit" style="display: none;" />
+                    </form>
+                    `
+          ),
+          html: true
+        },
+        btn: utils.assign(
+          {
+            ok: {
+              callback: async () => {
+                await submitSaveOption();
+              }
+            }
+          },
+          this.option.btn || {},
+          true
+        ),
+        drag: true,
+        mask: {
+          enable: true
+        },
+        style: (
+          /*css*/
+          `
+                ${__pops.config.cssText.panelCSS}
+                
+                .rule-form-container {
+                    
+                }
+                .rule-form-container li{
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 5px 20px;
+                    gap: 10px;
+                }
+				.rule-form-ulist-dynamic{
+					--button-margin-top: 0px;
+					--button-margin-right: 0px;
+					--button-margin-bottom: 0px;
+					--button-margin-left: 0px;
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					padding: 5px 0px 5px 20px;
+				}
+				.rule-form-ulist-dynamic__inner{
+					width: 100%;
+				}
+				.rule-form-ulist-dynamic__inner-container{
+					display: flex;
+					align-items: center;
+				}
+				.dynamic-forms{
+					width: 100%;
+				}
+                .pops-panel-item-left-main-text{
+                    max-width: 150px;
+                }
+                .pops-panel-item-right-text{
+                    padding-left: 30px;
+                }
+                .pops-panel-item-right-text,
+                .pops-panel-item-right-main-text{
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
+				.pops-panel-item-left-desc-text{
+					line-height: normal;
+					margin-top: 6px;
+					font-size: 0.8em;
+					color: rgb(108, 108, 108);
+				}
+
+                ${this.option?.style ?? ""}
+            `
+        ),
+        width: typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+        height: typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh"
+      });
+      let $form = $dialog.$shadowRoot.querySelector(
+        ".rule-form-container"
+      );
+      $dialog.$shadowRoot.querySelector(
+        "input[type=submit]"
+      );
+      let $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
+      let view = await this.option.getView(await this.option.data());
+      $ulist.appendChild(view);
+      const submitSaveOption = async () => {
+        let result = await this.option.onsubmit($form, await this.option.data());
+        if (!result.success) {
+          return;
+        }
+        $dialog.close();
+        await this.option.dialogCloseCallBack(true);
+      };
+    }
+  }
+  class RuleFilterView {
+    option;
+    constructor(option) {
+      this.option = option;
+    }
+    showView() {
+      let $alert = __pops.alert({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                <div class="filter-container"></div>
+                `
+          )
+        },
+        btn: {
+          ok: {
+            text: "关闭",
+            type: "default"
+          }
+        },
+        drag: true,
+        mask: {
+          enable: true
+        },
+        width: window.innerWidth > 500 ? "350px" : "80vw",
+        height: window.innerHeight > 500 ? "300px" : "70vh",
+        style: (
+          /*css*/
+          `
+            .filter-container{
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .filter-container button{
+                text-wrap: wrap;
+                padding: 8px;
+                height: auto;
+                text-align: left;
+            }
+            `
+        )
+      });
+      let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
+      let $fragment = document.createDocumentFragment();
+      this.option.filterOption.forEach((filterOption) => {
+        let $button = document.createElement("button");
+        $button.innerText = filterOption.name;
+        let execFilterAndCloseDialog = async () => {
+          let allRuleInfo = await this.option.getAllRuleInfo();
+          allRuleInfo.forEach(async (ruleInfo) => {
+            let filterResult = await filterOption.filterCallBack(ruleInfo.data);
+            if (!filterResult) {
+              domUtils.hide(ruleInfo.$el, false);
+            } else {
+              domUtils.show(ruleInfo.$el, false);
+            }
+          });
+          if (typeof this.option.execFilterCallBack === "function") {
+            await this.option.execFilterCallBack();
+          }
+          $alert.close();
+        };
+        domUtils.on($button, "click", async (event) => {
+          utils.preventEvent(event);
+          if (typeof filterOption.callback === "function") {
+            let result = await filterOption.callback(
+              event,
+              execFilterAndCloseDialog
+            );
+            if (!result) {
+              return;
+            }
+          }
+          await execFilterAndCloseDialog();
+        });
+        $fragment.appendChild($button);
+      });
+      $filterContainer.appendChild($fragment);
+    }
+  }
+  class RuleView {
+    option;
+    constructor(option) {
+      this.option = option;
+    }
+    /**
+     * 显示视图
+     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
+     */
+    async showView(filterCallBack) {
+      let $popsConfirm = __pops.confirm({
+        title: {
+          text: this.option.title,
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+                    <div class="rule-view-container">
+                    </div>
+                    `
+          ),
+          html: true
+        },
+        btn: {
+          merge: true,
+          reverse: false,
+          position: "space-between",
+          ok: {
+            enable: this.option?.bottomControls?.add?.enable || true,
+            type: "primary",
+            text: "添加",
+            callback: async (event) => {
+              this.showEditView(
+                false,
+                await this.option.getAddData(),
+                $popsConfirm.$shadowRoot
+              );
+            }
+          },
+          close: {
+            enable: true,
+            callback(event) {
+              $popsConfirm.close();
+            }
+          },
+          cancel: {
+            enable: this.option?.bottomControls?.filter?.enable || false,
+            type: "default",
+            text: "过滤",
+            callback: (details, event) => {
+              if (typeof this.option?.bottomControls?.filter?.callback === "function") {
+                this.option.bottomControls.filter.callback();
+              }
+              let getAllRuleElement = () => {
+                return Array.from(
+                  $popsConfirm.$shadowRoot.querySelectorAll(
+                    ".rule-view-container .rule-item"
+                  )
+                );
+              };
+              let $button = event.target.closest(".pops-confirm-btn").querySelector(".pops-confirm-btn-cancel span");
+              if (domUtils.text($button).includes("取消")) {
+                getAllRuleElement().forEach(($el) => {
+                  domUtils.show($el, false);
+                });
+                domUtils.text($button, "过滤");
+              } else {
+                let ruleFilterView = new RuleFilterView({
+                  title: this.option.bottomControls?.filter?.title ?? "过滤规则",
+                  filterOption: this.option.bottomControls?.filter?.option || [],
+                  execFilterCallBack() {
+                    domUtils.text($button, "取消过滤");
+                  },
+                  getAllRuleInfo: () => {
+                    return getAllRuleElement().map(($el) => {
+                      return {
+                        data: this.parseRuleItemElement($el).data,
+                        $el
+                      };
+                    });
+                  }
+                });
+                ruleFilterView.showView();
+              }
+            }
+          },
+          other: {
+            enable: this.option?.bottomControls?.clear?.enable || true,
+            type: "xiaomi-primary",
+            text: `清空所有(${(await this.option.data()).length})`,
+            callback: (event) => {
+              let $askDialog = __pops.confirm({
+                title: {
+                  text: "提示",
+                  position: "center"
+                },
+                content: {
+                  text: "确定清空所有的数据？",
+                  html: false
+                },
+                btn: {
+                  ok: {
+                    enable: true,
+                    callback: async (popsEvent) => {
+                      log.success("清空所有");
+                      if (typeof this.option?.bottomControls?.clear?.callback === "function") {
+                        this.option.bottomControls.clear.callback();
+                      }
+                      let data = await this.option.data();
+                      if (data.length) {
+                        Qmsg.error("清理失败");
+                        return;
+                      } else {
+                        Qmsg.success("清理成功");
+                      }
+                      await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
+                      this.clearContent($popsConfirm.$shadowRoot);
+                      $askDialog.close();
+                    }
+                  },
+                  cancel: {
+                    text: "取消",
+                    enable: true
+                  }
+                },
+                mask: { enable: true },
+                width: "300px",
+                height: "200px"
+              });
+            }
+          }
+        },
+        mask: {
+          enable: true
+        },
+        width: window.innerWidth > 500 ? "500px" : "88vw",
+        height: window.innerHeight > 500 ? "500px" : "80vh",
+        style: (
+          /*css*/
+          `
+            ${__pops.config.cssText.panelCSS}
+            
+            .rule-item{
+                display: flex;
+                align-items: center;
+                line-height: normal;
+                font-size: 16px;
+                padding: 4px 8px;
+                gap: 8px;
+            }
+            .rule-name{
+                flex: 1;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+            .rule-controls{
+                display: flex;
+                align-items: center;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                gap: 8px;
+                padding: 0px;
+            }
+            .rule-controls-enable{
+                
+            }
+            .rule-controls-edit{
+                
+            }
+            .rule-controls-delete{
+                
+            }
+            .rule-controls-edit,
+            .rule-controls-delete{
+                width: 16px;
+                height: 16px;
+                cursor: pointer;
+            }
+            `
+        )
+      });
+      let allData = await this.option.data();
+      let changeButtonText = false;
+      for (let index = 0; index < allData.length; index++) {
+        let item = allData[index];
+        let $ruleItemList = await this.appendRuleItemElement(
+          $popsConfirm.$shadowRoot,
+          item
+        );
+        let flag = typeof filterCallBack === "function" ? filterCallBack(item) : true;
+        if (!flag) {
+          changeButtonText = true;
+          $ruleItemList.forEach(($el) => {
+            domUtils.hide($el, false);
+          });
+        }
+      }
+      if (changeButtonText) {
+        let $button = $popsConfirm.$shadowRoot.querySelector(
+          ".pops-confirm-btn-cancel span"
+        );
+        domUtils.text($button, "取消过滤");
+      }
+    }
+    /**
+     * 显示编辑视图
+     * @param isEdit 是否是编辑状态
+     * @param editData 编辑的数据
+     * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
+     * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
+     * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
+     * @param submitCallBack （可选）添加/修改提交的回调
+     */
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+      let dialogCloseCallBack = async (isSubmit) => {
+        if (isSubmit) {
+          if (typeof submitCallBack === "function") {
+            let newData = await this.option.getData(editData);
+            submitCallBack(newData);
+          }
+        } else {
+          if (!isEdit) {
+            await this.option.deleteData(editData);
+          }
+          if (typeof updateDataCallBack === "function") {
+            let newData = await this.option.getData(editData);
+            updateDataCallBack(newData);
+          }
+        }
+      };
+      let editView = new RuleEditView({
+        title: isEdit ? "编辑" : "添加",
+        data: () => {
+          return editData;
+        },
+        dialogCloseCallBack,
+        getView: async (data) => {
+          return await this.option.itemControls.edit.getView(data, isEdit);
+        },
+        btn: {
+          ok: {
+            enable: true,
+            text: isEdit ? "修改" : "添加"
+          },
+          cancel: {
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
+            }
+          },
+          close: {
+            callback: async (detail, event) => {
+              detail.close();
+              await dialogCloseCallBack(false);
+            }
+          }
+        },
+        onsubmit: async ($form, data) => {
+          let result = await this.option.itemControls.edit.onsubmit(
+            $form,
+            isEdit,
+            data
+          );
+          if (result.success) {
+            if (isEdit) {
+              Qmsg.success("修改成功");
+              $parentShadowRoot && await this.updateRuleItemElement(
+                result.data,
+                $editRuleItemElement,
+                $parentShadowRoot
+              );
+            } else {
+              $parentShadowRoot && await this.appendRuleItemElement(
+                $parentShadowRoot,
+                result.data
+              );
+            }
+          } else {
+            if (isEdit) {
+              log.error("修改失败");
+            }
+          }
+          return result;
+        },
+        style: this.option.itemControls.edit.style,
+        width: this.option.itemControls.edit.width,
+        height: this.option.itemControls.edit.height
+      });
+      editView.showView();
+    }
+    /**
+     * 解析弹窗内的各个元素
+     */
+    parseViewElement($shadowRoot) {
+      let $container = $shadowRoot.querySelector(
+        ".rule-view-container"
+      );
+      let $deleteBtn = $shadowRoot.querySelector(
+        ".pops-confirm-btn button.pops-confirm-btn-other"
+      );
+      return {
+        /** 容器 */
+        $container,
+        /** 左下角的清空按钮 */
+        $deleteBtn
+      };
+    }
+    /**
+     * 解析每一项的元素
+     */
+    parseRuleItemElement($ruleElement) {
+      let $enable = $ruleElement.querySelector(
+        ".rule-controls-enable"
+      );
+      let $enableSwitch = $enable.querySelector(".pops-panel-switch");
+      let $enableSwitchInput = $enable.querySelector(
+        ".pops-panel-switch__input"
+      );
+      let $enableSwitchCore = $enable.querySelector(
+        ".pops-panel-switch__core"
+      );
+      let $edit = $ruleElement.querySelector(".rule-controls-edit");
+      let $delete = $ruleElement.querySelector(
+        ".rule-controls-delete"
+      );
+      return {
+        /** 启用开关 */
+        $enable,
+        /** 启用开关的container */
+        $enableSwitch,
+        /** 启用开关的input */
+        $enableSwitchInput,
+        /** 启用开关的core */
+        $enableSwitchCore,
+        /** 编辑按钮 */
+        $edit,
+        /** 删除按钮 */
+        $delete,
+        /** 存储在元素上的数据 */
+        data: Reflect.get($ruleElement, "data-rule")
+      };
+    }
+    /**
+     * 创建一条规则元素
+     */
+    async createRuleItemElement(data, $shadowRoot) {
+      let name = await this.option.getDataItemName(data);
+      let $ruleItem = domUtils.createElement("div", {
+        className: "rule-item",
+        innerHTML: (
+          /*html*/
+          `
+			<div class="rule-name">${name}</div>
+			<div class="rule-controls">
+				<div class="rule-controls-enable">
+					<div class="pops-panel-switch">
+						<input class="pops-panel-switch__input" type="checkbox">
+						<span class="pops-panel-switch__core">
+							<div class="pops-panel-switch__action">
+							</div>
+						</span>
+					</div>
+				</div>
+				<div class="rule-controls-edit">
+					${__pops.config.iconSVG.edit}
+				</div>
+				<div class="rule-controls-delete">
+					${__pops.config.iconSVG.delete}
+				</div>
+			</div>
+			`
+        )
+      });
+      Reflect.set($ruleItem, "data-rule", data);
+      let switchCheckedClassName = "pops-panel-switch-is-checked";
+      const {
+        $enable,
+        $enableSwitch,
+        $enableSwitchCore,
+        $enableSwitchInput,
+        $delete,
+        $edit
+      } = this.parseRuleItemElement($ruleItem);
+      if (this.option.itemControls.enable.enable) {
+        domUtils.on($enableSwitchCore, "click", async (event) => {
+          let isChecked = false;
+          if ($enableSwitch.classList.contains(switchCheckedClassName)) {
+            $enableSwitch.classList.remove(switchCheckedClassName);
+            isChecked = false;
+          } else {
+            $enableSwitch.classList.add(switchCheckedClassName);
+            isChecked = true;
+          }
+          $enableSwitchInput.checked = isChecked;
+          await this.option.itemControls.enable.callback(data, isChecked);
+        });
+        if (await this.option.itemControls.enable.getEnable(data)) {
+          $enableSwitch.classList.add(switchCheckedClassName);
+        }
+      } else {
+        $enable.remove();
+      }
+      if (this.option.itemControls.edit.enable) {
+        domUtils.on($edit, "click", (event) => {
+          utils.preventEvent(event);
+          this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
+            data = null;
+            data = newData;
+          });
+        });
+      } else {
+        $edit.remove();
+      }
+      if (this.option.itemControls.delete.enable) {
+        domUtils.on($delete, "click", (event) => {
+          utils.preventEvent(event);
+          let $askDialog = __pops.confirm({
+            title: {
+              text: "提示",
+              position: "center"
+            },
+            content: {
+              text: "确定删除该条数据？",
+              html: false
+            },
+            btn: {
+              ok: {
+                enable: true,
+                callback: async (popsEvent) => {
+                  log.success("删除数据");
+                  let flag = await this.option.itemControls.delete.deleteCallBack(
+                    data
+                  );
+                  if (flag) {
+                    Qmsg.success("成功删除该数据");
+                    $ruleItem.remove();
+                    await this.updateDeleteAllBtnText($shadowRoot);
+                    $askDialog.close();
+                  } else {
+                    Qmsg.error("删除该数据失败");
+                  }
+                }
+              },
+              cancel: {
+                text: "取消",
+                enable: true
+              }
+            },
+            mask: {
+              enable: true
+            },
+            width: "300px",
+            height: "200px"
+          });
+        });
+      } else {
+        $delete.remove();
+      }
+      return $ruleItem;
+    }
+    /**
+     * 添加一个规则元素
+     */
+    async appendRuleItemElement($shadowRoot, data) {
+      let { $container } = this.parseViewElement($shadowRoot);
+      let $ruleItem = [];
+      let iteratorData = Array.isArray(data) ? data : [data];
+      for (let index = 0; index < iteratorData.length; index++) {
+        let item = iteratorData[index];
+        let $item = await this.createRuleItemElement(item, $shadowRoot);
+        $container.appendChild($item);
+        $ruleItem.push($item);
+      }
+      await this.updateDeleteAllBtnText($shadowRoot);
+      return $ruleItem;
+    }
+    /**
+     * 更新弹窗内容的元素
+     */
+    async updateRuleContaienrElement($shadowRoot) {
+      this.clearContent($shadowRoot);
+      const { $container } = this.parseViewElement($shadowRoot);
+      let data = await this.option.data();
+      await this.appendRuleItemElement($shadowRoot, data);
+      await this.updateDeleteAllBtnText($shadowRoot);
+    }
+    /**
+     * 更新规则元素
+     */
+    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+      let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
+      $oldRuleItem.after($newRuleItem);
+      $oldRuleItem.remove();
+    }
+    /**
+     * 清空内容
+     */
+    clearContent($shadowRoot) {
+      const { $container } = this.parseViewElement($shadowRoot);
+      domUtils.html($container, "");
+    }
+    /**
+     * 设置删除按钮的文字
+     */
+    setDeleteBtnText($shadowRoot, text, isHTML = false) {
+      const { $deleteBtn } = this.parseViewElement($shadowRoot);
+      if (isHTML) {
+        domUtils.html($deleteBtn, text);
+      } else {
+        domUtils.text($deleteBtn, text);
+      }
+    }
+    /**
+     * 更新【清空所有】的按钮的文字
+     * @param $shadowRoot
+     */
+    async updateDeleteAllBtnText($shadowRoot) {
+      let data = await this.option.data();
+      this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
+    }
+  }
+  const XHSNetworkHook = {
+    __ajaxHooker: null,
+    get ajaxHooker() {
+      if (this.__ajaxHooker == null) {
+        this.__ajaxHooker = utils.ajaxHooker();
+      }
+      return this.__ajaxHooker;
+    }
+  };
+  class XHSArticleFilterBase {
+    /**
+     * 解析信息转为规则过滤的字典
+     * @param info 数据信息
+     * @param showLog 是否显示日志输出
+     */
+    parseInfoDictData(info, showLog = false) {
+      let note_card = info?.note_card;
+      let articleId = info.id;
+      let display_title = note_card.display_title;
+      let isLike = Boolean(note_card?.interact_info?.liked);
+      let liked_count = 0;
+      let liked_count_str = info?.note_card?.interact_info?.liked_count;
+      if (typeof liked_count_str === "string") {
+        liked_count = parseInt(liked_count_str);
+        if (isNaN(liked_count)) {
+          liked_count = 0;
+        }
+      }
+      let nick_name = note_card?.user?.nick_name || note_card?.user?.nickname;
+      let user_id = note_card?.user?.user_id;
+      let isVideo = note_card?.type === "video";
+      let videoDuration = note_card?.video?.capa?.duration || 0;
+      return {
+        articleId,
+        display_title,
+        isLike,
+        liked_count,
+        nick_name,
+        user_id,
+        isVideo,
+        videoDuration
+      };
+    }
+    /**
+     * 根据视频信息，判断是否需要屏蔽
+     */
+    checkFilterWithRule(details) {
+      if (details.infoValue == null) {
+        return false;
+      }
+      if (details.ruleValue == null) {
+        return false;
+      }
+      if (typeof details.infoValue === "string") {
+        if (Boolean(details.infoValue.match(details.ruleValue))) {
+          return true;
+        }
+      } else if (typeof details.infoValue === "object") {
+        if (Array.isArray(details.infoValue)) {
+          let findValue = details.infoValue.find((infoDictValue) => {
+            if (typeof infoDictValue === "string" && details.ruleValue != null) {
+              return Boolean(infoDictValue.match(details.ruleValue));
+            } else {
+              return false;
+            }
+          });
+          if (findValue) {
+            return true;
+          }
+        }
+      } else if (typeof details.infoValue === "number") {
+        if (typeof details.ruleValue === "string") {
+          let ruleValue = details.ruleValue.trim();
+          let compareNumberMatch = ruleValue.match(/(\d+)/);
+          if (!compareNumberMatch) {
+            log.warn("过滤器-解析比较大小的数字失败: ", details);
+            return false;
+          }
+          let compareNumber = Number(compareNumberMatch[1]);
+          if (ruleValue.startsWith(">")) {
+            if (ruleValue.startsWith(">=")) {
+              if (details.infoValue >= compareNumber) {
+                return true;
+              }
+            } else {
+              if (details.infoValue > compareNumber) {
+                return true;
+              }
+            }
+          } else if (ruleValue.startsWith("<")) {
+            if (ruleValue.startsWith("<=")) {
+              if (details.infoValue <= compareNumber) {
+                return true;
+              }
+            } else {
+              if (details.infoValue < compareNumber) {
+                return true;
+              }
+            }
+          } else if (ruleValue.startsWith("=")) {
+            if (details.infoValue === compareNumber) {
+              return true;
+            }
+          } else {
+            log.warn("视频过滤器-未经允许的比较符号: ", details);
+            return false;
+          }
+        }
+      } else if (typeof details.infoValue === "boolean") {
+        if (typeof details.ruleValue === "string") {
+          let trimRuleValue = details.ruleValue.trim();
+          return details.infoValue.toString() === trimRuleValue;
+        }
+      }
+      return false;
+    }
+    /**
+     * 检测视频是否可以屏蔽，可以屏蔽返回true
+     * @param rule 规则
+     * @param info 视频信息结构
+     */
+    checkInfoIsFilter(rule, info) {
+      let transformInfo = this.parseInfoDictData(info);
+      let flag = false;
+      let matchedFilterOption = null;
+      outerLoop: for (let index = 0; index < rule.length; index++) {
+        const filterOption = rule[index];
+        const ruleNameList = Array.isArray(filterOption.data.ruleName) ? filterOption.data.ruleName : [filterOption.data.ruleName];
+        for (let ruleNameIndex = 0; ruleNameIndex < ruleNameList.length; ruleNameIndex++) {
+          const ruleName = ruleNameList[ruleNameIndex];
+          if (!Reflect.has(transformInfo, ruleName)) {
+            continue;
+          }
+          let tagKey = ruleName;
+          let tagValue = transformInfo[tagKey];
+          let details = {
+            infoKey: tagKey,
+            infoValue: tagValue,
+            ruleKey: filterOption.data.ruleName,
+            ruleValue: filterOption.data.ruleValue
+          };
+          flag = this.checkFilterWithRule(details);
+          if (flag) {
+            if (Array.isArray(filterOption.dynamicData) && filterOption.dynamicData.length) {
+              let dynamicDetailsList = [];
+              for (let dynamicIndex = 0; dynamicIndex < filterOption.dynamicData.length; dynamicIndex++) {
+                const dynamicOption = filterOption.dynamicData[dynamicIndex];
+                let dynamicTagKey = dynamicOption.ruleName;
+                let dynamicTagValue = transformInfo[dynamicTagKey];
+                let dynamicDetails = {
+                  infoKey: dynamicTagKey,
+                  infoValue: dynamicTagValue,
+                  ruleKey: dynamicOption.ruleName,
+                  ruleValue: dynamicOption.ruleValue
+                };
+                dynamicDetailsList.push(dynamicDetails);
+                let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
+                flag = flag && dynamicCheckFlag;
+                if (!flag) {
+                  break;
+                }
+              }
+              if (flag) {
+                log.success([
+                  `视频过滤器-多组 ==> ${filterOption.name}`,
+                  transformInfo,
+                  details,
+                  dynamicDetailsList,
+                  info,
+                  filterOption
+                ]);
+              }
+            } else {
+              log.success([
+                `视频过滤器 ==> ${filterOption.name}`,
+                transformInfo,
+                details,
+                info,
+                filterOption
+              ]);
+            }
+          }
+          if (flag) {
+            matchedFilterOption = filterOption;
+            break outerLoop;
+          }
+        }
+      }
+      return {
+        /** 是否允许过滤 */
+        isFilter: flag,
+        /** 命中的过滤规则 */
+        matchedFilterOption,
+        /** 解析出的视频信息 */
+        transformInfo,
+        /** 原始视频信息 */
+        info
+      };
+    }
+    removeArticle(...args) {
+      if (args.length === 1) {
+        let $el = args[0];
+        if ($el != null && $el instanceof Element) {
+          $el.remove();
+        }
+      } else if (args.length === 2) {
+        let infoList = args[0];
+        let deleteIndex = args[1];
+        if (typeof deleteIndex === "number") {
+          let item = infoList[deleteIndex];
+          if (item != null && item instanceof Element) {
+            item.remove();
+          }
+          infoList.splice(deleteIndex, 1);
+        }
+      }
+    }
+  }
+  const XHSArticleFilter = {
+    $key: {
+      ENABLE_KEY: "shieldVideo-exec-network-enable"
+    },
+    $data: {
+      /** 已经过滤的信息 */
+      isFilterAwemeInfoList: new Utils.Dictionary(),
+      /**
+       * 网络接口的视频信息字典
+       */
+      articleInfoMap: new Utils.Dictionary(),
+      __videoFilterRuleStorage: null,
+      get videoFilterRuleStorage() {
+        if (this.__videoFilterRuleStorage == null) {
+          this.__videoFilterRuleStorage = new RuleStorage(
+            {
+              STORAGE_API_KEY: "xhs-article-filter-rule"
+            }
+          );
+        }
+        return this.__videoFilterRuleStorage;
+      },
+      /**
+       * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
+       */
+      get isReverse() {
+        return Panel.getValue(
+          "xhs-article-filter-only-show-filtered-video"
+        );
+      }
+    },
+    init() {
+      this.execFilter();
+    },
+    /**
+     * 执行过滤
+     */
+    execFilter() {
+      Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
+        log.info(`执行笔记过滤器`);
+        let filterBase = new XHSArticleFilterBase();
+        let checkFilterCallBack = (filterTransformInfoResult) => {
+          if (this.$data.isReverse) {
+            filterTransformInfoResult.isFilter = !filterTransformInfoResult.isFilter;
+            if (typeof filterTransformInfoResult.transformInfo.articleId === "string" && filterTransformInfoResult.matchedFilterOption) {
+              let filterOptionList = this.$data.isFilterAwemeInfoList.get(
+                filterTransformInfoResult.transformInfo.articleId
+              ) || [];
+              filterOptionList.push(
+                filterTransformInfoResult.matchedFilterOption
+              );
+              this.$data.isFilterAwemeInfoList.set(
+                filterTransformInfoResult.transformInfo.articleId,
+                filterOptionList
+              );
+            }
+          }
+          if (typeof filterTransformInfoResult.transformInfo.articleId === "string") {
+            this.$data.articleInfoMap.set(
+              filterTransformInfoResult.transformInfo.articleId,
+              {
+                articleInfo: filterTransformInfoResult.info,
+                transformArticleInfo: filterTransformInfoResult.transformInfo
+              }
+            );
+          }
+        };
+        let queryScopeFilterOptionList = (scopeName) => {
+          if (!Panel.getValue(this.$key.ENABLE_KEY)) {
+            return [];
+          }
+          let filterOptionList = this.$data.videoFilterRuleStorage.getAllRule();
+          if (!filterOptionList.length) {
+            return [];
+          }
+          let scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
+          let matchedFilterOptionList = filterOptionList.filter(
+            (it) => it.enable && (it.data.scope.includes("all") || Array.from(scopeNameList).findIndex(
+              (item) => it.data.scope.includes(
+                item
+              )
+            ) !== -1)
+          );
+          return matchedFilterOptionList;
+        };
+        let xhr_hook_callback_1 = (scopeName, request) => {
+          request.response = (response) => {
+            let filterOptionList = queryScopeFilterOptionList(scopeName);
+            if (!filterOptionList.length) {
+              return;
+            }
+            let data = utils.toJSON(response.responseText);
+            let items = data?.["data"]?.["items"];
+            if (Array.isArray(items)) {
+              for (let index = 0; index < items.length; index++) {
+                let awemeInfo = items[index] || {};
+                let filterResult = filterBase.checkInfoIsFilter(
+                  filterOptionList,
+                  awemeInfo
+                );
+                checkFilterCallBack(filterResult);
+                if (filterResult.isFilter) {
+                  filterBase.removeArticle(items, index--);
+                }
+              }
+              response.responseText = JSON.stringify(data);
+            }
+          };
+        };
+        XHSNetworkHook.ajaxHooker.hook((request) => {
+          let url = CommonUtil.fixUrl(request.url);
+          let urlInst = new URL(url);
+          if (urlInst.pathname.startsWith("/api/sns/web/v1/homefeed")) {
+            xhr_hook_callback_1("xhr-explore", request);
+          }
+        });
+      });
+    },
+    /**
+     * 获取模板数据
+     */
+    getTemplateData() {
+      return {
+        uuid: utils.generateUUID(),
+        enable: true,
+        name: "",
+        data: {
+          scope: [],
+          ruleName: "display_title",
+          ruleValue: "",
+          remarks: ""
+        },
+        dynamicData: []
+      };
+    },
+    /**
+     * 显示视图
+     */
+    showView() {
+      let ruleView = this.getRuleViewInstance();
+      ruleView.showView();
+    },
+    /**
+     * 获取规则视图实例
+     */
+    getRuleViewInstance() {
+      const that = this;
+      let panelHandlerComponents = __pops.config.PanelHandlerComponents();
+      function generateStorageApi(data) {
+        return {
+          get(key, defaultValue) {
+            return data[key] ?? defaultValue;
+          },
+          set(key, value) {
+            data[key] = value;
+          }
+        };
+      }
+      let ruleView = new RuleView({
+        title: "笔记过滤器",
+        data: () => {
+          return this.$data.videoFilterRuleStorage.getAllRule();
+        },
+        getAddData: () => {
+          return this.getTemplateData();
+        },
+        getDataItemName: (data) => {
+          return data["name"];
+        },
+        updateData: (data) => {
+          return this.$data.videoFilterRuleStorage.setRule(data);
+        },
+        deleteData: (data) => {
+          return this.$data.videoFilterRuleStorage.deleteRule(data);
+        },
+        getData: (data) => {
+          let allData = this.$data.videoFilterRuleStorage.getAllRule();
+          let findValue = allData.find((item) => item.uuid === data.uuid);
+          return findValue ?? data;
+        },
+        itemControls: {
+          enable: {
+            enable: true,
+            getEnable(data) {
+              return data.enable;
+            },
+            callback: (data, enable) => {
+              data.enable = enable;
+              this.$data.videoFilterRuleStorage.setRule(data);
+            }
+          },
+          edit: {
+            enable: true,
+            getView: (data, isEdit) => {
+              let $fragment = document.createDocumentFragment();
+              if (!isEdit) {
+                data = this.getTemplateData();
+              }
+              let enable_template = UISwitch("启用", "enable", true);
+              Reflect.set(
+                enable_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data)
+              );
+              let $enable = panelHandlerComponents.createSectionContainerItem_switch(
+                enable_template
+              );
+              let name_template = UIInput(
+                "规则名称",
+                "name",
+                "",
+                "",
+                void 0,
+                "必填"
+              );
+              Reflect.set(
+                name_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data)
+              );
+              let $name = panelHandlerComponents.createSectionContainerItem_input(
+                name_template
+              );
+              let scope_template = UISelectMultiple(
+                "作用域",
+                "scope",
+                [],
+                [
+                  {
+                    text: "所有",
+                    value: "all"
+                  },
+                  {
+                    text: "发现",
+                    value: "xhr-explore"
+                  }
+                ].map((it) => {
+                  let result = {
+                    ...it,
+                    value: it.value
+                  };
+                  return result;
+                }),
+                void 0,
+                "选择需要在xxx上生效的作用域"
+              );
+              Reflect.set(
+                scope_template.props,
+                PROPS_STORAGE_API,
+                generateStorageApi(data.data)
+              );
+              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple_new(
+                scope_template
+              );
+              let keyNameHandlerInfo = [
+                "display_title",
+                "isLike",
+                "liked_count",
+                "nick_name",
+                "user_id",
+                "isVideo",
+                "videoDuration"
+              ];
+              let getDynamicProp = (storageData) => {
+                let ruleNameDefaultValue = Array.isArray(storageData["ruleName"]) ? storageData["ruleName"] : [storageData["ruleName"]];
+                let ruleName_template = UISelectMultiple(
+                  "属性名",
+                  "ruleName",
+                  ruleNameDefaultValue,
+                  keyNameHandlerInfo.map((item) => {
+                    return {
+                      text: item,
+                      value: item
+                    };
+                  }),
+                  void 0,
+                  "选择需要的属性名 "
+                );
+                Reflect.set(
+                  ruleName_template.props,
+                  PROPS_STORAGE_API,
+                  generateStorageApi(storageData)
+                );
+                let $ruleName2 = panelHandlerComponents.createSectionContainerItem_select_multiple_new(
+                  ruleName_template
+                );
+                let ruleValue_template = UITextArea(
+                  "属性值",
+                  "ruleValue",
+                  "",
+                  "如果是字符串，可正则，注意转义"
+                );
+                Reflect.set(
+                  ruleValue_template.props,
+                  PROPS_STORAGE_API,
+                  generateStorageApi(storageData)
+                );
+                let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(
+                  ruleValue_template
+                );
+                let remarks_template = UITextArea(
+                  "备注",
+                  "remarks",
+                  "",
+                  ""
+                );
+                Reflect.set(
+                  remarks_template.props,
+                  PROPS_STORAGE_API,
+                  generateStorageApi(storageData)
+                );
+                let $remarks2 = panelHandlerComponents.createSectionContainerItem_textarea(
+                  remarks_template
+                );
+                return {
+                  $ruleName: $ruleName2,
+                  $ruleValue: $ruleValue2,
+                  $remarks: $remarks2
+                };
+              };
+              let $dynamicContainer = domUtils.createElement("div", {
+                className: "rule-form-ulist-dynamic",
+                innerHTML: (
+                  /*html*/
+                  `
+							<div class="rule-form-ulist-dynamic__inner">
+
+							</div>
+							<div class="pops-panel-button pops-panel-button-no-icon">
+								<button class="pops-panel-button_inner" type="default">
+									<i class="pops-bottom-icon" is-loading="false"></i>
+									<span class="pops-panel-button-text">添加额外属性</span>
+								</button>
+							</div>
+							`
+                )
+              });
+              let $dynamicInner = $dynamicContainer.querySelector(
+                ".rule-form-ulist-dynamic__inner"
+              );
+              let $addDynamicButton = $dynamicContainer.querySelector(
+                ".pops-panel-button"
+              );
+              let addDynamicElementItem = (dynamicData = {
+                ruleName: [],
+                ruleValue: "",
+                remarks: ""
+              }) => {
+                let $dynamicUListContainer = domUtils.createElement("div", {
+                  className: "rule-form-ulist-dynamic__inner-container",
+                  innerHTML: (
+                    /*html*/
+                    `
+									<div class="dynamic-control-delete">
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="danger">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">×</span>
+											</button>
+										</div>
+									</div>
+									<ul class="dynamic-forms">
+
+									</ul>
+								`
+                  )
+                });
+                let $dynamicDelete = $dynamicUListContainer.querySelector(
+                  ".dynamic-control-delete"
+                );
+                domUtils.on($dynamicDelete, "click", (event) => {
+                  utils.preventEvent(event);
+                  $dynamicUListContainer.remove();
+                  if (Array.isArray(data.dynamicData)) {
+                    let findIndex = data.dynamicData.findIndex(
+                      (it) => it == dynamicData
+                    );
+                    if (findIndex !== -1) {
+                      data.dynamicData.splice(findIndex, 1);
+                    }
+                  }
+                });
+                let $dynamicUList = $dynamicUListContainer.querySelector(
+                  ".dynamic-forms"
+                );
+                let {
+                  $ruleName: $dynamic_ruleName,
+                  $ruleValue: $dynamic_ruleValue,
+                  $remarks: $dynamic_remarks
+                } = getDynamicProp(dynamicData);
+                $dynamicUList.appendChild($dynamic_ruleName);
+                $dynamicUList.appendChild($dynamic_ruleValue);
+                $dynamicUList.appendChild($dynamic_remarks);
+                $dynamicInner.appendChild($dynamicUListContainer);
+              };
+              domUtils.on($addDynamicButton, "click", (event) => {
+                utils.preventEvent(event);
+                addDynamicElementItem();
+              });
+              if (Array.isArray(data.dynamicData)) {
+                for (let index = 0; index < data.dynamicData.length; index++) {
+                  const moreDataItem = data.dynamicData[index];
+                  addDynamicElementItem(moreDataItem);
+                }
+              }
+              let { $ruleName, $ruleValue, $remarks } = getDynamicProp(data.data);
+              $fragment.append(
+                $enable,
+                $name,
+                $scope,
+                // $autoSendDisLikeRequest,
+                $ruleName,
+                $ruleValue,
+                $remarks,
+                $dynamicContainer
+              );
+              return $fragment;
+            },
+            onsubmit: ($form, isEdit, editData) => {
+              let $ulist_li = $form.querySelectorAll(
+                ".rule-form-ulist > li"
+              );
+              let data = this.getTemplateData();
+              if (isEdit) {
+                data.uuid = editData.uuid;
+              }
+              $ulist_li.forEach(($li) => {
+                let formConfig = Reflect.get($li, "__formConfig__");
+                if (!formConfig) {
+                  return;
+                }
+                let attrs = Reflect.get(formConfig, "attributes");
+                if (!attrs) {
+                  return;
+                }
+                let storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                let value = storageApi.get(key, defaultValue);
+                if (Reflect.has(data, key)) {
+                  Reflect.set(data, key, value);
+                } else if (Reflect.has(data.data, key)) {
+                  Reflect.set(data.data, key, value);
+                } else {
+                  log.error(`${key}不在数据中`);
+                }
+              });
+              $form.querySelectorAll(
+                ".rule-form-ulist-dynamic__inner-container"
+              ).forEach(($inner) => {
+                let dynamicData = {};
+                $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
+                  let formConfig = Reflect.get($li, "__formConfig__");
+                  if (!formConfig) {
+                    return;
+                  }
+                  let attrs = Reflect.get(formConfig, "attributes");
+                  if (!attrs) {
+                    return;
+                  }
+                  let storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                  let key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                  let defaultValue = Reflect.get(
+                    attrs,
+                    ATTRIBUTE_DEFAULT_VALUE
+                  );
+                  let value = storageApi.get(key, defaultValue);
+                  Reflect.set(dynamicData, key, value);
+                });
+                data.dynamicData.push(dynamicData);
+              });
+              if (data.name.trim() === "") {
+                Qmsg.error("规则名称不能为空");
+                return {
+                  success: false,
+                  data
+                };
+              }
+              if (data.data.scope.length === 0) {
+                Qmsg.error("请选择作用域");
+                return {
+                  success: false,
+                  data
+                };
+              }
+              if (data.data.ruleName.length === 0) {
+                Qmsg.error("请选择属性名");
+                return {
+                  success: false,
+                  data
+                };
+              }
+              if (data.data.ruleValue.trim() === "") {
+                Qmsg.error("属性值不能为空");
+                return {
+                  success: false,
+                  data
+                };
+              }
+              if (isEdit) {
+                return {
+                  success: that.$data.videoFilterRuleStorage.setRule(data),
+                  data
+                };
+              } else {
+                return {
+                  success: that.$data.videoFilterRuleStorage.addRule(data),
+                  data
+                };
+              }
+            },
+            style: (
+              /*css*/
+              `
+                    .pops-panel-textarea textarea{
+                        height: 150px;
+                    }
+					.pops-panel-item-left-desc-text{
+						line-height: normal;
+						margin-top: 6px;
+						font-size: 0.8em;
+						color: rgb(108, 108, 108);
+					}
+					.rule-form-ulist-dynamic{
+						--button-margin-top: 0px;
+						--button-margin-right: 0px;
+						--button-margin-bottom: 0px;
+						--button-margin-left: 0px;
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						padding: 5px 20px;
+					}
+					.rule-form-ulist-dynamic__inner{
+						width: 100%;
+					}
+					.rule-form-ulist-dynamic__inner-container{
+						display: flex;
+						align-items: center;
+					}
+					.dynamic-forms{
+						width: 100%;
+					}
+					.pops-panel-textarea textarea{
+						height: 60px;
+						min-height: 60px;
+						width: 250px;
+						max-width: 400px;
+						min-width: 250px;
+						resize: auto;
+						transition: unset;
+					}
+                    `
+            ),
+            width: () => {
+              return window.innerWidth > 700 ? "700px" : "88vw";
+            }
+          },
+          delete: {
+            enable: true,
+            deleteCallBack: (data) => {
+              return that.$data.videoFilterRuleStorage.deleteRule(data);
+            }
+          }
+        },
+        bottomControls: {
+          filter: {
+            enable: true,
+            option: [
+              {
+                name: "过滤-已启用",
+                filterCallBack(data) {
+                  return data.enable;
+                }
+              },
+              {
+                name: "过滤-未启用",
+                filterCallBack(data) {
+                  return !data.enable;
+                }
+              }
+            ]
+          },
+          clear: {
+            enable: true,
+            callback: () => {
+              that.$data.videoFilterRuleStorage.clearAllRule();
+            }
+          }
+        }
+      });
+      return ruleView;
+    }
+  };
+  const XHS = {
+    init() {
+      XHSArticleFilter.init();
+      Panel.execMenuOnce("pc-xhs-hook-vue", () => {
+        XHSHook.hookVue();
+      });
+      Panel.execMenuOnce("pc-xhs-allowCopy", () => {
+        XHS.allowPCCopy();
+      });
+      Panel.execMenuOnce("pc-xhs-open-blank-article", () => {
+        XHS.openBlankArticle();
+      });
+      XHSBlock.init();
+      Panel.execMenuOnce("pc-xhs-article-showPubsliushTime", () => {
+        XHSArticle.transformPublishTime();
+      });
+      if (XHSRouter.isArticle()) {
+        log.info("Router: 笔记页面");
+        XHSArticle.init();
+      }
+    },
+    /**
+     * 允许复制
+     */
+    allowPCCopy() {
+      log.success("允许复制文字");
+      domUtils.on(
+        _unsafeWindow,
+        "copy",
+        void 0,
+        function(event) {
+          utils.preventEvent(event);
+          let selectText = _unsafeWindow.getSelection();
+          if (selectText) {
+            utils.setClip(selectText.toString());
+          } else {
+            log.error("未选中任何内容");
+          }
+          return false;
+        },
+        {
+          capture: true
+        }
+      );
+    },
+    /**
+     * 新标签页打开文章
+     */
+    openBlankArticle() {
+      log.success("新标签页打开文章");
+      domUtils.on(
+        document,
+        "click",
+        ".feeds-container .note-item",
+        function(event) {
+          utils.preventEvent(event);
+          let $click = event.target;
+          let $url = $click.querySelector("a.cover[href]");
+          let url = $url?.href;
+          if (url) {
+            log.info("跳转文章: " + url);
+            let urlInstance = new URL(url);
+            urlInstance.pathname = urlInstance.pathname.replace(
+              /^\/user\/profile\/[a-z0-9A-Z]+\//i,
+              "/discovery/item/"
+            );
+            url = urlInstance.toString();
+            window.open(url, "_blank");
+          } else {
+            Qmsg.error("未找到文章链接");
+          }
+        },
+        {
+          capture: true
+        }
+      );
+    }
+  };
   const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
     let selectData = [];
     if (typeof data === "function") {
@@ -3152,45 +5257,137 @@
     );
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
+  const UIButton = function(text, description, buttonText, buttonIcon, buttonIsRightIcon, buttonIconIsLoading, buttonType, clickCallBack, afterAddToUListCallBack, disable) {
     let result = {
       text,
-      type: "switch",
-      description,
+      type: "button",
       attributes: {},
       props: {},
-      getValue() {
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        return Boolean(storageApiValue.get(key, defaultValue));
-      },
-      callback(event, __value) {
-        let value = Boolean(__value);
-        log.success(`${value ? "开启" : "关闭"} ${text}`);
-        let storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") {
+          clickCallBack(event);
+        }
       },
       afterAddToUListCallBack
     };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi(
-      "switch",
-      result,
-      {
-        get(key2, defaultValue2) {
-          return Panel.getValue(key2, defaultValue2);
-        },
-        set(key2, value) {
-          Panel.setValue(key2, value);
-        }
-      }
-    );
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(
+        disable
+      );
+    });
     return result;
   };
   const SettingUI_Common = {
     id: "xhs-panel-config-common",
     title: "通用",
     forms: [
+      {
+        type: "forms",
+        text: "",
+        forms: [
+          {
+            text: "Toast配置",
+            type: "deepMenu",
+            forms: [
+              {
+                text: "",
+                type: "forms",
+                forms: [
+                  UISelect(
+                    "Toast位置",
+                    "qmsg-config-position",
+                    "bottom",
+                    [
+                      {
+                        value: "topleft",
+                        text: "左上角"
+                      },
+                      {
+                        value: "top",
+                        text: "顶部"
+                      },
+                      {
+                        value: "topright",
+                        text: "右上角"
+                      },
+                      {
+                        value: "left",
+                        text: "左边"
+                      },
+                      {
+                        value: "center",
+                        text: "中间"
+                      },
+                      {
+                        value: "right",
+                        text: "右边"
+                      },
+                      {
+                        value: "bottomleft",
+                        text: "左下角"
+                      },
+                      {
+                        value: "bottom",
+                        text: "底部"
+                      },
+                      {
+                        value: "bottomright",
+                        text: "右下角"
+                      }
+                    ],
+                    (event, isSelectValue, isSelectText) => {
+                      log.info("设置当前Qmsg弹出位置" + isSelectText);
+                    },
+                    "Toast显示在页面九宫格的位置"
+                  ),
+                  UISelect(
+                    "最多显示的数量",
+                    "qmsg-config-maxnums",
+                    3,
+                    [
+                      {
+                        value: 1,
+                        text: "1"
+                      },
+                      {
+                        value: 2,
+                        text: "2"
+                      },
+                      {
+                        value: 3,
+                        text: "3"
+                      },
+                      {
+                        value: 4,
+                        text: "4"
+                      },
+                      {
+                        value: 5,
+                        text: "5"
+                      }
+                    ],
+                    void 0,
+                    "限制Toast显示的数量"
+                  ),
+                  UISwitch(
+                    "逆序弹出",
+                    "qmsg-config-showreverse",
+                    false,
+                    void 0,
+                    "修改Toast弹出的顺序"
+                  )
+                ]
+              }
+            ]
+          }
+        ]
+      },
       {
         text: "",
         type: "forms",
@@ -3288,6 +5485,76 @@
             ]
           },
           {
+            type: "deepMenu",
+            text: "笔记过滤器",
+            forms: [
+              {
+                text: '<a href="https://greasyfork.org/zh-CN/scripts/483960-%E5%B0%8F%E7%BA%A2%E4%B9%A6%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
+                type: "forms",
+                forms: [
+                  UISwitch(
+                    "启用",
+                    "shieldVideo-exec-network-enable",
+                    true,
+                    void 0,
+                    "开启后以下功能才会生效"
+                  ),
+                  UISwitch(
+                    "仅显示被过滤的笔记",
+                    "xhs-article-filter-only-show-filtered-video",
+                    false,
+                    void 0,
+                    "只会显示过滤规则命中的笔记"
+                  ),
+                  UIButton(
+                    "笔记过滤规则",
+                    "可过滤笔记",
+                    "自定义",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      XHSArticleFilter.showView();
+                    }
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "",
+                forms: [
+                  UIButton(
+                    "数据导入",
+                    "导入自定义规则数据",
+                    "导入",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      XHSArticleFilter.$data.videoFilterRuleStorage.importRules();
+                    }
+                  ),
+                  UIButton(
+                    "数据导出",
+                    "导出自定义规则数据",
+                    "导出",
+                    void 0,
+                    false,
+                    false,
+                    "primary",
+                    () => {
+                      XHSArticleFilter.$data.videoFilterRuleStorage.exportRules(
+                        _SCRIPT_NAME_ + "-视频过滤规则.json"
+                      );
+                    }
+                  )
+                ]
+              }
+            ]
+          },
+          {
             text: "劫持/拦截",
             type: "deepMenu",
             forms: [
@@ -3301,101 +5568,6 @@
                     true,
                     void 0,
                     "恢复__vue__属性"
-                  )
-                ]
-              }
-            ]
-          },
-          {
-            text: "Toast配置",
-            type: "deepMenu",
-            forms: [
-              {
-                text: "",
-                type: "forms",
-                forms: [
-                  UISelect(
-                    "Toast位置",
-                    "qmsg-config-position",
-                    "bottom",
-                    [
-                      {
-                        value: "topleft",
-                        text: "左上角"
-                      },
-                      {
-                        value: "top",
-                        text: "顶部"
-                      },
-                      {
-                        value: "topright",
-                        text: "右上角"
-                      },
-                      {
-                        value: "left",
-                        text: "左边"
-                      },
-                      {
-                        value: "center",
-                        text: "中间"
-                      },
-                      {
-                        value: "right",
-                        text: "右边"
-                      },
-                      {
-                        value: "bottomleft",
-                        text: "左下角"
-                      },
-                      {
-                        value: "bottom",
-                        text: "底部"
-                      },
-                      {
-                        value: "bottomright",
-                        text: "右下角"
-                      }
-                    ],
-                    (event, isSelectValue, isSelectText) => {
-                      log.info("设置当前Qmsg弹出位置" + isSelectText);
-                    },
-                    "Toast显示在页面九宫格的位置"
-                  ),
-                  UISelect(
-                    "最多显示的数量",
-                    "qmsg-config-maxnums",
-                    3,
-                    [
-                      {
-                        value: 1,
-                        text: "1"
-                      },
-                      {
-                        value: 2,
-                        text: "2"
-                      },
-                      {
-                        value: 3,
-                        text: "3"
-                      },
-                      {
-                        value: 4,
-                        text: "4"
-                      },
-                      {
-                        value: 5,
-                        text: "5"
-                      }
-                    ],
-                    void 0,
-                    "限制Toast显示的数量"
-                  ),
-                  UISwitch(
-                    "逆序弹出",
-                    "qmsg-config-showreverse",
-                    false,
-                    void 0,
-                    "修改Toast弹出的顺序"
                   )
                 ]
               }
