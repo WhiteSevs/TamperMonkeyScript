@@ -65,7 +65,7 @@ export interface PopsPanelSelectMultipleDetails<T = any> extends PopsPanelCommon
     /**
      * （可选）是否禁用
      */
-    disabled?: boolean | ((value: T) => boolean);
+    disabled?: boolean | (() => boolean);
     /**
      * 提示文字
      */

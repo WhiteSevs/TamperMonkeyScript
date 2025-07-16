@@ -34,7 +34,6 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 								type: "switch",
 								// @ts-ignore
 								props: {},
-								disabled: false,
 								attributes: [],
 								getValue() {
 									return true;
@@ -58,6 +57,21 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 								},
 								min: 1,
 								max: 100,
+							},
+							{
+								className: "panel-button",
+								text: "button",
+								type: "button",
+								// @ts-ignore
+								props: {},
+								attributes: [],
+								buttonIcon: "view",
+								buttonIconIsLoading: true,
+								buttonType: "default",
+								buttonText: "default按钮",
+								callback(event) {
+									console.log("点击按钮", event);
+								},
 							},
 							{
 								className: "panel-button",
@@ -173,6 +187,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 						className: "panel-select",
 						text: "select",
 						type: "select",
+						disabled: true,
 						// @ts-ignore
 						props: {},
 						attributes: [],
@@ -215,6 +230,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 						className: "panel-select-multiple",
 						type: "select-multiple",
 						text: "select-multiple",
+						disabled: true,
 						// @ts-ignore
 						props: {},
 

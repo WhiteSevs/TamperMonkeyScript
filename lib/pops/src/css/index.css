@@ -18,14 +18,11 @@
 	--pops-bd-color: rgb(235, 238, 245, var(--pops-bd-opacity));
 	--pops-box-shadow-color: rgba(0, 0, 0, 0.12);
 	--pops-title-color: #000000;
-	--pops-title-border-color: rgb(229, 229, 229, var(--pops-bd-opacity));
+	--pops-title-border-color: var(--pops-bd-color);
 	--pops-content-color: #000000;
-	--pops-bottom-btn-controls-border-color: rgb(
-		229,
-		229,
-		229,
-		var(--pops-bd-opacity)
-	);
+	--pops-bottom-btn-controls-border-color: var(--pops-bd-color);
+	--pops-components-is-disabled-text-color: #a8abb2;
+	--pops-components-is-disabled-bg-color: #f5f7fa;
 }
 @media (prefers-color-scheme: dark) {
 	.pops {
@@ -35,8 +32,10 @@
 		--pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));
 		--pops-box-shadow-color: rgba(81, 81, 81, 0.12);
 		--pops-title-color: #e8e8e8;
-		--pops-title-border-color: rgb(229, 229, 229, var(--pops-bd-opacity));
+		--pops-title-border-color: var(--pops-bd-color);
 		--pops-content-color: #e5e5e5;
+		--pops-components-is-disabled-text-color: #a8abb2;
+		--pops-components-is-disabled-bg-color: #262727;
 	}
 }
 .pops {
