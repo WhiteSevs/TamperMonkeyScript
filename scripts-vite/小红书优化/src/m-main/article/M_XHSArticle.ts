@@ -1,6 +1,6 @@
 import { XHSApi } from "@/api/XHSApi";
 import { DOMUtils, Viewer, addStyle, log, utils } from "@/env";
-import { XHS_Hook } from "@/hook/XHS_Hook";
+import { XHSHook } from "@/hook/XHSHook";
 import { unsafeWindow } from "ViteGM";
 import { M_XHSArticleBlock } from "./M_XHSArticleBlock";
 import { M_XHSArticleVideo } from "./M_XHSArticleVideo";
@@ -28,8 +28,8 @@ export const M_XHSArticle = {
 		) {
 			log.info("劫持webpack");
 			// XHS_Hook.webpackChunkranchi();
-			XHS_Hook.setTimeout();
-			XHS_Hook.call();
+			XHSHook.setTimeout();
+			XHSHook.call();
 		}
 		Panel.execMenuOnce("little-red-book-shieldBottomSearchFind", () => {
 			return M_XHSArticleBlock.blockBottomSearchFind();

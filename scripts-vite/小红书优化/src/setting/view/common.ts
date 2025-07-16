@@ -1,127 +1,18 @@
-import { log } from "@/env";
+import { log, SCRIPT_NAME } from "@/env";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
+import { UIButton } from "@components/setting/components/ui-button";
 import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
+import { XHSArticleFilter } from "@/main/article/XHSArticleFilter";
 
-const SettingUI_Common: PopsPanelContentConfig = {
+export const SettingUI_Common: PopsPanelContentConfig = {
 	id: "xhs-panel-config-common",
 	title: "通用",
 	forms: [
 		{
-			text: "",
 			type: "forms",
+			text: "",
 			forms: [
-				{
-					text: "功能",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"允许复制",
-									"pc-xhs-allowCopy",
-									true,
-									void 0,
-									"可以选择文字并复制"
-								),
-								UISwitch(
-									"新标签页打开文章",
-									"pc-xhs-open-blank-article",
-									false,
-									void 0,
-									"点击文章不会在本页展开，会打开新标签页"
-								),
-							],
-						},
-					],
-				},
-				{
-					text: "搜索",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"新标签页打开-搜索按钮",
-									"pc-xhs-search-open-blank-btn",
-									false,
-									void 0,
-									"点击右边的搜索按钮直接新标签页打开搜索内容"
-								),
-								UISwitch(
-									"新标签页打开-回车键",
-									"pc-xhs-search-open-blank-keyboard-enter",
-									false,
-									void 0,
-									"按下回车键直接新标签页打开搜索内容"
-								),
-							],
-						},
-					],
-				},
-				{
-					text: "屏蔽",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"【屏蔽】广告",
-									"pc-xhs-shieldAd",
-									true,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】登录弹窗",
-									"pc-xhs-shield-login-dialog",
-									true,
-									void 0,
-									"屏蔽会自动弹出的登录弹窗"
-								),
-								UISwitch(
-									"【屏蔽】选择文字弹出的搜索提示",
-									"pc-xhs-shield-select-text-search-position",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】顶部工具栏",
-									"pc-xhs-shield-topToolbar",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-							],
-						},
-					],
-				},
-				{
-					text: "劫持/拦截",
-					type: "deepMenu",
-					forms: [
-						{
-							text: "",
-							type: "forms",
-							forms: [
-								UISwitch(
-									"劫持Vue",
-									"pc-xhs-hook-vue",
-									true,
-									void 0,
-									"恢复__vue__属性"
-								),
-							],
-						},
-					],
-				},
 				{
 					text: "Toast配置",
 					type: "deepMenu",
@@ -219,7 +110,192 @@ const SettingUI_Common: PopsPanelContentConfig = {
 				},
 			],
 		},
+		{
+			text: "",
+			type: "forms",
+			forms: [
+				{
+					text: "功能",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"允许复制",
+									"pc-xhs-allowCopy",
+									true,
+									void 0,
+									"可以选择文字并复制"
+								),
+								UISwitch(
+									"新标签页打开文章",
+									"pc-xhs-open-blank-article",
+									false,
+									void 0,
+									"点击文章不会在本页展开，会打开新标签页"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "搜索",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"新标签页打开-搜索按钮",
+									"pc-xhs-search-open-blank-btn",
+									false,
+									void 0,
+									"点击右边的搜索按钮直接新标签页打开搜索内容"
+								),
+								UISwitch(
+									"新标签页打开-回车键",
+									"pc-xhs-search-open-blank-keyboard-enter",
+									false,
+									void 0,
+									"按下回车键直接新标签页打开搜索内容"
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "屏蔽",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"【屏蔽】广告",
+									"pc-xhs-shieldAd",
+									true,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】登录弹窗",
+									"pc-xhs-shield-login-dialog",
+									true,
+									void 0,
+									"屏蔽会自动弹出的登录弹窗"
+								),
+								UISwitch(
+									"【屏蔽】选择文字弹出的搜索提示",
+									"pc-xhs-shield-select-text-search-position",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】顶部工具栏",
+									"pc-xhs-shield-topToolbar",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+							],
+						},
+					],
+				},
+				{
+					type: "deepMenu",
+					text: "笔记过滤器",
+					forms: [
+						{
+							text: '<a href="https://greasyfork.org/zh-CN/scripts/483960-%E5%B0%8F%E7%BA%A2%E4%B9%A6%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
+							type: "forms",
+							forms: [
+								UISwitch(
+									"启用",
+									"shieldVideo-exec-network-enable",
+									true,
+									void 0,
+									"开启后以下功能才会生效"
+								),
+								UISwitch(
+									"仅显示被过滤的笔记",
+									"xhs-article-filter-only-show-filtered-video",
+									false,
+									void 0,
+									"只会显示过滤规则命中的笔记"
+								),
+								UIButton(
+									"笔记过滤规则",
+									"可过滤笔记",
+									"自定义",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										XHSArticleFilter.showView();
+									}
+								),
+							],
+						},
+						{
+							type: "forms",
+							text: "",
+							forms: [
+								UIButton(
+									"数据导入",
+									"导入自定义规则数据",
+									"导入",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										XHSArticleFilter.$data.videoFilterRuleStorage.importRules();
+									}
+								),
+								UIButton(
+									"数据导出",
+									"导出自定义规则数据",
+									"导出",
+									void 0,
+									false,
+									false,
+									"primary",
+									() => {
+										XHSArticleFilter.$data.videoFilterRuleStorage.exportRules(
+											SCRIPT_NAME + "-视频过滤规则.json"
+										);
+									}
+								),
+							],
+						},
+					],
+				},
+				{
+					text: "劫持/拦截",
+					type: "deepMenu",
+					forms: [
+						{
+							text: "",
+							type: "forms",
+							forms: [
+								UISwitch(
+									"劫持Vue",
+									"pc-xhs-hook-vue",
+									true,
+									void 0,
+									"恢复__vue__属性"
+								),
+							],
+						},
+					],
+				},
+			],
+		},
 	],
 };
-
-export { SettingUI_Common };

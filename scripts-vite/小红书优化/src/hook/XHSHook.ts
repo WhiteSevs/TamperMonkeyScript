@@ -4,7 +4,7 @@ import { Hook } from "@components/hook/Hook";
 import { Panel } from "@components/setting/panel";
 
 /* 小红书劫持函数 */
-export const XHS_Hook = {
+export const XHSHook = {
 	/**
 	 * 劫持webpack
 	 * 笔记的

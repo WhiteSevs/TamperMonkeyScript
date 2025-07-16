@@ -1,16 +1,18 @@
 import { DOMUtils, log, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
 import { XHSBlock } from "./XHSBlock";
-import { XHS_Hook } from "@/hook/XHS_Hook";
-import { XHS_Article } from "./article/XHS_Article";
+import { XHSHook } from "@/hook/XHSHook";
+import { XHSArticle } from "./article/XHSArticle";
 import Qmsg from "qmsg";
-import { ScriptRouter } from "@/router/router";
+import { XHSRouter } from "@/router/XHSRouter";
 import { Panel } from "@components/setting/panel";
+import { XHSArticleFilter } from "./article/XHSArticleFilter";
 
 export const XHS = {
 	init() {
+		XHSArticleFilter.init();
 		Panel.execMenuOnce("pc-xhs-hook-vue", () => {
-			XHS_Hook.hookVue();
+			XHSHook.hookVue();
 		});
 		Panel.execMenuOnce("pc-xhs-allowCopy", () => {
 			XHS.allowPCCopy();
@@ -20,11 +22,11 @@ export const XHS = {
 		});
 		XHSBlock.init();
 		Panel.execMenuOnce("pc-xhs-article-showPubsliushTime", () => {
-			XHS_Article.transformPublishTime();
+			XHSArticle.transformPublishTime();
 		});
-		if (ScriptRouter.isArticle()) {
+		if (XHSRouter.isArticle()) {
 			log.info("Router: 笔记页面");
-			XHS_Article.init();
+			XHSArticle.init();
 		}
 	},
 	/**

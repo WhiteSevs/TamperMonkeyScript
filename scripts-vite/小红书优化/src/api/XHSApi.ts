@@ -12,7 +12,7 @@ interface PageInfo {
 interface LzlPageInfo extends PageInfo {}
 
 const XHS_BASE_URL = "https://edith.xiaohongshu.com";
-const XHSApi = {
+export const XHSApi = {
 	/**
 	 * 获取页信息
 	 */
@@ -156,5 +156,3 @@ const XHSApi = {
 		return data.data.sug_items;
 	},
 };
-
-export { XHSApi };

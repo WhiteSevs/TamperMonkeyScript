@@ -21,7 +21,7 @@ import Qmsg from "qmsg";
  *
  */
 
-export const XHS_Article = {
+export const XHSArticle = {
 	init() {
 		if (
 			Panel.getValue("pc-xhs-search-open-blank-btn") ||

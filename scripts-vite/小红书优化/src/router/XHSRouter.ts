@@ -1,5 +1,5 @@
 /* 小红书router */
-const ScriptRouter = {
+export const XHSRouter = {
 	/**
 	 * 判断是否是笔记页面
 	 */
@@ -31,5 +31,3 @@ const ScriptRouter = {
 		return globalThis.location.pathname.startsWith("/search_result/");
 	},
 };
-
-export { ScriptRouter };

@@ -1,5 +1,5 @@
 import blockCSS from "./css/block.css?raw";
-import { ScriptRouter } from "@/router/router";
+import { XHSRouter } from "@/router/XHSRouter";
 import { M_XHSArticle } from "./article/M_XHSArticle";
 import { M_XHSHome } from "./home/M_XHSHome";
 import { addStyle, log } from "@/env";
@@ -18,10 +18,10 @@ export const M_XHS = {
 		Panel.execMenuOnce("little-red-book-allowCopy", () => {
 			return M_XHS.allowCopy();
 		});
-		if (ScriptRouter.isArticle()) {
+		if (XHSRouter.isArticle()) {
 			/* 笔记页面 */
 			M_XHSArticle.init();
-		} else if (ScriptRouter.isUserHome()) {
+		} else if (XHSRouter.isUserHome()) {
 			/* 用户主页 */
 			M_XHSHome.init();
 		}
