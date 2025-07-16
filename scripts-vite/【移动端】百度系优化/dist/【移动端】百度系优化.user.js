@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.13
+// @version      2025.7.16
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.17/dist/vue.global.prod.js
@@ -59,7 +59,7 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_entrance_001 = __commonJS({
-    "entrance-CcS6Ksog.js"(exports, module) {
+    "entrance-CTs-yIwr.js"(exports, module) {
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -778,7 +778,7 @@
           /**
            * @private
            */
-          __configDefaultValueData: null,
+          __contentConfigInitDefaultValue: null,
           /**
            * @private
            */
@@ -793,14 +793,18 @@
           __panelConfig: {},
           $panel: null,
           /**
-           * 菜单项的默认值
+           * 菜单项初始化的默认值
            */
-          get configDefaultValueData() {
-            if (this.__configDefaultValueData == null) {
-              this.__configDefaultValueData = new utils.Dictionary();
+          get contentConfigInitDefaultValue() {
+            if (this.__contentConfigInitDefaultValue == null) {
+              this.__contentConfigInitDefaultValue = new utils.Dictionary();
             }
-            return this.__configDefaultValueData;
+            return this.__contentConfigInitDefaultValue;
           },
+          /**
+           * 菜单项初始化时禁用的键
+           */
+          contentConfigInitDisabledKeys: [],
           /**
            * 成功只执行了一次的项
            */
@@ -856,10 +860,21 @@
             if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
               return;
             }
-            let needInitConfig = {};
+            let menuDefaultConfig = /* @__PURE__ */ new Map();
             let key = config.attributes[ATTRIBUTE_KEY];
             if (key != null) {
-              needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+              const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+              menuDefaultConfig.set(key, defaultValue);
+            }
+            let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+            if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
+              Object.keys(moreMenuDefaultConfig).forEach((key2) => {
+                menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+              });
+            }
+            if (!menuDefaultConfig.size) {
+              log.warn(["请先配置键", config]);
+              return;
             }
             let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
             if (typeof __attr_init__ === "function") {
@@ -868,19 +883,17 @@
                 return;
               }
             }
-            let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-            if (initMoreValue && typeof initMoreValue === "object") {
-              Object.assign(needInitConfig, initMoreValue);
+            if (config.type === "switch") {
+              let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+              if (typeof disabled === "boolean" && disabled) {
+                this.$data.contentConfigInitDisabledKeys.push(
+                  ...menuDefaultConfig.keys()
+                );
+              }
             }
-            let needInitConfigList = Object.keys(needInitConfig);
-            if (!needInitConfigList.length) {
-              log.warn(["请先配置键", config]);
-              return;
-            }
-            needInitConfigList.forEach((__key) => {
-              let __defaultValue = needInitConfig[__key];
+            for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
               this.setDefaultValue(__key, __defaultValue);
-            });
+            }
           };
           const loopInitDefaultValue = (configList) => {
             for (let index = 0; index < configList.length; index++) {
@@ -903,15 +916,18 @@
               loopInitDefaultValue(rightContentConfigList);
             }
           }
+          this.$data.contentConfigInitDisabledKeys = [
+            ...new Set(this.$data.contentConfigInitDisabledKeys)
+          ];
         },
         /**
          * 设置初始化使用的默认值
          */
         setDefaultValue(key, defaultValue) {
-          if (this.$data.configDefaultValueData.has(key)) {
+          if (this.$data.contentConfigInitDefaultValue.has(key)) {
             log.warn("请检查该key(已存在): " + key);
           }
-          this.$data.configDefaultValueData.set(key, defaultValue);
+          this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
         },
         /**
          * 设置值
@@ -929,8 +945,8 @@
         getValue(key, defaultValue) {
           let localValue = PopsPanelStorageApi.get(key);
           if (localValue == null) {
-            if (this.$data.configDefaultValueData.has(key)) {
-              return this.$data.configDefaultValueData.get(key);
+            if (this.$data.contentConfigInitDefaultValue.has(key)) {
+              return this.$data.contentConfigInitDefaultValue.get(key);
             }
             return defaultValue;
           }
@@ -999,7 +1015,7 @@
         /**
          * 执行菜单
          *
-         * @param queryKey 键|键数组
+         * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
          * @param callback 执行的回调函数
          * @param checkExec 判断是否执行回调
          *
@@ -1032,7 +1048,7 @@
             keyList.push(queryKeyResult);
           }
           let findNotInDataKey = keyList.find(
-            (it) => !this.$data.configDefaultValueData.has(it)
+            (it) => !this.$data.contentConfigInitDefaultValue.has(it)
           );
           if (findNotInDataKey) {
             log.warn(`${findNotInDataKey} 键不存在`);
@@ -1155,11 +1171,12 @@
         },
         /**
          * 自动判断菜单是否启用，然后执行回调
-         * @param key
+         * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
          * @param callback 回调
-         * @param [isReverse=false] 逆反判断菜单启用
+         * @param isReverse 逆反判断菜单启用，默认false
+         * @param once 是否是只执行一次，默认false
          */
-        execMenu(key, callback, isReverse = false) {
+        execMenu(key, callback, isReverse = false, once = false) {
           return this.exec(
             key,
             (option) => {
@@ -1168,36 +1185,29 @@
             (keyList) => {
               let execFlag = keyList.every((__key__) => {
                 let flag = !!this.getValue(__key__);
+                let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+                if (disabled) {
+                  flag = false;
+                  log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+                }
                 isReverse && (flag = !flag);
                 return flag;
               });
               return execFlag;
             },
-            false
+            once
           );
         },
         /**
          * 自动判断菜单是否启用，然后执行回调，只会执行一次
          *
          * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-         * @param key
+         * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
          * @param callback 回调
-         * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-         * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+         * @param isReverse 逆反判断菜单启用，默认false
          */
-        execMenuOnce(key, callback) {
-          return this.exec(
-            key,
-            callback,
-            (keyList) => {
-              let execFlag = keyList.every((__key__) => {
-                let flag = !!this.getValue(__key__);
-                return flag;
-              });
-              return execFlag;
-            },
-            true
-          );
+        execMenuOnce(key, callback, isReverse = false) {
+          return this.execMenu(key, callback, isReverse, true);
         },
         /**
          * 根据key执行一次
@@ -2517,10 +2527,13 @@ div[class^="new-summary-container_"] {\r
             return;
           }
           _unsafeWindow.setTimeout = function(...args) {
-            let callBackString = args[0].toString();
-            if (callBackString.match(matchStr)) {
-              log.success(["劫持延迟函数", callBackString]);
-              return;
+            let callback = args[0];
+            if (typeof callback === "function") {
+              let callBackString = callback.toString();
+              if (callBackString.match(matchStr)) {
+                log.success(["劫持延迟函数", callBackString]);
+                return;
+              }
             }
             return OriginPrototype.setTimeout.apply(this, args);
           };
@@ -10673,16 +10686,18 @@ match-attr##srcid##sp_purc_atom
         );
         return result;
       };
-      const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
+      const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack, disabled) {
         let result = {
           text,
           type: "switch",
           description,
+          disabled,
           attributes: {},
           props: {},
           getValue() {
             let storageApiValue = this.props[PROPS_STORAGE_API];
-            return Boolean(storageApiValue.get(key, defaultValue));
+            let value = storageApiValue.get(key, defaultValue);
+            return value;
           },
           callback(event, __value) {
             let value = Boolean(__value);
@@ -13915,6 +13930,7 @@ match-attr##srcid##sp_purc_atom
                   if (typeof link === "string") {
                     log.info(`点击超链接：` + link);
                     window.open(link, "_blank");
+                    return;
                   } else {
                     let $uniText = $click.closest("uni-text.pb-content-item");
                     let vueIns = VueUtils.getVue($uniText);
@@ -13927,15 +13943,27 @@ match-attr##srcid##sp_purc_atom
                         let link2 = findValue["link"];
                         log.info(`点击超链接：` + link2);
                         window.open(link2, "_blank");
+                        return;
+                      }
+                    }
+                    let $wakeUpLink = $click.closest(".wake-app-link");
+                    let wakeUpVueInst = VueUtils.getVue($wakeUpLink);
+                    if (wakeUpVueInst) {
+                      let url = wakeUpVueInst?.config?.param?.smartapp?.url;
+                      if (typeof url === "string") {
+                        log.info(`点击超链接：` + url);
+                        window.open(url, "_blank");
+                        return;
                       } else {
-                        log.error("获取链接失败");
-                        log.error($click, vue3Ins, $uniText, vueIns, section);
-                        Qmsg.error("获取链接失败");
+                        Qmsg.error("获取链接失败，.wake-app-link上的链接未找到", {
+                          consoleLogContent: true
+                        });
                       }
                     } else {
-                      log.error("获取链接失败");
                       log.error($click, vue3Ins);
-                      Qmsg.error("获取链接失败");
+                      Qmsg.error("获取链接失败，section不存在", {
+                        consoleLogContent: true
+                      });
                     }
                   }
                 } else if ($click.classList.contains("pb-at")) {
@@ -26947,6 +26975,7 @@ match-attr##srcid##sp_purc_atom
 						.pops{
 							--avatar-size: 60px;
 							--user-info-font-color: #ffffff;
+							--container-title-height: auto;
 						}
 						.pops-drawer-title{
 							background: url(https://imgapi.xl0408.top/index.php);
