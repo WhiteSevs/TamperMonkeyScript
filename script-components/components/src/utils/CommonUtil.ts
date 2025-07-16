@@ -124,8 +124,18 @@ export const CommonUtil = {
 		url = url.trim();
 		if (url.match(/^http(s|):\/\//i)) {
 			return url;
+		} else if (url.startsWith("//")) {
+			// 2个或2个以上的//
+			if (url.startsWith("///")) {
+				// 非法的//
+			} else {
+				// 补全protocol
+				url = window.location.protocol + url;
+			}
+			return url;
 		} else {
 			if (!url.startsWith("/")) {
+				// 不以/开头的，补上
 				url += "/";
 			}
 			url = window.location.origin + url;
