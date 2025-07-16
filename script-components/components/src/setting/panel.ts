@@ -66,6 +66,10 @@ const Panel = {
 			return this.__contentConfigInitDefaultValue;
 		},
 		/**
+		 * 菜单项初始化时禁用的键
+		 */
+		contentConfigInitDisabledKeys: <string[]>[],
+		/**
 		 * 成功只执行了一次的项
 		 */
 		get onceExecMenuData() {
@@ -170,6 +174,17 @@ const Panel = {
 					return;
 				}
 			}
+			if (config.type === "switch") {
+				let disabled =
+					typeof config.disabled === "function"
+						? config.disabled()
+						: config.disabled;
+				if (typeof disabled === "boolean" && disabled) {
+					this.$data.contentConfigInitDisabledKeys.push(
+						...menuDefaultConfig.keys()
+					);
+				}
+			}
 			// 循环初始化默认值
 			for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
 				// 设置默认值
@@ -203,6 +218,11 @@ const Panel = {
 				loopInitDefaultValue(rightContentConfigList);
 			}
 		}
+
+		// 去重
+		this.$data.contentConfigInitDisabledKeys = [
+			...new Set(this.$data.contentConfigInitDisabledKeys),
+		];
 	},
 	/**
 	 * 设置初始化使用的默认值
@@ -529,12 +549,14 @@ const Panel = {
 	 * 自动判断菜单是否启用，然后执行回调
 	 * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
 	 * @param callback 回调
-	 * @param [isReverse=false] 逆反判断菜单启用
+	 * @param isReverse 逆反判断菜单启用，默认false
+	 * @param once 是否是只执行一次，默认false
 	 */
 	execMenu(
 		key: string | string[],
 		callback: (option: ExecMenuCallBackOption) => any | any[],
-		isReverse = false
+		isReverse = false,
+		once: boolean = false
 	) {
 		return this.exec(
 			key,
@@ -544,12 +566,20 @@ const Panel = {
 			(keyList) => {
 				let execFlag = keyList.every((__key__) => {
 					let flag = !!this.getValue(__key__);
+					let disabled =
+						Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+					if (disabled) {
+						// 被禁用
+						flag = false;
+						log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+					}
+
 					isReverse && (flag = !flag);
 					return flag;
 				});
 				return execFlag;
 			},
-			false
+			once
 		);
 	},
 	/**
@@ -558,25 +588,14 @@ const Panel = {
 	 * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
 	 * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
 	 * @param callback 回调
-	 * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-	 * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+	 * @param isReverse 逆反判断菜单启用，默认false
 	 */
 	execMenuOnce(
 		key: string | string[],
-		callback: (option: ExecMenuCallBackOption) => any | any[]
+		callback: (option: ExecMenuCallBackOption) => any | any[],
+		isReverse = false
 	) {
-		return this.exec(
-			key,
-			callback,
-			(keyList) => {
-				let execFlag = keyList.every((__key__) => {
-					let flag = !!this.getValue(__key__);
-					return flag;
-				});
-				return execFlag;
-			},
-			true
-		);
+		return this.execMenu(key, callback, isReverse, true);
 	},
 	/**
 	 * 根据key执行一次
