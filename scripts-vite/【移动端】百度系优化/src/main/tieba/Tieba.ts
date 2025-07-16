@@ -347,6 +347,7 @@ export const BaiduTieBa = {
 						.pops{
 							--avatar-size: 60px;
 							--user-info-font-color: #ffffff;
+							--container-title-height: auto;
 						}
 						.pops-drawer-title{
 							background: url(https://imgapi.xl0408.top/index.php);

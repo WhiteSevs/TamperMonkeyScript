@@ -669,6 +669,7 @@ export const TiebaUniAppPost = {
 						if (typeof link === "string") {
 							log.info(`点击超链接：` + link);
 							window.open(link, "_blank");
+							return;
 						} else {
 							let $uniText = $click.closest("uni-text.pb-content-item");
 							let vueIns = VueUtils.getVue($uniText);
@@ -686,15 +687,27 @@ export const TiebaUniAppPost = {
 									let link = findValue["link"];
 									log.info(`点击超链接：` + link);
 									window.open(link, "_blank");
+									return;
+								}
+							}
+							let $wakeUpLink = $click.closest<HTMLElement>(".wake-app-link");
+							let wakeUpVueInst = VueUtils.getVue($wakeUpLink);
+							if (wakeUpVueInst) {
+								let url = wakeUpVueInst?.config?.param?.smartapp?.url;
+								if (typeof url === "string") {
+									log.info(`点击超链接：` + url);
+									window.open(url, "_blank");
+									return;
 								} else {
-									log.error("获取链接失败");
-									log.error($click, vue3Ins, $uniText, vueIns, section);
-									Qmsg.error("获取链接失败");
+									Qmsg.error("获取链接失败，.wake-app-link上的链接未找到", {
+										consoleLogContent: true,
+									});
 								}
 							} else {
-								log.error("获取链接失败");
 								log.error($click, vue3Ins);
-								Qmsg.error("获取链接失败");
+								Qmsg.error("获取链接失败，section不存在", {
+									consoleLogContent: true,
+								});
 							}
 						}
 					} else if ($click.classList.contains("pb-at")) {

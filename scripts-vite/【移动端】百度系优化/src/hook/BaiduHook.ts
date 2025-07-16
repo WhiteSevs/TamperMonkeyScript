@@ -438,11 +438,14 @@ export const BaiduHook = {
 			log.info("window.setTimeout hook新增劫持判断参数：" + matchStr);
 			return;
 		}
-		(unsafeWindow as any).setTimeout = function (...args: any[]): any {
-			let callBackString = args[0].toString();
-			if (callBackString.match(matchStr)) {
-				log.success(["劫持延迟函数", callBackString]);
-				return;
+		unsafeWindow.setTimeout = function (...args: any[]): any {
+			let callback = args[0];
+			if (typeof callback === "function") {
+				let callBackString = callback.toString();
+				if (callBackString.match(matchStr)) {
+					log.success(["劫持延迟函数", callBackString]);
+					return;
+				}
 			}
 			// @ts-ignore
 			return OriginPrototype.setTimeout.apply(this, args);
