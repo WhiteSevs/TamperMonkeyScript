@@ -9191,6 +9191,9 @@
     automaticContinuousPlayback() {
       log.info(`自动连续播放`);
       let lockFn = new utils.LockFunction(() => {
+        if (!DouYinRouter.isRecommend()) {
+          return;
+        }
         let $activeVideo = $(
           `.page-recommend-container [data-e2e="feed-active-video"] video:not([data-automaticContinuousPlayback])`
         );
