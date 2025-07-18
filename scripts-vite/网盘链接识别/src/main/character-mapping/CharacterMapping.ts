@@ -417,15 +417,15 @@ export const CharacterMapping = {
 											let $dynamicContainer = DOMUtils.createElement("div", {
 												className: "rule-form-ulist-dynamic",
 												innerHTML: /*html*/ `
-									<div class="rule-form-ulist-dynamic__inner">
+												<div class="rule-form-ulist-dynamic__inner">
 
-									</div>
-									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
-											<i class="pops-bottom-icon" is-loading="false"></i>
-											<span class="pops-panel-button-text">添加额外属性</span>
-										</button>
-									</div>`,
+												</div>
+												<div class="pops-panel-button pops-panel-button-no-icon">
+													<button class="pops-panel-button_inner" type="button" data-type="default">
+														<i class="pops-bottom-icon" is-loading="false"></i>
+														<span class="pops-panel-button-text">添加额外属性</span>
+													</button>
+												</div>`,
 											});
 											let $dynamicInner =
 												$dynamicContainer.querySelector<HTMLElement>(
@@ -456,7 +456,7 @@ export const CharacterMapping = {
 														innerHTML: /*html*/ `
 										<div class="dynamic-control-delete">
 											<div class="pops-panel-button pops-panel-button-no-icon">
-												<button class="pops-panel-button_inner" type="danger">
+												<button class="pops-panel-button_inner" type="button" data-type="danger">
 													<i class="pops-bottom-icon" is-loading="false"></i>
 													<span class="pops-panel-button-text">×</span>
 												</button>
@@ -902,7 +902,7 @@ export const CharacterMapping = {
 
 									</div>
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">添加额外属性</span>
 										</button>
@@ -933,7 +933,7 @@ export const CharacterMapping = {
 									innerHTML: /*html*/ `
 										<div class="dynamic-control-delete">
 											<div class="pops-panel-button pops-panel-button-no-icon">
-												<button class="pops-panel-button_inner" type="danger">
+												<button class="pops-panel-button_inner" type="button" data-type="danger">
 													<i class="pops-bottom-icon" is-loading="false"></i>
 													<span class="pops-panel-button-text">×</span>
 												</button>

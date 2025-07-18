@@ -212,7 +212,7 @@ export const NetDiskHistoryMatchView = {
 			</div>
 			<div class="netdiskrecord-functions">
 				<p>功能</p>
-				<button class="btn-delete">删除</button>
+				<button class="btn-delete" type="button">删除</button>
 			</div>
 			`,
 		});

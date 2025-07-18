@@ -112,7 +112,7 @@
 .whitesevPop-content p[pop] {
 	text-indent: 0;
 }
-.whitesevPop-button[type="primary"] {
+.whitesevPop-button[data-type="primary"] {
 	border-color: #2d8cf0;
 	background-color: #2d8cf0;
 }

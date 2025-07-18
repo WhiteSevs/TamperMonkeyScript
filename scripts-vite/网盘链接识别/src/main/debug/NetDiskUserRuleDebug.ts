@@ -86,7 +86,7 @@ export const NetDiskUserRuleDebug = {
                         <textarea class="custom-rule-match-text" placeholder="请输入需要测试匹配的字符串"></textarea>
                         <div class="custom-rule-input-container">
                         <select class="custom-rule-select-regexp"></select>
-                        <button class="custom-rule-run-match-button" type="primary" data-icon="" data-righticon="false">
+                        <button class="custom-rule-run-match-button" type="button" data-type="primary" data-icon="" data-righticon="false">
                             <span>执行</span>
                         </button>
                         </div>
