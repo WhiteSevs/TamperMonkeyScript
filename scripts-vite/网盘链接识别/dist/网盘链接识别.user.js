@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.13
+// @version      2025.7.18
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -204,6 +204,12 @@
     fixUrl(url) {
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else if (url.startsWith("//")) {
+        if (url.startsWith("///")) ;
+        else {
+          url = window.location.protocol + url;
+        }
         return url;
       } else {
         if (!url.startsWith("/")) {
@@ -427,7 +433,8 @@
         toClose: false,
         toHide: false
       }
-    }
+    },
+    drag: true
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
@@ -852,7 +859,7 @@
       /**
        * @private
        */
-      __configDefaultValueData: null,
+      __contentConfigInitDefaultValue: null,
       /**
        * @private
        */
@@ -867,14 +874,18 @@
       __panelConfig: {},
       $panel: null,
       /**
-       * 菜单项的默认值
+       * 菜单项初始化的默认值
        */
-      get configDefaultValueData() {
-        if (this.__configDefaultValueData == null) {
-          this.__configDefaultValueData = new utils.Dictionary();
+      get contentConfigInitDefaultValue() {
+        if (this.__contentConfigInitDefaultValue == null) {
+          this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
-        return this.__configDefaultValueData;
+        return this.__contentConfigInitDefaultValue;
       },
+      /**
+       * 菜单项初始化时禁用的键
+       */
+      contentConfigInitDisabledKeys: [],
       /**
        * 成功只执行了一次的项
        */
@@ -930,10 +941,21 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let needInitConfig = {};
+        let menuDefaultConfig = /* @__PURE__ */ new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          menuDefaultConfig.set(key, defaultValue);
+        }
+        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
+          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
+            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+          });
+        }
+        if (!menuDefaultConfig.size) {
+          log.warn(["请先配置键", config]);
+          return;
         }
         let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
@@ -942,19 +964,17 @@
             return;
           }
         }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
+        if (config.type === "switch") {
+          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          if (typeof disabled === "boolean" && disabled) {
+            this.$data.contentConfigInitDisabledKeys.push(
+              ...menuDefaultConfig.keys()
+            );
+          }
         }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          log.warn(["请先配置键", config]);
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
           this.setDefaultValue(__key, __defaultValue);
-        });
+        }
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
@@ -977,15 +997,18 @@
           loopInitDefaultValue(rightContentConfigList);
         }
       }
+      this.$data.contentConfigInitDisabledKeys = [
+        ...new Set(this.$data.contentConfigInitDisabledKeys)
+      ];
     },
     /**
      * 设置初始化使用的默认值
      */
     setDefaultValue(key, defaultValue) {
-      if (this.$data.configDefaultValueData.has(key)) {
+      if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
-      this.$data.configDefaultValueData.set(key, defaultValue);
+      this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
     /**
      * 设置值
@@ -1003,8 +1026,8 @@
     getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.configDefaultValueData.has(key)) {
-          return this.$data.configDefaultValueData.get(key);
+        if (this.$data.contentConfigInitDefaultValue.has(key)) {
+          return this.$data.contentConfigInitDefaultValue.get(key);
         }
         return defaultValue;
       }
@@ -1073,7 +1096,7 @@
     /**
      * 执行菜单
      *
-     * @param queryKey 键|键数组
+     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 执行的回调函数
      * @param checkExec 判断是否执行回调
      *
@@ -1106,7 +1129,7 @@
         keyList.push(queryKeyResult);
       }
       let findNotInDataKey = keyList.find(
-        (it) => !this.$data.configDefaultValueData.has(it)
+        (it) => !this.$data.contentConfigInitDefaultValue.has(it)
       );
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
@@ -1229,11 +1252,12 @@
     },
     /**
      * 自动判断菜单是否启用，然后执行回调
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param [isReverse=false] 逆反判断菜单启用
+     * @param isReverse 逆反判断菜单启用，默认false
+     * @param once 是否是只执行一次，默认false
      */
-    execMenu(key, callback, isReverse = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -1242,36 +1266,29 @@
         (keyList) => {
           let execFlag = keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
+            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            if (disabled) {
+              flag = false;
+              log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+            }
             isReverse && (flag = !flag);
             return flag;
           });
           return execFlag;
         },
-        false
+        once
       );
     },
     /**
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      *
      * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     * @param isReverse 逆反判断菜单启用，默认false
      */
-    execMenuOnce(key, callback) {
-      return this.exec(
-        key,
-        callback,
-        (keyList) => {
-          let execFlag = keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            return flag;
-          });
-          return execFlag;
-        },
-        true
-      );
+    execMenuOnce(key, callback, isReverse = false) {
+      return this.execMenu(key, callback, isReverse, true);
     },
     /**
      * 根据key执行一次
@@ -2072,16 +2089,18 @@
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack, disabled) {
     let result = {
       text,
       type: "switch",
       description,
+      disabled,
       attributes: {},
       props: {},
       getValue() {
         let storageApiValue = this.props[PROPS_STORAGE_API];
-        return Boolean(storageApiValue.get(key, defaultValue));
+        let value = storageApiValue.get(key, defaultValue);
+        return value;
       },
       callback(event, __value) {
         let value = Boolean(__value);
@@ -4593,7 +4612,7 @@
       return details;
     }
   };
-  const indexCSS$4 = '.pops[type-value="alert"]\r\n	.pops-alert-title:has(+ .pops-alert-content .netdisk-url-box-all:empty) {\r\n	border-bottom: none;\r\n}\r\n.netdisk-url-box {\r\n	border-bottom: 1px solid #e4e6eb;\r\n}\r\n.netdisk-url-div {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	padding: 5px 0px 5px 0px;\r\n}\r\n.netdisk-icon {\r\n	display: contents;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	cursor: pointer;\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	margin: 0px 10px;\r\n}\r\n.netdisk-url-div .netdisk-icon,\r\n.netdisk-url-div .netdisk-status {\r\n	flex: 0 0 auto;\r\n}\r\n.netdisk-url-div .netdisk-url {\r\n	flex: 1;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.netdisk-status[data-check-failed] {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url a {\r\n	color: #ff4848 !important;\r\n	min-height: 28px;\r\n	overflow-x: hidden;\r\n	overflow-y: auto;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	padding: 0px;\r\n	word-break: break-word;\r\n	text-align: left;\r\n}\r\n.netdisk-status {\r\n	display: none;\r\n}\r\n.netdisk-status[data-check-valid] {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 15px;\r\n	height: 15px;\r\n	color: #000000;\r\n}\r\n\r\n.netdisk-status[data-check-valid="failed"] {\r\n	color: red;\r\n}\r\n\r\n.netdisk-status[data-check-valid="partial-violation"] {\r\n	color: orange;\r\n}\r\n\r\n.netdisk-status[data-check-valid="error"] {\r\n	cursor: pointer;\r\n}\r\n\r\n.netdisk-status[data-check-valid="success"] {\r\n	color: green;\r\n}\r\n\r\n.netdisk-status[data-check-valid="verify"] {\r\n	color: #faad14;\r\n}\r\n\r\n.netdisk-status[data-check-valid="loading"] svg {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n\r\n.netdisk-url-box:has(.netdisk-status[data-check-valid="failed"]) {\r\n	text-decoration: line-through;\r\n}\r\n\r\n.whitesevPop-whitesevPopSetting :focus-visible {\r\n	outline-offset: 0;\r\n	outline: 0;\r\n}\r\n.netdisk-url a[isvisited="true"] {\r\n	color: #8b8888 !important;\r\n}\r\n.netdisk-url a:active {\r\n	box-shadow: 0 0 0 1px #616161 inset;\r\n}\r\n.netdisk-url a:focus-visible {\r\n	outline: 0;\r\n}\r\n.whitesevPop-content p[pop] {\r\n	text-indent: 0;\r\n}\r\n.whitesevPop-button[type="primary"] {\r\n	border-color: #2d8cf0;\r\n	background-color: #2d8cf0;\r\n}\r\n';
+  const indexCSS$4 = '.pops[type-value="alert"]\r\n	.pops-alert-title:has(+ .pops-alert-content .netdisk-url-box-all:empty) {\r\n	border-bottom: none;\r\n}\r\n.netdisk-url-box {\r\n	border-bottom: 1px solid #e4e6eb;\r\n}\r\n.netdisk-url-div {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	padding: 5px 0px 5px 0px;\r\n}\r\n.netdisk-icon {\r\n	display: contents;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	cursor: pointer;\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	margin: 0px 10px;\r\n}\r\n.netdisk-url-div .netdisk-icon,\r\n.netdisk-url-div .netdisk-status {\r\n	flex: 0 0 auto;\r\n}\r\n.netdisk-url-div .netdisk-url {\r\n	flex: 1;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.netdisk-status[data-check-failed] {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url a {\r\n	color: #ff4848 !important;\r\n	min-height: 28px;\r\n	overflow-x: hidden;\r\n	overflow-y: auto;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	padding: 0px;\r\n	word-break: break-word;\r\n	text-align: left;\r\n}\r\n.netdisk-status {\r\n	display: none;\r\n}\r\n.netdisk-status[data-check-valid] {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 15px;\r\n	height: 15px;\r\n	color: #000000;\r\n}\r\n\r\n.netdisk-status[data-check-valid="failed"] {\r\n	color: red;\r\n}\r\n\r\n.netdisk-status[data-check-valid="partial-violation"] {\r\n	color: orange;\r\n}\r\n\r\n.netdisk-status[data-check-valid="error"] {\r\n	cursor: pointer;\r\n}\r\n\r\n.netdisk-status[data-check-valid="success"] {\r\n	color: green;\r\n}\r\n\r\n.netdisk-status[data-check-valid="verify"] {\r\n	color: #faad14;\r\n}\r\n\r\n.netdisk-status[data-check-valid="loading"] svg {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n\r\n.netdisk-url-box:has(.netdisk-status[data-check-valid="failed"]) {\r\n	text-decoration: line-through;\r\n}\r\n\r\n.whitesevPop-whitesevPopSetting :focus-visible {\r\n	outline-offset: 0;\r\n	outline: 0;\r\n}\r\n.netdisk-url a[isvisited="true"] {\r\n	color: #8b8888 !important;\r\n}\r\n.netdisk-url a:active {\r\n	box-shadow: 0 0 0 1px #616161 inset;\r\n}\r\n.netdisk-url a:focus-visible {\r\n	outline: 0;\r\n}\r\n.whitesevPop-content p[pop] {\r\n	text-indent: 0;\r\n}\r\n.whitesevPop-button[data-type="primary"] {\r\n	border-color: #2d8cf0;\r\n	background-color: #2d8cf0;\r\n}\r\n';
   const GenerateData = function(key, defaultValue) {
     return {
       /** 键名 */
@@ -4686,16 +4705,17 @@
                     /*html*/
                     `
                                 <i class="pops-icon">
-                                <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill="currentColor" d="M290.816 774.144h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m462.848-524.288h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m188.416 323.584c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
-                                    </path>
-                                </svg>
+									<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+										<path fill="currentColor" d="M290.816 774.144h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m462.848-524.288h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m188.416 323.584c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
+										</path>
+									</svg>
                                 </i>
                                 `
                   )
                 },
                 {
-                  type: "launch",
+                  type: "button",
+                  "data-type": "launch",
                   "data-header": true
                 }
               );
@@ -4707,16 +4727,17 @@
                     /*html*/
                     `
                                 <i class="pops-icon">
-                                <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill="currentColor" d="M618.496 425.984h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m-192.512 172.032h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m516.096-24.576c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
-                                    </path>
-                                </svg>
+									<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+										<path fill="currentColor" d="M618.496 425.984h167.936c12.288 0 20.48 8.192 20.48 20.48s-8.192 20.48-20.48 20.48h-219.136c-12.288 0-20.48-8.192-20.48-20.48v-2.048-206.848c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v163.84l210.944-198.656c8.192-8.192 20.48-8.192 28.672 0s8.192 20.48 0 28.672l-208.896 194.56z m-192.512 172.032h-167.936c-12.288 0-20.48-8.192-20.48-20.48s8.192-20.48 20.48-20.48h219.136c12.288 0 20.48 8.192 20.48 20.48v208.896c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-163.84l-210.944 198.656c-8.192 8.192-20.48 8.192-28.672 0s-8.192-20.48 0-28.672l208.896-194.56z m516.096-24.576c0 12.288-8.192 20.48-20.48 20.48s-20.48-8.192-20.48-20.48v-389.12c0-34.816-26.624-61.44-61.44-61.44h-655.36c-34.816 0-61.44 26.624-61.44 61.44v655.36c0 34.816 26.624 61.44 61.44 61.44h655.36c34.816 0 61.44-26.624 61.44-61.44v-94.208c0-12.288 8.192-20.48 20.48-20.48s20.48 8.192 20.48 20.48v94.208c0 57.344-45.056 102.4-102.4 102.4h-655.36c-57.344 0-102.4-45.056-102.4-102.4v-655.36c0-57.344 45.056-102.4 102.4-102.4h655.36c57.344 0 102.4 45.056 102.4 102.4v389.12z">
+										</path>
+									</svg>
                                 </i>
                                 `
                   )
                 },
                 {
-                  type: "shrink",
+                  type: "button",
+                  "data-type": "shrink",
                   "data-header": true
                 }
               );
@@ -4725,7 +4746,6 @@
               domUtils.on(
                 launchIcon,
                 "click",
-                void 0,
                 function() {
                   domUtils.addClass(launchIcon, "pops-hide-important");
                   domUtils.removeClass(shrinkIcon, "pops-hide-important");
@@ -4740,7 +4760,6 @@
               domUtils.on(
                 shrinkIcon,
                 "click",
-                void 0,
                 function() {
                   domUtils.removeClass(launchIcon, "pops-hide-important");
                   domUtils.addClass(shrinkIcon, "pops-hide-important");
@@ -11171,7 +11190,7 @@
 			</div>
 			<div class="netdiskrecord-functions">
 				<p>功能</p>
-				<button class="btn-delete">删除</button>
+				<button class="btn-delete" type="button">删除</button>
 			</div>
 			`
         )
@@ -12582,15 +12601,15 @@
                           innerHTML: (
                             /*html*/
                             `
-									<div class="rule-form-ulist-dynamic__inner">
+												<div class="rule-form-ulist-dynamic__inner">
 
-									</div>
-									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
-											<i class="pops-bottom-icon" is-loading="false"></i>
-											<span class="pops-panel-button-text">添加额外属性</span>
-										</button>
-									</div>`
+												</div>
+												<div class="pops-panel-button pops-panel-button-no-icon">
+													<button class="pops-panel-button_inner" type="button" data-type="default">
+														<i class="pops-bottom-icon" is-loading="false"></i>
+														<span class="pops-panel-button-text">添加额外属性</span>
+													</button>
+												</div>`
                           )
                         });
                         let $dynamicInner = $dynamicContainer.querySelector(
@@ -12616,7 +12635,7 @@
                                 `
 										<div class="dynamic-control-delete">
 											<div class="pops-panel-button pops-panel-button-no-icon">
-												<button class="pops-panel-button_inner" type="danger">
+												<button class="pops-panel-button_inner" type="button" data-type="danger">
 													<i class="pops-bottom-icon" is-loading="false"></i>
 													<span class="pops-panel-button-text">×</span>
 												</button>
@@ -13013,7 +13032,7 @@
 
 									</div>
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">添加额外属性</span>
 										</button>
@@ -13041,7 +13060,7 @@
                       `
 										<div class="dynamic-control-delete">
 											<div class="pops-panel-button pops-panel-button-no-icon">
-												<button class="pops-panel-button_inner" type="danger">
+												<button class="pops-panel-button_inner" type="button" data-type="danger">
 													<i class="pops-bottom-icon" is-loading="false"></i>
 													<span class="pops-panel-button-text">×</span>
 												</button>
@@ -13884,8 +13903,15 @@
       let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
       let $fragment = document.createDocumentFragment();
       this.option.filterOption.forEach((filterOption) => {
-        let $button = document.createElement("button");
-        $button.innerText = filterOption.name;
+        let $button = domUtils.createElement(
+          "button",
+          {
+            innerText: filterOption.name
+          },
+          {
+            type: "button"
+          }
+        );
         let execFilterAndCloseDialog = async () => {
           let allRuleInfo = await this.option.getAllRuleInfo();
           allRuleInfo.forEach(async (ruleInfo) => {
@@ -14057,12 +14083,11 @@
         if (config.subscribe?.enable) {
           config.headerTitle = config.headerTitle + /*html*/
           `
-                <div class="subscribe-container">
-                    <button class="subscribe-btn" type="subscribe" data-has-icon="false" data-righticon="false">
-                        <span>${config.subscribe?.title || "订阅"}</span>
-                    </button>
-                </div>
-            `;
+					<div class="subscribe-container">
+						<button class="subscribe-btn" type="button" data-type="subscribe" data-has-icon="false" data-righticon="false">
+							<span>${config.subscribe?.title || "订阅"}</span>
+						</button>
+					</div>`;
         }
         let originCallBack = config.clickCallback;
         config.clickCallback = async (event, $panelRightHeader, $panelRightContainer) => {
@@ -14089,7 +14114,7 @@
               let $subscribeRightContainer = deepMenuElementInfo.$rightRuleContainer;
               this.createButtonControls(
                 $subscribeRightContainer,
-                deepMenuElementInfo.$section,
+                $subscribeRightContainer,
                 subscribeOption,
                 async () => {
                   let $prompt = __pops.prompt({
@@ -14177,12 +14202,12 @@
                                 style: (
                                   /*css*/
                                   `
-																.pops button[type="subscribe"]{
+																.pops button[data-type="subscribe"]{
 																	--button-color: #ffffff;
 																	--button-bd-color: #67b279;
 																	--button-bg-color: #67b279;
 																}
-																.pops button[type="subscribe"]:hover{
+																.pops button[data-type="subscribe"]:hover{
 																	--button-color: #ffffff;
 																	--button-bd-color:rgb(91, 159, 107);;
 																	--button-bg-color:rgb(91, 159, 107);;
@@ -14431,12 +14456,12 @@
           /*css*/
           `
                 ${this.option.style || ""}
-                .pops button[type="subscribe"]{
+                .pops button[data-type="subscribe"]{
                     --button-color: #ffffff;
                     --button-bd-color: #67b279;
                     --button-bg-color: #67b279;
                 }
-                .pops button[type="subscribe"]:hover{
+                .pops button[data-type="subscribe"]:hover{
                     --button-color: #ffffff;
                     --button-bd-color:rgb(91, 159, 107);;
                     --button-bg-color:rgb(91, 159, 107);;
@@ -14453,10 +14478,12 @@
 					overflow: hidden;
 					display: flex;
 					flex-direction: column;
+					margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);
+					gap: var(--pops-panel-forms-container-item-margin-top-bottom);
 				}
 
 				.rule-view-container{
-					margin: var(--pops-panel-forms-margin-top-bottom) calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));
+					margin: 0;
 					margin-top: 0;
 					overflow: auto;
 					background: #ffffff;
@@ -14491,6 +14518,9 @@
 					gap: 8px;
 					padding: 0px;
 				}
+				.rule-controls button{
+					margin: 0;
+				}
 				.rule-controls-enable{
 					
 				}
@@ -14505,6 +14535,10 @@
 					width: 16px;
 					height: 16px;
 					cursor: pointer;
+				}
+
+				section.pops-panel-container > ul li:not(.pops-panel-forms-container-item){
+					margin: 0;
 				}
             `
         )
@@ -14526,13 +14560,13 @@
         innerHTML: (
           /*html*/
           `
-				<ul class="pops-panel-deepMenu-container-header-ul">
-					<div class="pops-panel-deepMenu-container-header">
+				<ul class="pops-panel-container-header-ul pops-panel-deepMenu-container-header-ul">
+					<li class="pops-panel-container-header-title-text pops-panel-deepMenu-container-header">
 						<i class="pops-panel-deepMenu-container-left-arrow-icon">${__pops.config.iconSVG.arrowLeft}</i>
-						<p>${headerTitle}</p>
-					</div>
+						<p class="pops-panel-deepMenu-container-header-title-text">${headerTitle}</p>
+					</li>
 				</ul>
-				<ul class="pops-panel-ulist-container"></ul>
+				<ul class="pops-panel-container-main-ul"></ul>
 			`
         )
       });
@@ -14544,7 +14578,7 @@
         ".pops-panel-deepMenu-container-left-arrow-icon"
       );
       let $rightRuleContainer = $section.querySelector(
-        ".pops-panel-ulist-container"
+        ".pops-panel-container-main-ul"
       );
       domUtils.on($arrowLeft, "click", (event) => {
         utils.preventEvent(event);
@@ -14593,7 +14627,8 @@
             )
           },
           {
-            type: "primary",
+            type: "button",
+            "data-type": "primary",
             "data-has-icon": "false",
             "data-righticon": "false"
           }
@@ -14623,7 +14658,8 @@
             )
           },
           {
-            type: "default",
+            type: "button",
+            "data-type": "default",
             "data-has-icon": "false",
             "data-righticon": "false"
           }
@@ -14693,7 +14729,8 @@
             )
           },
           {
-            type: "xiaomi-primary",
+            type: "button",
+            "data-type": "xiaomi-primary",
             "data-has-icon": "false",
             "data-righticon": "false"
           }
@@ -14757,7 +14794,8 @@
             )
           },
           {
-            type: "default",
+            type: "button",
+            "data-type": "default",
             "data-has-icon": "false",
             "data-righticon": "false"
           }
@@ -14785,7 +14823,8 @@
             )
           },
           {
-            type: "default",
+            type: "button",
+            "data-type": "default",
             "data-has-icon": "false",
             "data-righticon": "false"
           }
@@ -14981,7 +15020,7 @@
                 let $deepMenuRightContainer = deepMenuElementInfo.$rightRuleContainer;
                 this.createButtonControls(
                   $deepMenuRightContainer,
-                  deepMenuElementInfo.$section,
+                  deepMenuElementInfo.$rightRuleContainer,
                   // @ts-ignore
                   deepMenuOption,
                   void 0
@@ -16847,7 +16886,7 @@
                         <textarea class="custom-rule-match-text" placeholder="请输入需要测试匹配的字符串"></textarea>
                         <div class="custom-rule-input-container">
                         <select class="custom-rule-select-regexp"></select>
-                        <button class="custom-rule-run-match-button" type="primary" data-icon="" data-righticon="false">
+                        <button class="custom-rule-run-match-button" type="button" data-type="primary" data-icon="" data-righticon="false">
                             <span>执行</span>
                         </button>
                         </div>
