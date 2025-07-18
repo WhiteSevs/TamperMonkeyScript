@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.16
+// @version      2025.7.18
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1021,6 +1021,12 @@
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
+      } else if (url.startsWith("//")) {
+        if (url.startsWith("///")) ;
+        else {
+          url = window.location.protocol + url;
+        }
+        return url;
       } else {
         if (!url.startsWith("/")) {
           url += "/";
@@ -1243,7 +1249,8 @@
         toClose: false,
         toHide: false
       }
-    }
+    },
+    drag: true
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
@@ -5197,7 +5204,7 @@
           `
 				/* 修复一下聊天室屏蔽了某些聊天导致上下抖动不停 */
 				.webcast-chatroom___list > div{
-					height: auto !important;
+					height: 100% !important;
 				}
 			`
         )
@@ -5256,7 +5263,8 @@
           "#chatroom > div > div:has(#audiencePanelScrollId)",
           '#chatroom > div > div:has([data-e2e="live-room-audience"])',
           // Firefox上的CSS，多了个pace-island
-          '#chatroom > pace-island > div > div > div:has([data-e2e="live-room-audience"])'
+          '#chatroom > pace-island > div > div > div:has([data-e2e="live-room-audience"])',
+          "#chatroom > pace-island > .chatroom_close+div > div:first-child"
         )
       ];
     },
@@ -5569,7 +5577,14 @@
           html: true
         },
         mask: {
-          enable: false
+          clickEvent: {
+            toClose: true
+          }
+        },
+        btn: {
+          ok: {
+            enable: false
+          }
         },
         width: window.innerWidth > 550 ? "550px" : "88wv",
         height: window.innerHeight > 550 ? "550px" : "70vh",
@@ -5971,12 +5986,14 @@
      * 自动关闭聊天室
      */
     autoCloseChatRoom() {
-      utils.waitNode("#chatroom .chatroom_close", 1e4).then(($chatRoomClose) => {
-        if (!$chatRoomClose) {
-          return;
+      ReactUtils.waitReactPropsToSet("#chatroom .chatroom_close", "reactFiber", {
+        check(reactPropInst, $el) {
+          return typeof reactPropInst?.memoizedProps?.onClick === "function";
+        },
+        set(reactPropInst, $el) {
+          log.info(`自动关闭聊天室-点击关闭聊天室按钮`);
+          $el.click();
         }
-        log.info(`自动关闭聊天室`);
-        $chatRoomClose.click();
       });
     }
   };
