@@ -412,12 +412,11 @@ export class RulePanelView<T> {
 				config.headerTitle =
 					config.headerTitle +
 					/*html*/ `
-                <div class="subscribe-container">
-                    <button class="subscribe-btn" type="subscribe" data-has-icon="false" data-righticon="false">
-                        <span>${config.subscribe?.title || "订阅"}</span>
-                    </button>
-                </div>
-            `;
+					<div class="subscribe-container">
+						<button class="subscribe-btn" type="button" data-type="subscribe" data-has-icon="false" data-righticon="false">
+							<span>${config.subscribe?.title || "订阅"}</span>
+						</button>
+					</div>`;
 			}
 			let originCallBack = config.clickCallback;
 			config.clickCallback = async (
@@ -454,7 +453,7 @@ export class RulePanelView<T> {
 							deepMenuElementInfo.$rightRuleContainer;
 						let subscribeCreateViewElementInfo = this.createButtonControls(
 							$subscribeRightContainer,
-							deepMenuElementInfo.$section,
+							$subscribeRightContainer,
 							subscribeOption,
 							async () => {
 								let $prompt = pops.prompt({
@@ -541,12 +540,12 @@ export class RulePanelView<T> {
 															width: PanelUISize.setting.width,
 															height: "auto",
 															style: /*css*/ `
-																.pops button[type="subscribe"]{
+																.pops button[data-type="subscribe"]{
 																	--button-color: #ffffff;
 																	--button-bd-color: #67b279;
 																	--button-bg-color: #67b279;
 																}
-																.pops button[type="subscribe"]:hover{
+																.pops button[data-type="subscribe"]:hover{
 																	--button-color: #ffffff;
 																	--button-bd-color:rgb(91, 159, 107);;
 																	--button-bg-color:rgb(91, 159, 107);;
@@ -818,12 +817,12 @@ export class RulePanelView<T> {
 			height: PanelUISize.settingBig.height,
 			style: /*css*/ `
                 ${this.option.style || ""}
-                .pops button[type="subscribe"]{
+                .pops button[data-type="subscribe"]{
                     --button-color: #ffffff;
                     --button-bd-color: #67b279;
                     --button-bg-color: #67b279;
                 }
-                .pops button[type="subscribe"]:hover{
+                .pops button[data-type="subscribe"]:hover{
                     --button-color: #ffffff;
                     --button-bd-color:rgb(91, 159, 107);;
                     --button-bg-color:rgb(91, 159, 107);;
@@ -840,10 +839,12 @@ export class RulePanelView<T> {
 					overflow: hidden;
 					display: flex;
 					flex-direction: column;
+					margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);
+					gap: var(--pops-panel-forms-container-item-margin-top-bottom);
 				}
 
 				.rule-view-container{
-					margin: var(--pops-panel-forms-margin-top-bottom) calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));
+					margin: 0;
 					margin-top: 0;
 					overflow: auto;
 					background: #ffffff;
@@ -878,6 +879,9 @@ export class RulePanelView<T> {
 					gap: 8px;
 					padding: 0px;
 				}
+				.rule-controls button{
+					margin: 0;
+				}
 				.rule-controls-enable{
 					
 				}
@@ -892,6 +896,10 @@ export class RulePanelView<T> {
 					width: 16px;
 					height: 16px;
 					cursor: pointer;
+				}
+
+				section.pops-panel-container > ul li:not(.pops-panel-forms-container-item){
+					margin: 0;
 				}
             `,
 		});
@@ -916,13 +924,13 @@ export class RulePanelView<T> {
 		let $section = DOMUtils.createElement("section", {
 			className: "pops-panel-container pops-panel-deepMenu-container",
 			innerHTML: /*html*/ `
-				<ul class="pops-panel-deepMenu-container-header-ul">
-					<div class="pops-panel-deepMenu-container-header">
+				<ul class="pops-panel-container-header-ul pops-panel-deepMenu-container-header-ul">
+					<li class="pops-panel-container-header-title-text pops-panel-deepMenu-container-header">
 						<i class="pops-panel-deepMenu-container-left-arrow-icon">${pops.config.iconSVG.arrowLeft}</i>
-						<p>${headerTitle}</p>
-					</div>
+						<p class="pops-panel-deepMenu-container-header-title-text">${headerTitle}</p>
+					</li>
 				</ul>
-				<ul class="pops-panel-ulist-container"></ul>
+				<ul class="pops-panel-container-main-ul"></ul>
 			`,
 		});
 
@@ -937,7 +945,7 @@ export class RulePanelView<T> {
 		)!;
 		/** 右侧规则容器 */
 		let $rightRuleContainer = $section.querySelector<HTMLElement>(
-			".pops-panel-ulist-container"
+			".pops-panel-container-main-ul"
 		)!;
 
 		DOMUtils.on($arrowLeft, "click", (event) => {
@@ -995,7 +1003,8 @@ export class RulePanelView<T> {
 					innerHTML: /*html*/ `<span>添加</span>`,
 				},
 				{
-					type: "primary",
+					type: "button",
+					"data-type": "primary",
 					"data-has-icon": "false",
 					"data-righticon": "false",
 				}
@@ -1024,7 +1033,8 @@ export class RulePanelView<T> {
 					innerHTML: /*html*/ `<span>过滤</span>`,
 				},
 				{
-					type: "default",
+					type: "button",
+					"data-type": "default",
 					"data-has-icon": "false",
 					"data-righticon": "false",
 				}
@@ -1098,7 +1108,8 @@ export class RulePanelView<T> {
 					innerHTML: /*html*/ `<span>清空所有</span>`,
 				},
 				{
-					type: "xiaomi-primary",
+					type: "button",
+					"data-type": "xiaomi-primary",
 					"data-has-icon": "false",
 					"data-righticon": "false",
 				}
@@ -1162,7 +1173,8 @@ export class RulePanelView<T> {
 					innerHTML: /*html*/ `<span>导入</span>`,
 				},
 				{
-					type: "default",
+					type: "button",
+					"data-type": "default",
 					"data-has-icon": "false",
 					"data-righticon": "false",
 				}
@@ -1191,7 +1203,8 @@ export class RulePanelView<T> {
 					innerHTML: /*html*/ `<span>导出</span>`,
 				},
 				{
-					type: "default",
+					type: "button",
+					"data-type": "default",
 					"data-has-icon": "false",
 					"data-righticon": "false",
 				}
@@ -1413,7 +1426,7 @@ export class RulePanelView<T> {
 								deepMenuElementInfo.$rightRuleContainer;
 							let deepMenuCreateViewElementInfo = this.createButtonControls(
 								$deepMenuRightContainer,
-								deepMenuElementInfo.$section,
+								deepMenuElementInfo.$rightRuleContainer,
 								// @ts-ignore
 								deepMenuOption,
 								void 0

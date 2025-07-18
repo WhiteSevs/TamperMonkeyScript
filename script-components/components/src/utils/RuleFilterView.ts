@@ -87,8 +87,15 @@ export class RuleFilterView<T> {
 			$alert.$shadowRoot.querySelector<HTMLDivElement>(".filter-container")!;
 		let $fragment = document.createDocumentFragment();
 		this.option.filterOption.forEach((filterOption) => {
-			let $button = document.createElement("button");
-			$button.innerText = filterOption.name;
+			let $button = DOMUtils.createElement(
+				"button",
+				{
+					innerText: filterOption.name,
+				},
+				{
+					type: "button",
+				}
+			);
 			let execFilterAndCloseDialog = async () => {
 				let allRuleInfo = await this.option.getAllRuleInfo();
 				allRuleInfo.forEach(async (ruleInfo) => {
