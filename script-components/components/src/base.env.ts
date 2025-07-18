@@ -114,6 +114,7 @@ __pops.GlobalConfig.setGlobalConfig({
 			toHide: false,
 		},
 	},
+	drag: true,
 });
 
 /** 油猴菜单 */
