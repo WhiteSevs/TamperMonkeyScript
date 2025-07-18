@@ -62,17 +62,17 @@ export const PopsIframe = {
 
 		// 先把z-index提取出来
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);
-		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex, maskExtraStyle);
+		let maskHTML = PopsElementHandler.createMask(guid, zIndex, maskExtraStyle);
 
-		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(popsType, config);
+		let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
 		let iframeLoadingHTML = '<div class="pops-loading"></div>';
 		let titleText =
 			config.title!.text!.trim() !== "" ? config.title.text : config.url;
-		let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(
+		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(
 			popsType,
 			config
 		);
-		let animHTML = PopsElementHandler.getAnimHTML(
+		let animHTML = PopsElementHandler.createAnim(
 			guid,
 			popsType,
 			config,

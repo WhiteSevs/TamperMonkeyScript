@@ -19,13 +19,13 @@ export const PopsLoading = {
 
 		// 先把z-index提取出来
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);
-		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
+		let maskHTML = PopsElementHandler.createMask(guid, zIndex);
 
-		let { contentPStyle } = PopsElementHandler.getContentStyle(
+		let { contentPStyle } = PopsElementHandler.createContentStyle(
 			"loading",
 			config
 		);
-		let animHTML = PopsElementHandler.getAnimHTML(
+		let animHTML = PopsElementHandler.createAnim(
 			guid,
 			PopsType,
 			config,

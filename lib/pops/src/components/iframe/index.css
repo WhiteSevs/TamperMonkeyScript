@@ -35,7 +35,7 @@
 	position: unset;
 }
 .pops[type-value="iframe"].pops[type-module="min"]
-	.pops-header-control[type="min"] {
+	.pops-header-control[data-type="min"] {
 	display: none;
 }
 .pops[type-value="iframe"].pops-iframe-unset-top {

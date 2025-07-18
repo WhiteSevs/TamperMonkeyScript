@@ -324,25 +324,25 @@ export const PopsHandler = {
 			 * 顶部缩小按钮
 			 */
 			headerMinBtnElement: animElement.querySelector<HTMLDivElement>(
-				".pops-header-control[type='min']"
+				".pops-header-control[data-type='min']"
 			)!,
 			/**
 			 * 顶部放大按钮
 			 */
 			headerMaxBtnElement: animElement.querySelector<HTMLDivElement>(
-				".pops-header-control[type='max']"
+				".pops-header-control[data-type='max']"
 			)!,
 			/**
 			 * 顶部恢复原样按钮
 			 */
 			headerMiseBtnElement: animElement.querySelector<HTMLDivElement>(
-				".pops-header-control[type='mise']"
+				".pops-header-control[data-type='mise']"
 			)!,
 			/**
 			 * 顶部关闭按钮
 			 */
 			headerCloseBtnElement: animElement.querySelector<HTMLDivElement>(
-				".pops-header-control[type='close']"
+				".pops-header-control[data-type='close']"
 			)!,
 			/**
 			 * 文件夹列表元素

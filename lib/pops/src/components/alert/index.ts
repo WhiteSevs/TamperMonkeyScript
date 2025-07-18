@@ -53,18 +53,18 @@ export const PopsAlert = {
 
 		// 先把z-index提取出来
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);
-		let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
-		let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(popsType, config);
-		let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(popsType, config);
-		let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(
+		let maskHTML = PopsElementHandler.createMask(guid, zIndex);
+		let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+		let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
+		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(
 			popsType,
 			config
 		);
-		let { contentStyle, contentPStyle } = PopsElementHandler.getContentStyle(
+		let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(
 			popsType,
 			config
 		);
-		let animHTML = PopsElementHandler.getAnimHTML(
+		let animHTML = PopsElementHandler.createAnim(
 			guid,
 			popsType,
 			config,

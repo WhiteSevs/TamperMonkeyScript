@@ -2573,7 +2573,7 @@ export const PanelHandlerComponents = () => {
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-button">
-					<button class="pops-panel-button_inner">
+					<button class="pops-panel-button_inner" type="button">
 						<i class="pops-bottom-icon"></i>
 						<span class="pops-panel-button-text"></span>
 					</button>
@@ -2675,7 +2675,7 @@ export const PanelHandlerComponents = () => {
 				 * @param typeValue
 				 */
 				setButtonType(typeValue: string) {
-					this.$ele.button.setAttribute("type", typeValue);
+					this.$ele.button.setAttribute("data-type", typeValue);
 				},
 				/**
 				 * 添加按钮的图标在右边
@@ -2773,7 +2773,7 @@ export const PanelHandlerComponents = () => {
 					formItemConfig: PopsPanelFormsTotalDetails | PopsPanelFormsDetails
 				) {
 					let formConfig_forms = formItemConfig as PopsPanelFormsDetails;
-					if (formConfig_forms["type"] === "forms") {
+					if (formConfig_forms.type === "forms") {
 						let childForms = formConfig_forms["forms"];
 						/* 每一项<li>元素 */
 						let formContainerListElement = document.createElement("li");
@@ -2996,7 +2996,7 @@ export const PanelHandlerComponents = () => {
 		 */
 		createSectionContainerItem(formConfig: PopsPanelFormsTotalDetails) {
 			/** 配置项的类型 */
-			let formType = formConfig["type"];
+			let formType = formConfig.type;
 
 			if (formType === "switch") {
 				return this.createSectionContainerItem_switch(
@@ -3048,7 +3048,7 @@ export const PanelHandlerComponents = () => {
 		) {
 			let that = this;
 			let formConfig_forms = formConfig as PopsPanelFormsDetails;
-			if (formConfig_forms["type"] === "forms") {
+			if (formConfig_forms.type === "forms") {
 				let childForms = formConfig["forms"];
 				/* 每一项<li>元素 */
 				let formContainerListElement = document.createElement("li");

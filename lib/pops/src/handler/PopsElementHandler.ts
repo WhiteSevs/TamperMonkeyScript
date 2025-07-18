@@ -22,7 +22,7 @@ export const PopsElementHandler = {
 	 * @param zIndex z-index
 	 * @param style
 	 */
-	getMaskHTML(guid: string, zIndex: number = 101, style = ""): string {
+	createMask(guid: string, zIndex: number = 101, style = ""): string {
 		zIndex = zIndex - 100;
 		if (style.startsWith(";")) {
 			style = style.replace(";", "");
@@ -38,7 +38,7 @@ export const PopsElementHandler = {
 	 * @param bottomBtnHTML
 	 * @param zIndex
 	 */
-	getAnimHTML(
+	createAnim(
 		guid: string,
 		type: PopsSupportAnimDetailsType,
 		config: PopsSupportAnimDetails[keyof PopsSupportAnimDetails],
@@ -79,38 +79,40 @@ export const PopsElementHandler = {
 	 * @param type
 	 * @param config
 	 */
-	getHeaderBtnHTML(
+	createHeader(
 		type: PopsSupportHeaderTitleDetailsType,
 		config: PopsSupportHeaderTitleDetails[keyof PopsSupportHeaderTitleDetails]
 	): string {
 		if (!config.btn) {
 			return "";
 		}
-		let __config_confirm = config as PopsConfirmDetails;
-		if (type !== "iframe" && !__config_confirm.btn?.close?.enable) {
+		let confirm_config = config as PopsConfirmDetails;
+		if (type !== "iframe" && !confirm_config.btn?.close?.enable) {
 			return "";
 		}
 		let resultHTML = "";
 		// let btnStyle = "";
 		let closeHTML = "";
-		let __config_iframe = config as PopsIframeDetails;
-		if (type === "iframe" && __config_iframe.topRightButton?.trim() !== "") {
+		let iframe_config = config as PopsIframeDetails;
+		if (type === "iframe" && iframe_config.topRightButton?.trim() !== "") {
 			/* iframe的 */
 			let topRightButtonHTML = "";
-			__config_iframe.topRightButton.split("|").forEach((item: string) => {
+			iframe_config.topRightButton.split("|").forEach((item: string) => {
+				// 最小化、最大化、窗口化、关闭按钮
 				item = item.toLowerCase();
 				topRightButtonHTML += /*html*/ `
-                <button class="pops-header-control" type="${item}">
+                <button class="pops-header-control" type="button" data-type="${item}">
                     <i class="pops-icon">${PopsIcon.getIcon(item)}</i>
                 </button>`;
 			});
 			resultHTML = /*html*/ `
             <div class="pops-header-controls" data-margin>${topRightButtonHTML}</div>`;
 		} else {
-			if (__config_confirm.btn?.close?.enable) {
+			if (confirm_config.btn?.close?.enable) {
+				// 关闭按钮
 				closeHTML = /*html*/ `
                 <div class="pops-header-controls">
-                    <button class="pops-header-control" type="close" data-header>
+                    <button class="pops-header-control" type="button" data-type="close" data-header>
                     	<i class="pops-icon">${PopsIcon.getIcon("close")}</i>
                     </button>
                 </div>`;
@@ -121,24 +123,41 @@ export const PopsElementHandler = {
 		return resultHTML;
 	},
 	/**
+	 * 获取标题style
+	 * @param type 弹窗类型
+	 * @param config 弹窗配置
+	 */
+	createHeaderStyle(
+		type: PopsSupportHeaderTitleDetailsType,
+		config: PopsSupportHeaderTitleDetails[keyof PopsSupportHeaderTitleDetails]
+	) {
+		return {
+			headerStyle: config?.title?.html ? config?.title?.style || "" : "",
+			headerPStyle: config?.title?.html ? "" : config?.title?.style || "",
+		};
+	},
+	/**
 	 * 获取底部按钮层HTML
 	 * @param type
 	 * @param config
 	 */
-	getBottomBtnHTML(
+	createBottom(
 		type: PopsSupportBottomBtnDetailsType,
-		config: Omit<PopsSupportBottomBtnDetails[keyof PopsSupportBottomBtnDetails], "content">
+		config: Omit<
+			PopsSupportBottomBtnDetails[keyof PopsSupportBottomBtnDetails],
+			"content"
+		>
 	): string {
-		if (!config.btn) {
+		if (config.btn == null) {
 			// 未设置btn参数
 			return "";
 		}
-		let __config_confirm = config as Required<PopsConfirmDetails>;
+		let confirm_config = config as Required<PopsConfirmDetails>;
 		if (
 			!(
 				config.btn?.ok?.enable ||
-				__config_confirm.btn?.cancel?.enable ||
-				__config_confirm.btn?.other?.enable
+				confirm_config.btn?.cancel?.enable ||
+				confirm_config.btn?.other?.enable
 			)
 		) {
 			// 确定、取消、其它按钮都未启用直接返回
@@ -154,7 +173,7 @@ export const PopsElementHandler = {
 			btnStyle += `justify-content: ${config.btn.position};`;
 		}
 
-		if (__config_confirm.btn.reverse) {
+		if (confirm_config.btn.reverse) {
 			btnStyle += "flex-direction: row-reverse;";
 		}
 		if (config.btn?.ok?.enable) {
@@ -166,7 +185,7 @@ export const PopsElementHandler = {
 				okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
 			}
 			let okIconHTML = "";
-			let okIcon = __config_confirm.btn.ok!.icon! as PopsIconType | string;
+			let okIcon = confirm_config.btn.ok!.icon! as PopsIconType | string;
 			if (okIcon !== "") {
 				// 判断图标是否是svg库内的
 				let iconHTML = "";
@@ -180,29 +199,28 @@ export const PopsElementHandler = {
 			}
 			okHTML = /*html*/ `
             <button 
-                    class="pops-${type}-btn-ok ${okButtonSizeClassName}"
-                    type="${__config_confirm.btn.ok?.type}"
-					data-has-icon="${(__config_confirm.btn.ok!.icon || "") !== ""}"
-                    data-rightIcon="${__config_confirm.btn.ok?.rightIcon}"
+				class="pops-${type}-btn-ok ${okButtonSizeClassName}"
+				type="button"
+				data-type="${confirm_config.btn.ok?.type}"
+				data-has-icon="${(confirm_config.btn.ok!.icon || "") !== ""}"
+				data-rightIcon="${confirm_config.btn.ok?.rightIcon}"
             >${okIconHTML}<span>${config.btn.ok.text}</span>
             </button>`;
 		}
 
-		if (__config_confirm.btn?.cancel?.enable) {
+		if (confirm_config.btn?.cancel?.enable) {
 			/* 处理取消按钮的尺寸问题 */
 			let cancelButtonSizeClassName = "";
 
-			if (__config_confirm.btn.cancel.size === "large") {
+			if (confirm_config.btn.cancel.size === "large") {
 				cancelButtonSizeClassName =
-					"pops-button-" + __config_confirm.btn.cancel.size;
-			} else if (__config_confirm.btn.cancel.size === "small") {
+					"pops-button-" + confirm_config.btn.cancel.size;
+			} else if (confirm_config.btn.cancel.size === "small") {
 				cancelButtonSizeClassName =
-					"pops-button-" + __config_confirm.btn.cancel.size;
+					"pops-button-" + confirm_config.btn.cancel.size;
 			}
 			let cancelIconHTML = "";
-			let cancelIcon = __config_confirm.btn.cancel!.icon as
-				| PopsIconType
-				| string;
+			let cancelIcon = confirm_config.btn.cancel!.icon as PopsIconType | string;
 			if (cancelIcon !== "") {
 				let iconHTML = "";
 				// 判断图标是否是svg库内的
@@ -212,31 +230,32 @@ export const PopsElementHandler = {
 					iconHTML = cancelIcon;
 				}
 				iconHTML = iconHTML || "";
-				cancelIconHTML = /*html*/ `<i class="pops-bottom-icon" is-loading="${__config_confirm.btn.cancel.iconIsLoading}">${iconHTML}</i>`;
+				cancelIconHTML = /*html*/ `<i class="pops-bottom-icon" is-loading="${confirm_config.btn.cancel.iconIsLoading}">${iconHTML}</i>`;
 			}
 			cancelHTML = /*html*/ `
             <button
-                    class="pops-${type}-btn-cancel ${cancelButtonSizeClassName}"
-                    type="${__config_confirm.btn.cancel.type}"
-					data-has-icon="${(__config_confirm.btn.cancel.icon || "") !== ""}"
-                    data-rightIcon="${__config_confirm.btn.cancel.rightIcon}"
-            >${cancelIconHTML}<span>${__config_confirm.btn.cancel.text}</span>
+				class="pops-${type}-btn-cancel ${cancelButtonSizeClassName}"
+				type="button"
+				data-type="${confirm_config.btn.cancel.type}"
+				data-has-icon="${(confirm_config.btn.cancel.icon || "") !== ""}"
+				data-rightIcon="${confirm_config.btn.cancel.rightIcon}"
+            >${cancelIconHTML}<span>${confirm_config.btn.cancel.text}</span>
             </button>`;
 		}
 
-		if (__config_confirm.btn?.other?.enable) {
+		if (confirm_config.btn?.other?.enable) {
 			/* 处理其它按钮的尺寸问题 */
 			let otherButtonSizeClassName = "";
 
-			if (__config_confirm.btn.other.size === "large") {
+			if (confirm_config.btn.other.size === "large") {
 				otherButtonSizeClassName =
-					"pops-button-" + __config_confirm.btn.other.size;
-			} else if (__config_confirm.btn.other.size === "small") {
+					"pops-button-" + confirm_config.btn.other.size;
+			} else if (confirm_config.btn.other.size === "small") {
 				otherButtonSizeClassName =
-					"pops-button-" + __config_confirm.btn.other.size;
+					"pops-button-" + confirm_config.btn.other.size;
 			}
 			let otherIconHTML = "";
-			let otherIcon = __config_confirm.btn.other!.icon as PopsIconType | string;
+			let otherIcon = confirm_config.btn.other!.icon as PopsIconType | string;
 			if (otherIcon !== "") {
 				let iconHTML = "";
 				// 判断图标是否是svg库内的
@@ -246,21 +265,22 @@ export const PopsElementHandler = {
 					otherIcon;
 				}
 				iconHTML = iconHTML || "";
-				otherIconHTML = /*html*/ `<i class="pops-bottom-icon" is-loading="${__config_confirm.btn.other.iconIsLoading}">${iconHTML}</i>`;
+				otherIconHTML = /*html*/ `<i class="pops-bottom-icon" is-loading="${confirm_config.btn.other.iconIsLoading}">${iconHTML}</i>`;
 			}
 			ohterHTML = /*html*/ `
             <button
-                    class="pops-${type}-btn-other ${otherButtonSizeClassName}"
-                    type="${__config_confirm.btn.other.type}"
-					data-has-icon="${(__config_confirm.btn.other.icon || "") !== ""}"
-                    data-rightIcon="${__config_confirm.btn.other.rightIcon}"
-            >${otherIconHTML}<span>${__config_confirm.btn.other.text}</span>
+				class="pops-${type}-btn-other ${otherButtonSizeClassName}"
+				type="button"
+				data-type="${confirm_config.btn.other.type}"
+				data-has-icon="${(confirm_config.btn.other.icon || "") !== ""}"
+				data-rightIcon="${confirm_config.btn.other.rightIcon}"
+            >${otherIconHTML}<span>${confirm_config.btn.other.text}</span>
             </button>`;
 		}
 
-		if (__config_confirm.btn.merge) {
+		if (confirm_config.btn.merge) {
 			let flexStyle = "display: flex;";
-			if (__config_confirm.btn.mergeReverse) {
+			if (confirm_config.btn.mergeReverse) {
 				flexStyle += "flex-direction: row-reverse;";
 			} else {
 				flexStyle += "flex-direction: row;";
@@ -277,26 +297,11 @@ export const PopsElementHandler = {
 		return resultHTML;
 	},
 	/**
-	 * 获取标题style
-	 * @param type 弹窗类型
-	 * @param config 弹窗配置
-	 */
-	getHeaderStyle(
-		type: PopsSupportHeaderTitleDetailsType,
-		config: PopsSupportHeaderTitleDetails[keyof PopsSupportHeaderTitleDetails]
-	) {
-		return {
-			headerStyle: config?.title?.html ? config?.title?.style || "" : "",
-
-			headerPStyle: config?.title?.html ? "" : config?.title?.style || "",
-		};
-	},
-	/**
 	 * 获取内容style
 	 * @param type 弹窗类型
 	 * @param config 弹窗配置
 	 */
-	getContentStyle(
+	createContentStyle(
 		type: PopsSupportContentDetailsType,
 		config: PopsSupportContentDetails[keyof PopsSupportContentDetails]
 	) {

@@ -117,9 +117,9 @@
 	color: #888;
 	cursor: pointer;
 }
-.pops-header-controls button.pops-header-control[type="max"],
-.pops-header-controls button.pops-header-control[type="mise"],
-.pops-header-controls button.pops-header-control[type="min"] {
+.pops-header-controls button.pops-header-control[data-type="max"],
+.pops-header-controls button.pops-header-control[data-type="mise"],
+.pops-header-controls button.pops-header-control[data-type="min"] {
 	outline: 0 !important;
 	border: 0;
 	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));

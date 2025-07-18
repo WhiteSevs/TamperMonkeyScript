@@ -62,21 +62,21 @@
 @keyframes searchSelectFalIn {
 	from {
 		opacity: 0;
-		display:none;
+		display: none;
 	}
 	to {
-		display:block;
+		display: block;
 		opacity: 1;
 	}
 }
 @keyframes searchSelectFalOut {
 	from {
-		display:block;
+		display: block;
 		opacity: 1;
 	}
 	to {
 		opacity: 0;
-		display:none;
+		display: none;
 	}
 }
 
@@ -1915,24 +1915,7 @@
 	}
 	0% {
 		opacity: 1;
-		transform: matrix3d(
-			1,
-			0,
-			0,
-			0,
-			0,
-			1,
-			0,
-			0,
-			0,
-			0,
-			1,
-			0,
-			0,
-			0,
-			0type=close,
-			1
-		);
+		transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	}
 }
 @keyframes pops-anim-roll-reverse {

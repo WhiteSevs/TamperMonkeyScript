@@ -358,188 +358,184 @@
 .pops-panel-button-no-icon .pops-panel-button_inner i {
 	display: none;
 }
-.pops-panel-button-right-icon {
-}
 .pops-panel-button-right-icon .pops-panel-button_inner {
 	flex-direction: row-reverse;
-}
-.pops-panel-button-right-icon .pops-panel-button_inner i {
 }
 .pops-panel-button .pops-panel-button_inner i:has(svg),
 .pops-panel-button-right-icon .pops-panel-button-text {
 	margin-right: 6px;
 }
 
-.pops button[type="default"] {
+.pops button[data-type="default"] {
 	--button-color: var(--button-default-color);
 	--button-bd-color: var(--button-default-bd-color);
 	--button-bg-color: var(--button-default-bg-color);
 }
-.pops button[type="default"]:active {
+.pops button[data-type="default"]:active {
 	--button-color: var(--button-default-active-color);
 	--button-bd-color: var(--button-default-active-bd-color);
 	--button-bg-color: var(--button-default-active-bg-color);
 }
-.pops button[type="default"]:hover {
+.pops button[data-type="default"]:hover {
 	--button-color: var(--button-default-hover-color);
 	--button-bd-color: var(--button-default-hover-bd-color);
 	--button-bg-color: var(--button-default-hover-bg-color);
 }
-.pops button[type="default"]:focus-visible {
+.pops button[data-type="default"]:focus-visible {
 	outline: var(--button-default-focus-visible-outline);
 	outline-offset: var(--button-default-focus-visible-outline-offset);
 }
-.pops button[type="default"]:disabled {
+.pops button[data-type="default"]:disabled {
 	--button-color: var(--button-default-disabled-color);
 	--button-bd-color: var(--button-default-disabled-bd-color);
 	--button-bg-color: var(--button-default-disabled-bg-color);
 }
 
-.pops button[type="primary"] {
+.pops button[data-type="primary"] {
 	--button-color: var(--button-primary-color);
 	--button-bd-color: var(--button-primary-bd-color);
 	--button-bg-color: var(--button-primary-bg-color);
 }
-.pops button[type="primary"]:active {
+.pops button[data-type="primary"]:active {
 	--button-color: var(--button-primary-active-color);
 	--button-bd-color: var(--button-primary-active-bd-color);
 	--button-bg-color: var(--button-primary-active-bg-color);
 }
-.pops button[type="primary"]:hover {
+.pops button[data-type="primary"]:hover {
 	--button-color: var(--button-primary-hover-color);
 	--button-bd-color: var(--button-primary-hover-bd-color);
 	--button-bg-color: var(--button-primary-hover-bg-color);
 }
-.pops button[type="primary"]:focus-visible {
+.pops button[data-type="primary"]:focus-visible {
 	outline: var(--button-primary-focus-visible-outline);
 	outline-offset: var(--button-primary-focus-visible-outline-offset);
 }
-.pops button[type="primary"]:disabled {
+.pops button[data-type="primary"]:disabled {
 	--button-color: var(--button-primary-disabled-color);
 	--button-bd-color: var(--button-primary-disabled-bd-color);
 	--button-bg-color: var(--button-primary-disabled-bg-color);
 }
 
-.pops button[type="success"] {
+.pops button[data-type="success"] {
 	--button-color: var(--button-success-color);
 	--button-bd-color: var(--button-success-bd-color);
 	--button-bg-color: var(--button-success-bg-color);
 }
-.pops button[type="success"]:active {
+.pops button[data-type="success"]:active {
 	--button-color: var(--button-success-active-color);
 	--button-bd-color: var(--button-success-active-bd-color);
 	--button-bg-color: var(--button-success-active-bg-color);
 }
-.pops button[type="success"]:hover {
+.pops button[data-type="success"]:hover {
 	--button-color: var(--button-success-hover-color);
 	--button-bd-color: var(--button-success-hover-bd-color);
 	--button-bg-color: var(--button-success-hover-bg-color);
 }
-.pops button[type="success"]:focus-visible {
+.pops button[data-type="success"]:focus-visible {
 	outline: var(--button-success-focus-visible-outline);
 	outline-offset: var(--button-success-focus-visible-outline-offset);
 }
-.pops button[type="success"]:disabled {
+.pops button[data-type="success"]:disabled {
 	--button-color: var(--button-success-disabled-color);
 	--button-bd-color: var(--button-success-disabled-bd-color);
 	--button-bg-color: var(--button-success-disabled-bg-color);
 }
 
-.pops button[type="info"] {
+.pops button[data-type="info"] {
 	--button-color: var(--button-info-color);
 	--button-bd-color: var(--button-info-bd-color);
 	--button-bg-color: var(--button-info-bg-color);
 }
-.pops button[type="info"]:active {
+.pops button[data-type="info"]:active {
 	--button-color: var(--button-info-active-color);
 	--button-bd-color: var(--button-info-active-bd-color);
 	--button-bg-color: var(--button-info-active-bg-color);
 }
-.pops button[type="info"]:hover {
+.pops button[data-type="info"]:hover {
 	--button-color: var(--button-info-hover-color);
 	--button-bd-color: var(--button-info-hover-bd-color);
 	--button-bg-color: var(--button-info-hover-bg-color);
 }
-.pops button[type="info"]:focus-visible {
+.pops button[data-type="info"]:focus-visible {
 	outline: var(--button-info-focus-visible-outline);
 	outline-offset: var(--button-info-focus-visible-outline-offset);
 }
-.pops button[type="info"]:disabled {
+.pops button[data-type="info"]:disabled {
 	--button-color: var(--button-success-disabled-color);
 	--button-bd-color: var(--button-success-disabled-bd-color);
 	--button-bg-color: var(--button-success-disabled-bg-color);
 }
 
-.pops button[type="warning"] {
+.pops button[data-type="warning"] {
 	--button-color: var(--button-warning-color);
 	--button-bd-color: var(--button-warning-bd-color);
 	--button-bg-color: var(--button-warning-bg-color);
 }
-.pops button[type="warning"]:active {
+.pops button[data-type="warning"]:active {
 	--button-color: var(--button-warning-active-color);
 	--button-bd-color: var(--button-warning-active-bd-color);
 	--button-bg-color: var(--button-warning-active-bg-color);
 }
-.pops button[type="warning"]:hover {
+.pops button[data-type="warning"]:hover {
 	--button-color: var(--button-warning-hover-color);
 	--button-bd-color: var(--button-warning-hover-bd-color);
 	--button-bg-color: var(--button-warning-hover-bg-color);
 }
-.pops button[type="warning"]:focus-visible {
+.pops button[data-type="warning"]:focus-visible {
 	outline: var(--button-warning-focus-visible-outline);
 	outline-offset: var(--button-warning-focus-visible-outline-offset);
 }
-.pops button[type="warning"]:disabled {
+.pops button[data-type="warning"]:disabled {
 	--button-color: var(--button-success-disabled-color);
 	--button-bd-color: var(--button-success-disabled-bd-color);
 	--button-bg-color: var(--button-success-disabled-bg-color);
 }
 
-.pops button[type="danger"] {
+.pops button[data-type="danger"] {
 	--button-color: var(--button-danger-color);
 	--button-bd-color: var(--button-danger-bd-color);
 	--button-bg-color: var(--button-danger-bg-color);
 }
-.pops button[type="danger"]:active {
+.pops button[data-type="danger"]:active {
 	--button-color: var(--button-danger-active-color);
 	--button-bd-color: var(--button-danger-active-bd-color);
 	--button-bg-color: var(--button-danger-active-bg-color);
 }
-.pops button[type="danger"]:hover {
+.pops button[data-type="danger"]:hover {
 	--button-color: var(--button-danger-hover-color);
 	--button-bd-color: var(--button-danger-hover-bd-color);
 	--button-bg-color: var(--button-danger-hover-bg-color);
 }
-.pops button[type="danger"]:focus-visible {
+.pops button[data-type="danger"]:focus-visible {
 	outline: var(--button-danger-focus-visible-outline);
 	outline-offset: var(--button-danger-focus-visible-outline-offset);
 }
-.pops button[type="danger"]:disabled {
+.pops button[data-type="danger"]:disabled {
 	--button-color: var(--button-success-disabled-color);
 	--button-bd-color: var(--button-success-disabled-bd-color);
 	--button-bg-color: var(--button-success-disabled-bg-color);
 }
 
-.pops button[type="xiaomi-primary"] {
+.pops button[data-type="xiaomi-primary"] {
 	--button-color: var(--button-xiaomi-primary-color);
 	--button-bd-color: var(--button-xiaomi-primary-bd-color);
 	--button-bg-color: var(--button-xiaomi-primary-bg-color);
 }
-.pops button[type="xiaomi-primary"]:active {
+.pops button[data-type="xiaomi-primary"]:active {
 	--button-color: var(--button-xiaomi-primary-active-color);
 	--button-bd-color: var(--button-xiaomi-primary-active-bd-color);
 	--button-bg-color: var(--button-xiaomi-primary-active-bg-color);
 }
-.pops button[type="xiaomi-primary"]:hover {
+.pops button[data-type="xiaomi-primary"]:hover {
 	--button-color: var(--button-xiaomi-primary-hover-color);
 	--button-bd-color: var(--button-xiaomi-primary-hover-bd-color);
 	--button-bg-color: var(--button-xiaomi-primary-hover-bg-color);
 }
-.pops button[type="xiaomi-primary"]:focus-visible {
+.pops button[data-type="xiaomi-primary"]:focus-visible {
 	outline: var(--button-xiaomi-primary-focus-visible-outline);
 	outline-offset: var(--button-xiaomi-primary-focus-visible-outline-offset);
 }
-.pops button[type="xiaomi-primary"]:disabled {
+.pops button[data-type="xiaomi-primary"]:disabled {
 	--button-color: var(--button-success-disabled-color);
 	--button-bd-color: var(--button-success-disabled-bd-color);
 	--button-bg-color: var(--button-success-disabled-bg-color);
