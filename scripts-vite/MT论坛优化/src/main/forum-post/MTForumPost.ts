@@ -478,7 +478,10 @@ export const MTForumPost = {
 				let totalImageList: string[] = [];
 				item.querySelectorAll("img").forEach(($img) => {
 					/* 图片链接 */
-					let currentImageUrl = $img.src;
+					let currentImageUrl = $img.getAttribute("file") || $img.src;
+					if (utils.isNull(currentImageUrl)) {
+						return;
+					}
 					/* 主机名 */
 					let imageUrlHostName = new URL(currentImageUrl).hostname;
 					/* 路径 */
