@@ -51,7 +51,8 @@ export const DouYinLiveBlock_ChatRoom = {
 				"#chatroom > div > div:has(#audiencePanelScrollId)",
 				'#chatroom > div > div:has([data-e2e="live-room-audience"])',
 				// Firefox上的CSS，多了个pace-island
-				'#chatroom > pace-island > div > div > div:has([data-e2e="live-room-audience"])'
+				'#chatroom > pace-island > div > div > div:has([data-e2e="live-room-audience"])',
+				"#chatroom > pace-island > .chatroom_close+div > div:first-child"
 			),
 		];
 	},

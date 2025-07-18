@@ -408,14 +408,14 @@ export const DouYinLive = {
 	 * 自动关闭聊天室
 	 */
 	autoCloseChatRoom() {
-		utils
-			.waitNode<HTMLElement>("#chatroom .chatroom_close", 10000)
-			.then(($chatRoomClose) => {
-				if (!$chatRoomClose) {
-					return;
-				}
-				log.info(`自动关闭聊天室`);
-				$chatRoomClose.click();
-			});
+		ReactUtils.waitReactPropsToSet("#chatroom .chatroom_close", "reactFiber", {
+			check(reactPropInst, $el) {
+				return typeof reactPropInst?.memoizedProps?.onClick === "function";
+			},
+			set(reactPropInst, $el) {
+				log.info(`自动关闭聊天室-点击关闭聊天室按钮`);
+				$el.click();
+			},
+		});
 	},
 };

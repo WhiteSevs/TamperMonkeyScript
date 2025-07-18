@@ -216,7 +216,7 @@ export const DouYinLiveMessage = {
 			addStyle(/*css*/ `
 				/* 修复一下聊天室屏蔽了某些聊天导致上下抖动不停 */
 				.webcast-chatroom___list > div{
-					height: auto !important;
+					height: 100% !important;
 				}
 			`),
 		];

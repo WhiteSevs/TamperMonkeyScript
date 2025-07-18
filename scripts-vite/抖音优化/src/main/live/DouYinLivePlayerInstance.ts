@@ -122,7 +122,14 @@ export const DouYinLivePlayerInstance = {
 				html: true,
 			},
 			mask: {
-				enable: false,
+				clickEvent: {
+					toClose: true,
+				},
+			},
+			btn: {
+				ok: {
+					enable: false,
+				},
 			},
 			width: window.innerWidth > 550 ? "550px" : "88wv",
 			height: window.innerHeight > 550 ? "550px" : "70vh",
