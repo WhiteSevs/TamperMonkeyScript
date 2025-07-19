@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.18
+// @version      2025.7.19
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -1151,6 +1151,33 @@
      */
     escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    },
+    /**
+     * 在规定时间内循环，如果超时或返回false则取消循环
+     * @param fn 循环的函数
+     * @param intervalTime 循环间隔时间
+     * @param [timeout=5000] 循环超时时间
+     */
+    interval(fn, intervalTime, timeout = 5e3) {
+      let timeId;
+      let maxTimeout = timeout - intervalTime;
+      let intervalTimeCount = intervalTime;
+      let loop = async (isTimeout) => {
+        let result = await fn(isTimeout);
+        if (typeof result === "boolean" && !result || isTimeout) {
+          utils.workerClearTimeout(timeId);
+          return;
+        }
+        intervalTimeCount += intervalTime;
+        if (intervalTimeCount > maxTimeout) {
+          loop(true);
+          return;
+        }
+        timeId = utils.workerSetTimeout(() => {
+          loop(false);
+        }, intervalTime);
+      };
+      loop(false);
     }
   };
   const PanelSettingConfig = {
@@ -6854,8 +6881,15 @@
       let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
       let $fragment = document.createDocumentFragment();
       this.option.filterOption.forEach((filterOption) => {
-        let $button = document.createElement("button");
-        $button.innerText = filterOption.name;
+        let $button = domUtils.createElement(
+          "button",
+          {
+            innerText: filterOption.name
+          },
+          {
+            type: "button"
+          }
+        );
         let execFilterAndCloseDialog = async () => {
           let allRuleInfo = await this.option.getAllRuleInfo();
           allRuleInfo.forEach(async (ruleInfo) => {
@@ -9202,35 +9236,64 @@
       });
     },
     /**
-     * 自动连续播放
+     * 自动连播
      */
     automaticContinuousPlayback() {
-      log.info(`自动连续播放`);
+      log.info(`自动连播`);
+      const attrFlagName = "data-automaticContinuousPlayback";
+      let queryActiveVideo = (withAttr = false) => {
+        return $(
+          `.page-recommend-container [data-e2e="feed-active-video"] video${withAttr ? `:not([${attrFlagName}])` : ""}`
+        );
+      };
+      let switchActiveVideo = () => {
+        let keydownEvent = new KeyboardEvent("keydown", {
+          bubbles: true,
+          cancelable: true,
+          key: "ArrowDown",
+          code: "ArrowDown",
+          keyCode: 40,
+          which: 40
+        });
+        document.body.dispatchEvent(keydownEvent);
+      };
       let lockFn = new utils.LockFunction(() => {
         if (!DouYinRouter.isRecommend()) {
           return;
         }
-        let $activeVideo = $(
-          `.page-recommend-container [data-e2e="feed-active-video"] video:not([data-automaticContinuousPlayback])`
-        );
+        let $activeVideo = queryActiveVideo();
         if (!$activeVideo) {
           return;
         }
-        $activeVideo.setAttribute("data-automaticContinuousPlayback", "true");
+        if ($activeVideo.hasAttribute(attrFlagName)) {
+          return;
+        }
+        $activeVideo.setAttribute(attrFlagName, "true");
         domUtils.on(
           $activeVideo,
           "ended",
           (evt) => {
-            let keydownEvent = new KeyboardEvent("keydown", {
-              bubbles: true,
-              cancelable: true,
-              key: "ArrowDown",
-              code: "ArrowDown",
-              keyCode: 40,
-              which: 40
-            });
-            document.body.dispatchEvent(keydownEvent);
             log.success(`视频播放完毕，切换至下一个视频`);
+            CommonUtil.interval(
+              (isTimeout) => {
+                if (isTimeout) {
+                  log.error(`切换视频超时，切换失败`);
+                  return;
+                }
+                let $switchActiveVideo = queryActiveVideo(false);
+                if ($switchActiveVideo == null) {
+                  log.error(`切换视频失败，没有找到当前正在播放的视频`);
+                  return;
+                }
+                if ($activeVideo !== $switchActiveVideo) {
+                  log.success("切换视频成功");
+                  return false;
+                }
+                switchActiveVideo();
+              },
+              500,
+              3e3
+            );
           },
           { capture: true }
         );
