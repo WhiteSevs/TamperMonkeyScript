@@ -289,4 +289,47 @@ export const CommonUtil = {
 			.replace(/\n/g, "<br>")
 			.replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;"); // 转义制表符，用四个空格表示
 	},
+	/**
+	 * 在规定时间内循环，如果超时或返回false则取消循环
+	 * @param fn 循环的函数
+	 * @param intervalTime 循环间隔时间
+	 * @param [timeout=5000] 循环超时时间
+	 */
+	interval(
+		fn: (
+			/**
+			 * 是否是超时的调用
+			 */
+			isTimeout: boolean
+		) => void | boolean | Promise<void | boolean>,
+		intervalTime: number,
+		timeout: number = 5000
+	) {
+		let timeId: number;
+		/**
+		 * 循环的超时时间
+		 */
+		let maxTimeout = timeout - intervalTime;
+		/**
+		 * 累计的循环时间
+		 */
+		let intervalTimeCount = intervalTime;
+		let loop = async (isTimeout: boolean) => {
+			let result = await fn(isTimeout);
+			if ((typeof result === "boolean" && !result) || isTimeout) {
+				utils.workerClearTimeout(timeId);
+				return;
+			}
+			intervalTimeCount += intervalTime;
+			if (intervalTimeCount > maxTimeout) {
+				// 超时了
+				loop(true);
+				return;
+			}
+			timeId = utils.workerSetTimeout(() => {
+				loop(false);
+			}, intervalTime);
+		};
+		loop(false);
+	},
 };
