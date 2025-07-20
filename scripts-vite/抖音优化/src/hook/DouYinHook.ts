@@ -251,7 +251,6 @@ export const DouYinHook = {
 						const keyboardConfig = keyboardConfigList[index];
 						if (keyboardConfig.code.includes(code)) {
 							if (Array.isArray(keyboardConfig.otherCodeList)) {
-								// @ts-ignore
 								let findValue = keyboardConfig.otherCodeList.find(
 									(item) => !otherCodeList.includes(item)
 								);
