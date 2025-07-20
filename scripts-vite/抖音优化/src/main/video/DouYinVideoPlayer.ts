@@ -98,6 +98,9 @@ export const DouYinVideoPlayer = {
 		Panel.execMenuOnce("dy-video-removeStyle-bottom", () => {
 			return this.removeStyleBottom();
 		});
+		Panel.execMenuOnce("dy-video-disableRightToolbarTransform", () => {
+			return this.disableRightToolbarTransform();
+		});
 		DOMUtils.ready(() => {
 			DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
 			Panel.execMenuOnce("mobileMode", () => {
@@ -1088,6 +1091,17 @@ export const DouYinVideoPlayer = {
 			div:has( > div > pace-island > #video-info-wrap ),
 			xg-video-container.xg-video-container{
 				bottom: 0 !important;
+			}
+		`);
+	},
+	/**
+	 * 禁用右侧工具栏的transform
+	 */
+	disableRightToolbarTransform() {
+		log.info(`禁用右侧工具栏的transform`);
+		return addStyle(/*css*/ `
+			.basePlayerContainer .positionBox{
+				transform: unset !important;
 			}
 		`);
 	},

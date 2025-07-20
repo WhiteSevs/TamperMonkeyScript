@@ -155,6 +155,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									""
 								),
+								UISwitch(
+									"禁用右侧工具栏的transform",
+									"dy-video-disableRightToolbarTransform",
+									false,
+									void 0,
+									""
+								),
 							],
 						},
 						{

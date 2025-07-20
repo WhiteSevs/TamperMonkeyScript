@@ -2,6 +2,7 @@ import { $, DOMUtils, log, utils } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
+import Qmsg from "qmsg";
 
 export const DouYinRecommend = {
 	init() {
@@ -26,6 +27,10 @@ export const DouYinRecommend = {
 			);
 		};
 		let switchActiveVideo = () => {
+			if (Panel.getValue("dy-keyboard-hook-pageUpAndDown")) {
+				Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
+				return;
+			}
 			let keydownEvent = new KeyboardEvent("keydown", {
 				bubbles: true,
 				cancelable: true,
@@ -59,7 +64,7 @@ export const DouYinRecommend = {
 						(isTimeout) => {
 							if (isTimeout) {
 								log.error(`切换视频超时，切换失败`);
-								return;
+								return false;
 							}
 							let $switchActiveVideo = queryActiveVideo(false);
 							if ($switchActiveVideo == null) {
@@ -75,7 +80,7 @@ export const DouYinRecommend = {
 							switchActiveVideo();
 						},
 						500,
-						3000
+						5000
 					);
 				},
 				{ capture: true }
