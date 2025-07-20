@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.19
+// @version      2025.7.20
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4183,6 +4183,9 @@
       Panel.execMenuOnce("dy-video-removeStyle-bottom", () => {
         return this.removeStyleBottom();
       });
+      Panel.execMenuOnce("dy-video-disableRightToolbarTransform", () => {
+        return this.disableRightToolbarTransform();
+      });
       domUtils.ready(() => {
         DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
         Panel.execMenuOnce("mobileMode", () => {
@@ -5060,6 +5063,20 @@
 			div:has( > div > pace-island > #video-info-wrap ),
 			xg-video-container.xg-video-container{
 				bottom: 0 !important;
+			}
+		`
+      );
+    },
+    /**
+     * 禁用右侧工具栏的transform
+     */
+    disableRightToolbarTransform() {
+      log.info(`禁用右侧工具栏的transform`);
+      return addStyle(
+        /*css*/
+        `
+			.basePlayerContainer .positionBox{
+				transform: unset !important;
 			}
 		`
       );
@@ -9247,6 +9264,10 @@
         );
       };
       let switchActiveVideo = () => {
+        if (Panel.getValue("dy-keyboard-hook-pageUpAndDown")) {
+          Qmsg.error("自动连播切换失败，请勿禁用↑↓翻页快捷键");
+          return;
+        }
         let keydownEvent = new KeyboardEvent("keydown", {
           bubbles: true,
           cancelable: true,
@@ -9278,7 +9299,7 @@
               (isTimeout) => {
                 if (isTimeout) {
                   log.error(`切换视频超时，切换失败`);
-                  return;
+                  return false;
                 }
                 let $switchActiveVideo = queryActiveVideo(false);
                 if ($switchActiveVideo == null) {
@@ -9292,7 +9313,7 @@
                 switchActiveVideo();
               },
               500,
-              3e3
+              5e3
             );
           },
           { capture: true }
@@ -11064,6 +11085,13 @@
                   UISwitch(
                     "移除video的bottom偏移",
                     "dy-video-removeStyle-bottom",
+                    false,
+                    void 0,
+                    ""
+                  ),
+                  UISwitch(
+                    "禁用右侧工具栏的transform",
+                    "dy-video-disableRightToolbarTransform",
                     false,
                     void 0,
                     ""
