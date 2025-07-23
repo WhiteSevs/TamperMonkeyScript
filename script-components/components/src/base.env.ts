@@ -172,11 +172,11 @@ const addStyle = utils.addStyle.bind(utils);
 /**
  * 元素选择器
  */
-const $ = document.querySelector.bind(document);
+const $ = DOMUtils.selector.bind(DOMUtils);
 /**
  * 多组元素选择器
  */
-const $$ = document.querySelectorAll.bind(document);
+const $$ = DOMUtils.selectorAll.bind(DOMUtils);
 
 /**
  * Vue的根元素的id
