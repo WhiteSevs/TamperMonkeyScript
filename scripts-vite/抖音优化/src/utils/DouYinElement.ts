@@ -6,9 +6,9 @@ export const DouYinElement = {
 	 * @param callback
 	 */
 	watchFeedVideoListChange(
-		callback: (osElement: HTMLDivElement, observer: MutationObserver) => void
+		callback: (osElement: HTMLElement, observer: MutationObserver) => void
 	) {
-		let $os: HTMLDivElement | null = null;
+		let $os: HTMLElement | undefined | null = null;
 		DOMUtils.ready(() => {
 			utils
 				.waitAnyNode<HTMLDivElement>([
@@ -41,8 +41,8 @@ export const DouYinElement = {
 	},
 	getOSElement() {
 		return (
-			$<HTMLDivElement>("#root div[class*='-os']") ||
-			$<HTMLDivElement>("#douyin-right-container")
+			$<HTMLElement>("#root div[class*='-os']") ||
+			$<HTMLElement>("#douyin-right-container")
 		);
 	},
 };
