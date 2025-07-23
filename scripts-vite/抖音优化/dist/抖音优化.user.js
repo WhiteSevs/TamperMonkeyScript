@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.20
+// @version      2025.7.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1319,8 +1319,8 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle.bind(utils);
-  const $ = document.querySelector.bind(document);
-  const $$ = document.querySelectorAll.bind(document);
+  const $ = DOMUtils.selector.bind(DOMUtils);
+  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "抖音优化";
   const DouYinRouter = {
@@ -2817,17 +2817,31 @@
             'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
           );
           if ($loginDialogCloseBtn) {
-            let reactInstance = utils.getReactObj($loginDialogCloseBtn);
-            let onClick = reactInstance?.reactProps?.onClick;
+            let reactInst = utils.getReactObj($loginDialogCloseBtn);
+            let onClick = reactInst?.reactProps?.onClick;
             if (typeof onClick === "function") {
               onClick(new Event("click"));
             } else {
-              log.error("监听到登录弹窗但是关闭失败，未获取到onClick函数");
+              log.error("监听到登录弹窗但是关闭失败，原因：未获取到onClick函数");
             }
           } else {
             log.error(
               "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
               $loginDialog
+            );
+          }
+        }
+        let $ohterDialog = $(
+          "body > div > div:contains('为保障更好的访问体验，请在登录后继续使用抖音')"
+        );
+        if ($ohterDialog) {
+          let reactInst = utils.getReactObj($ohterDialog);
+          let onClick = reactInst?.reactProps?.onClick;
+          if (typeof onClick === "function") {
+            onClick(new Event("click"));
+          } else {
+            log.error(
+              "监听到【为保障更好的访问体验，请在登录后继续使用抖音】但是关闭失败，原因：未获取到onClick函数"
             );
           }
         }
@@ -3005,6 +3019,9 @@
       Panel.execMenuOnce("shieldSharenButton", () => {
         return this.shieldSharenButton();
       });
+      Panel.execMenuOnce("shieldListenDouYinButton", () => {
+        return this.shieldListenDouYinButton();
+      });
       Panel.execMenuOnce("shieldRelatedRecommendationsButton", () => {
         return this.shieldRelatedRecommendationsButton();
       });
@@ -3097,6 +3114,17 @@
           'div.dy-tip-container:has([data-e2e="video-player-share"])',
           // 2024.7.2 新增其它的样式匹配
           '.basePlayerContainer div:has(>div[data-e2e="video-player-share"])'
+        )
+      ];
+    },
+    /**
+     * 【屏蔽】听抖音
+     */
+    shieldListenDouYinButton() {
+      log.info("【屏蔽】听抖音");
+      return [
+        CommonUtil.addBlockCSS(
+          '.basePlayerContainer div[aria-describedby]:has(path[d="M9.68718 12.4801C8.612 14.3927 8.1197 16.7374 8.05821 19.0767C8.23942 18.9661 8.4351 18.8725 8.64383 18.7988L9.16952 18.6132C10.7699 18.0482 12.5315 18.8701 13.1042 20.4491L15.3865 26.7417C15.9591 28.3206 15.126 30.0586 13.5257 30.6236L13 30.8092C11.4155 31.3686 9.85676 30.6485 8.86663 29.2939C8.83318 29.2583 8.80192 29.22 8.7732 29.1788C7.33136 27.1149 6.42117 24.618 6.13186 21.9841C5.75876 18.5873 6.12658 14.6403 7.8929 11.4983C9.70099 8.28189 12.9317 6 17.9885 6C23.0436 6 26.2778 8.27305 28.092 11.4819C29.8643 14.6168 30.2393 18.557 29.8725 21.9536C29.5881 24.5883 28.6825 27.0875 27.2445 29.155C27.2194 29.1911 27.1924 29.2251 27.1636 29.2569C26.1749 30.6354 24.6023 31.3737 23.0035 30.8092L22.4778 30.6236C20.8774 30.0586 20.0443 28.3206 20.617 26.7417L22.8993 20.4491C23.472 18.8701 25.2335 18.0482 26.8339 18.6132L27.3596 18.7988C27.5669 18.8719 27.7613 18.9648 27.9415 19.0744C27.8783 16.7301 27.382 14.3817 26.3001 12.468C24.846 9.89593 22.2949 8.02429 17.9885 8.02428C13.684 8.02428 11.1369 9.90129 9.68718 12.4801Z"])'
         )
       ];
     },
@@ -5419,7 +5447,9 @@
           // 全屏状态下的
           'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))',
           // 2025.6.29 新版
-          "#BottomLayout"
+          "#BottomLayout",
+          // 2025.7.23 新版 全屏下的礼物栏
+          ".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )"
         ),
         addStyle(
           /*css*/
@@ -5445,7 +5475,9 @@
           // 全屏状态下的
           'div[data-e2e="living-container"] xg-bar.xg-top-bar',
           // 2025.6.29 新版
-          "#HeaderLayout"
+          "#HeaderLayout",
+          // 2025.7.23 新版 全屏下的礼物栏
+          ".douyin-player .douyin-player-top-bar"
         ),
         addStyle(
           /*css*/
@@ -5496,7 +5528,9 @@
         CommonUtil.addBlockCSS(
           '.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:has(.ShortTouchContainer):has(>div > div:not([class*="video_layout_container"]) > div)',
           // 2026.6.29 新版
-          "#ShortTouchLayout x-view"
+          "#ShortTouchLayout x-view",
+          // 2025.7.23 新版
+          "#ShortTouchLayout .ShortTouchContainer"
         )
       ];
     },
@@ -11466,6 +11500,13 @@
                   UISwitch(
                     "【屏蔽】分享",
                     "shieldSharenButton",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】听抖音",
+                    "shieldListenDouYinButton",
                     false,
                     void 0,
                     "屏蔽元素"
