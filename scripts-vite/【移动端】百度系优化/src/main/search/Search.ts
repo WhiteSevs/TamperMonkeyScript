@@ -127,26 +127,45 @@ const BaiduSearch = {
 	 * 新标签页打开
 	 */
 	openResultBlank() {
-		function globalResultClickEvent(event: PointerEvent | MouseEvent | Event) {
-			let url = null;
+		/**
+		 * 搜索结果点击事件
+		 * @param event
+		 */
+		function globalResultClickEvent(
+			event: PointerEvent | MouseEvent | Event,
+			$selectorTarget: HTMLElement
+		) {
+			let url: null | string = null;
 			let $click = event.composedPath()[0] as HTMLElement;
-			let $result = event.target as HTMLElement;
+			// .c-result.result
+			let $result = $selectorTarget;
 			if ($click) {
+				// 百度AI 总结全网xx篇结果
+				// 让它不点击跳转
+				let isWenDa = $result.matches('[srcid="wenda_generate"]');
+				if (isWenDa) {
+					log.info([
+						"该点击来自百度AI总结全网xx篇结果，不点击跳转",
+						{ event, $click, $result, isWenDa },
+					]);
+					return;
+				}
 				if ($click.closest("a")) {
-					let $link = $click.closest("a") as HTMLAnchorElement;
+					let $link = $click.closest<HTMLAnchorElement>("a")!;
 					if (utils.isNotNull($link.href)) {
 						log.info([
 							"链接来自上层a元素",
 							{
 								event,
 								$click,
+								$result,
 								$link,
 							},
 						]);
 						url = $link.href;
 					}
 				} else if ($click.closest("[rl-link-href]")) {
-					let $rlLinkDiv = $click.closest("[rl-link-href]") as HTMLElement;
+					let $rlLinkDiv = $click.closest<HTMLElement>("[rl-link-href]")!;
 					let rlLinkHref = $rlLinkDiv.getAttribute("rl-link-href");
 					if (utils.isNotNull(rlLinkHref)) {
 						log.info([
@@ -154,6 +173,7 @@ const BaiduSearch = {
 							{
 								event,
 								$click,
+								$result,
 								$rlLinkDiv,
 							},
 						]);
@@ -161,21 +181,21 @@ const BaiduSearch = {
 					}
 				}
 			} else {
-				let $article = $result.querySelector("article") as HTMLElement;
+				let $article = $result.querySelector<HTMLElement>("article")!;
 				url = $article.getAttribute("rl-link-href");
 				log.info([
 					"链接来自顶层向下寻找article元素",
-					{ event, $result, $article },
+					{ event, $click, $result, $article },
 				]);
 			}
 			if (utils.isNull(url)) {
-				log.info(["未找到有效链接", { event, url, $result, $click }]);
+				log.info(["未找到有效链接", { event, $click, $result, url }]);
 				return;
 			}
 			/* 阻止事件传递 */
-			let urlObj = new URL(url);
-			if (urlObj.hostname === "www.baidu.com") {
-				if (urlObj.pathname.match(/\/[\d]+$/)) {
+			let urlInst = new URL(url);
+			if (urlInst.hostname === "www.baidu.com") {
+				if (urlInst.pathname.match(/\/[\d]+$/)) {
 					log.warn("不符合新标签页打开的链接");
 					return;
 				}
