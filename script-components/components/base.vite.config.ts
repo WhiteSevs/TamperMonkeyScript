@@ -1,10 +1,11 @@
-import { type UserConfig } from "vite";
+import { type UserConfig, type Plugin } from "vite";
 import monkey, {
 	cdn,
 	type MonkeyOption as __MonkeyOption__,
 } from "vite-plugin-monkey";
 import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils";
 import mkcert from "vite-plugin-mkcert";
+// @ts-ignore
 import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/dist/vite";
 import IconsResolver from "unplugin-icons/dist/resolver";
@@ -13,6 +14,7 @@ import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import fs from "fs";
 import path from "path";
+import pc from "picocolors";
 
 const baseUtils = new ViteUtils(__dirname);
 /**
@@ -88,8 +90,6 @@ const GenerateUserConfig = async (option: {
 		build: {
 			// 输出.meta.js
 			metaFileName: true,
-			// 输出.meta.local.user.js
-			metaLocalFileName: true,
 			// 自动申请权限，可以不用填上面的grant
 			autoGrant: true,
 			// import库的文件映射
@@ -384,6 +384,162 @@ const GenerateUserConfig = async (option: {
 		await GetLib("CoverUMD")
 	);
 
+	const MonkeyHookPlugin: Plugin = {
+		name: "vite-plugin-monkey-hook",
+		configureServer(server) {
+			server.middlewares.use(async (req, res, next) => {
+				const url = req.url;
+				if (!url.includes("vite-plugin-monkey.install.user.js")) {
+					return next();
+				}
+				const originEnd = res.end;
+				res.end = (...args: any[]) => {
+					let text: string = args[0];
+					if (
+						typeof text === "string" &&
+						text.trim().match(/^\/\/[\s]+==UserScript==/)
+					) {
+						text = text.replaceAll(
+							"document.head",
+							"(document.head || document.documentElement)"
+						);
+						const textSplit = text.split("\n");
+						const userScriptMetaEndIndex = textSplit.findIndex((item) =>
+							item.trim().match(/^\/\/[\s]+==\/UserScript==/)
+						);
+						const collectGrant: string[] = [];
+						textSplit.forEach((item, index) => {
+							item = item.trim();
+							const grantApiMatcher = item.match(/^\/\/[\s]+@grant[\s]+/);
+							if (grantApiMatcher) {
+								const grantApi = item
+									.replace(grantApiMatcher[grantApiMatcher.length - 1], "")
+									.trim();
+								if (
+									grantApi.startsWith("window.") ||
+									grantApi.startsWith("GM.")
+								) {
+									// 不处理Window的Api
+									// 忽略GM.*
+									return;
+								}
+								collectGrant.push(grantApi);
+							}
+						});
+						textSplit.splice(
+							userScriptMetaEndIndex + 1,
+							0,
+							/*js*/ `
+;(()=>{
+	const GM_Api = {};
+	let GM_repair_count = 0;
+	
+	if (typeof unsafeWindow !== "undefined" && unsafeWindow == window) {
+		console.log("[vite-plugin-monkey] window == unsafeWindow repair GM api");
+
+		if (window.GM == null && typeof GM === "object") {
+			Reflect.set(GM_Api, "GM", GM);
+			GM_repair_count++;
+		}
+
+		${collectGrant
+			.map(
+				(it) => `if (
+			typeof ${it} !== "undefined" &&
+			${it} != null &&
+			window.${it} == null
+		) {
+			Reflect.set(GM_Api, "${it}", ${it});
+			GM_repair_count++;
+		}`
+			)
+			.join("\n\n		")}
+	}
+	Object.freeze(GM_Api);
+	document["__monkeyApi-${Date.now()}"] = GM_Api;
+	if (GM_repair_count > 0) {
+		console.log("[vite-plugin-monkey] repair GM api count: " + GM_repair_count);
+	}
+})();`
+						);
+						text = textSplit.join("\n");
+						args[0] = text;
+						console.log(
+							pc.green(
+								"success modify [vite-plugin-monkey] dev .install.user.js"
+							)
+						);
+					}
+					return originEnd.apply(res, args);
+				};
+				next();
+			});
+		},
+		writeBundle(options, bundle) {
+			const isBuild = process.argv.includes("build");
+			if (!isBuild) {
+				return;
+			}
+			/**
+			 * 格式化文件大小
+			 * @param bytes 字节数
+			 */
+			function formatFileSize(bytes: number): string {
+				if (bytes < 1024) return bytes + " B";
+				const kb = bytes / 1024;
+				if (kb < 1024) return `${kb.toFixed(1)} KB`;
+				const mb = kb / 1024;
+				if (mb < 1024) return `${mb.toFixed(1)} MB`;
+				const gb = mb / 1024;
+				return `${gb.toFixed(1)} GB`;
+			}
+			for (const fileName in bundle) {
+				if (!fileName.endsWith(".meta.js")) {
+					continue;
+				}
+				const localMetaFileName = fileName.replace(/\.meta\.js$/g, "");
+				const chunk = bundle[fileName];
+				const filePath = path.join(options.dir, fileName);
+				let content = fs.readFileSync(filePath, "utf-8");
+				const splitContent = content.split("\n");
+				let insertIndex = -1;
+				let metaEndIndex = -1;
+				for (let index = splitContent.length - 1; index >= 0; index--) {
+					// 逆序
+					const contentItem = splitContent[index].trim();
+					if (
+						metaEndIndex === -1 &&
+						contentItem.startsWith("// ==/UserScript==")
+					) {
+						metaEndIndex = index;
+					}
+					if (contentItem.startsWith("// @require")) {
+						insertIndex = index;
+						break;
+					} else if (
+						insertIndex === -1 &&
+						contentItem.startsWith("// ==UserScript==")
+					) {
+						// start
+						insertIndex = metaEndIndex;
+					}
+				}
+				let localMainFilePath = `${options.dir}\\${SCRIPT_NAME}.user.js`;
+				let localMainFileRequire = `// @require            file:///${localMainFilePath}`;
+				splitContent.splice(insertIndex + 1, 0, localMainFileRequire);
+
+				let metaLocalFilePath = `${options.dir}\\${localMetaFileName}.meta.local.user.js`;
+				fs.writeFileSync(metaLocalFilePath, splitContent.join("\n"));
+
+				const metaLocalFileSize = fs.statSync(metaLocalFilePath).size;
+				console.log(
+					pc.green(metaLocalFilePath) +
+						`   ${pc.gray(formatFileSize(metaLocalFileSize))}`
+				);
+			}
+		},
+	};
+	BaseUserConfig.plugins!.push(MonkeyHookPlugin);
 	BaseUserConfig.plugins!.push(monkey(DefaultMonkeyOption));
 	// https://vitejs.dev/config/
 	return BaseUserConfig;
