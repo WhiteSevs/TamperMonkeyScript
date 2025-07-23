@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.16
+// @version      2025.7.23
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -15,7 +15,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.17/dist/vue.global.prod.js
@@ -59,7 +59,7 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_entrance_001 = __commonJS({
-    "entrance-CTs-yIwr.js"(exports, module) {
+    "entrance-Be3lCsf5.js"(exports, module) {
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -1387,6 +1387,12 @@
           url = url.trim();
           if (url.match(/^http(s|):\/\//i)) {
             return url;
+          } else if (url.startsWith("//")) {
+            if (url.startsWith("///")) ;
+            else {
+              url = window.location.protocol + url;
+            }
+            return url;
           } else {
             if (!url.startsWith("/")) {
               url += "/";
@@ -1511,6 +1517,33 @@
          */
         escapeHtml(unsafe) {
           return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+        },
+        /**
+         * 在规定时间内循环，如果超时或返回false则取消循环
+         * @param fn 循环的函数
+         * @param intervalTime 循环间隔时间
+         * @param [timeout=5000] 循环超时时间
+         */
+        interval(fn, intervalTime, timeout = 5e3) {
+          let timeId;
+          let maxTimeout = timeout - intervalTime;
+          let intervalTimeCount = intervalTime;
+          let loop = async (isTimeout) => {
+            let result = await fn(isTimeout);
+            if (typeof result === "boolean" && !result || isTimeout) {
+              utils.workerClearTimeout(timeId);
+              return;
+            }
+            intervalTimeCount += intervalTime;
+            if (intervalTimeCount > maxTimeout) {
+              loop(true);
+              return;
+            }
+            timeId = utils.workerSetTimeout(() => {
+              loop(false);
+            }, intervalTime);
+          };
+          loop(false);
         }
       };
       const GM_RESOURCE_MAPPING = {
@@ -1619,7 +1652,8 @@
             toClose: false,
             toHide: false
           }
-        }
+        },
+        drag: true
       });
       const GM_Menu = new utils.GM_Menu({
         GM_getValue: _GM_getValue,
@@ -5200,11 +5234,19 @@ match-attr##srcid##sp_purc_atom
          * 新标签页打开
          */
         openResultBlank() {
-          function globalResultClickEvent(event) {
+          function globalResultClickEvent(event, $selectorTarget) {
             let url = null;
             let $click = event.composedPath()[0];
-            let $result = event.target;
+            let $result = $selectorTarget;
             if ($click) {
+              let isWenDa = $result.matches('[srcid="wenda_generate"]');
+              if (isWenDa) {
+                log.info([
+                  "该点击来自百度AI总结全网xx篇结果，不点击跳转",
+                  { event, $click, $result, isWenDa }
+                ]);
+                return;
+              }
               if ($click.closest("a")) {
                 let $link = $click.closest("a");
                 if (utils.isNotNull($link.href)) {
@@ -5213,6 +5255,7 @@ match-attr##srcid##sp_purc_atom
                     {
                       event,
                       $click,
+                      $result,
                       $link
                     }
                   ]);
@@ -5227,6 +5270,7 @@ match-attr##srcid##sp_purc_atom
                     {
                       event,
                       $click,
+                      $result,
                       $rlLinkDiv
                     }
                   ]);
@@ -5238,16 +5282,16 @@ match-attr##srcid##sp_purc_atom
               url = $article.getAttribute("rl-link-href");
               log.info([
                 "链接来自顶层向下寻找article元素",
-                { event, $result, $article }
+                { event, $click, $result, $article }
               ]);
             }
             if (utils.isNull(url)) {
-              log.info(["未找到有效链接", { event, url, $result, $click }]);
+              log.info(["未找到有效链接", { event, $click, $result, url }]);
               return;
             }
-            let urlObj = new URL(url);
-            if (urlObj.hostname === "www.baidu.com") {
-              if (urlObj.pathname.match(/\/[\d]+$/)) {
+            let urlInst = new URL(url);
+            if (urlInst.hostname === "www.baidu.com") {
+              if (urlInst.pathname.match(/\/[\d]+$/)) {
                 log.warn("不符合新标签页打开的链接");
                 return;
               }
@@ -10901,8 +10945,15 @@ match-attr##srcid##sp_purc_atom
           let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
           let $fragment = document.createDocumentFragment();
           this.option.filterOption.forEach((filterOption) => {
-            let $button = document.createElement("button");
-            $button.innerText = filterOption.name;
+            let $button = domUtils.createElement(
+              "button",
+              {
+                innerText: filterOption.name
+              },
+              {
+                type: "button"
+              }
+            );
             let execFilterAndCloseDialog = async () => {
               let allRuleInfo = await this.option.getAllRuleInfo();
               allRuleInfo.forEach(async (ruleInfo) => {
