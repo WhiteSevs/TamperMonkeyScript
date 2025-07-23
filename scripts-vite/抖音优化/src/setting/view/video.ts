@@ -534,6 +534,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									"屏蔽元素"
 								),
 								UISwitch(
+									"【屏蔽】听抖音",
+									"shieldListenDouYinButton",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
 									"【屏蔽】看相关",
 									"shieldRelatedRecommendationsButton",
 									false,

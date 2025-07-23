@@ -111,6 +111,9 @@ export const DouYinVideoBlock_RightToolbar = {
 		Panel.execMenuOnce("shieldSharenButton", () => {
 			return this.shieldSharenButton();
 		});
+		Panel.execMenuOnce("shieldListenDouYinButton", () => {
+			return this.shieldListenDouYinButton();
+		});
 		Panel.execMenuOnce("shieldRelatedRecommendationsButton", () => {
 			return this.shieldRelatedRecommendationsButton();
 		});
@@ -200,6 +203,17 @@ export const DouYinVideoBlock_RightToolbar = {
 				'div.dy-tip-container:has([data-e2e="video-player-share"])',
 				// 2024.7.2 新增其它的样式匹配
 				'.basePlayerContainer div:has(>div[data-e2e="video-player-share"])'
+			),
+		];
+	},
+	/**
+	 * 【屏蔽】听抖音
+	 */
+	shieldListenDouYinButton() {
+		log.info("【屏蔽】听抖音");
+		return [
+			CommonUtil.addBlockCSS(
+				'.basePlayerContainer div[aria-describedby]:has(path[d="M9.68718 12.4801C8.612 14.3927 8.1197 16.7374 8.05821 19.0767C8.23942 18.9661 8.4351 18.8725 8.64383 18.7988L9.16952 18.6132C10.7699 18.0482 12.5315 18.8701 13.1042 20.4491L15.3865 26.7417C15.9591 28.3206 15.126 30.0586 13.5257 30.6236L13 30.8092C11.4155 31.3686 9.85676 30.6485 8.86663 29.2939C8.83318 29.2583 8.80192 29.22 8.7732 29.1788C7.33136 27.1149 6.42117 24.618 6.13186 21.9841C5.75876 18.5873 6.12658 14.6403 7.8929 11.4983C9.70099 8.28189 12.9317 6 17.9885 6C23.0436 6 26.2778 8.27305 28.092 11.4819C29.8643 14.6168 30.2393 18.557 29.8725 21.9536C29.5881 24.5883 28.6825 27.0875 27.2445 29.155C27.2194 29.1911 27.1924 29.2251 27.1636 29.2569C26.1749 30.6354 24.6023 31.3737 23.0035 30.8092L22.4778 30.6236C20.8774 30.0586 20.0443 28.3206 20.617 26.7417L22.8993 20.4491C23.472 18.8701 25.2335 18.0482 26.8339 18.6132L27.3596 18.7988C27.5669 18.8719 27.7613 18.9648 27.9415 19.0744C27.8783 16.7301 27.382 14.3817 26.3001 12.468C24.846 9.89593 22.2949 8.02429 17.9885 8.02428C13.684 8.02428 11.1369 9.90129 9.68718 12.4801Z"])'
 			),
 		];
 	},
