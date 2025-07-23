@@ -174,7 +174,9 @@ export const DouYinLiveBlock = {
 				// 全屏状态下的
 				'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))',
 				// 2025.6.29 新版
-				"#BottomLayout"
+				"#BottomLayout",
+				// 2025.7.23 新版 全屏下的礼物栏
+				".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )"
 			),
 			addStyle(/*css*/ `
             /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
@@ -197,7 +199,9 @@ export const DouYinLiveBlock = {
 				// 全屏状态下的
 				'div[data-e2e="living-container"] xg-bar.xg-top-bar',
 				// 2025.6.29 新版
-				"#HeaderLayout"
+				"#HeaderLayout",
+				// 2025.7.23 新版 全屏下的礼物栏
+				".douyin-player .douyin-player-top-bar"
 			),
 			addStyle(/*css*/ `
 				/* 去除屏蔽顶部后直播的video偏移 */
@@ -264,7 +268,9 @@ export const DouYinLiveBlock = {
 			CommonUtil.addBlockCSS(
 				'.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:has(.ShortTouchContainer):has(>div > div:not([class*="video_layout_container"]) > div)',
 				// 2026.6.29 新版
-				"#ShortTouchLayout x-view"
+				"#ShortTouchLayout x-view",
+				// 2025.7.23 新版
+				"#ShortTouchLayout .ShortTouchContainer"
 			),
 		];
 	},
