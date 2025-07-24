@@ -1,4 +1,4 @@
-import { DOMUtils, httpx, log, pops, utils } from "@/env";
+import { DOMUtils, GM_Menu, httpx, log, pops, utils } from "@/env";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
@@ -12,6 +12,11 @@ import { PanelUISize } from "@components/setting/panel-ui-size";
 import { RuleView } from "@components/utils/RuleView";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
+import {
+	CookieManagerApiNameList,
+	type CookieManagerApiName,
+} from "./CookieManagerService";
+import { CookieManager } from "./CookieManager";
 
 export type CookieRuleData = {
 	/** 唯一uuid */
@@ -21,13 +26,15 @@ export type CookieRuleData = {
 	/** 规则名 */
 	name: string;
 	data: {
+		/** 使用的api名，默认使用当前全局的Api */
+		execApiName?: "use-global" | CookieManagerApiName;
 		/** 匹配的网站 */
 		url: string;
-		/** 使用正则来匹配网站 */
+		/** 是否使用正则来匹配网站 */
 		enableRegExpToMatchUrl: boolean;
 		/** 匹配的Cookie名 */
 		cookieName: string;
-		/** 使用正则来匹配Cookie名 */
+		/** 是否使用正则来匹配Cookie名 */
 		enableRegExpToMatchCookieName: boolean;
 		/** 对Cookie使用的操作模式，删除|延长 */
 		operationMode:
@@ -46,13 +53,37 @@ export const CookieRule = {
 		STORAGE_KEY: "cookie-rule",
 	},
 	$data: {
-		/** 规则数据 */
-		ruleData: <CookieRuleData[]>[],
+		/** 匹配到的规则数据 */
+		matchedRuleList: <CookieRuleData[]>[],
 	},
 	/** 初始化数据 */
 	init() {
-		this.$data.ruleData = [];
+		this.$data.matchedRuleList = [];
+		this.$data.matchedRuleList = this.getMatchedRuleList();
+		// 注册菜单
+		GM_Menu.add({
+			key: "matched-cookie-rule-list",
+			text: `${window.location.hostname} ${this.$data.matchedRuleList.length}条规则`,
+			isStoreValue: false,
+			autoReload: false,
+			showText(text, enable) {
+				return text;
+			},
+			callback(data) {
+				console.log(CookieRule.$data.matchedRuleList);
+				alert(
+					"以下是命中的规则名：\n" +
+						CookieRule.$data.matchedRuleList.map((it) => it.name).join("\n")
+				);
+			},
+		});
+	},
+	/**
+	 * 获取匹配的规则
+	 */
+	getMatchedRuleList(url = window.location.href) {
 		let allData = this.getData();
+		let matchedRuleList: CookieRuleData[] = [];
 		allData.forEach((data) => {
 			if (!data.enable) {
 				// 未启用
@@ -73,8 +104,9 @@ export const CookieRule = {
 					return;
 				}
 			}
-			this.$data.ruleData.push(data);
+			matchedRuleList.push(data);
 		});
+		return matchedRuleList;
 	},
 	/**
 	 * 显示视图
@@ -96,6 +128,10 @@ export const CookieRule = {
 				},
 			};
 		}
+		/**
+		 * 当前网站匹配的规则
+		 */
+		const matchedRuleList = this.getMatchedRuleList();
 		let ruleView = new RuleView({
 			title: "Cookie规则",
 			data: () => {
@@ -171,6 +207,38 @@ export const CookieRule = {
 						let $name =
 							panelHandlerComponents.createSectionContainerItem_input(
 								name_template
+							);
+
+						// 执行的Api
+						let apiName_template = UISelect<
+							NonNullable<CookieRuleData["data"]["execApiName"]>
+						>(
+							"Cookie管理Api",
+							"execApiName",
+							templateData.data.execApiName!,
+							[
+								{
+									text: "（当前）" + CookieManager.cookieManagerApiName,
+									value: "use-global",
+								},
+								...CookieManagerApiNameList.map((it) => {
+									return {
+										text: it,
+										value: it,
+									};
+								}),
+							],
+							void 0,
+							"操作Cookie的Api函数"
+						);
+						Reflect.set(
+							apiName_template.props!,
+							PROPS_STORAGE_API,
+							generateStorageApi(data.data)
+						);
+						let $apiName =
+							panelHandlerComponents.createSectionContainerItem_select(
+								apiName_template
 							);
 
 						// 匹配的网址
@@ -298,6 +366,7 @@ export const CookieRule = {
 						$fragment.append(
 							$enable,
 							$name,
+							$apiName,
 							$url,
 							$enableRegExpToMatchUrl,
 							$cookieName,
@@ -394,6 +463,31 @@ export const CookieRule = {
 					},
 				},
 			},
+			bottomControls: {
+				filter: {
+					enable: true,
+					option: [
+						{
+							name: "过滤-已启用",
+							filterCallBack(data) {
+								return data.enable;
+							},
+						},
+						{
+							name: "过滤-未启用",
+							filterCallBack(data) {
+								return !data.enable;
+							},
+						},
+						{
+							name: "过滤-当前网站执行",
+							filterCallBack(data) {
+								return matchedRuleList.some((it) => it.uuid === data.uuid);
+							},
+						},
+					],
+				},
+			},
 		});
 		ruleView.showView();
 	},
@@ -407,6 +501,7 @@ export const CookieRule = {
 			name: "",
 			data: {
 				url: "",
+				execApiName: "use-global",
 				enableRegExpToMatchUrl: false,
 				cookieName: "",
 				enableRegExpToMatchCookieName: false,

@@ -8,9 +8,9 @@ import { Component_Common } from "./setting/view/general";
 
 PanelContent.addContentConfig([Component_Common, Component_Rule]);
 Panel.init();
+CookieManagerView.init();
 CookieRule.init();
 CookieRuleController.init();
-CookieManagerView.init();
 if (import.meta.env.DEV) {
 	CookieManagerView.showView();
 }
