@@ -19,6 +19,7 @@ import {
  * @param data 下拉列表的数据
  * @param changeCallback （可选）选择列表的某一项的回调，如果返回true，则阻止默认行为（存储值）
  * @param description （可选）左边的文字下面的描述
+ * @param changeCallbackAfterStoreValue （可选）选择列表的某项后，存储值后的回调
  */
 export const UISelect = function <T extends any>(
 	text: string,
@@ -42,7 +43,14 @@ export const UISelect = function <T extends any>(
 				isSelectedText: string
 		  ) => void | boolean)
 		| undefined,
-	description?: string
+	description?: string,
+	changeCallbackAfterStoreValue?:
+		| ((
+				event: PointerEvent | TouchEvent,
+				isSelectedValue: T,
+				isSelectedText: string
+		  ) => void | boolean)
+		| undefined
 ): PopsPanelSelectDetails<T> {
 	let selectData: {
 		value: T;
@@ -80,6 +88,10 @@ export const UISelect = function <T extends any>(
 				PROPS_STORAGE_API as keyof typeof this.props
 			] as PanelComponentsStorageApiValue;
 			storageApiValue.set(key, value);
+
+			if (typeof changeCallbackAfterStoreValue === "function") {
+				changeCallbackAfterStoreValue(event, value, isSelectedText);
+			}
 		},
 		data: selectData,
 	};
