@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.23
+// @version      2025.7.24
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3195,6 +3195,9 @@
       Panel.execMenuOnce("dy-video-blockTitleTopTag", () => {
         return this.blobkTitleTopTag();
       });
+      Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
+        return this.blockClickRecommend();
+      });
       DouYinVideoBlock_BottomToolbar.init();
       DouYinVideoBlock_RightToolbar.init();
       DouYinVideoBlock_Comment.init();
@@ -3283,6 +3286,13 @@
         "span:has(+#video-info-wrap):has(img)",
         "span:has(+div #video-info-wrap):has(img)"
       );
+    },
+    /**
+     * 【屏蔽】点击推荐
+     */
+    blockClickRecommend() {
+      log.info(`【屏蔽】点击推荐`);
+      return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
     }
   };
   class ShortCut {
@@ -4248,6 +4258,7 @@
       );
       result.push(DouYinVideoBlock.blobkTitleTopTag());
       result.push(DouYinVideoBlock.shieldSearchFloatingBar());
+      result.push(DouYinVideoBlock.blockClickRecommend());
       result.push(
         addStyle(
           /*css*/
@@ -6641,7 +6652,7 @@
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack, valueChangeCallback) {
     let result = {
       text,
       type: "input",
@@ -6677,7 +6688,7 @@
     );
     return result;
   };
-  const UISelectMultiple = function(text, key, defaultValue, data, changeCallback, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails) {
+  const UISelectMultiple = function(text, key, defaultValue, data, selectCallBack, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -6723,7 +6734,7 @@
     );
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack, disabled) {
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
     let result = {
       text,
       type: "switch",
@@ -8275,7 +8286,7 @@
       }
     }
   }
-  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled) {
+  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled, valueChangeCallBack) {
     let result = {
       text,
       type: "textarea",
@@ -9977,7 +9988,7 @@
       }
     }
   };
-  const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
+  const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -9997,8 +10008,8 @@
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        if (typeof changeCallback === "function") {
-          let result2 = changeCallback(event, value, isSelectedText);
+        if (typeof selectCallBack === "function") {
+          let result2 = selectCallBack(event, value, isSelectedText);
           if (result2) {
             return;
           }
@@ -10936,7 +10947,7 @@
     });
     return result;
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step) {
+  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step, valueChangeCallBack) {
     let result = {
       text,
       type: "slider",
@@ -11565,6 +11576,13 @@
                     false,
                     void 0,
                     "例如：相关搜索、AI搜索、合集...等"
+                  ),
+                  UISwitch(
+                    "【屏蔽】点击推荐",
+                    "dy-video-blockClickRecommend",
+                    false,
+                    void 0,
+                    "屏蔽元素"
                   )
                 ]
               },
