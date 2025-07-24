@@ -21,6 +21,7 @@ import {
  * @param isNumber （可选）是否是数字框
  * @param isPassword （可选）是否是密码框
  * @param afterAddToUListCallBack （可选）
+ * @param valueChangeCallback （可选）输入框内容改变且成功存储值后的回调
  */
 export const UIInput = function <T extends boolean>(
 	text: string,
@@ -37,7 +38,14 @@ export const UIInput = function <T extends boolean>(
 	placeholder = "",
 	isNumber?: T,
 	isPassword?: boolean,
-	afterAddToUListCallBack?: PopsPanelInputDetails["afterAddToUListCallBack"]
+	afterAddToUListCallBack?: PopsPanelInputDetails["afterAddToUListCallBack"],
+	valueChangeCallback?:
+		| ((
+				event: InputEvent,
+				value: string,
+				valueAsNumber?: number | undefined
+		  ) => void | boolean)
+		| undefined
 ) {
 	let result: PopsPanelInputDetails = {
 		text: text,
@@ -65,6 +73,10 @@ export const UIInput = function <T extends boolean>(
 				PROPS_STORAGE_API as keyof typeof this.props
 			] as PanelComponentsStorageApiValue;
 			storageApiValue.set(key, value);
+
+			if (typeof valueChangeCallback === "function") {
+				valueChangeCallback(event, value, valueAsNumber);
+			}
 		},
 		placeholder: placeholder,
 	};

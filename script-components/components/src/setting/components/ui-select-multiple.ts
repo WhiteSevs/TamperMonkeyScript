@@ -18,9 +18,10 @@ import {
  * @param key 键
  * @param defaultValue 默认值
  * @param data 下拉列表的数据
- * @param changeCallback （可选）选择列表的某一项的回调，如果返回true，则阻止默认行为（存储值）
+ * @param selectCallBack （可选）选择列表的某一项的回调，如果返回true，则阻止默认行为（存储值）
  * @param description （可选）左边的文字下面的描述
  * @param selectConfirmDialogDetails （可选）弹窗配置
+ * @param valueChangeCallBack （可选）选择列表的某项后且存储值后的回调
  */
 export const UISelectMultiple = function <T>(
 	text: string,
@@ -29,14 +30,19 @@ export const UISelectMultiple = function <T>(
 	data:
 		| PopsPanelSelectMultipleDetails<T>["data"]
 		| (() => PopsPanelSelectMultipleDetails<T>["data"]),
-	changeCallback?:
+	selectCallBack?:
 		| ((
 				selectInfo: PopsPanelSelectMultipleDetails<T>["data"]
 		  ) => void | boolean)
 		| undefined,
 	description?: string,
 	placeholder = "请至少选择一个选项",
-	selectConfirmDialogDetails?: Partial<PopsAlertDetails>
+	selectConfirmDialogDetails?: Partial<PopsAlertDetails>,
+	valueChangeCallBack?:
+		| ((
+				selectInfo: PopsPanelSelectMultipleDetails<T>["data"]
+		  ) => void | boolean)
+		| undefined
 ): PopsPanelSelectMultipleDetails<T> {
 	let selectData: PopsPanelSelectMultipleDetails<T>["data"] = [];
 	if (typeof data === "function") {
@@ -68,13 +74,17 @@ export const UISelectMultiple = function <T>(
 			});
 			log.info(`多选-选择：`, value);
 
-			if (typeof changeCallback === "function") {
-				let result = changeCallback(selectInfo);
+			if (typeof selectCallBack === "function") {
+				let result = selectCallBack(selectInfo);
 				if (result) {
 					return;
 				}
 			}
 			storageApiValue.set(key, value);
+
+			if (typeof valueChangeCallBack === "function") {
+				valueChangeCallBack(selectInfo);
+			}
 		},
 		data: selectData,
 	};

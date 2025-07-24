@@ -17,9 +17,9 @@ import {
  * @param key 键
  * @param defaultValue 默认值
  * @param data 下拉列表的数据
- * @param changeCallback （可选）选择列表的某一项的回调，如果返回true，则阻止默认行为（存储值）
+ * @param selectCallBack （可选）选择列表的某一项的回调，如果返回true，则阻止默认行为（存储值）
  * @param description （可选）左边的文字下面的描述
- * @param changeCallbackAfterStoreValue （可选）选择列表的某项后，存储值后的回调
+ * @param valueChangeCallBack （可选）选择列表的某项后且存储值后的回调
  */
 export const UISelect = function <T extends any>(
 	text: string,
@@ -36,7 +36,7 @@ export const UISelect = function <T extends any>(
 				text: string;
 				disable?(value: T): boolean;
 		  }[]),
-	changeCallback?:
+	selectCallBack?:
 		| ((
 				event: PointerEvent | TouchEvent,
 				isSelectedValue: T,
@@ -44,7 +44,7 @@ export const UISelect = function <T extends any>(
 		  ) => void | boolean)
 		| undefined,
 	description?: string,
-	changeCallbackAfterStoreValue?:
+	valueChangeCallBack?:
 		| ((
 				event: PointerEvent | TouchEvent,
 				isSelectedValue: T,
@@ -78,8 +78,8 @@ export const UISelect = function <T extends any>(
 			let value = isSelectedValue;
 			log.info(`选择：${isSelectedText}`);
 
-			if (typeof changeCallback === "function") {
-				let result = changeCallback(event, value, isSelectedText);
+			if (typeof selectCallBack === "function") {
+				let result = selectCallBack(event, value, isSelectedText);
 				if (result) {
 					return;
 				}
@@ -89,8 +89,8 @@ export const UISelect = function <T extends any>(
 			] as PanelComponentsStorageApiValue;
 			storageApiValue.set(key, value);
 
-			if (typeof changeCallbackAfterStoreValue === "function") {
-				changeCallbackAfterStoreValue(event, value, isSelectedText);
+			if (typeof valueChangeCallBack === "function") {
+				valueChangeCallBack(event, value, isSelectedText);
 			}
 		},
 		data: selectData,

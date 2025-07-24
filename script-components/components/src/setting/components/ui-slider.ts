@@ -17,10 +17,11 @@ import {
  * @param defaultValue 默认值
  * @param min 最小值
  * @param max 最大值
- * @param changeCallback （可选）点击回调，如果返回true，则阻止默认行为（存储值）
+ * @param changeCallback （可选）拖拽回调，如果返回true，则阻止默认行为（存储值）
  * @param getToolTipContent （可选）获取tooltip内容
  * @param description （可选）左边的文字下面的描述
  * @param step （可选）间隔
+ * @param valueChangeCallBack （可选）拖拽且存储值后的回调
  */
 export const UISlider = function (
 	text: string,
@@ -33,7 +34,10 @@ export const UISlider = function (
 		| undefined,
 	getToolTipContent?: (value: number) => string,
 	description?: string | undefined,
-	step?: number
+	step?: number,
+	valueChangeCallBack?:
+		| ((event: InputEvent, value: number) => boolean | void)
+		| undefined
 ): PopsPanelSliderDetails {
 	let result: PopsPanelSliderDetails = {
 		text: text,
@@ -65,6 +69,10 @@ export const UISlider = function (
 				PROPS_STORAGE_API as keyof typeof this.props
 			] as PanelComponentsStorageApiValue;
 			storageApiValue.set(key, value);
+
+			if (typeof valueChangeCallBack === "function") {
+				valueChangeCallBack(event, value);
+			}
 		},
 		min: min,
 		max: max,

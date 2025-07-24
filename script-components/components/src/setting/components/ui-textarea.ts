@@ -19,6 +19,7 @@ import {
  * @param changeCallback （可选）输入框内容改变时的回调，如果返回true，则阻止默认行为（存储值）
  * @param placeholder （可选）输入框的默认提示内容，默认为空
  * @param disabled （可选）是否禁用
+ * @param valueChangeCallBack （可选）输入框内容改变且存储值后的回调
  */
 export const UITextArea = function (
 	text: string,
@@ -29,7 +30,10 @@ export const UITextArea = function (
 		| ((event: InputEvent, value: string) => void | boolean)
 		| undefined,
 	placeholder: string = "",
-	disabled?: boolean
+	disabled?: boolean,
+	valueChangeCallBack?:
+		| ((event: InputEvent, value: string) => void | boolean)
+		| undefined
 ) {
 	let result: PopsPanelTextAreaDetails = {
 		text: text,
@@ -63,6 +67,10 @@ export const UITextArea = function (
 				PROPS_STORAGE_API as keyof typeof this.props
 			] as PanelComponentsStorageApiValue;
 			storageApiValue.set(key, value);
+
+			if (typeof valueChangeCallBack === "function") {
+				valueChangeCallBack(event, value);
+			}
 		},
 	};
 

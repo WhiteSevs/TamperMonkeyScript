@@ -18,15 +18,17 @@ import {
  * @param text 文字
  * @param key 键
  * @param defaultValue 默认值
- * @param clickCallback （可选）点击回调，如果返回true，则阻止默认行为（存储值）
+ * @param clickCallBack （可选）点击后的回调，如果返回true，则阻止默认行为（存储值）
  * @param description （可选）左边的文字下面的描述，可以是html格式
  * @param afterAddToUListCallBack （可选）在添加到元素后触发该回调
+ * @param disabled （可选）是否禁用
+ * @param valueChangeCallBack （可选）在存储值后触发该回调
  */
 export const UISwitch = function (
 	text: string,
 	key: string,
 	defaultValue: boolean | undefined,
-	clickCallback?:
+	clickCallBack?:
 		| ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void)
 		| undefined,
 	description?: string | undefined,
@@ -36,7 +38,10 @@ export const UISwitch = function (
 				container: PopsPanelRightAsideContainerOptions
 		  ) => void)
 		| undefined,
-	disabled?: boolean | (() => boolean) | undefined
+	disabled?: boolean | (() => boolean) | undefined,
+	valueChangeCallBack?:
+		| ((event: MouseEvent | PointerEvent, value: boolean) => boolean | void)
+		| undefined
 ) {
 	let result: PopsPanelSwitchDetails = {
 		text: text,
@@ -56,8 +61,8 @@ export const UISwitch = function (
 		callback(event: MouseEvent | PointerEvent, __value: boolean) {
 			let value = Boolean(__value);
 			log.success(`${value ? "开启" : "关闭"} ${text}`);
-			if (typeof clickCallback === "function") {
-				let result = clickCallback(event, value);
+			if (typeof clickCallBack === "function") {
+				let result = clickCallBack(event, value);
 				if (result) {
 					return;
 				}
@@ -67,6 +72,10 @@ export const UISwitch = function (
 				PROPS_STORAGE_API as keyof typeof this.props
 			] as PanelComponentsStorageApiValue;
 			storageApiValue.set(key, value);
+
+			if (typeof valueChangeCallBack === "function") {
+				valueChangeCallBack(event, value);
+			}
 		},
 		afterAddToUListCallBack: afterAddToUListCallBack,
 	};
