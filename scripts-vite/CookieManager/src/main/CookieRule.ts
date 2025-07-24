@@ -61,22 +61,24 @@ export const CookieRule = {
 		this.$data.matchedRuleList = [];
 		this.$data.matchedRuleList = this.getMatchedRuleList();
 		// 注册菜单
-		GM_Menu.add({
-			key: "matched-cookie-rule-list",
-			text: `${window.location.hostname} ${this.$data.matchedRuleList.length}条规则`,
-			isStoreValue: false,
-			autoReload: false,
-			showText(text, enable) {
-				return text;
-			},
-			callback(data) {
-				console.log(CookieRule.$data.matchedRuleList);
-				alert(
-					"以下是命中的规则名：\n" +
-						CookieRule.$data.matchedRuleList.map((it) => it.name).join("\n")
-				);
-			},
-		});
+		if (this.$data.matchedRuleList.length) {
+			GM_Menu.add({
+				key: "matched-cookie-rule-list",
+				text: `${window.location.hostname} ${this.$data.matchedRuleList.length}条规则`,
+				isStoreValue: false,
+				autoReload: false,
+				showText(text, enable) {
+					return text;
+				},
+				callback(data) {
+					console.log(CookieRule.$data.matchedRuleList);
+					alert(
+						"以下是命中的规则名：\n" +
+							CookieRule.$data.matchedRuleList.map((it) => it.name).join("\n")
+					);
+				},
+			});
+		}
 	},
 	/**
 	 * 获取匹配的规则

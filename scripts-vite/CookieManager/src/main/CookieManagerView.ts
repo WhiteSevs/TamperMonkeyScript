@@ -502,7 +502,10 @@ export const CookieManagerView = {
 					"search-config-use-regexp",
 					false,
 					void 0,
-					"使用正则表达式搜索Cookie名称"
+					"使用正则表达式搜索Cookie名称",
+					() => {
+						triggerUpdateCookieListGroupWithSearchFilter();
+					}
 				)
 			);
 
