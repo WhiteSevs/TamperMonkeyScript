@@ -135,6 +135,7 @@ export const DouYinVideoPlayer = {
 		);
 		result.push(DouYinVideoBlock.blobkTitleTopTag());
 		result.push(DouYinVideoBlock.shieldSearchFloatingBar());
+		result.push(DouYinVideoBlock.blockClickRecommend());
 		result.push(
 			addStyle(/*css*/ `
 			/* 视频全屏 */

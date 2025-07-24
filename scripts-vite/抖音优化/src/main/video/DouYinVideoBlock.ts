@@ -278,6 +278,9 @@ export const DouYinVideoBlock = {
 		Panel.execMenuOnce("dy-video-blockTitleTopTag", () => {
 			return this.blobkTitleTopTag();
 		});
+		Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
+			return this.blockClickRecommend();
+		});
 		DouYinVideoBlock_BottomToolbar.init();
 		DouYinVideoBlock_RightToolbar.init();
 		DouYinVideoBlock_Comment.init();
@@ -365,5 +368,12 @@ export const DouYinVideoBlock = {
 			"span:has(+#video-info-wrap):has(img)",
 			"span:has(+div #video-info-wrap):has(img)"
 		);
+	},
+	/**
+	 * 【屏蔽】点击推荐
+	 */
+	blockClickRecommend() {
+		log.info(`【屏蔽】点击推荐`);
+		return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
 	},
 };
