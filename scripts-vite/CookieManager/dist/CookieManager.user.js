@@ -1345,7 +1345,7 @@
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack, disabled) {
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
     let result = {
       text,
       type: "switch",
@@ -1361,8 +1361,8 @@
       callback(event, __value) {
         let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        if (typeof clickCallback === "function") {
-          let result2 = clickCallback(event, value);
+        if (typeof clickCallBack === "function") {
+          let result2 = clickCallBack(event, value);
           if (result2) {
             return;
           }
@@ -1771,7 +1771,7 @@
       return true;
     }
   };
-  const UISelect = function(text, key, defaultValue, data, changeCallback, description, changeCallbackAfterStoreValue) {
+  const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -1791,16 +1791,16 @@
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        if (typeof changeCallback === "function") {
-          let result2 = changeCallback(event, value, isSelectedText);
+        if (typeof selectCallBack === "function") {
+          let result2 = selectCallBack(event, value, isSelectedText);
           if (result2) {
             return;
           }
         }
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
-        if (typeof changeCallbackAfterStoreValue === "function") {
-          changeCallbackAfterStoreValue(event, value, isSelectedText);
+        if (typeof valueChangeCallBack === "function") {
+          valueChangeCallBack(event, value, isSelectedText);
         }
       },
       data: selectData
@@ -1821,7 +1821,7 @@
     );
     return result;
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack, valueChangeCallback) {
     let result = {
       text,
       type: "input",
@@ -1857,7 +1857,7 @@
     );
     return result;
   };
-  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled) {
+  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled, valueChangeCallBack) {
     let result = {
       text,
       type: "textarea",
@@ -2646,21 +2646,23 @@
     init() {
       this.$data.matchedRuleList = [];
       this.$data.matchedRuleList = this.getMatchedRuleList();
-      GM_Menu.add({
-        key: "matched-cookie-rule-list",
-        text: `${window.location.hostname} ${this.$data.matchedRuleList.length}条规则`,
-        isStoreValue: false,
-        autoReload: false,
-        showText(text, enable) {
-          return text;
-        },
-        callback(data) {
-          console.log(CookieRule.$data.matchedRuleList);
-          alert(
-            "以下是命中的规则名：\n" + CookieRule.$data.matchedRuleList.map((it) => it.name).join("\n")
-          );
-        }
-      });
+      if (this.$data.matchedRuleList.length) {
+        GM_Menu.add({
+          key: "matched-cookie-rule-list",
+          text: `${window.location.hostname} ${this.$data.matchedRuleList.length}条规则`,
+          isStoreValue: false,
+          autoReload: false,
+          showText(text, enable) {
+            return text;
+          },
+          callback(data) {
+            console.log(CookieRule.$data.matchedRuleList);
+            alert(
+              "以下是命中的规则名：\n" + CookieRule.$data.matchedRuleList.map((it) => it.name).join("\n")
+            );
+          }
+        });
+      }
     },
     /**
      * 获取匹配的规则
@@ -3700,7 +3702,10 @@
             "search-config-use-regexp",
             false,
             void 0,
-            "使用正则表达式搜索Cookie名称"
+            "使用正则表达式搜索Cookie名称",
+            () => {
+              triggerUpdateCookieListGroupWithSearchFilter();
+            }
           )
         );
         domUtils.append($content, $useRegExp);
