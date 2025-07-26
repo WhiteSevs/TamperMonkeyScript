@@ -921,7 +921,7 @@ export const DouYinVideoFilter = {
 
 							</div>
 							<div class="pops-panel-button pops-panel-button-no-icon">
-								<button class="pops-panel-button_inner" type="default">
+								<button class="pops-panel-button_inner" type="button" data-type="default">
 									<i class="pops-bottom-icon" is-loading="false"></i>
 									<span class="pops-panel-button-text">添加额外属性</span>
 								</button>
@@ -951,7 +951,7 @@ export const DouYinVideoFilter = {
 								innerHTML: /*html*/ `
 									<div class="dynamic-control-delete">
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="danger">
+											<button class="pops-panel-button_inner" type="button" data-type="danger">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">×</span>
 											</button>

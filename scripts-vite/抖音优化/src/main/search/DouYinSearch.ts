@@ -3,6 +3,7 @@ import MobileCSS from "./css/mobile.css?raw";
 import { DouYinSearchHideElement } from "./DouYinSearchHideElement";
 import Qmsg from "qmsg";
 import { Panel } from "@components/setting/panel";
+import { DouYinRouter } from "@/router/DouYinRouter";
 
 export const DouYinSearch = {
 	init() {
@@ -105,22 +106,24 @@ export const DouYinSearch = {
 			document,
 			"click",
 			".focusPanel",
-			(event) => {
+			(event, selectorTarget) => {
+				if (!DouYinRouter.isSearch()) {
+					return;
+				}
 				utils.preventEvent(event);
-				let $click = event.target as HTMLElement;
+				let $click = selectorTarget;
 				let $parent = $click.parentElement?.parentElement as HTMLElement;
 				let $video = $parent.querySelector("video");
 				if ($video) {
 					if ($video.paused) {
-						log.info(".focusPanel：播放视频");
 						$video.play();
+						log.info(".focusPanel：播放视频");
 					} else {
-						log.info(".focusPanel：视频暂停");
 						$video.pause();
+						log.info(".focusPanel：暂停视频");
 					}
 				} else {
-					log.error(".focusPanel未找到<video>标签");
-					Qmsg.error(".focusPanel未找到<video>标签", {
+					Qmsg.error(".focusPanel未找到 video标签", {
 						isHTML: false,
 					});
 				}
@@ -133,24 +136,19 @@ export const DouYinSearch = {
 		DOMUtils.on(
 			document,
 			"click",
-			"xg-video-container",
-			(event) => {
+			"#sliderVideo video",
+			(event, selectorTarget) => {
+				if (!DouYinRouter.isSearch()) {
+					return;
+				}
 				utils.preventEvent(event);
-				let $click = event.target as HTMLElement;
-				let $video = $click.querySelector("video");
-				if ($video) {
-					if ($video.paused) {
-						log.info("xg-video-container：播放视频");
-						$video.play();
-					} else {
-						log.info("xg-video-container：视频暂停");
-						$video.pause();
-					}
+				let $video = selectorTarget as HTMLVideoElement;
+				if ($video.paused) {
+					$video.play();
+					log.info("#sliderVideo video：播放视频");
 				} else {
-					log.error("xg-video-container未找到<video>标签");
-					Qmsg.error("xg-video-container未找到<video>标签", {
-						isHTML: false,
-					});
+					$video.pause();
+					log.info("#sliderVideo video：暂停视频");
 				}
 			},
 			{
