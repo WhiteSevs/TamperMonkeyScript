@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.24
+// @version      2025.7.26
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.6/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -1213,48 +1213,50 @@
     autoClearConsole: true,
     tag: true
   });
-  Qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_position.key,
-              PanelSettingConfig.qmsg_config_position.defaultValue
-            );
-          }
-        },
-        maxNums: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_maxnums.key,
-              PanelSettingConfig.qmsg_config_maxnums.defaultValue
-            );
-          }
-        },
-        showReverse: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_showreverse.key,
-              PanelSettingConfig.qmsg_config_showreverse.defaultValue
-            );
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
+  Qmsg.config({
+    html: true,
+    isHTML: true,
+    autoClose: true,
+    showClose: false,
+    consoleLogContent(qmsgInst) {
+      const qmsgType = qmsgInst.getSetting().type;
+      if (qmsgType === "loading") {
+        return false;
       }
-    )
-  );
+      const content = qmsgInst.getSetting().content;
+      if (qmsgType === "warning") {
+        log.warn(content);
+      } else if (qmsgType === "error") {
+        log.error(content);
+      } else {
+        log.info(content);
+      }
+      return true;
+    },
+    get position() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_position.key,
+        PanelSettingConfig.qmsg_config_position.defaultValue
+      );
+    },
+    get maxNums() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_maxnums.key,
+        PanelSettingConfig.qmsg_config_maxnums.defaultValue
+      );
+    },
+    get showReverse() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_showreverse.key,
+        PanelSettingConfig.qmsg_config_showreverse.defaultValue
+      );
+    },
+    get zIndex() {
+      let maxZIndex = Utils.getMaxZIndex();
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    }
+  });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
@@ -6227,22 +6229,24 @@
         document,
         "click",
         ".focusPanel",
-        (event) => {
+        (event, selectorTarget) => {
+          if (!DouYinRouter.isSearch()) {
+            return;
+          }
           utils.preventEvent(event);
-          let $click = event.target;
+          let $click = selectorTarget;
           let $parent = $click.parentElement?.parentElement;
           let $video = $parent.querySelector("video");
           if ($video) {
             if ($video.paused) {
-              log.info(".focusPanel：播放视频");
               $video.play();
+              log.info(".focusPanel：播放视频");
             } else {
-              log.info(".focusPanel：视频暂停");
               $video.pause();
+              log.info(".focusPanel：暂停视频");
             }
           } else {
-            log.error(".focusPanel未找到<video>标签");
-            Qmsg.error(".focusPanel未找到<video>标签", {
+            Qmsg.error(".focusPanel未找到 video标签", {
               isHTML: false
             });
           }
@@ -6254,24 +6258,19 @@
       domUtils.on(
         document,
         "click",
-        "xg-video-container",
-        (event) => {
+        "#sliderVideo video",
+        (event, selectorTarget) => {
+          if (!DouYinRouter.isSearch()) {
+            return;
+          }
           utils.preventEvent(event);
-          let $click = event.target;
-          let $video = $click.querySelector("video");
-          if ($video) {
-            if ($video.paused) {
-              log.info("xg-video-container：播放视频");
-              $video.play();
-            } else {
-              log.info("xg-video-container：视频暂停");
-              $video.pause();
-            }
+          let $video = selectorTarget;
+          if ($video.paused) {
+            $video.play();
+            log.info("#sliderVideo video：播放视频");
           } else {
-            log.error("xg-video-container未找到<video>标签");
-            Qmsg.error("xg-video-container未找到<video>标签", {
-              isHTML: false
-            });
+            $video.pause();
+            log.info("#sliderVideo video：暂停视频");
           }
         },
         {
@@ -8995,7 +8994,7 @@
 
 							</div>
 							<div class="pops-panel-button pops-panel-button-no-icon">
-								<button class="pops-panel-button_inner" type="default">
+								<button class="pops-panel-button_inner" type="button" data-type="default">
 									<i class="pops-bottom-icon" is-loading="false"></i>
 									<span class="pops-panel-button-text">添加额外属性</span>
 								</button>
@@ -9021,7 +9020,7 @@
                     `
 									<div class="dynamic-control-delete">
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="danger">
+											<button class="pops-panel-button_inner" type="button" data-type="danger">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">×</span>
 											</button>
