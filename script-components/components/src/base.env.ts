@@ -17,6 +17,7 @@ import { CommonUtil } from "./utils/CommonUtil";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
 import { createApp } from "vue";
 import { PanelSettingConfig } from "./setting/panel-setting-config";
+import type { QmsgConfig, QmsgPosition } from "qmsg/dist/src/QmsgConfig";
 
 const utils = Utils.noConflict();
 const domUtils = DOMUtils.noConflict();
@@ -44,49 +45,50 @@ log.config({
 	tag: true,
 });
 /* 配置吐司Qmsg */
-Qmsg.config(
-	Object.defineProperties(
-		{
-			html: true,
-			autoClose: true,
-			showClose: false,
-		},
-		{
-			position: {
-				get() {
-					return Panel.getValue(
-						PanelSettingConfig.qmsg_config_position.key,
-						PanelSettingConfig.qmsg_config_position.defaultValue
-					);
-				},
-			},
-			maxNums: {
-				get() {
-					return Panel.getValue(
-						PanelSettingConfig.qmsg_config_maxnums.key,
-						PanelSettingConfig.qmsg_config_maxnums.defaultValue
-					);
-				},
-			},
-			showReverse: {
-				get() {
-					return Panel.getValue(
-						PanelSettingConfig.qmsg_config_showreverse.key,
-						PanelSettingConfig.qmsg_config_showreverse.defaultValue
-					);
-				},
-			},
-			zIndex: {
-				get() {
-					let maxZIndex = Utils.getMaxZIndex();
-					let popsMaxZIndex =
-						pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-					return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-				},
-			},
+Qmsg.config({
+	html: true,
+	isHTML: true,
+	autoClose: true,
+	showClose: false,
+	consoleLogContent(qmsgInst) {
+		const qmsgType = qmsgInst.getSetting().type;
+		if (qmsgType === "loading") {
+			return false;
 		}
-	)
-);
+		const content = qmsgInst.getSetting().content;
+		if (qmsgType === "warning") {
+			log.warn(content);
+		} else if (qmsgType === "error") {
+			log.error(content);
+		} else {
+			log.info(content);
+		}
+		return true;
+	},
+	get position() {
+		return Panel.getValue<QmsgPosition>(
+			PanelSettingConfig.qmsg_config_position.key,
+			PanelSettingConfig.qmsg_config_position.defaultValue
+		);
+	},
+	get maxNums() {
+		return Panel.getValue(
+			PanelSettingConfig.qmsg_config_maxnums.key,
+			PanelSettingConfig.qmsg_config_maxnums.defaultValue
+		);
+	},
+	get showReverse() {
+		return Panel.getValue(
+			PanelSettingConfig.qmsg_config_showreverse.key,
+			PanelSettingConfig.qmsg_config_showreverse.defaultValue
+		);
+	},
+	get zIndex() {
+		let maxZIndex = Utils.getMaxZIndex();
+		let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+		return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+	},
+});
 
 /* 配置pops的默认选项 */
 __pops.GlobalConfig.setGlobalConfig({
