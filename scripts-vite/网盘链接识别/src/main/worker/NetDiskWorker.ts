@@ -710,13 +710,13 @@ export const NetDiskWorker = {
 						NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode
 							.value === "suspension"
 					) {
-						NetDiskUI.suspension.show();
+						NetDiskUI.suspension.init();
 					} else {
 						NetDiskUI.view.show();
 					}
 					break;
 				case "suspension_window".toLowerCase():
-					NetDiskUI.suspension.show();
+					NetDiskUI.suspension.init();
 					break;
 				case "smallwindow".toLowerCase():
 					NetDiskUI.view.show();

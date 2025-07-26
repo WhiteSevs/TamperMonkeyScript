@@ -304,12 +304,12 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 											NetDiskGlobalData.suspension.size.value = parseInt(
 												value.toString()
 											);
-											if (NetDiskUI.suspension.isShow) {
-												DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
+											if (NetDiskUI.suspension.$data.isShow) {
+												DOMUtils.css(NetDiskUI.suspension.$el.$suspension, {
 													width: NetDiskGlobalData.suspension.size.value,
 													height: NetDiskGlobalData.suspension.size.value,
 												});
-												NetDiskUI.suspension.setSuspensionPosition();
+												NetDiskUI.suspension.updatePosition(true);
 											}
 										},
 										(value) => {
@@ -328,8 +328,8 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 											NetDiskGlobalData.suspension.opacity.value = parseFloat(
 												value.toString()
 											);
-											if (NetDiskUI.suspension.isShow) {
-												DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
+											if (NetDiskUI.suspension.$data.isShow) {
+												DOMUtils.css(NetDiskUI.suspension.$el.$suspension, {
 													opacity: NetDiskGlobalData.suspension.opacity.value,
 												});
 											}

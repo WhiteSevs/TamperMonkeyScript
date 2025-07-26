@@ -130,7 +130,7 @@ export const NetDiskView = {
 									NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value =
 										"suspension";
 									detail.hide();
-									NetDiskUI.suspension.show();
+									NetDiskUI.suspension.init();
 								} else {
 									// @ts-ignore
 									NetDiskUI.Alias.uiLinkAlias = void 0;
