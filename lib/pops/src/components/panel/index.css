@@ -1176,6 +1176,7 @@ section.pops-panel-deepMenu-container
 .pops-panel-item-left-desc-text:has(code) {
 	display: flex;
 	align-items: baseline;
+	flex-wrap: wrap;
 }
 
 @media (prefers-color-scheme: dark) {
