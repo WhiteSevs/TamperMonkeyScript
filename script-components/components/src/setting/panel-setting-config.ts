@@ -1,8 +1,10 @@
+import type { QmsgPosition } from "qmsg/dist/src/QmsgConfig";
+
 export const PanelSettingConfig = {
 	/** Toast位置 */
 	qmsg_config_position: {
 		key: "qmsg-config-position",
-		defaultValue: "bottom",
+		defaultValue: "bottom" as QmsgPosition,
 	},
 	/** 最多显示的数量 */
 	qmsg_config_maxnums: {
