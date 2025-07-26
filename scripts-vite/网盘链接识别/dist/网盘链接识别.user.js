@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.18
+// @version      2025.7.26
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.7/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -335,6 +335,33 @@
      */
     escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    },
+    /**
+     * 在规定时间内循环，如果超时或返回false则取消循环
+     * @param fn 循环的函数
+     * @param intervalTime 循环间隔时间
+     * @param [timeout=5000] 循环超时时间
+     */
+    interval(fn, intervalTime, timeout = 5e3) {
+      let timeId;
+      let maxTimeout = timeout - intervalTime;
+      let intervalTimeCount = intervalTime;
+      let loop = async (isTimeout) => {
+        let result = await fn(isTimeout);
+        if (typeof result === "boolean" && !result || isTimeout) {
+          utils.workerClearTimeout(timeId);
+          return;
+        }
+        intervalTimeCount += intervalTime;
+        if (intervalTimeCount > maxTimeout) {
+          loop(true);
+          return;
+        }
+        timeId = utils.workerSetTimeout(() => {
+          loop(false);
+        }, intervalTime);
+      };
+      loop(false);
     }
   };
   const PanelSettingConfig = {
@@ -370,48 +397,50 @@
     autoClearConsole: true,
     tag: true
   });
-  Qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_position.key,
-              PanelSettingConfig.qmsg_config_position.defaultValue
-            );
-          }
-        },
-        maxNums: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_maxnums.key,
-              PanelSettingConfig.qmsg_config_maxnums.defaultValue
-            );
-          }
-        },
-        showReverse: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_showreverse.key,
-              PanelSettingConfig.qmsg_config_showreverse.defaultValue
-            );
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
+  Qmsg.config({
+    html: true,
+    isHTML: true,
+    autoClose: true,
+    showClose: false,
+    consoleLogContent(qmsgInst) {
+      const qmsgType = qmsgInst.getSetting().type;
+      if (qmsgType === "loading") {
+        return false;
       }
-    )
-  );
+      const content = qmsgInst.getSetting().content;
+      if (qmsgType === "warning") {
+        log.warn(content);
+      } else if (qmsgType === "error") {
+        log.error(content);
+      } else {
+        log.info(content);
+      }
+      return true;
+    },
+    get position() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_position.key,
+        PanelSettingConfig.qmsg_config_position.defaultValue
+      );
+    },
+    get maxNums() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_maxnums.key,
+        PanelSettingConfig.qmsg_config_maxnums.defaultValue
+      );
+    },
+    get showReverse() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_showreverse.key,
+        PanelSettingConfig.qmsg_config_showreverse.defaultValue
+      );
+    },
+    get zIndex() {
+      let maxZIndex = Utils.getMaxZIndex();
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    }
+  });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
@@ -476,8 +505,8 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle.bind(utils);
-  const $ = document.querySelector.bind(document);
-  const $$ = document.querySelectorAll.bind(document);
+  const $ = DOMUtils.selector.bind(DOMUtils);
+  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -2089,7 +2118,7 @@
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack, disabled) {
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
     let result = {
       text,
       type: "switch",
@@ -2105,8 +2134,8 @@
       callback(event, __value) {
         let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        if (typeof clickCallback === "function") {
-          let result2 = clickCallback(event, value);
+        if (typeof clickCallBack === "function") {
+          let result2 = clickCallBack(event, value);
           if (result2) {
             return;
           }
@@ -2132,7 +2161,7 @@
     );
     return result;
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack, valueChangeCallback) {
     let result = {
       text,
       type: "input",
@@ -4676,7 +4705,7 @@
                   if (NetDiskGlobalData.features["netdisk-behavior-mode"].value.toLowerCase().includes("suspension")) {
                     NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "suspension";
                     detail.hide();
-                    NetDiskUI.suspension.show();
+                    NetDiskUI.suspension.init();
                   } else {
                     NetDiskUI.Alias.uiLinkAlias = void 0;
                     detail.close();
@@ -16533,13 +16562,13 @@
         switch (NetDiskGlobalData.features["netdisk-behavior-mode"].value) {
           case "suspension_smallwindow".toLowerCase():
             if (NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value === "suspension") {
-              NetDiskUI.suspension.show();
+              NetDiskUI.suspension.init();
             } else {
               NetDiskUI.view.show();
             }
             break;
           case "suspension_window".toLowerCase():
-            NetDiskUI.suspension.show();
+            NetDiskUI.suspension.init();
             break;
           case "smallwindow".toLowerCase():
             NetDiskUI.view.show();
@@ -19936,7 +19965,7 @@
       }
     }
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step) {
+  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step, valueChangeCallBack) {
     let result = {
       text,
       type: "slider",
@@ -19984,7 +20013,7 @@
     );
     return result;
   };
-  const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
+  const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -20809,47 +20838,58 @@
     }
   };
   const NetDiskSuspension = {
-    suspensionNode: null,
-    /** 是否已显示 */
-    isShow: false,
-    /** 是否已设置事件 */
-    isSetEvent: false,
-    /** 是否正在切换背景 */
-    isRandBg: false,
+    $el: {
+      /**
+       * 按钮元素
+       */
+      $suspension: null,
+      /**
+       * 按钮元素的动态z-index的style元素
+       */
+      $suspensionZIndexStyle: null
+    },
+    $data: {
+      /** 是否已显示 */
+      isShow: false,
+      /** 是否已设置所有的事件 */
+      isInitAllEvent: false,
+      /** 是否正在切换背景 */
+      isSwitchBackground: false
+    },
+    /**
+     * 初始化
+     */
+    init() {
+      if (!this.$data.isShow) {
+        this.$data.isShow = true;
+        this.createElement();
+        this.updateZIndex();
+        this.updatePosition(true);
+      }
+      if (!this.$data.isInitAllEvent) {
+        this.$data.isInitAllEvent = true;
+        this.setAllEvent();
+        this.setResizeEventListener();
+      }
+      this.changeBackground();
+      this.show();
+    },
     /**
      * 显示悬浮按钮
      */
     show() {
-      if (!this.isShow) {
-        this.isShow = true;
-        this.createUI();
-        this.setSuspensionPosition();
-      }
-      if (!this.isSetEvent) {
-        this.isSetEvent = true;
-        this.setSuspensionEvent();
-        this.setResizeEventListener();
-      }
-      this.backgroundSwitch();
-      this.showSuspension();
-    },
-    showSuspension() {
-      this.suspensionNode.style.display = "";
-    },
-    hideSuspension() {
-      this.suspensionNode.style.display = "none";
+      DOMUtils.css(this.$el.$suspension, { display: "" });
     },
     /**
-     * 判断当前是否是顶部窗口
-     * @returns {boolean}
+     * 隐藏悬浮按钮
      */
-    isTopWindow() {
-      return _unsafeWindow.self.window === _unsafeWindow.top.window;
+    hide() {
+      DOMUtils.css(this.$el.$suspension, { display: "none" });
     },
     /**
-     * 创建UI界面
+     * 创建按钮元素
      */
-    createUI() {
+    createElement() {
       if (NetDiskGlobalData.suspension.size.value < 15) {
         NetDiskGlobalData.suspension.size.value = 15;
       }
@@ -20866,11 +20906,7 @@
         className: "whitesev-suspension-shadow-container"
       });
       let $shadowRoot = $shadowContainer.attachShadow({ mode: "open" });
-      let suspendedZIndex = NetDiskGlobalData.suspension["suspended-z-index"].value;
-      if (suspendedZIndex <= 0) {
-        suspendedZIndex = utils.getMaxValue(4e4, utils.getMaxZIndex(10));
-      }
-      this.suspensionNode = DOMUtils.createElement(
+      this.$el.$suspension = DOMUtils.createElement(
         "div",
         {
           id: "whitesevSuspensionId",
@@ -20878,19 +20914,12 @@
           innerHTML: (
             /*html*/
             `
-					<style type="text/css">
-						/* 动态生成z-index */
-						#whitesevSuspensionId{
-							z-index: ${suspendedZIndex};;
-						}
-
-						${indexCSS$2}
-
-					</style>
+					<style type="text/css">${indexCSS$2}</style>
+					<style type="text/css" data-z-index></style>
 					<div class="whitesevSuspensionMain">
-					<div class="whitesevSuspensionFloor">
-						<div class="netdisk"></div>
-					</div>
+						<div class="whitesevSuspensionFloor">
+							<div class="netdisk"></div>
+						</div>
 					</div>
                 `
           )
@@ -20903,14 +20932,18 @@
                 `
         }
       );
-      $shadowRoot.appendChild(this.suspensionNode);
-      document.body.appendChild($shadowContainer);
+      this.$el.$suspensionZIndexStyle = this.$el.$suspension.querySelector(
+        "style[data-z-index]"
+      );
+      $shadowRoot.appendChild(this.$el.$suspension);
+      (document.body || document.documentElement).appendChild($shadowContainer);
     },
     /**
      * 设置 悬浮按钮所有事件
      */
-    setSuspensionEvent() {
-      let needDragElement = NetDiskUI.suspension.suspensionNode;
+    setAllEvent() {
+      let that = this;
+      let needDragElement = NetDiskUI.suspension.$el.$suspension;
       let dragNode = new AnyTouch(needDragElement);
       let netDiskLinkViewTimer = void 0;
       let moveFlag = false;
@@ -20928,6 +20961,9 @@
             transition: "none"
           });
         }
+        if (event.phase === "start") {
+          that.updateZIndex();
+        }
         if (event.phase === "move") {
           let maxLeftOffset = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
           let maxTopOffset = DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value;
@@ -20937,7 +20973,7 @@
           currentSuspensionTopOffset = currentSuspensionTopOffset > maxTopOffset ? maxTopOffset : currentSuspensionTopOffset;
           currentSuspensionLeftOffset = currentSuspensionLeftOffset < 0 ? 0 : currentSuspensionLeftOffset;
           currentSuspensionTopOffset = currentSuspensionTopOffset < 0 ? 0 : currentSuspensionTopOffset;
-          NetDiskSuspension.saveSuspensionPosition({
+          NetDiskSuspension.savePosition({
             x: currentSuspensionLeftOffset,
             y: currentSuspensionTopOffset
           });
@@ -20958,15 +20994,15 @@
             let setCSSLeft = 0;
             if (currentSuspensionLeftOffset >= DOMUtils.width(window) / 2) {
               setCSSLeft = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
-              if (NetDiskUI.suspension.isTopWindow()) {
+              if (Panel.isTopWindow()) {
                 NetDiskSuspensionConfig.position.isRight.value = true;
               }
             } else {
-              if (NetDiskUI.suspension.isTopWindow()) {
+              if (Panel.isTopWindow()) {
                 NetDiskSuspensionConfig.position.isRight.value = false;
               }
             }
-            NetDiskSuspension.saveSuspensionPosition({
+            NetDiskSuspension.savePosition({
               x: setCSSLeft
             });
             DOMUtils.css(needDragElement, {
@@ -20976,6 +21012,7 @@
           DOMUtils.css(needDragElement, {
             transition: "left 300ms ease 0s"
           });
+          that.updateZIndex();
         }
       });
       dragNode.on("tap", function(event) {
@@ -20991,7 +21028,7 @@
               "smallwindow"
             )) {
               NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "smallwindow";
-              NetDiskUI.suspension.hideSuspension();
+              NetDiskUI.suspension.hide();
             }
             NetDiskUI.view.show();
           }, 200);
@@ -21001,11 +21038,29 @@
       NetDiskUI.setGlobalRightClickMenu(needDragElement);
     },
     /**
+     * 设置window的resize事件监听，来重新设置悬浮按钮的位置
+     */
+    setResizeEventListener() {
+      DOMUtils.on(globalThis, "resize", () => {
+        let $active = document.activeElement;
+        if (utils.isPhone()) {
+          if (["input", "textarea"].includes($active.localName)) {
+            return;
+          } else if ($active.hasAttribute("contenteditable") && $active.getAttribute("contenteditable") === "true" || $active.closest("[contenteditable='true']")) {
+            return;
+          } else if (!document.hasFocus()) {
+            return;
+          }
+        }
+        this.updatePosition(false);
+      });
+    },
+    /**
      * 保存悬浮按钮位置
      * @param position
      */
-    saveSuspensionPosition(position) {
-      if (!NetDiskUI.suspension.isTopWindow()) {
+    savePosition(position) {
+      if (!Panel.isTopWindow()) {
         return;
       }
       if (position == null) {
@@ -21021,27 +21076,10 @@
       NetDiskSuspensionConfig.position.suspensionMaxY.value = NetDiskSuspensionConfig.position.suspensionMaxY.default;
     },
     /**
-     * 设置window的resize事件监听，来重新设置悬浮按钮的位置
+     * 更新悬浮按钮位置
+     * @param isTrusted 是否为用户行为触发
      */
-    setResizeEventListener() {
-      DOMUtils.on(globalThis, "resize", void 0, () => {
-        let activeElement = document.activeElement;
-        if (utils.isPhone()) {
-          if (["input", "textarea"].includes(activeElement.localName)) {
-            return;
-          } else if (activeElement.hasAttribute("contenteditable") && activeElement.getAttribute("contenteditable") === "true" || activeElement.closest("[contenteditable='true']")) {
-            return;
-          } else if (!document.hasFocus()) {
-            return;
-          }
-        }
-        this.setSuspensionPosition();
-      });
-    },
-    /**
-     * 设置悬浮按钮位置
-     */
-    setSuspensionPosition() {
+    updatePosition(isTrusted) {
       const MAX_X = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
       const MAX_Y = DOMUtils.height(window) - NetDiskGlobalData.suspension.size.value;
       const LAST_MAX_X = NetDiskSuspensionConfig.position.suspensionMaxX.value;
@@ -21077,20 +21115,38 @@
           suspension_X = 0;
         }
       }
-      NetDiskSuspension.saveSuspensionPosition({
-        x: suspension_X,
-        y: suspension_Y
-      });
-      DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
+      if (isTrusted) {
+        NetDiskSuspension.savePosition({
+          x: suspension_X,
+          y: suspension_Y
+        });
+      }
+      DOMUtils.css(NetDiskUI.suspension.$el.$suspension, {
         left: suspension_X + "px",
         top: suspension_Y + "px"
       });
     },
     /**
+     * 更新按钮的z-index值
+     */
+    updateZIndex() {
+      let suspendedZIndex = NetDiskGlobalData.suspension["suspended-z-index"].value;
+      if (suspendedZIndex <= 0) {
+        suspendedZIndex = utils.getMaxValue(4e4, utils.getMaxZIndex(10));
+      }
+      this.$el.$suspensionZIndexStyle.innerHTML = /*css*/
+      `
+			/* 动态生成z-index */
+			#whitesevSuspensionId{
+				z-index: ${suspendedZIndex};
+			}
+		`;
+    },
+    /**
      * 悬浮按钮背景轮播 效果为淡入淡出
      */
-    backgroundSwitch() {
-      if (this.isRandBg) {
+    changeBackground() {
+      if (this.$data.isSwitchBackground) {
         return;
       }
       function getRandBgList() {
@@ -21125,7 +21181,7 @@
       let currentIndex = 0;
       currentList = getRandBgList();
       let randBgSrc = currentList[currentIndex];
-      let randBgNode = NetDiskUI.suspension.suspensionNode.querySelector(
+      let randBgNode = NetDiskUI.suspension.$el.$suspension.querySelector(
         ".whitesevSuspension .netdisk"
       );
       DOMUtils.css(randBgNode, {
@@ -21134,7 +21190,7 @@
       if (currentList.length < 2 || NetDiskGlobalData.suspension["randbg-time"].value <= 0) {
         return;
       }
-      this.isRandBg = true;
+      this.$data.isSwitchBackground = true;
       startSwitch(
         parseInt(
           NetDiskGlobalData.suspension["randbg-time"].value.toString().toString()
@@ -24632,7 +24688,7 @@
     });
     return result;
   };
-  const UISelectMultiple = function(text, key, defaultValue, data, changeCallback, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails) {
+  const UISelectMultiple = function(text, key, defaultValue, data, selectCallBack, description, placeholder = "请至少选择一个选项", selectConfirmDialogDetails, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -24966,12 +25022,12 @@
                         NetDiskGlobalData.suspension.size.value = parseInt(
                           value.toString()
                         );
-                        if (NetDiskUI.suspension.isShow) {
-                          DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
+                        if (NetDiskUI.suspension.$data.isShow) {
+                          DOMUtils.css(NetDiskUI.suspension.$el.$suspension, {
                             width: NetDiskGlobalData.suspension.size.value,
                             height: NetDiskGlobalData.suspension.size.value
                           });
-                          NetDiskUI.suspension.setSuspensionPosition();
+                          NetDiskUI.suspension.updatePosition(true);
                         }
                       },
                       (value) => {
@@ -24989,8 +25045,8 @@
                         NetDiskGlobalData.suspension.opacity.value = parseFloat(
                           value.toString()
                         );
-                        if (NetDiskUI.suspension.isShow) {
-                          DOMUtils.css(NetDiskUI.suspension.suspensionNode, {
+                        if (NetDiskUI.suspension.$data.isShow) {
+                          DOMUtils.css(NetDiskUI.suspension.$el.$suspension, {
                             opacity: NetDiskGlobalData.suspension.opacity.value
                           });
                         }
