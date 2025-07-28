@@ -27,7 +27,7 @@ pnpm add qmsg
 
 ```html
 <!-- your html -->
-<script src="https://fastly.jsdelivr.net/npm/qmsg@1.3.3/dist/index.umd.min.js"></script>
+<script src="https://fastly.jsdelivr.net/npm/qmsg@latest/dist/index.umd.min.js"></script>
 <script>
 	var configs = {};
 	// configs 为配置参数，可省略
@@ -63,7 +63,6 @@ Qmsg.config({
 | autoClose                   | Boolean                                             | 是否自动关闭                                                                                               | true                                        |
 | listenEventToPauseAutoClose | Boolean                                             | 通过监听事件来判断是否(鼠标悬停\|触摸进入)时暂停自动关闭，当(鼠标离开\|触摸离开)时会自动重启自动关闭定时器 | true                                        |
 | content                     | Number                                              | 提示的消息内容                                                                                             | 空                                          |
-| html                        | Boolean                                             | 是否将内容作为 html 渲染                                                                                   | false                                       |
 | isHTML                      | Boolean                                             | （同上）是否将内容作为 html 渲染                                                                           | false                                       |
 | position                    | String                                              | 弹出位置 topleft、top、topright、left、center、right、bottomleft、bottom、bottomright，不区分大小写        | top                                         |
 | maxNums                     | Number                                              | 页面中最多显示消息(autoClose: true)的数量                                                                  | 5                                           |
