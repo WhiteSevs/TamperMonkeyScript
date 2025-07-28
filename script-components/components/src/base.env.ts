@@ -46,7 +46,6 @@ log.config({
 });
 /* 配置吐司Qmsg */
 Qmsg.config({
-	html: true,
 	isHTML: true,
 	autoClose: true,
 	showClose: false,
