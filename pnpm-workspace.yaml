@@ -1,5 +1,8 @@
 packages:
-  - "scripts-vite/*"
-  - "scripts-vite-example/*"
-  - "script-components/*"
-  - "!lib/*"
+  - scripts-vite/*
+  - scripts-vite-example/*
+  - script-components/*
+  - '!lib/*'
+
+ignoredBuiltDependencies:
+  - vue-demi
