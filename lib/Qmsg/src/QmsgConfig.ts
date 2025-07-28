@@ -24,9 +24,9 @@ export interface QmsgConfig {
 	 * 实例插入到页面的父元素
 	 * @default document.body || document.documentElement
 	 */
-	parent?: HTMLElement | Document | DocumentFragment | Node;
+	parent?: HTMLElement | Document | DocumentFragment | Node | Element;
 	/**
-	 * 是否使用shadowRoot（内部插入实例元素）
+	 * 是否使用shadowRoot（在其内部插入实例元素）
 	 * @default true
 	 */
 	useShadowRoot?: boolean;
@@ -54,16 +54,11 @@ export interface QmsgConfig {
 	listenEventToPauseAutoClose?: boolean;
 	/**
 	 * 显示的内容
+	 * @default ""
 	 */
 	content?: string;
 	/**
-	 * 内容是否是html
-	 * @default false
-	 * @deprecated 建议使用isHTML
-	 */
-	html?: boolean;
-	/**
-	 * 显示的内容是否是html
+	 * 显示的内容是否是html，否则是普通的text
 	 * @default false
 	 */
 	isHTML?: boolean;
@@ -78,7 +73,7 @@ export interface QmsgConfig {
 	 */
 	showClose?: boolean;
 	/**
-	 * Qmsg最大显示的数量
+	 * Qmsg最大显示的数量，超出最大数量时，会自动关闭最旧的实例
 	 * @default 5
 	 */
 	maxNums?: number;
@@ -117,10 +112,12 @@ export interface QmsgConfig {
 	zIndex?: number | (() => number);
 	/**
 	 * 自定义的style
+	 * @default ""
 	 */
 	style?: string;
 	/**
 	 * 自定义类名
+	 * @default ""
 	 */
 	customClass?: string;
 	/**
@@ -151,7 +148,7 @@ export interface QmsgConfig {
 				qmsgInst: typeof QmsgMsg.prototype
 		  ) => boolean);
 	/**
-	 * 在实例初始化完毕后自动调用该函数
+	 * 在实例初始化完毕（元素创建完成）后自动调用该函数
 	 */
 	afterRender?:
 		| ((

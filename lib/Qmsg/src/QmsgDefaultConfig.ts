@@ -21,7 +21,6 @@ export const QmsgDefaultConfig = {
 			autoClose: true,
 			listenEventToPauseAutoClose: true,
 			content: "",
-			html: false,
 			isHTML: false,
 			position: "top",
 			showClose: false,

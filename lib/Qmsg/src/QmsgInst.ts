@@ -142,7 +142,8 @@ export class QmsgMsg {
 			"data-position",
 			this.setting.position.toLowerCase()
 		);
-		if (this.setting.html || this.setting.isHTML) {
+		let isHTML = this.setting.isHTML;
+		if (isHTML) {
 			/* 内容是html */
 			QmsgUtils.setSafeHTML($content, content);
 		} else {
