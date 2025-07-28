@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.26
+// @version      2025.7.28
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
 // @grant        GM_deleteValue
@@ -1214,7 +1214,6 @@
     tag: true
   });
   Qmsg.config({
-    html: true,
     isHTML: true,
     autoClose: true,
     showClose: false,
@@ -9339,6 +9338,7 @@
           "ended",
           (evt) => {
             log.success(`视频播放完毕，切换至下一个视频`);
+            utils.preventEvent(evt);
             CommonUtil.interval(
               (isTimeout) => {
                 if (isTimeout) {
