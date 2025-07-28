@@ -60,6 +60,7 @@ export const DouYinRecommend = {
 				"ended",
 				(evt) => {
 					log.success(`视频播放完毕，切换至下一个视频`);
+					utils.preventEvent(evt);
 					CommonUtil.interval(
 						(isTimeout) => {
 							if (isTimeout) {
