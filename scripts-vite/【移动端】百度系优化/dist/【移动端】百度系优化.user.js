@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.23
+// @version      2025.7.28
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -15,10 +15,10 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require      https://fastly.jsdelivr.net/npm/vue@3.5.17/dist/vue.global.prod.js
+// @require      https://fastly.jsdelivr.net/npm/vue@3.5.18/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-demi@0.14.10/lib/index.iife.min.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.3/dist/pinia.iife.prod.js
 // @require      https://fastly.jsdelivr.net/npm/vue-router@4.5.1/dist/vue-router.global.js
@@ -59,7 +59,7 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_entrance_001 = __commonJS({
-    "entrance-Be3lCsf5.js"(exports, module) {
+    "entrance-58JsTcv5.js"(exports, module) {
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -1589,48 +1589,49 @@
         autoClearConsole: true,
         tag: true
       });
-      Qmsg.config(
-        Object.defineProperties(
-          {
-            html: true,
-            autoClose: true,
-            showClose: false
-          },
-          {
-            position: {
-              get() {
-                return Panel.getValue(
-                  PanelSettingConfig.qmsg_config_position.key,
-                  PanelSettingConfig.qmsg_config_position.defaultValue
-                );
-              }
-            },
-            maxNums: {
-              get() {
-                return Panel.getValue(
-                  PanelSettingConfig.qmsg_config_maxnums.key,
-                  PanelSettingConfig.qmsg_config_maxnums.defaultValue
-                );
-              }
-            },
-            showReverse: {
-              get() {
-                return Panel.getValue(
-                  PanelSettingConfig.qmsg_config_showreverse.key,
-                  PanelSettingConfig.qmsg_config_showreverse.defaultValue
-                );
-              }
-            },
-            zIndex: {
-              get() {
-                let maxZIndex = Utils.getMaxZIndex();
-                let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-                return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-              }
-            }
+      Qmsg.config({
+        isHTML: true,
+        autoClose: true,
+        showClose: false,
+        consoleLogContent(qmsgInst) {
+          const qmsgType = qmsgInst.getSetting().type;
+          if (qmsgType === "loading") {
+            return false;
           }
-        )
-      );
+          const content = qmsgInst.getSetting().content;
+          if (qmsgType === "warning") {
+            log.warn(content);
+          } else if (qmsgType === "error") {
+            log.error(content);
+          } else {
+            log.info(content);
+          }
+          return true;
+        },
+        get position() {
+          return Panel.getValue(
+            PanelSettingConfig.qmsg_config_position.key,
+            PanelSettingConfig.qmsg_config_position.defaultValue
+          );
+        },
+        get maxNums() {
+          return Panel.getValue(
+            PanelSettingConfig.qmsg_config_maxnums.key,
+            PanelSettingConfig.qmsg_config_maxnums.defaultValue
+          );
+        },
+        get showReverse() {
+          return Panel.getValue(
+            PanelSettingConfig.qmsg_config_showreverse.key,
+            PanelSettingConfig.qmsg_config_showreverse.defaultValue
+          );
+        },
+        get zIndex() {
+          let maxZIndex = Utils.getMaxZIndex();
+          let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+          return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+        }
+      });
       __pops.GlobalConfig.setGlobalConfig({
         zIndex: () => {
           let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
@@ -1695,8 +1696,8 @@
         setTimeout: _unsafeWindow.setTimeout
       };
       const addStyle$1 = utils.addStyle.bind(utils);
-      const $ = document.querySelector.bind(document);
-      const $$ = document.querySelectorAll.bind(document);
+      const $ = DOMUtils.selector.bind(DOMUtils);
+      const $$ = DOMUtils.selectorAll.bind(DOMUtils);
       const VUE_ELE_NAME_ID = "vite-app";
       const MountVue = async function(targetApp, plugin = []) {
         DOMUtils.ready(async () => {
@@ -3532,9 +3533,7 @@ match-attr##srcid##sp_purc_atom
                 BaiduHandleResultItem.addCSDNFlag($result);
               }
             }
-            if (Panel.getValue(
-              "baidu_search_blocking_everyone_is_still_searching"
-            )) {
+            if (Panel.getValue("baidu_search_blocking_everyone_is_still_searching")) {
               let $title = $result.querySelector(".rw-little-title");
               if ($title && $title.textContent?.startsWith("大家还在搜")) {
                 $result?.remove();
@@ -6241,9 +6240,13 @@ match-attr##srcid##sp_purc_atom
          * 获取当前的贴吧名字
          */
         getCurrentForumName() {
-          let tbMobileViewport = VueUtils.getVue($(".tb-mobile-viewport"))?.forum?.name;
+          let tbMobileViewport = VueUtils.getVue(
+            $(".tb-mobile-viewport")
+          )?.forum?.name;
           let mainPageWrap = VueUtils.getVue($(".main-page-wrap"))?.$children[0]?.$children[0]?.forum?.name;
-          let tbForum = VueUtils.getVue($(".tb-mobile-viewport .tb-forum"))?.forum?.name;
+          let tbForum = VueUtils.getVue(
+            $(".tb-mobile-viewport .tb-forum")
+          )?.forum?.name;
           let appView = VueUtils.getVue($(".app-view"))?.forum?.name;
           let $uniAppPostNavBarForumName = $("uni-app .nav-bar .forum-name") || $("uni-app .forum-name");
           let uniAppPostNavBarForumName = $uniAppPostNavBarForumName?.textContent || "";
@@ -6254,7 +6257,9 @@ match-attr##srcid##sp_purc_atom
          * 获取当前的贴吧的id
          */
         getCurrentForumId() {
-          let tbMobileViewport = VueUtils.getVue($(".tb-mobile-viewport"))?.forum?.id;
+          let tbMobileViewport = VueUtils.getVue(
+            $(".tb-mobile-viewport")
+          )?.forum?.id;
           let appView = VueUtils.getVue($(".app-view"))?.forum?.id;
           return tbMobileViewport || appView;
         },
@@ -10694,7 +10699,7 @@ match-attr##srcid##sp_purc_atom
           Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
         }
       };
-      const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber2, isPassword, afterAddToUListCallBack) {
+      const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber2, isPassword, afterAddToUListCallBack, valueChangeCallback) {
         let result = {
           text,
           type: "input",
@@ -10730,7 +10735,7 @@ match-attr##srcid##sp_purc_atom
         );
         return result;
       };
-      const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack, disabled) {
+      const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
         let result = {
           text,
           type: "switch",
@@ -10746,8 +10751,8 @@ match-attr##srcid##sp_purc_atom
           callback(event, __value) {
             let value = Boolean(__value);
             log.success(`${value ? "开启" : "关闭"} ${text}`);
-            if (typeof clickCallback === "function") {
-              let result2 = clickCallback(event, value);
+            if (typeof clickCallBack === "function") {
+              let result2 = clickCallBack(event, value);
               if (result2) {
                 return;
               }
@@ -11898,7 +11903,7 @@ match-attr##srcid##sp_purc_atom
           _GM_deleteValue(this.$key.STORAGE_KEY);
         }
       };
-      const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled) {
+      const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled, valueChangeCallBack) {
         let result = {
           text,
           type: "textarea",
@@ -14692,7 +14697,7 @@ match-attr##srcid##sp_purc_atom
         };
       };
       /**
-      * @vue/shared v3.5.17
+      * @vue/shared v3.5.18
       * (c) 2018-present Yuxi (Evan) You and Vue contributors
       * @license MIT
       **/
@@ -22315,7 +22320,7 @@ match-attr##srcid##sp_purc_atom
                     disabled: vue.unref(toolbarStateStore).isEmpty
                   }, {
                     default: vue.withCtx(() => _cache[2] || (_cache[2] = [
-                      vue.createTextVNode("发表")
+                      vue.createTextVNode("发表", -1)
                     ])),
                     _: 1,
                     __: [2]
@@ -22358,7 +22363,7 @@ match-attr##srcid##sp_purc_atom
                     disabled: vue.unref(toolbarStateStore).isEmpty
                   }, {
                     default: vue.withCtx(() => _cache[3] || (_cache[3] = [
-                      vue.createTextVNode("发表")
+                      vue.createTextVNode("发表", -1)
                     ])),
                     _: 1,
                     __: [3]
@@ -24310,7 +24315,7 @@ match-attr##srcid##sp_purc_atom
                                           onClick: followBtnEvent
                                         }, {
                                           default: vue.withCtx(() => _cache[1] || (_cache[1] = [
-                                            vue.createTextVNode("关注")
+                                            vue.createTextVNode("关注", -1)
                                           ])),
                                           _: 1,
                                           __: [1]
@@ -24325,7 +24330,7 @@ match-attr##srcid##sp_purc_atom
                                           onClick: cancelFollowBtnEvent
                                         }, {
                                           default: vue.withCtx(() => _cache[2] || (_cache[2] = [
-                                            vue.createTextVNode("取消关注")
+                                            vue.createTextVNode("取消关注", -1)
                                           ])),
                                           _: 1,
                                           __: [2]
@@ -24339,7 +24344,7 @@ match-attr##srcid##sp_purc_atom
                                           onClick: messageBtnEvent
                                         }, {
                                           default: vue.withCtx(() => _cache[3] || (_cache[3] = [
-                                            vue.createTextVNode("私信")
+                                            vue.createTextVNode("私信", -1)
                                           ])),
                                           _: 1,
                                           __: [3]
@@ -24444,7 +24449,7 @@ match-attr##srcid##sp_purc_atom
                             vue.createElementVNode("div", null, vue.toDisplayString(vue.unref(utils).isNull(props.UserData.personalSignature) ? "该用户还没有填写签名" : props.UserData.personalSignature), 1),
                             vue.createVNode(_component_el_text, { type: "info" }, {
                               default: vue.withCtx(() => [
-                                _cache[5] || (_cache[5] = vue.createTextVNode(" 关于Ta ")),
+                                _cache[5] || (_cache[5] = vue.createTextVNode(" 关于Ta ", -1)),
                                 vue.createVNode(_component_el_icon, null, {
                                   default: vue.withCtx(() => [
                                     vue.createVNode(vue.unref(iconsVue.ArrowRight))
@@ -24476,7 +24481,7 @@ match-attr##srcid##sp_purc_atom
                                     }),
                                     vue.createVNode(_component_el_text, { type: "info" }, {
                                       default: vue.withCtx(() => _cache[6] || (_cache[6] = [
-                                        vue.createTextVNode("获赞")
+                                        vue.createTextVNode("获赞", -1)
                                       ])),
                                       _: 1,
                                       __: [6]
@@ -24498,7 +24503,7 @@ match-attr##srcid##sp_purc_atom
                                     }),
                                     vue.createVNode(_component_el_text, { type: "info" }, {
                                       default: vue.withCtx(() => _cache[7] || (_cache[7] = [
-                                        vue.createTextVNode("关注")
+                                        vue.createTextVNode("关注", -1)
                                       ])),
                                       _: 1,
                                       __: [7]
@@ -24520,7 +24525,7 @@ match-attr##srcid##sp_purc_atom
                                     }),
                                     vue.createVNode(_component_el_text, { type: "info" }, {
                                       default: vue.withCtx(() => _cache[8] || (_cache[8] = [
-                                        vue.createTextVNode("粉丝")
+                                        vue.createTextVNode("粉丝", -1)
                                       ])),
                                       _: 1,
                                       __: [8]
@@ -24672,7 +24677,7 @@ match-attr##srcid##sp_purc_atom
                           class: "nav-title"
                         }, {
                           default: vue.withCtx(() => _cache[0] || (_cache[0] = [
-                            vue.createTextVNode("基本资料")
+                            vue.createTextVNode("基本资料", -1)
                           ])),
                           _: 1,
                           __: [0]
@@ -24702,7 +24707,7 @@ match-attr##srcid##sp_purc_atom
                           class: "user-desc-key"
                         }, {
                           default: vue.withCtx(() => _cache[1] || (_cache[1] = [
-                            vue.createTextVNode("用户名")
+                            vue.createTextVNode("用户名", -1)
                           ])),
                           _: 1,
                           __: [1]
@@ -24723,7 +24728,7 @@ match-attr##srcid##sp_purc_atom
                           class: "user-desc-key"
                         }, {
                           default: vue.withCtx(() => _cache[2] || (_cache[2] = [
-                            vue.createTextVNode("昵称")
+                            vue.createTextVNode("昵称", -1)
                           ])),
                           _: 1,
                           __: [2]
@@ -24744,7 +24749,7 @@ match-attr##srcid##sp_purc_atom
                           class: "user-desc-key"
                         }, {
                           default: vue.withCtx(() => _cache[3] || (_cache[3] = [
-                            vue.createTextVNode("性别")
+                            vue.createTextVNode("性别", -1)
                           ])),
                           _: 1,
                           __: [3]
@@ -24765,7 +24770,7 @@ match-attr##srcid##sp_purc_atom
                           class: "user-desc-key"
                         }, {
                           default: vue.withCtx(() => _cache[4] || (_cache[4] = [
-                            vue.createTextVNode("吧龄")
+                            vue.createTextVNode("吧龄", -1)
                           ])),
                           _: 1,
                           __: [4]
@@ -24786,7 +24791,7 @@ match-attr##srcid##sp_purc_atom
                           class: "user-desc-key"
                         }, {
                           default: vue.withCtx(() => _cache[5] || (_cache[5] = [
-                            vue.createTextVNode("id")
+                            vue.createTextVNode("id", -1)
                           ])),
                           _: 1,
                           __: [5]
@@ -24807,7 +24812,7 @@ match-attr##srcid##sp_purc_atom
                           class: "user-desc-key"
                         }, {
                           default: vue.withCtx(() => _cache[6] || (_cache[6] = [
-                            vue.createTextVNode("portrait")
+                            vue.createTextVNode("portrait", -1)
                           ])),
                           _: 1,
                           __: [6]
@@ -24828,7 +24833,7 @@ match-attr##srcid##sp_purc_atom
                           class: "user-desc-key"
                         }, {
                           default: vue.withCtx(() => _cache[7] || (_cache[7] = [
-                            vue.createTextVNode("tbs")
+                            vue.createTextVNode("tbs", -1)
                           ])),
                           _: 1,
                           __: [7]
@@ -25043,7 +25048,7 @@ match-attr##srcid##sp_purc_atom
                           class: "top-title-name"
                         }, {
                           default: vue.withCtx(() => _cache[0] || (_cache[0] = [
-                            vue.createTextVNode("他关注的人")
+                            vue.createTextVNode("他关注的人", -1)
                           ])),
                           _: 1,
                           __: [0]
@@ -25092,7 +25097,7 @@ match-attr##srcid##sp_purc_atom
                                       truncated: ""
                                     }, {
                                       default: vue.withCtx(() => _cache[1] || (_cache[1] = [
-                                        vue.createTextVNode("来自贴吧关注 暂未实现获取签名信息接口")
+                                        vue.createTextVNode("来自贴吧关注 暂未实现获取签名信息接口", -1)
                                       ])),
                                       _: 1,
                                       __: [1]
@@ -25110,7 +25115,7 @@ match-attr##srcid##sp_purc_atom
                                   class: "user-follow-btn"
                                 }, {
                                   default: vue.withCtx(() => _cache[2] || (_cache[2] = [
-                                    vue.createTextVNode("关注")
+                                    vue.createTextVNode("关注", -1)
                                   ])),
                                   _: 1,
                                   __: [2]
@@ -25339,7 +25344,7 @@ match-attr##srcid##sp_purc_atom
                                   class: "user-follow-btn"
                                 }, {
                                   default: vue.withCtx(() => _cache[0] || (_cache[0] = [
-                                    vue.createTextVNode("关注")
+                                    vue.createTextVNode("关注", -1)
                                   ])),
                                   _: 1,
                                   __: [0]
@@ -27382,8 +27387,9 @@ match-attr##srcid##sp_purc_atom
          */
         removeAd() {
           log.info("移除广告.ec-ad");
-          if ($(".ec-ad")) {
-            domUtils.remove(domUtils.parent($$(".ec-ad")));
+          let $ec_ad = $$(".ec-ad");
+          if ($ec_ad.length) {
+            domUtils.remove(domUtils.parent($ec_ad));
           }
         },
         /**
@@ -27411,7 +27417,8 @@ match-attr##srcid##sp_purc_atom
           log.info("屏蔽相关问题");
           return CommonUtil.addBlockCSS(
             "div[id^=wahsd]",
-            'div[class^="w-question-list"]'
+            'div[class^="w-question-list"]',
+            'div:has(>[id*="-related-list"])'
           );
         },
         /**
@@ -27579,7 +27586,11 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
 /* dtlandingwise 底部 精彩推荐 右边的 打开APP看更多精彩推荐 */\r
 .fusionWrapper [class^="recoConatainer_"] > [class^="titleBar_"] [class^="right_"] > span:first-child,\r
 /* landingsuper 文章内容的展开的蒙板 */\r
-#mainContentContainer .oPadding {\r
+#mainContentContainer .oPadding,\r
+/* 底部的广告 */\r
+[class^="adsContainer-"],\r
+/* 弹窗 打开百度App弹窗 */\r
+[class^="alertModalContainer-"] {\r
 	display: none !important;\r
 }\r
 /* 展开阅读 */\r
@@ -28829,7 +28840,7 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           }
         }
       };
-      const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
+      const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
         let selectData = [];
         if (typeof data === "function") {
           selectData = data();
@@ -28849,8 +28860,8 @@ div[class*="relateTitle"] span[class*="subTitle"],\r
           callback(event, isSelectedValue, isSelectedText) {
             let value = isSelectedValue;
             log.info(`选择：${isSelectedText}`);
-            if (typeof changeCallback === "function") {
-              let result2 = changeCallback(event, value, isSelectedText);
+            if (typeof selectCallBack === "function") {
+              let result2 = selectCallBack(event, value, isSelectedText);
               if (result2) {
                 return;
               }
