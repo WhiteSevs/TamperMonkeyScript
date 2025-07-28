@@ -291,7 +291,7 @@ export const BaiduTieBa = {
 						},
 					});
 				}
-				DOMUtils.on($logoWrapper, "click", () => {
+				DOMUtils.on($logoWrapper!, "click", () => {
 					let $drawer = pops.drawer({
 						title: {
 							enable: true,

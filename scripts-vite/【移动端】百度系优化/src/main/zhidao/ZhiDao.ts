@@ -3,7 +3,7 @@ import ZhiDaoShieldCSS from "./shield.css?raw";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 
-const BaiduZhiDao = {
+export const BaiduZhiDao = {
 	init() {
 		addStyle(ZhiDaoShieldCSS);
 		log.info("插入CSS规则");
@@ -29,8 +29,9 @@ const BaiduZhiDao = {
 	 */
 	removeAd() {
 		log.info("移除广告.ec-ad");
-		if ($(".ec-ad")) {
-			DOMUtils.remove(DOMUtils.parent($$(".ec-ad")));
+		let $ec_ad = $$<HTMLElement>(".ec-ad");
+		if ($ec_ad.length) {
+			DOMUtils.remove(DOMUtils.parent($ec_ad));
 		}
 	},
 	/**
@@ -58,7 +59,8 @@ const BaiduZhiDao = {
 		log.info("屏蔽相关问题");
 		return CommonUtil.addBlockCSS(
 			"div[id^=wahsd]",
-			'div[class^="w-question-list"]'
+			'div[class^="w-question-list"]',
+			'div:has(>[id*="-related-list"])'
 		);
 	},
 	/**
@@ -71,5 +73,3 @@ const BaiduZhiDao = {
 		);
 	},
 };
-
-export { BaiduZhiDao };

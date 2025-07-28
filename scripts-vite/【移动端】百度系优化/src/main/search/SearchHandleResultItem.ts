@@ -507,9 +507,7 @@ export const BaiduHandleResultItem = {
 	 */
 	removeAds() {
 		const TAG = "删除广告 ==> ";
-		if (
-			Panel.getValue("baidu_search_blocking_everyone_is_still_searching")
-		) {
+		if (Panel.getValue("baidu_search_blocking_everyone_is_still_searching")) {
 			let $conterEveryOneSearch = $$<HTMLDivElement>(
 				".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation"
 			);
@@ -524,7 +522,7 @@ export const BaiduHandleResultItem = {
 				log.success(`${TAG}末尾 大家都在搜 ${$bottomEveryOneSearch.length}个`);
 				DOMUtils.remove($bottomEveryOneSearch);
 			}
-			let $searchCraftEveryOnceSearch = $$("#relativewords");
+			let $searchCraftEveryOnceSearch = $$<HTMLElement>("#relativewords");
 			if ($searchCraftEveryOnceSearch.length) {
 				// 简单搜索 点击【更多结果】出现的 大家都在搜
 				log.success(
@@ -558,7 +556,7 @@ export const BaiduHandleResultItem = {
 			log.success(`${TAG}跳转百度app提示 ${$popUp.length}个`);
 			DOMUtils.remove($popUp);
 		}
-		let $ec_wise_aad = $$(".ec_wise_ad");
+		let $ec_wise_aad = $$<HTMLElement>(".ec_wise_ad");
 		if ($ec_wise_aad.length) {
 			log.success(`${TAG}顶部的部分商品广告 ${$ec_wise_aad.length}个`);
 			DOMUtils.remove(DOMUtils.parent($ec_wise_aad));
@@ -609,9 +607,7 @@ export const BaiduHandleResultItem = {
 					}
 				}
 				if (
-					Panel.getValue(
-						"baidu_search_blocking_everyone_is_still_searching"
-					)
+					Panel.getValue("baidu_search_blocking_everyone_is_still_searching")
 				) {
 					// 【屏蔽】大家还在搜
 					let $title =

@@ -34,7 +34,7 @@ const TiebaSearchSuggestion = {
 	init($input: HTMLInputElement) {
 		this.$ele.$searchInput = $input;
 		this.initSearchSuggestion();
-		let $oldMoreBtnDesc = $(".more-btn-desc");
+		let $oldMoreBtnDesc = $<HTMLElement>(".more-btn-desc")!;
 		DOMUtils.on($oldMoreBtnDesc, "click", () => {
 			this.enterSeachMode();
 		});

@@ -25,7 +25,11 @@ div[class*="relateTitle"] span[class*="subTitle"],
 /* dtlandingwise 底部 精彩推荐 右边的 打开APP看更多精彩推荐 */
 .fusionWrapper [class^="recoConatainer_"] > [class^="titleBar_"] [class^="right_"] > span:first-child,
 /* landingsuper 文章内容的展开的蒙板 */
-#mainContentContainer .oPadding {
+#mainContentContainer .oPadding,
+/* 底部的广告 */
+[class^="adsContainer-"],
+/* 弹窗 打开百度App弹窗 */
+[class^="alertModalContainer-"] {
 	display: none !important;
 }
 /* 展开阅读 */

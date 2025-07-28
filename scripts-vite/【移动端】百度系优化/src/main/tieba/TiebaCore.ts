@@ -107,17 +107,15 @@ export const TiebaCore = {
 	 * 获取当前的贴吧名字
 	 */
 	getCurrentForumName(): string {
-		let tbMobileViewport = VueUtils.getVue($(".tb-mobile-viewport"))?.forum
-			?.name;
-
-		let mainPageWrap = VueUtils.getVue($(".main-page-wrap"))?.$children[0]
-			?.$children[0]?.forum?.name;
-
-		let tbForum = VueUtils.getVue($(".tb-mobile-viewport .tb-forum"))?.forum
-			?.name;
-
-		let appView = VueUtils.getVue($(".app-view"))?.forum?.name;
-
+		let tbMobileViewport = VueUtils.getVue(
+			$<HTMLElement>(".tb-mobile-viewport")!
+		)?.forum?.name;
+		let mainPageWrap = VueUtils.getVue($<HTMLElement>(".main-page-wrap")!)
+			?.$children[0]?.$children[0]?.forum?.name;
+		let tbForum = VueUtils.getVue(
+			$<HTMLElement>(".tb-mobile-viewport .tb-forum")!
+		)?.forum?.name;
+		let appView = VueUtils.getVue($<HTMLElement>(".app-view")!)?.forum?.name;
 		let $uniAppPostNavBarForumName =
 			$<HTMLDivElement>("uni-app .nav-bar .forum-name") ||
 			$<HTMLElement>("uni-app .forum-name");
@@ -137,8 +135,10 @@ export const TiebaCore = {
 	 * 获取当前的贴吧的id
 	 */
 	getCurrentForumId(): number {
-		let tbMobileViewport = VueUtils.getVue($(".tb-mobile-viewport"))?.forum?.id;
-		let appView = VueUtils.getVue($(".app-view"))?.forum?.id;
+		let tbMobileViewport = VueUtils.getVue(
+			$<HTMLElement>(".tb-mobile-viewport")!
+		)?.forum?.id;
+		let appView = VueUtils.getVue($<HTMLElement>(".app-view")!)?.forum?.id;
 		return tbMobileViewport || appView;
 	},
 	/**
@@ -146,7 +146,7 @@ export const TiebaCore = {
 	 */
 	getCurrentForumPostTid(): string {
 		let tid = null;
-		let appViewVue = VueUtils.getVue($(".app-view"));
+		let appViewVue = VueUtils.getVue($<HTMLElement>(".app-view")!);
 		if (appViewVue?.thread?.id !== "" && appViewVue?.thread?.id != null) {
 			tid = appViewVue.thread.id.toString();
 		} else {

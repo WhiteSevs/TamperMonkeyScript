@@ -12,7 +12,7 @@ export const TiebaPageDataHandler = {
 		if (dataBannerInfo["forum_id"]) {
 			return dataBannerInfo["forum_id"];
 		} else {
-			return VueUtils.getVue($(".app-view"))?.forum?.id;
+			return VueUtils.getVue($<HTMLElement>(".app-view")!)?.forum?.id;
 		}
 	},
 };
