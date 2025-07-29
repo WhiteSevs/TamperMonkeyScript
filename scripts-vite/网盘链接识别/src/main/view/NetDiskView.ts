@@ -1101,7 +1101,7 @@ export const NetDiskView = {
 								(iterator.value as HTMLElement).tagName
 							).toLowerCase()}>`,
 							{
-								html: false,
+								isHTML: true,
 							}
 						);
 					}

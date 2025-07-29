@@ -80,6 +80,22 @@ export const NetDisk = {
 		 */
 		accessCodeNotMatchRegExpList: [/^(font|http)/gi],
 		/**
+		 * 访问码需要去除的正则匹配规则
+		 */
+		accessCodeNeedRemoveStr: [
+			"：",
+			" ",
+			":",
+			"\n",
+			"提取码",
+			"密码",
+			"?password=",
+			"?pwd=",
+			"&pwd=",
+			"?p=",
+			"访问码",
+		],
+		/**
 		 * 当没有accessCode时，使用该正则去除不需要的字符串
 		 */
 		noAccessCodeRegExp: [
@@ -444,6 +460,39 @@ export const NetDisk = {
 						break;
 					}
 				}
+			}
+			for (const accessCodeNeedRemoveStrRegExp of NetDisk.$extraRule
+				.accessCodeNeedRemoveStr) {
+				accessCode = NetDiskHandlerUtil.replaceText(
+					accessCode,
+					accessCodeNeedRemoveStrRegExp,
+					""
+				);
+			}
+			handlerConfig.debugConfig?.logCallBack?.({
+				status: true,
+				msg: [
+					`正则: 内置的accessCodeNeedRemoveStr`,
+					"作用: 用于处理提取到的accessCode删除部分不需要的字符串",
+					`结果: ${accessCode}`,
+				],
+			});
+			// 删除不需要的字符串
+			let accessCodeNeedRemoveStr = ruleConfig.accessCodeNeedRemoveStr;
+			if (accessCodeNeedRemoveStr) {
+				accessCode = NetDiskHandlerUtil.replaceText(
+					accessCode,
+					accessCodeNeedRemoveStr,
+					""
+				);
+				handlerConfig.debugConfig?.logCallBack?.({
+					status: true,
+					msg: [
+						`正则: accessCodeNeedRemoveStr`,
+						"作用: 用于处理提取到的accessCode删除部分不需要的字符串",
+						`结果: true 重置accessCode为空`,
+					],
+				});
 			}
 		}
 		handlerConfig.debugConfig?.logCallBack?.({

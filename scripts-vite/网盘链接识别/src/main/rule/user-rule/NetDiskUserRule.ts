@@ -296,6 +296,7 @@ export const NetDiskUserRule = {
 				checkAccessCode,
 				accessCode,
 				acceesCodeNotMatch,
+				accessCodeNeedRemoveStr,
 				paramMatch,
 				...otherRuleParams
 			} = ruleRegExp;
@@ -355,6 +356,15 @@ export const NetDiskUserRule = {
 					netDiskRegularOption.acceesCodeNotMatch = acceesCodeNotMatch.map(
 						(item) => new RegExp(item, "ig")
 					);
+				}
+			}
+			if (accessCodeNeedRemoveStr) {
+				if (typeof accessCodeNeedRemoveStr === "string") {
+					accessCodeNeedRemoveStr = [accessCodeNeedRemoveStr];
+				}
+				if (Array.isArray(accessCodeNeedRemoveStr)) {
+					netDiskRegularOption.accessCodeNeedRemoveStr =
+						accessCodeNeedRemoveStr.map((item) => new RegExp(item, "ig"));
 				}
 			}
 			if (typeof paramMatch === "string") {

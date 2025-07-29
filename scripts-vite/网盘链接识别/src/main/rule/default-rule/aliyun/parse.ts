@@ -46,8 +46,8 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 			let $QmsgErrorTip = Qmsg.error(
 				`请在阿里云盘页面解析，<a href="${url}">点我前往</a>`,
 				{
-					html: true,
 					timeout: 10000,
+					isHTML: true,
 				}
 			);
 			DOMUtils.on(

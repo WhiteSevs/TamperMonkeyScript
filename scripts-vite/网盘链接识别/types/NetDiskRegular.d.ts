@@ -32,7 +32,9 @@ declare interface NetDiskMatchRuleConfig {
 	 * 正则：需要替换空的，比如pan.baidu.com/s/替换为空
 	 */
 	shareCodeNeedRemoveStr: RegExp | RegExp[];
-	/** （可选）值为规则名，如果匹配到的shareCode在目标规则匹配到的shareCode中，那么取消匹配 */
+	/**
+	 * （可选）值为规则名，如果匹配到的shareCode在目标规则匹配到的shareCode中，那么取消匹配
+	 */
 	shareCodeExcludeRegular?: string[];
 	/**
 	 * 正则：用来判断link_innerText或者link_innerHTML匹配到的字符串中是否存在密码
@@ -46,6 +48,10 @@ declare interface NetDiskMatchRuleConfig {
 	 * （可选）正则：用于判断提取到的accessCode是否是错误的accessCode
 	 */
 	acceesCodeNotMatch?: RegExp | RegExp[];
+	/**
+	 * （可选）正则：需要替换空的，比如`提取码|密码|\?password=|访问码`替换为`""`
+	 */
+	accessCodeNeedRemoveStr?: RegExp | RegExp[];
 	/**
 	 * （可选）用于对matchText进行提取需要的关键内容
 	 *

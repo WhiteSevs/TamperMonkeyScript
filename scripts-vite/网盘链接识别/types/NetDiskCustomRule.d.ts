@@ -128,6 +128,10 @@ declare interface NetDiskUserCustomRuleRegexp {
 	 */
 	acceesCodeNotMatch?: string | string[];
 	/**
+	 * 正则：需要替换空的，比如pan.baidu.com/s/替换为空
+	 */
+	accessCodeNeedRemoveStr?: string | string[];
+	/**
 	 * （可选）用于对matchText进行提取需要的关键内容
 	 *
 	 * 会自动进行正则转换，正则模式i

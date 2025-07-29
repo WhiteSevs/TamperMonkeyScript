@@ -381,7 +381,7 @@ export const NetDiskUI = {
 										<div style="text-align: left;">旧: ${accessCode}</div>
 										<div style="text-align: left;">新: ${option.accessCode}</div>`,
 												{
-													html: true,
+													isHTML: true,
 												}
 											);
 										} else {
@@ -395,7 +395,7 @@ export const NetDiskUI = {
 										<div style="text-align: left;">旧: ${accessCode}</div>
 										<div style="text-align: left;">新: ${option.accessCode}</div>`,
 												{
-													html: true,
+													isHTML: true,
 												}
 											);
 										} else {

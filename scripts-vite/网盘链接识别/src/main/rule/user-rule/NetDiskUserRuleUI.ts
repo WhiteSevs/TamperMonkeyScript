@@ -83,8 +83,8 @@ export const NetDiskUserRuleUI = {
 			} catch (error: any) {
 				log.error(error);
 				Qmsg.error(error.message, {
-					html: true,
 					timeout: 3500,
+					isHTML: true,
 				});
 			}
 		}
@@ -208,7 +208,7 @@ export const NetDiskUserRuleUI = {
 			} catch (error: any) {
 				log.error(error);
 				Qmsg.error(error.message, {
-					html: true,
+					isHTML: true,
 					timeout: 3500,
 				});
 			}
