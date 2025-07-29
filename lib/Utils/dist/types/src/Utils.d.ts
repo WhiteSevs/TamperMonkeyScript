@@ -56,7 +56,7 @@ declare class Utils {
      * ajax劫持库，支持xhr和fetch劫持。
      * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
      * + 作者：cxxjackie
-     * + 版本：1.4.6
+     * + 版本：1.4.7
      * + 旧版本：1.2.4
      * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
      * @param useOldVersion 是否使用旧版本，默认false

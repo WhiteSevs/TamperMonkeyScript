@@ -1,6 +1,6 @@
 # 安装
 
-+ 最新版本：[![npm version](https://img.shields.io/npm/v/@whitesev/utils)](https://www.npmjs.com/package/@whitesev/utils)
+- 最新版本：[![npm version](https://img.shields.io/npm/v/@whitesev/utils)](https://www.npmjs.com/package/@whitesev/utils)
 
 ```node
 npm install @whitesev/utils
@@ -37,8 +37,8 @@ Utils.assign({1:1},{1:2,2:3})
 
 ```javascript
 /* 等待a元素出现，返回Promise对象，在then中或使用await获取结果，统一返回数组格式的元素，如[...a] */
-Utils.waitNode("a").then((element => {
-  console.log(element );
+Utils.waitNode("a").then((element) => {
+	console.log(element);
 });
 
 /* 同时满足多个选择器的结果，都满足了才会触发回调 */
@@ -61,24 +61,24 @@ Utils.toJSON("{123:123}");
 let httpx = new Utils.Httpx();
 /* 修改配置 */
 httpx.config({
-  timeout: 5000,
-  onabort: function () {
-    console.log("请求取消");
-  },
-  ontimeout: function () {
-    console.log("请求超时");
-  },
-  onerror: function (response) {
-    console.log("httpx-onerror 请求异常");
-    console.log(response);
-  },
+	timeout: 5000,
+	onabort: function () {
+		console.log("请求取消");
+	},
+	ontimeout: function () {
+		console.log("请求超时");
+	},
+	onerror: function (response) {
+		console.log("httpx-onerror 请求异常");
+		console.log(response);
+	},
 });
 /* 发送post请求 */
 let postResp = await httpx.post({
-  url: url,
-  data: JSON.stringify({
-    test: 1,
-  }),
+	url: url,
+	data: JSON.stringify({
+		test: 1,
+	}),
 });
 ```
 
@@ -173,4 +173,4 @@ menu_key:{
 GM_Menu.delete("menu_key");
 ```
 
-等...API请看代码
+等...API 请看文档
