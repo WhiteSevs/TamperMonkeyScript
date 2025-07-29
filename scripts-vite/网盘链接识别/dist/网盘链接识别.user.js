@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.26
+// @version      2025.7.29
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,10 +10,10 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.7/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
 // @connect      lanzoub.com
@@ -398,7 +398,6 @@
     tag: true
   });
   Qmsg.config({
-    html: true,
     isHTML: true,
     autoClose: true,
     showClose: false,
@@ -2888,19 +2887,18 @@
     });
   };
   const NetDiskAutoFillAccessCode_115pan = function(netDiskInfo) {
-    if (window.location.hostname === "115.com") {
+    if (["115.com", "115cdn.com", "anxia.com"].includes(window.location.hostname)) {
       log.success("自动填写链接", netDiskInfo);
-      utils.waitNode("input.text").then((element) => {
-        if (!utils.isVisible(element)) {
+      utils.waitNode("input.text", 1e4).then(($el) => {
+        if (!$el) return;
+        if (!utils.isVisible($el)) {
           log.error("输入框不可见，不输入密码");
           return;
         }
         Qmsg.success("自动填充访问码");
-        element.value = netDiskInfo.accessCode;
-        utils.dispatchEvent(element, "input");
-        document.querySelector(
-          "#js-share_code div.form-decode div.submit a"
-        ).click();
+        $el.value = netDiskInfo.accessCode;
+        utils.dispatchEvent($el, "input");
+        $("#js-share_code div.form-decode div.submit a").click();
       });
     }
   };
@@ -4150,8 +4148,8 @@
         let $QmsgErrorTip = Qmsg.error(
           `请在阿里云盘页面解析，<a href="${url}">点我前往</a>`,
           {
-            html: true,
-            timeout: 1e4
+            timeout: 1e4,
+            isHTML: true
           }
         );
         domUtils.on(
@@ -5519,7 +5517,7 @@
               Qmsg.error(
                 `无法定位该元素位置，类型：<${(iterator.value.nodeName || iterator.value.localName || iterator.value.tagName).toLowerCase()}>`,
                 {
-                  html: false
+                  isHTML: true
                 }
               );
             }
@@ -9082,19 +9080,23 @@
   const NetDiskHandlerUtil = {
     /**
      * 替换文字
-     * @param text 需要替换的文字
+     * @param matchText 需要替换的文字
      * @param pattern 需要替换的文字的正则表达式
      * @param newText 替换为的文字
      */
-    replaceText(text, pattern, newText) {
+    replaceText(matchText, pattern, newText) {
       if (Array.isArray(pattern)) {
         for (const patternItem of pattern) {
-          text = text.replace(patternItem, newText);
+          matchText = this.replaceText(matchText, patternItem, newText);
         }
       } else {
-        text = text.replace(pattern, newText);
+        if (typeof pattern === "string") {
+          matchText = matchText.replaceAll(pattern, newText);
+        } else {
+          matchText = matchText.replace(pattern, newText);
+        }
       }
-      return text;
+      return matchText;
     }
   };
   const NetDiskLinkClickModeUtils = {
@@ -17220,8 +17222,8 @@
         } catch (error) {
           log.error(error);
           Qmsg.error(error.message, {
-            html: true,
-            timeout: 3500
+            timeout: 3500,
+            isHTML: true
           });
         }
       }
@@ -17326,7 +17328,7 @@
         } catch (error) {
           log.error(error);
           Qmsg.error(error.message, {
-            html: true,
+            isHTML: true,
             timeout: 3500
           });
         }
@@ -17605,6 +17607,7 @@
           checkAccessCode,
           accessCode,
           acceesCodeNotMatch,
+          accessCodeNeedRemoveStr,
           paramMatch,
           ...otherRuleParams
         } = ruleRegExp;
@@ -17655,6 +17658,14 @@
             netDiskRegularOption.acceesCodeNotMatch = acceesCodeNotMatch.map(
               (item) => new RegExp(item, "ig")
             );
+          }
+        }
+        if (accessCodeNeedRemoveStr) {
+          if (typeof accessCodeNeedRemoveStr === "string") {
+            accessCodeNeedRemoveStr = [accessCodeNeedRemoveStr];
+          }
+          if (Array.isArray(accessCodeNeedRemoveStr)) {
+            netDiskRegularOption.accessCodeNeedRemoveStr = accessCodeNeedRemoveStr.map((item) => new RegExp(item, "ig"));
           }
         }
         if (typeof paramMatch === "string") {
@@ -20063,7 +20074,7 @@
         shareCode: /(115.com|115cdn.com|anxia.com)\/s\/([0-9a-zA-Z\-_]{8,24})/gi,
         shareCodeNeedRemoveStr: /(115.com|115cdn.com|anxia.com)\/s\//gi,
         checkAccessCode: /(提取码|密码|\?password=|访问码)[\s\S]+/gi,
-        accessCode: /(\?password=|)([0-9a-zA-Z]{4})/i,
+        accessCode: /(提取码|密码|\?password=|访问码)([0-9a-zA-Z]{4})/i,
         paramMatch: /(115.com|115cdn.com|anxia.com)/i,
         uiLinkShow: "{#$1#}/s/{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://{#$1#}/s/{#shareCode#}",
@@ -21136,7 +21147,6 @@
       }
       this.$el.$suspensionZIndexStyle.innerHTML = /*css*/
       `
-			/* 动态生成z-index */
 			#whitesevSuspensionId{
 				z-index: ${suspendedZIndex};
 			}
@@ -21796,7 +21806,7 @@
 										<div style="text-align: left;">旧: ${accessCode}</div>
 										<div style="text-align: left;">新: ${option.accessCode}</div>`,
                           {
-                            html: true
+                            isHTML: true
                           }
                         );
                       } else {
@@ -21811,7 +21821,7 @@
 										<div style="text-align: left;">旧: ${accessCode}</div>
 										<div style="text-align: left;">新: ${option.accessCode}</div>`,
                           {
-                            html: true
+                            isHTML: true
                           }
                         );
                       } else {
@@ -23797,6 +23807,22 @@
        */
       accessCodeNotMatchRegExpList: [/^(font|http)/gi],
       /**
+       * 访问码需要去除的正则匹配规则
+       */
+      accessCodeNeedRemoveStr: [
+        "：",
+        " ",
+        ":",
+        "\n",
+        "提取码",
+        "密码",
+        "?password=",
+        "?pwd=",
+        "&pwd=",
+        "?p=",
+        "访问码"
+      ],
+      /**
        * 当没有accessCode时，使用该正则去除不需要的字符串
        */
       noAccessCodeRegExp: [
@@ -24087,6 +24113,37 @@
               break;
             }
           }
+        }
+        for (const accessCodeNeedRemoveStrRegExp of NetDisk.$extraRule.accessCodeNeedRemoveStr) {
+          accessCode = NetDiskHandlerUtil.replaceText(
+            accessCode,
+            accessCodeNeedRemoveStrRegExp,
+            ""
+          );
+        }
+        handlerConfig.debugConfig?.logCallBack?.({
+          status: true,
+          msg: [
+            `正则: 内置的accessCodeNeedRemoveStr`,
+            "作用: 用于处理提取到的accessCode删除部分不需要的字符串",
+            `结果: ${accessCode}`
+          ]
+        });
+        let accessCodeNeedRemoveStr = ruleConfig.accessCodeNeedRemoveStr;
+        if (accessCodeNeedRemoveStr) {
+          accessCode = NetDiskHandlerUtil.replaceText(
+            accessCode,
+            accessCodeNeedRemoveStr,
+            ""
+          );
+          handlerConfig.debugConfig?.logCallBack?.({
+            status: true,
+            msg: [
+              `正则: accessCodeNeedRemoveStr`,
+              "作用: 用于处理提取到的accessCode删除部分不需要的字符串",
+              `结果: true 重置accessCode为空`
+            ]
+          });
         }
       }
       handlerConfig.debugConfig?.logCallBack?.({
