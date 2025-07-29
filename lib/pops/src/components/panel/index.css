@@ -161,10 +161,9 @@ section.pops-panel-container
 	.pops-panel-forms-container-item
 	ul
 	li.pops-panel-deepMenu-nav-item {
-	padding: var(--pops-panel-forms-container-li-padding-top-bottom)
-		var(--pops-panel-forms-container-li-padding-left-right);
-	margin: 0px;
-	border-bottom: 0;
+	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;
+	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);
+	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);
 }
 section.pops-panel-container
 	.pops-panel-forms-container-item

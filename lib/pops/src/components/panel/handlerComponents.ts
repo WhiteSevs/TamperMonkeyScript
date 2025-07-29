@@ -2716,7 +2716,7 @@ export const PanelHandlerComponents = () => {
 		createSectionContainerItem_deepMenu(formConfig: PopsPanelDeepMenuDetails) {
 			let that = this;
 			let $li = document.createElement("li");
-			$li.classList.add("pops-panel-deepMenu-nav-item");
+			popsDOMUtils.addClassName($li, "pops-panel-deepMenu-nav-item");
 			Reflect.set($li, "__formConfig__", formConfig);
 			this.setElementClassName($li, formConfig.className);
 			// 设置属性

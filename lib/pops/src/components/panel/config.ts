@@ -420,6 +420,24 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 									},
 								],
 							},
+							{
+								type: "deepMenu",
+								className: "panel-deepMenu2",
+								attributes: {},
+								//@ts-ignore
+								props: {},
+								text: "deepMenu2",
+								description: "二级菜单",
+								rightText: "自定义配置",
+								arrowRightIcon: true,
+								afterAddToUListCallBack(formConfig, container) {
+									console.log(formConfig, container);
+								},
+								clickCallBack(event, formConfig) {
+									console.log("进入子配置", event, formConfig);
+								},
+								forms: [],
+							},
 						],
 					},
 					{
@@ -515,8 +533,8 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 		mobileClassName: "pops-panel-is-mobile",
 		isMobile: false,
 		only: false,
-		width: "700px",
-		height: "500px",
+		width: window.innerWidth < 550 ? "88vw" : "700px",
+		height: window.innerHeight < 450 ? "70vh" : "500px",
 		position: "center",
 		animation: "pops-anim-fadein-zoom",
 		zIndex: 10000,
