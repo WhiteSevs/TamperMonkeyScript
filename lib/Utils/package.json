@@ -1,7 +1,7 @@
 {
 	"$schema": "https://json.schemastore.org/package.json",
 	"name": "@whitesev/utils",
-	"version": "2.7.1",
+	"version": "2.7.2",
 	"type": "module",
 	"description": "一个常用的工具库",
 	"main": "dist/index.cjs.js",
