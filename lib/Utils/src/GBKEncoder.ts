@@ -1,6 +1,6 @@
 import type { UtilsOwnObject } from "./types/global";
 
-class GBKEncoder {
+export class GBKEncoder {
 	#data: RegExpMatchArray = [] as any;
 	#U2Ghash: UtilsOwnObject<string> = {};
 	#G2Uhash: UtilsOwnObject<string> = {};
@@ -93,16 +93,15 @@ class GBKEncoder {
 	 * @param str
 	 */
 	decode(str: string) {
-		var GBKMatcher = /%[0-9A-F]{2}%[0-9A-F]{2}/;
-		var UTFMatcher = /%[0-9A-F]{2}/;
-		// @ts-ignore
-		var gbk = true,
-			utf = true;
-		let that = this;
+		let GBKMatcher = /%[0-9A-F]{2}%[0-9A-F]{2}/;
+		let UTFMatcher = /%[0-9A-F]{2}/;
+		// let gbk = true;
+		let utf = true;
+		const that = this;
 		while (utf) {
 			let gbkMatch = str.match(GBKMatcher);
 			let utfMatch = str.match(UTFMatcher);
-			gbk = Boolean(gbkMatch);
+			// gbk = Boolean(gbkMatch);
 			utf = Boolean(utfMatch);
 			if (gbkMatch && (gbkMatch as any) in that.#G2Uhash) {
 				str = str.replace(
@@ -110,12 +109,9 @@ class GBKEncoder {
 					String.fromCharCode(("0x" + that.#G2Uhash[gbkMatch as any]) as any)
 				);
 			} else {
-				// @ts-ignore
-				str = str.replace(utfMatch, decodeURIComponent(utfMatch));
+				str = str.replace(utfMatch as any, decodeURIComponent(utfMatch as any));
 			}
 		}
 		return str;
 	}
 }
-
-export { GBKEncoder };

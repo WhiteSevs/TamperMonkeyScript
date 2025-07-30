@@ -1,7 +1,7 @@
 import { CommonUtil } from "./CommonUtil";
 import type { ProgressParamConfig } from "./types/Progress";
 
-class Progress {
+export class Progress {
 	#config: ProgressParamConfig = {
 		/**
 		 * canvas元素节点
@@ -120,5 +120,3 @@ class Progress {
 		this.#ctx.fillText(txt, this.#width / 2 - w / 2, this.#height / 2 + h / 2);
 	}
 }
-
-export { Progress };

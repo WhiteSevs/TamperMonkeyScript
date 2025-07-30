@@ -1,11 +1,11 @@
 import type { HttpxHookErrorData, HttpxRequestOption, HttpxResponse, HttpxResponseData, HttpxPromise, HttpxInitOption } from "./types/Httpx";
-declare class Httpx {
+export declare class Httpx {
     #private;
     private GM_Api;
     private HttpxRequestHook;
     private HttpxResponseHook;
     private HttpxRequestOption;
-    private HttpxCallBack;
+    private HttpxResponseCallBack;
     private HttpxRequest;
     /**
      * 实例化
@@ -72,36 +72,36 @@ declare class Httpx {
     setXMLHttpRequest(httpRequest: Function): void;
     /**
      * GET 请求
-     * @param url 网址
-     */
-    get<T extends HttpxRequestOption>(url: string): HttpxPromise<HttpxResponse<T>>;
-    /**
-     * GET 请求
      * @param details 配置
      */
     get<T extends HttpxRequestOption>(details: T): HttpxPromise<HttpxResponse<T>>;
     /**
      * GET 请求
-     * @param url 网址
+     * @param url 请求的url
      * @param details 配置
      */
-    get<T extends HttpxRequestOption>(url: string, details: T): HttpxPromise<HttpxResponse<T>>;
+    get<T extends Omit<HttpxRequestOption, "url">>(url: string, details?: T): HttpxPromise<HttpxResponse<T & {
+        /**
+         * 请求的url
+         */
+        url: string;
+    }>>;
     /**
      * POST 请求
      * @param details 配置
      */
-    post<T extends HttpxRequestOption>(details: T): HttpxPromise<HttpxResponse<T>>;
+    post<T extends HttpxRequestOption>(details?: T): HttpxPromise<HttpxResponse<T>>;
     /**
      * POST 请求
-     * @param url 网址
-     */
-    post<T extends HttpxRequestOption>(url: string): HttpxPromise<HttpxResponse<T>>;
-    /**
-     * POST 请求
-     * @param url 网址
+     * @param url 请求的url
      * @param details 配置
      */
-    post<T extends HttpxRequestOption>(url: string, details: T): HttpxPromise<HttpxResponse<T>>;
+    post<T extends Omit<HttpxRequestOption, "url">>(url: string, details?: T): HttpxPromise<HttpxResponse<T & {
+        /**
+         * 请求的url
+         */
+        url: string;
+    }>>;
     /**
      * HEAD 请求
      * @param details 配置
@@ -109,15 +109,15 @@ declare class Httpx {
     head<T extends HttpxRequestOption>(details: T): HttpxPromise<HttpxResponse<T>>;
     /**
      * HEAD 请求
-     * @param url 网址
-     */
-    head<T extends HttpxRequestOption>(url: string): HttpxPromise<HttpxResponse<T>>;
-    /**
-     * HEAD 请求
-     * @param url 网址
+     * @param url 请求的url
      * @param details 配置
      */
-    head<T extends HttpxRequestOption>(url: string, details: T): HttpxPromise<HttpxResponse<T>>;
+    head<T extends Omit<HttpxRequestOption, "url">>(url: string, details?: T): HttpxPromise<HttpxResponse<T & {
+        /**
+         * 请求的url
+         */
+        url: string;
+    }>>;
     /**
      * OPTIONS 请求
      * @param details 配置
@@ -125,15 +125,15 @@ declare class Httpx {
     options<T extends HttpxRequestOption>(details: T): HttpxPromise<HttpxResponse<T>>;
     /**
      * OPTIONS 请求
-     * @param url 网址
-     */
-    options<T extends HttpxRequestOption>(url: string): HttpxPromise<HttpxResponse<T>>;
-    /**
-     * OPTIONS 请求
-     * @param url 网址
+     * @param url 请求的url
      * @param details 配置
      */
-    options<T extends HttpxRequestOption>(url: string, details: T): HttpxPromise<HttpxResponse<T>>;
+    options<T extends Omit<HttpxRequestOption, "url">>(url: string, details?: T): HttpxPromise<HttpxResponse<T & {
+        /**
+         * 请求的url
+         */
+        url: string;
+    }>>;
     /**
      * DELETE 请求
      * @param details 配置
@@ -141,15 +141,15 @@ declare class Httpx {
     delete<T extends HttpxRequestOption>(details: T): HttpxPromise<HttpxResponse<T>>;
     /**
      * DELETE 请求
-     * @param url 网址
-     */
-    delete<T extends HttpxRequestOption>(url: string): HttpxPromise<HttpxResponse<T>>;
-    /**
-     * DELETE 请求
-     * @param url 网址
+     * @param url 请求的url
      * @param details 配置
      */
-    delete<T extends HttpxRequestOption>(url: string, details: T): HttpxPromise<HttpxResponse<T>>;
+    delete<T extends Omit<HttpxRequestOption, "url">>(url: string, details?: T): HttpxPromise<HttpxResponse<T & {
+        /**
+         * 请求的url
+         */
+        url: string;
+    }>>;
     /**
      * PUT 请求
      * @param details 配置
@@ -157,15 +157,15 @@ declare class Httpx {
     put<T extends HttpxRequestOption>(details: T): HttpxPromise<HttpxResponse<T>>;
     /**
      * PUT 请求
-     * @param url 网址
-     */
-    put<T extends HttpxRequestOption>(url: string): HttpxPromise<HttpxResponse<T>>;
-    /**
-     * PUT 请求
-     * @param url 网址
+     * @param url 请求的url
      * @param details 配置
      */
-    put<T extends HttpxRequestOption>(url: string, details: T): HttpxPromise<HttpxResponse<T>>;
+    put<T extends Omit<HttpxRequestOption, "url">>(url: string, details?: T): HttpxPromise<HttpxResponse<T & {
+        /**
+         * 请求的url
+         */
+        url: string;
+    }>>;
     /**
      * 发送请求
      * @param details 配置
@@ -173,4 +173,3 @@ declare class Httpx {
      */
     request<T extends HttpxRequestOption>(details: T, beforeRequestOption?: (option: Required<T>) => void): HttpxPromise<HttpxResponse<T>>;
 }
-export { Httpx };

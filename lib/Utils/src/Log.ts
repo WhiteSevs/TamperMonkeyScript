@@ -1,6 +1,6 @@
 import type { UtilsLogOptions } from "./types/Log";
 
-class Log {
+export class Log {
 	/** 是否禁用输出的flag */
 	#disable: boolean = false;
 	/** 前面的TAG标志 */
@@ -273,5 +273,3 @@ class Log {
 		this.#disable = false;
 	}
 }
-
-export { Log };

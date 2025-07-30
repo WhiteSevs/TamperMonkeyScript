@@ -1,4 +1,4 @@
-declare class Hooks {
+export declare class Hooks {
     /**
      * 在Function原型上添加自定义方法.hook和.unhook
      */
@@ -8,4 +8,3 @@ declare class Hooks {
      */
     cleanEnv(): boolean;
 }
-export { Hooks };

@@ -1,5 +1,5 @@
 import type { UtilsGMMenuConstructorOptions, UtilsGMMenuOption } from "./types/UtilsGMMenu";
-declare class GMMenu {
+export declare class GMMenu {
     private GM_Api;
     private MenuHandle;
     constructor(details: UtilsGMMenuConstructorOptions);
@@ -118,4 +118,3 @@ declare class GMMenu {
      */
     setLocalStorageKeyName(keyName: string): void;
 }
-export { GMMenu };

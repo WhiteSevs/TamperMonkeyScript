@@ -1,6 +1,6 @@
 import type { WindowApiOption } from "./types/WindowApi";
 
-class WindowApi {
+export class WindowApi {
 	/** 默认的配置 */
 	private defaultApi: Required<WindowApiOption> = {
 		document: document,
@@ -23,8 +23,7 @@ class WindowApi {
 		if (!option) {
 			option = Object.assign({}, this.defaultApi);
 		}
-		// @ts-ignore
-		this.api = Object.assign({}, option);
+		this.api = Object.assign({}, option as Required<WindowApiOption>);
 	}
 	get document() {
 		return this.api.document;
@@ -42,5 +41,3 @@ class WindowApi {
 		return this.api.top;
 	}
 }
-
-export { WindowApi };

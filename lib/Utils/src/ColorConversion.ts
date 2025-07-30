@@ -1,4 +1,4 @@
-class ColorConversion {
+export class ColorConversion {
 	/**
 	 * 判断是否是16进制颜色
 	 * @param str
@@ -15,14 +15,13 @@ class ColorConversion {
 	/**
 	 * 16进制颜色转rgba
 	 *
-	 * #ff0000 转 rgba(123,123,123, 0.4)
+	 * 例如：`#ff0000` 转为 `rgba(123,123,123, 0.4)`
 	 * @param hex
 	 * @param opacity
 	 */
 	hexToRgba(hex: string, opacity: number): string {
 		if (!this.isHex(hex)) {
-			// @ts-ignore
-			throw new TypeError("输入错误的hex", hex);
+			throw new TypeError("输入错误的hex：" + hex);
 		}
 		return hex && hex.replace(/\s+/g, "").length === 7
 			? "rgba(" +
@@ -39,20 +38,17 @@ class ColorConversion {
 	/**
 	 * hex转rgb
 	 * @param str
-	 * @returns
 	 */
 	hexToRgb(str: string) {
 		if (!this.isHex(str)) {
-			// @ts-ignore
-			throw new TypeError("输入错误的hex", str);
+			throw new TypeError("输入错误的hex：" + str);
 		}
 		/* replace替换查找的到的字符串 */
 		str = str.replace("#", "");
 		/* match得到查询数组 */
-		let hxs = str.match(/../g);
+		let hxs = str.match(/../g)!;
 		for (let index = 0; index < 3; index++) {
-			// @ts-ignore
-			hxs[index] = parseInt(hxs[index], 16);
+			(hxs as any)[index as any] = parseInt(hxs[index], 16);
 		}
 
 		return hxs;
@@ -62,7 +58,6 @@ class ColorConversion {
 	 * @param redValue
 	 * @param greenValue
 	 * @param blueValue
-	 * @returns
 	 */
 	rgbToHex(
 		redValue: string | number,
@@ -90,41 +85,35 @@ class ColorConversion {
 	 * 获取颜色变暗或亮
 	 * @param color 颜色
 	 * @param level 0~1.0
-	 * @returns
 	 */
 	getDarkColor(color: string, level: string): string {
 		if (!this.isHex(color)) {
-			// @ts-ignore
-			throw new TypeError("输入错误的hex", color);
+			throw new TypeError("输入错误的hex：" + color);
 		}
 		let rgbc = this.hexToRgb(color);
 		for (let index = 0; index < 3; index++) {
-			// @ts-ignore
-			rgbc[index] = Math.floor(rgbc[index] * (1 - level));
+			(rgbc as any)[index] = Math.floor(
+				(rgbc as any)[index] * (1 - (level as any))
+			);
 		}
 
-		// @ts-ignore
 		return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
 	}
 	/**
 	 * 获取颜色变亮
 	 * @param color 颜色
 	 * @param level 0~1.0
-	 * @returns
 	 */
 	getLightColor(color: string, level: number): string {
 		if (!this.isHex(color)) {
-			// @ts-ignore
-			throw new TypeError("输入错误的hex", color);
+			throw new TypeError("输入错误的hex：" + color);
 		}
 		let rgbc = this.hexToRgb(color);
 		for (let index = 0; index < 3; index++) {
-			// @ts-ignore
-			rgbc[index] = Math.floor((255 - rgbc[index]) * level + rgbc[index]);
+			(rgbc as any)[index] = Math.floor(
+				(255 - (rgbc as any)[index]) * (level as any) + (rgbc as any)[index]
+			);
 		}
-		// @ts-ignore
 		return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
 	}
 }
-
-export { ColorConversion };

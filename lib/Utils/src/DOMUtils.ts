@@ -88,10 +88,11 @@ class DOMUtils {
 			let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
 			let text = textMatch![2];
 			selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-			return Array.from(parent.querySelectorAll<E>(selector)).filter(($ele) => {
-				// @ts-ignore
-				return ($ele?.textContent || $ele?.innerText)?.includes(text);
-			});
+			return Array.from(parent.querySelectorAll<HTMLElement>(selector)).filter(
+				($ele) => {
+					return ($ele?.textContent || $ele?.innerText)?.includes(text);
+				}
+			);
 		} else if (
 			selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) ||
 			selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)
@@ -107,10 +108,11 @@ class DOMUtils {
 			}
 			let regexp = new RegExp(pattern, flags);
 			selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-			return Array.from(parent.querySelectorAll<E>(selector)).filter(($ele) => {
-				// @ts-ignore
-				return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
-			});
+			return Array.from(parent.querySelectorAll<HTMLElement>(selector)).filter(
+				($ele) => {
+					return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
+				}
+			);
 		} else {
 			// 普通语法
 			return Array.from(parent.querySelectorAll<E>(selector));
@@ -158,8 +160,7 @@ class DOMUtils {
 			let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
 			let text = textMatch![2];
 			selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-			// @ts-ignore
-			let content = $el?.textContent || $el?.innerText;
+			let content = $el?.textContent || (<HTMLElement>$el)?.innerText;
 			if (typeof content !== "string") {
 				content = "";
 			}
@@ -179,8 +180,7 @@ class DOMUtils {
 			}
 			let regexp = new RegExp(pattern, flags);
 			selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-			// @ts-ignore
-			let content = $el?.textContent || $el?.innerText;
+			let content = $el?.textContent || (<HTMLElement>$el)?.innerText;
 			if (typeof content !== "string") {
 				content = "";
 			}
@@ -243,8 +243,7 @@ class DOMUtils {
 			selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
 			let $closest = $el?.closest<E>(selector);
 			if ($closest) {
-				// @ts-ignore
-				let content = $el?.textContent || $el?.innerText;
+				let content = $el?.textContent || (<HTMLElement>$el)?.innerText;
 				if (typeof content === "string" && content.includes(text)) {
 					return $closest;
 				}
@@ -267,8 +266,7 @@ class DOMUtils {
 			selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
 			let $closest = $el?.closest<E>(selector);
 			if ($closest) {
-				// @ts-ignore
-				let content = $el?.textContent || $el?.innerText;
+				let content = $el?.textContent || (<HTMLElement>$el)?.innerText;
 				if (typeof content === "string" && content.match(regexp)) {
 					return $closest;
 				}

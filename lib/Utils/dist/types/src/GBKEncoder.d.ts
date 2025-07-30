@@ -1,4 +1,4 @@
-declare class GBKEncoder {
+export declare class GBKEncoder {
     #private;
     constructor();
     private handleText;
@@ -14,4 +14,3 @@ declare class GBKEncoder {
      */
     decode(str: string): string;
 }
-export { GBKEncoder };

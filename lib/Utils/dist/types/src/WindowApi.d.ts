@@ -1,5 +1,5 @@
 import type { WindowApiOption } from "./types/WindowApi";
-declare class WindowApi {
+export declare class WindowApi {
     /** 默认的配置 */
     private defaultApi;
     /** 使用的配置 */
@@ -11,4 +11,3 @@ declare class WindowApi {
     get self(): Window & typeof globalThis;
     get top(): Window;
 }
-export { WindowApi };

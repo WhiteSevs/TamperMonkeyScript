@@ -1,4 +1,4 @@
-class Hooks {
+export class Hooks {
 	/**
 	 * 在Function原型上添加自定义方法.hook和.unhook
 	 */
@@ -82,5 +82,3 @@ class Hooks {
 		return true;
 	}
 }
-
-export { Hooks };

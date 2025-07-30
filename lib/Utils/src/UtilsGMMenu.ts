@@ -5,7 +5,7 @@ import type {
 	UtilsGMMenuOptionData,
 } from "./types/UtilsGMMenu";
 
-class GMMenu {
+export class GMMenu {
 	private GM_Api = {
 		/**
 		 * 获取存储的数据
@@ -157,25 +157,24 @@ class GMMenu {
 			);
 			/** 油猴菜单上显示的文本 */
 			let showText = menuOption.showText(menuOption.text, defaultEnable);
-			// @ts-ignore
-			const GMMenuOptions = {
-				/**
-				 * 菜单的id
-				 */
-				id: menuOption.id,
-				/**
-				 * 点击菜单项后是否应关闭弹出菜单
-				 */
-				autoClose: menuOption.autoClose,
-				/**
-				 * 菜单项的可选访问键
-				 */
-				accessKey: menuOption.accessKey,
-				/**
-				 * 菜单项的鼠标悬浮上的工具提示
-				 */
-				title: menuOption.title,
-			};
+			// const GMMenuOptions = {
+			// 	/**
+			// 	 * 菜单的id
+			// 	 */
+			// 	id: menuOption.id,
+			// 	/**
+			// 	 * 点击菜单项后是否应关闭弹出菜单
+			// 	 */
+			// 	autoClose: menuOption.autoClose,
+			// 	/**
+			// 	 * 菜单项的可选访问键
+			// 	 */
+			// 	accessKey: menuOption.accessKey,
+			// 	/**
+			// 	 * 菜单项的鼠标悬浮上的工具提示
+			// 	 */
+			// 	title: menuOption.title,
+			// };
 			/* 点击菜单后触发callback后的网页是否刷新 */
 			menuOption.autoReload =
 				typeof menuOption.autoReload !== "boolean"
@@ -472,5 +471,3 @@ class GMMenu {
 		this.MenuHandle.$data.key = keyName;
 	}
 }
-
-export { GMMenu };

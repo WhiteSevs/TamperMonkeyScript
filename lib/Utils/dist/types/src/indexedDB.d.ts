@@ -1,4 +1,4 @@
-declare class indexedDB {
+export declare class indexedDB {
     #private;
     /**
      * @param dbName 数据存储名，默认为：default_db
@@ -129,4 +129,3 @@ declare class indexedDB {
         } & Event;
     }>;
 }
-export { indexedDB };

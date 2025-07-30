@@ -1,5 +1,5 @@
 import type { ProgressParamConfig } from "./types/Progress";
-declare class Progress {
+export declare class Progress {
     #private;
     /**
      *
@@ -15,4 +15,3 @@ declare class Progress {
      */
     draw(): void;
 }
-export { Progress };

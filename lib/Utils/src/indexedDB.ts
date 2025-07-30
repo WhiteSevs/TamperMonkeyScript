@@ -1,3 +1,6 @@
+/**
+ * indexedDB 错误结果
+ */
 declare interface UtilsIDBOpenErrorResult {
 	code: number;
 	msg: string;
@@ -6,13 +9,13 @@ declare interface UtilsIDBOpenErrorResult {
 		target: IDBRequest;
 	} & Event;
 }
-class indexedDB {
+
+export class indexedDB {
 	#dbName: string;
 	#storeName: string;
 	#dbVersion: number;
 	/* websql的版本号，由于ios的问题，版本号的写法不一样 */
-	// @ts-ignore
-	#slqVersion = "1";
+	// #slqVersion = "1";
 	/* 监听IndexDB */
 	#indexedDB =
 		window.indexedDB ||
@@ -23,8 +26,7 @@ class indexedDB {
 	#db: {
 		[key: string]: IDBDatabase;
 	} = {};
-	// @ts-ignore
-	#store: IDBObjectStore = null as any;
+	// #store: IDBObjectStore = null as any;
 	/** 状态码 */
 	#statusCode = {
 		operationSuccess: {
@@ -76,7 +78,7 @@ class indexedDB {
 		) as IDBTransaction;
 		/* IndexDB的读写权限 */
 		store = txn.objectStore(this.#storeName) as IDBObjectStore;
-		this.#store = store;
+		// this.#store = store;
 		return store;
 	}
 	/**
@@ -507,5 +509,3 @@ class indexedDB {
 		});
 	}
 }
-
-export { indexedDB };

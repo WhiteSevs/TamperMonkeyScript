@@ -1,16 +1,46 @@
 import { CommonUtil } from "./CommonUtil";
 
-class UtilsDictionary<K, V> {
+export class UtilsDictionary<
+	K extends string | number | symbol,
+	V extends unknown
+> {
 	private items: {
-		// @ts-ignore
-		[key: K]: V;
-	} = {};
+		[key: string | number | symbol]: V;
+	};
 	constructor();
 	constructor(key: K, value: V);
 	constructor(key?: K, value?: V) {
+		this.items = {};
 		if (key != null) {
 			this.set(key, value!);
 		}
+	}
+	/**
+	 * 获取字典的长度，同this.size
+	 */
+	get length() {
+		return this.size();
+	}
+	/**
+	 * 迭代器
+	 */
+	get entries() {
+		let that = this;
+		return function* (): IterableIterator<[K, V]> {
+			let itemKeys = Object.keys(that.getItems());
+			for (const keyName of itemKeys) {
+				yield [keyName as K, that.get(keyName as K) as V];
+			}
+		};
+	}
+	/**
+	 * 是否可遍历
+	 */
+	get [Symbol.iterator]() {
+		let that = this;
+		return function () {
+			return that.entries();
+		};
 	}
 	/**
 	 * 检查是否有某一个键
@@ -111,8 +141,7 @@ class UtilsDictionary<K, V> {
 	/**
 	 * 返回字典本身
 	 */
-	getItems(): UtilsDictionary<K, V> {
-		// @ts-ignore
+	getItems() {
 		return this.items;
 	}
 	/**
@@ -122,6 +151,10 @@ class UtilsDictionary<K, V> {
 	concat(data: UtilsDictionary<K, V>) {
 		this.items = CommonUtil.assign(this.items, data.getItems());
 	}
+	/**
+	 * 迭代字典
+	 * @param callbackfn 回调函数
+	 */
 	forEach(
 		callbackfn: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void
 	) {
@@ -129,33 +162,4 @@ class UtilsDictionary<K, V> {
 			callbackfn(this.get(key as any) as V, key as K, this.getItems() as any);
 		}
 	}
-	/**
-	 * 获取字典的长度，同this.size
-	 */
-	get length() {
-		return this.size();
-	}
-	/**
-	 * 迭代器
-	 */
-	get entries() {
-		let that = this;
-		return function* (): IterableIterator<[K, V]> {
-			let itemKeys = Object.keys(that.getItems());
-			for (const keyName of itemKeys) {
-				yield [keyName as K, that.get(keyName as K) as V];
-			}
-		};
-	}
-	/**
-	 * 是否可遍历
-	 */
-	get [Symbol.iterator]() {
-		let that = this;
-		return function () {
-			return that.entries();
-		};
-	}
 }
-
-export { UtilsDictionary };

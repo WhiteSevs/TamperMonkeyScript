@@ -37,11 +37,10 @@ class ReactiveEffect {
 	deps: any[] = [];
 	private active = true;
 	private fn;
-	// @ts-ignore
-	private scheduler;
+	// private scheduler;
 	constructor(fn: Function, scheduler: any) {
 		this.fn = fn;
-		this.scheduler = scheduler;
+		// this.scheduler = scheduler;
 	}
 	run(cb: (activeEffect: any) => void) {
 		if (!this.active) {
@@ -107,8 +106,7 @@ export class Vue {
 	reactive<T extends object>(target: T): T {
 		const that = this;
 		if (!(typeof target === "object" && target !== null)) {
-			// @ts-ignore
-			return;
+			return void 0 as any as T;
 		}
 		if (VueUtils.isReactive(target)) {
 			return target;
@@ -179,8 +177,7 @@ export class Vue {
 	toRefs(object: any) {
 		const result = VueUtils.isArray(object) ? new Array(object.length) : {};
 		for (let key in object) {
-            // @ts-ignore
-			result[key] = this.toRef(object, key);
+			(result as any)[key as any] = this.toRef(object, key);
 		}
 		return result;
 	}

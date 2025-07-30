@@ -24,8 +24,7 @@ export const TryCatch = function (...args: any) {
 		 * @param handler
 		 */
 		error(handler: ((...args: any[]) => any) | string | Function) {
-			// @ts-ignore
-			handleError = handler;
+			handleError = handler as (error: Error) => void;
 			return TryCatchCore;
 		},
 		/**
@@ -42,8 +41,9 @@ export const TryCatch = function (...args: any) {
 			callbackFunction = callback;
 			context = __context__ || this;
 			let result = executeTryCatch(callbackFunction, handleError, context);
-			// @ts-ignore
-			return result !== void 0 ? result : TryCatchCore;
+			return result !== void 0
+				? result
+				: (TryCatchCore as any as UtilsTryCatchType);
 		},
 	};
 

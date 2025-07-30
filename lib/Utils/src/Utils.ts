@@ -177,7 +177,7 @@ class Utils {
 		canvasElement: HTMLCanvasElement,
 		clientX = 0,
 		clientY = 0,
-		view = globalThis
+		view = this.windowApi.window
 	) {
 		if (!(canvasElement instanceof HTMLCanvasElement)) {
 			throw new Error(
@@ -186,12 +186,13 @@ class Utils {
 		}
 		clientX = parseInt(clientX.toString());
 		clientY = parseInt(clientY.toString());
-		const eventInit: MouseEventInit = {
+		const eventInit: MouseEventInit & {
+			cancelBubble: boolean;
+		} = {
 			cancelBubble: true,
 			cancelable: true,
 			clientX: clientX,
 			clientY: clientY,
-			// @ts-ignore
 			view: view,
 			detail: 1,
 		};
@@ -1064,10 +1065,8 @@ class Utils {
 	getElementSelector(element: HTMLElement): string;
 	getElementSelector(element: HTMLElement): string {
 		let UtilsContext = this;
-		// @ts-ignore
-		if (!element) return;
-		// @ts-ignore
-		if (!element.parentElement) return;
+		if (!element) return void 0 as any as string;
+		if (!element.parentElement) return void 0 as any as string;
 		/* 如果元素有id属性，则直接返回id选择器 */
 		if (element.id) return "#" + element.id;
 
@@ -1122,8 +1121,7 @@ class Utils {
 		let result = [...args];
 		let newResult: number[] = [];
 		if (result.length === 0) {
-			// @ts-ignore
-			return;
+			return void 0 as any as number;
 		}
 		if (result.length > 1) {
 			if (
@@ -1194,8 +1192,7 @@ class Utils {
 		// 当前页面最大的z-index
 		let zIndex = 0;
 		// 当前的最大z-index的元素，调试使用
-		// @ts-ignore
-		let maxZIndexNode: Element = null;
+		let maxZIndexNode: Element | null = null;
 		/**
 		 * 元素是否可见
 		 * @param $css
@@ -1244,7 +1241,7 @@ class Utils {
 			zIndex = maxZIndexCompare;
 		}
 		return {
-			node: maxZIndexNode,
+			node: maxZIndexNode!,
 			zIndex: zIndex,
 		};
 	}
@@ -1311,8 +1308,7 @@ class Utils {
 		let result = [...args];
 		let newResult: number[] = [];
 		if (result.length === 0) {
-			// @ts-ignore
-			return;
+			return void 0 as any as number;
 		}
 		if (result.length > 1) {
 			if (
@@ -1905,7 +1901,6 @@ class Utils {
 	isJQuery(target: any): boolean;
 	isJQuery(target: any): boolean {
 		let result = false;
-		// @ts-ignore
 		if (typeof jQuery === "object" && target instanceof jQuery) {
 			result = true;
 		}
@@ -3060,31 +3055,27 @@ class Utils {
 		const originalListener = EventTarget.prototype.addEventListener;
 		EventTarget.prototype.addEventListener = function (...args) {
 			let type = args[0];
-			let callback = args[1];
-			// @ts-ignore
-			let options = args[2];
+			let callback: any = args[1];
+			// let options = args[2];
 			if (filter(type)) {
 				if (typeof callback === "function") {
 					args[1] = function (event) {
 						callback.call(this, trustEvent(event));
 					};
-				} else if (
-					typeof callback === "object" &&
-					"handleEvent" in (callback as any)
-				) {
-					let oldHandleEvent = (callback as any)["handleEvent"];
+				} else if (typeof callback === "object" && "handleEvent" in callback) {
+					let oldHandleEvent = callback["handleEvent"];
 
 					(args[1] as any)["handleEvent"] = function (event: Event) {
 						if (event == null) {
 							return;
 						}
 						try {
-							/* Proxy对象使用instanceof会报错 */
+							// Proxy对象使用instanceof会报错
+							// 这里故意尝试一下，如果报错，则说明是Proxy对象
 							event instanceof Proxy;
 							oldHandleEvent.call(this, trustEvent(event));
 						} catch (error) {
-							// @ts-ignore
-							event["isTrusted"] = isTrustValue;
+							Reflect.set(event, "isTrusted", isTrustValue);
 						}
 					};
 				}
@@ -3226,8 +3217,8 @@ class Utils {
 			}
 			async init() {
 				let copyStatus = false;
-				// @ts-ignore
 				let requestPermissionStatus = await this.requestClipboardPermission();
+				console.log(requestPermissionStatus);
 				if (
 					this.hasClipboard() &&
 					(this.hasClipboardWrite() || this.hasClipboardWriteText())
@@ -3245,12 +3236,9 @@ class Utils {
 				this.destroy();
 			}
 			destroy() {
-				// @ts-ignore
-				this.#resolve = null;
-				// @ts-ignore
+				this.#resolve = null as any;
 				this.#copyData = null;
-				// @ts-ignore
-				this.#copyDataType = null;
+				this.#copyDataType = null as any;
 			}
 			isText() {
 				return this.#copyDataType.includes("text");
@@ -3293,8 +3281,7 @@ class Utils {
 					if (navigator.permissions && navigator.permissions.query) {
 						navigator.permissions
 							.query({
-								// @ts-ignore
-								name: "clipboard-write",
+								name: "clipboard-write" as any as PermissionName,
 							})
 							.then((permissionStatus) => {
 								resolve(true);
@@ -3431,7 +3418,6 @@ class Utils {
 			offSetX: number,
 			offSetY: number
 		) {
-			// @ts-ignore
 			let win = typeof unsafeWindow === "undefined" ? globalThis : unsafeWindow;
 			let mouseEvent =
 				UtilsContext.windowApi.document.createEvent("MouseEvents");
@@ -3439,7 +3425,7 @@ class Utils {
 				eventName,
 				true,
 				true,
-				win,
+				win as Window,
 				0,
 				offSetX,
 				offSetY,
@@ -3668,7 +3654,6 @@ class Utils {
 		flags: "g" | "i" | "m" | "u" | "y" | string = "ig"
 	): RegExp {
 		let reg;
-		// @ts-ignore
 		flags = flags.toLowerCase();
 		if (typeof targetString === "string") {
 			reg = new RegExp(
@@ -3824,11 +3809,11 @@ class Utils {
 		searhParamsStr?: string | null | undefined
 	): T {
 		if (typeof searhParamsStr !== "string") {
-			// @ts-ignore
-			return {};
+			return {} as any as T;
 		}
-		// @ts-ignore
-		return Object.fromEntries(new URLSearchParams(searhParamsStr));
+		return Object.fromEntries(
+			new URLSearchParams(searhParamsStr) as any
+		) as any;
 	}
 	/**
 	 * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
@@ -5137,8 +5122,7 @@ class Utils {
 			function requestPermissionsWithClipboard() {
 				navigator.permissions
 					.query({
-						// @ts-ignore
-						name: "clipboard-read",
+						name: "clipboard-read" as any as PermissionName,
 					})
 					.then((permissionStatus) => {
 						readClipboardText();

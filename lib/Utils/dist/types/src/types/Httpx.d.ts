@@ -1039,24 +1039,23 @@ export declare interface HttpxAllowInterceptConfig {
  */
 export declare interface HttpxRequestOption {
 	/**
-	 * 网址
+	 * 请求的url
 	 */
-	url?: string;
+	url: string;
 	/**
 	 * 请求方法
 	 * @default "GET"
 	 */
 	method?: HttpxMethod;
 	/**
-	 * 超时时间，默认5000，可为空
+	 * 请求的超时时间
 	 *
-	 * 当fetch为true时，该值不生效
+	 * 当`fetch`为`true`时，该值不生效，也就是请求不会超时
 	 * @default 5000
 	 */
 	timeout?: number;
 	/**
 	 * 响应类型，默认document，可为空
-	 *
 	 * @default "document"
 	 */
 	responseType?: keyof HttpxResponseTypeMap;
@@ -1070,39 +1069,39 @@ export declare interface HttpxRequestOption {
 	data?: string | FormData | object;
 	/**
 	 * 是否自动对data进行处理
+	 *
+	 * ## 处理以下请求类型
+	 * + `GET` 自动进行`URLSearchParams`转换
+	 * + `HEAD` 自动进行`URLSearchParams`转换
+	 * + `POST` 处理`Content-Type`不为空的情况
+	 *
+	 * ### `application/json`
+	 *
+	 * + `string`: 不做处理
+	 * + `FormData`: 转为`JSON`并进行`JSON.stringify`处理
+	 * + `object`: 进行`JSON.stringify`处理
+	 *
+	 * ### `application/x-www-form-urlencoded`
+	 *
+	 * + `string`: 不做处理
+	 * + `FormData`: 转为`URLSearchParams`，再转为`string`
+	 * + `object`: 转为`URLSearchParams`，再转为`string`
+	 *
+	 * ### `multipart/form-data`（上传文件专用）
+	 *
+	 * + `string`: 不做处理
+	 * + `FormData`: 移除`Content-Type`
+	 * + `object`: 不做处理
 	 * @default true
-	 * 处理以下请求类型
-	 * + GET 自动进行URLSearchParams转换
-	 * + HEAD 自动进行URLSearchParams转换
-	 * + POST 处理Content-Type不为空的情况
-	 *
-	 * application/json
-	 *
-	 * + string: 不做处理
-	 * + FormData: 转为JSON并进行JSON.stringify处理
-	 * + object: 进行JSON.stringify处理
-	 *
-	 * application/x-www-form-urlencoded
-	 *
-	 * + string: 不做处理
-	 * + FormData: 转为URLSearchParams，再转为string
-	 * + object: 转为URLSearchParams，再转为string
-	 *
-	 * multipart/form-data
-	 * （上传文件专用）
-	 * + string: 不做处理
-	 * + FormData: 移除Content-Type
-	 * + object: 不做处理
 	 */
 	processData?: boolean;
 	/**
-	 * 当触发重定向的使用规则，默认follow，可为空
-	 *
+	 * 当触发重定向的使用规则
 	 * @default "follow"
 	 */
 	redirect?: HttpxRedirect;
 	/**
-	 * 自定义Cookie，可为空
+	 * 自定义的Cookie
 	 */
 	cookie?: string;
 	/**
@@ -1126,52 +1125,53 @@ export declare interface HttpxRequestOption {
 		topLevelSite?: string;
 	};
 	/**
-	 * 以二进制模式发送数据字符串，可为空
+	 * 以二进制模式发送数据字符串
 	 */
 	binary?: HttpxBinary;
 	/**
-	 * 是否缓存资源，默认true，可为空
+	 * 是否缓存资源
+	 * @default true
 	 */
 	nocache?: boolean;
 	/**
-	 * 是否重新验证可能缓存的内容，默认true，可为空
+	 * 是否重新验证可能缓存的内容
+	 * @default true
 	 */
 	revalidate?: boolean;
 	/**
-	 * 将该对象添加到响应的属性中，可为空
+	 * 自定义对象（自动存在响应里）
 	 */
 	context?: any;
 	/**
-	 * 重写mimeType，可为空
+	 * 重写mimeType，默认不重写
 	 */
 	overrideMimeType?: string;
 	/**
-	 * 是否匿名不发送Cookie，默认为false，可为空
-	 *
+	 * 是否匿名不发送Cookie
 	 * @default false
 	 */
 	anonymous?: boolean;
 	/**
-	 * 是否使用fetch来发送请求，默认为false，可为空
-	 *
+	 * 是否使用fetch来发送请求
 	 * @default false
 	 */
 	fetch?: boolean;
 	/**
-	 * 使用fetch请求的配置
+	 * 当`fetch`为`true`时的配置项，默认使用自定义的配置
 	 */
 	fetchInit?: HttpxRequestInit;
 	/**
 	 * 拒绝拦截配置
+	 *
 	 * 如果设置了相关配置，那么intercept将不会生效
 	 */
 	allowInterceptConfig?: Partial<HttpxAllowInterceptConfig> | boolean;
 	/**
-	 * 身份验证的用户名
+	 * （可选）身份验证的用户名
 	 */
 	user?: string;
 	/**
-	 * 身份验证的密码
+	 * （可选）身份验证的密码
 	 */
 	password?: string;
 	/**
@@ -1197,13 +1197,13 @@ export declare interface HttpxRequestOption {
 	/**
 	 * （可选）当请求状态改变，触发该回调
 	 *
-	 * fetch为true时该回调不触发
+	 * `fetch`为`true`时该回调不会触发
 	 */
 	onreadystatechange?: (...args: any[]) => void;
 	/**
 	 * （可选）当请求上传文件进度改变，触发该回调
 	 *
-	 * fetch为true时该回调不触发
+	 * `fetch`为`true`时该回调不会触发
 	 */
 	onprogress?: (...args: any[]) => void;
 }
@@ -1216,12 +1216,12 @@ export declare interface HttpxRequestOptionConfig extends HttpxInitOption {}
  */
 export declare interface HttpxResponseData<T extends HttpxRequestOption> {
 	/**
-	 * 如果fetch为true，且返回的headers中的Content-Type存在text/event-stream或者是主动设置的responseType为stream
-	 * 则存在该属性为true
+	 * 当请求中配置`fetch`为`true`时，且返回的`headers`中的`Content-Type`存在`text/event-stream`或者是主动设置的`responseType`为`stream`
+	 * 则存在该属性为`true`
 	 */
 	isStream?: boolean;
 	/**
-	 * 如果fetch为true，则存在该属性为true
+	 * 当请求中配置`fetch`为`true`时，则存在该属性为`true`
 	 */
 	isFetch?: boolean;
 	/**
@@ -1230,31 +1230,31 @@ export declare interface HttpxResponseData<T extends HttpxRequestOption> {
 	finalUrl: string;
 	/**
 	 * 数据准备状态
-	 * + 0 未初始化
-	 * + 1 载入
-	 * + 2 载入完成
-	 * + 3 交互
-	 * + 4 完成
+	 * + `0`：未初始化
+	 * + `1`：载入
+	 * + `2`：载入完成
+	 * + `3`：交互
+	 * + `4`：完成
 	 *
-	 * 当请求头fetch为true时，该值固定为4
+	 * 当请求中配置`fetch`为`true`时，该值固定为`4`
 	 */
 	readyState: 0 | 1 | 2 | 3 | 4;
 	/**
-	 * 状态码，2xx为成功
+	 * 响应的状态码，2xx为成功
 	 */
 	status: HttpxStatus | number;
 	/**
-	 * 关于status的解释
+	 * 对`status`的解释
 	 */
 	statusText: "OK" | "" | string;
 	/**
-	 *  响应内容，根据responseType，如果是html，那就是Document类型，如果是json，那么类型是Object类型
+	 *  响应内容，根据`responseType`，如果是`html`，那就是`Document`类型，如果是`json`，那么类型是`Object`类型
 	 */
 	response: T["responseType"] extends keyof HttpxResponseTypeMap
 		? HttpxResponseTypeMap[T["responseType"]]
 		: HttpxResponseTypeMap["html"];
 	/**
-	 * 当请求头fetch为true时，该属性存在
+	 * 当请求中配置`fetch`为`true`时，该属性存在
 	 */
 	responseFetchHeaders?: Headers;
 	/**
@@ -1266,7 +1266,7 @@ export declare interface HttpxResponseData<T extends HttpxRequestOption> {
 	 */
 	responseText: string;
 	/**
-	 * 是请求中设置的responseType，没有设置的话默认为undefined
+	 * 请求中配置的`responseType`，没有的话默认为`undefined`
 	 */
 	responseType?: T["responseType"];
 	/**
@@ -1281,14 +1281,14 @@ export declare interface HttpxResponse<T extends HttpxRequestOption> {
 	/**
 	 * 是否请求成功
 	 *
-	 * 状态码在200-300之间为true，否则为false
+	 * 状态码在`200-300`之间为`true`，否则为`false`
 	 */
 	status: boolean;
 	/**
 	 * 响应状态码
 	 *
-	 * + -1 onabort触发
-	 * + 0 ontimeout触发
+	 * + `-1` 触发来源：`onabort`
+	 * + `0`  触发来源：`ontimeout`
 	 */
 	statusCode: HttpxStatus | number;
 	/**
@@ -1313,13 +1313,21 @@ export declare interface HttpxResponse<T extends HttpxRequestOption> {
  * httpx的hook错误的回调数据
  */
 export declare interface HttpxHookErrorData {
-	/** 触发的函数名 */
+	/**
+	 * 触发的函数名
+	 */
 	type: "onerror" | "ontimeout" | "onabort";
-	/** 触发的错误 */
+	/**
+	 * 触发的错误
+	 */
 	error: Error;
-	/** 触发的响应 */
+	/**
+	 * 触发的响应
+	 */
 	response: any;
-	/** 请求的配置 */
+	/**
+	 * 请求的配置
+	 */
 	details: HttpxRequestOption;
 }
 
@@ -1335,7 +1343,7 @@ export declare interface HttpxPromise<T> extends Promise<T> {
  */
 export declare interface HttpxInitOption extends HttpxRequestOption {
 	/**
-	 * 实例化，可传入GM_xmlhttpRequest，未传入则使用window.fetch
+	 * 实例化，可传入`GM_xmlhttpRequest`，未传入则使用`window.fetch`
 	 */
 	xmlHttpRequest?: Function;
 	/**
@@ -1343,12 +1351,10 @@ export declare interface HttpxInitOption extends HttpxRequestOption {
 	 */
 	baseURL?: string | undefined;
 	/**
-	 * 重试次数
-	 * @default 0
-	 */
-	retry?: number;
-	/**
 	 * （可选）是否输出请求配置
 	 */
 	logDetails?: boolean;
 }
+
+export declare interface HttpxRequestOptionWithDoubleParams
+	extends Omit<HttpxRequestOption, "url"> {}

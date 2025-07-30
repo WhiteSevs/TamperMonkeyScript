@@ -18,11 +18,14 @@ export type ArgsType<T extends JSTypeNames[]> = {
 export declare interface UtilsOwnObject<V extends any> {
 	[key: string]: V | UtilsOwnObject<V>;
 }
+
 export declare interface AnyObject {
 	[key: string]: any | AnyObject;
 	toString(): string;
 }
+
 export type PartialKeys<T, K extends keyof T> = {
 	[P in K]?: T[P];
 };
+
 export type Values<T> = T[keyof T];

@@ -1,5 +1,5 @@
 import type { UtilsLogOptions } from "./types/Log";
-declare class Log {
+export declare class Log {
     #private;
     /** 前面的TAG标志 */
     tag: string;
@@ -73,4 +73,3 @@ declare class Log {
     /** 恢复输出 */
     recovery(): void;
 }
-export { Log };

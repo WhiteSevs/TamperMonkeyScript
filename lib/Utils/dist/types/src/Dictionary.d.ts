@@ -1,7 +1,19 @@
-declare class UtilsDictionary<K, V> {
+export declare class UtilsDictionary<K extends string | number | symbol, V extends unknown> {
     private items;
     constructor();
     constructor(key: K, value: V);
+    /**
+     * 获取字典的长度，同this.size
+     */
+    get length(): number;
+    /**
+     * 迭代器
+     */
+    get entries(): () => IterableIterator<[K, V]>;
+    /**
+     * 是否可遍历
+     */
+    get [Symbol.iterator](): () => IterableIterator<[K, V]>;
     /**
      * 检查是否有某一个键
      * @param key 键
@@ -54,24 +66,19 @@ declare class UtilsDictionary<K, V> {
     /**
      * 返回字典本身
      */
-    getItems(): UtilsDictionary<K, V>;
+    getItems(): {
+        [key: string]: V;
+        [key: number]: V;
+        [key: symbol]: V;
+    };
     /**
      * 合并另一个字典
      * @param data 需要合并的字典
      */
     concat(data: UtilsDictionary<K, V>): void;
+    /**
+     * 迭代字典
+     * @param callbackfn 回调函数
+     */
     forEach(callbackfn: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void): void;
-    /**
-     * 获取字典的长度，同this.size
-     */
-    get length(): number;
-    /**
-     * 迭代器
-     */
-    get entries(): () => IterableIterator<[K, V]>;
-    /**
-     * 是否可遍历
-     */
-    get [Symbol.iterator](): () => IterableIterator<[K, V]>;
 }
-export { UtilsDictionary };

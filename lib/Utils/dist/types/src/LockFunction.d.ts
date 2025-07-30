@@ -1,4 +1,4 @@
-declare class LockFunction<K extends (...args: any[]) => any | Promise<any> | void> {
+export declare class LockFunction<K extends (...args: any[]) => any | Promise<any> | void> {
     #private;
     lock: () => void;
     unlock: () => void;
@@ -16,4 +16,3 @@ declare class LockFunction<K extends (...args: any[]) => any | Promise<any> | vo
      */
     constructor(callback: K, context?: any, delayTime?: number);
 }
-export { LockFunction };
