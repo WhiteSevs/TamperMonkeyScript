@@ -1,8 +1,12 @@
 {
 	"name": "@whitesev/pops",
-	"version": "2.2.8",
-	"type": "module",
+	"version": "2.2.9",
 	"description": "弹窗库",
+	"type": "module",
+	"homepage": "https://github.com/WhiteSevs/TamperMonkeyScript/tree/master/lib/pops#readme",
+	"bugs": {
+		"url": "https://github.com/WhiteSevs/TamperMonkeyScript/issues"
+	},
 	"main": "dist/index.cjs.js",
 	"module": "dist/index.esm.js",
 	"types": "dist/types/index.d.ts",
@@ -17,14 +21,15 @@
 		}
 	},
 	"files": [
-		"dist",
-		"src"
+		"dist"
 	],
 	"scripts": {
-		"dev": "npx rollup -c -w",
-		"build": "npx rollup -c",
-		"build:all": "npx rollup -c",
-		"build:all-new": "npx rollup -c"
+		"dev": "pnpm run format & npx rollup -c -w",
+		"build": "pnpm run format & npx rollup -c",
+		"build:all": "pnpm run format & npx rollup -c",
+		"build:all-new": "pnpm run format & npx rollup -c",
+		"format": "npx prettier -w src/**/*.ts src/**/*.css",
+		"release": "npm publish"
 	},
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
