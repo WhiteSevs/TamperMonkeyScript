@@ -77,8 +77,7 @@ export const NetDiskRule = {
 			NetDiskRule_360yunpan,
 		];
 		// 用户规则
-		let userRuleList: NetDiskRuleOption[] =
-			NetDiskUserRule.getNetDiskRuleConfig();
+		let userRuleList: NetDiskRuleOption[] = NetDiskUserRule.getNetDiskRuleConfig();
 
 		// 遍历所有的规则、生成pops界面的配置
 		[...defaultRuleList, ...userRuleList].forEach((netDiskRuleConfig) => {
@@ -110,9 +109,7 @@ export const NetDiskRule = {
 					// 默认规则，放在后面
 					commonRule = [...commonRule, ...netDiskRule];
 				}
-				let findValue = NetDisk.$rule.rule.find(
-					(item) => item.setting.key === ruleKey
-				);
+				let findValue = NetDisk.$rule.rule.find((item) => item.setting.key === ruleKey);
 				findValue!.rule = commonRule;
 			} else {
 				// 不存在，直接新增新的
@@ -120,11 +117,7 @@ export const NetDiskRule = {
 				NetDisk.$rule.rule.push(netDiskRuleConfig);
 			}
 			// 添加设置值
-			Reflect.set(
-				NetDisk.$rule.ruleSetting,
-				ruleKey,
-				netDiskRuleConfig.setting
-			);
+			Reflect.set(NetDisk.$rule.ruleSetting, ruleKey, netDiskRuleConfig.setting);
 
 			// 对配置的匹配规则解析某些值
 			netDiskRuleConfig.rule = this.parseRuleMatchRule(netDiskRuleConfig);
@@ -240,8 +233,7 @@ export const NetDiskRule = {
 		isUserRule?: boolean;
 	}): (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[] {
 		// 处理配置项信息
-		let formConfigList: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[] =
-			[];
+		let formConfigList: (PopsPanelFormsDetails | PopsPanelFormsTotalDetails)[] = [];
 		const settingConfig = netDiskRuleConfig.setting.configurationInterface;
 		const ruleKey = netDiskRuleConfig.setting.key;
 		if (settingConfig == null) {
@@ -253,9 +245,7 @@ export const NetDiskRule = {
 			let function_form: PopsPanelFormsTotalDetails[] = [];
 			if ("enable" in settingConfig.function) {
 				let default_value =
-					typeof settingConfig.function.enable === "boolean"
-						? settingConfig.function.enable
-						: false;
+					typeof settingConfig.function.enable === "boolean" ? settingConfig.function.enable : false;
 				function_form.push(
 					UISwitch(
 						"启用",
@@ -272,44 +262,41 @@ export const NetDiskRule = {
 							if (!$currentPanelAside) {
 								return;
 							}
-							$currentPanelAside.setAttribute(
-								notUnableAttrName,
-								value.toString()
-							);
+							$currentPanelAside.setAttribute(notUnableAttrName, value.toString());
 						},
 						"开启可允许匹配该规则"
 					)
 				);
 				// 覆盖配置
-				settingConfig.function.enable =
-					NetDiskRuleData.function.enable(ruleKey);
+				settingConfig.function.enable = NetDiskRuleData.function.enable(ruleKey);
 			}
 			if ("linkClickMode" in settingConfig.function) {
 				let data = utils.assign(
 					NetDiskRuleUtils.getDefaultLinkClickMode(),
 					settingConfig.function.linkClickMode || {}
 				);
-				let default_value: null | NetDiskRuleSettingConfigurationInterface_linkClickMode =
-					null;
-				let selectData = Object.keys(data)
-					.map((keyName) => {
-						let itemData = data[keyName as keyof typeof data];
-						if (!itemData.enable) {
-							return;
-						}
-						if (itemData.default) {
-							default_value = keyName as keyof typeof data;
-						}
-						return {
-							value: keyName,
-							text: itemData.text!,
-						};
-					})
-					.filter((item) => item != null);
+				let default_value: null | NetDiskRuleSettingConfigurationInterface_linkClickMode = null;
+				let selectData: {
+					value: string;
+					text: string;
+				}[] = [];
+				const dataKeys = Object.keys(data);
+				for (const keyName of dataKeys) {
+					let itemData = data[keyName as keyof typeof data];
+					if (!itemData.enable) {
+						continue;
+					}
+					if (itemData.default) {
+						default_value = keyName as keyof typeof data;
+					}
+					selectData.push({
+						value: keyName,
+						text: itemData.text!,
+					});
+				}
 				if (default_value == null) {
 					// 直接取可选菜单的第一个值
-					default_value = selectData[0]
-						.value as NetDiskRuleSettingConfigurationInterface_linkClickMode;
+					default_value = selectData[0].value as NetDiskRuleSettingConfigurationInterface_linkClickMode;
 				}
 				function_form.push(
 					UISelect(
@@ -327,9 +314,7 @@ export const NetDiskRule = {
 						settingConfig.function.linkClickMode[
 							linkClickModeKey as keyof typeof settingConfig.function.linkClickMode
 						];
-					if (
-						linkClickModeKey === NetDiskRuleData.function.linkClickMode(ruleKey)
-					) {
+					if (linkClickModeKey === NetDiskRuleData.function.linkClickMode(ruleKey)) {
 						linkClickModeItem!.default = true;
 					} else {
 						linkClickModeItem!.default = false;
@@ -351,8 +336,7 @@ export const NetDiskRule = {
 					)
 				);
 				// 覆盖默认值
-				settingConfig.function.checkLinkValidity =
-					NetDiskRuleData.function.checkLinkValidity(ruleKey);
+				settingConfig.function.checkLinkValidity = NetDiskRuleData.function.checkLinkValidity(ruleKey);
 			}
 			if ("checkLinkValidityHoverTip" in settingConfig.function) {
 				const default_value =
@@ -380,20 +364,15 @@ export const NetDiskRule = {
 		if (settingConfig.linkClickMode_openBlank) {
 			// 点击动作-新标签页打开
 			let linkClickMode_openBlank_form: PopsPanelFormsTotalDetails[] = [];
-			if (
-				"openBlankAutoFilleAccessCode" in settingConfig.linkClickMode_openBlank
-			) {
+			if ("openBlankAutoFilleAccessCode" in settingConfig.linkClickMode_openBlank) {
 				const default_value =
-					typeof settingConfig.linkClickMode_openBlank
-						.openBlankAutoFilleAccessCode === "boolean"
+					typeof settingConfig.linkClickMode_openBlank.openBlankAutoFilleAccessCode === "boolean"
 						? settingConfig.linkClickMode_openBlank.openBlankAutoFilleAccessCode
 						: true;
 				linkClickMode_openBlank_form.push(
 					UISwitch(
 						"自动填充访问码",
-						NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
-							ruleKey
-						),
+						NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(ruleKey),
 						default_value,
 						void 0,
 						"当点击动作是【新标签页打开】时且存在访问码，那就会自动填充访问码"
@@ -401,24 +380,17 @@ export const NetDiskRule = {
 				);
 				// 覆盖默认值
 				settingConfig.linkClickMode_openBlank.openBlankAutoFilleAccessCode =
-					NetDiskRuleData.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
-						ruleKey
-					);
+					NetDiskRuleData.linkClickMode_openBlank.openBlankAutoFilleAccessCode(ruleKey);
 			}
-			if (
-				"openBlankWithCopyAccessCode" in settingConfig.linkClickMode_openBlank
-			) {
+			if ("openBlankWithCopyAccessCode" in settingConfig.linkClickMode_openBlank) {
 				const default_value =
-					typeof settingConfig.linkClickMode_openBlank
-						.openBlankWithCopyAccessCode === "boolean"
+					typeof settingConfig.linkClickMode_openBlank.openBlankWithCopyAccessCode === "boolean"
 						? settingConfig.linkClickMode_openBlank.openBlankWithCopyAccessCode
 						: false;
 				linkClickMode_openBlank_form.push(
 					UISwitch(
 						"跳转时复制访问码",
-						NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-							ruleKey
-						),
+						NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKey),
 						default_value,
 						void 0,
 						"当点击动作是【新标签页打开】时且存在访问码，那就会复制访问码到剪贴板"
@@ -426,9 +398,7 @@ export const NetDiskRule = {
 				);
 				// 覆盖默认值
 				settingConfig.linkClickMode_openBlank.openBlankWithCopyAccessCode =
-					NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-						ruleKey
-					);
+					NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKey);
 			}
 			if (linkClickMode_openBlank_form.length) {
 				formConfigList.push({
@@ -442,9 +412,7 @@ export const NetDiskRule = {
 			const schemeUri_form: PopsPanelFormsTotalDetails[] = [];
 			if ("enable" in settingConfig.schemeUri) {
 				const default_value =
-					typeof settingConfig.schemeUri.enable === "boolean"
-						? settingConfig.schemeUri.enable
-						: false;
+					typeof settingConfig.schemeUri.enable === "boolean" ? settingConfig.schemeUri.enable : false;
 				schemeUri_form.push(
 					UISwitch(
 						"启用",
@@ -455,8 +423,7 @@ export const NetDiskRule = {
 					)
 				);
 				// 覆盖默认值
-				settingConfig.schemeUri.enable =
-					NetDiskRuleData.schemeUri.enable(ruleKey);
+				settingConfig.schemeUri.enable = NetDiskRuleData.schemeUri.enable(ruleKey);
 			}
 			if ("isForwardBlankLink" in settingConfig.schemeUri) {
 				const default_value =
@@ -473,8 +440,7 @@ export const NetDiskRule = {
 					)
 				);
 				// 覆盖默认值
-				settingConfig.schemeUri.isForwardBlankLink =
-					NetDiskRuleData.schemeUri.isForwardBlankLink(ruleKey);
+				settingConfig.schemeUri.isForwardBlankLink = NetDiskRuleData.schemeUri.isForwardBlankLink(ruleKey);
 			}
 			if ("isForwardLinearChain" in settingConfig.schemeUri) {
 				const default_value =
@@ -496,9 +462,7 @@ export const NetDiskRule = {
 			}
 			if ("uri" in settingConfig.schemeUri) {
 				const default_value =
-					typeof settingConfig.schemeUri.uri === "string"
-						? settingConfig.schemeUri.uri
-						: "";
+					typeof settingConfig.schemeUri.uri === "string" ? settingConfig.schemeUri.uri : "";
 				schemeUri_form.push(
 					UIInput(
 						"Uri链接",
@@ -526,9 +490,7 @@ export const NetDiskRule = {
 			let matchRange_text_form: PopsPanelFormsTotalDetails[] = [];
 			if ("before" in settingConfig.matchRange_text) {
 				const default_value =
-					typeof settingConfig.matchRange_text.before === "number"
-						? settingConfig.matchRange_text.before
-						: 0;
+					typeof settingConfig.matchRange_text.before === "number" ? settingConfig.matchRange_text.before : 0;
 				matchRange_text_form.push(
 					UISlider(
 						"间隔前",
@@ -543,14 +505,11 @@ export const NetDiskRule = {
 				);
 
 				// 覆盖默认值
-				settingConfig.matchRange_text.before =
-					NetDiskRuleData.matchRange_text.before(ruleKey);
+				settingConfig.matchRange_text.before = NetDiskRuleData.matchRange_text.before(ruleKey);
 			}
 			if ("after" in settingConfig.matchRange_text) {
 				const default_value =
-					typeof settingConfig.matchRange_text.after === "number"
-						? settingConfig.matchRange_text.after
-						: 0;
+					typeof settingConfig.matchRange_text.after === "number" ? settingConfig.matchRange_text.after : 0;
 				matchRange_text_form.push(
 					UISlider(
 						"间隔后",
@@ -564,8 +523,7 @@ export const NetDiskRule = {
 					)
 				);
 				// 覆盖默认值
-				settingConfig.matchRange_text.after =
-					NetDiskRuleData.matchRange_text.after(ruleKey);
+				settingConfig.matchRange_text.after = NetDiskRuleData.matchRange_text.after(ruleKey);
 			}
 			if (matchRange_text_form.length) {
 				formConfigList.push({
@@ -579,9 +537,7 @@ export const NetDiskRule = {
 			let matchRange_html_form: PopsPanelFormsTotalDetails[] = [];
 			if ("before" in settingConfig.matchRange_html) {
 				const default_value =
-					typeof settingConfig.matchRange_html.before === "number"
-						? settingConfig.matchRange_html.before
-						: 0;
+					typeof settingConfig.matchRange_html.before === "number" ? settingConfig.matchRange_html.before : 0;
 
 				matchRange_html_form.push(
 					UISlider(
@@ -596,14 +552,11 @@ export const NetDiskRule = {
 					)
 				);
 				// 覆盖默认值
-				settingConfig.matchRange_html.before =
-					NetDiskRuleData.matchRange_html.before(ruleKey);
+				settingConfig.matchRange_html.before = NetDiskRuleData.matchRange_html.before(ruleKey);
 			}
 			if ("after" in settingConfig.matchRange_html) {
 				const default_value =
-					typeof settingConfig.matchRange_html.after === "number"
-						? settingConfig.matchRange_html.after
-						: 0;
+					typeof settingConfig.matchRange_html.after === "number" ? settingConfig.matchRange_html.after : 0;
 
 				matchRange_html_form.push(
 					UISlider(
@@ -618,8 +571,7 @@ export const NetDiskRule = {
 					)
 				);
 				// 覆盖默认值
-				settingConfig.matchRange_html.after =
-					NetDiskRuleData.matchRange_html.after(ruleKey);
+				settingConfig.matchRange_html.after = NetDiskRuleData.matchRange_html.after(ruleKey);
 			}
 			if (matchRange_html_form.length) {
 				formConfigList.push({

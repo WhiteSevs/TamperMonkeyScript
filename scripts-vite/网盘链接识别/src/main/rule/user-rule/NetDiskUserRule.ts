@@ -1,12 +1,4 @@
-import {
-	Cryptojs,
-	DOMUtils,
-	httpx,
-	log,
-	pops,
-	SCRIPT_NAME,
-	utils,
-} from "@/env";
+import { Cryptojs, DOMUtils, httpx, log, pops, SCRIPT_NAME, utils } from "@/env";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { NetDiskAutoFillAccessCode } from "../../auto-fill-accesscode/NetDiskAutoFillAccessCode";
@@ -23,10 +15,7 @@ import {
 	NetDiskUserRuleReplaceParam_matchRange_text,
 } from "./NetDiskUserRuleReplaceParam";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import type {
-	RulePanelContentOption,
-	RuleSubscribeOption,
-} from "@components/utils/RulePanelView";
+import type { RulePanelContentOption, RuleSubscribeOption } from "@components/utils/RulePanelView";
 import { NetDiskUserRuleUI } from "./NetDiskUserRuleUI";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
@@ -37,9 +26,7 @@ import { NetDiskUserRuleSubscribeRule } from "./NetDiskUserRuleSubscribeRule";
 const NetDiskUserRuleStorageApi = new StorageUtils("userRule");
 
 /** 用户规则上下文存储的数据 */
-const NetDiskUserRuleBindContextStorageApi = new StorageUtils(
-	"userRuleBindContext"
-);
+const NetDiskUserRuleBindContextStorageApi = new StorageUtils("userRuleBindContext");
 
 /** 网盘-链接识别规则 */
 export const NetDiskUserRule = {
@@ -67,9 +54,7 @@ export const NetDiskUserRule = {
 		// 先把本地规则进行转换
 		let userRule = this.parseRule(this.getAllRule());
 		// 再把订阅规则进行转换
-		let subscribeRule = this.parseRule(
-			NetDiskUserRuleSubscribeRule.getAllSubscribeRule()
-		);
+		let subscribeRule = this.parseRule(NetDiskUserRuleSubscribeRule.getAllSubscribeRule());
 		userRule = userRule.concat(subscribeRule);
 		userRule.forEach((item) => {
 			this.$data.userRule.set(item.setting.key, item);
@@ -129,19 +114,13 @@ export const NetDiskUserRule = {
 					msg: "regexp缺失的键名: copyUrl，类型: string",
 				};
 			}
-			if (
-				typeof ruleRegExp["accessCode"] === "string" &&
-				typeof ruleRegExp["checkAccessCode"] !== "string"
-			) {
+			if (typeof ruleRegExp["accessCode"] === "string" && typeof ruleRegExp["checkAccessCode"] !== "string") {
 				return {
 					success: false,
 					msg: "regexp设置了accessCode但是没有设置checkAccessCode",
 				};
 			}
-			if (
-				typeof ruleRegExp["accessCode"] !== "string" &&
-				typeof ruleRegExp["checkAccessCode"] === "string"
-			) {
+			if (typeof ruleRegExp["accessCode"] !== "string" && typeof ruleRegExp["checkAccessCode"] === "string") {
 				return {
 					success: false,
 					msg: "regexp设置了checkAccessCode但是没有设置accessCode",
@@ -175,10 +154,7 @@ export const NetDiskUserRule = {
 			};
 		}
 		try {
-			let ruleJSON =
-				typeof ruleText === "string"
-					? utils.toJSON<NetDiskUserCustomRule>(ruleText)
-					: ruleText;
+			let ruleJSON = typeof ruleText === "string" ? utils.toJSON<NetDiskUserCustomRule>(ruleText) : ruleText;
 			log.info(`解析出的规则对象：`, ruleJSON);
 			if (typeof ruleJSON !== "object") {
 				return {
@@ -258,15 +234,9 @@ export const NetDiskUserRule = {
 			log: log,
 			Qmsg: Qmsg,
 			pops: pops,
-			setValue: NetDiskUserRuleBindContextStorageApi.set.bind(
-				NetDiskUserRuleBindContextStorageApi
-			),
-			getValue: NetDiskUserRuleBindContextStorageApi.get.bind(
-				NetDiskUserRuleBindContextStorageApi
-			),
-			deleteValue: NetDiskUserRuleBindContextStorageApi.delete.bind(
-				NetDiskUserRuleBindContextStorageApi
-			),
+			setValue: NetDiskUserRuleBindContextStorageApi.set.bind(NetDiskUserRuleBindContextStorageApi),
+			getValue: NetDiskUserRuleBindContextStorageApi.get.bind(NetDiskUserRuleBindContextStorageApi),
+			deleteValue: NetDiskUserRuleBindContextStorageApi.delete.bind(NetDiskUserRuleBindContextStorageApi),
 		};
 	},
 	/**
@@ -324,9 +294,14 @@ export const NetDiskUserRule = {
 					shareCodeNeedRemoveStr = [shareCodeNeedRemoveStr];
 				}
 				if (Array.isArray(shareCodeNeedRemoveStr)) {
-					netDiskRegularOption.shareCodeNeedRemoveStr = shareCodeNeedRemoveStr
-						.filter((item) => typeof item === "string")
-						.map((item) => new RegExp(item, "ig"));
+					// 字符串转正则
+					netDiskRegularOption.shareCodeNeedRemoveStr = [];
+					for (const shareCodeNeedRemoveStrItem of shareCodeNeedRemoveStr) {
+						if (typeof shareCodeNeedRemoveStrItem === "string") {
+							const shareCodeNeedRemoveStrItemRegExp = new RegExp(shareCodeNeedRemoveStrItem, "ig");
+							netDiskRegularOption.shareCodeNeedRemoveStr.push(shareCodeNeedRemoveStrItemRegExp);
+						}
+					}
 				}
 			}
 			if (shareCodeNotMatch) {
@@ -334,16 +309,18 @@ export const NetDiskUserRule = {
 					shareCodeNotMatch = [shareCodeNotMatch];
 				}
 				if (Array.isArray(shareCodeNotMatch)) {
-					netDiskRegularOption.shareCodeNotMatch = shareCodeNotMatch
-						.filter((item) => typeof item === "string")
-						.map((item) => new RegExp(item, "ig"));
+					// 字符串转正则
+					netDiskRegularOption.shareCodeNotMatch = [];
+					for (const shareCodeNotMatchItem of shareCodeNotMatch) {
+						if (typeof shareCodeNotMatchItem === "string") {
+							const shareCodeNotMatchItemRegExp = new RegExp(shareCodeNotMatchItem, "ig");
+							netDiskRegularOption.shareCodeNotMatch.push(shareCodeNotMatchItemRegExp);
+						}
+					}
 				}
 			}
 			if (typeof checkAccessCode === "string") {
-				netDiskRegularOption.checkAccessCode = new RegExp(
-					checkAccessCode,
-					"ig"
-				);
+				netDiskRegularOption.checkAccessCode = new RegExp(checkAccessCode, "ig");
 			}
 			if (typeof accessCode === "string") {
 				netDiskRegularOption.accessCode = new RegExp(accessCode, "ig");
@@ -353,9 +330,14 @@ export const NetDiskUserRule = {
 					acceesCodeNotMatch = [acceesCodeNotMatch];
 				}
 				if (Array.isArray(acceesCodeNotMatch)) {
-					netDiskRegularOption.acceesCodeNotMatch = acceesCodeNotMatch.map(
-						(item) => new RegExp(item, "ig")
-					);
+					// 字符串转正则
+					netDiskRegularOption.acceesCodeNotMatch = [];
+					for (const acceesCodeNotMatchItem of acceesCodeNotMatch) {
+						if (typeof acceesCodeNotMatchItem === "string") {
+							const acceesCodeNotMatchItemRegExp = new RegExp(acceesCodeNotMatchItem, "ig");
+							netDiskRegularOption.acceesCodeNotMatch.push(acceesCodeNotMatchItemRegExp);
+						}
+					}
 				}
 			}
 			if (accessCodeNeedRemoveStr) {
@@ -363,8 +345,14 @@ export const NetDiskUserRule = {
 					accessCodeNeedRemoveStr = [accessCodeNeedRemoveStr];
 				}
 				if (Array.isArray(accessCodeNeedRemoveStr)) {
-					netDiskRegularOption.accessCodeNeedRemoveStr =
-						accessCodeNeedRemoveStr.map((item) => new RegExp(item, "ig"));
+					// 字符串转正则
+					netDiskRegularOption.accessCodeNeedRemoveStr = [];
+					for (const accessCodeNeedRemoveStrItem of accessCodeNeedRemoveStr) {
+						if (typeof accessCodeNeedRemoveStrItem === "string") {
+							const accessCodeNeedRemoveStrItemRegExp = new RegExp(accessCodeNeedRemoveStrItem, "ig");
+							netDiskRegularOption.accessCodeNeedRemoveStr.push(accessCodeNeedRemoveStrItemRegExp);
+						}
+					}
 				}
 			}
 			if (typeof paramMatch === "string") {
@@ -384,9 +372,7 @@ export const NetDiskUserRule = {
 				setting: {
 					name: userRuleItemConfig.setting.name,
 					key: userRuleItemConfig.key,
-					configurationInterface: <
-						Required<NetDiskRuleOption["setting"]["configurationInterface"]>
-					>{
+					configurationInterface: <Required<NetDiskRuleOption["setting"]["configurationInterface"]>>{
 						matchRange_text: {},
 						matchRange_html: {},
 						function: {},
@@ -406,14 +392,10 @@ export const NetDiskUserRule = {
 			// 1. 转换rule
 			if (Array.isArray(userRuleList)) {
 				userRuleList.forEach((userRuleItem) => {
-					netDiskRuleConfig.rule.push(
-						parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleItem)
-					);
+					netDiskRuleConfig.rule.push(parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleItem));
 				});
 			} else {
-				netDiskRuleConfig.rule.push(
-					parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleList)
-				);
+				netDiskRuleConfig.rule.push(parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleList));
 			}
 
 			// 2. 转换setting
@@ -425,22 +407,19 @@ export const NetDiskUserRule = {
 					Boolean(userRuleItemConfig.setting.enable)
 				);
 				// 添加默认值
-				netDiskRuleConfig.setting!.configurationInterface!.function!.enable =
-					Boolean(userRuleItemConfig.setting.enable);
+				netDiskRuleConfig.setting!.configurationInterface!.function!.enable = Boolean(
+					userRuleItemConfig.setting.enable
+				);
 
 				if (typeof userRuleItemConfig.setting["isBlank"] === "boolean") {
 					/* 新标签页打开（旧） */
-					this.initDefaultValue(
-						NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
-						"openBlank"
-					);
-					netDiskRuleConfig.setting!.configurationInterface!.function!.linkClickMode =
-						{
-							openBlank: {
-								default: true,
-								enable: true,
-							},
-						};
+					this.initDefaultValue(NetDiskRuleDataKEY.function.linkClickMode(ruleKey), "openBlank");
+					netDiskRuleConfig.setting!.configurationInterface!.function!.linkClickMode = {
+						openBlank: {
+							default: true,
+							enable: true,
+						},
+					};
 				}
 				if (typeof userRuleItemConfig.setting.linkClickMode === "object") {
 					// 点击动作
@@ -448,76 +427,60 @@ export const NetDiskUserRule = {
 						NetDiskRuleUtils.getDefaultLinkClickMode(),
 						userRuleItemConfig.setting.linkClickMode || {}
 					);
-					let default_value: null | NetDiskRuleSettingConfigurationInterface_linkClickMode =
-						null;
-					let selectData = Object.keys(data)
-						.map((keyName) => {
-							let itemData = data[keyName as keyof typeof data];
-							if (!itemData.enable) {
-								return;
-							}
-							if (itemData.default) {
-								default_value = keyName as keyof typeof data;
-							}
-							return {
-								value: keyName,
-								text: itemData.text!,
-							};
-						})
-						.filter((item) => item != null);
+					let default_value: null | NetDiskRuleSettingConfigurationInterface_linkClickMode = null;
+					let selectData: {
+						value: string;
+						text: string;
+					}[] = [];
+					const dataKeys = Object.keys(data);
+					for (const keyName of dataKeys) {
+						let itemData = data[keyName as keyof typeof data];
+						if (!itemData.enable) {
+							continue;
+						}
+						if (itemData.default) {
+							default_value = keyName as keyof typeof data;
+						}
+						selectData.push({
+							value: keyName,
+							text: itemData.text!,
+						});
+					}
 					if (default_value == null) {
 						// 直接取可选菜单的第一个值
-						default_value = selectData[0]
-							.value as NetDiskRuleSettingConfigurationInterface_linkClickMode;
+						default_value = selectData[0].value as NetDiskRuleSettingConfigurationInterface_linkClickMode;
 					}
-					this.initDefaultValue(
-						NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
-						default_value
-					);
+					this.initDefaultValue(NetDiskRuleDataKEY.function.linkClickMode(ruleKey), default_value);
 				}
-				if (
-					typeof userRuleItemConfig.setting["openBlankWithCopyAccessCode"] ===
-					"boolean"
-				) {
+				if (typeof userRuleItemConfig.setting["openBlankWithCopyAccessCode"] === "boolean") {
 					/* 跳转时复制访问码 */
 					this.initDefaultValue(
-						NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-							ruleKey
-						),
+						NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKey),
 						Boolean(userRuleItemConfig.setting["openBlankWithCopyAccessCode"])
 					);
 					netDiskRuleConfig.setting!.configurationInterface!.linkClickMode_openBlank!.openBlankWithCopyAccessCode =
 						Boolean(userRuleItemConfig.setting["openBlankWithCopyAccessCode"]);
 				}
-				if (
-					typeof userRuleItemConfig.setting["openBlankAutoFilleAccessCode"] ===
-					"boolean"
-				) {
+				if (typeof userRuleItemConfig.setting["openBlankAutoFilleAccessCode"] === "boolean") {
 					/* 自动填充访问码 */
 					this.initDefaultValue(
-						NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
-							ruleKey
-						),
+						NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(ruleKey),
 						Boolean(userRuleItemConfig.setting["openBlankAutoFilleAccessCode"])
 					);
 					netDiskRuleConfig.setting.configurationInterface!.linkClickMode_openBlank!.openBlankAutoFilleAccessCode =
 						Boolean(userRuleItemConfig.setting["openBlankAutoFilleAccessCode"]);
 				}
-				if (
-					typeof userRuleItemConfig.setting["checkLinkValidity"] === "boolean"
-				) {
+				if (typeof userRuleItemConfig.setting["checkLinkValidity"] === "boolean") {
 					/* 用于验证链接有效性 */
 					this.initDefaultValue(
 						NetDiskRuleDataKEY.function.checkLinkValidity(ruleKey),
 						Boolean(userRuleItemConfig.setting["checkLinkValidity"])
 					);
-					netDiskRuleConfig.setting!.configurationInterface!.function!.checkLinkValidity =
-						Boolean(userRuleItemConfig.setting["checkLinkValidity"]);
+					netDiskRuleConfig.setting!.configurationInterface!.function!.checkLinkValidity = Boolean(
+						userRuleItemConfig.setting["checkLinkValidity"]
+					);
 				}
-				if (
-					typeof userRuleItemConfig.setting["checkLinkValidityHoverTip"] ===
-					"boolean"
-				) {
+				if (typeof userRuleItemConfig.setting["checkLinkValidityHoverTip"] === "boolean") {
 					/* 用于验证链接有效性结果的悬停提示 */
 					this.initDefaultValue(
 						NetDiskRuleDataKEY.function.checkLinkValidityHoverTip(ruleKey),
@@ -530,8 +493,9 @@ export const NetDiskUserRule = {
 						NetDiskRuleDataKEY.schemeUri.enable(ruleKey),
 						Boolean(userRuleItemConfig.setting["isForward"])
 					);
-					netDiskRuleConfig.setting!.configurationInterface!.schemeUri!.enable =
-						Boolean(userRuleItemConfig.setting["isForward"]);
+					netDiskRuleConfig.setting!.configurationInterface!.schemeUri!.enable = Boolean(
+						userRuleItemConfig.setting["isForward"]
+					);
 				}
 				if (typeof userRuleItemConfig.setting["schemeUri"] === "string") {
 					/* scheme转发的字符串格式 */
@@ -542,11 +506,7 @@ export const NetDiskUserRule = {
 					netDiskRuleConfig.setting!.configurationInterface!.schemeUri!.uri =
 						userRuleItemConfig.setting["schemeUri"];
 				}
-				if (
-					typeof userRuleItemConfig.setting[
-						"innerTextAccessCodeBeforeMaxRange"
-					] === "number"
-				) {
+				if (typeof userRuleItemConfig.setting["innerTextAccessCodeBeforeMaxRange"] === "number") {
 					/* text-提取码间隔前的字符长度 */
 					this.initDefaultValue(
 						NetDiskRuleDataKEY.matchRange_text.before(ruleKey),
@@ -555,11 +515,7 @@ export const NetDiskUserRule = {
 					netDiskRuleConfig.setting!.configurationInterface!.matchRange_text!.before =
 						userRuleItemConfig.setting["innerTextAccessCodeBeforeMaxRange"];
 				}
-				if (
-					typeof userRuleItemConfig.setting[
-						"innerTextAccessCodeAfterMaxRange"
-					] === "number"
-				) {
+				if (typeof userRuleItemConfig.setting["innerTextAccessCodeAfterMaxRange"] === "number") {
 					/* text-提取码间隔后的字符长度 */
 					this.initDefaultValue(
 						NetDiskRuleDataKEY.matchRange_text.after(ruleKey),
@@ -568,11 +524,7 @@ export const NetDiskUserRule = {
 					netDiskRuleConfig.setting!.configurationInterface!.matchRange_text!.after =
 						userRuleItemConfig.setting["innerTextAccessCodeAfterMaxRange"];
 				}
-				if (
-					typeof userRuleItemConfig.setting[
-						"innerHTMLAccessCodeBeforeMaxRange"
-					] === "number"
-				) {
+				if (typeof userRuleItemConfig.setting["innerHTMLAccessCodeBeforeMaxRange"] === "number") {
 					/* html-提取码间隔前的字符长度 */
 					this.initDefaultValue(
 						NetDiskRuleDataKEY.matchRange_html.before(ruleKey),
@@ -581,11 +533,7 @@ export const NetDiskUserRule = {
 					netDiskRuleConfig.setting!.configurationInterface!.matchRange_html!.before =
 						userRuleItemConfig.setting["innerHTMLAccessCodeBeforeMaxRange"];
 				}
-				if (
-					typeof userRuleItemConfig.setting[
-						"innerHTMLAccessCodeAfterMaxRange"
-					] === "number"
-				) {
+				if (typeof userRuleItemConfig.setting["innerHTMLAccessCodeAfterMaxRange"] === "number") {
 					/* html-提取码间隔后的字符长度 */
 					this.initDefaultValue(
 						NetDiskRuleDataKEY.matchRange_html.after(ruleKey),
@@ -604,24 +552,18 @@ export const NetDiskUserRule = {
 			}
 
 			// 4. 把规则的自定义解析函数进行转换
-			const AsyncFunction = Object.getPrototypeOf(
-				async function () {}
-			).constructor;
+			const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 			if (typeof userRuleItemConfig.checkLinkValidityFunction === "string") {
 				// 自定义校验链接有效性函数
 				try {
 					let context = this.getBindContext(userRuleItemConfig);
-					Reflect.set(
-						NetDiskCheckLinkValidity.ruleCheckValidFunction,
-						ruleKey,
-						{
-							init: new AsyncFunction(
-								"netDiskInfo",
-								userRuleItemConfig.checkLinkValidityFunction
-								// 绑定作用域
-							).bind(context),
-						}
-					);
+					Reflect.set(NetDiskCheckLinkValidity.ruleCheckValidFunction, ruleKey, {
+						init: new AsyncFunction(
+							"netDiskInfo",
+							userRuleItemConfig.checkLinkValidityFunction
+							// 绑定作用域
+						).bind(context),
+					});
 				} catch (error) {
 					log.error(error);
 				}
@@ -632,10 +574,7 @@ export const NetDiskUserRule = {
 					let context = this.getBindContext(userRuleItemConfig);
 					// 删除没必要的属性
 					// NetDiskCheckLinkValidity是有效性校验函数中需要的
-					Reflect.deleteProperty(
-						context,
-						"NetDiskCheckLinkValidity" as keyof typeof context
-					);
+					Reflect.deleteProperty(context, "NetDiskCheckLinkValidity" as keyof typeof context);
 					NetDiskAuthorization.netDisk[ruleKey] = new AsyncFunction(
 						userRuleItemConfig.AuthorizationFunction
 					).bind(
@@ -652,10 +591,7 @@ export const NetDiskUserRule = {
 					let context = this.getBindContext(userRuleItemConfig);
 					// 删除没必要的属性
 					// NetDiskCheckLinkValidity是有效性校验函数中需要的
-					Reflect.deleteProperty(
-						context,
-						"NetDiskCheckLinkValidity" as keyof typeof context
-					);
+					Reflect.deleteProperty(context, "NetDiskCheckLinkValidity" as keyof typeof context);
 					NetDiskAutoFillAccessCode.netDisk[ruleKey] = new AsyncFunction(
 						"netDiskInfo",
 						userRuleItemConfig.AutoFillAccessCodeFunction
@@ -671,10 +607,7 @@ export const NetDiskUserRule = {
 					let context = this.getBindContext(userRuleItemConfig);
 					// 删除没必要的属性
 					// NetDiskCheckLinkValidity是有效性校验函数中需要的
-					Reflect.deleteProperty(
-						context,
-						"NetDiskCheckLinkValidity" as keyof typeof context
-					);
+					Reflect.deleteProperty(context, "NetDiskCheckLinkValidity" as keyof typeof context);
 					Reflect.set(
 						NetDiskParse.rule,
 						ruleKey,
@@ -691,10 +624,7 @@ export const NetDiskUserRule = {
 					let context = this.getBindContext(userRuleItemConfig);
 					// 删除没必要的属性
 					// NetDiskCheckLinkValidity是有效性校验函数中需要的
-					Reflect.deleteProperty(
-						context,
-						"NetDiskCheckLinkValidity" as keyof typeof context
-					);
+					Reflect.deleteProperty(context, "NetDiskCheckLinkValidity" as keyof typeof context);
 					netDiskRuleConfig.afterRenderUrlBox = new AsyncFunction(
 						"option",
 						userRuleItemConfig.afterRenderUrlBox
@@ -808,9 +738,7 @@ export const NetDiskUserRule = {
 						</style>
 						<div class="subscribe-rule-title-info-wrapper">
 							<div class="rule-name-text" style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden;font-size: 16px;font-weight: 600;line-height: 24px;">${
-								subscribeOption.data.title ||
-								subscribeOption.subscribeData.title ||
-								subscribeOption.data.url
+								subscribeOption.data.title || subscribeOption.subscribeData.title || subscribeOption.data.url
 							}</div>
 								<div class="subscribe-rule-small-span-text">${
 									subscribeOption.subscribeData.ruleData.length
@@ -895,19 +823,11 @@ export const NetDiskUserRule = {
 									// 订阅的链接
 									option.ruleData.data.url,
 								data() {
-									let currentData =
-										NetDiskUserRuleSubscribeRule.getSubscribe(subscribeUUID);
-									return (
-										currentData?.subscribeData?.ruleData ??
-										option.ruleData.subscribeData.ruleData
-									);
+									let currentData = NetDiskUserRuleSubscribeRule.getSubscribe(subscribeUUID);
+									return currentData?.subscribeData?.ruleData ?? option.ruleData.subscribeData.ruleData;
 								},
 								getData(data) {
-									let currentData =
-										NetDiskUserRuleSubscribeRule.getSubscribeRule(
-											subscribeUUID,
-											data.key
-										);
+									let currentData = NetDiskUserRuleSubscribeRule.getSubscribeRule(subscribeUUID, data.key);
 									return currentData ?? data;
 								},
 								getDataItemName(data) {
@@ -918,16 +838,10 @@ export const NetDiskUserRule = {
 									return true;
 								},
 								updateData(data) {
-									return NetDiskUserRuleSubscribeRule.updateSubscribeRule(
-										subscribeUUID,
-										data
-									);
+									return NetDiskUserRuleSubscribeRule.updateSubscribeRule(subscribeUUID, data);
 								},
 								deleteData(data) {
-									return NetDiskUserRuleSubscribeRule.deleteSubscribeRule(
-										subscribeUUID,
-										data
-									);
+									return NetDiskUserRuleSubscribeRule.deleteSubscribeRule(subscribeUUID, data);
 								},
 								btnControls: {
 									filter: {
@@ -950,9 +864,7 @@ export const NetDiskUserRule = {
 									clearAll: {
 										enable: true,
 										callback: () => {
-											NetDiskUserRuleSubscribeRule.clearSubscribe(
-												subscribeUUID
-											);
+											NetDiskUserRuleSubscribeRule.clearSubscribe(subscribeUUID);
 										},
 									},
 									// ruleEnable: {
@@ -976,14 +888,13 @@ export const NetDiskUserRule = {
 												option.ruleData.key,
 												async (subscribeRule) => {
 													// 更新视图
-													let $ruleItem =
-														await option.context.updateRuleItemElement(
-															option.option,
-															option.subscribeOption,
-															subscribeRule,
-															option.$ruleItem,
-															option.$section
-														);
+													let $ruleItem = await option.context.updateRuleItemElement(
+														option.option,
+														option.subscribeOption,
+														subscribeRule,
+														option.$ruleItem,
+														option.$section
+													);
 													option.$ruleItem = $ruleItem;
 												}
 											);
@@ -993,10 +904,7 @@ export const NetDiskUserRule = {
 									ruleDelete: {
 										enable: true,
 										deleteCallBack(data) {
-											return NetDiskUserRuleSubscribeRule.deleteSubscribeRule(
-												subscribeUUID,
-												data
-											);
+											return NetDiskUserRuleSubscribeRule.deleteSubscribeRule(subscribeUUID, data);
 										},
 									},
 								},
@@ -1021,15 +929,11 @@ export const NetDiskUserRule = {
 					export: {
 						enable: true,
 						callback() {
-							NetDiskUserRuleSubscribeRule.exportSubscribe(
-								SCRIPT_NAME + "-网站规则-订阅.json"
-							);
+							NetDiskUserRuleSubscribeRule.exportSubscribe(SCRIPT_NAME + "-网站规则-订阅.json");
 						},
 					},
 				},
-				getSubscribeInfo: NetDiskUserRuleSubscribeRule.getSubscribeInfo.bind(
-					NetDiskUserRuleSubscribeRule
-				),
+				getSubscribeInfo: NetDiskUserRuleSubscribeRule.getSubscribeInfo.bind(NetDiskUserRuleSubscribeRule),
 			},
 			ruleOption: {
 				btnControls: {
@@ -1037,11 +941,7 @@ export const NetDiskUserRule = {
 						enable: true,
 						callback(option) {
 							NetDiskUserRuleUI.show(false, void 0, (rule) => {
-								this.updateRuleContaienrElement(
-									rulePanelViewOption.ruleOption,
-									void 0,
-									option.$section
-								);
+								this.updateRuleContaienrElement(rulePanelViewOption.ruleOption, void 0, option.$section);
 							});
 							return false;
 						},
@@ -1100,20 +1000,16 @@ export const NetDiskUserRule = {
 					ruleEdit: {
 						enable: true,
 						callback(option) {
-							NetDiskUserRuleUI.show(
-								true,
-								option.ruleData.key,
-								async (rule) => {
-									let $ruleItem = await option.context.updateRuleItemElement(
-										option.option,
-										option.subscribeOption,
-										rule,
-										option.$ruleItem,
-										option.$section
-									);
-									option.$ruleItem = $ruleItem;
-								}
-							);
+							NetDiskUserRuleUI.show(true, option.ruleData.key, async (rule) => {
+								let $ruleItem = await option.context.updateRuleItemElement(
+									option.option,
+									option.subscribeOption,
+									rule,
+									option.$ruleItem,
+									option.$section
+								);
+								option.$ruleItem = $ruleItem;
+							});
 							return false;
 						},
 					},
@@ -1205,10 +1101,7 @@ export const NetDiskUserRule = {
 	 * 获取本地所有的规则
 	 */
 	getAllRule() {
-		let result = NetDiskUserRuleStorageApi.get<NetDiskUserCustomRule[]>(
-			this.$data.STORAGE_KEY,
-			[]
-		);
+		let result = NetDiskUserRuleStorageApi.get<NetDiskUserCustomRule[]>(this.$data.STORAGE_KEY, []);
 		return result;
 	},
 	/**
@@ -1228,10 +1121,7 @@ export const NetDiskUserRule = {
 	/**
 	 * 导出规则
 	 */
-	exportRule(
-		fileName = "rule.json",
-		subscribeFileName = "rule-subscribe.json"
-	) {
+	exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
 		let $alert = NetDiskPops.alert({
 			title: {
 				text: "请选择导出方式",
@@ -1407,63 +1297,24 @@ export const NetDiskUserRule = {
 						}
 					`,
 				});
-				let $content =
-					$exportSubscribeDialog.$shadowRoot.querySelector<HTMLElement>(
-						".pops-alert-content"
-					)!;
+				let $content = $exportSubscribeDialog.$shadowRoot.querySelector<HTMLElement>(".pops-alert-content")!;
 				let configData = NetDiskUserRuleStorageApi.get<
 					Partial<RuleSubscribeOption<NetDiskUserCustomRule>["subscribeData"]>
 				>(this.$data.EXPORT_CONFIG_KEY, {});
 				// 订阅名称
 				let title_template = UIInput("订阅标题", "title", "", "", void 0, "");
-				Reflect.set(
-					title_template.props!,
-					PROPS_STORAGE_API,
-					generateStorageApi(configData)
-				);
-				let $title =
-					panelHandlerComponents.createSectionContainerItem_input(
-						title_template
-					);
+				Reflect.set(title_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
+				let $title = panelHandlerComponents.createSectionContainerItem_input(title_template);
 
 				// 版本号
-				let version_template = UIInput(
-					"版本号",
-					"version",
-					"",
-					"",
-					void 0,
-					"",
-					false
-				);
-				Reflect.set(
-					version_template.props!,
-					PROPS_STORAGE_API,
-					generateStorageApi(configData)
-				);
-				let $version =
-					panelHandlerComponents.createSectionContainerItem_input(
-						version_template
-					);
+				let version_template = UIInput("版本号", "version", "", "", void 0, "", false);
+				Reflect.set(version_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
+				let $version = panelHandlerComponents.createSectionContainerItem_input(version_template);
 
 				// 主页地址
-				let homePage_template = UIInput(
-					"主页地址",
-					"homePage",
-					"",
-					"",
-					void 0,
-					"选填"
-				);
-				Reflect.set(
-					homePage_template.props!,
-					PROPS_STORAGE_API,
-					generateStorageApi(configData)
-				);
-				let $homePage =
-					panelHandlerComponents.createSectionContainerItem_input(
-						homePage_template
-					);
+				let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
+				Reflect.set(homePage_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
+				let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template);
 
 				DOMUtils.append($content, $title);
 				DOMUtils.append($content, $version);
@@ -1521,17 +1372,11 @@ export const NetDiskUserRule = {
             `,
 		});
 		/** 本地导入 */
-		let $local = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='local']"
-		)!;
+		let $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
 		/** 网络导入 */
-		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='network']"
-		)!;
+		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
 		/** 剪贴板导入 */
-		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='clipboard']"
-		)!;
+		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
 		/**
 		 * 将获取到的规则更新至存储
 		 */
@@ -1563,8 +1408,7 @@ export const NetDiskUserRule = {
 		 */
 		let importFile = (subscribeText: string) => {
 			return new Promise<boolean>((resolve) => {
-				let data: NetDiskUserCustomRule[] | NetDiskUserCustomRule =
-					utils.toJSON(subscribeText);
+				let data: NetDiskUserCustomRule[] | NetDiskUserCustomRule = utils.toJSON(subscribeText);
 				if (Array.isArray(data)) {
 					if (!data.length) {
 						Qmsg.error("导入失败，解析出的数据为空", {
@@ -1597,10 +1441,7 @@ export const NetDiskUserRule = {
 							timeout: 4000,
 						});
 					} else {
-						Qmsg.warning(
-							`检测到有 ${notCheckedRuleCount}条未通过规则检查的规则，已忽略`,
-							{ timeout: 4000 }
-						);
+						Qmsg.warning(`检测到有 ${notCheckedRuleCount}条未通过规则检查的规则，已忽略`, { timeout: 4000 });
 					}
 				}
 				if (!checkedData.length) {
@@ -1686,11 +1527,8 @@ export const NetDiskUserRule = {
 				width: PanelUISize.info.width,
 				height: "auto",
 			});
-			let $promptInput =
-				$prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
-			let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(
-				".pops-prompt-btn-ok"
-			)!;
+			let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+			let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
 			DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
 				let value = DOMUtils.val($promptInput);
 				if (value === "") {
@@ -1699,18 +1537,14 @@ export const NetDiskUserRule = {
 					DOMUtils.removeAttr($promptOk, "disabled");
 				}
 			});
-			DOMUtils.listenKeyboard(
-				$promptInput,
-				"keydown",
-				(keyName, keyValue, otherCodeList) => {
-					if (keyName === "Enter" && otherCodeList.length === 0) {
-						let value = DOMUtils.val($promptInput);
-						if (value !== "") {
-							utils.dispatchEvent($promptOk, "click");
-						}
+			DOMUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+				if (keyName === "Enter" && otherCodeList.length === 0) {
+					let value = DOMUtils.val($promptInput);
+					if (value !== "") {
+						utils.dispatchEvent($promptOk, "click");
 					}
 				}
-			);
+			});
 			utils.dispatchEvent($promptInput, "input");
 		});
 		// 剪贴板导入

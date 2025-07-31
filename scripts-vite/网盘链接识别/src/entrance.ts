@@ -15,17 +15,13 @@ import { PanelUI_allSetting } from "./setting/view/all-setting";
 import { PanelMenu } from "@components/setting/panel-menu";
 import { NetDiskUserRuleUI } from "./main/rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskGlobalSettingView } from "./main/view/global-setting/NetDiskGlobalSettingView";
-import {
-	PanelComponents,
-	type PanelComponentsType,
-} from "@components/setting/panel-components";
+import { PanelComponents, type PanelComponentsType } from "@components/setting/panel-components";
 import { GM_getValue, GM_setValue } from "ViteGM";
 
 try {
 	let GLOBAL_RESOURCE_ICON = RESOURCE_ICON ?? {};
 	if (import.meta.env.DEV) {
-		let RESOURCE_ICON_TEXT = (await import("@/../网盘链接识别-图标.js?raw"))
-			.default;
+		let RESOURCE_ICON_TEXT = (await import("@/../网盘链接识别-图标.js?raw")).default;
 		GLOBAL_RESOURCE_ICON = new Function(
 			`return (() => { ${RESOURCE_ICON_TEXT} ;return RESOURCE_ICON; })()`
 		)();
@@ -35,25 +31,18 @@ try {
 	console.error("init NetDisk icon error", error);
 }
 // 更新面板组件存储Api
-(
-	[
-		"input",
-		"select-multiple",
-		"select",
-		"slider",
-		"switch",
-		"textarea",
-	] as PanelComponentsType[]
-).forEach((type) => {
-	PanelComponents.setStorageApi(type as PanelComponentsType, {
-		get<T>(key: string, defaultValue: T) {
-			return GM_getValue(key, defaultValue);
-		},
-		set(key: string, value: any) {
-			GM_setValue(key, value);
-		},
-	});
-});
+(["input", "select-multiple", "select", "slider", "switch", "textarea"] as PanelComponentsType[]).forEach(
+	(type) => {
+		PanelComponents.setStorageApi(type as PanelComponentsType, {
+			get<T>(key: string, defaultValue: T) {
+				return GM_getValue(key, defaultValue);
+			},
+			set(key: string, value: any) {
+				GM_setValue(key, value);
+			},
+		});
+	}
+);
 // 初始化网站规则
 WebsiteRule.init();
 // 初始化用户规则

@@ -30,7 +30,7 @@ export const NetDiskHistoryMatchView = {
 		data = this.orderNetDiskHistoryMatchData(data);
 		dataHTML = /*html*/ `
         <div class="netdiskrecord-search">
-            <input type="text" placeholder="搜索链接/网址/网址标题，可正则搜索">
+            <input type="text" placeholder="搜索链接/网址/网址标题，按下回车进行搜索（可正则）">
         </div>
         <div class="netdiskrecord-table">
 			<ul></ul>
@@ -106,10 +106,7 @@ export const NetDiskHistoryMatchView = {
 													".pops-confirm-btn-other"
 												)!;
 											DOMUtils.html($recordPage, "");
-											DOMUtils.text(
-												$btnOther,
-												DOMUtils.text($btnOther).replace(/[\d]+/gi, "0")
-											);
+											DOMUtils.text($btnOther, DOMUtils.text($btnOther).replace(/[\d]+/gi, "0"));
 										},
 									},
 									cancel: {
@@ -138,9 +135,7 @@ export const NetDiskHistoryMatchView = {
 		this.setEvent(NetDiskUI.Alias.historyAlias.$shadowRoot);
 		this.setSearchEvent();
 		NetDiskUI.setRightClickMenu(
-			NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLElement>(
-				".whitesevPopNetDiskHistoryMatch"
-			)!,
+			NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLElement>(".whitesevPopNetDiskHistoryMatch")!,
 			".netdiskrecord-link a",
 			true
 		);
@@ -150,9 +145,7 @@ export const NetDiskHistoryMatchView = {
 	 */
 	getLinkContainer() {
 		let $linkContainer =
-			NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLUListElement>(
-				".netdiskrecord-table ul"
-			)!;
+			NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLUListElement>(".netdiskrecord-table ul")!;
 		return $linkContainer;
 	},
 	/**
@@ -217,32 +210,17 @@ export const NetDiskHistoryMatchView = {
 			`,
 		});
 
-		let $link = $liItemContainer.querySelector<HTMLDivElement>(
-			".netdiskrecord-link"
-		)!;
+		let $link = $liItemContainer.querySelector<HTMLDivElement>(".netdiskrecord-link")!;
 		let $linkAnchor = $link.querySelector<HTMLAnchorElement>("a")!;
-		let $icon = $liItemContainer.querySelector<HTMLDivElement>(
-			".netdiskrecord-icon"
-		);
-		let $iconImg =
-			$liItemContainer!.querySelector<HTMLDivElement>(".netdisk-icon-img")!;
+		let $icon = $liItemContainer.querySelector<HTMLDivElement>(".netdiskrecord-icon");
+		let $iconImg = $liItemContainer!.querySelector<HTMLDivElement>(".netdisk-icon-img")!;
 
-		let $url =
-			$liItemContainer.querySelector<HTMLDivElement>(".netdiskrecord-url")!;
-		let $urlTitle = $liItemContainer.querySelector<HTMLDivElement>(
-			".netdiskrecord-url-title"
-		)!;
-		let $addTime = $liItemContainer.querySelector<HTMLDivElement>(
-			".netdiskrecord-add-time"
-		);
-		let $updateTime = $liItemContainer.querySelector<HTMLDivElement>(
-			".netdiskrecord-update-time"
-		)!;
-		let $features = $liItemContainer.querySelector<HTMLDivElement>(
-			".netdiskrecord-functions"
-		);
-		let $featuresBtnDelete =
-			$features!.querySelector<HTMLButtonElement>(".btn-delete")!;
+		let $url = $liItemContainer.querySelector<HTMLDivElement>(".netdiskrecord-url")!;
+		let $urlTitle = $liItemContainer.querySelector<HTMLDivElement>(".netdiskrecord-url-title")!;
+		let $addTime = $liItemContainer.querySelector<HTMLDivElement>(".netdiskrecord-add-time");
+		let $updateTime = $liItemContainer.querySelector<HTMLDivElement>(".netdiskrecord-update-time")!;
+		let $features = $liItemContainer.querySelector<HTMLDivElement>(".netdiskrecord-functions");
+		let $featuresBtnDelete = $features!.querySelector<HTMLButtonElement>(".btn-delete")!;
 		NetDiskView.handleElementAttributeRuleInfo(
 			{
 				ruleKeyName: data.ruleKeyName,
@@ -299,9 +277,7 @@ export const NetDiskHistoryMatchView = {
 	 */
 	clearPageNavigator() {
 		DOMUtils.remove(
-			NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll<HTMLElement>(
-				".netdiskrecord-page > *"
-			)
+			NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll<HTMLElement>(".netdiskrecord-page > *")
 		);
 	},
 	/**
@@ -315,45 +291,33 @@ export const NetDiskHistoryMatchView = {
 		/**
 		 * 设置删除按钮点击事件
 		 */
-		DOMUtils.on(
-			target,
-			"click",
-			".netdiskrecord-functions button.btn-delete",
-			function (event) {
-				let $btnOther = target.querySelector<HTMLElement>(
-					".pops-confirm-btn-other"
-				)!;
-				/* 删除中的遮罩层 */
-				let deleteLoading = NetDiskPops.loading({
-					parent: that.getLinkContainer(),
-					content: {
-						text: "删除中...",
-					},
-					only: true,
-					addIndexCSS: false,
-				});
-				let clickNode = event.target as HTMLElement;
-				let dataJSON = clickNode.getAttribute("data-json")!;
-				clickNode.closest("li")?.remove();
-				that.deleteStorageData(dataJSON);
-				deleteLoading?.close();
-				let totalNumberText = DOMUtils.text($btnOther);
-				let totalNumberMatch = totalNumberText.match(/[\d]+/gi)!;
-				let totalNumber = parseInt(
-					totalNumberMatch[totalNumberMatch.length - 1]
-				);
-				totalNumber--;
-				totalNumberText = totalNumberText.replace(
-					/[\d]+/gi,
-					totalNumber.toString()
-				);
-				DOMUtils.text($btnOther, totalNumberText);
-				let data = that.getStorageData();
-				data = that.orderNetDiskHistoryMatchData(data);
-				that.dataPaging.refresh(data);
-				that.pageChangeCallBack(data, that.dataPaging.CONFIG.currentPage);
-			}
-		);
+		DOMUtils.on(target, "click", ".netdiskrecord-functions button.btn-delete", function (event) {
+			let $btnOther = target.querySelector<HTMLElement>(".pops-confirm-btn-other")!;
+			/* 删除中的遮罩层 */
+			let deleteLoading = NetDiskPops.loading({
+				parent: that.getLinkContainer(),
+				content: {
+					text: "删除中...",
+				},
+				only: true,
+				addIndexCSS: false,
+			});
+			let clickNode = event.target as HTMLElement;
+			let dataJSON = clickNode.getAttribute("data-json")!;
+			clickNode.closest("li")?.remove();
+			that.deleteStorageData(dataJSON);
+			deleteLoading?.close();
+			let totalNumberText = DOMUtils.text($btnOther);
+			let totalNumberMatch = totalNumberText.match(/[\d]+/gi)!;
+			let totalNumber = parseInt(totalNumberMatch[totalNumberMatch.length - 1]);
+			totalNumber--;
+			totalNumberText = totalNumberText.replace(/[\d]+/gi, totalNumber.toString());
+			DOMUtils.text($btnOther, totalNumberText);
+			let data = that.getStorageData();
+			data = that.orderNetDiskHistoryMatchData(data);
+			that.dataPaging.refresh(data);
+			that.pageChangeCallBack(data, that.dataPaging.CONFIG.currentPage);
+		});
 	},
 	/**
 	 * 页码改变的回调
@@ -413,9 +377,7 @@ export const NetDiskHistoryMatchView = {
 				addIndexCSS: false,
 			});
 			let searchText = NetDiskUI.Alias.historyAlias.$shadowRoot
-				.querySelector<HTMLInputElement>(
-					".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input"
-				)!
+				.querySelector<HTMLInputElement>(".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input")!
 				.value.trim();
 			let data = that.getStorageData();
 			data = that.orderNetDiskHistoryMatchData(data);
@@ -443,13 +405,13 @@ export const NetDiskHistoryMatchView = {
 				if (!uiLink) {
 					log.info(dataOption);
 				}
+				let searchTextRegExp = utils.stringToRegular(searchText, "i");
 				if (
-					(typeof uiLink === "string" &&
-						uiLink.match(new RegExp(searchText, "i"))) ||
-					dataOption.shareCode.match(new RegExp(searchText, "i")) ||
-					dataOption.url.match(new RegExp(searchText, "i")) ||
-					dataOption.topURL.match(new RegExp(searchText, "i")) ||
-					dataOption.title.match(new RegExp(searchText, "i"))
+					(typeof uiLink === "string" && uiLink.match(searchTextRegExp)) ||
+					dataOption.shareCode.match(searchTextRegExp) ||
+					dataOption.url.match(searchTextRegExp) ||
+					dataOption.topURL.match(searchTextRegExp) ||
+					dataOption.title.match(searchTextRegExp)
 				) {
 					/* 匹配到 */
 					return true;
@@ -480,14 +442,9 @@ export const NetDiskHistoryMatchView = {
 	 * @param data
 	 */
 	orderNetDiskHistoryMatchData(data: NetDiskHistoryDataOption[]) {
-		let localOrder =
-			NetDiskGlobalData.historyMatch["netdisk-history-match-ordering-rule"]
-				.value;
+		let localOrder = NetDiskGlobalData.historyMatch["netdisk-history-match-ordering-rule"].value;
 		let isDesc = localOrder.indexOf("降序") !== -1 ? true : false; /* 降序 */
-		let orderField =
-			localOrder.indexOf("记录时间") !== -1
-				? "addTime"
-				: "updateTime"; /* 排序字段 */
+		let orderField = localOrder.indexOf("记录时间") !== -1 ? "addTime" : "updateTime"; /* 排序字段 */
 
 		utils.sortListByProperty(
 			data,
@@ -510,10 +467,7 @@ export const NetDiskHistoryMatchView = {
 		let storageDataList = this.getStorageData();
 		for (let index = 0; index < storageDataList.length; index++) {
 			const localData = storageDataList[index];
-			if (
-				localData.ruleKeyName === ruleKeyName &&
-				localData.shareCode === shareCode
-			) {
+			if (localData.ruleKeyName === ruleKeyName && localData.shareCode === shareCode) {
 				if (isNotNull && utils.isNotNull(localData.accessCode)) {
 					// 不要空的
 					return localData.accessCode;
@@ -529,12 +483,7 @@ export const NetDiskHistoryMatchView = {
 	 * @param shareCode 分享码
 	 * @param accessCode 新的访问码
 	 */
-	syncAccessCode(
-		ruleKeyName: string,
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeType
-	) {
+	syncAccessCode(ruleKeyName: string, ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
 		if (NetDiskGlobalData.historyMatch.saveMatchNetDisk.value) {
 			let flag = NetDiskHistoryMatchView.changeMatchedDataAccessCode(
 				ruleKeyName,
@@ -616,11 +565,8 @@ export const NetDiskHistoryMatchView = {
 				localData.ruleIndex === ruleIndex
 			) {
 				if (
-					NetDiskGlobalData.historyMatch[
-						"netdisk-history-match-merge-same-link"
-					].value ||
-					(localData.url === window.location.href &&
-						localData.topURL === top!.window.location.href)
+					NetDiskGlobalData.historyMatch["netdisk-history-match-merge-same-link"].value ||
+					(localData.url === window.location.href && localData.topURL === top!.window.location.href)
 				) {
 					flag = true;
 					let editFlag = false;
@@ -630,10 +576,7 @@ export const NetDiskHistoryMatchView = {
 						log.success("匹配历史记录 -> 设置新的matchText", [matchText]);
 						storageDataList[index].matchText = matchText;
 					}
-					if (
-						utils.isNotNull(accessCode) &&
-						localData.accessCode !== accessCode
-					) {
+					if (utils.isNotNull(accessCode) && localData.accessCode !== accessCode) {
 						// 修改accessCode
 						editFlag = true;
 						log.success("匹配历史记录 -> 修改accessCode");
@@ -645,11 +588,7 @@ export const NetDiskHistoryMatchView = {
 						if (storageDataList[index].title) {
 							storageDataList[index].title = document.title;
 						}
-						if (
-							NetDiskGlobalData.historyMatch[
-								"netdisk-history-match-merge-same-link"
-							].value
-						) {
+						if (NetDiskGlobalData.historyMatch["netdisk-history-match-merge-same-link"].value) {
 							storageDataList[index].url = window.location.href;
 							storageDataList[index].topURL = top!.window.location.href;
 						}
