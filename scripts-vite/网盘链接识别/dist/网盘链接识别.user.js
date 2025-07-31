@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.29
+// @version      2025.7.31
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -10,7 +10,7 @@
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
@@ -11045,7 +11045,7 @@
       dataHTML = /*html*/
       `
         <div class="netdiskrecord-search">
-            <input type="text" placeholder="搜索链接/网址/网址标题，可正则搜索">
+            <input type="text" placeholder="搜索链接/网址/网址标题，按下回车进行搜索（可正则）">
         </div>
         <div class="netdiskrecord-table">
 			<ul></ul>
@@ -11116,10 +11116,7 @@
                           ".pops-confirm-btn-other"
                         );
                         domUtils.html($recordPage, "");
-                        domUtils.text(
-                          $btnOther,
-                          domUtils.text($btnOther).replace(/[\d]+/gi, "0")
-                        );
+                        domUtils.text($btnOther, domUtils.text($btnOther).replace(/[\d]+/gi, "0"));
                       }
                     },
                     cancel: {
@@ -11147,9 +11144,7 @@
       this.setEvent(NetDiskUI.Alias.historyAlias.$shadowRoot);
       this.setSearchEvent();
       NetDiskUI.setRightClickMenu(
-        NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
-          ".whitesevPopNetDiskHistoryMatch"
-        ),
+        NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(".whitesevPopNetDiskHistoryMatch"),
         ".netdiskrecord-link a",
         true
       );
@@ -11158,9 +11153,7 @@
      * 获取链接项的容器
      */
     getLinkContainer() {
-      let $linkContainer = NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
-        ".netdiskrecord-table ul"
-      );
+      let $linkContainer = NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(".netdiskrecord-table ul");
       return $linkContainer;
     },
     /**
@@ -11226,27 +11219,15 @@
 			`
         )
       });
-      let $link = $liItemContainer.querySelector(
-        ".netdiskrecord-link"
-      );
+      let $link = $liItemContainer.querySelector(".netdiskrecord-link");
       let $linkAnchor = $link.querySelector("a");
-      let $icon = $liItemContainer.querySelector(
-        ".netdiskrecord-icon"
-      );
+      let $icon = $liItemContainer.querySelector(".netdiskrecord-icon");
       let $iconImg = $liItemContainer.querySelector(".netdisk-icon-img");
       let $url = $liItemContainer.querySelector(".netdiskrecord-url");
-      let $urlTitle = $liItemContainer.querySelector(
-        ".netdiskrecord-url-title"
-      );
-      let $addTime = $liItemContainer.querySelector(
-        ".netdiskrecord-add-time"
-      );
-      let $updateTime = $liItemContainer.querySelector(
-        ".netdiskrecord-update-time"
-      );
-      let $features = $liItemContainer.querySelector(
-        ".netdiskrecord-functions"
-      );
+      let $urlTitle = $liItemContainer.querySelector(".netdiskrecord-url-title");
+      let $addTime = $liItemContainer.querySelector(".netdiskrecord-add-time");
+      let $updateTime = $liItemContainer.querySelector(".netdiskrecord-update-time");
+      let $features = $liItemContainer.querySelector(".netdiskrecord-functions");
       let $featuresBtnDelete = $features.querySelector(".btn-delete");
       NetDiskView.handleElementAttributeRuleInfo(
         {
@@ -11300,9 +11281,7 @@
      */
     clearPageNavigator() {
       domUtils.remove(
-        NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll(
-          ".netdiskrecord-page > *"
-        )
+        NetDiskUI.Alias.historyAlias.$shadowRoot.querySelectorAll(".netdiskrecord-page > *")
       );
     },
     /**
@@ -11312,44 +11291,32 @@
     setEvent(target) {
       let that = this;
       NetDiskUI.view.setNetDiskUrlClickEvent(target, ".netdiskrecord-link a");
-      domUtils.on(
-        target,
-        "click",
-        ".netdiskrecord-functions button.btn-delete",
-        function(event) {
-          let $btnOther = target.querySelector(
-            ".pops-confirm-btn-other"
-          );
-          let deleteLoading = NetDiskPops.loading({
-            parent: that.getLinkContainer(),
-            content: {
-              text: "删除中..."
-            },
-            only: true,
-            addIndexCSS: false
-          });
-          let clickNode = event.target;
-          let dataJSON = clickNode.getAttribute("data-json");
-          clickNode.closest("li")?.remove();
-          that.deleteStorageData(dataJSON);
-          deleteLoading?.close();
-          let totalNumberText = domUtils.text($btnOther);
-          let totalNumberMatch = totalNumberText.match(/[\d]+/gi);
-          let totalNumber = parseInt(
-            totalNumberMatch[totalNumberMatch.length - 1]
-          );
-          totalNumber--;
-          totalNumberText = totalNumberText.replace(
-            /[\d]+/gi,
-            totalNumber.toString()
-          );
-          domUtils.text($btnOther, totalNumberText);
-          let data = that.getStorageData();
-          data = that.orderNetDiskHistoryMatchData(data);
-          that.dataPaging.refresh(data);
-          that.pageChangeCallBack(data, that.dataPaging.CONFIG.currentPage);
-        }
-      );
+      domUtils.on(target, "click", ".netdiskrecord-functions button.btn-delete", function(event) {
+        let $btnOther = target.querySelector(".pops-confirm-btn-other");
+        let deleteLoading = NetDiskPops.loading({
+          parent: that.getLinkContainer(),
+          content: {
+            text: "删除中..."
+          },
+          only: true,
+          addIndexCSS: false
+        });
+        let clickNode = event.target;
+        let dataJSON = clickNode.getAttribute("data-json");
+        clickNode.closest("li")?.remove();
+        that.deleteStorageData(dataJSON);
+        deleteLoading?.close();
+        let totalNumberText = domUtils.text($btnOther);
+        let totalNumberMatch = totalNumberText.match(/[\d]+/gi);
+        let totalNumber = parseInt(totalNumberMatch[totalNumberMatch.length - 1]);
+        totalNumber--;
+        totalNumberText = totalNumberText.replace(/[\d]+/gi, totalNumber.toString());
+        domUtils.text($btnOther, totalNumberText);
+        let data = that.getStorageData();
+        data = that.orderNetDiskHistoryMatchData(data);
+        that.dataPaging.refresh(data);
+        that.pageChangeCallBack(data, that.dataPaging.CONFIG.currentPage);
+      });
     },
     /**
      * 页码改变的回调
@@ -11405,9 +11372,7 @@
           only: true,
           addIndexCSS: false
         });
-        let searchText = NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(
-          ".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input"
-        ).value.trim();
+        let searchText = NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector(".whitesevPopNetDiskHistoryMatch .netdiskrecord-search input").value.trim();
         let data = that.getStorageData();
         data = that.orderNetDiskHistoryMatchData(data);
         if (searchText === "") {
@@ -11432,7 +11397,8 @@
           if (!uiLink) {
             log.info(dataOption);
           }
-          if (typeof uiLink === "string" && uiLink.match(new RegExp(searchText, "i")) || dataOption.shareCode.match(new RegExp(searchText, "i")) || dataOption.url.match(new RegExp(searchText, "i")) || dataOption.topURL.match(new RegExp(searchText, "i")) || dataOption.title.match(new RegExp(searchText, "i"))) {
+          let searchTextRegExp = utils.stringToRegular(searchText, "i");
+          if (typeof uiLink === "string" && uiLink.match(searchTextRegExp) || dataOption.shareCode.match(searchTextRegExp) || dataOption.url.match(searchTextRegExp) || dataOption.topURL.match(searchTextRegExp) || dataOption.title.match(searchTextRegExp)) {
             return true;
           }
         });
@@ -16060,13 +16026,10 @@
         globalThis.trustedTypes && // @ts-ignore
         typeof globalThis.trustedTypes.createPolicy === "function"
       ) {
-        const workerPolicy = globalThis.trustedTypes.createPolicy(
-          "workerPolicy",
-          {
-            // @ts-ignore
-            createScriptURL: (url) => url
-          }
-        );
+        const workerPolicy = globalThis.trustedTypes.createPolicy("workerPolicy", {
+          // @ts-ignore
+          createScriptURL: (url) => url
+        });
         workerUrl = workerPolicy.createScriptURL(workerUrl);
       }
       NetDiskWorker.blobUrl = workerUrl;
@@ -16080,7 +16043,8 @@
      */
     handleRegularMatch(workerOptionData, callback) {
       const ruleKeyNameList = Object.keys(workerOptionData.matchedRuleOption);
-      const matchTextList = workerOptionData.textList.map((matchTextItem) => {
+      const matchTextList = [];
+      for (let matchTextItem of workerOptionData.textList) {
         for (let index = 0; index < workerOptionData.characterMapping.length; index++) {
           const characterMapping = workerOptionData.characterMapping[index];
           try {
@@ -16098,31 +16062,25 @@
           } catch (error) {
           }
         }
-        return matchTextItem;
-      });
+        matchTextList.push(matchTextItem);
+      }
       for (const ruleKeyName of ruleKeyNameList) {
         const ruleOption = workerOptionData.matchedRuleOption[ruleKeyName];
         for (let index = 0; index < ruleOption.length; index++) {
           const netDiskRegularItem = ruleOption[index];
           let matchRegExpList = [];
           if (workerOptionData.matchTextRange.includes("innerText")) {
-            matchRegExpList.push(
-              new RegExp(netDiskRegularItem["link_innerText"], "gi")
-            );
+            matchRegExpList.push(new RegExp(netDiskRegularItem["link_innerText"], "gi"));
           }
           if (workerOptionData.matchTextRange.includes("innerHTML")) {
-            matchRegExpList.push(
-              new RegExp(netDiskRegularItem["link_innerHTML"], "gi")
-            );
+            matchRegExpList.push(new RegExp(netDiskRegularItem["link_innerHTML"], "gi"));
           }
           if (!workerOptionData.matchTextRange.length) {
             console.error(workerOptionData);
             throw new TypeError("未设置匹配范围");
           }
           if (!matchRegExpList.length) {
-            throw new TypeError(
-              "未知的匹配范围: " + workerOptionData.matchTextRange
-            );
+            throw new TypeError("未知的匹配范围: " + workerOptionData.matchTextRange);
           }
           for (let matchRegExpIndex = 0; matchRegExpIndex < matchRegExpList.length; matchRegExpIndex++) {
             const matchRegExp = matchRegExpList[matchRegExpIndex];
@@ -16248,9 +16206,7 @@
                       title() {
                         return "规则管理器";
                       },
-                      contentConfig: [
-                        WebsiteRule.getRulePanelViewOption(ruleOption)
-                      ]
+                      contentConfig: [WebsiteRule.getRulePanelViewOption(ruleOption)]
                     });
                     rulePanelView.showEditView(
                       rulePanelView.option.contentConfig[0].ruleOption,
@@ -16444,44 +16400,33 @@
           }
         });
       }
-      let filterHandleNetDiskList = handleNetDiskList.filter(
-        (value, index, selfArray) => {
-          let isFind = selfArray.findIndex((obj) => {
-            return obj.accessCode === value.accessCode && obj.ruleIndex === value.ruleIndex && obj.ruleKeyName === value.ruleKeyName && obj.shareCode === value.shareCode;
-          }) === index;
-          return isFind;
-        }
-      );
+      let filterHandleNetDiskList = handleNetDiskList.filter((value, index, selfArray) => {
+        let isFind = selfArray.findIndex((obj) => {
+          return obj.accessCode === value.accessCode && obj.ruleIndex === value.ruleIndex && obj.ruleKeyName === value.ruleKeyName && obj.shareCode === value.shareCode;
+        }) === index;
+        return isFind;
+      });
       filterHandleNetDiskList.forEach((item) => {
         if (NetDisk.$match.tempMatchedInfo.has(item.ruleKeyName)) {
-          let currentTempDict = NetDisk.$match.tempMatchedInfo.get(
-            item.ruleKeyName
-          );
+          let currentTempDict = NetDisk.$match.tempMatchedInfo.get(item.ruleKeyName);
           currentTempDict.set(item.shareCode, item);
         }
       });
       filterHandleNetDiskList.forEach((item) => {
         let { shareCode, accessCode, ruleKeyName, ruleIndex, matchText } = item;
-        const findRuleOptions = NetDisk.$rule.rule.find(
-          (item2) => item2.setting.key === ruleKeyName
-        );
+        const findRuleOptions = NetDisk.$rule.rule.find((item2) => item2.setting.key === ruleKeyName);
         const ruleOption = findRuleOptions.rule[ruleIndex];
         let isBlackListShareCode = false;
-        NetDisk.$match.blackMatchedInfo.forEach(
-          (blackMatchInfoItem, blackList_ruleKeyName) => {
-            if (blackList_ruleKeyName !== item.ruleKeyName) {
-              return;
-            }
-            let isFindBlackShareCode = blackMatchInfoItem.has(shareCode);
-            if (isFindBlackShareCode) {
-              isBlackListShareCode = true;
-              log.warn(
-                `匹配到黑名单分享码，已过滤：${shareCode}`,
-                JSON.stringify(item)
-              );
-            }
+        NetDisk.$match.blackMatchedInfo.forEach((blackMatchInfoItem, blackList_ruleKeyName) => {
+          if (blackList_ruleKeyName !== item.ruleKeyName) {
+            return;
           }
-        );
+          let isFindBlackShareCode = blackMatchInfoItem.has(shareCode);
+          if (isFindBlackShareCode) {
+            isBlackListShareCode = true;
+            log.warn(`匹配到黑名单分享码，已过滤：${shareCode}`, JSON.stringify(item));
+          }
+        });
         if (isBlackListShareCode) {
           return;
         }
@@ -16510,56 +16455,26 @@
           if (utils.isNull(accessCode)) {
             return;
           }
-          currentDict.set(
-            shareCode,
-            NetDisk.createLinkStorageInst(accessCode, ruleIndex, false, matchText)
-          );
-          NetDiskUI.view.changeLinkView(
-            ruleKeyName,
-            ruleIndex,
-            shareCode,
-            accessCode,
-            matchText
-          );
-          log.info(
-            `该匹配项无密码，设置密码 ${ruleKeyName} ${ruleIndex}: ${shareCode}  ===> ${accessCode}`
-          );
+          currentDict.set(shareCode, NetDisk.createLinkStorageInst(accessCode, ruleIndex, false, matchText));
+          NetDiskUI.view.changeLinkView(ruleKeyName, ruleIndex, shareCode, accessCode, matchText);
+          log.info(`该匹配项无密码，设置密码 ${ruleKeyName} ${ruleIndex}: ${shareCode}  ===> ${accessCode}`);
         } else {
           if (utils.isNull(accessCode) && NetDiskGlobalData.accessCode.allowQueryHistoryMatchingAccessCode.value) {
-            let historyMatchAccessCode = NetDiskHistoryMatchView.queryAccessCode(
-              ruleKeyName,
-              shareCode,
-              true
-            );
+            let historyMatchAccessCode = NetDiskHistoryMatchView.queryAccessCode(ruleKeyName, shareCode, true);
             if (historyMatchAccessCode) {
-              log.info(
-                "历史匹配记录 ==> 查询到访问码：" + historyMatchAccessCode
-              );
+              log.info("历史匹配记录 ==> 查询到访问码：" + historyMatchAccessCode);
               accessCode = historyMatchAccessCode;
             }
           }
-          currentDict.set(
-            shareCode,
-            NetDisk.createLinkStorageInst(accessCode, ruleIndex, false, matchText)
-          );
+          currentDict.set(shareCode, NetDisk.createLinkStorageInst(accessCode, ruleIndex, false, matchText));
           NetDiskUI.isMatchedNetDiskIconMap.add(ruleKeyName);
-          NetDiskUI.view.addLinkView(
-            ruleKeyName,
-            ruleIndex,
-            shareCode,
-            accessCode,
-            matchText
-          );
-          log.success(
-            `添加链接 ${ruleKeyName} ${ruleIndex}: ${shareCode}  ===> ${accessCode}`
-          );
+          NetDiskUI.view.addLinkView(ruleKeyName, ruleIndex, shareCode, accessCode, matchText);
+          log.success(`添加链接 ${ruleKeyName} ${ruleIndex}: ${shareCode}  ===> ${accessCode}`);
         }
       });
-      Object.keys(NetDisk.$match.tempMatchedInfo.getItems()).forEach(
-        (keyName) => {
-          NetDisk.$match.tempMatchedInfo.get(keyName).clear();
-        }
-      );
+      Object.keys(NetDisk.$match.tempMatchedInfo.getItems()).forEach((keyName) => {
+        NetDisk.$match.tempMatchedInfo.get(keyName).clear();
+      });
       if (NetDisk.$data.isMatchedLink) {
         switch (NetDiskGlobalData.features["netdisk-behavior-mode"].value) {
           case "suspension_smallwindow".toLowerCase():
@@ -16576,9 +16491,7 @@
             NetDiskUI.view.show();
             break;
           default:
-            log.error(
-              "未知的行为模式：" + NetDiskGlobalData.features["netdisk-behavior-mode"].value
-            );
+            log.error("未知的行为模式：" + NetDiskGlobalData.features["netdisk-behavior-mode"].value);
         }
       }
       NetDiskWorker.matchingEndCallBack();
@@ -16629,10 +16542,7 @@
           return;
         }
         if (Reflect.has(matchedRuleOption, ruleKeyName)) {
-          matchedRuleOption[ruleKeyName] = [
-            ...matchedRuleOption[ruleKeyName],
-            ...item.rule
-          ];
+          matchedRuleOption[ruleKeyName] = [...matchedRuleOption[ruleKeyName], ...item.rule];
         } else {
           Reflect.set(matchedRuleOption, ruleKeyName, item.rule);
         }
@@ -16782,10 +16692,7 @@
       });
       let matchMode = NetDiskGlobalData.features["netdisk-match-mode"].value;
       if (matchMode !== "Menu") {
-        let neverToastWorkerError = _GM_getValue(
-          this.neverTipWorkerInitErrorKey,
-          []
-        );
+        let neverToastWorkerError = _GM_getValue(this.neverTipWorkerInitErrorKey, []);
         if (!Array.isArray(neverToastWorkerError)) {
           neverToastWorkerError = [neverToastWorkerError];
         }
@@ -16794,9 +16701,7 @@
             "初始化Worker失败，可能页面使用了Content-Security-Policy策略，使用代替函数，该函数执行匹配时如果页面的内容过大会导致页面卡死",
             this.workerInitError
           );
-          let findHostName = neverToastWorkerError.find(
-            (it) => it === window.location.hostname
-          );
+          let findHostName = neverToastWorkerError.find((it) => it === window.location.hostname);
           if (findHostName) {
             this.registerWorkerInitErrorNeverTipToast(findHostName);
           } else {
@@ -17387,9 +17292,7 @@
     }
   };
   const NetDiskUserRuleStorageApi = new StorageUtils("userRule");
-  const NetDiskUserRuleBindContextStorageApi = new StorageUtils(
-    "userRuleBindContext"
-  );
+  const NetDiskUserRuleBindContextStorageApi = new StorageUtils("userRuleBindContext");
   const NetDiskUserRule = {
     $data: {
       STORAGE_KEY: "rule",
@@ -17412,9 +17315,7 @@
         this.setRule(oldUserRule);
       }
       let userRule = this.parseRule(this.getAllRule());
-      let subscribeRule = this.parseRule(
-        NetDiskUserRuleSubscribeRule.getAllSubscribeRule()
-      );
+      let subscribeRule = this.parseRule(NetDiskUserRuleSubscribeRule.getAllSubscribeRule());
       userRule = userRule.concat(subscribeRule);
       userRule.forEach((item) => {
         this.$data.userRule.set(item.setting.key, item);
@@ -17583,15 +17484,9 @@
         log,
         Qmsg,
         pops: __pops,
-        setValue: NetDiskUserRuleBindContextStorageApi.set.bind(
-          NetDiskUserRuleBindContextStorageApi
-        ),
-        getValue: NetDiskUserRuleBindContextStorageApi.get.bind(
-          NetDiskUserRuleBindContextStorageApi
-        ),
-        deleteValue: NetDiskUserRuleBindContextStorageApi.delete.bind(
-          NetDiskUserRuleBindContextStorageApi
-        )
+        setValue: NetDiskUserRuleBindContextStorageApi.set.bind(NetDiskUserRuleBindContextStorageApi),
+        getValue: NetDiskUserRuleBindContextStorageApi.get.bind(NetDiskUserRuleBindContextStorageApi),
+        deleteValue: NetDiskUserRuleBindContextStorageApi.delete.bind(NetDiskUserRuleBindContextStorageApi)
       };
     },
     /**
@@ -17630,7 +17525,13 @@
             shareCodeNeedRemoveStr = [shareCodeNeedRemoveStr];
           }
           if (Array.isArray(shareCodeNeedRemoveStr)) {
-            netDiskRegularOption.shareCodeNeedRemoveStr = shareCodeNeedRemoveStr.filter((item) => typeof item === "string").map((item) => new RegExp(item, "ig"));
+            netDiskRegularOption.shareCodeNeedRemoveStr = [];
+            for (const shareCodeNeedRemoveStrItem of shareCodeNeedRemoveStr) {
+              if (typeof shareCodeNeedRemoveStrItem === "string") {
+                const shareCodeNeedRemoveStrItemRegExp = new RegExp(shareCodeNeedRemoveStrItem, "ig");
+                netDiskRegularOption.shareCodeNeedRemoveStr.push(shareCodeNeedRemoveStrItemRegExp);
+              }
+            }
           }
         }
         if (shareCodeNotMatch) {
@@ -17638,14 +17539,17 @@
             shareCodeNotMatch = [shareCodeNotMatch];
           }
           if (Array.isArray(shareCodeNotMatch)) {
-            netDiskRegularOption.shareCodeNotMatch = shareCodeNotMatch.filter((item) => typeof item === "string").map((item) => new RegExp(item, "ig"));
+            netDiskRegularOption.shareCodeNotMatch = [];
+            for (const shareCodeNotMatchItem of shareCodeNotMatch) {
+              if (typeof shareCodeNotMatchItem === "string") {
+                const shareCodeNotMatchItemRegExp = new RegExp(shareCodeNotMatchItem, "ig");
+                netDiskRegularOption.shareCodeNotMatch.push(shareCodeNotMatchItemRegExp);
+              }
+            }
           }
         }
         if (typeof checkAccessCode === "string") {
-          netDiskRegularOption.checkAccessCode = new RegExp(
-            checkAccessCode,
-            "ig"
-          );
+          netDiskRegularOption.checkAccessCode = new RegExp(checkAccessCode, "ig");
         }
         if (typeof accessCode === "string") {
           netDiskRegularOption.accessCode = new RegExp(accessCode, "ig");
@@ -17655,9 +17559,13 @@
             acceesCodeNotMatch = [acceesCodeNotMatch];
           }
           if (Array.isArray(acceesCodeNotMatch)) {
-            netDiskRegularOption.acceesCodeNotMatch = acceesCodeNotMatch.map(
-              (item) => new RegExp(item, "ig")
-            );
+            netDiskRegularOption.acceesCodeNotMatch = [];
+            for (const acceesCodeNotMatchItem of acceesCodeNotMatch) {
+              if (typeof acceesCodeNotMatchItem === "string") {
+                const acceesCodeNotMatchItemRegExp = new RegExp(acceesCodeNotMatchItem, "ig");
+                netDiskRegularOption.acceesCodeNotMatch.push(acceesCodeNotMatchItemRegExp);
+              }
+            }
           }
         }
         if (accessCodeNeedRemoveStr) {
@@ -17665,7 +17573,13 @@
             accessCodeNeedRemoveStr = [accessCodeNeedRemoveStr];
           }
           if (Array.isArray(accessCodeNeedRemoveStr)) {
-            netDiskRegularOption.accessCodeNeedRemoveStr = accessCodeNeedRemoveStr.map((item) => new RegExp(item, "ig"));
+            netDiskRegularOption.accessCodeNeedRemoveStr = [];
+            for (const accessCodeNeedRemoveStrItem of accessCodeNeedRemoveStr) {
+              if (typeof accessCodeNeedRemoveStrItem === "string") {
+                const accessCodeNeedRemoveStrItemRegExp = new RegExp(accessCodeNeedRemoveStrItem, "ig");
+                netDiskRegularOption.accessCodeNeedRemoveStr.push(accessCodeNeedRemoveStrItemRegExp);
+              }
+            }
           }
         }
         if (typeof paramMatch === "string") {
@@ -17697,26 +17611,21 @@
         const ruleKey = userRuleItemConfig.key;
         if (Array.isArray(userRuleList)) {
           userRuleList.forEach((userRuleItem) => {
-            netDiskRuleConfig.rule.push(
-              parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleItem)
-            );
+            netDiskRuleConfig.rule.push(parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleItem));
           });
         } else {
-          netDiskRuleConfig.rule.push(
-            parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleList)
-          );
+          netDiskRuleConfig.rule.push(parseUserRuleToScriptRule(ruleKey, userRuleItemConfig, userRuleList));
         }
         if (userRuleItemConfig.setting) {
           this.initDefaultValue(
             NetDiskRuleDataKEY.function.enable(ruleKey),
             Boolean(userRuleItemConfig.setting.enable)
           );
-          netDiskRuleConfig.setting.configurationInterface.function.enable = Boolean(userRuleItemConfig.setting.enable);
+          netDiskRuleConfig.setting.configurationInterface.function.enable = Boolean(
+            userRuleItemConfig.setting.enable
+          );
           if (typeof userRuleItemConfig.setting["isBlank"] === "boolean") {
-            this.initDefaultValue(
-              NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
-              "openBlank"
-            );
+            this.initDefaultValue(NetDiskRuleDataKEY.function.linkClickMode(ruleKey), "openBlank");
             netDiskRuleConfig.setting.configurationInterface.function.linkClickMode = {
               openBlank: {
                 default: true,
@@ -17730,41 +17639,36 @@
               userRuleItemConfig.setting.linkClickMode || {}
             );
             let default_value = null;
-            let selectData = Object.keys(data).map((keyName) => {
+            let selectData = [];
+            const dataKeys = Object.keys(data);
+            for (const keyName of dataKeys) {
               let itemData = data[keyName];
               if (!itemData.enable) {
-                return;
+                continue;
               }
               if (itemData.default) {
                 default_value = keyName;
               }
-              return {
+              selectData.push({
                 value: keyName,
                 text: itemData.text
-              };
-            }).filter((item) => item != null);
+              });
+            }
             if (default_value == null) {
               default_value = selectData[0].value;
             }
-            this.initDefaultValue(
-              NetDiskRuleDataKEY.function.linkClickMode(ruleKey),
-              default_value
-            );
+            this.initDefaultValue(NetDiskRuleDataKEY.function.linkClickMode(ruleKey), default_value);
           }
           if (typeof userRuleItemConfig.setting["openBlankWithCopyAccessCode"] === "boolean") {
             this.initDefaultValue(
-              NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-                ruleKey
-              ),
+              NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKey),
               Boolean(userRuleItemConfig.setting["openBlankWithCopyAccessCode"])
             );
             netDiskRuleConfig.setting.configurationInterface.linkClickMode_openBlank.openBlankWithCopyAccessCode = Boolean(userRuleItemConfig.setting["openBlankWithCopyAccessCode"]);
           }
           if (typeof userRuleItemConfig.setting["openBlankAutoFilleAccessCode"] === "boolean") {
             this.initDefaultValue(
-              NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
-                ruleKey
-              ),
+              NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(ruleKey),
               Boolean(userRuleItemConfig.setting["openBlankAutoFilleAccessCode"])
             );
             netDiskRuleConfig.setting.configurationInterface.linkClickMode_openBlank.openBlankAutoFilleAccessCode = Boolean(userRuleItemConfig.setting["openBlankAutoFilleAccessCode"]);
@@ -17774,7 +17678,9 @@
               NetDiskRuleDataKEY.function.checkLinkValidity(ruleKey),
               Boolean(userRuleItemConfig.setting["checkLinkValidity"])
             );
-            netDiskRuleConfig.setting.configurationInterface.function.checkLinkValidity = Boolean(userRuleItemConfig.setting["checkLinkValidity"]);
+            netDiskRuleConfig.setting.configurationInterface.function.checkLinkValidity = Boolean(
+              userRuleItemConfig.setting["checkLinkValidity"]
+            );
           }
           if (typeof userRuleItemConfig.setting["checkLinkValidityHoverTip"] === "boolean") {
             this.initDefaultValue(
@@ -17787,7 +17693,9 @@
               NetDiskRuleDataKEY.schemeUri.enable(ruleKey),
               Boolean(userRuleItemConfig.setting["isForward"])
             );
-            netDiskRuleConfig.setting.configurationInterface.schemeUri.enable = Boolean(userRuleItemConfig.setting["isForward"]);
+            netDiskRuleConfig.setting.configurationInterface.schemeUri.enable = Boolean(
+              userRuleItemConfig.setting["isForward"]
+            );
           }
           if (typeof userRuleItemConfig.setting["schemeUri"] === "string") {
             this.initDefaultValue(
@@ -17829,24 +17737,18 @@
           let ruleIcon = userRuleItemConfig.icon;
           NetDiskUI.src.addIcon(ruleKey, ruleIcon);
         }
-        const AsyncFunction = Object.getPrototypeOf(
-          async function() {
-          }
-        ).constructor;
+        const AsyncFunction = Object.getPrototypeOf(async function() {
+        }).constructor;
         if (typeof userRuleItemConfig.checkLinkValidityFunction === "string") {
           try {
             let context = this.getBindContext(userRuleItemConfig);
-            Reflect.set(
-              NetDiskCheckLinkValidity.ruleCheckValidFunction,
-              ruleKey,
-              {
-                init: new AsyncFunction(
-                  "netDiskInfo",
-                  userRuleItemConfig.checkLinkValidityFunction
-                  // 绑定作用域
-                ).bind(context)
-              }
-            );
+            Reflect.set(NetDiskCheckLinkValidity.ruleCheckValidFunction, ruleKey, {
+              init: new AsyncFunction(
+                "netDiskInfo",
+                userRuleItemConfig.checkLinkValidityFunction
+                // 绑定作用域
+              ).bind(context)
+            });
           } catch (error) {
             log.error(error);
           }
@@ -17854,10 +17756,7 @@
         if (typeof userRuleItemConfig.AuthorizationFunction === "string") {
           try {
             let context = this.getBindContext(userRuleItemConfig);
-            Reflect.deleteProperty(
-              context,
-              "NetDiskCheckLinkValidity"
-            );
+            Reflect.deleteProperty(context, "NetDiskCheckLinkValidity");
             NetDiskAuthorization.netDisk[ruleKey] = new AsyncFunction(
               userRuleItemConfig.AuthorizationFunction
             ).bind(
@@ -17871,10 +17770,7 @@
         if (typeof userRuleItemConfig.AutoFillAccessCodeFunction === "string") {
           try {
             let context = this.getBindContext(userRuleItemConfig);
-            Reflect.deleteProperty(
-              context,
-              "NetDiskCheckLinkValidity"
-            );
+            Reflect.deleteProperty(context, "NetDiskCheckLinkValidity");
             NetDiskAutoFillAccessCode.netDisk[ruleKey] = new AsyncFunction(
               "netDiskInfo",
               userRuleItemConfig.AutoFillAccessCodeFunction
@@ -17887,10 +17783,7 @@
         if (typeof userRuleItemConfig.parseFunction === "string") {
           try {
             let context = this.getBindContext(userRuleItemConfig);
-            Reflect.deleteProperty(
-              context,
-              "NetDiskCheckLinkValidity"
-            );
+            Reflect.deleteProperty(context, "NetDiskCheckLinkValidity");
             Reflect.set(
               NetDiskParse.rule,
               ruleKey,
@@ -17903,10 +17796,7 @@
         if (typeof userRuleItemConfig.afterRenderUrlBox === "string") {
           try {
             let context = this.getBindContext(userRuleItemConfig);
-            Reflect.deleteProperty(
-              context,
-              "NetDiskCheckLinkValidity"
-            );
+            Reflect.deleteProperty(context, "NetDiskCheckLinkValidity");
             netDiskRuleConfig.afterRenderUrlBox = new AsyncFunction(
               "option",
               userRuleItemConfig.afterRenderUrlBox
@@ -18092,10 +17982,7 @@
                     return currentData?.subscribeData?.ruleData ?? option.ruleData.subscribeData.ruleData;
                   },
                   getData(data) {
-                    let currentData = NetDiskUserRuleSubscribeRule.getSubscribeRule(
-                      subscribeUUID,
-                      data.key
-                    );
+                    let currentData = NetDiskUserRuleSubscribeRule.getSubscribeRule(subscribeUUID, data.key);
                     return currentData ?? data;
                   },
                   getDataItemName(data) {
@@ -18105,16 +17992,10 @@
                     return true;
                   },
                   updateData(data) {
-                    return NetDiskUserRuleSubscribeRule.updateSubscribeRule(
-                      subscribeUUID,
-                      data
-                    );
+                    return NetDiskUserRuleSubscribeRule.updateSubscribeRule(subscribeUUID, data);
                   },
                   deleteData(data) {
-                    return NetDiskUserRuleSubscribeRule.deleteSubscribeRule(
-                      subscribeUUID,
-                      data
-                    );
+                    return NetDiskUserRuleSubscribeRule.deleteSubscribeRule(subscribeUUID, data);
                   },
                   btnControls: {
                     filter: {
@@ -18137,9 +18018,7 @@
                     clearAll: {
                       enable: true,
                       callback: () => {
-                        NetDiskUserRuleSubscribeRule.clearSubscribe(
-                          subscribeUUID
-                        );
+                        NetDiskUserRuleSubscribeRule.clearSubscribe(subscribeUUID);
                       }
                     },
                     // ruleEnable: {
@@ -18178,10 +18057,7 @@
                     ruleDelete: {
                       enable: true,
                       deleteCallBack(data) {
-                        return NetDiskUserRuleSubscribeRule.deleteSubscribeRule(
-                          subscribeUUID,
-                          data
-                        );
+                        return NetDiskUserRuleSubscribeRule.deleteSubscribeRule(subscribeUUID, data);
                       }
                     }
                   }
@@ -18206,15 +18082,11 @@
             export: {
               enable: true,
               callback() {
-                NetDiskUserRuleSubscribeRule.exportSubscribe(
-                  _SCRIPT_NAME_ + "-网站规则-订阅.json"
-                );
+                NetDiskUserRuleSubscribeRule.exportSubscribe(_SCRIPT_NAME_ + "-网站规则-订阅.json");
               }
             }
           },
-          getSubscribeInfo: NetDiskUserRuleSubscribeRule.getSubscribeInfo.bind(
-            NetDiskUserRuleSubscribeRule
-          )
+          getSubscribeInfo: NetDiskUserRuleSubscribeRule.getSubscribeInfo.bind(NetDiskUserRuleSubscribeRule)
         },
         ruleOption: {
           btnControls: {
@@ -18222,11 +18094,7 @@
               enable: true,
               callback(option) {
                 NetDiskUserRuleUI.show(false, void 0, (rule) => {
-                  this.updateRuleContaienrElement(
-                    rulePanelViewOption.ruleOption,
-                    void 0,
-                    option.$section
-                  );
+                  this.updateRuleContaienrElement(rulePanelViewOption.ruleOption, void 0, option.$section);
                 });
                 return false;
               }
@@ -18285,20 +18153,16 @@
             ruleEdit: {
               enable: true,
               callback(option) {
-                NetDiskUserRuleUI.show(
-                  true,
-                  option.ruleData.key,
-                  async (rule) => {
-                    let $ruleItem = await option.context.updateRuleItemElement(
-                      option.option,
-                      option.subscribeOption,
-                      rule,
-                      option.$ruleItem,
-                      option.$section
-                    );
-                    option.$ruleItem = $ruleItem;
-                  }
-                );
+                NetDiskUserRuleUI.show(true, option.ruleData.key, async (rule) => {
+                  let $ruleItem = await option.context.updateRuleItemElement(
+                    option.option,
+                    option.subscribeOption,
+                    rule,
+                    option.$ruleItem,
+                    option.$section
+                  );
+                  option.$ruleItem = $ruleItem;
+                });
                 return false;
               }
             },
@@ -18390,10 +18254,7 @@
      * 获取本地所有的规则
      */
     getAllRule() {
-      let result = NetDiskUserRuleStorageApi.get(
-        this.$data.STORAGE_KEY,
-        []
-      );
+      let result = NetDiskUserRuleStorageApi.get(this.$data.STORAGE_KEY, []);
       return result;
     },
     /**
@@ -18584,52 +18445,17 @@
 					`
             )
           });
-          let $content = $exportSubscribeDialog.$shadowRoot.querySelector(
-            ".pops-alert-content"
-          );
+          let $content = $exportSubscribeDialog.$shadowRoot.querySelector(".pops-alert-content");
           let configData = NetDiskUserRuleStorageApi.get(this.$data.EXPORT_CONFIG_KEY, {});
           let title_template = UIInput("订阅标题", "title", "", "", void 0, "");
-          Reflect.set(
-            title_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(configData)
-          );
-          let $title = panelHandlerComponents.createSectionContainerItem_input(
-            title_template
-          );
-          let version_template = UIInput(
-            "版本号",
-            "version",
-            "",
-            "",
-            void 0,
-            "",
-            false
-          );
-          Reflect.set(
-            version_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(configData)
-          );
-          let $version = panelHandlerComponents.createSectionContainerItem_input(
-            version_template
-          );
-          let homePage_template = UIInput(
-            "主页地址",
-            "homePage",
-            "",
-            "",
-            void 0,
-            "选填"
-          );
-          Reflect.set(
-            homePage_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(configData)
-          );
-          let $homePage = panelHandlerComponents.createSectionContainerItem_input(
-            homePage_template
-          );
+          Reflect.set(title_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
+          let $title = panelHandlerComponents.createSectionContainerItem_input(title_template);
+          let version_template = UIInput("版本号", "version", "", "", void 0, "", false);
+          Reflect.set(version_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
+          let $version = panelHandlerComponents.createSectionContainerItem_input(version_template);
+          let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
+          Reflect.set(homePage_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
+          let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template);
           domUtils.append($content, $title);
           domUtils.append($content, $version);
           domUtils.append($content, $homePage);
@@ -18691,15 +18517,9 @@
             `
         )
       });
-      let $local = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='local']"
-      );
-      let $network = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='network']"
-      );
-      let $clipboard = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='clipboard']"
-      );
+      let $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+      let $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+      let $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
       let updateRuleToStorage = (data) => {
         let allData = this.getAllRule();
         let addNewData = [];
@@ -18755,10 +18575,7 @@
                 timeout: 4e3
               });
             } else {
-              Qmsg.warning(
-                `检测到有 ${notCheckedRuleCount}条未通过规则检查的规则，已忽略`,
-                { timeout: 4e3 }
-              );
+              Qmsg.warning(`检测到有 ${notCheckedRuleCount}条未通过规则检查的规则，已忽略`, { timeout: 4e3 });
             }
           }
           if (!checkedData.length) {
@@ -18843,9 +18660,7 @@
           height: "auto"
         });
         let $promptInput = $prompt.$shadowRoot.querySelector("input");
-        let $promptOk = $prompt.$shadowRoot.querySelector(
-          ".pops-prompt-btn-ok"
-        );
+        let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
         domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
           let value = domUtils.val($promptInput);
           if (value === "") {
@@ -18854,18 +18669,14 @@
             domUtils.removeAttr($promptOk, "disabled");
           }
         });
-        domUtils.listenKeyboard(
-          $promptInput,
-          "keydown",
-          (keyName, keyValue, otherCodeList) => {
-            if (keyName === "Enter" && otherCodeList.length === 0) {
-              let value = domUtils.val($promptInput);
-              if (value !== "") {
-                utils.dispatchEvent($promptOk, "click");
-              }
+        domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+          if (keyName === "Enter" && otherCodeList.length === 0) {
+            let value = domUtils.val($promptInput);
+            if (value !== "") {
+              utils.dispatchEvent($promptOk, "click");
             }
           }
-        );
+        });
         utils.dispatchEvent($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
@@ -20283,19 +20094,13 @@
           } else {
             commonRule = [...commonRule, ...netDiskRule];
           }
-          let findValue = NetDisk.$rule.rule.find(
-            (item) => item.setting.key === ruleKey
-          );
+          let findValue = NetDisk.$rule.rule.find((item) => item.setting.key === ruleKey);
           findValue.rule = commonRule;
         } else {
           Reflect.set(NetDisk.$rule.ruleOption, ruleKey, netDiskRuleConfig.rule);
           NetDisk.$rule.rule.push(netDiskRuleConfig);
         }
-        Reflect.set(
-          NetDisk.$rule.ruleSetting,
-          ruleKey,
-          netDiskRuleConfig.setting
-        );
+        Reflect.set(NetDisk.$rule.ruleSetting, ruleKey, netDiskRuleConfig.setting);
         netDiskRuleConfig.rule = this.parseRuleMatchRule(netDiskRuleConfig);
         let viewConfig = this.parseRuleSetting(netDiskRuleConfig);
         let asideTitle = netDiskRuleConfig.setting.name;
@@ -20406,10 +20211,7 @@
                 if (!$currentPanelAside) {
                   return;
                 }
-                $currentPanelAside.setAttribute(
-                  notUnableAttrName,
-                  value.toString()
-                );
+                $currentPanelAside.setAttribute(notUnableAttrName, value.toString());
               },
               "开启可允许匹配该规则"
             )
@@ -20422,19 +20224,21 @@
             settingConfig.function.linkClickMode || {}
           );
           let default_value = null;
-          let selectData = Object.keys(data).map((keyName) => {
+          let selectData = [];
+          const dataKeys = Object.keys(data);
+          for (const keyName of dataKeys) {
             let itemData = data[keyName];
             if (!itemData.enable) {
-              return;
+              continue;
             }
             if (itemData.default) {
               default_value = keyName;
             }
-            return {
+            selectData.push({
               value: keyName,
               text: itemData.text
-            };
-          }).filter((item) => item != null);
+            });
+          }
           if (default_value == null) {
             default_value = selectData[0].value;
           }
@@ -20497,34 +20301,26 @@
           linkClickMode_openBlank_form.push(
             UISwitch(
               "自动填充访问码",
-              NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
-                ruleKey
-              ),
+              NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankAutoFilleAccessCode(ruleKey),
               default_value,
               void 0,
               "当点击动作是【新标签页打开】时且存在访问码，那就会自动填充访问码"
             )
           );
-          settingConfig.linkClickMode_openBlank.openBlankAutoFilleAccessCode = NetDiskRuleData.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
-            ruleKey
-          );
+          settingConfig.linkClickMode_openBlank.openBlankAutoFilleAccessCode = NetDiskRuleData.linkClickMode_openBlank.openBlankAutoFilleAccessCode(ruleKey);
         }
         if ("openBlankWithCopyAccessCode" in settingConfig.linkClickMode_openBlank) {
           const default_value = typeof settingConfig.linkClickMode_openBlank.openBlankWithCopyAccessCode === "boolean" ? settingConfig.linkClickMode_openBlank.openBlankWithCopyAccessCode : false;
           linkClickMode_openBlank_form.push(
             UISwitch(
               "跳转时复制访问码",
-              NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-                ruleKey
-              ),
+              NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKey),
               default_value,
               void 0,
               "当点击动作是【新标签页打开】时且存在访问码，那就会复制访问码到剪贴板"
             )
           );
-          settingConfig.linkClickMode_openBlank.openBlankWithCopyAccessCode = NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-            ruleKey
-          );
+          settingConfig.linkClickMode_openBlank.openBlankWithCopyAccessCode = NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKey);
         }
         if (linkClickMode_openBlank_form.length) {
           formConfigList.push({
@@ -25671,23 +25467,18 @@
   } catch (error) {
     console.error("init NetDisk icon error", error);
   }
-  [
-    "input",
-    "select-multiple",
-    "select",
-    "slider",
-    "switch",
-    "textarea"
-  ].forEach((type) => {
-    PanelComponents.setStorageApi(type, {
-      get(key, defaultValue) {
-        return _GM_getValue(key, defaultValue);
-      },
-      set(key, value) {
-        _GM_setValue(key, value);
-      }
-    });
-  });
+  ["input", "select-multiple", "select", "slider", "switch", "textarea"].forEach(
+    (type) => {
+      PanelComponents.setStorageApi(type, {
+        get(key, defaultValue) {
+          return _GM_getValue(key, defaultValue);
+        },
+        set(key, value) {
+          _GM_setValue(key, value);
+        }
+      });
+    }
+  );
   WebsiteRule.init();
   NetDiskUserRule.init();
   NetDiskRule.init();
