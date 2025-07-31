@@ -1,16 +1,10 @@
-import type {
-	PopsCommonConfig,
-	PopsContentConfig,
-} from "../../../types/components";
+import type { PopsCommonConfig, PopsContentConfig } from "../../../types/components";
 
 /**
  * pops.loading
  */
 export interface PopsLoadingDetails
-	extends Omit<
-		PopsCommonConfig,
-		"width" | "height" | "position" | "beforeAppendToPageCallBack"
-	> {
+	extends Omit<PopsCommonConfig, "width" | "height" | "position" | "beforeAppendToPageCallBack"> {
 	/**
 	 * 父元素，默认为document.body
 	 * @default document.body

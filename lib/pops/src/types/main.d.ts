@@ -47,10 +47,7 @@ export type PopsSupportOnlyDetails = Omit<PopsDetails, "searchSuggestion">;
 export type PopsInstStoreType = keyof Omit<PopsDetails, "searchSuggestion">;
 
 /** pops弹窗支持动画元素的配置 8个 */
-export type PopsSupportAnimDetails = Omit<
-	PopsDetails,
-	"tooltip" | "rightClickMenu" | "searchSuggestion"
->;
+export type PopsSupportAnimDetails = Omit<PopsDetails, "tooltip" | "rightClickMenu" | "searchSuggestion">;
 
 /** pops弹窗支持动画元素的类型 */
 export type PopsSupportAnimDetailsType = keyof PopsSupportAnimDetails;
@@ -62,18 +59,13 @@ export type PopsSupportHeaderTitleDetails = Pick<
 >;
 
 /** pops弹窗支持标题栏的类型 */
-export type PopsSupportHeaderTitleDetailsType =
-	keyof PopsSupportHeaderTitleDetails;
+export type PopsSupportHeaderTitleDetailsType = keyof PopsSupportHeaderTitleDetails;
 
 /** pops支持底部按钮的配置 */
-export type PopsSupportBottomBtnDetails = Pick<
-	PopsDetails,
-	"alert" | "confirm" | "prompt" | "drawer"
->;
+export type PopsSupportBottomBtnDetails = Pick<PopsDetails, "alert" | "confirm" | "prompt" | "drawer">;
 
 /** pops支持底部按钮的类型 */
-export type PopsSupportBottomBtnDetailsType =
-	keyof PopsSupportHeaderTitleDetails;
+export type PopsSupportBottomBtnDetailsType = keyof PopsSupportHeaderTitleDetails;
 
 /** pops支持中间内容的配置 */
 export type PopsSupportContentDetails = Pick<

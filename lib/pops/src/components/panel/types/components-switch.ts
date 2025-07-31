@@ -3,8 +3,7 @@ import type { PopsPanelCommonDetails } from "./components-common";
 /**
  * pops.panel的 switch
  */
-export interface PopsPanelSwitchDetails
-	extends PopsPanelCommonDetails<PopsPanelSwitchDetails> {
+export interface PopsPanelSwitchDetails extends PopsPanelCommonDetails<PopsPanelSwitchDetails> {
 	/**
 	 * （可选）className属性
 	 * @default ""

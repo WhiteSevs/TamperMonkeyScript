@@ -30,9 +30,7 @@ export const PopsInstanceUtils = {
 	getMaxZIndexNodeInfo(
 		deviation = 1,
 		target: Element | ShadowRoot | Document = PopsCore.document,
-		ignoreCallBack?: (
-			$ele: Element | HTMLElement | ShadowRoot
-		) => boolean | void
+		ignoreCallBack?: ($ele: Element | HTMLElement | ShadowRoot) => boolean | void
 	): {
 		node: Element;
 		zIndex: number;
@@ -162,11 +160,7 @@ export const PopsInstanceUtils = {
 	 * @param  guid 唯一标识
 	 * @param isAll 是否全部删除
 	 */
-	removeInstance(
-		instConfigList: PopsInstCommonConfig[][],
-		guid: string,
-		isAll = false
-	) {
+	removeInstance(instConfigList: PopsInstCommonConfig[][], guid: string, isAll = false) {
 		/**
 		 * 移除元素实例
 		 * @param instCommonConfig
@@ -188,20 +182,13 @@ export const PopsInstanceUtils = {
 				// 移除全部或者guid相同
 				if (isAll || instConfigItem["guid"] === guid) {
 					// 判断是否有动画
-					let animName = instConfigItem.animElement.getAttribute(
-						"anim"
-					) as string;
+					let animName = instConfigItem.animElement.getAttribute("anim") as string;
 					if (PopsAnimation.hasAnim(animName)) {
 						let reverseAnimName = animName + "-reverse";
 						instConfigItem.animElement.style.width = "100%";
 						instConfigItem.animElement.style.height = "100%";
-						(instConfigItem.animElement.style as any)["animation-name"] =
-							reverseAnimName;
-						if (
-							PopsAnimation.hasAnim(
-								(instConfigItem.animElement.style as any)["animation-name"]
-							)
-						) {
+						(instConfigItem.animElement.style as any)["animation-name"] = reverseAnimName;
+						if (PopsAnimation.hasAnim((instConfigItem.animElement.style as any)["animation-name"])) {
 							popsDOMUtils.on(
 								instConfigItem.animElement,
 								popsDOMUtils.getAnimationEndNameList(),
@@ -251,8 +238,7 @@ export const PopsInstanceUtils = {
 		maskElement: HTMLElement
 	) {
 		return new Promise<void>((resolve) => {
-			let popsElement =
-				animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
+			let popsElement = animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
 			if (popsType === "drawer") {
 				let drawerConfig = config as Required<PopsDrawerDetails>;
 				popsUtils.setTimeout(() => {
@@ -267,9 +253,7 @@ export const PopsInstanceUtils = {
 					resolve();
 				}, drawerConfig.closeDelay);
 			} else {
-				let fintInst = instConfigList.find(
-					(instConfigItem) => instConfigItem.guid === guid
-				);
+				let fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
 				if (fintInst) {
 					/* 存在动画 */
 					let instConfigItem = fintInst;
@@ -348,8 +332,7 @@ export const PopsInstanceUtils = {
 		maskElement?: HTMLElement
 	) {
 		return new Promise<void>((resolve) => {
-			let popsElement =
-				animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
+			let popsElement = animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
 			if (popsType === "drawer") {
 				let drawerConfig = config as PopsDrawerDetails;
 				popsUtils.setTimeout(() => {
@@ -366,9 +349,7 @@ export const PopsInstanceUtils = {
 					resolve();
 				}, drawerConfig.openDelay ?? 0);
 			} else {
-				let fintInst = instConfigList.find(
-					(instConfigItem) => instConfigItem.guid === guid
-				);
+				let fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
 				if (fintInst) {
 					let instConfigItem = fintInst;
 					instConfigItem.animElement.style.width = "";
@@ -444,8 +425,7 @@ export const PopsInstanceUtils = {
 		animElement: HTMLElement
 	) {
 		return new Promise<void>((resolve) => {
-			let popsElement =
-				animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
+			let popsElement = animElement.querySelector<HTMLDivElement>(".pops[type-value]")!;
 			let drawerConfig = config as Required<PopsDrawerDetails>;
 			/**
 			 * 动画结束事件
@@ -458,29 +438,15 @@ export const PopsInstanceUtils = {
 					if ((event as TransitionEvent).propertyName !== "transform") {
 						return;
 					}
-					popsDOMUtils.off(
-						popsElement,
-						popsDOMUtils.getTransitionEndNameList(),
-						void 0,
-						closeCallBack
-					);
+					popsDOMUtils.off(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
 					PopsInstanceUtils.removeInstance([instConfigList], guid);
 					resolve();
 				}
 				/* 监听过渡结束 */
-				popsDOMUtils.on(
-					popsElement,
-					popsDOMUtils.getTransitionEndNameList(),
-					closeCallBack
-				);
+				popsDOMUtils.on(popsElement, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
 				let popsTransForm = getComputedStyle(popsElement).transform;
 				if (popsTransForm !== "none") {
-					popsDOMUtils.trigger(
-						popsElement,
-						popsDOMUtils.getTransitionEndNameList(),
-						void 0,
-						true
-					);
+					popsDOMUtils.trigger(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, true);
 					return;
 				}
 				if (["top"].includes(drawerConfig.direction)) {
@@ -522,16 +488,8 @@ export const PopsInstanceUtils = {
 			triggerClick?: boolean;
 			extraDistance: number;
 			container?: Window | typeof globalThis | HTMLElement;
-			moveCallBack?: (
-				moveElement: HTMLElement,
-				left: number,
-				top: number
-			) => void;
-			endCallBack?: (
-				moveElement: HTMLElement,
-				left: number,
-				top: number
-			) => void;
+			moveCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
+			endCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
 			preventEvent?: (event: TouchEvent | PointerEvent) => boolean;
 		}
 	) {
@@ -569,16 +527,9 @@ export const PopsInstanceUtils = {
 		function getTransform(element: HTMLElement) {
 			let transform_left = 0;
 			let transform_top = 0;
-			let elementTransform =
-				PopsCore.globalThis.getComputedStyle(element).transform;
-			if (
-				elementTransform !== "none" &&
-				elementTransform != null &&
-				elementTransform !== ""
-			) {
-				let elementTransformSplit = elementTransform
-					.match(/\((.+)\)/)?.[1]
-					.split(",")!;
+			let elementTransform = PopsCore.globalThis.getComputedStyle(element).transform;
+			if (elementTransform !== "none" && elementTransform != null && elementTransform !== "") {
+				let elementTransformSplit = elementTransform.match(/\((.+)\)/)?.[1].split(",")!;
 				transform_left = Math.abs(parseInt(elementTransformSplit[4]));
 				transform_top = Math.abs(parseInt(elementTransformSplit[5]));
 			}
@@ -603,9 +554,7 @@ export const PopsInstanceUtils = {
 		 * 获取容器的高度、宽度，一般是window为容器
 		 */
 
-		function getContainerWidthOrHeight(
-			container: HTMLElement | Window | typeof globalThis
-		) {
+		function getContainerWidthOrHeight(container: HTMLElement | Window | typeof globalThis) {
 			container = container ?? globalThis;
 			return {
 				width: popsDOMUtils.width(container),
@@ -616,9 +565,7 @@ export const PopsInstanceUtils = {
 		 * 获取容器的最小left、top偏移
 		 */
 
-		function getContainerTopOrLeft(
-			container: HTMLElement | Window | typeof globalThis
-		) {
+		function getContainerTopOrLeft(container: HTMLElement | Window | typeof globalThis) {
 			container = container ?? globalThis;
 			if (popsUtils.isWin(container)) {
 				return {
@@ -662,8 +609,7 @@ export const PopsInstanceUtils = {
 			}
 
 			/** 当前移动的left偏移 */
-			let currentMoveLeftOffset =
-				event.x - clickElementLeftOffset + transformLeft;
+			let currentMoveLeftOffset = event.x - clickElementLeftOffset + transformLeft;
 			/** 当前移动的top偏移 */
 			let currentMoveTopOffset = event.y - clickElementTopOffset + transformTop;
 			/* 拖拽移动 */
@@ -675,8 +621,7 @@ export const PopsInstanceUtils = {
 						getContainerWidthOrHeight(options.container!).width -
 						popsDOMUtils.width(moveElement) +
 						transformLeft;
-					let { left: minLeftOffset, top: minTopOffset } =
-						getContainerTopOrLeft(options.container!);
+					let { left: minLeftOffset, top: minTopOffset } = getContainerTopOrLeft(options.container!);
 					/* top偏移的最大值 */
 					let maxTopOffset =
 						getContainerWidthOrHeight(options.container!).height -
@@ -690,10 +635,7 @@ export const PopsInstanceUtils = {
 						/* 不允许超过容器的最大高度 */
 						currentMoveTopOffset = maxTopOffset;
 					}
-					if (
-						currentMoveLeftOffset - options.extraDistance * 2 <
-						minLeftOffset + transformLeft
-					) {
+					if (currentMoveLeftOffset - options.extraDistance * 2 < minLeftOffset + transformLeft) {
 						/* 不允许left偏移小于容器最小值 */
 						currentMoveLeftOffset = minLeftOffset + transformLeft;
 						/* 最左边 +额外距离 */
@@ -702,10 +644,7 @@ export const PopsInstanceUtils = {
 						/* 最右边 -额外距离 */
 						currentMoveLeftOffset -= options.extraDistance;
 					}
-					if (
-						currentMoveTopOffset - options.extraDistance * 2 <
-						minTopOffset + transformTop
-					) {
+					if (currentMoveTopOffset - options.extraDistance * 2 < minTopOffset + transformTop) {
 						/* 不允许top偏移小于容器最小值 */
 						currentMoveTopOffset = minTopOffset + transformTop;
 						/* 最上面 +额外距离 */
@@ -716,11 +655,7 @@ export const PopsInstanceUtils = {
 					}
 				}
 				if (typeof options.moveCallBack === "function") {
-					options.moveCallBack(
-						moveElement,
-						currentMoveLeftOffset,
-						currentMoveTopOffset
-					);
+					options.moveCallBack(moveElement, currentMoveLeftOffset, currentMoveTopOffset);
 				}
 
 				popsDOMUtils.css(moveElement, {
@@ -737,11 +672,7 @@ export const PopsInstanceUtils = {
 					resumeMoveElementStyle = null;
 				}
 				if (typeof options.endCallBack === "function") {
-					options.endCallBack(
-						moveElement,
-						currentMoveLeftOffset,
-						currentMoveTopOffset
-					);
+					options.endCallBack(moveElement, currentMoveLeftOffset, currentMoveTopOffset);
 				}
 			}
 		});
@@ -749,12 +680,7 @@ export const PopsInstanceUtils = {
 			/* 因为会覆盖上面的点击事件，主动触发一下 */
 			anyTouchElement.on(["tap"], function (event) {
 				event.changedPoints.forEach((item) => {
-					popsDOMUtils.trigger(
-						item.target! as HTMLElement,
-						"click",
-						void 0,
-						true
-					);
+					popsDOMUtils.trigger(item.target! as HTMLElement, "click", void 0, true);
 				});
 			});
 		}

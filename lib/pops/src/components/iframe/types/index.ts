@@ -1,8 +1,4 @@
-import type {
-	PopsTitleConfig,
-	PopsDragConfig,
-	PopsCommonConfig,
-} from "../../../types/components";
+import type { PopsTitleConfig, PopsDragConfig, PopsCommonConfig } from "../../../types/components";
 
 import type { PopsEventDetails } from "../../../types/event";
 
@@ -39,10 +35,7 @@ export interface PopsBtnIframeCallBackEvent {
 /**
  * pops.iframe
  */
-export interface PopsIframeDetails
-	extends PopsTitleConfig,
-		PopsDragConfig,
-		PopsCommonConfig {
+export interface PopsIframeDetails extends PopsTitleConfig, PopsDragConfig, PopsCommonConfig {
 	/**
 	 * 加载配置
 	 */

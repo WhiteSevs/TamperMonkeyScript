@@ -5,8 +5,7 @@ import type { PopsPanelFormsTotalDetails } from ".";
 /**
  * pops.panel的 select
  */
-export interface PopsPanelSelectDetails<T = any>
-	extends PopsPanelCommonDetails<PopsPanelSelectDetails> {
+export interface PopsPanelSelectDetails<T = any> extends PopsPanelCommonDetails<PopsPanelSelectDetails> {
 	/**
 	 * （可选）className属性
 	 * @default ""
@@ -58,20 +57,13 @@ export interface PopsPanelSelectDetails<T = any>
 	 * @param isSelectedValue 当前选中的值，也就是元素属性上的__value__
 	 * @param isSelectedText 当前选中的文本
 	 */
-	callback?(
-		event: PointerEvent | TouchEvent,
-		isSelectedValue: T,
-		isSelectedText: string
-	): void;
+	callback?(event: PointerEvent | TouchEvent, isSelectedValue: T, isSelectedText: string): void;
 	/**
 	 * 点击select元素触发该回调
 	 * @param event 点击事件
 	 * @param selectElement 当前的select元素
 	 */
-	clickCallBack?(
-		event: PointerEvent | MouseEvent,
-		selectElement: HTMLSelectElement
-	): void;
+	clickCallBack?(event: PointerEvent | MouseEvent, selectElement: HTMLSelectElement): void;
 	/**
 	 * 选择器内的数据组
 	 */

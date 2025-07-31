@@ -1,8 +1,4 @@
-import type {
-	PopsTitleConfig,
-	PopsDragConfig,
-	PopsCommonConfig,
-} from "../../../types/components";
+import type { PopsTitleConfig, PopsDragConfig, PopsCommonConfig } from "../../../types/components";
 import type { PopsPanelFormsDetails } from "./components-forms";
 import type { PopsPanelSwitchDetails } from "./components-switch";
 import type { PopsPanelSliderDetails } from "./components-slider";
@@ -144,10 +140,7 @@ export interface PopsPanelContentConfig {
 /**
  * pops.panel
  */
-export interface PopsPanelDetails
-	extends PopsTitleConfig,
-		PopsDragConfig,
-		PopsCommonConfig {
+export interface PopsPanelDetails extends PopsTitleConfig, PopsDragConfig, PopsCommonConfig {
 	/**
 	 * 内容配置
 	 */

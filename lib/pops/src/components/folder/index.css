@@ -3,9 +3,7 @@
 	--folder-arrow-active-fill-color: #06a7ff;
 	--header-breadcrumb-text-color: #06a7ff;
 	--header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);
-	--header-breadcrumb-all-files-first-text-color: var(
-		--header-breadcrumb-text-color
-	);
+	--header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);
 	--header-breadcrumb-all-files-last-text-color: #999999;
 	--table-header-row-text-color: #818999;
 	--table-body-td-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));
@@ -287,21 +285,12 @@ table.pops-folder-list-table__body {
 @media (prefers-color-scheme: dark) {
 	.pops[type-value="folder"] {
 		--pops-title-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));
-		--pops-bottom-btn-controls-border-color: rgb(
-			73,
-			83,
-			102,
-			var(--pops-bg-opacity)
-		);
+		--pops-bottom-btn-controls-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));
 	}
 	.pops-folder-list {
 		--header-breadcrumb-text-color: #06a7ff;
-		--header-breadcrumb-all-files-text-color: var(
-			--header-breadcrumb-text-color
-		);
-		--header-breadcrumb-all-files-first-text-color: var(
-			--header-breadcrumb-text-color
-		);
+		--header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);
+		--header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);
 		--header-breadcrumb-all-files-last-text-color: #818999;
 		--table-body-row-text-color: #f7f8fa;
 		--table-body-td-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));

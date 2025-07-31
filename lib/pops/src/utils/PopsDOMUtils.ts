@@ -90,11 +90,7 @@ class PopsDOMUtilsEvent {
 		element: PopsDOMUtilsElementEventType,
 		eventType: T | T[],
 		selector: string | string[] | undefined | null,
-		callback: (
-			this: HTMLElement,
-			event: PopsDOMUtils_Event[T],
-			selectorTarget: HTMLElement
-		) => void,
+		callback: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void,
 		option?: PopsDOMUtilsEventListenerOption | boolean
 	): void;
 	/**
@@ -125,11 +121,7 @@ class PopsDOMUtilsEvent {
 		element: PopsDOMUtilsElementEventType,
 		eventType: string | string[],
 		selector: string | string[] | undefined | null,
-		callback: (
-			this: HTMLElement,
-			event: T,
-			selectorTarget: HTMLElement
-		) => void,
+		callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void,
 		option?: PopsDOMUtilsEventListenerOption | boolean
 	): void;
 	on<T extends Event>(
@@ -143,11 +135,7 @@ class PopsDOMUtilsEvent {
 			| Element
 			| null
 			| typeof globalThis,
-		eventType:
-			| PopsDOMUtils_EventType
-			| PopsDOMUtils_EventType[]
-			| string
-			| string[],
+		eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[] | string | string[],
 		selector:
 			| string
 			| string[]
@@ -166,11 +154,7 @@ class PopsDOMUtilsEvent {
 		 * @param startIndex
 		 * @param option
 		 */
-		function getOption(
-			args: IArguments,
-			startIndex: number,
-			option: PopsDOMUtilsEventListenerOption
-		) {
+		function getOption(args: IArguments, startIndex: number, option: PopsDOMUtilsEventListenerOption) {
 			let currentParam = args[startIndex];
 			if (typeof currentParam === "boolean") {
 				option.capture = currentParam;
@@ -215,8 +199,7 @@ class PopsDOMUtilsEvent {
 		if (Array.isArray(eventType)) {
 			eventTypeList = eventTypeList.concat(
 				eventType.filter(
-					(eventTypeItem) =>
-						typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
+					(eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
 				)
 			);
 		} else if (typeof eventType === "string") {
@@ -228,20 +211,14 @@ class PopsDOMUtilsEvent {
 		let selectorList: string[] = [];
 		if (Array.isArray(selector)) {
 			selectorList = selectorList.concat(
-				selector.filter(
-					(selectorItem) =>
-						typeof selectorItem === "string" && selectorItem.toString() !== ""
-				)
+				selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== "")
 			);
 		} else if (typeof selector === "string") {
 			selectorList.push(selector);
 		}
 		// 事件回调
-		let listenerCallBack: (
-			this: HTMLElement,
-			event: Event,
-			selectorTarget?: HTMLElement
-		) => void = callback as any;
+		let listenerCallBack: (this: HTMLElement, event: Event, selectorTarget?: HTMLElement) => void =
+			callback as any;
 		// 事件配置
 		let listenerOption: PopsDOMUtilsEventListenerOption = {
 			capture: false,
@@ -263,13 +240,7 @@ class PopsDOMUtilsEvent {
 		 */
 		function checkOptionOnceToRemoveEventListener() {
 			if (listenerOption.once) {
-				DOMUtilsContext.off(
-					element,
-					eventType as any,
-					selector as any,
-					callback as any,
-					option
-				);
+				DOMUtilsContext.off(element, eventType as any, selector as any, callback as any, option);
 			}
 		}
 		elementList.forEach((elementItem) => {
@@ -297,10 +268,7 @@ class PopsDOMUtilsEvent {
 							return true;
 						}
 						/* 在上层与主元素之间寻找可以被selector所匹配到的 */
-						let $closestMatches = DOMUtilsContext.closest<HTMLElement>(
-							eventTarget,
-							selectorItem
-						);
+						let $closestMatches = DOMUtilsContext.closest<HTMLElement>(eventTarget, selectorItem);
 						if ($closestMatches && totalParent?.contains($closestMatches)) {
 							eventTarget = $closestMatches;
 							return true;
@@ -328,11 +296,7 @@ class PopsDOMUtilsEvent {
 
 			/* 遍历事件名设置元素事件 */
 			eventTypeList.forEach((eventName) => {
-				elementItem.addEventListener(
-					eventName,
-					domUtilsEventCallBack,
-					listenerOption
-				);
+				elementItem.addEventListener(eventName, domUtilsEventCallBack, listenerOption);
 				/* 获取对象上的事件 */
 				let elementEvents: {
 					[k: string]: PopsDOMUtilsEventListenerOptionsAttribute[];
@@ -416,11 +380,7 @@ class PopsDOMUtilsEvent {
 		element: PopsDOMUtilsElementEventType,
 		eventType: T | T[],
 		selector?: string | string[] | undefined | null,
-		callback?: (
-			this: HTMLElement,
-			event: PopsDOMUtils_Event[T],
-			selectorTarget: HTMLElement
-		) => void,
+		callback?: (this: HTMLElement, event: PopsDOMUtils_Event[T], selectorTarget: HTMLElement) => void,
 		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: PopsDOMUtilsEventListenerOptionsAttribute,
@@ -446,11 +406,7 @@ class PopsDOMUtilsEvent {
 		element: PopsDOMUtilsElementEventType,
 		eventType: string | string[],
 		selector?: string | string[] | undefined | null,
-		callback?: (
-			this: HTMLElement,
-			event: T,
-			selectorTarget: HTMLElement
-		) => void,
+		callback?: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void,
 		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: PopsDOMUtilsEventListenerOptionsAttribute,
@@ -469,11 +425,7 @@ class PopsDOMUtilsEvent {
 			| Element
 			| null
 			| typeof globalThis,
-		eventType:
-			| PopsDOMUtils_EventType
-			| PopsDOMUtils_EventType[]
-			| string
-			| string[],
+		eventType: PopsDOMUtils_EventType | PopsDOMUtils_EventType[] | string | string[],
 		selector:
 			| string
 			| string[]
@@ -504,18 +456,11 @@ class PopsDOMUtilsEvent {
 		 * @param startIndex
 		 * @param option
 		 */
-		function getOption(
-			args1: IArguments,
-			startIndex: number,
-			option: EventListenerOptions
-		) {
+		function getOption(args1: IArguments, startIndex: number, option: EventListenerOptions) {
 			let currentParam: EventListenerOptions | boolean = args1[startIndex];
 			if (typeof currentParam === "boolean") {
 				option.capture = currentParam;
-			} else if (
-				typeof currentParam === "object" &&
-				"capture" in currentParam
-			) {
+			} else if (typeof currentParam === "object" && "capture" in currentParam) {
 				option.capture = currentParam.capture;
 			}
 			return option;
@@ -539,8 +484,7 @@ class PopsDOMUtilsEvent {
 		if (Array.isArray(eventType)) {
 			eventTypeList = eventTypeList.concat(
 				eventType.filter(
-					(eventTypeItem) =>
-						typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
+					(eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
 				)
 			);
 		} else if (typeof eventType === "string") {
@@ -552,10 +496,7 @@ class PopsDOMUtilsEvent {
 		let selectorList: string[] = [];
 		if (Array.isArray(selector)) {
 			selectorList = selectorList.concat(
-				selector.filter(
-					(selectorItem) =>
-						typeof selectorItem === "string" && selectorItem.toString() !== ""
-				)
+				selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== "")
 			);
 		} else if (typeof selector === "string") {
 			selectorList.push(selector);
@@ -563,11 +504,8 @@ class PopsDOMUtilsEvent {
 		/**
 		 * 事件的回调函数
 		 */
-		let listenerCallBack: (
-			this: HTMLElement,
-			event: T,
-			selectorTarget: HTMLElement
-		) => void = callback as any;
+		let listenerCallBack: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void =
+			callback as any;
 
 		/**
 		 * 事件的配置
@@ -589,10 +527,7 @@ class PopsDOMUtilsEvent {
 		if (args.length === 2) {
 			// 目标函数、事件名
 			isRemoveAll = true;
-		} else if (
-			(args.length === 3 && typeof args[2] === "string") ||
-			Array.isArray(args[2])
-		) {
+		} else if ((args.length === 3 && typeof args[2] === "string") || Array.isArray(args[2])) {
 			// 目标函数、事件名、子元素选择器
 			isRemoveAll = true;
 		}
@@ -609,18 +544,12 @@ class PopsDOMUtilsEvent {
 				for (let index = 0; index < handlers.length; index++) {
 					let handler = handlers[index];
 					let flag = true;
-					if (
-						flag &&
-						listenerCallBack &&
-						handler.originCallBack !== listenerCallBack
-					) {
+					if (flag && listenerCallBack && handler.originCallBack !== listenerCallBack) {
 						// callback不同
 						flag = false;
 					}
 					if (flag && selectorList.length && Array.isArray(handler.selector)) {
-						if (
-							JSON.stringify(handler.selector) !== JSON.stringify(selectorList)
-						) {
+						if (JSON.stringify(handler.selector) !== JSON.stringify(selectorList)) {
 							// 子元素选择器不同
 							flag = false;
 						}
@@ -630,11 +559,7 @@ class PopsDOMUtilsEvent {
 						flag = false;
 					}
 					if (flag || isRemoveAll) {
-						elementItem.removeEventListener(
-							eventName,
-							handler.callback,
-							handler.option
-						);
+						elementItem.removeEventListener(eventName, handler.callback, handler.option);
 						handlers.splice(index--, 1);
 					}
 				}
@@ -695,9 +620,7 @@ class PopsDOMUtilsEvent {
 					return;
 				}
 				let elementEvents = (elementItem as any)[__symbolEvents] || {};
-				let iterEventNameList = eventTypeList.length
-					? eventTypeList
-					: Object.keys(elementEvents);
+				let iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
 				iterEventNameList.forEach((eventName) => {
 					let handlers = elementEvents[eventName];
 					if (!handlers) {
@@ -733,8 +656,7 @@ class PopsDOMUtilsEvent {
 			try {
 				if (
 					document.readyState === "complete" ||
-					(document.readyState !== "loading" &&
-						!(document.documentElement as any).doScroll)
+					(document.readyState !== "loading" && !(document.documentElement as any).doScroll)
 				) {
 					return true;
 				} else {
@@ -924,12 +846,7 @@ class PopsDOMUtilsEvent {
 			return;
 		}
 		if (handler == null) {
-			DOMUtilsContext.trigger(
-				element,
-				"click",
-				details,
-				useDispatchToTriggerEvent
-			);
+			DOMUtilsContext.trigger(element, "click", details, useDispatchToTriggerEvent);
 		} else {
 			DOMUtilsContext.on(element, "click", null, handler);
 		}
@@ -962,19 +879,9 @@ class PopsDOMUtilsEvent {
 			return;
 		}
 		if (handler === null) {
-			DOMUtilsContext.trigger(
-				element,
-				"blur",
-				details,
-				useDispatchToTriggerEvent
-			);
+			DOMUtilsContext.trigger(element, "blur", details, useDispatchToTriggerEvent);
 		} else {
-			DOMUtilsContext.on(
-				element,
-				"blur",
-				null,
-				handler as (event: Event) => void
-			);
+			DOMUtilsContext.on(element, "blur", null, handler as (event: Event) => void);
 		}
 	}
 	/**
@@ -1005,12 +912,7 @@ class PopsDOMUtilsEvent {
 			return;
 		}
 		if (handler == null) {
-			DOMUtilsContext.trigger(
-				element,
-				"focus",
-				details,
-				useDispatchToTriggerEvent
-			);
+			DOMUtilsContext.trigger(element, "focus", details, useDispatchToTriggerEvent);
 		} else {
 			DOMUtilsContext.on(element, "focus", null, handler);
 		}
@@ -1153,11 +1055,7 @@ class PopsDOMUtilsEvent {
 	 * @example
 	 * Utils.preventEvent(event);
 	 */
-	preventEvent(
-		element: HTMLElement,
-		eventNameList?: string | string[],
-		capture?: boolean
-	): boolean;
+	preventEvent(element: HTMLElement, eventNameList?: string | string[], capture?: boolean): boolean;
 	preventEvent(
 		element: HTMLElement | Event,
 		eventNameList: string | string[] = [],
@@ -1204,9 +1102,7 @@ class PopsDOMUtilsEvent {
 	 * DOMUtils.selector("div:regexp('^xxxx$')")
 	 * > div.xxx
 	 */
-	selector<K extends keyof HTMLElementTagNameMap>(
-		selector: K
-	): HTMLElementTagNameMap[K] | undefined;
+	selector<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K] | undefined;
 	selector<E extends Element = Element>(selector: string): E | undefined;
 	selector<E extends Element = Element>(selector: string) {
 		return this.selectorAll<E>(selector)[0];
@@ -1231,20 +1127,16 @@ class PopsDOMUtilsEvent {
 	 * DOMUtils.selectorAll("div:regexp(/^xxx/ig)")
 	 * > [div.xxx]
 	 */
-	selectorAll<K extends keyof HTMLElementTagNameMap>(
-		selector: K
-	): HTMLElementTagNameMap[K][];
+	selectorAll<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K][];
 	selectorAll<E extends Element = Element>(selector: string): E[];
 	selectorAll<E extends Element = Element>(selector: string) {
 		selector = selector.trim();
 		if (selector.match(/[^\s]{1}:empty$/gi)) {
 			// empty 语法
 			selector = selector.replace(/:empty$/gi, "");
-			return Array.from(PopsCore.document.querySelectorAll<E>(selector)).filter(
-				($ele) => {
-					return $ele?.innerHTML?.trim() === "";
-				}
-			);
+			return Array.from(PopsCore.document.querySelectorAll<E>(selector)).filter(($ele) => {
+				return $ele?.innerHTML?.trim() === "";
+			});
 		} else if (
 			selector.match(/[^\s]{1}:contains\("(.*)"\)$/i) ||
 			selector.match(/[^\s]{1}:contains\('(.*)'\)$/i)
@@ -1253,12 +1145,10 @@ class PopsDOMUtilsEvent {
 			let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
 			let text = textMatch![2];
 			selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-			return Array.from(PopsCore.document.querySelectorAll<E>(selector)).filter(
-				($ele) => {
-					// @ts-ignore
-					return ($ele?.textContent || $ele?.innerText)?.includes(text);
-				}
-			);
+			return Array.from(PopsCore.document.querySelectorAll<E>(selector)).filter(($ele) => {
+				// @ts-ignore
+				return ($ele?.textContent || $ele?.innerText)?.includes(text);
+			});
 		} else if (
 			selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) ||
 			selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)
@@ -1274,12 +1164,10 @@ class PopsDOMUtilsEvent {
 			}
 			let regexp = new RegExp(pattern, flags);
 			selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-			return Array.from(PopsCore.document.querySelectorAll<E>(selector)).filter(
-				($ele) => {
-					// @ts-ignore
-					return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
-				}
-			);
+			return Array.from(PopsCore.document.querySelectorAll<E>(selector)).filter(($ele) => {
+				// @ts-ignore
+				return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
+			});
 		} else {
 			// 普通语法
 			return Array.from(PopsCore.document.querySelectorAll<E>(selector));
@@ -1306,10 +1194,7 @@ class PopsDOMUtilsEvent {
 	 * DOMUtils.matches("div:regexp(/^xxx/ig)")
 	 * > false
 	 */
-	matches(
-		$el: HTMLElement | Element | null | undefined,
-		selector: string
-	): boolean {
+	matches($el: HTMLElement | Element | null | undefined, selector: string): boolean {
 		selector = selector.trim();
 		if ($el == null) {
 			return false;
@@ -1384,14 +1269,8 @@ class PopsDOMUtilsEvent {
 		$el: HTMLElement | Element,
 		selector: string
 	): HTMLElementTagNameMap[K] | null;
-	closest<E extends Element = Element>(
-		$el: HTMLElement | Element,
-		selector: string
-	): E | null;
-	closest<E extends Element = Element>(
-		$el: HTMLElement | Element,
-		selector: string
-	): E | null {
+	closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null;
+	closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null {
 		selector = selector.trim();
 
 		if (selector.match(/[^\s]{1}:empty$/gi)) {
@@ -1454,23 +1333,11 @@ class PopsDOMUtilsEvent {
 class PopsDOMUtils extends PopsDOMUtilsEvent {
 	/** 获取 animationend 在各个浏览器的兼容名 */
 	getAnimationEndNameList() {
-		return [
-			"webkitAnimationEnd",
-			"mozAnimationEnd",
-			"MSAnimationEnd",
-			"oanimationend",
-			"animationend",
-		];
+		return ["webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend", "animationend"];
 	}
 	/** 获取 transitionend 在各个浏览器的兼容名 */
 	getTransitionEndNameList() {
-		return [
-			"webkitTransitionEnd",
-			"mozTransitionEnd",
-			"MSTransitionEnd",
-			"otransitionend",
-			"transitionend",
-		];
+		return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
 	}
 	/**
 	 * 实现jQuery中的$().offset();
@@ -1481,12 +1348,8 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		let rect = element.getBoundingClientRect();
 		let win = element.ownerDocument.defaultView;
 		let resultRect = new DOMRect(
-			calcScroll
-				? parseFloat((rect.left + (win?.pageXOffset || 0)).toString())
-				: rect.left,
-			calcScroll
-				? parseFloat((rect.top + (win?.pageYOffset || 0)).toString())
-				: rect.top,
+			calcScroll ? parseFloat((rect.left + (win?.pageXOffset || 0)).toString()) : rect.left,
+			calcScroll ? parseFloat((rect.top + (win?.pageYOffset || 0)).toString()) : rect.top,
 			rect.width,
 			rect.height
 		);
@@ -1547,24 +1410,14 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			/* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
 			element = element as HTMLElement;
 			/* 如果element.style.width为空  则从css里面获取是否定义了width信息如果定义了 则读取css里面定义的宽度width */
-			if (
-				parseFloat(popsDOMUtils.getStyleValue(element, "width").toString()) > 0
-			) {
-				return parseFloat(
-					popsDOMUtils.getStyleValue(element, "width").toString()
-				);
+			if (parseFloat(popsDOMUtils.getStyleValue(element, "width").toString()) > 0) {
+				return parseFloat(popsDOMUtils.getStyleValue(element, "width").toString());
 			}
 
 			/* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算 */
 			if (element.offsetWidth > 0) {
-				let borderLeftWidth = popsDOMUtils.getStyleValue(
-					element,
-					"borderLeftWidth"
-				);
-				let borderRightWidth = popsDOMUtils.getStyleValue(
-					element,
-					"borderRightWidth"
-				);
+				let borderLeftWidth = popsDOMUtils.getStyleValue(element, "borderLeftWidth");
+				let borderRightWidth = popsDOMUtils.getStyleValue(element, "borderRightWidth");
 				let paddingLeft = popsDOMUtils.getStyleValue(element, "paddingLeft");
 				let paddingRight = popsDOMUtils.getStyleValue(element, "paddingRight");
 				let backHeight =
@@ -1641,29 +1494,16 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			/* 已显示 */
 			/* 从style中获取对应的高度，因为可能使用了class定义了width !important */
 			/* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
-			if (
-				parseFloat(popsDOMUtils.getStyleValue(element, "height").toString()) > 0
-			) {
-				return parseFloat(
-					popsDOMUtils.getStyleValue(element, "height").toString()
-				);
+			if (parseFloat(popsDOMUtils.getStyleValue(element, "height").toString()) > 0) {
+				return parseFloat(popsDOMUtils.getStyleValue(element, "height").toString());
 			}
 
 			/* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算 */
 			if (element.offsetHeight > 0) {
-				let borderTopWidth = popsDOMUtils.getStyleValue(
-					element,
-					"borderTopWidth"
-				);
-				let borderBottomWidth = popsDOMUtils.getStyleValue(
-					element,
-					"borderBottomWidth"
-				);
+				let borderTopWidth = popsDOMUtils.getStyleValue(element, "borderTopWidth");
+				let borderBottomWidth = popsDOMUtils.getStyleValue(element, "borderBottomWidth");
 				let paddingTop = popsDOMUtils.getStyleValue(element, "paddingTop");
-				let paddingBottom = popsDOMUtils.getStyleValue(
-					element,
-					"paddingBottom"
-				);
+				let paddingBottom = popsDOMUtils.getStyleValue(element, "paddingBottom");
 				let backHeight =
 					parseFloat(element.offsetHeight.toString()) -
 					parseFloat(borderTopWidth.toString()) -
@@ -1818,10 +1658,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * @param element 目标元素
 	 * @param className className属性
 	 */
-	containsClassName(
-		element: HTMLElement | undefined | null,
-		className: string
-	): boolean {
+	containsClassName(element: HTMLElement | undefined | null, className: string): boolean {
 		if (element == null) {
 			return false;
 		}
@@ -1843,10 +1680,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * DOMUtils.css("a.xx","display");
 	 * > "none"
 	 * */
-	css(
-		element: HTMLElement | string,
-		property: keyof CSSStyleDeclaration
-	): string;
+	css(element: HTMLElement | string, property: keyof CSSStyleDeclaration): string;
 	/**
 	 * 获取元素的样式属性值
 	 * @param element 目标元素
@@ -1909,10 +1743,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			| keyof CSSStyleDeclaration
 			| string
 			| {
-					[P in keyof CSSStyleDeclaration]?:
-						| string
-						| number
-						| CSSStyleDeclaration[P];
+					[P in keyof CSSStyleDeclaration]?: string | number | CSSStyleDeclaration[P];
 			  },
 		value?: string | number
 	) {
@@ -1920,15 +1751,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		 * 把纯数字没有px的加上
 		 */
 		function handlePixe(propertyName: string, propertyValue: string | number) {
-			let allowAddPixe = [
-				"width",
-				"height",
-				"top",
-				"left",
-				"right",
-				"bottom",
-				"font-size",
-			];
+			let allowAddPixe = ["width", "height", "top", "left", "right", "bottom", "font-size"];
 			if (typeof propertyValue === "number") {
 				propertyValue = propertyValue.toString();
 			}
@@ -1947,14 +1770,8 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		let setStyleProperty = (
-			propertyName: string,
-			propertyValue: string | number
-		) => {
-			if (
-				typeof propertyValue === "string" &&
-				propertyValue.trim().endsWith("!important")
-			) {
+		let setStyleProperty = (propertyName: string, propertyValue: string | number) => {
+			if (typeof propertyValue === "string" && propertyValue.trim().endsWith("!important")) {
 				propertyValue = propertyValue
 					.trim()
 					.replace(/!important$/gi, "")
@@ -2055,9 +1872,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 */
 	parseTextToDOM<R extends HTMLElement>(elementString: string): R {
 		/* 去除前后的换行和空格 */
-		elementString = elementString
-			.replace(/^[\n|\s]*/g, "")
-			.replace(/[\n|\s]*$/g, "");
+		elementString = elementString.replace(/^[\n|\s]*/g, "").replace(/[\n|\s]*$/g, "");
 		let targetElement = this.createElement("div", {
 			innerHTML: elementString,
 		});
@@ -2080,20 +1895,14 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	): DOMRect {
 		// Basic parameter validation
 		if (!input || !("value" in input)) return input;
-		if (typeof selectionStart == "string")
-			selectionStart = parseFloat(selectionStart);
+		if (typeof selectionStart == "string") selectionStart = parseFloat(selectionStart);
 		if (typeof selectionStart != "number" || isNaN(selectionStart)) {
 			selectionStart = 0;
 		}
 		if (selectionStart < 0) selectionStart = 0;
 		else selectionStart = Math.min(input.value.length, selectionStart);
-		if (typeof selectionEnd == "string")
-			selectionEnd = parseFloat(selectionEnd);
-		if (
-			typeof selectionEnd != "number" ||
-			isNaN(selectionEnd) ||
-			selectionEnd < selectionStart
-		) {
+		if (typeof selectionEnd == "string") selectionEnd = parseFloat(selectionEnd);
+		if (typeof selectionEnd != "number" || isNaN(selectionEnd) || selectionEnd < selectionStart) {
 			selectionEnd = selectionStart;
 		}
 		if (selectionEnd < 0) selectionEnd = 0;
@@ -2200,14 +2009,10 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 				clientLeft = docElem.clientLeft || body.clientLeft || 0,
 				scrollTop =
 					// @ts-ignore
-					win.pageYOffset ||
-					(isBoxModel && docElem.scrollTop) ||
-					body.scrollTop,
+					win.pageYOffset || (isBoxModel && docElem.scrollTop) || body.scrollTop,
 				scrollLeft =
 					// @ts-ignore
-					win.pageXOffset ||
-					(isBoxModel && docElem.scrollLeft) ||
-					body.scrollLeft;
+					win.pageXOffset || (isBoxModel && docElem.scrollLeft) || body.scrollLeft;
 			return {
 				// @ts-ignore
 				top: box.top + scrollTop - clientTop,
@@ -2222,9 +2027,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		 * @returns
 		 */
 		function getInputCSS(prop: string, isnumber: boolean) {
-			var val = PopsCore.document
-				.defaultView!.getComputedStyle(input, null)
-				.getPropertyValue(prop);
+			var val = PopsCore.document.defaultView!.getComputedStyle(input, null).getPropertyValue(prop);
 			// @ts-ignore
 			return isnumber ? parseFloat(val) : val;
 		}
@@ -2324,11 +2127,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * */
 	append(
 		element: Element | Node | ShadowRoot | HTMLElement | string,
-		content:
-			| HTMLElement
-			| string
-			| (HTMLElement | string | Element)[]
-			| NodeList
+		content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList
 	) {
 		if (typeof element === "string") {
 			element = PopsCore.document.querySelector(element) as HTMLElement;
@@ -2338,10 +2137,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		}
 		function elementAppendChild(ele: HTMLElement, text: HTMLElement | string) {
 			if (typeof content === "string") {
-				ele.insertAdjacentHTML(
-					"beforeend",
-					PopsSafeUtils.getSafeHTML(text as string)
-				);
+				ele.insertAdjacentHTML("beforeend", PopsSafeUtils.getSafeHTML(text as string));
 			} else {
 				ele.appendChild(text as HTMLElement);
 			}
@@ -2397,10 +2193,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	showElement($ele: HTMLElement, ownParent?: Node) {
 		/** 克隆元素 */
 		let $cloneNode = $ele.cloneNode(true) as HTMLElement;
-		$cloneNode.setAttribute(
-			"style",
-			"visibility: hidden !important;display:block !important;"
-		);
+		$cloneNode.setAttribute("style", "visibility: hidden !important;display:block !important;");
 		let $parent: Node = PopsCore.document.documentElement;
 		// 这里需要的是先获取元素的父节点，把元素同样添加到父节点中
 		let $root = $ele.getRootNode();
@@ -2464,10 +2257,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * DOMUtils.before(document.querySelector("a.xx"),document.querySelector("b.xx"))
 	 * DOMUtils.before("a.xx","'<b class="xx"></b>")
 	 * */
-	before(
-		element: HTMLElement | Element | string,
-		content: HTMLElement | string
-	) {
+	before(element: HTMLElement | Element | string, content: HTMLElement | string) {
 		if (typeof element === "string") {
 			element = PopsCore.document.querySelector(element) as HTMLElement;
 		}
@@ -2475,10 +2265,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			return;
 		}
 		if (typeof content === "string") {
-			element.insertAdjacentHTML(
-				"beforebegin",
-				PopsSafeUtils.getSafeHTML(content)
-			);
+			element.insertAdjacentHTML("beforebegin", PopsSafeUtils.getSafeHTML(content));
 		} else {
 			element!.parentElement!.insertBefore(content, element);
 		}
@@ -2492,10 +2279,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	 * DOMUtils.after(document.querySelector("a.xx"),document.querySelector("b.xx"))
 	 * DOMUtils.after("a.xx","'<b class="xx"></b>")
 	 * */
-	after(
-		element: HTMLElement | Element | string,
-		content: HTMLElement | string
-	) {
+	after(element: HTMLElement | Element | string, content: HTMLElement | string) {
 		if (typeof element === "string") {
 			element = PopsCore.document.querySelector(element) as HTMLElement;
 		}
@@ -2503,10 +2287,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			return;
 		}
 		if (typeof content === "string") {
-			element.insertAdjacentHTML(
-				"afterend",
-				PopsSafeUtils.getSafeHTML(content)
-			);
+			element.insertAdjacentHTML("afterend", PopsSafeUtils.getSafeHTML(content));
 		} else {
 			element!.parentElement!.insertBefore(content, element.nextSibling);
 		}
@@ -2523,9 +2304,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 				(sheet.cssRules as any)[key].type === 7 &&
 				(sheet.cssRules as any)[key].name.startsWith("pops-anim-")
 			) {
-				(result as any)[(sheet.cssRules as any)[key].name] = (
-					sheet.cssRules as any
-				)[key];
+				(result as any)[(sheet.cssRules as any)[key].name] = (sheet.cssRules as any)[key];
 			}
 		});
 		return result;
@@ -2583,8 +2362,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 					return "";
 				}
 				let hexs = [r.toString(16), g.toString(16), b.toString(16)];
-				for (let i = 0; i < 3; i++)
-					if (hexs[i].length == 1) hexs[i] = `0${hexs[i]}`;
+				for (let i = 0; i < 3; i++) if (hexs[i].length == 1) hexs[i] = `0${hexs[i]}`;
 				return `#${hexs.join("")}`;
 			};
 
@@ -2630,8 +2408,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 					return "";
 				}
 				let rgb = useChangeColor().hexToRgb(color);
-				for (let i = 0; i < 3; i++)
-					rgb[i] = Math.floor((255 - rgb[i]) * level + rgb[i]);
+				for (let i = 0; i < 3; i++) rgb[i] = Math.floor((255 - rgb[i]) * level + rgb[i]);
 				return useChangeColor().rgbToHex(rgb[0], rgb[1], rgb[2]);
 			};
 			return {

@@ -12,9 +12,9 @@ declare var unsafeWindow: Window & typeof globalThis;
 declare type DeepRequired<T> = T extends Function
 	? T
 	: T extends object
-	? T extends Node
-		? T
-		: {
-				[K in keyof T]-?: DeepRequired<T[K]>;
-		  }
-	: T;
+		? T extends Node
+			? T
+			: {
+					[K in keyof T]-?: DeepRequired<T[K]>;
+				}
+		: T;

@@ -28,8 +28,7 @@
 	--button-default-hover-bd-color: #c6e2ff;
 	--button-default-hover-bg-color: #ecf5ff;
 	--button-default-focus-visible-outline-color: #a0cfff;
-	--button-default-focus-visible-outline: 2px solid
-		var(--button-default-focus-visible-outline-color);
+	--button-default-focus-visible-outline: 2px solid var(--button-default-focus-visible-outline-color);
 	--button-default-focus-visible-outline-offset: 1px;
 	--button-default-disabled-color: #a8abb2;
 	--button-default-disabled-bd-color: #ffffff;
@@ -46,8 +45,7 @@
 	--button-primary-hover-bd-color: #79bbff;
 	--button-primary-hover-bg-color: #79bbff;
 	--button-primary-focus-visible-outline-color: #a0cfff;
-	--button-primary-focus-visible-outline: 2px solid
-		var(--button-primary-focus-visible-outline-color);
+	--button-primary-focus-visible-outline: 2px solid var(--button-primary-focus-visible-outline-color);
 	--button-primary-focus-visible-outline-offset: 1px;
 	--button-primary-disabled-color: #ffffff80;
 	--button-primary-disabled-bd-color: #a0cfff;
@@ -64,8 +62,7 @@
 	--button-success-hover-bd-color: #95d475;
 	--button-success-hover-bg-color: #95d475;
 	--button-success-focus-visible-outline-color: #b3e19d;
-	--button-success-focus-visible-outline: 2px solid
-		var(--button-success-focus-visible-outline-color);
+	--button-success-focus-visible-outline: 2px solid var(--button-success-focus-visible-outline-color);
 	--button-success-focus-visible-outline-offset: 1px;
 	--button-success-disabled-color: #ffffff80;
 	--button-success-disabled-bd-color: #b3e19d;
@@ -82,8 +79,7 @@
 	--button-info-hover-bd-color: #b1b3b8;
 	--button-info-hover-bg-color: #b1b3b8;
 	--button-info-focus-visible-outline-color: #c8c9cc;
-	--button-info-focus-visible-outline: 2px solid
-		var(--button-info-focus-visible-outline-color);
+	--button-info-focus-visible-outline: 2px solid var(--button-info-focus-visible-outline-color);
 	--button-info-focus-visible-outline-offset: 1px;
 	--button-info-disabled-color: #ffffff80;
 	--button-info-disabled-bd-color: #c8c9cc;
@@ -100,8 +96,7 @@
 	--button-warning-hover-bd-color: #eebe77;
 	--button-warning-hover-bg-color: #eebe77;
 	--button-warning-focus-visible-outline-color: #f3d19e;
-	--button-warning-focus-visible-outline: 2px solid
-		var(--button-warning-focus-visible-outline-color);
+	--button-warning-focus-visible-outline: 2px solid var(--button-warning-focus-visible-outline-color);
 	--button-warning-focus-visible-outline-offset: 1px;
 	--button-warning-disabled-color: #ffffff80;
 	--button-warning-disabled-bd-color: #f3d19e;
@@ -118,8 +113,7 @@
 	--button-danger-hover-bd-color: #f89898;
 	--button-danger-hover-bg-color: #f89898;
 	--button-danger-focus-visible-outline-color: #fab6b6;
-	--button-danger-focus-visible-outline: 2px solid
-		var(--button-danger-focus-visible-outline-color);
+	--button-danger-focus-visible-outline: 2px solid var(--button-danger-focus-visible-outline-color);
 	--button-danger-focus-visible-outline-offset: 1px;
 	--button-danger-disabled-color: #ffffff80;
 	--button-danger-disabled-bd-color: #fab6b6;
@@ -154,8 +148,7 @@
 	--button-violet-hover-bd-color: #4b50ad;
 	--button-violet-hover-bg-color: #4b50ad;
 	--button-violet-focus-visible-outline-color: #2a598a;
-	--button-violet-focus-visible-outline: 2px solid
-		var(--button-violet-focus-visible-outline-color);
+	--button-violet-focus-visible-outline: 2px solid var(--button-violet-focus-visible-outline-color);
 	--button-violet-focus-visible-outline-offset: 1px;
 	--button-violet-disabled-color: #ffffff80;
 	--button-violet-disabled-bd-color: #3b3f82;
@@ -175,8 +168,7 @@
 		--button-default-hover-bd-color: #213d5b;
 		--button-default-hover-bg-color: #18222c;
 		--button-default-focus-visible-outline-color: #2a598a;
-		--button-default-focus-visible-outline: 2px solid
-			var(--button-default-focus-visible-outline-color);
+		--button-default-focus-visible-outline: 2px solid var(--button-default-focus-visible-outline-color);
 		--button-default-focus-visible-outline-offset: 1px;
 		--button-default-disabled-color: #ffffff80;
 		--button-default-disabled-bd-color: #414243;
@@ -193,8 +185,7 @@
 		--button-primary-hover-bd-color: #3375b9;
 		--button-primary-hover-bg-color: #3375b9;
 		--button-primary-focus-visible-outline-color: #2a598a;
-		--button-primary-focus-visible-outline: 2px solid
-			var(--button-primary-focus-visible-outline-color);
+		--button-primary-focus-visible-outline: 2px solid var(--button-primary-focus-visible-outline-color);
 		--button-primary-focus-visible-outline-offset: 1px;
 		--button-primary-disabled-color: #ffffff80;
 		--button-primary-disabled-bd-color: #2a598a;
@@ -211,8 +202,7 @@
 		--button-success-hover-bd-color: #4e8e2f;
 		--button-success-hover-bg-color: #4e8e2f;
 		--button-success-focus-visible-outline-color: #3e6b27;
-		--button-success-focus-visible-outline: 2px solid
-			var(--button-success-focus-visible-outline-color);
+		--button-success-focus-visible-outline: 2px solid var(--button-success-focus-visible-outline-color);
 		--button-success-focus-visible-outline-offset: 1px;
 		--button-success-disabled-color: #ffffff80;
 		--button-success-disabled-bd-color: #3e6b27;
@@ -229,8 +219,7 @@
 		--button-info-hover-bd-color: #6b6d71;
 		--button-info-hover-bg-color: #6b6d71;
 		--button-info-focus-visible-outline-color: #525457;
-		--button-info-focus-visible-outline: 2px solid
-			var(--button-info-focus-visible-outline-color);
+		--button-info-focus-visible-outline: 2px solid var(--button-info-focus-visible-outline-color);
 		--button-info-focus-visible-outline-offset: 1px;
 		--button-info-disabled-color: #ffffff80;
 		--button-info-disabled-bd-color: #525457;
@@ -247,8 +236,7 @@
 		--button-warning-hover-bd-color: #a77730;
 		--button-warning-hover-bg-color: #a77730;
 		--button-warning-focus-visible-outline-color: #7d5b28;
-		--button-warning-focus-visible-outline: 2px solid
-			var(--button-warning-focus-visible-outline-color);
+		--button-warning-focus-visible-outline: 2px solid var(--button-warning-focus-visible-outline-color);
 		--button-warning-focus-visible-outline-offset: 1px;
 		--button-warning-disabled-color: #ffffff80;
 		--button-warning-disabled-bd-color: #7d5b28;
@@ -265,8 +253,7 @@
 		--button-danger-hover-bd-color: #b25252;
 		--button-danger-hover-bg-color: #b25252;
 		--button-danger-focus-visible-outline-color: #854040;
-		--button-danger-focus-visible-outline: 2px solid
-			var(--button-danger-focus-visible-outline-color);
+		--button-danger-focus-visible-outline: 2px solid var(--button-danger-focus-visible-outline-color);
 		--button-danger-focus-visible-outline-offset: 1px;
 		--button-danger-disabled-color: #ffffff80;
 		--button-danger-disabled-bd-color: #854040;
@@ -280,10 +267,10 @@
 	white-space: nowrap;
 	float: right;
 	display: inline-block;
-	margin: var(--button-margin-top) var(--button-margin-right)
-		var(--button-margin-bottom) var(--button-margin-left);
-	padding: var(--button-padding-top) var(--button-padding-right)
-		var(--button-padding-bottom) var(--button-padding-left);
+	margin: var(--button-margin-top) var(--button-margin-right) var(--button-margin-bottom)
+		var(--button-margin-left);
+	padding: var(--button-padding-top) var(--button-padding-right) var(--button-padding-bottom)
+		var(--button-padding-left);
 	outline: 0;
 }
 .pops button[data-has-icon="false"] .pops-bottom-icon {

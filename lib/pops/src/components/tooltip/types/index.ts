@@ -1,12 +1,7 @@
 import type { PopsCommonConfig } from "../../../types/components";
 
 /** tooltip的出现位置 */
-export type PopsTooltipPosition =
-	| "top"
-	| "right"
-	| "bottom"
-	| "left"
-	| "follow";
+export type PopsTooltipPosition = "top" | "right" | "bottom" | "left" | "follow";
 
 /**
  * pops.tooltip

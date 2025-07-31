@@ -1,14 +1,14 @@
 import type { PopsAlertDetails } from "./components/alert/types";
 import type { PopsConfirmDetails } from "./components/confirm/types";
-import type { PopsPromptDetails } from "./components/prompt/types/index";
-import type { PopsLoadingDetails } from "./components/loading/types";
-import type { PopsIframeDetails } from "./components/iframe/types";
-import type { PopsToolTipDetails } from "./components/tooltip/types/index";
 import type { PopsDrawerDetails } from "./components/drawer/types";
 import type { PopsFolderDetails } from "./components/folder/types";
+import type { PopsIframeDetails } from "./components/iframe/types";
+import type { PopsLoadingDetails } from "./components/loading/types";
 import type { PopsPanelDetails } from "./components/panel/types";
+import type { PopsPromptDetails } from "./components/prompt/types/index";
 import type { PopsRightClickMenuDetails } from "./components/rightClickMenu/types";
 import type { PopsSearchSuggestionDetails } from "./components/searchSuggestion/types/index";
+import type { PopsToolTipDetails } from "./components/tooltip/types/index";
 declare class Pops {
     /** 配置 */
     config: {
@@ -35,10 +35,10 @@ declare class Pops {
         /** icon图标的svg代码 */
         iconSVG: {
             loading: string;
-            close: string;
             min: string;
-            mise: string;
             max: string;
+            mise: string;
+            close: string;
             edit: string;
             share: string;
             delete: string;
@@ -71,12 +71,12 @@ declare class Pops {
         instData: {
             iframe: import("./types/inst").PopsInstCommonConfig[];
             loading: import("./types/inst").PopsInstCommonConfig[];
+            folder: import("./types/inst").PopsInstCommonConfig[];
             alert: import("./types/inst").PopsInstCommonConfig[];
             confirm: import("./types/inst").PopsInstCommonConfig[];
             prompt: import("./types/inst").PopsInstCommonConfig[];
             tooltip: import("./types/inst").PopsInstCommonConfig[];
             drawer: import("./types/inst").PopsInstCommonConfig[];
-            folder: import("./types/inst").PopsInstCommonConfig[];
             panel: import("./types/inst").PopsInstCommonConfig[];
             rightClickMenu: import("./types/inst").PopsInstCommonConfig[];
         };
@@ -372,14 +372,14 @@ declare class Pops {
             showArrow: boolean;
             arrowDistance: number;
             otherDistance: number;
-            style: string | null;
             useShadowRoot: boolean;
             only: boolean;
             zIndex: number | (() => number);
+            style: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: ShadowRoot | HTMLDivElement;
+        $shadowRoot: HTMLDivElement | ShadowRoot;
         toolTip: import("./components/tooltip").ToolTip;
     };
     /**
@@ -418,7 +418,7 @@ declare class Pops {
     rightClickMenu: (details: PopsRightClickMenuDetails) => {
         guid: string;
         config: {
-            target: Node | HTMLElement | {
+            target: HTMLElement | Node | {
                 addEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) => void;
                 dispatchEvent: (event: Event) => boolean;
                 removeEventListener: (type: string, callback: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean) => void;
@@ -21064,10 +21064,10 @@ declare class Pops {
             className: string;
             isAnimation: boolean;
             preventDefault: boolean;
-            style: string | null;
             useShadowRoot: boolean;
             only: boolean;
             zIndex: number | (() => number);
+            style: string | null;
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         removeWindowCheckClickListener: () => void;

@@ -5,10 +5,7 @@ import type {
 	PopsCommonConfig,
 	PopsButtonConfig,
 } from "../../../types/components";
-import type {
-	PopsButtonDetails,
-	PopsButtonDetailsAnyType,
-} from "../../../types/button";
+import type { PopsButtonDetails, PopsButtonDetailsAnyType } from "../../../types/button";
 
 /**
  * pops.alert

@@ -195,9 +195,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 							return 50;
 						},
 						callback(event, isSelectedValue, isSelectedText) {
-							console.log(
-								`select当前选项：${isSelectedValue}，当前选项文本：${isSelectedText}`
-							);
+							console.log(`select当前选项：${isSelectedValue}，当前选项文本：${isSelectedText}`);
 						},
 						data: [
 							{
@@ -254,11 +252,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 								text: "单选1",
 								isHTML: false,
 								disable(value, allSelectedInfo) {
-									return (
-										allSelectedInfo.findIndex((it) =>
-											["select-5"].includes(it.value)
-										) !== -1
-									);
+									return allSelectedInfo.findIndex((it) => ["select-5"].includes(it.value)) !== -1;
 								},
 							},
 							{
@@ -266,11 +260,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 								text: "单选2",
 								isHTML: false,
 								disable(value, allSelectedInfo) {
-									return (
-										allSelectedInfo.findIndex((it) =>
-											["select-5"].includes(it.value)
-										) !== -1
-									);
+									return allSelectedInfo.findIndex((it) => ["select-5"].includes(it.value)) !== -1;
 								},
 							},
 							{
@@ -279,9 +269,7 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 								isHTML: false,
 								disable(value, allSelectedInfo) {
 									return (
-										allSelectedInfo.findIndex((it) =>
-											["select-2", "select-5"].includes(it.value)
-										) !== -1
+										allSelectedInfo.findIndex((it) => ["select-2", "select-5"].includes(it.value)) !== -1
 									);
 								},
 							},
@@ -291,28 +279,20 @@ export const PopsPanelConfig = (): DeepRequired<PopsPanelDetails> => {
 								isHTML: false,
 								disable(value, allSelectedInfo) {
 									return (
-										allSelectedInfo.findIndex((it) =>
-											["select-3", "select-5"].includes(it.value)
-										) !== -1
+										allSelectedInfo.findIndex((it) => ["select-3", "select-5"].includes(it.value)) !== -1
 									);
 								},
 							},
 							{
 								value: "select-5",
 								text(value, allSelectedInfo) {
-									return allSelectedInfo.findIndex((it) =>
-										["select-4"].includes(it.value)
-									) !== -1
+									return allSelectedInfo.findIndex((it) => ["select-4"].includes(it.value)) !== -1
 										? "单选5-禁用"
 										: "单选5";
 								},
 								isHTML: false,
 								disable(value, allSelectedInfo) {
-									return (
-										allSelectedInfo.findIndex((it) =>
-											["select-4"].includes(it.value)
-										) !== -1
-									);
+									return allSelectedInfo.findIndex((it) => ["select-4"].includes(it.value)) !== -1;
 								},
 							},
 						],

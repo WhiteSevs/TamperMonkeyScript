@@ -4,8 +4,7 @@ import type { PopsPanelCommonDetails } from "./components-common";
 /**
  * pops.panel的 深层菜单
  */
-export interface PopsPanelDeepMenuDetails
-	extends PopsPanelCommonDetails<PopsPanelDeepMenuDetails> {
+export interface PopsPanelDeepMenuDetails extends PopsPanelCommonDetails<PopsPanelDeepMenuDetails> {
 	/**
 	 * 类型
 	 */

@@ -62,12 +62,8 @@ export const PopsElementHandler = {
 		}
 		let hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
 		return /*html*/ `
-		<div class="pops-anim" anim="${
-			__config.animation || ""
-		}" style="${popsAnimStyle}" data-guid="${guid}">${
-			config.style != null
-				? `<style tyle="text/css">${config.style}</style>`
-				: ""
+		<div class="pops-anim" anim="${__config.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${
+			config.style != null ? `<style tyle="text/css">${config.style}</style>` : ""
 		}
 			<div class="pops ${
 				config.class || ""
@@ -143,10 +139,7 @@ export const PopsElementHandler = {
 	 */
 	createBottom(
 		type: PopsSupportBottomBtnDetailsType,
-		config: Omit<
-			PopsSupportBottomBtnDetails[keyof PopsSupportBottomBtnDetails],
-			"content"
-		>
+		config: Omit<PopsSupportBottomBtnDetails[keyof PopsSupportBottomBtnDetails], "content">
 	): string {
 		if (config.btn == null) {
 			// 未设置btn参数
@@ -154,11 +147,7 @@ export const PopsElementHandler = {
 		}
 		let confirm_config = config as Required<PopsConfirmDetails>;
 		if (
-			!(
-				config.btn?.ok?.enable ||
-				confirm_config.btn?.cancel?.enable ||
-				confirm_config.btn?.other?.enable
-			)
+			!(config.btn?.ok?.enable || confirm_config.btn?.cancel?.enable || confirm_config.btn?.other?.enable)
 		) {
 			// 确定、取消、其它按钮都未启用直接返回
 			return "";
@@ -213,11 +202,9 @@ export const PopsElementHandler = {
 			let cancelButtonSizeClassName = "";
 
 			if (confirm_config.btn.cancel.size === "large") {
-				cancelButtonSizeClassName =
-					"pops-button-" + confirm_config.btn.cancel.size;
+				cancelButtonSizeClassName = "pops-button-" + confirm_config.btn.cancel.size;
 			} else if (confirm_config.btn.cancel.size === "small") {
-				cancelButtonSizeClassName =
-					"pops-button-" + confirm_config.btn.cancel.size;
+				cancelButtonSizeClassName = "pops-button-" + confirm_config.btn.cancel.size;
 			}
 			let cancelIconHTML = "";
 			let cancelIcon = confirm_config.btn.cancel!.icon as PopsIconType | string;
@@ -248,11 +235,9 @@ export const PopsElementHandler = {
 			let otherButtonSizeClassName = "";
 
 			if (confirm_config.btn.other.size === "large") {
-				otherButtonSizeClassName =
-					"pops-button-" + confirm_config.btn.other.size;
+				otherButtonSizeClassName = "pops-button-" + confirm_config.btn.other.size;
 			} else if (confirm_config.btn.other.size === "small") {
-				otherButtonSizeClassName =
-					"pops-button-" + confirm_config.btn.other.size;
+				otherButtonSizeClassName = "pops-button-" + confirm_config.btn.other.size;
 			}
 			let otherIconHTML = "";
 			let otherIcon = confirm_config.btn.other!.icon as PopsIconType | string;
@@ -306,13 +291,9 @@ export const PopsElementHandler = {
 		config: PopsSupportContentDetails[keyof PopsSupportContentDetails]
 	) {
 		return {
-			contentStyle: (config?.content as any)?.html
-				? config?.content?.style || ""
-				: "",
+			contentStyle: (config?.content as any)?.html ? config?.content?.style || "" : "",
 
-			contentPStyle: (config?.content as any)?.html
-				? ""
-				: config?.content?.style || "",
+			contentPStyle: (config?.content as any)?.html ? "" : config?.content?.style || "",
 		};
 	},
 	/**

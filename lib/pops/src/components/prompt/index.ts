@@ -58,37 +58,31 @@ export const PopsPrompt = {
 
 		let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
 		let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
-		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(
-			popsType,
-			config
-		);
-		let { contentPStyle } = PopsElementHandler.createContentStyle(
-			popsType,
-			config
-		);
+		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+		let { contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
 		let animHTML = PopsElementHandler.createAnim(
 			guid,
 			popsType,
 			config,
 			/*html*/ `
             <div class="pops-title pops-${popsType}-title" style="text-align: ${
-				config.title.position
-			};${headerStyle}">${
-				config.title.html
-					? config.title.text
-					: `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
-			}${headerBtnHTML}</div>
+							config.title.position
+						};${headerStyle}">${
+							config.title.html
+								? config.title.text
+								: `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
+						}${headerBtnHTML}</div>
             <div class="pops-content pops-${popsType}-content" style="${contentPStyle}">${
-				config.content.row
-					? '<textarea name="pops-input-text" pops="" placeholder="' +
-					  config.content.placeholder +
-					  '"></textarea>'
-					: '<input name="pops-input-text" pops="" placeholder="' +
-					  config.content.placeholder +
-					  '" type="' +
-					  (config.content.password ? "password" : "text") +
-					  '">'
-			}</div>${bottomBtnHTML}`,
+							config.content.row
+								? '<textarea name="pops-input-text" pops="" placeholder="' +
+									config.content.placeholder +
+									'"></textarea>'
+								: '<input name="pops-input-text" pops="" placeholder="' +
+									config.content.placeholder +
+									'" type="' +
+									(config.content.password ? "password" : "text") +
+									'">'
+						}</div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex
 		);

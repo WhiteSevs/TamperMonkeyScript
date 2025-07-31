@@ -1,10 +1,10 @@
 export declare const PopsIcon: {
     $data: {
         loading: string;
-        close: string;
         min: string;
-        mise: string;
         max: string;
+        mise: string;
+        close: string;
         edit: string;
         share: string;
         delete: string;

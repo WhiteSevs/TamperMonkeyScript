@@ -56,22 +56,14 @@ export const PopsAlert = {
 		let maskHTML = PopsElementHandler.createMask(guid, zIndex);
 		let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
 		let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
-		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(
-			popsType,
-			config
-		);
-		let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(
-			popsType,
-			config
-		);
+		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+		let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
 		let animHTML = PopsElementHandler.createAnim(
 			guid,
 			popsType,
 			config,
 			/*html*/ `
-			<div class="pops-title pops-${popsType}-title" style="text-align: ${
-				config.title.position
-			};${headerStyle}">${
+			<div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${
 				config.title.html
 					? config.title.text
 					: `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
@@ -126,19 +118,9 @@ export const PopsAlert = {
 			config
 		);
 		/* 为顶部右边的关闭按钮添加点击事件 */
-		PopsHandler.handleClickEvent(
-			"close",
-			$headerCloseBtn!,
-			eventDetails,
-			config.btn.close!.callback!
-		);
+		PopsHandler.handleClickEvent("close", $headerCloseBtn!, eventDetails, config.btn.close!.callback!);
 		/* 为底部ok按钮添加点击事件 */
-		PopsHandler.handleClickEvent(
-			"ok",
-			btnOkElement!,
-			eventDetails!,
-			config.btn.ok!.callback!
-		);
+		PopsHandler.handleClickEvent("ok", btnOkElement!, eventDetails!, config.btn.ok!.callback!);
 
 		/* 创建到页面中 */
 

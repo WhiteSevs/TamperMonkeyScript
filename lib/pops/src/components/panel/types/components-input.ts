@@ -3,8 +3,7 @@ import type { PopsPanelCommonDetails } from "./components-common";
 /**
  * pops.panel的 input
  */
-export interface PopsPanelInputDetails
-	extends PopsPanelCommonDetails<PopsPanelInputDetails> {
+export interface PopsPanelInputDetails extends PopsPanelCommonDetails<PopsPanelInputDetails> {
 	/**
 	 * （可选）className属性
 	 * @default ""
@@ -75,8 +74,5 @@ export interface PopsPanelInputDetails
 	/**
 	 * （可选）自己调用的处理回调函数
 	 */
-	handlerCallBack?(
-		liElement: HTMLLIElement,
-		inputElement: HTMLInputElement
-	): void;
+	handlerCallBack?(liElement: HTMLLIElement, inputElement: HTMLInputElement): void;
 }

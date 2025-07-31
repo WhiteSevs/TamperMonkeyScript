@@ -19,13 +19,14 @@
 	--tooltip-arrow--after-height: 12px;
 }
 .pops-tip {
-	padding: var(--tooltip-padding-top) var(--tooltip-padding-right)
-		var(--tooltip-padding-bottom) var(--tooltip-padding-left);
+	padding: var(--tooltip-padding-top) var(--tooltip-padding-right) var(--tooltip-padding-bottom)
+		var(--tooltip-padding-left);
 	max-width: 400px;
 	max-height: 300px;
 	border-radius: var(--tooltip-bd-radius);
 	background-color: var(--tooltip-bg-color);
-	box-shadow: 0 1.5px 4px var(--tooltip-box-shadow-left-color),
+	box-shadow:
+		0 1.5px 4px var(--tooltip-box-shadow-left-color),
 		0 1.5px 6px var(--tooltip-box-shadow-right-color);
 	color: var(--tooltip-color);
 	font-size: var(--tooltip-font-size);
@@ -55,7 +56,8 @@
 	height: var(--tooltip-arrow--after-height);
 	background: var(--tooltip-arrow--after-bg-color);
 	color: var(--tooltip-arrow--after-color);
-	box-shadow: 0 1px 7px var(--tooltip-arrow-box-shadow-left-color),
+	box-shadow:
+		0 1px 7px var(--tooltip-arrow-box-shadow-left-color),
 		0 1px 7px var(--tooltip-arrow-box-shadow-right-color);
 	content: "";
 	transform: translateX(-50%) translateY(-50%) rotate(45deg);
@@ -78,7 +80,8 @@
 	width: var(--tooltip-arrow--after-width);
 	height: var(--tooltip-arrow--after-height);
 	background: var(--tooltip-arrow--after-bg-color);
-	box-shadow: 0 1px 7px var(--tooltip-arrow-box-shadow-left-color),
+	box-shadow:
+		0 1px 7px var(--tooltip-arrow-box-shadow-left-color),
 		0 1px 7px var(--tooltip-arrow-box-shadow-right-color);
 	content: "";
 	transform: translateX(-50%) translateY(-50%) rotate(45deg);

@@ -53,8 +53,7 @@ export interface PopsDOMUtils_Frame_Object_Event {
 	scroll: Event;
 	unload: Event;
 }
-export type PopsDOMUtils_Frame_Object_EventType =
-	keyof PopsDOMUtils_Frame_Object_Event;
+export type PopsDOMUtils_Frame_Object_EventType = keyof PopsDOMUtils_Frame_Object_Event;
 /**
  * 表单事件
  */
@@ -148,8 +147,7 @@ export type PopsDOMUtils_AnimationEventType = keyof PopsDOMUtils_AnimationEvent;
 export interface PopsDOMUtils_TransitionEvent {
 	transitionend: TransitionEvent;
 }
-export type PopsDOMUtils_TransitionEventType =
-	keyof PopsDOMUtils_TransitionEvent;
+export type PopsDOMUtils_TransitionEventType = keyof PopsDOMUtils_TransitionEvent;
 
 /**
  * 触摸事件
@@ -248,12 +246,11 @@ export type ParseHTMLReturnType<T1, T2> = T1 extends true
 /**
  * 事件的额外配置
  */
-export declare type PopsDOMUtilsEventListenerOption =
-	AddEventListenerOptions & {
-		/**
-		 * 是否使用 event.composedPath() 来代替 event.target
-		 *
-		 * 一般用于设置了selector参数
-		 */
-		isComposedPath?: boolean;
-	};
+export declare type PopsDOMUtilsEventListenerOption = AddEventListenerOptions & {
+	/**
+	 * 是否使用 event.composedPath() 来代替 event.target
+	 *
+	 * 一般用于设置了selector参数
+	 */
+	isComposedPath?: boolean;
+};

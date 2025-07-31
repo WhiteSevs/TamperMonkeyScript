@@ -56,9 +56,7 @@ export const PopsIframe = {
 
 		let maskExtraStyle =
 			// @ts-ignore
-			config.animation != null && config.animation != ""
-				? "position:absolute;"
-				: "";
+			config.animation != null && config.animation != "" ? "position:absolute;" : "";
 
 		// 先把z-index提取出来
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);
@@ -66,31 +64,25 @@ export const PopsIframe = {
 
 		let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
 		let iframeLoadingHTML = '<div class="pops-loading"></div>';
-		let titleText =
-			config.title!.text!.trim() !== "" ? config.title.text : config.url;
-		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(
-			popsType,
-			config
-		);
+		let titleText = config.title!.text!.trim() !== "" ? config.title.text : config.url;
+		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
 		let animHTML = PopsElementHandler.createAnim(
 			guid,
 			popsType,
 			config,
 			/*html*/ `
             <div class="pops-title pops-${popsType}-title" style="text-align: ${
-				config.title.position
-			};${headerStyle}">${
-				config.title.html
-					? titleText
-					: `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${titleText}</p>`
-			}${headerBtnHTML}</div>
+							config.title.position
+						};${headerStyle}">${
+							config.title.html
+								? titleText
+								: `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${titleText}</p>`
+						}${headerBtnHTML}</div>
 			<div class="pops-content pops-${popsType}-content">
                 <div class="pops-${popsType}-content-global-loading"></div>
                 <iframe src="${config.url}" pops ${
-				config.sandbox
-					? "sandbox='allow-forms allow-same-origin allow-scripts'"
-					: ""
-			}>
+									config.sandbox ? "sandbox='allow-forms allow-same-origin allow-scripts'" : ""
+								}>
                 </iframe>
 			</div>${config.loading.enable ? iframeLoadingHTML : ""}`,
 			"",
@@ -113,9 +105,7 @@ export const PopsIframe = {
 			headerMaxBtnElement,
 			headerMiseBtnElement,
 		} = PopsHandler.handleQueryElement($anim, popsType);
-		let $iframeContainer = PopsCore.document.querySelector<HTMLDivElement>(
-			".pops-iframe-container"
-		);
+		let $iframeContainer = PopsCore.document.querySelector<HTMLDivElement>(".pops-iframe-container");
 		if (!$iframeContainer) {
 			$iframeContainer = PopsCore.document.createElement("div");
 			$iframeContainer.className = "pops-iframe-container";
@@ -171,19 +161,14 @@ export const PopsIframe = {
 			/* iframe加载中... */
 			loadingElement?.remove();
 			$contentLoading!.style.animation = "iframeLoadingChange_85 0.3s forwards";
-			popsDOMUtils.on(
-				$contentLoading,
-				popsDOMUtils.getAnimationEndNameList(),
-				() => {
-					/* 动画加载完毕就移除 */
-					$contentLoading!.remove();
-				}
-			);
+			popsDOMUtils.on($contentLoading, popsDOMUtils.getAnimationEndNameList(), () => {
+				/* 动画加载完毕就移除 */
+				$contentLoading!.remove();
+			});
 
 			if (config.title!.text!.trim() === "" && $iframe!.contentDocument) {
 				/* 同域名下的才可以获取网页标题 */
-				$title!.querySelector<HTMLElement>("p")!.innerText =
-					$iframe!.contentDocument.title;
+				$title!.querySelector<HTMLElement>("p")!.innerText = $iframe!.contentDocument.title;
 			}
 
 			config.loadEndCallBack(eventDetails);

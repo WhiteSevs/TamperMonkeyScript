@@ -3,8 +3,7 @@ import type { PopsPanelCommonDetails } from "./components-common";
 /**
  * pops.panel的 textarea
  */
-export interface PopsPanelTextAreaDetails
-	extends PopsPanelCommonDetails<PopsPanelTextAreaDetails> {
+export interface PopsPanelTextAreaDetails extends PopsPanelCommonDetails<PopsPanelTextAreaDetails> {
 	/**
 	 * （可选）className属性
 	 * @default ""

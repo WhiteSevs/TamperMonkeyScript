@@ -120,11 +120,7 @@ class PopsUtils {
 					!UtilsContext.isDOM(sourceValue)
 				) {
 					/* 源端的值是object类型，且不是元素节点 */
-					(target as any)[sourceKeyName] = UtilsContext.assign(
-						targetValue,
-						sourceValue,
-						isAdd
-					);
+					(target as any)[sourceKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
 					continue;
 				}
 				(target as any)[sourceKeyName] = sourceValue;
@@ -144,11 +140,7 @@ class PopsUtils {
 					) {
 						/* 源端的值是object类型，且不是元素节点 */
 						// @ts-ignore
-						target[targetKeyName] = UtilsContext.assign(
-							targetValue,
-							sourceValue,
-							isAdd
-						);
+						target[targetKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
 						continue;
 					}
 					/* 直接赋值 */
@@ -167,15 +159,11 @@ class PopsUtils {
 		if (typeof PopsCore.globalThis?.crypto?.randomUUID === "function") {
 			return PopsCore.globalThis.crypto.randomUUID();
 		} else {
-			return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-				/[xy]/g,
-				function (charStr) {
-					var randomValue = (Math.random() * 16) | 0,
-						randomCharValue =
-							charStr === "x" ? randomValue : (randomValue & 0x3) | 0x8;
-					return randomCharValue.toString(16);
-				}
-			);
+			return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (charStr) {
+				var randomValue = (Math.random() * 16) | 0,
+					randomCharValue = charStr === "x" ? randomValue : (randomValue & 0x3) | 0x8;
+				return randomCharValue.toString(16);
+			});
 		}
 	}
 	/**
@@ -188,10 +176,7 @@ class PopsUtils {
 	contains(context: any, target?: any): boolean {
 		if (arguments.length === 1) {
 			// 只判断该页面是否存在该元素
-			return this.contains(
-				PopsCore.document.body || PopsCore.document.documentElement,
-				arguments[0]
-			);
+			return this.contains(PopsCore.document.body || PopsCore.document.documentElement, arguments[0]);
 		} else {
 			if (target == null) {
 				return false;
@@ -362,9 +347,7 @@ class PopsUtils {
 		}
 		new Date();
 		result = result.toFixed(2) as any;
-		result = addType
-			? result + resultType.toString()
-			: (parseFloat(result.toString()) as any);
+		result = addType ? result + resultType.toString() : (parseFloat(result.toString()) as any);
 		return result;
 	}
 	AnyTouch = () => {

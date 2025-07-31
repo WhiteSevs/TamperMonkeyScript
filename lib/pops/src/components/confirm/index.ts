@@ -57,31 +57,25 @@ export const PopsConfirm = {
 
 		let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
 		let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
-		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(
-			popsType,
-			config
-		);
-		let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(
-			popsType,
-			config
-		);
+		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+		let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
 		let animHTML = PopsElementHandler.createAnim(
 			guid,
 			popsType,
 			config,
 			/*html*/ `
             <div class="pops-title pops-${popsType}-title" style="text-align: ${
-				config.title.position
-			};${headerStyle}">${
-				config.title.html
-					? config.title.text
-					: `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
-			}${headerBtnHTML}</div>
+							config.title.position
+						};${headerStyle}">${
+							config.title.html
+								? config.title.text
+								: `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`
+						}${headerBtnHTML}</div>
                         <div class="pops-content pops-${popsType}-content" style="${contentStyle}">${
-				config.content.html
-					? config.content.text
-					: `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`
-			}</div>${bottomBtnHTML}`,
+													config.content.html
+														? config.content.text
+														: `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`
+												}</div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex
 		);
@@ -129,30 +123,10 @@ export const PopsConfirm = {
 			$mask!,
 			config
 		);
-		PopsHandler.handleClickEvent(
-			"close",
-			$btnClose!,
-			eventDetails,
-			config.btn.close!.callback!
-		);
-		PopsHandler.handleClickEvent(
-			"ok",
-			$btnOk!,
-			eventDetails!,
-			config.btn.ok!.callback!
-		);
-		PopsHandler.handleClickEvent(
-			"cancel",
-			$btnCancel!,
-			eventDetails,
-			config.btn.cancel!.callback!
-		);
-		PopsHandler.handleClickEvent(
-			"other",
-			$btnOther!,
-			eventDetails,
-			config.btn.other!.callback!
-		);
+		PopsHandler.handleClickEvent("close", $btnClose!, eventDetails, config.btn.close!.callback!);
+		PopsHandler.handleClickEvent("ok", $btnOk!, eventDetails!, config.btn.ok!.callback!);
+		PopsHandler.handleClickEvent("cancel", $btnCancel!, eventDetails, config.btn.cancel!.callback!);
+		PopsHandler.handleClickEvent("other", $btnOther!, eventDetails, config.btn.other!.callback!);
 
 		/* 创建到页面中 */
 

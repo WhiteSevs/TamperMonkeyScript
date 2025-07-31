@@ -1,14 +1,6 @@
 import type { PopsAnimation } from "./animation";
-import type {
-	PopsPosition,
-	PopsTextAlign,
-	PopsJustifyContent,
-} from "./position";
-import type {
-	PopsButtonDetails,
-	PopsButtonDetailsAnyType,
-	PopsHeaderCloseButtonDetails,
-} from "./button";
+import type { PopsPosition, PopsTextAlign, PopsJustifyContent } from "./position";
+import type { PopsButtonDetails, PopsButtonDetailsAnyType, PopsHeaderCloseButtonDetails } from "./button";
 import type { PopsMaskDetails } from "./mask";
 
 /**
@@ -132,22 +124,14 @@ export interface PopsDragConfig {
 	 * @param left 当前left值
 	 * @param top 当前的top值
 	 */
-	dragMoveCallBack?: (
-		moveElement: HTMLElement,
-		left: number,
-		top: number
-	) => void;
+	dragMoveCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
 	/**
 	 * （可选）拖动结束的回调
 	 * @param moveElement 当前拖动的元素
 	 * @param left 当前left值
 	 * @param top 当前的top值
 	 */
-	dragEndCallBack?: (
-		moveElement: HTMLElement,
-		left: number,
-		top: number
-	) => void;
+	dragEndCallBack?: (moveElement: HTMLElement, left: number, top: number) => void;
 }
 /**
  * 通用配置

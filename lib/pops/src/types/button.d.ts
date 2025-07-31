@@ -110,19 +110,13 @@ export interface PopsButtonDetails<T = {}> {
 	 *
 	 * 如果传入该值，那么将不会自动关闭弹窗
 	 */
-	callback(
-		eventDetails: PopsHandlerEventDetails & T,
-		event: PointerEvent | MouseEvent
-	): void;
+	callback(eventDetails: PopsHandlerEventDetails & T, event: PointerEvent | MouseEvent): void;
 }
 
 /**
  * 按钮配置（匹配任意类型）
  */
-export type PopsButtonDetailsAnyType<T = {}> = Omit<
-	PopsButtonDetails<T>,
-	"type"
-> & {
+export type PopsButtonDetailsAnyType<T = {}> = Omit<PopsButtonDetails<T>, "type"> & {
 	/**
 	 * 按钮样式类型
 	 * @default "default"
@@ -189,8 +183,5 @@ export interface PopsHeaderCloseButtonDetails {
 	 *
 	 * 如果传入该值，那么将不会自动关闭弹窗
 	 */
-	callback?: (
-		details: PopsEventDetails,
-		event: PointerEvent | MouseEvent
-	) => void;
+	callback?: (details: PopsEventDetails, event: PointerEvent | MouseEvent) => void;
 }

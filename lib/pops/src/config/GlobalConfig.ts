@@ -11,8 +11,8 @@ type GlobalConfigOption = {
 type ResultGlobalConfigOption<T> = T extends null | undefined
 	? never
 	: T extends (...args: any) => infer R
-	? R
-	: T;
+		? R
+		: T;
 
 export const GlobalConfig = {
 	config: {} as GlobalConfigOption,
@@ -29,20 +29,14 @@ export const GlobalConfig = {
 	 */
 	getGlobalConfig() {
 		let result: {
-			[P in keyof GlobalConfigOption]: ResultGlobalConfigOption<
-				GlobalConfigOption[P]
-			>;
+			[P in keyof GlobalConfigOption]: ResultGlobalConfigOption<GlobalConfigOption[P]>;
 		} = {};
 		Object.keys(GlobalConfig.config).forEach((keyName) => {
 			let configValue = Reflect.get(GlobalConfig.config, keyName);
 			if (keyName === "style") {
 				// 设置style属性
 				let style =
-					configValue == null
-						? ""
-						: typeof configValue === "function"
-						? configValue()
-						: configValue;
+					configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
 
 				if (typeof style === "string") {
 					result.style = style;
@@ -50,11 +44,7 @@ export const GlobalConfig = {
 			} else if (keyName === "zIndex") {
 				// 设置zIndex属性
 				let zIndex =
-					configValue == null
-						? ""
-						: typeof configValue === "function"
-						? configValue()
-						: configValue;
+					configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
 				if (typeof zIndex === "string") {
 					let newIndex = (zIndex = Number(zIndex));
 					if (!isNaN(newIndex)) {
@@ -66,8 +56,7 @@ export const GlobalConfig = {
 					}
 				}
 			} else if (keyName === "mask") {
-				let mask =
-					GlobalConfig.config.mask == null ? {} : GlobalConfig.config.mask;
+				let mask = GlobalConfig.config.mask == null ? {} : GlobalConfig.config.mask;
 				if (typeof mask === "object" && mask != null) {
 					result.mask = mask;
 				}

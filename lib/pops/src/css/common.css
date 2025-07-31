@@ -39,14 +39,10 @@
 .pops-text-is-disabled {
 	--pops-text-is-disabled-color: #a8abb2;
 	color: var(--pops-text-is-disabled-color);
-	--pops-panel-forms-container-item-left-desc-text-color: var(
-		--pops-text-is-disabled-color
-	);
+	--pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color);
 }
 .pops-text-is-disabled-important {
 	--pops-text-is-disabled-color: #a8abb2;
 	color: var(--pops-text-is-disabled-color) !important;
-	--pops-panel-forms-container-item-left-desc-text-color: var(
-		--pops-text-is-disabled-color
-	) !important;
+	--pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color) !important;
 }

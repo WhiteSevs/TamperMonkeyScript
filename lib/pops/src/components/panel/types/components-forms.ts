@@ -4,8 +4,7 @@ import type { PopsPanelFormsTotalDetails } from ".";
 /**
  * pops.panel的 forms
  */
-export interface PopsPanelFormsDetails
-	extends PopsPanelCommonDetails<PopsPanelFormsDetails> {
+export interface PopsPanelFormsDetails extends PopsPanelCommonDetails<PopsPanelFormsDetails> {
 	/**
 	 * （可选）className属性
 	 */

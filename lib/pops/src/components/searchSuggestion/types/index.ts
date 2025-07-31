@@ -35,11 +35,7 @@ export interface PopsSearchSuggestionDetails<T = any>
 		/**
 		 * 点击回调
 		 */
-		callback?: (
-			event: MouseEvent | PointerEvent,
-			liElement: HTMLLIElement,
-			data: T
-		) => void;
+		callback?: (event: MouseEvent | PointerEvent, liElement: HTMLLIElement, data: T) => void;
 	};
 	/**
 	 * 自定义的className
@@ -128,20 +124,12 @@ export interface PopsSearchSuggestionDetails<T = any>
 	 * @param liElement 每一项的元素
 	 * @param data config.data的数据
 	 */
-	itemClickCallBack?: (
-		event: MouseEvent | PointerEvent,
-		liElement: HTMLLIElement,
-		data: T
-	) => void;
+	itemClickCallBack?: (event: MouseEvent | PointerEvent, liElement: HTMLLIElement, data: T) => void;
 	/**
 	 * 键盘的上下键选择的回调
 	 * @param event 触发的事件
 	 * @param liElement 每一项的元素
 	 * @param data config.data的数据
 	 */
-	selectCallBack?: (
-		event: MouseEvent,
-		liElement: HTMLLIElement,
-		data: T
-	) => void;
+	selectCallBack?: (event: MouseEvent, liElement: HTMLLIElement, data: T) => void;
 }

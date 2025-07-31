@@ -1,6 +1,8 @@
 .pops[type-value="iframe"] {
 	--container-title-height: 55px;
-	transition: width 0.35s ease, height 0.35s ease;
+	transition:
+		width 0.35s ease,
+		height 0.35s ease;
 }
 .pops[type-value="iframe"] .pops-content {
 	overflow: hidden;
@@ -34,8 +36,7 @@
 	max-height: 53px;
 	position: unset;
 }
-.pops[type-value="iframe"].pops[type-module="min"]
-	.pops-header-control[data-type="min"] {
+.pops[type-value="iframe"].pops[type-module="min"] .pops-header-control[data-type="min"] {
 	display: none;
 }
 .pops[type-value="iframe"].pops-iframe-unset-top {

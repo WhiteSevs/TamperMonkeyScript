@@ -56,14 +56,8 @@ export const PopsDrawer = {
 
 		let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
 		let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
-		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(
-			popsType,
-			config
-		);
-		let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(
-			popsType,
-			config
-		);
+		let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+		let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
 		let animHTML = PopsElementHandler.createAnim(
 			guid,
 			popsType,
@@ -75,14 +69,14 @@ export const PopsDrawer = {
 										config.title.html
 											? config.title.text
 											: /*html*/ `<p pops class="pops-${popsType}-title-text" style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
-								  }${headerBtnHTML}</div>`
+									}${headerBtnHTML}</div>`
 								: ""
 						}
             <div class="pops-content pops-${popsType}-content" style="${contentStyle}">${
-				config.content.html
-					? config.content.text
-					: `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`
-			}</div>${bottomBtnHTML}`,
+							config.content.html
+								? config.content.text
+								: `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`
+						}</div>${bottomBtnHTML}`,
 			bottomBtnHTML,
 			zIndex
 		);
@@ -90,13 +84,8 @@ export const PopsDrawer = {
 		 * 弹窗的主元素，包括动画层
 		 */
 		let $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
-		let {
-			popsElement,
-			headerCloseBtnElement,
-			btnCancelElement,
-			btnOkElement,
-			btnOtherElement,
-		} = PopsHandler.handleQueryElement($anim, popsType);
+		let { popsElement, headerCloseBtnElement, btnCancelElement, btnOkElement, btnOtherElement } =
+			PopsHandler.handleQueryElement($anim, popsType);
 		let $pops = popsElement!;
 		let $headerCloseBtn = headerCloseBtnElement!;
 		let $btnCancel = btnCancelElement!;
@@ -141,31 +130,19 @@ export const PopsDrawer = {
 		if (config.direction === "top") {
 			$pops.style.setProperty("height", "0");
 
-			$pops.style.setProperty(
-				"border-radius",
-				`0px 0px ${config.borderRadius}px ${config.borderRadius}px`
-			);
+			$pops.style.setProperty("border-radius", `0px 0px ${config.borderRadius}px ${config.borderRadius}px`);
 		} else if (config.direction === "bottom") {
 			$pops.style.setProperty("height", "0");
 
-			$pops.style.setProperty(
-				"border-radius",
-				`${config.borderRadius}px ${config.borderRadius}px 0px 0px`
-			);
+			$pops.style.setProperty("border-radius", `${config.borderRadius}px ${config.borderRadius}px 0px 0px`);
 		} else if (config.direction === "left") {
 			$pops.style.setProperty("width", "0");
 
-			$pops.style.setProperty(
-				"border-radius",
-				`0px ${config.borderRadius}px 0px ${config.borderRadius}px`
-			);
+			$pops.style.setProperty("border-radius", `0px ${config.borderRadius}px 0px ${config.borderRadius}px`);
 		} else if (config.direction === "right") {
 			$pops.style.setProperty("width", "0");
 
-			$pops.style.setProperty(
-				"border-radius",
-				`${config.borderRadius}px 0px ${config.borderRadius}px 0px`
-			);
+			$pops.style.setProperty("border-radius", `${config.borderRadius}px 0px ${config.borderRadius}px 0px`);
 		}
 
 		/* 按下Esc键触发关闭 */

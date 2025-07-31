@@ -38,8 +38,7 @@ export class ToolTip {
 		this.$el.$shadowRoot = ShadowInfo.$shadowRoot;
 		this.show = this.show.bind(this);
 		this.close = this.close.bind(this);
-		this.toolTipAnimationFinishEvent =
-			this.toolTipAnimationFinishEvent.bind(this);
+		this.toolTipAnimationFinishEvent = this.toolTipAnimationFinishEvent.bind(this);
 		this.toolTipMouseEnterEvent = this.toolTipMouseEnterEvent.bind(this);
 		this.toolTipMouseLeaveEvent = this.toolTipMouseLeaveEvent.bind(this);
 		this.init();
@@ -78,23 +77,16 @@ export class ToolTip {
 			}
 		);
 		/** 内容 */
-		let $toolTipContent =
-			$toolTipContainer.querySelector<HTMLElement>(".pops-tip-content")!;
+		let $toolTipContent = $toolTipContainer.querySelector<HTMLElement>(".pops-tip-content")!;
 		/** 箭头 */
-		let $toolTipArrow =
-			$toolTipContainer.querySelector<HTMLElement>(".pops-tip-arrow")!;
+		let $toolTipArrow = $toolTipContainer.querySelector<HTMLElement>(".pops-tip-arrow")!;
 
 		// 处理className
-		if (
-			typeof this.$data.config.className === "string" &&
-			this.$data.config.className.trim() !== ""
-		) {
+		if (typeof this.$data.config.className === "string" && this.$data.config.className.trim() !== "") {
 			popsDOMUtils.addClassName($toolTipContainer, this.$data.config.className);
 		}
 		// 添加z-index
-		$toolTipContainer.style.zIndex = PopsHandler.handleZIndex(
-			this.$data.config.zIndex
-		).toString();
+		$toolTipContainer.style.zIndex = PopsHandler.handleZIndex(this.$data.config.zIndex).toString();
 		if (this.$data.config.style != null) {
 			/* 添加自定义style */
 			let cssNode = popsDOMUtils.createElement("style", {
@@ -171,10 +163,7 @@ export class ToolTip {
 		otherDistance: number,
 		event?: MouseEvent | TouchEvent | PointerEvent
 	) {
-		let offsetInfo = popsDOMUtils.offset(
-			targetElement,
-			!this.$data.config.isFixed
-		);
+		let offsetInfo = popsDOMUtils.offset(targetElement, !this.$data.config.isFixed);
 		// 目标 宽
 		let targetElement_width = offsetInfo.width;
 		// 目标 高
@@ -191,11 +180,9 @@ export class ToolTip {
 		let toolTipElement_width = popsDOMUtils.outerWidth(this.$el.$toolTip);
 		let toolTipElement_height = popsDOMUtils.outerHeight(this.$el.$toolTip);
 		/* 目标元素的x轴的中间位置 */
-		let targetElement_X_center_pos =
-			targetElement_left + targetElement_width / 2 - toolTipElement_width / 2;
+		let targetElement_X_center_pos = targetElement_left + targetElement_width / 2 - toolTipElement_width / 2;
 		/* 目标元素的Y轴的中间位置 */
-		let targetElement_Y_center_pos =
-			targetElement_top + targetElement_height / 2 - toolTipElement_height / 2;
+		let targetElement_Y_center_pos = targetElement_top + targetElement_height / 2 - toolTipElement_height / 2;
 
 		let mouseX = 0;
 		let mouseY = 0;
@@ -263,8 +250,7 @@ export class ToolTip {
 			this.$data.config.otherDistance,
 			event
 		);
-		let positionKey = this.$data.config.position.toUpperCase() as any as
-			| keyof typeof positionInfo;
+		let positionKey = this.$data.config.position.toUpperCase() as any as keyof typeof positionInfo;
 		let positionDetail = positionInfo[positionKey];
 		if (positionDetail) {
 			this.$el.$toolTip.style.left = positionDetail.left + "px";
@@ -315,9 +301,7 @@ export class ToolTip {
 	 */
 	clearCloseTimeoutId(type: ToolTipEventTypeName, timeId?: number) {
 		let timeIdList =
-			type === "MouseEvent"
-				? this.$data.timeId_close_MouseEvent
-				: this.$data.timeId_close_TouchEvent;
+			type === "MouseEvent" ? this.$data.timeId_close_MouseEvent : this.$data.timeId_close_TouchEvent;
 		for (let index = 0; index < timeIdList.length; index++) {
 			const currentTimeId = timeIdList[index];
 			if (typeof timeId === "number") {
@@ -339,8 +323,7 @@ export class ToolTip {
 	 */
 	show(...args: any[]) {
 		let event = args[0] as MouseEvent | TouchEvent;
-		let eventType: ToolTipEventTypeName =
-			event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
+		let eventType: ToolTipEventTypeName = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
 		this.clearCloseTimeoutId(eventType);
 
 		if (typeof this.$data.config.showBeforeCallBack === "function") {
@@ -358,10 +341,7 @@ export class ToolTip {
 		if (!popsUtils.contains(this.$el.$shadowContainer)) {
 			// 页面不存在Shadow，添加
 			if (typeof this.$data.config.beforeAppendToPageCallBack === "function") {
-				this.$data.config.beforeAppendToPageCallBack(
-					this.$el.$shadowRoot,
-					this.$el.$shadowContainer
-				);
+				this.$data.config.beforeAppendToPageCallBack(this.$el.$shadowRoot, this.$el.$shadowContainer);
 			}
 			popsDOMUtils.append(document.body, this.$el.$shadowContainer);
 		}
@@ -389,22 +369,16 @@ export class ToolTip {
 	 * 取消绑定 显示事件
 	 */
 	offShowEvent() {
-		popsDOMUtils.off(
-			this.$data.config.target,
-			this.$data.config.triggerShowEventName,
-			this.show,
-			{
-				capture: true,
-			}
-		);
+		popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerShowEventName, this.show, {
+			capture: true,
+		});
 	}
 	/**
 	 * 关闭提示框
 	 */
 	close(...args: any[]) {
 		let event = args[0] as MouseEvent | TouchEvent;
-		let eventType: ToolTipEventTypeName =
-			event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
+		let eventType: ToolTipEventTypeName = event instanceof MouseEvent ? "MouseEvent" : "TouchEvent";
 		// 只判断鼠标事件
 		// 其它的如Touch事件不做处理
 		if (event && event instanceof MouseEvent) {
@@ -422,8 +396,7 @@ export class ToolTip {
 		}
 		if (
 			this.$data.config.delayCloseTime == null ||
-			(typeof this.$data.config.delayCloseTime === "number" &&
-				this.$data.config.delayCloseTime <= 0)
+			(typeof this.$data.config.delayCloseTime === "number" && this.$data.config.delayCloseTime <= 0)
 		) {
 			this.$data.config.delayCloseTime = 100;
 		}
@@ -442,9 +415,7 @@ export class ToolTip {
 				// 修改data-motion触发动画关闭
 				this.$el.$toolTip.setAttribute(
 					"data-motion",
-					this.$el.$toolTip
-						.getAttribute("data-motion")!
-						.replace("fadeIn", "fadeOut")
+					this.$el.$toolTip.getAttribute("data-motion")!.replace("fadeIn", "fadeOut")
 				);
 			}
 		}, this.$data.config.delayCloseTime);
@@ -468,14 +439,9 @@ export class ToolTip {
 	 * 取消绑定 关闭事件
 	 */
 	offCloseEvent() {
-		popsDOMUtils.off(
-			this.$data.config.target,
-			this.$data.config.triggerCloseEventName,
-			this.close,
-			{
-				capture: true,
-			}
-		);
+		popsDOMUtils.off(this.$data.config.target, this.$data.config.triggerCloseEventName, this.close, {
+			capture: true,
+		});
 	}
 	/**
 	 * 销毁元素

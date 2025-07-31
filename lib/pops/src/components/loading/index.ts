@@ -21,31 +21,26 @@ export const PopsLoading = {
 		let zIndex = PopsHandler.handleZIndex(config.zIndex);
 		let maskHTML = PopsElementHandler.createMask(guid, zIndex);
 
-		let { contentPStyle } = PopsElementHandler.createContentStyle(
-			"loading",
-			config
-		);
+		let { contentPStyle } = PopsElementHandler.createContentStyle("loading", config);
 		let animHTML = PopsElementHandler.createAnim(
 			guid,
 			PopsType,
 			config,
 			/*html*/ `
             <div class="pops-content pops-${PopsType}-content">${
-				config.addIndexCSS
-					? /*html*/ `
+							config.addIndexCSS
+								? /*html*/ `
                 <style data-model-name="index">${PopsCSS.index}</style>
                 <style data-model-name="anim">${PopsCSS.anim}</style>
                 <style data-model-name="common">${PopsCSS.common}</style>
                 `
-					: ""
-			}
+								: ""
+						}
                 <style data-model-name="loadingCSS">
                     ${PopsCSS.loadingCSS}
                 </style>
             ${config.style != null ? `<style>${config.style}</style>` : ""}
-            	<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${
-				config.content.text
-			}</p>
+            	<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>
             </div>`,
 			"",
 			zIndex
@@ -57,10 +52,7 @@ export const PopsLoading = {
 
 		let $anim = PopsElementHandler.parseElement<HTMLDivElement>(animHTML);
 
-		let { popsElement: $pops } = PopsHandler.handleQueryElement(
-			$anim,
-			PopsType
-		);
+		let { popsElement: $pops } = PopsHandler.handleQueryElement($anim, PopsType);
 		/**
 		 * 遮罩层元素
 		 */
@@ -83,14 +75,7 @@ export const PopsLoading = {
 			$mask = _handleMask_.maskElement;
 			elementList.push($mask);
 		}
-		let eventDetails = PopsHandler.handleLoadingEventDetails(
-			guid,
-			PopsType,
-			$anim,
-			$pops!,
-			$mask!,
-			config
-		);
+		let eventDetails = PopsHandler.handleLoadingEventDetails(guid, PopsType, $anim, $pops!, $mask!, config);
 		popsDOMUtils.append(config.parent, elementList);
 		if ($mask != null) {
 			$anim.after($mask);

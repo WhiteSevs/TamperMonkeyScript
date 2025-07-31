@@ -111,15 +111,7 @@ export const PopsHandler = {
 	 */
 	handleMask(
 		details = {} as {
-			type:
-				| "alert"
-				| "confirm"
-				| "prompt"
-				| "loading"
-				| "iframe"
-				| "drawer"
-				| "folder"
-				| "panel";
+			type: "alert" | "confirm" | "prompt" | "loading" | "iframe" | "drawer" | "folder" | "panel";
 			guid: string;
 			config:
 				| Required<PopsAlertDetails>
@@ -133,9 +125,7 @@ export const PopsHandler = {
 		}
 	) {
 		let result = {
-			maskElement: popsDOMUtils.parseTextToDOM<HTMLDivElement>(
-				details.maskHTML
-			),
+			maskElement: popsDOMUtils.parseTextToDOM<HTMLDivElement>(details.maskHTML),
 		};
 		let isMaskClick = false;
 		/**
@@ -176,10 +166,7 @@ export const PopsHandler = {
 			return false;
 		}
 		// 判断是否启用了遮罩层点击动作
-		if (
-			details.config.mask.clickEvent!.toClose ||
-			details.config.mask.clickEvent!.toHide
-		) {
+		if (details.config.mask.clickEvent!.toClose || details.config.mask.clickEvent!.toHide) {
 			/**
 			 * 判断点击的元素是否是动画层的元素
 			 * @param element
@@ -194,38 +181,23 @@ export const PopsHandler = {
 				);
 			}
 			/* 判断按下的元素是否是pops-anim */
-			popsDOMUtils.on(
-				details.animElement,
-				["touchstart", "mousedown"],
-				void 0,
-				(event) => {
-					let $click = event.composedPath()[0] as HTMLElement;
-					isMaskClick = isAnimElement($click);
-				}
-			);
+			popsDOMUtils.on(details.animElement, ["touchstart", "mousedown"], void 0, (event) => {
+				let $click = event.composedPath()[0] as HTMLElement;
+				isMaskClick = isAnimElement($click);
+			});
 			/* 如果有动画层，在动画层上监听点击事件 */
-			popsDOMUtils.on<MouseEvent | PointerEvent>(
-				details.animElement,
-				"click",
-				void 0,
-				(event) => {
-					let $click = event.composedPath()[0] as HTMLElement;
-					if (isAnimElement($click) && isMaskClick) {
-						return clickEvent(event);
-					}
+			popsDOMUtils.on<MouseEvent | PointerEvent>(details.animElement, "click", void 0, (event) => {
+				let $click = event.composedPath()[0] as HTMLElement;
+				if (isAnimElement($click) && isMaskClick) {
+					return clickEvent(event);
 				}
-			);
+			});
 			/* 在遮罩层监听点击事件 */
 			/* 如果有动画层，那么该点击事件触发不了 */
-			popsDOMUtils.on<MouseEvent | PointerEvent>(
-				result.maskElement,
-				"click",
-				void 0,
-				(event) => {
-					isMaskClick = true;
-					clickEvent(event);
-				}
-			);
+			popsDOMUtils.on<MouseEvent | PointerEvent>(result.maskElement, "click", void 0, (event) => {
+				isMaskClick = true;
+				clickEvent(event);
+			});
 		}
 		return result;
 	},
@@ -234,74 +206,50 @@ export const PopsHandler = {
 	 * @param animElement
 	 * @param type
 	 */
-	handleQueryElement(
-		animElement: HTMLDivElement,
-		type: PopsSupportAnimDetailsType
-	) {
+	handleQueryElement(animElement: HTMLDivElement, type: PopsSupportAnimDetailsType) {
 		return {
 			/**
 			 * 主元素
 			 */
-			popsElement:
-				animElement.querySelector<HTMLDivElement>(".pops[type-value")!,
+			popsElement: animElement.querySelector<HTMLDivElement>(".pops[type-value")!,
 			/**
 			 * 确认按钮
 			 */
-			btnOkElement: animElement.querySelector<HTMLDivElement>(
-				`.pops-${type}-btn-ok`
-			)!,
+			btnOkElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-btn-ok`)!,
 			/**
 			 * 取消按钮
 			 */
-			btnCancelElement: animElement.querySelector<HTMLDivElement>(
-				`.pops-${type}-btn-cancel`
-			)!,
+			btnCancelElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-btn-cancel`)!,
 			/**
 			 * 其它按钮
 			 */
-			btnOtherElement: animElement.querySelector<HTMLDivElement>(
-				`.pops-${type}-btn-other`
-			)!,
+			btnOtherElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-btn-other`)!,
 			/**
 			 * 标题元素
 			 */
-			titleElement: animElement.querySelector<HTMLDivElement>(
-				`.pops-${type}-title`
-			)!,
+			titleElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-title`)!,
 			/**
 			 * 输入框元素
 			 */
-			inputElement: animElement.querySelector<HTMLTextAreaElement>(
-				`.pops-${type}-content textarea[pops]`
-			)
-				? animElement.querySelector<HTMLTextAreaElement>(
-						`.pops-${type}-content textarea[pops]`
-				  )!
-				: animElement.querySelector<HTMLInputElement>(
-						`.pops-${type}-content input[pops]`
-				  )!,
+			inputElement: animElement.querySelector<HTMLTextAreaElement>(`.pops-${type}-content textarea[pops]`)
+				? animElement.querySelector<HTMLTextAreaElement>(`.pops-${type}-content textarea[pops]`)!
+				: animElement.querySelector<HTMLInputElement>(`.pops-${type}-content input[pops]`)!,
 			/**
 			 * 顶部按钮控制层元素
 			 */
-			headerControlsElement: animElement.querySelector<HTMLDivElement>(
-				".pops-header-controls"
-			)!,
+			headerControlsElement: animElement.querySelector<HTMLDivElement>(".pops-header-controls")!,
 			/**
 			 * iframe元素
 			 */
-			iframeElement:
-				animElement.querySelector<HTMLIFrameElement>("iframe[pops]")!,
+			iframeElement: animElement.querySelector<HTMLIFrameElement>("iframe[pops]")!,
 			/**
 			 * 加载中元素
 			 */
-			loadingElement:
-				animElement.querySelector<HTMLDivElement>(".pops-loading")!,
+			loadingElement: animElement.querySelector<HTMLDivElement>(".pops-loading")!,
 			/**
 			 * 内容元素
 			 */
-			contentElement: animElement.querySelector<HTMLDivElement>(
-				`.pops-${type}-content`
-			)!,
+			contentElement: animElement.querySelector<HTMLDivElement>(`.pops-${type}-content`)!,
 			/**
 			 * 内容侧边栏容器元素
 			 */
@@ -347,8 +295,7 @@ export const PopsHandler = {
 			/**
 			 * 文件夹列表元素
 			 */
-			folderListElement:
-				animElement.querySelector<HTMLDivElement>(".pops-folder-list")!,
+			folderListElement: animElement.querySelector<HTMLDivElement>(".pops-folder-list")!,
 			/**
 			 * 文件夹列表顶部元素
 			 */
@@ -358,10 +305,9 @@ export const PopsHandler = {
 			/**
 			 * 文件夹列表行元素
 			 */
-			folderListHeaderRowElement:
-				animElement.querySelector<HTMLTableRowElement>(
-					".pops-folder-list .pops-folder-list-table__header-div .pops-folder-list-table__header-row"
-				)!,
+			folderListHeaderRowElement: animElement.querySelector<HTMLTableRowElement>(
+				".pops-folder-list .pops-folder-list-table__header-div .pops-folder-list-table__header-row"
+			)!,
 			/**
 			 * 文件夹列表tbody元素
 			 */
@@ -371,10 +317,9 @@ export const PopsHandler = {
 			/**
 			 * 文件夹列表primary元素
 			 */
-			folderFileListBreadcrumbPrimaryElement:
-				animElement.querySelector<HTMLDivElement>(
-					".pops-folder-list .pops-folder-file-list-breadcrumb-primary"
-				)!,
+			folderFileListBreadcrumbPrimaryElement: animElement.querySelector<HTMLDivElement>(
+				".pops-folder-list .pops-folder-file-list-breadcrumb-primary"
+			)!,
 			/**
 			 * 文件夹排序按钮-文件名
 			 */
@@ -384,10 +329,9 @@ export const PopsHandler = {
 			/**
 			 * 文件夹排序按钮-修改时间
 			 */
-			folderListSortLatestTimeElement:
-				animElement.querySelector<HTMLDivElement>(
-					'.pops-folder-list-table__sort[data-sort="latestTime"]'
-				)!,
+			folderListSortLatestTimeElement: animElement.querySelector<HTMLDivElement>(
+				'.pops-folder-list-table__sort[data-sort="latestTime"]'
+			)!,
 			/**
 			 * 文件夹排序按钮-文件大小
 			 */
@@ -435,33 +379,13 @@ export const PopsHandler = {
 			mode: mode,
 			guid: guid,
 			close() {
-				return PopsInstanceUtils.close(
-					mode,
-					PopsInstData[mode],
-					guid,
-					config,
-					animElement
-				);
+				return PopsInstanceUtils.close(mode, PopsInstData[mode], guid, config, animElement);
 			},
 			hide() {
-				return PopsInstanceUtils.hide(
-					mode,
-					PopsInstData[mode],
-					guid,
-					config,
-					animElement,
-					maskElement
-				);
+				return PopsInstanceUtils.hide(mode, PopsInstData[mode], guid, config, animElement, maskElement);
 			},
 			show() {
-				return PopsInstanceUtils.show(
-					mode,
-					PopsInstData[mode],
-					guid,
-					config,
-					animElement,
-					maskElement
-				);
+				return PopsInstanceUtils.show(mode, PopsInstData[mode], guid, config, animElement, maskElement);
 			},
 		};
 	},
@@ -498,33 +422,13 @@ export const PopsHandler = {
 			mode: mode,
 			guid: guid,
 			close() {
-				return PopsInstanceUtils.close(
-					mode,
-					PopsInstData[mode],
-					guid,
-					config,
-					animElement
-				);
+				return PopsInstanceUtils.close(mode, PopsInstData[mode], guid, config, animElement);
 			},
 			hide() {
-				return PopsInstanceUtils.hide(
-					mode,
-					PopsInstData[mode],
-					guid,
-					config,
-					animElement,
-					maskElement
-				);
+				return PopsInstanceUtils.hide(mode, PopsInstData[mode], guid, config, animElement, maskElement);
 			},
 			show() {
-				return PopsInstanceUtils.show(
-					mode,
-					PopsInstData[mode],
-					guid,
-					config,
-					animElement,
-					maskElement
-				);
+				return PopsInstanceUtils.show(mode, PopsInstData[mode], guid, config, animElement, maskElement);
 			},
 		};
 	},
@@ -548,10 +452,7 @@ export const PopsHandler = {
 		type: "cancel" | "close" | "ok" | "other",
 		$btn: HTMLElement,
 		eventDetails: PopsEventDetails,
-		callback: (
-			details: PopsHandlerEventDetails,
-			event: PointerEvent | MouseEvent
-		) => void
+		callback: (details: PopsHandlerEventDetails, event: PointerEvent | MouseEvent) => void
 	) {
 		popsDOMUtils.on<PointerEvent | MouseEvent>(
 			$btn,
@@ -663,19 +564,16 @@ export const PopsHandler = {
 	 * @param type 当前弹窗类型
 	 * @param config 配置
 	 */
-	handleOnly<
-		T extends Required<PopsSupportOnlyDetails[keyof PopsSupportOnlyDetails]>
-	>(type: PopsType, config: T): T {
+	handleOnly<T extends Required<PopsSupportOnlyDetails[keyof PopsSupportOnlyDetails]>>(
+		type: PopsType,
+		config: T
+	): T {
 		if (config.only) {
 			// .loading
 			// .tooltip
 			// .rightClickMenu
 			// 单独处理
-			if (
-				type === "loading" ||
-				type === "tooltip" ||
-				type === "rightClickMenu"
-			) {
+			if (type === "loading" || type === "tooltip" || type === "rightClickMenu") {
 				let inst = PopsInstData[type as keyof typeof PopsInstData];
 				if (inst) {
 					PopsInstanceUtils.removeInstance([inst], "", true);

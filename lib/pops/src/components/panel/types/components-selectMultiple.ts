@@ -30,10 +30,7 @@ export interface PopsPanelSelectMultipleDataOption<T> {
 	 * @param value 当前的值
 	 * @param allSelectedInfo 所有选中的配置信息
 	 */
-	disable?(
-		value: T,
-		allSelectedInfo: PopsPanelSelectMultipleDataOption<T>[]
-	): boolean;
+	disable?(value: T, allSelectedInfo: PopsPanelSelectMultipleDataOption<T>[]): boolean;
 }
 /**
  * pops.panel的 select
