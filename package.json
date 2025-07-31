@@ -16,7 +16,6 @@
 		"update": "pnpm update --latest"
 	},
 	"dependencies": {
-		"@element-plus/icons-vue": "^2.3.1",
 		"@mgdn/bvid": "^0.3.0",
 		"@whitesev/domutils": "^1.5.11",
 		"@whitesev/pops": "^2.2.8",
@@ -40,6 +39,7 @@
 		"vue-router": "^4.5.1"
 	},
 	"devDependencies": {
+		"@element-plus/icons-vue": "^2.3.1",
 		"@types/crypto-js": "^4.2.2",
 		"@types/md5": "^2.3.5",
 		"@types/node": "^24.1.0",
