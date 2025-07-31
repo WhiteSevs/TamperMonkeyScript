@@ -102,6 +102,7 @@ export const DouYinMessageFilter = {
 			 * + WebcastFansclubMessage
 			 * + WebcastEmojiChatMessage
 			 * + WebcastExhibitionChatMessage
+			 * + WebcastScreenChatMessage
 			 */
 			let method = messageIns.method;
 			let chat_by: undefined | string = messageIns?.payload?.chat_by;
@@ -123,6 +124,8 @@ export const DouYinMessageFilter = {
 						if (Panel.getValue("live-danmu-shield-lucky-bag")) {
 							flag = true;
 						}
+					} else if (chat_by === "5") {
+						// 主播@ 别人
 					} else {
 						if (import.meta.env.DEV) {
 							log.info("未知弹幕实例chat_by：" + chat_by, messageIns);
@@ -138,6 +141,8 @@ export const DouYinMessageFilter = {
 						flag = true;
 					}
 				} else if (method === "WebcastExhibitionChatMessage") {
+					//
+				} else if (method === "WebcastScreenChatMessage") {
 					//
 				} else {
 					if (import.meta.env.DEV) {

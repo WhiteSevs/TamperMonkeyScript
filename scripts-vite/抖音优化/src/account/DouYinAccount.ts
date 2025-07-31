@@ -259,7 +259,7 @@ export const DouYinAccount = {
 				} else {
 					log.error(
 						"未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
-						$loginDialog
+						$loginDialog.cloneNode(true)
 					);
 				}
 			}

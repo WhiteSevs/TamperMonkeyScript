@@ -1,4 +1,4 @@
-import { DOMUtils, addStyle, log, utils } from "@/env";
+import { DOMUtils, addStyle, cookieManager, log, utils } from "@/env";
 import MobileCSS from "./css/mobile.css?raw";
 import { DouYinSearchHideElement } from "./DouYinSearchHideElement";
 import Qmsg from "qmsg";
@@ -80,19 +80,17 @@ export const DouYinSearch = {
 		`)
 		);
 		/* 评论区展开才会出现 */
-		utils
-			.waitNode<HTMLDivElement>("#relatedVideoCard")
-			.then(($relatedVideoCard) => {
-				log.info("评论区展开的className：" + $relatedVideoCard.className);
-				result.push(
-					addStyle(/*css*/ `
+		utils.waitNode<HTMLDivElement>("#relatedVideoCard").then(($relatedVideoCard) => {
+			log.info("评论区展开的className：" + $relatedVideoCard.className);
+			result.push(
+				addStyle(/*css*/ `
 					html[data-vertical-screen]
 						#sliderVideo[data-e2e="feed-active-video"]
 						#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
 							width: 100vw !important;
 					}`)
-				);
-			});
+			);
+		});
 
 		return result;
 	},
@@ -163,6 +161,10 @@ export const DouYinSearch = {
 	setSearchResultFilterWithVideoStyle(lineMode: "one" | "double" = "one") {
 		log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
 		if (lineMode === "one") {
+			cookieManager.set({
+				name: "SEARCH_RESULT_LIST_TYPE",
+				value: encodeURIComponent(`"single"`),
+			});
 			return addStyle(/*css*/ `
 			@media screen and (max-width: 800px){
 				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
@@ -171,6 +173,10 @@ export const DouYinSearch = {
 			}
 			`);
 		} else if (lineMode === "double") {
+			cookieManager.set({
+				name: "SEARCH_RESULT_LIST_TYPE",
+				value: encodeURIComponent(`"multi"`),
+			});
 			return addStyle(/*css*/ `	
 			@media screen and (max-width: 800px){
 				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{

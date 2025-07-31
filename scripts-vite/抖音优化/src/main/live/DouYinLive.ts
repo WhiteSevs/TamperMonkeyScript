@@ -120,7 +120,7 @@ export const DouYinLive = {
 	},
 	/**
 	 * 选择画质
-	 * @param quality 选择的画质
+	 * @param quality 选择的画质，默认原画
 	 */
 	chooseQuality(quality = "origin") {
 		ReactUtils.waitReactPropsToSet(
