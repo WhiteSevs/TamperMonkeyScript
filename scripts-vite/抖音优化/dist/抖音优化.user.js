@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.28
+// @version      2025.7.31
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -1322,7 +1322,7 @@
   const addStyle = utils.addStyle.bind(utils);
   const $ = DOMUtils.selector.bind(DOMUtils);
   const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  new utils.GM_Cookie();
+  const cookieManager = new utils.GM_Cookie();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "抖音优化";
   const DouYinRouter = {
     /**
@@ -2828,7 +2828,7 @@
           } else {
             log.error(
               "未找到登录弹出的关闭按钮，此时键盘被聚焦在登录弹窗上从而导致'快捷键'失效",
-              $loginDialog
+              $loginDialog.cloneNode(true)
             );
           }
         }
@@ -5830,7 +5830,7 @@
     },
     /**
      * 选择画质
-     * @param quality 选择的画质
+     * @param quality 选择的画质，默认原画
      */
     chooseQuality(quality = "origin") {
       ReactUtils.waitReactPropsToSet(
@@ -6284,6 +6284,10 @@
     setSearchResultFilterWithVideoStyle(lineMode = "one") {
       log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
       if (lineMode === "one") {
+        cookieManager.set({
+          name: "SEARCH_RESULT_LIST_TYPE",
+          value: encodeURIComponent(`"single"`)
+        });
         return addStyle(
           /*css*/
           `
@@ -6295,6 +6299,10 @@
 			`
         );
       } else if (lineMode === "double") {
+        cookieManager.set({
+          name: "SEARCH_RESULT_LIST_TYPE",
+          value: encodeURIComponent(`"multi"`)
+        });
         return addStyle(
           /*css*/
           `	
