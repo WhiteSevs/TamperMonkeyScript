@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.31
+// @version      2025.8.4
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -538,6 +538,17 @@
       }
     },
     /**
+     * 中等的设置界面
+     */
+    settingMiddle: {
+      get width() {
+        return window.innerWidth < 350 ? "88vw" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "88vh" : "450px";
+      }
+    },
+    /**
      * 功能丰富，aside铺满了的设置界面，要稍微大一点
      */
     settingBig: {
@@ -553,10 +564,10 @@
      */
     info: {
       get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
+        return window.innerWidth < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
+        return window.innerHeight < 250 ? "88vh" : "250px";
       }
     }
   };
@@ -2881,9 +2892,7 @@
       Qmsg.success("自动填充访问码");
       element.value = netDiskInfo.accessCode;
       utils.dispatchEvent(element, "input");
-      document.querySelector(
-        "#main-content .form-group button.btn[type=button]"
-      ).click();
+      $("#main-content .form-group button.btn[type=button]").click();
     });
   };
   const NetDiskAutoFillAccessCode_115pan = function(netDiskInfo) {
@@ -9921,9 +9930,12 @@
         shareCode,
         accessCode
       });
-      let blankUrlObj = new URL(blankUrl);
-      const path = blankUrlObj.pathname.split("/")[1].trim();
+      let blankUrlInst = new URL(blankUrl);
+      let path = blankUrlInst.pathname.split("/")[1].trim();
       let url = "";
+      if (blankUrlInst.pathname === "/" && blankUrlInst.hash.startsWith("#/d/")) {
+        path = "d";
+      }
       if (path === "f" || path === "file") {
         url = `https://webapi.ctfile.com/getfile.php?path=${path}&f=${shareCode}&passcode=${accessCode}&token=0&r=${Math.random()}&ref=`;
       } else if (path === "d" || path === "dir") {
@@ -19384,16 +19396,16 @@
       },
       /* d ==> http */
       {
-        link_innerText: `ct.ghpym.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
-        link_innerHTML: `ct.ghpym.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-        shareCode: /ct.ghpym.com\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
-        shareCodeNeedRemoveStr: /ct.ghpym.com\/d\//gi,
+        link_innerText: `ct.ghpym.com(/|/#/)d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
+        link_innerHTML: `ct.ghpym.com(/|/#/)d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
+        shareCode: /ct.ghpym.com(\/|\/#\/)d\/([0-9a-zA-Z\-_]{8,26})/gi,
+        shareCodeNeedRemoveStr: /ct.ghpym.com(\/|\/#\/)d\//gi,
         checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
         accessCode: /([0-9a-zA-Z]{4,6})/gi,
-        paramMatch: /([a-zA-Z0-9\.]+)\/d\//i,
-        uiLinkShow: "{#$1#}/d/{#shareCode#} 提取码: {#accessCode#}",
-        blank: "http://{#$1#}/d/{#shareCode#}?p={#accessCode#}",
-        copyUrl: "http://{#$1#}/d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}"
+        paramMatch: /([a-zA-Z0-9\.]+)(\/|\/#\/)d\//i,
+        uiLinkShow: "{#$1#}{#$2#}d/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "http://{#$1#}{#$2#}d/{#shareCode#}?p={#accessCode#}",
+        copyUrl: "http://{#$1#}{#$2#}d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}"
       },
       /* d */
       {
