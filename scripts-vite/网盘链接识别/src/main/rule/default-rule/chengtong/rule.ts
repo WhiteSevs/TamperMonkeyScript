@@ -3,35 +3,31 @@ import { UIInput } from "@components/setting/components/ui-input";
 export const NetDiskRule_chengtong: NetDiskRuleOption = {
 	/** 规则 */
 	rule: <NetDiskMatchRuleConfig[]>[
-		/* d */
+		/* d ==> https */
 		{
 			link_innerText: `(pan.jc-box.com|download.jamcz.com|545c.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
 			link_innerHTML: `(pan.jc-box.com|download.jamcz.com|545c.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-			shareCode:
-				/(pan.jc-box.com|download.jamcz.com|545c.com)\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
-			shareCodeNeedRemoveStr:
-				/(pan.jc-box.com|download.jamcz.com|545c.com)\/d\//gi,
+			shareCode: /(pan.jc-box.com|download.jamcz.com|545c.com)\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
+			shareCodeNeedRemoveStr: /(pan.jc-box.com|download.jamcz.com|545c.com)\/d\//gi,
 			checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
 			accessCode: /([0-9a-zA-Z]{4,6})/gi,
 			paramMatch: /([a-zA-Z0-9\.]+)\/d\//i,
 			uiLinkShow: "{#$1#}/d/{#shareCode#} 提取码: {#accessCode#}",
 			blank: "https://{#$1#}/d/{#shareCode#}?p={#accessCode#}",
-			copyUrl:
-				"https://{#$1#}/d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
+			copyUrl: "https://{#$1#}/d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
 		},
 		/* d ==> http */
 		{
-			link_innerText: `ct.ghpym.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
-			link_innerHTML: `ct.ghpym.com/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-			shareCode: /ct.ghpym.com\/d\/([0-9a-zA-Z\-_]{8,26})/gi,
-			shareCodeNeedRemoveStr: /ct.ghpym.com\/d\//gi,
+			link_innerText: `ct.ghpym.com(/|/#/)d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
+			link_innerHTML: `ct.ghpym.com(/|/#/)d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
+			shareCode: /ct.ghpym.com(\/|\/#\/)d\/([0-9a-zA-Z\-_]{8,26})/gi,
+			shareCodeNeedRemoveStr: /ct.ghpym.com(\/|\/#\/)d\//gi,
 			checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
 			accessCode: /([0-9a-zA-Z]{4,6})/gi,
-			paramMatch: /([a-zA-Z0-9\.]+)\/d\//i,
-			uiLinkShow: "{#$1#}/d/{#shareCode#} 提取码: {#accessCode#}",
-			blank: "http://{#$1#}/d/{#shareCode#}?p={#accessCode#}",
-			copyUrl:
-				"http://{#$1#}/d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
+			paramMatch: /([a-zA-Z0-9\.]+)(\/|\/#\/)d\//i,
+			uiLinkShow: "{#$1#}{#$2#}d/{#shareCode#} 提取码: {#accessCode#}",
+			blank: "http://{#$1#}{#$2#}d/{#shareCode#}?p={#accessCode#}",
+			copyUrl: "http://{#$1#}{#$2#}d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
 		},
 		/* d */
 		{
@@ -43,23 +39,19 @@ export const NetDiskRule_chengtong: NetDiskRuleOption = {
 			accessCode: /([0-9a-zA-Z]{4,6})/gi,
 			uiLinkShow: "url95.ctfile.com/d/{#shareCode#} 提取码: {#accessCode#}",
 			blank: "https://url95.ctfile.com/d/{#shareCode#}?p={#accessCode#}",
-			copyUrl:
-				"https://url95.ctfile.com/d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
+			copyUrl: "https://url95.ctfile.com/d/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
 		},
 		/* file */
 		{
 			link_innerText: `(2k.us|u062.com|545c.com|t00y.com|tc5.us)/file/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
 			link_innerHTML: `(2k.us|u062.com|545c.com|t00y.com|tc5.us)/file/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
-			shareCode:
-				/(2k.us|u062.com|545c.com|t00y.com|tc5.us)\/file\/([0-9a-zA-Z\-_]{8,26})/gi,
-			shareCodeNeedRemoveStr:
-				/(2k.us|u062.com|545c.com|t00y.com|tc5.us)\/file\//gi,
+			shareCode: /(2k.us|u062.com|545c.com|t00y.com|tc5.us)\/file\/([0-9a-zA-Z\-_]{8,26})/gi,
+			shareCodeNeedRemoveStr: /(2k.us|u062.com|545c.com|t00y.com|tc5.us)\/file\//gi,
 			checkAccessCode: /(提取码|密码|访问码|\\?password=|\\?p=)[\s\S]+/gi,
 			accessCode: /([0-9a-zA-Z]{4,6})/gi,
 			uiLinkShow: "u062.com/file/{#shareCode#} 提取码: {#accessCode#}",
 			blank: "https://u062.com/file/{#shareCode#}?p={#accessCode#}",
-			copyUrl:
-				"https://u062.com/file/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
+			copyUrl: "https://u062.com/file/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
 		},
 		/* f ==> http  */
 		{
@@ -74,8 +66,7 @@ export const NetDiskRule_chengtong: NetDiskRuleOption = {
 			paramMatch: /([0-9a-zA-Z\.]+)\/f\//i,
 			uiLinkShow: "{#$1#}/f/{#shareCode#} 提取码: {#accessCode#}",
 			blank: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}",
-			copyUrl:
-				"http://{#$1#}/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
+			copyUrl: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
 		},
 		/* f ==> http  */
 		{
@@ -88,8 +79,7 @@ export const NetDiskRule_chengtong: NetDiskRuleOption = {
 			paramMatch: /([0-9a-zA-Z\.]+)\/f\//i,
 			uiLinkShow: "{#$1#}/f/{#shareCode#} 提取码: {#accessCode#}",
 			blank: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}",
-			copyUrl:
-				"http://{#$1#}/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
+			copyUrl: "http://{#$1#}/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
 		},
 		/* f */
 		{
@@ -101,8 +91,7 @@ export const NetDiskRule_chengtong: NetDiskRuleOption = {
 			accessCode: /([0-9a-zA-Z]{4,6})/gi,
 			uiLinkShow: "url95.ctfile.com/f/{#shareCode#} 提取码: {#accessCode#}",
 			blank: "https://url95.ctfile.com/f/{#shareCode#}?p={#accessCode#}",
-			copyUrl:
-				"https://url95.ctfile.com/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
+			copyUrl: "https://url95.ctfile.com/f/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
 		},
 		/* dir */
 		{
@@ -114,8 +103,7 @@ export const NetDiskRule_chengtong: NetDiskRuleOption = {
 			accessCode: /([0-9a-zA-Z]{6})/gi,
 			uiLinkShow: "089u.com/dir/{#shareCode#} 提取码: {#accessCode#}",
 			blank: "https://089u.com/dir/{#shareCode#}?p={#accessCode#}",
-			copyUrl:
-				"https://089u.com/dir/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
+			copyUrl: "https://089u.com/dir/{#shareCode#}?p={#accessCode#}\n密码：{#accessCode#}",
 		},
 	],
 	/** 设置项 */
