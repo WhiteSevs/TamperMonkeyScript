@@ -23,6 +23,17 @@ export const PanelUISize = {
 		},
 	},
 	/**
+	 * 中等的设置界面
+	 */
+	settingMiddle: {
+		get width() {
+			return window.innerWidth < 350 ? "88vw" : "350px";
+		},
+		get height() {
+			return window.innerHeight < 450 ? "88vh" : "450px";
+		},
+	},
+	/**
 	 * 功能丰富，aside铺满了的设置界面，要稍微大一点
 	 */
 	settingBig: {
@@ -38,10 +49,10 @@ export const PanelUISize = {
 	 */
 	info: {
 		get width() {
-			return window.innerWidth < 350 ? "350px" : "350px";
+			return window.innerWidth < 350 ? "88vw" : "350px";
 		},
 		get height() {
-			return window.innerHeight < 250 ? "250px" : "250px";
+			return window.innerHeight < 250 ? "88vh" : "250px";
 		},
 	},
 };
