@@ -39,10 +39,7 @@ const Panel = {
 		/**
 		 * @private
 		 */
-		__contentConfigInitDefaultValue: null as UtilsDictionary<
-			string,
-			any
-		> | null,
+		__contentConfigInitDefaultValue: null as UtilsDictionary<string, any> | null,
 		/**
 		 * @private
 		 */
@@ -121,20 +118,14 @@ const Panel = {
 		 * 设置默认值
 		 * @param config
 		 */
-		const initDefaultValue = (
-			config: PopsPanelFormsTotalDetails | PopsPanelFormsDetails
-		) => {
+		const initDefaultValue = (config: PopsPanelFormsTotalDetails | PopsPanelFormsDetails) => {
 			if (!config.attributes) {
 				/* 必须配置attributes属性，用于存储菜单的键和默认值 */
 				return;
 			}
 
 			// 排除掉不需要初始化默认值的配置
-			if (
-				config.type === "button" ||
-				config.type === "forms" ||
-				config.type === "deepMenu"
-			) {
+			if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
 				return;
 			}
 
@@ -175,14 +166,9 @@ const Panel = {
 				}
 			}
 			if (config.type === "switch") {
-				let disabled =
-					typeof config.disabled === "function"
-						? config.disabled()
-						: config.disabled;
+				let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
 				if (typeof disabled === "boolean" && disabled) {
-					this.$data.contentConfigInitDisabledKeys.push(
-						...menuDefaultConfig.keys()
-					);
+					this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
 				}
 			}
 			// 循环初始化默认值
@@ -192,9 +178,7 @@ const Panel = {
 			}
 		};
 		/** 嵌套循环初始化默认值 */
-		const loopInitDefaultValue = (
-			configList: PopsPanelContentConfig["forms"]
-		) => {
+		const loopInitDefaultValue = (configList: PopsPanelContentConfig["forms"]) => {
 			for (let index = 0; index < configList.length; index++) {
 				let configItem = configList[index];
 				initDefaultValue(configItem);
@@ -220,9 +204,7 @@ const Panel = {
 		}
 
 		// 去重
-		this.$data.contentConfigInitDisabledKeys = [
-			...new Set(this.$data.contentConfigInitDisabledKeys),
-		];
+		this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
 	},
 	/**
 	 * 设置初始化使用的默认值
@@ -247,7 +229,7 @@ const Panel = {
 	 * @param key 键
 	 * @param defaultValue 默认值
 	 */
-	getValue<T extends any>(key: string, defaultValue?: T): T {
+	getValue<T extends any = boolean>(key: string, defaultValue?: T): T {
 		let localValue = PopsPanelStorageApi.get<T>(key);
 		if (localValue == null) {
 			/* 值不存在或值为null/undefined或只有键但无值 */
@@ -279,16 +261,10 @@ const Panel = {
 	 * @param key 需要监听的键
 	 * @param callback
 	 */
-	addValueChangeListener(
-		key: string,
-		callback: (key: string, oldValue: any, newValue: any) => void
-	) {
-		let listenerId = PopsPanelStorageApi.addValueChangeListener(
-			key,
-			(__key, __newValue, __oldValue) => {
-				callback(key, __oldValue, __newValue);
-			}
-		);
+	addValueChangeListener(key: string, callback: (key: string, oldValue: any, newValue: any) => void) {
+		let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+			callback(key, __oldValue, __newValue);
+		});
 		return listenerId;
 	},
 	/**
@@ -370,9 +346,7 @@ const Panel = {
 			keyList.push(queryKeyResult);
 		}
 
-		let findNotInDataKey = keyList.find(
-			(it) => !this.$data.contentConfigInitDefaultValue.has(it)
-		);
+		let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
 		if (findNotInDataKey) {
 			log.warn(`${findNotInDataKey} 键不存在`);
 			return;
@@ -398,10 +372,7 @@ const Panel = {
 		/**
 		 * 主动添加<style>标签的回调
 		 */
-		let dynamicAddStyleNodeCallback = (
-			value: boolean,
-			$style: HTMLStyleElement | HTMLStyleElement[]
-		) => {
+		let dynamicAddStyleNodeCallback = (value: boolean, $style: HTMLStyleElement | HTMLStyleElement[]) => {
 			let dynamicResultList: HTMLStyleElement[] = [];
 			if (!Array.isArray($style)) {
 				$style = [$style];
@@ -458,11 +429,7 @@ const Panel = {
 			return flag;
 		};
 		/** 值改变触发的回调 */
-		let valueChangeCallback = (valueOption?: {
-			key: string;
-			newValue: any;
-			oldValue: any;
-		}) => {
+		let valueChangeCallback = (valueOption?: { key: string; newValue: any; oldValue: any }) => {
 			let execFlag = checkMenuExec();
 			let resultList: HTMLStyleElement[] = [];
 			if (execFlag) {
@@ -500,16 +467,13 @@ const Panel = {
 		};
 		once &&
 			keyList.forEach((key) => {
-				let listenerId = this.addValueChangeListener(
-					key,
-					(key, newValue, oldValue) => {
-						valueChangeCallback({
-							key,
-							newValue,
-							oldValue,
-						});
-					}
-				);
+				let listenerId = this.addValueChangeListener(key, (key, newValue, oldValue) => {
+					valueChangeCallback({
+						key,
+						newValue,
+						oldValue,
+					});
+				});
 				listenerIdList.push(listenerId);
 			});
 		valueChangeCallback();
@@ -566,8 +530,7 @@ const Panel = {
 			(keyList) => {
 				let execFlag = keyList.every((__key__) => {
 					let flag = !!this.getValue(__key__);
-					let disabled =
-						Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+					let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
 					if (disabled) {
 						// 被禁用
 						flag = false;
@@ -627,10 +590,7 @@ const Panel = {
 		// 判断是否已有脚本版本号
 		let checkHasBottomVersionContentConfig =
 			content.findIndex((it) => {
-				let isBottom =
-					typeof it.isBottom === "function"
-						? it.isBottom()
-						: Boolean(it.isBottom);
+				let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
 				return isBottom && it.id === "script-version";
 			}) !== -1;
 		if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
