@@ -232,10 +232,17 @@ export const BilibiliCDNProxy = {
 				return url;
 			}
 			let chooseUposCDNHost = chooseUposCDN.host;
-			let originHost = urlObj.host;
+			let originHost = urlObj.host;			
 			// 只处理upos的mirror的cdn
 			if (originHost.includes("mirror")) {
 				log.info(`原Host为：${originHost}`);
+				log.info(`替换CDN为：${JSON.stringify(chooseUposCDN)}`);
+				urlObj.host = chooseUposCDNHost;
+			}
+			// 只处理upos的estg的cdn
+			if (originHost.includes("estg") && userChooseCDNHost.includes("ali")) {
+				log.info(`原Host为：${originHost}`);
+				chooseUposCDN = "upos-sz-estgoss.bilivideo.com";
 				log.info(`替换CDN为：${JSON.stringify(chooseUposCDN)}`);
 				urlObj.host = chooseUposCDNHost;
 			}
