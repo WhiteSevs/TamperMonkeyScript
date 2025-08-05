@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.13
+// @version      2025.8.5
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
@@ -193,10 +193,10 @@
      */
     info: {
       get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
+        return window.innerWidth < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
+        return window.innerHeight < 250 ? "88vh" : "250px";
       }
     }
   };
@@ -527,7 +527,7 @@
       /**
        * @private
        */
-      __configDefaultValueData: null,
+      __contentConfigInitDefaultValue: null,
       /**
        * @private
        */
@@ -542,14 +542,18 @@
       __panelConfig: {},
       $panel: null,
       /**
-       * 菜单项的默认值
+       * 菜单项初始化的默认值
        */
-      get configDefaultValueData() {
-        if (this.__configDefaultValueData == null) {
-          this.__configDefaultValueData = new utils.Dictionary();
+      get contentConfigInitDefaultValue() {
+        if (this.__contentConfigInitDefaultValue == null) {
+          this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
-        return this.__configDefaultValueData;
+        return this.__contentConfigInitDefaultValue;
       },
+      /**
+       * 菜单项初始化时禁用的键
+       */
+      contentConfigInitDisabledKeys: [],
       /**
        * 成功只执行了一次的项
        */
@@ -605,10 +609,21 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let needInitConfig = {};
+        let menuDefaultConfig = /* @__PURE__ */ new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          menuDefaultConfig.set(key, defaultValue);
+        }
+        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
+          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
+            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+          });
+        }
+        if (!menuDefaultConfig.size) {
+          log$1.warn(["请先配置键", config]);
+          return;
         }
         let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
@@ -617,19 +632,17 @@
             return;
           }
         }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
+        if (config.type === "switch") {
+          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          if (typeof disabled === "boolean" && disabled) {
+            this.$data.contentConfigInitDisabledKeys.push(
+              ...menuDefaultConfig.keys()
+            );
+          }
         }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          log$1.warn(["请先配置键", config]);
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
           this.setDefaultValue(__key, __defaultValue);
-        });
+        }
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
@@ -652,15 +665,18 @@
           loopInitDefaultValue(rightContentConfigList);
         }
       }
+      this.$data.contentConfigInitDisabledKeys = [
+        ...new Set(this.$data.contentConfigInitDisabledKeys)
+      ];
     },
     /**
      * 设置初始化使用的默认值
      */
     setDefaultValue(key, defaultValue) {
-      if (this.$data.configDefaultValueData.has(key)) {
+      if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log$1.warn("请检查该key(已存在): " + key);
       }
-      this.$data.configDefaultValueData.set(key, defaultValue);
+      this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
     /**
      * 设置值
@@ -678,8 +694,8 @@
     getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.configDefaultValueData.has(key)) {
-          return this.$data.configDefaultValueData.get(key);
+        if (this.$data.contentConfigInitDefaultValue.has(key)) {
+          return this.$data.contentConfigInitDefaultValue.get(key);
         }
         return defaultValue;
       }
@@ -748,7 +764,7 @@
     /**
      * 执行菜单
      *
-     * @param queryKey 键|键数组
+     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 执行的回调函数
      * @param checkExec 判断是否执行回调
      *
@@ -781,7 +797,7 @@
         keyList.push(queryKeyResult);
       }
       let findNotInDataKey = keyList.find(
-        (it) => !this.$data.configDefaultValueData.has(it)
+        (it) => !this.$data.contentConfigInitDefaultValue.has(it)
       );
       if (findNotInDataKey) {
         log$1.warn(`${findNotInDataKey} 键不存在`);
@@ -904,11 +920,12 @@
     },
     /**
      * 自动判断菜单是否启用，然后执行回调
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param [isReverse=false] 逆反判断菜单启用
+     * @param isReverse 逆反判断菜单启用，默认false
+     * @param once 是否是只执行一次，默认false
      */
-    execMenu(key, callback, isReverse = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -917,36 +934,29 @@
         (keyList) => {
           let execFlag = keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
+            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            if (disabled) {
+              flag = false;
+              log$1.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+            }
             isReverse && (flag = !flag);
             return flag;
           });
           return execFlag;
         },
-        false
+        once
       );
     },
     /**
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      *
      * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     * @param isReverse 逆反判断菜单启用，默认false
      */
-    execMenuOnce(key, callback) {
-      return this.exec(
-        key,
-        callback,
-        (keyList) => {
-          let execFlag = keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            return flag;
-          });
-          return execFlag;
-        },
-        true
-      );
+    execMenuOnce(key, callback, isReverse = false) {
+      return this.execMenu(key, callback, isReverse, true);
     },
     /**
      * 根据key执行一次
@@ -1126,6 +1136,12 @@
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
+      } else if (url.startsWith("//")) {
+        if (url.startsWith("///")) ;
+        else {
+          url = window.location.protocol + url;
+        }
+        return url;
       } else {
         if (!url.startsWith("/")) {
           url += "/";
@@ -1250,6 +1266,33 @@
      */
     escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    },
+    /**
+     * 在规定时间内循环，如果超时或返回false则取消循环
+     * @param fn 循环的函数
+     * @param intervalTime 循环间隔时间
+     * @param [timeout=5000] 循环超时时间
+     */
+    interval(fn, intervalTime, timeout = 5e3) {
+      let timeId;
+      let maxTimeout = timeout - intervalTime;
+      let intervalTimeCount = intervalTime;
+      let loop = async (isTimeout) => {
+        let result = await fn(isTimeout);
+        if (typeof result === "boolean" && !result || isTimeout) {
+          utils.workerClearTimeout(timeId);
+          return;
+        }
+        intervalTimeCount += intervalTime;
+        if (intervalTimeCount > maxTimeout) {
+          loop(true);
+          return;
+        }
+        timeId = utils.workerSetTimeout(() => {
+          loop(false);
+        }, intervalTime);
+      };
+      loop(false);
     }
   };
   const GM_RESOURCE_MAPPING = {
@@ -1291,48 +1334,49 @@
     autoClearConsole: true,
     tag: true
   });
-  Qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_position.key,
-              PanelSettingConfig.qmsg_config_position.defaultValue
-            );
-          }
-        },
-        maxNums: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_maxnums.key,
-              PanelSettingConfig.qmsg_config_maxnums.defaultValue
-            );
-          }
-        },
-        showReverse: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_showreverse.key,
-              PanelSettingConfig.qmsg_config_showreverse.defaultValue
-            );
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
+  Qmsg.config({
+    isHTML: true,
+    autoClose: true,
+    showClose: false,
+    consoleLogContent(qmsgInst) {
+      const qmsgType = qmsgInst.getSetting().type;
+      if (qmsgType === "loading") {
+        return false;
       }
-    )
-  );
+      const content = qmsgInst.getSetting().content;
+      if (qmsgType === "warning") {
+        log$1.warn(content);
+      } else if (qmsgType === "error") {
+        log$1.error(content);
+      } else {
+        log$1.info(content);
+      }
+      return true;
+    },
+    get position() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_position.key,
+        PanelSettingConfig.qmsg_config_position.defaultValue
+      );
+    },
+    get maxNums() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_maxnums.key,
+        PanelSettingConfig.qmsg_config_maxnums.defaultValue
+      );
+    },
+    get showReverse() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_showreverse.key,
+        PanelSettingConfig.qmsg_config_showreverse.defaultValue
+      );
+    },
+    get zIndex() {
+      let maxZIndex = Utils.getMaxZIndex();
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    }
+  });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
@@ -1354,7 +1398,8 @@
         toClose: false,
         toHide: false
       }
-    }
+    },
+    drag: true
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
@@ -1396,8 +1441,8 @@
     setTimeout: _unsafeWindow.setTimeout
   };
   const addStyle = utils.addStyle.bind(utils);
-  const $ = document.querySelector.bind(document);
-  const $$ = document.querySelectorAll.bind(document);
+  const $ = DOMUtils.selector.bind(DOMUtils);
+  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   const cookieManager = new utils.GM_Cookie();
   const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
   const VueUtils = {
@@ -2513,10 +2558,7 @@
         {
           name: "中国大陆",
           area: "",
-          host: Panel.getValue(
-            "bili-bangumi-proxyApiServer-default",
-            ""
-          ).trim() || BilibiliApiConfig.web_host
+          host: Panel.getValue("bili-bangumi-proxyApiServer-default", "").trim() || BilibiliApiConfig.web_host
         }
       ];
       if (!Panel.getValue("bili-bangumi-unlockAreaLimit")) {
@@ -2538,9 +2580,7 @@
           host: tw_host
         });
       }
-      let tha_host = Panel.getValue(
-        "bili-bangumi-proxyApiServer-tha-or-sea"
-      );
+      let tha_host = Panel.getValue("bili-bangumi-proxyApiServer-tha-or-sea");
       if (utils.isNotNull(tha_host)) {
         serverHost.push({
           name: "泰国/东南亚",
@@ -2590,9 +2630,7 @@
           serverHost.push(bangumi_tw_host);
         }
       }
-      let tha_host = Panel.getValue(
-        "bili-search-proxyApiServer-tha-or-sea"
-      );
+      let tha_host = Panel.getValue("bili-search-proxyApiServer-tha-or-sea");
       if (utils.isNotNull(tha_host)) {
         serverHost.push({
           name: "泰国/东南亚",
@@ -2600,9 +2638,7 @@
           host: tha_host
         });
       } else {
-        let bangumi_tha_host = bangumiProxyHost.find(
-          (item) => item.area === "th"
-        );
+        let bangumi_tha_host = bangumiProxyHost.find((item) => item.area === "th");
         if (bangumi_tha_host) {
           serverHost.push;
         }
@@ -2637,9 +2673,7 @@
       let urlList = [];
       args.forEach((arg) => {
         if (Array.isArray(arg)) {
-          urlList = urlList.concat(
-            arg.filter((item) => typeof item === "string")
-          );
+          urlList = urlList.concat(arg.filter((item) => typeof item === "string"));
         } else {
           if (typeof arg === "string") {
             urlList.push(arg);
@@ -2647,8 +2681,8 @@
         }
       });
       let betterCDN = urlList.find((url) => {
-        let urlObj = new URL(url);
-        if (urlObj.host.startsWith("upos")) {
+        let urlInst = new URL(url);
+        if (urlInst.host.startsWith("upos")) {
           return url;
         }
       });
@@ -2659,21 +2693,26 @@
       }
     },
     /**
-     * 番剧视频CDN替换
+     * 视频/音频CDN替换host
      * @param url 视频url
+     * @param isAudio 是否是音频
      */
-    replaceBangumiVideoCDN(url) {
-      let userChooseCDN = Panel.getValue("bili-bangumi-uposServerSelect");
-      return this.replaceVideoCDNHost(url, userChooseCDN);
+    replaceVideoCDN(url, isAudio = false) {
+      let userChooseCDN = isAudio ? Panel.getValue("bili-video-uposServerSelect-audio") : Panel.getValue("bili-video-uposServerSelect");
+      let ownCDN = isAudio ? Panel.getValue("bili-video-uposServerSelect-audio-own") : Panel.getValue("bili-video-uposServerSelect-own");
+      ownCDN = (ownCDN ?? "").trim();
+      return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
     },
     /**
-     * 视频CDN替换host
+     * 番剧视频CDN替换
      * @param url 视频url
-     *
+     * @param isAudio 是否是音频
      */
-    replaceVideoCDN(url) {
-      let userChooseCDN = Panel.getValue("bili-video-uposServerSelect");
-      return this.replaceVideoCDNHost(url, userChooseCDN);
+    replaceBangumiVideoCDN(url, isAudio = false) {
+      let userChooseCDN = isAudio ? Panel.getValue("bili-bangumi-uposServerSelect-audio") : Panel.getValue("bili-bangumi-uposServerSelect");
+      let ownCDN = isAudio ? Panel.getValue("bili-bangumi-uposServerSelect-audio-own") : Panel.getValue("bili-bangumi-uposServerSelect-own");
+      ownCDN = (ownCDN ?? "").trim();
+      return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
     },
     /**
      * 视频CDN替换host
@@ -2682,11 +2721,18 @@
      * .mcdn.bilivideo 辣鸡路线
      * @param url 视频url
      * @param userChooseCDNHost 需要替换的host
+     * @param ownCDNHost 自定义的host
      *
      */
-    replaceVideoCDNHost(url, userChooseCDNHost) {
+    replaceVideoCDNHost(url, userChooseCDNHost, ownCDNHost) {
       try {
-        let urlObj = new URL(url);
+        let urlInst = new URL(url);
+        let originHost = urlInst.host;
+        if (utils.isNotNull(ownCDNHost)) {
+          urlInst.host = ownCDNHost;
+          log$1.info(`原Host为：${originHost}，替换CDN为自定义：${ownCDNHost}`);
+          return urlInst.toString();
+        }
         let chooseUposCDN = this.getUposCDNServerList().find((item) => {
           return item.host === userChooseCDNHost;
         });
@@ -2694,122 +2740,303 @@
           return url;
         }
         let chooseUposCDNHost = chooseUposCDN.host;
-        let originHost = urlObj.host;
-        if (originHost.includes("mirror")) {
-          log$1.info(`原Host为：${originHost}`);
-          log$1.info(`替换CDN为：${JSON.stringify(chooseUposCDN)}`);
-          urlObj.host = chooseUposCDNHost;
-        }
-        return urlObj.toString();
+        urlInst.host = chooseUposCDNHost;
+        log$1.info(`原Host为：${originHost}，替换CDN为：${JSON.stringify(chooseUposCDN)}`);
+        return urlInst.toString();
       } catch (error) {
         log$1.error("视频upos替换失败", error);
-        log$1.error(error);
         return url;
       }
     },
     /**
      * 获取upos服务器列表
      * @link https://github.com/the1812/Bilibili-Evolved/issues/3234#issuecomment-1504764774
+     * @link https://github.com/Kanda-Akihito-Kun/ccb/blob/main/data/cdn.json
      */
     getUposCDNServerList() {
+      const serverAreaList = {
+        上海: [
+          "cn-sh-ct-01-13.bilivideo.com",
+          "cn-sh-ct-01-24.bilivideo.com",
+          "cn-sh-ct-01-36.bilivideo.com",
+          "cn-sh-fx-01-04.bilivideo.com",
+          "cn-sh-office-bcache-01.bilivideo.com"
+        ],
+        北京: [
+          "cn-bj-cc-03-14.bilivideo.com",
+          "cn-bj-cc-03-17.bilivideo.com",
+          "cn-bj-fx-01-01.bilivideo.com",
+          "cn-bj-fx-01-04.bilivideo.com",
+          "cn-bj-fx-01-05.bilivideo.com",
+          "cn-bj-se-01-05.bilivideo.com"
+        ],
+        南京: [
+          "cn-jsnj-fx-02-05.bilivideo.com",
+          "cn-jsnj-fx-02-07.bilivideo.com",
+          "cn-jsnj-fx-02-10.bilivideo.com"
+        ],
+        呼市: [
+          "cn-nmghhht-cm-01-11.bilivideo.com",
+          "cn-nmghhht-cu-01-01.bilivideo.com",
+          "cn-nmghhht-cu-01-08.bilivideo.com",
+          "cn-nmghhht-cu-01-09.bilivideo.com",
+          "cn-nmghhht-cu-01-12.bilivideo.com",
+          "cn-nmghhht-cu-01-15.bilivideo.com"
+        ],
+        哈市: [
+          "cn-hljheb-cm-01-01.bilivideo.com",
+          "cn-hljheb-cm-01-03.bilivideo.com",
+          "cn-hljheb-ct-01-02.bilivideo.com",
+          "cn-hljheb-ct-01-03.bilivideo.com",
+          "cn-hljheb-ct-01-04.bilivideo.com",
+          "cn-hljheb-ct-01-07.bilivideo.com"
+        ],
+        外建: [
+          "c0--cn-gotcha01.bilivideo.com",
+          "d0--cn-gotcha09.bilivideo.com",
+          "d1--cn-gotcha101.bilivideo.com",
+          "d1--cn-gotcha102.bilivideo.com",
+          "d1--cn-gotcha204-1.bilivideo.com",
+          "d1--cn-gotcha204-2.bilivideo.com",
+          "d1--cn-gotcha204-3.bilivideo.com",
+          "d1--cn-gotcha204-4.bilivideo.com",
+          "d1--cn-gotcha207.bilivideo.com",
+          "d1--cn-gotcha211.bilivideo.com",
+          "d1--cn-gotcha308.bilivideo.com",
+          "d1--ov-gotcha01.bilivideo.com",
+          "d1--ov-gotcha03.bilivideo.com",
+          "d1--ov-gotcha207.bilivideo.com",
+          "d1--ov-gotcha208.bilivideo.com",
+          "d1--ov-gotcha209.bilivideo.com",
+          "d1--ov-gotcha210.bilivideo.com",
+          "d1--p1--cn-gotcha04.bilivideo.com",
+          "d1--tf-gotcha04.bilivideo.com"
+        ],
+        天津: [
+          "cn-tj-cm-02-01.bilivideo.com",
+          "cn-tj-cm-02-02.bilivideo.com",
+          "cn-tj-cm-02-04.bilivideo.com",
+          "cn-tj-cm-02-05.bilivideo.com",
+          "cn-tj-cm-02-06.bilivideo.com",
+          "cn-tj-cm-02-07.bilivideo.com",
+          "cn-tj-cu-01-02.bilivideo.com",
+          "cn-tj-cu-01-03.bilivideo.com",
+          "cn-tj-cu-01-04.bilivideo.com",
+          "cn-tj-cu-01-06.bilivideo.com",
+          "cn-tj-cu-01-07.bilivideo.com",
+          "cn-tj-cu-01-09.bilivideo.com",
+          "cn-tj-cu-01-10.bilivideo.com",
+          "cn-tj-cu-01-11.bilivideo.com",
+          "cn-tj-cu-01-12.bilivideo.com",
+          "cn-tj-cu-01-13.bilivideo.com"
+        ],
+        广州: [
+          "cn-gdgz-cm-01-02.bilivideo.com",
+          "cn-gdgz-cm-01-10.bilivideo.com",
+          "cn-gdgz-fx-01-01.bilivideo.com",
+          "cn-gdgz-fx-01-02.bilivideo.com",
+          "cn-gdgz-fx-01-03.bilivideo.com",
+          "cn-gdgz-fx-01-04.bilivideo.com",
+          "cn-gdgz-fx-01-06.bilivideo.com",
+          "cn-gdgz-fx-01-08.bilivideo.com",
+          "cn-gdgz-fx-01-09.bilivideo.com",
+          "cn-gdgz-fx-01-10.bilivideo.com",
+          "cn-gdgz-gd-01-01.bilivideo.com"
+        ],
+        成都: [
+          "cn-sccd-cm-03-01.bilivideo.com",
+          "cn-sccd-cm-03-02.bilivideo.com",
+          "cn-sccd-cm-03-05.bilivideo.com",
+          "cn-sccd-ct-01-02.bilivideo.com",
+          "cn-sccd-ct-01-08.bilivideo.com",
+          "cn-sccd-ct-01-10.bilivideo.com",
+          "cn-sccd-ct-01-17.bilivideo.com",
+          "cn-sccd-ct-01-18.bilivideo.com",
+          "cn-sccd-ct-01-19.bilivideo.com",
+          "cn-sccd-ct-01-20.bilivideo.com",
+          "cn-sccd-ct-01-21.bilivideo.com",
+          "cn-sccd-ct-01-22.bilivideo.com",
+          "cn-sccd-ct-01-23.bilivideo.com",
+          "cn-sccd-ct-01-24.bilivideo.com",
+          "cn-sccd-ct-01-25.bilivideo.com",
+          "cn-sccd-ct-01-26.bilivideo.com",
+          "cn-sccd-ct-01-27.bilivideo.com",
+          "cn-sccd-ct-01-29.bilivideo.com",
+          "cn-sccd-cu-01-02.bilivideo.com",
+          "cn-sccd-cu-01-03.bilivideo.com",
+          "cn-sccd-cu-01-04.bilivideo.com",
+          "cn-sccd-cu-01-05.bilivideo.com",
+          "cn-sccd-cu-01-06.bilivideo.com",
+          "cn-sccd-cu-01-07.bilivideo.com",
+          "cn-sccd-cu-01-09.bilivideo.com",
+          "cn-sccd-fx-01-01.bilivideo.com",
+          "cn-sccd-fx-01-06.bilivideo.com"
+        ],
+        新疆: [
+          "cn-xj-cm-02-01.bilivideo.com",
+          "cn-xj-cm-02-04.bilivideo.com",
+          "cn-xj-cm-02-06.bilivideo.com",
+          "cn-xj-ct-01-01.bilivideo.com",
+          "cn-xj-ct-01-02.bilivideo.com",
+          "cn-xj-ct-01-03.bilivideo.com",
+          "cn-xj-ct-01-04.bilivideo.com",
+          "cn-xj-ct-01-05.bilivideo.com",
+          "cn-xj-ct-02-02.bilivideo.com"
+        ],
+        杭州: [
+          "cn-zjhz-cm-01-01.bilivideo.com",
+          "cn-zjhz-cm-01-04.bilivideo.com",
+          "cn-zjhz-cm-01-07.bilivideo.com",
+          "cn-zjhz-cm-01-12.bilivideo.com",
+          "cn-zjhz-cm-01-17.bilivideo.com",
+          "cn-zjhz-cu-01-01.bilivideo.com",
+          "cn-zjhz-cu-01-02.bilivideo.com",
+          "cn-zjhz-cu-01-05.bilivideo.com",
+          "cn-zjhz-cu-v-02.bilivideo.com"
+        ],
+        武汉: [
+          "cn-hbwh-cm-01-01.bilivideo.com",
+          "cn-hbwh-cm-01-02.bilivideo.com",
+          "cn-hbwh-cm-01-04.bilivideo.com",
+          "cn-hbwh-cm-01-05.bilivideo.com",
+          "cn-hbwh-cm-01-06.bilivideo.com",
+          "cn-hbwh-cm-01-08.bilivideo.com",
+          "cn-hbwh-cm-01-09.bilivideo.com",
+          "cn-hbwh-cm-01-10.bilivideo.com",
+          "cn-hbwh-cm-01-12.bilivideo.com",
+          "cn-hbwh-cm-01-17.bilivideo.com",
+          "cn-hbwh-cm-01-18.bilivideo.com",
+          "cn-hbwh-cm-01-19.bilivideo.com",
+          "cn-hbwh-fx-01-02.bilivideo.com",
+          "cn-hbwh-fx-01-12.bilivideo.com"
+        ],
+        沈阳: [
+          "cn-lnsy-cm-01-01.bilivideo.com",
+          "cn-lnsy-cm-01-03.bilivideo.com",
+          "cn-lnsy-cm-01-04.bilivideo.com",
+          "cn-lnsy-cm-01-05.bilivideo.com",
+          "cn-lnsy-cm-01-06.bilivideo.com",
+          "cn-lnsy-cu-01-03.bilivideo.com",
+          "cn-lnsy-cu-01-04.bilivideo.com",
+          "cn-lnsy-cu-01-06.bilivideo.com"
+        ],
+        泉州: [
+          "cn-fjqz-cm-01-01.bilivideo.com",
+          "cn-fjqz-cm-01-02.bilivideo.com",
+          "cn-fjqz-cm-01-03.bilivideo.com",
+          "cn-fjqz-cm-01-04.bilivideo.com",
+          "cn-fjqz-cm-01-05.bilivideo.com",
+          "cn-fjqz-cm-01-06.bilivideo.com",
+          "cn-fjqz-cm-01-08.bilivideo.com",
+          "cn-fjqz-cmcc-live-01.bilivideo.com"
+        ],
+        深圳: [
+          "upos-sz-dynqn.bilivideo.com",
+          "upos-sz-estgcos.bilivideo.com",
+          "upos-sz-estghw.bilivideo.com",
+          "upos-sz-estgoss.bilivideo.com",
+          "upos-sz-estgoss02.bilivideo.com",
+          "upos-sz-mirror08c.bilivideo.com",
+          "upos-sz-mirror08ct.bilivideo.com",
+          "upos-sz-mirror08h.bilivideo.com",
+          "upos-sz-mirrorali.bilivideo.com",
+          "upos-sz-mirroralib.bilivideo.com",
+          "upos-sz-mirroralio1.bilivideo.com",
+          "upos-sz-mirrorali02.bilivideo.com",
+          "upos-sz-mirroralibstar1.bilivideo.com",
+          "upos-sz-mirroraliov.bilivideo.com",
+          "upos-sz-mirrorbd.bilivideo.com",
+          "upos-sz-mirrorcf1ov.bilivideo.com",
+          "upos-sz-mirrorcos.bilivideo.com",
+          "upos-sz-mirrorcosb.bilivideo.com",
+          "upos-sz-mirrorcoso1.bilivideo.com",
+          "upos-sz-mirrorcosdisp.bilivideo.com",
+          "upos-sz-mirrorctos.bilivideo.com",
+          "upos-sz-mirrorhw.bilivideo.com",
+          "upos-sz-mirrorhwb.bilivideo.com",
+          "upos-sz-mirrorhwo1.bilivideo.com",
+          "upos-sz-mirrorhwdisp.bilivideo.com",
+          "upos-sz-originbstar.bilivideo.com",
+          "upos-sz-origincosv.bilivideo.com"
+        ],
+        西安: [
+          "cn-sxxa-cm-01-01.bilivideo.com",
+          "cn-sxxa-cm-01-02.bilivideo.com",
+          "cn-sxxa-cm-01-04.bilivideo.com",
+          "cn-sxxa-cm-01-09.bilivideo.com",
+          "cn-sxxa-cm-01-12.bilivideo.com",
+          "cn-sxxa-ct-03-02.bilivideo.com",
+          "cn-sxxa-ct-03-03.bilivideo.com",
+          "cn-sxxa-ct-03-04.bilivideo.com",
+          "cn-sxxa-cu-02-01.bilivideo.com",
+          "cn-sxxa-cu-02-02.bilivideo.com"
+        ],
+        郑州: [
+          "cn-hnzz-cm-01-01.bilivideo.com",
+          "cn-hnzz-cm-01-02.bilivideo.com",
+          "cn-hnzz-cm-01-03.bilivideo.com",
+          "cn-hnzz-cm-01-04.bilivideo.com",
+          "cn-hnzz-cm-01-05.bilivideo.com",
+          "cn-hnzz-cm-01-06.bilivideo.com",
+          "cn-hnzz-cm-01-09.bilivideo.com",
+          "cn-hnzz-cm-01-11.bilivideo.com",
+          "cn-hnzz-fx-01-01.bilivideo.com",
+          "cn-hnzz-fx-01-08.bilivideo.com"
+        ],
+        香港: [
+          "cn-hk-eq-01-03.bilivideo.com",
+          "cn-hk-eq-01-09.bilivideo.com",
+          "cn-hk-eq-01-10.bilivideo.com",
+          "cn-hk-eq-01-12.bilivideo.com",
+          "cn-hk-eq-01-13.bilivideo.com",
+          "cn-hk-eq-01-14.bilivideo.com",
+          "cn-hk-eq-bcache-13.bilivideo.com",
+          "cn-hk-eq-bcache-16.bilivideo.com"
+        ],
+        海外: [
+          // akamai（Akamai海外）
+          "upos-hz-mirrorakam.akamaized.net",
+          // 阿里云
+          "upos-sz-mirroraliov.bilivideo.com",
+          // 腾讯云
+          "upos-sz-mirrorcosov.bilivideo.com",
+          // 华为云
+          "upos-sz-mirrorhwov.bilivideo.com",
+          // bilibili
+          "cn-hk-eq-bcache-01.bilivideo.com"
+        ],
+        "海外（东南亚）": [
+          // 阿里云
+          "upos-sz-mirroralibstar1.bilivideo.com",
+          // 腾讯云
+          "upos-sz-mirrorcosbstar1.bilivideo.com",
+          // 华为云
+          "upos-sz-mirrorhwbstar1.bilivideo.com",
+          // Akamai
+          "upos-bstar1-mirrorakam.akamaized.net"
+        ],
+        其它: [
+          // tf_hw（华为云）
+          "upos-tf-all-hw.bilivideo.com",
+          //  tf_tx（腾讯云）
+          "upos-tf-all-tx.bilivideo.com"
+        ]
+      };
       const serverList = [
         {
           name: "不替换",
           host: ""
-        },
-        {
-          name: "ali（阿里云）",
-          host: "upos-sz-mirrorali.bilivideo.com"
-        },
-        {
-          name: "alib（阿里云）",
-          host: "upos-sz-mirroralib.bilivideo.com"
-        },
-        {
-          name: "alio1（阿里云）",
-          host: "upos-sz-mirroralio1.bilivideo.com"
-        },
-        {
-          name: "cos（腾讯云）",
-          host: "upos-sz-mirrorcos.bilivideo.com"
-        },
-        {
-          name: "cosb（腾讯云，VOD加速类型）",
-          host: "upos-sz-mirrorcosb.bilivideo.com"
-        },
-        {
-          name: "coso1（腾讯云）",
-          host: "upos-sz-mirrorcoso1.bilivideo.com"
-        },
-        {
-          name: "hw（华为云，融合CDN）",
-          host: "upos-sz-mirrorhw.bilivideo.com"
-        },
-        {
-          name: "hwb（华为云，融合CDN）",
-          host: "upos-sz-mirrorhwb.bilivideo.com"
-        },
-        {
-          name: "hwo1（华为云，融合CDN）",
-          host: "upos-sz-mirrorhwo1.bilivideo.com"
-        },
-        {
-          name: "08c（华为云，融合CDN）",
-          host: "upos-sz-mirror08c.bilivideo.com"
-        },
-        {
-          name: "08h（华为云，融合CDN）",
-          host: "upos-sz-mirror08h.bilivideo.com"
-        },
-        {
-          name: "08ct（华为云，融合CDN）",
-          host: "upos-sz-mirror08ct.bilivideo.com"
-        },
-        {
-          name: "tf_hw（华为云）",
-          host: "upos-tf-all-hw.bilivideo.com"
-        },
-        {
-          name: "tf_tx（腾讯云）",
-          host: "upos-tf-all-tx.bilivideo.com"
-        },
-        {
-          name: "akamai（Akamai海外）",
-          host: "upos-hz-mirrorakam.akamaized.net"
-        },
-        {
-          name: "aliov（阿里云海外）",
-          host: "upos-sz-mirroraliov.bilivideo.com"
-        },
-        {
-          name: "cosov（腾讯云海外）",
-          host: "upos-sz-mirrorcosov.bilivideo.com"
-        },
-        {
-          name: "hwov（华为云海外）",
-          host: "upos-sz-mirrorhwov.bilivideo.com"
-        },
-        {
-          name: "hk_bcache（Bilibili海外）",
-          host: "cn-hk-eq-bcache-01.bilivideo.com"
-        },
-        {
-          name: "alibstar1（阿里云海外-东南亚）",
-          host: "upos-sz-mirroralibstar1.bilivideo.com"
-        },
-        {
-          name: "cosbstar1（腾讯云海外-东南亚）",
-          host: "upos-sz-mirrorcosbstar1.bilivideo.com"
-        },
-        {
-          name: "hwbstar1（华为云海外-东南亚）",
-          host: "upos-sz-mirrorhwbstar1.bilivideo.com"
-        },
-        {
-          name: "akamai（Akamai海外-东南亚）",
-          host: "upos-bstar1-mirrorakam.akamaized.net"
         }
       ];
+      Object.keys(serverAreaList).map((key) => {
+        const hostList = serverAreaList[key];
+        hostList.forEach((host) => {
+          serverList.push({
+            name: `${key} - ${host.trim().replace(/\.bilivideo\.com$/gi, "")}`,
+            host
+          });
+        });
+      });
       return serverList;
     }
   };
@@ -5792,9 +6019,7 @@
           item.baseUrl,
           item.backup_url
         );
-        if (Panel.getValue("bili-video-uposServerSelect-applyAudio")) {
-          audioUrl = BilibiliCDNProxy.replaceVideoCDN(audioUrl);
-        }
+        audioUrl = BilibiliCDNProxy.replaceVideoCDN(audioUrl, true);
         audioInfo.push({
           url: audioUrl,
           id: item.id,
@@ -5892,10 +6117,7 @@
 
 			`
         );
-        let controlsPadding = Panel.getValue(
-          "bili-video-artplayer-controlsPadding-left-right",
-          0
-        );
+        let controlsPadding = Panel.getValue("bili-video-artplayer-controlsPadding-left-right", 0);
         if (controlsPadding != 0) {
           addStyle(
             /*css*/
@@ -6039,19 +6261,14 @@
             }
             that.$data.art.volume = 1;
             that.$data.art.once("ready", () => {
-              Panel.execMenu(
-                "bili-video-playerAutoPlayVideoFullScreen",
-                async () => {
-                  log$1.info(`自动进入全屏`);
-                  that.$data.art.fullscreen = true;
-                  that.$data.art.once("fullscreenError", () => {
-                    log$1.warn(
-                      "未成功进入全屏，需要用户交互操作，使用网页全屏代替"
-                    );
-                    that.$data.art.fullscreenWeb = true;
-                  });
-                }
-              );
+              Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
+                log$1.info(`自动进入全屏`);
+                that.$data.art.fullscreen = true;
+                that.$data.art.once("fullscreenError", () => {
+                  log$1.warn("未成功进入全屏，需要用户交互操作，使用网页全屏代替");
+                  that.$data.art.fullscreenWeb = true;
+                });
+              });
             });
           } else {
             const $artContainer = $(".artplayer-container");
@@ -8785,10 +9002,7 @@
         let findSupportFormat = bangumiInfo.support_formats.find(
           (formatsItem) => formatsItem.quality === durlInfo.quality
         );
-        let videoUrl = BilibiliCDNProxy.findBetterCDN(
-          currentDurl.url,
-          currentDurl.backup_url
-        );
+        let videoUrl = BilibiliCDNProxy.findBetterCDN(currentDurl.url, currentDurl.backup_url);
         let qualityName = findSupportFormat?.new_description;
         qualityInfoList.push({
           name: qualityName,
@@ -8836,10 +9050,7 @@
       if (bangumiInfo.type.toLowerCase() === "flv") {
         isFlv = true;
         bangumiInfo.durl.forEach((durlInfo) => {
-          let videoUrl = BilibiliCDNProxy.findBetterCDN(
-            durlInfo.url,
-            durlInfo.backup_url
-          );
+          let videoUrl = BilibiliCDNProxy.findBetterCDN(durlInfo.url, durlInfo.backup_url);
           videoUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(videoUrl);
           flvTotalDuration += durlInfo.length;
           flvTotalSize += durlInfo.size;
@@ -8859,9 +9070,7 @@
             item.baseUrl,
             item.backup_url
           );
-          if (Panel.getValue("bili-bangumi-uposServerSelect-applyAudio")) {
-            audioUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(audioUrl);
-          }
+          audioUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(audioUrl);
           audioInfo.push({
             url: audioUrl,
             id: item.id,
@@ -8873,14 +9082,10 @@
           });
         });
         log$1.info(`ArtPlayer: 获取的音频信息`, audioInfo);
-        qualityInfo = qualityInfo.concat(
-          handleQueryVideoQualityData(bangumiInfo)
-        );
+        qualityInfo = qualityInfo.concat(handleQueryVideoQualityData(bangumiInfo));
         log$1.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
       } else {
-        BilibiliLogUtils.failToast(
-          "暂未适配的视频格式：" + bangumiInfo["format"]
-        );
+        BilibiliLogUtils.failToast("暂未适配的视频格式：" + bangumiInfo["format"]);
         return;
       }
     } else {
@@ -8981,10 +9186,7 @@
                 }
               }
             }
-            const artPlayerOption = await GenerateArtPlayerOption(
-              ep_info,
-              ep_list
-            );
+            const artPlayerOption = await GenerateArtPlayerOption(ep_info, ep_list);
             if (artPlayerOption == null) {
               return;
             }
@@ -11553,7 +11755,7 @@
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack, valueChangeCallback) {
     let result = {
       text,
       type: "input",
@@ -11595,16 +11797,18 @@
     );
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
     let result = {
       text,
       type: "switch",
       description,
+      disabled,
       attributes: {},
       props: {},
       getValue() {
         let storageApiValue = this.props[PROPS_STORAGE_API];
-        return Boolean(storageApiValue.get(key, defaultValue));
+        let value = storageApiValue.get(key, defaultValue);
+        return value;
       },
       callback(event, __value) {
         let value = Boolean(__value);
@@ -11630,7 +11834,7 @@
     );
     return result;
   };
-  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled) {
+  const UITextArea = function(text, key, defaultValue, description, changeCallback, placeholder = "", disabled, valueChangeCallBack) {
     let result = {
       text,
       type: "textarea",
@@ -11840,8 +12044,15 @@
       let $filterContainer = $alert.$shadowRoot.querySelector(".filter-container");
       let $fragment = document.createDocumentFragment();
       this.option.filterOption.forEach((filterOption) => {
-        let $button = document.createElement("button");
-        $button.innerText = filterOption.name;
+        let $button = domUtils.createElement(
+          "button",
+          {
+            innerText: filterOption.name
+          },
+          {
+            type: "button"
+          }
+        );
         let execFilterAndCloseDialog = async () => {
           let allRuleInfo = await this.option.getAllRuleInfo();
           allRuleInfo.forEach(async (ruleInfo) => {
@@ -13875,7 +14086,7 @@
       });
     }
   };
-  const UISelect = function(text, key, defaultValue, data2, changeCallback, description) {
+  const UISelect = function(text, key, defaultValue, data2, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data2 === "function") {
       selectData = data2();
@@ -13895,8 +14106,8 @@
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log$1.info(`选择：${isSelectedText}`);
-        if (typeof changeCallback === "function") {
-          let result2 = changeCallback(event, value, isSelectedText);
+        if (typeof selectCallBack === "function") {
+          let result2 = selectCallBack(event, value, isSelectedText);
           if (result2) {
             return;
           }
@@ -14395,7 +14606,7 @@
       }
     ]
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step) {
+  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step, valueChangeCallBack) {
     let result = {
       text,
       type: "slider",
@@ -14537,13 +14748,7 @@
                 text: "功能",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "启用",
-                    "bili-video-enableArtPlayer",
-                    true,
-                    void 0,
-                    "使用artplayer代替页面的播放器"
-                  ),
+                  UISwitch("启用", "bili-video-enableArtPlayer", true, void 0, "使用artplayer代替页面的播放器"),
                   UISelect(
                     "播放的视频类型",
                     "bili-video-playType",
@@ -14561,20 +14766,8 @@
                     void 0,
                     "当选择dash时会有画质更高的选项"
                   ),
-                  UISwitch(
-                    "自动播放视频",
-                    "bili-video-playerAutoPlayVideo",
-                    false,
-                    void 0,
-                    ""
-                  ),
-                  UISwitch(
-                    "自动进入全屏",
-                    "bili-video-playerAutoPlayVideoFullScreen",
-                    false,
-                    void 0,
-                    ""
-                  )
+                  UISwitch("自动播放视频", "bili-video-playerAutoPlayVideo", false, void 0, ""),
+                  UISwitch("自动进入全屏", "bili-video-playerAutoPlayVideoFullScreen", false, void 0, "")
                 ]
               },
               {
@@ -14645,13 +14838,13 @@
                 ]
               },
               {
-                text: "加速CDN设置",
+                text: "加速CDN设置（dash）",
                 type: "forms",
                 forms: [
                   UISelect(
-                    "UPOS服务器设置",
+                    "视频-UPOS服务器设置",
                     "bili-video-uposServerSelect",
-                    "",
+                    BilibiliCDNProxy.getUposCDNServerList()[0].host,
                     BilibiliCDNProxy.getUposCDNServerList().map((item) => {
                       return {
                         text: item.name,
@@ -14661,12 +14854,34 @@
                     void 0,
                     "设置视频流的服务器，可加快视频加载速度"
                   ),
-                  UISwitch(
-                    "作用于Audio上",
-                    "bili-video-uposServerSelect-applyAudio",
-                    false,
+                  UIInput(
+                    "视频-自定义UPOS服务器",
+                    "bili-video-uposServerSelect-own",
+                    "",
+                    "",
                     void 0,
-                    "把m4s类型的audio也进行upos替换"
+                    "请输入upos服务器的域名"
+                  ),
+                  UISelect(
+                    "音频-UPOS服务器设置",
+                    "bili-video-uposServerSelect-audio",
+                    BilibiliCDNProxy.getUposCDNServerList()[0].host,
+                    BilibiliCDNProxy.getUposCDNServerList().map((item) => {
+                      return {
+                        text: item.name,
+                        value: item.host
+                      };
+                    }),
+                    void 0,
+                    "设置音频的服务器，可加快音频加载速度"
+                  ),
+                  UIInput(
+                    "音频-自定义UPOS服务器",
+                    "bili-video-uposServerSelect-audio-own",
+                    "",
+                    "",
+                    void 0,
+                    "请输入upos服务器的域名"
                   )
                 ]
               }
@@ -14713,13 +14928,7 @@
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "阻止调用App",
-                    "bili-video-hook-callApp",
-                    true,
-                    void 0,
-                    "处理函数: PlayerAgent"
-                  )
+                  UISwitch("阻止调用App", "bili-video-hook-callApp", true, void 0, "处理函数: PlayerAgent")
                 ]
               }
             ]
@@ -14894,15 +15103,7 @@
               {
                 text: "",
                 type: "forms",
-                forms: [
-                  UISwitch(
-                    "固定缩放倍率",
-                    "bili-bangumi-initialScale",
-                    true,
-                    void 0,
-                    ""
-                  )
-                ]
+                forms: [UISwitch("固定缩放倍率", "bili-bangumi-initialScale", true, void 0, "")]
               }
             ]
           },
@@ -15005,13 +15206,13 @@
                 ]
               },
               {
-                text: "加速CDN设置",
+                text: "加速CDN设置（dash）",
                 type: "forms",
                 forms: [
                   UISelect(
-                    "UPOS服务器设置",
+                    "视频-UPOS服务器设置",
                     "bili-bangumi-uposServerSelect",
-                    "",
+                    BilibiliCDNProxy.getUposCDNServerList()[0].host,
                     BilibiliCDNProxy.getUposCDNServerList().map((item) => {
                       return {
                         text: item.name,
@@ -15019,14 +15220,36 @@
                       };
                     }),
                     void 0,
-                    "设置解锁番剧的服务器，可加快视频加载速度"
+                    "设置视频流的服务器，可加快视频加载速度"
                   ),
-                  UISwitch(
-                    "作用于Audio上",
-                    "bili-bangumi-uposServerSelect-applyAudio",
-                    false,
+                  UIInput(
+                    "视频-自定义UPOS服务器",
+                    "bili-bangumi-uposServerSelect-own",
+                    "",
+                    "",
                     void 0,
-                    "把m4s类型的audio也进行upos替换"
+                    "请输入upos服务器的域名"
+                  ),
+                  UISelect(
+                    "音频-UPOS服务器设置",
+                    "bili-bangumi-uposServerSelect-audio",
+                    BilibiliCDNProxy.getUposCDNServerList()[0].host,
+                    BilibiliCDNProxy.getUposCDNServerList().map((item) => {
+                      return {
+                        text: item.name,
+                        value: item.host
+                      };
+                    }),
+                    void 0,
+                    "设置音频的服务器，可加快音频加载速度"
+                  ),
+                  UIInput(
+                    "音频-自定义UPOS服务器",
+                    "bili-bangumi-uposServerSelect-audio-own",
+                    "",
+                    "",
+                    void 0,
+                    "请输入upos服务器的域名"
                   )
                 ]
               },
@@ -15110,15 +15333,7 @@
               {
                 text: "",
                 type: "forms",
-                forms: [
-                  UISwitch(
-                    "阻止调用App",
-                    "bili-bangumi-hook-callApp",
-                    true,
-                    void 0,
-                    ""
-                  )
-                ]
+                forms: [UISwitch("阻止调用App", "bili-bangumi-hook-callApp", true, void 0, "")]
               }
             ]
           }
