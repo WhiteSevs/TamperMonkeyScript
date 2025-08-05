@@ -229,7 +229,7 @@ const Panel = {
 	 * @param key 键
 	 * @param defaultValue 默认值
 	 */
-	getValue<T extends any = boolean>(key: string, defaultValue?: T): T {
+	getValue<T extends any = boolean | undefined>(key: string, defaultValue?: T): T {
 		let localValue = PopsPanelStorageApi.get<T>(key);
 		if (localValue == null) {
 			/* 值不存在或值为null/undefined或只有键但无值 */
