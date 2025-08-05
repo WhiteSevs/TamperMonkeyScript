@@ -30,6 +30,7 @@ let userConfig = await GenerateUserConfig({
 			// import库的文件映射
 			externalGlobals: {
 				// viewerjs: cdn.jsdelivrFastly("Viewer", "dist/viewer.min.js"),
+				"crypto-js": ["CryptoJS", await GetLib("Crypto-JS")],
 			},
 			// import资源文件的映射
 			externalResource: {

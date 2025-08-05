@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.24
+// @version      2025.8.5
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -9,10 +9,11 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.6/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
 // @grant        GM.cookie
 // @grant        GM_cookie
@@ -27,7 +28,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, Utils, pops) {
+(function (Qmsg, DOMUtils, Utils, pops, CryptoJS) {
   'use strict';
 
   var _GM = /* @__PURE__ */ (() => typeof GM != "undefined" ? GM : void 0)();
@@ -72,14 +73,25 @@
       }
     },
     /**
+     * 中等的设置界面
+     */
+    settingMiddle: {
+      get width() {
+        return window.innerWidth < 350 ? "88vw" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "88vh" : "450px";
+      }
+    },
+    /**
      * 信息界面，一般用于提示信息之类
      */
     info: {
       get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
+        return window.innerWidth < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
+        return window.innerHeight < 250 ? "88vh" : "250px";
       }
     }
   };
@@ -882,48 +894,49 @@
     autoClearConsole: true,
     tag: true
   });
-  Qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_position.key,
-              PanelSettingConfig.qmsg_config_position.defaultValue
-            );
-          }
-        },
-        maxNums: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_maxnums.key,
-              PanelSettingConfig.qmsg_config_maxnums.defaultValue
-            );
-          }
-        },
-        showReverse: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_showreverse.key,
-              PanelSettingConfig.qmsg_config_showreverse.defaultValue
-            );
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
+  Qmsg.config({
+    isHTML: true,
+    autoClose: true,
+    showClose: false,
+    consoleLogContent(qmsgInst) {
+      const qmsgType = qmsgInst.getSetting().type;
+      if (qmsgType === "loading") {
+        return false;
       }
-    )
-  );
+      const content = qmsgInst.getSetting().content;
+      if (qmsgType === "warning") {
+        log.warn(content);
+      } else if (qmsgType === "error") {
+        log.error(content);
+      } else {
+        log.info(content);
+      }
+      return true;
+    },
+    get position() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_position.key,
+        PanelSettingConfig.qmsg_config_position.defaultValue
+      );
+    },
+    get maxNums() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_maxnums.key,
+        PanelSettingConfig.qmsg_config_maxnums.defaultValue
+      );
+    },
+    get showReverse() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_showreverse.key,
+        PanelSettingConfig.qmsg_config_showreverse.defaultValue
+      );
+    },
+    get zIndex() {
+      let maxZIndex = Utils.getMaxZIndex();
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    }
+  });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
@@ -1075,13 +1088,15 @@
      * @param apiName 强制使用Api的名称，是否使用保存的Api名称
      */
     constructor(apiName) {
+      if (typeof apiName === "string") {
+        if (!CookieManagerApiNameList.includes(apiName)) {
+          throw new Error(`未知的apiName：${apiName}`);
+        }
+      }
       this.__apiName = apiName;
     }
     get cookieManagerApiName() {
-      let managerApi = Panel.getValue(
-        "cookie-manager-api",
-        "document.cookie"
-      );
+      let managerApi = Panel.getValue("cookie-manager-api", "document.cookie");
       return this.__apiName || managerApi;
     }
     get cookieManager() {
@@ -1093,12 +1108,9 @@
             });
           },
           set(cookieInfo, callback) {
-            __GM_cookie__.set(
-              cookieInfo,
-              (result) => {
-                callback(result);
-              }
-            );
+            __GM_cookie__.set(cookieInfo, (result) => {
+              callback(result);
+            });
           },
           delete(cookieInfo, callback) {
             __GM_cookie__.delete(cookieInfo, (result) => {
@@ -1114,9 +1126,7 @@
             });
           },
           set(cookieInfo, callback) {
-            _GM.cookie.set(
-              cookieInfo
-            ).then((result) => {
+            _GM.cookie.set(cookieInfo).then((result) => {
               callback(result ?? null);
             }).catch((reason) => {
               callback(reason);
@@ -1164,23 +1174,19 @@
      * 查询所有Cookie
      */
     queryAllCookie() {
-      return new Promise(
-        (resolve, reject) => {
-          try {
-            this.cookieManager.list({}, (cookieListResult) => {
-              let __cookieListResult__ = cookieListResult || [];
-              __cookieListResult__ = __cookieListResult__.sort(
-                (a, b) => a.name.localeCompare(b.name)
-              );
-              resolve(__cookieListResult__);
-            });
-          } catch (error) {
-            log.error(error);
-            Qmsg.error(error.toString());
-            reject(error);
-          }
+      return new Promise((resolve, reject) => {
+        try {
+          this.cookieManager.list({}, (cookieListResult) => {
+            let __cookieListResult__ = cookieListResult || [];
+            __cookieListResult__ = __cookieListResult__.sort((a, b) => a.name.localeCompare(b.name));
+            resolve(__cookieListResult__);
+          });
+        } catch (error) {
+          log.error(error);
+          Qmsg.error(error.toString());
+          reject(error);
         }
-      );
+      });
     }
     /**
      * 清除所有Cookie
@@ -1261,27 +1267,25 @@
      * 更新Cookie
      */
     updateCookie(cookieInfo) {
-      return new Promise(
-        async (resolve, reject) => {
-          let result;
-          try {
-            if (this.cookieManagerApiName === "document.cookie" || this.cookieManagerApiName === "cookieStore") {
-              let deleteError = await this.deleteCookie(cookieInfo);
-              if (deleteError) {
-                throw new TypeError(deleteError.toString());
-              }
+      return new Promise(async (resolve, reject) => {
+        let result;
+        try {
+          if (this.cookieManagerApiName === "document.cookie" || this.cookieManagerApiName === "cookieStore") {
+            let deleteError = await this.deleteCookie(cookieInfo);
+            if (deleteError) {
+              throw new TypeError(deleteError.toString());
             }
-            let addError = await this.addCookie(cookieInfo);
-            if (addError) {
-              throw new TypeError(addError.toString());
-            }
-          } catch (error) {
-            result = error;
-          } finally {
-            resolve(result);
           }
+          let addError = await this.addCookie(cookieInfo);
+          if (addError) {
+            throw new TypeError(addError.toString());
+          }
+        } catch (error) {
+          result = error;
+        } finally {
+          resolve(result);
         }
-      );
+      });
     }
   }
   const CookieManager = new CookieManagerService();
@@ -1391,22 +1395,27 @@
   const CookieInfoTransform = {
     /**
      * 对编辑前的cookie信息进行值转换
+     * @param cookieInfo
+     * @param isEdit 是否是编辑
      */
-    beforeEdit(cookieInfo) {
+    beforeEdit(cookieInfo, isEdit) {
       const cookieManagerApiName = CookieManager.cookieManagerApiName;
       if (cookieManagerApiName === "cookieStore") {
         if (typeof cookieInfo.expires === "number") {
           cookieInfo.expirationDate = cookieInfo.expires;
         }
       } else if (cookieManagerApiName === "GM_cookie" || cookieManagerApiName === "GM.cookie") {
-        if (typeof cookieInfo.expirationDate === "number") {
-          cookieInfo.expirationDate = cookieInfo.expirationDate * 1e3;
+        if (isEdit) {
+          if (typeof cookieInfo.expirationDate === "number") {
+            cookieInfo.expirationDate = cookieInfo.expirationDate * 1e3;
+          }
         }
       }
       return cookieInfo;
     },
     /**
      * 对编辑后的cookie信息进行值转换
+     * @param cookieInfo
      */
     afterEdit(cookieInfo) {
       const cookieManagerApiName = CookieManager.cookieManagerApiName;
@@ -1418,9 +1427,7 @@
         }
       } else if (cookieManagerApiName === "GM_cookie" || cookieManagerApiName === "GM.cookie") {
         if (typeof cookieInfo.expirationDate === "number") {
-          cookieInfo.expirationDate = Math.floor(
-            cookieInfo.expirationDate / 1e3
-          );
+          cookieInfo.expirationDate = Math.floor(cookieInfo.expirationDate / 1e3);
         }
       }
       return cookieInfo;
@@ -1443,6 +1450,24 @@
       },
       placeholder: "",
       disabled: Boolean(disabled)
+    };
+    return config;
+  };
+  let edit_ui_textarea = (text, getValue, setValue, disabled) => {
+    let config = {
+      text,
+      type: "textarea",
+      props: {},
+      attributes: {},
+      description: "",
+      placeholder: "",
+      getValue() {
+        return getValue();
+      },
+      disabled,
+      callback: function(event, value) {
+        setValue(value);
+      }
     };
     return config;
   };
@@ -1470,27 +1495,28 @@
     },
     /**
      * 显示视图
-     * @param cookieInfo 需要编辑的cookie
+     * @param cookieInfo 需要编辑的cookie，为空的话是添加
      * @param dialogCloseCallBack 弹窗关闭的回调
      */
     showView(__cookieInfo__, dialogCloseCallBack) {
       let isEdit = !!__cookieInfo__;
-      let cookieInfo = utils.assign(
-        {
-          name: "",
-          value: "",
-          domain: window.location.hostname,
-          path: "/",
-          secure: false,
-          hostOnly: false,
-          httpOnly: false,
-          sameSite: "lax",
-          expirationDate: Date.now() + 60 * 60 * 24 * 30 * 1e3
-        },
-        __cookieInfo__,
-        true
-      );
-      cookieInfo = CookieInfoTransform.beforeEdit(cookieInfo);
+      let defaultCookieInfo = {
+        name: "",
+        value: "",
+        domain: window.location.hostname,
+        path: "/",
+        secure: false,
+        session: false,
+        hostOnly: false,
+        httpOnly: false,
+        sameSite: "lax",
+        // 一个月后过期
+        // 单位：毫秒
+        expirationDate: Date.now() + 60 * 60 * 24 * 30 * 1e3
+      };
+      let cookieInfo = utils.assign({}, defaultCookieInfo, true);
+      utils.assign(cookieInfo, __cookieInfo__ ?? {}, true);
+      cookieInfo = CookieInfoTransform.beforeEdit(cookieInfo, isEdit);
       let $dialog = __pops.confirm({
         title: {
           text: isEdit ? "编辑Cookie" : "添加Cookie",
@@ -1541,8 +1567,8 @@
         mask: {
           enable: true
         },
-        width: window.innerWidth > 350 ? "350px" : "80vw",
-        height: PanelUISize.setting.height,
+        width: PanelUISize.settingMiddle.width,
+        height: "auto",
         style: (
           /*css*/
           `
@@ -1564,6 +1590,10 @@
                 .pops-panel-input.pops-input-disabled{
                     border: 1px solid #dcdfe6;
                 }
+				.pops-panel-textarea textarea{
+					resize: auto;
+					border-radius: 4px;
+				}
 				#cookie-item-property-expires{
 					border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
 					border-radius: 4px;
@@ -1573,7 +1603,7 @@
 					padding: 0px 8px;
 				}
 				#cookie-item-property-expires:hover{
-					box-shadow: 0 0 0 1px #c0c4cc inset;
+					border: 1px solid #c0c4cc
 				}
 				#cookie-item-property-expires:focus,
 				#cookie-item-property-expires:focus-within{
@@ -1585,9 +1615,7 @@
             `
         )
       });
-      let $editContent = $dialog.$shadowRoot.querySelector(
-        ".pops-confirm-content"
-      );
+      let $editContent = $dialog.$shadowRoot.querySelector(".pops-confirm-content");
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       let $name = panelHandlerComponents.createSectionContainerItem_input(
         edit_ui_input(
@@ -1597,8 +1625,8 @@
           isEdit
         )
       );
-      let $value = panelHandlerComponents.createSectionContainerItem_input(
-        edit_ui_input(
+      let $value = panelHandlerComponents.createSectionContainerItem_textarea(
+        edit_ui_textarea(
           "value",
           () => cookieInfo.value,
           (value) => cookieInfo.value = value
@@ -1646,18 +1674,12 @@
 						`
               )
             });
-            let $dateTime = $li.querySelector(
-              "#cookie-item-property-expires"
-            );
+            let $dateTime = $li.querySelector("#cookie-item-property-expires");
             $dateTime.valueAsNumber = cookieInfo.expirationDate;
-            domUtils.on(
-              $dateTime,
-              ["change", "input", "propertychange"],
-              (event) => {
-                utils.preventEvent(event);
-                cookieInfo.expirationDate = $dateTime.valueAsNumber;
-              }
-            );
+            domUtils.on($dateTime, ["change", "input", "propertychange"], (event) => {
+              utils.preventEvent(event);
+              cookieInfo.expirationDate = $dateTime.valueAsNumber;
+            });
             return $li;
           }
         });
@@ -1740,14 +1762,7 @@
       );
       domUtils.append($editContent, [$name, $value]);
       if (CookieManager.cookieManagerApiName === "GM_cookie" || CookieManager.cookieManagerApiName === "GM.cookie") {
-        domUtils.append($editContent, [
-          $domain,
-          $path,
-          $expires,
-          $httpOnly,
-          $secure,
-          $sameSite
-        ]);
+        domUtils.append($editContent, [$domain, $path, $expires, $httpOnly, $secure, $sameSite]);
       } else if (CookieManager.cookieManagerApiName === "cookieStore") {
         domUtils.append($editContent, [$domain, $path, $expires, $sameSite]);
       }
@@ -3249,7 +3264,618 @@
       });
     }
   };
+  const CookieBackUpManager = {
+    /**
+     * 加密
+     * @param text 要加密的文本
+     * @param secretKey 密钥
+     */
+    encrypt(text, secretKey) {
+      return CryptoJS.AES.encrypt(text, secretKey).toString();
+    },
+    /**
+     * 解密
+     * @param text 要解密的文本
+     * @param secretKey 密钥
+     */
+    decrypt(text, secretKey) {
+      const bytes = CryptoJS.AES.decrypt(text, secretKey);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    },
+    /**
+     * 格式化导出的cookie
+     */
+    formatCookie(cookie, type, encodePwd) {
+      let cookieText = "";
+      if (type === "header_string") {
+        cookieText = cookie.map((it) => {
+          let cookieValue = it.value;
+          return `${it.name}=${cookieValue}; `;
+        }).join("");
+      } else if (type === "json") {
+        cookieText = JSON.stringify(
+          {
+            api: CookieManager.cookieManagerApiName,
+            hostname: window.location.hostname,
+            data: cookie
+          },
+          null,
+          2
+        );
+      } else {
+        throw new Error("不支持的格式化类型：" + type);
+      }
+      if (encodePwd) {
+        cookieText = this.encrypt(cookieText, encodePwd);
+      }
+      return cookieText;
+    },
+    /**
+     * 显示导出弹窗
+     */
+    showExportDialog() {
+      let $confirm = __pops.confirm({
+        title: {
+          text: "导出 Cookie",
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+						<p class="tip-text cookie-format-type-tip-text">您希望以哪种格式导出 Cookie？</p>
+						<div class="cookie-format-type-container">
+							<div class="cookie-format-type-item">
+								<input id="cookie-format-header_string" type="radio" name="format" value="header_string">
+								<label for="cookie-format-header_string">Header String</label>
+							</div>
+							<div class="cookie-format-type-item">
+								<input id="cookie-format-json" type="radio" name="format" value="json">
+								<label for="cookie-format-json">JSON</label>
+							</div>
+						</div>
+						<p class="tip-text export-example-code-tip-text">示例</p>
+						<div class="export-example-code-text-container">
+							<pre></pre>
+						</div>
+						<div class="cookir-format-encode-pwd-container">
+							<label for="hostOnly">用于加密 Cookie 的密码</label>
+							<input id="encode-pwd" type="password" placeholder="用于加密 Cookie 的密码" value="">
+							<p>如果您希望在导出前加密 Cookie，请输入密码（可选）。</p>
+						</div>
+					`
+          ),
+          html: true
+        },
+        width: window.innerWidth < 400 ? "88vw" : "400px",
+        height: "auto",
+        btn: {
+          merge: true,
+          position: "space-between",
+          ok: {
+            text: "导出",
+            async callback(eventDetails, event) {
+              let cookieList = CookieManagerView.$data.cookieList;
+              if (cookieList.length === 0) {
+                Qmsg.warning("Cookie为空");
+                return;
+              }
+              let cookieText = CookieBackUpManager.formatCookie(
+                cookieList,
+                dialogConfig.exportType,
+                dialogConfig.encodePwd
+              );
+              const blob = new Blob([cookieText], { type: "text/plain" });
+              const url = URL.createObjectURL(blob);
+              let $anchor = domUtils.createElement("a", {
+                download: `${window.location.hostname}_${dialogConfig.exportType}_${CookieManager.cookieManagerApiName}_${Date.now()}.txt`,
+                href: url,
+                target: "_blank"
+              });
+              $anchor.click();
+              setTimeout(() => {
+                URL.revokeObjectURL(url);
+              }, 500);
+              eventDetails.close();
+            }
+          },
+          other: {
+            enable: true,
+            text: "导出至剪贴板",
+            type: "xiaomi-primary",
+            async callback(eventDetails, event) {
+              let cookieList = CookieManagerView.$data.cookieList;
+              if (cookieList.length === 0) {
+                Qmsg.warning("Cookie为空");
+                return;
+              }
+              let cookieText = CookieBackUpManager.formatCookie(
+                cookieList,
+                dialogConfig.exportType,
+                dialogConfig.encodePwd
+              );
+              const status = await utils.setClip(cookieText);
+              if (status) {
+                Qmsg.success("复制成功");
+              } else {
+                Qmsg.error("复制失败");
+              }
+              eventDetails.close();
+            }
+          }
+        },
+        style: (
+          /*css*/
+          `
+					${__pops.config.cssText.panelCSS}
+
+					.pops-content{
+						padding: 20px;
+					}
+					.cookie-format-type-container{
+						display: flex;
+						gap: 10px;
+						margin: 10px 0px;
+						align-items: center;
+						flex-wrap: wrap;
+						justify-content: space-between;
+					}
+					.cookie-format-type-item input[type="radio"]{
+						width: 1rem;
+						height: 1rem;
+					}
+					.export-example-code-text-container{
+						padding: 10px;
+						background-color: rgb(209 213 219 / 1);
+						border-radius: 10px;
+						width: 100%;
+						margin: 1rem 0px;
+					}
+					.export-example-code-text-container pre{
+						font-feature-settings: normal;
+						font-variation-settings: normal;
+						font-size: 1em;
+						margin: 0;
+						white-space: break-spaces;
+					}
+					.cookie-format-type-container label{
+						color: rgb(17 24 39 / 1);
+					}
+					.cookir-format-encode-pwd-container label{
+						color: #111827;
+					}
+					.cookie-format-type-tip-text,
+					.export-example-code-tip-text,
+					.cookir-format-encode-pwd-container label{
+						font-weight: 600;
+					}
+					.cookir-format-encode-pwd-container input{
+						border-radius: 0.5rem;
+						width: 100%;
+						border: 1px solid #d1d5db;
+						background-color: #f9fafb;
+						padding: 0.625rem;
+						margin: 0.65rem 0px;
+						font-size: 12px;
+						color: #111827;
+					}
+					.cookir-format-encode-pwd-container p{
+    					color: #6b7280;
+						font-size: 12px;
+					}
+				`
+        )
+      });
+      let $exampleCodeText = $confirm.$shadowRoot.querySelector(
+        ".export-example-code-text-container pre"
+      );
+      let $format_header_string = $confirm.$shadowRoot.querySelector(
+        "#cookie-format-header_string"
+      );
+      let $format_json = $confirm.$shadowRoot.querySelector("#cookie-format-json");
+      let $encodePwd = $confirm.$shadowRoot.querySelector("#encode-pwd");
+      const DialogConfigManager = {
+        key: "cookie-backup-export-dialog-config",
+        getConfig() {
+          return Panel.getValue(this.key, {
+            exportType: "header_string",
+            encodePwd: ""
+          });
+        },
+        saveConfig() {
+          let exportType = "header_string";
+          if ($format_json.checked) {
+            exportType = "json";
+          }
+          Panel.setValue(this.key, {
+            exportType,
+            encodePwd: domUtils.val($encodePwd)
+          });
+          dialogConfig = this.getConfig();
+        }
+      };
+      let dialogConfig = DialogConfigManager.getConfig();
+      domUtils.on($format_header_string, "input", () => {
+        const exampleCooikieList = [
+          {
+            name: "_ga",
+            value: "GA1.2.123456789.987654321",
+            domain: window.location.hostname,
+            expires: Date.now() + 1e3 * 60 * 60 * 24 * 30,
+            partitioned: false,
+            path: "/",
+            sameSite: "unspecified",
+            secure: false
+          },
+          {
+            name: "PHPSESSID",
+            value: "28f2d88ee9322cfd2e4f1e",
+            domain: window.location.hostname,
+            expires: Date.now() + 1e3 * 60 * 60 * 24 * 30,
+            partitioned: false,
+            path: "/",
+            sameSite: "unspecified",
+            secure: false
+          },
+          {
+            name: "csrftoken",
+            value: "abcdef123456",
+            domain: window.location.hostname,
+            expires: Date.now() + 1e3 * 60 * 60 * 24 * 30,
+            partitioned: false,
+            path: "/",
+            sameSite: "unspecified",
+            secure: false
+          },
+          {
+            name: "logged_in",
+            value: "true",
+            domain: window.location.hostname,
+            expires: Date.now() + 1e3 * 60 * 60 * 24 * 30,
+            partitioned: false,
+            path: "/",
+            sameSite: "unspecified",
+            secure: false
+          }
+        ];
+        let exampleText = this.formatCookie(exampleCooikieList, "header_string");
+        domUtils.text($exampleCodeText, exampleText);
+        DialogConfigManager.saveConfig();
+      });
+      domUtils.on($format_json, "input", () => {
+        const exampleCooikieList = [
+          {
+            name: "sessionId",
+            value: "abc123xyz456",
+            domain: ".example.com",
+            path: "/",
+            secure: true,
+            httpOnly: true,
+            sameSite: "lax",
+            expirationDate: 1713543600,
+            hostOnly: false,
+            session: false
+          }
+        ];
+        let exampleText = this.formatCookie(exampleCooikieList, "json");
+        domUtils.text($exampleCodeText, exampleText);
+        DialogConfigManager.saveConfig();
+      });
+      domUtils.on($encodePwd, ["input", "propertychange"], () => {
+        DialogConfigManager.saveConfig();
+      });
+      if (dialogConfig.exportType === "header_string") {
+        $format_header_string.click();
+      } else if (dialogConfig.exportType === "json") {
+        $format_json.click();
+      }
+      domUtils.val($encodePwd, dialogConfig.encodePwd);
+    },
+    /**
+     * 显示导入弹窗
+     */
+    showImportDialog() {
+      let $confirm = __pops.confirm({
+        title: {
+          text: "导入 Cookie",
+          position: "center"
+        },
+        content: {
+          text: (
+            /*html*/
+            `
+						<p class="tip-text cookie-format-type-tip-text">您希望如何导入？</p>
+						<div class="import-cookie-type-container">
+							<div class="import-cookie-type-item">
+								<input id="import-cookie-import_from_text" type="radio" name="format" value="import_from_text">
+								<label for="import-cookie-import_from_text">Use text</label>
+							</div>
+							<div class="import-cookie-type-item">
+								<input id="import-cookie-import_from_file" type="radio" name="format" value="import_from_file">
+								<label for="import-cookie-import_from_file">Use a file</label>
+							</div>
+						</div>
+						<div class="import-cookie-value-container">
+							<div class="import-cookie-value-text">
+								<label>Cookie value</label>
+								<textarea rows="5" placeholder="Header string/JSON"></textarea>
+							</div>
+							<div class="import-cookie-value-file">
+								<label>选择要导入的文件</label>
+								<input accept=".txt, .json" type="file">
+							</div>
+						</div>
+						<div class="cookie-format-decode-pwd-container">
+							<label for="hostOnly">用于解密 Cookie 的密码</label>
+							<input id="decode-pwd" type="password" placeholder="用于解密 Cookie 的密码" value="">
+							<p>如果 Cookie 受加密保护，请输入解密密码（可选）。</p>
+						</div>
+					`
+          ),
+          html: true
+        },
+        width: window.innerWidth < 400 ? "88vw" : "400px",
+        height: "auto",
+        btn: {
+          ok: {
+            text: "导入",
+            async callback(eventDetails, event) {
+              try {
+                const decodePwd = dialogConfig.decodePwd;
+                let cookieListStr = dialogConfig.value;
+                if (decodePwd.trim() === "") {
+                } else {
+                  cookieListStr = CookieBackUpManager.decrypt(cookieListStr, decodePwd);
+                }
+                const cookie = utils.toJSON(cookieListStr);
+                if (Array.isArray(cookie)) {
+                  log.info(`使用${CookieManager.cookieManagerApiName}导入cookie数据`);
+                  for (const cookieInfo of cookie) {
+                    await CookieManager.updateCookie(cookieInfo);
+                  }
+                } else if (typeof cookie === "object" && Object.keys(cookie).length && Array.isArray(cookie["data"])) {
+                  const cookieManager2 = new CookieManagerService(cookie.api);
+                  log.info(`使用${cookieManager2.cookieManagerApiName}导入cookie数据`);
+                  for (const cookieInfo of cookie.data) {
+                    await cookieManager2.updateCookie(cookieInfo);
+                  }
+                } else if (typeof cookie === "object" && !Object.keys(cookie).length) {
+                  let utilsCookieManager = new utils.GM_Cookie();
+                  log.info(`使用${CookieManager.cookieManagerApiName}导入cookie数据`);
+                  let cookieObj = utilsCookieManager.parseCookie(cookieListStr);
+                  for (const cookieInfo of cookieObj) {
+                    await CookieManager.updateCookie({
+                      name: cookieInfo.key,
+                      value: cookieInfo.value,
+                      domain: window.location.hostname,
+                      path: "/",
+                      sameSite: "unspecified",
+                      secure: false,
+                      session: false,
+                      hostOnly: true,
+                      httpOnly: false
+                    });
+                  }
+                } else {
+                  log.error(cookieListStr, cookie);
+                  Qmsg.error("cookie格式不符合");
+                  return;
+                }
+                eventDetails.close();
+              } catch (error) {
+                Qmsg.error(error.toString());
+              }
+            }
+          }
+        },
+        style: (
+          /*css*/
+          `
+					${__pops.config.cssText.panelCSS}
+
+					.pops-content{
+						padding: 20px;
+					}
+					.import-cookie-type-container{
+						display: flex;
+						gap: 10px;
+						margin: 10px 0px;
+						align-items: center;
+						flex-wrap: wrap;
+						justify-content: space-between;
+					}
+					.import-cookie-type-item input[type="radio"]{
+						width: 1rem;
+						height: 1rem;
+					}
+					.export-example-code-text-container{
+						padding: 10px;
+						background-color: rgb(209 213 219 / 1);
+						border-radius: 10px;
+						width: 100%;
+						margin: 1rem 0px;
+					}
+					.export-example-code-text-container pre{
+						font-feature-settings: normal;
+						font-variation-settings: normal;
+						font-size: 1em;
+						margin: 0;
+						white-space: break-spaces;
+					}
+					.import-cookie-type-container label{
+						color: rgb(17 24 39 / 1);
+					}
+					.cookie-format-decode-pwd-container label{
+						color: #111827;
+					}
+					.import-cookie-value-text label,
+					.import-cookie-value-file label,
+					.cookie-format-type-tip-text,
+					.cookie-format-decode-pwd-container label{
+						font-weight: 600;
+					}
+					.cookie-format-decode-pwd-container input{
+						border-radius: 0.5rem;
+						width: 100%;
+						border: 1px solid #d1d5db;
+						background-color: #f9fafb;
+						padding: 0.625rem;
+						margin: 0.65rem 0px;
+						font-size: 12px;
+						color: #111827;
+					}
+					.cookie-format-decode-pwd-container p{
+    					color: #6b7280;
+						font-size: 12px;
+					}
+
+					.import-cookie-value-text{
+						display: flex;
+						flex-direction: column;
+					}
+					.import-cookie-value-text label{
+
+					}
+					.import-cookie-value-text textarea{
+						font-size: 0.875rem;
+						line-height: 1.25rem;
+						padding: 0.625rem;
+						color: rgb(17 24 39 / 1);
+						background-color: rgb(249 250 251 / 1);
+						border: 1px solid rgb(209 213 219 / 1);
+						border-radius: 0.5rem;
+						width: 100%;
+						margin: 10px 0px;
+					}
+					.import-cookie-value-file{
+						display: flex;
+						flex-direction: column;
+					}
+					.import-cookie-value-file label{
+
+					}
+					.import-cookie-value-file input{
+						border: 1px solid #d1d5db;
+						border-radius: 0.5rem;
+						height: 2.25rem;
+						width: 100%;
+						margin: 1rem 0px;
+					}
+					.import-cookie-value-file input:hover,					
+					.import-cookie-value-file input::file-selector-button:hover{
+						cursor: pointer;
+					}
+					.import-cookie-value-file input::file-selector-button{
+						background-color: #1E2939;
+						color: #ffffff;
+						height: 100%;
+						box-sizing: border-box;
+					}
+					.import-cookie-value-file input::file-selector-button:hover{
+						background-color: #364153;
+					}
+				`
+        )
+      });
+      let import_file_text = "";
+      let $import_cookie_from_text = $confirm.$shadowRoot.querySelector(
+        "#import-cookie-import_from_text"
+      );
+      let $import_cookie_from_file = $confirm.$shadowRoot.querySelector(
+        "#import-cookie-import_from_file"
+      );
+      $confirm.$shadowRoot.querySelector(
+        ".import-cookie-value-container"
+      );
+      let $importContainer_text = $confirm.$shadowRoot.querySelector(
+        ".import-cookie-value-text"
+      );
+      let $import_text = $importContainer_text.querySelector("textarea");
+      let $importContainer_file = $confirm.$shadowRoot.querySelector(
+        ".import-cookie-value-file"
+      );
+      let $import_file = $importContainer_file.querySelector("input");
+      let $decodePwd = $confirm.$shadowRoot.querySelector("#decode-pwd");
+      const DialogConfigManager = {
+        key: "cookie-backup-import-dialog-config",
+        getConfig() {
+          let config = Panel.getValue(this.key, {
+            importType: "import_from_text",
+            decodePwd: "",
+            value: ""
+          });
+          if (config.importType === "import_from_text") {
+            config.value = $import_text.value;
+          } else if (config.importType === "import_from_file") {
+            config.value = import_file_text;
+          }
+          return config;
+        },
+        saveConfig() {
+          let importType = "import_from_text";
+          if ($import_cookie_from_file.checked) {
+            importType = "import_from_file";
+          }
+          Panel.setValue(this.key, {
+            importType,
+            decodePwd: domUtils.val($decodePwd)
+          });
+          dialogConfig = this.getConfig();
+        }
+      };
+      let dialogConfig = DialogConfigManager.getConfig();
+      domUtils.on($import_cookie_from_text, "input", () => {
+        DialogConfigManager.saveConfig();
+        $import_file.value = "";
+        import_file_text = "";
+        domUtils.hide($importContainer_file, false);
+        domUtils.show($importContainer_text, false);
+      });
+      domUtils.on($import_cookie_from_file, "input", () => {
+        DialogConfigManager.saveConfig();
+        $import_text.value = "";
+        domUtils.hide($importContainer_text, false);
+        domUtils.show($importContainer_file, false);
+      });
+      domUtils.on(
+        $import_text,
+        ["input", "propertychange"],
+        utils.debounce(() => {
+          DialogConfigManager.saveConfig();
+        })
+      );
+      domUtils.on($import_file, ["change", "input"], (evt) => {
+        const file = $import_file.files?.[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const content = e.target.result;
+            if (typeof content === "string") {
+              import_file_text = content;
+              DialogConfigManager.saveConfig();
+            }
+          };
+          reader.readAsText(file);
+        }
+      });
+      domUtils.on($decodePwd, ["input", "propertychange"], async (evt) => {
+        DialogConfigManager.saveConfig();
+      });
+      if (dialogConfig.importType === "import_from_text") {
+        $import_cookie_from_text.click();
+      } else if (dialogConfig.importType === "import_from_file") {
+        $import_cookie_from_file.click();
+      }
+      domUtils.val($decodePwd, dialogConfig.decodePwd);
+    }
+  };
   const CookieManagerView = {
+    $data: {
+      /**
+       * 当前的cookie列表
+       */
+      cookieList: []
+    },
     init() {
       this.registerMenu();
     },
@@ -3281,8 +3907,9 @@
                         <div class="cookie-control-wrapper">
                             <button class="cookie-control-refresh" type="button" data-type="default">刷新</button>
                             <button class="cookie-control-add" type="button" data-type="default">添加</button>
-                            <button class="cookie-control-copy-all" type="button" data-type="default">复制全部</button>
-                            <button class="cookie-control-clear-all" type="button" data-type="default">清除全部</button>
+                            <button class="cookie-control-export" type="button" data-type="default">导出</button>
+                            <button class="cookie-control-import" type="button" data-type="default">导入</button>
+                            <button class="cookie-control-clear-all" type="button" data-type="default">删除</button>
                             <button class="cookie-control-rule-manager" type="button" data-type="default">规则管理</button>
                             <div class="cookie-setting"> 
                                 <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4368" width="28" height="28">
@@ -3402,31 +4029,16 @@
             `
         )
       });
-      const $search = $alert.$shadowRoot.querySelector(
-        ".cookie-search-inner input"
-      );
-      const $searchSetting = $alert.$shadowRoot.querySelector(
-        ".cookie-search-setting"
-      );
-      const $refresh = $alert.$shadowRoot.querySelector(
-        ".cookie-control-refresh"
-      );
-      const $add = $alert.$shadowRoot.querySelector(
-        ".cookie-control-add"
-      );
-      const $copyAll = $alert.$shadowRoot.querySelector(
-        ".cookie-control-copy-all"
-      );
-      const $clearAll = $alert.$shadowRoot.querySelector(
-        ".cookie-control-clear-all"
-      );
-      const $ruleManager = $alert.$shadowRoot.querySelector(
-        ".cookie-control-rule-manager"
-      );
+      const $search = $alert.$shadowRoot.querySelector(".cookie-search-inner input");
+      const $searchSetting = $alert.$shadowRoot.querySelector(".cookie-search-setting");
+      const $refresh = $alert.$shadowRoot.querySelector(".cookie-control-refresh");
+      const $add = $alert.$shadowRoot.querySelector(".cookie-control-add");
+      const $export = $alert.$shadowRoot.querySelector(".cookie-control-export");
+      const $import = $alert.$shadowRoot.querySelector(".cookie-control-import");
+      const $clearAll = $alert.$shadowRoot.querySelector(".cookie-control-clear-all");
+      const $ruleManager = $alert.$shadowRoot.querySelector(".cookie-control-rule-manager");
       const $setting = $alert.$shadowRoot.querySelector(".cookie-setting");
-      const $cookieListWrapper = $alert.$shadowRoot.querySelector(
-        ".cookie-list-wrapper"
-      );
+      const $cookieListWrapper = $alert.$shadowRoot.querySelector(".cookie-list-wrapper");
       let createCookieItemElement = (cookieInfo) => {
         const $cookieItem = domUtils.createElement("div", {
           className: "cookie-item",
@@ -3601,9 +4213,7 @@
         let cookieList = await CookieManager.queryAllCookie();
         domUtils.empty($cookieListWrapper);
         let $fragment = document.createDocumentFragment();
-        let excludeSessionCookie = Panel.getValue(
-          "exclude-session-cookie"
-        );
+        let excludeSessionCookie = Panel.getValue("exclude-session-cookie");
         cookieList.forEach((cookieInfo) => {
           if (excludeSessionCookie) {
             if (cookieInfo.session) {
@@ -3622,6 +4232,7 @@
           const $cookieItem = createCookieItemElement(cookieInfo);
           $fragment.appendChild($cookieItem);
         });
+        this.$data.cookieList = cookieList;
         $cookieListWrapper.appendChild($fragment);
       };
       domUtils.on(
@@ -3639,15 +4250,11 @@
           });
         })
       );
-      domUtils.listenKeyboard(
-        $search,
-        "keypress",
-        (keyName, keyValue, otherCodeList) => {
-          if (keyName === "Enter" && otherCodeList.length === 0) {
-            triggerUpdateCookieListGroupWithSearchFilter();
-          }
+      domUtils.listenKeyboard($search, "keypress", (keyName, keyValue, otherCodeList) => {
+        if (keyName === "Enter" && otherCodeList.length === 0) {
+          triggerUpdateCookieListGroupWithSearchFilter();
         }
-      );
+      });
       domUtils.on($searchSetting, "click", (event) => {
         utils.preventEvent(event);
         let $settingAlert = __pops.alert({
@@ -3692,9 +4299,7 @@
                 `
           )
         });
-        let $content = $settingAlert.$shadowRoot.querySelector(
-          ".pops-alert-content"
-        );
+        let $content = $settingAlert.$shadowRoot.querySelector(".pops-alert-content");
         let panelHandlerComponents = __pops.config.PanelHandlerComponents();
         let $useRegExp = panelHandlerComponents.createSectionContainerItem_switch(
           UISwitch(
@@ -3716,28 +4321,17 @@
       });
       domUtils.on($add, "click", (event) => {
         utils.preventEvent(event);
-        triggerUpdateCookieListGroupWithSearchFilter();
-      });
-      domUtils.on($copyAll, "click", async (event) => {
-        utils.preventEvent(event);
-        let cookieList = await CookieManager.queryAllCookie();
-        cookieList = cookieList.filter((it) => {
-          return !(it.session && Panel.getValue("exclude-session-cookie"));
+        CookieManagerEditView.showView(void 0, (__cookieInfo__) => {
+          triggerUpdateCookieListGroupWithSearchFilter();
         });
-        if (cookieList.length === 0) {
-          Qmsg.warning("没有Cookie可以复制");
-          return;
-        }
-        let cookieText = cookieList.map((it) => {
-          let cookieItemValueText = it.value;
-          return `${it.name}=${cookieItemValueText}; `;
-        }).join("");
-        const status = await utils.setClip(cookieText);
-        if (status) {
-          Qmsg.success("复制成功");
-        } else {
-          Qmsg.error("复制失败");
-        }
+      });
+      domUtils.on($export, "click", async (event) => {
+        utils.preventEvent(event);
+        CookieBackUpManager.showExportDialog();
+      });
+      domUtils.on($import, "click", async (event) => {
+        utils.preventEvent(event);
+        CookieBackUpManager.showImportDialog();
       });
       domUtils.on($clearAll, "click", async (event) => {
         utils.preventEvent(event);
@@ -3747,9 +4341,7 @@
         }
         const deleteInfo = await CookieManager.deleteAllCookie();
         if (deleteInfo.error) {
-          Qmsg.warning(
-            `清除成功：${deleteInfo.success} 失败：${deleteInfo.error}`
-          );
+          Qmsg.warning(`清除成功：${deleteInfo.success} 失败：${deleteInfo.error}`);
         } else {
           Qmsg.success("清除成功");
         }
@@ -3781,8 +4373,8 @@
               toClose: true
             }
           },
-          width: PanelUISize.info.width,
-          height: PanelUISize.info.height,
+          width: PanelUISize.settingMiddle.width,
+          height: PanelUISize.settingMiddle.height,
           style: (
             /*css*/
             `
@@ -3803,9 +4395,7 @@
                 `
           )
         });
-        let $content = $settingAlert.$shadowRoot.querySelector(
-          ".pops-alert-content"
-        );
+        let $content = $settingAlert.$shadowRoot.querySelector(".pops-alert-content");
         let panelHandlerComponents = __pops.config.PanelHandlerComponents();
         let $useGM_cookie = panelHandlerComponents.createSectionContainerItem_select(
           UISelect(
@@ -3847,11 +4437,7 @@
             "过滤掉浏览器会话Cookie"
           )
         );
-        domUtils.append($content, [
-          $useGM_cookie,
-          $decodeValue,
-          $excludeSessionCookie
-        ]);
+        domUtils.append($content, [$useGM_cookie, $decodeValue, $excludeSessionCookie]);
       });
       let triggerUpdateCookieListGroupWithSearchFilter = () => {
         domUtils.trigger($search, "input");
@@ -4143,4 +4729,4 @@
   CookieRule.init();
   CookieRuleController.init();
 
-})(Qmsg, DOMUtils, Utils, pops);
+})(Qmsg, DOMUtils, Utils, pops, CryptoJS);
