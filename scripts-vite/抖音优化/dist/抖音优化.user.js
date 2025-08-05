@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.31
+// @version      2025.8.5
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -78,10 +78,10 @@
      */
     info: {
       get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
+        return window.innerWidth < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
+        return window.innerHeight < 250 ? "88vh" : "250px";
       }
     }
   };
@@ -1834,10 +1834,10 @@
       );
     },
     /**
-     * 【屏蔽】AI搜索
+     * 【屏蔽】AI搜索/抖音
      */
     shieldAISearch() {
-      log.info(`【屏蔽】AI搜索`);
+      log.info(`【屏蔽】AI搜索/抖音`);
       return CommonUtil.addBlockCSS(
         `#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`
       );
@@ -2987,9 +2987,7 @@
     shieldBottomVideoToolbarDanmuContainer() {
       log.info("【屏蔽】底部视频工具栏的弹幕容器");
       return [
-        CommonUtil.addBlockCSS(
-          'xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]'
-        )
+        CommonUtil.addBlockCSS('xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]')
       ];
     },
     /**
@@ -3004,6 +3002,9 @@
     init() {
       Panel.execMenuOnce("shieldPlaySwitchButton", () => {
         return this.shieldPlaySwitchButton();
+      });
+      Panel.execMenuOnce("blockAIDouYin", () => {
+        return this.blockAIDouYin();
       });
       Panel.execMenuOnce("shieldAuthorAvatar", () => {
         return this.shieldAuthorAvatar();
@@ -3052,6 +3053,15 @@
 			`
         )
       ];
+    },
+    /**
+     * 【屏蔽】AI抖音
+     */
+    blockAIDouYin() {
+      log.info(`【屏蔽】AI抖音`);
+      return CommonUtil.addBlockCSS(
+        '.immersive-player-switch-on-hide-interaction-area>div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])'
+      );
     },
     /**
      * 【屏蔽】作者头像
@@ -10186,13 +10196,7 @@
                     void 0,
                     "限制Toast显示的数量"
                   ),
-                  UISwitch(
-                    "逆序弹出",
-                    "qmsg-config-showreverse",
-                    false,
-                    void 0,
-                    "修改Toast弹出的顺序"
-                  )
+                  UISwitch("逆序弹出", "qmsg-config-showreverse", false, void 0, "修改Toast弹出的顺序")
                 ]
               }
             ]
@@ -10216,9 +10220,7 @@
 							`
                 )
               });
-              let $leftDesc = $left.querySelector(
-                ".pops-panel-item-left-desc-text"
-              );
+              let $leftDesc = $left.querySelector(".pops-panel-item-left-desc-text");
               let gpuInfo = "";
               try {
                 gpuInfo = getGPU();
@@ -10239,20 +10241,8 @@
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "伪装登录",
-                    "disguiseLogin",
-                    false,
-                    void 0,
-                    "使用随机UID进行伪装"
-                  ),
-                  UISwitch(
-                    "initial-scale=1",
-                    "dy-initialScale",
-                    false,
-                    void 0,
-                    "可配合手机模式放大页面"
-                  ),
+                  UISwitch("伪装登录", "disguiseLogin", false, void 0, "使用随机UID进行伪装"),
+                  UISwitch("initial-scale=1", "dy-initialScale", false, void 0, "可配合手机模式放大页面"),
                   UISwitch(
                     "移除<meta> apple-itunes-app",
                     "dy-apple-removeMetaAppleItunesApp",
@@ -10260,13 +10250,7 @@
                     void 0,
                     "Safari使用，移除顶部横幅【Open in the 抖音 app】"
                   ),
-                  UISwitch(
-                    "监听Router改变",
-                    "dy-common-listenRouterChange",
-                    true,
-                    void 0,
-                    "功能重载"
-                  ),
+                  UISwitch("监听Router改变", "dy-common-listenRouterChange", true, void 0, "功能重载"),
                   UISwitch(
                     "移除某些Cookie",
                     "dy-cookie-remove__ac__",
@@ -10280,13 +10264,7 @@
                 text: "Url重定向",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "重定向/home",
-                    "douyin-redirect-url-home-to-root",
-                    false,
-                    void 0,
-                    "/home => /"
-                  )
+                  UISwitch("重定向/home", "douyin-redirect-url-home-to-root", false, void 0, "/home => /")
                 ]
               }
             ]
@@ -10300,90 +10278,18 @@
                 type: "forms",
                 text: AutoOpenOrClose.text,
                 forms: [
-                  UISwitch(
-                    "赞|取消赞",
-                    "dy-keyboard-hook-likeOrDislike",
-                    false,
-                    void 0,
-                    "Z"
-                  ),
-                  UISwitch(
-                    "评论",
-                    "dy-keyboard-hook-comment",
-                    false,
-                    void 0,
-                    "X"
-                  ),
-                  UISwitch(
-                    "开启/关闭弹幕",
-                    "dy-keyboard-hook-danmaku-enable",
-                    false,
-                    void 0,
-                    "B"
-                  ),
-                  UISwitch(
-                    "收藏/取消收藏",
-                    "dy-keyboard-hook-collect-enable",
-                    false,
-                    void 0,
-                    "C"
-                  ),
-                  UISwitch(
-                    "复制分享口令",
-                    "dy-keyboard-hook-copyShareLink",
-                    false,
-                    void 0,
-                    "V"
-                  ),
-                  UISwitch(
-                    "清屏",
-                    "dy-keyboard-hook-clearScreen",
-                    false,
-                    void 0,
-                    "J"
-                  ),
-                  UISwitch(
-                    "自动连播",
-                    "dy-keyboard-hook-automaticBroadcast",
-                    false,
-                    void 0,
-                    "K"
-                  ),
-                  UISwitch(
-                    "视频信息",
-                    "dy-keyboard-hook-videoInfo",
-                    false,
-                    void 0,
-                    "I"
-                  ),
-                  UISwitch(
-                    "不感兴趣",
-                    "dy-keyboard-hook-notInterested",
-                    false,
-                    void 0,
-                    "R"
-                  ),
-                  UISwitch(
-                    "进入作者主页",
-                    "dy-keyboard-hook-enterAuthorHomePage",
-                    false,
-                    void 0,
-                    "F"
-                  ),
-                  UISwitch(
-                    "关注/取消关注",
-                    "dy-keyboard-hook-follow",
-                    false,
-                    void 0,
-                    "G"
-                  ),
-                  UISwitch(
-                    "抖音搜索",
-                    "dy-keyboard-hook-search",
-                    false,
-                    void 0,
-                    "Shift+F"
-                  ),
+                  UISwitch("赞|取消赞", "dy-keyboard-hook-likeOrDislike", false, void 0, "Z"),
+                  UISwitch("评论", "dy-keyboard-hook-comment", false, void 0, "X"),
+                  UISwitch("开启/关闭弹幕", "dy-keyboard-hook-danmaku-enable", false, void 0, "B"),
+                  UISwitch("收藏/取消收藏", "dy-keyboard-hook-collect-enable", false, void 0, "C"),
+                  UISwitch("复制分享口令", "dy-keyboard-hook-copyShareLink", false, void 0, "V"),
+                  UISwitch("清屏", "dy-keyboard-hook-clearScreen", false, void 0, "J"),
+                  UISwitch("自动连播", "dy-keyboard-hook-automaticBroadcast", false, void 0, "K"),
+                  UISwitch("视频信息", "dy-keyboard-hook-videoInfo", false, void 0, "I"),
+                  UISwitch("不感兴趣", "dy-keyboard-hook-notInterested", false, void 0, "R"),
+                  UISwitch("进入作者主页", "dy-keyboard-hook-enterAuthorHomePage", false, void 0, "F"),
+                  UISwitch("关注/取消关注", "dy-keyboard-hook-follow", false, void 0, "G"),
+                  UISwitch("抖音搜索", "dy-keyboard-hook-search", false, void 0, "Shift+F"),
                   UISwitch(
                     "一键关闭当前页",
                     "dy-keyboard-hook-closeTheCurrentPageWithOneClick",
@@ -10391,83 +10297,17 @@
                     void 0,
                     "Shift+Q"
                   ),
-                  UISwitch(
-                    "上下翻页",
-                    "dy-keyboard-hook-pageUpAndDown",
-                    false,
-                    void 0,
-                    "↑↓"
-                  ),
-                  UISwitch(
-                    "快进快退",
-                    "dy-keyboard-hook-fastForwardAndFastBack",
-                    false,
-                    void 0,
-                    "← →"
-                  ),
-                  UISwitch(
-                    "暂停",
-                    "dy-keyboard-hook-pause",
-                    false,
-                    void 0,
-                    "空格"
-                  ),
-                  UISwitch(
-                    "网页内全屏",
-                    "dy-keyboard-hook-fullScreenInsideThePage",
-                    false,
-                    void 0,
-                    "Y"
-                  ),
-                  UISwitch(
-                    "全屏",
-                    "dy-keyboard-hook-fullScreen",
-                    false,
-                    void 0,
-                    "H"
-                  ),
-                  UISwitch(
-                    "稍后再看",
-                    "dy-keyboard-hook-watchItOutLater",
-                    false,
-                    void 0,
-                    "L"
-                  ),
-                  UISwitch(
-                    "音量调整",
-                    "dy-keyboard-hook-volumeAdjustment",
-                    false,
-                    void 0,
-                    "Shift + / Shift -"
-                  ),
-                  UISwitch(
-                    "呼出快捷键列表",
-                    "dy-keyboard-hook-listOfCallShortcutKeys",
-                    false,
-                    void 0,
-                    "?"
-                  ),
-                  UISwitch(
-                    "关闭快捷键列表",
-                    "dy-keyboard-hook-closeTheShortcutKeyList",
-                    false,
-                    void 0,
-                    "ESC"
-                  ),
-                  UISwitch(
-                    "相关推荐",
-                    "dy-keyboard-hook-relevantRecommendation",
-                    false,
-                    void 0,
-                    "N"
-                  ),
-                  UISwitch(
-                    "听抖音",
-                    "dy-keyboard-hook-listenToDouyin",
-                    false,
-                    void 0,
-                    "T"
-                  )
+                  UISwitch("上下翻页", "dy-keyboard-hook-pageUpAndDown", false, void 0, "↑↓"),
+                  UISwitch("快进快退", "dy-keyboard-hook-fastForwardAndFastBack", false, void 0, "← →"),
+                  UISwitch("暂停", "dy-keyboard-hook-pause", false, void 0, "空格"),
+                  UISwitch("网页内全屏", "dy-keyboard-hook-fullScreenInsideThePage", false, void 0, "Y"),
+                  UISwitch("全屏", "dy-keyboard-hook-fullScreen", false, void 0, "H"),
+                  UISwitch("稍后再看", "dy-keyboard-hook-watchItOutLater", false, void 0, "L"),
+                  UISwitch("音量调整", "dy-keyboard-hook-volumeAdjustment", false, void 0, "Shift + / Shift -"),
+                  UISwitch("呼出快捷键列表", "dy-keyboard-hook-listOfCallShortcutKeys", false, void 0, "?"),
+                  UISwitch("关闭快捷键列表", "dy-keyboard-hook-closeTheShortcutKeyList", false, void 0, "ESC"),
+                  UISwitch("相关推荐", "dy-keyboard-hook-relevantRecommendation", false, void 0, "N"),
+                  UISwitch("听抖音", "dy-keyboard-hook-listenToDouyin", false, void 0, "T")
                 ]
               }
             ]
@@ -10494,13 +10334,7 @@
                     void 0,
                     "屏蔽元素且自动等待元素出现并关闭登录弹窗"
                   ),
-                  UISwitch(
-                    "【屏蔽】底部？按钮",
-                    "shieldBottomQuestionButton",
-                    true,
-                    void 0,
-                    "屏蔽元素"
-                  )
+                  UISwitch("【屏蔽】底部？按钮", "shieldBottomQuestionButton", true, void 0, "屏蔽元素")
                 ]
               }
             ]
@@ -10514,55 +10348,19 @@
                 type: "forms",
                 text: AutoOpenOrClose.text,
                 forms: [
+                  UISwitch("【屏蔽】左侧导航栏", "shieldLeftNavigator", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】精选", "shieldLeftNavigator-tab-home", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】推荐", "shieldLeftNavigator-tab-recommend", false, void 0, "屏蔽元素"),
                   UISwitch(
-                    "【屏蔽】左侧导航栏",
-                    "shieldLeftNavigator",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】精选",
-                    "shieldLeftNavigator-tab-home",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】推荐",
-                    "shieldLeftNavigator-tab-recommend",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】AI搜索",
+                    "【屏蔽】AI搜索/抖音",
                     "shieldLeftNavigator-tab-ai-search",
                     false,
                     void 0,
                     "屏蔽元素"
                   ),
-                  UISwitch(
-                    "【屏蔽】关注",
-                    "shieldLeftNavigator-tab-follow",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】朋友",
-                    "shieldLeftNavigator-tab-friend",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】我的",
-                    "shieldLeftNavigator-tab-user_self",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
+                  UISwitch("【屏蔽】关注", "shieldLeftNavigator-tab-follow", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】朋友", "shieldLeftNavigator-tab-friend", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】我的", "shieldLeftNavigator-tab-user_self", false, void 0, "屏蔽元素"),
                   // UISwitch(
                   // 	"【屏蔽】喜欢",
                   // 	"shieldLeftNavigator-tab-user_self_like",
@@ -10584,27 +10382,9 @@
                   // 	void 0,
                   // 	"屏蔽元素"
                   // ),
-                  UISwitch(
-                    "【屏蔽】直播",
-                    "shieldLeftNavigator-tab-live",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】放映厅",
-                    "shieldLeftNavigator-tab-vs",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】短剧",
-                    "shieldLeftNavigator-tab-series",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  )
+                  UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】放映厅", "shieldLeftNavigator-tab-vs", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】短剧", "shieldLeftNavigator-tab-series", false, void 0, "屏蔽元素")
                   // UISwitch(
                   // 	"【屏蔽】知识",
                   // 	"shieldLeftNavigator-tab-channel_300203",
@@ -10653,83 +10433,17 @@
                 text: AutoOpenOrClose.text,
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "【屏蔽】顶部导航栏",
-                    "shieldTopNavigator",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】右侧菜单栏",
-                    "shield-topNav-rightMenu",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】客户端提示",
-                    "shieldClientTip",
-                    true,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】充钻石",
-                    "shieldFillingBricksAndStones",
-                    true,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】客户端",
-                    "shieldClient",
-                    true,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】快捷访问",
-                    "shieldQuickAccess",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】通知",
-                    "shieldNotifitation",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】私信",
-                    "shieldPrivateMessage",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】投稿",
-                    "shieldSubmission",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】壁纸",
-                    "shieldWallpaper",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】更多",
-                    "shield-topNav-rightMenu-more",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
+                  UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】右侧菜单栏", "shield-topNav-rightMenu", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】客户端提示", "shieldClientTip", true, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】充钻石", "shieldFillingBricksAndStones", true, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】客户端", "shieldClient", true, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】快捷访问", "shieldQuickAccess", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】通知", "shieldNotifitation", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】私信", "shieldPrivateMessage", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】投稿", "shieldSubmission", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】壁纸", "shieldWallpaper", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】更多", "shield-topNav-rightMenu-more", false, void 0, "屏蔽元素"),
                   UISwitch(
                     "【屏蔽】登录头像",
                     "shield-topNav-rightMenu-loginAvatar",
@@ -10737,13 +10451,7 @@
                     void 0,
                     "屏蔽元素"
                   ),
-                  UISwitch(
-                    "【屏蔽】AI搜索",
-                    "shield-topNav-ai-search",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  )
+                  UISwitch("【屏蔽】AI搜索", "shield-topNav-ai-search", false, void 0, "屏蔽元素")
                 ]
               }
             ]
@@ -10757,34 +10465,10 @@
                 text: AutoOpenOrClose.text,
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "【屏蔽】搜索框",
-                    "shieldSearch",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】搜索框的提示",
-                    "shieldSearchPlaceholder",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】猜你想搜",
-                    "shieldSearchGuessYouWantToSearch",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】抖音热点",
-                    "shieldSearchTiktokHotspot",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  )
+                  UISwitch("【屏蔽】搜索框", "shieldSearch", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】搜索框的提示", "shieldSearchPlaceholder", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】猜你想搜", "shieldSearchGuessYouWantToSearch", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】抖音热点", "shieldSearchTiktokHotspot", false, void 0, "屏蔽元素")
                 ]
               }
             ]
@@ -10798,72 +10482,24 @@
                 type: "forms",
                 text: AutoOpenOrClose.text + "<br>视频区域-右侧工具栏",
                 forms: [
-                  UISwitch(
-                    "进入作者主页",
-                    "dy-video-mouseHoverTip-rightToolBar-enterUserHome",
-                    false
-                  ),
-                  UISwitch(
-                    "关注",
-                    "dy-video-mouseHoverTip-rightToolBar-follow",
-                    false
-                  ),
-                  UISwitch(
-                    "点赞",
-                    "dy-video-mouseHoverTip-rightToolBar-addLike",
-                    false
-                  ),
-                  UISwitch(
-                    "评论",
-                    "dy-video-mouseHoverTip-rightToolBar-comment",
-                    false
-                  ),
-                  UISwitch(
-                    "收藏",
-                    "dy-video-mouseHoverTip-rightToolBar-collect",
-                    false
-                  ),
-                  UISwitch(
-                    "分享",
-                    "dy-video-mouseHoverTip-rightToolBar-share",
-                    false
-                  ),
-                  UISwitch(
-                    "看相关",
-                    "dy-video-mouseHoverTip-rightToolBar-seeCorrelation",
-                    false
-                  )
+                  UISwitch("进入作者主页", "dy-video-mouseHoverTip-rightToolBar-enterUserHome", false),
+                  UISwitch("关注", "dy-video-mouseHoverTip-rightToolBar-follow", false),
+                  UISwitch("点赞", "dy-video-mouseHoverTip-rightToolBar-addLike", false),
+                  UISwitch("评论", "dy-video-mouseHoverTip-rightToolBar-comment", false),
+                  UISwitch("收藏", "dy-video-mouseHoverTip-rightToolBar-collect", false),
+                  UISwitch("分享", "dy-video-mouseHoverTip-rightToolBar-share", false),
+                  UISwitch("看相关", "dy-video-mouseHoverTip-rightToolBar-seeCorrelation", false)
                 ]
               },
               {
                 type: "forms",
                 text: "视频区域-底部工具栏",
                 forms: [
-                  UISwitch(
-                    "自动连播",
-                    "dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast",
-                    false
-                  ),
-                  UISwitch(
-                    "清屏",
-                    "dy-video-mouseHoverTip-bottomToolBar-clearScreen",
-                    false
-                  ),
-                  UISwitch(
-                    "稍后再看",
-                    "dy-video-mouseHoverTip-bottomToolBar-watchLater",
-                    false
-                  ),
-                  UISwitch(
-                    "网页全屏",
-                    "dy-video-mouseHoverTip-bottomToolBar-pageFullScreen",
-                    false
-                  ),
-                  UISwitch(
-                    "全屏",
-                    "dy-video-mouseHoverTip-bottomToolBar-fullScreen",
-                    false
-                  )
+                  UISwitch("自动连播", "dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast", false),
+                  UISwitch("清屏", "dy-video-mouseHoverTip-bottomToolBar-clearScreen", false),
+                  UISwitch("稍后再看", "dy-video-mouseHoverTip-bottomToolBar-watchLater", false),
+                  UISwitch("网页全屏", "dy-video-mouseHoverTip-bottomToolBar-pageFullScreen", false),
+                  UISwitch("全屏", "dy-video-mouseHoverTip-bottomToolBar-fullScreen", false)
                 ]
               }
             ]
@@ -11050,13 +10686,7 @@
                     void 0,
                     "自行选择清晰度"
                   ),
-                  UISwitch(
-                    "沉浸模式",
-                    "fullScreen",
-                    false,
-                    void 0,
-                    "移除右侧工具栏、底部信息栏等"
-                  ),
+                  UISwitch("沉浸模式", "fullScreen", false, void 0, "移除右侧工具栏、底部信息栏等"),
                   UISwitch(
                     "手机模式",
                     "mobileMode",
@@ -11092,13 +10722,7 @@
                     void 0,
                     "自动监听并检测弹窗"
                   ),
-                  UISwitch(
-                    "视频解析",
-                    "parseVideo",
-                    true,
-                    void 0,
-                    "分享->下载（灰色的也可点击）"
-                  ),
+                  UISwitch("视频解析", "parseVideo", true, void 0, "分享->下载（灰色的也可点击）"),
                   UISwitch(
                     "修改复制链接内容",
                     "dy-video-hookCopyLinkButton",
@@ -11134,13 +10758,7 @@
                     void 0,
                     "双击视频自动进入网页全屏，检测间隔250ms"
                   ),
-                  UISwitch(
-                    "移除video的bottom偏移",
-                    "dy-video-removeStyle-bottom",
-                    false,
-                    void 0,
-                    ""
-                  ),
+                  UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false, void 0, ""),
                   UISwitch(
                     "禁用右侧工具栏的transform",
                     "dy-video-disableRightToolbarTransform",
@@ -11154,13 +10772,7 @@
                 text: "视频区域背景色",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "启用",
-                    "dy-video-bgColor-enable",
-                    false,
-                    void 0,
-                    "自定义视频背景色"
-                  ),
+                  UISwitch("启用", "dy-video-bgColor-enable", false, void 0, "自定义视频背景色"),
                   {
                     type: "own",
                     attributes: {
@@ -11187,31 +10799,20 @@
 											`
                         )
                       });
-                      let $color = $right.querySelector(
-                        ".pops-color-choose"
-                      );
-                      $color.value = Panel.getValue(
-                        "dy-video-changeBackgroundColor"
-                      );
+                      let $color = $right.querySelector(".pops-color-choose");
+                      $color.value = Panel.getValue("dy-video-changeBackgroundColor");
                       let $style = domUtils.createElement("style");
                       domUtils.append(document.head, $style);
-                      domUtils.on(
-                        $color,
-                        ["input", "propertychange"],
-                        (event) => {
-                          log.info("选择颜色：" + $color.value);
-                          $style.innerHTML = /*css*/
-                          `
+                      domUtils.on($color, ["input", "propertychange"], (event) => {
+                        log.info("选择颜色：" + $color.value);
+                        $style.innerHTML = /*css*/
+                        `
 												#sliderVideo > div{
 													background: ${$color.value};
 												}
 												`;
-                          Panel.setValue(
-                            "dy-video-changeBackgroundColor",
-                            $color.value
-                          );
-                        }
-                      );
+                        Panel.setValue("dy-video-changeBackgroundColor", $color.value);
+                      });
                       liElement.appendChild($left);
                       liElement.appendChild($right);
                       return liElement;
@@ -11356,34 +10957,10 @@
                 type: "forms",
                 text: AutoOpenOrClose.text,
                 forms: [
-                  UISwitch(
-                    "上翻页",
-                    "dy-keyboard-hook-arrowUp-w",
-                    false,
-                    void 0,
-                    "W"
-                  ),
-                  UISwitch(
-                    "下翻页",
-                    "dy-keyboard-hook-arrowDown-s",
-                    false,
-                    void 0,
-                    "S"
-                  ),
-                  UISwitch(
-                    "快退",
-                    "dy-keyboard-hook-videoRewind",
-                    false,
-                    void 0,
-                    "A"
-                  ),
-                  UISwitch(
-                    "快进",
-                    "dy-keyboard-hook-videoFastForward",
-                    false,
-                    void 0,
-                    "D"
-                  )
+                  UISwitch("上翻页", "dy-keyboard-hook-arrowUp-w", false, void 0, "W"),
+                  UISwitch("下翻页", "dy-keyboard-hook-arrowDown-s", false, void 0, "S"),
+                  UISwitch("快退", "dy-keyboard-hook-videoRewind", false, void 0, "A"),
+                  UISwitch("快进", "dy-keyboard-hook-videoFastForward", false, void 0, "D")
                 ]
               }
             ]
@@ -11396,13 +10973,7 @@
                 text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "启用",
-                    "shieldVideo-exec-network-enable",
-                    true,
-                    void 0,
-                    "开启后以下功能才会生效"
-                  ),
+                  UISwitch("启用", "shieldVideo-exec-network-enable", true, void 0, "开启后以下功能才会生效"),
                   UISwitch(
                     "仅显示被过滤的视频",
                     "shieldVideo-only-show-filtered-video",
@@ -11417,50 +10988,23 @@
                     void 0,
                     "在视频的底部的工具栏中显示 {...} 按钮，用于查看视频信息以便于进行添加过滤规则"
                   ),
-                  UIButton(
-                    "视频过滤规则",
-                    "可过滤视频",
-                    "自定义",
-                    void 0,
-                    false,
-                    false,
-                    "primary",
-                    () => {
-                      DouYinVideoFilter.showView();
-                    }
-                  )
+                  UIButton("视频过滤规则", "可过滤视频", "自定义", void 0, false, false, "primary", () => {
+                    DouYinVideoFilter.showView();
+                  })
                 ]
               },
               {
                 type: "forms",
                 text: "",
                 forms: [
-                  UIButton(
-                    "数据导入",
-                    "导入自定义规则数据",
-                    "导入",
-                    void 0,
-                    false,
-                    false,
-                    "primary",
-                    () => {
-                      DouYinVideoFilter.$data.videoFilterRuleStorage.importRules();
-                    }
-                  ),
-                  UIButton(
-                    "数据导出",
-                    "导出自定义规则数据",
-                    "导出",
-                    void 0,
-                    false,
-                    false,
-                    "primary",
-                    () => {
-                      DouYinVideoFilter.$data.videoFilterRuleStorage.exportRules(
-                        _SCRIPT_NAME_ + "-视频过滤规则.json"
-                      );
-                    }
-                  )
+                  UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
+                    DouYinVideoFilter.$data.videoFilterRuleStorage.importRules();
+                  }),
+                  UIButton("数据导出", "导出自定义规则数据", "导出", void 0, false, false, "primary", () => {
+                    DouYinVideoFilter.$data.videoFilterRuleStorage.exportRules(
+                      _SCRIPT_NAME_ + "-视频过滤规则.json"
+                    );
+                  })
                 ]
               }
             ]
@@ -11487,75 +11031,22 @@
                     void 0,
                     "屏蔽元素，在右侧作者头像上方或者是在右侧区域"
                   ),
-                  UISwitch(
-                    "【屏蔽】作者头像",
-                    "shieldAuthorAvatar",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】点赞",
-                    "shieldLikeButton",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】评论",
-                    "shieldCommentButton",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】收藏",
-                    "shieldCollectionButton",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】分享",
-                    "shieldSharenButton",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】听抖音",
-                    "shieldListenDouYinButton",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】看相关",
-                    "shieldRelatedRecommendationsButton",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】更多",
-                    "shieldMoreButton",
-                    false,
-                    void 0,
-                    "...按钮，屏蔽元素"
-                  )
+                  UISwitch("【屏蔽】AI抖音", "blockAIDouYin", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】作者头像", "shieldAuthorAvatar", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】点赞", "shieldLikeButton", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】评论", "shieldCommentButton", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】收藏", "shieldCollectionButton", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】分享", "shieldSharenButton", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】听抖音", "shieldListenDouYinButton", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】看相关", "shieldRelatedRecommendationsButton", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】更多", "shieldMoreButton", false, void 0, "...按钮，屏蔽元素")
                 ]
               },
               {
                 text: "底部工具栏",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "【屏蔽】底部视频工具栏",
-                    "shieldBottomVideoToolBar",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
+                  UISwitch("【屏蔽】底部视频工具栏", "shieldBottomVideoToolBar", false, void 0, "屏蔽元素"),
                   UISwitch(
                     "【屏蔽】弹幕容器",
                     "shieldBottomVideoToolbarDanmuContainer",
@@ -11584,13 +11075,7 @@
                     void 0,
                     "例如：相关搜索、AI搜索、合集...等"
                   ),
-                  UISwitch(
-                    "【屏蔽】点击推荐",
-                    "dy-video-blockClickRecommend",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  )
+                  UISwitch("【屏蔽】点击推荐", "dy-video-blockClickRecommend", false, void 0, "屏蔽元素")
                 ]
               },
               {
