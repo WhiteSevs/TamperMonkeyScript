@@ -34,16 +34,17 @@ declare class Pops {
         };
         /** icon图标的svg代码 */
         iconSVG: {
-            loading: string;
+            picture: string;
+            search: string;
             min: string;
-            max: string;
             mise: string;
+            max: string;
             close: string;
             edit: string;
             share: string;
             delete: string;
-            search: string;
             upload: string;
+            loading: string;
             next: string;
             prev: string;
             eleme: string;
@@ -55,7 +56,6 @@ declare class Pops {
             headset: string;
             monitor: string;
             documentCopy: string;
-            picture: string;
             circleClose: string;
             view: string;
             hide: string;
@@ -71,12 +71,12 @@ declare class Pops {
         instData: {
             iframe: import("./types/inst").PopsInstCommonConfig[];
             loading: import("./types/inst").PopsInstCommonConfig[];
-            folder: import("./types/inst").PopsInstCommonConfig[];
             alert: import("./types/inst").PopsInstCommonConfig[];
             confirm: import("./types/inst").PopsInstCommonConfig[];
             prompt: import("./types/inst").PopsInstCommonConfig[];
             tooltip: import("./types/inst").PopsInstCommonConfig[];
             drawer: import("./types/inst").PopsInstCommonConfig[];
+            folder: import("./types/inst").PopsInstCommonConfig[];
             panel: import("./types/inst").PopsInstCommonConfig[];
             rightClickMenu: import("./types/inst").PopsInstCommonConfig[];
         };
@@ -379,7 +379,7 @@ declare class Pops {
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: HTMLDivElement | ShadowRoot;
+        $shadowRoot: ShadowRoot | HTMLDivElement;
         toolTip: import("./components/tooltip").ToolTip;
     };
     /**
@@ -402,7 +402,6 @@ declare class Pops {
         close: () => Promise<void>;
         hide: () => Promise<void>;
         show: () => Promise<void>;
-        guid: string;
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
         element: HTMLDivElement;
@@ -410,6 +409,7 @@ declare class Pops {
         popsElement: HTMLDivElement;
         maskElement?: HTMLDivElement | undefined;
         mode: import("./types/main").PopsType;
+        guid: string;
     };
     /**
      * 右键菜单
@@ -446,6 +446,9 @@ declare class Pops {
                         getCurrentPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => void;
                         watchPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => number;
                     };
+                    readonly login: {
+                        setStatus: (status: LoginStatus) => Promise<void>;
+                    };
                     readonly maxTouchPoints: number;
                     readonly mediaCapabilities: {
                         decodingInfo: (configuration: MediaDecodingConfiguration) => Promise<MediaCapabilitiesDecodingInfo>;
@@ -480,6 +483,8 @@ declare class Pops {
                         } | null;
                         playbackState: MediaSessionPlaybackState;
                         setActionHandler: (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => void;
+                        setCameraActive: (active: boolean) => Promise<void>;
+                        setMicrophoneActive: (active: boolean) => Promise<void>;
                         setPositionState: (state?: MediaPositionState) => void;
                     };
                     readonly permissions: {
@@ -562,8 +567,8 @@ declare class Pops {
                     readonly locks: {
                         query: () => Promise<LockManagerSnapshot>;
                         request: {
-                            (name: string, callback: LockGrantedCallback): Promise<any>;
-                            (name: string, options: LockOptions, callback: LockGrantedCallback): Promise<any>;
+                            <T>(name: string, callback: LockGrantedCallback<T>): Promise<T>;
+                            <T>(name: string, options: LockOptions, callback: LockGrantedCallback<T>): Promise<T>;
                         };
                     };
                     readonly onLine: boolean;
@@ -616,6 +621,34 @@ declare class Pops {
                     };
                 };
                 readonly closed: boolean;
+                readonly cookieStore: {
+                    onchange: ((this: CookieStore, ev: CookieChangeEvent) => any) | null;
+                    delete: {
+                        (name: string): Promise<void>;
+                        (options: CookieStoreDeleteOptions): Promise<void>;
+                    };
+                    get: {
+                        (name: string): Promise<CookieListItem | null>;
+                        (options?: CookieStoreGetOptions): Promise<CookieListItem | null>;
+                    };
+                    getAll: {
+                        (name: string): Promise<CookieList>;
+                        (options?: CookieStoreGetOptions): Promise<CookieList>;
+                    };
+                    set: {
+                        (name: string, value: string): Promise<void>;
+                        (options: CookieInit): Promise<void>;
+                    };
+                    addEventListener: {
+                        <K extends keyof CookieStoreEventMap>(type: K, listener: (this: CookieStore, ev: CookieStoreEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+                        (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+                    };
+                    removeEventListener: {
+                        <K extends keyof CookieStoreEventMap>(type: K, listener: (this: CookieStore, ev: CookieStoreEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+                        (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+                    };
+                    dispatchEvent: (event: Event) => boolean;
+                };
                 readonly customElements: {
                     define: (name: string, constructor: CustomElementConstructor, options?: ElementDefinitionOptions) => void;
                     get: (name: string) => CustomElementConstructor | undefined;
@@ -730,6 +763,9 @@ declare class Pops {
                         getCurrentPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => void;
                         watchPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => number;
                     };
+                    readonly login: {
+                        setStatus: (status: LoginStatus) => Promise<void>;
+                    };
                     readonly maxTouchPoints: number;
                     readonly mediaCapabilities: {
                         decodingInfo: (configuration: MediaDecodingConfiguration) => Promise<MediaCapabilitiesDecodingInfo>;
@@ -764,6 +800,8 @@ declare class Pops {
                         } | null;
                         playbackState: MediaSessionPlaybackState;
                         setActionHandler: (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => void;
+                        setCameraActive: (active: boolean) => Promise<void>;
+                        setMicrophoneActive: (active: boolean) => Promise<void>;
                         setPositionState: (state?: MediaPositionState) => void;
                     };
                     readonly permissions: {
@@ -846,8 +884,8 @@ declare class Pops {
                     readonly locks: {
                         query: () => Promise<LockManagerSnapshot>;
                         request: {
-                            (name: string, callback: LockGrantedCallback): Promise<any>;
-                            (name: string, options: LockOptions, callback: LockGrantedCallback): Promise<any>;
+                            <T>(name: string, callback: LockGrantedCallback<T>): Promise<T>;
+                            <T>(name: string, options: LockOptions, callback: LockGrantedCallback<T>): Promise<T>;
                         };
                     };
                     readonly onLine: boolean;
@@ -905,6 +943,7 @@ declare class Pops {
                 onorientationchange: ((this: Window, ev: Event) => any) | null;
                 opener: any;
                 readonly orientation: number;
+                readonly originAgentCluster: boolean;
                 readonly outerHeight: number;
                 readonly outerWidth: number;
                 readonly pageXOffset: number;
@@ -969,6 +1008,9 @@ declare class Pops {
                             getCurrentPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => void;
                             watchPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => number;
                         };
+                        readonly login: {
+                            setStatus: (status: LoginStatus) => Promise<void>;
+                        };
                         readonly maxTouchPoints: number;
                         readonly mediaCapabilities: {
                             decodingInfo: (configuration: MediaDecodingConfiguration) => Promise<MediaCapabilitiesDecodingInfo>;
@@ -1003,6 +1045,8 @@ declare class Pops {
                             } | null;
                             playbackState: MediaSessionPlaybackState;
                             setActionHandler: (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => void;
+                            setCameraActive: (active: boolean) => Promise<void>;
+                            setMicrophoneActive: (active: boolean) => Promise<void>;
                             setPositionState: (state?: MediaPositionState) => void;
                         };
                         readonly permissions: {
@@ -1085,8 +1129,8 @@ declare class Pops {
                         readonly locks: {
                             query: () => Promise<LockManagerSnapshot>;
                             request: {
-                                (name: string, callback: LockGrantedCallback): Promise<any>;
-                                (name: string, options: LockOptions, callback: LockGrantedCallback): Promise<any>;
+                                <T>(name: string, callback: LockGrantedCallback<T>): Promise<T>;
+                                <T>(name: string, options: LockOptions, callback: LockGrantedCallback<T>): Promise<T>;
                             };
                         };
                         readonly onLine: boolean;
@@ -1139,6 +1183,34 @@ declare class Pops {
                         };
                     };
                     closed: boolean;
+                    cookieStore: {
+                        onchange: ((this: CookieStore, ev: CookieChangeEvent) => any) | null;
+                        delete: {
+                            (name: string): Promise<void>;
+                            (options: CookieStoreDeleteOptions): Promise<void>;
+                        };
+                        get: {
+                            (name: string): Promise<CookieListItem | null>;
+                            (options?: CookieStoreGetOptions): Promise<CookieListItem | null>;
+                        };
+                        getAll: {
+                            (name: string): Promise<CookieList>;
+                            (options?: CookieStoreGetOptions): Promise<CookieList>;
+                        };
+                        set: {
+                            (name: string, value: string): Promise<void>;
+                            (options: CookieInit): Promise<void>;
+                        };
+                        addEventListener: {
+                            <K extends keyof CookieStoreEventMap>(type: K, listener: (this: CookieStore, ev: CookieStoreEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+                            (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+                        };
+                        removeEventListener: {
+                            <K extends keyof CookieStoreEventMap>(type: K, listener: (this: CookieStore, ev: CookieStoreEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+                            (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+                        };
+                        dispatchEvent: (event: Event) => boolean;
+                    };
                     customElements: {
                         define: (name: string, constructor: CustomElementConstructor, options?: ElementDefinitionOptions) => void;
                         get: (name: string) => CustomElementConstructor | undefined;
@@ -1253,6 +1325,9 @@ declare class Pops {
                             getCurrentPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => void;
                             watchPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => number;
                         };
+                        readonly login: {
+                            setStatus: (status: LoginStatus) => Promise<void>;
+                        };
                         readonly maxTouchPoints: number;
                         readonly mediaCapabilities: {
                             decodingInfo: (configuration: MediaDecodingConfiguration) => Promise<MediaCapabilitiesDecodingInfo>;
@@ -1287,6 +1362,8 @@ declare class Pops {
                             } | null;
                             playbackState: MediaSessionPlaybackState;
                             setActionHandler: (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => void;
+                            setCameraActive: (active: boolean) => Promise<void>;
+                            setMicrophoneActive: (active: boolean) => Promise<void>;
                             setPositionState: (state?: MediaPositionState) => void;
                         };
                         readonly permissions: {
@@ -1369,8 +1446,8 @@ declare class Pops {
                         readonly locks: {
                             query: () => Promise<LockManagerSnapshot>;
                             request: {
-                                (name: string, callback: LockGrantedCallback): Promise<any>;
-                                (name: string, options: LockOptions, callback: LockGrantedCallback): Promise<any>;
+                                <T>(name: string, callback: LockGrantedCallback<T>): Promise<T>;
+                                <T>(name: string, options: LockOptions, callback: LockGrantedCallback<T>): Promise<T>;
                             };
                         };
                         readonly onLine: boolean;
@@ -1428,6 +1505,7 @@ declare class Pops {
                     onorientationchange: (((this: Window, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     opener: any;
                     orientation: number;
+                    originAgentCluster: boolean;
                     outerHeight: number;
                     outerWidth: number;
                     pageXOffset: number;
@@ -1570,18 +1648,19 @@ declare class Pops {
                     onanimationend: (((this: GlobalEventHandlers, ev: AnimationEvent) => any) & ((this: Window, ev: AnimationEvent) => any)) | null;
                     onanimationiteration: (((this: GlobalEventHandlers, ev: AnimationEvent) => any) & ((this: Window, ev: AnimationEvent) => any)) | null;
                     onanimationstart: (((this: GlobalEventHandlers, ev: AnimationEvent) => any) & ((this: Window, ev: AnimationEvent) => any)) | null;
-                    onauxclick: (((this: GlobalEventHandlers, ev: MouseEvent) => any) & ((this: Window, ev: MouseEvent) => any)) | null;
+                    onauxclick: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     onbeforeinput: (((this: GlobalEventHandlers, ev: InputEvent) => any) & ((this: Window, ev: InputEvent) => any)) | null;
-                    onbeforetoggle: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
+                    onbeforematch: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
+                    onbeforetoggle: (((this: GlobalEventHandlers, ev: ToggleEvent) => any) & ((this: Window, ev: ToggleEvent) => any)) | null;
                     onblur: (((this: GlobalEventHandlers, ev: FocusEvent) => any) & ((this: Window, ev: FocusEvent) => any)) | null;
                     oncancel: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     oncanplay: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     oncanplaythrough: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onchange: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
-                    onclick: (((this: GlobalEventHandlers, ev: MouseEvent) => any) & ((this: Window, ev: MouseEvent) => any)) | null;
+                    onclick: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     onclose: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     oncontextlost: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
-                    oncontextmenu: (((this: GlobalEventHandlers, ev: MouseEvent) => any) & ((this: Window, ev: MouseEvent) => any)) | null;
+                    oncontextmenu: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     oncontextrestored: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     oncopy: (((this: GlobalEventHandlers, ev: ClipboardEvent) => any) & ((this: Window, ev: ClipboardEvent) => any)) | null;
                     oncuechange: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
@@ -1629,6 +1708,7 @@ declare class Pops {
                     onpointermove: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     onpointerout: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     onpointerover: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
+                    onpointerrawupdate: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpointerup: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     onprogress: (((this: GlobalEventHandlers, ev: ProgressEvent) => any) & ((this: Window, ev: ProgressEvent) => any)) | null;
                     onratechange: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
@@ -1647,7 +1727,7 @@ declare class Pops {
                     onsubmit: (((this: GlobalEventHandlers, ev: SubmitEvent) => any) & ((this: Window, ev: SubmitEvent) => any)) | null;
                     onsuspend: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     ontimeupdate: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
-                    ontoggle: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
+                    ontoggle: (((this: GlobalEventHandlers, ev: ToggleEvent) => any) & ((this: Window, ev: ToggleEvent) => any)) | null;
                     ontouchcancel: (((this: GlobalEventHandlers, ev: TouchEvent) => any) & ((this: Window, ev: TouchEvent) => any)) | null;
                     ontouchend: (((this: GlobalEventHandlers, ev: TouchEvent) => any) & ((this: Window, ev: TouchEvent) => any)) | null;
                     ontouchmove: (((this: GlobalEventHandlers, ev: TouchEvent) => any) & ((this: Window, ev: TouchEvent) => any)) | null;
@@ -1675,9 +1755,9 @@ declare class Pops {
                     onoffline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     ononline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpagehide: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
-                    onpagereveal: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
+                    onpagereveal: (((this: WindowEventHandlers, ev: PageRevealEvent) => any) & ((this: Window, ev: PageRevealEvent) => any)) | null;
                     onpageshow: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
-                    onpageswap: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
+                    onpageswap: (((this: WindowEventHandlers, ev: PageSwapEvent) => any) & ((this: Window, ev: PageSwapEvent) => any)) | null;
                     onpopstate: (((this: WindowEventHandlers, ev: PopStateEvent) => any) & ((this: Window, ev: PopStateEvent) => any)) | null;
                     onrejectionhandled: (((this: WindowEventHandlers, ev: PromiseRejectionEvent) => any) & ((this: Window, ev: PromiseRejectionEvent) => any)) | null;
                     onstorage: (((this: WindowEventHandlers, ev: StorageEvent) => any) & ((this: Window, ev: StorageEvent) => any)) | null;
@@ -1729,7 +1809,7 @@ declare class Pops {
                             verify: (algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams, key: CryptoKey, signature: BufferSource, data: BufferSource) => Promise<boolean>;
                             wrapKey: (format: KeyFormat, key: CryptoKey, wrappingKey: CryptoKey, wrapAlgorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams) => Promise<ArrayBuffer>;
                         };
-                        getRandomValues: <T extends ArrayBufferView | null>(array: T) => T;
+                        getRandomValues: <T extends ArrayBufferView>(array: T) => T;
                         randomUUID: () => `${string}-${string}-${string}-${string}-${string}`;
                     };
                     indexedDB: {
@@ -2165,6 +2245,10 @@ declare class Pops {
                             prototype: CDATASection;
                             new (): CDATASection;
                         };
+                        CSPViolationReportBody: {
+                            prototype: CSPViolationReportBody;
+                            new (): CSPViolationReportBody;
+                        };
                         CSSAnimation: {
                             prototype: CSSAnimation;
                             new (): CSSAnimation;
@@ -2478,6 +2562,18 @@ declare class Pops {
                             prototype: ConvolverNode;
                             new (context: BaseAudioContext, options?: ConvolverOptions): ConvolverNode;
                         };
+                        CookieChangeEvent: {
+                            prototype: CookieChangeEvent;
+                            new (type: string, eventInitDict?: CookieChangeEventInit): CookieChangeEvent;
+                        };
+                        CookieStore: {
+                            prototype: CookieStore;
+                            new (): CookieStore;
+                        };
+                        CookieStoreManager: {
+                            prototype: CookieStoreManager;
+                            new (): CookieStoreManager;
+                        };
                         CountQueuingStrategy: {
                             prototype: CountQueuingStrategy;
                             new (init: QueuingStrategyInit): CountQueuingStrategy;
@@ -2546,8 +2642,8 @@ declare class Pops {
                         DOMMatrix: {
                             prototype: DOMMatrix;
                             new (init?: string | number[]): DOMMatrix;
-                            fromFloat32Array(array32: Float32Array): DOMMatrix;
-                            fromFloat64Array(array64: Float64Array): DOMMatrix;
+                            fromFloat32Array(array32: Float32Array<ArrayBuffer>): DOMMatrix;
+                            fromFloat64Array(array64: Float64Array<ArrayBuffer>): DOMMatrix;
                             fromMatrix(other?: DOMMatrixInit): DOMMatrix;
                         };
                         SVGMatrix: typeof DOMMatrix;
@@ -2555,8 +2651,8 @@ declare class Pops {
                         DOMMatrixReadOnly: {
                             prototype: DOMMatrixReadOnly;
                             new (init?: string | number[]): DOMMatrixReadOnly;
-                            fromFloat32Array(array32: Float32Array): DOMMatrixReadOnly;
-                            fromFloat64Array(array64: Float64Array): DOMMatrixReadOnly;
+                            fromFloat32Array(array32: Float32Array<ArrayBuffer>): DOMMatrixReadOnly;
+                            fromFloat64Array(array64: Float64Array<ArrayBuffer>): DOMMatrixReadOnly;
                             fromMatrix(other?: DOMMatrixInit): DOMMatrixReadOnly;
                         };
                         DOMParser: {
@@ -3227,10 +3323,14 @@ declare class Pops {
                             prototype: ImageBitmapRenderingContext;
                             new (): ImageBitmapRenderingContext;
                         };
+                        ImageCapture: {
+                            prototype: ImageCapture;
+                            new (videoTrack: MediaStreamTrack): ImageCapture;
+                        };
                         ImageData: {
                             prototype: ImageData;
                             new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
-                            new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
+                            new (data: ImageDataArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                         };
                         ImageDecoder: {
                             prototype: ImageDecoder;
@@ -3482,6 +3582,10 @@ declare class Pops {
                         Navigator: {
                             prototype: Navigator;
                             new (): Navigator;
+                        };
+                        NavigatorLogin: {
+                            prototype: NavigatorLogin;
+                            new (): NavigatorLogin;
                         };
                         Node: {
                             prototype: Node;
@@ -3753,7 +3857,7 @@ declare class Pops {
                         };
                         RTCIceCandidate: {
                             prototype: RTCIceCandidate;
-                            new (candidateInitDict?: RTCIceCandidateInit): RTCIceCandidate;
+                            new (candidateInitDict?: RTCLocalIceCandidateInit): RTCIceCandidate;
                         };
                         RTCIceTransport: {
                             prototype: RTCIceTransport;
@@ -3826,13 +3930,13 @@ declare class Pops {
                             prototype: ReadableStream;
                             new (underlyingSource: UnderlyingByteSource, strategy?: {
                                 highWaterMark?: number;
-                            }): ReadableStream<Uint8Array>;
+                            }): ReadableStream<Uint8Array<ArrayBuffer>>;
                             new <R = any>(underlyingSource: UnderlyingDefaultSource<R>, strategy?: QueuingStrategy<R>): ReadableStream<R>;
                             new <R = any>(underlyingSource?: UnderlyingSource<R>, strategy?: QueuingStrategy<R>): ReadableStream<R>;
                         };
                         ReadableStreamBYOBReader: {
                             prototype: ReadableStreamBYOBReader;
-                            new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
+                            new (stream: ReadableStream<Uint8Array<ArrayBuffer>>): ReadableStreamBYOBReader;
                         };
                         ReadableStreamBYOBRequest: {
                             prototype: ReadableStreamBYOBRequest;
@@ -5691,28 +5795,6 @@ declare class Pops {
                             prototype: XSLTProcessor;
                             new (): XSLTProcessor;
                         };
-                        console: {
-                            assert: (condition?: boolean, ...data: any[]) => void;
-                            clear: () => void;
-                            count: (label?: string) => void;
-                            countReset: (label?: string) => void;
-                            debug: (...data: any[]) => void;
-                            dir: (item?: any, options?: any) => void;
-                            dirxml: (...data: any[]) => void;
-                            error: (...data: any[]) => void;
-                            group: (...data: any[]) => void;
-                            groupCollapsed: (...data: any[]) => void;
-                            groupEnd: () => void;
-                            info: (...data: any[]) => void;
-                            log: (...data: any[]) => void;
-                            table: (tabularData?: any, properties?: string[]) => void;
-                            time: (label?: string) => void;
-                            timeEnd: (label?: string) => void;
-                            timeLog: (label?: string, ...data: any[]) => void;
-                            timeStamp: (label?: string) => void;
-                            trace: (...data: any[]) => void;
-                            warn: (...data: any[]) => void;
-                        };
                         CSS: {
                             Hz: typeof CSS.Hz;
                             Q: typeof CSS.Q;
@@ -5828,6 +5910,28 @@ declare class Pops {
                                 new (descriptor: WebAssembly.TableDescriptor, value?: any): WebAssembly.Table;
                             };
                         };
+                        console: {
+                            assert: (condition?: boolean, ...data: any[]) => void;
+                            clear: () => void;
+                            count: (label?: string) => void;
+                            countReset: (label?: string) => void;
+                            debug: (...data: any[]) => void;
+                            dir: (item?: any, options?: any) => void;
+                            dirxml: (...data: any[]) => void;
+                            error: (...data: any[]) => void;
+                            group: (...data: any[]) => void;
+                            groupCollapsed: (...data: any[]) => void;
+                            groupEnd: () => void;
+                            info: (...data: any[]) => void;
+                            log: (...data: any[]) => void;
+                            table: (tabularData?: any, properties?: string[]) => void;
+                            time: (label?: string) => void;
+                            timeEnd: (label?: string) => void;
+                            timeLog: (label?: string, ...data: any[]) => void;
+                            timeStamp: (label?: string) => void;
+                            trace: (...data: any[]) => void;
+                            warn: (...data: any[]) => void;
+                        };
                         Audio: {
                             new (src?: string): HTMLAudioElement;
                         };
@@ -5858,6 +5962,9 @@ declare class Pops {
                                 clearWatch: (watchId: number) => void;
                                 getCurrentPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => void;
                                 watchPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => number;
+                            };
+                            readonly login: {
+                                setStatus: (status: LoginStatus) => Promise<void>;
                             };
                             readonly maxTouchPoints: number;
                             readonly mediaCapabilities: {
@@ -5893,6 +6000,8 @@ declare class Pops {
                                 } | null;
                                 playbackState: MediaSessionPlaybackState;
                                 setActionHandler: (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => void;
+                                setCameraActive: (active: boolean) => Promise<void>;
+                                setMicrophoneActive: (active: boolean) => Promise<void>;
                                 setPositionState: (state?: MediaPositionState) => void;
                             };
                             readonly permissions: {
@@ -5975,8 +6084,8 @@ declare class Pops {
                             readonly locks: {
                                 query: () => Promise<LockManagerSnapshot>;
                                 request: {
-                                    (name: string, callback: LockGrantedCallback): Promise<any>;
-                                    (name: string, options: LockOptions, callback: LockGrantedCallback): Promise<any>;
+                                    <T>(name: string, callback: LockGrantedCallback<T>): Promise<T>;
+                                    <T>(name: string, options: LockOptions, callback: LockGrantedCallback<T>): Promise<T>;
                                 };
                             };
                             readonly onLine: boolean;
@@ -6029,6 +6138,34 @@ declare class Pops {
                             };
                         };
                         closed: boolean;
+                        cookieStore: {
+                            onchange: ((this: CookieStore, ev: CookieChangeEvent) => any) | null;
+                            delete: {
+                                (name: string): Promise<void>;
+                                (options: CookieStoreDeleteOptions): Promise<void>;
+                            };
+                            get: {
+                                (name: string): Promise<CookieListItem | null>;
+                                (options?: CookieStoreGetOptions): Promise<CookieListItem | null>;
+                            };
+                            getAll: {
+                                (name: string): Promise<CookieList>;
+                                (options?: CookieStoreGetOptions): Promise<CookieList>;
+                            };
+                            set: {
+                                (name: string, value: string): Promise<void>;
+                                (options: CookieInit): Promise<void>;
+                            };
+                            addEventListener: {
+                                <K extends keyof CookieStoreEventMap>(type: K, listener: (this: CookieStore, ev: CookieStoreEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+                                (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+                            };
+                            removeEventListener: {
+                                <K extends keyof CookieStoreEventMap>(type: K, listener: (this: CookieStore, ev: CookieStoreEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+                                (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+                            };
+                            dispatchEvent: (event: Event) => boolean;
+                        };
                         customElements: {
                             define: (name: string, constructor: CustomElementConstructor, options?: ElementDefinitionOptions) => void;
                             get: (name: string) => CustomElementConstructor | undefined;
@@ -6142,6 +6279,9 @@ declare class Pops {
                                 getCurrentPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => void;
                                 watchPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => number;
                             };
+                            readonly login: {
+                                setStatus: (status: LoginStatus) => Promise<void>;
+                            };
                             readonly maxTouchPoints: number;
                             readonly mediaCapabilities: {
                                 decodingInfo: (configuration: MediaDecodingConfiguration) => Promise<MediaCapabilitiesDecodingInfo>;
@@ -6176,6 +6316,8 @@ declare class Pops {
                                 } | null;
                                 playbackState: MediaSessionPlaybackState;
                                 setActionHandler: (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => void;
+                                setCameraActive: (active: boolean) => Promise<void>;
+                                setMicrophoneActive: (active: boolean) => Promise<void>;
                                 setPositionState: (state?: MediaPositionState) => void;
                             };
                             readonly permissions: {
@@ -6258,8 +6400,8 @@ declare class Pops {
                             readonly locks: {
                                 query: () => Promise<LockManagerSnapshot>;
                                 request: {
-                                    (name: string, callback: LockGrantedCallback): Promise<any>;
-                                    (name: string, options: LockOptions, callback: LockGrantedCallback): Promise<any>;
+                                    <T>(name: string, callback: LockGrantedCallback<T>): Promise<T>;
+                                    <T>(name: string, options: LockOptions, callback: LockGrantedCallback<T>): Promise<T>;
                                 };
                             };
                             readonly onLine: boolean;
@@ -6317,6 +6459,7 @@ declare class Pops {
                         onorientationchange: ((this: Window, ev: Event) => any) | null;
                         opener: any;
                         orientation: number;
+                        originAgentCluster: boolean;
                         outerHeight: number;
                         outerWidth: number;
                         pageXOffset: number;
@@ -6412,18 +6555,19 @@ declare class Pops {
                         onanimationend: ((this: Window, ev: AnimationEvent) => any) | null;
                         onanimationiteration: ((this: Window, ev: AnimationEvent) => any) | null;
                         onanimationstart: ((this: Window, ev: AnimationEvent) => any) | null;
-                        onauxclick: ((this: Window, ev: MouseEvent) => any) | null;
+                        onauxclick: ((this: Window, ev: PointerEvent) => any) | null;
                         onbeforeinput: ((this: Window, ev: InputEvent) => any) | null;
-                        onbeforetoggle: ((this: Window, ev: Event) => any) | null;
+                        onbeforematch: ((this: Window, ev: Event) => any) | null;
+                        onbeforetoggle: ((this: Window, ev: ToggleEvent) => any) | null;
                         onblur: ((this: Window, ev: FocusEvent) => any) | null;
                         oncancel: ((this: Window, ev: Event) => any) | null;
                         oncanplay: ((this: Window, ev: Event) => any) | null;
                         oncanplaythrough: ((this: Window, ev: Event) => any) | null;
                         onchange: ((this: Window, ev: Event) => any) | null;
-                        onclick: ((this: Window, ev: MouseEvent) => any) | null;
+                        onclick: ((this: Window, ev: PointerEvent) => any) | null;
                         onclose: ((this: Window, ev: Event) => any) | null;
                         oncontextlost: ((this: Window, ev: Event) => any) | null;
-                        oncontextmenu: ((this: Window, ev: MouseEvent) => any) | null;
+                        oncontextmenu: ((this: Window, ev: PointerEvent) => any) | null;
                         oncontextrestored: ((this: Window, ev: Event) => any) | null;
                         oncopy: ((this: Window, ev: ClipboardEvent) => any) | null;
                         oncuechange: ((this: Window, ev: Event) => any) | null;
@@ -6471,6 +6615,7 @@ declare class Pops {
                         onpointermove: ((this: Window, ev: PointerEvent) => any) | null;
                         onpointerout: ((this: Window, ev: PointerEvent) => any) | null;
                         onpointerover: ((this: Window, ev: PointerEvent) => any) | null;
+                        onpointerrawupdate: ((this: Window, ev: Event) => any) | null;
                         onpointerup: ((this: Window, ev: PointerEvent) => any) | null;
                         onprogress: ((this: Window, ev: ProgressEvent) => any) | null;
                         onratechange: ((this: Window, ev: Event) => any) | null;
@@ -6489,7 +6634,7 @@ declare class Pops {
                         onsubmit: ((this: Window, ev: SubmitEvent) => any) | null;
                         onsuspend: ((this: Window, ev: Event) => any) | null;
                         ontimeupdate: ((this: Window, ev: Event) => any) | null;
-                        ontoggle: ((this: Window, ev: Event) => any) | null;
+                        ontoggle: ((this: Window, ev: ToggleEvent) => any) | null;
                         ontouchcancel: ((this: Window, ev: TouchEvent) => any) | null | undefined;
                         ontouchend: ((this: Window, ev: TouchEvent) => any) | null | undefined;
                         ontouchmove: ((this: Window, ev: TouchEvent) => any) | null | undefined;
@@ -6517,9 +6662,9 @@ declare class Pops {
                         onoffline: ((this: Window, ev: Event) => any) | null;
                         ononline: ((this: Window, ev: Event) => any) | null;
                         onpagehide: ((this: Window, ev: PageTransitionEvent) => any) | null;
-                        onpagereveal: ((this: Window, ev: Event) => any) | null;
+                        onpagereveal: ((this: Window, ev: PageRevealEvent) => any) | null;
                         onpageshow: ((this: Window, ev: PageTransitionEvent) => any) | null;
-                        onpageswap: ((this: Window, ev: Event) => any) | null;
+                        onpageswap: ((this: Window, ev: PageSwapEvent) => any) | null;
                         onpopstate: ((this: Window, ev: PopStateEvent) => any) | null;
                         onrejectionhandled: ((this: Window, ev: PromiseRejectionEvent) => any) | null;
                         onstorage: ((this: Window, ev: StorageEvent) => any) | null;
@@ -6571,7 +6716,7 @@ declare class Pops {
                                 verify: (algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams, key: CryptoKey, signature: BufferSource, data: BufferSource) => Promise<boolean>;
                                 wrapKey: (format: KeyFormat, key: CryptoKey, wrappingKey: CryptoKey, wrapAlgorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams) => Promise<ArrayBuffer>;
                             };
-                            getRandomValues: <T extends ArrayBufferView | null>(array: T) => T;
+                            getRandomValues: <T extends ArrayBufferView>(array: T) => T;
                             randomUUID: () => `${string}-${string}-${string}-${string}-${string}`;
                         };
                         indexedDB: {
@@ -6735,6 +6880,7 @@ declare class Pops {
                                     value: Promise<"ok" | "timed-out">;
                                 };
                             };
+                            pause: (n?: number) => void;
                             readonly [Symbol.toStringTag]: "Atomics";
                         };
                         BigInt: BigIntConstructor;
@@ -7050,6 +7196,10 @@ declare class Pops {
                         prototype: CDATASection;
                         new (): CDATASection;
                     };
+                    CSPViolationReportBody: {
+                        prototype: CSPViolationReportBody;
+                        new (): CSPViolationReportBody;
+                    };
                     CSSAnimation: {
                         prototype: CSSAnimation;
                         new (): CSSAnimation;
@@ -7363,6 +7513,18 @@ declare class Pops {
                         prototype: ConvolverNode;
                         new (context: BaseAudioContext, options?: ConvolverOptions): ConvolverNode;
                     };
+                    CookieChangeEvent: {
+                        prototype: CookieChangeEvent;
+                        new (type: string, eventInitDict?: CookieChangeEventInit): CookieChangeEvent;
+                    };
+                    CookieStore: {
+                        prototype: CookieStore;
+                        new (): CookieStore;
+                    };
+                    CookieStoreManager: {
+                        prototype: CookieStoreManager;
+                        new (): CookieStoreManager;
+                    };
                     CountQueuingStrategy: {
                         prototype: CountQueuingStrategy;
                         new (init: QueuingStrategyInit): CountQueuingStrategy;
@@ -7431,8 +7593,8 @@ declare class Pops {
                     DOMMatrix: {
                         prototype: DOMMatrix;
                         new (init?: string | number[]): DOMMatrix;
-                        fromFloat32Array(array32: Float32Array): DOMMatrix;
-                        fromFloat64Array(array64: Float64Array): DOMMatrix;
+                        fromFloat32Array(array32: Float32Array<ArrayBuffer>): DOMMatrix;
+                        fromFloat64Array(array64: Float64Array<ArrayBuffer>): DOMMatrix;
                         fromMatrix(other?: DOMMatrixInit): DOMMatrix;
                     };
                     SVGMatrix: typeof DOMMatrix;
@@ -7440,8 +7602,8 @@ declare class Pops {
                     DOMMatrixReadOnly: {
                         prototype: DOMMatrixReadOnly;
                         new (init?: string | number[]): DOMMatrixReadOnly;
-                        fromFloat32Array(array32: Float32Array): DOMMatrixReadOnly;
-                        fromFloat64Array(array64: Float64Array): DOMMatrixReadOnly;
+                        fromFloat32Array(array32: Float32Array<ArrayBuffer>): DOMMatrixReadOnly;
+                        fromFloat64Array(array64: Float64Array<ArrayBuffer>): DOMMatrixReadOnly;
                         fromMatrix(other?: DOMMatrixInit): DOMMatrixReadOnly;
                     };
                     DOMParser: {
@@ -8112,10 +8274,14 @@ declare class Pops {
                         prototype: ImageBitmapRenderingContext;
                         new (): ImageBitmapRenderingContext;
                     };
+                    ImageCapture: {
+                        prototype: ImageCapture;
+                        new (videoTrack: MediaStreamTrack): ImageCapture;
+                    };
                     ImageData: {
                         prototype: ImageData;
                         new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
-                        new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
+                        new (data: ImageDataArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                     };
                     ImageDecoder: {
                         prototype: ImageDecoder;
@@ -8367,6 +8533,10 @@ declare class Pops {
                     Navigator: {
                         prototype: Navigator;
                         new (): Navigator;
+                    };
+                    NavigatorLogin: {
+                        prototype: NavigatorLogin;
+                        new (): NavigatorLogin;
                     };
                     Node: {
                         prototype: Node;
@@ -8638,7 +8808,7 @@ declare class Pops {
                     };
                     RTCIceCandidate: {
                         prototype: RTCIceCandidate;
-                        new (candidateInitDict?: RTCIceCandidateInit): RTCIceCandidate;
+                        new (candidateInitDict?: RTCLocalIceCandidateInit): RTCIceCandidate;
                     };
                     RTCIceTransport: {
                         prototype: RTCIceTransport;
@@ -8711,13 +8881,13 @@ declare class Pops {
                         prototype: ReadableStream;
                         new (underlyingSource: UnderlyingByteSource, strategy?: {
                             highWaterMark?: number;
-                        }): ReadableStream<Uint8Array>;
+                        }): ReadableStream<Uint8Array<ArrayBuffer>>;
                         new <R = any>(underlyingSource: UnderlyingDefaultSource<R>, strategy?: QueuingStrategy<R>): ReadableStream<R>;
                         new <R = any>(underlyingSource?: UnderlyingSource<R>, strategy?: QueuingStrategy<R>): ReadableStream<R>;
                     };
                     ReadableStreamBYOBReader: {
                         prototype: ReadableStreamBYOBReader;
-                        new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
+                        new (stream: ReadableStream<Uint8Array<ArrayBuffer>>): ReadableStreamBYOBReader;
                     };
                     ReadableStreamBYOBRequest: {
                         prototype: ReadableStreamBYOBRequest;
@@ -10576,28 +10746,6 @@ declare class Pops {
                         prototype: XSLTProcessor;
                         new (): XSLTProcessor;
                     };
-                    console: {
-                        assert: (condition?: boolean, ...data: any[]) => void;
-                        clear: () => void;
-                        count: (label?: string) => void;
-                        countReset: (label?: string) => void;
-                        debug: (...data: any[]) => void;
-                        dir: (item?: any, options?: any) => void;
-                        dirxml: (...data: any[]) => void;
-                        error: (...data: any[]) => void;
-                        group: (...data: any[]) => void;
-                        groupCollapsed: (...data: any[]) => void;
-                        groupEnd: () => void;
-                        info: (...data: any[]) => void;
-                        log: (...data: any[]) => void;
-                        table: (tabularData?: any, properties?: string[]) => void;
-                        time: (label?: string) => void;
-                        timeEnd: (label?: string) => void;
-                        timeLog: (label?: string, ...data: any[]) => void;
-                        timeStamp: (label?: string) => void;
-                        trace: (...data: any[]) => void;
-                        warn: (...data: any[]) => void;
-                    };
                     CSS: {
                         Hz: typeof CSS.Hz;
                         Q: typeof CSS.Q;
@@ -10713,6 +10861,28 @@ declare class Pops {
                             new (descriptor: WebAssembly.TableDescriptor, value?: any): WebAssembly.Table;
                         };
                     };
+                    console: {
+                        assert: (condition?: boolean, ...data: any[]) => void;
+                        clear: () => void;
+                        count: (label?: string) => void;
+                        countReset: (label?: string) => void;
+                        debug: (...data: any[]) => void;
+                        dir: (item?: any, options?: any) => void;
+                        dirxml: (...data: any[]) => void;
+                        error: (...data: any[]) => void;
+                        group: (...data: any[]) => void;
+                        groupCollapsed: (...data: any[]) => void;
+                        groupEnd: () => void;
+                        info: (...data: any[]) => void;
+                        log: (...data: any[]) => void;
+                        table: (tabularData?: any, properties?: string[]) => void;
+                        time: (label?: string) => void;
+                        timeEnd: (label?: string) => void;
+                        timeLog: (label?: string, ...data: any[]) => void;
+                        timeStamp: (label?: string) => void;
+                        trace: (...data: any[]) => void;
+                        warn: (...data: any[]) => void;
+                    };
                     Audio: {
                         new (src?: string): HTMLAudioElement;
                     };
@@ -10806,6 +10976,7 @@ declare class Pops {
                                 value: Promise<"ok" | "timed-out">;
                             };
                         };
+                        pause: (n?: number) => void;
                         readonly [Symbol.toStringTag]: "Atomics";
                     };
                     BigInt: BigIntConstructor;
@@ -10893,6 +11064,9 @@ declare class Pops {
                             getCurrentPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => void;
                             watchPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => number;
                         };
+                        readonly login: {
+                            setStatus: (status: LoginStatus) => Promise<void>;
+                        };
                         readonly maxTouchPoints: number;
                         readonly mediaCapabilities: {
                             decodingInfo: (configuration: MediaDecodingConfiguration) => Promise<MediaCapabilitiesDecodingInfo>;
@@ -10927,6 +11101,8 @@ declare class Pops {
                             } | null;
                             playbackState: MediaSessionPlaybackState;
                             setActionHandler: (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => void;
+                            setCameraActive: (active: boolean) => Promise<void>;
+                            setMicrophoneActive: (active: boolean) => Promise<void>;
                             setPositionState: (state?: MediaPositionState) => void;
                         };
                         readonly permissions: {
@@ -11009,8 +11185,8 @@ declare class Pops {
                         readonly locks: {
                             query: () => Promise<LockManagerSnapshot>;
                             request: {
-                                (name: string, callback: LockGrantedCallback): Promise<any>;
-                                (name: string, options: LockOptions, callback: LockGrantedCallback): Promise<any>;
+                                <T>(name: string, callback: LockGrantedCallback<T>): Promise<T>;
+                                <T>(name: string, options: LockOptions, callback: LockGrantedCallback<T>): Promise<T>;
                             };
                         };
                         readonly onLine: boolean;
@@ -11063,6 +11239,34 @@ declare class Pops {
                         };
                     };
                     closed: boolean;
+                    cookieStore: {
+                        onchange: ((this: CookieStore, ev: CookieChangeEvent) => any) | null;
+                        delete: {
+                            (name: string): Promise<void>;
+                            (options: CookieStoreDeleteOptions): Promise<void>;
+                        };
+                        get: {
+                            (name: string): Promise<CookieListItem | null>;
+                            (options?: CookieStoreGetOptions): Promise<CookieListItem | null>;
+                        };
+                        getAll: {
+                            (name: string): Promise<CookieList>;
+                            (options?: CookieStoreGetOptions): Promise<CookieList>;
+                        };
+                        set: {
+                            (name: string, value: string): Promise<void>;
+                            (options: CookieInit): Promise<void>;
+                        };
+                        addEventListener: {
+                            <K extends keyof CookieStoreEventMap>(type: K, listener: (this: CookieStore, ev: CookieStoreEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+                            (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+                        };
+                        removeEventListener: {
+                            <K extends keyof CookieStoreEventMap>(type: K, listener: (this: CookieStore, ev: CookieStoreEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+                            (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+                        };
+                        dispatchEvent: (event: Event) => boolean;
+                    };
                     customElements: {
                         define: (name: string, constructor: CustomElementConstructor, options?: ElementDefinitionOptions) => void;
                         get: (name: string) => CustomElementConstructor | undefined;
@@ -11177,6 +11381,9 @@ declare class Pops {
                             getCurrentPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => void;
                             watchPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => number;
                         };
+                        readonly login: {
+                            setStatus: (status: LoginStatus) => Promise<void>;
+                        };
                         readonly maxTouchPoints: number;
                         readonly mediaCapabilities: {
                             decodingInfo: (configuration: MediaDecodingConfiguration) => Promise<MediaCapabilitiesDecodingInfo>;
@@ -11211,6 +11418,8 @@ declare class Pops {
                             } | null;
                             playbackState: MediaSessionPlaybackState;
                             setActionHandler: (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => void;
+                            setCameraActive: (active: boolean) => Promise<void>;
+                            setMicrophoneActive: (active: boolean) => Promise<void>;
                             setPositionState: (state?: MediaPositionState) => void;
                         };
                         readonly permissions: {
@@ -11293,8 +11502,8 @@ declare class Pops {
                         readonly locks: {
                             query: () => Promise<LockManagerSnapshot>;
                             request: {
-                                (name: string, callback: LockGrantedCallback): Promise<any>;
-                                (name: string, options: LockOptions, callback: LockGrantedCallback): Promise<any>;
+                                <T>(name: string, callback: LockGrantedCallback<T>): Promise<T>;
+                                <T>(name: string, options: LockOptions, callback: LockGrantedCallback<T>): Promise<T>;
                             };
                         };
                         readonly onLine: boolean;
@@ -11352,6 +11561,7 @@ declare class Pops {
                     onorientationchange: (((this: Window, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     opener: any;
                     orientation: number;
+                    originAgentCluster: boolean;
                     outerHeight: number;
                     outerWidth: number;
                     pageXOffset: number;
@@ -11494,18 +11704,19 @@ declare class Pops {
                     onanimationend: (((this: GlobalEventHandlers, ev: AnimationEvent) => any) & ((this: Window, ev: AnimationEvent) => any)) | null;
                     onanimationiteration: (((this: GlobalEventHandlers, ev: AnimationEvent) => any) & ((this: Window, ev: AnimationEvent) => any)) | null;
                     onanimationstart: (((this: GlobalEventHandlers, ev: AnimationEvent) => any) & ((this: Window, ev: AnimationEvent) => any)) | null;
-                    onauxclick: (((this: GlobalEventHandlers, ev: MouseEvent) => any) & ((this: Window, ev: MouseEvent) => any)) | null;
+                    onauxclick: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     onbeforeinput: (((this: GlobalEventHandlers, ev: InputEvent) => any) & ((this: Window, ev: InputEvent) => any)) | null;
-                    onbeforetoggle: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
+                    onbeforematch: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
+                    onbeforetoggle: (((this: GlobalEventHandlers, ev: ToggleEvent) => any) & ((this: Window, ev: ToggleEvent) => any)) | null;
                     onblur: (((this: GlobalEventHandlers, ev: FocusEvent) => any) & ((this: Window, ev: FocusEvent) => any)) | null;
                     oncancel: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     oncanplay: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     oncanplaythrough: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onchange: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
-                    onclick: (((this: GlobalEventHandlers, ev: MouseEvent) => any) & ((this: Window, ev: MouseEvent) => any)) | null;
+                    onclick: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     onclose: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     oncontextlost: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
-                    oncontextmenu: (((this: GlobalEventHandlers, ev: MouseEvent) => any) & ((this: Window, ev: MouseEvent) => any)) | null;
+                    oncontextmenu: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     oncontextrestored: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     oncopy: (((this: GlobalEventHandlers, ev: ClipboardEvent) => any) & ((this: Window, ev: ClipboardEvent) => any)) | null;
                     oncuechange: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
@@ -11553,6 +11764,7 @@ declare class Pops {
                     onpointermove: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     onpointerout: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     onpointerover: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
+                    onpointerrawupdate: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpointerup: (((this: GlobalEventHandlers, ev: PointerEvent) => any) & ((this: Window, ev: PointerEvent) => any)) | null;
                     onprogress: (((this: GlobalEventHandlers, ev: ProgressEvent) => any) & ((this: Window, ev: ProgressEvent) => any)) | null;
                     onratechange: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
@@ -11571,7 +11783,7 @@ declare class Pops {
                     onsubmit: (((this: GlobalEventHandlers, ev: SubmitEvent) => any) & ((this: Window, ev: SubmitEvent) => any)) | null;
                     onsuspend: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     ontimeupdate: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
-                    ontoggle: (((this: GlobalEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
+                    ontoggle: (((this: GlobalEventHandlers, ev: ToggleEvent) => any) & ((this: Window, ev: ToggleEvent) => any)) | null;
                     ontouchcancel: (((this: GlobalEventHandlers, ev: TouchEvent) => any) & ((this: Window, ev: TouchEvent) => any)) | null;
                     ontouchend: (((this: GlobalEventHandlers, ev: TouchEvent) => any) & ((this: Window, ev: TouchEvent) => any)) | null;
                     ontouchmove: (((this: GlobalEventHandlers, ev: TouchEvent) => any) & ((this: Window, ev: TouchEvent) => any)) | null;
@@ -11599,9 +11811,9 @@ declare class Pops {
                     onoffline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     ononline: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
                     onpagehide: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
-                    onpagereveal: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
+                    onpagereveal: (((this: WindowEventHandlers, ev: PageRevealEvent) => any) & ((this: Window, ev: PageRevealEvent) => any)) | null;
                     onpageshow: (((this: WindowEventHandlers, ev: PageTransitionEvent) => any) & ((this: Window, ev: PageTransitionEvent) => any)) | null;
-                    onpageswap: (((this: WindowEventHandlers, ev: Event) => any) & ((this: Window, ev: Event) => any)) | null;
+                    onpageswap: (((this: WindowEventHandlers, ev: PageSwapEvent) => any) & ((this: Window, ev: PageSwapEvent) => any)) | null;
                     onpopstate: (((this: WindowEventHandlers, ev: PopStateEvent) => any) & ((this: Window, ev: PopStateEvent) => any)) | null;
                     onrejectionhandled: (((this: WindowEventHandlers, ev: PromiseRejectionEvent) => any) & ((this: Window, ev: PromiseRejectionEvent) => any)) | null;
                     onstorage: (((this: WindowEventHandlers, ev: StorageEvent) => any) & ((this: Window, ev: StorageEvent) => any)) | null;
@@ -11653,7 +11865,7 @@ declare class Pops {
                             verify: (algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams, key: CryptoKey, signature: BufferSource, data: BufferSource) => Promise<boolean>;
                             wrapKey: (format: KeyFormat, key: CryptoKey, wrappingKey: CryptoKey, wrapAlgorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams) => Promise<ArrayBuffer>;
                         };
-                        getRandomValues: <T extends ArrayBufferView | null>(array: T) => T;
+                        getRandomValues: <T extends ArrayBufferView>(array: T) => T;
                         randomUUID: () => `${string}-${string}-${string}-${string}-${string}`;
                     };
                     indexedDB: {
@@ -12089,6 +12301,10 @@ declare class Pops {
                             prototype: CDATASection;
                             new (): CDATASection;
                         };
+                        CSPViolationReportBody: {
+                            prototype: CSPViolationReportBody;
+                            new (): CSPViolationReportBody;
+                        };
                         CSSAnimation: {
                             prototype: CSSAnimation;
                             new (): CSSAnimation;
@@ -12402,6 +12618,18 @@ declare class Pops {
                             prototype: ConvolverNode;
                             new (context: BaseAudioContext, options?: ConvolverOptions): ConvolverNode;
                         };
+                        CookieChangeEvent: {
+                            prototype: CookieChangeEvent;
+                            new (type: string, eventInitDict?: CookieChangeEventInit): CookieChangeEvent;
+                        };
+                        CookieStore: {
+                            prototype: CookieStore;
+                            new (): CookieStore;
+                        };
+                        CookieStoreManager: {
+                            prototype: CookieStoreManager;
+                            new (): CookieStoreManager;
+                        };
                         CountQueuingStrategy: {
                             prototype: CountQueuingStrategy;
                             new (init: QueuingStrategyInit): CountQueuingStrategy;
@@ -12470,8 +12698,8 @@ declare class Pops {
                         DOMMatrix: {
                             prototype: DOMMatrix;
                             new (init?: string | number[]): DOMMatrix;
-                            fromFloat32Array(array32: Float32Array): DOMMatrix;
-                            fromFloat64Array(array64: Float64Array): DOMMatrix;
+                            fromFloat32Array(array32: Float32Array<ArrayBuffer>): DOMMatrix;
+                            fromFloat64Array(array64: Float64Array<ArrayBuffer>): DOMMatrix;
                             fromMatrix(other?: DOMMatrixInit): DOMMatrix;
                         };
                         SVGMatrix: typeof DOMMatrix;
@@ -12479,8 +12707,8 @@ declare class Pops {
                         DOMMatrixReadOnly: {
                             prototype: DOMMatrixReadOnly;
                             new (init?: string | number[]): DOMMatrixReadOnly;
-                            fromFloat32Array(array32: Float32Array): DOMMatrixReadOnly;
-                            fromFloat64Array(array64: Float64Array): DOMMatrixReadOnly;
+                            fromFloat32Array(array32: Float32Array<ArrayBuffer>): DOMMatrixReadOnly;
+                            fromFloat64Array(array64: Float64Array<ArrayBuffer>): DOMMatrixReadOnly;
                             fromMatrix(other?: DOMMatrixInit): DOMMatrixReadOnly;
                         };
                         DOMParser: {
@@ -13151,10 +13379,14 @@ declare class Pops {
                             prototype: ImageBitmapRenderingContext;
                             new (): ImageBitmapRenderingContext;
                         };
+                        ImageCapture: {
+                            prototype: ImageCapture;
+                            new (videoTrack: MediaStreamTrack): ImageCapture;
+                        };
                         ImageData: {
                             prototype: ImageData;
                             new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
-                            new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
+                            new (data: ImageDataArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                         };
                         ImageDecoder: {
                             prototype: ImageDecoder;
@@ -13406,6 +13638,10 @@ declare class Pops {
                         Navigator: {
                             prototype: Navigator;
                             new (): Navigator;
+                        };
+                        NavigatorLogin: {
+                            prototype: NavigatorLogin;
+                            new (): NavigatorLogin;
                         };
                         Node: {
                             prototype: Node;
@@ -13677,7 +13913,7 @@ declare class Pops {
                         };
                         RTCIceCandidate: {
                             prototype: RTCIceCandidate;
-                            new (candidateInitDict?: RTCIceCandidateInit): RTCIceCandidate;
+                            new (candidateInitDict?: RTCLocalIceCandidateInit): RTCIceCandidate;
                         };
                         RTCIceTransport: {
                             prototype: RTCIceTransport;
@@ -13750,13 +13986,13 @@ declare class Pops {
                             prototype: ReadableStream;
                             new (underlyingSource: UnderlyingByteSource, strategy?: {
                                 highWaterMark?: number;
-                            }): ReadableStream<Uint8Array>;
+                            }): ReadableStream<Uint8Array<ArrayBuffer>>;
                             new <R = any>(underlyingSource: UnderlyingDefaultSource<R>, strategy?: QueuingStrategy<R>): ReadableStream<R>;
                             new <R = any>(underlyingSource?: UnderlyingSource<R>, strategy?: QueuingStrategy<R>): ReadableStream<R>;
                         };
                         ReadableStreamBYOBReader: {
                             prototype: ReadableStreamBYOBReader;
-                            new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
+                            new (stream: ReadableStream<Uint8Array<ArrayBuffer>>): ReadableStreamBYOBReader;
                         };
                         ReadableStreamBYOBRequest: {
                             prototype: ReadableStreamBYOBRequest;
@@ -15615,28 +15851,6 @@ declare class Pops {
                             prototype: XSLTProcessor;
                             new (): XSLTProcessor;
                         };
-                        console: {
-                            assert: (condition?: boolean, ...data: any[]) => void;
-                            clear: () => void;
-                            count: (label?: string) => void;
-                            countReset: (label?: string) => void;
-                            debug: (...data: any[]) => void;
-                            dir: (item?: any, options?: any) => void;
-                            dirxml: (...data: any[]) => void;
-                            error: (...data: any[]) => void;
-                            group: (...data: any[]) => void;
-                            groupCollapsed: (...data: any[]) => void;
-                            groupEnd: () => void;
-                            info: (...data: any[]) => void;
-                            log: (...data: any[]) => void;
-                            table: (tabularData?: any, properties?: string[]) => void;
-                            time: (label?: string) => void;
-                            timeEnd: (label?: string) => void;
-                            timeLog: (label?: string, ...data: any[]) => void;
-                            timeStamp: (label?: string) => void;
-                            trace: (...data: any[]) => void;
-                            warn: (...data: any[]) => void;
-                        };
                         CSS: {
                             Hz: typeof CSS.Hz;
                             Q: typeof CSS.Q;
@@ -15752,6 +15966,28 @@ declare class Pops {
                                 new (descriptor: WebAssembly.TableDescriptor, value?: any): WebAssembly.Table;
                             };
                         };
+                        console: {
+                            assert: (condition?: boolean, ...data: any[]) => void;
+                            clear: () => void;
+                            count: (label?: string) => void;
+                            countReset: (label?: string) => void;
+                            debug: (...data: any[]) => void;
+                            dir: (item?: any, options?: any) => void;
+                            dirxml: (...data: any[]) => void;
+                            error: (...data: any[]) => void;
+                            group: (...data: any[]) => void;
+                            groupCollapsed: (...data: any[]) => void;
+                            groupEnd: () => void;
+                            info: (...data: any[]) => void;
+                            log: (...data: any[]) => void;
+                            table: (tabularData?: any, properties?: string[]) => void;
+                            time: (label?: string) => void;
+                            timeEnd: (label?: string) => void;
+                            timeLog: (label?: string, ...data: any[]) => void;
+                            timeStamp: (label?: string) => void;
+                            trace: (...data: any[]) => void;
+                            warn: (...data: any[]) => void;
+                        };
                         Audio: {
                             new (src?: string): HTMLAudioElement;
                         };
@@ -15782,6 +16018,9 @@ declare class Pops {
                                 clearWatch: (watchId: number) => void;
                                 getCurrentPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => void;
                                 watchPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => number;
+                            };
+                            readonly login: {
+                                setStatus: (status: LoginStatus) => Promise<void>;
                             };
                             readonly maxTouchPoints: number;
                             readonly mediaCapabilities: {
@@ -15817,6 +16056,8 @@ declare class Pops {
                                 } | null;
                                 playbackState: MediaSessionPlaybackState;
                                 setActionHandler: (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => void;
+                                setCameraActive: (active: boolean) => Promise<void>;
+                                setMicrophoneActive: (active: boolean) => Promise<void>;
                                 setPositionState: (state?: MediaPositionState) => void;
                             };
                             readonly permissions: {
@@ -15899,8 +16140,8 @@ declare class Pops {
                             readonly locks: {
                                 query: () => Promise<LockManagerSnapshot>;
                                 request: {
-                                    (name: string, callback: LockGrantedCallback): Promise<any>;
-                                    (name: string, options: LockOptions, callback: LockGrantedCallback): Promise<any>;
+                                    <T>(name: string, callback: LockGrantedCallback<T>): Promise<T>;
+                                    <T>(name: string, options: LockOptions, callback: LockGrantedCallback<T>): Promise<T>;
                                 };
                             };
                             readonly onLine: boolean;
@@ -15953,6 +16194,34 @@ declare class Pops {
                             };
                         };
                         closed: boolean;
+                        cookieStore: {
+                            onchange: ((this: CookieStore, ev: CookieChangeEvent) => any) | null;
+                            delete: {
+                                (name: string): Promise<void>;
+                                (options: CookieStoreDeleteOptions): Promise<void>;
+                            };
+                            get: {
+                                (name: string): Promise<CookieListItem | null>;
+                                (options?: CookieStoreGetOptions): Promise<CookieListItem | null>;
+                            };
+                            getAll: {
+                                (name: string): Promise<CookieList>;
+                                (options?: CookieStoreGetOptions): Promise<CookieList>;
+                            };
+                            set: {
+                                (name: string, value: string): Promise<void>;
+                                (options: CookieInit): Promise<void>;
+                            };
+                            addEventListener: {
+                                <K extends keyof CookieStoreEventMap>(type: K, listener: (this: CookieStore, ev: CookieStoreEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+                                (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+                            };
+                            removeEventListener: {
+                                <K extends keyof CookieStoreEventMap>(type: K, listener: (this: CookieStore, ev: CookieStoreEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+                                (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+                            };
+                            dispatchEvent: (event: Event) => boolean;
+                        };
                         customElements: {
                             define: (name: string, constructor: CustomElementConstructor, options?: ElementDefinitionOptions) => void;
                             get: (name: string) => CustomElementConstructor | undefined;
@@ -16066,6 +16335,9 @@ declare class Pops {
                                 getCurrentPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => void;
                                 watchPosition: (successCallback: PositionCallback, errorCallback?: PositionErrorCallback | null, options?: PositionOptions) => number;
                             };
+                            readonly login: {
+                                setStatus: (status: LoginStatus) => Promise<void>;
+                            };
                             readonly maxTouchPoints: number;
                             readonly mediaCapabilities: {
                                 decodingInfo: (configuration: MediaDecodingConfiguration) => Promise<MediaCapabilitiesDecodingInfo>;
@@ -16100,6 +16372,8 @@ declare class Pops {
                                 } | null;
                                 playbackState: MediaSessionPlaybackState;
                                 setActionHandler: (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => void;
+                                setCameraActive: (active: boolean) => Promise<void>;
+                                setMicrophoneActive: (active: boolean) => Promise<void>;
                                 setPositionState: (state?: MediaPositionState) => void;
                             };
                             readonly permissions: {
@@ -16182,8 +16456,8 @@ declare class Pops {
                             readonly locks: {
                                 query: () => Promise<LockManagerSnapshot>;
                                 request: {
-                                    (name: string, callback: LockGrantedCallback): Promise<any>;
-                                    (name: string, options: LockOptions, callback: LockGrantedCallback): Promise<any>;
+                                    <T>(name: string, callback: LockGrantedCallback<T>): Promise<T>;
+                                    <T>(name: string, options: LockOptions, callback: LockGrantedCallback<T>): Promise<T>;
                                 };
                             };
                             readonly onLine: boolean;
@@ -16241,6 +16515,7 @@ declare class Pops {
                         onorientationchange: ((this: Window, ev: Event) => any) | null;
                         opener: any;
                         orientation: number;
+                        originAgentCluster: boolean;
                         outerHeight: number;
                         outerWidth: number;
                         pageXOffset: number;
@@ -16336,18 +16611,19 @@ declare class Pops {
                         onanimationend: ((this: Window, ev: AnimationEvent) => any) | null;
                         onanimationiteration: ((this: Window, ev: AnimationEvent) => any) | null;
                         onanimationstart: ((this: Window, ev: AnimationEvent) => any) | null;
-                        onauxclick: ((this: Window, ev: MouseEvent) => any) | null;
+                        onauxclick: ((this: Window, ev: PointerEvent) => any) | null;
                         onbeforeinput: ((this: Window, ev: InputEvent) => any) | null;
-                        onbeforetoggle: ((this: Window, ev: Event) => any) | null;
+                        onbeforematch: ((this: Window, ev: Event) => any) | null;
+                        onbeforetoggle: ((this: Window, ev: ToggleEvent) => any) | null;
                         onblur: ((this: Window, ev: FocusEvent) => any) | null;
                         oncancel: ((this: Window, ev: Event) => any) | null;
                         oncanplay: ((this: Window, ev: Event) => any) | null;
                         oncanplaythrough: ((this: Window, ev: Event) => any) | null;
                         onchange: ((this: Window, ev: Event) => any) | null;
-                        onclick: ((this: Window, ev: MouseEvent) => any) | null;
+                        onclick: ((this: Window, ev: PointerEvent) => any) | null;
                         onclose: ((this: Window, ev: Event) => any) | null;
                         oncontextlost: ((this: Window, ev: Event) => any) | null;
-                        oncontextmenu: ((this: Window, ev: MouseEvent) => any) | null;
+                        oncontextmenu: ((this: Window, ev: PointerEvent) => any) | null;
                         oncontextrestored: ((this: Window, ev: Event) => any) | null;
                         oncopy: ((this: Window, ev: ClipboardEvent) => any) | null;
                         oncuechange: ((this: Window, ev: Event) => any) | null;
@@ -16395,6 +16671,7 @@ declare class Pops {
                         onpointermove: ((this: Window, ev: PointerEvent) => any) | null;
                         onpointerout: ((this: Window, ev: PointerEvent) => any) | null;
                         onpointerover: ((this: Window, ev: PointerEvent) => any) | null;
+                        onpointerrawupdate: ((this: Window, ev: Event) => any) | null;
                         onpointerup: ((this: Window, ev: PointerEvent) => any) | null;
                         onprogress: ((this: Window, ev: ProgressEvent) => any) | null;
                         onratechange: ((this: Window, ev: Event) => any) | null;
@@ -16413,7 +16690,7 @@ declare class Pops {
                         onsubmit: ((this: Window, ev: SubmitEvent) => any) | null;
                         onsuspend: ((this: Window, ev: Event) => any) | null;
                         ontimeupdate: ((this: Window, ev: Event) => any) | null;
-                        ontoggle: ((this: Window, ev: Event) => any) | null;
+                        ontoggle: ((this: Window, ev: ToggleEvent) => any) | null;
                         ontouchcancel: ((this: Window, ev: TouchEvent) => any) | null | undefined;
                         ontouchend: ((this: Window, ev: TouchEvent) => any) | null | undefined;
                         ontouchmove: ((this: Window, ev: TouchEvent) => any) | null | undefined;
@@ -16441,9 +16718,9 @@ declare class Pops {
                         onoffline: ((this: Window, ev: Event) => any) | null;
                         ononline: ((this: Window, ev: Event) => any) | null;
                         onpagehide: ((this: Window, ev: PageTransitionEvent) => any) | null;
-                        onpagereveal: ((this: Window, ev: Event) => any) | null;
+                        onpagereveal: ((this: Window, ev: PageRevealEvent) => any) | null;
                         onpageshow: ((this: Window, ev: PageTransitionEvent) => any) | null;
-                        onpageswap: ((this: Window, ev: Event) => any) | null;
+                        onpageswap: ((this: Window, ev: PageSwapEvent) => any) | null;
                         onpopstate: ((this: Window, ev: PopStateEvent) => any) | null;
                         onrejectionhandled: ((this: Window, ev: PromiseRejectionEvent) => any) | null;
                         onstorage: ((this: Window, ev: StorageEvent) => any) | null;
@@ -16495,7 +16772,7 @@ declare class Pops {
                                 verify: (algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams, key: CryptoKey, signature: BufferSource, data: BufferSource) => Promise<boolean>;
                                 wrapKey: (format: KeyFormat, key: CryptoKey, wrappingKey: CryptoKey, wrapAlgorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams) => Promise<ArrayBuffer>;
                             };
-                            getRandomValues: <T extends ArrayBufferView | null>(array: T) => T;
+                            getRandomValues: <T extends ArrayBufferView>(array: T) => T;
                             randomUUID: () => `${string}-${string}-${string}-${string}-${string}`;
                         };
                         indexedDB: {
@@ -16659,6 +16936,7 @@ declare class Pops {
                                     value: Promise<"ok" | "timed-out">;
                                 };
                             };
+                            pause: (n?: number) => void;
                             readonly [Symbol.toStringTag]: "Atomics";
                         };
                         BigInt: BigIntConstructor;
@@ -16974,6 +17252,10 @@ declare class Pops {
                         prototype: CDATASection;
                         new (): CDATASection;
                     };
+                    CSPViolationReportBody: {
+                        prototype: CSPViolationReportBody;
+                        new (): CSPViolationReportBody;
+                    };
                     CSSAnimation: {
                         prototype: CSSAnimation;
                         new (): CSSAnimation;
@@ -17287,6 +17569,18 @@ declare class Pops {
                         prototype: ConvolverNode;
                         new (context: BaseAudioContext, options?: ConvolverOptions): ConvolverNode;
                     };
+                    CookieChangeEvent: {
+                        prototype: CookieChangeEvent;
+                        new (type: string, eventInitDict?: CookieChangeEventInit): CookieChangeEvent;
+                    };
+                    CookieStore: {
+                        prototype: CookieStore;
+                        new (): CookieStore;
+                    };
+                    CookieStoreManager: {
+                        prototype: CookieStoreManager;
+                        new (): CookieStoreManager;
+                    };
                     CountQueuingStrategy: {
                         prototype: CountQueuingStrategy;
                         new (init: QueuingStrategyInit): CountQueuingStrategy;
@@ -17355,8 +17649,8 @@ declare class Pops {
                     DOMMatrix: {
                         prototype: DOMMatrix;
                         new (init?: string | number[]): DOMMatrix;
-                        fromFloat32Array(array32: Float32Array): DOMMatrix;
-                        fromFloat64Array(array64: Float64Array): DOMMatrix;
+                        fromFloat32Array(array32: Float32Array<ArrayBuffer>): DOMMatrix;
+                        fromFloat64Array(array64: Float64Array<ArrayBuffer>): DOMMatrix;
                         fromMatrix(other?: DOMMatrixInit): DOMMatrix;
                     };
                     SVGMatrix: typeof DOMMatrix;
@@ -17364,8 +17658,8 @@ declare class Pops {
                     DOMMatrixReadOnly: {
                         prototype: DOMMatrixReadOnly;
                         new (init?: string | number[]): DOMMatrixReadOnly;
-                        fromFloat32Array(array32: Float32Array): DOMMatrixReadOnly;
-                        fromFloat64Array(array64: Float64Array): DOMMatrixReadOnly;
+                        fromFloat32Array(array32: Float32Array<ArrayBuffer>): DOMMatrixReadOnly;
+                        fromFloat64Array(array64: Float64Array<ArrayBuffer>): DOMMatrixReadOnly;
                         fromMatrix(other?: DOMMatrixInit): DOMMatrixReadOnly;
                     };
                     DOMParser: {
@@ -18036,10 +18330,14 @@ declare class Pops {
                         prototype: ImageBitmapRenderingContext;
                         new (): ImageBitmapRenderingContext;
                     };
+                    ImageCapture: {
+                        prototype: ImageCapture;
+                        new (videoTrack: MediaStreamTrack): ImageCapture;
+                    };
                     ImageData: {
                         prototype: ImageData;
                         new (sw: number, sh: number, settings?: ImageDataSettings): ImageData;
-                        new (data: Uint8ClampedArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
+                        new (data: ImageDataArray, sw: number, sh?: number, settings?: ImageDataSettings): ImageData;
                     };
                     ImageDecoder: {
                         prototype: ImageDecoder;
@@ -18291,6 +18589,10 @@ declare class Pops {
                     Navigator: {
                         prototype: Navigator;
                         new (): Navigator;
+                    };
+                    NavigatorLogin: {
+                        prototype: NavigatorLogin;
+                        new (): NavigatorLogin;
                     };
                     Node: {
                         prototype: Node;
@@ -18562,7 +18864,7 @@ declare class Pops {
                     };
                     RTCIceCandidate: {
                         prototype: RTCIceCandidate;
-                        new (candidateInitDict?: RTCIceCandidateInit): RTCIceCandidate;
+                        new (candidateInitDict?: RTCLocalIceCandidateInit): RTCIceCandidate;
                     };
                     RTCIceTransport: {
                         prototype: RTCIceTransport;
@@ -18635,13 +18937,13 @@ declare class Pops {
                         prototype: ReadableStream;
                         new (underlyingSource: UnderlyingByteSource, strategy?: {
                             highWaterMark?: number;
-                        }): ReadableStream<Uint8Array>;
+                        }): ReadableStream<Uint8Array<ArrayBuffer>>;
                         new <R = any>(underlyingSource: UnderlyingDefaultSource<R>, strategy?: QueuingStrategy<R>): ReadableStream<R>;
                         new <R = any>(underlyingSource?: UnderlyingSource<R>, strategy?: QueuingStrategy<R>): ReadableStream<R>;
                     };
                     ReadableStreamBYOBReader: {
                         prototype: ReadableStreamBYOBReader;
-                        new (stream: ReadableStream<Uint8Array>): ReadableStreamBYOBReader;
+                        new (stream: ReadableStream<Uint8Array<ArrayBuffer>>): ReadableStreamBYOBReader;
                     };
                     ReadableStreamBYOBRequest: {
                         prototype: ReadableStreamBYOBRequest;
@@ -20500,28 +20802,6 @@ declare class Pops {
                         prototype: XSLTProcessor;
                         new (): XSLTProcessor;
                     };
-                    console: {
-                        assert: (condition?: boolean, ...data: any[]) => void;
-                        clear: () => void;
-                        count: (label?: string) => void;
-                        countReset: (label?: string) => void;
-                        debug: (...data: any[]) => void;
-                        dir: (item?: any, options?: any) => void;
-                        dirxml: (...data: any[]) => void;
-                        error: (...data: any[]) => void;
-                        group: (...data: any[]) => void;
-                        groupCollapsed: (...data: any[]) => void;
-                        groupEnd: () => void;
-                        info: (...data: any[]) => void;
-                        log: (...data: any[]) => void;
-                        table: (tabularData?: any, properties?: string[]) => void;
-                        time: (label?: string) => void;
-                        timeEnd: (label?: string) => void;
-                        timeLog: (label?: string, ...data: any[]) => void;
-                        timeStamp: (label?: string) => void;
-                        trace: (...data: any[]) => void;
-                        warn: (...data: any[]) => void;
-                    };
                     CSS: {
                         Hz: typeof CSS.Hz;
                         Q: typeof CSS.Q;
@@ -20637,6 +20917,28 @@ declare class Pops {
                             new (descriptor: WebAssembly.TableDescriptor, value?: any): WebAssembly.Table;
                         };
                     };
+                    console: {
+                        assert: (condition?: boolean, ...data: any[]) => void;
+                        clear: () => void;
+                        count: (label?: string) => void;
+                        countReset: (label?: string) => void;
+                        debug: (...data: any[]) => void;
+                        dir: (item?: any, options?: any) => void;
+                        dirxml: (...data: any[]) => void;
+                        error: (...data: any[]) => void;
+                        group: (...data: any[]) => void;
+                        groupCollapsed: (...data: any[]) => void;
+                        groupEnd: () => void;
+                        info: (...data: any[]) => void;
+                        log: (...data: any[]) => void;
+                        table: (tabularData?: any, properties?: string[]) => void;
+                        time: (label?: string) => void;
+                        timeEnd: (label?: string) => void;
+                        timeLog: (label?: string, ...data: any[]) => void;
+                        timeStamp: (label?: string) => void;
+                        trace: (...data: any[]) => void;
+                        warn: (...data: any[]) => void;
+                    };
                     Audio: {
                         new (src?: string): HTMLAudioElement;
                     };
@@ -20730,6 +21032,7 @@ declare class Pops {
                                 value: Promise<"ok" | "timed-out">;
                             };
                         };
+                        pause: (n?: number) => void;
                         readonly [Symbol.toStringTag]: "Atomics";
                     };
                     BigInt: BigIntConstructor;
@@ -20797,18 +21100,19 @@ declare class Pops {
                 onanimationend: ((this: GlobalEventHandlers, ev: AnimationEvent) => any) | null;
                 onanimationiteration: ((this: GlobalEventHandlers, ev: AnimationEvent) => any) | null;
                 onanimationstart: ((this: GlobalEventHandlers, ev: AnimationEvent) => any) | null;
-                onauxclick: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+                onauxclick: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
                 onbeforeinput: ((this: GlobalEventHandlers, ev: InputEvent) => any) | null;
-                onbeforetoggle: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+                onbeforematch: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+                onbeforetoggle: ((this: GlobalEventHandlers, ev: ToggleEvent) => any) | null;
                 onblur: ((this: GlobalEventHandlers, ev: FocusEvent) => any) | null;
                 oncancel: ((this: GlobalEventHandlers, ev: Event) => any) | null;
                 oncanplay: ((this: GlobalEventHandlers, ev: Event) => any) | null;
                 oncanplaythrough: ((this: GlobalEventHandlers, ev: Event) => any) | null;
                 onchange: ((this: GlobalEventHandlers, ev: Event) => any) | null;
-                onclick: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+                onclick: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
                 onclose: ((this: GlobalEventHandlers, ev: Event) => any) | null;
                 oncontextlost: ((this: GlobalEventHandlers, ev: Event) => any) | null;
-                oncontextmenu: ((this: GlobalEventHandlers, ev: MouseEvent) => any) | null;
+                oncontextmenu: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
                 oncontextrestored: ((this: GlobalEventHandlers, ev: Event) => any) | null;
                 oncopy: ((this: GlobalEventHandlers, ev: ClipboardEvent) => any) | null;
                 oncuechange: ((this: GlobalEventHandlers, ev: Event) => any) | null;
@@ -20856,6 +21160,7 @@ declare class Pops {
                 onpointermove: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
                 onpointerout: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
                 onpointerover: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
+                onpointerrawupdate: ((this: GlobalEventHandlers, ev: Event) => any) | null;
                 onpointerup: ((this: GlobalEventHandlers, ev: PointerEvent) => any) | null;
                 onprogress: ((this: GlobalEventHandlers, ev: ProgressEvent) => any) | null;
                 onratechange: ((this: GlobalEventHandlers, ev: Event) => any) | null;
@@ -20874,7 +21179,7 @@ declare class Pops {
                 onsubmit: ((this: GlobalEventHandlers, ev: SubmitEvent) => any) | null;
                 onsuspend: ((this: GlobalEventHandlers, ev: Event) => any) | null;
                 ontimeupdate: ((this: GlobalEventHandlers, ev: Event) => any) | null;
-                ontoggle: ((this: GlobalEventHandlers, ev: Event) => any) | null;
+                ontoggle: ((this: GlobalEventHandlers, ev: ToggleEvent) => any) | null;
                 ontouchcancel: ((this: GlobalEventHandlers, ev: TouchEvent) => any) | null;
                 ontouchend: ((this: GlobalEventHandlers, ev: TouchEvent) => any) | null;
                 ontouchmove: ((this: GlobalEventHandlers, ev: TouchEvent) => any) | null;
@@ -20902,9 +21207,9 @@ declare class Pops {
                 onoffline: ((this: WindowEventHandlers, ev: Event) => any) | null;
                 ononline: ((this: WindowEventHandlers, ev: Event) => any) | null;
                 onpagehide: ((this: WindowEventHandlers, ev: PageTransitionEvent) => any) | null;
-                onpagereveal: ((this: WindowEventHandlers, ev: Event) => any) | null;
+                onpagereveal: ((this: WindowEventHandlers, ev: PageRevealEvent) => any) | null;
                 onpageshow: ((this: WindowEventHandlers, ev: PageTransitionEvent) => any) | null;
-                onpageswap: ((this: WindowEventHandlers, ev: Event) => any) | null;
+                onpageswap: ((this: WindowEventHandlers, ev: PageSwapEvent) => any) | null;
                 onpopstate: ((this: WindowEventHandlers, ev: PopStateEvent) => any) | null;
                 onrejectionhandled: ((this: WindowEventHandlers, ev: PromiseRejectionEvent) => any) | null;
                 onstorage: ((this: WindowEventHandlers, ev: StorageEvent) => any) | null;
@@ -20956,7 +21261,7 @@ declare class Pops {
                         verify: (algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams, key: CryptoKey, signature: BufferSource, data: BufferSource) => Promise<boolean>;
                         wrapKey: (format: KeyFormat, key: CryptoKey, wrappingKey: CryptoKey, wrapAlgorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams) => Promise<ArrayBuffer>;
                     };
-                    getRandomValues: <T extends ArrayBufferView | null>(array: T) => T;
+                    getRandomValues: <T extends ArrayBufferView>(array: T) => T;
                     randomUUID: () => `${string}-${string}-${string}-${string}-${string}`;
                 };
                 readonly indexedDB: {

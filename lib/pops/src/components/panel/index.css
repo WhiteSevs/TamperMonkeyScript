@@ -309,9 +309,7 @@ section.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-
 	box-sizing: border-box;
 	background: var(--panel-switch-core-bg-color);
 	cursor: pointer;
-	transition:
-		border-color 0.3s,
-		background-color 0.3s;
+	transition: border-color 0.3s, background-color 0.3s;
 }
 .pops-panel-switch .pops-panel-switch__action {
 	position: absolute;
@@ -359,9 +357,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-sli
 	border-radius: 50%;
 	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));
 	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));
-	box-shadow:
-		0 0 2px rgba(0, 0, 0, 0.3),
-		0 3px 5px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 0 2px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);
 	cursor: pointer;
 	-webkit-appearance: none;
 	appearance: none;
@@ -373,9 +369,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 	border-radius: 50%;
 	border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));
 	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));
-	box-shadow:
-		0 0 2px rgba(0, 0, 0, 0.3),
-		0 3px 5px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 0 2px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);
 	cursor: pointer;
 	-webkit-appearance: none;
 	appearance: none;
@@ -618,11 +612,13 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 
 	--pops-panel-components-input-text-color: #000000;
 	--pops-panel-components-input-text-bg-color: transparent;
+	--pops-panel-components-input-text-default-padding: 8px;
 	--pops-panel-components-input-bd-color: #dcdfe6;
 	--pops-panel-components-input-bg-color: #ffffff;
 	--pops-panel-components-input-hover-bd-color: #c0c4cc;
 	--pops-panel-components-input-focus-bd-color: #409eff;
 	--pops-panel-components-input-suffix-color: #a8abb2;
+	--pops-panel-components-input-suffix-bg-color: #ffffff;
 }
 .pops-panel-input {
 	display: flex;
@@ -672,8 +668,9 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 	height: 32px;
 	width: 100%;
 	flex: 1;
-	margin-right: calc(1em + 8px);
-	padding: 8px 8px;
+	/*margin-right: calc(1em + 8px);*/
+	margin: 0px;
+	padding: var(--pops-panel-components-input-text-default-padding);
 }
 .pops-panel-input span.pops-panel-input__suffix {
 	display: inline-flex;
@@ -683,17 +680,31 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 	height: 100%;
 	text-align: center;
 	color: var(--pops-panel-components-input-suffix-color);
+	background: var(--pops-panel-components-input-suffix-bg-color);
 	transition: all 0.3s;
 	pointer-events: none;
-	margin: 0 8px;
+	padding: 0 8px;
 	position: absolute;
 	right: 0px;
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border: 1px solid transparent;
 }
 .pops-panel-input span.pops-panel-input__suffix-inner {
 	pointer-events: all;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+}
+/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */
+.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {
+	display: none;
+}
+.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),
+.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),
+.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),
+.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {
+	display: inline-flex;
 }
 .pops-panel-input .pops-panel-icon {
 	cursor: pointer;
