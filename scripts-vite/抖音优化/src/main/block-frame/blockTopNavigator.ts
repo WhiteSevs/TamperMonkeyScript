@@ -409,10 +409,10 @@ export const BlockTopNavigator = {
 		);
 	},
 	/**
-	 * 【屏蔽】AI搜索
+	 * 【屏蔽】AI搜索/抖音
 	 */
 	shieldAISearch() {
-		log.info(`【屏蔽】AI搜索`);
+		log.info(`【屏蔽】AI搜索/抖音`);
 		return CommonUtil.addBlockCSS(
 			`#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`
 		);

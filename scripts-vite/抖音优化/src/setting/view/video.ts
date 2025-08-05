@@ -64,13 +64,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"自行选择清晰度"
 								),
-								UISwitch(
-									"沉浸模式",
-									"fullScreen",
-									false,
-									void 0,
-									"移除右侧工具栏、底部信息栏等"
-								),
+								UISwitch("沉浸模式", "fullScreen", false, void 0, "移除右侧工具栏、底部信息栏等"),
 								UISwitch(
 									"手机模式",
 									"mobileMode",
@@ -106,13 +100,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"自动监听并检测弹窗"
 								),
-								UISwitch(
-									"视频解析",
-									"parseVideo",
-									true,
-									void 0,
-									"分享->下载（灰色的也可点击）"
-								),
+								UISwitch("视频解析", "parseVideo", true, void 0, "分享->下载（灰色的也可点击）"),
 								UISwitch(
 									"修改复制链接内容",
 									"dy-video-hookCopyLinkButton",
@@ -148,13 +136,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"双击视频自动进入网页全屏，检测间隔250ms"
 								),
-								UISwitch(
-									"移除video的bottom偏移",
-									"dy-video-removeStyle-bottom",
-									false,
-									void 0,
-									""
-								),
+								UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false, void 0, ""),
 								UISwitch(
 									"禁用右侧工具栏的transform",
 									"dy-video-disableRightToolbarTransform",
@@ -168,13 +150,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 							text: "视频区域背景色",
 							type: "forms",
 							forms: [
-								UISwitch(
-									"启用",
-									"dy-video-bgColor-enable",
-									false,
-									void 0,
-									"自定义视频背景色"
-								),
+								UISwitch("启用", "dy-video-bgColor-enable", false, void 0, "自定义视频背景色"),
 								{
 									type: "own",
 									attributes: {
@@ -195,31 +171,19 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 											<input type="color" class="pops-color-choose" />
 											`,
 										});
-										let $color =
-											$right.querySelector<HTMLInputElement>(
-												".pops-color-choose"
-											)!;
-										$color.value = Panel.getValue(
-											"dy-video-changeBackgroundColor"
-										);
+										let $color = $right.querySelector<HTMLInputElement>(".pops-color-choose")!;
+										$color.value = Panel.getValue("dy-video-changeBackgroundColor");
 										let $style = DOMUtils.createElement("style");
 										DOMUtils.append(document.head, $style);
-										DOMUtils.on(
-											$color,
-											["input", "propertychange"],
-											(event) => {
-												log.info("选择颜色：" + $color.value);
-												$style.innerHTML = /*css*/ `
+										DOMUtils.on($color, ["input", "propertychange"], (event) => {
+											log.info("选择颜色：" + $color.value);
+											$style.innerHTML = /*css*/ `
 												#sliderVideo > div{
 													background: ${$color.value};
 												}
 												`;
-												Panel.setValue(
-													"dy-video-changeBackgroundColor",
-													$color.value
-												);
-											}
-										);
+											Panel.setValue("dy-video-changeBackgroundColor", $color.value);
+										});
 
 										liElement.appendChild($left);
 										liElement.appendChild($right);
@@ -359,41 +323,16 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 				{
 					type: "deepMenu",
 					text: "禁用抖音快捷键",
-					afterEnterDeepMenuCallBack:
-						AutoOpenOrClose.afterEnterDeepMenuCallBack,
+					afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
 							type: "forms",
 							text: AutoOpenOrClose.text,
 							forms: [
-								UISwitch(
-									"上翻页",
-									"dy-keyboard-hook-arrowUp-w",
-									false,
-									void 0,
-									"W"
-								),
-								UISwitch(
-									"下翻页",
-									"dy-keyboard-hook-arrowDown-s",
-									false,
-									void 0,
-									"S"
-								),
-								UISwitch(
-									"快退",
-									"dy-keyboard-hook-videoRewind",
-									false,
-									void 0,
-									"A"
-								),
-								UISwitch(
-									"快进",
-									"dy-keyboard-hook-videoFastForward",
-									false,
-									void 0,
-									"D"
-								),
+								UISwitch("上翻页", "dy-keyboard-hook-arrowUp-w", false, void 0, "W"),
+								UISwitch("下翻页", "dy-keyboard-hook-arrowDown-s", false, void 0, "S"),
+								UISwitch("快退", "dy-keyboard-hook-videoRewind", false, void 0, "A"),
+								UISwitch("快进", "dy-keyboard-hook-videoFastForward", false, void 0, "D"),
 							],
 						},
 					],
@@ -406,13 +345,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 							text: '<a href="https://greasyfork.org/zh-CN/scripts/494643-%E6%8A%96%E9%9F%B3%E4%BC%98%E5%8C%96#:~:text=%E5%B1%8F%E8%94%BD%E8%A7%84%E5%88%99" target="_blank">点击查看规则</a>',
 							type: "forms",
 							forms: [
-								UISwitch(
-									"启用",
-									"shieldVideo-exec-network-enable",
-									true,
-									void 0,
-									"开启后以下功能才会生效"
-								),
+								UISwitch("启用", "shieldVideo-exec-network-enable", true, void 0, "开启后以下功能才会生效"),
 								UISwitch(
 									"仅显示被过滤的视频",
 									"shieldVideo-only-show-filtered-video",
@@ -427,50 +360,23 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"在视频的底部的工具栏中显示 {...} 按钮，用于查看视频信息以便于进行添加过滤规则"
 								),
-								UIButton(
-									"视频过滤规则",
-									"可过滤视频",
-									"自定义",
-									void 0,
-									false,
-									false,
-									"primary",
-									() => {
-										DouYinVideoFilter.showView();
-									}
-								),
+								UIButton("视频过滤规则", "可过滤视频", "自定义", void 0, false, false, "primary", () => {
+									DouYinVideoFilter.showView();
+								}),
 							],
 						},
 						{
 							type: "forms",
 							text: "",
 							forms: [
-								UIButton(
-									"数据导入",
-									"导入自定义规则数据",
-									"导入",
-									void 0,
-									false,
-									false,
-									"primary",
-									() => {
-										DouYinVideoFilter.$data.videoFilterRuleStorage.importRules();
-									}
-								),
-								UIButton(
-									"数据导出",
-									"导出自定义规则数据",
-									"导出",
-									void 0,
-									false,
-									false,
-									"primary",
-									() => {
-										DouYinVideoFilter.$data.videoFilterRuleStorage.exportRules(
-											SCRIPT_NAME + "-视频过滤规则.json"
-										);
-									}
-								),
+								UIButton("数据导入", "导入自定义规则数据", "导入", void 0, false, false, "primary", () => {
+									DouYinVideoFilter.$data.videoFilterRuleStorage.importRules();
+								}),
+								UIButton("数据导出", "导出自定义规则数据", "导出", void 0, false, false, "primary", () => {
+									DouYinVideoFilter.$data.videoFilterRuleStorage.exportRules(
+										SCRIPT_NAME + "-视频过滤规则.json"
+									);
+								}),
 							],
 						},
 					],
@@ -484,8 +390,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 				{
 					text: "布局屏蔽-视频区域内",
 					type: "deepMenu",
-					afterEnterDeepMenuCallBack:
-						AutoOpenOrClose.afterEnterDeepMenuCallBack,
+					afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
 							text: AutoOpenOrClose.text + "<br>右侧工具栏",
@@ -498,75 +403,22 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽元素，在右侧作者头像上方或者是在右侧区域"
 								),
-								UISwitch(
-									"【屏蔽】作者头像",
-									"shieldAuthorAvatar",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】点赞",
-									"shieldLikeButton",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】评论",
-									"shieldCommentButton",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】收藏",
-									"shieldCollectionButton",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】分享",
-									"shieldSharenButton",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】听抖音",
-									"shieldListenDouYinButton",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】看相关",
-									"shieldRelatedRecommendationsButton",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】更多",
-									"shieldMoreButton",
-									false,
-									void 0,
-									"...按钮，屏蔽元素"
-								),
+								UISwitch("【屏蔽】AI抖音", "blockAIDouYin", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】作者头像", "shieldAuthorAvatar", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】点赞", "shieldLikeButton", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】评论", "shieldCommentButton", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】收藏", "shieldCollectionButton", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】分享", "shieldSharenButton", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】听抖音", "shieldListenDouYinButton", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】看相关", "shieldRelatedRecommendationsButton", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】更多", "shieldMoreButton", false, void 0, "...按钮，屏蔽元素"),
 							],
 						},
 						{
 							text: "底部工具栏",
 							type: "forms",
 							forms: [
-								UISwitch(
-									"【屏蔽】底部视频工具栏",
-									"shieldBottomVideoToolBar",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
+								UISwitch("【屏蔽】底部视频工具栏", "shieldBottomVideoToolBar", false, void 0, "屏蔽元素"),
 								UISwitch(
 									"【屏蔽】弹幕容器",
 									"shieldBottomVideoToolbarDanmuContainer",
@@ -595,13 +447,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"例如：相关搜索、AI搜索、合集...等"
 								),
-								UISwitch(
-									"【屏蔽】点击推荐",
-									"dy-video-blockClickRecommend",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
+								UISwitch("【屏蔽】点击推荐", "dy-video-blockClickRecommend", false, void 0, "屏蔽元素"),
 							],
 						},
 						{
@@ -643,8 +489,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 				{
 					text: "布局屏蔽-评论区域内",
 					type: "deepMenu",
-					afterEnterDeepMenuCallBack:
-						AutoOpenOrClose.afterEnterDeepMenuCallBack,
+					afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
 							text: AutoOpenOrClose.text,
