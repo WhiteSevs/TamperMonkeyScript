@@ -46,14 +46,11 @@ const BaiduSearch = {
 			Panel.execMenu("baidu_search_hijack__onClick_to_blank", () => {
 				this.openResultBlank();
 			});
-			DOMUtils.ready(function () {
+			DOMUtils.ready(() => {
 				/* 解析真实地址 from <script> */
-				BaiduHandleResultItem.originURLMap =
-					BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
+				BaiduHandleResultItem.originURLMap = BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
 				/* 处理搜索结果 */
-				let baidu_search_handle_search_result_enable = Panel.getValue(
-					"baidu_search_handle_search_result"
-				);
+				let baidu_search_handle_search_result_enable = Panel.getValue("baidu_search_handle_search_result");
 				if (baidu_search_handle_search_result_enable) {
 					let searchUpdateRealLink = new utils.LockFunction(async () => {
 						try {
@@ -62,26 +59,21 @@ const BaiduSearch = {
 							log.error(["替换为真实链接失败", error]);
 						}
 					}, 600);
-					let removeAdsLockFunction = new utils.LockFunction(
-						BaiduHandleResultItem.removeAds,
-						600
-					);
-					utils
-						.waitNode<HTMLDivElement>("div#page.search-page")
-						.then((element) => {
-							utils.mutationObserver(element, {
-								callback: async () => {
-									if (baidu_search_handle_search_result_enable) {
-										await searchUpdateRealLink.run();
-									}
-									removeAdsLockFunction.run();
-								},
-								config: {
-									childList: true,
-									subtree: true,
-								},
-							});
+					let removeAdsLockFunction = new utils.LockFunction(BaiduHandleResultItem.removeAds, 600);
+					utils.waitNode<HTMLDivElement>("div#page.search-page").then(($searchPage) => {
+						utils.mutationObserver($searchPage, {
+							callback: async () => {
+								if (baidu_search_handle_search_result_enable) {
+									await searchUpdateRealLink.run();
+								}
+								removeAdsLockFunction.run();
+							},
+							config: {
+								childList: true,
+								subtree: true,
+							},
 						});
+					});
 
 					if (baidu_search_handle_search_result_enable) {
 						searchUpdateRealLink.run();
@@ -107,12 +99,10 @@ const BaiduSearch = {
 					SearchInputEvent.init();
 				});
 				/* 处理自动加载下一页 */
-				if (Panel.getValue("baidu_search_automatically_expand_next_page")) {
+				if (Panel.getValue<boolean>("baidu_search_automatically_expand_next_page")) {
 					SearchNextPage.init();
 				} else if (
-					Panel.getValue(
-						"baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
-					)
+					Panel.getValue<boolean>("baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua")
 				) {
 					SearchNextPage_SearchCraft.init();
 				}
@@ -131,23 +121,32 @@ const BaiduSearch = {
 		 * 搜索结果点击事件
 		 * @param event
 		 */
-		function globalResultClickEvent(
-			event: PointerEvent | MouseEvent | Event,
-			$selectorTarget: HTMLElement
-		) {
+		function globalResultClickEvent(event: PointerEvent | MouseEvent | Event, $selectorTarget: HTMLElement) {
 			let url: null | string = null;
 			let $click = event.composedPath()[0] as HTMLElement;
 			// .c-result.result
 			let $result = $selectorTarget;
+
+			let $title =
+				$result.querySelector<HTMLElement>(".cu-title") ||
+				$result.querySelector<HTMLElement>(".c-title") ||
+				$result.querySelector<HTMLElement>(".cosc-title");
+			if ($title) {
+				// 存在标题
+				// 修改访问的颜色
+				log.info([`修改标题的被访问的颜色`, $title]);
+				DOMUtils.attr($title, "data-visited", true);
+				DOMUtils.css($title, {
+					opacity: "0.4 !important",
+					color: "#bbbbbb !important",
+				});
+			}
 			if ($click) {
 				// 百度AI 总结全网xx篇结果
 				// 让它不点击跳转
 				let isWenDa = $result.matches('[srcid="wenda_generate"]');
 				if (isWenDa) {
-					log.info([
-						"该点击来自百度AI总结全网xx篇结果，不点击跳转",
-						{ event, $click, $result, isWenDa },
-					]);
+					log.info(["该点击来自百度AI总结全网xx篇结果，不点击跳转", { event, $click, $result, isWenDa }]);
 					return;
 				}
 				if ($click.closest("a")) {
@@ -183,10 +182,7 @@ const BaiduSearch = {
 			} else {
 				let $article = $result.querySelector<HTMLElement>("article")!;
 				url = $article.getAttribute("rl-link-href");
-				log.info([
-					"链接来自顶层向下寻找article元素",
-					{ event, $click, $result, $article },
-				]);
+				log.info(["链接来自顶层向下寻找article元素", { event, $click, $result, $article }]);
 			}
 			if (utils.isNull(url)) {
 				log.info(["未找到有效链接", { event, $click, $result, url }]);
