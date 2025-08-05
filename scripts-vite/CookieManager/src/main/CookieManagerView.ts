@@ -7,12 +7,16 @@ import { CookieManagerEditView } from "./CookieManagerEditView";
 import { UISelect } from "@components/setting/components/ui-select";
 import { CookieRule } from "./CookieRule";
 import { Panel } from "@components/setting/panel";
-import {
-	CookieManagerApiNameList,
-	type CookieManagerApiName,
-} from "./CookieManagerService";
+import { CookieManagerApiNameList, type CookieManagerApiName } from "./CookieManagerService";
+import { CookieBackUpManager } from "@/main/backup/CookieBackUpManager";
 
 export const CookieManagerView = {
+	$data: {
+		/**
+		 * 当前的cookie列表
+		 */
+		cookieList: [] as (CookieStoreData | GMCookieInstance)[],
+	},
 	init() {
 		this.registerMenu();
 	},
@@ -42,8 +46,9 @@ export const CookieManagerView = {
                         <div class="cookie-control-wrapper">
                             <button class="cookie-control-refresh" type="button" data-type="default">刷新</button>
                             <button class="cookie-control-add" type="button" data-type="default">添加</button>
-                            <button class="cookie-control-copy-all" type="button" data-type="default">复制全部</button>
-                            <button class="cookie-control-clear-all" type="button" data-type="default">清除全部</button>
+                            <button class="cookie-control-export" type="button" data-type="default">导出</button>
+                            <button class="cookie-control-import" type="button" data-type="default">导入</button>
+                            <button class="cookie-control-clear-all" type="button" data-type="default">删除</button>
                             <button class="cookie-control-rule-manager" type="button" data-type="default">规则管理</button>
                             <div class="cookie-setting"> 
                                 <svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4368" width="28" height="28">
@@ -159,39 +164,21 @@ export const CookieManagerView = {
                 }
             `,
 		});
-		const $search = $alert.$shadowRoot.querySelector<HTMLInputElement>(
-			".cookie-search-inner input"
-		)!;
-		const $searchSetting = $alert.$shadowRoot.querySelector<HTMLDivElement>(
-			".cookie-search-setting"
-		)!;
-		const $refresh = $alert.$shadowRoot.querySelector<HTMLButtonElement>(
-			".cookie-control-refresh"
-		)!;
-		const $add = $alert.$shadowRoot.querySelector<HTMLButtonElement>(
-			".cookie-control-add"
-		)!;
-		const $copyAll = $alert.$shadowRoot.querySelector<HTMLButtonElement>(
-			".cookie-control-copy-all"
-		)!;
-		const $clearAll = $alert.$shadowRoot.querySelector<HTMLButtonElement>(
-			".cookie-control-clear-all"
-		)!;
-		const $ruleManager = $alert.$shadowRoot.querySelector<HTMLButtonElement>(
-			".cookie-control-rule-manager"
-		)!;
-		const $setting =
-			$alert.$shadowRoot.querySelector<HTMLDivElement>(".cookie-setting")!;
-		const $cookieListWrapper = $alert.$shadowRoot.querySelector<HTMLDivElement>(
-			".cookie-list-wrapper"
-		)!;
+		const $search = $alert.$shadowRoot.querySelector<HTMLInputElement>(".cookie-search-inner input")!;
+		const $searchSetting = $alert.$shadowRoot.querySelector<HTMLDivElement>(".cookie-search-setting")!;
+		const $refresh = $alert.$shadowRoot.querySelector<HTMLButtonElement>(".cookie-control-refresh")!;
+		const $add = $alert.$shadowRoot.querySelector<HTMLButtonElement>(".cookie-control-add")!;
+		const $export = $alert.$shadowRoot.querySelector<HTMLButtonElement>(".cookie-control-export")!;
+		const $import = $alert.$shadowRoot.querySelector<HTMLButtonElement>(".cookie-control-import")!;
+		const $clearAll = $alert.$shadowRoot.querySelector<HTMLButtonElement>(".cookie-control-clear-all")!;
+		const $ruleManager = $alert.$shadowRoot.querySelector<HTMLButtonElement>(".cookie-control-rule-manager")!;
+		const $setting = $alert.$shadowRoot.querySelector<HTMLDivElement>(".cookie-setting")!;
+		const $cookieListWrapper = $alert.$shadowRoot.querySelector<HTMLDivElement>(".cookie-list-wrapper")!;
 
 		/**
 		 * 生成单个cookie的元素
 		 */
-		let createCookieItemElement = (
-			cookieInfo: GMCookieInstance | CookieStoreData
-		) => {
+		let createCookieItemElement = (cookieInfo: GMCookieInstance | CookieStoreData) => {
 			const $cookieItem = DOMUtils.createElement("div", {
 				className: "cookie-item",
 				innerHTML: /*html*/ `
@@ -270,9 +257,7 @@ export const CookieManagerView = {
 					},
 					{
 						leftText: "expires",
-						rightText: cookieInfo.expires
-							? new Date(cookieInfo.expires).toISOString()
-							: "会话",
+						rightText: cookieInfo.expires ? new Date(cookieInfo.expires).toISOString() : "会话",
 					},
 					{
 						leftText: "secure",
@@ -320,18 +305,15 @@ export const CookieManagerView = {
                     </div>
                 `,
 			});
-			let $cookieItemCopy =
-				$cookieItemGroupControl.querySelector<HTMLDivElement>(
-					".cookie-item-group-control-copy"
-				)!;
-			let $cookieItemEdit =
-				$cookieItemGroupControl.querySelector<HTMLDivElement>(
-					".cookie-item-group-control-edit"
-				)!;
-			let $cookieItemDelete =
-				$cookieItemGroupControl.querySelector<HTMLDivElement>(
-					".cookie-item-group-control-delete"
-				)!;
+			let $cookieItemCopy = $cookieItemGroupControl.querySelector<HTMLDivElement>(
+				".cookie-item-group-control-copy"
+			)!;
+			let $cookieItemEdit = $cookieItemGroupControl.querySelector<HTMLDivElement>(
+				".cookie-item-group-control-edit"
+			)!;
+			let $cookieItemDelete = $cookieItemGroupControl.querySelector<HTMLDivElement>(
+				".cookie-item-group-control-delete"
+			)!;
 			// 单个cookie的复制事件
 			DOMUtils.on($cookieItemCopy, "click", (event) => {
 				utils.preventEvent(event);
@@ -386,16 +368,12 @@ export const CookieManagerView = {
 			 * + true 需要
 			 * + false 不需要
 			 */
-			filterCallBack?: (
-				cookieInfo: GMCookieInstance | CookieStoreData
-			) => boolean
+			filterCallBack?: (cookieInfo: GMCookieInstance | CookieStoreData) => boolean
 		) => {
 			let cookieList = await CookieManager.queryAllCookie();
 			DOMUtils.empty($cookieListWrapper);
 			let $fragment = document.createDocumentFragment();
-			let excludeSessionCookie = Panel.getValue<boolean>(
-				"exclude-session-cookie"
-			);
+			let excludeSessionCookie = Panel.getValue<boolean>("exclude-session-cookie");
 			cookieList.forEach((cookieInfo) => {
 				if (excludeSessionCookie) {
 					// 屏蔽session的cookie
@@ -419,6 +397,7 @@ export const CookieManagerView = {
 				const $cookieItem = createCookieItemElement(cookieInfo);
 				$fragment.appendChild($cookieItem);
 			});
+			this.$data.cookieList = cookieList;
 			$cookieListWrapper.appendChild($fragment);
 		};
 		// 设置搜索事件
@@ -441,15 +420,11 @@ export const CookieManagerView = {
 			})
 		);
 		// 监听回车事件
-		DOMUtils.listenKeyboard(
-			$search,
-			"keypress",
-			(keyName, keyValue, otherCodeList) => {
-				if (keyName === "Enter" && otherCodeList.length === 0) {
-					triggerUpdateCookieListGroupWithSearchFilter();
-				}
+		DOMUtils.listenKeyboard($search, "keypress", (keyName, keyValue, otherCodeList) => {
+			if (keyName === "Enter" && otherCodeList.length === 0) {
+				triggerUpdateCookieListGroupWithSearchFilter();
 			}
-		);
+		});
 		// 设置搜索设置的点击事件
 		DOMUtils.on($searchSetting, "click", (event) => {
 			utils.preventEvent(event);
@@ -492,9 +467,7 @@ export const CookieManagerView = {
                     }
                 `,
 			});
-			let $content = $settingAlert.$shadowRoot.querySelector<HTMLDivElement>(
-				".pops-alert-content"
-			)!;
+			let $content = $settingAlert.$shadowRoot.querySelector<HTMLDivElement>(".pops-alert-content")!;
 			let panelHandlerComponents = pops.config.PanelHandlerComponents();
 			let $useRegExp = panelHandlerComponents.createSectionContainerItem_switch(
 				UISwitch(
@@ -519,34 +492,19 @@ export const CookieManagerView = {
 		// 添加 - 点击事件
 		DOMUtils.on($add, "click", (event) => {
 			utils.preventEvent(event);
-			triggerUpdateCookieListGroupWithSearchFilter();
-		});
-		// 复制全部 - 点击事件
-		DOMUtils.on($copyAll, "click", async (event) => {
-			utils.preventEvent(event);
-			let cookieList = await CookieManager.queryAllCookie();
-			cookieList = cookieList.filter((it) => {
-				return !(
-					(it as GMCookieInstance).session &&
-					Panel.getValue("exclude-session-cookie")
-				);
+			CookieManagerEditView.showView(void 0, (__cookieInfo__) => {
+				triggerUpdateCookieListGroupWithSearchFilter();
 			});
-			if (cookieList.length === 0) {
-				Qmsg.warning("没有Cookie可以复制");
-				return;
-			}
-			let cookieText = cookieList
-				.map((it) => {
-					let cookieItemValueText = it.value;
-					return `${it.name}=${cookieItemValueText}; `;
-				})
-				.join("");
-			const status = await utils.setClip(cookieText);
-			if (status) {
-				Qmsg.success("复制成功");
-			} else {
-				Qmsg.error("复制失败");
-			}
+		});
+		// 导出 - 点击事件
+		DOMUtils.on($export, "click", async (event) => {
+			utils.preventEvent(event);
+			CookieBackUpManager.showExportDialog();
+		});
+		// 导入 - 点击事件
+		DOMUtils.on($import, "click", async (event) => {
+			utils.preventEvent(event);
+			CookieBackUpManager.showImportDialog();
 		});
 		// 清空全部 - 点击事件
 		DOMUtils.on($clearAll, "click", async (event) => {
@@ -557,9 +515,7 @@ export const CookieManagerView = {
 			}
 			const deleteInfo = await CookieManager.deleteAllCookie();
 			if (deleteInfo.error) {
-				Qmsg.warning(
-					`清除成功：${deleteInfo.success} 失败：${deleteInfo.error}`
-				);
+				Qmsg.warning(`清除成功：${deleteInfo.success} 失败：${deleteInfo.error}`);
 			} else {
 				Qmsg.success("清除成功");
 			}
@@ -593,8 +549,8 @@ export const CookieManagerView = {
 						toClose: true,
 					},
 				},
-				width: PanelUISize.info.width,
-				height: PanelUISize.info.height,
+				width: PanelUISize.settingMiddle.width,
+				height: PanelUISize.settingMiddle.height,
 				style: /*css*/ `
                     ${pops.config.cssText.panelCSS}
 
@@ -612,58 +568,49 @@ export const CookieManagerView = {
                     }
                 `,
 			});
-			let $content = $settingAlert.$shadowRoot.querySelector<HTMLDivElement>(
-				".pops-alert-content"
-			)!;
+			let $content = $settingAlert.$shadowRoot.querySelector<HTMLDivElement>(".pops-alert-content")!;
 			let panelHandlerComponents = pops.config.PanelHandlerComponents();
-			let $useGM_cookie =
-				panelHandlerComponents.createSectionContainerItem_select(
-					UISelect<CookieManagerApiName>(
-						"CookieManager Api",
-						"cookie-manager-api",
-						"document.cookie",
-						CookieManagerApiNameList.map((it) => {
-							return {
-								text: it,
-								value: it,
-							};
-						}),
-						void 0,
-						"操作Cookie的Api函数",
-						(event) => {
-							triggerUpdateCookieListGroupWithSearchFilter();
-						}
-					)
-				);
-			let $decodeValue =
-				panelHandlerComponents.createSectionContainerItem_switch(
-					UISwitch(
-						"解码Cookie值",
-						"decode-cookie-value",
-						false,
-						() => {
-							triggerUpdateCookieListGroupWithSearchFilter();
-						},
-						"对Cookie值进行解码"
-					)
-				);
-			let $excludeSessionCookie =
-				panelHandlerComponents.createSectionContainerItem_switch(
-					UISwitch(
-						"排除Session Cookie",
-						"exclude-session-cookie",
-						false,
-						() => {
-							triggerUpdateCookieListGroupWithSearchFilter();
-						},
-						"过滤掉浏览器会话Cookie"
-					)
-				);
-			DOMUtils.append($content, [
-				$useGM_cookie,
-				$decodeValue,
-				$excludeSessionCookie,
-			]);
+			let $useGM_cookie = panelHandlerComponents.createSectionContainerItem_select(
+				UISelect<CookieManagerApiName>(
+					"CookieManager Api",
+					"cookie-manager-api",
+					"document.cookie",
+					CookieManagerApiNameList.map((it) => {
+						return {
+							text: it,
+							value: it,
+						};
+					}),
+					void 0,
+					"操作Cookie的Api函数",
+					(event) => {
+						triggerUpdateCookieListGroupWithSearchFilter();
+					}
+				)
+			);
+			let $decodeValue = panelHandlerComponents.createSectionContainerItem_switch(
+				UISwitch(
+					"解码Cookie值",
+					"decode-cookie-value",
+					false,
+					() => {
+						triggerUpdateCookieListGroupWithSearchFilter();
+					},
+					"对Cookie值进行解码"
+				)
+			);
+			let $excludeSessionCookie = panelHandlerComponents.createSectionContainerItem_switch(
+				UISwitch(
+					"排除Session Cookie",
+					"exclude-session-cookie",
+					false,
+					() => {
+						triggerUpdateCookieListGroupWithSearchFilter();
+					},
+					"过滤掉浏览器会话Cookie"
+				)
+			);
+			DOMUtils.append($content, [$useGM_cookie, $decodeValue, $excludeSessionCookie]);
 		});
 
 		/**

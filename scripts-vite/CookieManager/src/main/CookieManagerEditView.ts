@@ -5,6 +5,7 @@ import { CookieManager } from "./CookieManager";
 import Qmsg from "qmsg";
 import { CookieInfoTransform } from "@/main/CookieInfoTransform";
 import { PanelUISize } from "@components/setting/panel-ui-size";
+import type { PopsPanelTextAreaDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-textarea";
 
 /**
  * 编辑UI-输入框
@@ -35,13 +36,38 @@ let edit_ui_input = (
 	return config;
 };
 /**
+ * 编辑UI-多行文本框
+ */
+let edit_ui_textarea = (
+	text: string,
+	getValue: () => string,
+	setValue: (value: string) => void,
+	disabled?: boolean
+) => {
+	let config: PopsPanelTextAreaDetails = {
+		text: text,
+		type: "textarea",
+		props: {},
+		attributes: {},
+		description: "",
+		placeholder: "",
+		getValue() {
+			return getValue();
+		},
+		disabled,
+		callback: function (event: InputEvent & { target: HTMLTextAreaElement }, value: string): void {
+			setValue(value);
+		},
+	};
+
+	return config;
+};
+/**
  * 编辑UI-选择框
  */
 let edit_ui_select = <T>(
 	text: string,
-	data:
-		| PopsPanelSelectDetails<T>["data"]
-		| (() => PopsPanelSelectDetails<T>["data"]),
+	data: PopsPanelSelectDetails<T>["data"] | (() => PopsPanelSelectDetails<T>["data"]),
 	getValue: () => T,
 	setValue: (selectedValue: T) => void,
 	disabled?: boolean
@@ -69,30 +95,34 @@ export const CookieManagerEditView = {
 	init() {},
 	/**
 	 * 显示视图
-	 * @param cookieInfo 需要编辑的cookie
+	 * @param cookieInfo 需要编辑的cookie，为空的话是添加
 	 * @param dialogCloseCallBack 弹窗关闭的回调
 	 */
 	showView(
 		__cookieInfo__?: GMCookieInstance | CookieStoreData,
 		dialogCloseCallBack?: (cookieInfo: GMCookieInstance) => void
 	) {
+		/**
+		 * 当前是否是编辑
+		 */
 		let isEdit = !!__cookieInfo__;
-		let cookieInfo = utils.assign(
-			{
-				name: "",
-				value: "",
-				domain: window.location.hostname,
-				path: "/",
-				secure: false,
-				hostOnly: false,
-				httpOnly: false,
-				sameSite: "lax",
-				expirationDate: Date.now() + 60 * 60 * 24 * 30 * 1000,
-			} as GMCookieInstance,
-			__cookieInfo__!,
-			true
-		);
-		cookieInfo = CookieInfoTransform.beforeEdit(cookieInfo);
+		let defaultCookieInfo: GMCookieInstance = {
+			name: "",
+			value: "",
+			domain: window.location.hostname,
+			path: "/",
+			secure: false,
+			session: false,
+			hostOnly: false,
+			httpOnly: false,
+			sameSite: "lax",
+			// 一个月后过期
+			// 单位：毫秒
+			expirationDate: Date.now() + 60 * 60 * 24 * 30 * 1000,
+		};
+		let cookieInfo: GMCookieInstance = utils.assign({} as GMCookieInstance, defaultCookieInfo, true);
+		utils.assign(cookieInfo, __cookieInfo__ ?? {}, true);
+		cookieInfo = CookieInfoTransform.beforeEdit(cookieInfo, isEdit);
 		let $dialog = pops.confirm({
 			title: {
 				text: isEdit ? "编辑Cookie" : "添加Cookie",
@@ -146,8 +176,8 @@ export const CookieManagerEditView = {
 			mask: {
 				enable: true,
 			},
-			width: window.innerWidth > 350 ? "350px" : "80vw",
-			height: PanelUISize.setting.height,
+			width: PanelUISize.settingMiddle.width,
+			height: "auto",
 			style: /*css*/ `
                 ${pops.config.cssText.panelCSS}
 
@@ -167,6 +197,10 @@ export const CookieManagerEditView = {
                 .pops-panel-input.pops-input-disabled{
                     border: 1px solid #dcdfe6;
                 }
+				.pops-panel-textarea textarea{
+					resize: auto;
+					border-radius: 4px;
+				}
 				#cookie-item-property-expires{
 					border: 1px solid rgb(184, 184, 184, var(--pops-bd-opacity));
 					border-radius: 4px;
@@ -176,7 +210,7 @@ export const CookieManagerEditView = {
 					padding: 0px 8px;
 				}
 				#cookie-item-property-expires:hover{
-					box-shadow: 0 0 0 1px #c0c4cc inset;
+					border: 1px solid #c0c4cc
 				}
 				#cookie-item-property-expires:focus,
 				#cookie-item-property-expires:focus-within{
@@ -187,9 +221,7 @@ export const CookieManagerEditView = {
 				}
             `,
 		});
-		let $editContent = $dialog.$shadowRoot.querySelector<HTMLElement>(
-			".pops-confirm-content"
-		)!;
+		let $editContent = $dialog.$shadowRoot.querySelector<HTMLElement>(".pops-confirm-content")!;
 
 		let panelHandlerComponents = pops.config.PanelHandlerComponents();
 		let $name = panelHandlerComponents.createSectionContainerItem_input(
@@ -200,8 +232,8 @@ export const CookieManagerEditView = {
 				isEdit
 			)
 		);
-		let $value = panelHandlerComponents.createSectionContainerItem_input(
-			edit_ui_input(
+		let $value = panelHandlerComponents.createSectionContainerItem_textarea(
+			edit_ui_textarea(
 				"value",
 				() => cookieInfo.value,
 				(value) => (cookieInfo.value = value)
@@ -235,9 +267,7 @@ export const CookieManagerEditView = {
 		} else {
 			$expires = panelHandlerComponents.createSectionContainerItem_own({
 				type: "own",
-				getLiElementCallBack: function (
-					liElement: HTMLLIElement
-				): HTMLLIElement {
+				getLiElementCallBack: function (liElement: HTMLLIElement): HTMLLIElement {
 					let $li = DOMUtils.createElement("li", {
 						innerHTML: /*html*/ `
 							<div class="pops-panel-item-left-text">
@@ -248,18 +278,12 @@ export const CookieManagerEditView = {
 							</div>
 						`,
 					});
-					let $dateTime = $li.querySelector<HTMLInputElement>(
-						"#cookie-item-property-expires"
-					)!;
+					let $dateTime = $li.querySelector<HTMLInputElement>("#cookie-item-property-expires")!;
 					$dateTime.valueAsNumber = cookieInfo.expirationDate!;
-					DOMUtils.on(
-						$dateTime,
-						["change", "input", "propertychange"],
-						(event) => {
-							utils.preventEvent(event);
-							cookieInfo.expirationDate = $dateTime.valueAsNumber;
-						}
-					);
+					DOMUtils.on($dateTime, ["change", "input", "propertychange"], (event) => {
+						utils.preventEvent(event);
+						cookieInfo.expirationDate = $dateTime.valueAsNumber;
+					});
 					return $li;
 				},
 			});
@@ -346,14 +370,7 @@ export const CookieManagerEditView = {
 			CookieManager.cookieManagerApiName === "GM_cookie" ||
 			CookieManager.cookieManagerApiName === "GM.cookie"
 		) {
-			DOMUtils.append($editContent, [
-				$domain,
-				$path,
-				$expires,
-				$httpOnly,
-				$secure,
-				$sameSite,
-			]);
+			DOMUtils.append($editContent, [$domain, $path, $expires, $httpOnly, $secure, $sameSite]);
 		} else if (CookieManager.cookieManagerApiName === "cookieStore") {
 			DOMUtils.append($editContent, [$domain, $path, $expires, $sameSite]);
 		}
