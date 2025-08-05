@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.28
+// @version      2025.8.5
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/vue@3.5.18/dist/vue.global.prod.js
@@ -59,7 +59,7 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_entrance_001 = __commonJS({
-    "entrance-58JsTcv5.js"(exports, module) {
+    "entrance-DZjQOAvf.js"(exports, module) {
       var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
       var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
       var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
@@ -444,10 +444,10 @@
          */
         info: {
           get width() {
-            return window.innerWidth < 350 ? "350px" : "350px";
+            return window.innerWidth < 350 ? "88vw" : "350px";
           },
           get height() {
-            return window.innerHeight < 250 ? "250px" : "250px";
+            return window.innerHeight < 250 ? "88vh" : "250px";
           }
         }
       };
@@ -886,9 +886,7 @@
             if (config.type === "switch") {
               let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
               if (typeof disabled === "boolean" && disabled) {
-                this.$data.contentConfigInitDisabledKeys.push(
-                  ...menuDefaultConfig.keys()
-                );
+                this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
               }
             }
             for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
@@ -916,9 +914,7 @@
               loopInitDefaultValue(rightContentConfigList);
             }
           }
-          this.$data.contentConfigInitDisabledKeys = [
-            ...new Set(this.$data.contentConfigInitDisabledKeys)
-          ];
+          this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
         },
         /**
          * 设置初始化使用的默认值
@@ -972,12 +968,9 @@
          * @param callback
          */
         addValueChangeListener(key, callback) {
-          let listenerId = PopsPanelStorageApi.addValueChangeListener(
-            key,
-            (__key, __newValue, __oldValue) => {
-              callback(key, __oldValue, __newValue);
-            }
-          );
+          let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+            callback(key, __oldValue, __newValue);
+          });
           return listenerId;
         },
         /**
@@ -1047,9 +1040,7 @@
           } else {
             keyList.push(queryKeyResult);
           }
-          let findNotInDataKey = keyList.find(
-            (it) => !this.$data.contentConfigInitDefaultValue.has(it)
-          );
+          let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
           if (findNotInDataKey) {
             log.warn(`${findNotInDataKey} 键不存在`);
             return;
@@ -1130,12 +1121,9 @@
             storeValueList = [...resultList];
           };
           once && keyList.forEach((key) => {
-            let listenerId = this.addValueChangeListener(
-              key,
-              (key2, newValue, oldValue) => {
-                valueChangeCallback();
-              }
-            );
+            let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+              valueChangeCallback();
+            });
             listenerIdList.push(listenerId);
           });
           valueChangeCallback();
@@ -5173,11 +5161,9 @@ match-attr##srcid##sp_purc_atom
             Panel.execMenu("baidu_search_hijack__onClick_to_blank", () => {
               this.openResultBlank();
             });
-            domUtils.ready(function() {
+            domUtils.ready(() => {
               BaiduHandleResultItem.originURLMap = BaiduHandleResultItem.parseScriptDOMOriginUrlMap(document);
-              let baidu_search_handle_search_result_enable = Panel.getValue(
-                "baidu_search_handle_search_result"
-              );
+              let baidu_search_handle_search_result_enable = Panel.getValue("baidu_search_handle_search_result");
               if (baidu_search_handle_search_result_enable) {
                 let searchUpdateRealLink = new utils.LockFunction(async () => {
                   try {
@@ -5186,12 +5172,9 @@ match-attr##srcid##sp_purc_atom
                     log.error(["替换为真实链接失败", error]);
                   }
                 }, 600);
-                let removeAdsLockFunction = new utils.LockFunction(
-                  BaiduHandleResultItem.removeAds,
-                  600
-                );
-                utils.waitNode("div#page.search-page").then((element) => {
-                  utils.mutationObserver(element, {
+                let removeAdsLockFunction = new utils.LockFunction(BaiduHandleResultItem.removeAds, 600);
+                utils.waitNode("div#page.search-page").then(($searchPage) => {
+                  utils.mutationObserver($searchPage, {
                     callback: async () => {
                       if (baidu_search_handle_search_result_enable) {
                         await searchUpdateRealLink.run();
@@ -5218,9 +5201,7 @@ match-attr##srcid##sp_purc_atom
               });
               if (Panel.getValue("baidu_search_automatically_expand_next_page")) {
                 SearchNextPage.init();
-              } else if (Panel.getValue(
-                "baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua"
-              )) {
+              } else if (Panel.getValue("baidu_search_automatically_click_on_the_next_page_with_searchcraft_ua")) {
                 SearchNextPage_SearchCraft.init();
               }
               if (BaiduRouter.isSearchVSearch()) {
@@ -5237,13 +5218,19 @@ match-attr##srcid##sp_purc_atom
             let url = null;
             let $click = event.composedPath()[0];
             let $result = $selectorTarget;
+            let $title = $result.querySelector(".cu-title") || $result.querySelector(".c-title") || $result.querySelector(".cosc-title");
+            if ($title) {
+              log.info([`修改标题的被访问的颜色`, $title]);
+              domUtils.attr($title, "data-visited", true);
+              domUtils.css($title, {
+                opacity: "0.4 !important",
+                color: "#bbbbbb !important"
+              });
+            }
             if ($click) {
               let isWenDa = $result.matches('[srcid="wenda_generate"]');
               if (isWenDa) {
-                log.info([
-                  "该点击来自百度AI总结全网xx篇结果，不点击跳转",
-                  { event, $click, $result, isWenDa }
-                ]);
+                log.info(["该点击来自百度AI总结全网xx篇结果，不点击跳转", { event, $click, $result, isWenDa }]);
                 return;
               }
               if ($click.closest("a")) {
@@ -5279,10 +5266,7 @@ match-attr##srcid##sp_purc_atom
             } else {
               let $article = $result.querySelector("article");
               url = $article.getAttribute("rl-link-href");
-              log.info([
-                "链接来自顶层向下寻找article元素",
-                { event, $click, $result, $article }
-              ]);
+              log.info(["链接来自顶层向下寻找article元素", { event, $click, $result, $article }]);
             }
             if (utils.isNull(url)) {
               log.info(["未找到有效链接", { event, $click, $result, url }]);
@@ -25961,9 +25945,7 @@ match-attr##srcid##sp_purc_atom
       let tbs = "";
       let cuid = () => {
         let __cuid__ = Panel.getValue("baidu_tieba_index_msg_cuid");
-        let cookie = Panel.getValue(
-          "httpx-cookie-tieba.baidu.com"
-        );
+        let cookie = Panel.getValue("httpx-cookie-tieba.baidu.com");
         if (utils.isNull(__cuid__) && typeof cookie === "string") {
           let gmCookie = new utils.GM_Cookie();
           let cookieList = gmCookie.parseCookie(cookie);
@@ -26031,18 +26013,15 @@ match-attr##srcid##sp_purc_atom
          * @param toastInfo 是否弹出提示
          */
         async userInfo(toastInfo = true) {
-          let response = await httpx.get(
-            "https://tieba.baidu.com/mo/q/smallapp/sync",
-            {
-              headers: {
-                Referer: "https://tieba.baidu.com/",
-                "User-Agent": utils.getRandomPCUA()
-              },
-              allowInterceptConfig: false,
-              processData: true,
-              fetch: true
-            }
-          );
+          let response = await httpx.get("https://tieba.baidu.com/mo/q/smallapp/sync", {
+            headers: {
+              Referer: "https://tieba.baidu.com/",
+              "User-Agent": utils.getRandomPCUA()
+            },
+            allowInterceptConfig: false,
+            processData: true,
+            fetch: true
+          });
           log.info(`获取用户信息：`, response);
           if (!response.status) {
             toastInfo && Qmsg.error("获取当前登录的用户信息失败", { consoleLogContent: true });
@@ -26066,18 +26045,15 @@ match-attr##srcid##sp_purc_atom
             rn: "10",
             id
           };
-          let response = await httpx.get(
-            "https://tieba.baidu.com/mo/q/smallapp/agreeme",
-            {
-              data: searchParamsObj,
-              headers: {
-                Referer: "https://tieba.baidu.com/",
-                "User-Agent": utils.getRandomPCUA()
-              },
-              processData: true,
-              fetch: true
-            }
-          );
+          let response = await httpx.get("https://tieba.baidu.com/mo/q/smallapp/agreeme", {
+            data: searchParamsObj,
+            headers: {
+              Referer: "https://tieba.baidu.com/",
+              "User-Agent": utils.getRandomPCUA()
+            },
+            processData: true,
+            fetch: true
+          });
           if (!response.status) {
             return;
           }
@@ -26095,18 +26071,15 @@ match-attr##srcid##sp_purc_atom
           let searchParamsObj = {
             pn
           };
-          let response = await httpx.get(
-            `https://tieba.baidu.com/mo/q/smallapp/replyme`,
-            {
-              data: searchParamsObj,
-              headers: {
-                Referer: "https://tieba.baidu.com/",
-                "User-Agent": utils.getRandomPCUA()
-              },
-              processData: true,
-              fetch: true
-            }
-          );
+          let response = await httpx.get(`https://tieba.baidu.com/mo/q/smallapp/replyme`, {
+            data: searchParamsObj,
+            headers: {
+              Referer: "https://tieba.baidu.com/",
+              "User-Agent": utils.getRandomPCUA()
+            },
+            processData: true,
+            fetch: true
+          });
           if (!response.status) {
             return;
           }
@@ -26125,18 +26098,15 @@ match-attr##srcid##sp_purc_atom
             pn
           };
           Object.assign(searchParamsObj, await generateSearchParams());
-          let response = await httpx.get(
-            `https://tieba.baidu.com/mo/q/smallapp/atme`,
-            {
-              data: searchParamsObj,
-              headers: {
-                Referer: "https://tieba.baidu.com/",
-                "User-Agent": utils.getRandomPCUA()
-              },
-              processData: true,
-              fetch: true
-            }
-          );
+          let response = await httpx.get(`https://tieba.baidu.com/mo/q/smallapp/atme`, {
+            data: searchParamsObj,
+            headers: {
+              Referer: "https://tieba.baidu.com/",
+              "User-Agent": utils.getRandomPCUA()
+            },
+            processData: true,
+            fetch: true
+          });
           if (!response.status) {
             return;
           }
