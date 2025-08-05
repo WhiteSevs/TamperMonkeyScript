@@ -6,10 +6,8 @@ import { unsafeWindow } from "ViteGM";
 
 let tbs = "";
 let cuid = () => {
-	let __cuid__ = Panel.getValue("baidu_tieba_index_msg_cuid");
-	let cookie = Panel.getValue<string | null>(
-		"httpx-cookie-tieba.baidu.com"
-	);
+	let __cuid__ = Panel.getValue<string | undefined>("baidu_tieba_index_msg_cuid");
+	let cookie = Panel.getValue<string | undefined>("httpx-cookie-tieba.baidu.com");
 	if (utils.isNull(__cuid__) && typeof cookie === "string") {
 		let gmCookie = new utils.GM_Cookie();
 		let cookieList = gmCookie.parseCookie(cookie);
@@ -91,22 +89,18 @@ export const TiebaSmallAppApi = {
 	 * @param toastInfo 是否弹出提示
 	 */
 	async userInfo(toastInfo: boolean = true) {
-		let response = await httpx.get(
-			"https://tieba.baidu.com/mo/q/smallapp/sync",
-			{
-				headers: {
-					Referer: "https://tieba.baidu.com/",
-					"User-Agent": utils.getRandomPCUA(),
-				},
-				allowInterceptConfig: false,
-				processData: true,
-				fetch: true,
-			}
-		);
+		let response = await httpx.get("https://tieba.baidu.com/mo/q/smallapp/sync", {
+			headers: {
+				Referer: "https://tieba.baidu.com/",
+				"User-Agent": utils.getRandomPCUA(),
+			},
+			allowInterceptConfig: false,
+			processData: true,
+			fetch: true,
+		});
 		log.info(`获取用户信息：`, response);
 		if (!response.status) {
-			toastInfo &&
-				Qmsg.error("获取当前登录的用户信息失败", { consoleLogContent: true });
+			toastInfo && Qmsg.error("获取当前登录的用户信息失败", { consoleLogContent: true });
 			return;
 		}
 		let data = utils.toJSON(response.data.responseText);
@@ -148,18 +142,15 @@ export const TiebaSmallAppApi = {
 			id: id,
 		};
 		// Object.assign(searchParamsObj, await generateSearchParams());
-		let response = await httpx.get(
-			"https://tieba.baidu.com/mo/q/smallapp/agreeme",
-			{
-				data: searchParamsObj,
-				headers: {
-					Referer: "https://tieba.baidu.com/",
-					"User-Agent": utils.getRandomPCUA(),
-				},
-				processData: true,
-				fetch: true,
-			}
-		);
+		let response = await httpx.get("https://tieba.baidu.com/mo/q/smallapp/agreeme", {
+			data: searchParamsObj,
+			headers: {
+				Referer: "https://tieba.baidu.com/",
+				"User-Agent": utils.getRandomPCUA(),
+			},
+			processData: true,
+			fetch: true,
+		});
 		if (!response.status) {
 			return;
 		}
@@ -228,18 +219,15 @@ export const TiebaSmallAppApi = {
 			pn: pn,
 		};
 		// Object.assign(searchParamsObj, await generateSearchParams());
-		let response = await httpx.get(
-			`https://tieba.baidu.com/mo/q/smallapp/replyme`,
-			{
-				data: searchParamsObj,
-				headers: {
-					Referer: "https://tieba.baidu.com/",
-					"User-Agent": utils.getRandomPCUA(),
-				},
-				processData: true,
-				fetch: true,
-			}
-		);
+		let response = await httpx.get(`https://tieba.baidu.com/mo/q/smallapp/replyme`, {
+			data: searchParamsObj,
+			headers: {
+				Referer: "https://tieba.baidu.com/",
+				"User-Agent": utils.getRandomPCUA(),
+			},
+			processData: true,
+			fetch: true,
+		});
 		if (!response.status) {
 			return;
 		}
@@ -319,18 +307,15 @@ export const TiebaSmallAppApi = {
 			pn: pn,
 		};
 		Object.assign(searchParamsObj, await generateSearchParams());
-		let response = await httpx.get(
-			`https://tieba.baidu.com/mo/q/smallapp/atme`,
-			{
-				data: searchParamsObj,
-				headers: {
-					Referer: "https://tieba.baidu.com/",
-					"User-Agent": utils.getRandomPCUA(),
-				},
-				processData: true,
-				fetch: true,
-			}
-		);
+		let response = await httpx.get(`https://tieba.baidu.com/mo/q/smallapp/atme`, {
+			data: searchParamsObj,
+			headers: {
+				Referer: "https://tieba.baidu.com/",
+				"User-Agent": utils.getRandomPCUA(),
+			},
+			processData: true,
+			fetch: true,
+		});
 		if (!response.status) {
 			return;
 		}
