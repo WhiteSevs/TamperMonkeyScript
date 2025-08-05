@@ -5,10 +5,7 @@ import { VueUtils } from "@components/utils/VueUtils";
 import { BilibiliVideoApi } from "@/api/BilibiliVideoApi";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
-import {
-	BilibiliVideoArtPlayer,
-	type BilibiliVideoArtPlayerOption,
-} from "./artplayer/ArtPlayer";
+import { BilibiliVideoArtPlayer, type BilibiliVideoArtPlayerOption } from "./artplayer/ArtPlayer";
 import type Artplayer from "artplayer";
 import { unsafeWindow } from "ViteGM";
 import type { VIDEO_EP_LIST, VIDEO_PART } from "./TypeVideo";
@@ -209,10 +206,8 @@ export const GenerateArtPlayerOption = async (option: VideoInfo) => {
 				item.baseUrl,
 				item.backup_url
 			);
-			if (Panel.getValue("bili-video-uposServerSelect-applyAudio")) {
-				// 给音频也替换
-				audioUrl = BilibiliCDNProxy.replaceVideoCDN(audioUrl);
-			}
+			// 给音频也替换
+			audioUrl = BilibiliCDNProxy.replaceVideoCDN(audioUrl, true);
 			audioInfo.push({
 				url: audioUrl,
 				id: item.id,
@@ -247,19 +242,18 @@ export const GenerateArtPlayerOption = async (option: VideoInfo) => {
 	 *
 	 * 优先最高画质
 	 */
-	const currentVideoQuality: ArtPlayerPluginQualityOption["qualityList"] =
-		qualityInfo.map((item, index) => {
-			return {
-				quality: item.quality,
-				html: item.name,
-				url: item.url,
-				codecid: item.codecid,
-				codecs: item.codecs,
-				frameRate: item.frameRate,
-				mimeType: item.type,
-				bandwidth: item.bandwidth,
-			};
-		});
+	const currentVideoQuality: ArtPlayerPluginQualityOption["qualityList"] = qualityInfo.map((item, index) => {
+		return {
+			quality: item.quality,
+			html: item.name,
+			url: item.url,
+			codecid: item.codecid,
+			codecs: item.codecs,
+			frameRate: item.frameRate,
+			mimeType: item.type,
+			bandwidth: item.bandwidth,
+		};
+	});
 
 	const artPlayerOption: BilibiliVideoArtPlayerOption = {
 		// @ts-ignore
@@ -327,10 +321,7 @@ export const BilibiliVideoPlayer = {
 			${artPlayerCSS}
 
 			`);
-			let controlsPadding = Panel.getValue(
-				"bili-video-artplayer-controlsPadding-left-right",
-				0
-			);
+			let controlsPadding = Panel.getValue("bili-video-artplayer-controlsPadding-left-right", 0);
 			if (controlsPadding != 0) {
 				addStyle(/*css*/ `
 				@media (orientation: landscape) {
@@ -372,8 +363,7 @@ export const BilibiliVideoPlayer = {
 					BilibiliVideoArtPlayer.$data.art.pause();
 					return (
 						typeof vueInstance?.info?.aid === "number" &&
-						BilibiliVideoArtPlayer.$data.currentOption.aid !==
-							vueInstance.info.aid &&
+						BilibiliVideoArtPlayer.$data.currentOption.aid !== vueInstance.info.aid &&
 						typeof vueInstance?.info?.bvid === "string" &&
 						typeof vueInstance?.info?.cid === "number"
 					);
@@ -487,8 +477,7 @@ export const BilibiliVideoPlayer = {
 							`,
 					});
 					// 生成的art播放器
-					$artPlayer =
-						$artContainer.querySelector<HTMLDivElement>("#artplayer")!;
+					$artPlayer = $artContainer.querySelector<HTMLDivElement>("#artplayer")!;
 					DOMUtils.append($mVideoPlayer, $artContainer);
 				}
 
@@ -506,27 +495,19 @@ export const BilibiliVideoPlayer = {
 					// 强制初始化音量为1
 					that.$data.art.volume = 1;
 					that.$data.art.once("ready", () => {
-						Panel.execMenu(
-							"bili-video-playerAutoPlayVideoFullScreen",
-							async () => {
-								log.info(`自动进入全屏`);
-								that.$data.art.fullscreen = true;
-								that.$data.art.once("fullscreenError", () => {
-									log.warn(
-										"未成功进入全屏，需要用户交互操作，使用网页全屏代替"
-									);
-									that.$data.art.fullscreenWeb = true;
-								});
-							}
-						);
+						Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
+							log.info(`自动进入全屏`);
+							that.$data.art.fullscreen = true;
+							that.$data.art.once("fullscreenError", () => {
+								log.warn("未成功进入全屏，需要用户交互操作，使用网页全屏代替");
+								that.$data.art.fullscreenWeb = true;
+							});
+						});
 					});
 				} else {
 					// 检测页面中的artplayer是否还存在
 					const $artContainer = $<HTMLElement>(".artplayer-container");
-					if (
-						$artContainer &&
-						!$artContainer.contains(that.$data.art.template.$container)
-					) {
+					if ($artContainer && !$artContainer.contains(that.$data.art.template.$container)) {
 						// 可能是切换网页时移除了该dom
 						log.warn("artplayer-container的artplayer被移除了，重新添加元素");
 						DOMUtils.empty($artContainer);

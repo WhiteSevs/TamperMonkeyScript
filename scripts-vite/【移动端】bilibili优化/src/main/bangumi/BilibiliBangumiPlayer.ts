@@ -4,10 +4,7 @@ import {
 	type BilibiliTypeBangumiVideoPlayeInfo,
 } from "@/api/BilibiliBangumiApi";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
-import {
-	BilibiliBangumiArtPlayer,
-	type BilibiliBangumiArtPlayerOption,
-} from "./artplayer/ArtPlayer";
+import { BilibiliBangumiArtPlayer, type BilibiliBangumiArtPlayerOption } from "./artplayer/ArtPlayer";
 import { VideoSoundQualityCode } from "@/video-info/AudioDict";
 import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
 import type { EP_INFO, EP_LIST } from "./TypeBangumi";
@@ -105,9 +102,7 @@ export const GenerateVideoTitle = (ep_id: string | number, title: string) => {
  * 处理为需要的画质对应的信息
  */
 const handleQueryVideoQualityData = (
-	bangumiInfo:
-		| BilibiliTypeBangumiVideoPlayeInfo
-		| BilibiliTypeBangumiVideoPlayeHtml5Info,
+	bangumiInfo: BilibiliTypeBangumiVideoPlayeInfo | BilibiliTypeBangumiVideoPlayeHtml5Info,
 	userChooseVideoCodingCode?: number
 ): VideoQualityInfo[] => {
 	let qualityInfoList: VideoQualityInfo[] = [];
@@ -164,10 +159,7 @@ const handleQueryVideoQualityData = (
 				(formatsItem) => formatsItem.quality === durlInfo.quality
 			);
 			// 视频url
-			let videoUrl = BilibiliCDNProxy.findBetterCDN(
-				currentDurl.url,
-				currentDurl.backup_url
-			);
+			let videoUrl = BilibiliCDNProxy.findBetterCDN(currentDurl.url, currentDurl.backup_url);
 			// 处理视频host替换
 			// videoUrl = BilibiliCDNProxy.replaceVideoCDN(videoUrl);
 			// 视频画质名称
@@ -198,10 +190,7 @@ const handleQueryVideoQualityData = (
  * @param EP_INFO 当前集的信息
  * @param EP_LIST 集数信息
  */
-export const GenerateArtPlayerOption = async (
-	EP_INFO: EP_INFO,
-	EP_LIST: EP_LIST
-) => {
+export const GenerateArtPlayerOption = async (EP_INFO: EP_INFO, EP_LIST: EP_LIST) => {
 	const { aid, bvid, cid, ep_id, title, long_title } = EP_INFO;
 	log.info(`解析番剧信息 aid:${aid} cid:${cid} ep_id:${ep_id}`);
 	const videoTitle = GenerateVideoTitle(title, long_title);
@@ -227,8 +216,7 @@ export const GenerateArtPlayerOption = async (
 	// 解析清晰度信息
 	let qualityInfo: VideoQualityInfo[] = [];
 	// 空降信息
-	let clip_info_list: ArtPlayerPluginAirborneHelperOption["clip_info_list"] =
-		[];
+	let clip_info_list: ArtPlayerPluginAirborneHelperOption["clip_info_list"] = [];
 	/** 是否是flv */
 	let isFlv = false;
 	let flvInfo: BilibiliBangumiArtPlayerOption["flvInfo"] = [];
@@ -249,8 +237,7 @@ export const GenerateArtPlayerOption = async (
 		}
 		// 设置空降信息
 		if (Array.isArray(bangumiInfo?.clip_info_list)) {
-			clip_info_list =
-				bangumiInfo.clip_info_list as ArtPlayerPluginAirborneHelperOption["clip_info_list"];
+			clip_info_list = bangumiInfo.clip_info_list as ArtPlayerPluginAirborneHelperOption["clip_info_list"];
 			// @ts-ignore
 		} else if (Array.isArray(bangumiInfo?.clip_info)) {
 			clip_info_list =
@@ -263,10 +250,7 @@ export const GenerateArtPlayerOption = async (
 			// flv视频，使用flv.js
 			// 这里的应该是剧场版的视频，多p
 			bangumiInfo.durl.forEach((durlInfo) => {
-				let videoUrl = BilibiliCDNProxy.findBetterCDN(
-					durlInfo.url,
-					durlInfo.backup_url
-				);
+				let videoUrl = BilibiliCDNProxy.findBetterCDN(durlInfo.url, durlInfo.backup_url);
 				// 处理视频host替换
 				videoUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(videoUrl);
 				flvTotalDuration += durlInfo.length;
@@ -279,10 +263,7 @@ export const GenerateArtPlayerOption = async (
 					size: durlInfo.size,
 				});
 			});
-		} else if (
-			bangumiInfo.type.toLowerCase() === "dash" ||
-			bangumiInfo.type.toLowerCase() === "mp4"
-		) {
+		} else if (bangumiInfo.type.toLowerCase() === "dash" || bangumiInfo.type.toLowerCase() === "mp4") {
 			// dash类型，分video和audio
 			// 遍历audio
 			(bangumiInfo?.dash?.audio || []).forEach((item) => {
@@ -292,10 +273,8 @@ export const GenerateArtPlayerOption = async (
 					item.baseUrl,
 					item.backup_url
 				);
-				if (Panel.getValue("bili-bangumi-uposServerSelect-applyAudio")) {
-					// 给音频也替换
-					audioUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(audioUrl);
-				}
+				// 处理音频host替换
+				audioUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(audioUrl);
 				audioInfo.push({
 					url: audioUrl,
 					id: item.id,
@@ -310,14 +289,10 @@ export const GenerateArtPlayerOption = async (
 			log.info(`ArtPlayer: 获取的音频信息`, audioInfo);
 
 			// 筛选视频
-			qualityInfo = qualityInfo.concat(
-				handleQueryVideoQualityData(bangumiInfo)
-			);
+			qualityInfo = qualityInfo.concat(handleQueryVideoQualityData(bangumiInfo));
 			log.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
 		} else {
-			BilibiliLogUtils.failToast(
-				"暂未适配的视频格式：" + bangumiInfo["format"]
-			);
+			BilibiliLogUtils.failToast("暂未适配的视频格式：" + bangumiInfo["format"]);
 			return;
 		}
 	} else {
@@ -339,8 +314,7 @@ export const GenerateArtPlayerOption = async (
 				// @ts-ignore
 				bangumiInfo.clip_info_list as ArtPlayerPluginAirborneHelperOption["clip_info_list"];
 		} else if (Array.isArray(bangumiInfo?.clip_info)) {
-			clip_info_list =
-				bangumiInfo.clip_info as ArtPlayerPluginAirborneHelperOption["clip_info_list"];
+			clip_info_list = bangumiInfo.clip_info as ArtPlayerPluginAirborneHelperOption["clip_info_list"];
 		}
 		qualityInfo = qualityInfo.concat(handleQueryVideoQualityData(bangumiInfo));
 	}
@@ -348,19 +322,18 @@ export const GenerateArtPlayerOption = async (
 	/**
 	 * 当前的画质信息列表
 	 */
-	const currentVideoQuality: ArtPlayerPluginQualityOption["qualityList"] =
-		qualityInfo.map((item, index) => {
-			return {
-				html: item.name,
-				url: item.url,
-				quality: item.quality,
-				mimeType: item.type,
-				codecid: item.codecid,
-				codecs: item.codecs,
-				frameRate: item.frameRate,
-				bandwidth: item.bandwidth,
-			};
-		});
+	const currentVideoQuality: ArtPlayerPluginQualityOption["qualityList"] = qualityInfo.map((item, index) => {
+		return {
+			html: item.name,
+			url: item.url,
+			quality: item.quality,
+			mimeType: item.type,
+			codecid: item.codecid,
+			codecs: item.codecs,
+			frameRate: item.frameRate,
+			bandwidth: item.bandwidth,
+		};
+	});
 	const artPlayerOption: BilibiliBangumiArtPlayerOption = {
 		// @ts-ignore
 		container: null,
@@ -476,14 +449,12 @@ export const BlibiliBangumiPlayer = {
 			{
 				check(reactInstance) {
 					return (
-						typeof reactInstance?.return?.memoizedState?.queue
-							?.lastRenderedState?.[0]?.epInfo?.bvid === "string"
+						typeof reactInstance?.return?.memoizedState?.queue?.lastRenderedState?.[0]?.epInfo?.bvid ===
+						"string"
 					);
 				},
 				async set(reactInstance) {
-					let epInfo =
-						reactInstance?.return?.memoizedState?.queue?.lastRenderedState?.[0]
-							?.epInfo;
+					let epInfo = reactInstance?.return?.memoizedState?.queue?.lastRenderedState?.[0]?.epInfo;
 					const $playerWrapper = $<HTMLDivElement>("#bilibiliPlayer")!;
 					if (ep_info == null) {
 						ep_info = epInfo;
@@ -491,24 +462,18 @@ export const BlibiliBangumiPlayer = {
 					if (ep_list == null) {
 						ep_list = [];
 						let $epList = $<HTMLElement>(
-							BilibiliData.className.bangumi_new +
-								` [class^="EpisodeList_episodeListWrap"]`
+							BilibiliData.className.bangumi_new + ` [class^="EpisodeList_episodeListWrap"]`
 						);
 						if ($epList) {
 							let react = utils.getReactObj($epList);
-							let epList =
-								react?.reactFiber?.return?.memoizedState?.memoizedState?.[0]
-									?.episodes;
+							let epList = react?.reactFiber?.return?.memoizedState?.memoizedState?.[0]?.episodes;
 							if (Array.isArray(epList)) {
 								ep_list = epList;
 							}
 						}
 					}
 					// 生成配置信息
-					const artPlayerOption = await GenerateArtPlayerOption(
-						ep_info!,
-						ep_list
-					);
+					const artPlayerOption = await GenerateArtPlayerOption(ep_info!, ep_list);
 					if (artPlayerOption == null) {
 						// 生成失败
 						return;
@@ -524,8 +489,7 @@ export const BlibiliBangumiPlayer = {
 									`,
 						});
 						// 生成的art播放器
-						$artPlayer =
-							$artPlayerContainer.querySelector<HTMLDivElement>("#artplayer")!;
+						$artPlayer = $artPlayerContainer.querySelector<HTMLDivElement>("#artplayer")!;
 						DOMUtils.after($playerWrapper, $artPlayerContainer);
 					}
 					// 设置container参数

@@ -24,15 +24,7 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 						{
 							text: "",
 							type: "forms",
-							forms: [
-								UISwitch(
-									"固定缩放倍率",
-									"bili-bangumi-initialScale",
-									true,
-									void 0,
-									""
-								),
-							],
+							forms: [UISwitch("固定缩放倍率", "bili-bangumi-initialScale", true, void 0, "")],
 						},
 					],
 				},
@@ -135,13 +127,13 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 							],
 						},
 						{
-							text: "加速CDN设置",
+							text: "加速CDN设置（dash）",
 							type: "forms",
 							forms: [
 								UISelect(
-									"UPOS服务器设置",
+									"视频-UPOS服务器设置",
 									"bili-bangumi-uposServerSelect",
-									"",
+									BilibiliCDNProxy.getUposCDNServerList()[0].host,
 									BilibiliCDNProxy.getUposCDNServerList().map((item) => {
 										return {
 											text: item.name,
@@ -149,14 +141,36 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 										};
 									}),
 									void 0,
-									"设置解锁番剧的服务器，可加快视频加载速度"
+									"设置视频流的服务器，可加快视频加载速度"
 								),
-								UISwitch(
-									"作用于Audio上",
-									"bili-bangumi-uposServerSelect-applyAudio",
-									false,
+								UIInput(
+									"视频-自定义UPOS服务器",
+									"bili-bangumi-uposServerSelect-own",
+									"",
+									"",
 									void 0,
-									"把m4s类型的audio也进行upos替换"
+									"请输入upos服务器的域名"
+								),
+								UISelect(
+									"音频-UPOS服务器设置",
+									"bili-bangumi-uposServerSelect-audio",
+									BilibiliCDNProxy.getUposCDNServerList()[0].host,
+									BilibiliCDNProxy.getUposCDNServerList().map((item) => {
+										return {
+											text: item.name,
+											value: item.host,
+										};
+									}),
+									void 0,
+									"设置音频的服务器，可加快音频加载速度"
+								),
+								UIInput(
+									"音频-自定义UPOS服务器",
+									"bili-bangumi-uposServerSelect-audio-own",
+									"",
+									"",
+									void 0,
+									"请输入upos服务器的域名"
 								),
 							],
 						},
@@ -240,15 +254,7 @@ const SettingUIBangumi: PopsPanelContentConfig = {
 						{
 							text: "",
 							type: "forms",
-							forms: [
-								UISwitch(
-									"阻止调用App",
-									"bili-bangumi-hook-callApp",
-									true,
-									void 0,
-									""
-								),
-							],
+							forms: [UISwitch("阻止调用App", "bili-bangumi-hook-callApp", true, void 0, "")],
 						},
 					],
 				},
