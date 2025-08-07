@@ -19,14 +19,7 @@ import { ReactUtils } from "@components/utils/ReactUtils";
 /**
  * 视频播放器的播放速度
  */
-export type VideoPlayerRate =
-	| "0.75"
-	| "1"
-	| "1.25"
-	| "1.5"
-	| "1.75"
-	| "2"
-	| "3";
+export type VideoPlayerRate = "0.75" | "1" | "1.25" | "1.5" | "1.75" | "2" | "3";
 
 export const DouYinVideoPlayer = {
 	$flag: {
@@ -179,9 +172,7 @@ export const DouYinVideoPlayer = {
 					() => {
 						return (
 							// 普通视频的网页全屏按钮
-							$<HTMLElement>(
-								'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon'
-							) ||
+							$<HTMLElement>('xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon') ||
 							// 搜索页面的网页全屏按钮↓
 							$<HTMLElement>(
 								'[data-e2e="feed-active-video"] dy-icon.douyin-player-page-full-screen .douyin-player-icon'
@@ -211,22 +202,17 @@ export const DouYinVideoPlayer = {
 		log.info("注册双击进入网页全屏事件");
 		let selectorList = [".newVideoPlayer", "#sliderVideo"];
 		selectorList.forEach((selector) => {
-			DOMUtils.on<MouseEvent | PointerEvent>(
-				document,
-				"click",
-				selector,
-				(event) => {
-					if (isDouble) {
+			DOMUtils.on<MouseEvent | PointerEvent>(document, "click", selector, (event) => {
+				if (isDouble) {
+					isDouble = false;
+					DouYinVideoPlayer.autoEnterElementFullScreen(true);
+				} else {
+					isDouble = true;
+					setTimeout(() => {
 						isDouble = false;
-						DouYinVideoPlayer.autoEnterElementFullScreen(true);
-					} else {
-						isDouble = true;
-						setTimeout(() => {
-							isDouble = false;
-						}, 250);
-					}
+					}, 250);
 				}
-			);
+			});
 		});
 	},
 	/**
@@ -392,12 +378,10 @@ export const DouYinVideoPlayer = {
 		 */
 		function setRate(value: VideoPlayerRate = "1") {
 			unsafeWindow.sessionStorage.setItem(Definition_Key, value);
-			$$<HTMLLIElement>("xg-icon.xgplayer-playback-setting").forEach(
-				($playbackSetting) => {
-					let $container = utils.getReactObj($playbackSetting).reactContainer;
-					$container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
-				}
-			);
+			$$<HTMLLIElement>("xg-icon.xgplayer-playback-setting").forEach(($playbackSetting) => {
+				let $container = utils.getReactObj($playbackSetting).reactContainer;
+				$container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
+			});
 		}
 		setRate(rate);
 	},
@@ -441,10 +425,7 @@ export const DouYinVideoPlayer = {
 		 * @param downloadFileName 视频下载名
 		 * @param downloadUrlInfoList 资源列表
 		 */
-		function showParseInfoDialog(
-			downloadFileName: string,
-			downloadUrlInfoList: parseVideoDownloadInfo[]
-		) {
+		function showParseInfoDialog(downloadFileName: string, downloadUrlInfoList: parseVideoDownloadInfo[]) {
 			let contentHTML = "";
 			downloadUrlInfoList.forEach((downloadInfo) => {
 				let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
@@ -460,9 +441,7 @@ export const DouYinVideoPlayer = {
 					</div>
 					<div class="dy-video-download-uri">
 						<span>下载地址：</span>
-						<a href="${
-							downloadInfo.url
-						}" data-file-name="${downloadFileName} - ${videoQualityInfo}.${
+						<a href="${downloadInfo.url}" data-file-name="${downloadFileName} - ${videoQualityInfo}.${
 					downloadInfo.format
 				}">${downloadInfo.url}</a>
 					</div>
@@ -474,9 +453,9 @@ export const DouYinVideoPlayer = {
 							${downloadInfo.backUrl
 								.map((url, index) => {
 									return /*html*/ `
-									<a href="${url}" data-file-name="${downloadFileName} - ${videoQualityInfo}.${
-										downloadInfo.format
-									}">地址${index + 1}</a>
+									<a href="${url}" data-file-name="${downloadFileName} - ${videoQualityInfo}.${downloadInfo.format}">地址${
+										index + 1
+									}</a>
 								`;
 								})
 								.join("，")}
@@ -598,13 +577,10 @@ export const DouYinVideoPlayer = {
 							downloadingQmsg.close();
 							log.error("下载失败error👉", error);
 							if (typeof error === "object" && error["error"]) {
-								Qmsg.error(
-									`下载 ${fileName} 失败或已取消 原因：${error["error"]}`,
-									{
-										timeout: 6000,
-										consoleLogContent: true,
-									}
-								);
+								Qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
+									timeout: 6000,
+									consoleLogContent: true,
+								});
 							} else {
 								Qmsg.error(`下载 ${fileName} 失败或已取消`, {
 									consoleLogContent: true,
@@ -618,11 +594,7 @@ export const DouYinVideoPlayer = {
 							});
 						},
 					});
-					if (
-						typeof result === "object" &&
-						result != null &&
-						"abort" in result
-					) {
+					if (typeof result === "object" && result != null && "abort" in result) {
 						abortDownload = result["abort"];
 					}
 				},
@@ -638,9 +610,7 @@ export const DouYinVideoPlayer = {
 			function (event) {
 				utils.preventEvent(event);
 				let clickElement = event.target as HTMLDivElement;
-				let rectFiber = utils.getReactObj(
-					clickElement.parentElement as HTMLElement
-				)?.reactFiber;
+				let rectFiber = utils.getReactObj(clickElement.parentElement as HTMLElement)?.reactFiber;
 				if (!rectFiber) {
 					Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
 					return;
@@ -703,9 +673,7 @@ export const DouYinVideoPlayer = {
 										result.fps = item.fps;
 									}
 									if (Array.isArray(item.playAddr)) {
-										result.backUrl = result.backUrl.concat(
-											item.playAddr.map((it) => it.src)
-										);
+										result.backUrl = result.backUrl.concat(item.playAddr.map((it) => it.src));
 									}
 									return result;
 								})
@@ -732,34 +700,23 @@ export const DouYinVideoPlayer = {
 							// 存在重复，比较文件大小
 							let findValue = uniqueVideoDownloadUrlList[findIndex];
 							if (findValue.dataSize < videoDownloadInfo.dataSize) {
-								uniqueVideoDownloadUrlList.splice(
-									findIndex,
-									1,
-									videoDownloadInfo
-								);
+								uniqueVideoDownloadUrlList.splice(findIndex, 1, videoDownloadInfo);
 							}
 						} else {
 							uniqueVideoDownloadUrlList.push(videoDownloadInfo);
 						}
 					}
 					// 处理一下http的protocol，如果是http的话，点击会跳转到播放而不是下载
-					uniqueVideoDownloadUrlList = uniqueVideoDownloadUrlList.map(
-						(item) => {
-							if (item.url.startsWith("http:")) {
-								item.url = item.url.replace("http:", "");
-							}
-							return item;
+					uniqueVideoDownloadUrlList = uniqueVideoDownloadUrlList.map((item) => {
+						if (item.url.startsWith("http:")) {
+							item.url = item.url.replace("http:", "");
 						}
-					);
+						return item;
+					});
 					// 按视频大小排序（降序）
-					utils.sortListByProperty(
-						uniqueVideoDownloadUrlList,
-						(it) => it.width
-					);
+					utils.sortListByProperty(uniqueVideoDownloadUrlList, (it) => it.width);
 					let downloadFileName =
-						(awemeInfo?.authorInfo?.nickname || "未知作者") +
-						" - " +
-						(awemeInfo?.desc || "未知视频文案");
+						(awemeInfo?.authorInfo?.nickname || "未知作者") + " - " + (awemeInfo?.desc || "未知视频文案");
 					showParseInfoDialog(downloadFileName, uniqueVideoDownloadUrlList);
 				} catch (error) {
 					log.error(error);
@@ -783,15 +740,12 @@ export const DouYinVideoPlayer = {
 			(event) => {
 				utils.preventEvent(event);
 				let clickElement = event.target as HTMLDivElement;
-				let rectFiber = utils.getReactObj(
-					clickElement.parentElement as HTMLElement
-				)?.reactFiber;
+				let rectFiber = utils.getReactObj(clickElement.parentElement as HTMLElement)?.reactFiber;
 				if (!rectFiber) {
 					Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
 					return;
 				}
-				let awemeInfo = rectFiber?.return?.return?.memoizedProps
-					?.awemeInfo as DouYinVideoAwemeInfo | null;
+				let awemeInfo = rectFiber?.return?.return?.memoizedProps?.awemeInfo as DouYinVideoAwemeInfo | null;
 				if (awemeInfo == null || typeof awemeInfo !== "object") {
 					Qmsg.error("获取awemeInfo属性失败", { consoleLogContent: true });
 					return;
@@ -831,10 +785,7 @@ export const DouYinVideoPlayer = {
 		let result: HTMLStyleElement[] = [];
 		DouYin.initialScale();
 		/* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
-		result.push(
-			CommonUtil.addBlockCSS("img#douyin-temp-sidebar")!,
-			addStyle(MobileCSS)
-		);
+		result.push(CommonUtil.addBlockCSS("img#douyin-temp-sidebar")!, addStyle(MobileCSS));
 		Panel.onceExec("repairProgressBar", () => {
 			this.repairVideoProgressBar();
 		});
@@ -1054,7 +1005,7 @@ export const DouYinVideoPlayer = {
 						}
 					});
 					if (typeof closeDialogFn === "function") {
-						Qmsg.success(`调用函数关闭弹窗`, { consoleLogContent: true });
+						Qmsg.success(`调用函数关闭【长时间无操作，已暂停播放】弹窗`, { consoleLogContent: true });
 						closeDialogFn();
 					}
 				}
@@ -1064,9 +1015,10 @@ export const DouYinVideoPlayer = {
 			if (!Panel.getValue("dy-video-waitToRemovePauseDialog")) {
 				return;
 			}
-			$$<HTMLDivElement>(
-				`.basePlayerContainer xg-bar.xg-right-bar + div`
-			).forEach(($elementTiming) => {
+			[
+				...Array.from($$<HTMLDivElement>(`.basePlayerContainer xg-bar.xg-right-bar + div`)),
+				...Array.from($$<HTMLElement>(`.basePlayerContainer div:has(>div):contains("长时间无操作")`)),
+			].forEach(($elementTiming) => {
 				checkDialogToClose($elementTiming);
 			});
 		});
