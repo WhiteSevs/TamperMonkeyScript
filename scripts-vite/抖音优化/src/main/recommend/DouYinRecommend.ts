@@ -21,7 +21,7 @@ export const DouYinRecommend = {
 		 */
 		let queryActiveVideo = (withAttr: boolean = false) => {
 			return $<HTMLVideoElement>(
-				`.page-recommend-container [data-e2e="feed-active-video"] video${
+				`.page-recommend-container:not(:has([data-e2e="feed-live"])) [data-e2e="feed-active-video"] video${
 					withAttr ? `:not([${attrFlagName}])` : ""
 				}`
 			);
@@ -68,10 +68,10 @@ export const DouYinRecommend = {
 								return false;
 							}
 							let $switchActiveVideo = queryActiveVideo(false);
-							if ($switchActiveVideo == null) {
-								log.error(`切换视频失败，没有找到当前正在播放的视频`);
-								return;
-							}
+							// if ($switchActiveVideo == null) {
+							// 	log.error(`切换视频失败，没有找到当前正在播放的视频`);
+							// 	return;
+							// }
 							if ($activeVideo !== $switchActiveVideo) {
 								log.success("切换视频成功");
 								return false;
