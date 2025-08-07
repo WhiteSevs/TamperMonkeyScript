@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.5
+// @version      2025.8.7
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -520,9 +520,7 @@
         if (config.type === "switch") {
           let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
           if (typeof disabled === "boolean" && disabled) {
-            this.$data.contentConfigInitDisabledKeys.push(
-              ...menuDefaultConfig.keys()
-            );
+            this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
           }
         }
         for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
@@ -550,9 +548,7 @@
           loopInitDefaultValue(rightContentConfigList);
         }
       }
-      this.$data.contentConfigInitDisabledKeys = [
-        ...new Set(this.$data.contentConfigInitDisabledKeys)
-      ];
+      this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
     /**
      * 设置初始化使用的默认值
@@ -606,12 +602,9 @@
      * @param callback
      */
     addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(
-        key,
-        (__key, __newValue, __oldValue) => {
-          callback(key, __oldValue, __newValue);
-        }
-      );
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+        callback(key, __oldValue, __newValue);
+      });
       return listenerId;
     },
     /**
@@ -681,9 +674,7 @@
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find(
-        (it) => !this.$data.contentConfigInitDefaultValue.has(it)
-      );
+      let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
@@ -764,12 +755,9 @@
         storeValueList = [...resultList];
       };
       once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(
-          key,
-          (key2, newValue, oldValue) => {
-            valueChangeCallback();
-          }
-        );
+        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          valueChangeCallback();
+        });
         listenerIdList.push(listenerId);
       });
       valueChangeCallback();
@@ -2416,6 +2404,14 @@
               {
                 enableKey: "dy-keyboard-hook-listenToDouyin",
                 code: ["KeyT"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-smallWindowPlay",
+                code: ["KeyU"]
+              },
+              {
+                enableKey: "dy-keyboard-hook-recommendVideo",
+                code: ["KeyP"]
               }
             ];
             if (DouYinRouter.isIndex()) {
@@ -2457,9 +2453,7 @@
               const keyboardConfig = keyboardConfigList[index];
               if (keyboardConfig.code.includes(code)) {
                 if (Array.isArray(keyboardConfig.otherCodeList)) {
-                  let findValue = keyboardConfig.otherCodeList.find(
-                    (item) => !otherCodeList.includes(item)
-                  );
+                  let findValue = keyboardConfig.otherCodeList.find((item) => !otherCodeList.includes(item));
                   if (findValue) {
                     continue;
                   }
@@ -3060,7 +3054,9 @@
     blockAIDouYin() {
       log.info(`【屏蔽】AI抖音`);
       return CommonUtil.addBlockCSS(
-        '.immersive-player-switch-on-hide-interaction-area>div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])'
+        '.immersive-player-switch-on-hide-interaction-area>div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])',
+        // 搜索页面的
+        '.xgplayer div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])'
       );
     },
     /**
@@ -4313,9 +4309,7 @@
             () => {
               return (
                 // 普通视频的网页全屏按钮
-                $(
-                  'xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon'
-                ) || // 搜索页面的网页全屏按钮↓
+                $('xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon') || // 搜索页面的网页全屏按钮↓
                 $(
                   '[data-e2e="feed-active-video"] dy-icon.douyin-player-page-full-screen .douyin-player-icon'
                 )
@@ -4344,22 +4338,17 @@
       log.info("注册双击进入网页全屏事件");
       let selectorList = [".newVideoPlayer", "#sliderVideo"];
       selectorList.forEach((selector) => {
-        domUtils.on(
-          document,
-          "click",
-          selector,
-          (event) => {
-            if (isDouble) {
+        domUtils.on(document, "click", selector, (event) => {
+          if (isDouble) {
+            isDouble = false;
+            DouYinVideoPlayer.autoEnterElementFullScreen(true);
+          } else {
+            isDouble = true;
+            setTimeout(() => {
               isDouble = false;
-              DouYinVideoPlayer.autoEnterElementFullScreen(true);
-            } else {
-              isDouble = true;
-              setTimeout(() => {
-                isDouble = false;
-              }, 250);
-            }
+            }, 250);
           }
-        );
+        });
       });
     },
     /**
@@ -4514,12 +4503,10 @@
       let Definition_Key = "player_playbackratio";
       function setRate(value = "1") {
         _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
-        $$("xg-icon.xgplayer-playback-setting").forEach(
-          ($playbackSetting) => {
-            let $container = utils.getReactObj($playbackSetting).reactContainer;
-            $container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
-          }
-        );
+        $$("xg-icon.xgplayer-playback-setting").forEach(($playbackSetting) => {
+          let $container = utils.getReactObj($playbackSetting).reactContainer;
+          $container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio();
+        });
       }
       setRate(rate);
     },
@@ -4670,13 +4657,10 @@
                 downloadingQmsg.close();
                 log.error("下载失败error👉", error);
                 if (typeof error === "object" && error["error"]) {
-                  Qmsg.error(
-                    `下载 ${fileName} 失败或已取消 原因：${error["error"]}`,
-                    {
-                      timeout: 6e3,
-                      consoleLogContent: true
-                    }
-                  );
+                  Qmsg.error(`下载 ${fileName} 失败或已取消 原因：${error["error"]}`, {
+                    timeout: 6e3,
+                    consoleLogContent: true
+                  });
                 } else {
                   Qmsg.error(`下载 ${fileName} 失败或已取消`, {
                     consoleLogContent: true
@@ -4706,9 +4690,7 @@
         function(event) {
           utils.preventEvent(event);
           let clickElement = event.target;
-          let rectFiber = utils.getReactObj(
-            clickElement.parentElement
-          )?.reactFiber;
+          let rectFiber = utils.getReactObj(clickElement.parentElement)?.reactFiber;
           if (!rectFiber) {
             Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
             return;
@@ -4738,9 +4720,7 @@
                     result.fps = item.fps;
                   }
                   if (Array.isArray(item.playAddr)) {
-                    result.backUrl = result.backUrl.concat(
-                      item.playAddr.map((it) => it.src)
-                    );
+                    result.backUrl = result.backUrl.concat(item.playAddr.map((it) => it.src));
                   }
                   return result;
                 }).filter((it) => it != null)
@@ -4761,28 +4741,19 @@
               if (findIndex != -1) {
                 let findValue = uniqueVideoDownloadUrlList[findIndex];
                 if (findValue.dataSize < videoDownloadInfo.dataSize) {
-                  uniqueVideoDownloadUrlList.splice(
-                    findIndex,
-                    1,
-                    videoDownloadInfo
-                  );
+                  uniqueVideoDownloadUrlList.splice(findIndex, 1, videoDownloadInfo);
                 }
               } else {
                 uniqueVideoDownloadUrlList.push(videoDownloadInfo);
               }
             }
-            uniqueVideoDownloadUrlList = uniqueVideoDownloadUrlList.map(
-              (item) => {
-                if (item.url.startsWith("http:")) {
-                  item.url = item.url.replace("http:", "");
-                }
-                return item;
+            uniqueVideoDownloadUrlList = uniqueVideoDownloadUrlList.map((item) => {
+              if (item.url.startsWith("http:")) {
+                item.url = item.url.replace("http:", "");
               }
-            );
-            utils.sortListByProperty(
-              uniqueVideoDownloadUrlList,
-              (it) => it.width
-            );
+              return item;
+            });
+            utils.sortListByProperty(uniqueVideoDownloadUrlList, (it) => it.width);
             let downloadFileName = (awemeInfo?.authorInfo?.nickname || "未知作者") + " - " + (awemeInfo?.desc || "未知视频文案");
             showParseInfoDialog(downloadFileName, uniqueVideoDownloadUrlList);
           } catch (error) {
@@ -4807,9 +4778,7 @@
         (event) => {
           utils.preventEvent(event);
           let clickElement = event.target;
-          let rectFiber = utils.getReactObj(
-            clickElement.parentElement
-          )?.reactFiber;
+          let rectFiber = utils.getReactObj(clickElement.parentElement)?.reactFiber;
           if (!rectFiber) {
             Qmsg.error("获取rectFiber属性失败", { consoleLogContent: true });
             return;
@@ -4853,10 +4822,7 @@
       log.info("启用手机模式");
       let result = [];
       DouYin.initialScale();
-      result.push(
-        CommonUtil.addBlockCSS("img#douyin-temp-sidebar"),
-        addStyle(MobileCSS$1)
-      );
+      result.push(CommonUtil.addBlockCSS("img#douyin-temp-sidebar"), addStyle(MobileCSS$1));
       Panel.onceExec("repairProgressBar", () => {
         this.repairVideoProgressBar();
       });
@@ -5073,7 +5039,7 @@
               }
             });
             if (typeof closeDialogFn === "function") {
-              Qmsg.success(`调用函数关闭弹窗`, { consoleLogContent: true });
+              Qmsg.success(`调用函数关闭【长时间无操作，已暂停播放】弹窗`, { consoleLogContent: true });
               closeDialogFn();
             }
           }
@@ -5083,9 +5049,10 @@
         if (!Panel.getValue("dy-video-waitToRemovePauseDialog")) {
           return;
         }
-        $$(
-          `.basePlayerContainer xg-bar.xg-right-bar + div`
-        ).forEach(($elementTiming) => {
+        [
+          ...Array.from($$(`.basePlayerContainer xg-bar.xg-right-bar + div`)),
+          ...Array.from($$(`.basePlayerContainer div:has(>div):contains("长时间无操作")`))
+        ].forEach(($elementTiming) => {
           checkDialogToClose($elementTiming);
         });
       });
@@ -9321,7 +9288,7 @@
       const attrFlagName = "data-automaticContinuousPlayback";
       let queryActiveVideo = (withAttr = false) => {
         return $(
-          `.page-recommend-container [data-e2e="feed-active-video"] video${withAttr ? `:not([${attrFlagName}])` : ""}`
+          `.page-recommend-container:not(:has([data-e2e="feed-live"])) [data-e2e="feed-active-video"] video${withAttr ? `:not([${attrFlagName}])` : ""}`
         );
       };
       let switchActiveVideo = () => {
@@ -9364,10 +9331,6 @@
                   return false;
                 }
                 let $switchActiveVideo = queryActiveVideo(false);
-                if ($switchActiveVideo == null) {
-                  log.error(`切换视频失败，没有找到当前正在播放的视频`);
-                  return;
-                }
                 if ($activeVideo !== $switchActiveVideo) {
                   log.success("切换视频成功");
                   return false;
@@ -10307,7 +10270,9 @@
                   UISwitch("呼出快捷键列表", "dy-keyboard-hook-listOfCallShortcutKeys", false, void 0, "?"),
                   UISwitch("关闭快捷键列表", "dy-keyboard-hook-closeTheShortcutKeyList", false, void 0, "ESC"),
                   UISwitch("相关推荐", "dy-keyboard-hook-relevantRecommendation", false, void 0, "N"),
-                  UISwitch("听抖音", "dy-keyboard-hook-listenToDouyin", false, void 0, "T")
+                  UISwitch("听抖音", "dy-keyboard-hook-listenToDouyin", false, void 0, "T"),
+                  UISwitch("小窗播放", "dy-keyboard-hook-smallWindowPlay", false, void 0, "U"),
+                  UISwitch("推荐视频", "dy-keyboard-hook-recommendVideo", false, void 0, "P")
                 ]
               }
             ]
