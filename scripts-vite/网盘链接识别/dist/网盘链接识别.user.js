@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.4
+// @version      2025.8.8
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -12,7 +12,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -1006,9 +1006,7 @@
         if (config.type === "switch") {
           let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
           if (typeof disabled === "boolean" && disabled) {
-            this.$data.contentConfigInitDisabledKeys.push(
-              ...menuDefaultConfig.keys()
-            );
+            this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
           }
         }
         for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
@@ -1036,9 +1034,7 @@
           loopInitDefaultValue(rightContentConfigList);
         }
       }
-      this.$data.contentConfigInitDisabledKeys = [
-        ...new Set(this.$data.contentConfigInitDisabledKeys)
-      ];
+      this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
     /**
      * 设置初始化使用的默认值
@@ -1092,12 +1088,9 @@
      * @param callback
      */
     addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(
-        key,
-        (__key, __newValue, __oldValue) => {
-          callback(key, __oldValue, __newValue);
-        }
-      );
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+        callback(key, __oldValue, __newValue);
+      });
       return listenerId;
     },
     /**
@@ -1167,9 +1160,7 @@
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find(
-        (it) => !this.$data.contentConfigInitDefaultValue.has(it)
-      );
+      let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
@@ -1250,12 +1241,9 @@
         storeValueList = [...resultList];
       };
       once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(
-          key,
-          (key2, newValue, oldValue) => {
-            valueChangeCallback();
-          }
-        );
+        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          valueChangeCallback();
+        });
         listenerIdList.push(listenerId);
       });
       valueChangeCallback();
@@ -3676,15 +3664,18 @@
       "x-app-version": "2.4.0"
     };
     async init(netDiskInfo) {
-      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
-      that.panelList = [];
-      that.Authorization = NetDiskAuthorization_123pan_Authorization.get();
-      let checkLinkValidityStatus = await that.checkLinkValidity();
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
+      this.panelList = [];
+      this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
+      let checkLinkValidityStatus = await this.checkLinkValidity();
       if (!checkLinkValidityStatus) {
         return;
       }
-      let infoLists = await that.getFiles();
+      let infoLists = await this.getFiles();
       if (!infoLists) {
         return;
       }
@@ -3707,10 +3698,7 @@
           if (downloadInfo && downloadInfo["code"] === 0) {
             downloadUrl = downloadInfo["data"]["DownloadURL"];
             if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
-              downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-                "_123pan",
-                downloadUrl
-              );
+              downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
             }
             fileSize = utils.formatByteToSize(fileInfo["Size"]);
           } else if (downloadInfo && downloadInfo["code"] === 401) {
@@ -3722,10 +3710,7 @@
           }
         } else {
           if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
-            downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-              "_123pan",
-              downloadUrl
-            );
+            downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
           }
           fileSize = utils.formatByteToSize(fileInfo["Size"]);
         }
@@ -3769,21 +3754,17 @@
         return false;
       }
       let respData = getResp.data;
-      let g_initialPropsMatch = respData.responseText.match(
-        /window.g_initialProps[\s]*=[\s]*\{(.+?)\};/s
-      );
+      let g_initialPropsMatch = respData.responseText.match(/window.g_initialProps[\s]*=[\s]*\{(.+?)\};/s);
       if (g_initialPropsMatch) {
         log.info(g_initialPropsMatch);
-        let g_initialProps = utils.toJSON(
-          `{${g_initialPropsMatch[g_initialPropsMatch.length - 1]}}`
-        );
+        let g_initialProps = utils.toJSON(`{${g_initialPropsMatch[g_initialPropsMatch.length - 1]}}`);
         log.info(g_initialProps);
         if (g_initialProps.res.code !== 0) {
           Qmsg.error(g_initialProps.res.message);
           return false;
         }
         let HasPwd = g_initialProps.res.data.HasPwd;
-        if (HasPwd && (that.accessCode == void 0 || that.accessCode === "")) {
+        if (HasPwd && (that.accessCode == null || that.accessCode === "")) {
           Qmsg.error("密码缺失!");
           NetDiskUI.newAccessCodeView(
             "密码缺失",
@@ -3822,9 +3803,7 @@
         ParentFileId: parentFileId,
         Page: 1
       };
-      let url = `https://www.123pan.com/b/api/share/get?${utils.toSearchParamsStr(
-      getData
-    )}`;
+      let url = `https://www.123pan.com/b/api/share/get?${utils.toSearchParamsStr(getData)}`;
       let getResp = await httpx.get({
         url,
         headers: {
@@ -3909,9 +3888,7 @@
             isFolder: true,
             index,
             async clickEvent() {
-              let resultFileInfoList = await that.getFilesByRec(
-                item["FileId"].toString()
-              );
+              let resultFileInfoList = await that.getFilesByRec(item["FileId"].toString());
               if (resultFileInfoList) {
                 return that.getFolderInfo(resultFileInfoList, index + 1);
               } else {
@@ -3953,10 +3930,7 @@
               } else {
                 let downloadUrl = item.DownloadUrl;
                 if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
-                  downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-                    "_123pan",
-                    downloadUrl
-                  );
+                  downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
                 }
                 return {
                   url: downloadUrl,
@@ -3968,12 +3942,8 @@
           });
         }
       });
-      tempFolderInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
-      tempFolderFileInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
+      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
       folderInfoList = folderInfoList.concat(tempFolderInfoList);
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       return folderInfoList;
@@ -4025,9 +3995,7 @@
       let jsonData = utils.toJSON(postData.responseText);
       log.info(jsonData);
       if (jsonData["code"] == 0) {
-        jsonData["data"]["DownloadURL"] = that.decodeDownloadUrl(
-          jsonData["data"]["DownloadURL"]
-        );
+        jsonData["data"]["DownloadURL"] = that.decodeDownloadUrl(jsonData["data"]["DownloadURL"]);
         return jsonData;
       } else {
         return {
@@ -4058,8 +4026,7 @@
         for (var a = arguments["length"] > 1 && void 0 !== arguments[1] ? arguments[1] : 10, funcRun = function() {
           for (var b, c = [], d = 0; d < 256; d++) {
             b = d;
-            for (var index = 0; index < 8; index++)
-              b = 1 & b ? 3988292384 ^ b >>> 1 : b >>> 1;
+            for (var index = 0; index < 8; index++) b = 1 & b ? 3988292384 ^ b >>> 1 : b >>> 1;
             c[d] = b;
           }
           return c;
@@ -4143,8 +4110,11 @@
      */
     X_Canary = "client=web,app=share,version=v2.3.1";
     async init(netDiskInfo) {
-      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
+      let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
       that.X_Device_Id = that.get_X_Device_Id();
       log.info("生成X_Device_Id：" + that.X_Device_Id);
       if (globalThis.location.hostname !== "www.aliyundrive.com" && globalThis.location.hostname !== "www.alipan.com") {
@@ -4154,28 +4124,14 @@
           shareCode,
           accessCode
         });
-        let $QmsgErrorTip = Qmsg.error(
-          `请在阿里云盘页面解析，<a href="${url}">点我前往</a>`,
-          {
-            timeout: 1e4,
-            isHTML: true
-          }
-        );
-        domUtils.on(
-          $QmsgErrorTip.$Qmsg.querySelector("a[href]"),
-          "click",
-          void 0,
-          (event) => {
-            utils.preventEvent(event);
-            NetDiskLinkClickMode.openBlankUrl(
-              url,
-              "aliyun",
-              that.ruleIndex,
-              that.shareCode,
-              that.accessCode
-            );
-          }
-        );
+        let $QmsgErrorTip = Qmsg.error(`请在阿里云盘页面解析，<a href="${url}">点我前往</a>`, {
+          timeout: 1e4,
+          isHTML: true
+        });
+        domUtils.on($QmsgErrorTip.$Qmsg.querySelector("a[href]"), "click", void 0, (event) => {
+          utils.preventEvent(event);
+          NetDiskLinkClickMode.openBlankUrl(url, "aliyun", that.ruleIndex, that.shareCode, that.accessCode);
+        });
         return;
       }
       let detail = await this.list_by_share(shareCode, "root");
@@ -4209,19 +4165,13 @@
             isFolder: false,
             index,
             async clickEvent() {
-              let fileDownloadUrl = await that.get_share_link_download_url(
-                item.share_id,
-                item.file_id
-              );
+              let fileDownloadUrl = await that.get_share_link_download_url(item.share_id, item.file_id);
               if (!fileDownloadUrl) {
                 return;
               }
               let schemeDownloadUrl = fileDownloadUrl;
               if (NetDiskFilterScheme.isForwardDownloadLink("aliyun")) {
-                schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-                  "aliyun",
-                  schemeDownloadUrl
-                );
+                schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("aliyun", schemeDownloadUrl);
               }
               return {
                 autoDownload: true,
@@ -4240,10 +4190,7 @@
             isFolder: true,
             index,
             async clickEvent() {
-              let newDetail = await that.list_by_share(
-                item.share_id,
-                item.file_id
-              );
+              let newDetail = await that.list_by_share(item.share_id, item.file_id);
               if (newDetail) {
                 return that.getFolderInfo(newDetail, index + 1);
               } else {
@@ -4253,12 +4200,8 @@
           });
         }
       });
-      tempFolderInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
-      tempFolderFileInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
+      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
       folderInfoList = folderInfoList.concat(tempFolderInfoList);
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       log.info("getFilesInfoByRec", folderInfoList);
@@ -4273,35 +4216,29 @@
      */
     async list_by_share(share_id, parent_file_id, order_by = "name", order_direction = "DESC") {
       const that = this;
-      let postResp = await httpx.post(
-        "https://api.aliyundrive.com/adrive/v2/file/list_by_share",
-        {
-          data: JSON.stringify({
-            share_id,
-            parent_file_id,
-            limit: 20,
-            image_thumbnail_process: "image/resize,w_256/format,jpeg",
-            image_url_process: "image/resize,w_1920/format,jpeg/interlace,1",
-            video_thumbnail_process: "video/snapshot,t_1000,f_jpg,ar_auto,w_256",
-            order_by,
-            order_direction
-          }),
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            Origin: "https://www.aliyundrive.com",
-            Referer: "https://www.aliyundrive.com/",
-            "X-Canary": that.X_Canary,
-            "X-Device-Id": that.X_Device_Id,
-            "X-Share-Token": await that.get_X_Share_Token(
-              that.shareCode,
-              that.accessCode
-            ),
-            "User-Agent": utils.getRandomPCUA()
-          },
-          allowInterceptConfig: false
-        }
-      );
+      let postResp = await httpx.post("https://api.aliyundrive.com/adrive/v2/file/list_by_share", {
+        data: JSON.stringify({
+          share_id,
+          parent_file_id,
+          limit: 20,
+          image_thumbnail_process: "image/resize,w_256/format,jpeg",
+          image_url_process: "image/resize,w_1920/format,jpeg/interlace,1",
+          video_thumbnail_process: "video/snapshot,t_1000,f_jpg,ar_auto,w_256",
+          order_by,
+          order_direction
+        }),
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+          Origin: "https://www.aliyundrive.com",
+          Referer: "https://www.aliyundrive.com/",
+          "X-Canary": that.X_Canary,
+          "X-Device-Id": that.X_Device_Id,
+          "X-Share-Token": await that.get_X_Share_Token(that.shareCode, that.accessCode),
+          "User-Agent": utils.getRandomPCUA()
+        },
+        allowInterceptConfig: false
+      });
       if (!postResp.status) {
         that.handle_request_error(postResp);
         return;
@@ -4317,30 +4254,24 @@
      */
     async get_share_link_download_url(share_id, file_id) {
       const that = this;
-      let postResp = await httpx.post(
-        "https://api.aliyundrive.com/v2/file/get_share_link_download_url",
-        {
-          data: JSON.stringify({
-            expire_sec: 600,
-            file_id,
-            share_id
-          }),
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            Origin: "https://www.aliyundrive.com",
-            Referer: "https://www.aliyundrive.com/",
-            "Content-Type": "application/json;charset=UTF-8",
-            Authorization: "Bearer " + that.getAuthorization(),
-            "X-Share-Token": await that.get_X_Share_Token(
-              that.shareCode,
-              that.accessCode
-            ),
-            "User-Agent": utils.getRandomPCUA()
-          },
-          responseType: "arraybuffer",
-          allowInterceptConfig: false
-        }
-      );
+      let postResp = await httpx.post("https://api.aliyundrive.com/v2/file/get_share_link_download_url", {
+        data: JSON.stringify({
+          expire_sec: 600,
+          file_id,
+          share_id
+        }),
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          Origin: "https://www.aliyundrive.com",
+          Referer: "https://www.aliyundrive.com/",
+          "Content-Type": "application/json;charset=UTF-8",
+          Authorization: "Bearer " + that.getAuthorization(),
+          "X-Share-Token": await that.get_X_Share_Token(that.shareCode, that.accessCode),
+          "User-Agent": utils.getRandomPCUA()
+        },
+        responseType: "arraybuffer",
+        allowInterceptConfig: false
+      });
       if (!postResp.status) {
         that.handle_request_error(postResp);
         return;
@@ -4389,25 +4320,22 @@
       if (/* @__PURE__ */ new Date() < new Date(that.X_Share_Token_Data.expire_time)) {
         return that.X_Share_Token_Data.share_token;
       }
-      let postResp = await httpx.post(
-        "https://api.aliyundrive.com/v2/share_link/get_share_token",
-        {
-          data: JSON.stringify({
-            share_id,
-            share_pwd
-          }),
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            Origin: "https://www.aliyundrive.com",
-            Referer: "https://www.aliyundrive.com/",
-            "X-Canary": that.X_Canary,
-            "X-Device-Id": that.X_Device_Id,
-            "User-Agent": utils.getRandomPCUA()
-          },
-          allowInterceptConfig: false
-        }
-      );
+      let postResp = await httpx.post("https://api.aliyundrive.com/v2/share_link/get_share_token", {
+        data: JSON.stringify({
+          share_id,
+          share_pwd
+        }),
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+          Origin: "https://www.aliyundrive.com",
+          Referer: "https://www.aliyundrive.com/",
+          "X-Canary": that.X_Canary,
+          "X-Device-Id": that.X_Device_Id,
+          "User-Agent": utils.getRandomPCUA()
+        },
+        allowInterceptConfig: false
+      });
       if (!postResp.status) {
         that.handle_request_error(postResp);
         return;
@@ -4447,6 +4375,9 @@
      */
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
       let url = _GM_getValue("baidu-baiduwp-php-url");
       let postForm = _GM_getValue("baidu-baiduwp-php-post-form");
       let enableCopy = _GM_getValue("baidu-baiduwp-php-copy-url");
@@ -4480,13 +4411,7 @@
       document.body.appendChild(formElement);
       log.info("访问网址", url);
       if (enableCopy) {
-        NetDiskLinkClickMode.copy(
-          "baidu",
-          ruleIndex,
-          shareCode,
-          accessCode,
-          "1.5秒后跳转至解析站"
-        );
+        NetDiskLinkClickMode.copy("baidu", ruleIndex, shareCode, accessCode, "1.5秒后跳转至解析站");
         setTimeout(() => {
           formElement.submit();
         }, 1500);
@@ -5550,11 +5475,12 @@
      */
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
       let ruleKeyName = "chengtong";
       if (ruleIndex !== 3) {
-        log.warn(
-          `解析站暂时只支持单文件解析，非单文件链接的点击动作为新标签页打开`
-        );
+        log.warn(`解析站暂时只支持单文件解析，非单文件链接的点击动作为新标签页打开`);
         NetDiskView.netDiskUrlClickEvent({
           data: {
             ruleKeyName,
@@ -6237,9 +6163,10 @@
      */
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.regexp.unicode.isUnicode = Boolean(
-        shareCode.match(this.regexp.unicode.match)
-      );
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
+      this.regexp.unicode.isUnicode = Boolean(shareCode.match(this.regexp.unicode.match));
       let url = ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
       let pageInfoResponse = await this.getPageInfo(url);
       if (!pageInfoResponse) {
@@ -6262,11 +6189,7 @@
         NetDiskUI.staticView.moreFile("蓝奏云文件解析", folderInfoList);
       } else {
         log.info(`单文件`);
-        let fileDownloadInfo = await this.getFileDownloadInfo(
-          shareCode,
-          accessCode,
-          pageInfoResponse
-        );
+        let fileDownloadInfo = await this.getFileDownloadInfo(shareCode, accessCode, pageInfoResponse);
         if (fileDownloadInfo) {
           NetDiskUI.staticView.oneFile({
             title: "蓝奏云单文件直链",
@@ -6330,17 +6253,10 @@
             isFolder: true,
             index,
             clickEvent: async () => {
-              let fileInfo = await this.parseFiles(
-                item.shareCode,
-                item.accessCode
-              );
+              let fileInfo = await this.parseFiles(item.shareCode, item.accessCode);
               if (fileInfo) {
                 return that.getFolderInfo(
-                  this.transformFileInfoToInfoList(
-                    this.shareCode,
-                    this.accessCode,
-                    fileInfo
-                  ),
+                  this.transformFileInfoToInfoList(this.shareCode, this.accessCode, fileInfo),
                   index + 1
                 );
               }
@@ -6381,12 +6297,8 @@
           });
         }
       });
-      tempFolderInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
-      tempFolderFileInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
+      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
       folderInfoList = folderInfoList.concat(tempFolderInfoList);
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       return folderInfoList;
@@ -6404,18 +6316,8 @@
         log.error("该链接需要重新通过iframe地址访问获取信息", iframeUrl);
         Qmsg.info("正在请求下载信息");
         let fileName = $pageDoc.querySelector("body div.d > div")?.innerText || $pageDoc.querySelector("#filenajax")?.innerText || $pageDoc.querySelector("title")?.textContent?.replace(/ - 蓝奏云$/i, "");
-        let fileSize = pageText.match(/文件大小：<\/span>(.+?)<br>/i) || $pageDoc.querySelector(
-          "div.n_box div.n_file div.n_filesize"
-        )?.innerText || $pageDoc.querySelector(
-          ".d2 table tr td .fileinfo:nth-child(1) .fileinforight"
-        )?.innerText;
-        let fileUploadTime = pageText.match(/上传时间：<\/span>(.+?)<br>/i) || $pageDoc.querySelector(
-          "#file[class=''] .n_file_info span.n_file_infos"
-        )?.innerText || $pageDoc.querySelector(
-          ".d2 table tr td .fileinfo:nth-child(3) .fileinforight"
-        )?.innerText || $pageDoc.querySelector(
-          "#file[class='filter'] .n_file_info span.n_file_infos"
-        )?.innerText;
+        let fileSize = pageText.match(/文件大小：<\/span>(.+?)<br>/i) || $pageDoc.querySelector("div.n_box div.n_file div.n_filesize")?.innerText || $pageDoc.querySelector(".d2 table tr td .fileinfo:nth-child(1) .fileinforight")?.innerText;
+        let fileUploadTime = pageText.match(/上传时间：<\/span>(.+?)<br>/i) || $pageDoc.querySelector("#file[class=''] .n_file_info span.n_file_infos")?.innerText || $pageDoc.querySelector(".d2 table tr td .fileinfo:nth-child(3) .fileinforight")?.innerText || $pageDoc.querySelector("#file[class='filter'] .n_file_info span.n_file_infos")?.innerText;
         if (fileSize) {
           if (Array.isArray(fileSize)) {
             fileSize = fileSize[fileSize.length - 1];
@@ -6437,17 +6339,12 @@
         } else {
           log.error("解析文件上传时间信息失败");
         }
-        let downloadUrl = await this.getLinkByIframe(
-          shareCode,
-          accessCode,
-          iframeUrl,
-          {
-            fileName,
-            fileSize,
-            // @ts-ignore
-            fileUploadTime
-          }
-        );
+        let downloadUrl = await this.getLinkByIframe(shareCode, accessCode, iframeUrl, {
+          fileName,
+          fileSize,
+          // @ts-ignore
+          fileUploadTime
+        });
         if (!downloadUrl) {
           return;
         }
@@ -6531,11 +6428,7 @@
             if (!newResponseData) {
               return;
             }
-            return await this.getFileDownloadInfo(
-              shareCode,
-              accessCode,
-              newResponseData
-            );
+            return await this.getFileDownloadInfo(shareCode, accessCode, newResponseData);
           } else {
             fileName = json_data["inf"] ? json_data["inf"] : fileName;
           }
@@ -6683,9 +6576,7 @@
       }
       let pageText = pageInfoResponse.responseText;
       let pageDoc = domUtils.parseHTML(pageText, true, true);
-      let folders = Array.from(
-        pageDoc.querySelectorAll("#folder a.mlink[href]")
-      ).map(($link) => {
+      let folders = Array.from(pageDoc.querySelectorAll("#folder a.mlink[href]")).map(($link) => {
         let url2 = $link.href;
         let urlInst = new URL(url2);
         let shareCodeMatch = urlInst.pathname.match(/^\/([0-9a-zA-Z]{5,})/);
@@ -6877,20 +6768,13 @@
       log.success("直链", downloadUrl);
       if ("密码不正确".indexOf(jsonData["inf"]) != -1) {
         Qmsg.error("密码不正确!");
-        NetDiskUI.newAccessCodeView(
-          void 0,
-          "lanzou",
-          this.ruleIndex,
-          shareCode,
-          accessCode,
-          (option) => {
-            this.init({
-              ruleIndex: this.ruleIndex,
-              shareCode,
-              accessCode: option.accessCode
-            });
-          }
-        );
+        NetDiskUI.newAccessCodeView(void 0, "lanzou", this.ruleIndex, shareCode, accessCode, (option) => {
+          this.init({
+            ruleIndex: this.ruleIndex,
+            shareCode,
+            accessCode: option.accessCode
+          });
+        });
       } else {
         fileInfo.fileName = utils.isNotNull(jsonData["inf"]) ? jsonData["inf"] : fileInfo.fileName;
         log.info(downloadUrl);
@@ -6901,12 +6785,9 @@
      * 获取kdns的参数
      */
     async getKNDS() {
-      let response = await httpx.get(
-        "https://down-load.lanrar.com/file/kdns.js",
-        {
-          allowInterceptConfig: false
-        }
-      );
+      let response = await httpx.get("https://down-load.lanrar.com/file/kdns.js", {
+        allowInterceptConfig: false
+      });
       if (response.status && utils.isNotNull(response.data.responseText)) {
         return 1;
       } else {
@@ -6939,9 +6820,7 @@
       }
       let fileMoreAjaxResponseData = fileMoreAjaxResponse.data;
       log.info(fileMoreAjaxResponseData);
-      let json_data = utils.toJSON(
-        fileMoreAjaxResponseData.responseText
-      );
+      let json_data = utils.toJSON(fileMoreAjaxResponseData.responseText);
       return json_data;
     }
   }
@@ -7012,8 +6891,7 @@
       "A"
     ],
     decodeChar(e) {
-      for (let t = 0; t < this.EncryptList.length; t++)
-        if (e == this.EncryptList[t]) return t;
+      for (let t = 0; t < this.EncryptList.length; t++) if (e == this.EncryptList[t]) return t;
       return -1;
     },
     /**
@@ -7075,19 +6953,21 @@
      */
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      const that = this;
-      that.shareCodeId = that.getDecodeShareCodeId(shareCode);
-      that.uuid = that.getEncodeUUID();
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
+      this.shareCodeId = this.getDecodeShareCodeId(shareCode);
+      this.uuid = this.getEncodeUUID();
       let linkInfo = await this.recommendList(
-        that.$data.devType,
-        that.$data.devModel,
-        that.uuid,
-        that.$data.extra,
-        that.getEncodeTimeStamp(),
-        that.shareCode,
-        that.$data.type,
-        that.$data.offset,
-        that.$data.limit
+        this.$data.devType,
+        this.$data.devModel,
+        this.uuid,
+        this.$data.extra,
+        this.getEncodeTimeStamp(),
+        this.shareCode,
+        this.$data.type,
+        this.$data.offset,
+        this.$data.limit
       );
       if (!linkInfo) {
         return;
@@ -7096,7 +6976,7 @@
         return;
       }
       if (linkInfo["list"][0]?.["map"]?.["userId"]) {
-        that.userId = linkInfo["list"][0]?.["map"]?.["userId"];
+        this.userId = linkInfo["list"][0]?.["map"]?.["userId"];
       } else {
         Qmsg.error("解析获取【userId】为空");
         return;
@@ -7104,18 +6984,12 @@
       if (linkInfo["list"][0]["folderIds"] == null) {
         log.success("该链接是 单文件");
         let fileInfo = linkInfo["list"][0]["fileList"][0];
-        let folderInfoList = that.parseFolderInfo(
-          linkInfo["list"][0]["fileList"],
-          0
-        );
+        let folderInfoList = this.parseFolderInfo(linkInfo["list"][0]["fileList"], 0);
         let downloadInfo = await folderInfoList[0]["clickEvent"]();
         if (downloadInfo && !Array.isArray(downloadInfo)) {
           let downloadUrl = downloadInfo["url"];
           if (NetDiskFilterScheme.isForwardDownloadLink("lanzouyx")) {
-            downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-              "lanzouyx",
-              downloadUrl
-            );
+            downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("lanzouyx", downloadUrl);
           }
           NetDiskUI.staticView.oneFile({
             title: "蓝奏云优享单文件直链",
@@ -7130,10 +7004,7 @@
         log.success("该链接是 多文件");
         Qmsg.info("正在递归文件");
         let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-        let folderInfoList = that.parseFolderInfo(
-          linkInfo["list"][0]["fileList"],
-          0
-        );
+        let folderInfoList = this.parseFolderInfo(linkInfo["list"][0]["fileList"], 0);
         QmsgLoading.close();
         log.info("递归完毕");
         NetDiskUI.staticView.moreFile("蓝奏云优享解析", folderInfoList);
@@ -7206,10 +7077,7 @@
               );
               if (downloadUrl) {
                 if (NetDiskFilterScheme.isForwardDownloadLink("lanzouyx")) {
-                  downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-                    "lanzouyx",
-                    downloadUrl
-                  );
+                  downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("lanzouyx", downloadUrl);
                 }
                 return {
                   url: downloadUrl,
@@ -7245,20 +7113,18 @@
      */
     async recommendList(devType = this.$data.devType, devModel = this.$data.devModel, uuid = "", extra = this.$data.extra, timestamp = "", shareId = "", type = this.$data.type, offset = this.$data.offset, limit = this.$data.limit) {
       let response = await httpx.post(
-        `https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr(
-        {
-          devType,
-          devModel,
-          uuid,
-          extra,
-          timestamp,
-          shareId,
-          code: this.accessCode,
-          type,
-          offset,
-          limit
-        }
-      )}`,
+        `https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr({
+        devType,
+        devModel,
+        uuid,
+        extra,
+        timestamp,
+        shareId,
+        code: this.accessCode,
+        type,
+        offset,
+        limit
+      })}`,
         {
           headers: {
             Accept: "application/json, text/plain, */*",
@@ -7338,17 +7204,15 @@
      * 获取下载链接
      */
     async getDownloadFileUrl(downloadId = "", enable = 1, devType = this.$data.devType, uuid = "", timestamp = "", auth = "", shareId = this.shareCode) {
-      let url = `https://api.ilanzou.com/unproved/file/redirect?${utils.toSearchParamsStr(
-      {
-        downloadId,
-        enable,
-        devType,
-        uuid,
-        timestamp,
-        auth,
-        shareId
-      }
-    )}`;
+      let url = `https://api.ilanzou.com/unproved/file/redirect?${utils.toSearchParamsStr({
+      downloadId,
+      enable,
+      devType,
+      uuid,
+      timestamp,
+      auth,
+      shareId
+    })}`;
       return url;
     }
     /**
@@ -7385,15 +7249,7 @@
       const that = this;
       let nowTime = Date.now();
       let downloadId = LanZouUtils.encryptHex(fileId + "|" + userId), enable = 1, timestamp = that.getEncodeTimeStamp(nowTime), auth = LanZouUtils.encryptHex(fileId + "|" + nowTime);
-      return [
-        downloadId,
-        enable,
-        that.$data.devType,
-        uuid,
-        timestamp,
-        auth,
-        that.shareCode
-      ];
+      return [downloadId, enable, that.$data.devType, uuid, timestamp, auth, that.shareCode];
     }
     /**
      * 前往登录
@@ -7462,34 +7318,29 @@
     OK_CODE = "0000";
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      const that = this;
-      that.panelList = [];
-      that.panelContent = "";
-      let checkLinkValidityInfo = await that.checkLinkValidity(
-        that.shareCode,
-        that.accessCode
-      );
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
+      this.panelList = [];
+      this.panelContent = "";
+      let checkLinkValidityInfo = await this.checkLinkValidity(this.shareCode, this.accessCode);
       if (!checkLinkValidityInfo) {
         return;
       }
       if (checkLinkValidityInfo.isFolder) {
         Qmsg.info("正在递归文件");
         let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-        let firstFolderInfo = await that.getShareFolder(
-          checkLinkValidityInfo["data"]["guid"]
-        );
+        let firstFolderInfo = await this.getShareFolder(checkLinkValidityInfo["data"]["guid"]);
         if (!firstFolderInfo) {
           QmsgLoading.close();
           return;
         }
-        let firstFileInfo = await that.getShareFiles(
-          checkLinkValidityInfo["data"]["guid"]
-        );
+        let firstFileInfo = await this.getShareFiles(checkLinkValidityInfo["data"]["guid"]);
         if (!firstFileInfo) {
           QmsgLoading.close();
           return;
         }
-        let folderInfoList = that.getFolderInfo(
+        let folderInfoList = this.getFolderInfo(
           checkLinkValidityInfo["data"]["guid"],
           firstFolderInfo,
           firstFileInfo,
@@ -7501,14 +7352,14 @@
       } else {
         let downloadUrl = void 0;
         if (checkLinkValidityInfo["zipDownload"]) {
-          downloadUrl = await that.getZipFileDownloadUrl(
-            that.shareCode,
+          downloadUrl = await this.getZipFileDownloadUrl(
+            this.shareCode,
             checkLinkValidityInfo["guid"],
             checkLinkValidityInfo["fileName"]
           );
         } else {
-          downloadUrl = await that.getDownloadUrl(
-            that.shareCode,
+          downloadUrl = await this.getDownloadUrl(
+            this.shareCode,
             checkLinkValidityInfo["guid"],
             checkLinkValidityInfo["id"]
           );
@@ -7517,10 +7368,7 @@
           return;
         }
         if (NetDiskFilterScheme.isForwardDownloadLink("nainiu")) {
-          downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-            "nainiu",
-            downloadUrl
-          );
+          downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("nainiu", downloadUrl);
         }
         NetDiskUI.staticView.oneFile({
           title: "奶牛快传单文件直链",
@@ -7531,7 +7379,7 @@
           fileUploadTime: checkLinkValidityInfo["fileUploadTime"],
           fileLatestTime: checkLinkValidityInfo["fileLatestTime"],
           clickCallBack: (_fileDetails_) => {
-            that.downloadFile(checkLinkValidityInfo["fileName"], downloadUrl);
+            this.downloadFile(checkLinkValidityInfo["fileName"], downloadUrl);
           }
         });
       }
@@ -7577,16 +7425,10 @@
           return {
             zipDownload,
             guid: resultJSON["data"]["guid"],
-            fileSize: utils.formatByteToSize(
-              resultJSON["data"]["firstFolder"]["size"]
-            ),
+            fileSize: utils.formatByteToSize(resultJSON["data"]["firstFolder"]["size"]),
             fileName: resultJSON["data"]["firstFolder"]["title"],
-            fileUploadTime: utils.formatTime(
-              resultJSON["data"]["firstFolder"]["created_at"]
-            ),
-            fileLatestTime: utils.formatTime(
-              resultJSON["data"]["firstFolder"]["updated_at"]
-            )
+            fileUploadTime: utils.formatTime(resultJSON["data"]["firstFolder"]["created_at"]),
+            fileLatestTime: utils.formatTime(resultJSON["data"]["firstFolder"]["updated_at"])
           };
         } else if (resultJSON["data"]["firstFile"] == void 0) {
           Qmsg.success("该链接为文件夹类型");
@@ -7601,17 +7443,11 @@
           zipDownload,
           guid: resultJSON["data"]["guid"],
           id: resultJSON["data"]["firstFile"]["id"],
-          fileSize: utils.formatByteToSize(
-            resultJSON["data"]["firstFile"]["file_info"]["size"]
-          ),
+          fileSize: utils.formatByteToSize(resultJSON["data"]["firstFile"]["file_info"]["size"]),
           fileName: resultJSON["data"]["firstFile"]["file_info"]["title"],
           fileType: resultJSON["data"]["firstFile"]["file_info"]["format"],
-          fileUploadTime: utils.formatTime(
-            resultJSON["data"]["firstFile"]["created_at"]
-          ),
-          fileLatestTime: utils.formatTime(
-            resultJSON["data"]["firstFile"]["updated_at"]
-          )
+          fileUploadTime: utils.formatTime(resultJSON["data"]["firstFile"]["created_at"]),
+          fileLatestTime: utils.formatTime(resultJSON["data"]["firstFile"]["updated_at"])
         };
       }
     }
@@ -7637,26 +7473,15 @@
             if (!folderInfo["child_folder_count"] && !folderInfo["content_count"]) {
               return [];
             }
-            let childFolderInfo = await that.getShareFolder(
-              transferGuid,
-              folderInfo["id"]
-            );
+            let childFolderInfo = await that.getShareFolder(transferGuid, folderInfo["id"]);
             if (!childFolderInfo) {
               return [];
             }
-            let childFileInfo = await that.getShareFiles(
-              transferGuid,
-              folderInfo["id"]
-            );
+            let childFileInfo = await that.getShareFiles(transferGuid, folderInfo["id"]);
             if (!childFileInfo) {
               return [];
             }
-            let folderInfoList2 = that.getFolderInfo(
-              transferGuid,
-              childFolderInfo,
-              childFileInfo,
-              index + 1
-            );
+            let folderInfoList2 = that.getFolderInfo(transferGuid, childFolderInfo, childFileInfo, index + 1);
             return folderInfoList2;
           }
         });
@@ -7676,30 +7501,19 @@
           isFolder: false,
           index,
           async clickEvent() {
-            let downloadUrl = await that.getDownloadUrl(
-              that.shareCode,
-              transferGuid,
-              fileInfo["id"]
-            );
+            let downloadUrl = await that.getDownloadUrl(that.shareCode, transferGuid, fileInfo["id"]);
             if (!downloadUrl) {
               return;
             }
             if (NetDiskFilterScheme.isForwardDownloadLink("nainiu")) {
-              downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-                "nainiu",
-                downloadUrl
-              );
+              downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("nainiu", downloadUrl);
             }
             that.downloadFile(fileName, downloadUrl);
           }
         });
       });
-      tempFolderInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
-      tempFolderFileInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
+      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
       folderInfoList = folderInfoList.concat(tempFolderInfoList);
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       log.info("getFolderInfo", folderInfoList);
@@ -7954,24 +7768,26 @@
     };
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      const that = this;
-      let shareInfoData = await that.getShareInfoByCodeV2(shareCode);
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
+      let shareInfoData = await this.getShareInfoByCodeV2(shareCode);
       if (!shareInfoData) {
         return;
       }
       log.info("解析的JSON信息", shareInfoData);
-      if (shareInfoData["needAccessCode"] && utils.isNull(that.accessCode)) {
+      if (shareInfoData["needAccessCode"] && utils.isNull(this.accessCode)) {
         Qmsg.error("密码不正确!");
         NetDiskUI.newAccessCodeView(
           void 0,
           "tianyiyun",
-          that.ruleIndex,
-          that.shareCode,
-          that.accessCode,
+          this.ruleIndex,
+          this.shareCode,
+          this.accessCode,
           (option) => {
-            that.init({
-              ruleIndex: that.ruleIndex,
-              shareCode: that.shareCode,
+            this.init({
+              ruleIndex: this.ruleIndex,
+              shareCode: this.shareCode,
               accessCode: option.accessCode
             });
           }
@@ -7981,7 +7797,7 @@
       if ("shareId" in shareInfoData) {
         this.shareId = shareInfoData["shareId"];
       } else {
-        let newShareId = await that.getShareId(shareCode, accessCode);
+        let newShareId = await this.getShareId(shareCode, accessCode);
         if (newShareId) {
           this.shareId = newShareId;
         }
@@ -7996,7 +7812,7 @@
         Qmsg.info("正在递归文件");
         let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
         let fileId = shareInfoData["fileId"];
-        let folderInfo = await that.listShareDir(
+        let folderInfo = await this.listShareDir(
           shareCode,
           accessCode,
           void 0,
@@ -8013,29 +7829,21 @@
           QmsgLoading.close();
           return;
         }
-        let folderInfoList = that.getFolderInfo(
-          shareCode,
-          accessCode,
-          folderInfo,
-          0
-        );
+        let folderInfoList = this.getFolderInfo(shareCode, accessCode, folderInfo, 0);
         QmsgLoading.close();
         log.info("递归完毕");
         NetDiskUI.staticView.moreFile("天翼云文件解析", folderInfoList);
         return;
       } else {
-        let downloadUrl = await that.getDownloadUrl(
-          that.shareCode,
-          that.accessCode,
+        let downloadUrl = await this.getDownloadUrl(
+          this.shareCode,
+          this.accessCode,
           shareInfoData.fileId,
           this.shareId
         );
         if (downloadUrl) {
           if (NetDiskFilterScheme.isForwardDownloadLink("tianyiyun")) {
-            downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-              "tianyiyun",
-              downloadUrl
-            );
+            downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("tianyiyun", downloadUrl);
           }
           NetDiskUI.staticView.oneFile({
             title: "天翼云单文件直链",
@@ -8053,24 +7861,19 @@
      */
     async getUserBriefInfo(shareCode) {
       const that = this;
-      let response = await httpx.get(
-        "https://cloud.189.cn/api/portal/v2/getUserBriefInfo.action",
-        {
-          headers: {
-            Accept: "application/json;charset=UTF-8",
-            Referer: "https://cloud.189.cn/web/share?code=" + shareCode,
-            "User-Agent": utils.getRandomPCUA()
-          },
-          allowInterceptConfig: false
-        }
-      );
+      let response = await httpx.get("https://cloud.189.cn/api/portal/v2/getUserBriefInfo.action", {
+        headers: {
+          Accept: "application/json;charset=UTF-8",
+          Referer: "https://cloud.189.cn/web/share?code=" + shareCode,
+          "User-Agent": utils.getRandomPCUA()
+        },
+        allowInterceptConfig: false
+      });
       log.info(response);
       if (!response.status) {
         let errorResultJSON = utils.toJSON(response.data.responseText);
         if (errorResultJSON["res_code"] in that.code) {
-          Qmsg.error(
-            that.code[errorResultJSON["res_code"]]
-          );
+          Qmsg.error(that.code[errorResultJSON["res_code"]]);
         } else {
           Qmsg.error("请求异常");
         }
@@ -8188,9 +7991,7 @@
         if (errorResultJSON["errorCode"] === "InvalidSessionKey") {
           that.gotoLogin(that.code["InvalidSessionKey"]);
         } else if (errorResultJSON["res_code"] in that.code) {
-          Qmsg.error(
-            that.code[errorResultJSON["res_code"]]
-          );
+          Qmsg.error(that.code[errorResultJSON["res_code"]]);
         } else {
           Qmsg.error("请求异常");
         }
@@ -8262,9 +8063,7 @@
         accessCode
       };
       let response = await httpx.get(
-        `https://cloud.189.cn/api/open/share/listShareDir.action?${utils.toSearchParamsStr(
-        getSearParamData
-      )}`,
+        `https://cloud.189.cn/api/open/share/listShareDir.action?${utils.toSearchParamsStr(getSearParamData)}`,
         {
           headers: {
             Accept: "application/json;charset=UTF-8",
@@ -8335,12 +8134,7 @@
             if (!_folderInfo_) {
               return [];
             }
-            return that.getFolderInfo(
-              shareCode,
-              accessCode,
-              _folderInfo_,
-              index + 1
-            );
+            return that.getFolderInfo(shareCode, accessCode, _folderInfo_, index + 1);
           }
         });
       });
@@ -8354,18 +8148,10 @@
           isFolder: false,
           index,
           async clickEvent() {
-            let downloadUrl = await that.getDownloadUrl(
-              shareCode,
-              accessCode,
-              fileInfo["id"],
-              that.shareId
-            );
+            let downloadUrl = await that.getDownloadUrl(shareCode, accessCode, fileInfo["id"], that.shareId);
             if (downloadUrl) {
               if (NetDiskFilterScheme.isForwardDownloadLink("tianyiyun")) {
-                downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-                  "tianyiyun",
-                  downloadUrl
-                );
+                downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("tianyiyun", downloadUrl);
               }
               return {
                 autoDownload: true,
@@ -8376,12 +8162,8 @@
           }
         });
       });
-      tempFolderInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
-      tempFolderFileInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
+      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
       folderInfoList = folderInfoList.concat(tempFolderInfoList);
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       log.info("getFolderInfo", folderInfoList);
@@ -8394,28 +8176,30 @@
      */
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      const that = this;
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
       Qmsg.info("检查是否已登录UC网盘");
-      let loginStatus = await that.isLogin();
+      let loginStatus = await this.isLogin();
       if (!Boolean(loginStatus)) {
-        that.gotoLogin(
+        this.gotoLogin(
           "检测到尚未登录UC网盘，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC才有登录选项)"
         );
         return;
       }
-      let stoken = await that.getStoken(that.shareCode, that.accessCode);
+      let stoken = await this.getStoken(this.shareCode, this.accessCode);
       if (!stoken) {
         return;
       }
-      let detail = await that.getDetail(that.shareCode, that.accessCode, stoken);
+      let detail = await this.getDetail(this.shareCode, this.accessCode, stoken);
       if (!detail) {
         Qmsg.error("UC网盘：获取detail失败");
         return;
       }
       if (detail.length === 1 && detail[0].dir == false && detail[0].file_type === 1) {
         let oneFileDetail = detail[0];
-        let oneFileDownloadDetail = await that.getDownload(
-          that.shareCode,
+        let oneFileDownloadDetail = await this.getDownload(
+          this.shareCode,
           stoken,
           oneFileDetail.fid,
           oneFileDetail.share_fid_token
@@ -8433,20 +8217,15 @@
           fileSize: utils.formatByteToSize(oneFileDownloadDetail[0].size),
           downloadUrl: oneFileDownloadDetail[0].download_url,
           fileUploadTime: utils.formatTime(oneFileDownloadDetail[0].created_at),
-          fileLatestTime: utils.formatTime(
-            oneFileDownloadDetail[0].last_update_at
-          ),
-          clickCallBack() {
-            that.downloadFile(
-              oneFileDownloadDetail[0].file_name,
-              oneFileDownloadDetail[0].download_url
-            );
+          fileLatestTime: utils.formatTime(oneFileDownloadDetail[0].last_update_at),
+          clickCallBack: () => {
+            this.downloadFile(oneFileDownloadDetail[0].file_name, oneFileDownloadDetail[0].download_url);
           }
         });
       } else {
         Qmsg.info("正在递归文件");
         let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-        let folderInfoList = that.getFolderInfo(detail, stoken, 0);
+        let folderInfoList = this.getFolderInfo(detail, stoken, 0);
         QmsgLoading.close();
         log.info("递归完毕");
         NetDiskUI.staticView.moreFile("UC网盘文件解析", folderInfoList);
@@ -8756,10 +8535,7 @@
               } else {
                 let schemeDownloadUrl = fileDownloadUrl;
                 if (NetDiskFilterScheme.isForwardDownloadLink("uc")) {
-                  schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-                    "uc",
-                    schemeDownloadUrl
-                  );
+                  schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("uc", schemeDownloadUrl);
                 }
                 if (schemeDownloadUrl === fileDownloadUrl) {
                   that.downloadFile(item.file_name, fileDownloadUrl);
@@ -8787,12 +8563,7 @@
                 log.success("里面没有文件");
                 return [];
               }
-              let newDetail = await that.getDetail(
-                that.shareCode,
-                that.accessCode,
-                stoken,
-                item.fid
-              );
+              let newDetail = await that.getDetail(that.shareCode, that.accessCode, stoken, item.fid);
               if (newDetail) {
                 return that.getFolderInfo(newDetail, stoken, index + 1);
               } else {
@@ -8802,12 +8573,8 @@
           });
         }
       });
-      tempFolderInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
-      tempFolderFileInfoList.sort(
-        (a, b) => a["fileName"].localeCompare(b["fileName"])
-      );
+      tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+      tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
       folderInfoList = folderInfoList.concat(tempFolderInfoList);
       folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
       log.info("getFilesInfoByRec", folderInfoList);
@@ -8829,6 +8596,9 @@
     };
     async init(netDiskInfo) {
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      this.ruleIndex = ruleIndex;
+      this.shareCode = shareCode;
+      this.accessCode = accessCode;
       Qmsg.info("正在请求直链中...");
       let token = await this.getWssToken();
       if (!token) {
@@ -8846,20 +8616,17 @@
      */
     async getWssToken() {
       const that = this;
-      let postResp = await httpx.post(
-        "https://www.wenshushu.cn/ap/login/anonymous",
-        {
-          responseType: "json",
-          data: JSON.stringify({
-            dev_info: "{}"
-          }),
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            "User-Agent": utils.getRandomAndroidUA(),
-            Referer: "https://www.wenshushu.cn/f/" + that.shareCode
-          }
+      let postResp = await httpx.post("https://www.wenshushu.cn/ap/login/anonymous", {
+        responseType: "json",
+        data: JSON.stringify({
+          dev_info: "{}"
+        }),
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "User-Agent": utils.getRandomAndroidUA(),
+          Referer: "https://www.wenshushu.cn/f/" + that.shareCode
         }
-      );
+      });
       log.success(postResp);
       if (!postResp.status) {
         return;
@@ -9003,10 +8770,7 @@
           Qmsg.error("对方的分享流量不足");
         } else {
           if (NetDiskFilterScheme.isForwardDownloadLink("wenshushu")) {
-            downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-              "wenshushu",
-              downloadUrl
-            );
+            downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("wenshushu", downloadUrl);
           }
           NetDiskUI.staticView.oneFile({
             title: "文叔叔单文件直链",
@@ -19381,7 +19145,7 @@
   const NetDiskRule_chengtong = {
     /** 规则 */
     rule: [
-      /* d */
+      /* d ==> https */
       {
         link_innerText: `(pan.jc-box.com|download.jamcz.com|545c.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4,6}|)`,
         link_innerHTML: `(pan.jc-box.com|download.jamcz.com|545c.com)/d/[0-9a-zA-Z-_]{8,26}([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?password=|\\?p=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4,6}|)`,
@@ -25473,8 +25237,11 @@
     };
   };
   try {
-    let GLOBAL_RESOURCE_ICON = RESOURCE_ICON ?? {};
+    let GLOBAL_RESOURCE_ICON;
     if (false) ;
+    else {
+      GLOBAL_RESOURCE_ICON = RESOURCE_ICON;
+    }
     Object.assign(NetDiskUI.src.icon, GLOBAL_RESOURCE_ICON);
   } catch (error) {
     console.error("init NetDisk icon error", error);
