@@ -118,29 +118,55 @@ const BaiduSearch = {
 	 */
 	openResultBlank() {
 		/**
+		 * 设置元素被访问过
+		 */
+		const setNodeVisited = ($el: HTMLElement) => {
+			DOMUtils.attr($el, "data-visited", true);
+			DOMUtils.css($el, {
+				opacity: "0.4 !important",
+				color: "#bbbbbb !important",
+			});
+		};
+		/**
+		 * 修改点击访问的颜色
+		 */
+		const changeVisitedNodeColor = ($click: HTMLElement, $result: HTMLElement) => {
+			let $title =
+				$result.querySelector<HTMLElement>(".cu-title") ||
+				$result.querySelector<HTMLElement>(".c-title") ||
+				$result.querySelector<HTMLElement>(".cosc-title");
+
+			/**
+			 * 大家还在搜
+			 */
+			let $recommend = $click.closest<HTMLElement>('.c-result[tpl="recommend_list_san"]');
+			let $recommendItem = $click.closest<HTMLElement>('a[class*="result-item"]');
+			if ($recommend && $recommendItem) {
+				// 那这里不修改标题颜色
+				// 修改点击的项的颜色
+				setNodeVisited($recommendItem);
+			} else if ($title) {
+				// 存在标题
+				// 修改访问的颜色
+				log.info([`修改标题的被访问的颜色`, $title]);
+				setNodeVisited($title);
+			}
+		};
+		/**
 		 * 搜索结果点击事件
 		 * @param event
 		 */
-		function globalResultClickEvent(event: PointerEvent | MouseEvent | Event, $selectorTarget: HTMLElement) {
+		const globalResultClickEvent = (
+			event: PointerEvent | MouseEvent | Event,
+			$selectorTarget: HTMLElement
+		) => {
 			let url: null | string = null;
 			let $click = event.composedPath()[0] as HTMLElement;
 			// .c-result.result
 			let $result = $selectorTarget;
 
-			let $title =
-				$result.querySelector<HTMLElement>(".cu-title") ||
-				$result.querySelector<HTMLElement>(".c-title") ||
-				$result.querySelector<HTMLElement>(".cosc-title");
-			if ($title) {
-				// 存在标题
-				// 修改访问的颜色
-				log.info([`修改标题的被访问的颜色`, $title]);
-				DOMUtils.attr($title, "data-visited", true);
-				DOMUtils.css($title, {
-					opacity: "0.4 !important",
-					color: "#bbbbbb !important",
-				});
-			}
+			changeVisitedNodeColor($click, $result);
+
 			if ($click) {
 				// 百度AI 总结全网xx篇结果
 				// 让它不点击跳转
@@ -199,7 +225,7 @@ const BaiduSearch = {
 			utils.preventEvent(event);
 			log.success(["新标签页打开-来自click事件", url]);
 			window.open(url, "_blank");
-		}
+		};
 		DOMUtils.on(document, "click", ".c-result.result", globalResultClickEvent, {
 			capture: true,
 		});

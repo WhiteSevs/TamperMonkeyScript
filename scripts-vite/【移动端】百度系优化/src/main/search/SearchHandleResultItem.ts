@@ -17,10 +17,7 @@ export const BaiduHandleResultItem = {
 	isBaiDuTransferStation(url: string) {
 		try {
 			url = decodeURIComponent(url);
-			return utils.startsWith(
-				url,
-				"http(s|)://(m[0-9]{0,2}|www).baidu.com/from"
-			);
+			return utils.startsWith(url, "http(s|)://(m[0-9]{0,2}|www).baidu.com/from");
 		} catch (error) {
 			log.error(error);
 			return false;
@@ -40,6 +37,7 @@ export const BaiduHandleResultItem = {
 			/^http(s|):\/\/(m[0-9]{0,2}|www).baidu.com\/pages\/pb\/pb/,
 			/^http(s|):\/\/ks.baidu.com/,
 			/^http(s|):\/\/mbd.baidu.com\/ma\/tips/,
+			/.recommend_list.baidu.com$/,
 		];
 		for (const blackUrlRegexp of blackList) {
 			if (url.match(blackUrlRegexp)) {
@@ -74,50 +72,30 @@ export const BaiduHandleResultItem = {
 		});
 		/* 这个是百度笔记(可能) */
 		$result
-			.querySelectorAll<HTMLDivElement>(
-				'div[data-aftclk][class*="img-container"]'
-			)
+			.querySelectorAll<HTMLDivElement>('div[data-aftclk][class*="img-container"]')
 			.forEach(($imgContainer) => {
-				let domOriginUrl =
-					BaiduHandleResultItem.parseOriginUrlFromDataSet($imgContainer);
-				if (
-					!utils.isNull(domOriginUrl) &&
-					!BaiduHandleResultItem.isBlackList(domOriginUrl)
-				) {
+				let domOriginUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet($imgContainer);
+				if (!utils.isNull(domOriginUrl) && !BaiduHandleResultItem.isBlackList(domOriginUrl)) {
 					$imgContainer.setAttribute("href", domOriginUrl);
 					$imgContainer.setAttribute("rl-link-href", domOriginUrl);
 					//log.info("替换成新链接2: " + domOriginUrl);
 				}
 			});
 		/* 对搜索结果中存在的视频进行处理 */
-		$result
-			.querySelectorAll<HTMLDivElement>(
-				"div.c-video-container div[data-aftclk]"
-			)
-			.forEach(($aftclk) => {
-				let domOriginUrl =
-					BaiduHandleResultItem.parseOriginUrlFromDataSet($aftclk);
-				if (
-					!utils.isNull(domOriginUrl) &&
-					!BaiduHandleResultItem.isBlackList(domOriginUrl)
-				) {
-					$aftclk.setAttribute("href", domOriginUrl);
-					$aftclk.setAttribute("rl-link-href", domOriginUrl);
-					//log.info("视频替换成新链接1: " + domOriginUrl);
-				}
-			});
+		$result.querySelectorAll<HTMLDivElement>("div.c-video-container div[data-aftclk]").forEach(($aftclk) => {
+			let domOriginUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet($aftclk);
+			if (!utils.isNull(domOriginUrl) && !BaiduHandleResultItem.isBlackList(domOriginUrl)) {
+				$aftclk.setAttribute("href", domOriginUrl);
+				$aftclk.setAttribute("rl-link-href", domOriginUrl);
+				//log.info("视频替换成新链接1: " + domOriginUrl);
+			}
+		});
 		/* 对搜索结果中存在的视频进行处理 */
 		$result
-			.querySelectorAll<HTMLDivElement>(
-				'div[data-module="sc_pc"] div[rl-link-href]'
-			)
+			.querySelectorAll<HTMLDivElement>('div[data-module="sc_pc"] div[rl-link-href]')
 			.forEach(($rlLinkHref) => {
-				let domOriginUrl =
-					BaiduHandleResultItem.parseOriginUrlFromDataSet($rlLinkHref);
-				if (
-					!utils.isNull(domOriginUrl) &&
-					!BaiduHandleResultItem.isBlackList(domOriginUrl)
-				) {
+				let domOriginUrl = BaiduHandleResultItem.parseOriginUrlFromDataSet($rlLinkHref);
+				if (!utils.isNull(domOriginUrl) && !BaiduHandleResultItem.isBlackList(domOriginUrl)) {
 					$rlLinkHref.setAttribute("href", domOriginUrl);
 					$rlLinkHref.setAttribute("rl-link-href", domOriginUrl);
 					//log.info("视频替换成新链接2: " + domOriginUrl);
@@ -147,77 +125,62 @@ export const BaiduHandleResultItem = {
 	 */
 	parseScriptDOMOriginUrlMap($target: HTMLElement | Document) {
 		let urlMap = new utils.Dictionary<string, string>();
-		$target
-			.querySelectorAll<HTMLScriptElement>("script[id^='atom-data-']")
-			.forEach((item) => {
-				let jsonData = utils.toJSON(item.innerHTML);
-				if (jsonData["data"]["resultAtomData"] == null) {
-					return;
+		$target.querySelectorAll<HTMLScriptElement>("script[id^='atom-data-']").forEach((item) => {
+			let jsonData = utils.toJSON(item.innerHTML);
+			if (jsonData["data"]["resultAtomData"] == null) {
+				return;
+			}
+			let resultAtomData = jsonData["data"]["resultAtomData"] as NestedObjectWithToString;
+			if (
+				resultAtomData["abstract"] &&
+				resultAtomData["abstract"]["urlParams"] &&
+				resultAtomData["abstract"]["urlParams"]["tcUrl"]
+			) {
+				let url = BaiduHandleResultItem.parseURLParamsOriginURL(resultAtomData["abstract"]["urlParams"]);
+				if (url) {
+					urlMap.set(resultAtomData["abstract"]["urlParams"]["tcUrl"], url);
 				}
-				let resultAtomData = jsonData["data"][
-					"resultAtomData"
-				] as NestedObjectWithToString;
-				if (
-					resultAtomData["abstract"] &&
-					resultAtomData["abstract"]["urlParams"] &&
-					resultAtomData["abstract"]["urlParams"]["tcUrl"]
-				) {
-					let url = BaiduHandleResultItem.parseURLParamsOriginURL(
-						resultAtomData["abstract"]["urlParams"]
-					);
-					if (url) {
-						urlMap.set(resultAtomData["abstract"]["urlParams"]["tcUrl"], url);
-					}
+			}
+			if (
+				resultAtomData["content"] &&
+				resultAtomData["content"]["abstract"] &&
+				resultAtomData["content"]["abstract"]["urlParams"] &&
+				resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"]
+			) {
+				let url = BaiduHandleResultItem.parseURLParamsOriginURL(
+					resultAtomData["content"]["abstract"]["urlParams"]
+				);
+				if (url) {
+					urlMap.set(resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"], url);
 				}
-				if (
-					resultAtomData["content"] &&
-					resultAtomData["content"]["abstract"] &&
-					resultAtomData["content"]["abstract"]["urlParams"] &&
-					resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"]
-				) {
-					let url = BaiduHandleResultItem.parseURLParamsOriginURL(
-						resultAtomData["content"]["abstract"]["urlParams"]
-					);
-					if (url) {
-						urlMap.set(
-							resultAtomData["content"]["abstract"]["urlParams"]["tcUrl"],
-							url
-						);
-					}
-				}
-				if (
-					resultAtomData["content"] &&
-					resultAtomData["content"]["links"] &&
-					resultAtomData["content"]["links"]["list"]
-				) {
-					resultAtomData["content"]["links"]["list"].forEach((item: any[]) => {
-						item.forEach((item2) => {
-							if (item2["urlParams"]["tcUrl"]) {
-								let url = BaiduHandleResultItem.parseURLParamsOriginURL(
-									item2["urlParams"]
-								);
-								if (url) {
-									urlMap.set(item2["urlParams"]["tcUrl"], url);
-								}
-							}
-						});
-					});
-				}
-				if (resultAtomData["content"] && resultAtomData["content"]["site"]) {
-					resultAtomData["content"]["site"]["list"].forEach(
-						(item: { [x: string]: { [x: string]: any } }) => {
-							if (item["urlParams"]["tcUrl"]) {
-								let url = BaiduHandleResultItem.parseURLParamsOriginURL(
-									item["urlParams"]
-								);
-								if (url) {
-									urlMap.set(item["urlParams"]["tcUrl"], url);
-								}
+			}
+			if (
+				resultAtomData["content"] &&
+				resultAtomData["content"]["links"] &&
+				resultAtomData["content"]["links"]["list"]
+			) {
+				resultAtomData["content"]["links"]["list"].forEach((item: any[]) => {
+					item.forEach((item2) => {
+						if (item2["urlParams"]["tcUrl"]) {
+							let url = BaiduHandleResultItem.parseURLParamsOriginURL(item2["urlParams"]);
+							if (url) {
+								urlMap.set(item2["urlParams"]["tcUrl"], url);
 							}
 						}
-					);
-				}
-			});
+					});
+				});
+			}
+			if (resultAtomData["content"] && resultAtomData["content"]["site"]) {
+				resultAtomData["content"]["site"]["list"].forEach((item: { [x: string]: { [x: string]: any } }) => {
+					if (item["urlParams"]["tcUrl"]) {
+						let url = BaiduHandleResultItem.parseURLParamsOriginURL(item["urlParams"]);
+						if (url) {
+							urlMap.set(item["urlParams"]["tcUrl"], url);
+						}
+					}
+				});
+			}
+		});
 		return urlMap;
 	},
 	/**
@@ -259,8 +222,7 @@ export const BaiduHandleResultItem = {
 		}
 		if (this.isNotRlLinkUrl(url)) {
 			let rlLinkDataUrl =
-				$article?.getAttribute("rl-link-data-url") ||
-				$target.getAttribute("rl-link-data-url");
+				$article?.getAttribute("rl-link-data-url") || $target.getAttribute("rl-link-data-url");
 			if (rlLinkDataUrl) {
 				url = rlLinkDataUrl;
 			}
@@ -273,23 +235,17 @@ export const BaiduHandleResultItem = {
 					let dataIVK = utils.toJSON(dataIVKStr);
 					if (
 						dataIVK?.control?.default_url &&
-						!BaiduHandleResultItem.isBaiDuTransferStation(
-							dataIVK?.control?.default_url
-						)
+						!BaiduHandleResultItem.isBaiDuTransferStation(dataIVK?.control?.default_url)
 					) {
 						url = dataIVK?.control?.default_url;
 					} else if (
 						dataIVK?.control?.dataUrl &&
-						!BaiduHandleResultItem.isBaiDuTransferStation(
-							dataIVK?.control?.dataUrl
-						)
+						!BaiduHandleResultItem.isBaiDuTransferStation(dataIVK?.control?.dataUrl)
 					) {
 						url = dataIVK?.control?.dataUrl;
 					} else if (
 						dataIVK?.control?.ext?.url &&
-						!BaiduHandleResultItem.isBaiDuTransferStation(
-							dataIVK?.control?.ext?.url
-						)
+						!BaiduHandleResultItem.isBaiDuTransferStation(dataIVK?.control?.ext?.url)
 					) {
 						url = dataIVK?.control?.ext?.url;
 					}
@@ -310,16 +266,12 @@ export const BaiduHandleResultItem = {
 							let rlLinkDataLogExtra = utils.toJSON(rlLinkDataLog.extra);
 							if (
 								rlLinkDataLogExtra.loc &&
-								!BaiduHandleResultItem.isBaiDuTransferStation(
-									rlLinkDataLogExtra.loc
-								)
+								!BaiduHandleResultItem.isBaiDuTransferStation(rlLinkDataLogExtra.loc)
 							) {
 								url = decodeURIComponent(rlLinkDataLogExtra.loc);
 							} else if (
 								rlLinkDataLogExtra.log_loc &&
-								!BaiduHandleResultItem.isBaiDuTransferStation(
-									rlLinkDataLogExtra.log_loc
-								)
+								!BaiduHandleResultItem.isBaiDuTransferStation(rlLinkDataLogExtra.log_loc)
 							) {
 								url = decodeURIComponent(rlLinkDataLogExtra.log_loc);
 							}
@@ -344,23 +296,17 @@ export const BaiduHandleResultItem = {
 					let rlLinkDataIvk = utils.toJSON(rlLinkDataIvkStr);
 					if (
 						rlLinkDataIvk?.control?.default_url &&
-						!BaiduHandleResultItem.isBaiDuTransferStation(
-							rlLinkDataIvk?.control?.default_url
-						)
+						!BaiduHandleResultItem.isBaiDuTransferStation(rlLinkDataIvk?.control?.default_url)
 					) {
 						url = rlLinkDataIvk?.control?.default_url;
 					} else if (
 						rlLinkDataIvk?.control?.invoke_url &&
-						!BaiduHandleResultItem.isBaiDuTransferStation(
-							rlLinkDataIvk?.control?.invoke_url
-						)
+						!BaiduHandleResultItem.isBaiDuTransferStation(rlLinkDataIvk?.control?.invoke_url)
 					) {
 						url = rlLinkDataIvk?.control?.invoke_url;
 					} else if (
 						rlLinkDataIvk?.control?.ext?.url &&
-						!BaiduHandleResultItem.isBaiDuTransferStation(
-							rlLinkDataIvk?.control?.ext?.url
-						)
+						!BaiduHandleResultItem.isBaiDuTransferStation(rlLinkDataIvk?.control?.ext?.url)
 					) {
 						url = rlLinkDataIvk?.control?.ext?.url;
 					}
@@ -390,16 +336,12 @@ export const BaiduHandleResultItem = {
 					let articleLinkDataIVK = utils.toJSON(articleLinkDataIVKStr);
 					if (
 						articleLinkDataIVK?.control?.default_url &&
-						!BaiduHandleResultItem.isBaiDuTransferStation(
-							articleLinkDataIVK?.control?.default_url
-						)
+						!BaiduHandleResultItem.isBaiDuTransferStation(articleLinkDataIVK?.control?.default_url)
 					) {
 						url = articleLinkDataIVK?.control?.default_url;
 					} else if (
 						articleLinkDataIVK?.control?.dataUrl &&
-						!BaiduHandleResultItem.isBaiDuTransferStation(
-							articleLinkDataIVK?.control?.dataUrl
-						)
+						!BaiduHandleResultItem.isBaiDuTransferStation(articleLinkDataIVK?.control?.dataUrl)
 					) {
 						url = articleLinkDataIVK?.control?.dataUrl;
 					}
@@ -431,10 +373,7 @@ export const BaiduHandleResultItem = {
 			}
 		}
 		/* 因为链接中存在%25，需要正确替换成% */
-		if (
-			!this.isNotRlLinkUrl(url) &&
-			utils.startsWith(url, "http(s|)://(m[0-9]{0,2}|www).baidu.com/sf?")
-		) {
+		if (!this.isNotRlLinkUrl(url) && utils.startsWith(url, "http(s|)://(m[0-9]{0,2}|www).baidu.com/sf?")) {
 			url = decodeURIComponent(url);
 			/* url = url.replaceAll("%25","%") */
 		}
@@ -507,48 +446,45 @@ export const BaiduHandleResultItem = {
 	 */
 	removeAds() {
 		const TAG = "删除广告 ==> ";
-		if (Panel.getValue("baidu_search_blocking_everyone_is_still_searching")) {
-			let $conterEveryOneSearch = $$<HTMLDivElement>(
-				".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation"
-			);
+		let isRemoveEveryOneSearch = Panel.getValue("baidu_search_blocking_everyone_is_still_searching");
+		/**
+		 * 中间 大家都在搜
+		 */
+		let $conterEveryOneSearch = [
+			...Array.from($$<HTMLElement>(".c-recomm-wrap.new-ux-recom-wrapper.c-bg-color-white.animation")),
+			...Array.from($$<HTMLElement>('.c-result.result[tpl^="recommend_list"]')),
+		];
+		/**
+		 * 末尾 大家都在搜
+		 */
+		let $bottomEveryOneSearch = [...Array.from($$<HTMLElement>("#page-relative"))];
+		/**
+		 * 简单搜索 点击【更多结果】出现的 大家都在搜
+		 */
+		let $searchCraftEveryOnceSearch = [...Array.from($$<HTMLElement>("#relativewords"))];
+		if (isRemoveEveryOneSearch) {
+			// 删除中间的
 			if ($conterEveryOneSearch.length) {
-				// 中间 大家都在搜
 				log.success(`${TAG}中间 大家都在搜 ${$conterEveryOneSearch.length}个`);
 				DOMUtils.remove($conterEveryOneSearch);
 			}
-			let $bottomEveryOneSearch = $$<HTMLDivElement>("#page-relative");
+			// 删除末尾的
 			if ($bottomEveryOneSearch.length) {
-				// 末尾 大家都在搜
 				log.success(`${TAG}末尾 大家都在搜 ${$bottomEveryOneSearch.length}个`);
 				DOMUtils.remove($bottomEveryOneSearch);
 			}
-			let $searchCraftEveryOnceSearch = $$<HTMLElement>("#relativewords");
+			// 删除简单搜索点击【更多结果】出现的
 			if ($searchCraftEveryOnceSearch.length) {
-				// 简单搜索 点击【更多结果】出现的 大家都在搜
-				log.success(
-					`${TAG}简单搜索加载下一页出现的 大家都在搜 ${$searchCraftEveryOnceSearch.length}个`
-				);
+				log.success(`${TAG}简单搜索加载下一页出现的 大家都在搜 ${$searchCraftEveryOnceSearch.length}个`);
 				DOMUtils.remove($searchCraftEveryOnceSearch);
 			}
 		} else {
+			// 是否重构？
 			if (SearchHandleResultEveryOneSearch.refactorEveryoneIsStillSearching) {
-				/* 重构大家都在搜 */
-				let $conterEveryOneSearch = Array.from(
-					$$<HTMLDivElement>('.c-result.result[tpl^="recommend_list"]')
-				);
-				if ($conterEveryOneSearch.length) {
-					// 重构中间的 大家还在搜
-					SearchHandleResultEveryOneSearch.handleCenter($conterEveryOneSearch);
-				}
-				let $bottomEveryOneSearch = Array.from(
-					$$<HTMLDivElement>("#page-relative")
-				);
-				if ($bottomEveryOneSearch.length) {
-					// 重构底部的 大家还在搜
-					SearchHandleResultEveryOneSearch.handleBottom(
-						Array.from($$<HTMLDivElement>("#page-relative"))
-					);
-				}
+				// 重构中间的 大家还在搜
+				SearchHandleResultEveryOneSearch.handleCenter($conterEveryOneSearch);
+				// 重构末尾的 大家还在搜
+				SearchHandleResultEveryOneSearch.handleBottom($bottomEveryOneSearch);
 			}
 		}
 		let $popUp = $$<HTMLDivElement>("#pop-up");
@@ -563,87 +499,62 @@ export const BaiduHandleResultItem = {
 		}
 
 		// 遍历并处理每一条搜索结果
-		document
-			.querySelectorAll<HTMLDivElement>(".c-result.result")
-			.forEach(($result) => {
-				/* 获取属性上的LOG */
-				let dataLog = utils.toJSON($result.getAttribute("data-log"));
-				/* 真实链接 */
-				let searchArticleOriginal_link: string =
-					dataLog["mu"] ||
-					$result
-						.querySelector<HTMLElement>("article")
-						?.getAttribute("rl-link-href");
-				if (
-					utils.isNotNull(searchArticleOriginal_link) &&
-					BaiduSearchBlockRule.handleCustomRule(
-						$result,
-						searchArticleOriginal_link
-					)
-				) {
-					log.info(["触发自定义规则，拦截该项：", searchArticleOriginal_link]);
-					$result.remove();
-					return;
+		$$<HTMLDivElement>(".c-result.result").forEach(($result) => {
+			/* 获取属性上的LOG */
+			let dataLog = utils.toJSON($result.getAttribute("data-log"));
+			/* 真实链接 */
+			let searchArticleOriginal_link: string =
+				dataLog["mu"] || $result.querySelector<HTMLElement>("article")?.getAttribute("rl-link-href");
+			if (
+				utils.isNotNull(searchArticleOriginal_link) &&
+				BaiduSearchBlockRule.handleCustomRule($result, searchArticleOriginal_link)
+			) {
+				log.info(["触发自定义规则，拦截该项：", searchArticleOriginal_link]);
+				$result.remove();
+				return;
+			}
+			// 禁止自动播放视频
+			// 原自定义规则：remove-child##[class*='-video-player']
+			// 直接删除播放视频的元素会导致如下副作用
+			// 1.在webview和Safari上第一个智能卡片上的按钮点击无法应，如更多按钮
+			// 2. 导致SearchCraft的简单搜索自动翻页时会自动跳转下一页的第一个搜索结果或者第一页的搜索结果或者404页面或者https://m.baidu.com/https://m.baidu.com/这种链接
+			if (Panel.getValue("baidu-search-blockAutomaticVideoPlayback")) {
+				$result.querySelectorAll("[class*='-video-player']").forEach((ele) => ele.remove());
+			}
+			if (utils.isNotNull(searchArticleOriginal_link)) {
+				/* 添加CSDN下载标识 */
+				if (searchArticleOriginal_link.match(/^http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g)) {
+					log.success("添加CSDN下载标识");
+					BaiduHandleResultItem.addCSDNFlag($result);
 				}
-				// 禁止自动播放视频
-				// 原自定义规则：remove-child##[class*='-video-player']
-				// 直接删除播放视频的元素会导致如下副作用
-				// 1.在webview和Safari上第一个智能卡片上的按钮点击无法应，如更多按钮
-				// 2. 导致SearchCraft的简单搜索自动翻页时会自动跳转下一页的第一个搜索结果或者第一页的搜索结果或者404页面或者https://m.baidu.com/https://m.baidu.com/这种链接
-				if (Panel.getValue("baidu-search-blockAutomaticVideoPlayback")) {
-					$result
-						.querySelectorAll("[class*='-video-player']")
-						.forEach((ele) => ele.remove());
+			}
+			if (Panel.getValue("baidu_search_blocking_everyone_is_still_searching")) {
+				// 【屏蔽】大家还在搜
+				let $title = $result.querySelector<HTMLDivElement>(".rw-little-title");
+				if ($title && $title.textContent?.startsWith("大家还在搜")) {
+					$result?.remove();
+					log.success(`${TAG}大家都在搜（能看到的）`);
 				}
-				if (utils.isNotNull(searchArticleOriginal_link)) {
-					/* 添加CSDN下载标识 */
+				/* APP内打开 */
+				$result.querySelectorAll("span").forEach((item) => {
+					let resultParentElement = item?.parentElement?.parentElement;
 					if (
-						searchArticleOriginal_link.match(
-							/^http(s|):\/\/(download.csdn.net|www.iteye.com\/resource)/g
-						)
+						(resultParentElement && item.innerText.match(/百度APP内打开/)) ||
+						(resultParentElement && resultParentElement.getAttribute("data-from") === "etpl")
 					) {
-						log.success("添加CSDN下载标识");
-						BaiduHandleResultItem.addCSDNFlag($result);
+						resultParentElement.remove();
+						log.success(`${TAG}百度APP内打开，隐藏的广告，会在滚动时跳出来的`);
 					}
+				});
+			}
+			/* 底部标识 */
+			$result.querySelectorAll<HTMLDivElement>(".c-color-source").forEach(($bottomLogo) => {
+				if ($bottomLogo.outerText && $bottomLogo.outerText.match(/百度(APP内打开|手机助手)/)) {
+					$result.remove();
+					log.success(`${TAG}百度APP内打开|百度手机助手`);
 				}
-				if (
-					Panel.getValue("baidu_search_blocking_everyone_is_still_searching")
-				) {
-					// 【屏蔽】大家还在搜
-					let $title =
-						$result.querySelector<HTMLDivElement>(".rw-little-title");
-					if ($title && $title.textContent?.startsWith("大家还在搜")) {
-						$result?.remove();
-						log.success(`${TAG}大家都在搜（能看到的）`);
-					}
-					/* APP内打开 */
-					$result.querySelectorAll("span").forEach((item) => {
-						let resultParentElement = item?.parentElement?.parentElement;
-						if (
-							(resultParentElement && item.innerText.match(/百度APP内打开/)) ||
-							(resultParentElement &&
-								resultParentElement.getAttribute("data-from") === "etpl")
-						) {
-							resultParentElement.remove();
-							log.success(
-								`${TAG}百度APP内打开，隐藏的广告，会在滚动时跳出来的`
-							);
-						}
-					});
-				}
-				/* 底部标识 */
-				$result
-					.querySelectorAll<HTMLDivElement>(".c-color-source")
-					.forEach(($bottomLogo) => {
-						if (
-							$bottomLogo.outerText &&
-							$bottomLogo.outerText.match(/百度(APP内打开|手机助手)/)
-						) {
-							$result.remove();
-							log.success(`${TAG}百度APP内打开|百度手机助手`);
-						}
-					});
 			});
+		});
 	},
 	/**
 	 * 重定向顶部的链接，如全部、视频、图片、贴吧、咨询...
@@ -653,18 +564,14 @@ export const BaiduHandleResultItem = {
 			if (
 				item.hasAttribute("data-sflink") &&
 				!utils.isNull(item.getAttribute("data-sflink")) &&
-				BaiduHandleResultItem.isBaiDuTransferStation(
-					item.getAttribute("href") as string
-				) &&
+				BaiduHandleResultItem.isBaiDuTransferStation(item.getAttribute("href") as string) &&
 				item.getAttribute("href") !== item.getAttribute("data-sflink")
 			) {
 				/* log.success(
                   "重定向顶部按钮: " + item.outerText.trim(),
                   "#ba00f8"
                 ); */
-				(item as HTMLAnchorElement).href = item.getAttribute(
-					"data-sflink"
-				) as string;
+				(item as HTMLAnchorElement).href = item.getAttribute("data-sflink") as string;
 			}
 		});
 	},
@@ -685,8 +592,7 @@ export const BaiduHandleResultItem = {
 	async replaceLink() {
 		let searchResultList = Array.from($$<HTMLDivElement>(".c-result.result"));
 		for (const searchResultItem of searchResultList) {
-			let resultItemOriginURL =
-				BaiduHandleResultItem.parseOriginUrlFromDataSet(searchResultItem);
+			let resultItemOriginURL = BaiduHandleResultItem.parseOriginUrlFromDataSet(searchResultItem);
 			/* 根据已获取的真实链接取值 */
 			if (utils.isNull(resultItemOriginURL)) {
 				/* 未取到值 */
@@ -713,52 +619,36 @@ export const BaiduHandleResultItem = {
 			) {
 				/* 该item为搜索智能生成该为点击该块，获取url进行跳转 */
 				searchResultItem.setAttribute("preventClick", "true");
-				DOMUtils.on<MouseEvent | PointerEvent>(
-					searchResultItem,
-					"click",
-					function (event) {
-						utils.preventEvent(event);
-						let clickNode = event.target as HTMLElement;
-						if (
-							clickNode.localName &&
-							clickNode.localName === "sup" &&
-							clickNode.getAttribute("rl-type") === "stop"
-						) {
-							return;
-						} else {
-							window.stop();
-							window.location.href = decodeURI(resultItemOriginURL);
-						}
+				DOMUtils.on<MouseEvent | PointerEvent>(searchResultItem, "click", (event) => {
+					utils.preventEvent(event);
+					let clickNode = event.target as HTMLElement;
+					if (
+						clickNode.localName &&
+						clickNode.localName === "sup" &&
+						clickNode.getAttribute("rl-type") === "stop"
+					) {
+						return;
+					} else {
+						window.stop();
+						window.location.href = decodeURI(resultItemOriginURL);
 					}
-				);
+				});
 				continue;
 			}
 
 			/* 视频 */
-			if (
-				resultItemOriginURL.match(/^http(s|):\/\/www.internal.video.baidu.com/g)
-			) {
-				let internalVideo = decodeURI(
-					articleElement.getAttribute("rl-link-data-log") as string
-				);
-				let internalVideoMatch = internalVideo.match(
-					/\/sf\?pd=video_pag(.*?)={/g
-				);
+			if (resultItemOriginURL.match(/^http(s|):\/\/www.internal.video.baidu.com/g)) {
+				let internalVideo = decodeURI(articleElement.getAttribute("rl-link-data-log") as string);
+				let internalVideoMatch = internalVideo.match(/\/sf\?pd=video_pag(.*?)={/g);
 				if (internalVideoMatch) {
 					let internalVideoText = internalVideoMatch[0];
-					let newinternalVideo = internalVideoText.substring(
-						0,
-						internalVideoMatch.length - 2
-					);
+					let newinternalVideo = internalVideoText.substring(0, internalVideoMatch.length - 2);
 					resultItemOriginURL = newinternalVideo;
 					log.info(`视频链接 ${newinternalVideo}`);
 				}
 			}
 			/* 替换链接 */
-			BaiduHandleResultItem.setArticleOriginUrl(
-				searchResultItem,
-				resultItemOriginURL
-			);
+			BaiduHandleResultItem.setArticleOriginUrl(searchResultItem, resultItemOriginURL);
 			articleElement.setAttribute("rl-link-href", resultItemOriginURL);
 		}
 	},
