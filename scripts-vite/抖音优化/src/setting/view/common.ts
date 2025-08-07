@@ -218,6 +218,8 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
 								UISwitch("关闭快捷键列表", "dy-keyboard-hook-closeTheShortcutKeyList", false, void 0, "ESC"),
 								UISwitch("相关推荐", "dy-keyboard-hook-relevantRecommendation", false, void 0, "N"),
 								UISwitch("听抖音", "dy-keyboard-hook-listenToDouyin", false, void 0, "T"),
+								UISwitch("小窗播放", "dy-keyboard-hook-smallWindowPlay", false, void 0, "U"),
+								UISwitch("推荐视频", "dy-keyboard-hook-recommendVideo", false, void 0, "P"),
 							],
 						},
 					],

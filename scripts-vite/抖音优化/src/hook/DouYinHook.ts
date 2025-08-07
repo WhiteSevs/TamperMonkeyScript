@@ -79,10 +79,7 @@ export const DouYinHook = {
 	disableShortCut() {
 		type KeyboardOtherCodeName = "ctrl" | "alt" | "meta" | "shift";
 		Hook.document_addEventListener((target, eventName, listener, option) => {
-			if (
-				["keydown", "keypress", "keyup"].includes(eventName) &&
-				typeof listener === "function"
-			) {
+			if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
 				return function (this: Document, ...eventArgs: any[]) {
 					let event = eventArgs[0] as KeyboardEvent;
 					/** 键名 */
@@ -210,9 +207,18 @@ export const DouYinHook = {
 							enableKey: "dy-keyboard-hook-listenToDouyin",
 							code: ["KeyT"],
 						},
+						{
+							enableKey: "dy-keyboard-hook-smallWindowPlay",
+							code: ["KeyU"],
+						},
+						{
+							enableKey: "dy-keyboard-hook-recommendVideo",
+							code: ["KeyP"],
+						},
 					];
 
 					if (DouYinRouter.isIndex()) {
+						// 主站
 						keyboardConfigList.push(
 							{
 								enableKey: "dy-keyboard-hook-arrowUp-w",
@@ -232,6 +238,7 @@ export const DouYinHook = {
 							}
 						);
 					} else if (DouYinRouter.isLive()) {
+						// 直播
 						keyboardConfigList.push(
 							{
 								enableKey: "dy-live-refresh",
@@ -251,9 +258,7 @@ export const DouYinHook = {
 						const keyboardConfig = keyboardConfigList[index];
 						if (keyboardConfig.code.includes(code)) {
 							if (Array.isArray(keyboardConfig.otherCodeList)) {
-								let findValue = keyboardConfig.otherCodeList.find(
-									(item) => !otherCodeList.includes(item)
-								);
+								let findValue = keyboardConfig.otherCodeList.find((item) => !otherCodeList.includes(item));
 								if (findValue) {
 									continue;
 								}
