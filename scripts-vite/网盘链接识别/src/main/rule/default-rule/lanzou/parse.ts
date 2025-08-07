@@ -1,6 +1,6 @@
 import { DOMUtils, httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
+import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { GeneratePanelStorage } from "@/main/data/NetDiskDataUtils";
@@ -64,7 +64,7 @@ type InfoListType = {
  *
  * 参数内容如`{"info":"success","text":[{"duan":"xx","icon":"","id":"".....},{},{}]}`
  */
-export class NetDiskParse_Lanzou extends ParseFileAbstract {
+export class NetDiskParse_Lanzou extends ParseFileCore {
 	/**
 	 * 路由
 	 */
@@ -191,10 +191,8 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 	 * 入口
 	 */
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
 		this.regexp.unicode.isUnicode = Boolean(shareCode.match(this.regexp.unicode.match));
 		let url = ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
 		let pageInfoResponse = await this.getPageInfo(url);

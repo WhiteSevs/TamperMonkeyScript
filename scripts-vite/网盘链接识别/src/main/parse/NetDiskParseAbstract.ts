@@ -1,4 +1,4 @@
-export abstract class ParseFileAbstract {
+export class ParseFileCore {
 	/** 所在规则的下标 */
 	ruleIndex: number = 0;
 	/** 分享码 */
@@ -7,9 +7,16 @@ export abstract class ParseFileAbstract {
 	accessCode: AccessCodeNonNullType = "";
 	/**
 	 * 入口
-	 * @param ruleIndex 规则下标
-	 * @param shareCode 分享码
-	 * @param accessCode 访问码
+	 * @param netDiskInfo 网盘信息
+	 * @example
+	 *
+	 * super.init(netDiskInfo);
+	 * const that = this;
+	 * let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 	 */
-	abstract init(netDiskInfo: ParseFileInitConfig): IPromise<void>;
+	init(netDiskInfo: ParseFileInitConfig): IPromise<void> {
+		this.ruleIndex = netDiskInfo.ruleIndex;
+		this.shareCode = netDiskInfo.shareCode;
+		this.accessCode = netDiskInfo.accessCode;
+	}
 }

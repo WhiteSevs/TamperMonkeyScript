@@ -2,21 +2,19 @@ import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import { GM_download } from "ViteGM";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
+import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskCommonUtils } from "@/utils/NetDiskCommonUtils";
 
-export class NetDiskParse_nainiu extends ParseFileAbstract {
+export class NetDiskParse_nainiu extends ParseFileCore {
 	panelList = [];
 	panelContent = "";
 	OK_CODE = "0000";
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		const that = this;
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
 		this.panelList = [];
 		this.panelContent = "";
 		let checkLinkValidityInfo = await this.checkLinkValidity(this.shareCode, this.accessCode);

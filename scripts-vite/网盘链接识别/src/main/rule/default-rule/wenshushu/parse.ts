@@ -1,14 +1,13 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
+import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 
-export class NetDiskParse_Wenshushu extends ParseFileAbstract {
+export class NetDiskParse_Wenshushu extends ParseFileCore {
 	/**
 	 * 用于header头x-token
-	 * @type {string}
 	 */
 	token = void 0 as any as string;
 	code = {
@@ -19,11 +18,9 @@ export class NetDiskParse_Wenshushu extends ParseFileAbstract {
 		1088: "糟糕，您访问的页面不存在",
 	};
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		const that = this;
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
 		Qmsg.info("正在请求直链中...");
 		let token = await this.getWssToken();
 		if (!token) {
@@ -163,8 +160,7 @@ export class NetDiskParse_Wenshushu extends ParseFileAbstract {
 	}
 	/**
 	 * 获取下载链接
-	 * @param {object} data
-	 * @returns {Promise}
+	 * @param data
 	 */
 	async getDownloadUrl(data: any) {
 		const that = this;

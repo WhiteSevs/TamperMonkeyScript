@@ -1,19 +1,17 @@
 import { log } from "@/env";
 import Qmsg from "qmsg";
 import { GM_getValue } from "ViteGM";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
+import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskRuleUtils } from "@/main/rule/NetDiskRuleUtils";
 import { NetDiskLinkClickMode } from "@/main/link-click-mode/NetDiskLinkClickMode";
 
-export class NetDiskParse_Baidu extends ParseFileAbstract {
+export class NetDiskParse_Baidu extends ParseFileCore {
 	/**
 	 * 入口
 	 */
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
 		let url = GM_getValue<string>("baidu-baiduwp-php-url");
 		let postForm = GM_getValue<string>("baidu-baiduwp-php-post-form");
 		let enableCopy = GM_getValue<boolean>("baidu-baiduwp-php-copy-url");

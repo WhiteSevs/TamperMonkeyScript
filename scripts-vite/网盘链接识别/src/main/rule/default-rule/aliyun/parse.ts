@@ -2,7 +2,7 @@ import { DOMUtils, httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import { unsafeWindow } from "ViteGM";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
+import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
@@ -11,7 +11,7 @@ import type { HttpxResponse } from "@whitesev/utils/src/types/Httpx";
 /**
  * 阿里云解析下载已失效
  */
-export class NetDiskParse_Aliyun extends ParseFileAbstract {
+export class NetDiskParse_Aliyun extends ParseFileCore {
 	X_Share_Token_Data = {
 		expire_time: "2000-01-01T00:00:00.000Z",
 		expires_in: 7200,
@@ -26,11 +26,9 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 	 */
 	X_Canary = "client=web,app=share,version=v2.3.1";
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		const that = this;
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
 		that.X_Device_Id = that.get_X_Device_Id();
 		log.info("生成X_Device_Id：" + that.X_Device_Id);
 		if (

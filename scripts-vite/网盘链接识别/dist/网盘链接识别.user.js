@@ -3636,15 +3636,29 @@
       };
     }
   };
-  class ParseFileAbstract {
+  class ParseFileCore {
     /** 所在规则的下标 */
     ruleIndex = 0;
     /** 分享码 */
     shareCode = "";
     /** 提取码 */
     accessCode = "";
+    /**
+     * 入口
+     * @param netDiskInfo 网盘信息
+     * @example
+     *
+     * super.init(netDiskInfo);
+     * const that = this;
+     * let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+     */
+    init(netDiskInfo) {
+      this.ruleIndex = netDiskInfo.ruleIndex;
+      this.shareCode = netDiskInfo.shareCode;
+      this.accessCode = netDiskInfo.accessCode;
+    }
   }
-  class NetDiskParse_123pan extends ParseFileAbstract {
+  class NetDiskParse_123pan extends ParseFileCore {
     panelList = [];
     Authorization = "";
     code = {
@@ -3664,11 +3678,9 @@
       "x-app-version": "2.4.0"
     };
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       const that = this;
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
       this.panelList = [];
       this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
       let checkLinkValidityStatus = await this.checkLinkValidity();
@@ -4095,7 +4107,7 @@
       return url;
     }
   }
-  class NetDiskParse_Aliyun extends ParseFileAbstract {
+  class NetDiskParse_Aliyun extends ParseFileCore {
     X_Share_Token_Data = {
       expire_time: "2000-01-01T00:00:00.000Z",
       expires_in: 7200,
@@ -4110,11 +4122,9 @@
      */
     X_Canary = "client=web,app=share,version=v2.3.1";
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       const that = this;
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
       that.X_Device_Id = that.get_X_Device_Id();
       log.info("生成X_Device_Id：" + that.X_Device_Id);
       if (globalThis.location.hostname !== "www.aliyundrive.com" && globalThis.location.hostname !== "www.alipan.com") {
@@ -4369,15 +4379,13 @@
       return alipan_u();
     }
   }
-  class NetDiskParse_Baidu extends ParseFileAbstract {
+  class NetDiskParse_Baidu extends ParseFileCore {
     /**
      * 入口
      */
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
       let url = _GM_getValue("baidu-baiduwp-php-url");
       let postForm = _GM_getValue("baidu-baiduwp-php-post-form");
       let enableCopy = _GM_getValue("baidu-baiduwp-php-copy-url");
@@ -5469,15 +5477,13 @@
       );
     }
   };
-  class NetDiskParse_Chengtong extends ParseFileAbstract {
+  class NetDiskParse_Chengtong extends ParseFileCore {
     /**
      * 入口
      */
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
       let ruleKeyName = "chengtong";
       if (ruleIndex !== 3) {
         log.warn(`解析站暂时只支持单文件解析，非单文件链接的点击动作为新标签页打开`);
@@ -5630,8 +5636,9 @@
       });
     }
   };
-  class NetDiskParse_ed2k extends ParseFileAbstract {
+  class NetDiskParse_ed2k extends ParseFileCore {
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName: "ed2k",
@@ -5648,11 +5655,12 @@
       MetaDataParser.showFileMetaInfoDialog(metaInfo);
     }
   }
-  class NetDiskParse_Jianguoyun extends ParseFileAbstract {
+  class NetDiskParse_Jianguoyun extends ParseFileCore {
     errorCode = {
       UnAuthorized: "请先登录坚果云账号"
     };
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       const that = this;
       let downloadParams = await that.getRequestDownloadParams();
@@ -5666,27 +5674,17 @@
           Qmsg_loading.close();
           return;
         }
-        let newFolderInfoList = that.parseMoreFile(
-          folderInfo,
-          downloadParams["hash"],
-          downloadParams["name"]
-        );
+        let newFolderInfoList = that.parseMoreFile(folderInfo, downloadParams["hash"], downloadParams["name"]);
         Qmsg_loading.close();
         NetDiskUI.staticView.moreFile("坚果云文件解析", newFolderInfoList);
       } else {
         let fileSize = utils.formatByteToSize(downloadParams["size"]);
-        let downloadUrl = await that.getFileLink(
-          downloadParams.hash,
-          downloadParams.name
-        );
+        let downloadUrl = await that.getFileLink(downloadParams.hash, downloadParams.name);
         if (!downloadUrl) {
           return;
         }
         if (NetDiskFilterScheme.isForwardDownloadLink("jianguoyun")) {
-          downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-            "jianguoyun",
-            downloadUrl
-          );
+          downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("jianguoyun", downloadUrl);
         }
         log.info(downloadUrl);
         NetDiskUI.staticView.oneFile({
@@ -5722,20 +5720,13 @@
           index: 0,
           async clickEvent() {
             Qmsg.info("正在获取下载链接...");
-            let downloadUrl = await that.getDirLink(
-              hash,
-              fileName2,
-              item["relPath"]
-            );
+            let downloadUrl = await that.getDirLink(hash, fileName2, item["relPath"]);
             if (!downloadUrl) {
               return;
             }
             Qmsg.success("获取成功！");
             if (NetDiskFilterScheme.isForwardDownloadLink("jianguoyun")) {
-              downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-                "jianguoyun",
-                downloadUrl
-              );
+              downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("jianguoyun", downloadUrl);
             }
             log.info(downloadUrl);
             return {
@@ -6035,7 +6026,7 @@
     text = text.replace(/\/\*[\s\S\n]+\*\//gi, "");
     return text;
   };
-  class NetDiskParse_Lanzou extends ParseFileAbstract {
+  class NetDiskParse_Lanzou extends ParseFileCore {
     /**
      * 路由
      */
@@ -6162,10 +6153,8 @@
      * 入口
      */
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
       this.regexp.unicode.isUnicode = Boolean(shareCode.match(this.regexp.unicode.match));
       let url = ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
       let pageInfoResponse = await this.getPageInfo(url);
@@ -6927,7 +6916,7 @@
       return t.ciphertext.toString().toUpperCase();
     }
   };
-  class NetDiskParse_Lanzouyx extends ParseFileAbstract {
+  class NetDiskParse_Lanzouyx extends ParseFileCore {
     $data = {
       devType: 6,
       devModel: "Chrome",
@@ -6952,10 +6941,8 @@
      * 入口
      */
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
       this.shareCodeId = this.getDecodeShareCodeId(shareCode);
       this.uuid = this.getEncodeUUID();
       let linkInfo = await this.recommendList(
@@ -7281,8 +7268,9 @@
       );
     }
   }
-  class NetDiskParse_magnet extends ParseFileAbstract {
+  class NetDiskParse_magnet extends ParseFileCore {
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
       let url = NetDiskLinkClickModeUtils.getBlankUrl({
         ruleKeyName: "magnet",
@@ -7312,15 +7300,13 @@
       }
     }
   };
-  class NetDiskParse_nainiu extends ParseFileAbstract {
+  class NetDiskParse_nainiu extends ParseFileCore {
     panelList = [];
     panelContent = "";
     OK_CODE = "0000";
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
       this.panelList = [];
       this.panelContent = "";
       let checkLinkValidityInfo = await this.checkLinkValidity(this.shareCode, this.accessCode);
@@ -7751,7 +7737,7 @@
       }
     }
   }
-  class NetDiskParse_Tianyiyun extends ParseFileAbstract {
+  class NetDiskParse_Tianyiyun extends ParseFileCore {
     shareId = void 0;
     /* 猜测1是有密码，2是无密码 */
     shareMode = 1;
@@ -7767,10 +7753,8 @@
       InvalidSessionKey: "天翼云PC端Cookie未生成，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC且在登录后要等待进入个人云空间后生成Cookie，不是手机端浏览的个人云空间，那样生成的Cookie无法使用)"
     };
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
       let shareInfoData = await this.getShareInfoByCodeV2(shareCode);
       if (!shareInfoData) {
         return;
@@ -8170,15 +8154,13 @@
       return folderInfoList;
     }
   }
-  class NetDiskParse_UC extends ParseFileAbstract {
+  class NetDiskParse_UC extends ParseFileCore {
     /**
      * 入口
      */
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
       Qmsg.info("检查是否已登录UC网盘");
       let loginStatus = await this.isLogin();
       if (!Boolean(loginStatus)) {
@@ -8581,10 +8563,9 @@
       return folderInfoList;
     }
   }
-  class NetDiskParse_Wenshushu extends ParseFileAbstract {
+  class NetDiskParse_Wenshushu extends ParseFileCore {
     /**
      * 用于header头x-token
-     * @type {string}
      */
     token = void 0;
     code = {
@@ -8595,10 +8576,8 @@
       1088: "糟糕，您访问的页面不存在"
     };
     async init(netDiskInfo) {
+      super.init(netDiskInfo);
       let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      this.ruleIndex = ruleIndex;
-      this.shareCode = shareCode;
-      this.accessCode = accessCode;
       Qmsg.info("正在请求直链中...");
       let token = await this.getWssToken();
       if (!token) {
@@ -8738,8 +8717,7 @@
     }
     /**
      * 获取下载链接
-     * @param {object} data
-     * @returns {Promise}
+     * @param data
      */
     async getDownloadUrl(data) {
       const that = this;

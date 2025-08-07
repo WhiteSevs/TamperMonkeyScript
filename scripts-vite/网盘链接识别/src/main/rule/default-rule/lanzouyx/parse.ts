@@ -4,7 +4,7 @@ import Qmsg from "qmsg";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { ParseFileAbstract } from "@/main/parse/NetDiskParseAbstract";
+import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
 
 const LanZouUtils = {
 	LanZouDiskApp: "lanZouY-disk-app",
@@ -116,7 +116,7 @@ const LanZouUtils = {
 		return t.ciphertext.toString().toUpperCase();
 	},
 };
-export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
+export class NetDiskParse_Lanzouyx extends ParseFileCore {
 	$data = {
 		devType: 6,
 		devModel: "Chrome",
@@ -141,11 +141,9 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 	 * 入口
 	 */
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		const that = this;
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
 		this.shareCodeId = this.getDecodeShareCodeId(shareCode);
 		this.uuid = this.getEncodeUUID();
 		let linkInfo = await this.recommendList(

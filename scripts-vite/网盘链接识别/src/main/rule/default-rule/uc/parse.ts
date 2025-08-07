@@ -5,19 +5,17 @@ import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/f
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
-import { ParseFileAbstract } from "@/main/parse/NetDiskParseAbstract";
+import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
 import { NetDiskCommonUtils } from "@/utils/NetDiskCommonUtils";
 
-export class NetDiskParse_UC extends ParseFileAbstract {
+export class NetDiskParse_UC extends ParseFileCore {
 	/**
 	 * 入口
 	 */
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		const that = this;
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
 
 		Qmsg.info("检查是否已登录UC网盘");
 		let loginStatus = await this.isLogin();

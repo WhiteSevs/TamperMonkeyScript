@@ -1,11 +1,11 @@
-import { log } from "@/env";
 import { NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { MetaDataParser } from "@/main/parse/MetaDataParser";
-import { ParseFileAbstract } from "@/main/parse/NetDiskParseAbstract";
+import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
 import Qmsg from "qmsg";
 
-export class NetDiskParse_ed2k extends ParseFileAbstract {
+export class NetDiskParse_ed2k extends ParseFileCore {
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
 

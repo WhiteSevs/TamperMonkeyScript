@@ -4,11 +4,8 @@ import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/f
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
-import { ParseFileAbstract } from "@/main/parse/NetDiskParseAbstract";
-import type {
-	HttpxRequestOption,
-	HttpxResponse,
-} from "@whitesev/utils/dist/types/src/types/Httpx";
+import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
+import type { HttpxRequestOption, HttpxResponse } from "@whitesev/utils/dist/types/src/types/Httpx";
 
 type FolderInfo = {
 	mtime: number;
@@ -18,11 +15,12 @@ type FolderInfo = {
 	type: "file" | string;
 };
 
-export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
+export class NetDiskParse_Jianguoyun extends ParseFileCore {
 	errorCode = {
 		UnAuthorized: "请先登录坚果云账号",
 	};
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
 		let downloadParams = await that.getRequestDownloadParams();
@@ -37,11 +35,7 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 				Qmsg_loading.close();
 				return;
 			}
-			let newFolderInfoList = that.parseMoreFile(
-				folderInfo,
-				downloadParams["hash"],
-				downloadParams["name"]
-			);
+			let newFolderInfoList = that.parseMoreFile(folderInfo, downloadParams["hash"], downloadParams["name"]);
 			Qmsg_loading.close();
 
 			/* 坚果云盘没有上传时间信息(暂时是这样的) */
@@ -49,18 +43,12 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 		} else {
 			/* 是文件 */
 			let fileSize = utils.formatByteToSize(downloadParams["size"]);
-			let downloadUrl = await that.getFileLink(
-				downloadParams.hash,
-				downloadParams.name
-			);
+			let downloadUrl = await that.getFileLink(downloadParams.hash, downloadParams.name);
 			if (!downloadUrl) {
 				return;
 			}
 			if (NetDiskFilterScheme.isForwardDownloadLink("jianguoyun")) {
-				downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-					"jianguoyun",
-					downloadUrl
-				);
+				downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("jianguoyun", downloadUrl);
 			}
 
 			log.info(downloadUrl);
@@ -98,20 +86,13 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 				index: 0,
 				async clickEvent() {
 					Qmsg.info("正在获取下载链接...");
-					let downloadUrl = await that.getDirLink(
-						hash,
-						fileName,
-						item["relPath"]
-					);
+					let downloadUrl = await that.getDirLink(hash, fileName, item["relPath"]);
 					if (!downloadUrl) {
 						return;
 					}
 					Qmsg.success("获取成功！");
 					if (NetDiskFilterScheme.isForwardDownloadLink("jianguoyun")) {
-						downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-							"jianguoyun",
-							downloadUrl
-						);
+						downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("jianguoyun", downloadUrl);
 					}
 
 					log.info(downloadUrl);
@@ -175,10 +156,7 @@ export class NetDiskParse_Jianguoyun extends ParseFileAbstract {
 			log.success("hash ===> " + fileHash);
 			log.success("name ===> " + fileName);
 			log.success("size ===> " + fileSize);
-			if (
-				fileNeedsPassword &&
-				(that.accessCode == void 0 || that.accessCode === "")
-			) {
+			if (fileNeedsPassword && (that.accessCode == void 0 || that.accessCode === "")) {
 				/* 需要密码但没密码 */
 				Qmsg.error("密码不正确!");
 				NetDiskUI.newAccessCodeView(

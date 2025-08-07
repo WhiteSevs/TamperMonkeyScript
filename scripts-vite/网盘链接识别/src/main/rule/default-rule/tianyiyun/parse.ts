@@ -1,12 +1,12 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
+import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskPops } from "@/main/pops/NetDiskPops";
 
-export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
+export class NetDiskParse_Tianyiyun extends ParseFileCore {
 	shareId = void 0 as any as number;
 	/* 猜测1是有密码，2是无密码 */
 	shareMode: number = 1;
@@ -23,11 +23,9 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			"天翼云PC端Cookie未生成，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC且在登录后要等待进入个人云空间后生成Cookie，不是手机端浏览的个人云空间，那样生成的Cookie无法使用)",
 	};
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		const that = this;
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
 
 		let shareInfoData = await this.getShareInfoByCodeV2(shareCode);
 		if (!shareInfoData) {

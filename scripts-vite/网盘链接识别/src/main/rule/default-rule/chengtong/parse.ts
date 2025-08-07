@@ -1,18 +1,16 @@
 import { log, utils } from "@/env";
-import { ParseFileAbstract } from "@/main/parse/NetDiskParseAbstract";
+import { ParseFileCore } from "@/main/parse/NetDiskParseAbstract";
 import { NetDiskView } from "@/main/view/NetDiskView";
 import Qmsg from "qmsg";
 import { GM_getValue } from "ViteGM";
 
-export class NetDiskParse_Chengtong extends ParseFileAbstract {
+export class NetDiskParse_Chengtong extends ParseFileCore {
 	/**
 	 * 入口
 	 */
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
 		let ruleKeyName = "chengtong";
 		if (ruleIndex !== 3) {
 			log.warn(`解析站暂时只支持单文件解析，非单文件链接的点击动作为新标签页打开`);

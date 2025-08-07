@@ -3,10 +3,10 @@ import Qmsg from "qmsg";
 import { NetDiskFilterScheme } from "../../../scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "../../../ui/NetDiskUI";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
-import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
+import { ParseFileCore } from "../../../parse/NetDiskParseAbstract";
 import { NetDiskAuthorization_123pan_Authorization } from "./authorization";
 
-export class NetDiskParse_123pan extends ParseFileAbstract {
+export class NetDiskParse_123pan extends ParseFileCore {
 	panelList = [];
 	Authorization = "";
 	code = {
@@ -26,11 +26,9 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 		"x-app-version": "2.4.0",
 	};
 	async init(netDiskInfo: ParseFileInitConfig) {
+		super.init(netDiskInfo);
 		const that = this;
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		this.ruleIndex = ruleIndex;
-		this.shareCode = shareCode;
-		this.accessCode = accessCode;
 		this.panelList = [];
 		this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
 		let checkLinkValidityStatus = await this.checkLinkValidity();
