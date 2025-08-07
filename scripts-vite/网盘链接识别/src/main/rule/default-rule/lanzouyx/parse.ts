@@ -73,8 +73,7 @@ const LanZouUtils = {
 		"A",
 	],
 	decodeChar(e: any) {
-		for (let t = 0; t < this.EncryptList.length; t++)
-			if (e == this.EncryptList[t]) return t;
+		for (let t = 0; t < this.EncryptList.length; t++) if (e == this.EncryptList[t]) return t;
 		return -1;
 	},
 	/**
@@ -88,9 +87,7 @@ const LanZouUtils = {
 			let r;
 			shareCode = shareCode.substring(3, shareCode.length - 1);
 			for (let index = 0; index < shareCode.length; index++)
-				(r = shareCode.charAt(shareCode.length - index - 1)),
-					(n += this.decodeChar(r) * t),
-					(t *= 62);
+				(r = shareCode.charAt(shareCode.length - index - 1)), (n += this.decodeChar(r) * t), (t *= 62);
 		}
 		return n;
 	},
@@ -144,20 +141,23 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 	 * 入口
 	 */
 	async init(netDiskInfo: ParseFileInitConfig) {
-		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		that.shareCodeId = that.getDecodeShareCodeId(shareCode);
-		that.uuid = that.getEncodeUUID();
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+		this.ruleIndex = ruleIndex;
+		this.shareCode = shareCode;
+		this.accessCode = accessCode;
+		this.shareCodeId = this.getDecodeShareCodeId(shareCode);
+		this.uuid = this.getEncodeUUID();
 		let linkInfo = await this.recommendList(
-			that.$data.devType,
-			that.$data.devModel,
-			that.uuid,
-			that.$data.extra,
-			that.getEncodeTimeStamp(),
-			that.shareCode,
-			that.$data.type,
-			that.$data.offset,
-			that.$data.limit
+			this.$data.devType,
+			this.$data.devModel,
+			this.uuid,
+			this.$data.extra,
+			this.getEncodeTimeStamp(),
+			this.shareCode,
+			this.$data.type,
+			this.$data.offset,
+			this.$data.limit
 		);
 		if (!linkInfo) {
 			return;
@@ -166,7 +166,7 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 			return;
 		}
 		if (linkInfo["list"][0]?.["map"]?.["userId"]) {
-			that.userId = linkInfo["list"][0]?.["map"]?.["userId"];
+			this.userId = linkInfo["list"][0]?.["map"]?.["userId"];
 		} else {
 			Qmsg.error("解析获取【userId】为空");
 			return;
@@ -175,20 +175,14 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 			/* 单文件 */
 			log.success("该链接是 单文件");
 			let fileInfo = linkInfo["list"][0]["fileList"][0];
-			let folderInfoList = that.parseFolderInfo(
-				linkInfo["list"][0]["fileList"],
-				0
-			);
+			let folderInfoList = this.parseFolderInfo(linkInfo["list"][0]["fileList"], 0);
 			/* 获取文件下载信息 */
 			// @ts-ignore
 			let downloadInfo = await folderInfoList[0]["clickEvent"]();
 			if (downloadInfo && !Array.isArray(downloadInfo)) {
 				let downloadUrl = downloadInfo["url"];
 				if (NetDiskFilterScheme.isForwardDownloadLink("lanzouyx")) {
-					downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-						"lanzouyx",
-						downloadUrl
-					);
+					downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("lanzouyx", downloadUrl);
 				}
 				NetDiskUI.staticView.oneFile({
 					title: "蓝奏云优享单文件直链",
@@ -204,10 +198,7 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 			log.success("该链接是 多文件");
 			Qmsg.info("正在递归文件");
 			let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-			let folderInfoList = that.parseFolderInfo(
-				linkInfo["list"][0]["fileList"],
-				0
-			);
+			let folderInfoList = this.parseFolderInfo(linkInfo["list"][0]["fileList"], 0);
 			QmsgLoading.close();
 			log.info("递归完毕");
 			NetDiskUI.staticView.moreFile("蓝奏云优享解析", folderInfoList);
@@ -283,10 +274,7 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 						);
 						if (downloadUrl) {
 							if (NetDiskFilterScheme.isForwardDownloadLink("lanzouyx")) {
-								downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-									"lanzouyx",
-									downloadUrl
-								);
+								downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("lanzouyx", downloadUrl);
 							}
 							return {
 								url: downloadUrl,
@@ -332,20 +320,18 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 		limit: number = this.$data.limit
 	) {
 		let response = await httpx.post(
-			`https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr(
-				{
-					devType: devType,
-					devModel: devModel,
-					uuid: uuid,
-					extra: extra,
-					timestamp: timestamp,
-					shareId: shareId,
-					code: this.accessCode,
-					type: type,
-					offset: offset,
-					limit: limit,
-				}
-			)}`,
+			`https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr({
+				devType: devType,
+				devModel: devModel,
+				uuid: uuid,
+				extra: extra,
+				timestamp: timestamp,
+				shareId: shareId,
+				code: this.accessCode,
+				type: type,
+				offset: offset,
+				limit: limit,
+			})}`,
 			{
 				headers: {
 					Accept: "application/json, text/plain, */*",
@@ -443,17 +429,15 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 		auth: string = "",
 		shareId: string = this.shareCode
 	) {
-		let url = `https://api.ilanzou.com/unproved/file/redirect?${utils.toSearchParamsStr(
-			{
-				downloadId: downloadId,
-				enable: enable,
-				devType: devType,
-				uuid: uuid,
-				timestamp: timestamp,
-				auth: auth,
-				shareId: shareId,
-			}
-		)}`;
+		let url = `https://api.ilanzou.com/unproved/file/redirect?${utils.toSearchParamsStr({
+			downloadId: downloadId,
+			enable: enable,
+			devType: devType,
+			uuid: uuid,
+			timestamp: timestamp,
+			auth: auth,
+			shareId: shareId,
+		})}`;
 		return url;
 		let response = await httpx.options(url);
 		if (!response.status) {
@@ -480,13 +464,7 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 					(e, t) => (
 						(t &= 63),
 						(e +=
-							t < 36
-								? t.toString(36)
-								: t < 62
-								? (t - 26).toString(36).toUpperCase()
-								: t > 62
-								? "-"
-								: "_"),
+							t < 36 ? t.toString(36) : t < 62 ? (t - 26).toString(36).toUpperCase() : t > 62 ? "-" : "_"),
 						e
 					),
 					""
@@ -519,15 +497,7 @@ export class NetDiskParse_Lanzouyx extends ParseFileAbstract {
 			enable = 1,
 			timestamp = that.getEncodeTimeStamp(nowTime),
 			auth = LanZouUtils.encryptHex(fileId + "|" + nowTime);
-		return [
-			downloadId,
-			enable,
-			that.$data.devType,
-			uuid,
-			timestamp,
-			auth,
-			that.shareCode,
-		];
+		return [downloadId, enable, that.$data.devType, uuid, timestamp, auth, that.shareCode];
 	}
 	/**
 	 * 前往登录

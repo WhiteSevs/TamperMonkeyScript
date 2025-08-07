@@ -26,15 +26,18 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 		"x-app-version": "2.4.0",
 	};
 	async init(netDiskInfo: ParseFileInitConfig) {
-		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		that.panelList = [];
-		that.Authorization = NetDiskAuthorization_123pan_Authorization.get();
-		let checkLinkValidityStatus = await that.checkLinkValidity();
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+		this.ruleIndex = ruleIndex;
+		this.shareCode = shareCode;
+		this.accessCode = accessCode;
+		this.panelList = [];
+		this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
+		let checkLinkValidityStatus = await this.checkLinkValidity();
 		if (!checkLinkValidityStatus) {
 			return;
 		}
-		let infoLists = await that.getFiles();
+		let infoLists = await this.getFiles();
 		if (!infoLists) {
 			return;
 		}
@@ -57,10 +60,7 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 				if (downloadInfo && downloadInfo["code"] === 0) {
 					downloadUrl = downloadInfo["data"]["DownloadURL"];
 					if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
-						downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-							"_123pan",
-							downloadUrl
-						);
+						downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
 					}
 					// @ts-ignore
 					fileSize = utils.formatByteToSize(fileInfo["Size"]);
@@ -73,10 +73,7 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 				}
 			} else {
 				if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
-					downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-						"_123pan",
-						downloadUrl
-					);
+					downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
 				}
 
 				// @ts-ignore
@@ -125,21 +122,17 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 			return false;
 		}
 		let respData = getResp.data;
-		let g_initialPropsMatch = respData.responseText.match(
-			/window.g_initialProps[\s]*=[\s]*\{(.+?)\};/s
-		);
+		let g_initialPropsMatch = respData.responseText.match(/window.g_initialProps[\s]*=[\s]*\{(.+?)\};/s);
 		if (g_initialPropsMatch) {
 			log.info(g_initialPropsMatch);
-			let g_initialProps = utils.toJSON(
-				`{${g_initialPropsMatch[g_initialPropsMatch.length - 1]}}`
-			);
+			let g_initialProps = utils.toJSON(`{${g_initialPropsMatch[g_initialPropsMatch.length - 1]}}`);
 			log.info(g_initialProps);
 			if (g_initialProps.res.code !== 0) {
 				Qmsg.error(g_initialProps.res.message);
 				return false;
 			}
 			let HasPwd = g_initialProps.res.data.HasPwd;
-			if (HasPwd && (that.accessCode == void 0 || that.accessCode === "")) {
+			if (HasPwd && (that.accessCode == null || that.accessCode === "")) {
 				/* 该链接需要密码但是没有获取到 */
 				Qmsg.error("密码缺失!");
 				NetDiskUI.newAccessCodeView(
@@ -180,9 +173,7 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 			ParentFileId: parentFileId,
 			Page: 1,
 		};
-		let url = `https://www.123pan.com/b/api/share/get?${utils.toSearchParamsStr(
-			getData
-		)}`;
+		let url = `https://www.123pan.com/b/api/share/get?${utils.toSearchParamsStr(getData)}`;
 		let getResp = await httpx.get({
 			url: url,
 			headers: {
@@ -320,9 +311,7 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 					isFolder: true,
 					index: index,
 					async clickEvent() {
-						let resultFileInfoList = await that.getFilesByRec(
-							item["FileId"].toString()
-						);
+						let resultFileInfoList = await that.getFilesByRec(item["FileId"].toString());
 						if (resultFileInfoList) {
 							return that.getFolderInfo(resultFileInfoList, index + 1);
 						} else {
@@ -365,10 +354,7 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 						} else {
 							let downloadUrl = item.DownloadUrl;
 							if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
-								downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-									"_123pan",
-									downloadUrl
-								);
+								downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
 							}
 							return {
 								url: downloadUrl,
@@ -380,12 +366,8 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 				});
 			}
 		});
-		tempFolderInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
-		tempFolderFileInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
+		tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+		tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
 		folderInfoList = folderInfoList.concat(tempFolderInfoList);
 		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
 		return folderInfoList;
@@ -443,9 +425,7 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 		let jsonData = utils.toJSON(postData.responseText);
 		log.info(jsonData);
 		if (jsonData["code"] == 0) {
-			jsonData["data"]["DownloadURL"] = that.decodeDownloadUrl(
-				jsonData["data"]["DownloadURL"]
-			);
+			jsonData["data"]["DownloadURL"] = that.decodeDownloadUrl(jsonData["data"]["DownloadURL"]);
 			return jsonData;
 		} else {
 			return {
@@ -462,17 +442,13 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 		const that = this;
 		function encry_time(param: any) {
 			var param_time,
-				param_other =
-					arguments["length"] > 0x2 && void 0x0 !== arguments[0x2]
-						? arguments[0x2]
-						: 0x8;
+				param_other = arguments["length"] > 0x2 && void 0x0 !== arguments[0x2] ? arguments[0x2] : 0x8;
 			if (0x0 === arguments["length"]) return void 0;
 			"object" === typeof param
 				? (param_time = param)
 				: (0xa === ("" + param)["length"] && (param = 0x3e8 * parseInt(param)),
 				  (param_time = new Date(param)));
-			var param_timezoneoffset =
-					param + 0xea60 * new Date(param)["getTimezoneOffset"](),
+			var param_timezoneoffset = param + 0xea60 * new Date(param)["getTimezoneOffset"](),
 				param_time_n = param_timezoneoffset + 0x36ee80 * param_other;
 			return (
 				(param_time = new Date(param_time_n)),
@@ -482,33 +458,20 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 						param_time["getMonth"]() + 0x1 < 0xa
 							? "0" + (param_time["getMonth"]() + 0x1)
 							: param_time["getMonth"]() + 0x1,
-					d:
-						param_time["getDate"]() < 0xa
-							? "0" + param_time["getDate"]()
-							: param_time["getDate"](),
-					h:
-						param_time["getHours"]() < 0xa
-							? "0" + param_time["getHours"]()
-							: param_time["getHours"](),
-					f:
-						param_time["getMinutes"]() < 0xa
-							? "0" + param_time["getMinutes"]()
-							: param_time["getMinutes"](),
+					d: param_time["getDate"]() < 0xa ? "0" + param_time["getDate"]() : param_time["getDate"](),
+					h: param_time["getHours"]() < 0xa ? "0" + param_time["getHours"]() : param_time["getHours"](),
+					f: param_time["getMinutes"]() < 0xa ? "0" + param_time["getMinutes"]() : param_time["getMinutes"](),
 				}
 			);
 		}
 
 		function encry_join(param: any) {
 			for (
-				var a =
-						arguments["length"] > 0x1 && void 0x0 !== arguments[0x1]
-							? arguments[0x1]
-							: 0xa,
+				var a = arguments["length"] > 0x1 && void 0x0 !== arguments[0x1] ? arguments[0x1] : 0xa,
 					funcRun = function () {
 						for (var b, c = [], d = 0x0; d < 0x100; d++) {
 							b = d;
-							for (var index = 0x0; index < 0x8; index++)
-								b = 0x1 & b ? 0xedb88320 ^ (b >>> 0x1) : b >>> 0x1;
+							for (var index = 0x0; index < 0x8; index++) b = 0x1 & b ? 0xedb88320 ^ (b >>> 0x1) : b >>> 0x1;
 							c[d] = b;
 						}
 						return c;
@@ -520,9 +483,7 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 				_param_0 < _param["length"];
 				_param_0++
 			)
-				_param_1 =
-					(_param_1 >>> 0x8) ^
-					_funcRun_[0xff & (_param_1 ^ _param.charCodeAt(_param_0))];
+				_param_1 = (_param_1 >>> 0x8) ^ _funcRun_[0xff & (_param_1 ^ _param.charCodeAt(_param_0))];
 			return (_param_1 = (-0x1 ^ _param_1) >>> 0x0), _param_1.toString(a);
 		}
 
@@ -530,10 +491,7 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 			var param_web = "web";
 			var param_type = 3;
 			var param_time = Math.round(
-				(new Date().getTime() +
-					0x3c * new Date().getTimezoneOffset() * 0x3e8 +
-					28800000) /
-					0x3e8
+				(new Date().getTime() + 0x3c * new Date().getTimezoneOffset() * 0x3e8 + 28800000) / 0x3e8
 			).toString();
 			var key = "a,d,e,f,g,h,l,m,y,i,j,n,o,p,k,q,r,s,t,u,b,c,v,w,s,z";
 			var randomRoundNum = Math["round"](0x989680 * Math["random"]());
@@ -618,10 +576,6 @@ export class NetDiskParse_123pan extends ParseFileAbstract {
 		return url;
 		let new_url_no_redirect = url + "&auto_redirect=0";
 		let base64data = btoa(new_url_no_redirect);
-		return (
-			"https://web-pro2.123952.com/download-v2/?params=" +
-			base64data +
-			"&is_s3=0"
-		);
+		return "https://web-pro2.123952.com/download-v2/?params=" + base64data + "&is_s3=0";
 	}
 }

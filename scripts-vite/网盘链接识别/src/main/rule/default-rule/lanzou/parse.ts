@@ -172,8 +172,7 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		 * 蓝奏文件直链
 		 */
 		loadDown: {
-			match:
-				/var[\s]*(loaddown|oreferr|spototo|domianload|hyggid)[\s]*=[\s]*'(.+?)'/i,
+			match: /var[\s]*(loaddown|oreferr|spototo|domianload|hyggid)[\s]*=[\s]*'(.+?)'/i,
 		},
 		/**
 		 * 蓝奏云之苹果使用类型的文件
@@ -193,13 +192,11 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 	 */
 	async init(netDiskInfo: ParseFileInitConfig) {
 		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
-		this.regexp.unicode.isUnicode = Boolean(
-			shareCode.match(this.regexp.unicode.match)
-		);
-		let url =
-			ruleIndex === 1
-				? this.router.root_s(shareCode)
-				: this.router.root(shareCode);
+		this.ruleIndex = ruleIndex;
+		this.shareCode = shareCode;
+		this.accessCode = accessCode;
+		this.regexp.unicode.isUnicode = Boolean(shareCode.match(this.regexp.unicode.match));
+		let url = ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
 		let pageInfoResponse = await this.getPageInfo(url);
 		if (!pageInfoResponse) {
 			return;
@@ -223,11 +220,7 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		} else {
 			// 单文件
 			log.info(`单文件`);
-			let fileDownloadInfo = await this.getFileDownloadInfo(
-				shareCode,
-				accessCode,
-				pageInfoResponse
-			);
+			let fileDownloadInfo = await this.getFileDownloadInfo(shareCode, accessCode, pageInfoResponse);
 			if (fileDownloadInfo) {
 				NetDiskUI.staticView.oneFile({
 					title: "蓝奏云单文件直链",
@@ -297,17 +290,10 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 					isFolder: true,
 					index: index,
 					clickEvent: async () => {
-						let fileInfo = await this.parseFiles(
-							item.shareCode,
-							item.accessCode
-						);
+						let fileInfo = await this.parseFiles(item.shareCode, item.accessCode);
 						if (fileInfo) {
 							return that.getFolderInfo(
-								this.transformFileInfoToInfoList(
-									this.shareCode,
-									this.accessCode,
-									fileInfo
-								),
+								this.transformFileInfoToInfoList(this.shareCode, this.accessCode, fileInfo),
 								index + 1
 							);
 						}
@@ -328,9 +314,7 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 					index: index,
 					clickEvent: async () => {
 						let url =
-							this.ruleIndex === 1
-								? this.router.root_s(item.shareCode)
-								: this.router.root(item.shareCode);
+							this.ruleIndex === 1 ? this.router.root_s(item.shareCode) : this.router.root(item.shareCode);
 						let responseData = await this.getPageInfo(url);
 						if (!responseData) {
 							return;
@@ -352,12 +336,8 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 				});
 			}
 		});
-		tempFolderInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
-		tempFolderFileInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
+		tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+		tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
 		folderInfoList = folderInfoList.concat(tempFolderInfoList);
 		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
 		return folderInfoList;
@@ -399,28 +379,19 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 			let fileName =
 				$pageDoc.querySelector<HTMLElement>("body div.d > div")?.innerText ||
 				$pageDoc.querySelector<HTMLElement>("#filenajax")?.innerText ||
-				$pageDoc
-					.querySelector("title")
-					?.textContent?.replace(/ - 蓝奏云$/i, "")!;
+				$pageDoc.querySelector("title")?.textContent?.replace(/ - 蓝奏云$/i, "")!;
 			let fileSize =
 				pageText.match(/文件大小：<\/span>(.+?)<br>/i) ||
-				$pageDoc.querySelector<HTMLElement>(
-					"div.n_box div.n_file div.n_filesize"
-				)?.innerText ||
-				$pageDoc.querySelector<HTMLElement>(
-					".d2 table tr td .fileinfo:nth-child(1) .fileinforight"
-				)?.innerText!;
+				$pageDoc.querySelector<HTMLElement>("div.n_box div.n_file div.n_filesize")?.innerText ||
+				$pageDoc.querySelector<HTMLElement>(".d2 table tr td .fileinfo:nth-child(1) .fileinforight")
+					?.innerText!;
 			let fileUploadTime =
 				pageText.match(/上传时间：<\/span>(.+?)<br>/i) ||
-				$pageDoc.querySelector<HTMLElement>(
-					"#file[class=''] .n_file_info span.n_file_infos"
-				)?.innerText ||
-				$pageDoc.querySelector<HTMLElement>(
-					".d2 table tr td .fileinfo:nth-child(3) .fileinforight"
-				)?.innerText ||
-				$pageDoc.querySelector<HTMLElement>(
-					"#file[class='filter'] .n_file_info span.n_file_infos"
-				)?.innerText;
+				$pageDoc.querySelector<HTMLElement>("#file[class=''] .n_file_info span.n_file_infos")?.innerText ||
+				$pageDoc.querySelector<HTMLElement>(".d2 table tr td .fileinfo:nth-child(3) .fileinforight")
+					?.innerText ||
+				$pageDoc.querySelector<HTMLElement>("#file[class='filter'] .n_file_info span.n_file_infos")
+					?.innerText;
 			if (fileSize) {
 				if (Array.isArray(fileSize)) {
 					fileSize = fileSize[fileSize.length - 1];
@@ -442,17 +413,12 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 			} else {
 				log.error("解析文件上传时间信息失败");
 			}
-			let downloadUrl = await this.getLinkByIframe(
-				shareCode,
-				accessCode,
-				iframeUrl,
-				{
-					fileName,
-					fileSize,
-					// @ts-ignore
-					fileUploadTime,
-				}
-			);
+			let downloadUrl = await this.getLinkByIframe(shareCode, accessCode, iframeUrl, {
+				fileName,
+				fileSize,
+				// @ts-ignore
+				fileUploadTime,
+			});
 			if (!downloadUrl) {
 				return;
 			}
@@ -465,22 +431,16 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		} else {
 			log.warn("该页面不是使用iframe获取链接，使用其它方式解析");
 
-			let sign =
-				pageText.match(/'sign':'(.+?)',/i) ||
-				pageText.match(this.regexp.sign.match);
+			let sign = pageText.match(/'sign':'(.+?)',/i) || pageText.match(this.regexp.sign.match);
 
 			let postData_p = "";
 			let postData_sign = "";
 			let fileNameMatch = pageText.match(this.regexp.fileName.match);
-			let fileName = fileNameMatch
-				? fileNameMatch[fileNameMatch.length - 1].trim()
-				: "";
+			let fileName = fileNameMatch ? fileNameMatch[fileNameMatch.length - 1].trim() : "";
 			let fileSizeMatch =
 				pageText.match(this.regexp.fileSize.match) ||
 				pageText.match(/<div class="n_filesize">大小：(.+?)<\/div>/i);
-			let fileSize = fileSizeMatch
-				? fileSizeMatch[fileSizeMatch.length - 1].trim()
-				: "";
+			let fileSize = fileSizeMatch ? fileSizeMatch[fileSizeMatch.length - 1].trim() : "";
 			let fileUploadTimeMatch =
 				pageText.match(this.regexp.uploadTime.match) ||
 				pageText.match(/<span class="n_file_infos">(.+?)<\/span>/i);
@@ -523,8 +483,7 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 				let downloadUrl = `${json_data["dom"]}/file/${json_data["url"]}`;
 				if (
 					typeof json_data["url"] === "string" &&
-					(json_data["url"].startsWith("http") ||
-						json_data["url"].startsWith(json_data["dom"]))
+					(json_data["url"].startsWith("http") || json_data["url"].startsWith(json_data["dom"]))
 				) {
 					/* 有些情况下比如苹果的ipa文件的请求，json_data["url"]就是一个完整的链接 */
 					downloadUrl = json_data["url"];
@@ -560,19 +519,12 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 						return;
 					}
 					accessCode = newAccessCodeInfo.accessCode;
-					let url =
-						this.ruleIndex === 1
-							? this.router.root_s(shareCode)
-							: this.router.root(shareCode);
+					let url = this.ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
 					let newResponseData = await this.getPageInfo(url);
 					if (!newResponseData) {
 						return;
 					}
-					return await this.getFileDownloadInfo(
-						shareCode,
-						accessCode,
-						newResponseData
-					);
+					return await this.getFileDownloadInfo(shareCode, accessCode, newResponseData);
 				} else {
 					fileName = json_data["inf"] ? json_data["inf"] : fileName;
 				}
@@ -608,9 +560,7 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 					});
 					return;
 				}
-				let downloadUrl = `${loadDownHost[loadDownHost.length - 1]}${
-					loadDown[loadDown.length - 1]
-				}`;
+				let downloadUrl = `${loadDownHost[loadDownHost.length - 1]}${loadDown[loadDown.length - 1]}`;
 
 				fileDownloadInfo = {
 					fileName,
@@ -622,10 +572,7 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		}
 
 		// 链接转发
-		if (
-			fileDownloadInfo &&
-			NetDiskFilterScheme.isForwardDownloadLink("lanzou")
-		) {
+		if (fileDownloadInfo && NetDiskFilterScheme.isForwardDownloadLink("lanzou")) {
 			fileDownloadInfo.downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
 				"lanzou",
 				fileDownloadInfo.downloadUrl
@@ -735,19 +682,14 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		  }
 		| undefined
 	> {
-		let url =
-			this.ruleIndex === 1
-				? this.router.root_s(shareCode)
-				: this.router.root(shareCode);
+		let url = this.ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
 		let pageInfoResponse = await this.getPageInfo(url);
 		if (!pageInfoResponse) {
 			return;
 		}
 		let pageText = pageInfoResponse.responseText;
 		let pageDoc = DOMUtils.parseHTML(pageText, true, true);
-		let folders = Array.from(
-			pageDoc.querySelectorAll<HTMLAnchorElement>("#folder a.mlink[href]")
-		)
+		let folders = Array.from(pageDoc.querySelectorAll<HTMLAnchorElement>("#folder a.mlink[href]"))
 			.map(($link) => {
 				let url = $link.href;
 				let urlInst = new URL(url);
@@ -882,11 +824,9 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		let websignMatch = pageText.match(/var[\s]*ciucjdsdc[\s]*=[\s]*'(.*)';/i);
 		let signsMatch = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
 		let signMatch =
-			pageText.match(/'sign':[\s]*'(.+)',/i) ||
-			pageText.match(/var[\s]*wp_sign[\s]*=[\s]*'(.*)';/i);
+			pageText.match(/'sign':[\s]*'(.+)',/i) || pageText.match(/var[\s]*wp_sign[\s]*=[\s]*'(.*)';/i);
 		let ajaxUrlMatch =
-			pageText.match(/[^\/\/]url[\s]*:[\s]*'(.+?)'[\s]*,/i) ||
-			pageText.match(/url[\s]*:[\s]*'(.+?)'[\s]*,/);
+			pageText.match(/[^\/\/]url[\s]*:[\s]*'(.+?)'[\s]*,/i) || pageText.match(/url[\s]*:[\s]*'(.+?)'[\s]*,/);
 		let ajaxUrl = "ajaxm.php";
 		let websignkey = "";
 		let websign = "";
@@ -971,24 +911,15 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		log.success("直链", downloadUrl);
 		if ("密码不正确".indexOf(jsonData["inf"]) != -1) {
 			Qmsg.error("密码不正确!");
-			NetDiskUI.newAccessCodeView(
-				void 0,
-				"lanzou",
-				this.ruleIndex,
-				shareCode,
-				accessCode,
-				(option) => {
-					this.init({
-						ruleIndex: this.ruleIndex,
-						shareCode,
-						accessCode: option.accessCode,
-					});
-				}
-			);
+			NetDiskUI.newAccessCodeView(void 0, "lanzou", this.ruleIndex, shareCode, accessCode, (option) => {
+				this.init({
+					ruleIndex: this.ruleIndex,
+					shareCode,
+					accessCode: option.accessCode,
+				});
+			});
 		} else {
-			fileInfo.fileName = utils.isNotNull(jsonData["inf"])
-				? jsonData["inf"]
-				: fileInfo.fileName;
+			fileInfo.fileName = utils.isNotNull(jsonData["inf"]) ? jsonData["inf"] : fileInfo.fileName;
 			log.info(downloadUrl);
 			return downloadUrl;
 		}
@@ -997,12 +928,9 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 	 * 获取kdns的参数
 	 */
 	async getKNDS() {
-		let response = await httpx.get(
-			"https://down-load.lanrar.com/file/kdns.js",
-			{
-				allowInterceptConfig: false,
-			}
-		);
+		let response = await httpx.get("https://down-load.lanrar.com/file/kdns.js", {
+			allowInterceptConfig: false,
+		});
 		if (response.status && utils.isNotNull(response.data.responseText)) {
 			return 1;
 		} else {
@@ -1050,9 +978,7 @@ export class NetDiskParse_Lanzou extends ParseFileAbstract {
 		}
 		let fileMoreAjaxResponseData = fileMoreAjaxResponse.data;
 		log.info(fileMoreAjaxResponseData);
-		let json_data = utils.toJSON<FileMoreAjaxJSON>(
-			fileMoreAjaxResponseData.responseText
-		);
+		let json_data = utils.toJSON<FileMoreAjaxJSON>(fileMoreAjaxResponseData.responseText);
 		return json_data;
 	}
 }

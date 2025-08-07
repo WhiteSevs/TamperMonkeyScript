@@ -3,10 +3,7 @@ import Qmsg from "qmsg";
 import { PopsFolderDataConfig } from "@whitesev/pops/dist/types/src/components/folder/types/index";
 import { unsafeWindow } from "ViteGM";
 import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
-import {
-	NetDiskLinkClickMode,
-	NetDiskLinkClickModeUtils,
-} from "@/main/link-click-mode/NetDiskLinkClickMode";
+import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import type { HttpxResponse } from "@whitesev/utils/src/types/Httpx";
@@ -29,8 +26,11 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 	 */
 	X_Canary = "client=web,app=share,version=v2.3.1";
 	async init(netDiskInfo: ParseFileInitConfig) {
-		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+		this.ruleIndex = ruleIndex;
+		this.shareCode = shareCode;
+		this.accessCode = accessCode;
 		that.X_Device_Id = that.get_X_Device_Id();
 		log.info("生成X_Device_Id：" + that.X_Device_Id);
 		if (
@@ -43,28 +43,14 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 				shareCode,
 				accessCode,
 			});
-			let $QmsgErrorTip = Qmsg.error(
-				`请在阿里云盘页面解析，<a href="${url}">点我前往</a>`,
-				{
-					timeout: 10000,
-					isHTML: true,
-				}
-			);
-			DOMUtils.on(
-				$QmsgErrorTip.$Qmsg.querySelector("a[href]"),
-				"click",
-				void 0,
-				(event) => {
-					utils.preventEvent(event);
-					NetDiskLinkClickMode.openBlankUrl(
-						url,
-						"aliyun",
-						that.ruleIndex,
-						that.shareCode,
-						that.accessCode
-					);
-				}
-			);
+			let $QmsgErrorTip = Qmsg.error(`请在阿里云盘页面解析，<a href="${url}">点我前往</a>`, {
+				timeout: 10000,
+				isHTML: true,
+			});
+			DOMUtils.on($QmsgErrorTip.$Qmsg.querySelector("a[href]"), "click", void 0, (event) => {
+				utils.preventEvent(event);
+				NetDiskLinkClickMode.openBlankUrl(url, "aliyun", that.ruleIndex, that.shareCode, that.accessCode);
+			});
 			return;
 		}
 		let detail = await this.list_by_share(shareCode, "root");
@@ -120,19 +106,13 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 					isFolder: false,
 					index: index,
 					async clickEvent() {
-						let fileDownloadUrl = await that.get_share_link_download_url(
-							item.share_id,
-							item.file_id
-						);
+						let fileDownloadUrl = await that.get_share_link_download_url(item.share_id, item.file_id);
 						if (!fileDownloadUrl) {
 							return;
 						}
 						let schemeDownloadUrl = fileDownloadUrl;
 						if (NetDiskFilterScheme.isForwardDownloadLink("aliyun")) {
-							schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-								"aliyun",
-								schemeDownloadUrl
-							);
+							schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("aliyun", schemeDownloadUrl);
 						}
 						return {
 							autoDownload: true,
@@ -152,10 +132,7 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 					isFolder: true,
 					index: index,
 					async clickEvent() {
-						let newDetail = await that.list_by_share(
-							item.share_id,
-							item.file_id
-						);
+						let newDetail = await that.list_by_share(item.share_id, item.file_id);
 						if (newDetail) {
 							return that.getFolderInfo(newDetail, index + 1);
 						} else {
@@ -166,12 +143,8 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 			}
 		});
 
-		tempFolderInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
-		tempFolderFileInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
+		tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+		tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
 		folderInfoList = folderInfoList.concat(tempFolderInfoList);
 		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
 		log.info("getFilesInfoByRec", folderInfoList);
@@ -191,35 +164,29 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 		order_direction: "ASC" | "DESC" = "DESC"
 	) {
 		const that = this;
-		let postResp = await httpx.post(
-			"https://api.aliyundrive.com/adrive/v2/file/list_by_share",
-			{
-				data: JSON.stringify({
-					share_id: share_id,
-					parent_file_id: parent_file_id,
-					limit: 20,
-					image_thumbnail_process: "image/resize,w_256/format,jpeg",
-					image_url_process: "image/resize,w_1920/format,jpeg/interlace,1",
-					video_thumbnail_process: "video/snapshot,t_1000,f_jpg,ar_auto,w_256",
-					order_by: order_by,
-					order_direction: order_direction,
-				}),
-				headers: {
-					Accept: "application/json, text/plain, */*",
-					"Content-Type": "application/json",
-					Origin: "https://www.aliyundrive.com",
-					Referer: "https://www.aliyundrive.com/",
-					"X-Canary": that.X_Canary,
-					"X-Device-Id": that.X_Device_Id,
-					"X-Share-Token": await that.get_X_Share_Token(
-						that.shareCode,
-						that.accessCode
-					),
-					"User-Agent": utils.getRandomPCUA(),
-				},
-				allowInterceptConfig: false,
-			}
-		);
+		let postResp = await httpx.post("https://api.aliyundrive.com/adrive/v2/file/list_by_share", {
+			data: JSON.stringify({
+				share_id: share_id,
+				parent_file_id: parent_file_id,
+				limit: 20,
+				image_thumbnail_process: "image/resize,w_256/format,jpeg",
+				image_url_process: "image/resize,w_1920/format,jpeg/interlace,1",
+				video_thumbnail_process: "video/snapshot,t_1000,f_jpg,ar_auto,w_256",
+				order_by: order_by,
+				order_direction: order_direction,
+			}),
+			headers: {
+				Accept: "application/json, text/plain, */*",
+				"Content-Type": "application/json",
+				Origin: "https://www.aliyundrive.com",
+				Referer: "https://www.aliyundrive.com/",
+				"X-Canary": that.X_Canary,
+				"X-Device-Id": that.X_Device_Id,
+				"X-Share-Token": await that.get_X_Share_Token(that.shareCode, that.accessCode),
+				"User-Agent": utils.getRandomPCUA(),
+			},
+			allowInterceptConfig: false,
+		});
 		if (!postResp.status) {
 			that.handle_request_error(postResp);
 			return;
@@ -250,30 +217,24 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 	 */
 	async get_share_link_download_url(share_id: string, file_id: string) {
 		const that = this;
-		let postResp = await httpx.post(
-			"https://api.aliyundrive.com/v2/file/get_share_link_download_url",
-			{
-				data: JSON.stringify({
-					expire_sec: 600,
-					file_id: file_id,
-					share_id: share_id,
-				}),
-				headers: {
-					Accept: "application/json, text/plain, */*",
-					Origin: "https://www.aliyundrive.com",
-					Referer: "https://www.aliyundrive.com/",
-					"Content-Type": "application/json;charset=UTF-8",
-					Authorization: "Bearer " + that.getAuthorization(),
-					"X-Share-Token": await that.get_X_Share_Token(
-						that.shareCode,
-						that.accessCode
-					),
-					"User-Agent": utils.getRandomPCUA(),
-				},
-				responseType: "arraybuffer",
-				allowInterceptConfig: false,
-			}
-		);
+		let postResp = await httpx.post("https://api.aliyundrive.com/v2/file/get_share_link_download_url", {
+			data: JSON.stringify({
+				expire_sec: 600,
+				file_id: file_id,
+				share_id: share_id,
+			}),
+			headers: {
+				Accept: "application/json, text/plain, */*",
+				Origin: "https://www.aliyundrive.com",
+				Referer: "https://www.aliyundrive.com/",
+				"Content-Type": "application/json;charset=UTF-8",
+				Authorization: "Bearer " + that.getAuthorization(),
+				"X-Share-Token": await that.get_X_Share_Token(that.shareCode, that.accessCode),
+				"User-Agent": utils.getRandomPCUA(),
+			},
+			responseType: "arraybuffer",
+			allowInterceptConfig: false,
+		});
 		if (!postResp.status) {
 			that.handle_request_error(postResp);
 			return;
@@ -322,25 +283,22 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 		if (new Date() < new Date(that.X_Share_Token_Data.expire_time)) {
 			return that.X_Share_Token_Data.share_token;
 		}
-		let postResp = await httpx.post(
-			"https://api.aliyundrive.com/v2/share_link/get_share_token",
-			{
-				data: JSON.stringify({
-					share_id: share_id,
-					share_pwd: share_pwd,
-				}),
-				headers: {
-					Accept: "application/json, text/plain, */*",
-					"Content-Type": "application/json",
-					Origin: "https://www.aliyundrive.com",
-					Referer: "https://www.aliyundrive.com/",
-					"X-Canary": that.X_Canary,
-					"X-Device-Id": that.X_Device_Id,
-					"User-Agent": utils.getRandomPCUA(),
-				},
-				allowInterceptConfig: false,
-			}
-		);
+		let postResp = await httpx.post("https://api.aliyundrive.com/v2/share_link/get_share_token", {
+			data: JSON.stringify({
+				share_id: share_id,
+				share_pwd: share_pwd,
+			}),
+			headers: {
+				Accept: "application/json, text/plain, */*",
+				"Content-Type": "application/json",
+				Origin: "https://www.aliyundrive.com",
+				Referer: "https://www.aliyundrive.com/",
+				"X-Canary": that.X_Canary,
+				"X-Device-Id": that.X_Device_Id,
+				"User-Agent": utils.getRandomPCUA(),
+			},
+			allowInterceptConfig: false,
+		});
 		if (!postResp.status) {
 			that.handle_request_error(postResp);
 			return;
@@ -368,8 +326,7 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 			return crypto.getRandomValues(new Uint8Array(16));
 		}
 		var alipan_c = function (args_e: any) {
-				var second_arg =
-						arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : 0,
+				var second_arg = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : 0,
 					devices_id_string = (
 						alipan_s[args_e[second_arg + 0]] +
 						alipan_s[args_e[second_arg + 1]] +
@@ -401,8 +358,7 @@ export class NetDiskParse_Aliyun extends ParseFileAbstract {
 				return devices_id_string;
 			},
 			alipan_u = function (args_e?: any, args_t?: any, args_n?: any) {
-				var randomValue =
-					(args_e = args_e || {}).random || (args_e.rng || alipan_o)();
+				var randomValue = (args_e = args_e || {}).random || (args_e.rng || alipan_o)();
 				if (
 					((randomValue[6] = (15 & randomValue[6]) | 64),
 					(randomValue[8] = (63 & randomValue[8]) | 128),

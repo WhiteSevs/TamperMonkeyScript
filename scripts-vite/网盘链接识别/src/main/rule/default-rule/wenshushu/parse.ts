@@ -1,10 +1,7 @@
 import { httpx, log, utils } from "@/env";
 import Qmsg from "qmsg";
 import { ParseFileAbstract } from "../../../parse/NetDiskParseAbstract";
-import {
-	NetDiskLinkClickMode,
-	NetDiskLinkClickModeUtils,
-} from "@/main/link-click-mode/NetDiskLinkClickMode";
+import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskFilterScheme } from "@/main/scheme/NetDiskFilterScheme";
 import { NetDiskUI } from "@/main/ui/NetDiskUI";
 
@@ -22,8 +19,11 @@ export class NetDiskParse_Wenshushu extends ParseFileAbstract {
 		1088: "糟糕，您访问的页面不存在",
 	};
 	async init(netDiskInfo: ParseFileInitConfig) {
-		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+		this.ruleIndex = ruleIndex;
+		this.shareCode = shareCode;
+		this.accessCode = accessCode;
 		Qmsg.info("正在请求直链中...");
 		let token = await this.getWssToken();
 		if (!token) {
@@ -41,20 +41,17 @@ export class NetDiskParse_Wenshushu extends ParseFileAbstract {
 	 */
 	async getWssToken(): Promise<string | undefined> {
 		const that = this;
-		let postResp = await httpx.post(
-			"https://www.wenshushu.cn/ap/login/anonymous",
-			{
-				responseType: "json",
-				data: JSON.stringify({
-					dev_info: "{}",
-				}),
-				headers: {
-					Accept: "application/json, text/plain, */*",
-					"User-Agent": utils.getRandomAndroidUA(),
-					Referer: "https://www.wenshushu.cn/f/" + that.shareCode,
-				},
-			}
-		);
+		let postResp = await httpx.post("https://www.wenshushu.cn/ap/login/anonymous", {
+			responseType: "json",
+			data: JSON.stringify({
+				dev_info: "{}",
+			}),
+			headers: {
+				Accept: "application/json, text/plain, */*",
+				"User-Agent": utils.getRandomAndroidUA(),
+				Referer: "https://www.wenshushu.cn/f/" + that.shareCode,
+			},
+		});
 		log.success(postResp);
 		if (!postResp.status) {
 			return;
@@ -198,10 +195,7 @@ export class NetDiskParse_Wenshushu extends ParseFileAbstract {
 				Qmsg.error("对方的分享流量不足");
 			} else {
 				if (NetDiskFilterScheme.isForwardDownloadLink("wenshushu")) {
-					downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-						"wenshushu",
-						downloadUrl
-					);
+					downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("wenshushu", downloadUrl);
 				}
 
 				/* 文叔叔没有上传时间信息(暂时是这样的) */

@@ -13,34 +13,33 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 	 * 入口
 	 */
 	async init(netDiskInfo: ParseFileInitConfig) {
-		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+		this.ruleIndex = ruleIndex;
+		this.shareCode = shareCode;
+		this.accessCode = accessCode;
+
 		Qmsg.info("检查是否已登录UC网盘");
-		let loginStatus = await that.isLogin();
+		let loginStatus = await this.isLogin();
 		if (!Boolean(loginStatus)) {
-			that.gotoLogin(
+			this.gotoLogin(
 				"检测到尚未登录UC网盘，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC才有登录选项)"
 			);
 			return;
 		}
-		let stoken = await that.getStoken(that.shareCode, that.accessCode);
+		let stoken = await this.getStoken(this.shareCode, this.accessCode);
 		if (!stoken) {
 			return;
 		}
-		let detail = await that.getDetail(that.shareCode, that.accessCode, stoken);
+		let detail = await this.getDetail(this.shareCode, this.accessCode, stoken);
 		if (!detail) {
 			Qmsg.error("UC网盘：获取detail失败");
 			return;
 		}
-		if (
-			detail.length === 1 &&
-			detail[0].dir == false &&
-			detail[0].file_type === 1
-		) {
+		if (detail.length === 1 && detail[0].dir == false && detail[0].file_type === 1) {
 			let oneFileDetail = detail[0];
-			let oneFileDownloadDetail = await that.getDownload(
-				that.shareCode,
+			let oneFileDownloadDetail = await this.getDownload(
+				this.shareCode,
 				stoken,
 				oneFileDetail.fid,
 				oneFileDetail.share_fid_token
@@ -58,20 +57,15 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 				fileSize: utils.formatByteToSize(oneFileDownloadDetail[0].size),
 				downloadUrl: oneFileDownloadDetail[0].download_url,
 				fileUploadTime: utils.formatTime(oneFileDownloadDetail[0].created_at),
-				fileLatestTime: utils.formatTime(
-					oneFileDownloadDetail[0].last_update_at
-				),
-				clickCallBack() {
-					that.downloadFile(
-						oneFileDownloadDetail[0].file_name,
-						oneFileDownloadDetail[0].download_url
-					);
+				fileLatestTime: utils.formatTime(oneFileDownloadDetail[0].last_update_at),
+				clickCallBack: () => {
+					this.downloadFile(oneFileDownloadDetail[0].file_name, oneFileDownloadDetail[0].download_url);
 				},
 			});
 		} else {
 			Qmsg.info("正在递归文件");
 			let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-			let folderInfoList = that.getFolderInfo(detail, stoken, 0);
+			let folderInfoList = this.getFolderInfo(detail, stoken, 0);
 			QmsgLoading.close();
 			log.info("递归完毕");
 			NetDiskUI.staticView.moreFile("UC网盘文件解析", folderInfoList);
@@ -139,12 +133,7 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 				Qmsg.success(`下载 ${fileName} 已完成`, { consoleLogContent: true });
 			},
 			onprogress(details) {
-				if (
-					typeof details === "object" &&
-					"loaded" in details &&
-					"total" in details &&
-					!isDownloadEnd
-				) {
+				if (typeof details === "object" && "loaded" in details && "total" in details && !isDownloadEnd) {
 					let progressNum = details.loaded / details.total;
 					let formatProgressNum = (progressNum * 100).toFixed(2);
 					downloadingQmsg.setText(`下载中...${formatProgressNum}%`);
@@ -301,11 +290,7 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 			return;
 		}
 		let metadata = data["metadata"];
-		if (
-			metadata &&
-			metadata["_total"] &&
-			metadata["_total"] > metadata["_size"]
-		) {
+		if (metadata && metadata["_total"] && metadata["_total"] > metadata["_size"]) {
 			// 文件的总数量超过默认的值
 			return await this.getDetail(
 				pwd_id,
@@ -329,12 +314,7 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 	 * @param fids 通过获取到的detail获取到的fid
 	 * @param share_fid_token 通过获取到的detail获取到的share_fid_token
 	 */
-	async getDownload(
-		pwd_id: string,
-		stoken: string,
-		fid: string,
-		share_fid_token: string
-	) {
+	async getDownload(pwd_id: string, stoken: string, fid: string, share_fid_token: string) {
 		let response = await httpx.post(
 			"https://pc-api.uc.cn/1/clouddrive/file/download?entry=ft&fr=pc&pr=UCBrowser",
 			{
@@ -463,10 +443,7 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 						} else {
 							let schemeDownloadUrl = fileDownloadUrl;
 							if (NetDiskFilterScheme.isForwardDownloadLink("uc")) {
-								schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-									"uc",
-									schemeDownloadUrl
-								);
+								schemeDownloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("uc", schemeDownloadUrl);
 							}
 							/* 如果已被scheme过滤，那么不进行GM_download下载 */
 							if (schemeDownloadUrl === fileDownloadUrl) {
@@ -497,12 +474,7 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 							log.success("里面没有文件");
 							return [];
 						}
-						let newDetail = await that.getDetail(
-							that.shareCode,
-							that.accessCode,
-							stoken,
-							item.fid
-						);
+						let newDetail = await that.getDetail(that.shareCode, that.accessCode, stoken, item.fid);
 						if (newDetail) {
 							return that.getFolderInfo(newDetail, stoken, index + 1);
 						} else {
@@ -513,12 +485,8 @@ export class NetDiskParse_UC extends ParseFileAbstract {
 			}
 		});
 
-		tempFolderInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
-		tempFolderFileInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
+		tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+		tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
 		folderInfoList = folderInfoList.concat(tempFolderInfoList);
 		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
 		log.info("getFilesInfoByRec", folderInfoList);

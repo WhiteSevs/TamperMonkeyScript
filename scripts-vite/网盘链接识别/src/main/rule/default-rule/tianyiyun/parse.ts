@@ -23,27 +23,30 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			"天翼云PC端Cookie未生成，是否前去登录？<br />&nbsp;&nbsp;&nbsp;&nbsp;(注意,需要当前浏览器的UA切换成PC且在登录后要等待进入个人云空间后生成Cookie，不是手机端浏览的个人云空间，那样生成的Cookie无法使用)",
 	};
 	async init(netDiskInfo: ParseFileInitConfig) {
-		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+		this.ruleIndex = ruleIndex;
+		this.shareCode = shareCode;
+		this.accessCode = accessCode;
 
-		let shareInfoData = await that.getShareInfoByCodeV2(shareCode);
+		let shareInfoData = await this.getShareInfoByCodeV2(shareCode);
 		if (!shareInfoData) {
 			return;
 		}
 
 		log.info("解析的JSON信息", shareInfoData);
-		if (shareInfoData["needAccessCode"] && utils.isNull(that.accessCode)) {
+		if (shareInfoData["needAccessCode"] && utils.isNull(this.accessCode)) {
 			Qmsg.error("密码不正确!");
 			NetDiskUI.newAccessCodeView(
 				void 0,
 				"tianyiyun",
-				that.ruleIndex,
-				that.shareCode,
-				that.accessCode,
+				this.ruleIndex,
+				this.shareCode,
+				this.accessCode,
 				(option) => {
-					that.init({
-						ruleIndex: that.ruleIndex,
-						shareCode: that.shareCode,
+					this.init({
+						ruleIndex: this.ruleIndex,
+						shareCode: this.shareCode,
 						accessCode: option.accessCode,
 					});
 				}
@@ -53,7 +56,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 		if ("shareId" in shareInfoData) {
 			this.shareId = shareInfoData["shareId"];
 		} else {
-			let newShareId = await that.getShareId(shareCode, accessCode);
+			let newShareId = await this.getShareId(shareCode, accessCode);
 			if (newShareId) {
 				this.shareId = newShareId;
 			}
@@ -69,7 +72,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			Qmsg.info("正在递归文件");
 			let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
 			let fileId = shareInfoData["fileId"];
-			let folderInfo = await that.listShareDir(
+			let folderInfo = await this.listShareDir(
 				shareCode,
 				accessCode,
 				void 0,
@@ -86,30 +89,22 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 				QmsgLoading.close();
 				return;
 			}
-			let folderInfoList = that.getFolderInfo(
-				shareCode,
-				accessCode,
-				folderInfo,
-				0
-			);
+			let folderInfoList = this.getFolderInfo(shareCode, accessCode, folderInfo, 0);
 			QmsgLoading.close();
 			log.info("递归完毕");
 			NetDiskUI.staticView.moreFile("天翼云文件解析", folderInfoList);
 			return;
 		} else {
 			/* 单文件 */
-			let downloadUrl = await that.getDownloadUrl(
-				that.shareCode,
-				that.accessCode,
+			let downloadUrl = await this.getDownloadUrl(
+				this.shareCode,
+				this.accessCode,
 				shareInfoData.fileId,
 				this.shareId
 			);
 			if (downloadUrl) {
 				if (NetDiskFilterScheme.isForwardDownloadLink("tianyiyun")) {
-					downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-						"tianyiyun",
-						downloadUrl
-					);
+					downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("tianyiyun", downloadUrl);
 				}
 				NetDiskUI.staticView.oneFile({
 					title: "天翼云单文件直链",
@@ -127,24 +122,19 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 	 */
 	async getUserBriefInfo(shareCode: string) {
 		const that = this;
-		let response = await httpx.get(
-			"https://cloud.189.cn/api/portal/v2/getUserBriefInfo.action",
-			{
-				headers: {
-					Accept: "application/json;charset=UTF-8",
-					Referer: "https://cloud.189.cn/web/share?code=" + shareCode,
-					"User-Agent": utils.getRandomPCUA(),
-				},
-				allowInterceptConfig: false,
-			}
-		);
+		let response = await httpx.get("https://cloud.189.cn/api/portal/v2/getUserBriefInfo.action", {
+			headers: {
+				Accept: "application/json;charset=UTF-8",
+				Referer: "https://cloud.189.cn/web/share?code=" + shareCode,
+				"User-Agent": utils.getRandomPCUA(),
+			},
+			allowInterceptConfig: false,
+		});
 		log.info(response);
 		if (!response.status) {
 			let errorResultJSON = utils.toJSON(response.data.responseText);
 			if (errorResultJSON["res_code"] in that.code) {
-				Qmsg.error(
-					that.code[errorResultJSON["res_code"] as keyof typeof this.code]
-				);
+				Qmsg.error(that.code[errorResultJSON["res_code"] as keyof typeof this.code]);
 			} else {
 				Qmsg.error("请求异常");
 			}
@@ -275,9 +265,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			if (errorResultJSON["errorCode"] === "InvalidSessionKey") {
 				that.gotoLogin(that.code["InvalidSessionKey"]);
 			} else if (errorResultJSON["res_code"] in that.code) {
-				Qmsg.error(
-					that.code[errorResultJSON["res_code"] as keyof typeof that.code]
-				);
+				Qmsg.error(that.code[errorResultJSON["res_code"] as keyof typeof that.code]);
 			} else {
 				Qmsg.error("请求异常");
 			}
@@ -288,10 +276,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 		log.info(data);
 		if (data["res_code"] === 0) {
 			return data["fileDownloadUrl"];
-		} else if (
-			"InvalidSessionKey" === data["res_code"] ||
-			"InvalidSessionKey" === data["errorCode"]
-		) {
+		} else if ("InvalidSessionKey" === data["res_code"] || "InvalidSessionKey" === data["errorCode"]) {
 			that.gotoLogin(that.code["InvalidSessionKey"]);
 		} else if (that.code.hasOwnProperty(data["res_code"])) {
 			Qmsg.error(that.code[data["res_code"] as keyof typeof that.code]);
@@ -365,9 +350,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 			accessCode: accessCode,
 		};
 		let response = await httpx.get(
-			`https://cloud.189.cn/api/open/share/listShareDir.action?${utils.toSearchParamsStr(
-				getSearParamData
-			)}`,
+			`https://cloud.189.cn/api/open/share/listShareDir.action?${utils.toSearchParamsStr(getSearParamData)}`,
 			{
 				headers: {
 					Accept: "application/json;charset=UTF-8",
@@ -407,12 +390,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 	/**
 	 * 获取直链弹窗的文件夹信息
 	 */
-	getFolderInfo(
-		shareCode: string,
-		accessCode: AccessCodeNonNullType,
-		dirInfo: any,
-		index = 0
-	) {
+	getFolderInfo(shareCode: string, accessCode: AccessCodeNonNullType, dirInfo: any, index = 0) {
 		const that = this;
 		let folderInfoList: PopsFolderDataConfig[] = [];
 		let tempFolderInfoList: PopsFolderDataConfig[] = [];
@@ -444,12 +422,7 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 					if (!_folderInfo_) {
 						return [];
 					}
-					return that.getFolderInfo(
-						shareCode,
-						accessCode,
-						_folderInfo_,
-						index + 1
-					);
+					return that.getFolderInfo(shareCode, accessCode, _folderInfo_, index + 1);
 				},
 			});
 		});
@@ -464,18 +437,10 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 				isFolder: false,
 				index: index,
 				async clickEvent() {
-					let downloadUrl = await that.getDownloadUrl(
-						shareCode,
-						accessCode,
-						fileInfo["id"],
-						that.shareId
-					);
+					let downloadUrl = await that.getDownloadUrl(shareCode, accessCode, fileInfo["id"], that.shareId);
 					if (downloadUrl) {
 						if (NetDiskFilterScheme.isForwardDownloadLink("tianyiyun")) {
-							downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-								"tianyiyun",
-								downloadUrl
-							);
+							downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("tianyiyun", downloadUrl);
 						}
 
 						return {
@@ -487,12 +452,8 @@ export class NetDiskParse_Tianyiyun extends ParseFileAbstract {
 				},
 			});
 		});
-		tempFolderInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
-		tempFolderFileInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
+		tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+		tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
 		folderInfoList = folderInfoList.concat(tempFolderInfoList);
 		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
 		log.info("getFolderInfo", folderInfoList);

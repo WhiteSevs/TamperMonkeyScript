@@ -12,14 +12,14 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 	panelContent = "";
 	OK_CODE = "0000";
 	async init(netDiskInfo: ParseFileInitConfig) {
-		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
 		const that = this;
-		that.panelList = [];
-		that.panelContent = "";
-		let checkLinkValidityInfo = await that.checkLinkValidity(
-			that.shareCode,
-			that.accessCode
-		);
+		let { ruleIndex, shareCode, accessCode } = netDiskInfo;
+		this.ruleIndex = ruleIndex;
+		this.shareCode = shareCode;
+		this.accessCode = accessCode;
+		this.panelList = [];
+		this.panelContent = "";
+		let checkLinkValidityInfo = await this.checkLinkValidity(this.shareCode, this.accessCode);
 		if (!checkLinkValidityInfo) {
 			return;
 		}
@@ -27,21 +27,17 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 			/* 多文件 */
 			Qmsg.info("正在递归文件");
 			let QmsgLoading = Qmsg.loading(`正在解析多文件中，请稍后...`);
-			let firstFolderInfo = await that.getShareFolder(
-				checkLinkValidityInfo["data"]["guid"]
-			);
+			let firstFolderInfo = await this.getShareFolder(checkLinkValidityInfo["data"]["guid"]);
 			if (!firstFolderInfo) {
 				QmsgLoading.close();
 				return;
 			}
-			let firstFileInfo = await that.getShareFiles(
-				checkLinkValidityInfo["data"]["guid"]
-			);
+			let firstFileInfo = await this.getShareFiles(checkLinkValidityInfo["data"]["guid"]);
 			if (!firstFileInfo) {
 				QmsgLoading.close();
 				return;
 			}
-			let folderInfoList = that.getFolderInfo(
+			let folderInfoList = this.getFolderInfo(
 				checkLinkValidityInfo["data"]["guid"],
 				firstFolderInfo,
 				firstFileInfo,
@@ -54,15 +50,15 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 			/* 单文件 */
 			let downloadUrl = void 0 as any as string;
 			if (checkLinkValidityInfo["zipDownload"]) {
-				downloadUrl = await that.getZipFileDownloadUrl(
-					that.shareCode,
+				downloadUrl = await this.getZipFileDownloadUrl(
+					this.shareCode,
 					checkLinkValidityInfo["guid"],
 					checkLinkValidityInfo["fileName"]
 				);
 			} else {
 				// @ts-ignore
-				downloadUrl = await that.getDownloadUrl(
-					that.shareCode,
+				downloadUrl = await this.getDownloadUrl(
+					this.shareCode,
 					checkLinkValidityInfo["guid"],
 					checkLinkValidityInfo["id"]
 				);
@@ -71,10 +67,7 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 				return;
 			}
 			if (NetDiskFilterScheme.isForwardDownloadLink("nainiu")) {
-				downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-					"nainiu",
-					downloadUrl
-				);
+				downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("nainiu", downloadUrl);
 			}
 
 			NetDiskUI.staticView.oneFile({
@@ -86,7 +79,7 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 				fileUploadTime: checkLinkValidityInfo["fileUploadTime"],
 				fileLatestTime: checkLinkValidityInfo["fileLatestTime"],
 				clickCallBack: (_fileDetails_) => {
-					that.downloadFile(checkLinkValidityInfo["fileName"], downloadUrl);
+					this.downloadFile(checkLinkValidityInfo["fileName"], downloadUrl);
 				},
 			});
 		}
@@ -96,10 +89,7 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 	 * @param shareCode
 	 * @param accessCode
 	 */
-	async checkLinkValidity(
-		shareCode: string,
-		accessCode: AccessCodeNonNullType
-	) {
+	async checkLinkValidity(shareCode: string, accessCode: AccessCodeNonNullType) {
 		const that = this;
 		let resultJSON = await that.getShareByUniqueUrl(shareCode);
 		if (!resultJSON) {
@@ -136,16 +126,10 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 				return {
 					zipDownload: zipDownload,
 					guid: resultJSON["data"]["guid"],
-					fileSize: utils.formatByteToSize(
-						resultJSON["data"]["firstFolder"]["size"]
-					),
+					fileSize: utils.formatByteToSize(resultJSON["data"]["firstFolder"]["size"]),
 					fileName: resultJSON["data"]["firstFolder"]["title"],
-					fileUploadTime: utils.formatTime(
-						resultJSON["data"]["firstFolder"]["created_at"]
-					),
-					fileLatestTime: utils.formatTime(
-						resultJSON["data"]["firstFolder"]["updated_at"]
-					),
+					fileUploadTime: utils.formatTime(resultJSON["data"]["firstFolder"]["created_at"]),
+					fileLatestTime: utils.formatTime(resultJSON["data"]["firstFolder"]["updated_at"]),
 				};
 			} else if (resultJSON["data"]["firstFile"] == void 0) {
 				/* 文件夹类型 */
@@ -161,17 +145,11 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 				zipDownload: zipDownload,
 				guid: resultJSON["data"]["guid"],
 				id: resultJSON["data"]["firstFile"]["id"],
-				fileSize: utils.formatByteToSize(
-					resultJSON["data"]["firstFile"]["file_info"]["size"]
-				),
+				fileSize: utils.formatByteToSize(resultJSON["data"]["firstFile"]["file_info"]["size"]),
 				fileName: resultJSON["data"]["firstFile"]["file_info"]["title"],
 				fileType: resultJSON["data"]["firstFile"]["file_info"]["format"],
-				fileUploadTime: utils.formatTime(
-					resultJSON["data"]["firstFile"]["created_at"]
-				),
-				fileLatestTime: utils.formatTime(
-					resultJSON["data"]["firstFile"]["updated_at"]
-				),
+				fileUploadTime: utils.formatTime(resultJSON["data"]["firstFile"]["created_at"]),
+				fileLatestTime: utils.formatTime(resultJSON["data"]["firstFile"]["updated_at"]),
 			};
 		}
 	}
@@ -179,12 +157,7 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 	 * 获取直链弹窗的文件夹信息
 	 * @returns
 	 */
-	getFolderInfo(
-		transferGuid: any,
-		shareFolderInfoList: any,
-		shareFileInfoList: any,
-		index = 0
-	) {
+	getFolderInfo(transferGuid: any, shareFolderInfoList: any, shareFileInfoList: any, index = 0) {
 		const that = this;
 		let folderInfoList: PopsFolderDataConfig[] = [];
 		let tempFolderInfoList: PopsFolderDataConfig[] = [];
@@ -200,33 +173,19 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 				isFolder: true,
 				index: index,
 				async clickEvent() {
-					if (
-						!folderInfo["child_folder_count"] &&
-						!folderInfo["content_count"]
-					) {
+					if (!folderInfo["child_folder_count"] && !folderInfo["content_count"]) {
 						/* 里面没有文件夹和文件 */
 						return [];
 					}
-					let childFolderInfo = await that.getShareFolder(
-						transferGuid,
-						folderInfo["id"]
-					);
+					let childFolderInfo = await that.getShareFolder(transferGuid, folderInfo["id"]);
 					if (!childFolderInfo) {
 						return [];
 					}
-					let childFileInfo = await that.getShareFiles(
-						transferGuid,
-						folderInfo["id"]
-					);
+					let childFileInfo = await that.getShareFiles(transferGuid, folderInfo["id"]);
 					if (!childFileInfo) {
 						return [];
 					}
-					let folderInfoList = that.getFolderInfo(
-						transferGuid,
-						childFolderInfo,
-						childFileInfo,
-						index + 1
-					);
+					let folderInfoList = that.getFolderInfo(transferGuid, childFolderInfo, childFileInfo, index + 1);
 					return folderInfoList;
 				},
 			});
@@ -247,31 +206,20 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 				isFolder: false,
 				index: index,
 				async clickEvent() {
-					let downloadUrl = await that.getDownloadUrl(
-						that.shareCode,
-						transferGuid,
-						fileInfo["id"]
-					);
+					let downloadUrl = await that.getDownloadUrl(that.shareCode, transferGuid, fileInfo["id"]);
 					if (!downloadUrl) {
 						return;
 					}
 					if (NetDiskFilterScheme.isForwardDownloadLink("nainiu")) {
-						downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri(
-							"nainiu",
-							downloadUrl
-						);
+						downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("nainiu", downloadUrl);
 					}
 
 					that.downloadFile(fileName, downloadUrl);
 				},
 			});
 		});
-		tempFolderInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
-		tempFolderFileInfoList.sort((a, b) =>
-			a["fileName"].localeCompare(b["fileName"])
-		);
+		tempFolderInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
+		tempFolderFileInfoList.sort((a, b) => a["fileName"].localeCompare(b["fileName"]));
 		folderInfoList = folderInfoList.concat(tempFolderInfoList);
 		folderInfoList = folderInfoList.concat(tempFolderFileInfoList);
 		log.info("getFolderInfo", folderInfoList);
@@ -290,12 +238,7 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 	 * @param page
 	 * @param size
 	 */
-	async getShareFolder(
-		transferGuid: string,
-		folderId = "",
-		page = 0,
-		size = 100
-	) {
+	async getShareFolder(transferGuid: string, folderId = "", page = 0, size = 100) {
 		const that = this;
 		let getResp = await httpx.get(
 			`https://cowtransfer.com/core/api/transfer/share/folders?transferGuid=${transferGuid}&folderId=${folderId}&page=${page}&size=${size}`,
@@ -494,12 +437,7 @@ export class NetDiskParse_nainiu extends ParseFileAbstract {
 				Qmsg.success(`下载 ${fileName} 已完成`, { consoleLogContent: true });
 			},
 			onprogress(details) {
-				if (
-					typeof details === "object" &&
-					"loaded" in details &&
-					"total" in details &&
-					!isDownloadEnd
-				) {
+				if (typeof details === "object" && "loaded" in details && "total" in details && !isDownloadEnd) {
 					let progressNum = details.loaded / details.total;
 					let formatProgressNum = (progressNum * 100).toFixed(2);
 					downloadingQmsg.setText(`下载中...${formatProgressNum}%`);
