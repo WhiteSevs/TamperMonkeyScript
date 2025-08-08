@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.7
+// @version      2025.8.9
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -6085,22 +6085,23 @@
       Panel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
         return this.shieldReleatedSearches();
       });
+      Panel.execMenuOnce("douyin-search-blockAIAsk", () => {
+        return this.blockAIAsk();
+      });
     },
     /**
      * 【屏蔽】相关搜索
      */
     shieldReleatedSearches() {
       log.info("【屏蔽】相关搜索");
-      return [
-        CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
-        addStyle(
-          /*css*/
-          `
-			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
-				width: 100vw;
-			}`
-        )
-      ];
+      return [CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)")];
+    },
+    /**
+     * 【屏蔽】AI问一问
+     */
+    blockAIAsk() {
+      log.info(`【屏蔽】AI问一问`);
+      return CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2) > div > div:first-child");
     }
   };
   const DouYinSearch = {
@@ -10204,7 +10205,7 @@
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch("伪装登录", "disguiseLogin", false, void 0, "使用随机UID进行伪装"),
+                  UISwitch("伪装登录", "disguiseLogin", false, void 0, "该功能残缺，仅在部分区域内失效"),
                   UISwitch("initial-scale=1", "dy-initialScale", false, void 0, "可配合手机模式放大页面"),
                   UISwitch(
                     "移除<meta> apple-itunes-app",
@@ -11196,6 +11197,13 @@
                     false,
                     void 0,
                     "屏蔽右边的相关搜索"
+                  ),
+                  UISwitch(
+                    "【屏蔽】AI问一问",
+                    "douyin-search-blockAIAsk",
+                    false,
+                    void 0,
+                    "相关搜索上面的问一问"
                   )
                 ]
               }
