@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.13
+// @version      2025.8.8
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
 // @grant        GM_deleteValue
@@ -150,6 +150,12 @@
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
+      } else if (url.startsWith("//")) {
+        if (url.startsWith("///")) ;
+        else {
+          url = window.location.protocol + url;
+        }
+        return url;
       } else {
         if (!url.startsWith("/")) {
           url += "/";
@@ -274,6 +280,33 @@
      */
     escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    },
+    /**
+     * 在规定时间内循环，如果超时或返回false则取消循环
+     * @param fn 循环的函数
+     * @param intervalTime 循环间隔时间
+     * @param [timeout=5000] 循环超时时间
+     */
+    interval(fn, intervalTime, timeout = 5e3) {
+      let timeId;
+      let maxTimeout = timeout - intervalTime;
+      let intervalTimeCount = intervalTime;
+      let loop = async (isTimeout) => {
+        let result = await fn(isTimeout);
+        if (typeof result === "boolean" && !result || isTimeout) {
+          utils.workerClearTimeout(timeId);
+          return;
+        }
+        intervalTimeCount += intervalTime;
+        if (intervalTimeCount > maxTimeout) {
+          loop(true);
+          return;
+        }
+        timeId = utils.workerSetTimeout(() => {
+          loop(false);
+        }, intervalTime);
+      };
+      loop(false);
     }
   };
   const PanelSettingConfig = {
@@ -309,48 +342,49 @@
     autoClearConsole: true,
     tag: true
   });
-  Qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_position.key,
-              PanelSettingConfig.qmsg_config_position.defaultValue
-            );
-          }
-        },
-        maxNums: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_maxnums.key,
-              PanelSettingConfig.qmsg_config_maxnums.defaultValue
-            );
-          }
-        },
-        showReverse: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_showreverse.key,
-              PanelSettingConfig.qmsg_config_showreverse.defaultValue
-            );
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
+  Qmsg.config({
+    isHTML: true,
+    autoClose: true,
+    showClose: false,
+    consoleLogContent(qmsgInst) {
+      const qmsgType = qmsgInst.getSetting().type;
+      if (qmsgType === "loading") {
+        return false;
       }
-    )
-  );
+      const content = qmsgInst.getSetting().content;
+      if (qmsgType === "warning") {
+        log.warn(content);
+      } else if (qmsgType === "error") {
+        log.error(content);
+      } else {
+        log.info(content);
+      }
+      return true;
+    },
+    get position() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_position.key,
+        PanelSettingConfig.qmsg_config_position.defaultValue
+      );
+    },
+    get maxNums() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_maxnums.key,
+        PanelSettingConfig.qmsg_config_maxnums.defaultValue
+      );
+    },
+    get showReverse() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_showreverse.key,
+        PanelSettingConfig.qmsg_config_showreverse.defaultValue
+      );
+    },
+    get zIndex() {
+      let maxZIndex = Utils.getMaxZIndex();
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    }
+  });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
@@ -372,7 +406,8 @@
         toClose: false,
         toHide: false
       }
-    }
+    },
+    drag: true
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
@@ -414,8 +449,8 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle.bind(utils);
-  const $ = document.querySelector.bind(document);
-  const $$ = document.querySelectorAll.bind(document);
+  const $ = DOMUtils.selector.bind(DOMUtils);
+  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -775,7 +810,7 @@
       /**
        * @private
        */
-      __configDefaultValueData: null,
+      __contentConfigInitDefaultValue: null,
       /**
        * @private
        */
@@ -790,14 +825,18 @@
       __panelConfig: {},
       $panel: null,
       /**
-       * 菜单项的默认值
+       * 菜单项初始化的默认值
        */
-      get configDefaultValueData() {
-        if (this.__configDefaultValueData == null) {
-          this.__configDefaultValueData = new utils.Dictionary();
+      get contentConfigInitDefaultValue() {
+        if (this.__contentConfigInitDefaultValue == null) {
+          this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
-        return this.__configDefaultValueData;
+        return this.__contentConfigInitDefaultValue;
       },
+      /**
+       * 菜单项初始化时禁用的键
+       */
+      contentConfigInitDisabledKeys: [],
       /**
        * 成功只执行了一次的项
        */
@@ -853,10 +892,21 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let needInitConfig = {};
+        let menuDefaultConfig = /* @__PURE__ */ new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          menuDefaultConfig.set(key, defaultValue);
+        }
+        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
+          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
+            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+          });
+        }
+        if (!menuDefaultConfig.size) {
+          log.warn(["请先配置键", config]);
+          return;
         }
         let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
@@ -865,19 +915,15 @@
             return;
           }
         }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
+        if (config.type === "switch") {
+          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          if (typeof disabled === "boolean" && disabled) {
+            this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
+          }
         }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          log.warn(["请先配置键", config]);
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
           this.setDefaultValue(__key, __defaultValue);
-        });
+        }
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
@@ -900,15 +946,16 @@
           loopInitDefaultValue(rightContentConfigList);
         }
       }
+      this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
     /**
      * 设置初始化使用的默认值
      */
     setDefaultValue(key, defaultValue) {
-      if (this.$data.configDefaultValueData.has(key)) {
+      if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
-      this.$data.configDefaultValueData.set(key, defaultValue);
+      this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
     /**
      * 设置值
@@ -926,8 +973,8 @@
     getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.configDefaultValueData.has(key)) {
-          return this.$data.configDefaultValueData.get(key);
+        if (this.$data.contentConfigInitDefaultValue.has(key)) {
+          return this.$data.contentConfigInitDefaultValue.get(key);
         }
         return defaultValue;
       }
@@ -953,12 +1000,9 @@
      * @param callback
      */
     addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(
-        key,
-        (__key, __newValue, __oldValue) => {
-          callback(key, __oldValue, __newValue);
-        }
-      );
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+        callback(key, __oldValue, __newValue);
+      });
       return listenerId;
     },
     /**
@@ -996,7 +1040,7 @@
     /**
      * 执行菜单
      *
-     * @param queryKey 键|键数组
+     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 执行的回调函数
      * @param checkExec 判断是否执行回调
      *
@@ -1028,9 +1072,7 @@
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find(
-        (it) => !this.$data.configDefaultValueData.has(it)
-      );
+      let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
@@ -1111,12 +1153,9 @@
         storeValueList = [...resultList];
       };
       once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(
-          key,
-          (key2, newValue, oldValue) => {
-            valueChangeCallback();
-          }
-        );
+        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          valueChangeCallback();
+        });
         listenerIdList.push(listenerId);
       });
       valueChangeCallback();
@@ -1152,11 +1191,12 @@
     },
     /**
      * 自动判断菜单是否启用，然后执行回调
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param [isReverse=false] 逆反判断菜单启用
+     * @param isReverse 逆反判断菜单启用，默认false
+     * @param once 是否是只执行一次，默认false
      */
-    execMenu(key, callback, isReverse = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -1165,36 +1205,29 @@
         (keyList) => {
           let execFlag = keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
+            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            if (disabled) {
+              flag = false;
+              log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+            }
             isReverse && (flag = !flag);
             return flag;
           });
           return execFlag;
         },
-        false
+        once
       );
     },
     /**
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      *
      * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     * @param isReverse 逆反判断菜单启用，默认false
      */
-    execMenuOnce(key, callback) {
-      return this.exec(
-        key,
-        callback,
-        (keyList) => {
-          let execFlag = keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            return flag;
-          });
-          return execFlag;
-        },
-        true
-      );
+    execMenuOnce(key, callback, isReverse = false) {
+      return this.execMenu(key, callback, isReverse, true);
     },
     /**
      * 根据key执行一次
@@ -1924,18 +1957,17 @@
       domUtils.on(
         document,
         "click",
-        function(event) {
-          let $click = event.target;
-          let $parent = $click.parentElement;
-          if (!$click.classList.contains("hljs-button")) {
-            return;
-          }
-          let $code = $parent.querySelector("code");
-          $code = $code || $parent;
+        ".hljs-button",
+        function(event, selectorTarget) {
           utils.preventEvent(event);
+          let $click = selectorTarget;
+          let $hljs = $click.closest(".hljs");
+          let $parent = $click.parentElement;
+          let $code = $hljs?.querySelector("code") || $parent.querySelector("code") || $parent;
           let copyText = $code.innerText;
           log.info(
-            "点击复制按钮复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText)
+            "点击复制按钮复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText),
+            $code
           );
           utils.setClip(copyText);
           $click.setAttribute("data-title", "复制成功");
@@ -1975,9 +2007,7 @@
             utils.preventEvent(event);
             let selectText = _unsafeWindow.getSelection();
             let copyText = selectText?.toString();
-            log.info(
-              "Ctrl+C复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText)
-            );
+            log.info("Ctrl+C复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText));
             utils.setClip(copyText);
             return false;
           },
@@ -2922,22 +2952,24 @@
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
     let result = {
       text,
       type: "switch",
       description,
+      disabled,
       attributes: {},
       props: {},
       getValue() {
         let storageApiValue = this.props[PROPS_STORAGE_API];
-        return Boolean(storageApiValue.get(key, defaultValue));
+        let value = storageApiValue.get(key, defaultValue);
+        return value;
       },
       callback(event, __value) {
         let value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        if (typeof clickCallback === "function") {
-          let result2 = clickCallback(event, value);
+        if (typeof clickCallBack === "function") {
+          let result2 = clickCallBack(event, value);
           if (result2) {
             return;
           }
@@ -2963,7 +2995,7 @@
     );
     return result;
   };
-  const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
+  const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -2983,8 +3015,8 @@
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        if (typeof changeCallback === "function") {
-          let result2 = changeCallback(event, value, isSelectedText);
+        if (typeof selectCallBack === "function") {
+          let result2 = selectCallBack(event, value, isSelectedText);
           if (result2) {
             return;
           }
@@ -3133,7 +3165,7 @@
       // },
     ]
   };
-  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step) {
+  const UISlider = function(text, key, defaultValue, min, max, changeCallback, getToolTipContent, description, step, valueChangeCallBack) {
     let result = {
       text,
       type: "slider",

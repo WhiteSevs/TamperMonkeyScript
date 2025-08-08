@@ -34,8 +34,7 @@ export const CSDNBlog = {
 	 */
 	removeClipboardHijacking() {
 		log.info("去除剪贴板劫持");
-		let $article_copyright =
-			document.querySelector<HTMLDivElement>(".article-copyright");
+		let $article_copyright = document.querySelector<HTMLDivElement>(".article-copyright");
 		if ($article_copyright) {
 			$article_copyright.remove();
 		}
@@ -62,23 +61,27 @@ export const CSDNBlog = {
 	 */
 	unBlockCopy() {
 		log.info("取消禁止复制");
+		// 覆盖【复制】按钮的点击事件
 		DOMUtils.on(
 			document,
 			"click",
-			function (event) {
-				let $click = event.target as HTMLElement;
-				let $parent = $click.parentElement as HTMLElement;
-				if (!$click.classList.contains("hljs-button")) {
-					return;
-				}
-				let $code = $parent.querySelector<HTMLElement>("code");
-				$code = $code || $parent;
+			".hljs-button",
+			function (event, selectorTarget) {
 				utils.preventEvent(event);
-				/* 需要复制的文本 */
+				let $click = selectorTarget;
+				let $hljs = $click.closest<HTMLElement>(".hljs");
+				let $parent = $click.parentElement as HTMLElement;
+				let $code =
+					$hljs?.querySelector<HTMLElement>("code") || $parent.querySelector<HTMLElement>("code") || $parent;
+				/**
+				 * 需要复制的文本
+				 *
+				 * 这里不使用textContent是因为要获取换行符
+				 */
 				let copyText = $code.innerText;
 				log.info(
-					"点击复制按钮复制内容：" +
-						(copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText)
+					"点击复制按钮复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText),
+					$code
 				);
 				utils.setClip(copyText);
 				$click.setAttribute("data-title", "复制成功");
@@ -120,12 +123,7 @@ export const CSDNBlog = {
 					utils.preventEvent(event);
 					let selectText = unsafeWindow.getSelection()!;
 					let copyText = selectText?.toString();
-					log.info(
-						"Ctrl+C复制内容：" +
-							(copyText.length > 8
-								? copyText.substring(0, 8) + "..."
-								: copyText)
-					);
+					log.info("Ctrl+C复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText));
 					utils.setClip(copyText);
 					return false;
 				},
