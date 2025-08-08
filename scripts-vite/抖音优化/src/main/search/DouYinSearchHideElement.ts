@@ -8,18 +8,22 @@ export const DouYinSearchHideElement = {
 		Panel.execMenuOnce("douyin-search-shieldReleatedSearches", () => {
 			return this.shieldReleatedSearches();
 		});
+		Panel.execMenuOnce("douyin-search-blockAIAsk", () => {
+			return this.blockAIAsk();
+		});
 	},
 	/**
 	 * 【屏蔽】相关搜索
 	 */
 	shieldReleatedSearches() {
 		log.info("【屏蔽】相关搜索");
-		return [
-			CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
-			addStyle(/*css*/ `
-			#search-content-area > div > div:nth-child(1) > div:nth-child(1){
-				width: 100vw;
-			}`),
-		];
+		return [CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)")];
+	},
+	/**
+	 * 【屏蔽】AI问一问
+	 */
+	blockAIAsk() {
+		log.info(`【屏蔽】AI问一问`);
+		return CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2) > div > div:first-child");
 	},
 };

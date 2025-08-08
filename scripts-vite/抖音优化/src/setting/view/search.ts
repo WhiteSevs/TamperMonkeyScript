@@ -34,9 +34,7 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
 									() => [
 										{
 											text: `跟随主设置（${
-												PopsPanelStorageApi.get("autoEnterElementFullScreen")
-													? "是"
-													: "否"
+												PopsPanelStorageApi.get("autoEnterElementFullScreen") ? "是" : "否"
 											}）`,
 											value: -1,
 										},
@@ -50,9 +48,7 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
 										},
 									],
 									void 0,
-									["视频", "功能", "自动进入网页全屏"]
-										.map((it) => `<code>${it}</code>`)
-										.join("-")
+									["视频", "功能", "自动进入网页全屏"].map((it) => `<code>${it}</code>`).join("-")
 								),
 								UISelect(
 									"搜索结果-视频-显示样式",
@@ -84,8 +80,7 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
 				{
 					text: "布局屏蔽",
 					type: "deepMenu",
-					afterEnterDeepMenuCallBack:
-						AutoOpenOrClose.afterEnterDeepMenuCallBack,
+					afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
 							text: AutoOpenOrClose.text,
@@ -97,6 +92,13 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
 									false,
 									void 0,
 									"屏蔽右边的相关搜索"
+								),
+								UISwitch(
+									"【屏蔽】AI问一问",
+									"douyin-search-blockAIAsk",
+									false,
+									void 0,
+									"相关搜索上面的问一问"
 								),
 							],
 						},
@@ -116,11 +118,7 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
 									-1,
 									() => [
 										{
-											text: `跟随主设置（${
-												PopsPanelStorageApi.get("shieldLeftNavigator")
-													? "是"
-													: "否"
-											}）`,
+											text: `跟随主设置（${PopsPanelStorageApi.get("shieldLeftNavigator") ? "是" : "否"}）`,
 											value: -1,
 										},
 										{
@@ -155,11 +153,7 @@ export const PanelSearchConfig: PopsPanelContentConfig = {
 									-1,
 									() => [
 										{
-											text: `跟随主设置（${
-												PopsPanelStorageApi.get("shieldTopNavigator")
-													? "是"
-													: "否"
-											}）`,
+											text: `跟随主设置（${PopsPanelStorageApi.get("shieldTopNavigator") ? "是" : "否"}）`,
 											value: -1,
 										},
 										{
