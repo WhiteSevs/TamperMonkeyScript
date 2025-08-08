@@ -69,7 +69,7 @@ export const CSDNBlog = {
 			function (event, selectorTarget) {
 				utils.preventEvent(event);
 				let $click = selectorTarget;
-				let $hljs = $click.closest<HTMLElement>(".hljs");
+				let $hljs = $click.closest<HTMLElement>(".hljs") || $click.closest<HTMLElement>("pre");
 				let $parent = $click.parentElement as HTMLElement;
 				let $code =
 					$hljs?.querySelector<HTMLElement>("code") || $parent.querySelector<HTMLElement>("code") || $parent;

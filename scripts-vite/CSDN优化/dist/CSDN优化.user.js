@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.8
+// @version      2025.8.9
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -1961,7 +1961,7 @@
         function(event, selectorTarget) {
           utils.preventEvent(event);
           let $click = selectorTarget;
-          let $hljs = $click.closest(".hljs");
+          let $hljs = $click.closest(".hljs") || $click.closest("pre");
           let $parent = $click.parentElement;
           let $code = $hljs?.querySelector("code") || $parent.querySelector("code") || $parent;
           let copyText = $code.innerText;
