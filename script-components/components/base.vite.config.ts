@@ -1,8 +1,5 @@
 import { type UserConfig, type Plugin } from "vite";
-import monkey, {
-	cdn,
-	type MonkeyOption as __MonkeyOption__,
-} from "vite-plugin-monkey";
+import monkey, { cdn, type MonkeyOption as __MonkeyOption__ } from "vite-plugin-monkey";
 import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils";
 import mkcert from "vite-plugin-mkcert";
 // @ts-ignore
@@ -51,9 +48,7 @@ const GenerateUserConfig = async (option: {
 	const pkg = inheritUtils.getPackageJSON();
 	let SCRIPT_NAME = option.monkeyOption.userscript.name;
 	if (typeof SCRIPT_NAME !== "string") {
-		SCRIPT_NAME = Object.values(SCRIPT_NAME).find(
-			(it) => typeof it === "string"
-		);
+		SCRIPT_NAME = Object.values(SCRIPT_NAME).find((it) => typeof it === "string");
 	}
 
 	/**
@@ -95,10 +90,7 @@ const GenerateUserConfig = async (option: {
 			// import库的文件映射
 			externalGlobals: {
 				"@whitesev/utils": cdn.jsdelivrFastly("Utils", "dist/index.umd.js"),
-				"@whitesev/domutils": cdn.jsdelivrFastly(
-					"DOMUtils",
-					"dist/index.umd.js"
-				),
+				"@whitesev/domutils": cdn.jsdelivrFastly("DOMUtils", "dist/index.umd.js"),
 				"@whitesev/pops": cdn.jsdelivrFastly("pops", "dist/index.umd.js"),
 				qmsg: cdn.jsdelivrFastly("Qmsg", "dist/index.umd.js"),
 			},
@@ -124,10 +116,7 @@ const GenerateUserConfig = async (option: {
 							document.documentElement.appendChild(cssNode);
 						} else {
 							/* 插入head前面 */
-							document.documentElement.insertBefore(
-								cssNode,
-								document.documentElement.childNodes[0]
-							);
+							document.documentElement.insertBefore(cssNode, document.documentElement.childNodes[0]);
 						}
 						return cssNode;
 					}
@@ -154,11 +143,7 @@ const GenerateUserConfig = async (option: {
 			DefaultMonkeyOption.build!.externalGlobals = {};
 		}
 	}
-	DefaultMonkeyOption = viteUtils.assign(
-		DefaultMonkeyOption,
-		option.monkeyOption,
-		true
-	);
+	DefaultMonkeyOption = viteUtils.assign(DefaultMonkeyOption, option.monkeyOption, true);
 	process.on("exit", (code) => {
 		try {
 			const dir = option.__dirname; // 当前目录
@@ -333,8 +318,7 @@ const GenerateUserConfig = async (option: {
 					 * @link file://./src/GM_Resource_Mapping.ts
 					 */
 					ElementPlusResourceCSS: `https://fastly.jsdelivr.net/npm/element-plus@${
-						pkg.devDependencies["element-plus"] ||
-						pkg.dependencies["element-plus"]
+						pkg.devDependencies["element-plus"] || pkg.dependencies["element-plus"]
 					}/dist/index.min.css`,
 				},
 			},
@@ -347,28 +331,18 @@ const GenerateUserConfig = async (option: {
 					vue: cdn.jsdelivrFastly("Vue", "dist/vue.global.prod.js"),
 					"vue-demi": cdn.jsdelivrFastly("VueDemi", "lib/index.iife.min.js"),
 					pinia: cdn.jsdelivrFastly("Pinia", "dist/pinia.iife.prod.js"),
-					"vue-router": cdn.jsdelivrFastly(
-						"VueRouter",
-						"dist/vue-router.global.js"
-					),
+					"vue-router": cdn.jsdelivrFastly("VueRouter", "dist/vue-router.global.js"),
 					"element-plus": [
 						"ElementPlus",
 						await (async () => {
 							return await GetLib("Element-Plus");
 						})(),
 					],
-					"@element-plus/icons-vue": cdn.jsdelivrFastly(
-						"ElementPlusIconsVue",
-						"dist/index.iife.min.js"
-					),
+					"@element-plus/icons-vue": cdn.jsdelivrFastly("ElementPlusIconsVue", "dist/index.iife.min.js"),
 				},
 			},
 		};
-		DefaultMonkeyOption = viteUtils.assign(
-			DefaultMonkeyOption,
-			VueMonkeyOption,
-			true
-		);
+		DefaultMonkeyOption = viteUtils.assign(DefaultMonkeyOption, VueMonkeyOption, true);
 	}
 
 	// 添加油猴插件
@@ -378,11 +352,7 @@ const GenerateUserConfig = async (option: {
 	// 设置构建的文件名
 	DefaultMonkeyOption.build!.fileName = FILE_NAME;
 	// 添加@require
-	DefaultMonkeyOption.userscript!.require!.splice(
-		0,
-		0,
-		await GetLib("CoverUMD")
-	);
+	DefaultMonkeyOption.userscript!.require!.splice(0, 0, await GetLib("CoverUMD"));
 
 	const MonkeyHookPlugin: Plugin = {
 		name: "vite-plugin-monkey-hook",
@@ -395,14 +365,8 @@ const GenerateUserConfig = async (option: {
 				const originEnd = res.end;
 				res.end = (...args: any[]) => {
 					let text: string = args[0];
-					if (
-						typeof text === "string" &&
-						text.trim().match(/^\/\/[\s]+==UserScript==/)
-					) {
-						text = text.replaceAll(
-							"document.head",
-							"(document.head || document.documentElement)"
-						);
+					if (typeof text === "string" && text.trim().match(/^\/\/[\s]+==UserScript==/)) {
+						text = text.replaceAll("document.head", "(document.head || document.documentElement)");
 						const textSplit = text.split("\n");
 						const userScriptMetaEndIndex = textSplit.findIndex((item) =>
 							item.trim().match(/^\/\/[\s]+==\/UserScript==/)
@@ -412,13 +376,8 @@ const GenerateUserConfig = async (option: {
 							item = item.trim();
 							const grantApiMatcher = item.match(/^\/\/[\s]+@grant[\s]+/);
 							if (grantApiMatcher) {
-								const grantApi = item
-									.replace(grantApiMatcher[grantApiMatcher.length - 1], "")
-									.trim();
-								if (
-									grantApi.startsWith("window.") ||
-									grantApi.startsWith("GM.")
-								) {
+								const grantApi = item.replace(grantApiMatcher[grantApiMatcher.length - 1], "").trim();
+								if (grantApi.startsWith("window.") || grantApi.startsWith("GM.")) {
 									// 不处理Window的Api
 									// 忽略GM.*
 									return;
@@ -464,11 +423,7 @@ const GenerateUserConfig = async (option: {
 						);
 						text = textSplit.join("\n");
 						args[0] = text;
-						console.log(
-							pc.green(
-								"success modify [vite-plugin-monkey] dev .install.user.js"
-							)
-						);
+						console.log(pc.green("success modify [vite-plugin-monkey] dev .install.user.js"));
 					}
 					return originEnd.apply(res, args);
 				};
@@ -507,19 +462,13 @@ const GenerateUserConfig = async (option: {
 				for (let index = splitContent.length - 1; index >= 0; index--) {
 					// 逆序
 					const contentItem = splitContent[index].trim();
-					if (
-						metaEndIndex === -1 &&
-						contentItem.startsWith("// ==/UserScript==")
-					) {
+					if (metaEndIndex === -1 && contentItem.startsWith("// ==/UserScript==")) {
 						metaEndIndex = index;
 					}
 					if (contentItem.startsWith("// @require")) {
 						insertIndex = index;
 						break;
-					} else if (
-						insertIndex === -1 &&
-						contentItem.startsWith("// ==UserScript==")
-					) {
+					} else if (insertIndex === -1 && contentItem.startsWith("// ==UserScript==")) {
 						// start
 						insertIndex = metaEndIndex;
 					}
@@ -532,10 +481,7 @@ const GenerateUserConfig = async (option: {
 				fs.writeFileSync(metaLocalFilePath, splitContent.join("\n"));
 
 				const metaLocalFileSize = fs.statSync(metaLocalFilePath).size;
-				console.log(
-					pc.green(metaLocalFilePath) +
-						`   ${pc.gray(formatFileSize(metaLocalFileSize))}`
-				);
+				console.log(pc.green(metaLocalFilePath) + `   ${pc.gray(formatFileSize(metaLocalFileSize))}`);
 			}
 		},
 	};
