@@ -93,11 +93,7 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: T | T[],
 		selector: string | string[] | undefined | null,
-		callback: (
-			this: HTMLElement,
-			event: DOMUtils_Event[T],
-			selectorTarget: HTMLElement
-		) => void,
+		callback: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void,
 		option?: DOMUtilsEventListenerOption | boolean
 	): void;
 	/**
@@ -128,11 +124,7 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: string | string[],
 		selector: string | string[] | undefined | null,
-		callback: (
-			this: HTMLElement,
-			event: T,
-			selectorTarget: HTMLElement
-		) => void,
+		callback: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void,
 		option?: DOMUtilsEventListenerOption | boolean
 	): void;
 	on<T extends Event>(
@@ -165,11 +157,7 @@ export class DOMUtilsEvent {
 		 * @param startIndex
 		 * @param option
 		 */
-		function getOption(
-			args: IArguments,
-			startIndex: number,
-			option: DOMUtilsEventListenerOption
-		) {
+		function getOption(args: IArguments, startIndex: number, option: DOMUtilsEventListenerOption) {
 			let currentParam = args[startIndex];
 			if (typeof currentParam === "boolean") {
 				option.capture = currentParam;
@@ -214,8 +202,7 @@ export class DOMUtilsEvent {
 		if (Array.isArray(eventType)) {
 			eventTypeList = eventTypeList.concat(
 				eventType.filter(
-					(eventTypeItem) =>
-						typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
+					(eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
 				)
 			);
 		} else if (typeof eventType === "string") {
@@ -227,20 +214,14 @@ export class DOMUtilsEvent {
 		let selectorList: string[] = [];
 		if (Array.isArray(selector)) {
 			selectorList = selectorList.concat(
-				selector.filter(
-					(selectorItem) =>
-						typeof selectorItem === "string" && selectorItem.toString() !== ""
-				)
+				selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== "")
 			);
 		} else if (typeof selector === "string") {
 			selectorList.push(selector);
 		}
 		// 事件回调
-		let listenerCallBack: (
-			this: HTMLElement,
-			event: Event,
-			selectorTarget?: HTMLElement
-		) => void = callback as any;
+		let listenerCallBack: (this: HTMLElement, event: Event, selectorTarget?: HTMLElement) => void =
+			callback as any;
 		// 事件配置
 		let listenerOption: DOMUtilsEventListenerOption = {
 			capture: false,
@@ -262,13 +243,7 @@ export class DOMUtilsEvent {
 		 */
 		function checkOptionOnceToRemoveEventListener() {
 			if (listenerOption.once) {
-				DOMUtilsContext.off(
-					element,
-					eventType as any,
-					selector as any,
-					callback as any,
-					option
-				);
+				DOMUtilsContext.off(element, eventType as any, selector as any, callback as any, option);
 			}
 		}
 		elementList.forEach((elementItem) => {
@@ -285,10 +260,7 @@ export class DOMUtilsEvent {
 						: (event.target as HTMLElement);
 					let totalParent = elementItem;
 					if (DOMUtilsCommonUtils.isWin(totalParent)) {
-						if (
-							totalParent ===
-							(DOMUtilsContext.windowApi.document as any as HTMLElement)
-						) {
+						if (totalParent === (DOMUtilsContext.windowApi.document as any as HTMLElement)) {
 							totalParent = DOMUtilsContext.windowApi.document.documentElement;
 						}
 					}
@@ -299,10 +271,7 @@ export class DOMUtilsEvent {
 							return true;
 						}
 						/* 在上层与主元素之间寻找可以被selector所匹配到的 */
-						let $closestMatches = DOMUtilsContext.closest<HTMLElement>(
-							eventTarget,
-							selectorItem
-						);
+						let $closestMatches = DOMUtilsContext.closest<HTMLElement>(eventTarget, selectorItem);
 						if ($closestMatches && totalParent?.contains($closestMatches)) {
 							eventTarget = $closestMatches;
 							return true;
@@ -330,11 +299,7 @@ export class DOMUtilsEvent {
 
 			/* 遍历事件名设置元素事件 */
 			eventTypeList.forEach((eventName) => {
-				elementItem.addEventListener(
-					eventName,
-					domUtilsEventCallBack,
-					listenerOption
-				);
+				elementItem.addEventListener(eventName, domUtilsEventCallBack, listenerOption);
 				/* 获取对象上的事件 */
 				let elementEvents: {
 					[k: string]: DOMUtilsEventListenerOptionsAttribute[];
@@ -418,11 +383,7 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: T | T[],
 		selector?: string | string[] | undefined | null,
-		callback?: (
-			this: HTMLElement,
-			event: DOMUtils_Event[T],
-			selectorTarget: HTMLElement
-		) => void,
+		callback?: (this: HTMLElement, event: DOMUtils_Event[T], selectorTarget: HTMLElement) => void,
 		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
@@ -448,11 +409,7 @@ export class DOMUtilsEvent {
 		element: DOMUtilsElementEventType,
 		eventType: string | string[],
 		selector?: string | string[] | undefined | null,
-		callback?: (
-			this: HTMLElement,
-			event: T,
-			selectorTarget: HTMLElement
-		) => void,
+		callback?: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void,
 		option?: EventListenerOptions | boolean,
 		filter?: (
 			value: DOMUtilsEventListenerOptionsAttribute,
@@ -502,18 +459,11 @@ export class DOMUtilsEvent {
 		 * @param startIndex
 		 * @param option
 		 */
-		function getOption(
-			args1: IArguments,
-			startIndex: number,
-			option: EventListenerOptions
-		) {
+		function getOption(args1: IArguments, startIndex: number, option: EventListenerOptions) {
 			let currentParam: EventListenerOptions | boolean = args1[startIndex];
 			if (typeof currentParam === "boolean") {
 				option.capture = currentParam;
-			} else if (
-				typeof currentParam === "object" &&
-				"capture" in currentParam
-			) {
+			} else if (typeof currentParam === "object" && "capture" in currentParam) {
 				option.capture = currentParam.capture;
 			}
 			return option;
@@ -537,8 +487,7 @@ export class DOMUtilsEvent {
 		if (Array.isArray(eventType)) {
 			eventTypeList = eventTypeList.concat(
 				eventType.filter(
-					(eventTypeItem) =>
-						typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
+					(eventTypeItem) => typeof eventTypeItem === "string" && eventTypeItem.toString() !== ""
 				)
 			);
 		} else if (typeof eventType === "string") {
@@ -550,10 +499,7 @@ export class DOMUtilsEvent {
 		let selectorList: string[] = [];
 		if (Array.isArray(selector)) {
 			selectorList = selectorList.concat(
-				selector.filter(
-					(selectorItem) =>
-						typeof selectorItem === "string" && selectorItem.toString() !== ""
-				)
+				selector.filter((selectorItem) => typeof selectorItem === "string" && selectorItem.toString() !== "")
 			);
 		} else if (typeof selector === "string") {
 			selectorList.push(selector);
@@ -561,11 +507,8 @@ export class DOMUtilsEvent {
 		/**
 		 * 事件的回调函数
 		 */
-		let listenerCallBack: (
-			this: HTMLElement,
-			event: T,
-			selectorTarget: HTMLElement
-		) => void = callback as any;
+		let listenerCallBack: (this: HTMLElement, event: T, selectorTarget: HTMLElement) => void =
+			callback as any;
 
 		/**
 		 * 事件的配置
@@ -587,10 +530,7 @@ export class DOMUtilsEvent {
 		if (args.length === 2) {
 			// 目标函数、事件名
 			isRemoveAll = true;
-		} else if (
-			(args.length === 3 && typeof args[2] === "string") ||
-			Array.isArray(args[2])
-		) {
+		} else if ((args.length === 3 && typeof args[2] === "string") || Array.isArray(args[2])) {
 			// 目标函数、事件名、子元素选择器
 			isRemoveAll = true;
 		}
@@ -607,18 +547,12 @@ export class DOMUtilsEvent {
 				for (let index = 0; index < handlers.length; index++) {
 					let handler = handlers[index];
 					let flag = true;
-					if (
-						flag &&
-						listenerCallBack &&
-						handler.originCallBack !== listenerCallBack
-					) {
+					if (flag && listenerCallBack && handler.originCallBack !== listenerCallBack) {
 						// callback不同
 						flag = false;
 					}
 					if (flag && selectorList.length && Array.isArray(handler.selector)) {
-						if (
-							JSON.stringify(handler.selector) !== JSON.stringify(selectorList)
-						) {
+						if (JSON.stringify(handler.selector) !== JSON.stringify(selectorList)) {
 							// 子元素选择器不同
 							flag = false;
 						}
@@ -628,11 +562,7 @@ export class DOMUtilsEvent {
 						flag = false;
 					}
 					if (flag || isRemoveAll) {
-						elementItem.removeEventListener(
-							eventName,
-							handler.callback,
-							handler.option
-						);
+						elementItem.removeEventListener(eventName, handler.callback, handler.option);
 						handlers.splice(index--, 1);
 					}
 				}
@@ -655,19 +585,13 @@ export class DOMUtilsEvent {
 	 * @param element 需要取消绑定的元素|元素数组
 	 * @param eventType （可选）需要取消监听的事件
 	 */
-	offAll(
-		element: DOMUtilsElementEventType,
-		eventType?: DOMUtils_EventType | DOMUtils_EventType[]
-	): void;
+	offAll(element: DOMUtilsElementEventType, eventType?: DOMUtils_EventType | DOMUtils_EventType[]): void;
 	/**
 	 * 取消绑定所有的事件
 	 * @param element 需要取消绑定的元素|元素数组
 	 * @param eventType （可选）需要取消监听的事件
 	 */
-	offAll(
-		element: DOMUtilsElementEventType,
-		eventType?: DOMUtils_EventType | DOMUtils_EventType[] | string
-	) {
+	offAll(element: DOMUtilsElementEventType, eventType?: DOMUtils_EventType | DOMUtils_EventType[] | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
@@ -694,12 +618,9 @@ export class DOMUtilsEvent {
 					return;
 				}
 				let elementEvents = (elementItem as any)[symbolEvents] || {};
-				let iterEventNameList = eventTypeList.length
-					? eventTypeList
-					: Object.keys(elementEvents);
+				let iterEventNameList = eventTypeList.length ? eventTypeList : Object.keys(elementEvents);
 				iterEventNameList.forEach((eventName) => {
-					let handlers: DOMUtilsEventListenerOptionsAttribute[] =
-						elementEvents[eventName];
+					let handlers: DOMUtilsEventListenerOptionsAttribute[] = elementEvents[eventName];
 					if (!handlers) {
 						return;
 					}
@@ -736,8 +657,7 @@ export class DOMUtilsEvent {
 				if (
 					DOMUtilsContext.windowApi.document.readyState === "complete" ||
 					(DOMUtilsContext.windowApi.document.readyState !== "loading" &&
-						!(DOMUtilsContext.windowApi.document.documentElement as any)
-							.doScroll)
+						!(DOMUtilsContext.windowApi.document.documentElement as any).doScroll)
 				) {
 					return true;
 				} else {
@@ -808,12 +728,7 @@ export class DOMUtilsEvent {
 	 * DOMUtils.trigger("a.xx",["click","tap","hover"])
 	 */
 	trigger(
-		element:
-			| DOMUtilsTargetElementType
-			| any[]
-			| typeof globalThis
-			| Window
-			| Document,
+		element: DOMUtilsTargetElementType | any[] | typeof globalThis | Window | Document,
 		eventType: string,
 		details?: object,
 		useDispatchToTriggerEvent?: boolean
@@ -935,22 +850,12 @@ export class DOMUtilsEvent {
 		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
-				DOMUtilsContext.click(
-					$ele as HTMLElement,
-					handler,
-					details,
-					useDispatchToTriggerEvent
-				);
+				DOMUtilsContext.click($ele as HTMLElement, handler, details, useDispatchToTriggerEvent);
 			});
 			return;
 		}
 		if (handler == null) {
-			DOMUtilsContext.trigger(
-				element,
-				"click",
-				details,
-				useDispatchToTriggerEvent
-			);
+			DOMUtilsContext.trigger(element, "click", details, useDispatchToTriggerEvent);
 		} else {
 			DOMUtilsContext.on(element, "click", null, handler);
 		}
@@ -985,29 +890,14 @@ export class DOMUtilsEvent {
 		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
-				DOMUtilsContext.focus(
-					$ele as HTMLElement,
-					handler,
-					details,
-					useDispatchToTriggerEvent
-				);
+				DOMUtilsContext.focus($ele as HTMLElement, handler, details, useDispatchToTriggerEvent);
 			});
 			return;
 		}
 		if (handler === null) {
-			DOMUtilsContext.trigger(
-				element,
-				"blur",
-				details,
-				useDispatchToTriggerEvent
-			);
+			DOMUtilsContext.trigger(element, "blur", details, useDispatchToTriggerEvent);
 		} else {
-			DOMUtilsContext.on(
-				element,
-				"blur",
-				null,
-				handler as (event: Event) => void
-			);
+			DOMUtilsContext.on(element, "blur", null, handler as (event: Event) => void);
 		}
 	}
 	/**
@@ -1040,22 +930,12 @@ export class DOMUtilsEvent {
 		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
-				DOMUtilsContext.focus(
-					$ele as HTMLElement,
-					handler,
-					details,
-					useDispatchToTriggerEvent
-				);
+				DOMUtilsContext.focus($ele as HTMLElement, handler, details, useDispatchToTriggerEvent);
 			});
 			return;
 		}
 		if (handler == null) {
-			DOMUtilsContext.trigger(
-				element,
-				"focus",
-				details,
-				useDispatchToTriggerEvent
-			);
+			DOMUtilsContext.trigger(element, "focus", details, useDispatchToTriggerEvent);
 		} else {
 			DOMUtilsContext.on(element, "focus", null, handler);
 		}
@@ -1271,12 +1151,7 @@ export class DOMUtilsEvent {
 	listenKeyboard(
 		element: DOMUtilsTargetElementType | Window | Node | typeof globalThis,
 		eventName: "keyup" | "keypress" | "keydown" = "keypress",
-		callback: (
-			keyName: string,
-			keyValue: number,
-			otherCodeList: string[],
-			event: KeyboardEvent
-		) => void,
+		callback: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void,
 		options?: DOMUtilsEventListenerOption | boolean
 	): {
 		removeListen(): void;
@@ -1446,10 +1321,7 @@ export class DOMUtilsEvent {
 	 * DOMUtils.matches("div:regexp(/^xxx/ig)")
 	 * > false
 	 */
-	matches(
-		$el: HTMLElement | Element | null | undefined,
-		selector: string
-	): boolean {
+	matches($el: HTMLElement | Element | null | undefined, selector: string): boolean {
 		selector = selector.trim();
 		if ($el == null) {
 			return false;
@@ -1524,14 +1396,8 @@ export class DOMUtilsEvent {
 		$el: HTMLElement | Element,
 		selector: string
 	): HTMLElementTagNameMap[K] | null;
-	closest<E extends Element = Element>(
-		$el: HTMLElement | Element,
-		selector: string
-	): E | null;
-	closest<E extends Element = Element>(
-		$el: HTMLElement | Element,
-		selector: string
-	): E | null {
+	closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null;
+	closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null {
 		selector = selector.trim();
 
 		if (selector.match(/[^\s]{1}:empty$/gi)) {

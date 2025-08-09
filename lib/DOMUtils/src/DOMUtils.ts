@@ -1,10 +1,7 @@
 import { DOMUtilsCommonUtils } from "./DOMUtilsCommonUtils";
 import { DOMUtilsEvent } from "./DOMUtilsEvent";
 import type { DOMUtilsCreateElementAttributesMap } from "./types/DOMUtilsEvent";
-import {
-	ParseHTMLReturnType,
-	type DOMUtilsTargetElementType,
-} from "./types/global";
+import { ParseHTMLReturnType, type DOMUtilsTargetElementType } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 
 class DOMUtils extends DOMUtilsEvent {
@@ -12,7 +9,7 @@ class DOMUtils extends DOMUtilsEvent {
 		super(option);
 	}
 	/** 版本号 */
-	version = "2025.6.26";
+	version = "2025.8.9";
 	/**
 	 * 获取元素的属性值
 	 * @param element 目标元素
@@ -34,11 +31,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.attr(document.querySelector("a.xx"),"href","abcd");
 	 * DOMUtils.attr("a.xx","href","abcd");
 	 */
-	attr(
-		element: DOMUtilsTargetElementType,
-		attrName: string,
-		attrValue: string | boolean | number
-	): void;
+	attr(element: DOMUtilsTargetElementType, attrName: string, attrValue: string | boolean | number): void;
 	attr(element: DOMUtilsTargetElementType, attrName: string, attrValue?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
@@ -50,11 +43,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			if (attrValue == null) {
 				// 获取属性
-				return DOMUtilsContext.attr(
-					element[0] as HTMLElement,
-					attrName,
-					attrValue
-				);
+				return DOMUtilsContext.attr(element[0] as HTMLElement, attrName, attrValue);
 			} else {
 				// 设置属性
 				element.forEach(($ele) => {
@@ -199,10 +188,7 @@ class DOMUtils extends DOMUtilsEvent {
 		element: DOMUtilsTargetElementType,
 		property:
 			| {
-					[P in keyof Omit<
-						CSSStyleDeclaration,
-						"zIndex"
-					>]?: CSSStyleDeclaration[P];
+					[P in keyof Omit<CSSStyleDeclaration, "zIndex">]?: CSSStyleDeclaration[P];
 			  }
 			| {
 					"z-index": string | number;
@@ -217,10 +203,7 @@ class DOMUtils extends DOMUtilsEvent {
 			| keyof Omit<CSSStyleDeclaration, "zIndex">
 			| string
 			| {
-					[P in keyof Omit<CSSStyleDeclaration, "zIndex">]?:
-						| string
-						| number
-						| CSSStyleDeclaration[P];
+					[P in keyof Omit<CSSStyleDeclaration, "zIndex">]?: string | number | CSSStyleDeclaration[P];
 			  },
 		value?: string | number
 	) {
@@ -229,15 +212,7 @@ class DOMUtils extends DOMUtilsEvent {
 		 * 把纯数字没有px的加上
 		 */
 		function handlePixe(propertyName: string, propertyValue: string | number) {
-			let allowAddPixe = [
-				"width",
-				"height",
-				"top",
-				"left",
-				"right",
-				"bottom",
-				"font-size",
-			];
+			let allowAddPixe = ["width", "height", "top", "left", "right", "bottom", "font-size"];
 			if (typeof propertyValue === "number") {
 				propertyValue = propertyValue.toString();
 			}
@@ -278,14 +253,8 @@ class DOMUtils extends DOMUtilsEvent {
 			}
 			return;
 		}
-		let setStyleProperty = (
-			propertyName: string,
-			propertyValue: string | number
-		) => {
-			if (
-				typeof propertyValue === "string" &&
-				propertyValue.trim().endsWith("!important")
-			) {
+		let setStyleProperty = (propertyName: string, propertyValue: string | number) => {
+			if (typeof propertyValue === "string" && propertyValue.trim().endsWith("!important")) {
 				propertyValue = propertyValue
 					.trim()
 					.replace(/!important$/gi, "")
@@ -298,9 +267,7 @@ class DOMUtils extends DOMUtilsEvent {
 		};
 		if (typeof property === "string") {
 			if (value == null) {
-				return DOMUtilsContext.windowApi.globalThis
-					.getComputedStyle(element)
-					.getPropertyValue(property);
+				return DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).getPropertyValue(property);
 			} else {
 				setStyleProperty(property, value);
 			}
@@ -337,10 +304,10 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.text("a.xx",document.querySelector("b"))
 	 * */
 	text(
-		element: DOMUtilsTargetElementType,
+		element: DOMUtilsTargetElementType | DocumentFragment,
 		text: string | HTMLElement | Element | number
 	): void;
-	text(element: DOMUtilsTargetElementType, text?: any) {
+	text(element: DOMUtilsTargetElementType | DocumentFragment, text?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
@@ -361,7 +328,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (text == null) {
-			return element.textContent || element.innerText;
+			return element.textContent || (<HTMLElement>element).innerText;
 		} else {
 			if (text instanceof Node) {
 				text = text.textContent || (text as HTMLElement).innerText;
@@ -385,10 +352,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.html("a.xx","<b>abcd</b>")
 	 * DOMUtils.html("a.xx",document.querySelector("b"))
 	 * */
-	html(
-		element: DOMUtilsTargetElementType,
-		html: string | HTMLElement | Element | number
-	): void;
+	html(element: DOMUtilsTargetElementType, html: string | HTMLElement | Element | number): void;
 	/**
 	 * 获取元素的HTML内容
 	 * @param element 目标元素
@@ -454,16 +418,9 @@ class DOMUtils extends DOMUtilsEvent {
 			recovery();
 			return transformInfo;
 		}
-		let elementTransform =
-			DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).transform;
-		if (
-			elementTransform != null &&
-			elementTransform !== "none" &&
-			elementTransform !== ""
-		) {
-			let elementTransformSplit = elementTransform
-				.match(/\((.+)\)/)?.[1]
-				.split(",");
+		let elementTransform = DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).transform;
+		if (elementTransform != null && elementTransform !== "none" && elementTransform !== "") {
+			let elementTransformSplit = elementTransform.match(/\((.+)\)/)?.[1].split(",");
 			if (elementTransformSplit) {
 				transform_left = Math.abs(parseInt(elementTransformSplit[4]));
 				transform_top = Math.abs(parseInt(elementTransformSplit[5]));
@@ -562,20 +519,14 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		if (value == null) {
 			// 获取
-			if (
-				element.localName === "input" &&
-				(element.type === "checkbox" || element.type === "radio")
-			) {
+			if (element.localName === "input" && (element.type === "checkbox" || element.type === "radio")) {
 				return (element as HTMLInputElement).checked;
 			} else {
 				return element.value;
 			}
 		} else {
 			// 设置
-			if (
-				element.localName === "input" &&
-				(element.type === "checkbox" || element.type === "radio")
-			) {
+			if (element.localName === "input" && (element.type === "checkbox" || element.type === "radio")) {
 				(element as HTMLInputElement).checked = !!value;
 			} else {
 				element.value = value as string;
@@ -594,7 +545,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.val("a.xx","data-value")
 	 * > undefined
 	 * */
-	prop<T extends any>(element: DOMUtilsTargetElementType, propName: string): T;
+	prop<T extends any>(element: DOMUtilsTargetElementType | DocumentFragment, propName: string): T;
 	/**
 	 * 设置元素的属性值
 	 * @param element 目标元素
@@ -606,11 +557,11 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.val("a.xx","data-value",1)
 	 * */
 	prop<T extends any>(
-		element: DOMUtilsTargetElementType,
+		element: DOMUtilsTargetElementType | DocumentFragment,
 		propName: string,
 		propValue: T
 	): void;
-	prop(element: DOMUtilsTargetElementType, propName: string, propValue?: any) {
+	prop(element: DOMUtilsTargetElementType | DocumentFragment, propName: string, propValue?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
@@ -675,10 +626,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.removeClass(document.querySelector("a.xx"),"xx")
 	 * DOMUtils.removeClass("a.xx","xx")
 	 */
-	removeClass(
-		element: DOMUtilsTargetElementType,
-		className?: string | string[] | undefined | null
-	) {
+	removeClass(element: DOMUtilsTargetElementType, className?: string | string[] | undefined | null) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
@@ -714,7 +662,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.removeProp(document.querySelector("a.xx"),"href")
 	 * DOMUtils.removeProp("a.xx","href")
 	 * */
-	removeProp(element: DOMUtilsTargetElementType, propName: string) {
+	removeProp(element: DOMUtilsTargetElementType | DocumentFragment, propName: string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
@@ -740,10 +688,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.replaceWith(document.querySelector("a.xx"),document.querySelector("b.xx"))
 	 * DOMUtils.replaceWith("a.xx",'<b class="xx"></b>')
 	 */
-	replaceWith(
-		element: DOMUtilsTargetElementType,
-		newElement: HTMLElement | string | Node
-	) {
+	replaceWith(element: DOMUtilsTargetElementType, newElement: HTMLElement | string | Node) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
@@ -802,10 +747,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * @param element
 	 * @param className
 	 */
-	hasClass(
-		element: DOMUtilsTargetElementType,
-		className: string | string[]
-	): boolean {
+	hasClass(element: DOMUtilsTargetElementType, className: string | string[]): boolean {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
@@ -845,12 +787,8 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.append("a.xx","'<b class="xx"></b>")
 	 * */
 	append(
-		element: DOMUtilsTargetElementType,
-		content:
-			| HTMLElement
-			| string
-			| (HTMLElement | string | Element)[]
-			| NodeList
+		element: DOMUtilsTargetElementType | DocumentFragment,
+		content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
@@ -867,22 +805,26 @@ class DOMUtils extends DOMUtilsEvent {
 			});
 			return;
 		}
-		function elementAppendChild(ele: HTMLElement, text: HTMLElement | string) {
+		function elementAppendChild(ele: HTMLElement | DocumentFragment, text: HTMLElement | string) {
 			if (typeof content === "string") {
-				ele.insertAdjacentHTML(
-					"beforeend",
-					DOMUtilsCommonUtils.getSafeHTML(text as string)
-				);
+				if (ele instanceof DocumentFragment) {
+					if (typeof text === "string") {
+						text = DOMUtilsContext.parseHTML(text, true, false);
+					}
+					ele.appendChild(text);
+				} else {
+					ele.insertAdjacentHTML("beforeend", DOMUtilsCommonUtils.getSafeHTML(text as string));
+				}
 			} else {
 				ele.appendChild(text as HTMLElement);
 			}
 		}
 		if (Array.isArray(content) || content instanceof NodeList) {
 			/* 数组 */
-			let fragment =
-				DOMUtilsContext.windowApi.document.createDocumentFragment();
+			let fragment = DOMUtilsContext.windowApi.document.createDocumentFragment();
 			content.forEach((ele) => {
 				if (typeof ele === "string") {
+					// 转为元素
 					ele = DOMUtilsContext.parseHTML(ele, true, false);
 				}
 				fragment.appendChild(ele);
@@ -901,7 +843,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.prepend(document.querySelector("a.xx"),document.querySelector("b.xx"))
 	 * DOMUtils.prepend("a.xx","'<b class="xx"></b>")
 	 * */
-	prepend(element: DOMUtilsTargetElementType, content: HTMLElement | string) {
+	prepend(element: DOMUtilsTargetElementType | DocumentFragment, content: HTMLElement | string) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
@@ -917,10 +859,12 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof content === "string") {
-			element.insertAdjacentHTML(
-				"afterbegin",
-				DOMUtilsCommonUtils.getSafeHTML(content)
-			);
+			if (element instanceof DocumentFragment) {
+				content = DOMUtilsContext.parseHTML(content, true, false);
+				element.prepend(content);
+			} else {
+				element.insertAdjacentHTML("afterbegin", DOMUtilsCommonUtils.getSafeHTML(content));
+			}
 		} else {
 			let $firstChild = element.firstChild;
 			if ($firstChild == null) {
@@ -955,10 +899,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof content === "string") {
-			element.insertAdjacentHTML(
-				"afterend",
-				DOMUtilsCommonUtils.getSafeHTML(content)
-			);
+			element.insertAdjacentHTML("afterend", DOMUtilsCommonUtils.getSafeHTML(content));
 		} else {
 			let $parent = element.parentElement;
 			let $nextSlibling = element.nextSibling;
@@ -995,10 +936,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (typeof content === "string") {
-			element.insertAdjacentHTML(
-				"beforebegin",
-				DOMUtilsCommonUtils.getSafeHTML(content)
-			);
+			element.insertAdjacentHTML("beforebegin", DOMUtilsCommonUtils.getSafeHTML(content));
 		} else {
 			let $parent = element.parentElement;
 			if (!$parent) {
@@ -1103,10 +1041,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.width(document.querySelector("a.xx"),200)
 	 * DOMUtils.width("a.xx",200)
 	 */
-	width(
-		element: HTMLElement | string | Window | typeof globalThis | Document,
-		isShow?: boolean
-	): number;
+	width(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
 	width(
 		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow: boolean = false
@@ -1120,8 +1055,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (DOMUtilsCommonUtils.isWin(element)) {
-			return DOMUtilsContext.windowApi.window.document.documentElement
-				.clientWidth;
+			return DOMUtilsContext.windowApi.window.document.documentElement.clientWidth;
 		}
 		if ((element as HTMLElement).nodeType === 9) {
 			/* Document文档节点 */
@@ -1134,42 +1068,21 @@ class DOMUtils extends DOMUtilsEvent {
 				element.documentElement.clientWidth
 			);
 		}
-		if (
-			isShow ||
-			(!isShow && DOMUtilsCommonUtils.isShow(element as HTMLElement))
-		) {
+		if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element as HTMLElement))) {
 			/* 已显示 */
 			/* 不从style中获取对应的宽度，因为可能使用了class定义了width !important */
 			element = element as HTMLElement;
 			/* 如果element.style.width为空  则从css里面获取是否定义了width信息如果定义了 则读取css里面定义的宽度width */
-			if (
-				parseFloat(
-					DOMUtilsCommonUtils.getStyleValue(element, "width").toString()
-				) > 0
-			) {
-				return parseFloat(
-					DOMUtilsCommonUtils.getStyleValue(element, "width").toString()
-				);
+			if (parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "width").toString()) > 0) {
+				return parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "width").toString());
 			}
 
 			/* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetWidth来进行计算 */
 			if (element.offsetWidth > 0) {
-				let borderLeftWidth = DOMUtilsCommonUtils.getStyleValue(
-					element,
-					"borderLeftWidth"
-				);
-				let borderRightWidth = DOMUtilsCommonUtils.getStyleValue(
-					element,
-					"borderRightWidth"
-				);
-				let paddingLeft = DOMUtilsCommonUtils.getStyleValue(
-					element,
-					"paddingLeft"
-				);
-				let paddingRight = DOMUtilsCommonUtils.getStyleValue(
-					element,
-					"paddingRight"
-				);
+				let borderLeftWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderLeftWidth");
+				let borderRightWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderRightWidth");
+				let paddingLeft = DOMUtilsCommonUtils.getStyleValue(element, "paddingLeft");
+				let paddingRight = DOMUtilsCommonUtils.getStyleValue(element, "paddingRight");
 				let backHeight =
 					parseFloat(element.offsetWidth.toString()) -
 					parseFloat(borderLeftWidth.toString()) -
@@ -1207,18 +1120,14 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.height(document.querySelector("a.xx"),200)
 	 * DOMUtils.height("a.xx",200)
 	 */
-	height(
-		element: HTMLElement | string | Window | typeof globalThis | Document,
-		isShow?: boolean
-	): number;
+	height(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
 	height(
 		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow: boolean = false
 	): number {
 		let DOMUtilsContext = this;
 		if (DOMUtilsCommonUtils.isWin(element)) {
-			return DOMUtilsContext.windowApi.window.document.documentElement
-				.clientHeight;
+			return DOMUtilsContext.windowApi.window.document.documentElement.clientHeight;
 		}
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selector(element) as HTMLElement;
@@ -1238,42 +1147,21 @@ class DOMUtils extends DOMUtilsEvent {
 				element.documentElement.clientHeight
 			);
 		}
-		if (
-			isShow ||
-			(!isShow && DOMUtilsCommonUtils.isShow(element as HTMLElement))
-		) {
+		if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element as HTMLElement))) {
 			element = element as HTMLElement;
 			/* 已显示 */
 			/* 从style中获取对应的高度，因为可能使用了class定义了width !important */
 			/* 如果element.style.height为空  则从css里面获取是否定义了height信息如果定义了 则读取css里面定义的高度height */
-			if (
-				parseFloat(
-					DOMUtilsCommonUtils.getStyleValue(element, "height").toString()
-				) > 0
-			) {
-				return parseFloat(
-					DOMUtilsCommonUtils.getStyleValue(element, "height").toString()
-				);
+			if (parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "height").toString()) > 0) {
+				return parseFloat(DOMUtilsCommonUtils.getStyleValue(element, "height").toString());
 			}
 
 			/* 如果从css里获取到的值不是大于0  可能是auto 则通过offsetHeight来进行计算 */
 			if (element.offsetHeight > 0) {
-				let borderTopWidth = DOMUtilsCommonUtils.getStyleValue(
-					element,
-					"borderTopWidth"
-				);
-				let borderBottomWidth = DOMUtilsCommonUtils.getStyleValue(
-					element,
-					"borderBottomWidth"
-				);
-				let paddingTop = DOMUtilsCommonUtils.getStyleValue(
-					element,
-					"paddingTop"
-				);
-				let paddingBottom = DOMUtilsCommonUtils.getStyleValue(
-					element,
-					"paddingBottom"
-				);
+				let borderTopWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderTopWidth");
+				let borderBottomWidth = DOMUtilsCommonUtils.getStyleValue(element, "borderBottomWidth");
+				let paddingTop = DOMUtilsCommonUtils.getStyleValue(element, "paddingTop");
+				let paddingBottom = DOMUtilsCommonUtils.getStyleValue(element, "paddingBottom");
 				let backHeight =
 					parseFloat(element.offsetHeight.toString()) -
 					parseFloat(borderTopWidth.toString()) -
@@ -1306,10 +1194,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.outerWidth(window)
 	 * > 400
 	 */
-	outerWidth(
-		element: HTMLElement | string | Window | typeof globalThis | Document,
-		isShow?: boolean
-	): number;
+	outerWidth(element: HTMLElement | string | Window | typeof globalThis | Document, isShow?: boolean): number;
 	outerWidth(
 		element: HTMLElement | string | Window | typeof globalThis | Document,
 		isShow: boolean = false
@@ -1327,10 +1212,7 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		element = element as HTMLElement;
 		if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element))) {
-			let style = DOMUtilsContext.windowApi.globalThis.getComputedStyle(
-				element,
-				null
-			);
+			let style = DOMUtilsContext.windowApi.globalThis.getComputedStyle(element, null);
 			let marginLeft = DOMUtilsCommonUtils.getStyleValue(style, "marginLeft");
 			let marginRight = DOMUtilsCommonUtils.getStyleValue(style, "marginRight");
 			return element.offsetWidth + marginLeft + marginRight;
@@ -1376,15 +1258,9 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 		element = element as HTMLElement;
 		if (isShow || (!isShow && DOMUtilsCommonUtils.isShow(element))) {
-			let style = DOMUtilsContext.windowApi.globalThis.getComputedStyle(
-				element,
-				null
-			);
+			let style = DOMUtilsContext.windowApi.globalThis.getComputedStyle(element, null);
 			let marginTop = DOMUtilsCommonUtils.getStyleValue(style, "marginTop");
-			let marginBottom = DOMUtilsCommonUtils.getStyleValue(
-				style,
-				"marginBottom"
-			);
+			let marginBottom = DOMUtilsCommonUtils.getStyleValue(style, "marginBottom");
 			return element.offsetHeight + marginTop + marginBottom;
 		} else {
 			let { recovery } = DOMUtilsCommonUtils.showElement(element);
@@ -1421,12 +1297,7 @@ class DOMUtils extends DOMUtilsEvent {
 		if (DOMUtilsCommonUtils.isNodeList(element)) {
 			// 设置
 			element.forEach(($ele) => {
-				DOMUtilsContext.animate(
-					$ele as HTMLElement,
-					styles,
-					duration,
-					callback
-				);
+				DOMUtilsContext.animate($ele as HTMLElement, styles, duration, callback);
 			});
 			return;
 		}
@@ -1451,8 +1322,7 @@ class DOMUtils extends DOMUtilsEvent {
 		} = {};
 		for (let prop in styles) {
 			from[prop] =
-				element.style[prop] ||
-				DOMUtilsContext.windowApi.globalThis.getComputedStyle(element)[prop];
+				element.style[prop] || DOMUtilsContext.windowApi.globalThis.getComputedStyle(element)[prop];
 			to[prop] = styles[prop];
 		}
 		let timer = DOMUtilsCommonUtils.setInterval(function () {
@@ -1462,8 +1332,7 @@ class DOMUtils extends DOMUtilsEvent {
 				progress = 1;
 			}
 			for (let prop in styles) {
-				element.style[prop] =
-					from[prop] + (to[prop] - from[prop]) * progress + "px";
+				element.style[prop] = from[prop] + (to[prop] - from[prop]) * progress + "px";
 			}
 			if (progress === 1) {
 				DOMUtilsCommonUtils.clearInterval(timer);
@@ -1585,8 +1454,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		return Array.from(
-			(element.parentElement as HTMLElement)
-				.children as HTMLCollectionOf<HTMLElement>
+			(element.parentElement as HTMLElement).children as HTMLCollectionOf<HTMLElement>
 		).filter((child) => child !== element);
 	}
 	/**
@@ -1711,30 +1579,16 @@ class DOMUtils extends DOMUtilsEvent {
 		let serializedArray: { name: string; value: string }[] = [];
 
 		for (let i = 0; i < elements.length; i++) {
-			const element = elements[i] as
-				| HTMLInputElement
-				| HTMLSelectElement
-				| HTMLTextAreaElement;
+			const element = elements[i] as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
 			if (
 				element.name &&
 				!element.disabled &&
 				((element as HTMLInputElement).checked ||
-					[
-						"text",
-						"hidden",
-						"password",
-						"textarea",
-						"select-one",
-						"select-multiple",
-					].includes(element.type))
+					["text", "hidden", "password", "textarea", "select-one", "select-multiple"].includes(element.type))
 			) {
 				if (element.type === "select-multiple") {
-					for (
-						let j = 0;
-						j < (element as HTMLSelectElement).options.length;
-						j++
-					) {
+					for (let j = 0; j < (element as HTMLSelectElement).options.length; j++) {
 						if ((element as HTMLSelectElement).options[j].selected) {
 							serializedArray.push({
 								name: (element as HTMLSelectElement).name,
@@ -1749,10 +1603,7 @@ class DOMUtils extends DOMUtilsEvent {
 		}
 
 		return serializedArray
-			.map(
-				(item) =>
-					`${encodeURIComponent(item.name)}=${encodeURIComponent(item.value)}`
-			)
+			.map((item) => `${encodeURIComponent(item.name)}=${encodeURIComponent(item.value)}`)
 			.join("&");
 	}
 	/**
@@ -1841,11 +1692,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 *   console.log("淡入完毕");
 	 * })
 	 */
-	fadeIn(
-		element: DOMUtilsTargetElementType,
-		duration: number = 400,
-		callback?: () => void
-	) {
+	fadeIn(element: DOMUtilsTargetElementType, duration: number = 400, callback?: () => void) {
 		if (element == null) {
 			return;
 		}
@@ -1894,11 +1741,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 *   console.log("淡出完毕");
 	 * })
 	 */
-	fadeOut(
-		element: DOMUtilsTargetElementType,
-		duration: number = 400,
-		callback?: () => void
-	) {
+	fadeOut(element: DOMUtilsTargetElementType, duration: number = 400, callback?: () => void) {
 		let DOMUtilsContext = this;
 		if (element == null) {
 			return;
@@ -1958,9 +1801,7 @@ class DOMUtils extends DOMUtilsEvent {
 			return;
 		}
 		if (
-			DOMUtilsContext.windowApi.globalThis
-				.getComputedStyle(element)
-				.getPropertyValue("display") === "none"
+			DOMUtilsContext.windowApi.globalThis.getComputedStyle(element).getPropertyValue("display") === "none"
 		) {
 			DOMUtilsContext.show(element, checkVisiblie);
 		} else {
@@ -1997,20 +1838,14 @@ class DOMUtils extends DOMUtilsEvent {
 		if (selectionEnd == null) {
 			selectionEnd = $input.selectionEnd || 0;
 		}
-		if (typeof selectionStart == "string")
-			selectionStart = parseFloat(selectionStart);
+		if (typeof selectionStart == "string") selectionStart = parseFloat(selectionStart);
 		if (typeof selectionStart != "number" || isNaN(selectionStart)) {
 			selectionStart = 0;
 		}
 		if (selectionStart < 0) selectionStart = 0;
 		else selectionStart = Math.min($input.value.length, selectionStart);
-		if (typeof selectionEnd == "string")
-			selectionEnd = parseFloat(selectionEnd);
-		if (
-			typeof selectionEnd != "number" ||
-			isNaN(selectionEnd) ||
-			selectionEnd < selectionStart
-		) {
+		if (typeof selectionEnd == "string") selectionEnd = parseFloat(selectionEnd);
+		if (typeof selectionEnd != "number" || isNaN(selectionEnd) || selectionEnd < selectionStart) {
 			selectionEnd = selectionStart;
 		}
 		if (selectionEnd < 0) selectionEnd = 0;
@@ -2112,14 +1947,8 @@ class DOMUtils extends DOMUtilsEvent {
 			let $boxRect = $input.getBoundingClientRect();
 			var clientTop = docElem.clientTop || body.clientTop || 0,
 				clientLeft = docElem.clientLeft || body.clientLeft || 0,
-				scrollTop =
-					win.pageYOffset ||
-					(isBoxModel && docElem.scrollTop) ||
-					body.scrollTop,
-				scrollLeft =
-					win.pageXOffset ||
-					(isBoxModel && docElem.scrollLeft) ||
-					body.scrollLeft;
+				scrollTop = win.pageYOffset || (isBoxModel && docElem.scrollTop) || body.scrollTop,
+				scrollLeft = win.pageXOffset || (isBoxModel && docElem.scrollLeft) || body.scrollLeft;
 			return {
 				top: $boxRect.top + scrollTop - clientTop,
 				left: $boxRect.left + scrollLeft - clientLeft,

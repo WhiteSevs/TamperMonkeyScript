@@ -50,10 +50,7 @@ const DOMUtilsCommonUtils = {
 	 */
 	showElement(element: HTMLElement) {
 		let dupNode = element.cloneNode(true) as HTMLElement;
-		dupNode.setAttribute(
-			"style",
-			"visibility: hidden !important;display:block !important;"
-		);
+		dupNode.setAttribute("style", "visibility: hidden !important;display:block !important;");
 		this.windowApi.document.documentElement.appendChild(dupNode);
 		return {
 			/**

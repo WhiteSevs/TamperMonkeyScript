@@ -139,7 +139,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.text("a.xx","abcd")
      * DOMUtils.text("a.xx",document.querySelector("b"))
      * */
-    text(element: DOMUtilsTargetElementType, text: string | HTMLElement | Element | number): void;
+    text(element: DOMUtilsTargetElementType | DocumentFragment, text: string | HTMLElement | Element | number): void;
     /**
      * 设置元素的HTML内容
      * @param element 目标元素
@@ -211,7 +211,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.val("a.xx","data-value")
      * > undefined
      * */
-    prop<T extends any>(element: DOMUtilsTargetElementType, propName: string): T;
+    prop<T extends any>(element: DOMUtilsTargetElementType | DocumentFragment, propName: string): T;
     /**
      * 设置元素的属性值
      * @param element 目标元素
@@ -222,7 +222,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.val(document.querySelector("a.xx"),"data-value",1)
      * DOMUtils.val("a.xx","data-value",1)
      * */
-    prop<T extends any>(element: DOMUtilsTargetElementType, propName: string, propValue: T): void;
+    prop<T extends any>(element: DOMUtilsTargetElementType | DocumentFragment, propName: string, propValue: T): void;
     /**
      * 移除元素的属性
      * @param element 目标元素
@@ -252,7 +252,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.removeProp(document.querySelector("a.xx"),"href")
      * DOMUtils.removeProp("a.xx","href")
      * */
-    removeProp(element: DOMUtilsTargetElementType, propName: string): void;
+    removeProp(element: DOMUtilsTargetElementType | DocumentFragment, propName: string): void;
     /**
      * 将一个元素替换为另一个元素
      * @param element 目标元素
@@ -288,7 +288,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.append(document.querySelector("a.xx"),document.querySelector("b.xx"))
      * DOMUtils.append("a.xx","'<b class="xx"></b>")
      * */
-    append(element: DOMUtilsTargetElementType, content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList): void;
+    append(element: DOMUtilsTargetElementType | DocumentFragment, content: HTMLElement | string | (HTMLElement | string | Element)[] | NodeList): void;
     /**
      * 函数 在元素内部开头添加子元素或HTML字符串
      * @param element 目标元素
@@ -298,7 +298,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.prepend(document.querySelector("a.xx"),document.querySelector("b.xx"))
      * DOMUtils.prepend("a.xx","'<b class="xx"></b>")
      * */
-    prepend(element: DOMUtilsTargetElementType, content: HTMLElement | string): void;
+    prepend(element: DOMUtilsTargetElementType | DocumentFragment, content: HTMLElement | string): void;
     /**
      * 在元素后面添加兄弟元素或HTML字符串
      * @param element 目标元素

@@ -247,4 +247,5 @@ export declare type DOMUtilsElementEventType =
 	| ShadowRoot
 	| EventTarget
 	| ChildNode
-	| Node;
+	| Node
+	| DocumentFragment;
