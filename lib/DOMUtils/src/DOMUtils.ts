@@ -295,7 +295,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.text("a.xx","abcd")
 	 * DOMUtils.text("a.xx",document.querySelector("b"))
 	 * */
-	text(element: DOMUtilsTargetElementType): string;
+	text(element: DOMUtilsTargetElementType | Element | DocumentFragment | Node): string;
 	/**
 	 * 设置元素的文本内容
 	 * @param element 目标元素
@@ -308,10 +308,10 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.text("a.xx",document.querySelector("b"))
 	 * */
 	text(
-		element: DOMUtilsTargetElementType | DocumentFragment,
+		element: DOMUtilsTargetElementType | Element | DocumentFragment | Node,
 		text: string | HTMLElement | Element | number
 	): void;
-	text(element: DOMUtilsTargetElementType | DocumentFragment, text?: any) {
+	text(element: DOMUtilsTargetElementType | Element | DocumentFragment | Node, text?: any) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
@@ -713,7 +713,13 @@ class DOMUtils extends DOMUtilsEvent {
 		if (typeof newElement === "string") {
 			newElement = DOMUtilsContext.parseHTML(newElement, false, false);
 		}
-		element!.parentElement!.replaceChild(newElement as Node, element);
+		let $parent = element.parentElement;
+		if ($parent) {
+			$parent.replaceChild(newElement as Node, element);
+		} else {
+			DOMUtilsContext.after(element, newElement as HTMLElement);
+			element.remove();
+		}
 	}
 	/**
 	 * 给元素添加class
@@ -962,7 +968,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.remove(document.querySelectorAll("a.xx"))
 	 * DOMUtils.remove("a.xx")
 	 * */
-	remove(element: DOMUtilsTargetElementType) {
+	remove(element: DOMUtilsTargetElementType | Element) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
@@ -976,7 +982,13 @@ class DOMUtils extends DOMUtilsEvent {
 			});
 			return;
 		}
-		element.remove();
+		if (typeof element.remove === "function") {
+			element.remove();
+		} else if (element.parentElement) {
+			element.parentElement.removeChild(element);
+		} else if (element.parentNode) {
+			element.parentNode.removeChild(element);
+		}
 	}
 	/**
 	 * 移除元素的所有子元素
@@ -986,7 +998,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.empty(document.querySelector("a.xx"))
 	 * DOMUtils.empty("a.xx")
 	 * */
-	empty(element: DOMUtilsTargetElementType) {
+	empty(element: DOMUtilsTargetElementType | Element) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selectorAll(element);
@@ -1001,7 +1013,11 @@ class DOMUtils extends DOMUtilsEvent {
 			});
 			return;
 		}
-		DOMUtilsContext.html(element, "");
+		if (element.innerHTML) {
+			element.innerHTML = "";
+		} else if (element.textContent) {
+			element.textContent = "";
+		}
 	}
 	/**
 	 * 获取元素相对于文档的偏移坐标（加上文档的滚动条）
@@ -1496,7 +1512,7 @@ class DOMUtils extends DOMUtilsEvent {
 	 * DOMUtils.parent("a.xx")
 	 * > <div ...>....</div>
 	 */
-	parent(element: HTMLElement | NodeList | string | HTMLElement[]) {
+	parent(element: HTMLElement | Element | Node | NodeList | string | HTMLElement[]) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
 			element = DOMUtilsContext.selector<HTMLElement>(element)!;

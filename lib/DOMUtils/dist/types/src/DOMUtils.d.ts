@@ -127,7 +127,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.text("a.xx","abcd")
      * DOMUtils.text("a.xx",document.querySelector("b"))
      * */
-    text(element: DOMUtilsTargetElementType): string;
+    text(element: DOMUtilsTargetElementType | Element | DocumentFragment | Node): string;
     /**
      * 设置元素的文本内容
      * @param element 目标元素
@@ -139,7 +139,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.text("a.xx","abcd")
      * DOMUtils.text("a.xx",document.querySelector("b"))
      * */
-    text(element: DOMUtilsTargetElementType | DocumentFragment, text: string | HTMLElement | Element | number): void;
+    text(element: DOMUtilsTargetElementType | Element | DocumentFragment | Node, text: string | HTMLElement | Element | number): void;
     /**
      * 设置元素的HTML内容
      * @param element 目标元素
@@ -328,7 +328,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.remove(document.querySelectorAll("a.xx"))
      * DOMUtils.remove("a.xx")
      * */
-    remove(element: DOMUtilsTargetElementType): void;
+    remove(element: DOMUtilsTargetElementType | Element): void;
     /**
      * 移除元素的所有子元素
      * @param element 目标元素
@@ -337,7 +337,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.empty(document.querySelector("a.xx"))
      * DOMUtils.empty("a.xx")
      * */
-    empty(element: DOMUtilsTargetElementType): void;
+    empty(element: DOMUtilsTargetElementType | Element): void;
     /**
      * 获取元素相对于文档的偏移坐标（加上文档的滚动条）
      * @param element 目标元素

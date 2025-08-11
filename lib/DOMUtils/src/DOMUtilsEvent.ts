@@ -728,7 +728,14 @@ export class DOMUtilsEvent {
 	 * DOMUtils.trigger("a.xx",["click","tap","hover"])
 	 */
 	trigger(
-		element: DOMUtilsTargetElementType | any[] | typeof globalThis | Window | Document,
+		element:
+			| DOMUtilsTargetElementType
+			| Element
+			| DocumentFragment
+			| any[]
+			| typeof globalThis
+			| Window
+			| Document,
 		eventType: string,
 		details?: object,
 		useDispatchToTriggerEvent?: boolean
@@ -835,7 +842,7 @@ export class DOMUtilsEvent {
 	 * })
 	 * */
 	click(
-		element: DOMUtilsTargetElementType | typeof globalThis | Window,
+		element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window,
 		handler?: (this: HTMLElement, event: DOMUtils_Event["click"]) => void,
 		details?: any,
 		useDispatchToTriggerEvent?: boolean
@@ -875,14 +882,14 @@ export class DOMUtilsEvent {
 	 * })
 	 * */
 	blur(
-		element: DOMUtilsTargetElementType | typeof globalThis | Window,
+		element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window,
 		handler?: (this: HTMLElement, event: DOMUtils_Event["blur"]) => void,
 		details?: object,
 		useDispatchToTriggerEvent?: boolean
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.selectorAll<HTMLElement>(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -915,14 +922,14 @@ export class DOMUtilsEvent {
 	 * })
 	 * */
 	focus(
-		element: DOMUtilsTargetElementType | typeof globalThis | Window,
+		element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window,
 		handler?: (this: HTMLElement, event: DOMUtils_Event["focus"]) => void,
 		details?: object,
 		useDispatchToTriggerEvent?: boolean
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.selectorAll<HTMLElement>(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -955,13 +962,13 @@ export class DOMUtilsEvent {
 	 * })
 	 */
 	hover(
-		element: DOMUtilsTargetElementType,
+		element: DOMUtilsTargetElementType | Element | DocumentFragment | Node,
 		handler: (this: HTMLElement, event: DOMUtils_Event["hover"]) => void,
 		option?: boolean | DOMUtilsEventListenerOption
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.selectorAll<HTMLElement>(element);
+			element = DOMUtilsContext.selectorAll(element);
 		}
 		if (element == null) {
 			return;
@@ -983,13 +990,13 @@ export class DOMUtilsEvent {
 	 * @param option 配置项，这里默认配置once为true
 	 */
 	animationend(
-		element: HTMLElement | string,
+		element: HTMLElement | string | Element | DocumentFragment,
 		handler: (this: HTMLElement, event: DOMUtils_Event["animationend"]) => void,
 		option?: boolean | DOMUtilsEventListenerOption
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.selector<HTMLElement>(element)!;
+			element = DOMUtilsContext.selector(element)!;
 		}
 		if (element == null) {
 			return;
@@ -1022,13 +1029,13 @@ export class DOMUtilsEvent {
 	 * @param option 配置项，这里默认配置once为true
 	 */
 	transitionend(
-		element: HTMLElement | string,
+		element: HTMLElement | string | Element | DocumentFragment,
 		handler: (this: HTMLElement, event: DOMUtils_Event["transitionend"]) => void,
 		option?: boolean | DOMUtilsEventListenerOption
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.selector<HTMLElement>(element)!;
+			element = DOMUtilsContext.selector(element)!;
 		}
 		if (element == null) {
 			return;
@@ -1070,7 +1077,7 @@ export class DOMUtilsEvent {
 	 * })
 	 */
 	keyup(
-		element: DOMUtilsTargetElementType | Window | typeof globalThis,
+		element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis,
 		handler: (this: HTMLElement, event: DOMUtils_Event["keyup"]) => void,
 		option?: boolean | DOMUtilsEventListenerOption
 	) {
@@ -1106,7 +1113,7 @@ export class DOMUtilsEvent {
 	 * })
 	 */
 	keydown(
-		element: DOMUtilsTargetElementType | Window | typeof globalThis,
+		element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis,
 		handler: (this: HTMLElement, event: DOMUtils_Event["keydown"]) => void,
 		option?: boolean | DOMUtilsEventListenerOption
 	) {
@@ -1142,7 +1149,7 @@ export class DOMUtilsEvent {
 	 * })
 	 */
 	keypress(
-		element: DOMUtilsTargetElementType | Window | typeof globalThis,
+		element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis,
 		handler: (this: HTMLElement, event: DOMUtils_Event["keypress"]) => void,
 		option?: boolean | DOMUtilsEventListenerOption
 	) {
@@ -1226,7 +1233,7 @@ export class DOMUtilsEvent {
       收藏		171
      **/
 	listenKeyboard(
-		element: DOMUtilsTargetElementType | Window | Node | typeof globalThis,
+		element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis,
 		eventName: "keyup" | "keypress" | "keydown" = "keypress",
 		callback: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void,
 		options?: DOMUtilsEventListenerOption | boolean

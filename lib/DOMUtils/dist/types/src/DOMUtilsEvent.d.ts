@@ -186,7 +186,7 @@ export declare class DOMUtilsEvent {
      * DOMUtils.trigger(document.querySelector("a.xx"),"click tap hover")
      * DOMUtils.trigger("a.xx",["click","tap","hover"])
      */
-    trigger(element: DOMUtilsTargetElementType | any[] | typeof globalThis | Window | Document, eventType: string, details?: object, useDispatchToTriggerEvent?: boolean): void;
+    trigger(element: DOMUtilsTargetElementType | Element | DocumentFragment | any[] | typeof globalThis | Window | Document, eventType: string, details?: object, useDispatchToTriggerEvent?: boolean): void;
     /**
      * 主动触发事件
      * @param element 需要触发的元素|元素数组|window
@@ -216,7 +216,7 @@ export declare class DOMUtilsEvent {
      *  console.log("触发click事件成功")
      * })
      * */
-    click(element: DOMUtilsTargetElementType | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["click"]) => void, details?: any, useDispatchToTriggerEvent?: boolean): void;
+    click(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["click"]) => void, details?: any, useDispatchToTriggerEvent?: boolean): void;
     /**
      * 绑定或触发元素的blur事件
      * @param element 目标元素
@@ -231,7 +231,7 @@ export declare class DOMUtilsEvent {
      *  console.log("触发blur事件成功")
      * })
      * */
-    blur(element: DOMUtilsTargetElementType | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["blur"]) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
+    blur(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["blur"]) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
     /**
      * 绑定或触发元素的focus事件
      * @param element 目标元素
@@ -246,7 +246,7 @@ export declare class DOMUtilsEvent {
      *  console.log("触发focus事件成功")
      * })
      * */
-    focus(element: DOMUtilsTargetElementType | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["focus"]) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
+    focus(element: DOMUtilsTargetElementType | Element | DocumentFragment | typeof globalThis | Window, handler?: (this: HTMLElement, event: DOMUtils_Event["focus"]) => void, details?: object, useDispatchToTriggerEvent?: boolean): void;
     /**
      * 当鼠标移入或移出元素时触发事件
      * @param element 当前元素
@@ -261,14 +261,14 @@ export declare class DOMUtilsEvent {
      *   console.log("移入/移除");
      * })
      */
-    hover(element: DOMUtilsTargetElementType, handler: (this: HTMLElement, event: DOMUtils_Event["hover"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    hover(element: DOMUtilsTargetElementType | Element | DocumentFragment | Node, handler: (this: HTMLElement, event: DOMUtils_Event["hover"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
     /**
      * 当动画结束时触发事件
      * @param element 监听的元素
      * @param handler 触发的回调函数
      * @param option 配置项，这里默认配置once为true
      */
-    animationend(element: HTMLElement | string, handler: (this: HTMLElement, event: DOMUtils_Event["animationend"]) => void, option?: boolean | DOMUtilsEventListenerOption): {
+    animationend(element: HTMLElement | string | Element | DocumentFragment, handler: (this: HTMLElement, event: DOMUtils_Event["animationend"]) => void, option?: boolean | DOMUtilsEventListenerOption): {
         off(): void;
     } | undefined;
     /**
@@ -277,7 +277,7 @@ export declare class DOMUtilsEvent {
      * @param handler 触发的回调函数
      * @param option 配置项，这里默认配置once为true
      */
-    transitionend(element: HTMLElement | string, handler: (this: HTMLElement, event: DOMUtils_Event["transitionend"]) => void, option?: boolean | DOMUtilsEventListenerOption): {
+    transitionend(element: HTMLElement | string | Element | DocumentFragment, handler: (this: HTMLElement, event: DOMUtils_Event["transitionend"]) => void, option?: boolean | DOMUtilsEventListenerOption): {
         off(): void;
     } | undefined;
     /**
@@ -295,7 +295,7 @@ export declare class DOMUtilsEvent {
      *   console.log("按键松开");
      * })
      */
-    keyup(element: DOMUtilsTargetElementType | Window | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keyup"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    keyup(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keyup"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -311,7 +311,7 @@ export declare class DOMUtilsEvent {
      *   console.log("按键按下");
      * })
      */
-    keydown(element: DOMUtilsTargetElementType | Window | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keydown"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    keydown(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keydown"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
     /**
      * 当按键按下时触发事件
      * keydown - > keypress - > keyup
@@ -327,7 +327,7 @@ export declare class DOMUtilsEvent {
      *   console.log("按键按下");
      * })
      */
-    keypress(element: DOMUtilsTargetElementType | Window | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keypress"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
+    keypress(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, handler: (this: HTMLElement, event: DOMUtils_Event["keypress"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
     /**
      * 监听某个元素键盘按键事件或window全局按键事件
      * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。
@@ -391,7 +391,7 @@ export declare class DOMUtilsEvent {
       搜索		170
       收藏		171
      **/
-    listenKeyboard(element: DOMUtilsTargetElementType | Window | Node | typeof globalThis, eventName: "keyup" | "keypress" | "keydown" | undefined, callback: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void, options?: DOMUtilsEventListenerOption | boolean): {
+    listenKeyboard(element: DOMUtilsTargetElementType | Element | DocumentFragment | Window | Node | typeof globalThis, eventName: "keyup" | "keypress" | "keydown" | undefined, callback: (keyName: string, keyValue: number, otherCodeList: string[], event: KeyboardEvent) => void, options?: DOMUtilsEventListenerOption | boolean): {
         removeListen(): void;
     };
     /**
