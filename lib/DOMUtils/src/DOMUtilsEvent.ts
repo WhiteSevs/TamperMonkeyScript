@@ -994,13 +994,13 @@ export class DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (DOMUtilsCommonUtils.isNodeList(element)) {
-			// 设置
-			element.forEach(($ele) => {
-				DOMUtilsContext.animationend($ele as HTMLElement, handler, option);
-			});
-			return;
-		}
+		// if (DOMUtilsCommonUtils.isNodeList(element)) {
+		// 	// 设置
+		// 	element.forEach(($ele) => {
+		// 		DOMUtilsContext.animationend($ele as HTMLElement, handler, option);
+		// 	});
+		// 	return;
+		// }
 		const defaultOption: DOMUtilsEventListenerOption = {
 			once: true,
 		};
@@ -1033,13 +1033,13 @@ export class DOMUtilsEvent {
 		if (element == null) {
 			return;
 		}
-		if (DOMUtilsCommonUtils.isNodeList(element)) {
-			// 设置
-			element.forEach(($ele) => {
-				DOMUtilsContext.transitionend($ele as HTMLElement, handler, option);
-			});
-			return;
-		}
+		// if (DOMUtilsCommonUtils.isNodeList(element)) {
+		// 	// 设置
+		// 	element.forEach(($ele) => {
+		// 		DOMUtilsContext.transitionend($ele as HTMLElement, handler, option);
+		// 	});
+		// 	return;
+		// }
 		const defaultOption: DOMUtilsEventListenerOption = {
 			once: true,
 		};
