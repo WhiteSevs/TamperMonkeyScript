@@ -16,7 +16,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.attr("a.xx","href");
      * > https://xxxx....
      */
-    attr(element: DOMUtilsTargetElementType, attrName: string): string;
+    attr(element: DOMUtilsTargetElementType | Element, attrName: string): string;
     /**
      * 设置元素的属性值
      * @param element 目标元素
@@ -27,7 +27,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.attr(document.querySelector("a.xx"),"href","abcd");
      * DOMUtils.attr("a.xx","href","abcd");
      */
-    attr(element: DOMUtilsTargetElementType, attrName: string, attrValue: string | boolean | number): void;
+    attr(element: DOMUtilsTargetElementType | Element, attrName: string, attrValue: string | boolean | number): void;
     /**
      * 创建元素
      * @param tagName 标签名
@@ -232,7 +232,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.removeAttr(document.querySelector("a.xx"),"data-value")
      * DOMUtils.removeAttr("a.xx","data-value")
      * */
-    removeAttr(element: DOMUtilsTargetElementType, attrName: string): void;
+    removeAttr(element: DOMUtilsTargetElementType | Element, attrName: string): void;
     /**
      * 移除元素class名
      * @param element 目标元素
@@ -242,7 +242,7 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.removeClass(document.querySelector("a.xx"),"xx")
      * DOMUtils.removeClass("a.xx","xx")
      */
-    removeClass(element: DOMUtilsTargetElementType, className?: string | string[] | undefined | null): void;
+    removeClass(element: DOMUtilsTargetElementType | Element, className?: string | string[] | undefined | null): void;
     /**
      * 移除元素的属性
      * @param element 目标元素
@@ -272,13 +272,13 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.addClass(document.querySelector("a.xx"),"_vue_")
      * DOMUtils.addClass("a.xx","_vue_")
      * */
-    addClass(element: DOMUtilsTargetElementType, className: string | string[]): void;
+    addClass(element: DOMUtilsTargetElementType | Element, className: string | string[]): void;
     /**
      * 判断元素是否存在className
      * @param element
      * @param className
      */
-    hasClass(element: DOMUtilsTargetElementType, className: string | string[]): boolean;
+    hasClass(element: DOMUtilsTargetElementType | Element, className: string | string[]): boolean;
     /**
      * 函数在元素内部末尾添加子元素或HTML字符串
      * @param element 目标元素
@@ -623,6 +623,10 @@ declare class DOMUtils extends DOMUtilsEvent {
      * DOMUtils.getTextBoundingRect(document.querySelector("input"));
      */
     getTextBoundingRect($input: HTMLInputElement, selectionStart?: number | string, selectionEnd?: number | string): DOMRect;
+    /** 获取 animationend 在各个浏览器的兼容名 */
+    getAnimationEndNameList(): string[];
+    /** 获取 transitionend 在各个浏览器的兼容名 */
+    getTransitionEndNameList(): string[];
 }
 declare let domUtils: DOMUtils;
 export { domUtils as DOMUtils };

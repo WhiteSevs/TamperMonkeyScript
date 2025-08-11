@@ -882,7 +882,7 @@ export class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.selectorAll(element);
+			element = DOMUtilsContext.selectorAll<HTMLElement>(element);
 		}
 		if (element == null) {
 			return;
@@ -922,7 +922,7 @@ export class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.selectorAll(element);
+			element = DOMUtilsContext.selectorAll<HTMLElement>(element);
 		}
 		if (element == null) {
 			return;
@@ -961,7 +961,7 @@ export class DOMUtilsEvent {
 	) {
 		let DOMUtilsContext = this;
 		if (typeof element === "string") {
-			element = DOMUtilsContext.selectorAll(element);
+			element = DOMUtilsContext.selectorAll<HTMLElement>(element);
 		}
 		if (element == null) {
 			return;
@@ -975,6 +975,84 @@ export class DOMUtilsEvent {
 		}
 		DOMUtilsContext.on(element, "mouseenter", null, handler, option);
 		DOMUtilsContext.on(element, "mouseleave", null, handler, option);
+	}
+	/**
+	 * 当动画结束时触发事件
+	 * @param element 监听的元素
+	 * @param handler 触发的回调函数
+	 * @param option 配置项，这里默认配置once为true
+	 */
+	animationend(
+		element: HTMLElement | string,
+		handler: (this: HTMLElement, event: DOMUtils_Event["animationend"]) => void,
+		option?: boolean | DOMUtilsEventListenerOption
+	) {
+		let DOMUtilsContext = this;
+		if (typeof element === "string") {
+			element = DOMUtilsContext.selector<HTMLElement>(element)!;
+		}
+		if (element == null) {
+			return;
+		}
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.animationend($ele as HTMLElement, handler, option);
+			});
+			return;
+		}
+		const defaultOption: DOMUtilsEventListenerOption = {
+			once: true,
+		};
+		Object.assign(defaultOption, option || {});
+		const eventNameList = DOMUtilsCommonUtils.getAnimationEndNameList();
+		DOMUtilsContext.on(element, eventNameList, null, handler, defaultOption);
+		if (!defaultOption.once) {
+			return {
+				off() {
+					DOMUtilsContext.off(element, eventNameList, null, handler, defaultOption);
+				},
+			};
+		}
+	}
+	/**
+	 * 当过渡结束时触发事件
+	 * @param element 监听的元素
+	 * @param handler 触发的回调函数
+	 * @param option 配置项，这里默认配置once为true
+	 */
+	transitionend(
+		element: HTMLElement | string,
+		handler: (this: HTMLElement, event: DOMUtils_Event["transitionend"]) => void,
+		option?: boolean | DOMUtilsEventListenerOption
+	) {
+		let DOMUtilsContext = this;
+		if (typeof element === "string") {
+			element = DOMUtilsContext.selector<HTMLElement>(element)!;
+		}
+		if (element == null) {
+			return;
+		}
+		if (DOMUtilsCommonUtils.isNodeList(element)) {
+			// 设置
+			element.forEach(($ele) => {
+				DOMUtilsContext.transitionend($ele as HTMLElement, handler, option);
+			});
+			return;
+		}
+		const defaultOption: DOMUtilsEventListenerOption = {
+			once: true,
+		};
+		Object.assign(defaultOption, option || {});
+		const eventNameList = DOMUtilsCommonUtils.getTransitionEndNameList();
+		DOMUtilsContext.on(element, eventNameList, null, handler, defaultOption);
+		if (!defaultOption.once) {
+			return {
+				off() {
+					DOMUtilsContext.off(element, eventNameList, null, handler, defaultOption);
+				},
+			};
+		}
 	}
 	/**
 	 * 当按键松开时触发事件
@@ -1084,7 +1162,6 @@ export class DOMUtilsEvent {
 		}
 		DOMUtilsContext.on(element, "keypress", null, handler, option);
 	}
-
 	/**
      * 监听某个元素键盘按键事件或window全局按键事件
      * 按下有值的键时触发，按下Ctrl\Alt\Shift\Meta是无值键。按下先触发keydown事件，再触发keypress事件。

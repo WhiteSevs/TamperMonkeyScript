@@ -65,5 +65,9 @@ declare const DOMUtilsCommonUtils: {
      * @param $ele
      */
     isNodeList($ele: any): $ele is any[] | NodeList;
+    /** 获取 animationend 在各个浏览器的兼容名 */
+    getAnimationEndNameList(): string[];
+    /** 获取 transitionend 在各个浏览器的兼容名 */
+    getTransitionEndNameList(): string[];
 };
 export { DOMUtilsCommonUtils };

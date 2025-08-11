@@ -263,6 +263,24 @@ export declare class DOMUtilsEvent {
      */
     hover(element: DOMUtilsTargetElementType, handler: (this: HTMLElement, event: DOMUtils_Event["hover"]) => void, option?: boolean | DOMUtilsEventListenerOption): void;
     /**
+     * 当动画结束时触发事件
+     * @param element 监听的元素
+     * @param handler 触发的回调函数
+     * @param option 配置项，这里默认配置once为true
+     */
+    animationend(element: HTMLElement | string, handler: (this: HTMLElement, event: DOMUtils_Event["animationend"]) => void, option?: boolean | DOMUtilsEventListenerOption): {
+        off(): void;
+    } | undefined;
+    /**
+     * 当过渡结束时触发事件
+     * @param element 监听的元素
+     * @param handler 触发的回调函数
+     * @param option 配置项，这里默认配置once为true
+     */
+    transitionend(element: HTMLElement | string, handler: (this: HTMLElement, event: DOMUtils_Event["transitionend"]) => void, option?: boolean | DOMUtilsEventListenerOption): {
+        off(): void;
+    } | undefined;
+    /**
      * 当按键松开时触发事件
      * keydown - > keypress - > keyup
      * @param element 当前元素
