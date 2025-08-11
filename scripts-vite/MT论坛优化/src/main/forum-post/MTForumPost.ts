@@ -6,6 +6,7 @@ import Qmsg from "qmsg";
 import Viewer from "viewerjs";
 import { MTForumPostRightToolBar } from "./MTForumPostRightToolBar";
 import "./css/beautify.css";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const MTForumPost = {
 	$flag: {
@@ -54,10 +55,16 @@ export const MTForumPost = {
 	 */
 	autoExpandContent() {
 		log.info(`自动展开帖子内容`);
-		return addStyle(/*css*/ `
-        div.comiis_message.bg_f.view_one.b_b.cl.message>div.comiis_messages.comiis_aimg_show.cl{max-height:inherit!important;overflow-y:inherit!important;position:inherit!important}
-        .comiis_lookfulltext_bg,.comiis_lookfulltext_key{display:none!important} 
-        `);
+		return [
+			addStyle(/*css*/ `
+				div.comiis_message.bg_f.view_one.b_b.cl.message>div.comiis_messages.comiis_aimg_show.cl{
+					max-height:inherit!important;
+					overflow-y:inherit!important;
+					position:inherit!important
+				}
+        	`),
+			CommonUtil.addBlockCSS(".comiis_lookfulltext_bg", ".comiis_lookfulltext_key"),
+		];
 	},
 	/**
 	 * 修复图片宽度
@@ -73,17 +80,12 @@ export const MTForumPost = {
 	 * 移除帖子字体效果
 	 */
 	removeFontStyle() {
-		let $messageTable = document.querySelector<HTMLElement>(
-			".comiis_a.comiis_message_table"
-		);
+		let $messageTable = document.querySelector<HTMLElement>(".comiis_a.comiis_message_table");
 		if (!$messageTable) {
 			return;
 		}
 		log.info(`移除帖子字体效果`);
-		DOMUtils.html(
-			$messageTable,
-			DOMUtils.html($messageTable).replace(MTRegExp.fontSpecial, "")
-		);
+		DOMUtils.html($messageTable, DOMUtils.html($messageTable).replace(MTRegExp.fontSpecial, ""));
 	},
 	/**
 	 * 移除评论区的字体效果
@@ -92,8 +94,7 @@ export const MTForumPost = {
 		log.info(`移除评论区的字体效果`);
 		let $fontList = $$("font");
 		/* 帖子主内容 */
-		let $postForumMainContent =
-			$(".comiis_postlist .comiis_postli")?.innerHTML || "";
+		let $postForumMainContent = $(".comiis_postlist .comiis_postli")?.innerHTML || "";
 		if ($postForumMainContent !== "") {
 			$fontList.forEach(($font) => {
 				/* font元素是帖子主内容的移除字体效果 */
@@ -107,15 +108,10 @@ export const MTForumPost = {
 			/* 帖子评论 */
 			$$<HTMLElement>(".comiis_message.message").forEach(($message) => {
 				if ($postForumMainContent.includes($message.innerHTML)) {
-					$message.innerHTML = $message.innerHTML.replace(
-						MTRegExp.fontSpecial,
-						""
-					);
+					$message.innerHTML = $message.innerHTML.replace(MTRegExp.fontSpecial, "");
 					let $next = $message.nextElementSibling;
 					if ($next && $next.localName === "strike") {
-						$next.outerHTML = $next.outerHTML
-							.replace(/^<strike>(\n|)/g, "")
-							.replace(/<\/strike>$/g, "");
+						$next.outerHTML = $next.outerHTML.replace(/^<strike>(\n|)/g, "").replace(/<\/strike>$/g, "");
 					}
 				}
 			});
@@ -124,9 +120,7 @@ export const MTForumPost = {
 		$$(".comiis_postli.comiis_list_readimgs.nfqsqi").forEach((item) => {
 			let $parent = item.parentElement;
 			if ($parent && $parent.localName === "strike") {
-				$parent.outerHTML = $parent.outerHTML
-					.replace(/^<strike>(\n|)/g, "")
-					.replace(/<\/strike>$/g, "");
+				$parent.outerHTML = $parent.outerHTML.replace(/^<strike>(\n|)/g, "").replace(/<\/strike>$/g, "");
 			}
 		});
 	},
@@ -168,19 +162,13 @@ export const MTForumPost = {
 			if (nextURL) {
 				let pageInfo = await getPageInfo(nextURL);
 				if (pageInfo) {
-					if (
-						pageInfo["postlist"]
-							?.querySelector(".comiis_vrx")
-							?.querySelector(".km1")
-					) {
+					if (pageInfo["postlist"]?.querySelector(".comiis_vrx")?.querySelector(".km1")) {
 						// [楼主]标签
 						// 这种情况可能是请求的第2页的内容返回的还是第一页的内容
 						Object.keys(pageInfo).forEach((it) => {
 							pageInfo[it as keyof typeof pageInfo] = null;
 						});
-						log.warn(
-							`检测到请求的本页内容中存在【楼主】标识，判断为重复页请求`
-						);
+						log.warn(`检测到请求的本页内容中存在【楼主】标识，判断为重复页请求`);
 					}
 					if (!pageInfo["url"] || pageInfo["url"] == nextURL) {
 						log.error("最后一页，取消监听");
@@ -307,17 +295,11 @@ export const MTForumPost = {
 								begin: "\\s(" + smali_instr_low_prio.join("|") + ")\\s",
 							},
 							{
-								begin:
-									"\\s(" +
-									smali_instr_low_prio.join("|") +
-									")((\\-|/)[a-zA-Z0-9]+)+\\s",
+								begin: "\\s(" + smali_instr_low_prio.join("|") + ")((\\-|/)[a-zA-Z0-9]+)+\\s",
 								relevance: 10,
 							},
 							{
-								begin:
-									"\\s(" +
-									smali_instr_high_prio.join("|") +
-									")((\\-|/)[a-zA-Z0-9]+)*\\s",
+								begin: "\\s(" + smali_instr_high_prio.join("|") + ")((\\-|/)[a-zA-Z0-9]+)*\\s",
 								relevance: 10,
 							},
 						],
@@ -349,57 +331,46 @@ export const MTForumPost = {
 					if (!ele.oldValue) {
 						ele.oldValue = ele.textContent;
 					}
-					ele.innerHTML = hljs
-						.highlight(ele.oldValue, { language: language })
-						.value.replace(/\\n$/gi, "");
+					ele.innerHTML = hljs.highlight(ele.oldValue, { language: language }).value.replace(/\\n$/gi, "");
 				}
-				document
-					.querySelectorAll<HTMLEmbedElement>("em[onclick^=copycode]")
-					.forEach((coypCodeElement) => {
-						if (
-							coypCodeElement.nextElementSibling &&
-							typeof coypCodeElement.nextElementSibling.className ===
-								"string" &&
-							coypCodeElement.nextElementSibling.className ==
-								"code-select-language"
-						) {
-							return;
+				document.querySelectorAll<HTMLEmbedElement>("em[onclick^=copycode]").forEach((coypCodeElement) => {
+					if (
+						coypCodeElement.nextElementSibling &&
+						typeof coypCodeElement.nextElementSibling.className === "string" &&
+						coypCodeElement.nextElementSibling.className == "code-select-language"
+					) {
+						return;
+					}
+					let codeLanguage = hljs.highlightAuto(
+						DOMUtils.text(coypCodeElement.parentElement!.querySelector<HTMLDivElement>("div[id^=code]")!)
+					).language;
+					let selectElement = document.createElement("select");
+					let selectLanguageList = hljs.listLanguages().sort();
+					selectLanguageList = selectLanguageList.concat("自动检测");
+					let selectInnerHTML = "";
+					selectLanguageList.forEach((languageName) => {
+						if (languageName.startsWith("自动检测")) {
+							selectInnerHTML += `<option data-value="${codeLanguage}" selected="selected">${languageName}(${codeLanguage})</option>`;
+						} else {
+							selectInnerHTML += `<option data-value="${languageName}">${languageName}\</option>`;
 						}
-						let codeLanguage = hljs.highlightAuto(
-							DOMUtils.text(
-								coypCodeElement.parentElement!.querySelector<HTMLDivElement>(
-									"div[id^=code]"
-								)!
-							)
-						).language;
-						let selectElement = document.createElement("select");
-						let selectLanguageList = hljs.listLanguages().sort();
-						selectLanguageList = selectLanguageList.concat("自动检测");
-						let selectInnerHTML = "";
-						selectLanguageList.forEach((languageName) => {
-							if (languageName.startsWith("自动检测")) {
-								selectInnerHTML += `<option data-value="${codeLanguage}" selected="selected">${languageName}(${codeLanguage})</option>`;
-							} else {
-								selectInnerHTML += `<option data-value="${languageName}">${languageName}\</option>`;
-							}
-						});
-						selectElement.className = "code-select-language";
-						selectElement.innerHTML = selectInnerHTML;
-						DOMUtils.on(selectElement, "change", () => {
-							let changeCodeLanguage =
-								selectElement.selectedOptions[0].getAttribute("data-value")!;
-							log.info("切换代码块语言: ", changeCodeLanguage);
-							DOMUtils.parent(selectElement)
-								.querySelectorAll("li")
-								.forEach((liElement) => {
-									setElementHighlight(liElement, changeCodeLanguage);
-								});
-						});
-						utils.preventEvent(selectElement, "click");
-						utils.preventEvent(coypCodeElement, "click");
-						coypCodeElement.insertAdjacentElement("afterend", selectElement);
-						utils.dispatchEvent(selectElement, "change");
 					});
+					selectElement.className = "code-select-language";
+					selectElement.innerHTML = selectInnerHTML;
+					DOMUtils.on(selectElement, "change", () => {
+						let changeCodeLanguage = selectElement.selectedOptions[0].getAttribute("data-value")!;
+						log.info("切换代码块语言: ", changeCodeLanguage);
+						DOMUtils.parent(selectElement)
+							.querySelectorAll("li")
+							.forEach((liElement) => {
+								setElementHighlight(liElement, changeCodeLanguage);
+							});
+					});
+					utils.preventEvent(selectElement, "click");
+					utils.preventEvent(coypCodeElement, "click");
+					coypCodeElement.insertAdjacentElement("afterend", selectElement);
+					utils.dispatchEvent(selectElement, "change");
+				});
 
 				let blockcodeElementList = document.querySelectorAll(".blockcode");
 				blockcodeElementList.forEach((ele) => (ele.className = "hljs"));
@@ -470,9 +441,7 @@ export const MTForumPost = {
 		 * 处理页面中的图片
 		 */
 		function handleImageClick() {
-			$$<HTMLElement>(
-				"#postlist .comiis_vrx:not([data-isHandlingViewIMG])"
-			).forEach((item) => {
+			$$<HTMLElement>("#postlist .comiis_vrx:not([data-isHandlingViewIMG])").forEach((item) => {
 				item.setAttribute("data-isHandlingViewIMG", "true");
 				/* 待显示的图片组 */
 				let totalImageList: string[] = [];
@@ -488,10 +457,7 @@ export const MTForumPost = {
 					let imageUrlPathName = new URL(currentImageUrl).pathname;
 					/* img标签的父元素 */
 					let $parent = $img.parentElement!;
-					if (
-						$parent.nodeName.toLowerCase() === "a" &&
-						$parent.getAttribute("href") === currentImageUrl
-					) {
+					if ($parent.nodeName.toLowerCase() === "a" && $parent.getAttribute("href") === currentImageUrl) {
 						$parent.setAttribute("href", "javascript:;");
 						$parent.removeAttribute("target");
 					}
@@ -555,14 +521,10 @@ export const MTForumPost = {
 		 */
 		function handleClick(item: HTMLElement) {
 			if (item.hasAttribute("href")) {
-				let attachmentId = item.hasAttribute("id")
-					? item.id
-					: item.parentElement!.id;
+				let attachmentId = item.hasAttribute("id") ? item.id : item.parentElement!.id;
 				let attachmentURL = item.getAttribute("href")!;
 				let attachmentName = item.innerText;
-				let attachmentMenu = document.querySelector<HTMLElement>(
-					`#${attachmentId}_menu`
-				)!;
+				let attachmentMenu = document.querySelector<HTMLElement>(`#${attachmentId}_menu`)!;
 				if (attachmentMenu.innerText.indexOf("金币") === -1) {
 					return;
 				}
@@ -598,21 +560,15 @@ export const MTForumPost = {
 		}
 		utils.mutationObserver(document.documentElement, {
 			callback: () => {
-				document
-					.querySelectorAll<HTMLAnchorElement>(".attnm a")
-					.forEach((item) => {
-						handleClick(item);
-					});
-				document
-					.querySelectorAll<HTMLAnchorElement>(".comiis_attach a")
-					.forEach((item) => {
-						handleClick(item);
-					});
-				document
-					.querySelectorAll<HTMLAnchorElement>("span[id*=attach_] a")
-					.forEach((item) => {
-						handleClick(item);
-					});
+				document.querySelectorAll<HTMLAnchorElement>(".attnm a").forEach((item) => {
+					handleClick(item);
+				});
+				document.querySelectorAll<HTMLAnchorElement>(".comiis_attach a").forEach((item) => {
+					handleClick(item);
+				});
+				document.querySelectorAll<HTMLAnchorElement>("span[id*=attach_] a").forEach((item) => {
+					handleClick(item);
+				});
 			},
 			immediate: true,
 			config: { childList: true, subtree: true },
@@ -648,15 +604,11 @@ export const MTForumPost = {
 			let $icon = getStatusIcon(isOffLine);
 			DOMUtils.prepend($ele, $icon);
 		}
-		let $favatarList = Array.from(
-			$$<HTMLElement>(".pls.favatar:not([data-is-detectingUserOnlineStatus])")
-		);
+		let $favatarList = Array.from($$<HTMLElement>(".pls.favatar:not([data-is-detectingUserOnlineStatus])"));
 		for (let index = 0; index < $favatarList.length; index++) {
 			const $favatar = $favatarList[index];
 			// 发消息按钮
-			let $kmfxx = $favatar.querySelector<HTMLAnchorElement>(
-				".comiis_o.cl a.kmfxx"
-			);
+			let $kmfxx = $favatar.querySelector<HTMLAnchorElement>(".comiis_o.cl a.kmfxx");
 			if (!$kmfxx) {
 				log.error("探测用户在线状态失败，未找到发消息按钮");
 				return;
@@ -690,64 +642,61 @@ export const MTForumPost = {
 	 */
 	showUserLevel() {
 		log.info(`显示用户等级`);
-		$$<HTMLElement>(".pls.favatar:not([data-show-user-level])").forEach(
-			($userAvatar) => {
-				$userAvatar.setAttribute("data-show-user-level", "true");
-				let userLevel = "0级";
-				let userInfo = $userAvatar.querySelector<HTMLElement>(".tns tr")!;
-				let currentLevelText =
-					$userAvatar.querySelector<HTMLElement>("p em")!.innerText;
-				let userLevelText = document.createElement("td");
-				userLevelText.setAttribute("style", "border-left: 1px solid #e3e3e3;");
-				switch (currentLevelText) {
-					case "幼儿园":
-					case "初级工程师":
-						userLevel = "1级";
-						break;
-					case "小学生":
-					case "中级工程师":
-						userLevel = "2级";
-						break;
-					case "初中生":
-					case "高级工程师":
-						userLevel = "3级";
-						break;
-					case "高中生":
-					case "专家":
-						userLevel = "4级";
-						break;
-					case "大学生":
-					case "高级专家":
-						userLevel = "5级";
-						break;
-					case "硕士生":
-					case "资深专家":
-						userLevel = "6级";
-						break;
-					case "博士生":
-					case "实习版主":
-					case "版主":
-					case "审核员":
-					case "研究员":
-						userLevel = "7级";
-						break;
-					case "博士后":
-					case "超级版主":
-					case "网站编辑":
-					case "高级研究员":
-					case "荣誉开发者":
-						userLevel = "8级";
-						break;
-					case "管理员":
-					case "信息监察员":
-					case "资深研究员":
-						userLevel = "9级";
-						break;
-				}
-				userLevelText.innerHTML = `<p><a class="dj">${userLevel}</a></p>Lv`;
-				userInfo.appendChild(userLevelText);
+		$$<HTMLElement>(".pls.favatar:not([data-show-user-level])").forEach(($userAvatar) => {
+			$userAvatar.setAttribute("data-show-user-level", "true");
+			let userLevel = "0级";
+			let userInfo = $userAvatar.querySelector<HTMLElement>(".tns tr")!;
+			let currentLevelText = $userAvatar.querySelector<HTMLElement>("p em")!.innerText;
+			let userLevelText = document.createElement("td");
+			userLevelText.setAttribute("style", "border-left: 1px solid #e3e3e3;");
+			switch (currentLevelText) {
+				case "幼儿园":
+				case "初级工程师":
+					userLevel = "1级";
+					break;
+				case "小学生":
+				case "中级工程师":
+					userLevel = "2级";
+					break;
+				case "初中生":
+				case "高级工程师":
+					userLevel = "3级";
+					break;
+				case "高中生":
+				case "专家":
+					userLevel = "4级";
+					break;
+				case "大学生":
+				case "高级专家":
+					userLevel = "5级";
+					break;
+				case "硕士生":
+				case "资深专家":
+					userLevel = "6级";
+					break;
+				case "博士生":
+				case "实习版主":
+				case "版主":
+				case "审核员":
+				case "研究员":
+					userLevel = "7级";
+					break;
+				case "博士后":
+				case "超级版主":
+				case "网站编辑":
+				case "高级研究员":
+				case "荣誉开发者":
+					userLevel = "8级";
+					break;
+				case "管理员":
+				case "信息监察员":
+				case "资深研究员":
+					userLevel = "9级";
+					break;
 			}
-		);
+			userLevelText.innerHTML = `<p><a class="dj">${userLevel}</a></p>Lv`;
+			userInfo.appendChild(userLevelText);
+		});
 	},
 	/**
 	 * 隐藏底部信息块
