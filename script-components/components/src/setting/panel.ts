@@ -698,9 +698,42 @@ const Panel = {
 			return await asyncQueryProperty(handleResult.data, handler);
 		};
 		/**
+		 * 监听元素滚动进入视窗
+		 */
+		let scrollToElementAndListen = ($el: Element, callback?: () => void) => {
+			// 创建 IntersectionObserver 监听元素是否进入视口
+			const observer = new IntersectionObserver(
+				(entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							// 元素完全进入视口，滚动结束
+							callback?.();
+							observer.disconnect(); // 停止监听
+						}
+					});
+				},
+				{
+					root: null, // 使用视口作为根
+					threshold: 1.0, // 元素完全进入视口时触发
+				}
+			);
+			observer.observe($el);
+			$el.scrollIntoView({ behavior: "smooth", block: "center" });
+		};
+		/**
+		 * 添加闪烁样式
+		 */
+		let addFlashingClass = ($el: Element) => {
+			const flashingClassName = "pops-flashing";
+			DOMUtils.animationend($el as HTMLElement, () => {
+				$el.classList.remove(flashingClassName);
+			});
+			$el.classList.add(flashingClassName);
+		};
+		/**
 		 * 双击触发的事件
 		 */
-		let dbclick_event = (evt: MouseEvent | PointerEvent | TouchEvent) => {
+		let dbclick_event = (evt: MouseEvent | PointerEvent | TouchEvent, selectorTarget: HTMLElement) => {
 			utils.preventEvent(evt);
 			let $alert = pops.alert({
 				title: {
@@ -763,7 +796,6 @@ const Panel = {
 						font-size: 0.8rem;
 						color: #6c6c6c;
 					}
-
 					${config.searchDialogStyle ?? ""}
 				`,
 			});
@@ -859,6 +891,7 @@ const Panel = {
 								});
 							}, 2500);
 							if ($findTargetMenu) {
+								scrollToElementAndListen($findTargetMenu);
 								let $fold = $findTargetMenu.closest<HTMLElement>(`.pops-panel-forms-fold[data-fold-enable]`);
 								// 折叠状态
 								if ($fold) {
@@ -866,9 +899,8 @@ const Panel = {
 									$foldWrapper.click();
 									await utils.sleep(500);
 								}
-								$findTargetMenu.scrollIntoView({
-									behavior: "smooth",
-									block: "center",
+								scrollToElementAndListen($findTargetMenu, () => {
+									addFlashingClass($findTargetMenu);
 								});
 							} else {
 								Qmsg.error("未找到对应的菜单项");
@@ -1027,7 +1059,12 @@ const Panel = {
 		let clickElement: Element | null = null;
 		let isDoubleClick = false;
 		let timer: number | undefined = void 0;
-		DOMUtils.on($panel.$shadowRoot, "dblclick", dbclick_event);
+		DOMUtils.on(
+			$panel.$shadowRoot,
+			"dblclick",
+			`aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+			dbclick_event
+		);
 		DOMUtils.on<TouchEvent>(
 			$panel.$shadowRoot,
 			"touchend",
@@ -1038,7 +1075,7 @@ const Panel = {
 				if (isDoubleClick && clickElement === selectorTarget) {
 					isDoubleClick = false;
 					/* 判定为双击 */
-					dbclick_event(evt);
+					dbclick_event(evt, selectorTarget);
 				} else {
 					timer = setTimeout(() => {
 						isDoubleClick = false;
@@ -1051,6 +1088,33 @@ const Panel = {
 			{
 				capture: true,
 			}
+		);
+		$panel.$shadowRoot.appendChild(
+			DOMUtils.createElement("style", {
+				type: "text/css",
+				textContent: /*css*/ `
+					.pops-flashing{
+						animation: double-blink 1.5s ease-in-out;
+					}
+					@keyframes double-blink {
+						 0% {
+							background-color: initial;
+						}
+						25% {
+							background-color: yellow;
+						}
+						50% {
+							background-color: initial;
+						}
+						75% {
+							background-color: yellow;
+						}
+						100% {
+							background-color: initial;
+						}
+					}
+				`,
+			})
 		);
 	},
 };
