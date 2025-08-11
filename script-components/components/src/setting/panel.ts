@@ -5,8 +5,8 @@ import type {
 } from "@whitesev/pops/dist/types/src/components/panel/types/index";
 import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary";
-import { GM_info, unsafeWindow } from "ViteGM";
-import { log, pops, SCRIPT_NAME, utils } from "../base.env";
+import { unsafeWindow } from "ViteGM";
+import { DOMUtils, log, pops, SCRIPT_NAME, utils } from "../base.env";
 import {
 	ATTRIBUTE_DEFAULT_VALUE,
 	ATTRIBUTE_INIT,
@@ -18,6 +18,9 @@ import { PanelUISize } from "./panel-ui-size";
 import { PopsPanelStorageApi } from "./panel-storage";
 import { PanelMenu } from "./panel-menu";
 import { PanelContent } from "./panel-content";
+import { CommonUtil } from "./../utils/CommonUtil";
+import Qmsg from "qmsg";
+import type { PopsPanelDeepMenuDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-deepMenu";
 
 type ExecMenuCallBackOption = {
 	/**
@@ -52,7 +55,14 @@ const Panel = {
 		 * @private
 		 */
 		__panelConfig: {} as Partial<PopsPanelDetails>,
+		/**
+		 * 面板
+		 */
 		$panel: null as ReturnType<typeof pops.panel> | null,
+		/**
+		 * 面板配置
+		 */
+		panelContent: [] as PopsPanelContentConfig[],
 		/**
 		 * 菜单项初始化的默认值
 		 */
@@ -182,10 +192,10 @@ const Panel = {
 			for (let index = 0; index < configList.length; index++) {
 				let configItem = configList[index];
 				initDefaultValue(configItem);
-				let childForms = (<PopsPanelFormsDetails>configItem).forms;
-				if (childForms && Array.isArray(childForms)) {
+				let child_forms = (<PopsPanelFormsDetails>configItem).forms;
+				if (child_forms && Array.isArray(child_forms)) {
 					/* 存在子配置forms */
-					loopInitDefaultValue(childForms);
+					loopInitDefaultValue(child_forms);
 				}
 			}
 		};
@@ -580,13 +590,17 @@ const Panel = {
 	 * 显示设置面板
 	 * @param content 显示的内容配置
 	 * @param [title] 标题
-	 * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号）
+	 * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
+	 * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
 	 */
 	showPanel(
 		content: PopsPanelContentConfig[],
 		title: string = `${SCRIPT_NAME}-设置`,
-		preventDefaultContentConfig: boolean = false
+		preventDefaultContentConfig: boolean = false,
+		preventRegisterSearchPlugin: boolean = false
 	) {
+		this.$data.$panel = null;
+		this.$data.panelContent = [];
 		// 判断是否已有脚本版本号
 		let checkHasBottomVersionContentConfig =
 			content.findIndex((it) => {
@@ -633,6 +647,411 @@ const Panel = {
 			...this.$data.panelConfig,
 		});
 		this.$data.$panel = $panel;
+		this.$data.panelContent = content;
+		if (!preventRegisterSearchPlugin) {
+			this.registerConfigSearch({ $panel, content });
+		}
+	},
+	/**
+	 * 注册设置面板的搜索功能（双击左侧选项第一个）
+	 */
+	registerConfigSearch(config: {
+		$panel: ReturnType<typeof pops.panel>;
+		content: PopsPanelContentConfig[];
+		searchDialogStyle?: string;
+	}) {
+		const { $panel, content } = config;
+		type SearchPath = {
+			index?: number;
+			name: string;
+			matchedData?: {
+				path: string;
+				formConfig: any;
+				matchedText: string;
+				description?: string;
+			};
+			next?: SearchPath;
+		};
+		let asyncQueryProperty = async <T extends any = any>(
+			target: any,
+			handler: (target: T) => IPromise<{
+				/**
+				 * 是否是需要的属性
+				 * + true 将目标值赋值给data
+				 * + false 不是需要的，data为下一个处理的对象
+				 */
+				isFind: boolean;
+				/**
+				 * 对象/目标值
+				 */
+				data: any;
+			}>
+		): Promise<Awaited<T>> => {
+			if (target == null) {
+				// @ts-ignore
+				return;
+			}
+			let handleResult = await handler(target);
+			if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
+				return handleResult.data;
+			}
+			return await asyncQueryProperty(handleResult.data, handler);
+		};
+		/**
+		 * 双击触发的事件
+		 */
+		let dbclick_event = (evt: MouseEvent | PointerEvent | TouchEvent) => {
+			utils.preventEvent(evt);
+			let $alert = pops.alert({
+				title: {
+					text: "搜索配置",
+					position: "center",
+				},
+				content: {
+					text: /*html*/ `
+						<div class="search-wrapper">
+							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+						</div>
+						<div class="search-result-wrapper">
+
+						</div>
+					`,
+					html: true,
+				},
+				btn: {
+					ok: { enable: false },
+				},
+				mask: {
+					clickEvent: {
+						toClose: true,
+					},
+				},
+				width: PanelUISize.settingMiddle.width,
+				height: "auto",
+				drag: true,
+				style: /*css*/ `
+					${pops.config.cssText.panelCSS}
+
+					.search-wrapper{
+						border-bottom: 1px solid #000000;
+					}
+					.search-config-text{
+						width: 100%;
+						border: 0;
+						height: 32px;
+						padding: 0px 10px;
+						outline: none;
+					}
+					.search-result-wrapper{
+						max-height: 400px;
+						overflow: auto;
+					}
+					.search-result-item{
+						cursor: pointer;
+						padding: 5px 10px;
+						display: flex;
+						flex-direction: column;
+					}
+					.search-result-item:hover{
+						background-color: #D8F1FD;
+					}
+					.search-result-item-path{
+						display: flex;
+    					align-items: center;
+					}
+					.search-result-item-description{
+						font-size: 0.8rem;
+						color: #6c6c6c;
+					}
+
+					${config.searchDialogStyle ?? ""}
+				`,
+			});
+
+			let $searchWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-wrapper")!;
+			let $searchInput = $alert.$shadowRoot.querySelector<HTMLInputElement>(".search-config-text")!;
+			let $searchResultWrapper = $alert.$shadowRoot.querySelector<HTMLElement>(".search-result-wrapper")!;
+
+			$searchInput.focus();
+
+			/**
+			 * 清空搜索结果
+			 */
+			let clearSearchResult = () => {
+				DOMUtils.empty($searchResultWrapper);
+			};
+			/**
+			 * 创建搜索结果项
+			 */
+			let createSearchResultItem = (pathInfo: SearchPath) => {
+				const searchPath: SearchPath = utils.queryProperty(pathInfo, (target) => {
+					if (target?.next) {
+						return {
+							isFind: false,
+							data: target.next,
+						};
+					} else {
+						return {
+							isFind: true,
+							data: target,
+						};
+					}
+				});
+				let $item = DOMUtils.createElement("div", {
+					className: "search-result-item",
+					innerHTML: /*html*/ `
+							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
+							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
+						`,
+				});
+				// 点击进行定位项
+				DOMUtils.on($item, "click", (clickItemEvent) => {
+					let $asideItems = $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(
+						"aside.pops-panel-aside .pops-panel-aside-top-container li"
+					);
+					let $targetAsideItem = $asideItems[pathInfo.index!];
+					if (!$targetAsideItem) {
+						Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+						return;
+					}
+					$targetAsideItem.scrollIntoView({
+						behavior: "smooth",
+						block: "center",
+					});
+					$targetAsideItem.click();
+					asyncQueryProperty<SearchPath>(pathInfo.next, async (target) => {
+						if (target?.next) {
+							// 还在里面
+							// 那这里的是deepMenu
+							let $findDeepMenu = await utils.waitNode(() => {
+								return Array.from(
+									$panel.$shadowRoot.querySelectorAll<HTMLElement>(".pops-panel-deepMenu-nav-item")
+								).find(($deepMenu) => {
+									const __formConfig__: PopsPanelDeepMenuDetails = Reflect.get($deepMenu, "__formConfig__");
+									// 找到对应的二级菜单
+									return (
+										typeof __formConfig__ === "object" &&
+										__formConfig__ != null &&
+										__formConfig__.text === target.name
+									);
+								});
+							}, 2500);
+							if ($findDeepMenu) {
+								$findDeepMenu.click();
+							} else {
+								Qmsg.error("未找到对应的二级菜单");
+								return {
+									isFind: true,
+									data: target,
+								};
+							}
+							return {
+								isFind: false,
+								data: target.next,
+							};
+						} else {
+							let $findTargetMenu = await utils.waitNode(() => {
+								return Array.from(
+									$panel.$shadowRoot.querySelectorAll<HTMLLIElement>(`li:not(.pops-panel-deepMenu-nav-item)`)
+								).find(($menuItem) => {
+									const __formConfig__: PopsPanelDeepMenuDetails = Reflect.get($menuItem, "__formConfig__");
+									return __formConfig__ === target.matchedData?.formConfig;
+								});
+							}, 2500);
+							if ($findTargetMenu) {
+								let $fold = $findTargetMenu.closest<HTMLElement>(`.pops-panel-forms-fold[data-fold-enable]`);
+								// 折叠状态
+								if ($fold) {
+									let $foldWrapper = $fold.querySelector<HTMLElement>(".pops-panel-forms-fold-container")!;
+									$foldWrapper.click();
+									await utils.sleep(500);
+								}
+								$findTargetMenu.scrollIntoView({
+									behavior: "smooth",
+									block: "center",
+								});
+							} else {
+								Qmsg.error("未找到对应的菜单项");
+							}
+							return {
+								isFind: true,
+								data: target,
+							};
+						}
+					});
+				});
+				return $item;
+			};
+			/**
+			 * 执行搜索
+			 */
+			let execSearch = (searchText: string) => {
+				const searchTextRegExp = new RegExp(searchText, "i");
+				const searchConfigResult: SearchPath[] = [];
+				const loopContentConfig = (configList: PopsPanelContentConfig["forms"], path: SearchPath) => {
+					for (let index = 0; index < configList.length; index++) {
+						const configItem = configList[index];
+
+						let child_forms = (<PopsPanelFormsDetails>configItem).forms;
+						if (child_forms && Array.isArray(child_forms)) {
+							/* 存在子配置forms */
+							const deepMenuPath = utils.deepClone(path);
+							if (configItem.type === "deepMenu") {
+								const deepNext = utils.queryProperty(deepMenuPath, (target) => {
+									if (target?.next) {
+										return {
+											isFind: false,
+											data: target.next,
+										};
+									} else {
+										return {
+											isFind: true,
+											data: target,
+										};
+									}
+								}) as SearchPath;
+								deepNext.next = {
+									name: configItem.text,
+								};
+							}
+							loopContentConfig(child_forms, deepMenuPath);
+						} else {
+							let text = Reflect.get(configItem, "text");
+							let description = Reflect.get(configItem, "description");
+							const delayMatchedTextList = [text, description];
+							let matchedIndex = delayMatchedTextList.findIndex((configText) => {
+								if (typeof configText !== "string") {
+									return;
+								}
+								return configText.match(searchTextRegExp);
+							});
+							if (matchedIndex !== -1) {
+								const matchedPath = utils.deepClone(path);
+								const deepNext = utils.queryProperty(matchedPath, (target) => {
+									if (target?.next) {
+										return {
+											isFind: false,
+											data: target.next,
+										};
+									} else {
+										return {
+											isFind: true,
+											data: target,
+										};
+									}
+								}) as SearchPath;
+								deepNext.next = {
+									name: text,
+									matchedData: {
+										path: "",
+										formConfig: configItem,
+										matchedText: delayMatchedTextList[matchedIndex],
+										description: description,
+									},
+								};
+
+								const pathList: string[] = [];
+								utils.queryProperty(matchedPath, (target) => {
+									const name = target?.name;
+									if (typeof name === "string" && name.trim() !== "") {
+										pathList.push(name);
+									}
+									if (target?.next) {
+										return {
+											isFind: false,
+											data: target.next,
+										};
+									} else {
+										return {
+											isFind: true,
+											data: target,
+										};
+									}
+								});
+								const pathStr = pathList.join(CommonUtil.escapeHtml(" - "));
+								deepNext.next!.matchedData!.path = pathStr;
+								searchConfigResult.push(matchedPath);
+							}
+						}
+					}
+				};
+
+				for (let index = 0; index < content.length; index++) {
+					const leftContentConfigItem = content[index];
+					if (!leftContentConfigItem.forms) {
+						/* 不存在forms */
+						continue;
+					}
+					if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
+						// 版本号项不处理搜索
+						continue;
+					}
+					// 循环左侧容器内存储的右侧配置项
+					const rightContentConfigList = leftContentConfigItem.forms;
+					if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+						let text = leftContentConfigItem.title;
+						if (typeof text === "function") {
+							text = text();
+						}
+						loopContentConfig(rightContentConfigList, {
+							index: index,
+							name: text,
+						});
+					}
+				}
+
+				let fragment = document.createDocumentFragment();
+				for (const pathInfo of searchConfigResult) {
+					let $resultItem = createSearchResultItem(pathInfo);
+					fragment.appendChild($resultItem);
+				}
+				clearSearchResult();
+				$searchResultWrapper.append(fragment);
+			};
+
+			DOMUtils.on(
+				$searchInput,
+				"input",
+				utils.debounce((evt2) => {
+					utils.preventEvent(evt2);
+					let searchText = DOMUtils.val($searchInput).trim();
+					if (searchText === "") {
+						// 不执行搜索
+						clearSearchResult();
+						return;
+					}
+					execSearch(searchText);
+				}, 200)
+			);
+		};
+		let clickElement: Element | null = null;
+		let isDoubleClick = false;
+		let timer: number | undefined = void 0;
+		DOMUtils.on($panel.$shadowRoot, "dblclick", dbclick_event);
+		DOMUtils.on<TouchEvent>(
+			$panel.$shadowRoot,
+			"touchend",
+			`aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+			(evt, selectorTarget) => {
+				clearTimeout(timer);
+				timer = void 0;
+				if (isDoubleClick && clickElement === selectorTarget) {
+					isDoubleClick = false;
+					/* 判定为双击 */
+					dbclick_event(evt);
+				} else {
+					timer = setTimeout(() => {
+						isDoubleClick = false;
+						// 判断为单击
+					}, 200);
+					clickElement = selectorTarget;
+					isDoubleClick = true;
+				}
+			},
+			{
+				capture: true,
+			}
+		);
 	},
 };
 
