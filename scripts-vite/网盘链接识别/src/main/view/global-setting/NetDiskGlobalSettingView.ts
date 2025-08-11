@@ -9,11 +9,11 @@ import { NetDiskUserRuleUI } from "@/main/rule/user-rule/NetDiskUserRuleUI";
 import indexCSS from "./index.css?raw";
 import { NetDiskUserRuleSubscribeRule } from "@/main/rule/user-rule/NetDiskUserRuleSubscribeRule";
 import { PanelContent } from "@components/setting/panel-content";
+import { Panel } from "@components/setting/panel";
 
 export const NetDiskGlobalSettingView = {
 	show() {
 		if (NetDiskUI.Alias.settingAlias) {
-			log.error("设置界面已存在");
 			Qmsg.error("设置界面已存在");
 			return;
 		}
@@ -21,10 +21,7 @@ export const NetDiskGlobalSettingView = {
 		let content = PanelContent.getConfig(0);
 		// 规则的设置
 		let ruleContent = NetDiskRule.getRulePanelContent();
-		content.push(
-			...ruleContent,
-			...PanelContent.getDefaultBottomContentConfig()
-		);
+		content.push(...ruleContent, ...PanelContent.getDefaultBottomContentConfig());
 		let $panel = NetDiskPops.panel(
 			{
 				title: {
@@ -54,6 +51,20 @@ export const NetDiskGlobalSettingView = {
 			},
 			NetDiskUI.popsStyle.settingView
 		);
+		Panel.registerConfigSearch({
+			$panel,
+			content,
+			searchDialogStyle: /*css*/ `
+			/* 网盘图标 */
+			.netdisk-aside-icon {
+				width: 20px;
+				height: 20px;
+				background-size: 100% 100%;
+				background-repeat: no-repeat;
+				margin: 0px 4px;
+			}
+		`,
+		});
 		NetDiskUI.Alias.settingAlias = $panel;
 		this.setRuleHeaderControlsClickEvent($panel.$shadowRoot);
 	},
@@ -61,87 +72,65 @@ export const NetDiskGlobalSettingView = {
 	 * 设置规则顶部的编辑|删除的点击事件
 	 */
 	setRuleHeaderControlsClickEvent($shadowRoot: ShadowRoot | HTMLElement) {
-		DOMUtils.on(
-			$shadowRoot,
-			"click",
-			".netdisk-custom-rule-edit",
-			function (event) {
-				let $click = event.target as HTMLElement;
-				let ruleKey = $click.getAttribute("data-key")!;
-				let ruleName = $click.getAttribute("data-type")!;
-				let subscribeUUID = $click.getAttribute("data-subscribe-uuid");
-				if (typeof subscribeUUID === "string" && subscribeUUID.trim() !== "") {
-					// 来自订阅的规则
-					NetDiskUserRuleUI.showSubscribe(
-						subscribeUUID,
-						ruleKey,
-						function (rule) {
-							NetDiskUserRule.updateRule(ruleKey, rule);
-						}
-					);
-				} else {
-					NetDiskUserRuleUI.show(true, ruleKey);
-				}
+		DOMUtils.on($shadowRoot, "click", ".netdisk-custom-rule-edit", function (event) {
+			let $click = event.target as HTMLElement;
+			let ruleKey = $click.getAttribute("data-key")!;
+			let ruleName = $click.getAttribute("data-type")!;
+			let subscribeUUID = $click.getAttribute("data-subscribe-uuid");
+			if (typeof subscribeUUID === "string" && subscribeUUID.trim() !== "") {
+				// 来自订阅的规则
+				NetDiskUserRuleUI.showSubscribe(subscribeUUID, ruleKey, function (rule) {
+					NetDiskUserRule.updateRule(ruleKey, rule);
+				});
+			} else {
+				NetDiskUserRuleUI.show(true, ruleKey);
 			}
-		);
+		});
 
-		DOMUtils.on(
-			$shadowRoot,
-			"click",
-			".netdisk-custom-rule-delete",
-			function (event) {
-				let $click = event.target as HTMLElement;
-				let ruleKey = $click.getAttribute("data-key")!;
-				let ruleName = $click.getAttribute("data-type")!;
-				let subscribeUUID = $click.getAttribute("data-subscribe-uuid");
-				NetDiskPops.alert({
-					title: {
-						text: "提示",
-						position: "center",
-					},
-					content: {
-						text: `确定删除规则 ${ruleName}(${ruleKey}) 吗？`,
-					},
-					btn: {
-						ok: {
-							callback(okEvent) {
-								let flag;
-								if (
-									typeof subscribeUUID === "string" &&
-									subscribeUUID.trim() !== ""
-								) {
-									// 来自订阅的规则
-									flag = NetDiskUserRuleSubscribeRule.deleteSubscribeRule(
-										subscribeUUID,
-										ruleKey
-									);
-								} else {
-									flag = NetDiskUserRule.deleteRule(ruleKey);
+		DOMUtils.on($shadowRoot, "click", ".netdisk-custom-rule-delete", function (event) {
+			let $click = event.target as HTMLElement;
+			let ruleKey = $click.getAttribute("data-key")!;
+			let ruleName = $click.getAttribute("data-type")!;
+			let subscribeUUID = $click.getAttribute("data-subscribe-uuid");
+			NetDiskPops.alert({
+				title: {
+					text: "提示",
+					position: "center",
+				},
+				content: {
+					text: `确定删除规则 ${ruleName}(${ruleKey}) 吗？`,
+				},
+				btn: {
+					ok: {
+						callback(okEvent) {
+							let flag;
+							if (typeof subscribeUUID === "string" && subscribeUUID.trim() !== "") {
+								// 来自订阅的规则
+								flag = NetDiskUserRuleSubscribeRule.deleteSubscribeRule(subscribeUUID, ruleKey);
+							} else {
+								flag = NetDiskUserRule.deleteRule(ruleKey);
+							}
+							if (flag) {
+								let asideElement = NetDiskUI.Alias.settingAlias.$shadowRoot.querySelector<HTMLLIElement>(
+									`.pops-panel-aside > ul > li[data-key="${ruleKey}"]`
+								)!;
+								let $prev = asideElement.previousElementSibling as HTMLElement;
+								let $next = asideElement.nextElementSibling as HTMLElement;
+								if ($prev) {
+									$prev.click();
+								} else if ($next) {
+									$next.click();
 								}
-								if (flag) {
-									let asideElement =
-										NetDiskUI.Alias.settingAlias.$shadowRoot.querySelector<HTMLLIElement>(
-											`.pops-panel-aside > ul > li[data-key="${ruleKey}"]`
-										)!;
-									let $prev =
-										asideElement.previousElementSibling as HTMLElement;
-									let $next = asideElement.nextElementSibling as HTMLElement;
-									if ($prev) {
-										$prev.click();
-									} else if ($next) {
-										$next.click();
-									}
-									asideElement?.remove();
-									Qmsg.success("删除成功");
-									okEvent.close();
-								} else {
-									Qmsg.error("删除规则失败");
-								}
-							},
+								asideElement?.remove();
+								Qmsg.success("删除成功");
+								okEvent.close();
+							} else {
+								Qmsg.error("删除规则失败");
+							}
 						},
 					},
-				});
-			}
-		);
+				},
+			});
+		});
 	},
 };
