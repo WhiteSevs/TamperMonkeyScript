@@ -34,17 +34,16 @@ declare class Pops {
         };
         /** icon图标的svg代码 */
         iconSVG: {
-            picture: string;
-            search: string;
+            loading: string;
             min: string;
-            mise: string;
             max: string;
+            mise: string;
             close: string;
             edit: string;
             share: string;
             delete: string;
+            search: string;
             upload: string;
-            loading: string;
             next: string;
             prev: string;
             eleme: string;
@@ -56,6 +55,7 @@ declare class Pops {
             headset: string;
             monitor: string;
             documentCopy: string;
+            picture: string;
             circleClose: string;
             view: string;
             hide: string;
@@ -71,12 +71,12 @@ declare class Pops {
         instData: {
             iframe: import("./types/inst").PopsInstCommonConfig[];
             loading: import("./types/inst").PopsInstCommonConfig[];
+            folder: import("./types/inst").PopsInstCommonConfig[];
             alert: import("./types/inst").PopsInstCommonConfig[];
             confirm: import("./types/inst").PopsInstCommonConfig[];
             prompt: import("./types/inst").PopsInstCommonConfig[];
             tooltip: import("./types/inst").PopsInstCommonConfig[];
             drawer: import("./types/inst").PopsInstCommonConfig[];
-            folder: import("./types/inst").PopsInstCommonConfig[];
             panel: import("./types/inst").PopsInstCommonConfig[];
             rightClickMenu: import("./types/inst").PopsInstCommonConfig[];
         };
@@ -379,7 +379,7 @@ declare class Pops {
             beforeAppendToPageCallBack: ($shadowRoot: ShadowRoot | HTMLElement, $shadowContainer: HTMLDivElement) => void;
         };
         $shadowContainer: HTMLDivElement;
-        $shadowRoot: ShadowRoot | HTMLDivElement;
+        $shadowRoot: HTMLDivElement | ShadowRoot;
         toolTip: import("./components/tooltip").ToolTip;
     };
     /**
@@ -402,6 +402,7 @@ declare class Pops {
         close: () => Promise<void>;
         hide: () => Promise<void>;
         show: () => Promise<void>;
+        guid: string;
         $shadowContainer: HTMLDivElement;
         $shadowRoot: ShadowRoot | HTMLElement;
         element: HTMLDivElement;
@@ -409,7 +410,6 @@ declare class Pops {
         popsElement: HTMLDivElement;
         maskElement?: HTMLDivElement | undefined;
         mode: import("./types/main").PopsType;
-        guid: string;
     };
     /**
      * 右键菜单

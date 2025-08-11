@@ -135,8 +135,9 @@ section.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-form
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;
-	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);
+	padding: var(--pops-panel-forms-container-li-padding-top-bottom)
+		var(--pops-panel-forms-container-li-padding-left-right);
+	margin: 0px 0px;
 	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);
 	text-align: left;
 }
@@ -309,7 +310,9 @@ section.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-
 	box-sizing: border-box;
 	background: var(--panel-switch-core-bg-color);
 	cursor: pointer;
-	transition: border-color 0.3s, background-color 0.3s;
+	transition:
+		border-color 0.3s,
+		background-color 0.3s;
 }
 .pops-panel-switch .pops-panel-switch__action {
 	position: absolute;
@@ -357,7 +360,9 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-sli
 	border-radius: 50%;
 	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));
 	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));
-	box-shadow: 0 0 2px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);
+	box-shadow:
+		0 0 2px rgba(0, 0, 0, 0.3),
+		0 3px 5px rgba(0, 0, 0, 0.2);
 	cursor: pointer;
 	-webkit-appearance: none;
 	appearance: none;
@@ -369,7 +374,9 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
 	border-radius: 50%;
 	border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));
 	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));
-	box-shadow: 0 0 2px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);
+	box-shadow:
+		0 0 2px rgba(0, 0, 0, 0.3),
+		0 3px 5px rgba(0, 0, 0, 0.2);
 	cursor: pointer;
 	-webkit-appearance: none;
 	appearance: none;

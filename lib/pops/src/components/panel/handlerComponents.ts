@@ -1010,8 +1010,8 @@ export const PanelHandlerComponents = () => {
 								typeof formConfig.isShowHoverTip === "function"
 									? formConfig.isShowHoverTip()
 									: typeof formConfig.isShowHoverTip === "boolean"
-									? formConfig.isShowHoverTip
-									: true;
+										? formConfig.isShowHoverTip
+										: true;
 							if (!isShowHoverTip) {
 								return false;
 							}
