@@ -50,9 +50,7 @@ export class Progress {
 	constructor(paramConfig: ProgressParamConfig) {
 		this.#config = CommonUtil.assign(this.#config, paramConfig);
 		if (!(this.#config.canvasNode instanceof HTMLCanvasElement)) {
-			throw new Error(
-				"Utils.Progress 参数 canvasNode 必须是 HTMLCanvasElement"
-			);
+			throw new Error("Utils.Progress 参数 canvasNode 必须是 HTMLCanvasElement");
 		}
 		this.init();
 	}
@@ -90,13 +88,7 @@ export class Progress {
 		this.#ctx.clearRect(0, 0, this.#width, this.#height);
 		/* 开始绘制底圆 */
 		this.#ctx.beginPath();
-		this.#ctx.arc(
-			this.#width / 2,
-			this.#height / 2,
-			this.#config.circleRadius,
-			1,
-			8
-		);
+		this.#ctx.arc(this.#width / 2, this.#height / 2, this.#config.circleRadius, 1, 8);
 		this.#ctx.strokeStyle = this.#config.lineBgColor;
 		this.#ctx.stroke();
 		/* 开始绘制动态圆 */

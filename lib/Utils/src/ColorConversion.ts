@@ -59,11 +59,7 @@ export class ColorConversion {
 	 * @param greenValue
 	 * @param blueValue
 	 */
-	rgbToHex(
-		redValue: string | number,
-		greenValue: string | number,
-		blueValue: string | number
-	): string {
+	rgbToHex(redValue: string | number, greenValue: string | number, blueValue: string | number): string {
 		/* 验证输入的rgb值是否合法 */
 		let validPattern = /^\d{1,3}$/;
 		if (
@@ -72,13 +68,8 @@ export class ColorConversion {
 			!validPattern.test(blueValue.toString())
 		)
 			throw new TypeError("输入错误的rgb颜色值");
-		let hexs = [
-			redValue.toString(16),
-			greenValue.toString(16),
-			blueValue.toString(16),
-		];
-		for (let index = 0; index < 3; index++)
-			if (hexs[index].length == 1) hexs[index] = "0" + hexs[index];
+		let hexs = [redValue.toString(16), greenValue.toString(16), blueValue.toString(16)];
+		for (let index = 0; index < 3; index++) if (hexs[index].length == 1) hexs[index] = "0" + hexs[index];
 		return "#" + hexs.join("");
 	}
 	/**
@@ -92,9 +83,7 @@ export class ColorConversion {
 		}
 		let rgbc = this.hexToRgb(color);
 		for (let index = 0; index < 3; index++) {
-			(rgbc as any)[index] = Math.floor(
-				(rgbc as any)[index] * (1 - (level as any))
-			);
+			(rgbc as any)[index] = Math.floor((rgbc as any)[index] * (1 - (level as any)));
 		}
 
 		return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
@@ -110,9 +99,7 @@ export class ColorConversion {
 		}
 		let rgbc = this.hexToRgb(color);
 		for (let index = 0; index < 3; index++) {
-			(rgbc as any)[index] = Math.floor(
-				(255 - (rgbc as any)[index]) * (level as any) + (rgbc as any)[index]
-			);
+			(rgbc as any)[index] = Math.floor((255 - (rgbc as any)[index]) * (level as any) + (rgbc as any)[index]);
 		}
 		return this.rgbToHex(rgbc[0], rgbc[1], rgbc[2]);
 	}

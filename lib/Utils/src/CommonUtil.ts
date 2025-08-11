@@ -49,11 +49,7 @@ class CommonUtil {
 					!UtilsContext.isDOM(sourceValue)
 				) {
 					/* 源端的值是object类型，且不是元素节点 */
-					(target as any)[sourceKeyName] = UtilsContext.assign(
-						targetValue,
-						sourceValue,
-						isAdd
-					);
+					(target as any)[sourceKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
 					continue;
 				}
 				(target as any)[sourceKeyName] = sourceValue;
@@ -70,11 +66,7 @@ class CommonUtil {
 						Object.keys(sourceValue).length
 					) {
 						/* 源端的值是object类型，且不是元素节点 */
-						(target as any)[targetKeyName] = UtilsContext.assign(
-							targetValue,
-							sourceValue,
-							isAdd
-						);
+						(target as any)[targetKeyName] = UtilsContext.assign(targetValue, sourceValue, isAdd);
 						continue;
 					}
 					/* 直接赋值 */
@@ -153,10 +145,7 @@ class CommonUtil {
 						itemResult = objItem === 0;
 						break;
 					case "string":
-						itemResult =
-							objItem.trim() === "" ||
-							objItem === "null" ||
-							objItem === "undefined";
+						itemResult = objItem.trim() === "" || objItem === "null" || objItem === "undefined";
 						break;
 					case "boolean":
 						itemResult = !objItem;
@@ -164,9 +153,7 @@ class CommonUtil {
 					case "function":
 						let funcStr = objItem.toString().replace(/\s/g, "");
 						/* 排除()=>{}、(xxx="")=>{}、function(){}、function(xxx=""){} */
-						itemResult = Boolean(
-							funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/)
-						);
+						itemResult = Boolean(funcStr.match(/^\(.*?\)=>\{\}$|^function.*?\(.*?\)\{\}$/));
 						break;
 				}
 			}
@@ -214,8 +201,7 @@ class CommonUtil {
 		if (obj === null) return null;
 		let clone = obj instanceof Array ? [] : {};
 		for (const [key, value] of Object.entries(obj)) {
-			(clone as any)[key] =
-				typeof value === "object" ? UtilsContext.deepClone(value) : value;
+			(clone as any)[key] = typeof value === "object" ? UtilsContext.deepClone(value) : value;
 		}
 		return clone;
 	}
@@ -243,14 +229,8 @@ class CommonUtil {
 	 * Utils.toJSON("{123:123}")
 	 * > {123:123}
 	 */
-	toJSON<T = any>(
-		data: string | null,
-		errorCallBack?: (error: Error) => void
-	): T;
-	toJSON<T = any>(
-		data: string | null,
-		errorCallBack?: (error: Error) => void
-	): T {
+	toJSON<T = any>(data: string | null, errorCallBack?: (error: Error) => void): T;
+	toJSON<T = any>(data: string | null, errorCallBack?: (error: Error) => void): T {
 		let result: any = {};
 		if (typeof data === "object") {
 			return data as any;
@@ -274,10 +254,7 @@ class CommonUtil {
 							/^[\],:{}\s]*$/.test(
 								data
 									.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
-									.replace(
-										/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
-										"]"
-									)
+									.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
 									.replace(/(?:^|:|,)(?:\s*\[)+/g, "")
 							)
 						) {

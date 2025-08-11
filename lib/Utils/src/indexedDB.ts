@@ -53,11 +53,7 @@ export class indexedDB {
 	 * @param storeName 表名，默认为：default_form
 	 * @param dbVersion indexDB的版本号，默认为：1
 	 */
-	constructor(
-		dbName = "default_db",
-		storeName = "default_form",
-		dbVersion = 1
-	) {
+	constructor(dbName = "default_db", storeName = "default_form", dbVersion = 1) {
 		this.#dbName = dbName;
 		this.#storeName = storeName;
 		this.#dbVersion = dbVersion;
@@ -72,10 +68,7 @@ export class indexedDB {
 	 */
 	createStore(dbName: string) {
 		let txn, store;
-		txn = this.#db[dbName].transaction(
-			this.#storeName,
-			"readwrite"
-		) as IDBTransaction;
+		txn = this.#db[dbName].transaction(this.#storeName, "readwrite") as IDBTransaction;
 		/* IndexDB的读写权限 */
 		store = txn.objectStore(this.#storeName) as IDBObjectStore;
 		// this.#store = store;
@@ -367,9 +360,7 @@ export class indexedDB {
 				} else {
 					let request = idbStore.getAll();
 					request.onsuccess = function (event: any) {
-						let target = event.target as IDBRequest<
-							{ key: string; value: T }[]
-						>;
+						let target = event.target as IDBRequest<{ key: string; value: T }[]>;
 						let result = target.result;
 						if (result.length !== 0) {
 							result.forEach((dataItem, index) => {

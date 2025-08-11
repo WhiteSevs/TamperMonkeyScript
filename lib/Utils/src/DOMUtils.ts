@@ -88,11 +88,9 @@ class DOMUtils {
 			let textMatch = selector.match(/:contains\(("|')(.*)("|')\)$/i);
 			let text = textMatch![2];
 			selector = selector.replace(/:contains\(("|')(.*)("|')\)$/gi, "");
-			return Array.from(parent.querySelectorAll<HTMLElement>(selector)).filter(
-				($ele) => {
-					return ($ele?.textContent || $ele?.innerText)?.includes(text);
-				}
-			);
+			return Array.from(parent.querySelectorAll<HTMLElement>(selector)).filter(($ele) => {
+				return ($ele?.textContent || $ele?.innerText)?.includes(text);
+			});
 		} else if (
 			selector.match(/[^\s]{1}:regexp\("(.*)"\)$/i) ||
 			selector.match(/[^\s]{1}:regexp\('(.*)'\)$/i)
@@ -108,11 +106,9 @@ class DOMUtils {
 			}
 			let regexp = new RegExp(pattern, flags);
 			selector = selector.replace(/:regexp\(("|')(.*)("|')\)$/gi, "");
-			return Array.from(parent.querySelectorAll<HTMLElement>(selector)).filter(
-				($ele) => {
-					return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
-				}
-			);
+			return Array.from(parent.querySelectorAll<HTMLElement>(selector)).filter(($ele) => {
+				return Boolean(($ele?.textContent || $ele?.innerText)?.match(regexp));
+			});
 		} else {
 			// 普通语法
 			return Array.from(parent.querySelectorAll<E>(selector));
@@ -139,10 +135,7 @@ class DOMUtils {
 	 * DOMUtils.matches("div:regexp(/^xxx/ig)")
 	 * > false
 	 */
-	matches(
-		$el: HTMLElement | Element | null | undefined,
-		selector: string
-	): boolean {
+	matches($el: HTMLElement | Element | null | undefined, selector: string): boolean {
 		selector = selector.trim();
 		if ($el == null) {
 			return false;
@@ -215,14 +208,8 @@ class DOMUtils {
 		$el: HTMLElement | Element,
 		selector: string
 	): HTMLElementTagNameMap[K] | null;
-	closest<E extends Element = Element>(
-		$el: HTMLElement | Element,
-		selector: string
-	): E | null;
-	closest<E extends Element = Element>(
-		$el: HTMLElement | Element,
-		selector: string
-	): E | null {
+	closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null;
+	closest<E extends Element = Element>($el: HTMLElement | Element, selector: string): E | null {
 		selector = selector.trim();
 
 		if (selector.match(/[^\s]{1}:empty$/gi)) {

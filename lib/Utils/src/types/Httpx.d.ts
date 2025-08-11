@@ -66,14 +66,7 @@ export type HttpxStatus =
  * HTTP WebDav的请求方法
  * + https://blog.csdn.net/weixin_48421613/article/details/128611546
  */
-export type HttpxWebDavMethod =
-	| "PROPFIND"
-	| "PROPPATCH"
-	| "MKCOL"
-	| "MOVE"
-	| "COPY"
-	| "LOCK"
-	| "UNLOCK";
+export type HttpxWebDavMethod = "PROPFIND" | "PROPPATCH" | "MKCOL" | "MOVE" | "COPY" | "LOCK" | "UNLOCK";
 
 /**
  * HTTP 请求方法
@@ -99,21 +92,12 @@ export type HttpxRedirect = "follow" | "error" | "manual";
 /**
  * 二进制数据
  */
-export type HttpxBinary =
-	| Uint8ArrayConstructor
-	| ArrayBufferConstructor
-	| DataViewConstructor
-	| Blob
-	| File;
+export type HttpxBinary = Uint8ArrayConstructor | ArrayBufferConstructor | DataViewConstructor | Blob | File;
 
 /**
  * 触发的响应函数名
  */
-export type HttpxResponseCallBackType =
-	| "onload"
-	| "onerror"
-	| "ontimeout"
-	| "onabort";
+export type HttpxResponseCallBackType = "onload" | "onerror" | "ontimeout" | "onabort";
 
 /**
  * 响应类型映射字典
@@ -1356,5 +1340,4 @@ export declare interface HttpxInitOption extends HttpxRequestOption {
 	logDetails?: boolean;
 }
 
-export declare interface HttpxRequestOptionWithDoubleParams
-	extends Omit<HttpxRequestOption, "url"> {}
+export declare interface HttpxRequestOptionWithDoubleParams extends Omit<HttpxRequestOption, "url"> {}

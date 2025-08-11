@@ -60,9 +60,7 @@ export class GMMenu {
 		init() {
 			for (let index = 0; index < this.$data.data.length; index++) {
 				let menuOption = this.$data.data[index]["data"];
-				menuOption.enable = Boolean(
-					this.getLocalMenuData(menuOption.key, menuOption.enable as boolean)
-				);
+				menuOption.enable = Boolean(this.getLocalMenuData(menuOption.key, menuOption.enable as boolean));
 				if (typeof menuOption.showText !== "function") {
 					menuOption.showText = (menuText, menuEnable) => {
 						if (menuEnable) {
@@ -91,10 +89,7 @@ export class GMMenu {
 				const { showText, clickCallBack } = this.handleMenuData(
 					cloneMenuOptionData as Required<UtilsGMMenuOption>
 				);
-				let menuId = that.context.GM_Api.registerMenuCommand(
-					showText,
-					clickCallBack
-				);
+				let menuId = that.context.GM_Api.registerMenuCommand(showText, clickCallBack);
 				menuOptions[index].id = menuId;
 				(cloneMenuOptionData as any).deleteMenu = function () {
 					that.context.GM_Api.unregisterMenuCommand(menuId);
@@ -130,9 +125,7 @@ export class GMMenu {
 		 * @param menuOption
 		 */
 		handleInitDetail(menuOption: Required<UtilsGMMenuOption>) {
-			menuOption.enable = Boolean(
-				this.getLocalMenuData(menuOption.key, menuOption.enable)
-			);
+			menuOption.enable = Boolean(this.getLocalMenuData(menuOption.key, menuOption.enable));
 			if (typeof menuOption.showText !== "function") {
 				menuOption.showText = (menuText, menuEnable) => {
 					if (menuEnable) {
@@ -152,9 +145,7 @@ export class GMMenu {
 			let that = this;
 			let menuLocalDataItemKey = menuOption.key;
 			/* 菜单默认开启的状态 */
-			let defaultEnable = Boolean(
-				this.getLocalMenuData(menuLocalDataItemKey, menuOption.enable)
-			);
+			let defaultEnable = Boolean(this.getLocalMenuData(menuLocalDataItemKey, menuOption.enable));
 			/** 油猴菜单上显示的文本 */
 			let showText = menuOption.showText(menuOption.text, defaultEnable);
 			// const GMMenuOptions = {
@@ -177,22 +168,16 @@ export class GMMenu {
 			// };
 			/* 点击菜单后触发callback后的网页是否刷新 */
 			menuOption.autoReload =
-				typeof menuOption.autoReload !== "boolean"
-					? this.$default.autoReload
-					: menuOption.autoReload;
+				typeof menuOption.autoReload !== "boolean" ? this.$default.autoReload : menuOption.autoReload;
 			/* 点击菜单后触发callback后的网页是否存储值 */
 			menuOption.isStoreValue =
-				typeof menuOption.isStoreValue !== "boolean"
-					? this.$default.isStoreValue
-					: menuOption.isStoreValue;
+				typeof menuOption.isStoreValue !== "boolean" ? this.$default.isStoreValue : menuOption.isStoreValue;
 			/**
 			 * 用户点击菜单后的回调函数
 			 * @param event
 			 */
 			function clickCallBack(event: MouseEvent | PointerEvent) {
-				let localEnable = Boolean(
-					that.getLocalMenuData(menuLocalDataItemKey, defaultEnable)
-				);
+				let localEnable = Boolean(that.getLocalMenuData(menuLocalDataItemKey, defaultEnable));
 				if (menuOption.isStoreValue) {
 					that.setLocalMenuData(menuLocalDataItemKey, !localEnable);
 				}
@@ -239,8 +224,7 @@ export class GMMenu {
 		 * @param menuKey 菜单-键key
 		 */
 		getMenuHandledOption(menuKey: string) {
-			return this.$data.data.find((item) => item!.handleData!.key === menuKey)
-				?.handleData;
+			return this.$data.data.find((item) => item!.handleData!.key === menuKey)?.handleData;
 		},
 	};
 	constructor(details: UtilsGMMenuConstructorOptions) {
@@ -248,13 +232,10 @@ export class GMMenu {
 		this.GM_Api.setValue = details.GM_setValue;
 		this.GM_Api.registerMenuCommand = details.GM_registerMenuCommand;
 		this.GM_Api.unregisterMenuCommand = details.GM_unregisterMenuCommand;
-		this.MenuHandle.$default.autoReload =
-			typeof details.autoReload === "boolean" ? details.autoReload : true;
+		this.MenuHandle.$default.autoReload = typeof details.autoReload === "boolean" ? details.autoReload : true;
 		for (const keyName of Object.keys(this.GM_Api)) {
 			if (typeof (this.GM_Api as any)[keyName] !== "function") {
-				throw new Error(
-					`Utils.GM_Menu 请在脚本开头加上 @grant  ${keyName}，且传入该对象`
-				);
+				throw new Error(`Utils.GM_Menu 请在脚本开头加上 @grant  ${keyName}，且传入该对象`);
 			}
 		}
 		this.add(details?.data || []);

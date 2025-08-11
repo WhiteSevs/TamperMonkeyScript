@@ -1763,7 +1763,24 @@ declare class Utils {
      * @param target 待获取的对象
      * @param handler 获取属性的回调
      */
-    queryProperty(target: any, handler: (target: any) => {
+    queryProperty<T extends any = any>(target: any, handler: (target: T) => {
+        /**
+         * 是否是需要的属性
+         * + `true` 将目标值赋值给data
+         * + `false` 不是需要的，data为下一个处理的对象
+         */
+        isFind: boolean;
+        /**
+         * 对象/目标值
+         */
+        data: any;
+    }): any;
+    /**
+     * 异步-深度获取对象属性
+     * @param target 待获取的对象
+     * @param handler 获取属性的回调
+     */
+    asyncQueryProperty<T extends any = any>(target: any, handler: (target: T) => {
         /**
          * 是否是需要的属性
          * + true 将目标值赋值给data
@@ -1774,7 +1791,18 @@ declare class Utils {
          * 对象/目标值
          */
         data: any;
-    }): any;
+    } | Promise<{
+        /**
+         * 是否是需要的属性
+         * + true 将目标值赋值给data
+         * + false 不是需要的，data为下一个处理的对象
+         */
+        isFind: boolean;
+        /**
+         * 对象/目标值
+         */
+        data: any;
+    }>): Promise<Awaited<T>>;
     /**
      * 创建一个新的Utils实例
      * @param option

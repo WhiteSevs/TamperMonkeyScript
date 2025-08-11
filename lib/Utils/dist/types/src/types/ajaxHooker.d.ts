@@ -122,11 +122,7 @@ export declare interface UtilsAjaxHookResult {
             };
         });
      */
-	hook(
-		callback: (
-			request: UtilsAjaxHookRequestOptions
-		) => void | Promise<undefined>
-	): void;
+	hook(callback: (request: UtilsAjaxHookRequestOptions) => void | Promise<undefined>): void;
 	/**
      * 过滤
      * @example

@@ -140,10 +140,7 @@ export class Vue {
 	 * @param source 被观察的对象，这里采用函数返回对象
 	 * @param changeCallBack 值改变的回调
 	 */
-	watch<T>(
-		source: () => T,
-		changeCallBack: (newValue: T | undefined, oldValue: T | undefined) => void
-	) {
+	watch<T>(source: () => T, changeCallBack: (newValue: T | undefined, oldValue: T | undefined) => void) {
 		let getter;
 		if (VueUtils.isReactive(source)) {
 			getter = () => this.traversal(source);
@@ -181,13 +178,7 @@ export class Vue {
 		}
 		return result;
 	}
-	private trigger(
-		target: any,
-		type: string,
-		key: string | symbol,
-		oldValue: any,
-		value: any
-	) {
+	private trigger(target: any, type: string, key: string | symbol, oldValue: any, value: any) {
 		const depsMap = this.targetMap.get(target);
 		if (!depsMap) return;
 		const effects = depsMap.get(key);

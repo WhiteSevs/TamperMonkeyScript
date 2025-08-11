@@ -15,10 +15,7 @@ export class Hooks {
 			_funcName = getFuncName(this);
 			(_context as any)["realFunc_" + _funcName] = this;
 
-			if (
-				(_context[_funcName] as any).prototype &&
-				(_context[_funcName] as any).prototype.isHooked
-			) {
+			if ((_context[_funcName] as any).prototype && (_context[_funcName] as any).prototype.isHooked) {
 				console.log("Already has been hooked,unhook first");
 				return false;
 			}

@@ -41,9 +41,7 @@ export const TryCatch = function (...args: any) {
 			callbackFunction = callback;
 			context = __context__ || this;
 			let result = executeTryCatch(callbackFunction, handleError, context);
-			return result !== void 0
-				? result
-				: (TryCatchCore as any as UtilsTryCatchType);
+			return result !== void 0 ? result : (TryCatchCore as any as UtilsTryCatchType);
 		},
 	};
 
@@ -69,19 +67,13 @@ export const TryCatch = function (...args: any) {
 		} catch (error) {
 			if (defaultDetails.log) {
 				callback = callback as Function;
-				console.log(
-					`%c ${callback?.name ? callback?.name : callback + "出现错误"} `,
-					"color: #f20000"
-				);
+				console.log(`%c ${callback?.name ? callback?.name : callback + "出现错误"} `, "color: #f20000");
 				console.log(`%c 错误原因：${error}`, "color: #f20000");
 				console.trace(callback);
 			}
 			if (handleErrorFunc) {
 				if (typeof handleErrorFunc === "string") {
-					result = new Function(handleErrorFunc).apply(funcThis, [
-						...args,
-						error,
-					]);
+					result = new Function(handleErrorFunc).apply(funcThis, [...args, error]);
 				} else {
 					result = handleErrorFunc.apply(funcThis, [...args, error]);
 				}

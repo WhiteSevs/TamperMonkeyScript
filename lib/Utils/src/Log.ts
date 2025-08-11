@@ -45,10 +45,7 @@ export class Log {
 	) {
 		if (typeof __GM_info === "string") {
 			this.tag = __GM_info;
-		} else if (
-			typeof __GM_info === "object" &&
-			typeof __GM_info?.script?.name === "string"
-		) {
+		} else if (typeof __GM_info === "object" && typeof __GM_info?.script?.name === "string") {
 			this.tag = __GM_info.script.name;
 		}
 		this.#console = console;
@@ -66,9 +63,7 @@ export class Log {
 		for (let stackString of stack) {
 			stackString = stackString.trim();
 			let stackFunctionNameMatch = stackString.match(/^at[\s]+(.+?)[\s]+/i);
-			let stackFunctionNamePositionMatch = stackString.match(
-				/^at[\s]+.+[\s]+\((.+?)\)/i
-			);
+			let stackFunctionNamePositionMatch = stackString.match(/^at[\s]+.+[\s]+\((.+?)\)/i);
 			if (stackFunctionNameMatch == null) {
 				continue;
 			}
@@ -76,12 +71,9 @@ export class Log {
 				continue;
 			}
 			/* 获取最后一个，因为第一个是包含了at  */
-			let stackFunctionName =
-				stackFunctionNameMatch[stackFunctionNameMatch.length - 1];
+			let stackFunctionName = stackFunctionNameMatch[stackFunctionNameMatch.length - 1];
 			let stackFunctionNamePosition =
-				stackFunctionNamePositionMatch[
-					stackFunctionNamePositionMatch.length - 1
-				];
+				stackFunctionNamePositionMatch[stackFunctionNamePositionMatch.length - 1];
 			if (
 				stackFunctionName === "" ||
 				stackFunctionName.match(
@@ -114,10 +106,7 @@ export class Log {
 	 */
 	private checkClearConsole() {
 		this.#logCount++;
-		if (
-			this.#details.autoClearConsole &&
-			this.#logCount > this.#details.logMaxCount
-		) {
+		if (this.#details.autoClearConsole && this.#logCount > this.#details.logMaxCount) {
 			this.#console.clear();
 			this.#logCount = 0;
 		}
@@ -134,8 +123,7 @@ export class Log {
 		otherStyle = otherStyle || "";
 		let stackSplit = new Error()!.stack!.split("\n");
 		stackSplit.splice(0, 2);
-		let { name: callerName, position: callerPosition } =
-			this.parseErrorStack(stackSplit);
+		let { name: callerName, position: callerPosition } = this.parseErrorStack(stackSplit);
 		let tagName = this.tag;
 		let that = this;
 
@@ -204,11 +192,7 @@ export class Log {
 	 */
 	warn(...args: any[]) {
 		if (this.#disable) return;
-		this.printContent(
-			args,
-			this.#details.warnColor,
-			"background: #FEF6D5;padding: 4px 6px 4px 0px;"
-		);
+		this.printContent(args, this.#details.warnColor, "background: #FEF6D5;padding: 4px 6px 4px 0px;");
 	}
 	/**
 	 * 控制台-错误输出

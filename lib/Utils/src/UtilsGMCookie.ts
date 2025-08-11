@@ -211,10 +211,7 @@ export class UtilsGMCookie {
 	 * @param option 配置
 	 * @param callback 删除操作后的回调(成功/失败)
 	 */
-	delete(
-		option: UtilsGMCookieDeleteOptions,
-		callback?: (error?: Error) => void
-	) {
+	delete(option: UtilsGMCookieDeleteOptions, callback?: (error?: Error) => void) {
 		let errorInfo;
 		try {
 			let defaultOption: Required<UtilsGMCookieDeleteOptions> = {

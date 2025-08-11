@@ -17,11 +17,7 @@ import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
 import { GenerateUUID } from "./UtilsCommon";
 import { WindowApi } from "./WindowApi";
 import { Vue } from "./Vue";
-import {
-	type ArgsType,
-	type JSTypeNames,
-	type UtilsOwnObject,
-} from "./types/global";
+import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
 import type { WindowApiOption } from "./types/WindowApi";
 import {
 	clearInterval as WorkerClearInterval,
@@ -39,7 +35,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2025.7.29";
+	version = "2025.8.11";
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
 	 * @param cssText css字符串
@@ -62,9 +58,7 @@ class Utils {
 		} else if (this.windowApi.document.body) {
 			/* 插入body后 */
 			this.windowApi.document.body.appendChild(cssNode);
-		} else if (
-			this.windowApi.document.documentElement.childNodes.length === 0
-		) {
+		} else if (this.windowApi.document.documentElement.childNodes.length === 0) {
 			/* 插入#html第一个元素后 */
 			this.windowApi.document.documentElement.appendChild(cssNode);
 		} else {
@@ -180,9 +174,7 @@ class Utils {
 		view = this.windowApi.window
 	) {
 		if (!(canvasElement instanceof HTMLCanvasElement)) {
-			throw new Error(
-				"Utils.canvasClickByPosition 参数canvasElement必须是canvas元素"
-			);
+			throw new Error("Utils.canvasClickByPosition 参数canvasElement必须是canvas元素");
 		}
 		clientX = parseInt(clientX.toString());
 		clientY = parseInt(clientY.toString());
@@ -213,24 +205,16 @@ class Utils {
 	checkUserClickInNode(element: Element | Node | HTMLElement) {
 		let UtilsContext = this;
 		if (!UtilsContext.isDOM(element)) {
-			throw new Error(
-				"Utils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型"
-			);
+			throw new Error("Utils.checkUserClickInNode 参数 targetNode 必须为 Element|Node 类型");
 		}
 		let clickEvent = UtilsContext.windowApi.window.event as PointerEvent;
 		let touchEvent = UtilsContext.windowApi.window.event as TouchEvent;
 		let $click = clickEvent?.composedPath()?.[0] as HTMLElement;
 
 		// 点击的x坐标
-		let clickPosX =
-			clickEvent?.clientX != null
-				? clickEvent.clientX
-				: touchEvent.touches[0].clientX;
+		let clickPosX = clickEvent?.clientX != null ? clickEvent.clientX : touchEvent.touches[0].clientX;
 		// 点击的y坐标
-		let clickPosY =
-			clickEvent?.clientY != null
-				? clickEvent.clientY
-				: touchEvent.touches[0].clientY;
+		let clickPosY = clickEvent?.clientY != null ? clickEvent.clientY : touchEvent.touches[0].clientY;
 		let {
 			/* 要检测的元素的相对屏幕的横坐标最左边 */
 			left: elementPosXLeft,
@@ -265,8 +249,7 @@ class Utils {
 	): T {
 		let clonedFormData = new FormData() as T;
 		for (let [key, value] of (formData as any).entries()) {
-			let isFilter =
-				typeof filterFn === "function" ? filterFn(key, value) : false;
+			let isFilter = typeof filterFn === "function" ? filterFn(key, value) : false;
 			if (typeof isFilter === "boolean" && isFilter) {
 				continue;
 			}
@@ -298,17 +281,13 @@ class Utils {
 		/**
 		 * 前面的参数都是字符串，最后一个参数是函数
 		 */
-		addImpl<T extends JSTypeNames[]>(
-			...args: [...T, (...args: ArgsType<T>) => any]
-		): void;
+		addImpl<T extends JSTypeNames[]>(...args: [...T, (...args: ArgsType<T>) => any]): void;
 	};
 	createOverload(): {
 		/**
 		 * 前面的参数都是字符串，最后一个参数是函数
 		 */
-		addImpl<T extends JSTypeNames[]>(
-			...args: [...T, (...args: ArgsType<T>) => any]
-		): void;
+		addImpl<T extends JSTypeNames[]>(...args: [...T, (...args: ArgsType<T>) => any]): void;
 	} {
 		let fnMap = new Map();
 		function overload(this: any, ...args: any[]) {
@@ -344,10 +323,7 @@ class Utils {
 	 * @param fn 需要触发的回调
 	 * @param delay 防抖判定时间(毫秒)，默认是0ms
 	 */
-	debounce<A extends any[], R>(
-		fn: (...args: A) => R,
-		delay?: number
-	): (...args: A) => void;
+	debounce<A extends any[], R>(fn: (...args: A) => R, delay?: number): (...args: A) => void;
 	debounce<A extends any[], R>(fn: (...args: A) => R, delay = 0) {
 		let timer: any = null as any;
 		let UtilsContext = this;
@@ -369,33 +345,20 @@ class Utils {
 	 * Utils.deleteParentNode(document.querySelector("a"),".xxx");
 	 * > true
 	 **/
-	deleteParentNode(
-		element: Node | HTMLElement | Element | null,
-		targetSelector: string
-	): boolean;
-	deleteParentNode(
-		element: Node | HTMLElement | Element | null,
-		targetSelector: string
-	) {
+	deleteParentNode(element: Node | HTMLElement | Element | null, targetSelector: string): boolean;
+	deleteParentNode(element: Node | HTMLElement | Element | null, targetSelector: string) {
 		let UtilsContext = this;
 		if (element == null) {
 			return;
 		}
 		if (!UtilsContext.isDOM(element)) {
-			throw new Error(
-				"Utils.deleteParentNode 参数 target 必须为 Node|HTMLElement 类型"
-			);
+			throw new Error("Utils.deleteParentNode 参数 target 必须为 Node|HTMLElement 类型");
 		}
 		if (typeof targetSelector !== "string") {
-			throw new Error(
-				"Utils.deleteParentNode 参数 targetSelector 必须为 string 类型"
-			);
+			throw new Error("Utils.deleteParentNode 参数 targetSelector 必须为 string 类型");
 		}
 		let result = false;
-		let needRemoveDOM = domUtils.closest(
-			element as HTMLElement,
-			targetSelector
-		);
+		let needRemoveDOM = domUtils.closest(element as HTMLElement, targetSelector);
 		if (needRemoveDOM) {
 			needRemoveDOM.remove();
 			result = true;
@@ -441,11 +404,7 @@ class Utils {
 	 * @example
 	 * Utils.dispatchEvent(document.querySelector("input","input"))
 	 */
-	dispatchEvent(
-		element: HTMLElement | Document,
-		eventName: string,
-		details?: any
-	): void;
+	dispatchEvent(element: HTMLElement | Document, eventName: string, details?: any): void;
 	dispatchEvent(
 		element: HTMLElement | Document,
 		eventName: DOMUtils_EventType | DOMUtils_EventType[] | string,
@@ -475,17 +434,11 @@ class Utils {
 	 * @example
 	 * Utils.downloadBase64("data:image/jpeg:base64/,xxxxxx");
 	 **/
-	downloadBase64(
-		base64Data: string,
-		fileName: string,
-		isIFrame?: boolean
-	): void;
+	downloadBase64(base64Data: string, fileName: string, isIFrame?: boolean): void;
 	downloadBase64(base64Data: string, fileName: string, isIFrame = false) {
 		let UtilsContext = this;
 		if (typeof base64Data !== "string") {
-			throw new Error(
-				"Utils.downloadBase64 参数 base64Data 必须为 string 类型"
-			);
+			throw new Error("Utils.downloadBase64 参数 base64Data 必须为 string 类型");
 		}
 		if (typeof fileName !== "string") {
 			throw new Error("Utils.downloadBase64 参数 fileName 必须为 string 类型");
@@ -497,11 +450,7 @@ class Utils {
 			iframeElement.src = base64Data;
 			this.windowApi.document.body.appendChild(iframeElement);
 			UtilsContext.workerSetTimeout(() => {
-				iframeElement!.contentWindow!.document.execCommand(
-					"SaveAs",
-					true,
-					fileName
-				);
+				iframeElement!.contentWindow!.document.execCommand("SaveAs", true, fileName);
 				this.windowApi.document.body.removeChild(iframeElement);
 			}, 100);
 		} else {
@@ -536,11 +485,7 @@ class Utils {
 			/* CODE FOR BROWSERS THAT SUPPORT window.find */
 			let windowFind = (this.windowApi.self as any).find;
 			strFound = windowFind(str, caseSensitive, true, true, false);
-			if (
-				strFound &&
-				this.windowApi.self.getSelection &&
-				!this.windowApi.self.getSelection()!.anchorNode
-			) {
+			if (strFound && this.windowApi.self.getSelection && !this.windowApi.self.getSelection()!.anchorNode) {
 				strFound = windowFind(str, caseSensitive, true, true, false);
 			}
 			if (!strFound) {
@@ -589,19 +534,15 @@ class Utils {
 		let that = this;
 		if ((element as HTMLElement).outerHTML.includes(text)) {
 			if ((element as HTMLElement).children.length === 0) {
-				let filterResult =
-					typeof filter === "function" ? filter(element) : false;
+				let filterResult = typeof filter === "function" ? filter(element) : false;
 				if (!filterResult) {
 					yield element as any;
 				}
 			} else {
-				let textElement = Array.from(element.childNodes).filter(
-					(ele) => ele.nodeType === Node.TEXT_NODE
-				);
+				let textElement = Array.from(element.childNodes).filter((ele) => ele.nodeType === Node.TEXT_NODE);
 				for (let ele of textElement) {
 					if ((ele as any).textContent.includes(text)) {
-						let filterResult =
-							typeof filter === "function" ? filter(element) : false;
+						let filterResult = typeof filter === "function" ? filter(element) : false;
 						if (!filterResult) {
 							yield ele;
 						}
@@ -610,11 +551,7 @@ class Utils {
 			}
 		}
 
-		for (
-			let index = 0;
-			index < (element as HTMLElement).children.length;
-			index++
-		) {
+		for (let index = 0; index < (element as HTMLElement).children.length; index++) {
 			let childElement = (element as HTMLElement).children[index] as any;
 			yield* that.findElementsWithText(childElement, text, filter);
 		}
@@ -686,9 +623,7 @@ class Utils {
 			}
 		}
 		result = result.toFixed(2) as any;
-		result = addType
-			? result + resultType.toString()
-			: (parseFloat(result.toString()) as any);
+		result = addType ? result + resultType.toString() : (parseFloat(result.toString()) as any);
 		return result;
 	}
 	/**
@@ -863,14 +798,7 @@ class Utils {
 		if (text.length === 8) {
 			/* 该字符串只有时分秒 */
 			let today = new Date();
-			text =
-				today.getFullYear() +
-				"-" +
-				(today.getMonth() + 1) +
-				"-" +
-				today.getDate() +
-				" " +
-				text;
+			text = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate() + " " + text;
 		}
 		text = text.substring(0, 19);
 		text = text.replace(/-/g, "/");
@@ -891,25 +819,13 @@ class Utils {
 	 * 获取 transitionend 的在各个浏览器的兼容名
 	 */
 	getTransitionEndNameList() {
-		return [
-			"webkitTransitionEnd",
-			"mozTransitionEnd",
-			"MSTransitionEnd",
-			"otransitionend",
-			"transitionend",
-		];
+		return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
 	}
 	/**
 	 * 获取 animationend 的在各个浏览器的兼容名
 	 */
 	getAnimationEndNameList() {
-		return [
-			"webkitAnimationEnd",
-			"mozAnimationEnd",
-			"MSAnimationEnd",
-			"oanimationend",
-			"animationend",
-		];
+		return ["webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend", "animationend"];
 	}
 	/**
 	 * 获取NodeList或Array对象中的最后一个的值
@@ -965,11 +881,7 @@ class Utils {
 	 * Utils.getDaysDifference(new Date().getTime(),undefined,"秒");
 	 * > 0
 	 */
-	getDaysDifference(
-		timestamp1?: number,
-		timestamp2?: number,
-		type?: "auto"
-	): string;
+	getDaysDifference(timestamp1?: number, timestamp2?: number, type?: "auto"): string;
 	/**
 	 * 获取天数差异，如何获取某个时间与另一个时间相差的天数
 	 * @param timestamp1 （可选）时间戳(毫秒|秒)，不区分哪个更大，默认为：Date.now()
@@ -987,11 +899,7 @@ class Utils {
 		timestamp2?: number,
 		type?: "年" | "月" | "天" | "时" | "分" | "秒"
 	): number;
-	getDaysDifference(
-		timestamp1 = Date.now(),
-		timestamp2 = Date.now(),
-		type = "天"
-	): number | string {
+	getDaysDifference(timestamp1 = Date.now(), timestamp2 = Date.now(), type = "天"): number | string {
 		type = type.trim();
 		if (timestamp1.toString().length === 10) {
 			timestamp1 = timestamp1 * 1000;
@@ -1023,9 +931,7 @@ class Utils {
 		} else if (type === "秒") {
 			remainderValue = oneSecond;
 		}
-		let diffValue = Math.round(
-			Math.abs(((bigDate as any) - (smallDate as any)) / remainderValue)
-		);
+		let diffValue = Math.round(Math.abs(((bigDate as any) - (smallDate as any)) / remainderValue));
 		if (type === "auto") {
 			let timeDifference = bigTimeStamp - smallTimeStamp;
 			diffValue = Math.floor(timeDifference / (24 * 3600 * 1000));
@@ -1033,8 +939,7 @@ class Utils {
 				(diffValue as any) = diffValue + "天";
 			} else {
 				/* 计算出小时数 */
-				let leave1 =
-					timeDifference % (24 * 3600 * 1000); /* 计算天数后剩余的毫秒数 */
+				let leave1 = timeDifference % (24 * 3600 * 1000); /* 计算天数后剩余的毫秒数 */
 				let hours = Math.floor(leave1 / (3600 * 1000));
 				if (hours > 0) {
 					(diffValue as any) = hours + "小时";
@@ -1077,11 +982,8 @@ class Utils {
 		}
 		/* 如果有多个相同类型的兄弟元素，则需要添加索引 */
 		if (element.parentElement.querySelectorAll(element.tagName).length > 1) {
-			let index =
-				Array.prototype.indexOf.call(element.parentElement.children, element) +
-				1;
-			selector +=
-				" > " + element.tagName.toLowerCase() + ":nth-child(" + index + ")";
+			let index = Array.prototype.indexOf.call(element.parentElement.children, element) + 1;
+			selector += " > " + element.tagName.toLowerCase() + ":nth-child(" + index + ")";
 		} else {
 			selector += " > " + element.tagName.toLowerCase();
 		}
@@ -1107,10 +1009,7 @@ class Utils {
 	 * Utils.getMaxValue({1:123,2:345,3:456},(key,value)=>{return parseInt(value)})
 	 * > 456
 	 */
-	getMaxValue(
-		val: UtilsOwnObject<number>,
-		handler: (key: any, value: any) => number
-	): number;
+	getMaxValue(val: UtilsOwnObject<number>, handler: (key: any, value: any) => number): number;
 	/**
 	 * 获取最大值
 	 * @example
@@ -1124,11 +1023,7 @@ class Utils {
 			return void 0 as any as number;
 		}
 		if (result.length > 1) {
-			if (
-				result.length === 2 &&
-				typeof result[0] === "object" &&
-				typeof result[1] === "function"
-			) {
+			if (result.length === 2 && typeof result[0] === "object" && typeof result[1] === "function") {
 				let data = result[0];
 				let handleDataFunc = result[1];
 				Object.keys(data).forEach((keyName) => {
@@ -1166,9 +1061,7 @@ class Utils {
 	getMaxZIndexNodeInfo(
 		deviation?: number,
 		target?: Element | ShadowRoot | Document,
-		ignoreCallBack?: (
-			$ele: Element | HTMLElement | ShadowRoot
-		) => boolean | void
+		ignoreCallBack?: ($ele: Element | HTMLElement | ShadowRoot) => boolean | void
 	): {
 		node: Element;
 		zIndex: number;
@@ -1176,9 +1069,7 @@ class Utils {
 	getMaxZIndexNodeInfo(
 		deviation = 1,
 		target: Element | ShadowRoot | Document = this.windowApi.document,
-		ignoreCallBack?: (
-			$ele: Element | HTMLElement | ShadowRoot
-		) => boolean | void
+		ignoreCallBack?: ($ele: Element | HTMLElement | ShadowRoot) => boolean | void
 	): {
 		node: Element;
 		zIndex: number;
@@ -1257,16 +1148,12 @@ class Utils {
 	getMaxZIndex(
 		deviation?: number,
 		target?: Element | DocumentOrShadowRoot | Document,
-		ignoreCallBack?: (
-			$ele: Element | HTMLElement | ShadowRoot
-		) => boolean | void
+		ignoreCallBack?: ($ele: Element | HTMLElement | ShadowRoot) => boolean | void
 	): number;
 	getMaxZIndex(
 		deviation = 1,
 		target: Element | ShadowRoot | Document = this.windowApi.document,
-		ignoreCallBack?: (
-			$ele: Element | HTMLElement | ShadowRoot
-		) => boolean | void
+		ignoreCallBack?: ($ele: Element | HTMLElement | ShadowRoot) => boolean | void
 	): number {
 		return this.getMaxZIndexNodeInfo(deviation, target, ignoreCallBack).zIndex;
 	}
@@ -1290,20 +1177,14 @@ class Utils {
 	 * Utils.getMinValue({1:123,2:345,3:456},(key,value)=>{return parseInt(value)})
 	 * > 123
 	 */
-	getMinValue(
-		val: UtilsOwnObject<number>,
-		handler: (key: any, value: any) => number
-	): number;
+	getMinValue(val: UtilsOwnObject<number>, handler: (key: any, value: any) => number): number;
 	/**
 	 * 获取最小值
 	 * @example
 	 * Utils.getMinValue([{1:123},{2:345},{3:456}],(index,value)=>{return parseInt(index)})
 	 * > 0
 	 */
-	getMinValue(
-		val: UtilsOwnObject<number>[],
-		handler: (index: number, value: any) => number
-	): number;
+	getMinValue(val: UtilsOwnObject<number>[], handler: (index: number, value: any) => number): number;
 	getMinValue(...args: any[]): number {
 		let result = [...args];
 		let newResult: number[] = [];
@@ -1311,11 +1192,7 @@ class Utils {
 			return void 0 as any as number;
 		}
 		if (result.length > 1) {
-			if (
-				result.length === 2 &&
-				typeof result[0] === "object" &&
-				typeof result[1] === "function"
-			) {
+			if (result.length === 2 && typeof result[0] === "object" && typeof result[1] === "function") {
 				let data = result[0];
 				let handleDataFunc = result[1];
 				Object.keys(data).forEach((keyName) => {
@@ -1430,23 +1307,14 @@ class Utils {
 	 * Utils.getRandomValue({1:1},{2:2})
 	 * > {1: 1}
 	 */
-	getRandomValue<T extends any>(
-		val_1: UtilsOwnObject<T>,
-		val_2: UtilsOwnObject<T>
-	): T;
+	getRandomValue<T extends any>(val_1: UtilsOwnObject<T>, val_2: UtilsOwnObject<T>): T;
 	getRandomValue(...args: any[]): any {
 		let result = [...args];
 		if (result.length > 1) {
-			if (
-				result.length === 2 &&
-				typeof result[0] === "number" &&
-				typeof result[1] === "number"
-			) {
+			if (result.length === 2 && typeof result[0] === "number" && typeof result[1] === "number") {
 				let leftNumber = result[0] > result[1] ? result[1] : result[0];
 				let rightNumber = result[0] > result[1] ? result[0] : result[1];
-				return (
-					Math.round(Math.random() * (rightNumber - leftNumber)) + leftNumber
-				);
+				return Math.round(Math.random() * (rightNumber - leftNumber)) + leftNumber;
 			} else {
 				return result[Math.floor(Math.random() * result.length)];
 			}
@@ -1454,14 +1322,9 @@ class Utils {
 			let paramData = result[0];
 			if (Array.isArray(paramData)) {
 				return paramData[Math.floor(Math.random() * paramData.length)];
-			} else if (
-				typeof paramData === "object" &&
-				Object.keys(paramData).length > 0
-			) {
+			} else if (typeof paramData === "object" && Object.keys(paramData).length > 0) {
 				let paramObjDataKey =
-					Object.keys(paramData)[
-						Math.floor(Math.random() * Object.keys(paramData).length)
-					];
+					Object.keys(paramData)[Math.floor(Math.random() * Object.keys(paramData).length)];
 				return paramData[paramObjDataKey];
 			} else {
 				return paramData;
@@ -1550,16 +1413,10 @@ class Utils {
 	 * Utils.getTextStorageSize("测试文本");
 	 * > '12.00B'
 	 */
-	getTextStorageSize<T extends boolean>(
-		text: string,
-		addType?: T
-	): T extends true ? string : number;
+	getTextStorageSize<T extends boolean>(text: string, addType?: T): T extends true ? string : number;
 	getTextStorageSize(text: string, addType = true) {
 		let UtilsContext = this;
-		return UtilsContext.formatByteToSize(
-			UtilsContext.getTextLength(text),
-			addType
-		);
+		return UtilsContext.formatByteToSize(UtilsContext.getTextLength(text), addType);
 	}
 	/**
 	 * 获取迅雷协议的Url
@@ -1800,9 +1657,7 @@ class Utils {
 	 */
 	isNativeFunc(target: Function): boolean;
 	isNativeFunc(target: Function): boolean {
-		return Boolean(
-			target.toString().match(/^function .*\(\) { \[native code\] }$/)
-		);
+		return Boolean(target.toString().match(/^function .*\(\) { \[native code\] }$/));
 	}
 	/**
 	 * 判断当前的位置是否位于页面底部附近
@@ -1824,15 +1679,12 @@ class Utils {
 		let checkWindow = () => {
 			// 已滚动的距离
 			let scrollTop: number =
-				this.windowApi.window.pageYOffset ||
-				this.windowApi.document.documentElement.scrollTop;
+				this.windowApi.window.pageYOffset || this.windowApi.document.documentElement.scrollTop;
 			// 视窗高度
 			let viewportHeight: number =
-				this.windowApi.window.innerHeight ||
-				this.windowApi.document.documentElement.clientHeight;
+				this.windowApi.window.innerHeight || this.windowApi.document.documentElement.clientHeight;
 			// 最大滚动距离
-			let maxScrollHeight: number =
-				this.windowApi.document.documentElement.scrollHeight - nearBottomHeight;
+			let maxScrollHeight: number = this.windowApi.document.documentElement.scrollHeight - nearBottomHeight;
 
 			return scrollTop + viewportHeight >= maxScrollHeight;
 		};
@@ -1843,8 +1695,7 @@ class Utils {
 			// 视窗高度
 			let viewportHeight: number = $ele.clientHeight;
 			// 最大滚动距离
-			let maxScrollHeight: number =
-				$ele.scrollHeight - viewportHeight - nearBottomHeight;
+			let maxScrollHeight: number = $ele.scrollHeight - viewportHeight - nearBottomHeight;
 
 			return scrollTop >= maxScrollHeight;
 		};
@@ -2159,8 +2010,7 @@ class Utils {
 	 */
 	isThemeDark(): boolean;
 	isThemeDark(): boolean {
-		return this.windowApi.globalThis.matchMedia("(prefers-color-scheme: dark)")
-			.matches;
+		return this.windowApi.globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
 	}
 	/**
 	 * 判断元素是否在页面中可见
@@ -2175,10 +2025,7 @@ class Utils {
 	 * Utils.isVisible(document.documentElement)
 	 * > true
 	 */
-	isVisible(
-		element: HTMLElement | HTMLElement[] | Element | NodeList,
-		inView: boolean = false
-	): boolean {
+	isVisible(element: HTMLElement | HTMLElement[] | Element | NodeList, inView: boolean = false): boolean {
 		let needCheckDomList = [];
 		if (element instanceof Array || element instanceof NodeList) {
 			element = element as HTMLElement[];
@@ -2195,11 +2042,9 @@ class Utils {
 				let domClientRect = domItem.getBoundingClientRect();
 				if (inView) {
 					let viewportWidth =
-						this.windowApi.window.innerWidth ||
-						this.windowApi.document.documentElement.clientWidth;
+						this.windowApi.window.innerWidth || this.windowApi.document.documentElement.clientWidth;
 					let viewportHeight =
-						this.windowApi.window.innerHeight ||
-						this.windowApi.document.documentElement.clientHeight;
+						this.windowApi.window.innerHeight || this.windowApi.document.documentElement.clientHeight;
 					result = !(
 						domClientRect.right < 0 ||
 						domClientRect.left > viewportWidth ||
@@ -2235,10 +2080,7 @@ class Utils {
 			for (const key in Object.values((this.windowApi.top.window as any).via)) {
 				if (Reflect.has((this.windowApi.top.window as any).via, key)) {
 					let objValueFunc = (this.windowApi.top.window as any).via[key];
-					if (
-						typeof objValueFunc === "function" &&
-						UtilsContext.isNativeFunc(objValueFunc)
-					) {
+					if (typeof objValueFunc === "function" && UtilsContext.isNativeFunc(objValueFunc)) {
 						result = true;
 					} else {
 						result = false;
@@ -2265,15 +2107,10 @@ class Utils {
 		let result = true;
 		let UtilsContext = this;
 		if (typeof (this.windowApi.top.window as any).mbrowser === "object") {
-			for (const key in Object.values(
-				(this.windowApi.top.window as any).mbrowser
-			)) {
+			for (const key in Object.values((this.windowApi.top.window as any).mbrowser)) {
 				if (Reflect.has((this.windowApi.top.window as any).mbrowser, key)) {
 					let objValueFunc = (this.windowApi.top.window as any).mbrowser[key];
-					if (
-						typeof objValueFunc === "function" &&
-						UtilsContext.isNativeFunc(objValueFunc)
-					) {
+					if (typeof objValueFunc === "function" && UtilsContext.isNativeFunc(objValueFunc)) {
 						result = true;
 					} else {
 						result = false;
@@ -2297,9 +2134,7 @@ class Utils {
 	parseObjectToArray<T extends any>(target: T): T[keyof T][];
 	parseObjectToArray<T extends any>(target: T) {
 		if (typeof target !== "object") {
-			throw new Error(
-				"Utils.parseObjectToArray 参数 target 必须为 object 类型"
-			);
+			throw new Error("Utils.parseObjectToArray 参数 target 必须为 object 类型");
 		}
 		let result: T[keyof T][] = [];
 		Object.keys(target!).forEach(function (keyName) {
@@ -2357,14 +2192,8 @@ class Utils {
 	 * Utils.mergeArrayToString([{"name":"数组内数据部分字段合并成字符串->"},{"name":"mergeToString"}],(item)=>{return item["name"]});
 	 * > '数组内数据部分字段合并成字符串->mergeToString'
 	 **/
-	mergeArrayToString<T extends any>(
-		data: T[],
-		handleFunc?: ((val: T) => T) | keyof T
-	): string;
-	mergeArrayToString<T extends any>(
-		data: T[],
-		handleFunc?: ((val: T) => T) | keyof T
-	): string {
+	mergeArrayToString<T extends any>(data: T[], handleFunc?: ((val: T) => T) | keyof T): string;
+	mergeArrayToString<T extends any>(data: T[], handleFunc?: ((val: T) => T) | keyof T): string {
 		if (!(data instanceof Array)) {
 			throw new Error("Utils.mergeArrayToString 参数 data 必须为 Array 类型");
 		}
@@ -2485,10 +2314,7 @@ class Utils {
 			},
 			immediate: false,
 		};
-		observer_config = UtilsContext.assign(
-			default_obverser_config,
-			observer_config
-		);
+		observer_config = UtilsContext.assign(default_obverser_config, observer_config);
 		let windowMutationObserver =
 			this.windowApi.window.MutationObserver ||
 			(this.windowApi.window as any).webkitMutationObserver ||
@@ -2536,10 +2362,7 @@ class Utils {
 	 */
 	mutationVisible(
 		target: Element | Element[],
-		callback: (
-			entries: IntersectionObserverEntry[],
-			observer: IntersectionObserver
-		) => void,
+		callback: (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => void,
 		options?: IntersectionObserverInit
 	) {
 		if (typeof IntersectionObserver === "undefined") {
@@ -2628,34 +2451,24 @@ class Utils {
 	): void {
 		let UtilsContext = this;
 		if (typeof needReleaseObject !== "object") {
-			throw new Error(
-				"Utils.noConflictFunc 参数 needReleaseObject 必须为 object 类型"
-			);
+			throw new Error("Utils.noConflictFunc 参数 needReleaseObject 必须为 object 类型");
 		}
 		if (typeof needReleaseName !== "string") {
-			throw new Error(
-				"Utils.noConflictFunc 参数 needReleaseName 必须为 string 类型"
-			);
+			throw new Error("Utils.noConflictFunc 参数 needReleaseName 必须为 string 类型");
 		}
 		if (!Array.isArray(functionNameList)) {
-			throw new Error(
-				"Utils.noConflictFunc 参数 functionNameList 必须为 Array 类型"
-			);
+			throw new Error("Utils.noConflictFunc 参数 functionNameList 必须为 Array 类型");
 		}
 		let needReleaseKey = "__" + needReleaseName;
 		/**
 		 * 释放所有
 		 */
 		function releaseAll() {
-			if (
-				typeof (UtilsContext.windowApi.window as any)[needReleaseKey] !==
-				"undefined"
-			) {
+			if (typeof (UtilsContext.windowApi.window as any)[needReleaseKey] !== "undefined") {
 				/* 已存在 */
 				return;
 			}
-			(UtilsContext.windowApi.window as any)[needReleaseKey] =
-				UtilsContext.deepClone(needReleaseObject);
+			(UtilsContext.windowApi.window as any)[needReleaseKey] = UtilsContext.deepClone(needReleaseObject);
 			Object.values(needReleaseObject).forEach((value) => {
 				if (typeof value === "function") {
 					(needReleaseObject as any)[value.name] = () => {};
@@ -2669,16 +2482,13 @@ class Utils {
 			Array.from(functionNameList).forEach((item) => {
 				Object.values(needReleaseObject).forEach((value) => {
 					if (typeof value === "function") {
-						if (
-							typeof (UtilsContext.windowApi.window as any)[needReleaseKey] ===
-							"undefined"
-						) {
+						if (typeof (UtilsContext.windowApi.window as any)[needReleaseKey] === "undefined") {
 							(UtilsContext.windowApi.window as any)[needReleaseKey] = {};
 						}
 						if (item === value.name) {
-							(UtilsContext.windowApi.window as any)[needReleaseKey][
+							(UtilsContext.windowApi.window as any)[needReleaseKey][value.name] = (needReleaseObject as any)[
 								value.name
-							] = (needReleaseObject as any)[value.name];
+							];
 							(needReleaseObject as any)[value.name] = () => {};
 						}
 					}
@@ -2689,47 +2499,27 @@ class Utils {
 		 * 恢复所有
 		 */
 		function recoveryAll() {
-			if (
-				typeof (UtilsContext.windowApi.window as any)[needReleaseKey] ===
-				"undefined"
-			) {
+			if (typeof (UtilsContext.windowApi.window as any)[needReleaseKey] === "undefined") {
 				/* 未存在 */
 				return;
 			}
-			Object.assign(
-				needReleaseObject,
-				(UtilsContext.windowApi.window as any)[needReleaseKey]
-			);
-			Reflect.deleteProperty(
-				UtilsContext.windowApi.window as any,
-				"needReleaseKey"
-			);
+			Object.assign(needReleaseObject, (UtilsContext.windowApi.window as any)[needReleaseKey]);
+			Reflect.deleteProperty(UtilsContext.windowApi.window as any, "needReleaseKey");
 		}
 
 		/**
 		 * 恢复单个
 		 */
 		function recoveryOne() {
-			if (
-				typeof (UtilsContext.windowApi.window as any)[needReleaseKey] ===
-				"undefined"
-			) {
+			if (typeof (UtilsContext.windowApi.window as any)[needReleaseKey] === "undefined") {
 				/* 未存在 */
 				return;
 			}
 			Array.from(functionNameList).forEach((item) => {
 				if ((UtilsContext.windowApi.window as any)[needReleaseKey][item]) {
-					(needReleaseObject as any)[item] = (
-						UtilsContext.windowApi.window as any
-					)[needReleaseKey][item];
-					Reflect.deleteProperty(
-						(UtilsContext.windowApi.window as any)[needReleaseKey],
-						item
-					);
-					if (
-						Object.keys((UtilsContext.windowApi.window as any)[needReleaseKey])
-							.length === 0
-					) {
+					(needReleaseObject as any)[item] = (UtilsContext.windowApi.window as any)[needReleaseKey][item];
+					Reflect.deleteProperty((UtilsContext.windowApi.window as any)[needReleaseKey], item);
+					if (Object.keys((UtilsContext.windowApi.window as any)[needReleaseKey]).length === 0) {
 						Reflect.deleteProperty(window, needReleaseKey);
 					}
 				}
@@ -2764,9 +2554,7 @@ class Utils {
 	parseBase64ToBlob(dataUri: string): Blob;
 	parseBase64ToBlob(dataUri: string): Blob {
 		if (typeof dataUri !== "string") {
-			throw new Error(
-				"Utils.parseBase64ToBlob 参数 dataUri 必须为 string 类型"
-			);
+			throw new Error("Utils.parseBase64ToBlob 参数 dataUri 必须为 string 类型");
 		}
 		let dataUriSplit = dataUri.split(","),
 			dataUriMime = (dataUriSplit[0] as any).match(/:(.*?);/)[1],
@@ -2792,14 +2580,10 @@ class Utils {
 	parseBase64ToFile(dataUri: string, fileName?: string): File;
 	parseBase64ToFile(dataUri: string, fileName = "example") {
 		if (typeof dataUri !== "string") {
-			throw new Error(
-				"Utils.parseBase64ToFile 参数 dataUri 必须为 string 类型"
-			);
+			throw new Error("Utils.parseBase64ToFile 参数 dataUri 必须为 string 类型");
 		}
 		if (typeof fileName !== "string") {
-			throw new Error(
-				"Utils.parseBase64ToFile 参数 fileName 必须为 string 类型"
-			);
+			throw new Error("Utils.parseBase64ToFile 参数 fileName 必须为 string 类型");
 		}
 		let dataUriSplit = dataUri.split(","),
 			dataUriMime = (dataUriSplit[0] as any).match(/:(.*?);/)[1],
@@ -2836,10 +2620,7 @@ class Utils {
 	 * Utils.parseInt(["aaaaaaa"],"aa");
 	 * > NaN
 	 **/
-	parseInt(
-		matchList?: any[] | null | undefined | RegExpMatchArray,
-		defaultValue?: number
-	): number;
+	parseInt(matchList?: any[] | null | undefined | RegExpMatchArray, defaultValue?: number): number;
 	parseInt(matchList: any[] = [], defaultValue = 0): number {
 		if (matchList == null) {
 			return parseInt(defaultValue.toString());
@@ -2859,10 +2640,7 @@ class Utils {
 	 * > object
 	 **/
 	parseBlobToFile(blobUrl: string, fileName?: string): Promise<File | Error>;
-	async parseBlobToFile(
-		blobUrl: string,
-		fileName: string = "example"
-	): Promise<File | Error> {
+	async parseBlobToFile(blobUrl: string, fileName: string = "example"): Promise<File | Error> {
 		return new Promise((resolve, reject) => {
 			fetch(blobUrl)
 				.then((response) => response.blob())
@@ -2927,12 +2705,7 @@ class Utils {
 	 */
 	parseFromString(
 		text: string,
-		mimeType?:
-			| "text/html"
-			| "text/xml"
-			| "application/xml"
-			| "application/xhtml+xml"
-			| "image/svg+xml"
+		mimeType?: "text/html" | "text/xml" | "application/xml" | "application/xhtml+xml" | "image/svg+xml"
 	): HTMLElement | XMLDocument | SVGElement;
 	parseFromString(
 		text: string,
@@ -2980,11 +2753,7 @@ class Utils {
 	 * @example
 	 * Utils.preventEvent(event);
 	 */
-	preventEvent(
-		element: HTMLElement,
-		eventNameList?: string | string[],
-		capture?: boolean
-	): boolean;
+	preventEvent(element: HTMLElement, eventNameList?: string | string[], capture?: boolean): boolean;
 	preventEvent(
 		element: HTMLElement | Event,
 		eventNameList: string | string[] = [],
@@ -3028,14 +2797,8 @@ class Utils {
 	 * @example
 	 * Utils.registerTrustClickEvent()
 	 */
-	registerTrustClickEvent(
-		isTrustValue?: boolean,
-		filter?: (typeName: string) => boolean
-	): void;
-	registerTrustClickEvent(
-		isTrustValue: boolean = true,
-		filter?: (typeName: string) => boolean
-	): void {
+	registerTrustClickEvent(isTrustValue?: boolean, filter?: (typeName: string) => boolean): void;
+	registerTrustClickEvent(isTrustValue: boolean = true, filter?: (typeName: string) => boolean): void {
 		function trustEvent(event: Event) {
 			return new Proxy(event, {
 				get: function (target, property) {
@@ -3219,10 +2982,7 @@ class Utils {
 				let copyStatus = false;
 				let requestPermissionStatus = await this.requestClipboardPermission();
 				console.log(requestPermissionStatus);
-				if (
-					this.hasClipboard() &&
-					(this.hasClipboardWrite() || this.hasClipboardWriteText())
-				) {
+				if (this.hasClipboard() && (this.hasClipboardWrite() || this.hasClipboardWriteText())) {
 					try {
 						copyStatus = await this.copyDataByClipboard();
 					} catch (error) {
@@ -3257,8 +3017,7 @@ class Utils {
 			 */
 			copyTextByTextArea() {
 				try {
-					let copyElement =
-						UtilsContext.windowApi.document.createElement("textarea");
+					let copyElement = UtilsContext.windowApi.document.createElement("textarea");
 					copyElement.value = this.#copyData;
 					copyElement.setAttribute("type", "text");
 					copyElement.setAttribute("style", "opacity:0;position:absolute;");
@@ -3361,15 +3120,10 @@ class Utils {
 	 * > ƒ tryCatchObj() {}
 	 **/
 	setTimeout(callback: (() => void) | string, delayTime?: number): Promise<any>;
-	setTimeout(
-		callback: (() => void) | string,
-		delayTime: number = 0
-	): Promise<any> {
+	setTimeout(callback: (() => void) | string, delayTime: number = 0): Promise<any> {
 		let UtilsContext = this;
 		if (typeof callback !== "function" && typeof callback !== "string") {
-			throw new TypeError(
-				"Utils.setTimeout 参数 callback 必须为 function|string 类型"
-			);
+			throw new TypeError("Utils.setTimeout 参数 callback 必须为 function|string 类型");
 		}
 		if (typeof delayTime !== "number") {
 			throw new TypeError("Utils.setTimeout 参数 delayTime 必须为 number 类型");
@@ -3408,19 +3162,11 @@ class Utils {
 	 * Utils.dragSlider("#xxxx",100);
 	 */
 	dragSlider(selector: string | Element | Node, offsetX?: number): void;
-	dragSlider(
-		selector: string | Element | Node,
-		offsetX: number = this.windowApi.window.innerWidth
-	): void {
+	dragSlider(selector: string | Element | Node, offsetX: number = this.windowApi.window.innerWidth): void {
 		let UtilsContext = this;
-		function initMouseEvent(
-			eventName: string,
-			offSetX: number,
-			offSetY: number
-		) {
+		function initMouseEvent(eventName: string, offSetX: number, offSetY: number) {
 			let win = typeof unsafeWindow === "undefined" ? globalThis : unsafeWindow;
-			let mouseEvent =
-				UtilsContext.windowApi.document.createEvent("MouseEvents");
+			let mouseEvent = UtilsContext.windowApi.document.createEvent("MouseEvents");
 			mouseEvent.initMouseEvent(
 				eventName,
 				true,
@@ -3440,14 +3186,8 @@ class Utils {
 			);
 			return mouseEvent;
 		}
-		let sliderElement =
-			typeof selector === "string"
-				? domUtils.selector<HTMLElement>(selector)
-				: selector;
-		if (
-			!(sliderElement instanceof Node) ||
-			!(sliderElement instanceof Element)
-		) {
+		let sliderElement = typeof selector === "string" ? domUtils.selector<HTMLElement>(selector) : selector;
+		if (!(sliderElement instanceof Node) || !(sliderElement instanceof Element)) {
 			throw new Error("Utils.dragSlider 参数selector 必须为Node/Element类型");
 		}
 		let rect = sliderElement.getBoundingClientRect(),
@@ -3495,9 +3235,7 @@ class Utils {
 	 * Utils.exitFullScreen();
 	 */
 	exitFullScreen(element?: HTMLElement): Promise<void>;
-	exitFullScreen(
-		element: HTMLElement = this.windowApi.document.documentElement
-	): Promise<void> {
+	exitFullScreen(element: HTMLElement = this.windowApi.document.documentElement): Promise<void> {
 		if (this.windowApi.document.exitFullscreen) {
 			return this.windowApi.document.exitFullscreen();
 		} else if ((this.windowApi.document as any).msExitFullscreen) {
@@ -3538,23 +3276,14 @@ class Utils {
 		sortByDesc: boolean = true
 	): T[] {
 		let UtilsContext = this;
-		if (
-			typeof getPropertyValueFunc !== "function" &&
-			typeof getPropertyValueFunc !== "string"
-		) {
-			throw new Error(
-				"Utils.sortListByProperty 参数 getPropertyValueFunc 必须为 function|string 类型"
-			);
+		if (typeof getPropertyValueFunc !== "function" && typeof getPropertyValueFunc !== "string") {
+			throw new Error("Utils.sortListByProperty 参数 getPropertyValueFunc 必须为 function|string 类型");
 		}
 		if (typeof sortByDesc !== "boolean") {
-			throw new Error(
-				"Utils.sortListByProperty 参数 sortByDesc 必须为 boolean 类型"
-			);
+			throw new Error("Utils.sortListByProperty 参数 sortByDesc 必须为 boolean 类型");
 		}
 		let getObjValue = function (obj: any) {
-			return typeof getPropertyValueFunc === "string"
-				? obj[getPropertyValueFunc]
-				: getPropertyValueFunc(obj);
+			return typeof getPropertyValueFunc === "string" ? obj[getPropertyValueFunc] : getPropertyValueFunc(obj);
 		};
 		/**
 		 * 排序方法
@@ -3627,16 +3356,11 @@ class Utils {
 		}
 		if (Array.isArray(data)) {
 			data.sort(sortFunc);
-		} else if (
-			(data as any) instanceof NodeList ||
-			UtilsContext.isJQuery(data)
-		) {
+		} else if ((data as any) instanceof NodeList || UtilsContext.isJQuery(data)) {
 			sortNodeFunc(data as any, getDataFunc as any);
 			result = (getDataFunc as any)();
 		} else {
-			throw new Error(
-				"Utils.sortListByProperty 参数 data 必须为 Array|NodeList|jQuery 类型"
-			);
+			throw new Error("Utils.sortListByProperty 参数 data 必须为 Array|NodeList|jQuery 类型");
 		}
 		return result;
 	}
@@ -3645,27 +3369,16 @@ class Utils {
 	 * @param targetString 需要进行转换的字符串
 	 * @param flags 正则标志
 	 */
-	stringToRegular(
-		targetString: string | RegExp,
-		flags?: "g" | "i" | "m" | "u" | "y" | string
-	): RegExp;
-	stringToRegular(
-		targetString: string | RegExp,
-		flags: "g" | "i" | "m" | "u" | "y" | string = "ig"
-	): RegExp {
+	stringToRegular(targetString: string | RegExp, flags?: "g" | "i" | "m" | "u" | "y" | string): RegExp;
+	stringToRegular(targetString: string | RegExp, flags: "g" | "i" | "m" | "u" | "y" | string = "ig"): RegExp {
 		let reg;
 		flags = flags.toLowerCase();
 		if (typeof targetString === "string") {
-			reg = new RegExp(
-				targetString.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"),
-				flags
-			);
+			reg = new RegExp(targetString.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"), flags);
 		} else if ((targetString as any) instanceof RegExp) {
 			reg = targetString;
 		} else {
-			throw new Error(
-				"Utils.stringToRegular 参数targetString必须是string|Regexp类型"
-			);
+			throw new Error("Utils.stringToRegular 参数targetString必须是string|Regexp类型");
 		}
 		return reg;
 	}
@@ -3674,14 +3387,8 @@ class Utils {
 	 * @param targetString 目标字符串
 	 * @param otherStrToLowerCase （可选）剩余部分字符串转小写，默认false
 	 */
-	stringTitleToUpperCase(
-		targetString: string,
-		otherStrToLowerCase?: boolean
-	): string;
-	stringTitleToUpperCase(
-		targetString: string,
-		otherStrToLowerCase: boolean = false
-	): string {
+	stringTitleToUpperCase(targetString: string, otherStrToLowerCase?: boolean): string;
+	stringTitleToUpperCase(targetString: string, otherStrToLowerCase: boolean = false): string {
 		let newTargetString = targetString.slice(0, 1).toUpperCase();
 		if (otherStrToLowerCase) {
 			newTargetString = newTargetString + targetString.slice(1).toLowerCase();
@@ -3698,16 +3405,8 @@ class Utils {
 	 * @param searchString 需要搜索的字符串
 	 * @param position （可选）目标字符串的判断起点，要求≥0，默认为0
 	 */
-	startsWith(
-		target: string,
-		searchString: string | RegExp | string[],
-		position?: number
-	): boolean;
-	startsWith(
-		target: string,
-		searchString: string | RegExp | string[],
-		position: number = 0
-	): boolean {
+	startsWith(target: string, searchString: string | RegExp | string[], position?: number): boolean;
+	startsWith(target: string, searchString: string | RegExp | string[], position: number = 0): boolean {
 		let UtilsContext = this;
 		if (position > target.length) {
 			/* 超出目标字符串的长度 */
@@ -3736,14 +3435,8 @@ class Utils {
 	 * @param targetString 目标字符串
 	 * @param otherStrToLowerCase （可选）剩余部分字符串转大写，默认false
 	 */
-	stringTitleToLowerCase(
-		targetString: string,
-		otherStrToUpperCase?: boolean
-	): string;
-	stringTitleToLowerCase(
-		targetString: string,
-		otherStrToUpperCase: boolean = false
-	): string {
+	stringTitleToLowerCase(targetString: string, otherStrToUpperCase?: boolean): string;
+	stringTitleToLowerCase(targetString: string, otherStrToUpperCase: boolean = false): string {
 		let newTargetString = targetString.slice(0, 1).toLowerCase();
 		if (otherStrToUpperCase) {
 			newTargetString = newTargetString + targetString.slice(1).toUpperCase();
@@ -3805,15 +3498,11 @@ class Utils {
 	/**
 	 * 将UrlSearchParams格式的字符串转为对象
 	 */
-	searchParamStrToObj<T extends any>(
-		searhParamsStr?: string | null | undefined
-	): T {
+	searchParamStrToObj<T extends any>(searhParamsStr?: string | null | undefined): T {
 		if (typeof searhParamsStr !== "string") {
 			return {} as any as T;
 		}
-		return Object.fromEntries(
-			new URLSearchParams(searhParamsStr) as any
-		) as any;
+		return Object.fromEntries(new URLSearchParams(searhParamsStr) as any) as any;
 	}
 	/**
 	 * 提供一个封装了 try-catch 的函数，可以执行传入的函数并捕获其可能抛出的错误，并通过传入的错误处理函数进行处理。
@@ -3856,10 +3545,7 @@ class Utils {
 	 * Utils.uniqueArray([{name:"1",host:"baidu.com"},{name:"2",host:"baidu.com"},{name:"3",host:"baidu.com"}]);
 	 * > [{name:"1",host:"baidu.com"}]
 	 */
-	uniqueArray<T>(
-		uniqueArrayData: T[],
-		getIdentfierValue: (itemValue: T) => any
-	): T[];
+	uniqueArray<T>(uniqueArrayData: T[], getIdentfierValue: (itemValue: T) => any): T[];
 	uniqueArray<T, T2>(
 		uniqueArrayData: T[] = [],
 		compareArrayData: any,
@@ -3898,19 +3584,11 @@ class Utils {
 	 * @example
 	 * await Utils.waitArrayLoopToEnd([callback,callback,callback],xxxcallback);
 	 **/
-	waitArrayLoopToEnd(
-		data: any[] | HTMLElement[],
-		handleFunc: Function
-	): Promise<void[]>;
-	waitArrayLoopToEnd(
-		data: any[] | HTMLElement[],
-		handleFunc: Function
-	): Promise<void[]> {
+	waitArrayLoopToEnd(data: any[] | HTMLElement[], handleFunc: Function): Promise<void[]>;
+	waitArrayLoopToEnd(data: any[] | HTMLElement[], handleFunc: Function): Promise<void[]> {
 		let UtilsContext = this;
 		if (typeof handleFunc !== "function" && typeof handleFunc !== "string") {
-			throw new Error(
-				"Utils.waitArrayLoopToEnd 参数 handleDataFunction 必须为 function|string 类型"
-			);
+			throw new Error("Utils.waitArrayLoopToEnd 参数 handleDataFunction 必须为 function|string 类型");
 		}
 		return Promise.all(
 			Array.from(data).map(async (item, index) => {
@@ -3979,27 +3657,24 @@ class Utils {
 		const UtilsContext = this;
 		let __timeout__ = typeof timeout === "number" ? timeout : 0;
 		return new Promise((resolve) => {
-			let observer = UtilsContext.mutationObserver(
-				parent || UtilsContext.windowApi.document,
-				{
-					config: {
-						subtree: true,
-						childList: true,
-						attributes: true,
-					},
-					immediate: true,
-					callback(mutations, __observer__) {
-						let result = checkFn();
-						if (result.success) {
-							// 取消观察器
-							if (typeof __observer__?.disconnect === "function") {
-								__observer__.disconnect();
-							}
-							resolve(result.data);
+			let observer = UtilsContext.mutationObserver(parent || UtilsContext.windowApi.document, {
+				config: {
+					subtree: true,
+					childList: true,
+					attributes: true,
+				},
+				immediate: true,
+				callback(mutations, __observer__) {
+					let result = checkFn();
+					if (result.success) {
+						// 取消观察器
+						if (typeof __observer__?.disconnect === "function") {
+							__observer__.disconnect();
 						}
-					},
-				}
-			);
+						resolve(result.data);
+					}
+				},
+			});
 			if (__timeout__ > 0) {
 				UtilsContext.workerSetTimeout(() => {
 					// 取消观察器
@@ -4041,10 +3716,7 @@ class Utils {
 		selector: K,
 		parent?: Node | Element | Document | HTMLElement
 	): Promise<HTMLElementTagNameMap[K]>;
-	waitNode<T extends Element>(
-		selector: string,
-		parent?: Node | Element | Document | HTMLElement
-	): Promise<T>;
+	waitNode<T extends Element>(selector: string, parent?: Node | Element | Document | HTMLElement): Promise<T>;
 	/**
 	 * 等待元素出现
 	 * @param selectorList CSS选择器数组
@@ -4118,10 +3790,7 @@ class Utils {
 		selector: K,
 		timeout: number
 	): Promise<HTMLElementTagNameMap[K] | null>;
-	waitNode<T extends Element>(
-		selector: string,
-		timeout: number
-	): Promise<T | null>;
+	waitNode<T extends Element>(selector: string, timeout: number): Promise<T | null>;
 	/**
 	 * 等待元素出现
 	 * @param selectorList CSS选择器数组
@@ -4135,10 +3804,7 @@ class Utils {
 		selectorList: K[],
 		timeout: number
 	): Promise<HTMLElementTagNameMap[K] | null>;
-	waitNode<T extends Element[]>(
-		selectorList: string[],
-		timeout: number
-	): Promise<T | null>;
+	waitNode<T extends Element[]>(selectorList: string[], timeout: number): Promise<T | null>;
 	waitNode<T extends Element | Element[]>(...args: any[]): Promise<T | null> {
 		// 过滤掉undefined
 		args = args.filter((arg) => arg !== void 0);
@@ -4149,14 +3815,8 @@ class Utils {
 		let parent: Element = UtilsContext.windowApi.document as any as Element;
 		// 超时时间
 		let timeout = 0;
-		if (
-			typeof args[0] !== "string" &&
-			!Array.isArray(args[0]) &&
-			typeof args[0] !== "function"
-		) {
-			throw new TypeError(
-				"Utils.waitNode 第一个参数必须是string|string[]|Function"
-			);
+		if (typeof args[0] !== "string" && !Array.isArray(args[0]) && typeof args[0] !== "function") {
+			throw new TypeError("Utils.waitNode 第一个参数必须是string|string[]|Function");
 		}
 		if (args.length === 1) {
 			// 上面已做处理
@@ -4165,10 +3825,7 @@ class Utils {
 			if (typeof secondParam === "number") {
 				// "div",10000
 				timeout = secondParam;
-			} else if (
-				typeof secondParam === "object" &&
-				secondParam instanceof Node
-			) {
+			} else if (typeof secondParam === "object" && secondParam instanceof Node) {
 				// "div",document
 				parent = secondParam as any as Element;
 			} else {
@@ -4283,10 +3940,7 @@ class Utils {
 		selectorList: K[],
 		timeout: number
 	): Promise<HTMLElementTagNameMap[K] | null>;
-	waitAnyNode<T extends Element>(
-		selectorList: string[],
-		timeout: number
-	): Promise<T | null>;
+	waitAnyNode<T extends Element>(selectorList: string[], timeout: number): Promise<T | null>;
 	waitAnyNode<T extends Element>(...args: any[]): Promise<T | null> {
 		// 过滤掉undefined
 		args = args.filter((arg) => arg !== void 0);
@@ -4307,10 +3961,7 @@ class Utils {
 			if (typeof secondParam === "number") {
 				// "div",10000
 				timeout = secondParam;
-			} else if (
-				typeof secondParam === "object" &&
-				secondParam instanceof Node
-			) {
+			} else if (typeof secondParam === "object" && secondParam instanceof Node) {
 				// "div",document
 				parent = secondParam as any as Element;
 			} else {
@@ -4433,10 +4084,7 @@ class Utils {
 		selector: K[],
 		timeout: number
 	): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-	waitNodeList<T extends NodeListOf<Element>>(
-		selector: string[],
-		timeout: number
-	): Promise<T | null>;
+	waitNodeList<T extends NodeListOf<Element>>(selector: string[], timeout: number): Promise<T | null>;
 	/**
 	 * 等待元素数组出现
 	 * @param selectorList CSS选择器数组
@@ -4450,13 +4098,8 @@ class Utils {
 		selectorList: K[],
 		timeout: number
 	): Promise<NodeListOf<HTMLElementTagNameMap[K]>[] | null>;
-	waitNodeList<T extends NodeListOf<Element>>(
-		selectorList: string[],
-		timeout: number
-	): Promise<T[] | null>;
-	waitNodeList<T extends NodeListOf<Element> | NodeListOf<Element>[]>(
-		...args: any[]
-	): Promise<T | null> {
+	waitNodeList<T extends NodeListOf<Element>>(selectorList: string[], timeout: number): Promise<T[] | null>;
+	waitNodeList<T extends NodeListOf<Element> | NodeListOf<Element>[]>(...args: any[]): Promise<T | null> {
 		// 过滤掉undefined
 		args = args.filter((arg) => arg !== void 0);
 		let UtilsContext = this;
@@ -4476,10 +4119,7 @@ class Utils {
 			if (typeof secondParam === "number") {
 				// "div",10000
 				timeout = secondParam;
-			} else if (
-				typeof secondParam === "object" &&
-				secondParam instanceof Node
-			) {
+			} else if (typeof secondParam === "object" && secondParam instanceof Node) {
 				// "div",document
 				parent = secondParam as any as Element;
 			} else {
@@ -4595,13 +4235,8 @@ class Utils {
 		selectorList: K[],
 		timeout: number
 	): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-	waitAnyNodeList<T extends Element>(
-		selectorList: string[],
-		timeout: number
-	): Promise<NodeListOf<T> | null>;
-	waitAnyNodeList<T extends Element>(
-		...args: any[]
-	): Promise<NodeListOf<T> | null> {
+	waitAnyNodeList<T extends Element>(selectorList: string[], timeout: number): Promise<NodeListOf<T> | null>;
+	waitAnyNodeList<T extends Element>(...args: any[]): Promise<NodeListOf<T> | null> {
 		// 过滤掉undefined
 		args = args.filter((arg) => arg !== void 0);
 		let UtilsContext = this;
@@ -4621,16 +4256,11 @@ class Utils {
 			if (typeof secondParam === "number") {
 				// "div",10000
 				timeout = secondParam;
-			} else if (
-				typeof secondParam === "object" &&
-				secondParam instanceof Node
-			) {
+			} else if (typeof secondParam === "object" && secondParam instanceof Node) {
 				// "div",document
 				parent = secondParam as any as Element;
 			} else {
-				throw new TypeError(
-					"Utils.waitAnyNodeList 第二个参数必须是number|Node"
-				);
+				throw new TypeError("Utils.waitAnyNodeList 第二个参数必须是number|Node");
 			}
 		} else if (args.length === 3) {
 			// "div",document,10000
@@ -4653,11 +4283,7 @@ class Utils {
 		}
 
 		let promiseList = selectorList.map((selector) => {
-			return UtilsContext.waitNodeList<NodeListOf<T>>(
-				selector,
-				parent,
-				timeout
-			);
+			return UtilsContext.waitNodeList<NodeListOf<T>>(selector, parent, timeout);
 		});
 		return Promise.any(promiseList);
 	}
@@ -4674,14 +4300,8 @@ class Utils {
 	 * > "test success set"
 	 *
 	 */
-	waitProperty<T extends any>(
-		checkObj: any | (() => any),
-		checkPropertyName: string
-	): Promise<T>;
-	waitProperty<T extends any>(
-		checkObj: any | (() => any),
-		checkPropertyName: string
-	): Promise<T> {
+	waitProperty<T extends any>(checkObj: any | (() => any), checkPropertyName: string): Promise<T>;
+	waitProperty<T extends any>(checkObj: any | (() => any), checkPropertyName: string): Promise<T> {
 		return new Promise((resolve) => {
 			let obj = checkObj;
 			if (typeof checkObj === "function") {
@@ -4861,10 +4481,7 @@ class Utils {
 		getCallBack: (value: any) => void,
 		setCallBack: (value: any) => void
 	): void {
-		if (
-			typeof getCallBack !== "function" &&
-			typeof setCallBack !== "function"
-		) {
+		if (typeof getCallBack !== "function" && typeof setCallBack !== "function") {
 			return;
 		}
 
@@ -4903,19 +4520,18 @@ class Utils {
 			});
 		}
 	}
-
 	/**
 	 * 深度获取对象属性
 	 * @param target 待获取的对象
 	 * @param handler 获取属性的回调
 	 */
-	queryProperty(
+	queryProperty<T extends any = any>(
 		target: any,
-		handler: (target: any) => {
+		handler: (target: T) => {
 			/**
 			 * 是否是需要的属性
-			 * + true 将目标值赋值给data
-			 * + false 不是需要的，data为下一个处理的对象
+			 * + `true` 将目标值赋值给data
+			 * + `false` 不是需要的，data为下一个处理的对象
 			 */
 			isFind: boolean;
 			/**
@@ -4928,16 +4544,54 @@ class Utils {
 			return;
 		}
 		let handleResult = handler(target);
-		if (
-			handleResult &&
-			typeof handleResult.isFind === "boolean" &&
-			handleResult.isFind
-		) {
+		if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
 			return handleResult.data;
 		}
 		return this.queryProperty(handleResult.data, handler);
 	}
-
+	/**
+	 * 异步-深度获取对象属性
+	 * @param target 待获取的对象
+	 * @param handler 获取属性的回调
+	 */
+	async asyncQueryProperty<T extends any = any>(
+		target: any,
+		handler: (target: T) =>
+			| {
+					/**
+					 * 是否是需要的属性
+					 * + true 将目标值赋值给data
+					 * + false 不是需要的，data为下一个处理的对象
+					 */
+					isFind: boolean;
+					/**
+					 * 对象/目标值
+					 */
+					data: any;
+			  }
+			| Promise<{
+					/**
+					 * 是否是需要的属性
+					 * + true 将目标值赋值给data
+					 * + false 不是需要的，data为下一个处理的对象
+					 */
+					isFind: boolean;
+					/**
+					 * 对象/目标值
+					 */
+					data: any;
+			  }>
+	): Promise<Awaited<T>> {
+		if (target == null) {
+			// @ts-ignore
+			return;
+		}
+		let handleResult = await handler(target);
+		if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
+			return handleResult.data;
+		}
+		return await this.asyncQueryProperty(handleResult.data, handler);
+	}
 	/**
 	 * 创建一个新的Utils实例
 	 * @param option

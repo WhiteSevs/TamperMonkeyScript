@@ -13,12 +13,7 @@ export class GBKEncoder {
 		this.#data = dataText.match(/..../g) as RegExpMatchArray;
 		for (let i = 0x81; i <= 0xfe; i++) {
 			for (let j = 0x40; j <= 0xfe; j++) {
-				this.#U2Ghash[this.#data[index++]] = (
-					"%" +
-					i.toString(16) +
-					"%" +
-					j.toString(16)
-				).toUpperCase();
+				this.#U2Ghash[this.#data[index++]] = ("%" + i.toString(16) + "%" + j.toString(16)).toUpperCase();
 			}
 		}
 		for (let key in this.#U2Ghash) {

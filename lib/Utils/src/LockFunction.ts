@@ -1,6 +1,4 @@
-export class LockFunction<
-	K extends (...args: any[]) => any | Promise<any> | void
-> {
+export class LockFunction<K extends (...args: any[]) => any | Promise<any> | void> {
 	#flag: boolean = false;
 	#delayTime: number = 0;
 	#callback: K;

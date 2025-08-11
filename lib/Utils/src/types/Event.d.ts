@@ -40,8 +40,7 @@ declare interface DOMUtils_Frame_Object_Event {
 	scroll: Event;
 	unload: Event;
 }
-declare type DOMUtils_Frame_Object_EventType =
-	keyof DOMUtils_Frame_Object_Event;
+declare type DOMUtils_Frame_Object_EventType = keyof DOMUtils_Frame_Object_Event;
 /**
  * 表单事件
  */

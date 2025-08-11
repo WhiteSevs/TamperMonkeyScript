@@ -1,9 +1,6 @@
 import { CommonUtil } from "./CommonUtil";
 
-export class UtilsDictionary<
-	K extends string | number | symbol,
-	V extends unknown
-> {
+export class UtilsDictionary<K extends string | number | symbol, V extends unknown> {
 	private items: {
 		[key: string | number | symbol]: V;
 	};
@@ -155,9 +152,7 @@ export class UtilsDictionary<
 	 * 迭代字典
 	 * @param callbackfn 回调函数
 	 */
-	forEach(
-		callbackfn: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void
-	) {
+	forEach(callbackfn: (value: V, key: K, dictionary: UtilsDictionary<K, V>) => void) {
 		for (const key in this.getItems()) {
 			callbackfn(this.get(key as any) as V, key as K, this.getItems() as any);
 		}
