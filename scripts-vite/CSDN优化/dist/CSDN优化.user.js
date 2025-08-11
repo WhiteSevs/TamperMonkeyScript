@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.9
+// @version      2025.8.11
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
@@ -481,6 +481,14 @@
           return "550px";
         }
       }
+    },
+    /**
+     * 中等的设置界面
+     */
+    settingMiddle: {
+      get width() {
+        return window.innerWidth < 350 ? "88vw" : "350px";
+      }
     }
   };
   class StorageUtils {
@@ -823,7 +831,14 @@
        * @private
        */
       __panelConfig: {},
+      /**
+       * 面板
+       */
       $panel: null,
+      /**
+       * 面板配置
+       */
+      panelContent: [],
       /**
        * 菜单项初始化的默认值
        */
@@ -929,9 +944,9 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
+          let child_forms = configItem.forms;
+          if (child_forms && Array.isArray(child_forms)) {
+            loopInitDefaultValue(child_forms);
           }
         }
       };
@@ -1248,9 +1263,12 @@
      * 显示设置面板
      * @param content 显示的内容配置
      * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号）
+     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
+     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
      */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false) {
+    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+      this.$data.$panel = null;
+      this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
         let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
         return isBottom && it.id === "script-version";
@@ -1295,6 +1313,415 @@
         ...this.$data.panelConfig
       });
       this.$data.$panel = $panel;
+      this.$data.panelContent = content;
+      if (!preventRegisterSearchPlugin) {
+        this.registerConfigSearch({ $panel, content });
+      }
+    },
+    /**
+     * 注册设置面板的搜索功能（双击左侧选项第一个）
+     */
+    registerConfigSearch(config) {
+      const { $panel, content } = config;
+      let asyncQueryProperty = async (target, handler) => {
+        if (target == null) {
+          return;
+        }
+        let handleResult = await handler(target);
+        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
+          return handleResult.data;
+        }
+        return await asyncQueryProperty(handleResult.data, handler);
+      };
+      let scrollToElementAndListen = ($el, callback) => {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                callback?.();
+                observer.disconnect();
+              }
+            });
+          },
+          {
+            root: null,
+            // 使用视口作为根
+            threshold: 1
+            // 元素完全进入视口时触发
+          }
+        );
+        observer.observe($el);
+        $el.scrollIntoView({ behavior: "smooth", block: "center" });
+      };
+      let addFlashingClass = ($el) => {
+        const flashingClassName = "pops-flashing";
+        domUtils.animationend($el, () => {
+          $el.classList.remove(flashingClassName);
+        });
+        $el.classList.add(flashingClassName);
+      };
+      let dbclick_event = (evt, selectorTarget) => {
+        utils.preventEvent(evt);
+        let $alert = __pops.alert({
+          title: {
+            text: "搜索配置",
+            position: "center"
+          },
+          content: {
+            text: (
+              /*html*/
+              `
+						<div class="search-wrapper">
+							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+						</div>
+						<div class="search-result-wrapper">
+
+						</div>
+					`
+            ),
+            html: true
+          },
+          btn: {
+            ok: { enable: false }
+          },
+          mask: {
+            clickEvent: {
+              toClose: true
+            }
+          },
+          width: PanelUISize.settingMiddle.width,
+          height: "auto",
+          drag: true,
+          style: (
+            /*css*/
+            `
+					${__pops.config.cssText.panelCSS}
+
+					.search-wrapper{
+						border-bottom: 1px solid #000000;
+					}
+					.search-config-text{
+						width: 100%;
+						border: 0;
+						height: 32px;
+						padding: 0px 10px;
+						outline: none;
+					}
+					.search-result-wrapper{
+						max-height: 400px;
+						overflow: auto;
+					}
+					.search-result-item{
+						cursor: pointer;
+						padding: 5px 10px;
+						display: flex;
+						flex-direction: column;
+					}
+					.search-result-item:hover{
+						background-color: #D8F1FD;
+					}
+					.search-result-item-path{
+						display: flex;
+    					align-items: center;
+					}
+					.search-result-item-description{
+						font-size: 0.8rem;
+						color: #6c6c6c;
+					}
+					${config.searchDialogStyle ?? ""}
+				`
+          )
+        });
+        $alert.$shadowRoot.querySelector(".search-wrapper");
+        let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
+        let $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
+        $searchInput.focus();
+        let clearSearchResult = () => {
+          domUtils.empty($searchResultWrapper);
+        };
+        let createSearchResultItem = (pathInfo) => {
+          const searchPath = utils.queryProperty(pathInfo, (target) => {
+            if (target?.next) {
+              return {
+                isFind: false,
+                data: target.next
+              };
+            } else {
+              return {
+                isFind: true,
+                data: target
+              };
+            }
+          });
+          let $item = domUtils.createElement("div", {
+            className: "search-result-item",
+            innerHTML: (
+              /*html*/
+              `
+							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
+							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
+						`
+            )
+          });
+          domUtils.on($item, "click", (clickItemEvent) => {
+            let $asideItems = $panel.$shadowRoot.querySelectorAll(
+              "aside.pops-panel-aside .pops-panel-aside-top-container li"
+            );
+            let $targetAsideItem = $asideItems[pathInfo.index];
+            if (!$targetAsideItem) {
+              Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              return;
+            }
+            $targetAsideItem.scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+            });
+            $targetAsideItem.click();
+            asyncQueryProperty(pathInfo.next, async (target) => {
+              if (target?.next) {
+                let $findDeepMenu = await utils.waitNode(() => {
+                  return Array.from(
+                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
+                  ).find(($deepMenu) => {
+                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
+                  });
+                }, 2500);
+                if ($findDeepMenu) {
+                  $findDeepMenu.click();
+                } else {
+                  Qmsg.error("未找到对应的二级菜单");
+                  return {
+                    isFind: true,
+                    data: target
+                  };
+                }
+                return {
+                  isFind: false,
+                  data: target.next
+                };
+              } else {
+                let $findTargetMenu = await utils.waitNode(() => {
+                  return Array.from(
+                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
+                  ).find(($menuItem) => {
+                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                    return __formConfig__ === target.matchedData?.formConfig;
+                  });
+                }, 2500);
+                if ($findTargetMenu) {
+                  scrollToElementAndListen($findTargetMenu);
+                  let $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
+                  if ($fold) {
+                    let $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
+                    $foldWrapper.click();
+                    await utils.sleep(500);
+                  }
+                  scrollToElementAndListen($findTargetMenu, () => {
+                    addFlashingClass($findTargetMenu);
+                  });
+                } else {
+                  Qmsg.error("未找到对应的菜单项");
+                }
+                return {
+                  isFind: true,
+                  data: target
+                };
+              }
+            });
+          });
+          return $item;
+        };
+        let execSearch = (searchText) => {
+          const searchTextRegExp = new RegExp(searchText, "i");
+          const searchConfigResult = [];
+          const loopContentConfig = (configList, path) => {
+            for (let index = 0; index < configList.length; index++) {
+              const configItem = configList[index];
+              let child_forms = configItem.forms;
+              if (child_forms && Array.isArray(child_forms)) {
+                const deepMenuPath = utils.deepClone(path);
+                if (configItem.type === "deepMenu") {
+                  const deepNext = utils.queryProperty(deepMenuPath, (target) => {
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  deepNext.next = {
+                    name: configItem.text
+                  };
+                }
+                loopContentConfig(child_forms, deepMenuPath);
+              } else {
+                let text = Reflect.get(configItem, "text");
+                let description = Reflect.get(configItem, "description");
+                const delayMatchedTextList = [text, description];
+                let matchedIndex = delayMatchedTextList.findIndex((configText) => {
+                  if (typeof configText !== "string") {
+                    return;
+                  }
+                  return configText.match(searchTextRegExp);
+                });
+                if (matchedIndex !== -1) {
+                  const matchedPath = utils.deepClone(path);
+                  const deepNext = utils.queryProperty(matchedPath, (target) => {
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  deepNext.next = {
+                    name: text,
+                    matchedData: {
+                      path: "",
+                      formConfig: configItem,
+                      matchedText: delayMatchedTextList[matchedIndex],
+                      description
+                    }
+                  };
+                  const pathList = [];
+                  utils.queryProperty(matchedPath, (target) => {
+                    const name = target?.name;
+                    if (typeof name === "string" && name.trim() !== "") {
+                      pathList.push(name);
+                    }
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  const pathStr = pathList.join(CommonUtil.escapeHtml(" - "));
+                  deepNext.next.matchedData.path = pathStr;
+                  searchConfigResult.push(matchedPath);
+                }
+              }
+            }
+          };
+          for (let index = 0; index < content.length; index++) {
+            const leftContentConfigItem = content[index];
+            if (!leftContentConfigItem.forms) {
+              continue;
+            }
+            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
+              continue;
+            }
+            const rightContentConfigList = leftContentConfigItem.forms;
+            if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+              let text = leftContentConfigItem.title;
+              if (typeof text === "function") {
+                text = text();
+              }
+              loopContentConfig(rightContentConfigList, {
+                index,
+                name: text
+              });
+            }
+          }
+          let fragment = document.createDocumentFragment();
+          for (const pathInfo of searchConfigResult) {
+            let $resultItem = createSearchResultItem(pathInfo);
+            fragment.appendChild($resultItem);
+          }
+          clearSearchResult();
+          $searchResultWrapper.append(fragment);
+        };
+        domUtils.on(
+          $searchInput,
+          "input",
+          utils.debounce((evt2) => {
+            utils.preventEvent(evt2);
+            let searchText = domUtils.val($searchInput).trim();
+            if (searchText === "") {
+              clearSearchResult();
+              return;
+            }
+            execSearch(searchText);
+          }, 200)
+        );
+      };
+      let clickElement = null;
+      let isDoubleClick = false;
+      let timer = void 0;
+      domUtils.on(
+        $panel.$shadowRoot,
+        "dblclick",
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+        dbclick_event
+      );
+      domUtils.on(
+        $panel.$shadowRoot,
+        "touchend",
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+        (evt, selectorTarget) => {
+          clearTimeout(timer);
+          timer = void 0;
+          if (isDoubleClick && clickElement === selectorTarget) {
+            isDoubleClick = false;
+            dbclick_event(evt);
+          } else {
+            timer = setTimeout(() => {
+              isDoubleClick = false;
+            }, 200);
+            clickElement = selectorTarget;
+            isDoubleClick = true;
+          }
+        },
+        {
+          capture: true
+        }
+      );
+      $panel.$shadowRoot.appendChild(
+        domUtils.createElement("style", {
+          type: "text/css",
+          textContent: (
+            /*css*/
+            `
+					.pops-flashing{
+						animation: double-blink 1.5s ease-in-out;
+					}
+					@keyframes double-blink {
+						 0% {
+							background-color: initial;
+						}
+						25% {
+							background-color: yellow;
+						}
+						50% {
+							background-color: initial;
+						}
+						75% {
+							background-color: yellow;
+						}
+						100% {
+							background-color: initial;
+						}
+					}
+				`
+          )
+        })
+      );
     }
   };
   const CSDNRouter = {
@@ -1906,7 +2333,7 @@
       }
     }
   };
-  const BlogShieldCSS = ".ecommend-item-box.recommend-recommend-box,\r\n.login-mark,\r\n.opt-box.text-center,\r\n.leftPop,\r\n#csdn-shop-window,\r\n.toolbar-advert,\r\n.hide-article-box,\r\n.user-desc.user-desc-fix,\r\n.recommend-card-box,\r\n.more-article,\r\n.article-show-more,\r\n#csdn-toolbar-profile-nologin,\r\n.guide-rr-first,\r\n#recommend-item-box-tow,\r\n/* 发文章得原力分图片提示 */\r\ndiv.csdn-toolbar-creative-mp,\r\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\r\n#toolBarBox div.write-guide-buttom-box,\r\n/* 觉得还不错? 一键收藏 */\r\nul.toolbox-list div.tool-active-list,\r\n/* 右边按钮组的最上面的创作话题 */\r\ndiv.csdn-side-toolbar .activity-swiper-box,\r\n.sidetool-writeguide-box .tip-box,\r\n/* 右下角的登录提示 */\r\n.passport-login-tip-container,\r\n/* 全屏双十一红包 */\r\n.csdn-reapck-select,\r\n/* 侧栏的618会员开通 */\r\n.csdn-side-toolbar  .sidecolumn-vip {\r\n	display: none !important;\r\n}\r\n";
+  const BlogShieldCSS = ".ecommend-item-box.recommend-recommend-box,\r\n.login-mark,\r\n.opt-box.text-center,\r\n.leftPop,\r\n#csdn-shop-window,\r\n.toolbar-advert,\r\n.hide-article-box,\r\n.user-desc.user-desc-fix,\r\n.recommend-card-box,\r\n.more-article,\r\n.article-show-more,\r\n#csdn-toolbar-profile-nologin,\r\n.guide-rr-first,\r\n#recommend-item-box-tow,\r\n/* 发文章得原力分图片提示 */\r\ndiv.csdn-toolbar-creative-mp,\r\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\r\n#toolBarBox div.write-guide-buttom-box,\r\n/* 觉得还不错? 一键收藏 */\r\nul.toolbox-list div.tool-active-list,\r\n/* 右边按钮组的最上面的创作话题 */\r\ndiv.csdn-side-toolbar .activity-swiper-box,\r\n.sidetool-writeguide-box .tip-box,\r\n/* 右下角的登录提示 */\r\n.passport-login-tip-container,\r\n/* 全屏双十一红包 */\r\n.csdn-reapck-select,\r\n/* 侧栏的618会员开通 */\r\n.csdn-side-toolbar  .sidecolumn-vip,\r\n/* 右边推荐的推广广告 */\r\n#recommendAdBox {\r\n	display: none !important;\r\n}\r\n";
   const BlogCSS = "/*.blog_container_aside,\r\n#nav {\r\n	margin-left: -45px;\r\n}\r\n.recommend-right.align-items-stretch.clearfix,\r\n.dl_right_fixed {\r\n	margin-left: 45px;\r\n}*/\r\n";
   const CSDNBlog = {
     init() {
