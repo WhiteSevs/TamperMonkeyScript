@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.9
+// @version      2025.8.12
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -71,6 +71,14 @@
         } else {
           return "550px";
         }
+      }
+    },
+    /**
+     * 中等的设置界面
+     */
+    settingMiddle: {
+      get width() {
+        return window.innerWidth < 350 ? "88vw" : "350px";
       }
     },
     /**
@@ -406,6 +414,275 @@
       this.$data.menuOption.splice(index, 1);
     }
   };
+  const CommonUtil = {
+    /**
+     * 移除元素（未出现也可以等待出现）
+     * @param selector 元素选择器
+     */
+    waitRemove(...args) {
+      args.forEach((selector) => {
+        if (typeof selector !== "string") {
+          return;
+        }
+        utils.waitNodeList(selector).then((nodeList) => {
+          nodeList.forEach(($el) => $el.remove());
+        });
+      });
+    },
+    /**
+     * 添加屏蔽CSS
+     * @param args
+     * @example
+     * addBlockCSS("")
+     * addBlockCSS("","")
+     * addBlockCSS(["",""])
+     */
+    addBlockCSS(...args) {
+      let selectorList = [];
+      if (args.length === 0) {
+        return;
+      }
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
+        return;
+      }
+      args.forEach((selector) => {
+        if (Array.isArray(selector)) {
+          selectorList = selectorList.concat(selector);
+        } else {
+          selectorList.push(selector);
+        }
+      });
+      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    /**
+     * 设置GM_getResourceText的style内容
+     * @param resourceMapData 资源数据
+     * @example
+     * setGMResourceCSS({
+     *   keyName: "ViewerCSS",
+     *   url: "https://example.com/example.css",
+     * })
+     */
+    setGMResourceCSS(resourceMapData) {
+      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
+      if (typeof cssText === "string" && cssText) {
+        addStyle(cssText);
+      } else {
+        CommonUtil.loadStyleLink(resourceMapData.url);
+      }
+    },
+    /**
+     * 添加<link>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.css")
+     */
+    async loadStyleLink(url) {
+      let $link = document.createElement("link");
+      $link.rel = "stylesheet";
+      $link.type = "text/css";
+      $link.href = url;
+      DOMUtils.ready(() => {
+        document.head.appendChild($link);
+      });
+    },
+    /**
+     * 添加<script>标签
+     * @param url
+     * @example
+     * loadStyleLink("https://example.com/example.js")
+     */
+    async loadScript(url) {
+      let $script = document.createElement("script");
+      $script.src = url;
+      return new Promise((resolve) => {
+        $script.onload = () => {
+          resolve(null);
+        };
+        (document.head || document.documentElement).appendChild($script);
+      });
+    },
+    /**
+     * 将url修复，例如只有search的链接修复为完整的链接
+     *
+     * 注意：不包括http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：`/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`//xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     * @example
+     * 修复前：`xxx/xxx?ss=ssss`
+     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
+     */
+    fixUrl(url) {
+      url = url.trim();
+      if (url.match(/^http(s|):\/\//i)) {
+        return url;
+      } else if (url.startsWith("//")) {
+        if (url.startsWith("///")) ;
+        else {
+          url = window.location.protocol + url;
+        }
+        return url;
+      } else {
+        if (!url.startsWith("/")) {
+          url += "/";
+        }
+        url = window.location.origin + url;
+        return url;
+      }
+    },
+    /**
+     * http转https
+     * @param url 需要修复的链接
+     * @example
+     * 修复前：
+     * 修复后：
+     * @example
+     * 修复前：
+     * 修复后：
+     */
+    fixHttps(url) {
+      if (url.startsWith("https://")) {
+        return url;
+      }
+      if (!url.startsWith("http://")) {
+        return url;
+      }
+      let urlInstance = new URL(url);
+      urlInstance.protocol = "https:";
+      return urlInstance.toString();
+    },
+    /**
+     * 禁止页面滚动，默认锁定html和body
+     * @example
+     * lockScroll();
+     * @example
+     * lockScroll(document.body);
+     */
+    lockScroll(...args) {
+      let $hidden = document.createElement("style");
+      $hidden.innerHTML = /*css*/
+      `
+			.pops-overflow-hidden-important {
+				overflow: hidden !important;
+			}
+		`;
+      let $elList = [document.documentElement, document.body].concat(
+        ...args || []
+      );
+      $elList.forEach(($el) => {
+        $el.classList.add("pops-overflow-hidden-important");
+      });
+      (document.head || document.documentElement).appendChild($hidden);
+      return {
+        /**
+         * 解除锁定
+         */
+        recovery() {
+          $elList.forEach(($el) => {
+            $el.classList.remove("pops-overflow-hidden-important");
+          });
+          $hidden.remove();
+        }
+      };
+    },
+    /**
+     * 获取剪贴板文本
+     */
+    async getClipboardText() {
+      function readClipboardText(resolve) {
+        navigator.clipboard.readText().then((clipboardText) => {
+          resolve(clipboardText);
+        }).catch((error) => {
+          log.error("读取剪贴板内容失败👉", error);
+          resolve("");
+        });
+      }
+      function requestPermissionsWithClipboard(resolve) {
+        navigator.permissions.query({
+          // @ts-ignore
+          name: "clipboard-read"
+        }).then((permissionStatus) => {
+          readClipboardText(resolve);
+        }).catch((error) => {
+          log.error(
+            "申请剪贴板权限失败，尝试直接读取👉",
+            error.message ?? error.name ?? error.stack
+          );
+          readClipboardText(resolve);
+        });
+      }
+      function checkClipboardApi() {
+        if (typeof navigator?.clipboard?.readText !== "function") {
+          return false;
+        }
+        if (typeof navigator?.permissions?.query !== "function") {
+          return false;
+        }
+        return true;
+      }
+      return new Promise((resolve) => {
+        if (!checkClipboardApi()) {
+          resolve("");
+          return;
+        }
+        if (document.hasFocus()) {
+          requestPermissionsWithClipboard(resolve);
+        } else {
+          window.addEventListener(
+            "focus",
+            () => {
+              requestPermissionsWithClipboard(resolve);
+            },
+            {
+              once: true
+            }
+          );
+        }
+      });
+    },
+    /**
+     * html转义
+     * @param unsafe
+     */
+    escapeHtml(unsafe) {
+      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    },
+    /**
+     * 在规定时间内循环，如果超时或返回false则取消循环
+     * @param fn 循环的函数
+     * @param intervalTime 循环间隔时间
+     * @param [timeout=5000] 循环超时时间
+     */
+    interval(fn, intervalTime, timeout = 5e3) {
+      let timeId;
+      let maxTimeout = timeout - intervalTime;
+      let intervalTimeCount = intervalTime;
+      let loop = async (isTimeout) => {
+        let result = await fn(isTimeout);
+        if (typeof result === "boolean" && !result || isTimeout) {
+          utils.workerClearTimeout(timeId);
+          return;
+        }
+        intervalTimeCount += intervalTime;
+        if (intervalTimeCount > maxTimeout) {
+          loop(true);
+          return;
+        }
+        timeId = utils.workerSetTimeout(() => {
+          loop(false);
+        }, intervalTime);
+      };
+      loop(false);
+    }
+  };
   const Panel = {
     /** 数据 */
     $data: {
@@ -425,7 +702,14 @@
        * @private
        */
       __panelConfig: {},
+      /**
+       * 面板
+       */
       $panel: null,
+      /**
+       * 面板配置
+       */
+      panelContent: [],
       /**
        * 菜单项初始化的默认值
        */
@@ -531,9 +815,9 @@
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
+          let child_forms = configItem.forms;
+          if (child_forms && Array.isArray(child_forms)) {
+            loopInitDefaultValue(child_forms);
           }
         }
       };
@@ -850,9 +1134,12 @@
      * 显示设置面板
      * @param content 显示的内容配置
      * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号）
+     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
+     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
      */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false) {
+    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+      this.$data.$panel = null;
+      this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
         let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
         return isBottom && it.id === "script-version";
@@ -897,275 +1184,415 @@
         ...this.$data.panelConfig
       });
       this.$data.$panel = $panel;
-    }
-  };
-  const CommonUtil = {
+      this.$data.panelContent = content;
+      if (!preventRegisterSearchPlugin) {
+        this.registerConfigSearch({ $panel, content });
+      }
+    },
     /**
-     * 移除元素（未出现也可以等待出现）
-     * @param selector 元素选择器
+     * 注册设置面板的搜索功能（双击左侧选项第一个）
      */
-    waitRemove(...args) {
-      args.forEach((selector) => {
-        if (typeof selector !== "string") {
+    registerConfigSearch(config) {
+      const { $panel, content } = config;
+      let asyncQueryProperty = async (target, handler) => {
+        if (target == null) {
           return;
         }
-        utils.waitNodeList(selector).then((nodeList) => {
-          nodeList.forEach(($el) => $el.remove());
-        });
-      });
-    },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
-      let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
-      args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
+        let handleResult = await handler(target);
+        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
+          return handleResult.data;
         }
-      });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
-    },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
-      let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
-      if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
-      } else {
-        CommonUtil.loadStyleLink(resourceMapData.url);
-      }
-    },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
-      let $link = document.createElement("link");
-      $link.rel = "stylesheet";
-      $link.type = "text/css";
-      $link.href = url;
-      DOMUtils.ready(() => {
-        document.head.appendChild($link);
-      });
-    },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
-      let $script = document.createElement("script");
-      $script.src = url;
-      return new Promise((resolve) => {
-        $script.onload = () => {
-          resolve(null);
-        };
-        (document.head || document.documentElement).appendChild($script);
-      });
-    },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
-      url = url.trim();
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else if (url.startsWith("//")) {
-        if (url.startsWith("///")) ;
-        else {
-          url = window.location.protocol + url;
-        }
-        return url;
-      } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
-        url = window.location.origin + url;
-        return url;
-      }
-    },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
-      let urlInstance = new URL(url);
-      urlInstance.protocol = "https:";
-      return urlInstance.toString();
-    },
-    /**
-     * 禁止页面滚动，默认锁定html和body
-     * @example
-     * lockScroll();
-     * @example
-     * lockScroll(document.body);
-     */
-    lockScroll(...args) {
-      let $hidden = document.createElement("style");
-      $hidden.innerHTML = /*css*/
-      `
-			.pops-overflow-hidden-important {
-				overflow: hidden !important;
-			}
-		`;
-      let $elList = [document.documentElement, document.body].concat(
-        ...args || []
-      );
-      $elList.forEach(($el) => {
-        $el.classList.add("pops-overflow-hidden-important");
-      });
-      (document.head || document.documentElement).appendChild($hidden);
-      return {
-        /**
-         * 解除锁定
-         */
-        recovery() {
-          $elList.forEach(($el) => {
-            $el.classList.remove("pops-overflow-hidden-important");
-          });
-          $hidden.remove();
-        }
+        return await asyncQueryProperty(handleResult.data, handler);
       };
-    },
-    /**
-     * 获取剪贴板文本
-     */
-    async getClipboardText() {
-      function readClipboardText(resolve) {
-        navigator.clipboard.readText().then((clipboardText) => {
-          resolve(clipboardText);
-        }).catch((error) => {
-          log.error("读取剪贴板内容失败👉", error);
-          resolve("");
+      let scrollToElementAndListen = ($el, callback) => {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                callback?.();
+                observer.disconnect();
+              }
+            });
+          },
+          {
+            root: null,
+            // 使用视口作为根
+            threshold: 1
+            // 元素完全进入视口时触发
+          }
+        );
+        observer.observe($el);
+        $el.scrollIntoView({ behavior: "smooth", block: "center" });
+      };
+      let addFlashingClass = ($el) => {
+        const flashingClassName = "pops-flashing";
+        domUtils.animationend($el, () => {
+          $el.classList.remove(flashingClassName);
         });
-      }
-      function requestPermissionsWithClipboard(resolve) {
-        navigator.permissions.query({
-          // @ts-ignore
-          name: "clipboard-read"
-        }).then((permissionStatus) => {
-          readClipboardText(resolve);
-        }).catch((error) => {
-          log.error(
-            "申请剪贴板权限失败，尝试直接读取👉",
-            error.message ?? error.name ?? error.stack
-          );
-          readClipboardText(resolve);
-        });
-      }
-      function checkClipboardApi() {
-        if (typeof navigator?.clipboard?.readText !== "function") {
-          return false;
-        }
-        if (typeof navigator?.permissions?.query !== "function") {
-          return false;
-        }
-        return true;
-      }
-      return new Promise((resolve) => {
-        if (!checkClipboardApi()) {
-          resolve("");
-          return;
-        }
-        if (document.hasFocus()) {
-          requestPermissionsWithClipboard(resolve);
-        } else {
-          window.addEventListener(
-            "focus",
-            () => {
-              requestPermissionsWithClipboard(resolve);
-            },
-            {
-              once: true
+        $el.classList.add(flashingClassName);
+      };
+      let dbclick_event = (evt, selectorTarget) => {
+        utils.preventEvent(evt);
+        let $alert = __pops.alert({
+          title: {
+            text: "搜索配置",
+            position: "center"
+          },
+          content: {
+            text: (
+              /*html*/
+              `
+						<div class="search-wrapper">
+							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+						</div>
+						<div class="search-result-wrapper">
+
+						</div>
+					`
+            ),
+            html: true
+          },
+          btn: {
+            ok: { enable: false }
+          },
+          mask: {
+            clickEvent: {
+              toClose: true
             }
-          );
-        }
-      });
-    },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
-      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
-    },
-    /**
-     * 在规定时间内循环，如果超时或返回false则取消循环
-     * @param fn 循环的函数
-     * @param intervalTime 循环间隔时间
-     * @param [timeout=5000] 循环超时时间
-     */
-    interval(fn, intervalTime, timeout = 5e3) {
-      let timeId;
-      let maxTimeout = timeout - intervalTime;
-      let intervalTimeCount = intervalTime;
-      let loop = async (isTimeout) => {
-        let result = await fn(isTimeout);
-        if (typeof result === "boolean" && !result || isTimeout) {
-          utils.workerClearTimeout(timeId);
-          return;
-        }
-        intervalTimeCount += intervalTime;
-        if (intervalTimeCount > maxTimeout) {
-          loop(true);
-          return;
-        }
-        timeId = utils.workerSetTimeout(() => {
-          loop(false);
-        }, intervalTime);
+          },
+          width: PanelUISize.settingMiddle.width,
+          height: "auto",
+          drag: true,
+          style: (
+            /*css*/
+            `
+					${__pops.config.cssText.panelCSS}
+
+					.search-wrapper{
+						border-bottom: 1px solid #000000;
+					}
+					.search-config-text{
+						width: 100%;
+						border: 0;
+						height: 32px;
+						padding: 0px 10px;
+						outline: none;
+					}
+					.search-result-wrapper{
+						max-height: 400px;
+						overflow: auto;
+					}
+					.search-result-item{
+						cursor: pointer;
+						padding: 5px 10px;
+						display: flex;
+						flex-direction: column;
+					}
+					.search-result-item:hover{
+						background-color: #D8F1FD;
+					}
+					.search-result-item-path{
+						display: flex;
+    					align-items: center;
+					}
+					.search-result-item-description{
+						font-size: 0.8rem;
+						color: #6c6c6c;
+					}
+					${config.searchDialogStyle ?? ""}
+				`
+          )
+        });
+        $alert.$shadowRoot.querySelector(".search-wrapper");
+        let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
+        let $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
+        $searchInput.focus();
+        let clearSearchResult = () => {
+          domUtils.empty($searchResultWrapper);
+        };
+        let createSearchResultItem = (pathInfo) => {
+          const searchPath = utils.queryProperty(pathInfo, (target) => {
+            if (target?.next) {
+              return {
+                isFind: false,
+                data: target.next
+              };
+            } else {
+              return {
+                isFind: true,
+                data: target
+              };
+            }
+          });
+          let $item = domUtils.createElement("div", {
+            className: "search-result-item",
+            innerHTML: (
+              /*html*/
+              `
+							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
+							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
+						`
+            )
+          });
+          domUtils.on($item, "click", (clickItemEvent) => {
+            let $asideItems = $panel.$shadowRoot.querySelectorAll(
+              "aside.pops-panel-aside .pops-panel-aside-top-container li"
+            );
+            let $targetAsideItem = $asideItems[pathInfo.index];
+            if (!$targetAsideItem) {
+              Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              return;
+            }
+            $targetAsideItem.scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+            });
+            $targetAsideItem.click();
+            asyncQueryProperty(pathInfo.next, async (target) => {
+              if (target?.next) {
+                let $findDeepMenu = await utils.waitNode(() => {
+                  return Array.from(
+                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
+                  ).find(($deepMenu) => {
+                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
+                  });
+                }, 2500);
+                if ($findDeepMenu) {
+                  $findDeepMenu.click();
+                } else {
+                  Qmsg.error("未找到对应的二级菜单");
+                  return {
+                    isFind: true,
+                    data: target
+                  };
+                }
+                return {
+                  isFind: false,
+                  data: target.next
+                };
+              } else {
+                let $findTargetMenu = await utils.waitNode(() => {
+                  return Array.from(
+                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
+                  ).find(($menuItem) => {
+                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                    return __formConfig__ === target.matchedData?.formConfig;
+                  });
+                }, 2500);
+                if ($findTargetMenu) {
+                  scrollToElementAndListen($findTargetMenu);
+                  let $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
+                  if ($fold) {
+                    let $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
+                    $foldWrapper.click();
+                    await utils.sleep(500);
+                  }
+                  scrollToElementAndListen($findTargetMenu, () => {
+                    addFlashingClass($findTargetMenu);
+                  });
+                } else {
+                  Qmsg.error("未找到对应的菜单项");
+                }
+                return {
+                  isFind: true,
+                  data: target
+                };
+              }
+            });
+          });
+          return $item;
+        };
+        let execSearch = (searchText) => {
+          const searchTextRegExp = new RegExp(searchText, "i");
+          const searchConfigResult = [];
+          const loopContentConfig = (configList, path) => {
+            for (let index = 0; index < configList.length; index++) {
+              const configItem = configList[index];
+              let child_forms = configItem.forms;
+              if (child_forms && Array.isArray(child_forms)) {
+                const deepMenuPath = utils.deepClone(path);
+                if (configItem.type === "deepMenu") {
+                  const deepNext = utils.queryProperty(deepMenuPath, (target) => {
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  deepNext.next = {
+                    name: configItem.text
+                  };
+                }
+                loopContentConfig(child_forms, deepMenuPath);
+              } else {
+                let text = Reflect.get(configItem, "text");
+                let description = Reflect.get(configItem, "description");
+                const delayMatchedTextList = [text, description];
+                let matchedIndex = delayMatchedTextList.findIndex((configText) => {
+                  if (typeof configText !== "string") {
+                    return;
+                  }
+                  return configText.match(searchTextRegExp);
+                });
+                if (matchedIndex !== -1) {
+                  const matchedPath = utils.deepClone(path);
+                  const deepNext = utils.queryProperty(matchedPath, (target) => {
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  deepNext.next = {
+                    name: text,
+                    matchedData: {
+                      path: "",
+                      formConfig: configItem,
+                      matchedText: delayMatchedTextList[matchedIndex],
+                      description
+                    }
+                  };
+                  const pathList = [];
+                  utils.queryProperty(matchedPath, (target) => {
+                    const name = target?.name;
+                    if (typeof name === "string" && name.trim() !== "") {
+                      pathList.push(name);
+                    }
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  const pathStr = pathList.join(CommonUtil.escapeHtml(" - "));
+                  deepNext.next.matchedData.path = pathStr;
+                  searchConfigResult.push(matchedPath);
+                }
+              }
+            }
+          };
+          for (let index = 0; index < content.length; index++) {
+            const leftContentConfigItem = content[index];
+            if (!leftContentConfigItem.forms) {
+              continue;
+            }
+            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
+              continue;
+            }
+            const rightContentConfigList = leftContentConfigItem.forms;
+            if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+              let text = leftContentConfigItem.title;
+              if (typeof text === "function") {
+                text = text();
+              }
+              loopContentConfig(rightContentConfigList, {
+                index,
+                name: text
+              });
+            }
+          }
+          let fragment = document.createDocumentFragment();
+          for (const pathInfo of searchConfigResult) {
+            let $resultItem = createSearchResultItem(pathInfo);
+            fragment.appendChild($resultItem);
+          }
+          clearSearchResult();
+          $searchResultWrapper.append(fragment);
+        };
+        domUtils.on(
+          $searchInput,
+          "input",
+          utils.debounce((evt2) => {
+            utils.preventEvent(evt2);
+            let searchText = domUtils.val($searchInput).trim();
+            if (searchText === "") {
+              clearSearchResult();
+              return;
+            }
+            execSearch(searchText);
+          }, 200)
+        );
       };
-      loop(false);
+      let clickElement = null;
+      let isDoubleClick = false;
+      let timer = void 0;
+      domUtils.on(
+        $panel.$shadowRoot,
+        "dblclick",
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+        dbclick_event
+      );
+      domUtils.on(
+        $panel.$shadowRoot,
+        "touchend",
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+        (evt, selectorTarget) => {
+          clearTimeout(timer);
+          timer = void 0;
+          if (isDoubleClick && clickElement === selectorTarget) {
+            isDoubleClick = false;
+            dbclick_event(evt);
+          } else {
+            timer = setTimeout(() => {
+              isDoubleClick = false;
+            }, 200);
+            clickElement = selectorTarget;
+            isDoubleClick = true;
+          }
+        },
+        {
+          capture: true
+        }
+      );
+      $panel.$shadowRoot.appendChild(
+        domUtils.createElement("style", {
+          type: "text/css",
+          textContent: (
+            /*css*/
+            `
+					.pops-flashing{
+						animation: double-blink 1.5s ease-in-out;
+					}
+					@keyframes double-blink {
+						 0% {
+							background-color: initial;
+						}
+						25% {
+							background-color: yellow;
+						}
+						50% {
+							background-color: initial;
+						}
+						75% {
+							background-color: yellow;
+						}
+						100% {
+							background-color: initial;
+						}
+					}
+				`
+          )
+        })
+      );
     }
   };
   const PanelSettingConfig = {
@@ -2588,7 +3015,7 @@
       log.info("伪装登录");
       DouYinNetWorkHook.hookUserNoLoginResponse();
       const WAIT_TIME = 2e4;
-      let uid = 114514;
+      let uid = parseInt((Math.random() * 1e6).toString());
       let info = {
         uid,
         secUid: "",
@@ -2686,24 +3113,16 @@
         let reactFiber = reactInstance?.reactFiber;
         reactInstance?.reactProps;
         if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
-          userInfoList.push(
-            reactFiber?.alternate?.return?.memoizedProps?.userInfo
-          );
+          userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo);
         }
         if (reactFiber?.alternate?.return?.memoizedProps?.userInfo?.userInfo) {
-          userInfoList.push(
-            reactFiber?.alternate?.return?.memoizedProps?.userInfo.userInfo
-          );
+          userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo.userInfo);
         }
         if (reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo) {
-          userInfoList.push(
-            reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo
-          );
+          userInfoList.push(reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo);
         }
         if (reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo?.userInfo) {
-          userInfoList.push(
-            reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo.userInfo
-          );
+          userInfoList.push(reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo.userInfo);
         }
         return userInfoList;
       }
@@ -2742,10 +3161,7 @@
       this.watchCommentDialogToClose();
       if (DouYinRouter.isLive()) {
         log.info("伪装登录：live");
-        utils.waitNode(
-          `[id^="douyin-header"] div:has(.dy-tip-container)`,
-          WAIT_TIME
-        ).then(() => {
+        utils.waitNode(`[id^="douyin-header"] div:has(.dy-tip-container)`, WAIT_TIME).then(() => {
           let lockFn = new utils.LockFunction(() => {
             setLogin($(`[id^="douyin-header"]`));
           }, 70);
@@ -2804,9 +3220,7 @@
         if (!Panel.getValue("watchLoginDialogToClose")) {
           return;
         }
-        let $loginDialog = $(
-          'body > div[id^="login-full-panel-"]'
-        );
+        let $loginDialog = $('body > div[id^="login-full-panel-"]');
         if ($loginDialog) {
           let $loginDialogCloseBtn = $loginDialog.querySelector(".dy-account-close") || $loginDialog.querySelector(
             'div:has(>svg path[d="M12.7929 22.2426C12.4024 22.6331 12.4024 23.2663 12.7929 23.6568C13.1834 24.0474 13.8166 24.0474 14.2071 23.6568L18.5 19.3639L22.7929 23.6568C23.1834 24.0474 23.8166 24.0474 24.2071 23.6568C24.5976 23.2663 24.5976 22.6331 24.2071 22.2426L19.9142 17.9497L24.1066 13.7573C24.4971 13.3668 24.4971 12.7336 24.1066 12.3431C23.7161 11.9526 23.0829 11.9526 22.6924 12.3431L18.5 16.5355L14.3076 12.3431C13.9171 11.9526 13.2839 11.9526 12.8934 12.3431C12.5029 12.7336 12.5029 13.3668 12.8934 13.7573L17.0858 17.9497L12.7929 22.2426Z"])'
@@ -2857,9 +3271,7 @@
      */
     watchCommentDialogToClose() {
       let lockFn = new utils.LockFunction(() => {
-        let $cardLoginGuide = $(
-          '[id^="related-video-card-login-guide"]'
-        );
+        let $cardLoginGuide = $('[id^="related-video-card-login-guide"]');
         if (!$cardLoginGuide) {
           return;
         }

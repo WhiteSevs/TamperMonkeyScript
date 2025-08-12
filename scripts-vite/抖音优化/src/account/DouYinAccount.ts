@@ -13,8 +13,8 @@ export const DouYinAccount = {
 		log.info("伪装登录");
 		DouYinNetWorkHook.hookUserNoLoginResponse();
 		const WAIT_TIME = 20000;
-		// let uid = parseInt((Math.random() * 1000000).toString());
-		let uid = 114514;
+		let uid = parseInt((Math.random() * 1000000).toString());
+		// let uid = 114514;
 		let info = {
 			uid: uid,
 			secUid: "",
@@ -23,10 +23,8 @@ export const DouYinAccount = {
 			nickname: "乌萨奇", // 昵称
 			desc: "除草证3级", // 描述
 			gender: 0, // 性别
-			avatarUrl:
-				"https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif", // 头像
-			avatar300Url:
-				"https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+			avatarUrl: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif", // 头像
+			avatar300Url: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
 			followStatus: 0,
 			followerStatus: 0,
 			awemeCount: 0, // 作品数量
@@ -95,33 +93,26 @@ export const DouYinAccount = {
 			accountCertInfo: {},
 			close_consecutive_chat: 0,
 		};
+		/**
+		 * 获取用户信息
+		 * @param element
+		 */
 		function getUserInfo(element: HTMLElement) {
 			let userInfoList = [];
 			let reactInstance = utils.getReactObj(element);
 			let reactFiber = reactInstance?.reactFiber;
 			let reactProps = reactInstance?.reactProps;
 			if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
-				userInfoList.push(
-					reactFiber?.alternate?.return?.memoizedProps?.userInfo
-				);
+				userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo);
 			}
 			if (reactFiber?.alternate?.return?.memoizedProps?.userInfo?.userInfo) {
-				userInfoList.push(
-					reactFiber?.alternate?.return?.memoizedProps?.userInfo.userInfo
-				);
+				userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo.userInfo);
 			}
 			if (reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo) {
-				userInfoList.push(
-					reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo
-				);
+				userInfoList.push(reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo);
 			}
-			if (
-				reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo?.userInfo
-			) {
-				userInfoList.push(
-					reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo
-						.userInfo
-				);
+			if (reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo?.userInfo) {
+				userInfoList.push(reactFiber?.alternate?.return?.return?.memoizedProps?.userInfo.userInfo);
 			}
 			return userInfoList;
 		}
@@ -168,10 +159,7 @@ export const DouYinAccount = {
 		if (DouYinRouter.isLive()) {
 			log.info("伪装登录：live");
 			utils
-				.waitNode<HTMLDivElement>(
-					`[id^="douyin-header"] div:has(.dy-tip-container)`,
-					WAIT_TIME
-				)
+				.waitNode<HTMLDivElement>(`[id^="douyin-header"] div:has(.dy-tip-container)`, WAIT_TIME)
 				.then(() => {
 					let lockFn = new utils.LockFunction(() => {
 						setLogin($<HTMLDivElement>(`[id^="douyin-header"]`)!);
@@ -194,36 +182,31 @@ export const DouYinAccount = {
 				let $react = utils.getReactObj($ele);
 				let reactFiber = $react?.reactFiber;
 				let reactProps = $react?.reactProps;
-				if (
-					typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin ===
-					"boolean"
-				) {
+				if (typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin === "boolean") {
 					Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
 				}
 				if (typeof reactProps?.children?.[1]?.props?.isClient === "boolean") {
 					Reflect.set(reactProps.children[1].props, "isClient", true);
 				}
 			}
-			utils
-				.waitNode<HTMLDivElement>("#root > div", WAIT_TIME)
-				.then(($rootDiv) => {
-					if (!$rootDiv) {
-						log.error("#root > div获取失败");
-						return;
-					}
-					let lockFn = new utils.LockFunction(() => {
-						setUserInfoBySearch($rootDiv);
-					}, 70);
-					utils.mutationObserver(document, {
-						config: {
-							subtree: true,
-							childList: true,
-						},
-						callback: () => {
-							lockFn.run();
-						},
-					});
+			utils.waitNode<HTMLDivElement>("#root > div", WAIT_TIME).then(($rootDiv) => {
+				if (!$rootDiv) {
+					log.error("#root > div获取失败");
+					return;
+				}
+				let lockFn = new utils.LockFunction(() => {
+					setUserInfoBySearch($rootDiv);
+				}, 70);
+				utils.mutationObserver(document, {
+					config: {
+						subtree: true,
+						childList: true,
+					},
+					callback: () => {
+						lockFn.run();
+					},
 				});
+			});
 		}
 	},
 	/**
@@ -239,9 +222,7 @@ export const DouYinAccount = {
 			if (!Panel.getValue("watchLoginDialogToClose")) {
 				return;
 			}
-			let $loginDialog = $<HTMLDivElement>(
-				'body > div[id^="login-full-panel-"]'
-			);
+			let $loginDialog = $<HTMLDivElement>('body > div[id^="login-full-panel-"]');
 			if ($loginDialog) {
 				let $loginDialogCloseBtn =
 					$loginDialog.querySelector<HTMLDivElement>(".dy-account-close") ||
@@ -296,9 +277,7 @@ export const DouYinAccount = {
 	watchCommentDialogToClose() {
 		let lockFn = new utils.LockFunction(() => {
 			// 评论区的登录屏蔽罩
-			let $cardLoginGuide = $<HTMLElement>(
-				'[id^="related-video-card-login-guide"]'
-			);
+			let $cardLoginGuide = $<HTMLElement>('[id^="related-video-card-login-guide"]');
 			if (!$cardLoginGuide) {
 				return;
 			}
