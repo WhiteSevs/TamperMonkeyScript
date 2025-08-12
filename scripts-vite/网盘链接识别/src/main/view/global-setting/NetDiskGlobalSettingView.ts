@@ -17,11 +17,14 @@ export const NetDiskGlobalSettingView = {
 			Qmsg.error("设置界面已存在");
 			return;
 		}
-		// 总设置
-		let content = PanelContent.getConfig(0);
 		// 规则的设置
 		let ruleContent = NetDiskRule.getRulePanelContent();
-		content.push(...ruleContent, ...PanelContent.getDefaultBottomContentConfig());
+		// 总设置
+		let content = [
+			...PanelContent.getConfig(0),
+			...ruleContent,
+			...PanelContent.getDefaultBottomContentConfig(),
+		];
 		let $panel = NetDiskPops.panel(
 			{
 				title: {

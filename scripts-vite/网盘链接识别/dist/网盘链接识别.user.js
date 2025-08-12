@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.11
+// @version      2025.8.12
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@7272395d2c4ef6f254ee09724e20de4899098bc0/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
@@ -1413,7 +1413,34 @@
         }
         return await asyncQueryProperty(handleResult.data, handler);
       };
-      let dbclick_event = (evt) => {
+      let scrollToElementAndListen = ($el, callback) => {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                callback?.();
+                observer.disconnect();
+              }
+            });
+          },
+          {
+            root: null,
+            // 使用视口作为根
+            threshold: 1
+            // 元素完全进入视口时触发
+          }
+        );
+        observer.observe($el);
+        $el.scrollIntoView({ behavior: "smooth", block: "center" });
+      };
+      let addFlashingClass = ($el) => {
+        const flashingClassName = "pops-flashing";
+        domUtils.animationend($el, () => {
+          $el.classList.remove(flashingClassName);
+        });
+        $el.classList.add(flashingClassName);
+      };
+      let dbclick_event = (evt, selectorTarget) => {
         utils.preventEvent(evt);
         let $alert = __pops.alert({
           title: {
@@ -1481,7 +1508,6 @@
 						font-size: 0.8rem;
 						color: #6c6c6c;
 					}
-
 					${config.searchDialogStyle ?? ""}
 				`
           )
@@ -1564,15 +1590,15 @@
                   });
                 }, 2500);
                 if ($findTargetMenu) {
+                  scrollToElementAndListen($findTargetMenu);
                   let $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
                   if ($fold) {
                     let $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
                     $foldWrapper.click();
                     await utils.sleep(500);
                   }
-                  $findTargetMenu.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
+                  scrollToElementAndListen($findTargetMenu, () => {
+                    addFlashingClass($findTargetMenu);
                   });
                 } else {
                   Qmsg.error("未找到对应的菜单项");
@@ -1745,6 +1771,36 @@
         {
           capture: true
         }
+      );
+      $panel.$shadowRoot.appendChild(
+        domUtils.createElement("style", {
+          type: "text/css",
+          textContent: (
+            /*css*/
+            `
+					.pops-flashing{
+						animation: double-blink 1.5s ease-in-out;
+					}
+					@keyframes double-blink {
+						 0% {
+							background-color: initial;
+						}
+						25% {
+							background-color: yellow;
+						}
+						50% {
+							background-color: initial;
+						}
+						75% {
+							background-color: yellow;
+						}
+						100% {
+							background-color: initial;
+						}
+					}
+				`
+          )
+        })
       );
     }
   };
@@ -20614,9 +20670,12 @@
         Qmsg.error("设置界面已存在");
         return;
       }
-      let content = PanelContent.getConfig(0);
       let ruleContent = NetDiskRule.getRulePanelContent();
-      content.push(...ruleContent, ...PanelContent.getDefaultBottomContentConfig());
+      let content = [
+        ...PanelContent.getConfig(0),
+        ...ruleContent,
+        ...PanelContent.getDefaultBottomContentConfig()
+      ];
       let $panel = NetDiskPops.panel(
         {
           title: {
