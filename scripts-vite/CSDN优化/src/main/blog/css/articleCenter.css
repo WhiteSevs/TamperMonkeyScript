@@ -41,13 +41,7 @@ aside.blog_container_aside[style*="position: fixed;"] {
 		display: none;
 	}
 
-	.nodata
-		.container
-		main
-		.more-toolbox-new
-		.toolbox-left
-		.profile-box
-		.profile-name {
+	.nodata .container main .more-toolbox-new .toolbox-left .profile-box .profile-name {
 		max-width: 128px;
 	}
 

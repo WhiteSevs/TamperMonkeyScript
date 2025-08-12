@@ -90,10 +90,7 @@ export const CSDNBlogArticle = {
 			let recommendBoxElement = document.querySelector(
 				".recommend-box.insert-baidu-box.recommend-box-style"
 			) as HTMLDivElement;
-			recommendBoxElement.insertBefore(
-				$firstRecommendBox,
-				recommendBoxElement.firstChild
-			);
+			recommendBoxElement.insertBefore($firstRecommendBox, recommendBoxElement.firstChild);
 		});
 		log.info("恢复评论到正确位置-第二条评论");
 		/* 第二条评论 */
@@ -101,10 +98,7 @@ export const CSDNBlogArticle = {
 			let recommendBoxElement = document.querySelector(
 				".recommend-box.insert-baidu-box.recommend-box-style"
 			) as HTMLDivElement;
-			recommendBoxElement.insertBefore(
-				$secondRecommendBox,
-				recommendBoxElement.firstChild
-			);
+			recommendBoxElement.insertBefore($secondRecommendBox, recommendBoxElement.firstChild);
 		});
 	},
 	/**
@@ -113,16 +107,12 @@ export const CSDNBlogArticle = {
 	identityCSDNDownload() {
 		log.info("标识CSDN下载的链接");
 		document
-			.querySelectorAll<HTMLDivElement>(
-				".recommend-item-box[data-url*='https://download.csdn.net/']"
-			)
+			.querySelectorAll<HTMLDivElement>(".recommend-item-box[data-url*='https://download.csdn.net/']")
 			.forEach((item) => {
 				if (Panel.getValue("csdn-blog-removeResourceDownloadArticle")) {
 					item.remove();
 				} else {
-					(
-						item.querySelector(".content-box") as HTMLDivElement
-					).style.setProperty("border", "2px solid red");
+					(item.querySelector(".content-box") as HTMLDivElement).style.setProperty("border", "2px solid red");
 				}
 			});
 	},
@@ -131,7 +121,28 @@ export const CSDNBlogArticle = {
 	 */
 	articleCenter() {
 		log.info("全文居中");
-		return addStyle(BlogArticleCenterCSS);
+		let result: any[] = [addStyle(BlogArticleCenterCSS)];
+		if (Panel.getValue("csdn-blog-shieldRightDirectoryInformation")) {
+			// 当前启用了【屏蔽】右侧目录信息
+			// 去除margin偏移
+			result.push(
+				addStyle(/*css*/ `
+				#mainBox {
+					margin-right: 0px;
+				}`)
+			);
+		}
+		if (Panel.getValue("csdn-blog-shieldLeftBlogContainerAside")) {
+			// 当前启用了【屏蔽】左侧博客信息
+			// 去除margin偏移
+			result.push(
+				addStyle(/*css*/ `
+				#mainBox {
+					margin-left: 0px;
+				}`)
+			);
+		}
+		return result;
 	},
 	/**
 	 * 屏蔽登录弹窗
