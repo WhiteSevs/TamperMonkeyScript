@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.12
+// @version      2025.8.15
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -1454,9 +1454,7 @@
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
-						<div class="search-result-wrapper">
-
-						</div>
+						<div class="search-result-wrapper"></div>
 					`
             ),
             html: true
@@ -1478,7 +1476,10 @@
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
-						border-bottom: 1px solid #000000;
+						border-bottom: 1px solid rgb(235, 238, 245, 1);
+					}
+					.pops-content:has(.search-result-wrapper:empty) .search-wrapper{
+						border-bottom: 0;
 					}
 					.search-config-text{
 						width: 100%;
@@ -2559,6 +2560,9 @@
         }
         let storageApiValue = this.props[PROPS_STORAGE_API];
         storageApiValue.set(key, value);
+        if (typeof valueChangeCallBack === "function") {
+          valueChangeCallBack(event, value);
+        }
       },
       afterAddToUListCallBack
     };
@@ -3396,10 +3400,7 @@
        * @param defaultValue 默认值: 20
        */
       before(key, defaultValue = 20) {
-        const panelData = GeneratePanelStorage(
-          NetDiskRuleDataKEY.matchRange_text.before(key),
-          defaultValue
-        );
+        const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_text.before(key), defaultValue);
         return parseInt(panelData.value.toString());
       },
       /**
@@ -3408,10 +3409,7 @@
        * @param defaultValue 默认值: 10
        */
       after(key, defaultValue = 10) {
-        const panelData = GeneratePanelStorage(
-          NetDiskRuleDataKEY.matchRange_text.after(key),
-          defaultValue
-        );
+        const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_text.after(key), defaultValue);
         return parseInt(panelData.value.toString());
       }
     },
@@ -3423,10 +3421,7 @@
        * @param defaultValue 默认值: 100
        */
       before(key, defaultValue = 100) {
-        const panelData = GeneratePanelStorage(
-          NetDiskRuleDataKEY.matchRange_html.before(key),
-          defaultValue
-        );
+        const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_html.before(key), defaultValue);
         return parseInt(panelData.value.toString());
       },
       /**
@@ -3435,10 +3430,7 @@
        * @param defaultValue 默认值: 15
        */
       after(key, defaultValue = 15) {
-        const panelData = GeneratePanelStorage(
-          NetDiskRuleDataKEY.matchRange_html.after(key),
-          defaultValue
-        );
+        const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_html.after(key), defaultValue);
         return parseInt(panelData.value.toString());
       }
     },
@@ -3450,10 +3442,7 @@
        * @param defaultValue
        */
       enable(key, defaultValue = true) {
-        const panelData = GeneratePanelStorage(
-          NetDiskRuleDataKEY.function.enable(key),
-          defaultValue
-        );
+        const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.function.enable(key), defaultValue);
         return Boolean(panelData.value);
       },
       /**
@@ -3462,10 +3451,7 @@
        * @param defaultValue
        */
       linkClickMode(key, defaultValue = "copy") {
-        const panelData = GeneratePanelStorage(
-          NetDiskRuleDataKEY.function.linkClickMode(key),
-          defaultValue
-        );
+        const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.function.linkClickMode(key), defaultValue);
         return panelData.value;
       },
       /**
@@ -3513,9 +3499,7 @@
        */
       openBlankWithCopyAccessCode(key, defaultValue = false) {
         const panelData = GeneratePanelStorage(
-          NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-            key
-          ),
+          NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(key),
           defaultValue
         );
         return Boolean(panelData.value);
@@ -3528,10 +3512,7 @@
        * @param defaultValue
        */
       enable(key, defaultValue = false) {
-        const panelData = GeneratePanelStorage(
-          NetDiskRuleDataKEY.schemeUri.enable(key),
-          defaultValue
-        );
+        const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.schemeUri.enable(key), defaultValue);
         return Boolean(panelData.value);
       },
       /**
@@ -3564,10 +3545,7 @@
        * @param defaultValue
        */
       uri(key, defaultValue = "") {
-        const panelData = GeneratePanelStorage(
-          NetDiskRuleDataKEY.schemeUri.uri(key),
-          defaultValue
-        );
+        const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.schemeUri.uri(key), defaultValue);
         return panelData.value;
       }
     }
@@ -3615,25 +3593,17 @@
         if (isMatchedFillShareCode) {
           let autoFillFn = NetDiskAutoFillAccessCode.netDisk[fillAccessCodeNetDiskInfo.ruleKeyName];
           if (typeof autoFillFn === "function") {
-            log.success(
-              `成功匹配到对应的自动填充访问码的网盘信息：`,
-              fillAccessCodeNetDiskInfo
-            );
+            log.success(`成功匹配到对应的自动填充访问码的网盘信息：`, fillAccessCodeNetDiskInfo);
             autoFillFn(fillAccessCodeNetDiskInfo);
           } else {
-            log.warn(
-              "自动填充访问码失败：" + fillAccessCodeNetDiskInfo.ruleKeyName + "，原因：该网盘未适配"
-            );
+            log.warn("自动填充访问码失败：" + fillAccessCodeNetDiskInfo.ruleKeyName + "，原因：该网盘未适配");
           }
           flag = true;
           break;
         }
       }
       if (!flag) {
-        log.error(
-          "未触发自动填充访问码，原因：未找到对应的网盘信息：👇",
-          this.$data.netDiskInfo
-        );
+        log.error("未触发自动填充访问码，原因：未找到对应的网盘信息：👇", this.$data.netDiskInfo);
       }
     },
     netDisk: {
@@ -3741,16 +3711,11 @@
      * 获取值
      */
     getValue() {
-      let localValue = _GM_getValue(
-        this.key,
-        []
-      );
+      let localValue = _GM_getValue(this.key, []);
       if (!Array.isArray(localValue)) {
         localValue = [localValue];
       }
-      localValue = localValue.filter(
-        (it) => Date.now() - it.time < 24 * 60 * 60 * 1e3
-      );
+      localValue = localValue.filter((it) => Date.now() - it.time < 24 * 60 * 60 * 1e3);
       this.setValue(localValue);
       return localValue;
     }
@@ -3929,34 +3894,22 @@
         let replacedText = data[key];
         if (utils.isNotNull(replacedText)) {
           try {
-            text = text.replaceAll(
-              `{#encodeURI-${key}#}`,
-              encodeURI(replacedText)
-            );
+            text = text.replaceAll(`{#encodeURI-${key}#}`, encodeURI(replacedText));
           } catch (error) {
             log.error("encodeURI-替换的文本失败", [replacedText]);
           }
           try {
-            text = text.replaceAll(
-              `{#encodeURIComponent-${key}#}`,
-              encodeURIComponent(replacedText)
-            );
+            text = text.replaceAll(`{#encodeURIComponent-${key}#}`, encodeURIComponent(replacedText));
           } catch (error) {
             log.error("encodeURIComponent-替换的文本失败", [replacedText]);
           }
           try {
-            text = text.replaceAll(
-              `{#decodeURI-${key}#}`,
-              decodeURI(replacedText)
-            );
+            text = text.replaceAll(`{#decodeURI-${key}#}`, decodeURI(replacedText));
           } catch (error) {
             log.error("decodeURI-替换的文本失败", [replacedText]);
           }
           try {
-            text = text.replaceAll(
-              `{#decodeURIComponent-${key}#}`,
-              decodeURIComponent(replacedText)
-            );
+            text = text.replaceAll(`{#decodeURIComponent-${key}#}`, decodeURIComponent(replacedText));
           } catch (error) {
             log.error("encodeURIComponent-替换的文本失败", [replacedText]);
           }
@@ -4037,9 +3990,7 @@
      * @param option
      */
     getSchemeUri(option) {
-      return `${this.protocol}://${this.pathname}?${utils.toSearchParamsStr(
-      option
-    )}`;
+      return `${this.protocol}://${this.pathname}?${utils.toSearchParamsStr(option)}`;
     },
     /**
      * 获取1dm的intent的配置
@@ -5000,7 +4951,7 @@
       return details;
     }
   };
-  const indexCSS$4 = '.pops[type-value="alert"]\r\n	.pops-alert-title:has(+ .pops-alert-content .netdisk-url-box-all:empty) {\r\n	border-bottom: none;\r\n}\r\n.netdisk-url-box {\r\n	border-bottom: 1px solid #e4e6eb;\r\n}\r\n.netdisk-url-div {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	padding: 5px 0px 5px 0px;\r\n}\r\n.netdisk-icon {\r\n	display: contents;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	cursor: pointer;\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	margin: 0px 10px;\r\n}\r\n.netdisk-url-div .netdisk-icon,\r\n.netdisk-url-div .netdisk-status {\r\n	flex: 0 0 auto;\r\n}\r\n.netdisk-url-div .netdisk-url {\r\n	flex: 1;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.netdisk-status[data-check-failed] {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url a {\r\n	color: #ff4848 !important;\r\n	min-height: 28px;\r\n	overflow-x: hidden;\r\n	overflow-y: auto;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	padding: 0px;\r\n	word-break: break-word;\r\n	text-align: left;\r\n}\r\n.netdisk-status {\r\n	display: none;\r\n}\r\n.netdisk-status[data-check-valid] {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 15px;\r\n	height: 15px;\r\n	color: #000000;\r\n}\r\n\r\n.netdisk-status[data-check-valid="failed"] {\r\n	color: red;\r\n}\r\n\r\n.netdisk-status[data-check-valid="partial-violation"] {\r\n	color: orange;\r\n}\r\n\r\n.netdisk-status[data-check-valid="error"] {\r\n	cursor: pointer;\r\n}\r\n\r\n.netdisk-status[data-check-valid="success"] {\r\n	color: green;\r\n}\r\n\r\n.netdisk-status[data-check-valid="verify"] {\r\n	color: #faad14;\r\n}\r\n\r\n.netdisk-status[data-check-valid="loading"] svg {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n\r\n.netdisk-url-box:has(.netdisk-status[data-check-valid="failed"]) {\r\n	text-decoration: line-through;\r\n}\r\n\r\n.whitesevPop-whitesevPopSetting :focus-visible {\r\n	outline-offset: 0;\r\n	outline: 0;\r\n}\r\n.netdisk-url a[isvisited="true"] {\r\n	color: #8b8888 !important;\r\n}\r\n.netdisk-url a:active {\r\n	box-shadow: 0 0 0 1px #616161 inset;\r\n}\r\n.netdisk-url a:focus-visible {\r\n	outline: 0;\r\n}\r\n.whitesevPop-content p[pop] {\r\n	text-indent: 0;\r\n}\r\n.whitesevPop-button[data-type="primary"] {\r\n	border-color: #2d8cf0;\r\n	background-color: #2d8cf0;\r\n}\r\n';
+  const indexCSS$4 = '.pops[type-value="alert"] .pops-alert-title:has(+ .pops-alert-content .netdisk-url-box-all:empty) {\r\n	border-bottom: none;\r\n}\r\n.netdisk-url-box {\r\n	border-bottom: 1px solid #e4e6eb;\r\n}\r\n.netdisk-url-div {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	padding: 5px 0px 5px 0px;\r\n}\r\n.netdisk-icon {\r\n	display: contents;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	cursor: pointer;\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	margin: 0px 10px;\r\n}\r\n.netdisk-url-div .netdisk-icon,\r\n.netdisk-url-div .netdisk-status {\r\n	flex: 0 0 auto;\r\n}\r\n.netdisk-url-div .netdisk-url {\r\n	flex: 1;\r\n}\r\n.netdisk-icon .netdisk-icon-img {\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%), 0 1.3px 2.5px rgb(0 0 0 / 10%),\r\n		0 2.2px 4.5px rgb(0 0 0 / 12%), 0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.netdisk-status[data-check-failed] {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url {\r\n	padding: 5px 5px;\r\n}\r\n.netdisk-url a {\r\n	color: #ff4848 !important;\r\n	min-height: 28px;\r\n	overflow-x: hidden;\r\n	overflow-y: auto;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	display: flex;\r\n	align-items: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	padding: 0px;\r\n	word-break: break-word;\r\n	text-align: left;\r\n}\r\n.netdisk-status {\r\n	display: none;\r\n}\r\n.netdisk-status[data-check-valid] {\r\n	display: flex;\r\n	align-items: center;\r\n	width: 15px;\r\n	height: 15px;\r\n	color: #000000;\r\n}\r\n\r\n.netdisk-status[data-check-valid="failed"] {\r\n	color: red;\r\n}\r\n\r\n.netdisk-status[data-check-valid="partial-violation"] {\r\n	color: orange;\r\n}\r\n\r\n.netdisk-status[data-check-valid="error"] {\r\n	cursor: pointer;\r\n}\r\n\r\n.netdisk-status[data-check-valid="success"] {\r\n	color: green;\r\n}\r\n\r\n.netdisk-status[data-check-valid="verify"] {\r\n	color: #faad14;\r\n}\r\n\r\n.netdisk-status[data-check-valid="loading"] svg {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n\r\n.netdisk-url-box:has(.netdisk-status[data-check-valid="failed"]) {\r\n	text-decoration: line-through;\r\n}\r\n\r\n.whitesevPop-whitesevPopSetting :focus-visible {\r\n	outline-offset: 0;\r\n	outline: 0;\r\n}\r\n.netdisk-url a[isvisited="true"] {\r\n	color: #8b8888 !important;\r\n}\r\n.netdisk-url a:active {\r\n	box-shadow: 0 0 0 1px #616161 inset;\r\n}\r\n.netdisk-url a:focus-visible {\r\n	outline: 0;\r\n}\r\n.whitesevPop-content p[pop] {\r\n	text-indent: 0;\r\n}\r\n.whitesevPop-button[data-type="primary"] {\r\n	border-color: #2d8cf0;\r\n	background-color: #2d8cf0;\r\n}\r\n';
   const GenerateData = function(key, defaultValue) {
     return {
       /** 键名 */
@@ -5033,10 +4984,7 @@
     createView() {
       const NetDiskViewConfig = {
         view: {
-          "netdisl-small-window-shrink-status": GenerateData(
-            "netdisl-small-window-shrink-status",
-            false
-          ),
+          "netdisl-small-window-shrink-status": GenerateData("netdisl-small-window-shrink-status", false),
           "netdisk-ui-small-window-position": GenerateData("netdisk-ui-small-window-position", null)
         }
       };
@@ -5078,13 +5026,9 @@
             // @ts-ignore
             animation: "",
             beforeAppendToPageCallBack($shadowRoot, $shadowContainer) {
-              let $headerControl = $shadowRoot.querySelector(
-                ".pops-header-control"
-              );
+              let $headerControl = $shadowRoot.querySelector(".pops-header-control");
               let $title = $shadowRoot.querySelector(".pops-alert-title");
-              let $content = $shadowRoot.querySelector(
-                ".pops-alert-content"
-              );
+              let $content = $shadowRoot.querySelector(".pops-alert-content");
               let launchIcon = domUtils.createElement(
                 "button",
                 {
@@ -5293,19 +5237,18 @@
           NetDiskUI.popsStyle.mainView
         );
       }
-      let $urlBoxAll = NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector(
-        ".netdisk-url-box-all"
-      );
+      let $urlBoxAll = NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector(".netdisk-url-box-all");
+      let checkInfoList = [];
       NetDiskUI.isMatchedNetDiskIconMap.forEach((ruleKeyName) => {
         let netDiskDict = NetDisk.$match.matchedInfo.get(ruleKeyName);
         let documentFragment = document.createDocumentFragment();
         netDiskDict.forEach((netDiskData, shareCode) => {
           let uiLink = NetDisk.handleLinkShow({
             ruleKeyName,
-            ruleIndex: netDiskData["ruleIndex"],
+            ruleIndex: netDiskData.ruleIndex,
             shareCode,
-            accessCode: netDiskData["accessCode"],
-            matchText: netDiskData["matchText"],
+            accessCode: netDiskData.accessCode,
+            matchText: netDiskData.matchText,
             showToast: false
           });
           if (!uiLink) {
@@ -5319,7 +5262,14 @@
             netDiskData["accessCode"],
             uiLink
           );
-          documentFragment.appendChild(boxViewInfo.$viewBox);
+          checkInfoList.push({
+            $urlBox: boxViewInfo.$urlBox,
+            ruleKeyName,
+            ruleIndex: netDiskData.ruleIndex,
+            shareCode,
+            accessCode: netDiskData.accessCode
+          });
+          documentFragment.appendChild(boxViewInfo.$urlBox);
         });
         $urlBoxAll.appendChild(documentFragment);
       });
@@ -5329,39 +5279,17 @@
           "z-index": netDiskLinkViewZIndex
         });
       }
-      NetDiskUI.Alias.uiLinkAlias.popsElement.querySelectorAll(".netdisk-url-box-all .netdisk-url-box").forEach(($netDiskBox) => {
-        let ruleKeyName = $netDiskBox.querySelector(".netdisk-link").getAttribute("data-rule-key");
-        let ruleIndex = parseInt(
-          $netDiskBox.querySelector(".netdisk-link").getAttribute("data-rule-index")
-        );
-        let shareCode = $netDiskBox.querySelector(".netdisk-link").getAttribute("data-sharecode");
-        let accessCode = $netDiskBox.querySelector(".netdisk-link").getAttribute("data-accesscode");
-        NetDiskCheckLinkValidity.check(
-          $netDiskBox,
-          ruleKeyName,
-          ruleIndex,
-          shareCode,
-          accessCode
-        );
-      });
+      NetDiskCheckLinkValidity.check(checkInfoList);
     },
     /**
      * 初始化事件（在创建视图后）
      */
     initViewEvent() {
-      NetDiskUI.setRightClickMenu(
-        NetDiskUI.Alias.uiLinkAlias.$shadowRoot,
-        ".whitesevPop .netdisk-url a"
-      );
+      NetDiskUI.setRightClickMenu(NetDiskUI.Alias.uiLinkAlias.$shadowRoot, ".whitesevPop .netdisk-url a");
       this.registerIconGotoPagePosition(NetDiskUI.Alias.uiLinkAlias.$shadowRoot);
-      this.setNetDiskUrlClickEvent(
-        NetDiskUI.Alias.uiLinkAlias.$shadowRoot,
-        ".netdisk-url a"
-      );
+      this.setNetDiskUrlClickEvent(NetDiskUI.Alias.uiLinkAlias.$shadowRoot, ".netdisk-url a");
       NetDiskUI.setGlobalRightClickMenu(
-        NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector(
-          ".pops .pops-alert-title > p"
-        )
+        NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector(".pops .pops-alert-title > p")
       );
     },
     /**
@@ -5378,6 +5306,23 @@
         /** 访问码 */
         "data-accesscode": data.accessCode
       };
+    },
+    /**
+     * 解析创建在元素属性上的attribute的数据
+     * @param $ele 元素
+     */
+    praseElementAttributeRuleInfo($ele) {
+      let result = {
+        ruleKeyName: $ele.getAttribute("data-rule-key"),
+        ruleIndex: parseInt($ele.getAttribute("data-rule-index")),
+        shareCode: $ele.getAttribute("data-sharecode"),
+        accessCode: $ele.getAttribute("data-accesscode")
+      };
+      if (isNaN(result.ruleIndex)) {
+        log.warn("元素上的 ruleIndex 的值是NaN，调整为默认值0", $ele);
+        result.ruleIndex = 0;
+      }
+      return result;
     },
     /**
      * 创建在元素属性上的attribute的数据
@@ -5398,23 +5343,6 @@
       }
     },
     /**
-     * 解析创建在元素属性上的attribute的数据
-     * @param $ele 元素
-     */
-    praseElementAttributeRuleInfo($ele) {
-      let result = {
-        ruleKeyName: $ele.getAttribute("data-rule-key"),
-        ruleIndex: parseInt($ele.getAttribute("data-rule-index")),
-        shareCode: $ele.getAttribute("data-sharecode"),
-        accessCode: $ele.getAttribute("data-accesscode")
-      };
-      if (isNaN(result.ruleIndex)) {
-        log.warn("元素上的 ruleIndex 的值是NaN，调整为默认值0", $ele);
-        result.ruleIndex = 0;
-      }
-      return result;
-    },
-    /**
      * 创建每一项的网盘元素信息
      * @param ruleImgSrc 规则图标src
      * @param ruleKeyName 规则键名
@@ -5424,19 +5352,16 @@
      * @param uiLinkText 显示出来的链接文本
      */
     createViewBoxElementInfo(ruleImgSrc, ruleKeyName, ruleIndex, shareCode, accessCode, uiLinkText) {
-      let $viewBox = domUtils.createElement("div", {
+      let $urlBox = domUtils.createElement("div", {
         className: "netdisk-url-box",
         innerHTML: (
           /*html*/
           `
 			<div class="netdisk-url-div">
                 <div class="netdisk-icon">
-                    <div class="netdisk-icon-img">
-                    </div>
+                    <div class="netdisk-icon-img"></div>
                 </div>
-                <div class="netdisk-status">
-
-                </div>
+                <div class="netdisk-status"></div>
                 <div class="netdisk-url">
                     <a  class="netdisk-link" href="javascript:;" isvisited="false"></a>
                 </div>
@@ -5444,7 +5369,7 @@
 			`
         )
       });
-      const { $urlDiv, $icon, $iconImg, $checkValidStatus, $url, $link } = this.parseViewBoxElementInfo($viewBox);
+      const { $urlDiv, $icon, $iconImg, $checkValidStatus, $url, $link } = this.parseViewBoxElementInfo($urlBox);
       $iconImg.style.cssText = `background: url(${ruleImgSrc}) no-repeat;background-size: 100%;`;
       domUtils.html($link, uiLinkText);
       this.handleElementAttributeRuleInfo(
@@ -5459,7 +5384,7 @@
       NetDisk.$rule.rule.forEach((ruleConfig) => {
         if (ruleConfig.setting.key === ruleKeyName && typeof ruleConfig.afterRenderUrlBox === "function") {
           ruleConfig.afterRenderUrlBox({
-            $viewBox,
+            $viewBox: $urlBox,
             $urlDiv,
             $url,
             $link,
@@ -5471,7 +5396,7 @@
         }
       });
       return {
-        $viewBox,
+        $urlBox,
         $urlDiv,
         $icon,
         $iconImg,
@@ -5528,33 +5453,28 @@
           });
         }
       });
-      domUtils.on(
-        $el,
-        "auxclick",
-        childSelector,
-        (event, $click) => {
-          if (event.button !== 1) {
-            return;
-          }
-          utils.preventEvent(event);
-          $click.setAttribute("isvisited", "true");
-          const data = NetDiskView.praseElementAttributeRuleInfo($click);
-          let url = NetDiskLinkClickModeUtils.getBlankUrl({
-            ruleKeyName: data.ruleKeyName,
-            ruleIndex: data.ruleIndex,
-            shareCode: data.shareCode,
-            accessCode: data.accessCode
-          });
-          NetDiskLinkClickMode.openBlankUrl(
-            url,
-            data.ruleKeyName,
-            data.ruleIndex,
-            data.shareCode,
-            data.accessCode,
-            true
-          );
+      domUtils.on($el, "auxclick", childSelector, (event, $click) => {
+        if (event.button !== 1) {
+          return;
         }
-      );
+        utils.preventEvent(event);
+        $click.setAttribute("isvisited", "true");
+        const data = NetDiskView.praseElementAttributeRuleInfo($click);
+        let url = NetDiskLinkClickModeUtils.getBlankUrl({
+          ruleKeyName: data.ruleKeyName,
+          ruleIndex: data.ruleIndex,
+          shareCode: data.shareCode,
+          accessCode: data.accessCode
+        });
+        NetDiskLinkClickMode.openBlankUrl(
+          url,
+          data.ruleKeyName,
+          data.ruleIndex,
+          data.shareCode,
+          data.accessCode,
+          true
+        );
+      });
     },
     /**
      * 网盘链接点击事件
@@ -5567,9 +5487,7 @@
         if (option.$click) {
           let $pops = option.$click.closest(".pops");
           if ($pops) {
-            let $close = $pops.querySelector(
-              '.pops-header-control[type="close"]'
-            );
+            let $close = $pops.querySelector('.pops-header-control[type="close"]');
             $close && $close.click();
           }
         }
@@ -5588,31 +5506,15 @@
         });
         let isForwardBlankUrl = NetDiskFilterScheme.isForwardBlankLink(ruleKeyName);
         if (isForwardBlankUrl) {
-          NetDiskLinkClickMode.openBlankWithScheme(
-            ruleKeyName,
-            ruleIndex,
-            shareCode,
-            accessCode
-          );
+          NetDiskLinkClickMode.openBlankWithScheme(ruleKeyName, ruleIndex, shareCode, accessCode);
         } else {
-          NetDiskLinkClickMode.openBlankUrl(
-            url,
-            ruleKeyName,
-            ruleIndex,
-            shareCode,
-            accessCode
-          );
+          NetDiskLinkClickMode.openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode);
         }
         if (linkClickMode === "openBlank-closePopup") {
           closePopup();
         }
       } else if (linkClickMode === "parseFile" || linkClickMode === "parseFile-closePopup") {
-        NetDiskLinkClickMode.parseFile(
-          ruleKeyName,
-          ruleIndex,
-          shareCode,
-          accessCode
-        ).then(() => {
+        NetDiskLinkClickMode.parseFile(ruleKeyName, ruleIndex, shareCode, accessCode).then(() => {
           if (linkClickMode === "parseFile-closePopup") {
             closePopup();
           }
@@ -5661,13 +5563,7 @@
      * @param matchText 匹配到的文本
      */
     addLinkView(ruleKeyName, ruleIndex, shareCode, accessCode, matchText) {
-      NetDiskUI.netDiskHistoryMatch.changeMatchedData(
-        ruleKeyName,
-        ruleIndex,
-        shareCode,
-        accessCode,
-        matchText
-      );
+      NetDiskUI.netDiskHistoryMatch.changeMatchedData(ruleKeyName, ruleIndex, shareCode, accessCode, matchText);
       if (!NetDiskUI.Alias.uiLinkAlias) {
         return;
       }
@@ -5691,18 +5587,13 @@
         accessCode,
         uiLink
       );
-      let $urlBoxAll = NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector(
-        ".netdisk-url-box-all"
-      );
-      domUtils.append($urlBoxAll, boxViewInfo.$viewBox);
-      let $urlBox = $urlBoxAll.children[$urlBoxAll.children.length - 1];
-      NetDiskCheckLinkValidity.check(
-        $urlBox,
+      NetDiskCheckLinkValidity.check({
+        $urlBox: boxViewInfo.$urlBox,
         ruleKeyName,
         ruleIndex,
         shareCode,
         accessCode
-      );
+      });
     },
     /**
      * 修改已存在的view
@@ -5713,13 +5604,7 @@
      * @param matchText 匹配到的文本
      */
     changeLinkView(ruleKeyName, ruleIndex, shareCode, accessCode, matchText) {
-      NetDiskUI.netDiskHistoryMatch.changeMatchedData(
-        ruleKeyName,
-        ruleIndex,
-        shareCode,
-        accessCode,
-        matchText
-      );
+      NetDiskUI.netDiskHistoryMatch.changeMatchedData(ruleKeyName, ruleIndex, shareCode, accessCode, matchText);
       if (!NetDiskUI.Alias.uiLinkAlias) {
         return;
       }
@@ -5752,8 +5637,8 @@
         targetElement,
         "click",
         ".whitesevPop .netdisk-icon .netdisk-icon-img",
-        function(event) {
-          let $click = event.target;
+        function(event, selectorTarget) {
+          let $click = selectorTarget;
           let dataSharecode = $click.getAttribute("data-sharecode");
           if (!NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].value) {
             return;
@@ -5765,18 +5650,13 @@
           if (prevSearchShareCode == void 0) {
             prevSearchShareCode = dataSharecode;
           } else if (prevSearchShareCode !== dataSharecode) {
-            log.info(
-              `上一个搜索：${prevSearchShareCode}，切换至：${dataSharecode}`
-            );
+            log.info(`上一个搜索：${prevSearchShareCode}，切换至：${dataSharecode}`);
             findGenerator = void 0;
             iterator = void 0;
             prevSearchShareCode = dataSharecode;
           }
           if (findGenerator == void 0) {
-            findGenerator = utils.findElementsWithText(
-              document.documentElement,
-              dataSharecode
-            );
+            findGenerator = utils.findElementsWithText(document.documentElement, dataSharecode);
             iterator = findGenerator.next();
           }
           if (iterator?.value) {
@@ -5793,13 +5673,11 @@
                 let startIndex = void 0;
                 let endIndex = void 0;
                 if (elementText.includes(dataSharecode)) {
-                  let textNodeList = Array.from(
-                    iterator.value.childNodes
-                  ).filter((ele) => ele.nodeType === Node.TEXT_NODE);
+                  let textNodeList = Array.from(iterator.value.childNodes).filter(
+                    (ele) => ele.nodeType === Node.TEXT_NODE
+                  );
                   for (const textNode of textNodeList) {
-                    if (textNode.textContent.includes(
-                      dataSharecode
-                    )) {
+                    if (textNode.textContent.includes(dataSharecode)) {
                       childTextNode = textNode;
                       startIndex = textNode.textContent.indexOf(dataSharecode);
                       endIndex = startIndex + dataSharecode.length;
@@ -5808,12 +5686,7 @@
                   }
                 }
                 try {
-                  utils.selectElementText(
-                    iterator.value,
-                    childTextNode,
-                    startIndex,
-                    endIndex
-                  );
+                  utils.selectElementText(iterator.value, childTextNode, startIndex, endIndex);
                 } catch (error) {
                   log.error(error);
                   utils.selectElementText(iterator.value);
@@ -5826,12 +5699,7 @@
                 let startIndex = elementText.indexOf(dataSharecode);
                 let endIndex = startIndex + dataSharecode.length;
                 try {
-                  utils.selectElementText(
-                    iterator.value,
-                    childTextNode,
-                    startIndex,
-                    endIndex
-                  );
+                  utils.selectElementText(iterator.value, childTextNode, startIndex, endIndex);
                 } catch (error) {
                   log.error(error);
                   utils.selectElementText(iterator.value.parentElement);
@@ -5875,8 +5743,11 @@
               }
             } else {
               log.error("无法定位该元素位置", iterator.value);
+              const tagName = (iterator.value.nodeName || iterator.value.localName || iterator.value.tagName).toLowerCase();
               Qmsg.error(
-                `无法定位该元素位置，类型：<${(iterator.value.nodeName || iterator.value.localName || iterator.value.tagName).toLowerCase()}>`,
+                `无法定位该元素位置，类型：${CommonUtil.escapeHtml("<")}${tagName}${CommonUtil.escapeHtml(
+                ">"
+              )}`,
                 {
                   isHTML: true
                 }
@@ -5937,15 +5808,12 @@
      * 解析文件链接的元数据
      */
     async parseFileMetaInfo(url) {
-      const response = await httpx.get(
-        "https://whatslink.info/api/v1/link?url=" + url,
-        {
-          headers: {
-            Referer: "https://whatslink.info/"
-          },
-          allowInterceptConfig: false
-        }
-      );
+      const response = await httpx.get("https://whatslink.info/api/v1/link?url=" + url, {
+        headers: {
+          Referer: "https://whatslink.info/"
+        },
+        allowInterceptConfig: false
+      });
       let data = utils.toJSON(response.data.responseText);
       if (!response.status) {
         if (typeof data.error === "string" && data.error.trim() !== "") {
@@ -9305,11 +9173,7 @@
           ]
         });
       } else {
-        blankUrl = NetDiskHandlerUtil.replaceText(
-          blankUrl,
-          NetDisk.$extraRule.noAccessCodeRegExp,
-          ""
-        );
+        blankUrl = NetDiskHandlerUtil.replaceText(blankUrl, NetDisk.$extraRule.noAccessCodeRegExp, "");
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
@@ -9377,11 +9241,7 @@
           ]
         });
       } else {
-        copyUrl = NetDiskHandlerUtil.replaceText(
-          copyUrl,
-          NetDisk.$extraRule.noAccessCodeRegExp,
-          ""
-        );
+        copyUrl = NetDiskHandlerUtil.replaceText(copyUrl, NetDisk.$extraRule.noAccessCodeRegExp, "");
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
@@ -9468,12 +9328,7 @@
         log.info(["文件解析：", netDiskInfo]);
         await parseInst.init(netDiskInfo);
       } else {
-        log.error(`${ruleKeyName} 未配置解析函数`, [
-          ruleKeyName,
-          ruleIndex,
-          shareCode,
-          accessCode
-        ]);
+        log.error(`${ruleKeyName} 未配置解析函数`, [ruleKeyName, ruleIndex, shareCode, accessCode]);
         Qmsg.error("该链接未配置解析函数");
       }
     },
@@ -9487,9 +9342,7 @@
      * @param isOpenInBackEnd 是否使用后台打开，默认false
      */
     openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode, isOpenInBackEnd = false) {
-      log.success(`新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`, [
-        ...arguments
-      ]);
+      log.success(`新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`, [...arguments]);
       if (NetDiskAutoFillAccessCode.$data.enable) {
         NetDiskAutoFillAccessCode.addValue({
           url,
@@ -9525,9 +9378,7 @@
           }
         }
       };
-      if (utils.isNotNull(accessCode) && NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-        ruleKeyName
-      )) {
+      if (utils.isNotNull(accessCode) && NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKeyName)) {
         utils.setClip(accessCode).then(() => {
           openUrl();
         });
@@ -9554,956 +9405,6 @@
       window.open(url, "_blank");
     }
   };
-  const NetDiskCheckLinkValidity_baidu = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let url = NetDiskLinkClickModeUtils.getBlankUrl({
-        ruleKeyName: "baidu",
-        ruleIndex,
-        shareCode,
-        accessCode
-      });
-      let response = await httpx.get(url, {
-        headers: {
-          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-          "User-Agent": `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36`,
-          Host: "pan.baidu.com",
-          Referer: `https://pan.baidu.com/share/init?surl=${shareCode}&pwd=${accessCode}`,
-          "sec-ch-ua": '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
-          Origin: "https://pan.baidu.com"
-        },
-        ...NetDiskCheckLinkValidityRequestOption
-      });
-      let responseText = response.data.responseText;
-      let finalUrl = response.data.finalUrl;
-      if (typeof finalUrl === "string") {
-        let finalUrlInstance = new URL(finalUrl);
-        if (finalUrlInstance.hostname !== "pan.baidu.com") {
-          return {
-            ...NetDiskCheckLinkValidity.status.verify,
-            msg: `<a href='${finalUrl}' target='_blank' style="color: red;">触发百度安全验证</a>`,
-            data: response
-          };
-        }
-      }
-      if (!response.status) {
-        if (utils.isNull(responseText)) {
-          return {
-            ...NetDiskCheckLinkValidity.status.networkError,
-            data: response
-          };
-        }
-      }
-      if (response.data.finalUrl.includes("404.html")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      if (responseText.includes("过期时间：")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.success,
-          data: response
-        };
-      } else if (responseText.includes("输入提取")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.needAccessCode,
-          data: response
-        };
-      } else if (responseText.includes("不存在") || responseText.includes("已失效")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data: response
-        };
-      } else {
-        return {
-          ...NetDiskCheckLinkValidity.status.unknown,
-          data: response
-        };
-      }
-    }
-  };
-  const NetDiskCheckLinkValidity_lanzou = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let url = NetDiskLinkClickModeUtils.getBlankUrl({
-        ruleKeyName: "lanzou",
-        ruleIndex,
-        shareCode,
-        accessCode
-      });
-      let urlInst = new URL(url);
-      let response = await httpx.get(url, {
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-          Host: urlInst.hostname,
-          Origin: urlInst.origin,
-          Referer: url
-        },
-        ...NetDiskCheckLinkValidityRequestOption
-      });
-      if (!response.status) {
-        if (response.type === "ontimeout") {
-          return {
-            ...NetDiskCheckLinkValidity.status.networkError,
-            data: response
-          };
-        }
-      }
-      let responseText = response.data.responseText;
-      if (utils.isNull(responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data: response,
-          tipMsg: "响应数据为空"
-        };
-      } else if (responseText.includes("输入密码")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.needAccessCode,
-          data: response
-        };
-      } else if (responseText.includes("来晚啦") || responseText.includes("不存在") || responseText.includes("div>文件链接失效，请获取新链接</div>")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data: response
-        };
-      } else {
-        if (response.status) {
-          return {
-            ...NetDiskCheckLinkValidity.status.success,
-            data: response
-          };
-        } else {
-          return {
-            ...NetDiskCheckLinkValidity.status.unknown,
-            data: response,
-            tipMsg: response.msg
-          };
-        }
-      }
-    }
-  };
-  const NetDiskCheckLinkValidity_lanzouyx = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let LanZouYX = new NetDiskParse.rule.lanzouyx();
-      LanZouYX.shareCodeId = LanZouYX.getDecodeShareCodeId(shareCode);
-      let timestamp = LanZouYX.getEncodeTimeStamp();
-      let uuid = LanZouYX.getEncodeUUID();
-      let response = await httpx.post(
-        `https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr(
-        {
-          devType: LanZouYX.$data.devType,
-          devModel: LanZouYX.$data.devModel,
-          uuid,
-          extra: LanZouYX.$data.extra,
-          timestamp,
-          code: accessCode,
-          shareId: shareCode,
-          type: LanZouYX.$data.type,
-          offset: LanZouYX.$data.offset,
-          limit: LanZouYX.$data.limit
-        }
-      )}`,
-        {
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            Origin: "https://www.ilanzou.com",
-            Referer: "https://www.ilanzou.com/",
-            "Sec-Fetch-Site": "same-site",
-            Host: "api.ilanzou.com",
-            "User-Agent": utils.getRandomPCUA()
-          },
-          responseType: "json",
-          ...NetDiskCheckLinkValidityRequestOption
-        }
-      );
-      if (!response.status) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      let data = utils.toJSON(response.data.responseText);
-      log.success("获取链接信息：", data);
-      if (data["code"] !== 200) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data
-        };
-      }
-      if (!data["list"].length) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data
-        };
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.success,
-        data
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_tianyiyun = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let response = await httpx.post(
-        "https://api.cloud.189.cn/open/share/getShareInfoByCodeV2.action",
-        {
-          data: `shareCode=${shareCode}`,
-          headers: {
-            Accept: "application/json;charset=UTF-8",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "User-Agent": utils.getRandomPCUA(),
-            "Sign-Type": 1,
-            Referer: "https://cloud.189.cn/web/share?code=" + shareCode,
-            Origin: "https://cloud.189.cn"
-          },
-          ...NetDiskCheckLinkValidityRequestOption
-        }
-      );
-      let responseText = response.data.responseText;
-      if (!response.status && utils.isNull(responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      if (responseText.includes("ShareInfoNotFound") || responseText.includes("ShareNotFound") || responseText.includes("FileNotFound") || responseText.includes("ShareAuditWaiting") || responseText.includes("ShareExpiredError") || responseText.includes("ShareAuditNotPass")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data: response
-        };
-      }
-      if (responseText.includes("needAccessCode")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.needAccessCode,
-          data: response
-        };
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.success,
-        data: response
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_aliyun = {
-    async init(netDiskInfo) {
-      const { shareCode } = netDiskInfo;
-      let response = await httpx.post(
-        "https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous?share_id=" + shareCode,
-        {
-          data: JSON.stringify({
-            share_id: shareCode
-          }),
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json",
-            "User-Agent": utils.getRandomPCUA(),
-            Referer: "https://www.aliyundrive.com/",
-            Origin: "https://www.aliyundrive.com"
-          },
-          ...NetDiskCheckLinkValidityRequestOption
-        }
-      );
-      let data = utils.toJSON(response.data.responseText);
-      if (!response.status && utils.isNull(data)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      if (data["code"] === "ParamFlowException" || data["code"] === "NotFound.ShareLink" || data["code"] === "ShareLink.Cancelled") {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data
-        };
-      } else if (data["file_count"] === 0 || data["file_infos"]?.length === 0) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data
-        };
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.success,
-        data
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_wenshushu = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let response = await httpx.post(
-        "https://www.wenshushu.cn/ap/task/mgrtask",
-        {
-          data: JSON.stringify({
-            tid: shareCode
-          }),
-          headers: {
-            "Content-Type": "application/json",
-            "User-Agent": utils.getRandomPCUA(),
-            "x-token": "wss:7pmakczzw6i",
-            Host: "www.wenshushu.cn",
-            Origin: "https://www.wenshushu.cn",
-            Referer: NetDiskLinkClickModeUtils.getBlankUrl({
-              ruleKeyName: "wenshushu",
-              ruleIndex,
-              shareCode,
-              accessCode
-            })
-          },
-          responseType: "json",
-          ...NetDiskCheckLinkValidityRequestOption
-        }
-      );
-      if (!response.status && utils.isNull(response.data.responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      let data = utils.toJSON(response.data.responseText);
-      if (data.code !== 0) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data
-        };
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.success,
-        data
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_nainiu = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let response = await httpx.get(
-        `https://cowtransfer.com/core/api/transfer/share?uniqueUrl=${shareCode}`,
-        {
-          headers: {
-            "User-Agent": utils.getRandomPCUA(),
-            Host: "cowtransfer.com",
-            Origin: "https://cowtransfer.com",
-            Referer: "https://cowtransfer.com/"
-          },
-          ...NetDiskCheckLinkValidityRequestOption
-        }
-      );
-      if (!response.status && utils.isNull(response.data.responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      let data = utils.toJSON(response.data.responseText);
-      if (data.code != "0000") {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data
-        };
-      }
-      if (data.data.needPassword && data.data.needPassword) {
-        return {
-          ...NetDiskCheckLinkValidity.status.needAccessCode,
-          data
-        };
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.success,
-        data
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_123pan = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let response = await httpx.get(
-        "https://www.123pan.com/api/share/info?shareKey=" + shareCode,
-        {
-          headers: {
-            "User-Agent": utils.getRandomPCUA(),
-            Host: "www.123pan.com",
-            Origin: "https://www.123pan.com",
-            Referer: "https://www.123pan.com/"
-          },
-          responseType: "json",
-          ...NetDiskCheckLinkValidityRequestOption
-        }
-      );
-      if (!response.status && utils.isNull(response.data.responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      let data = utils.toJSON(response.data.responseText);
-      if (response.data.responseText.includes("分享页面不存在") || data["code"] !== 0) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data
-        };
-      }
-      if (data["data"]["HasPwd"]) {
-        return {
-          ...NetDiskCheckLinkValidity.status.needAccessCode,
-          data
-        };
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.success,
-        data
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_weiyun = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let url = NetDiskLinkClickModeUtils.getBlankUrl({
-        ruleKeyName: "weiyun",
-        ruleIndex,
-        shareCode,
-        accessCode
-      });
-      let response = await httpx.get(url, {
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-          Host: "share.weiyun.com",
-          Origin: "https://share.weiyun.com",
-          Referer: url
-        },
-        ...NetDiskCheckLinkValidityRequestOption
-      });
-      if (!response.status && utils.isNull(response.data.responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      let responseText = response.data.responseText;
-      if (responseText.includes("已删除") || responseText.includes("已被删除") || responseText.includes("已经删除") || responseText.includes("违反相关法规") || responseText.includes("已过期") || responseText.includes("目录无效")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data: response
-        };
-      }
-      if (responseText.includes('"need_pwd":1') || responseText.includes('"pwd":"') && !responseText.includes('"pwd":""')) {
-        return {
-          ...NetDiskCheckLinkValidity.status.needAccessCode,
-          data: response
-        };
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.success,
-        data: response
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_xunlei = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let postResponse = await httpx.post(
-        "https://xluser-ssl.xunlei.com/v1/shield/captcha/init",
-        {
-          data: JSON.stringify({
-            client_id: "Xqp0kJBXWhwaTpB6",
-            device_id: "925b7631473a13716b791d7f28289cad",
-            action: "get:/drive/v1/share",
-            meta: {
-              package_name: "pan.xunlei.com",
-              client_version: "1.45.0",
-              captcha_sign: "1.fe2108ad808a74c9ac0243309242726c",
-              timestamp: "1645241033384"
-            }
-          }),
-          headers: {
-            "User-Agent": utils.getRandomPCUA(),
-            Host: "pan.xunlei.com",
-            Referer: NetDiskLinkClickModeUtils.getBlankUrl({
-              ruleKeyName: "xunlei",
-              ruleIndex,
-              shareCode,
-              accessCode
-            }),
-            Origin: "https://pan.xunlei.com"
-          },
-          ...NetDiskCheckLinkValidityRequestOption
-        }
-      );
-      if (!postResponse.status && utils.isNull(postResponse.data.responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: postResponse
-        };
-      }
-      let postResponseData = utils.toJSON(postResponse.data.responseText);
-      let token = postResponseData["captcha_token"];
-      let getResponse = await httpx.get(
-        "https://api-pan.xunlei.com/drive/v1/share?share_id=" + shareCode,
-        {
-          headers: {
-            "User-Agent": utils.getRandomPCUA(),
-            Host: "pan.xunlei.com",
-            Referer: NetDiskLinkClickModeUtils.getBlankUrl({
-              ruleKeyName: "xunlei",
-              ruleIndex,
-              shareCode,
-              accessCode
-            }),
-            Origin: "https://pan.xunlei.com",
-            "x-captcha-token": token,
-            "x-client-id": "Xqp0kJBXWhwaTpB6",
-            "x-device-id": "925b7631473a13716b791d7f28289cad"
-          },
-          ...NetDiskCheckLinkValidityRequestOption
-        }
-      );
-      if (!getResponse.status && utils.isNull(getResponse.data.responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: [postResponse, getResponse]
-        };
-      }
-      let responseText = getResponse.data.responseText;
-      if (responseText.includes("NOT_FOUND") || responseText.includes("SENSITIVE_RESOURCE") || responseText.includes("EXPIRED") || responseText.includes("DELETED")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data: getResponse
-        };
-      } else if (responseText.includes("PASS_CODE_EMPTY")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.needAccessCode,
-          data: getResponse
-        };
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.success,
-        data: getResponse
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_chengtong = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let blankUrl = NetDiskLinkClickModeUtils.getBlankUrl({
-        ruleKeyName: "chengtong",
-        ruleIndex,
-        shareCode,
-        accessCode
-      });
-      let blankUrlInst = new URL(blankUrl);
-      let path = blankUrlInst.pathname.split("/")[1].trim();
-      let url = "";
-      if (blankUrlInst.pathname === "/" && blankUrlInst.hash.startsWith("#/d/")) {
-        path = "d";
-      }
-      if (path === "f" || path === "file") {
-        url = `https://webapi.ctfile.com/getfile.php?path=${path}&f=${shareCode}&passcode=${accessCode}&token=0&r=${Math.random()}&ref=`;
-      } else if (path === "d" || path === "dir") {
-        url = `https://webapi.ctfile.com/getdir.php?path=${path}&d=${shareCode}&folder_id=&passcode=${accessCode}&token=0&r=${Math.random()}&ref=`;
-      } else {
-        log.warn("未知path", [ruleIndex, shareCode, accessCode]);
-        return {
-          ...NetDiskCheckLinkValidity.status.unknown,
-          data: null
-        };
-      }
-      let response = await httpx.get(url, {
-        headers: {
-          Host: "webapi.ctfile.com",
-          Origin: "https://url95.ctfile.com",
-          Referer: blankUrl,
-          Accept: "application/json, text/javascript, */*; q=0.01",
-          "User-Agent": utils.getRandomPCUA()
-        },
-        ...NetDiskCheckLinkValidityRequestOption
-      });
-      let responseText = response.data.responseText;
-      if (!response.status && utils.isNull(responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      let data = utils.toJSON(responseText);
-      if (data["code"] === 200) {
-        return {
-          ...NetDiskCheckLinkValidity.status.success,
-          data
-        };
-      }
-      if (data["code"] === 401) {
-        return {
-          ...NetDiskCheckLinkValidity.status.needAccessCode,
-          data
-        };
-      }
-      if (data["code"] === 404 || data["code"] === 503 || data["code"] === 504) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data
-        };
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.unknown,
-        data
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_kuake = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let response = await httpx.post(
-        "https://drive.quark.cn/1/clouddrive/share/sharepage/token?pr=ucpro&fr=pc",
-        {
-          data: JSON.stringify({
-            pwd_id: shareCode,
-            passcode: ""
-          }),
-          headers: {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json;charset=UTF-8",
-            "User-Agent": utils.getRandomPCUA(),
-            Origin: "https://pan.quark.cn",
-            Referer: NetDiskLinkClickModeUtils.getBlankUrl({
-              ruleKeyName: "kuake",
-              ruleIndex,
-              shareCode,
-              accessCode
-            })
-          },
-          ...NetDiskCheckLinkValidityRequestOption
-        }
-      );
-      if (!response.status && utils.isNull(response.data.responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      let data = utils.toJSON(response.data.responseText);
-      if (data.message.includes("需要提取码")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.needAccessCode,
-          data
-        };
-      } else if (data.message.includes("ok")) {
-        let stoken = data["data"]["stoken"];
-        let getSearchParams = {
-          // pr: "ucpro",
-          // fr: "pc",
-          // uc_param_str: "",
-          pwd_id: shareCode,
-          stoken,
-          // pdir_fid: 0,
-          // force: 0,
-          // _page: 1,
-          // _size: 50,
-          // _fetch_banner: 1,
-          _fetch_share: 1,
-          // _fetch_total: 1,
-          // _sort: "file_type:asc,updated_at:desc",
-          // __dt: 2283,
-          __t: Date.now()
-        };
-        let getResponse = await httpx.get(
-          `https://drive-h.quark.cn/1/clouddrive/share/sharepage/detail?${utils.toSearchParamsStr(
-          getSearchParams
-        )}`,
-          {
-            headers: {
-              Accept: "application/json, text/plain, */*",
-              Origin: "https://pan.quark.cn",
-              Referer: "https://pan.quark.cn/",
-              "User-Agent": utils.getRandomPCUA()
-            },
-            ...NetDiskCheckLinkValidityRequestOption
-          }
-        );
-        if (!getResponse.status || utils.isNull(getResponse.data.responseText)) {
-          return {
-            ...NetDiskCheckLinkValidity.status.networkError,
-            data: getResponse
-          };
-        }
-        let detailJSON = utils.toJSON(getResponse.data.responseText);
-        if (detailJSON["data"]["share"]["status"] == 1) {
-          if (detailJSON["data"]["share"]["partial_violation"]) {
-            return {
-              ...NetDiskCheckLinkValidity.status.partialViolation,
-              data: [data, detailJSON]
-            };
-          } else {
-            return {
-              ...NetDiskCheckLinkValidity.status.success,
-              data: [data, detailJSON]
-            };
-          }
-        } else {
-          return {
-            ...NetDiskCheckLinkValidity.status.failed,
-            data: [data, detailJSON]
-          };
-        }
-      } else {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data
-        };
-      }
-    }
-  };
-  const NetDiskCheckLinkValidity_jianguoyun = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let url = NetDiskLinkClickModeUtils.getBlankUrl({
-        ruleKeyName: "jianguoyun",
-        ruleIndex,
-        shareCode,
-        accessCode
-      });
-      let response = await httpx.get(url, {
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-          Host: "www.jianguoyun.com",
-          Referer: NetDiskLinkClickModeUtils.getBlankUrl({
-            ruleKeyName: "jianguoyun",
-            ruleIndex,
-            shareCode,
-            accessCode
-          }),
-          Origin: "https://www.jianguoyun.com"
-        },
-        ...NetDiskCheckLinkValidityRequestOption
-      });
-      let responseText = response.data.responseText;
-      if (!response.status && utils.isNull(responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      if (responseText.includes("<h1>啊噢！")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.failed,
-          data: response
-        };
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.success,
-        data: response
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_onedrive = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let url = NetDiskLinkClickModeUtils.getBlankUrl({
-        ruleKeyName: "onedrive",
-        ruleIndex,
-        shareCode,
-        accessCode
-      });
-      let urlObj = new URL(url);
-      let response = await httpx.get(url, {
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-          Host: urlObj.hostname,
-          Referer: url,
-          Origin: urlObj.origin
-        },
-        ...NetDiskCheckLinkValidityRequestOption
-      });
-      if (!response.status) {
-        let status = response.data?.status?.toString();
-        if (status === "429") {
-          return {
-            ...NetDiskCheckLinkValidity.status.networkError,
-            data: response
-          };
-        } else if (status === "404") {
-          return {
-            ...NetDiskCheckLinkValidity.status.failed,
-            data: response
-          };
-        }
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      let responseText = response.data.responseText;
-      if (utils.isNotNull(responseText)) {
-        try {
-          let respDOM = domUtils.parseHTML(responseText, true, true);
-          let title = respDOM.querySelector("title")?.innerHTML;
-          if (title?.includes("错误")) {
-            return {
-              ...NetDiskCheckLinkValidity.status.failed,
-              data: response
-            };
-          }
-        } catch (error) {
-        }
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.success,
-        data: response
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_uc = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let response = await httpx.get("https://drive.uc.cn/s/" + shareCode, {
-        headers: {
-          "User-Agent": utils.getRandomAndroidUA(),
-          Host: "drive.uc.cn",
-          Referer: NetDiskLinkClickModeUtils.getBlankUrl({
-            ruleKeyName: "uc",
-            ruleIndex,
-            shareCode,
-            accessCode
-          }),
-          Origin: "https://drive.uc.cn"
-        },
-        ...NetDiskCheckLinkValidityRequestOption
-      });
-      let responseText = response.data.responseText;
-      if (!response.status && utils.isNull(responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      let responseDocument = domUtils.parseHTML(responseText, true, true);
-      if (responseDocument.querySelector(".h5-page-main")) {
-        let $h5PageMain = responseDocument.querySelector(".h5-page-main");
-        let errorText = $h5PageMain.textContent || $h5PageMain.innerText;
-        if (errorText.includes("失效") || errorText.includes("不存在") || errorText.includes("违规") || errorText.includes("删除")) {
-          return {
-            ...NetDiskCheckLinkValidity.status.failed,
-            data: response
-          };
-        } else {
-          return {
-            ...NetDiskCheckLinkValidity.status.unknown,
-            data: response
-          };
-        }
-      } else if (responseDocument.querySelector(".main-body .input-wrap input")) {
-        return {
-          ...NetDiskCheckLinkValidity.status.needAccessCode,
-          data: response
-        };
-      } else {
-        return {
-          ...NetDiskCheckLinkValidity.status.success,
-          data: response
-        };
-      }
-    }
-  };
-  const NetDiskCheckLinkValidity_115pan = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let response = await httpx.get(
-        `https://webapi.115.com/share/snap?share_code=${shareCode}&offset=0&limit=20&receive_code=&cid=`,
-        {
-          headers: {
-            Accept: "application/json, text/javascript, */*;",
-            "User-Agent": utils.getRandomPCUA(),
-            Host: "webapi.115.com",
-            Referer: "https://115.com/",
-            Origin: "https://115.com"
-          },
-          ...NetDiskCheckLinkValidityRequestOption
-        }
-      );
-      if (!response.status) {
-        if (utils.isNull(response.data.responseText)) {
-          return {
-            ...NetDiskCheckLinkValidity.status.failed,
-            data: response
-          };
-        }
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      let data = utils.toJSON(response.data.responseText);
-      if (data.state) {
-        return {
-          ...NetDiskCheckLinkValidity.status.success,
-          data
-        };
-      }
-      if (typeof data.error === "string") {
-        if (data.error.includes("访问码")) {
-          return {
-            ...NetDiskCheckLinkValidity.status.needAccessCode,
-            data
-          };
-        } else if (data.error.includes("链接") || data.error.includes("分享已取消")) {
-          return {
-            ...NetDiskCheckLinkValidity.status.failed,
-            data
-          };
-        }
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.unknown,
-        data
-      };
-    }
-  };
-  const NetDiskCheckLinkValidity_360yunpan = {
-    async init(netDiskInfo) {
-      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      let url = "https://www.yunpan.com/lk/surl_" + shareCode;
-      let response = await httpx.get(url, {
-        headers: {
-          "User-Agent": utils.getRandomPCUA()
-        },
-        responseType: "json",
-        ...NetDiskCheckLinkValidityRequestOption
-      });
-      if (!response.status && utils.isNull(response.data.responseText)) {
-        return {
-          ...NetDiskCheckLinkValidity.status.networkError,
-          data: response
-        };
-      }
-      let responseDoc = domUtils.parseHTML(
-        response.data.responseText,
-        true,
-        true
-      );
-      let $errorMsg = responseDoc.querySelector(
-        ".page-error .error-msg"
-      );
-      if ($errorMsg) {
-        let errorMsg = domUtils.text($errorMsg);
-        if (errorMsg.includes("分享链接已失效")) {
-          return {
-            ...NetDiskCheckLinkValidity.status.failed,
-            data: response
-          };
-        } else {
-          return {
-            ...NetDiskCheckLinkValidity.status.unknown,
-            data: response,
-            tipMsg: errorMsg
-          };
-        }
-      }
-      return {
-        ...NetDiskCheckLinkValidity.status.success,
-        data: response
-      };
-    }
-  };
   const NetDiskCheckLinkValidityStatus = {
     /**
      * 验证中
@@ -10515,11 +9416,7 @@
         domUtils.html($el, __pops.config.iconSVG.loading);
       },
       setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid(
-          $el,
-          "loading",
-          msg ?? this.msg
-        );
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "loading", msg ?? this.msg);
         this.setIcon($el);
       }
     },
@@ -10543,11 +9440,7 @@
         );
       },
       setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid(
-          $el,
-          "success",
-          msg ?? this.msg
-        );
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "success", msg ?? this.msg);
         this.setIcon($el);
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
       }
@@ -10598,11 +9491,7 @@
         );
       },
       setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid(
-          $el,
-          "verify",
-          msg ?? this.msg
-        );
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "verify", msg ?? this.msg);
         this.setIcon($el);
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
       }
@@ -10627,11 +9516,7 @@
         );
       },
       setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid(
-          $el,
-          "failed",
-          msg ?? this.msg
-        );
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "failed", msg ?? this.msg);
         this.setIcon($el);
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
       }
@@ -10659,11 +9544,7 @@
         );
       },
       setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid(
-          $el,
-          "needAccessCode",
-          msg ?? this.msg
-        );
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "needAccessCode", msg ?? this.msg);
         this.setIcon($el);
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
       }
@@ -10687,11 +9568,7 @@
         );
       },
       setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid(
-          $el,
-          "partial-violation",
-          msg ?? this.msg
-        );
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "partial-violation", msg ?? this.msg);
         this.setIcon($el);
       }
     },
@@ -10718,14 +9595,934 @@
         );
       },
       setView($el, checkInfo, msg) {
-        NetDiskCheckLinkValidity.setViewCheckValid(
-          $el,
-          "unknown",
-          msg ?? this.msg
-        );
+        NetDiskCheckLinkValidity.setViewCheckValid($el, "unknown", msg ?? this.msg);
         this.setIcon($el);
         NetDiskCheckLinkValidity.setViewAgainCheckClickEvent($el, checkInfo);
       }
+    }
+  };
+  const NetDiskCheckLinkValidity_baidu = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let url = NetDiskLinkClickModeUtils.getBlankUrl({
+        ruleKeyName: "baidu",
+        ruleIndex,
+        shareCode,
+        accessCode
+      });
+      let response = await httpx.get(url, {
+        headers: {
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+          "User-Agent": `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36`,
+          Host: "pan.baidu.com",
+          Referer: `https://pan.baidu.com/share/init?surl=${shareCode}&pwd=${accessCode}`,
+          "sec-ch-ua": '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+          Origin: "https://pan.baidu.com"
+        },
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      let responseText = response.data.responseText;
+      let finalUrl = response.data.finalUrl;
+      if (typeof finalUrl === "string") {
+        let finalUrlInstance = new URL(finalUrl);
+        if (finalUrlInstance.hostname !== "pan.baidu.com") {
+          return {
+            ...NetDiskCheckLinkValidityStatus.verify,
+            msg: `<a href='${finalUrl}' target='_blank' style="color: red;">触发百度安全验证</a>`,
+            data: response
+          };
+        }
+      }
+      if (!response.status) {
+        if (utils.isNull(responseText)) {
+          return {
+            ...NetDiskCheckLinkValidityStatus.networkError,
+            data: response
+          };
+        }
+      }
+      if (response.data.finalUrl.includes("404.html")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      if (responseText.includes("过期时间：")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.success,
+          data: response
+        };
+      } else if (responseText.includes("输入提取")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          data: response
+        };
+      } else if (responseText.includes("不存在") || responseText.includes("已失效")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data: response
+        };
+      } else {
+        return {
+          ...NetDiskCheckLinkValidityStatus.unknown,
+          data: response
+        };
+      }
+    }
+  };
+  const NetDiskCheckLinkValidity_lanzou = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let url = NetDiskLinkClickModeUtils.getBlankUrl({
+        ruleKeyName: "lanzou",
+        ruleIndex,
+        shareCode,
+        accessCode
+      });
+      let urlInst = new URL(url);
+      let response = await httpx.get(url, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA(),
+          Host: urlInst.hostname,
+          Origin: urlInst.origin,
+          Referer: url
+        },
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      if (!response.status) {
+        if (response.type === "ontimeout") {
+          return {
+            ...NetDiskCheckLinkValidityStatus.networkError,
+            data: response
+          };
+        }
+      }
+      let responseText = response.data.responseText;
+      if (utils.isNull(responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data: response,
+          tipMsg: "响应数据为空"
+        };
+      } else if (responseText.includes("输入密码")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          data: response
+        };
+      } else if (responseText.includes("来晚啦") || responseText.includes("不存在") || responseText.includes("div>文件链接失效，请获取新链接</div>")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data: response
+        };
+      } else {
+        if (response.status) {
+          return {
+            ...NetDiskCheckLinkValidityStatus.success,
+            data: response
+          };
+        } else {
+          return {
+            ...NetDiskCheckLinkValidityStatus.unknown,
+            data: response,
+            tipMsg: response.msg
+          };
+        }
+      }
+    }
+  };
+  const NetDiskCheckLinkValidity_lanzouyx = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let LanZouYX = new NetDiskParse.rule.lanzouyx();
+      LanZouYX.shareCodeId = LanZouYX.getDecodeShareCodeId(shareCode);
+      let timestamp = LanZouYX.getEncodeTimeStamp();
+      let uuid = LanZouYX.getEncodeUUID();
+      let response = await httpx.post(
+        `https://api.ilanzou.com/unproved/recommend/list?${utils.toSearchParamsStr({
+        devType: LanZouYX.$data.devType,
+        devModel: LanZouYX.$data.devModel,
+        uuid,
+        extra: LanZouYX.$data.extra,
+        timestamp,
+        code: accessCode,
+        shareId: shareCode,
+        type: LanZouYX.$data.type,
+        offset: LanZouYX.$data.offset,
+        limit: LanZouYX.$data.limit
+      })}`,
+        {
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            Origin: "https://www.ilanzou.com",
+            Referer: "https://www.ilanzou.com/",
+            "Sec-Fetch-Site": "same-site",
+            Host: "api.ilanzou.com",
+            "User-Agent": utils.getRandomPCUA()
+          },
+          responseType: "json",
+          ...NetDiskCheckLinkValidityRequestOption
+        }
+      );
+      if (!response.status) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      let data = utils.toJSON(response.data.responseText);
+      log.success("获取链接信息：", data);
+      if (data["code"] !== 200) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data
+        };
+      }
+      if (!data["list"].length) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data
+        };
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_tianyiyun = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let response = await httpx.post("https://api.cloud.189.cn/open/share/getShareInfoByCodeV2.action", {
+        data: `shareCode=${shareCode}`,
+        headers: {
+          Accept: "application/json;charset=UTF-8",
+          "Content-Type": "application/x-www-form-urlencoded",
+          "User-Agent": utils.getRandomPCUA(),
+          "Sign-Type": 1,
+          Referer: "https://cloud.189.cn/web/share?code=" + shareCode,
+          Origin: "https://cloud.189.cn"
+        },
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      let responseText = response.data.responseText;
+      if (!response.status && utils.isNull(responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      if (responseText.includes("ShareInfoNotFound") || responseText.includes("ShareNotFound") || responseText.includes("FileNotFound") || responseText.includes("ShareAuditWaiting") || responseText.includes("ShareExpiredError") || responseText.includes("ShareAuditNotPass")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data: response
+        };
+      }
+      if (responseText.includes("needAccessCode")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          data: response
+        };
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data: response
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_aliyun = {
+    async init(netDiskInfo) {
+      const { shareCode } = netDiskInfo;
+      let response = await httpx.post(
+        "https://api.aliyundrive.com/adrive/v3/share_link/get_share_by_anonymous?share_id=" + shareCode,
+        {
+          data: JSON.stringify({
+            share_id: shareCode
+          }),
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
+            "User-Agent": utils.getRandomPCUA(),
+            Referer: "https://www.aliyundrive.com/",
+            Origin: "https://www.aliyundrive.com"
+          },
+          ...NetDiskCheckLinkValidityRequestOption
+        }
+      );
+      let data = utils.toJSON(response.data.responseText);
+      if (!response.status && utils.isNull(data)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      if (data["code"] === "ParamFlowException" || data["code"] === "NotFound.ShareLink" || data["code"] === "ShareLink.Cancelled") {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data
+        };
+      } else if (data["file_count"] === 0 || data["file_infos"]?.length === 0) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data
+        };
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_wenshushu = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let response = await httpx.post("https://www.wenshushu.cn/ap/task/mgrtask", {
+        data: JSON.stringify({
+          tid: shareCode
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": utils.getRandomPCUA(),
+          "x-token": "wss:7pmakczzw6i",
+          Host: "www.wenshushu.cn",
+          Origin: "https://www.wenshushu.cn",
+          Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+            ruleKeyName: "wenshushu",
+            ruleIndex,
+            shareCode,
+            accessCode
+          })
+        },
+        responseType: "json",
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      if (!response.status && utils.isNull(response.data.responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      let data = utils.toJSON(response.data.responseText);
+      if (data.code !== 0) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data
+        };
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_nainiu = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let response = await httpx.get(`https://cowtransfer.com/core/api/transfer/share?uniqueUrl=${shareCode}`, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA(),
+          Host: "cowtransfer.com",
+          Origin: "https://cowtransfer.com",
+          Referer: "https://cowtransfer.com/"
+        },
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      if (!response.status && utils.isNull(response.data.responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      let data = utils.toJSON(response.data.responseText);
+      if (data.code != "0000") {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data
+        };
+      }
+      if (data.data.needPassword && data.data.needPassword) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          data
+        };
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_123pan = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let response = await httpx.get("https://www.123pan.com/api/share/info?shareKey=" + shareCode, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA(),
+          Host: "www.123pan.com",
+          Origin: "https://www.123pan.com",
+          Referer: "https://www.123pan.com/"
+        },
+        responseType: "json",
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      if (!response.status && utils.isNull(response.data.responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      let data = utils.toJSON(response.data.responseText);
+      if (response.data.responseText.includes("分享页面不存在") || data["code"] !== 0) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data
+        };
+      }
+      if (data["data"]["HasPwd"]) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          data
+        };
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_weiyun = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let url = NetDiskLinkClickModeUtils.getBlankUrl({
+        ruleKeyName: "weiyun",
+        ruleIndex,
+        shareCode,
+        accessCode
+      });
+      let response = await httpx.get(url, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA(),
+          Host: "share.weiyun.com",
+          Origin: "https://share.weiyun.com",
+          Referer: url
+        },
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      if (!response.status && utils.isNull(response.data.responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      let responseText = response.data.responseText;
+      if (responseText.includes("已删除") || responseText.includes("已被删除") || responseText.includes("已经删除") || responseText.includes("违反相关法规") || responseText.includes("已过期") || responseText.includes("目录无效")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data: response
+        };
+      }
+      if (responseText.includes('"need_pwd":1') || responseText.includes('"pwd":"') && !responseText.includes('"pwd":""')) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          data: response
+        };
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data: response
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_xunlei = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let postResponse = await httpx.post("https://xluser-ssl.xunlei.com/v1/shield/captcha/init", {
+        data: JSON.stringify({
+          client_id: "Xqp0kJBXWhwaTpB6",
+          device_id: "925b7631473a13716b791d7f28289cad",
+          action: "get:/drive/v1/share",
+          meta: {
+            package_name: "pan.xunlei.com",
+            client_version: "1.45.0",
+            captcha_sign: "1.fe2108ad808a74c9ac0243309242726c",
+            timestamp: "1645241033384"
+          }
+        }),
+        headers: {
+          "User-Agent": utils.getRandomPCUA(),
+          Host: "pan.xunlei.com",
+          Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+            ruleKeyName: "xunlei",
+            ruleIndex,
+            shareCode,
+            accessCode
+          }),
+          Origin: "https://pan.xunlei.com"
+        },
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      if (!postResponse.status && utils.isNull(postResponse.data.responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: postResponse
+        };
+      }
+      let postResponseData = utils.toJSON(postResponse.data.responseText);
+      let token = postResponseData["captcha_token"];
+      let getResponse = await httpx.get("https://api-pan.xunlei.com/drive/v1/share?share_id=" + shareCode, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA(),
+          Host: "pan.xunlei.com",
+          Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+            ruleKeyName: "xunlei",
+            ruleIndex,
+            shareCode,
+            accessCode
+          }),
+          Origin: "https://pan.xunlei.com",
+          "x-captcha-token": token,
+          "x-client-id": "Xqp0kJBXWhwaTpB6",
+          "x-device-id": "925b7631473a13716b791d7f28289cad"
+        },
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      if (!getResponse.status && utils.isNull(getResponse.data.responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: [postResponse, getResponse]
+        };
+      }
+      let responseText = getResponse.data.responseText;
+      if (responseText.includes("NOT_FOUND") || responseText.includes("SENSITIVE_RESOURCE") || responseText.includes("EXPIRED") || responseText.includes("DELETED")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data: getResponse
+        };
+      } else if (responseText.includes("PASS_CODE_EMPTY")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          data: getResponse
+        };
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data: getResponse
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_chengtong = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let blankUrl = NetDiskLinkClickModeUtils.getBlankUrl({
+        ruleKeyName: "chengtong",
+        ruleIndex,
+        shareCode,
+        accessCode
+      });
+      let blankUrlInst = new URL(blankUrl);
+      let path = blankUrlInst.pathname.split("/")[1].trim();
+      let url = "";
+      if (blankUrlInst.pathname === "/" && blankUrlInst.hash.startsWith("#/d/")) {
+        path = "d";
+      }
+      if (path === "f" || path === "file") {
+        url = `https://webapi.ctfile.com/getfile.php?path=${path}&f=${shareCode}&passcode=${accessCode}&token=0&r=${Math.random()}&ref=`;
+      } else if (path === "d" || path === "dir") {
+        url = `https://webapi.ctfile.com/getdir.php?path=${path}&d=${shareCode}&folder_id=&passcode=${accessCode}&token=0&r=${Math.random()}&ref=`;
+      } else {
+        log.warn("未知path", [ruleIndex, shareCode, accessCode]);
+        return {
+          ...NetDiskCheckLinkValidityStatus.unknown,
+          data: null
+        };
+      }
+      let response = await httpx.get(url, {
+        headers: {
+          Host: "webapi.ctfile.com",
+          Origin: "https://url95.ctfile.com",
+          Referer: blankUrl,
+          Accept: "application/json, text/javascript, */*; q=0.01",
+          "User-Agent": utils.getRandomPCUA()
+        },
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      let responseText = response.data.responseText;
+      if (!response.status && utils.isNull(responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      let data = utils.toJSON(responseText);
+      if (data["code"] === 200) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.success,
+          data
+        };
+      }
+      if (data["code"] === 401) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          data
+        };
+      }
+      if (data["code"] === 404 || data["code"] === 503 || data["code"] === 504) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data
+        };
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.unknown,
+        data
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_kuake = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let response = await httpx.post(
+        "https://drive.quark.cn/1/clouddrive/share/sharepage/token?pr=ucpro&fr=pc",
+        {
+          data: JSON.stringify({
+            pwd_id: shareCode,
+            passcode: ""
+          }),
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json;charset=UTF-8",
+            "User-Agent": utils.getRandomPCUA(),
+            Origin: "https://pan.quark.cn",
+            Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+              ruleKeyName: "kuake",
+              ruleIndex,
+              shareCode,
+              accessCode
+            })
+          },
+          ...NetDiskCheckLinkValidityRequestOption
+        }
+      );
+      if (!response.status && utils.isNull(response.data.responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      let data = utils.toJSON(response.data.responseText);
+      if (data.message.includes("需要提取码")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          data
+        };
+      } else if (data.message.includes("ok")) {
+        let stoken = data["data"]["stoken"];
+        let getSearchParams = {
+          // pr: "ucpro",
+          // fr: "pc",
+          // uc_param_str: "",
+          pwd_id: shareCode,
+          stoken,
+          // pdir_fid: 0,
+          // force: 0,
+          // _page: 1,
+          // _size: 50,
+          // _fetch_banner: 1,
+          _fetch_share: 1,
+          // _fetch_total: 1,
+          // _sort: "file_type:asc,updated_at:desc",
+          // __dt: 2283,
+          __t: Date.now()
+        };
+        let getResponse = await httpx.get(
+          `https://drive-h.quark.cn/1/clouddrive/share/sharepage/detail?${utils.toSearchParamsStr(
+          getSearchParams
+        )}`,
+          {
+            headers: {
+              Accept: "application/json, text/plain, */*",
+              Origin: "https://pan.quark.cn",
+              Referer: "https://pan.quark.cn/",
+              "User-Agent": utils.getRandomPCUA()
+            },
+            ...NetDiskCheckLinkValidityRequestOption
+          }
+        );
+        if (!getResponse.status || utils.isNull(getResponse.data.responseText)) {
+          return {
+            ...NetDiskCheckLinkValidityStatus.networkError,
+            data: getResponse
+          };
+        }
+        let detailJSON = utils.toJSON(getResponse.data.responseText);
+        if (detailJSON["data"]["share"]["status"] == 1) {
+          if (detailJSON["data"]["share"]["partial_violation"]) {
+            return {
+              ...NetDiskCheckLinkValidityStatus.partialViolation,
+              data: [data, detailJSON]
+            };
+          } else {
+            return {
+              ...NetDiskCheckLinkValidityStatus.success,
+              data: [data, detailJSON]
+            };
+          }
+        } else {
+          return {
+            ...NetDiskCheckLinkValidityStatus.failed,
+            data: [data, detailJSON]
+          };
+        }
+      } else {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data
+        };
+      }
+    }
+  };
+  const NetDiskCheckLinkValidity_jianguoyun = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let url = NetDiskLinkClickModeUtils.getBlankUrl({
+        ruleKeyName: "jianguoyun",
+        ruleIndex,
+        shareCode,
+        accessCode
+      });
+      let response = await httpx.get(url, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA(),
+          Host: "www.jianguoyun.com",
+          Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+            ruleKeyName: "jianguoyun",
+            ruleIndex,
+            shareCode,
+            accessCode
+          }),
+          Origin: "https://www.jianguoyun.com"
+        },
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      let responseText = response.data.responseText;
+      if (!response.status && utils.isNull(responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      if (responseText.includes("<h1>啊噢！")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.failed,
+          data: response
+        };
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data: response
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_onedrive = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let url = NetDiskLinkClickModeUtils.getBlankUrl({
+        ruleKeyName: "onedrive",
+        ruleIndex,
+        shareCode,
+        accessCode
+      });
+      let urlObj = new URL(url);
+      let response = await httpx.get(url, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA(),
+          Host: urlObj.hostname,
+          Referer: url,
+          Origin: urlObj.origin
+        },
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      if (!response.status) {
+        let status = response.data?.status?.toString();
+        if (status === "429") {
+          return {
+            ...NetDiskCheckLinkValidityStatus.networkError,
+            data: response
+          };
+        } else if (status === "404") {
+          return {
+            ...NetDiskCheckLinkValidityStatus.failed,
+            data: response
+          };
+        }
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      let responseText = response.data.responseText;
+      if (utils.isNotNull(responseText)) {
+        try {
+          let respDOM = domUtils.parseHTML(responseText, true, true);
+          let title = respDOM.querySelector("title")?.innerHTML;
+          if (title?.includes("错误")) {
+            return {
+              ...NetDiskCheckLinkValidityStatus.failed,
+              data: response
+            };
+          }
+        } catch (error) {
+        }
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data: response
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_uc = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let response = await httpx.get("https://drive.uc.cn/s/" + shareCode, {
+        headers: {
+          "User-Agent": utils.getRandomAndroidUA(),
+          Host: "drive.uc.cn",
+          Referer: NetDiskLinkClickModeUtils.getBlankUrl({
+            ruleKeyName: "uc",
+            ruleIndex,
+            shareCode,
+            accessCode
+          }),
+          Origin: "https://drive.uc.cn"
+        },
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      let responseText = response.data.responseText;
+      if (!response.status && utils.isNull(responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      let responseDocument = domUtils.parseHTML(responseText, true, true);
+      if (responseDocument.querySelector(".h5-page-main")) {
+        let $h5PageMain = responseDocument.querySelector(".h5-page-main");
+        let errorText = $h5PageMain.textContent || $h5PageMain.innerText;
+        if (errorText.includes("失效") || errorText.includes("不存在") || errorText.includes("违规") || errorText.includes("删除")) {
+          return {
+            ...NetDiskCheckLinkValidityStatus.failed,
+            data: response
+          };
+        } else {
+          return {
+            ...NetDiskCheckLinkValidityStatus.unknown,
+            data: response
+          };
+        }
+      } else if (responseDocument.querySelector(".main-body .input-wrap input")) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          data: response
+        };
+      } else {
+        return {
+          ...NetDiskCheckLinkValidityStatus.success,
+          data: response
+        };
+      }
+    }
+  };
+  const NetDiskCheckLinkValidity_115pan = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let response = await httpx.get(
+        `https://webapi.115.com/share/snap?share_code=${shareCode}&offset=0&limit=20&receive_code=&cid=`,
+        {
+          headers: {
+            Accept: "application/json, text/javascript, */*;",
+            "User-Agent": utils.getRandomPCUA(),
+            Host: "webapi.115.com",
+            Referer: "https://115.com/",
+            Origin: "https://115.com"
+          },
+          ...NetDiskCheckLinkValidityRequestOption
+        }
+      );
+      if (!response.status) {
+        if (utils.isNull(response.data.responseText)) {
+          return {
+            ...NetDiskCheckLinkValidityStatus.failed,
+            data: response
+          };
+        }
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      let data = utils.toJSON(response.data.responseText);
+      if (data.state) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.success,
+          data
+        };
+      }
+      if (typeof data.error === "string") {
+        if (data.error.includes("访问码")) {
+          return {
+            ...NetDiskCheckLinkValidityStatus.needAccessCode,
+            data
+          };
+        } else if (data.error.includes("链接") || data.error.includes("分享已取消")) {
+          return {
+            ...NetDiskCheckLinkValidityStatus.failed,
+            data
+          };
+        }
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.unknown,
+        data
+      };
+    }
+  };
+  const NetDiskCheckLinkValidity_360yunpan = {
+    async init(netDiskInfo) {
+      const { ruleIndex, shareCode, accessCode } = netDiskInfo;
+      let url = "https://www.yunpan.com/lk/surl_" + shareCode;
+      let response = await httpx.get(url, {
+        headers: {
+          "User-Agent": utils.getRandomPCUA()
+        },
+        responseType: "json",
+        ...NetDiskCheckLinkValidityRequestOption
+      });
+      if (!response.status && utils.isNull(response.data.responseText)) {
+        return {
+          ...NetDiskCheckLinkValidityStatus.networkError,
+          data: response
+        };
+      }
+      let responseDoc = domUtils.parseHTML(response.data.responseText, true, true);
+      let $errorMsg = responseDoc.querySelector(".page-error .error-msg");
+      if ($errorMsg) {
+        let errorMsg = domUtils.text($errorMsg);
+        if (errorMsg.includes("分享链接已失效")) {
+          return {
+            ...NetDiskCheckLinkValidityStatus.failed,
+            data: response
+          };
+        } else {
+          return {
+            ...NetDiskCheckLinkValidityStatus.unknown,
+            data: response,
+            tipMsg: errorMsg
+          };
+        }
+      }
+      return {
+        ...NetDiskCheckLinkValidityStatus.success,
+        data: response
+      };
     }
   };
   const AllCheckLinkValidityFunction = {
@@ -10761,15 +10558,17 @@
   };
   const NetDiskCheckLinkValidity = {
     $data: {
-      /** 是否正在消费中（验证有效性中） */
-      isConsuming: false,
-      /** 待检测有有效性的列表 */
-      subscribe: []
+      /** 待检测的列表 */
+      subscribeMap: /* @__PURE__ */ new Map(),
+      /** 待检测的列表是否正在消费中（验证有效性中） */
+      subscribeMapConsuming: /* @__PURE__ */ new Map()
     },
     /**
      * 网盘检查的状态码
      */
-    status: NetDiskCheckLinkValidityStatus,
+    get status() {
+      return NetDiskCheckLinkValidityStatus;
+    },
     /**
      * 所有的规则的校验函数
      */
@@ -10782,26 +10581,53 @@
      * @param shareCode
      * @param accessCode
      */
-    async check($urlBox, ruleKeyName, ruleIndex, shareCode, accessCode) {
-      this.$data.subscribe.push({
-        $urlBox,
-        ruleKeyName,
-        ruleIndex,
-        shareCode,
-        accessCode
-      });
-      if (this.$data.isConsuming) {
-        return;
+    async check(checkInfoConfigList) {
+      if (!Array.isArray(checkInfoConfigList)) {
+        checkInfoConfigList = [checkInfoConfigList];
       }
-      this.$data.isConsuming = true;
-      for (let index = 0; index < this.$data.subscribe.length; index++) {
-        const checkInfo = this.$data.subscribe[index];
-        await this.checkLinkValidity(checkInfo, true);
-        await utils.sleep(250);
-        this.$data.subscribe.splice(index, 1);
-        index--;
+      for (const checkInfoConfigItem of checkInfoConfigList) {
+        const { ruleKeyName } = checkInfoConfigItem;
+        if (!this.$data.subscribeMap.has(ruleKeyName)) {
+          this.$data.subscribeMap.set(ruleKeyName, []);
+        }
+        let subscribeMapValue = this.$data.subscribeMap.get(ruleKeyName);
+        subscribeMapValue.push(checkInfoConfigItem);
       }
-      this.$data.isConsuming = false;
+      let execCheck = async () => {
+        let promiseList = [];
+        for (const [ruleKeyName, checkInfoList] of this.$data.subscribeMap.entries()) {
+          promiseList.push(
+            new Promise(async (resolve) => {
+              let isConsuming = this.$data.subscribeMapConsuming.get(ruleKeyName);
+              if (isConsuming) {
+                resolve(null);
+                return;
+              }
+              let execCheckConfig = async () => {
+                for (let index = 0; index < checkInfoList.length; index++) {
+                  try {
+                    const checkInfo = checkInfoList[index];
+                    await this.checkLinkValidity(checkInfo, true);
+                    await utils.sleep(250);
+                    checkInfoList.splice(index, 1);
+                    index--;
+                  } catch (error) {
+                    log.error(error);
+                  }
+                }
+                if (this.$data.subscribeMap.get(ruleKeyName).length) {
+                  await execCheckConfig();
+                }
+              };
+              await execCheckConfig();
+              this.$data.subscribeMapConsuming.delete(ruleKeyName);
+              resolve(null);
+            })
+          );
+        }
+        await Promise.all(promiseList);
+      };
+      await execCheck();
     },
     /**
      * 开始校验链接的有效性
@@ -10809,9 +10635,7 @@
      * @param isForceCheck 是否强制检测
      */
     async checkLinkValidity(checkInfo, isForceCheck) {
-      const { $checkValidStatus } = NetDiskView.parseViewBoxElementInfo(
-        checkInfo.$urlBox
-      );
+      const { $checkValidStatus } = NetDiskView.parseViewBoxElementInfo(checkInfo.$urlBox);
       if (this.isViewCheckValid($checkValidStatus) && !isForceCheck) {
         return;
       }
@@ -10826,7 +10650,7 @@
         log.error("没有配置该网盘的校验有效性", checkInfo);
         return;
       }
-      this.status.loading.setView($checkValidStatus, checkInfo);
+      NetDiskCheckLinkValidityStatus.loading.setView($checkValidStatus, checkInfo);
       let checkStatusResult = await netDiskCheck.init({
         ruleIndex: checkInfo.ruleIndex,
         shareCode: checkInfo.shareCode,
@@ -10836,17 +10660,9 @@
         log.error("该验证函数的返回值不是有效值", [checkStatusResult, checkInfo]);
         return;
       }
-      checkStatusResult.setView(
-        $checkValidStatus,
-        checkInfo,
-        checkStatusResult.tipMsg
-      );
+      checkStatusResult.setView($checkValidStatus, checkInfo, checkStatusResult.tipMsg);
       if (checkStatusResult.data) {
-        Reflect.set(
-          $checkValidStatus,
-          "data-httpx-response",
-          checkStatusResult.data
-        );
+        Reflect.set($checkValidStatus, "data-httpx-response", checkStatusResult.data);
       }
     },
     /**
@@ -10878,8 +10694,8 @@
      * 判断元素当前是否处于验证状态且验证是error或未验证状态
      *
      * 简而言之。验证成功的图标点击后将不触发验证请求
-     * + true 已验证(成功/需要密码)
-     * + false 尚未验证/验证超时/验证网络异常
+     * + `true` 已验证(成功/需要密码)
+     * + `false` 尚未验证/验证超时/验证网络异常
      * @param $ele
      */
     isViewCheckValid($ele) {
@@ -10926,8 +10742,8 @@
      * @param statusInfo
      */
     getStatusName(statusInfo) {
-      for (const statusName of Object.keys(NetDiskCheckLinkValidity.status)) {
-        let statusNewInfo = this.status[statusName];
+      for (const statusName of Object.keys(NetDiskCheckLinkValidityStatus)) {
+        let statusNewInfo = NetDiskCheckLinkValidityStatus[statusName];
         if (statusInfo.code === statusNewInfo.code) {
           return statusName;
         }
@@ -10941,9 +10757,7 @@
         return;
       }
       function getNetDiskStatus() {
-        const { $checkValidStatus } = NetDiskView.parseViewBoxElementInfo(
-          checkInfo.$urlBox
-        );
+        const { $checkValidStatus } = NetDiskView.parseViewBoxElementInfo(checkInfo.$urlBox);
         return $checkValidStatus;
       }
       let $netDiskStatus = getNetDiskStatus();
@@ -11193,7 +11007,7 @@
       return result;
     }
   };
-  const indexCSS$3 = '.whitesevPopNetDiskHistoryMatch .pops-confirm-content {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	justify-content: center;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n	margin: 20px 10px;\r\n	padding: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {\r\n	/*height: 11%;*/\r\n	flex: 0;\r\n	padding: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {\r\n	/*height: calc(85% - 40px);*/\r\n	overflow: auto;\r\n	flex: 1;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	/*margin-top: 10px;*/\r\n	flex: 0;\r\n	padding: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-search\r\n	input {\r\n	border: none;\r\n	border-bottom: 1px solid #000000;\r\n	padding: 0px 5px;\r\n	line-height: normal;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n	margin: 5px 5px 0px 5px;\r\n	background: none;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-search\r\n	input:focus-visible {\r\n	outline: none;\r\n	border-bottom: 1px solid #0009ff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a {\r\n	color: #ff4848;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	word-break: break-word;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-link\r\n	a[isvisited="true"] {\r\n	color: #8b8888;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon {\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-icon\r\n	.netdisk-icon-img {\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%),\r\n		0 1.3px 2.5px rgb(0 0 0 / 10%), 0 2.2px 4.5px rgb(0 0 0 / 12%),\r\n		0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	button.btn-delete {\r\n	background: #263cf3;\r\n	color: #fff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	button.btn-delete:active {\r\n	background: #6e7be8;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-update-time,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions {\r\n	display: flex;\r\n	margin: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-update-time\r\n	p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-url-title\r\n	p,\r\n.whitesevPopNetDiskHistoryMatch\r\n	.pops-confirm-content\r\n	.netdiskrecord-functions\r\n	p {\r\n	min-width: 80px;\r\n	max-width: 80px;\r\n	align-self: center;\r\n}\r\n';
+  const indexCSS$3 = '.whitesevPopNetDiskHistoryMatch .pops-confirm-content {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content ul {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content li {\r\n	display: flex;\r\n	flex-direction: column;\r\n	justify-content: center;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%), 0 1.3px 2.5px rgb(0 0 0 / 10%),\r\n		0 2.2px 4.5px rgb(0 0 0 / 12%), 0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n	margin: 20px 10px;\r\n	padding: 10px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search {\r\n	/*height: 11%;*/\r\n	flex: 0;\r\n	padding: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-table {\r\n	/*height: calc(85% - 40px);*/\r\n	overflow: auto;\r\n	flex: 1;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-page {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	/*margin-top: 10px;*/\r\n	flex: 0;\r\n	padding: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search input {\r\n	border: none;\r\n	border-bottom: 1px solid #000000;\r\n	padding: 0px 5px;\r\n	line-height: normal;\r\n	width: -moz-available;\r\n	width: -webkit-fill-available;\r\n	width: fill-available;\r\n	margin: 5px 5px 0px 5px;\r\n	background: none;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-search input:focus-visible {\r\n	outline: none;\r\n	border-bottom: 1px solid #0009ff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a {\r\n	color: #ff4848;\r\n	font-size: 0.8em;\r\n	border: none;\r\n	word-break: break-word;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link a[isvisited="true"] {\r\n	color: #8b8888;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon {\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon .netdisk-icon-img {\r\n	width: 28px;\r\n	height: 28px;\r\n	min-width: 28px;\r\n	min-height: 28px;\r\n	font-size: 0.8em;\r\n	border-radius: 10px;\r\n	box-shadow: 0 0.3px 0.6px rgb(0 0 0 / 6%), 0 0.7px 1.3px rgb(0 0 0 / 8%), 0 1.3px 2.5px rgb(0 0 0 / 10%),\r\n		0 2.2px 4.5px rgb(0 0 0 / 12%), 0 4.2px 8.4px rgb(0 0 0 / 14%), 0 10px 20px rgb(0 0 0 / 20%);\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url {\r\n	color: #000;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete {\r\n	background: #263cf3;\r\n	color: #fff;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions button.btn-delete:active {\r\n	background: #6e7be8;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions {\r\n	display: flex;\r\n	margin: 5px 0px;\r\n}\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-link p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-icon p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-top-url p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-add-time p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-update-time p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-url-title p,\r\n.whitesevPopNetDiskHistoryMatch .pops-confirm-content .netdiskrecord-functions p {\r\n	min-width: 80px;\r\n	max-width: 80px;\r\n	align-self: center;\r\n}\r\n';
   const NetDiskHistoryMatchView = {
     /**
      * 本地存储的keyName
@@ -14004,10 +13818,7 @@
      * 获取不再提示的Host列表
      */
     getList() {
-      let neverTipHostNameList = _GM_getValue(
-        NetDiskWorker.neverTipWorkerInitErrorKey,
-        []
-      );
+      let neverTipHostNameList = _GM_getValue(NetDiskWorker.neverTipWorkerInitErrorKey, []);
       if (!Array.isArray(neverTipHostNameList)) {
         neverTipHostNameList = [neverTipHostNameList];
       }
@@ -15486,10 +15297,7 @@
      * 获取所有订阅
      */
     getAllSubscribe() {
-      let allSubscribe = this.storageApi.get(
-        this.option.STORAGE_KEY,
-        []
-      );
+      let allSubscribe = this.storageApi.get(this.option.STORAGE_KEY, []);
       return allSubscribe;
     }
     /**
@@ -15520,9 +15328,7 @@
      * @param subscribeUUID 订阅的uuid
      */
     getSubscribe(subscribeUUID) {
-      let findValue = this.getAllSubscribe().find(
-        (rule) => rule.uuid == subscribeUUID
-      );
+      let findValue = this.getAllSubscribe().find((rule) => rule.uuid == subscribeUUID);
       return findValue;
     }
     /**
@@ -15533,9 +15339,7 @@
     getSubscribeRule(subscribeUUID, key) {
       let findSubscribe = this.getSubscribe(subscribeUUID);
       if (findSubscribe) {
-        let findRule = findSubscribe.subscribeData.ruleData.find(
-          (rule) => rule.key === key
-        );
+        let findRule = findSubscribe.subscribeData.ruleData.find((rule) => rule.key === key);
         return findRule;
       }
     }
@@ -15552,9 +15356,7 @@
     deleteSubscribe(config) {
       let uuid = typeof config === "string" ? config : config.uuid;
       let allSubscribe = this.getAllSubscribe();
-      let findIndex = allSubscribe.findIndex(
-        (subscribeItem) => subscribeItem.uuid === uuid
-      );
+      let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
       if (findIndex !== -1) {
         allSubscribe.splice(findIndex, 1);
         this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
@@ -15567,9 +15369,7 @@
     clearSubscribe(config) {
       let uuid = typeof config === "string" ? config : config.uuid;
       let allSubscribe = this.getAllSubscribe();
-      let findIndex = allSubscribe.findIndex(
-        (subscribeItem) => subscribeItem.uuid === uuid
-      );
+      let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
       if (findIndex !== -1) {
         allSubscribe[findIndex].subscribeData.ruleData = [];
         this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
@@ -15584,9 +15384,7 @@
     addSubscribe(subscribe) {
       let flag = false;
       let allSubscribe = this.getAllSubscribe();
-      let findIndex = allSubscribe.findIndex(
-        (subscribeItem) => subscribeItem.uuid === subscribe.uuid
-      );
+      let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
       if (findIndex === -1) {
         allSubscribe.push(subscribe);
         flag = true;
@@ -15602,9 +15400,7 @@
     updateSubscribe(subscribe) {
       let flag = false;
       let allSubscribe = this.getAllSubscribe();
-      let findIndex = allSubscribe.findIndex(
-        (subscribeItem) => subscribeItem.uuid === subscribe.uuid
-      );
+      let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
       if (findIndex !== -1) {
         allSubscribe[findIndex] = subscribe;
         flag = true;
@@ -15620,9 +15416,7 @@
     updateSubscribeRule(subscribeUUID, rule) {
       let flag = false;
       let allSubscribe = this.getAllSubscribe();
-      let targetSubscribe = allSubscribe.find(
-        (subscribeItem) => subscribeItem.uuid === subscribeUUID
-      );
+      let targetSubscribe = allSubscribe.find((subscribeItem) => subscribeItem.uuid === subscribeUUID);
       if (targetSubscribe) {
         let findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex(
           (ruleItem) => ruleItem.key === rule.key
@@ -15646,9 +15440,7 @@
       let flag = false;
       let key = typeof rule === "string" ? rule : rule.key;
       let allSubscribe = this.getAllSubscribe();
-      let findIndex = allSubscribe.findIndex(
-        (subscribeItem) => subscribeItem.uuid === subscribeUUID
-      );
+      let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribeUUID);
       if (findIndex !== -1) {
         let targetSubscribe = allSubscribe[findIndex];
         let findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex(
@@ -15722,9 +15514,7 @@
         if (typeof subscribeItem.data.latestUpdateTime === "number" && utils.formatTime(Date.now(), "yyyyMMdd") === utils.formatTime(subscribeItem.data.latestUpdateTime, "yyyyMMdd")) {
           continue;
         }
-        let requestSubscribeInfo = await this.getSubscribeInfo(
-          subscribeItem.data.url
-        );
+        let requestSubscribeInfo = await this.getSubscribeInfo(subscribeItem.data.url);
         let updateFlag = false;
         if (requestSubscribeInfo.data) {
           let subscribeNewItem = requestSubscribeInfo.data;
@@ -15801,15 +15591,9 @@
             `
         )
       });
-      let $local = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='local']"
-      );
-      let $network = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='network']"
-      );
-      let $clipboard = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='clipboard']"
-      );
+      let $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+      let $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+      let $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
       let updateRuleToStorage = (data) => {
         let allData = this.getAllSubscribe();
         let addNewData = [];
@@ -15931,9 +15715,7 @@
           height: "auto"
         });
         let $promptInput = $prompt.$shadowRoot.querySelector("input");
-        let $promptOk = $prompt.$shadowRoot.querySelector(
-          ".pops-prompt-btn-ok"
-        );
+        let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
         domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
           let value = domUtils.val($promptInput);
           if (value === "") {
@@ -15942,18 +15724,14 @@
             domUtils.removeAttr($promptOk, "disabled");
           }
         });
-        domUtils.listenKeyboard(
-          $promptInput,
-          "keydown",
-          (keyName, keyValue, otherCodeList) => {
-            if (keyName === "Enter" && otherCodeList.length === 0) {
-              let value = domUtils.val($promptInput);
-              if (value !== "") {
-                utils.dispatchEvent($promptOk, "click");
-              }
+        domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+          if (keyName === "Enter" && otherCodeList.length === 0) {
+            let value = domUtils.val($promptInput);
+            if (value !== "") {
+              utils.dispatchEvent($promptOk, "click");
             }
           }
-        );
+        });
         utils.dispatchEvent($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
@@ -16083,7 +15861,9 @@
         }
         return it;
       });
-      let rulePanelView = new RulePanelView(option);
+      let rulePanelView = new RulePanelView(
+        option
+      );
       return rulePanelView;
     },
     /**
@@ -17094,18 +16874,10 @@
         },
         NetDiskUI.popsStyle.customRuleDebugView
       );
-      this.$el.$select = dialog.$shadowRoot.querySelector(
-        ".custom-rule-select-regexp"
-      );
-      this.$el.$matchText = dialog.$shadowRoot.querySelector(
-        ".custom-rule-match-text"
-      );
-      this.$el.$log = dialog.$shadowRoot.querySelector(
-        ".custom-rule-match-log-container"
-      );
-      this.$el.$button = dialog.$shadowRoot.querySelector(
-        ".custom-rule-run-match-button"
-      );
+      this.$el.$select = dialog.$shadowRoot.querySelector(".custom-rule-select-regexp");
+      this.$el.$matchText = dialog.$shadowRoot.querySelector(".custom-rule-match-text");
+      this.$el.$log = dialog.$shadowRoot.querySelector(".custom-rule-match-log-container");
+      this.$el.$button = dialog.$shadowRoot.querySelector(".custom-rule-run-match-button");
       regexp.forEach((regExpItem, index) => {
         this.$el.$select.appendChild(
           domUtils.createElement("option", {
@@ -17244,7 +17016,7 @@
       domUtils.on(that.$el.$button, "click", void 0, debugRunClickEvent);
     }
   };
-  const dialogCSS = '.pops[type-value="confirm"] .pops-confirm-content {\r\n	overflow: hidden;\r\n}\r\n/* textarea美化 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea {\r\n	width: 100%;\r\n	height: 100%;\r\n	border: none;\r\n	outline: none;\r\n	padding: 0;\r\n	margin: 0;\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	background-image: none;\r\n	background-color: transparent;\r\n\r\n	display: inline-block;\r\n	resize: vertical;\r\n	padding: 5px 15px;\r\n	line-height: normal;\r\n	box-sizing: border-box;\r\n	border: 1px solid #dcdfe6;\r\n	transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	appearance: none;\r\n	resize: none;\r\n}\r\n/* 获得焦点 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea:focus {\r\n	outline: none;\r\n	border-color: #3677f0;\r\n}\r\n/* 提示文字 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea::placeholder {\r\n	color: #c0c4cc;\r\n}\r\n/* 鼠标hover */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]\r\n	.pops-confirm-content\r\n	textarea:hover {\r\n	border-color: #c0c4cc;\r\n}\r\n';
+  const dialogCSS = '.pops[type-value="confirm"] .pops-confirm-content {\r\n	overflow: hidden;\r\n}\r\n/* textarea美化 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea {\r\n	width: 100%;\r\n	height: 100%;\r\n	border: none;\r\n	outline: none;\r\n	padding: 0;\r\n	margin: 0;\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	background-image: none;\r\n	background-color: transparent;\r\n\r\n	display: inline-block;\r\n	resize: vertical;\r\n	padding: 5px 15px;\r\n	line-height: normal;\r\n	box-sizing: border-box;\r\n	border: 1px solid #dcdfe6;\r\n	transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	appearance: none;\r\n	resize: none;\r\n}\r\n/* 获得焦点 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus {\r\n	outline: none;\r\n	border-color: #3677f0;\r\n}\r\n/* 提示文字 */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea::placeholder {\r\n	color: #c0c4cc;\r\n}\r\n/* 鼠标hover */\r\n.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:hover {\r\n	border-color: #c0c4cc;\r\n}\r\n';
   const NetDiskUserRuleUI = {
     /**
      * 添加/编辑规则
@@ -17372,10 +17144,7 @@
         let parseRuleResult = NetDiskUserRule.parseRuleStrToRule(ruleText);
         if (parseRuleResult.success) {
           let userRule = parseRuleResult.data;
-          let flag = NetDiskUserRuleSubscribeRule.updateSubscribeRule(
-            subscribeUUID,
-            userRule
-          );
+          let flag = NetDiskUserRuleSubscribeRule.updateSubscribeRule(subscribeUUID, userRule);
           if (flag) {
             Qmsg.success("更新成功");
           } else {
@@ -17457,10 +17226,7 @@
       );
       $ruleInput = dialog.$shadowRoot.querySelector("textarea");
       let rule;
-      rule = NetDiskUserRuleSubscribeRule.getSubscribeRule(
-        subscribeUUID,
-        ruleKey
-      );
+      rule = NetDiskUserRuleSubscribeRule.getSubscribeRule(subscribeUUID, ruleKey);
       $ruleInput.value = NetDiskUserRule.getFormatRule(rule);
     }
   };
@@ -17654,6 +17420,7 @@
         window,
         unsafeWindow: _unsafeWindow,
         NetDiskCheckLinkValidity,
+        NetDiskCheckLinkValidityStatus,
         log,
         Qmsg,
         pops: __pops,
@@ -20792,20 +20559,11 @@
       /** 悬浮按钮位置的x坐标 */
       suspensionX: GenerateData("suspensionX", DOMUtils.width(window) - 50),
       /** 悬浮按钮位置的y坐标 */
-      suspensionY: GenerateData(
-        "suspensionY",
-        (DOMUtils.height(window) - 50) / 2
-      ),
+      suspensionY: GenerateData("suspensionY", (DOMUtils.height(window) - 50) / 2),
       /** 悬浮按钮所在位置的最大x */
-      suspensionMaxX: GenerateData(
-        "susponsionMax-x",
-        DOMUtils.width(window) - 50
-      ),
+      suspensionMaxX: GenerateData("susponsionMax-x", DOMUtils.width(window) - 50),
       /** 悬浮按钮所在位置的最小y */
-      suspensionMaxY: GenerateData(
-        "suspensionMax-y",
-        DOMUtils.height(window) - 50
-      ),
+      suspensionMaxY: GenerateData("suspensionMax-y", DOMUtils.height(window) - 50),
       /** 悬浮按钮是否在右边 */
       isRight: GenerateData("isRight", false)
     },
@@ -20911,9 +20669,7 @@
                 `
         }
       );
-      this.$el.$suspensionZIndexStyle = this.$el.$suspension.querySelector(
-        "style[data-z-index]"
-      );
+      this.$el.$suspensionZIndexStyle = this.$el.$suspension.querySelector("style[data-z-index]");
       $shadowRoot.appendChild(this.$el.$suspension);
       (document.body || document.documentElement).appendChild($shadowContainer);
     },
@@ -20966,9 +20722,7 @@
           DOMUtils.css(needDragElement, {
             cursor: "auto"
           });
-          let currentSuspensionLeftOffset = parseInt(
-            DOMUtils.css(needDragElement, "left")
-          );
+          let currentSuspensionLeftOffset = parseInt(DOMUtils.css(needDragElement, "left"));
           if (NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].value) {
             let setCSSLeft = 0;
             if (currentSuspensionLeftOffset >= DOMUtils.width(window) / 2) {
@@ -21003,9 +20757,7 @@
         } else {
           netDiskLinkViewTimer = setTimeout(() => {
             isDouble = false;
-            if (NetDiskGlobalData.features["netdisk-behavior-mode"].value.includes(
-              "smallwindow"
-            )) {
+            if (NetDiskGlobalData.features["netdisk-behavior-mode"].value.includes("smallwindow")) {
               NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "smallwindow";
               NetDiskUI.suspension.hide();
             }
@@ -21056,7 +20808,7 @@
     },
     /**
      * 更新悬浮按钮位置
-     * @param isTrusted 是否为用户行为触发
+     * @param isTrusted 是否为用户行为触发，如果为true，保存位置信息
      */
     updatePosition(isTrusted) {
       const MAX_X = DOMUtils.width(window) - NetDiskGlobalData.suspension.size.value;
@@ -21146,9 +20898,7 @@
           DOMUtils.fadeIn(randBgNode, fadeTime, function() {
             setTimeout(() => {
               startSwitch(
-                parseInt(
-                  NetDiskGlobalData.suspension["randbg-time"].value.toString()
-                ),
+                parseInt(NetDiskGlobalData.suspension["randbg-time"].value.toString()),
                 currentBackgroundSrc
               );
             }, parseInt(NetDiskGlobalData.suspension["randbg-show-time"].value.toString()));
@@ -21169,15 +20919,10 @@
         return;
       }
       this.$data.isSwitchBackground = true;
-      startSwitch(
-        parseInt(
-          NetDiskGlobalData.suspension["randbg-time"].value.toString().toString()
-        ),
-        randBgSrc
-      );
+      startSwitch(parseInt(NetDiskGlobalData.suspension["randbg-time"].value.toString().toString()), randBgSrc);
     }
   };
-  const indexCSS$1 = ".pops-folder-list .list-name-text {\r\n	max-width: 300px;\r\n}\r\n.netdisk-static-link-onefile .pops-folder-list .list-name-text {\r\n	max-width: 220px;\r\n}\r\n.netdisk-static-link-onefile\r\n	.pops-mobile-folder-content\r\n	.pops-folder-list\r\n	.list-name-text {\r\n	max-width: unset;\r\n}\r\n";
+  const indexCSS$1 = ".pops-folder-list .list-name-text {\r\n	max-width: 300px;\r\n}\r\n.netdisk-static-link-onefile .pops-folder-list .list-name-text {\r\n	max-width: 220px;\r\n}\r\n.netdisk-static-link-onefile .pops-mobile-folder-content .pops-folder-list .list-name-text {\r\n	max-width: unset;\r\n}\r\n";
   const NetDiskLinearChainDialogView = {
     /**
      * 单文件直链弹窗
@@ -21298,24 +21043,16 @@
               }
               let currentItemSelector = `.netdisk-url a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
               let currentHistoryItemSelector = `.netdiskrecord-link a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
-              let currentItemElement = NetDiskUI.Alias.uiLinkAlias?.$shadowRoot?.querySelector(
-                currentItemSelector
-              );
+              let currentItemElement = NetDiskUI.Alias.uiLinkAlias?.$shadowRoot?.querySelector(currentItemSelector);
               let currentHistoryItemElement = NetDiskUI.Alias.historyAlias?.$shadowRoot?.querySelector(
                 currentHistoryItemSelector
               );
               if (currentItemElement) {
-                currentItemElement.setAttribute(
-                  "data-accesscode",
-                  userInputAccessCode
-                );
+                currentItemElement.setAttribute("data-accesscode", userInputAccessCode);
                 domUtils.html(currentItemElement, uiLink);
               }
               if (currentHistoryItemElement) {
-                currentHistoryItemElement.setAttribute(
-                  "data-accesscode",
-                  userInputAccessCode
-                );
+                currentHistoryItemElement.setAttribute("data-accesscode", userInputAccessCode);
                 domUtils.html(currentHistoryItemElement, uiLink);
               }
               log.info(`${ruleKeyName} 重新输入的密码：${userInputAccessCode}`);
@@ -21336,12 +21073,7 @@
                 let currentDict = netDiskDict.get(shareCode);
                 netDiskDict.set(
                   shareCode,
-                  NetDisk.createLinkStorageInst(
-                    userInputAccessCode,
-                    ruleIndex,
-                    true,
-                    currentDict.matchText
-                  )
+                  NetDisk.createLinkStorageInst(userInputAccessCode, ruleIndex, true, currentDict.matchText)
                 );
               }
               callbackOption.isUpdatedHistoryMatched = NetDiskHistoryMatchView.syncAccessCode(
@@ -21373,18 +21105,12 @@
       },
       NetDiskUI.popsStyle.inputNewAccessCodeView
     );
-    domUtils.listenKeyboard(
-      accessCodeConfirm.$shadowRoot,
-      "keypress",
-      (keyName) => {
-        if (keyName === "Enter") {
-          const $ok = accessCodeConfirm.$shadowRoot.querySelector(
-            ".pops-prompt-btn-ok"
-          );
-          $ok.click();
-        }
+    domUtils.listenKeyboard(accessCodeConfirm.$shadowRoot, "keypress", (keyName) => {
+      if (keyName === "Enter") {
+        const $ok = accessCodeConfirm.$shadowRoot.querySelector(".pops-prompt-btn-ok");
+        $ok.click();
       }
-    );
+    });
   };
   const indexCSS = '.pops[type-value="confirm"] .pops-confirm-content {\r\n	overflow: hidden;\r\n}\r\n.netdisk-match-paste-text {\r\n	--textarea-bd-color: #dcdfe6;\r\n	display: inline-block;\r\n	resize: vertical;\r\n	padding: 5px 15px;\r\n	line-height: normal;\r\n	box-sizing: border-box;\r\n	color: #606266;\r\n	border: 1px solid var(--textarea-bd-color);\r\n	border-radius: 4px;\r\n	transition: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	outline: none;\r\n	margin: 0;\r\n	-webkit-appearance: none;\r\n	-moz-appearance: none;\r\n	appearance: none;\r\n	background: none;\r\n	width: 100%;\r\n	height: 100%;\r\n	appearance: none;\r\n	resize: none;\r\n}\r\n.netdisk-match-paste-text:hover {\r\n	--textarea-bd-color: #c0c4cc;\r\n}\r\n.netdisk-match-paste-text:focus {\r\n	--textarea-bd-color: #3677f0;\r\n}\r\n';
   const NetDiskMatchPasteText = {
@@ -21408,9 +21134,7 @@
             ok: {
               text: "识别",
               callback() {
-                let inputText = popsConfirm.popsElement?.querySelector(
-                  ".netdisk-match-paste-text"
-                )?.value || "";
+                let inputText = popsConfirm.popsElement?.querySelector(".netdisk-match-paste-text")?.value || "";
                 if (inputText.trim() !== "") {
                   inputText = NetDiskRuleUtils.replaceChinese(inputText);
                   NetDiskWorker.postMessage({
@@ -21445,9 +21169,7 @@
      */
     workerMatchEndCallBack(data) {
       if (data.data.length) {
-        Qmsg.success(
-          `成功匹配${data.data.length}个，用时${Date.now() - data.startTime}ms`
-        );
+        Qmsg.success(`成功匹配${data.data.length}个，用时${Date.now() - data.startTime}ms`);
       } else {
         Qmsg.error("未识别到链接");
       }
@@ -21621,12 +21343,7 @@
               callback: function(event, contextMenuEvent, liElement, menuListenerRootNode) {
                 let $link = menuListenerRootNode;
                 const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($link);
-                NetDiskLinkClickMode.copy(
-                  ruleKeyName,
-                  ruleIndex,
-                  shareCode,
-                  accessCode
-                );
+                NetDiskLinkClickMode.copy(ruleKeyName, ruleIndex, shareCode, accessCode);
               }
             },
             {
@@ -21655,13 +21372,7 @@
                   shareCode,
                   accessCode
                 });
-                NetDiskLinkClickMode.openBlankUrl(
-                  url,
-                  ruleKeyName,
-                  ruleIndex,
-                  shareCode,
-                  accessCode
-                );
+                NetDiskLinkClickMode.openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode);
               }
             },
             {
@@ -21690,14 +21401,7 @@
                   shareCode,
                   accessCode
                 });
-                NetDiskLinkClickMode.openBlankUrl(
-                  url,
-                  ruleKeyName,
-                  ruleIndex,
-                  shareCode,
-                  accessCode,
-                  true
-                );
+                NetDiskLinkClickMode.openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode, true);
               }
             }
           ]
@@ -21759,15 +21463,9 @@
                     if (isHistoryView) {
                       if (option.isUpdatedMatchedDict) {
                         let currentTime = (/* @__PURE__ */ new Date()).getTime();
-                        let $updateTime = $link.closest("li").querySelector(
-                          ".netdiskrecord-update-time"
-                        );
+                        let $updateTime = $link.closest("li").querySelector(".netdiskrecord-update-time");
                         DOMUtils.text($updateTime, utils.formatTime(currentTime));
-                        DOMUtils.attr(
-                          $link,
-                          "data-accesscode",
-                          option.accessCode
-                        );
+                        DOMUtils.attr($link, "data-accesscode", option.accessCode);
                         Qmsg.success(
                           /*html*/
                           `
@@ -21796,9 +21494,7 @@
                         if (option.isFindInMatchedDict) {
                           Qmsg.error("修改访问码失败");
                         } else {
-                          Qmsg.error(
-                            "修改访问码失败，因为当前已匹配字典中未找到对应的访问码"
-                          );
+                          Qmsg.error("修改访问码失败，因为当前已匹配字典中未找到对应的访问码");
                         }
                       }
                     }
@@ -21870,32 +21566,24 @@
               let $box = $link.closest(".netdisk-url-box");
               const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($link);
               let flag = false;
-              NetDisk.$match.matchedInfo.forEach(
-                (netDiskItem, netDiskKeyName) => {
-                  if (netDiskKeyName !== ruleKeyName) {
-                    return;
-                  }
-                  netDiskItem.forEach((matchedInfo, matchedShareCode) => {
-                    if (matchedShareCode === shareCode) {
-                      flag = true;
-                      netDiskItem.delete(matchedShareCode);
-                      log.info(
-                        `删除：`,
-                        netDiskKeyName,
-                        JSON.stringify(matchedInfo)
-                      );
-                    }
-                  });
+              NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
+                if (netDiskKeyName !== ruleKeyName) {
+                  return;
                 }
-              );
+                netDiskItem.forEach((matchedInfo, matchedShareCode) => {
+                  if (matchedShareCode === shareCode) {
+                    flag = true;
+                    netDiskItem.delete(matchedShareCode);
+                    log.info(`删除：`, netDiskKeyName, JSON.stringify(matchedInfo));
+                  }
+                });
+              });
               NetDisk.$match.matchedInfoRuleKey.clear();
-              NetDisk.$match.matchedInfo.forEach(
-                (netDiskItem, netDiskKeyName) => {
-                  if (netDiskItem.length) {
-                    NetDisk.$match.matchedInfoRuleKey.add(netDiskKeyName);
-                  }
+              NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
+                if (netDiskItem.length) {
+                  NetDisk.$match.matchedInfoRuleKey.add(netDiskKeyName);
                 }
-              );
+              });
               if (flag) {
                 $box.remove();
               } else {
@@ -21910,11 +21598,9 @@
               let $link = menuListenerRootNode;
               let $boxAll = $link.closest(".netdisk-url-box-all");
               const { ruleKeyName, ruleIndex, shareCode, accessCode } = NetDiskView.praseElementAttributeRuleInfo($link);
-              NetDisk.$match.matchedInfo.forEach(
-                (netDiskItem, netDiskKeyName) => {
-                  netDiskItem.clear();
-                }
-              );
+              NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
+                netDiskItem.clear();
+              });
               NetDisk.$match.matchedInfoRuleKey.clear();
               DOMUtils.html($boxAll, "");
             }
@@ -22093,10 +21779,7 @@
                     return currentData?.subscribeData?.ruleData ?? option.ruleData.subscribeData.ruleData;
                   },
                   getData(data) {
-                    let currentData = WebsiteSubscribeRule.getSubscribeRule(
-                      subscribeUUID,
-                      data.uuid
-                    );
+                    let currentData = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, data.uuid);
                     return currentData ?? data;
                   },
                   getDataItemName(data) {
@@ -22106,16 +21789,10 @@
                     return true;
                   },
                   updateData(data) {
-                    return WebsiteSubscribeRule.updateSubscribeRule(
-                      subscribeUUID,
-                      data
-                    );
+                    return WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, data);
                   },
                   deleteData(data) {
-                    return WebsiteSubscribeRule.deleteSubscribeRule(
-                      subscribeUUID,
-                      data
-                    );
+                    return WebsiteSubscribeRule.deleteSubscribeRule(subscribeUUID, data);
                   },
                   btnControls: {
                     filter: {
@@ -22148,10 +21825,7 @@
                       },
                       callback(data, enable) {
                         data.data.enable = enable;
-                        WebsiteSubscribeRule.updateSubscribeRule(
-                          subscribeUUID,
-                          data
-                        );
+                        WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, data);
                       }
                     },
                     ruleEdit: {
@@ -22164,67 +21838,26 @@
                         function generateSubscribeRuleStorageApi(uuid) {
                           return {
                             get(key, defaultValue) {
-                              let currentRule = WebsiteSubscribeRule.getSubscribeRule(
-                                subscribeUUID,
-                                uuid
-                              );
+                              let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid);
                               return Reflect.get(currentRule.data, key) ?? defaultValue;
                             },
                             set(key, value) {
-                              let currentRule = WebsiteSubscribeRule.getSubscribeRule(
-                                subscribeUUID,
-                                uuid
-                              );
+                              let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid);
                               Reflect.set(currentRule.data, key, value);
-                              WebsiteSubscribeRule.updateSubscribeRule(
-                                subscribeUUID,
-                                currentRule
-                              );
+                              WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, currentRule);
                             }
                           };
                         }
                         let $fragment = document.createDocumentFragment();
                         let enable_template = UISwitch("启用", "enable", true);
-                        Reflect.set(
-                          enable_template.props,
-                          PROPS_STORAGE_API,
-                          generateStorageApi(data)
-                        );
-                        let $enable = panelHandlerComponents.createSectionContainerItem_switch(
-                          enable_template
-                        );
-                        let name_template = UIInput(
-                          "规则名称",
-                          "name",
-                          "",
-                          "",
-                          void 0,
-                          "必填"
-                        );
-                        Reflect.set(
-                          name_template.props,
-                          PROPS_STORAGE_API,
-                          generateStorageApi(data)
-                        );
-                        let $name = panelHandlerComponents.createSectionContainerItem_input(
-                          name_template
-                        );
-                        let url_template = UIInput(
-                          "匹配网址",
-                          "url",
-                          "",
-                          "",
-                          void 0,
-                          "必填，可正则"
-                        );
-                        Reflect.set(
-                          url_template.props,
-                          PROPS_STORAGE_API,
-                          generateStorageApi(data)
-                        );
-                        let $data_url = panelHandlerComponents.createSectionContainerItem_input(
-                          url_template
-                        );
+                        Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+                        let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+                        let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+                        Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+                        let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+                        let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
+                        Reflect.set(url_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+                        let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
                         let coverSetting_template = UIButton(
                           "覆盖设置",
                           "",
@@ -22239,18 +21872,12 @@
                               ...PanelContent.getConfig(0),
                               ...NetDiskRule.getRulePanelContent()
                             ];
-                            let newPanelContentConfig = deepCopy(
-                              originPanelContentConfig
-                            );
+                            let newPanelContentConfig = deepCopy(originPanelContentConfig);
                             function iterativeTraversal(configList) {
                               configList.forEach((configItem) => {
                                 if (typeof configItem?.props === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
                                   let panelStorageApi = generateSubscribeRuleStorageApi(data.uuid);
-                                  Reflect.set(
-                                    configItem.props,
-                                    PROPS_STORAGE_API,
-                                    panelStorageApi
-                                  );
+                                  Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
                                 }
                                 let childForms = configItem.forms;
                                 if (childForms && Array.isArray(childForms)) {
@@ -22265,10 +21892,7 @@
                               }
                               if (typeof leftContentConfigItem.afterRender === "function" && leftContentConfigItem?.id.toString().startsWith("netdisk-panel-config-")) {
                                 leftContentConfigItem.afterRender = (__data) => {
-                                  let ruleKey = Reflect.get(
-                                    __data.asideConfig.attributes,
-                                    "data-key"
-                                  );
+                                  let ruleKey = Reflect.get(__data.asideConfig.attributes, "data-key");
                                   let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
                                   let subscribeRule = WebsiteSubscribeRule.getSubscribeRule(
                                     subscribeUUID,
@@ -22284,9 +21908,7 @@
                                 let ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
                                 let custom_accessCode_enable_template = UISwitch(
                                   "启用",
-                                  WebsiteRuleDataKey.features.customAccessCodeEnable(
-                                    ruleKey
-                                  ),
+                                  WebsiteRuleDataKey.features.customAccessCodeEnable(ruleKey),
                                   false,
                                   void 0,
                                   "启用后将允许执行下面的功能",
@@ -22299,9 +21921,7 @@
                                 );
                                 let custom_accessCode_template = UIInput(
                                   "自定义访问码",
-                                  WebsiteRuleDataKey.features.customAccessCode(
-                                    ruleKey
-                                  ),
+                                  WebsiteRuleDataKey.features.customAccessCode(ruleKey),
                                   "",
                                   "让获取的到的链接的访问码都为自定义的访问码",
                                   void 0,
@@ -22317,21 +21937,12 @@
                                 let custom_accessCode_container = {
                                   text: "额外功能",
                                   type: "forms",
-                                  forms: [
-                                    custom_accessCode_enable_template,
-                                    custom_accessCode_template
-                                  ]
+                                  forms: [custom_accessCode_enable_template, custom_accessCode_template]
                                 };
                                 if (leftContentConfigItem.forms.length) {
-                                  leftContentConfigItem.forms.splice(
-                                    1,
-                                    0,
-                                    custom_accessCode_container
-                                  );
+                                  leftContentConfigItem.forms.splice(1, 0, custom_accessCode_container);
                                 } else {
-                                  leftContentConfigItem.forms.push(
-                                    custom_accessCode_container
-                                  );
+                                  leftContentConfigItem.forms.push(custom_accessCode_container);
                                 }
                               }
                               let rightContentConfigList = leftContentConfigItem.forms;
@@ -22383,9 +21994,7 @@
                           },
                           void 0
                         );
-                        let $coverSetting_template = panelHandlerComponents.createSectionContainerItem_button(
-                          coverSetting_template
-                        );
+                        let $coverSetting_template = panelHandlerComponents.createSectionContainerItem_button(coverSetting_template);
                         $fragment.appendChild($enable);
                         $fragment.appendChild($name);
                         $fragment.appendChild($data_url);
@@ -22393,16 +22002,12 @@
                         return $fragment;
                       },
                       onsubmit: ($form, isEdit, editData) => {
-                        let $ulist_li = $form.querySelectorAll(
-                          ".rule-form-ulist > li"
-                        );
+                        let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
                         let data = addData();
                         if (isEdit) {
                           data.uuid = editData.uuid;
                           let allData = this.getAllRule();
-                          let findValue = allData.find(
-                            (item) => item.uuid === data.uuid
-                          );
+                          let findValue = allData.find((item) => item.uuid === data.uuid);
                           if (findValue) {
                             data.data = findValue.data;
                           }
@@ -22415,10 +22020,7 @@
                           if (key == null) {
                             return;
                           }
-                          let defaultValue = Reflect.get(
-                            attrs,
-                            ATTRIBUTE_DEFAULT_VALUE
-                          );
+                          let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
                           let value = storageApi.get(key, defaultValue);
                           if (Reflect.has(data, key)) {
                             Reflect.set(data, key, value);
@@ -22458,10 +22060,7 @@
                     ruleDelete: {
                       enable: true,
                       deleteCallBack(data) {
-                        return WebsiteSubscribeRule.deleteSubscribeRule(
-                          subscribeUUID,
-                          data
-                        );
+                        return WebsiteSubscribeRule.deleteSubscribeRule(subscribeUUID, data);
                       }
                     }
                   }
@@ -22486,9 +22085,7 @@
             export: {
               enable: true,
               callback() {
-                WebsiteSubscribeRule.exportSubscribe(
-                  _SCRIPT_NAME_ + "-网站规则-订阅.json"
-                );
+                WebsiteSubscribeRule.exportSubscribe(_SCRIPT_NAME_ + "-网站规则-订阅.json");
               }
             }
           },
@@ -22541,10 +22138,7 @@
             export: {
               enable: true,
               callback: () => {
-                that.exportRule(
-                  _SCRIPT_NAME_ + "-网站规则.json",
-                  _SCRIPT_NAME_ + "-网站规则-订阅模式.json"
-                );
+                that.exportRule(_SCRIPT_NAME_ + "-网站规则.json", _SCRIPT_NAME_ + "-网站规则-订阅模式.json");
               }
             },
             ruleEnable: {
@@ -22583,46 +22177,14 @@
                   data = addData();
                 }
                 let enable_template = UISwitch("启用", "enable", true);
-                Reflect.set(
-                  enable_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(data)
-                );
-                let $enable = panelHandlerComponents.createSectionContainerItem_switch(
-                  enable_template
-                );
-                let name_template = UIInput(
-                  "规则名称",
-                  "name",
-                  "",
-                  "",
-                  void 0,
-                  "必填"
-                );
-                Reflect.set(
-                  name_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(data)
-                );
-                let $name = panelHandlerComponents.createSectionContainerItem_input(
-                  name_template
-                );
-                let url_template = UIInput(
-                  "匹配网址",
-                  "url",
-                  "",
-                  "",
-                  void 0,
-                  "必填，可正则"
-                );
-                Reflect.set(
-                  url_template.props,
-                  PROPS_STORAGE_API,
-                  generateStorageApi(data)
-                );
-                let $data_url = panelHandlerComponents.createSectionContainerItem_input(
-                  url_template
-                );
+                Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+                let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+                let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+                Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+                let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
+                let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
+                Reflect.set(url_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+                let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
                 let coverSetting_template = UIButton(
                   "覆盖设置",
                   "",
@@ -22637,20 +22199,12 @@
                       ...PanelContent.getConfig(0),
                       ...NetDiskRule.getRulePanelContent()
                     ];
-                    let newPanelContentConfig = deepCopy(
-                      originPanelContentConfig
-                    );
+                    let newPanelContentConfig = deepCopy(originPanelContentConfig);
                     function iterativeTraversal(configList) {
                       configList.forEach((configItem) => {
                         if (typeof configItem?.props === "object" && Reflect.has(configItem.props, PROPS_STORAGE_API)) {
-                          let panelStorageApi = generatePanelStorageApi(
-                            data.uuid
-                          );
-                          Reflect.set(
-                            configItem.props,
-                            PROPS_STORAGE_API,
-                            panelStorageApi
-                          );
+                          let panelStorageApi = generatePanelStorageApi(data.uuid);
+                          Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
                         }
                         let childForms = configItem.forms;
                         if (childForms && Array.isArray(childForms)) {
@@ -22665,18 +22219,11 @@
                       }
                       if (typeof leftContentConfigItem.afterRender === "function" && leftContentConfigItem?.id.toString().startsWith("netdisk-panel-config-")) {
                         leftContentConfigItem.afterRender = (__data) => {
-                          let ruleKey = Reflect.get(
-                            __data.asideConfig.attributes,
-                            "data-key"
-                          );
+                          let ruleKey = Reflect.get(__data.asideConfig.attributes, "data-key");
                           let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
                           __data.$asideLiElement.setAttribute(
                             "data-function-enable",
-                            isEdit ? WebsiteRule.getRuleDataValue(
-                              data.uuid,
-                              enableKey,
-                              true
-                            ) : data.data[enableKey] ?? true
+                            isEdit ? WebsiteRule.getRuleDataValue(data.uuid, enableKey, true) : data.data[enableKey] ?? true
                           );
                         };
                       }
@@ -22684,9 +22231,7 @@
                         let ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
                         let custom_accessCode_enable_template = UISwitch(
                           "启用",
-                          WebsiteRuleDataKey.features.customAccessCodeEnable(
-                            ruleKey
-                          ),
+                          WebsiteRuleDataKey.features.customAccessCodeEnable(ruleKey),
                           false,
                           void 0,
                           "启用后将允许执行下面的功能",
@@ -22715,21 +22260,12 @@
                         let custom_accessCode_container = {
                           text: "额外功能",
                           type: "forms",
-                          forms: [
-                            custom_accessCode_enable_template,
-                            custom_accessCode_template
-                          ]
+                          forms: [custom_accessCode_enable_template, custom_accessCode_template]
                         };
                         if (leftContentConfigItem.forms.length) {
-                          leftContentConfigItem.forms.splice(
-                            1,
-                            0,
-                            custom_accessCode_container
-                          );
+                          leftContentConfigItem.forms.splice(1, 0, custom_accessCode_container);
                         } else {
-                          leftContentConfigItem.forms.push(
-                            custom_accessCode_container
-                          );
+                          leftContentConfigItem.forms.push(custom_accessCode_container);
                         }
                       }
                       let rightContentConfigList = leftContentConfigItem.forms;
@@ -22782,9 +22318,7 @@
                   },
                   void 0
                 );
-                let $coverSetting_template = panelHandlerComponents.createSectionContainerItem_button(
-                  coverSetting_template
-                );
+                let $coverSetting_template = panelHandlerComponents.createSectionContainerItem_button(coverSetting_template);
                 $fragment.appendChild($enable);
                 $fragment.appendChild($name);
                 $fragment.appendChild($data_url);
@@ -22792,9 +22326,7 @@
                 return $fragment;
               },
               onsubmit: ($form, isEdit, editData) => {
-                let $ulist_li = $form.querySelectorAll(
-                  ".rule-form-ulist > li"
-                );
+                let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
                 let data = addData();
                 if (isEdit) {
                   data.uuid = editData.uuid;
@@ -22899,11 +22431,9 @@
       if (findValue) {
         return findValue;
       }
-      let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find(
-        (rule) => {
-          return rule.uuid === uuid;
-        }
-      );
+      let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((rule) => {
+        return rule.uuid === uuid;
+      });
       return findSubscribeRule;
     },
     /**
@@ -22945,16 +22475,11 @@
       if (flag) {
         WebsiteRuleStorageApi.set(this.$data.STORAGE_KEY, allRule);
       } else {
-        let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find(
-          (it) => {
-            return it.uuid === rule.uuid;
-          }
-        );
+        let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((it) => {
+          return it.uuid === rule.uuid;
+        });
         if (findSubscribeRule) {
-          flag = WebsiteSubscribeRule.updateSubscribeRule(
-            rule.subscribeUUID,
-            rule
-          );
+          flag = WebsiteSubscribeRule.updateSubscribeRule(rule.subscribeUUID, rule);
         }
       }
       return flag;
@@ -22978,16 +22503,11 @@
       if (flag) {
         WebsiteRuleStorageApi.set(this.$data.STORAGE_KEY, allRule);
       } else {
-        let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find(
-          (it) => {
-            return it.uuid === needDeleteRuleUUID;
-          }
-        );
+        let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((it) => {
+          return it.uuid === needDeleteRuleUUID;
+        });
         if (findSubscribeRule) {
-          flag = WebsiteSubscribeRule.deleteSubscribeRule(
-            findSubscribeRule.subscribeUUID,
-            findSubscribeRule
-          );
+          flag = WebsiteSubscribeRule.deleteSubscribeRule(findSubscribeRule.subscribeUUID, findSubscribeRule);
         }
       }
       return flag;
@@ -23002,10 +22522,7 @@
      * 获取所有规则
      */
     getAllRule() {
-      let allRule = WebsiteRuleStorageApi.get(
-        this.$data.STORAGE_KEY,
-        []
-      );
+      let allRule = WebsiteRuleStorageApi.get(this.$data.STORAGE_KEY, []);
       return allRule;
     },
     /**
@@ -23204,52 +22721,17 @@
 					`
             )
           });
-          let $content = $exportSubscribeDialog.$shadowRoot.querySelector(
-            ".pops-alert-content"
-          );
+          let $content = $exportSubscribeDialog.$shadowRoot.querySelector(".pops-alert-content");
           let configData = WebsiteRuleStorageApi.get(this.$data.EXPORT_CONFIG_KEY, {});
           let title_template = UIInput("订阅标题", "title", "", "", void 0, "");
-          Reflect.set(
-            title_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(configData)
-          );
-          let $title = panelHandlerComponents.createSectionContainerItem_input(
-            title_template
-          );
-          let version_template = UIInput(
-            "版本号",
-            "version",
-            "",
-            "",
-            void 0,
-            "",
-            false
-          );
-          Reflect.set(
-            version_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(configData)
-          );
-          let $version = panelHandlerComponents.createSectionContainerItem_input(
-            version_template
-          );
-          let homePage_template = UIInput(
-            "主页地址",
-            "homePage",
-            "",
-            "",
-            void 0,
-            "选填"
-          );
-          Reflect.set(
-            homePage_template.props,
-            PROPS_STORAGE_API,
-            generateStorageApi(configData)
-          );
-          let $homePage = panelHandlerComponents.createSectionContainerItem_input(
-            homePage_template
-          );
+          Reflect.set(title_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
+          let $title = panelHandlerComponents.createSectionContainerItem_input(title_template);
+          let version_template = UIInput("版本号", "version", "", "", void 0, "", false);
+          Reflect.set(version_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
+          let $version = panelHandlerComponents.createSectionContainerItem_input(version_template);
+          let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
+          Reflect.set(homePage_template.props, PROPS_STORAGE_API, generateStorageApi(configData));
+          let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template);
           domUtils.append($content, $title);
           domUtils.append($content, $version);
           domUtils.append($content, $homePage);
@@ -23311,15 +22793,9 @@
             `
         )
       });
-      let $local = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='local']"
-      );
-      let $network = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='network']"
-      );
-      let $clipboard = $alert.$shadowRoot.querySelector(
-        ".btn-control[data-mode='clipboard']"
-      );
+      let $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+      let $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+      let $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
       let updateRuleToStorage = (data) => {
         let allData = this.getAllRule();
         let addNewData = [];
@@ -23433,9 +22909,7 @@
           height: "auto"
         });
         let $promptInput = $prompt.$shadowRoot.querySelector("input");
-        let $promptOk = $prompt.$shadowRoot.querySelector(
-          ".pops-prompt-btn-ok"
-        );
+        let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
         domUtils.on($promptInput, ["input", "propertychange"], (event2) => {
           let value = domUtils.val($promptInput);
           if (value === "") {
@@ -23444,18 +22918,14 @@
             domUtils.removeAttr($promptOk, "disabled");
           }
         });
-        domUtils.listenKeyboard(
-          $promptInput,
-          "keydown",
-          (keyName, keyValue, otherCodeList) => {
-            if (keyName === "Enter" && otherCodeList.length === 0) {
-              let value = domUtils.val($promptInput);
-              if (value !== "") {
-                utils.dispatchEvent($promptOk, "click");
-              }
+        domUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+          if (keyName === "Enter" && otherCodeList.length === 0) {
+            let value = domUtils.val($promptInput);
+            if (value !== "") {
+              utils.dispatchEvent($promptOk, "click");
             }
           }
-        );
+        });
         utils.dispatchEvent($promptInput, "input");
       });
       domUtils.on($clipboard, "click", async (event) => {
@@ -23528,15 +22998,9 @@
     /** 弹窗 */
     pops: {
       /** 动画 */
-      popsAnimation: GeneratePanelStorage(
-        "popsAnimation",
-        "pops-anim-fadein-zoom"
-      ),
+      popsAnimation: GeneratePanelStorage("popsAnimation", "pops-anim-fadein-zoom"),
       /** 点击弹窗遮罩层是否可以关闭弹窗 */
-      clickMaskToCloseDialog: GeneratePanelStorage(
-        "clickMaskToCloseDialog",
-        true
-      ),
+      clickMaskToCloseDialog: GeneratePanelStorage("clickMaskToCloseDialog", true),
       /** 窗口拖拽 */
       pcDrag: GeneratePanelStorage("pcDrag", true),
       /** 限制拖拽距离 */
@@ -23552,10 +23016,7 @@
         "fileName"
       ),
       /** 排序规则 */
-      "pops-folder-sort-is-desc": GeneratePanelStorage(
-        "pops-folder-sort-is-desc",
-        false
-      )
+      "pops-folder-sort-is-desc": GeneratePanelStorage("pops-folder-sort-is-desc", false)
     },
     /** 小图标导航 */
     smallIconNavgiator: {
@@ -23586,30 +23047,18 @@
       /** 背景显示时间 */
       "randbg-show-time": GeneratePanelStorage("randbg-show-time", 1200),
       /** 吸附边缘 */
-      "suspended-button-adsorption-edge": GeneratePanelStorage(
-        "suspended-button-adsorption-edge",
-        false
-      ),
+      "suspended-button-adsorption-edge": GeneratePanelStorage("suspended-button-adsorption-edge", false),
       /** z-index层级 */
       "suspended-z-index": GeneratePanelStorage("suspended-z-index", -1)
     },
     /** 小窗模式 */
     smallWindow: {
       /** 宽度 */
-      "netdisk-ui-small-window-width": GeneratePanelStorage(
-        "netdisk-ui-small-window-width",
-        250
-      ),
+      "netdisk-ui-small-window-width": GeneratePanelStorage("netdisk-ui-small-window-width", 250),
       /** 高度 */
-      "netdisk-ui-small-window-max-height": GeneratePanelStorage(
-        "netdisk-ui-small-window-max-height",
-        200
-      ),
+      "netdisk-ui-small-window-max-height": GeneratePanelStorage("netdisk-ui-small-window-max-height", 200),
       /** z-index */
-      "netdisk-link-view-z-index": GeneratePanelStorage(
-        "netdisk-link-view-z-index",
-        -1
-      )
+      "netdisk-link-view-z-index": GeneratePanelStorage("netdisk-link-view-z-index", -1)
     },
     /** 历史匹配记录 */
     historyMatch: {
@@ -23634,51 +23083,27 @@
         "innerHTML"
       ]),
       /** 深入ShadowRoot获取匹配文本 */
-      depthQueryWithShadowRoot: GeneratePanelStorage(
-        "depthQueryWithShadowRoot",
-        false
-      ),
+      depthQueryWithShadowRoot: GeneratePanelStorage("depthQueryWithShadowRoot", false),
       /** 匹配剪贴板 */
       readClipboard: GeneratePanelStorage("readClipboard", false),
       /** 匹配当前URL */
-      allowMatchLocationHref: GeneratePanelStorage(
-        "allowMatchLocationHref",
-        true
-      ),
+      allowMatchLocationHref: GeneratePanelStorage("allowMatchLocationHref", true),
       /** 匹配input标签的内容 */
-      toBeMatchedWithInputElementValue: GeneratePanelStorage(
-        "to-be-matched-inputElementValue",
-        false
-      ),
+      toBeMatchedWithInputElementValue: GeneratePanelStorage("to-be-matched-inputElementValue", false),
       /** 匹配textarea标签的内容 */
-      toBeMatchedTextAreaElementValue: GeneratePanelStorage(
-        "to-be-matched-textAreaElementValue",
-        false
-      ),
+      toBeMatchedTextAreaElementValue: GeneratePanelStorage("to-be-matched-textAreaElementValue", false),
       /** 匹配网络请求的内容 */
-      toBeMatchedXhrHookResponseText: GeneratePanelStorage(
-        "to-be-matched-xhrHookResponseText",
-        false
-      ),
+      toBeMatchedXhrHookResponseText: GeneratePanelStorage("to-be-matched-xhrHookResponseText", false),
       /** 匹配间隔 */
       delaytime: GeneratePanelStorage("delaytime", 0.8),
       /** 添加元素时进行匹配 */
       isAddedNodesToMatch: GeneratePanelStorage("isAddedNodesToMatch", false),
       /** 观察器：childList */
-      "mutationObserver-childList": GeneratePanelStorage(
-        "mutationObserver-childList",
-        true
-      ),
+      "mutationObserver-childList": GeneratePanelStorage("mutationObserver-childList", true),
       /** 观察器：characterData */
-      "mutationObserver-characterData": GeneratePanelStorage(
-        "mutationObserver-characterData",
-        true
-      ),
+      "mutationObserver-characterData": GeneratePanelStorage("mutationObserver-characterData", true),
       /** 观察器：subtree */
-      "mutationObserver-subtree": GeneratePanelStorage(
-        "mutationObserver-subtree",
-        true
-      )
+      "mutationObserver-subtree": GeneratePanelStorage("mutationObserver-subtree", true)
     },
     /** 功能 */
     features: {
@@ -23698,23 +23123,14 @@
     /** 分享码相关 */
     shareCode: {
       /** 相同系数 */
-      excludeIdenticalSharedCodesCoefficient: GeneratePanelStorage(
-        "excludeIdenticalSharedCodesCoefficient",
-        1
-      ),
+      excludeIdenticalSharedCodesCoefficient: GeneratePanelStorage("excludeIdenticalSharedCodesCoefficient", 1),
       /** 排除分享码 */
-      excludeIdenticalSharedCodes: GeneratePanelStorage(
-        "excludeIdenticalSharedCodes",
-        false
-      )
+      excludeIdenticalSharedCodes: GeneratePanelStorage("excludeIdenticalSharedCodes", false)
     },
     /** 访问码 */
     accessCode: {
       /** 允许查询历史匹配记录 */
-      allowQueryHistoryMatchingAccessCode: GeneratePanelStorage(
-        "allowQueryHistoryMatchingAccessCode",
-        true
-      )
+      allowQueryHistoryMatchingAccessCode: GeneratePanelStorage("allowQueryHistoryMatchingAccessCode", true)
     }
   };
   const NetDisk = {
@@ -23832,9 +23248,7 @@
             if (!Panel.isTopWindow()) {
               return;
             }
-            alert(
-              "以下是命中的规则名：\n" + matchedUrlRuleList.map((item) => item.name).join("\n")
-            );
+            alert("以下是命中的规则名：\n" + matchedUrlRuleList.map((item) => item.name).join("\n"));
           }
         });
       }
@@ -23854,9 +23268,7 @@
             if (!Panel.isTopWindow()) {
               return;
             }
-            alert(
-              "以下是命中的规则名：\n" + characterMapping.map((item) => item.name).join("\n")
-            );
+            alert("以下是命中的规则名：\n" + characterMapping.map((item) => item.name).join("\n"));
           }
         });
       }
@@ -23891,12 +23303,7 @@
       let shareCodeMatch = handlerConfig.matchText.match(ruleConfig.shareCode)?.filter((item) => utils.isNotNull(item));
       handlerConfig.debugConfig?.logCallBack?.({
         status: true,
-        msg: [
-          `正则: shareCode`,
-          "作用: 获取shareCode",
-          "结果: ",
-          JSON.stringify(shareCodeMatch)
-        ]
+        msg: [`正则: shareCode`, "作用: 获取shareCode", "结果: ", JSON.stringify(shareCodeMatch)]
       });
       if (utils.isNull(shareCodeMatch)) {
         handlerConfig.debugConfig?.logCallBack?.({
@@ -23966,10 +23373,7 @@
         status: true,
         msg: ["对shareCode进行解码: " + shareCode]
       });
-      if (NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.value && utils.isSameChars(
-        shareCode,
-        NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient.value
-      )) {
+      if (NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.value && utils.isSameChars(shareCode, NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient.value)) {
         handlerConfig.debugConfig?.logCallBack?.({
           status: false,
           msg: ["已开启【排除分享码】且该分享码命中该规则"]
@@ -24004,9 +23408,7 @@
         });
         return "";
       }
-      let accessCodeMatch = handlerConfig.matchText.match(
-        ruleConfig.checkAccessCode
-      );
+      let accessCodeMatch = handlerConfig.matchText.match(ruleConfig.checkAccessCode);
       handlerConfig.debugConfig?.logCallBack?.({
         status: true,
         msg: [
@@ -24083,11 +23485,7 @@
           }
         }
         for (const accessCodeNeedRemoveStrRegExp of NetDisk.$extraRule.accessCodeNeedRemoveStr) {
-          accessCode = NetDiskHandlerUtil.replaceText(
-            accessCode,
-            accessCodeNeedRemoveStrRegExp,
-            ""
-          );
+          accessCode = NetDiskHandlerUtil.replaceText(accessCode, accessCodeNeedRemoveStrRegExp, "");
         }
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
@@ -24099,11 +23497,7 @@
         });
         let accessCodeNeedRemoveStr = ruleConfig.accessCodeNeedRemoveStr;
         if (accessCodeNeedRemoveStr) {
-          accessCode = NetDiskHandlerUtil.replaceText(
-            accessCode,
-            accessCodeNeedRemoveStr,
-            ""
-          );
+          accessCode = NetDiskHandlerUtil.replaceText(accessCode, accessCodeNeedRemoveStr, "");
           handlerConfig.debugConfig?.logCallBack?.({
             status: true,
             msg: [
@@ -24136,9 +23530,7 @@
         );
         let customAccessCodeEnable = Reflect.get(
           ruleData,
-          WebsiteRuleDataKey.features.customAccessCodeEnable(
-            handlerConfig.ruleKeyName
-          )
+          WebsiteRuleDataKey.features.customAccessCodeEnable(handlerConfig.ruleKeyName)
         );
         if (customAccessCodeEnable && typeof customAccessCode === "string") {
           result = customAccessCode;
@@ -24152,15 +23544,9 @@
      * @param handlerConfig 配置
      */
     handleLinkShow(handlerConfig) {
-      let checkFlag = handlerConfig.debugConfig?.config ? true : this.checkHasRuleOption(
-        handlerConfig.ruleKeyName,
-        handlerConfig.ruleIndex
-      );
+      let checkFlag = handlerConfig.debugConfig?.config ? true : this.checkHasRuleOption(handlerConfig.ruleKeyName, handlerConfig.ruleIndex);
       if (!checkFlag) {
-        log.error(
-          `BUG: ${handlerConfig.ruleKeyName}不存在，分析参数`,
-          handlerConfig
-        );
+        log.error(`BUG: ${handlerConfig.ruleKeyName}不存在，分析参数`, handlerConfig);
         (handlerConfig.showToast ?? true) && Qmsg.error(`规则：${handlerConfig.ruleKeyName}不存在`);
         return;
       }
@@ -24191,11 +23577,7 @@
           ]
         });
       } else {
-        uiLink = NetDiskHandlerUtil.replaceText(
-          uiLink,
-          NetDisk.$extraRule.noAccessCodeRegExp,
-          ""
-        );
+        uiLink = NetDiskHandlerUtil.replaceText(uiLink, NetDisk.$extraRule.noAccessCodeRegExp, "");
         handlerConfig.debugConfig?.logCallBack?.({
           status: true,
           msg: [
@@ -24209,9 +23591,7 @@
         let currentDict = NetDisk.$match.matchedInfo.get(handlerConfig.ruleKeyName).get(handlerConfig.shareCode);
         handlerConfig.matchText = handlerConfig.matchText ?? currentDict?.matchText;
         if (utils.isNotNull(handlerConfig.matchText)) {
-          let paramMatchArray = handlerConfig.matchText.match(
-            ruleConfig.paramMatch
-          );
+          let paramMatchArray = handlerConfig.matchText.match(ruleConfig.paramMatch);
           let replaceParamData = {};
           if (paramMatchArray) {
             for (let index = 0; index < paramMatchArray.length; index++) {
@@ -25044,9 +24424,7 @@
                       15,
                       250,
                       (event, value) => {
-                        NetDiskGlobalData.suspension.size.value = parseInt(
-                          value.toString()
-                        );
+                        NetDiskGlobalData.suspension.size.value = parseInt(value.toString());
                         if (NetDiskUI.suspension.$data.isShow) {
                           DOMUtils.css(NetDiskUI.suspension.$el.$suspension, {
                             width: NetDiskGlobalData.suspension.size.value,
@@ -25067,9 +24445,7 @@
                       0.1,
                       1,
                       (event, value) => {
-                        NetDiskGlobalData.suspension.opacity.value = parseFloat(
-                          value.toString()
-                        );
+                        NetDiskGlobalData.suspension.opacity.value = parseFloat(value.toString());
                         if (NetDiskUI.suspension.$data.isShow) {
                           DOMUtils.css(NetDiskUI.suspension.$el.$suspension, {
                             opacity: NetDiskGlobalData.suspension.opacity.value
@@ -25111,7 +24487,12 @@
                       NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].KEY,
                       NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].default,
                       void 0,
-                      "移动悬浮按钮松开后自动吸附边缘"
+                      "移动悬浮按钮松开后自动吸附边缘",
+                      void 0,
+                      void 0,
+                      () => {
+                        NetDiskSuspension.updatePosition(false);
+                      }
                     ),
                     UIInput(
                       "z-index",
@@ -25466,9 +24847,7 @@
                           if (repairCount === 0) {
                             Qmsg.info(`不存在需要修复的数据`);
                           } else {
-                            Qmsg.success(
-                              `共计: ${count} 条，修复${repairCount}条`
-                            );
+                            Qmsg.success(`共计: ${count} 条，修复${repairCount}条`);
                           }
                         } catch (error) {
                           Qmsg.error("修复异常：" + error.toString());
