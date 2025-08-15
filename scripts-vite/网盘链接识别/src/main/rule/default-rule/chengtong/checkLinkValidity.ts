@@ -4,6 +4,7 @@ import {
 	NetDiskCheckLinkValidityRequestOption,
 } from "../../../check-valid/NetDiskCheckLinkValidity";
 import { NetDiskLinkClickModeUtils } from "../../../link-click-mode/NetDiskLinkClickMode";
+import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
 
 export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranceInstance = {
 	async init(netDiskInfo) {
@@ -34,7 +35,7 @@ export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranc
 		} else {
 			log.warn("未知path", [ruleIndex, shareCode, accessCode]);
 			return {
-				...NetDiskCheckLinkValidity.status.unknown,
+				...NetDiskCheckLinkValidityStatus.unknown,
 				data: null,
 			};
 		}
@@ -51,31 +52,31 @@ export const NetDiskCheckLinkValidity_chengtong: NetDiskCheckLinkValidityEntranc
 		let responseText = response.data.responseText;
 		if (!response.status && utils.isNull(responseText)) {
 			return {
-				...NetDiskCheckLinkValidity.status.networkError,
+				...NetDiskCheckLinkValidityStatus.networkError,
 				data: response,
 			};
 		}
 		let data = utils.toJSON(responseText);
 		if (data["code"] === 200) {
 			return {
-				...NetDiskCheckLinkValidity.status.success,
+				...NetDiskCheckLinkValidityStatus.success,
 				data: data,
 			};
 		}
 		if (data["code"] === 401) {
 			return {
-				...NetDiskCheckLinkValidity.status.needAccessCode,
+				...NetDiskCheckLinkValidityStatus.needAccessCode,
 				data: data,
 			};
 		}
 		if (data["code"] === 404 || data["code"] === 503 || data["code"] === 504) {
 			return {
-				...NetDiskCheckLinkValidity.status.failed,
+				...NetDiskCheckLinkValidityStatus.failed,
 				data: data,
 			};
 		}
 		return {
-			...NetDiskCheckLinkValidity.status.unknown,
+			...NetDiskCheckLinkValidityStatus.unknown,
 			data: data,
 		};
 	},

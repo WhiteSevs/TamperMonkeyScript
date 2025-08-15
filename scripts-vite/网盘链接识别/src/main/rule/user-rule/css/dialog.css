@@ -2,9 +2,7 @@
 	overflow: hidden;
 }
 /* textarea美化 */
-.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]
-	.pops-confirm-content
-	textarea {
+.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea {
 	width: 100%;
 	height: 100%;
 	border: none;
@@ -28,21 +26,15 @@
 	resize: none;
 }
 /* 获得焦点 */
-.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]
-	.pops-confirm-content
-	textarea:focus {
+.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:focus {
 	outline: none;
 	border-color: #3677f0;
 }
 /* 提示文字 */
-.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]
-	.pops-confirm-content
-	textarea::placeholder {
+.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea::placeholder {
 	color: #c0c4cc;
 }
 /* 鼠标hover */
-.pops.whitesevPopNetDiskCustomRules[type-value="confirm"]
-	.pops-confirm-content
-	textarea:hover {
+.pops.whitesevPopNetDiskCustomRules[type-value="confirm"] .pops-confirm-content textarea:hover {
 	border-color: #c0c4cc;
 }

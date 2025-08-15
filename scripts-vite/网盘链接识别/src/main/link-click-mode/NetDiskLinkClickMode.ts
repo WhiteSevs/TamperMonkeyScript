@@ -31,9 +31,7 @@ export const NetDiskLinkClickModeUtils = {
 	}) {
 		let ruleConfig =
 			handlerConfig.debugConfig?.config ??
-			NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][
-				handlerConfig.ruleIndex
-			];
+			NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
 		let blankUrl = ruleConfig.blank;
 		if (handlerConfig.shareCode) {
 			blankUrl = NetDiskRuleUtils.replaceParam(blankUrl, {
@@ -63,11 +61,7 @@ export const NetDiskLinkClickModeUtils = {
 				],
 			});
 		} else {
-			blankUrl = NetDiskHandlerUtil.replaceText(
-				blankUrl,
-				NetDisk.$extraRule.noAccessCodeRegExp,
-				""
-			);
+			blankUrl = NetDiskHandlerUtil.replaceText(blankUrl, NetDisk.$extraRule.noAccessCodeRegExp, "");
 			handlerConfig.debugConfig?.logCallBack?.({
 				status: true,
 				msg: [
@@ -84,8 +78,7 @@ export const NetDiskLinkClickModeUtils = {
 			let currentDict = NetDisk.$match.matchedInfo
 				.get(handlerConfig.ruleKeyName)
 				.get(handlerConfig.shareCode);
-			let matchText =
-				handlerConfig.debugConfig?.matchText || currentDict.matchText;
+			let matchText = handlerConfig.debugConfig?.matchText || currentDict.matchText;
 			let paramMatchArray = matchText.match(ruleConfig.paramMatch);
 			let replaceParamData: {
 				[key: string]: string;
@@ -128,9 +121,7 @@ export const NetDiskLinkClickModeUtils = {
 	}) {
 		let ruleConfig =
 			handlerConfig.debugConfig?.config ??
-			NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][
-				handlerConfig.ruleIndex
-			];
+			NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
 		let copyUrl = ruleConfig["copyUrl"];
 		if (handlerConfig.shareCode) {
 			copyUrl = NetDiskRuleUtils.replaceParam(copyUrl, {
@@ -160,11 +151,7 @@ export const NetDiskLinkClickModeUtils = {
 				],
 			});
 		} else {
-			copyUrl = NetDiskHandlerUtil.replaceText(
-				copyUrl,
-				NetDisk.$extraRule.noAccessCodeRegExp,
-				""
-			);
+			copyUrl = NetDiskHandlerUtil.replaceText(copyUrl, NetDisk.$extraRule.noAccessCodeRegExp, "");
 			handlerConfig.debugConfig?.logCallBack?.({
 				status: true,
 				msg: [
@@ -181,8 +168,7 @@ export const NetDiskLinkClickModeUtils = {
 			let currentDict = NetDisk.$match.matchedInfo
 				.get(handlerConfig.ruleKeyName)
 				.get(handlerConfig.shareCode);
-			let matchText =
-				handlerConfig.debugConfig?.matchText || currentDict.matchText;
+			let matchText = handlerConfig.debugConfig?.matchText || currentDict.matchText;
 			let paramMatchArray = matchText.match(ruleConfig.paramMatch);
 			let replaceParamData: {
 				[key: string]: string;
@@ -256,17 +242,10 @@ export const NetDiskLinkClickMode = {
 	 * @param shareCode 分享码
 	 * @param accessCode 提取码
 	 */
-	async parseFile(
-		ruleKeyName: string,
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeType
-	) {
+	async parseFile(ruleKeyName: string, ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
 		log.success(`链接解析：`, [...arguments]);
 		if (NetDiskParse.rule[ruleKeyName as keyof typeof NetDiskParse.rule]) {
-			let parseInst = new NetDiskParse.rule[
-				ruleKeyName as keyof typeof NetDiskParse.rule
-			]();
+			let parseInst = new NetDiskParse.rule[ruleKeyName as keyof typeof NetDiskParse.rule]();
 			const netDiskInfo: ParseFileInitConfig = {
 				ruleIndex,
 				shareCode,
@@ -280,12 +259,7 @@ export const NetDiskLinkClickMode = {
 
 			await parseInst.init(netDiskInfo);
 		} else {
-			log.error(`${ruleKeyName} 未配置解析函数`, [
-				ruleKeyName,
-				ruleIndex,
-				shareCode,
-				accessCode,
-			]);
+			log.error(`${ruleKeyName} 未配置解析函数`, [ruleKeyName, ruleIndex, shareCode, accessCode]);
 			Qmsg.error("该链接未配置解析函数");
 		}
 	},
@@ -306,9 +280,7 @@ export const NetDiskLinkClickMode = {
 		accessCode: AccessCodeType,
 		isOpenInBackEnd: boolean = false
 	) {
-		log.success(`新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`, [
-			...arguments,
-		]);
+		log.success(`新标签页打开${isOpenInBackEnd ? "（后台打开）" : ""}`, [...arguments]);
 		if (NetDiskAutoFillAccessCode.$data.enable) {
 			NetDiskAutoFillAccessCode.addValue({
 				url: url,
@@ -353,9 +325,7 @@ export const NetDiskLinkClickMode = {
 		};
 		if (
 			utils.isNotNull(accessCode) &&
-			NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-				ruleKeyName
-			)
+			NetDiskRuleData.linkClickMode_openBlank.openBlankWithCopyAccessCode(ruleKeyName)
 		) {
 			/* 等待复制完毕再跳转 */
 			utils.setClip(accessCode).then(() => {
@@ -372,12 +342,7 @@ export const NetDiskLinkClickMode = {
 	 * @param shareCode
 	 * @param accessCode
 	 */
-	openBlankWithScheme(
-		ruleKeyName: string,
-		ruleIndex: number,
-		shareCode: string,
-		accessCode: AccessCodeType
-	) {
+	openBlankWithScheme(ruleKeyName: string, ruleIndex: number, shareCode: string, accessCode: AccessCodeType) {
 		log.success("scheme新标签页打开", [...arguments]);
 		let url = NetDiskLinkClickModeUtils.getBlankUrl({
 			ruleKeyName,

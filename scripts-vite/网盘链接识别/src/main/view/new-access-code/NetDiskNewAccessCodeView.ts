@@ -74,26 +74,18 @@ export const NetDiskNewAccessCodeView = function (
 						let currentItemSelector = `.netdisk-url a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
 						let currentHistoryItemSelector = `.netdiskrecord-link a[data-rule-key='${ruleKeyName}'][data-sharecode='${shareCode}']`;
 						let currentItemElement =
-							NetDiskUI.Alias.uiLinkAlias?.$shadowRoot?.querySelector<HTMLElement>(
-								currentItemSelector
-							);
+							NetDiskUI.Alias.uiLinkAlias?.$shadowRoot?.querySelector<HTMLElement>(currentItemSelector);
 						let currentHistoryItemElement =
 							NetDiskUI.Alias.historyAlias?.$shadowRoot?.querySelector<HTMLElement>(
 								currentHistoryItemSelector
 							);
 						if (currentItemElement) {
-							currentItemElement.setAttribute(
-								"data-accesscode",
-								userInputAccessCode
-							);
+							currentItemElement.setAttribute("data-accesscode", userInputAccessCode);
 							DOMUtils.html(currentItemElement, uiLink);
 						}
 						/* 历史记录的弹出的 */
 						if (currentHistoryItemElement) {
-							currentHistoryItemElement.setAttribute(
-								"data-accesscode",
-								userInputAccessCode
-							);
+							currentHistoryItemElement.setAttribute("data-accesscode", userInputAccessCode);
 							DOMUtils.html(currentHistoryItemElement, uiLink);
 						}
 
@@ -119,22 +111,16 @@ export const NetDiskNewAccessCodeView = function (
 							let currentDict = netDiskDict.get(shareCode);
 							netDiskDict.set(
 								shareCode,
-								NetDisk.createLinkStorageInst(
-									userInputAccessCode,
-									ruleIndex,
-									true,
-									currentDict.matchText
-								)
+								NetDisk.createLinkStorageInst(userInputAccessCode, ruleIndex, true, currentDict.matchText)
 							);
 						}
 						// 同步新的访问码到历史匹配记录
-						callbackOption.isUpdatedHistoryMatched =
-							NetDiskHistoryMatchView.syncAccessCode(
-								ruleKeyName,
-								ruleIndex,
-								shareCode,
-								userInputAccessCode
-							);
+						callbackOption.isUpdatedHistoryMatched = NetDiskHistoryMatchView.syncAccessCode(
+							ruleKeyName,
+							ruleIndex,
+							shareCode,
+							userInputAccessCode
+						);
 						okCallBack(callbackOption);
 						event.close();
 						closeCallBack?.();
@@ -145,12 +131,7 @@ export const NetDiskNewAccessCodeView = function (
 				placeholder: "请重新输入密码",
 				focus: true,
 				select: true,
-				text:
-					accessCode == null
-						? ""
-						: typeof accessCode === "string"
-						? accessCode
-						: "",
+				text: accessCode == null ? "" : typeof accessCode === "string" ? accessCode : "",
 			},
 			style: /*css*/ `
 			input{
@@ -163,16 +144,10 @@ export const NetDiskNewAccessCodeView = function (
 	/**
 	 * 注册键盘回车事件
 	 */
-	DOMUtils.listenKeyboard(
-		accessCodeConfirm.$shadowRoot,
-		"keypress",
-		(keyName) => {
-			if (keyName === "Enter") {
-				const $ok = accessCodeConfirm.$shadowRoot.querySelector<HTMLElement>(
-					".pops-prompt-btn-ok"
-				)!;
-				$ok.click();
-			}
+	DOMUtils.listenKeyboard(accessCodeConfirm.$shadowRoot, "keypress", (keyName) => {
+		if (keyName === "Enter") {
+			const $ok = accessCodeConfirm.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
+			$ok.click();
 		}
-	);
+	});
 };

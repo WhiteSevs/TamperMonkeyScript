@@ -27,10 +27,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 	 * 获取所有订阅
 	 */
 	getAllSubscribe() {
-		let allSubscribe = this.storageApi.get<RuleSubscribeOption<T>[]>(
-			this.option.STORAGE_KEY,
-			[]
-		);
+		let allSubscribe = this.storageApi.get<RuleSubscribeOption<T>[]>(this.option.STORAGE_KEY, []);
 		return allSubscribe;
 	}
 	/**
@@ -51,8 +48,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 				subscribeIndex < subscribeItem.subscribeData.ruleData.length;
 				subscribeIndex++
 			) {
-				const subscribeRuleData =
-					subscribeItem.subscribeData.ruleData[subscribeIndex];
+				const subscribeRuleData = subscribeItem.subscribeData.ruleData[subscribeIndex];
 				if (filterUnEnable && !subscribeRuleData.setting.enable) {
 					// 未启用
 					continue;
@@ -70,9 +66,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 	 * @param subscribeUUID 订阅的uuid
 	 */
 	getSubscribe(subscribeUUID: string) {
-		let findValue = this.getAllSubscribe().find(
-			(rule) => rule.uuid == subscribeUUID
-		);
+		let findValue = this.getAllSubscribe().find((rule) => rule.uuid == subscribeUUID);
 		return findValue;
 	}
 	/**
@@ -83,9 +77,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 	getSubscribeRule(subscribeUUID: string, key: string) {
 		let findSubscribe = this.getSubscribe(subscribeUUID);
 		if (findSubscribe) {
-			let findRule = findSubscribe.subscribeData.ruleData.find(
-				(rule) => rule.key === key
-			);
+			let findRule = findSubscribe.subscribeData.ruleData.find((rule) => rule.key === key);
 			return findRule;
 		}
 	}
@@ -102,9 +94,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 	deleteSubscribe(config: RuleSubscribeOption<T> | string) {
 		let uuid = typeof config === "string" ? config : config.uuid;
 		let allSubscribe = this.getAllSubscribe();
-		let findIndex = allSubscribe.findIndex(
-			(subscribeItem) => subscribeItem.uuid === uuid
-		);
+		let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
 		if (findIndex !== -1) {
 			allSubscribe.splice(findIndex, 1);
 			this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
@@ -117,9 +107,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 	clearSubscribe(config: RuleSubscribeOption<T> | string) {
 		let uuid = typeof config === "string" ? config : config.uuid;
 		let allSubscribe = this.getAllSubscribe();
-		let findIndex = allSubscribe.findIndex(
-			(subscribeItem) => subscribeItem.uuid === uuid
-		);
+		let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === uuid);
 		if (findIndex !== -1) {
 			allSubscribe[findIndex].subscribeData.ruleData = [];
 			this.storageApi.set(this.option.STORAGE_KEY, allSubscribe);
@@ -134,9 +122,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 	addSubscribe(subscribe: RuleSubscribeOption<T>) {
 		let flag = false;
 		let allSubscribe = this.getAllSubscribe();
-		let findIndex = allSubscribe.findIndex(
-			(subscribeItem) => subscribeItem.uuid === subscribe.uuid
-		);
+		let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
 		if (findIndex === -1) {
 			// 不存在
 			allSubscribe.push(subscribe);
@@ -155,9 +141,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 	updateSubscribe(subscribe: RuleSubscribeOption<T>) {
 		let flag = false;
 		let allSubscribe = this.getAllSubscribe();
-		let findIndex = allSubscribe.findIndex(
-			(subscribeItem) => subscribeItem.uuid === subscribe.uuid
-		);
+		let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribe.uuid);
 		if (findIndex !== -1) {
 			// 存在相同uuid，更新数据
 			allSubscribe[findIndex] = subscribe;
@@ -173,15 +157,10 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 	/**
 	 * 更新某个订阅内的某个规则
 	 */
-	updateSubscribeRule(
-		subscribeUUID: string,
-		rule: RuleSubscribeOption<T>["subscribeData"]["ruleData"]["0"]
-	) {
+	updateSubscribeRule(subscribeUUID: string, rule: RuleSubscribeOption<T>["subscribeData"]["ruleData"]["0"]) {
 		let flag = false;
 		let allSubscribe = this.getAllSubscribe();
-		let targetSubscribe = allSubscribe.find(
-			(subscribeItem) => subscribeItem.uuid === subscribeUUID
-		);
+		let targetSubscribe = allSubscribe.find((subscribeItem) => subscribeItem.uuid === subscribeUUID);
 		if (targetSubscribe) {
 			// 找到目标订阅
 			let findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex(
@@ -210,9 +189,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 		let flag = false;
 		let key = typeof rule === "string" ? rule : rule.key;
 		let allSubscribe = this.getAllSubscribe();
-		let findIndex = allSubscribe.findIndex(
-			(subscribeItem) => subscribeItem.uuid === subscribeUUID
-		);
+		let findIndex = allSubscribe.findIndex((subscribeItem) => subscribeItem.uuid === subscribeUUID);
 		if (findIndex !== -1) {
 			let targetSubscribe = allSubscribe[findIndex];
 			let findRuleIndex = targetSubscribe.subscribeData.ruleData.findIndex(
@@ -247,8 +224,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 			};
 		}
 		let subscribeText = response.data.responseText;
-		let subscribeParsedData =
-			utils.toJSON<RuleSubscribeOption<T>["subscribeData"]>(subscribeText);
+		let subscribeParsedData = utils.toJSON<RuleSubscribeOption<T>["subscribeData"]>(subscribeText);
 		if (
 			typeof subscribeParsedData.title === "string" &&
 			typeof subscribeParsedData.version === "number" &&
@@ -305,9 +281,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 				// 今天已更新
 				continue;
 			}
-			let requestSubscribeInfo = await this.getSubscribeInfo(
-				subscribeItem.data.url
-			);
+			let requestSubscribeInfo = await this.getSubscribeInfo(subscribeItem.data.url);
 			let updateFlag = false;
 			if (requestSubscribeInfo.data) {
 				let subscribeNewItem = requestSubscribeInfo.data;
@@ -315,9 +289,7 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 				subscribeNewItem.data = subscribeItem.data;
 				subscribeNewItem.data.latestUpdateTime = Date.now();
 				let title =
-					subscribeNewItem.data.title ||
-					subscribeNewItem.subscribeData.title ||
-					subscribeNewItem.data.url;
+					subscribeNewItem.data.title || subscribeNewItem.subscribeData.title || subscribeNewItem.data.url;
 				subscribeItem.data.updateFailedTime = null;
 				updateFlag = this.updateSubscribe(subscribeNewItem);
 				if (updateFlag) {
@@ -383,17 +355,11 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
             `,
 		});
 		/** 本地导入 */
-		let $local = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='local']"
-		)!;
+		let $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
 		/** 网络导入 */
-		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='network']"
-		)!;
+		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
 		/** 剪贴板导入 */
-		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='clipboard']"
-		)!;
+		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
 		/**
 		 * 将获取到的规则更新至存储
 		 */
@@ -535,11 +501,8 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 				width: PanelUISize.info.width,
 				height: "auto",
 			});
-			let $promptInput =
-				$prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
-			let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(
-				".pops-prompt-btn-ok"
-			)!;
+			let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+			let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
 			DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
 				let value = DOMUtils.val($promptInput);
 				if (value === "") {
@@ -548,18 +511,14 @@ class RuleSubscribe<T extends NetDiskUserCustomRule> {
 					DOMUtils.removeAttr($promptOk, "disabled");
 				}
 			});
-			DOMUtils.listenKeyboard(
-				$promptInput,
-				"keydown",
-				(keyName, keyValue, otherCodeList) => {
-					if (keyName === "Enter" && otherCodeList.length === 0) {
-						let value = DOMUtils.val($promptInput);
-						if (value !== "") {
-							utils.dispatchEvent($promptOk, "click");
-						}
+			DOMUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+				if (keyName === "Enter" && otherCodeList.length === 0) {
+					let value = DOMUtils.val($promptInput);
+					if (value !== "") {
+						utils.dispatchEvent($promptOk, "click");
 					}
 				}
-			);
+			});
 			utils.dispatchEvent($promptInput, "input");
 		});
 		// 剪贴板导入

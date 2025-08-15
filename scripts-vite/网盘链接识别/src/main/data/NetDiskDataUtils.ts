@@ -37,9 +37,6 @@ export const GenerateProxyStorage = function <T = any>(
  * @param key 键
  * @param defaultValue 默认值，它的类型也是返回值类型
  */
-export const GeneratePanelStorage = function <T = any>(
-	key: string,
-	defaultValue: T
-) {
+export const GeneratePanelStorage = function <T = any>(key: string, defaultValue: T) {
 	return GenerateProxyStorage(key, defaultValue, WebsiteProxyGlobalValue);
 };

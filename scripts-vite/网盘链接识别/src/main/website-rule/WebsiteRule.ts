@@ -1,10 +1,6 @@
 import { DOMUtils, httpx, log, pops, SCRIPT_NAME, utils } from "@/env";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import {
-	ATTRIBUTE_DEFAULT_VALUE,
-	ATTRIBUTE_KEY,
-	PROPS_STORAGE_API,
-} from "@components/setting/panel-config";
+import { ATTRIBUTE_DEFAULT_VALUE, ATTRIBUTE_KEY, PROPS_STORAGE_API } from "@components/setting/panel-config";
 import { UIInput } from "@components/setting/components/ui-input";
 import { UIButton } from "@components/setting/components/ui-button";
 import Qmsg from "qmsg";
@@ -13,17 +9,11 @@ import { NetDiskPops } from "../pops/NetDiskPops";
 import { Panel } from "@components/setting/panel";
 import { NetDiskRule } from "../rule/NetDiskRule";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index";
-import {
-	NetDiskRuleDataKEY,
-	WebsiteRuleDataKey,
-} from "../data/NetDiskRuleDataKey";
+import { NetDiskRuleDataKEY, WebsiteRuleDataKey } from "../data/NetDiskRuleDataKey";
 import type { PopsPanelFormsDetails } from "@whitesev/pops/dist/types/src/components/panel/types/components-forms";
 import panelSettingCSS from "./css/index.css?raw";
 import panelIndexCSS from "./../view/global-setting/index.css?raw";
-import {
-	type RulePanelContentOption,
-	type RuleSubscribeOption,
-} from "@components/utils/RulePanelView";
+import { type RulePanelContentOption, type RuleSubscribeOption } from "@components/utils/RulePanelView";
 import { WebsiteSubscribeRule } from "./WebsiteSubscribeRule";
 import { PanelUISize } from "@components/setting/panel-ui-size";
 import { StorageUtils } from "@components/utils/StorageUtils";
@@ -131,9 +121,7 @@ export const WebsiteRule = {
 						</style>
 						<div class="subscribe-rule-title-info-wrapper">
 							<div class="rule-name-text" style="white-space: nowrap;text-overflow: ellipsis;overflow: hidden;font-size: 16px;font-weight: 600;line-height: 24px;">${
-								subscribeOption.data.title ||
-								subscribeOption.subscribeData.title ||
-								subscribeOption.data.url
+								subscribeOption.data.title || subscribeOption.subscribeData.title || subscribeOption.data.url
 							}</div>
 								<div class="subscribe-rule-small-span-text">${
 									subscribeOption.subscribeData.ruleData.length
@@ -218,18 +206,11 @@ export const WebsiteRule = {
 									// 订阅的链接
 									option.ruleData.data.url,
 								data() {
-									let currentData =
-										WebsiteSubscribeRule.getSubscribe(subscribeUUID);
-									return (
-										currentData?.subscribeData?.ruleData ??
-										option.ruleData.subscribeData.ruleData
-									);
+									let currentData = WebsiteSubscribeRule.getSubscribe(subscribeUUID);
+									return currentData?.subscribeData?.ruleData ?? option.ruleData.subscribeData.ruleData;
 								},
 								getData(data) {
-									let currentData = WebsiteSubscribeRule.getSubscribeRule(
-										subscribeUUID,
-										data.uuid
-									);
+									let currentData = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, data.uuid);
 									return currentData ?? data;
 								},
 								getDataItemName(data) {
@@ -240,16 +221,10 @@ export const WebsiteRule = {
 									return true;
 								},
 								updateData(data) {
-									return WebsiteSubscribeRule.updateSubscribeRule(
-										subscribeUUID,
-										data
-									);
+									return WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, data);
 								},
 								deleteData(data) {
-									return WebsiteSubscribeRule.deleteSubscribeRule(
-										subscribeUUID,
-										data
-									);
+									return WebsiteSubscribeRule.deleteSubscribeRule(subscribeUUID, data);
 								},
 								btnControls: {
 									filter: {
@@ -282,10 +257,7 @@ export const WebsiteRule = {
 										},
 										callback(data, enable) {
 											data.data.enable = enable;
-											WebsiteSubscribeRule.updateSubscribeRule(
-												subscribeUUID,
-												data
-											);
+											WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, data);
 										},
 									},
 									ruleEdit: {
@@ -302,26 +274,13 @@ export const WebsiteRule = {
 											function generateSubscribeRuleStorageApi(uuid: string) {
 												return {
 													get(key: string, defaultValue: any) {
-														let currentRule =
-															WebsiteSubscribeRule.getSubscribeRule(
-																subscribeUUID,
-																uuid
-															)!;
-														return (
-															Reflect.get(currentRule.data, key) ?? defaultValue
-														);
+														let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid)!;
+														return Reflect.get(currentRule.data, key) ?? defaultValue;
 													},
 													set(key: string, value: any) {
-														let currentRule =
-															WebsiteSubscribeRule.getSubscribeRule(
-																subscribeUUID,
-																uuid
-															)!;
+														let currentRule = WebsiteSubscribeRule.getSubscribeRule(subscribeUUID, uuid)!;
 														Reflect.set(currentRule.data, key, value);
-														WebsiteSubscribeRule.updateSubscribeRule(
-															subscribeUUID,
-															currentRule
-														);
+														WebsiteSubscribeRule.updateSubscribeRule(subscribeUUID, currentRule);
 													},
 												};
 											}
@@ -329,53 +288,18 @@ export const WebsiteRule = {
 
 											// 启用
 											let enable_template = UISwitch("启用", "enable", true);
-											Reflect.set(
-												enable_template.props!,
-												PROPS_STORAGE_API,
-												generateStorageApi(data)
-											);
-											let $enable =
-												panelHandlerComponents.createSectionContainerItem_switch(
-													enable_template
-												);
+											Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
+											let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
 
 											// 规则名称
-											let name_template = UIInput(
-												"规则名称",
-												"name",
-												"",
-												"",
-												void 0,
-												"必填"
-											);
-											Reflect.set(
-												name_template.props!,
-												PROPS_STORAGE_API,
-												generateStorageApi(data)
-											);
-											let $name =
-												panelHandlerComponents.createSectionContainerItem_input(
-													name_template
-												);
+											let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+											Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
+											let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
 
 											// 匹配网址
-											let url_template = UIInput(
-												"匹配网址",
-												"url",
-												"",
-												"",
-												void 0,
-												"必填，可正则"
-											);
-											Reflect.set(
-												url_template.props!,
-												PROPS_STORAGE_API,
-												generateStorageApi(data)
-											);
-											let $data_url =
-												panelHandlerComponents.createSectionContainerItem_input(
-													url_template
-												);
+											let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
+											Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
+											let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
 
 											// 覆盖设置
 											let coverSetting_template = UIButton(
@@ -399,28 +323,19 @@ export const WebsiteRule = {
 													// 	originPanelContentConfig,
 													// 	true
 													// ) as PopsPanelContentConfig[];
-													let newPanelContentConfig = deepCopy(
-														originPanelContentConfig
-													);
+													let newPanelContentConfig = deepCopy(originPanelContentConfig);
 													// console.log(newPanelContentConfig);
 													// 迭代遍历form配置，进行updateStorageApi
 													/** 迭代遍历 */
-													function iterativeTraversal(
-														configList: PopsPanelContentConfig["forms"]
-													) {
+													function iterativeTraversal(configList: PopsPanelContentConfig["forms"]) {
 														configList.forEach((configItem) => {
 															if (
 																typeof configItem?.props === "object" &&
 																Reflect.has(configItem.props, PROPS_STORAGE_API)
 															) {
 																// 替换存储配置
-																let panelStorageApi =
-																	generateSubscribeRuleStorageApi(data.uuid);
-																Reflect.set(
-																	configItem.props,
-																	PROPS_STORAGE_API,
-																	panelStorageApi
-																);
+																let panelStorageApi = generateSubscribeRuleStorageApi(data.uuid);
+																Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
 															}
 															let childForms = (configItem as any).forms;
 															if (childForms && Array.isArray(childForms)) {
@@ -429,37 +344,24 @@ export const WebsiteRule = {
 															}
 														});
 													}
-													for (
-														let index = 0;
-														index < newPanelContentConfig.length;
-														index++
-													) {
-														let leftContentConfigItem =
-															newPanelContentConfig[index];
+													for (let index = 0; index < newPanelContentConfig.length; index++) {
+														let leftContentConfigItem = newPanelContentConfig[index];
 														if (!leftContentConfigItem.forms) {
 															/* 不存在forms */
 															continue;
 														}
 														if (
-															typeof leftContentConfigItem.afterRender ===
-																"function" &&
-															leftContentConfigItem?.id
-																.toString()
-																.startsWith("netdisk-panel-config-")
+															typeof leftContentConfigItem.afterRender === "function" &&
+															leftContentConfigItem?.id.toString().startsWith("netdisk-panel-config-")
 														) {
 															// 覆盖左侧的afterRender
 															leftContentConfigItem.afterRender = (__data) => {
-																let ruleKey = Reflect.get(
-																	__data.asideConfig.attributes!,
-																	"data-key"
-																);
-																let enableKey =
-																	NetDiskRuleDataKEY.function.enable(ruleKey);
-																let subscribeRule =
-																	WebsiteSubscribeRule.getSubscribeRule(
-																		subscribeUUID,
-																		data.uuid
-																	)!;
+																let ruleKey = Reflect.get(__data.asideConfig.attributes!, "data-key");
+																let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
+																let subscribeRule = WebsiteSubscribeRule.getSubscribeRule(
+																	subscribeUUID,
+																	data.uuid
+																)!;
 																__data.$asideLiElement.setAttribute(
 																	"data-function-enable",
 																	subscribeRule.data[enableKey] ?? true
@@ -467,19 +369,15 @@ export const WebsiteRule = {
 															};
 														}
 														if (
-															typeof leftContentConfigItem.attributes ===
-																"object" &&
+															typeof leftContentConfigItem.attributes === "object" &&
 															leftContentConfigItem.forms != null &&
 															ATTRIBUTE_KEY in leftContentConfigItem.attributes
 														) {
 															/** 规则键 */
-															let ruleKey =
-																leftContentConfigItem.attributes[ATTRIBUTE_KEY];
+															let ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
 															let custom_accessCode_enable_template = UISwitch(
 																"启用",
-																WebsiteRuleDataKey.features.customAccessCodeEnable(
-																	ruleKey
-																),
+																WebsiteRuleDataKey.features.customAccessCodeEnable(ruleKey),
 																false,
 																void 0,
 																"启用后将允许执行下面的功能",
@@ -493,9 +391,7 @@ export const WebsiteRule = {
 															);
 															let custom_accessCode_template = UIInput(
 																"自定义访问码",
-																WebsiteRuleDataKey.features.customAccessCode(
-																	ruleKey
-																),
+																WebsiteRuleDataKey.features.customAccessCode(ruleKey),
 																"",
 																"让获取的到的链接的访问码都为自定义的访问码",
 																void 0,
@@ -509,35 +405,21 @@ export const WebsiteRule = {
 																PROPS_STORAGE_API,
 																generateSubscribeRuleStorageApi(data.uuid)
 															);
-															let custom_accessCode_container: PopsPanelFormsDetails =
-																{
-																	text: "额外功能",
-																	type: "forms",
-																	forms: [
-																		custom_accessCode_enable_template,
-																		custom_accessCode_template,
-																	],
-																};
+															let custom_accessCode_container: PopsPanelFormsDetails = {
+																text: "额外功能",
+																type: "forms",
+																forms: [custom_accessCode_enable_template, custom_accessCode_template],
+															};
 															if (leftContentConfigItem.forms.length) {
 																// 添加到第一个后面
-																leftContentConfigItem.forms.splice(
-																	1,
-																	0,
-																	custom_accessCode_container
-																);
+																leftContentConfigItem.forms.splice(1, 0, custom_accessCode_container);
 															} else {
-																leftContentConfigItem.forms.push(
-																	custom_accessCode_container
-																);
+																leftContentConfigItem.forms.push(custom_accessCode_container);
 															}
 														}
 														// 循环左侧容器内存储的右侧配置项
-														let rightContentConfigList =
-															leftContentConfigItem.forms;
-														if (
-															rightContentConfigList &&
-															Array.isArray(rightContentConfigList)
-														) {
+														let rightContentConfigList = leftContentConfigItem.forms;
+														if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
 															iterativeTraversal(rightContentConfigList);
 														}
 													}
@@ -586,9 +468,7 @@ export const WebsiteRule = {
 												void 0
 											);
 											let $coverSetting_template =
-												panelHandlerComponents.createSectionContainerItem_button(
-													coverSetting_template
-												);
+												panelHandlerComponents.createSectionContainerItem_button(coverSetting_template);
 
 											$fragment.appendChild($enable);
 											$fragment.appendChild($name);
@@ -598,16 +478,12 @@ export const WebsiteRule = {
 										},
 										onsubmit: ($form, isEdit, editData) => {
 											// 提交表单
-											let $ulist_li = $form.querySelectorAll<HTMLLIElement>(
-												".rule-form-ulist > li"
-											);
+											let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
 											let data: WebsiteRuleOption = addData();
 											if (isEdit) {
 												data.uuid = editData!.uuid;
 												let allData = this.getAllRule();
-												let findValue = allData.find(
-													(item) => item.uuid === data.uuid
-												);
+												let findValue = allData.find((item) => item.uuid === data.uuid);
 												if (findValue) {
 													data.data = findValue.data;
 												}
@@ -620,10 +496,7 @@ export const WebsiteRule = {
 												if (key == null) {
 													return;
 												}
-												let defaultValue = Reflect.get(
-													attrs,
-													ATTRIBUTE_DEFAULT_VALUE
-												);
+												let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
 												let value = storageApi.get(key, defaultValue);
 												if (Reflect.has(data, key)) {
 													Reflect.set(data, key, value);
@@ -663,10 +536,7 @@ export const WebsiteRule = {
 									ruleDelete: {
 										enable: true,
 										deleteCallBack(data) {
-											return WebsiteSubscribeRule.deleteSubscribeRule(
-												subscribeUUID,
-												data
-											);
+											return WebsiteSubscribeRule.deleteSubscribeRule(subscribeUUID, data);
 										},
 									},
 								},
@@ -691,14 +561,11 @@ export const WebsiteRule = {
 					export: {
 						enable: true,
 						callback() {
-							WebsiteSubscribeRule.exportSubscribe(
-								SCRIPT_NAME + "-网站规则-订阅.json"
-							);
+							WebsiteSubscribeRule.exportSubscribe(SCRIPT_NAME + "-网站规则-订阅.json");
 						},
 					},
 				},
-				getSubscribeInfo:
-					WebsiteSubscribeRule.getSubscribeInfo.bind(WebsiteSubscribeRule),
+				getSubscribeInfo: WebsiteSubscribeRule.getSubscribeInfo.bind(WebsiteSubscribeRule),
 			},
 			ruleOption: {
 				btnControls: {
@@ -747,10 +614,7 @@ export const WebsiteRule = {
 					export: {
 						enable: true,
 						callback: () => {
-							that.exportRule(
-								SCRIPT_NAME + "-网站规则.json",
-								SCRIPT_NAME + "-网站规则-订阅模式.json"
-							);
+							that.exportRule(SCRIPT_NAME + "-网站规则.json", SCRIPT_NAME + "-网站规则-订阅模式.json");
 						},
 					},
 					ruleEnable: {
@@ -779,10 +643,7 @@ export const WebsiteRule = {
 									get(key: string, defaultValue: any) {
 										let currentRule = that.getRule(uuid) ?? addData();
 										let panelValue = Panel.getValue(key, defaultValue);
-										return (
-											(currentRule && Reflect.get(currentRule.data, key)) ??
-											panelValue
-										);
+										return (currentRule && Reflect.get(currentRule.data, key)) ?? panelValue;
 									},
 									set(key: string, value: any) {
 										let currentRule = that.getRule(uuid) ?? addData();
@@ -799,53 +660,18 @@ export const WebsiteRule = {
 
 							// 启用
 							let enable_template = UISwitch("启用", "enable", true);
-							Reflect.set(
-								enable_template.props!,
-								PROPS_STORAGE_API,
-								generateStorageApi(data)
-							);
-							let $enable =
-								panelHandlerComponents.createSectionContainerItem_switch(
-									enable_template
-								);
+							Reflect.set(enable_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
+							let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
 
 							// 规则名称
-							let name_template = UIInput(
-								"规则名称",
-								"name",
-								"",
-								"",
-								void 0,
-								"必填"
-							);
-							Reflect.set(
-								name_template.props!,
-								PROPS_STORAGE_API,
-								generateStorageApi(data)
-							);
-							let $name =
-								panelHandlerComponents.createSectionContainerItem_input(
-									name_template
-								);
+							let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+							Reflect.set(name_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
+							let $name = panelHandlerComponents.createSectionContainerItem_input(name_template);
 
 							// 匹配网址
-							let url_template = UIInput(
-								"匹配网址",
-								"url",
-								"",
-								"",
-								void 0,
-								"必填，可正则"
-							);
-							Reflect.set(
-								url_template.props!,
-								PROPS_STORAGE_API,
-								generateStorageApi(data)
-							);
-							let $data_url =
-								panelHandlerComponents.createSectionContainerItem_input(
-									url_template
-								);
+							let url_template = UIInput("匹配网址", "url", "", "", void 0, "必填，可正则");
+							Reflect.set(url_template.props!, PROPS_STORAGE_API, generateStorageApi(data));
+							let $data_url = panelHandlerComponents.createSectionContainerItem_input(url_template);
 
 							// 覆盖设置
 							let coverSetting_template = UIButton(
@@ -869,29 +695,19 @@ export const WebsiteRule = {
 									// 	originPanelContentConfig,
 									// 	true
 									// ) as PopsPanelContentConfig[];
-									let newPanelContentConfig = deepCopy(
-										originPanelContentConfig
-									);
+									let newPanelContentConfig = deepCopy(originPanelContentConfig);
 									// console.log(newPanelContentConfig);
 									// 迭代遍历form配置，进行updateStorageApi
 									/** 迭代遍历 */
-									function iterativeTraversal(
-										configList: PopsPanelContentConfig["forms"]
-									) {
+									function iterativeTraversal(configList: PopsPanelContentConfig["forms"]) {
 										configList.forEach((configItem) => {
 											if (
 												typeof configItem?.props === "object" &&
 												Reflect.has(configItem.props, PROPS_STORAGE_API)
 											) {
 												// 替换存储配置
-												let panelStorageApi = generatePanelStorageApi(
-													data.uuid
-												);
-												Reflect.set(
-													configItem.props,
-													PROPS_STORAGE_API,
-													panelStorageApi
-												);
+												let panelStorageApi = generatePanelStorageApi(data.uuid);
+												Reflect.set(configItem.props, PROPS_STORAGE_API, panelStorageApi);
 											}
 											let childForms = (configItem as any).forms;
 											if (childForms && Array.isArray(childForms)) {
@@ -900,11 +716,7 @@ export const WebsiteRule = {
 											}
 										});
 									}
-									for (
-										let index = 0;
-										index < newPanelContentConfig.length;
-										index++
-									) {
+									for (let index = 0; index < newPanelContentConfig.length; index++) {
 										let leftContentConfigItem = newPanelContentConfig[index];
 										if (!leftContentConfigItem.forms) {
 											/* 不存在forms */
@@ -912,26 +724,16 @@ export const WebsiteRule = {
 										}
 										if (
 											typeof leftContentConfigItem.afterRender === "function" &&
-											leftContentConfigItem?.id
-												.toString()
-												.startsWith("netdisk-panel-config-")
+											leftContentConfigItem?.id.toString().startsWith("netdisk-panel-config-")
 										) {
 											// 覆盖左侧的afterRender
 											leftContentConfigItem.afterRender = (__data) => {
-												let ruleKey = Reflect.get(
-													__data.asideConfig.attributes!,
-													"data-key"
-												);
-												let enableKey =
-													NetDiskRuleDataKEY.function.enable(ruleKey);
+												let ruleKey = Reflect.get(__data.asideConfig.attributes!, "data-key");
+												let enableKey = NetDiskRuleDataKEY.function.enable(ruleKey);
 												__data.$asideLiElement.setAttribute(
 													"data-function-enable",
 													isEdit
-														? WebsiteRule.getRuleDataValue(
-																data.uuid,
-																enableKey,
-																true
-														  )
+														? WebsiteRule.getRuleDataValue(data.uuid, enableKey, true)
 														: data.data[enableKey] ?? true
 												);
 											};
@@ -942,13 +744,10 @@ export const WebsiteRule = {
 											ATTRIBUTE_KEY in leftContentConfigItem.attributes
 										) {
 											/** 规则键 */
-											let ruleKey =
-												leftContentConfigItem.attributes[ATTRIBUTE_KEY];
+											let ruleKey = leftContentConfigItem.attributes[ATTRIBUTE_KEY];
 											let custom_accessCode_enable_template = UISwitch(
 												"启用",
-												WebsiteRuleDataKey.features.customAccessCodeEnable(
-													ruleKey
-												),
+												WebsiteRuleDataKey.features.customAccessCodeEnable(ruleKey),
 												false,
 												void 0,
 												"启用后将允许执行下面的功能",
@@ -979,30 +778,18 @@ export const WebsiteRule = {
 											let custom_accessCode_container: PopsPanelFormsDetails = {
 												text: "额外功能",
 												type: "forms",
-												forms: [
-													custom_accessCode_enable_template,
-													custom_accessCode_template,
-												],
+												forms: [custom_accessCode_enable_template, custom_accessCode_template],
 											};
 											if (leftContentConfigItem.forms.length) {
 												// 添加到第一个后面
-												leftContentConfigItem.forms.splice(
-													1,
-													0,
-													custom_accessCode_container
-												);
+												leftContentConfigItem.forms.splice(1, 0, custom_accessCode_container);
 											} else {
-												leftContentConfigItem.forms.push(
-													custom_accessCode_container
-												);
+												leftContentConfigItem.forms.push(custom_accessCode_container);
 											}
 										}
 										// 循环左侧容器内存储的右侧配置项
 										let rightContentConfigList = leftContentConfigItem.forms;
-										if (
-											rightContentConfigList &&
-											Array.isArray(rightContentConfigList)
-										) {
+										if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
 											iterativeTraversal(rightContentConfigList);
 										}
 									}
@@ -1052,9 +839,7 @@ export const WebsiteRule = {
 								void 0
 							);
 							let $coverSetting_template =
-								panelHandlerComponents.createSectionContainerItem_button(
-									coverSetting_template
-								);
+								panelHandlerComponents.createSectionContainerItem_button(coverSetting_template);
 
 							$fragment.appendChild($enable);
 							$fragment.appendChild($name);
@@ -1064,9 +849,7 @@ export const WebsiteRule = {
 						},
 						onsubmit: ($form, isEdit, editData) => {
 							// 提交表单
-							let $ulist_li = $form.querySelectorAll<HTMLLIElement>(
-								".rule-form-ulist > li"
-							);
+							let $ulist_li = $form.querySelectorAll<HTMLLIElement>(".rule-form-ulist > li");
 							let data: WebsiteRuleOption = addData();
 							if (isEdit) {
 								data.uuid = editData!.uuid;
@@ -1173,11 +956,9 @@ export const WebsiteRule = {
 		}
 		// 未找到符合的
 		// 看看是否是来自订阅的规则
-		let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find(
-			(rule) => {
-				return rule.uuid === uuid;
-			}
-		);
+		let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((rule) => {
+			return rule.uuid === uuid;
+		});
 		return findSubscribeRule;
 	},
 	/**
@@ -1222,16 +1003,11 @@ export const WebsiteRule = {
 		} else {
 			// 未找到符合的
 			// 看看是否是来自订阅的
-			let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find(
-				(it) => {
-					return it.uuid === rule.uuid;
-				}
-			);
+			let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((it) => {
+				return it.uuid === rule.uuid;
+			});
 			if (findSubscribeRule) {
-				flag = WebsiteSubscribeRule.updateSubscribeRule(
-					rule.subscribeUUID!,
-					rule
-				);
+				flag = WebsiteSubscribeRule.updateSubscribeRule(rule.subscribeUUID!, rule);
 			}
 		}
 		return flag;
@@ -1255,16 +1031,11 @@ export const WebsiteRule = {
 		if (flag) {
 			WebsiteRuleStorageApi.set(this.$data.STORAGE_KEY, allRule);
 		} else {
-			let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find(
-				(it) => {
-					return it.uuid === needDeleteRuleUUID;
-				}
-			);
+			let findSubscribeRule = WebsiteSubscribeRule.getAllSubscribeRule().find((it) => {
+				return it.uuid === needDeleteRuleUUID;
+			});
 			if (findSubscribeRule) {
-				flag = WebsiteSubscribeRule.deleteSubscribeRule(
-					findSubscribeRule.subscribeUUID!,
-					findSubscribeRule
-				);
+				flag = WebsiteSubscribeRule.deleteSubscribeRule(findSubscribeRule.subscribeUUID!, findSubscribeRule);
 			}
 		}
 		return flag;
@@ -1279,10 +1050,7 @@ export const WebsiteRule = {
 	 * 获取所有规则
 	 */
 	getAllRule(): WebsiteRuleOption[] {
-		let allRule = WebsiteRuleStorageApi.get<WebsiteRuleOption[]>(
-			this.$data.STORAGE_KEY,
-			[]
-		);
+		let allRule = WebsiteRuleStorageApi.get<WebsiteRuleOption[]>(this.$data.STORAGE_KEY, []);
 		return allRule;
 	},
 	/**
@@ -1311,10 +1079,7 @@ export const WebsiteRule = {
 	/**
 	 * 导出规则
 	 */
-	exportRule(
-		fileName = "rule.json",
-		subscribeFileName = "rule-subscribe.json"
-	) {
+	exportRule(fileName = "rule.json", subscribeFileName = "rule-subscribe.json") {
 		let $alert = NetDiskPops.alert({
 			title: {
 				text: "请选择导出方式",
@@ -1490,63 +1255,24 @@ export const WebsiteRule = {
 						}
 					`,
 				});
-				let $content =
-					$exportSubscribeDialog.$shadowRoot.querySelector<HTMLElement>(
-						".pops-alert-content"
-					)!;
+				let $content = $exportSubscribeDialog.$shadowRoot.querySelector<HTMLElement>(".pops-alert-content")!;
 				let configData = WebsiteRuleStorageApi.get<
 					Partial<RuleSubscribeOption<WebsiteRuleOption>["subscribeData"]>
 				>(this.$data.EXPORT_CONFIG_KEY, {});
 				// 订阅名称
 				let title_template = UIInput("订阅标题", "title", "", "", void 0, "");
-				Reflect.set(
-					title_template.props!,
-					PROPS_STORAGE_API,
-					generateStorageApi(configData)
-				);
-				let $title =
-					panelHandlerComponents.createSectionContainerItem_input(
-						title_template
-					);
+				Reflect.set(title_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
+				let $title = panelHandlerComponents.createSectionContainerItem_input(title_template);
 
 				// 版本号
-				let version_template = UIInput(
-					"版本号",
-					"version",
-					"",
-					"",
-					void 0,
-					"",
-					false
-				);
-				Reflect.set(
-					version_template.props!,
-					PROPS_STORAGE_API,
-					generateStorageApi(configData)
-				);
-				let $version =
-					panelHandlerComponents.createSectionContainerItem_input(
-						version_template
-					);
+				let version_template = UIInput("版本号", "version", "", "", void 0, "", false);
+				Reflect.set(version_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
+				let $version = panelHandlerComponents.createSectionContainerItem_input(version_template);
 
 				// 主页地址
-				let homePage_template = UIInput(
-					"主页地址",
-					"homePage",
-					"",
-					"",
-					void 0,
-					"选填"
-				);
-				Reflect.set(
-					homePage_template.props!,
-					PROPS_STORAGE_API,
-					generateStorageApi(configData)
-				);
-				let $homePage =
-					panelHandlerComponents.createSectionContainerItem_input(
-						homePage_template
-					);
+				let homePage_template = UIInput("主页地址", "homePage", "", "", void 0, "选填");
+				Reflect.set(homePage_template.props!, PROPS_STORAGE_API, generateStorageApi(configData));
+				let $homePage = panelHandlerComponents.createSectionContainerItem_input(homePage_template);
 
 				DOMUtils.append($content, $title);
 				DOMUtils.append($content, $version);
@@ -1604,17 +1330,11 @@ export const WebsiteRule = {
             `,
 		});
 		/** 本地导入 */
-		let $local = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='local']"
-		)!;
+		let $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
 		/** 网络导入 */
-		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='network']"
-		)!;
+		let $network = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='network']")!;
 		/** 剪贴板导入 */
-		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(
-			".btn-control[data-mode='clipboard']"
-		)!;
+		let $clipboard = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='clipboard']")!;
 		/**
 		 * 将获取到的规则更新至存储
 		 */
@@ -1740,11 +1460,8 @@ export const WebsiteRule = {
 				width: PanelUISize.info.width,
 				height: "auto",
 			});
-			let $promptInput =
-				$prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
-			let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(
-				".pops-prompt-btn-ok"
-			)!;
+			let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
+			let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
 			DOMUtils.on($promptInput, ["input", "propertychange"], (event) => {
 				let value = DOMUtils.val($promptInput);
 				if (value === "") {
@@ -1753,18 +1470,14 @@ export const WebsiteRule = {
 					DOMUtils.removeAttr($promptOk, "disabled");
 				}
 			});
-			DOMUtils.listenKeyboard(
-				$promptInput,
-				"keydown",
-				(keyName, keyValue, otherCodeList) => {
-					if (keyName === "Enter" && otherCodeList.length === 0) {
-						let value = DOMUtils.val($promptInput);
-						if (value !== "") {
-							utils.dispatchEvent($promptOk, "click");
-						}
+			DOMUtils.listenKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+				if (keyName === "Enter" && otherCodeList.length === 0) {
+					let value = DOMUtils.val($promptInput);
+					if (value !== "") {
+						utils.dispatchEvent($promptOk, "click");
 					}
 				}
-			);
+			});
 			utils.dispatchEvent($promptInput, "input");
 		});
 		// 剪贴板导入

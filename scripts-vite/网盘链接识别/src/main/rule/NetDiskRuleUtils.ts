@@ -8,9 +8,7 @@ export const NetDiskRuleUtils = {
 	 * 获取点击动作的默认配置
 	 */
 	getDefaultLinkClickMode() {
-		let data: Required<
-			NetDiskRuleSettingConfigurationInterface_Function["linkClickMode"]
-		> = {
+		let data: Required<NetDiskRuleSettingConfigurationInterface_Function["linkClickMode"]> = {
 			copy: {
 				default: false,
 				enable: true,
@@ -72,35 +70,23 @@ export const NetDiskRuleUtils = {
 			let replacedText = data[key];
 			if (utils.isNotNull(replacedText)) {
 				try {
-					text = text.replaceAll(
-						`{#encodeURI-${key}#}`,
-						encodeURI(replacedText)
-					);
+					text = text.replaceAll(`{#encodeURI-${key}#}`, encodeURI(replacedText));
 				} catch (error) {
 					log.error("encodeURI-替换的文本失败", [replacedText]);
 				}
 
 				try {
-					text = text.replaceAll(
-						`{#encodeURIComponent-${key}#}`,
-						encodeURIComponent(replacedText)
-					);
+					text = text.replaceAll(`{#encodeURIComponent-${key}#}`, encodeURIComponent(replacedText));
 				} catch (error) {
 					log.error("encodeURIComponent-替换的文本失败", [replacedText]);
 				}
 				try {
-					text = text.replaceAll(
-						`{#decodeURI-${key}#}`,
-						decodeURI(replacedText)
-					);
+					text = text.replaceAll(`{#decodeURI-${key}#}`, decodeURI(replacedText));
 				} catch (error) {
 					log.error("decodeURI-替换的文本失败", [replacedText]);
 				}
 				try {
-					text = text.replaceAll(
-						`{#decodeURIComponent-${key}#}`,
-						decodeURIComponent(replacedText)
-					);
+					text = text.replaceAll(`{#decodeURIComponent-${key}#}`, decodeURIComponent(replacedText));
 				} catch (error) {
 					log.error("encodeURIComponent-替换的文本失败", [replacedText]);
 				}

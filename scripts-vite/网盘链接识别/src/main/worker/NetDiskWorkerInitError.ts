@@ -41,10 +41,7 @@ export const NetDiskWorkerInitError = {
 	 * 获取不再提示的Host列表
 	 */
 	getList() {
-		let neverTipHostNameList = GM_getValue<string[]>(
-			NetDiskWorker.neverTipWorkerInitErrorKey,
-			[]
-		);
+		let neverTipHostNameList = GM_getValue<string[]>(NetDiskWorker.neverTipWorkerInitErrorKey, []);
 		if (!Array.isArray(neverTipHostNameList)) {
 			neverTipHostNameList = [neverTipHostNameList];
 		}

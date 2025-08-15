@@ -1,4 +1,4 @@
-import { log, utils } from "@/env";
+import { log } from "@/env";
 import { GM_getValue, GM_setValue } from "ViteGM";
 import { NetDiskAutoFillAccessCode_baidu } from "../rule/default-rule/baidu/autoFillAccessCode";
 import { NetDiskAutoFillAccessCode_lanzou } from "../rule/default-rule/lanzou/autoFillAccessCode";
@@ -43,59 +43,39 @@ export const NetDiskAutoFillAccessCode = {
 		let flag = false;
 		for (let index = 0; index < this.$data.netDiskInfo.length; index++) {
 			const fillAccessCodeNetDiskInfo = this.$data.netDiskInfo[index];
-			let autoFillAccessCodeEnable =
-				NetDiskRuleData.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
-					fillAccessCodeNetDiskInfo.ruleKeyName
-				);
+			let autoFillAccessCodeEnable = NetDiskRuleData.linkClickMode_openBlank.openBlankAutoFilleAccessCode(
+				fillAccessCodeNetDiskInfo.ruleKeyName
+			);
 			if (!autoFillAccessCodeEnable) {
 				continue;
 			}
 			let accessCode = fillAccessCodeNetDiskInfo.accessCode;
-			if (
-				accessCode == null ||
-				(typeof accessCode === "string" && accessCode.trim() === "")
-			) {
+			if (accessCode == null || (typeof accessCode === "string" && accessCode.trim() === "")) {
 				// 访问码为空
 				continue;
 			}
 			let shareCode = fillAccessCodeNetDiskInfo.shareCode;
 			// 百度如果shareCode第一位是1的话，新版本会在href中去除这个1
 			// 那么这里需要把这个1处理掉，再进行分享码匹配
-			if (
-				fillAccessCodeNetDiskInfo.ruleKeyName === "baidu" &&
-				shareCode.startsWith("1")
-			) {
+			if (fillAccessCodeNetDiskInfo.ruleKeyName === "baidu" && shareCode.startsWith("1")) {
 				shareCode = shareCode.slice(1, shareCode.length);
 			}
 			/** 链接地址是否匹配到分享码，从而触发自动填充 */
 			let isMatchedFillShareCode = window.location.href.includes(shareCode);
 			if (isMatchedFillShareCode) {
-				let autoFillFn =
-					NetDiskAutoFillAccessCode.netDisk[
-						fillAccessCodeNetDiskInfo.ruleKeyName
-					];
+				let autoFillFn = NetDiskAutoFillAccessCode.netDisk[fillAccessCodeNetDiskInfo.ruleKeyName];
 				if (typeof autoFillFn === "function") {
-					log.success(
-						`成功匹配到对应的自动填充访问码的网盘信息：`,
-						fillAccessCodeNetDiskInfo
-					);
+					log.success(`成功匹配到对应的自动填充访问码的网盘信息：`, fillAccessCodeNetDiskInfo);
 					autoFillFn(fillAccessCodeNetDiskInfo);
 				} else {
-					log.warn(
-						"自动填充访问码失败：" +
-							fillAccessCodeNetDiskInfo.ruleKeyName +
-							"，原因：该网盘未适配"
-					);
+					log.warn("自动填充访问码失败：" + fillAccessCodeNetDiskInfo.ruleKeyName + "，原因：该网盘未适配");
 				}
 				flag = true;
 				break;
 			}
 		}
 		if (!flag) {
-			log.error(
-				"未触发自动填充访问码，原因：未找到对应的网盘信息：👇",
-				this.$data.netDiskInfo
-			);
+			log.error("未触发自动填充访问码，原因：未找到对应的网盘信息：👇", this.$data.netDiskInfo);
 		}
 	},
 	netDisk: <
@@ -186,19 +166,13 @@ export const NetDiskAutoFillAccessCode = {
 	addValue(netDiskFillOption: NetDiskAutoFillAccessCodeOption) {
 		let accessCode = netDiskFillOption.accessCode;
 		// 空值不需要填入
-		if (
-			accessCode == null ||
-			(typeof accessCode === "string" && accessCode.trim() === "")
-		) {
+		if (accessCode == null || (typeof accessCode === "string" && accessCode.trim() === "")) {
 			return;
 		}
 		let localValue = this.getValue();
 		localValue = localValue.filter((it) => {
 			// 排除掉相同的链接
-			if (
-				it.ruleKeyName === netDiskFillOption.ruleKeyName &&
-				it.shareCode === netDiskFillOption.shareCode
-			) {
+			if (it.ruleKeyName === netDiskFillOption.ruleKeyName && it.shareCode === netDiskFillOption.shareCode) {
 				return false;
 			} else {
 				return true;
@@ -211,16 +185,11 @@ export const NetDiskAutoFillAccessCode = {
 	 * 获取值
 	 */
 	getValue() {
-		let localValue = GM_getValue<NetDiskAutoFillAccessCodeOption[]>(
-			this.key,
-			[]
-		);
+		let localValue = GM_getValue<NetDiskAutoFillAccessCodeOption[]>(this.key, []);
 		if (!Array.isArray(localValue)) {
 			localValue = [localValue];
 		}
-		localValue = localValue.filter(
-			(it) => Date.now() - it.time < 24 * 60 * 60 * 1000
-		);
+		localValue = localValue.filter((it) => Date.now() - it.time < 24 * 60 * 60 * 1000);
 		// 更新值
 		this.setValue(localValue);
 		return localValue;

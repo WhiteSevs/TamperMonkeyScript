@@ -56,29 +56,21 @@ export const NetDiskFilterScheme = {
 	 * @param key
 	 */
 	isForwardDownloadLink(key: string) {
-		return (
-			this.isEnableForward(key) &&
-			NetDiskRuleData.schemeUri.isForwardLinearChain(key)
-		);
+		return this.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardLinearChain(key);
 	},
 	/**
 	 * 是否转发新标签页的链接
 	 * @param key
 	 */
 	isForwardBlankLink(key: string) {
-		return (
-			this.isEnableForward(key) &&
-			NetDiskRuleData.schemeUri.isForwardBlankLink(key)
-		);
+		return this.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardBlankLink(key);
 	},
 	/**
 	 * 获取转发的uri链接
 	 * @param option
 	 */
 	getSchemeUri(option: UriOption) {
-		return `${this.protocol}://${this.pathname}?${utils.toSearchParamsStr(
-			option
-		)}`;
+		return `${this.protocol}://${this.pathname}?${utils.toSearchParamsStr(option)}`;
 	},
 	/**
 	 * 获取1dm的intent的配置

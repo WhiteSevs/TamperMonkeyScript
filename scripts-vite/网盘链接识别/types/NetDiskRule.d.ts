@@ -59,13 +59,12 @@ declare type NetDiskRuleSettingConfigurationInterface_Function = {
 	checkLinkValidityHoverTip?: boolean;
 };
 /** 点击动作-新标签页打开 */
-declare type NetDiskRuleSettingConfigurationInterface_linkClickMode_openBlank =
-	{
-		/** 跳转时复制访问码 */
-		openBlankWithCopyAccessCode?: boolean;
-		/** 自动填写访问码 */
-		openBlankAutoFilleAccessCode?: boolean;
-	};
+declare type NetDiskRuleSettingConfigurationInterface_linkClickMode_openBlank = {
+	/** 跳转时复制访问码 */
+	openBlankWithCopyAccessCode?: boolean;
+	/** 自动填写访问码 */
+	openBlankAutoFilleAccessCode?: boolean;
+};
 /** Scheme转发 */
 declare type NetDiskRuleSettingConfigurationInterface_SchemeUri = {
 	/** 是否启用 */
@@ -158,7 +157,5 @@ declare type NetDiskRuleOption = {
 	/**
 	 * 渲染后的链接元素触发的回调
 	 */
-	afterRenderUrlBox?: (
-		option: NetDiskRuleAfterRenderUrlBoxOption
-	) => IPromise<void>;
+	afterRenderUrlBox?: (option: NetDiskRuleAfterRenderUrlBoxOption) => IPromise<void>;
 };

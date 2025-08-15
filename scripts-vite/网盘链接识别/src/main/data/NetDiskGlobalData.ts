@@ -30,15 +30,9 @@ export const NetDiskGlobalData = {
 	/** 弹窗 */
 	pops: {
 		/** 动画 */
-		popsAnimation: GeneratePanelStorage(
-			"popsAnimation",
-			"pops-anim-fadein-zoom"
-		),
+		popsAnimation: GeneratePanelStorage("popsAnimation", "pops-anim-fadein-zoom"),
 		/** 点击弹窗遮罩层是否可以关闭弹窗 */
-		clickMaskToCloseDialog: GeneratePanelStorage(
-			"clickMaskToCloseDialog",
-			true
-		),
+		clickMaskToCloseDialog: GeneratePanelStorage("clickMaskToCloseDialog", true),
 		/** 窗口拖拽 */
 		pcDrag: GeneratePanelStorage("pcDrag", true),
 		/** 限制拖拽距离 */
@@ -54,10 +48,7 @@ export const NetDiskGlobalData = {
 			"fileName" as PopsFolderDetails["sort"]["name"]
 		),
 		/** 排序规则 */
-		"pops-folder-sort-is-desc": GeneratePanelStorage(
-			"pops-folder-sort-is-desc",
-			false
-		),
+		"pops-folder-sort-is-desc": GeneratePanelStorage("pops-folder-sort-is-desc", false),
 	},
 	/** 小图标导航 */
 	smallIconNavgiator: {
@@ -67,11 +58,10 @@ export const NetDiskGlobalData = {
 			true
 		),
 		/** 选中分享码 */
-		"pops-netdisk-icon-click-event-find-sharecode-with-select":
-			GeneratePanelStorage(
-				"pops-netdisk-icon-click-event-find-sharecode-with-select",
-				true
-			),
+		"pops-netdisk-icon-click-event-find-sharecode-with-select": GeneratePanelStorage(
+			"pops-netdisk-icon-click-event-find-sharecode-with-select",
+			true
+		),
 		/** 循环定位 */
 		"pops-netdisk-icon-click-event-loop-find-sharecode": GeneratePanelStorage(
 			"pops-netdisk-icon-click-event-loop-find-sharecode",
@@ -89,30 +79,18 @@ export const NetDiskGlobalData = {
 		/** 背景显示时间 */
 		"randbg-show-time": GeneratePanelStorage("randbg-show-time", 1200),
 		/** 吸附边缘 */
-		"suspended-button-adsorption-edge": GeneratePanelStorage(
-			"suspended-button-adsorption-edge",
-			false
-		),
+		"suspended-button-adsorption-edge": GeneratePanelStorage("suspended-button-adsorption-edge", false),
 		/** z-index层级 */
 		"suspended-z-index": GeneratePanelStorage("suspended-z-index", -1),
 	},
 	/** 小窗模式 */
 	smallWindow: {
 		/** 宽度 */
-		"netdisk-ui-small-window-width": GeneratePanelStorage(
-			"netdisk-ui-small-window-width",
-			250
-		),
+		"netdisk-ui-small-window-width": GeneratePanelStorage("netdisk-ui-small-window-width", 250),
 		/** 高度 */
-		"netdisk-ui-small-window-max-height": GeneratePanelStorage(
-			"netdisk-ui-small-window-max-height",
-			200
-		),
+		"netdisk-ui-small-window-max-height": GeneratePanelStorage("netdisk-ui-small-window-max-height", 200),
 		/** z-index */
-		"netdisk-link-view-z-index": GeneratePanelStorage(
-			"netdisk-link-view-z-index",
-			-1
-		),
+		"netdisk-link-view-z-index": GeneratePanelStorage("netdisk-link-view-z-index", -1),
 	},
 	/** 历史匹配记录 */
 	historyMatch: {
@@ -137,52 +115,28 @@ export const NetDiskGlobalData = {
 			"innerHTML",
 		] as NetDiskWorkerOptions["matchTextRange"]),
 		/** 深入ShadowRoot获取匹配文本 */
-		depthQueryWithShadowRoot: GeneratePanelStorage(
-			"depthQueryWithShadowRoot",
-			false
-		),
+		depthQueryWithShadowRoot: GeneratePanelStorage("depthQueryWithShadowRoot", false),
 		/** 匹配剪贴板 */
 		readClipboard: GeneratePanelStorage("readClipboard", false),
 		/** 匹配当前URL */
-		allowMatchLocationHref: GeneratePanelStorage(
-			"allowMatchLocationHref",
-			true
-		),
+		allowMatchLocationHref: GeneratePanelStorage("allowMatchLocationHref", true),
 		/** 匹配input标签的内容 */
-		toBeMatchedWithInputElementValue: GeneratePanelStorage(
-			"to-be-matched-inputElementValue",
-			false
-		),
+		toBeMatchedWithInputElementValue: GeneratePanelStorage("to-be-matched-inputElementValue", false),
 		/** 匹配textarea标签的内容 */
-		toBeMatchedTextAreaElementValue: GeneratePanelStorage(
-			"to-be-matched-textAreaElementValue",
-			false
-		),
+		toBeMatchedTextAreaElementValue: GeneratePanelStorage("to-be-matched-textAreaElementValue", false),
 		/** 匹配网络请求的内容 */
-		toBeMatchedXhrHookResponseText: GeneratePanelStorage(
-			"to-be-matched-xhrHookResponseText",
-			false
-		),
+		toBeMatchedXhrHookResponseText: GeneratePanelStorage("to-be-matched-xhrHookResponseText", false),
 
 		/** 匹配间隔 */
 		delaytime: GeneratePanelStorage("delaytime", 0.8),
 		/** 添加元素时进行匹配 */
 		isAddedNodesToMatch: GeneratePanelStorage("isAddedNodesToMatch", false),
 		/** 观察器：childList */
-		"mutationObserver-childList": GeneratePanelStorage(
-			"mutationObserver-childList",
-			true
-		),
+		"mutationObserver-childList": GeneratePanelStorage("mutationObserver-childList", true),
 		/** 观察器：characterData */
-		"mutationObserver-characterData": GeneratePanelStorage(
-			"mutationObserver-characterData",
-			true
-		),
+		"mutationObserver-characterData": GeneratePanelStorage("mutationObserver-characterData", true),
 		/** 观察器：subtree */
-		"mutationObserver-subtree": GeneratePanelStorage(
-			"mutationObserver-subtree",
-			true
-		),
+		"mutationObserver-subtree": GeneratePanelStorage("mutationObserver-subtree", true),
 	},
 	/** 功能 */
 	features: {
@@ -194,10 +148,7 @@ export const NetDiskGlobalData = {
 		/** 行为模式 */
 		"netdisk-behavior-mode": GeneratePanelStorage(
 			"netdisk-behavior-mode",
-			"suspension_smallwindow" as
-				| "suspension_smallwindow"
-				| "suspension_window"
-				| "smallwindow"
+			"suspension_smallwindow" as "suspension_smallwindow" | "suspension_window" | "smallwindow"
 		),
 		/** 自动填充访问码 */
 		autoFillAccessCode: GeneratePanelStorage("autoFillAccessCode", true),
@@ -205,22 +156,13 @@ export const NetDiskGlobalData = {
 	/** 分享码相关 */
 	shareCode: {
 		/** 相同系数 */
-		excludeIdenticalSharedCodesCoefficient: GeneratePanelStorage(
-			"excludeIdenticalSharedCodesCoefficient",
-			1
-		),
+		excludeIdenticalSharedCodesCoefficient: GeneratePanelStorage("excludeIdenticalSharedCodesCoefficient", 1),
 		/** 排除分享码 */
-		excludeIdenticalSharedCodes: GeneratePanelStorage(
-			"excludeIdenticalSharedCodes",
-			false
-		),
+		excludeIdenticalSharedCodes: GeneratePanelStorage("excludeIdenticalSharedCodes", false),
 	},
 	/** 访问码 */
 	accessCode: {
 		/** 允许查询历史匹配记录 */
-		allowQueryHistoryMatchingAccessCode: GeneratePanelStorage(
-			"allowQueryHistoryMatchingAccessCode",
-			true
-		),
+		allowQueryHistoryMatchingAccessCode: GeneratePanelStorage("allowQueryHistoryMatchingAccessCode", true),
 	},
 };

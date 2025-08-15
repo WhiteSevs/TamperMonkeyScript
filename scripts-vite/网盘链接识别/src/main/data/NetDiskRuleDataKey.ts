@@ -16,22 +16,18 @@ export const NetDiskRuleDataKEY = {
 	function: {
 		enable: (key: string) => `${key}-enable`,
 		checkLinkValidity: (key: string) => `${key}-check-link-valid`,
-		checkLinkValidityHoverTip: (key: string) =>
-			`${key}-check-link-valid-hover-tip`,
+		checkLinkValidityHoverTip: (key: string) => `${key}-check-link-valid-hover-tip`,
 		linkClickMode: (key: string) => `${key}-click-mode`,
 	},
 	/** 点击动作 新标签页打开 */
 	linkClickMode_openBlank: {
-		openBlankAutoFilleAccessCode: (key: string) =>
-			`${key}-open-blank-auto-fill-accesscode`,
-		openBlankWithCopyAccessCode: (key: string) =>
-			`${key}-open-blank-with-copy-accesscode`,
+		openBlankAutoFilleAccessCode: (key: string) => `${key}-open-blank-auto-fill-accesscode`,
+		openBlankWithCopyAccessCode: (key: string) => `${key}-open-blank-with-copy-accesscode`,
 	},
 	/** Scheme转发 */
 	schemeUri: {
 		enable: (key: string) => `${key}-scheme-uri-enable`,
-		isForwardLinearChain: (key: string) =>
-			`${key}-scheme-uri-forward-linear-chain`,
+		isForwardLinearChain: (key: string) => `${key}-scheme-uri-forward-linear-chain`,
 		isForwardBlankLink: (key: string) => `${key}-scheme-uri-forward-blank-link`,
 		uri: (key: string) => `${key}-scheme-uri-uri`,
 	},

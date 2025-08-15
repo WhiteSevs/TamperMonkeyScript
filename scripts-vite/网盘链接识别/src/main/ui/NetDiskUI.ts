@@ -5,17 +5,11 @@ import { NetDisk } from "../NetDisk";
 import { NetDiskUISizeConfig } from "./NetDiskUISizeConfig";
 import { NetDiskSuspension } from "../view/suspension/NetDiskSuspensionView";
 import { NetDiskGlobalSettingView } from "../view/global-setting/NetDiskGlobalSettingView";
-import {
-	NetDiskView,
-	type RegisterContextMenuShowTextOption,
-} from "../view/NetDiskView";
+import { NetDiskView, type RegisterContextMenuShowTextOption } from "../view/NetDiskView";
 import { NetDiskLinearChainDialogView } from "../view/linear-chain-dialog/NetDiskLinearChainDialogView";
 import { NetDiskNewAccessCodeView } from "../view/new-access-code/NetDiskNewAccessCodeView";
 import { NetDiskMatchPasteText } from "../view/match-paste-text/NetDiskMatchPasteTextView";
-import {
-	NetDiskLinkClickMode,
-	NetDiskLinkClickModeUtils,
-} from "../link-click-mode/NetDiskLinkClickMode";
+import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "../link-click-mode/NetDiskLinkClickMode";
 import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
 import { NetDiskHistoryMatchView } from "../view/history-match/NetDiskHistoryMatchView";
 import DOMUtils from "@whitesev/domutils";
@@ -183,33 +177,18 @@ export const NetDiskUI = {
 					</svg>
 
 				`,
-				callback(
-					clickEvent,
-					contextMenuEvent,
-					liElement,
-					menuListenerRootNode
-				) {
+				callback(clickEvent, contextMenuEvent, liElement, menuListenerRootNode) {
 					return false;
 				},
 				item: [
 					{
 						text: "复制",
 						icon: "documentCopy",
-						callback: function (
-							event,
-							contextMenuEvent,
-							liElement,
-							menuListenerRootNode
-						) {
+						callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
 							let $link = menuListenerRootNode;
 							const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 								NetDiskView.praseElementAttributeRuleInfo($link);
-							NetDiskLinkClickMode.copy(
-								ruleKeyName,
-								ruleIndex,
-								shareCode,
-								accessCode
-							);
+							NetDiskLinkClickMode.copy(ruleKeyName, ruleIndex, shareCode, accessCode);
 						},
 					},
 					{
@@ -226,12 +205,7 @@ export const NetDiskUI = {
 								d="M927.9 131.6v-0.5c-0.1-1.7-0.4-3.3-0.7-4.9 0-0.1 0-0.2-0.1-0.3-0.4-1.7-0.9-3.3-1.5-4.9v-0.1c-0.6-1.6-1.4-3.1-2.2-4.6 0-0.1-0.1-0.1-0.1-0.2-0.8-1.4-1.7-2.8-2.7-4.1-0.1-0.1-0.2-0.3-0.3-0.4-0.5-0.6-0.9-1.1-1.4-1.7 0-0.1-0.1-0.1-0.1-0.2-0.5-0.6-1-1.1-1.6-1.6l-0.4-0.4c-0.5-0.5-1.1-1-1.6-1.5l-0.1-0.1c-0.6-0.5-1.2-1-1.9-1.4-0.1-0.1-0.3-0.2-0.4-0.3-1.4-1-2.8-1.8-4.3-2.6l-0.1-0.1c-1.6-0.8-3.2-1.5-4.9-2-1.6-0.5-3.3-1-5-1.2-0.1 0-0.2 0-0.3-0.1l-2.4-0.3h-0.3c-0.7-0.1-1.3-0.1-2-0.1H640.1c-19.9 0-36 16.1-36 36s16.1 36 36 36h165L487.6 487.6c-14.1 14.1-14.1 36.9 0 50.9 7 7 16.2 10.5 25.5 10.5 9.2 0 18.4-3.5 25.5-10.5L856 221v162.8c0 19.9 16.1 36 36 36s36-16.1 36-36V134.1c0-0.8 0-1.7-0.1-2.5z"></path>
 						</svg>
 						`,
-						callback: function (
-							event,
-							contextMenuEvent,
-							liElement,
-							menuListenerRootNode
-						) {
+						callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
 							let $link = menuListenerRootNode;
 							const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 								NetDiskView.praseElementAttributeRuleInfo($link);
@@ -241,13 +215,7 @@ export const NetDiskUI = {
 								shareCode,
 								accessCode,
 							});
-							NetDiskLinkClickMode.openBlankUrl(
-								url,
-								ruleKeyName,
-								ruleIndex,
-								shareCode,
-								accessCode
-							);
+							NetDiskLinkClickMode.openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode);
 						},
 					},
 					{
@@ -264,12 +232,7 @@ export const NetDiskUI = {
 								d="M927.9 131.6v-0.5c-0.1-1.7-0.4-3.3-0.7-4.9 0-0.1 0-0.2-0.1-0.3-0.4-1.7-0.9-3.3-1.5-4.9v-0.1c-0.6-1.6-1.4-3.1-2.2-4.6 0-0.1-0.1-0.1-0.1-0.2-0.8-1.4-1.7-2.8-2.7-4.1-0.1-0.1-0.2-0.3-0.3-0.4-0.5-0.6-0.9-1.1-1.4-1.7 0-0.1-0.1-0.1-0.1-0.2-0.5-0.6-1-1.1-1.6-1.6l-0.4-0.4c-0.5-0.5-1.1-1-1.6-1.5l-0.1-0.1c-0.6-0.5-1.2-1-1.9-1.4-0.1-0.1-0.3-0.2-0.4-0.3-1.4-1-2.8-1.8-4.3-2.6l-0.1-0.1c-1.6-0.8-3.2-1.5-4.9-2-1.6-0.5-3.3-1-5-1.2-0.1 0-0.2 0-0.3-0.1l-2.4-0.3h-0.3c-0.7-0.1-1.3-0.1-2-0.1H640.1c-19.9 0-36 16.1-36 36s16.1 36 36 36h165L487.6 487.6c-14.1 14.1-14.1 36.9 0 50.9 7 7 16.2 10.5 25.5 10.5 9.2 0 18.4-3.5 25.5-10.5L856 221v162.8c0 19.9 16.1 36 36 36s36-16.1 36-36V134.1c0-0.8 0-1.7-0.1-2.5z"></path>
 						</svg>
 						`,
-						callback: function (
-							event,
-							contextMenuEvent,
-							liElement,
-							menuListenerRootNode
-						) {
+						callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
 							let $link = menuListenerRootNode;
 							const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 								NetDiskView.praseElementAttributeRuleInfo($link);
@@ -279,14 +242,7 @@ export const NetDiskUI = {
 								shareCode,
 								accessCode,
 							});
-							NetDiskLinkClickMode.openBlankUrl(
-								url,
-								ruleKeyName,
-								ruleIndex,
-								shareCode,
-								accessCode,
-								true
-							);
+							NetDiskLinkClickMode.openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode, true);
 						},
 					},
 				],
@@ -311,19 +267,11 @@ export const NetDiskUI = {
 					{
 						text: "复制",
 						icon: "documentCopy",
-						callback(
-							clickEvent,
-							contextMenuEvent,
-							liElement,
-							menuListenerRootNode
-						) {
+						callback(clickEvent, contextMenuEvent, liElement, menuListenerRootNode) {
 							let $link = menuListenerRootNode;
 							const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 								NetDiskView.praseElementAttributeRuleInfo($link);
-							if (
-								accessCode == null ||
-								(typeof accessCode === "string" && accessCode.trim() === "")
-							) {
+							if (accessCode == null || (typeof accessCode === "string" && accessCode.trim() === "")) {
 								Qmsg.warning("无访问码");
 								return;
 							}
@@ -344,12 +292,7 @@ export const NetDiskUI = {
 					{
 						text: "修改",
 						icon: `edit`,
-						callback: function (
-							event,
-							contextMenuEvent,
-							liElement,
-							menuListenerRootNode
-						) {
+						callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
 							let $link = menuListenerRootNode;
 							const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 								NetDiskView.praseElementAttributeRuleInfo($link);
@@ -367,15 +310,9 @@ export const NetDiskUI = {
 											let currentTime = new Date().getTime();
 											let $updateTime = $link
 												.closest("li")!
-												.querySelector<HTMLElement>(
-													".netdiskrecord-update-time"
-												)!;
+												.querySelector<HTMLElement>(".netdiskrecord-update-time")!;
 											DOMUtils.text($updateTime, utils.formatTime(currentTime));
-											DOMUtils.attr(
-												$link,
-												"data-accesscode",
-												option.accessCode!
-											);
+											DOMUtils.attr($link, "data-accesscode", option.accessCode!);
 											Qmsg.success(
 												/*html*/ `
 										<div style="text-align: left;">旧: ${accessCode}</div>
@@ -402,9 +339,7 @@ export const NetDiskUI = {
 											if (option.isFindInMatchedDict) {
 												Qmsg.error("修改访问码失败");
 											} else {
-												Qmsg.error(
-													"修改访问码失败，因为当前已匹配字典中未找到对应的访问码"
-												);
+												Qmsg.error("修改访问码失败，因为当前已匹配字典中未找到对应的访问码");
 											}
 										}
 									}
@@ -428,42 +363,30 @@ export const NetDiskUI = {
 				</svg>
 	
 				`,
-				callback(
-					clickEvent,
-					contextMenuEvent,
-					liElement,
-					menuListenerRootNode
-				) {
+				callback(clickEvent, contextMenuEvent, liElement, menuListenerRootNode) {
 					return false;
 				},
 				item: [
 					{
 						text: "复制全部",
 						icon: "documentCopy",
-						callback(
-							clickEvent,
-							contextMenuEvent,
-							liElement,
-							menuListenerRootNode
-						) {
+						callback(clickEvent, contextMenuEvent, liElement, menuListenerRootNode) {
 							let $link = menuListenerRootNode;
 							let $boxAll = $link.closest<HTMLElement>(".netdisk-url-box-all")!;
 							// 获取全部链接的复制文本
 							let copyTextList: string[] = [];
-							$boxAll
-								.querySelectorAll<HTMLElement>(selector)
-								.forEach(($linkItem) => {
-									const { ruleKeyName, ruleIndex, shareCode, accessCode } =
-										NetDiskView.praseElementAttributeRuleInfo($linkItem);
-									// 复制的文本
-									let copyUrlText = NetDiskLinkClickModeUtils.getCopyUrlInfo({
-										ruleKeyName,
-										ruleIndex,
-										shareCode,
-										accessCode,
-									});
-									copyTextList.push(copyUrlText);
+							$boxAll.querySelectorAll<HTMLElement>(selector).forEach(($linkItem) => {
+								const { ruleKeyName, ruleIndex, shareCode, accessCode } =
+									NetDiskView.praseElementAttributeRuleInfo($linkItem);
+								// 复制的文本
+								let copyUrlText = NetDiskLinkClickModeUtils.getCopyUrlInfo({
+									ruleKeyName,
+									ruleIndex,
+									shareCode,
+									accessCode,
 								});
+								copyTextList.push(copyUrlText);
+							});
 							utils
 								.setClip(copyTextList.join("\n"))
 								.then((status) => {
@@ -489,44 +412,31 @@ export const NetDiskUI = {
 				{
 					text: "删除当前",
 					icon: "delete",
-					callback: function (
-						event,
-						contextMenuEvent,
-						liElement,
-						menuListenerRootNode
-					) {
+					callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
 						let $link = menuListenerRootNode;
 						let $box = $link.closest<HTMLElement>(".netdisk-url-box")!;
 						const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 							NetDiskView.praseElementAttributeRuleInfo($link);
 						let flag = false;
-						NetDisk.$match.matchedInfo.forEach(
-							(netDiskItem, netDiskKeyName) => {
-								if (netDiskKeyName !== ruleKeyName) {
-									return;
-								}
-								netDiskItem.forEach((matchedInfo, matchedShareCode) => {
-									if (matchedShareCode === shareCode) {
-										flag = true;
-										netDiskItem.delete(matchedShareCode);
-										log.info(
-											`删除：`,
-											netDiskKeyName,
-											JSON.stringify(matchedInfo)
-										);
-									}
-								});
+						NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
+							if (netDiskKeyName !== ruleKeyName) {
+								return;
 							}
-						);
+							netDiskItem.forEach((matchedInfo, matchedShareCode) => {
+								if (matchedShareCode === shareCode) {
+									flag = true;
+									netDiskItem.delete(matchedShareCode);
+									log.info(`删除：`, netDiskKeyName, JSON.stringify(matchedInfo));
+								}
+							});
+						});
 						// 更新匹配到的key
 						NetDisk.$match.matchedInfoRuleKey.clear();
-						NetDisk.$match.matchedInfo.forEach(
-							(netDiskItem, netDiskKeyName) => {
-								if (netDiskItem.length) {
-									NetDisk.$match.matchedInfoRuleKey.add(netDiskKeyName);
-								}
+						NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
+							if (netDiskItem.length) {
+								NetDisk.$match.matchedInfoRuleKey.add(netDiskKeyName);
 							}
-						);
+						});
 						if (flag) {
 							$box.remove();
 						} else {
@@ -537,21 +447,14 @@ export const NetDiskUI = {
 				{
 					text: "删除所有",
 					icon: "delete",
-					callback: function (
-						event,
-						contextMenuEvent,
-						liElement,
-						menuListenerRootNode
-					) {
+					callback: function (event, contextMenuEvent, liElement, menuListenerRootNode) {
 						let $link = menuListenerRootNode;
 						let $boxAll = $link.closest<HTMLElement>(".netdisk-url-box-all")!;
 						const { ruleKeyName, ruleIndex, shareCode, accessCode } =
 							NetDiskView.praseElementAttributeRuleInfo($link);
-						NetDisk.$match.matchedInfo.forEach(
-							(netDiskItem, netDiskKeyName) => {
-								netDiskItem.clear();
-							}
-						);
+						NetDisk.$match.matchedInfo.forEach((netDiskItem, netDiskKeyName) => {
+							netDiskItem.clear();
+						});
 						NetDisk.$match.matchedInfoRuleKey.clear();
 						DOMUtils.html($boxAll, "");
 					},

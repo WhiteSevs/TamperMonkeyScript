@@ -29,26 +29,17 @@ export const NetDisk = {
 		 *
 		 * Worker识别规则 -> 存储识别到的信息（访问码|分享码|规则下标...）
 		 */
-		matchedInfo: new Utils.Dictionary<
-			string,
-			UtilsDictionary<string, NetDiskDictData>
-		>(),
+		matchedInfo: new Utils.Dictionary<string, UtilsDictionary<string, NetDiskDictData>>(),
 		/**
 		 * 黑名单-识别到的信息
 		 *
 		 * 如果Worker识别到的信息能在这里面找到对应的shareCode，则不会被识别
 		 */
-		blackMatchedInfo: new Utils.Dictionary<
-			string,
-			UtilsDictionary<string, NetDiskDictData>
-		>(),
+		blackMatchedInfo: new Utils.Dictionary<string, UtilsDictionary<string, NetDiskDictData>>(),
 		/**
 		 * （临时）链接字典
 		 */
-		tempMatchedInfo: new Utils.Dictionary<
-			string,
-			UtilsDictionary<string, NetDiskWorkerHandleObject>
-		>(),
+		tempMatchedInfo: new Utils.Dictionary<string, UtilsDictionary<string, NetDiskWorkerHandleObject>>(),
 		/**
 		 * 用于存储已匹配到的网盘规则名
 		 * 只有单独的名
@@ -139,10 +130,7 @@ export const NetDisk = {
 					if (!Panel.isTopWindow()) {
 						return;
 					}
-					alert(
-						"以下是命中的规则名：\n" +
-							matchedUrlRuleList.map((item) => item.name).join("\n")
-					);
+					alert("以下是命中的规则名：\n" + matchedUrlRuleList.map((item) => item.name).join("\n"));
 				},
 			});
 		}
@@ -162,10 +150,7 @@ export const NetDisk = {
 					if (!Panel.isTopWindow()) {
 						return;
 					}
-					alert(
-						"以下是命中的规则名：\n" +
-							characterMapping.map((item) => item.name).join("\n")
-					);
+					alert("以下是命中的规则名：\n" + characterMapping.map((item) => item.name).join("\n"));
 				},
 			});
 		}
@@ -223,12 +208,7 @@ export const NetDisk = {
 			?.filter((item) => utils.isNotNull(item));
 		handlerConfig.debugConfig?.logCallBack?.({
 			status: true,
-			msg: [
-				`正则: shareCode`,
-				"作用: 获取shareCode",
-				"结果: ",
-				JSON.stringify(shareCodeMatch),
-			],
+			msg: [`正则: shareCode`, "作用: 获取shareCode", "结果: ", JSON.stringify(shareCodeMatch)],
 		});
 		if (utils.isNull(shareCodeMatch)) {
 			DEBUG &&
@@ -274,8 +254,7 @@ export const NetDisk = {
 		}
 		// 判断是否是黑名单中的分享码
 		// 如果是，强制返回
-		for (const shareCodeNotMatchRegExp of NetDisk.$extraRule
-			.shareCodeNotMatchRegExpList) {
+		for (const shareCodeNotMatchRegExp of NetDisk.$extraRule.shareCodeNotMatchRegExpList) {
 			if (shareCode.match(shareCodeNotMatchRegExp)) {
 				DEBUG && log.error(`Debug-不可能的shareCode => ${shareCode}`);
 				handlerConfig.debugConfig?.logCallBack?.({
@@ -317,10 +296,7 @@ export const NetDisk = {
 		});
 		if (
 			NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.value &&
-			utils.isSameChars(
-				shareCode,
-				NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient.value
-			)
+			utils.isSameChars(shareCode, NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient.value)
 		) {
 			/* 排除掉由相同字符组成的分享码 */
 			handlerConfig.debugConfig?.logCallBack?.({
@@ -373,9 +349,7 @@ export const NetDisk = {
 			});
 			return "";
 		}
-		let accessCodeMatch = handlerConfig.matchText.match(
-			ruleConfig.checkAccessCode
-		);
+		let accessCodeMatch = handlerConfig.matchText.match(ruleConfig.checkAccessCode);
 		handlerConfig.debugConfig?.logCallBack?.({
 			status: true,
 			msg: [
@@ -426,8 +400,7 @@ export const NetDisk = {
 		if (utils.isNotNull(accessCode)) {
 			// 判断是否是黑名单中的访问码
 			// 如果是，访问码置空
-			for (const accessCodeNotMatchRegExp of NetDisk.$extraRule
-				.accessCodeNotMatchRegExpList) {
+			for (const accessCodeNotMatchRegExp of NetDisk.$extraRule.accessCodeNotMatchRegExpList) {
 				if (accessCode.match(accessCodeNotMatchRegExp)) {
 					accessCode = "";
 					handlerConfig.debugConfig?.logCallBack?.({
@@ -461,13 +434,8 @@ export const NetDisk = {
 					}
 				}
 			}
-			for (const accessCodeNeedRemoveStrRegExp of NetDisk.$extraRule
-				.accessCodeNeedRemoveStr) {
-				accessCode = NetDiskHandlerUtil.replaceText(
-					accessCode,
-					accessCodeNeedRemoveStrRegExp,
-					""
-				);
+			for (const accessCodeNeedRemoveStrRegExp of NetDisk.$extraRule.accessCodeNeedRemoveStr) {
+				accessCode = NetDiskHandlerUtil.replaceText(accessCode, accessCodeNeedRemoveStrRegExp, "");
 			}
 			handlerConfig.debugConfig?.logCallBack?.({
 				status: true,
@@ -480,11 +448,7 @@ export const NetDisk = {
 			// 删除不需要的字符串
 			let accessCodeNeedRemoveStr = ruleConfig.accessCodeNeedRemoveStr;
 			if (accessCodeNeedRemoveStr) {
-				accessCode = NetDiskHandlerUtil.replaceText(
-					accessCode,
-					accessCodeNeedRemoveStr,
-					""
-				);
+				accessCode = NetDiskHandlerUtil.replaceText(accessCode, accessCodeNeedRemoveStr, "");
 				handlerConfig.debugConfig?.logCallBack?.({
 					status: true,
 					msg: [
@@ -530,16 +494,11 @@ export const NetDisk = {
 			/** 是否启用 */
 			let customAccessCodeEnable = Reflect.get(
 				ruleData,
-				WebsiteRuleDataKey.features.customAccessCodeEnable(
-					handlerConfig.ruleKeyName
-				)
+				WebsiteRuleDataKey.features.customAccessCodeEnable(handlerConfig.ruleKeyName)
 			);
 			if (customAccessCodeEnable && typeof customAccessCode === "string") {
 				result = customAccessCode;
-				DEBUG &&
-					log.success(
-						`Debug-使用自定义网站规则中的提取码 ${handlerConfig.ruleKeyName} ${result}`
-					);
+				DEBUG && log.success(`Debug-使用自定义网站规则中的提取码 ${handlerConfig.ruleKeyName} ${result}`);
 				break;
 			}
 		}
@@ -569,24 +528,15 @@ export const NetDisk = {
 	}) {
 		let checkFlag = handlerConfig.debugConfig?.config
 			? true
-			: this.checkHasRuleOption(
-					handlerConfig.ruleKeyName,
-					handlerConfig.ruleIndex
-			  );
+			: this.checkHasRuleOption(handlerConfig.ruleKeyName, handlerConfig.ruleIndex);
 		if (!checkFlag) {
-			log.error(
-				`BUG: ${handlerConfig.ruleKeyName}不存在，分析参数`,
-				handlerConfig
-			);
-			(handlerConfig.showToast ?? true) &&
-				Qmsg.error(`规则：${handlerConfig.ruleKeyName}不存在`);
+			log.error(`BUG: ${handlerConfig.ruleKeyName}不存在，分析参数`, handlerConfig);
+			(handlerConfig.showToast ?? true) && Qmsg.error(`规则：${handlerConfig.ruleKeyName}不存在`);
 			return;
 		}
 		let ruleConfig =
 			handlerConfig.debugConfig?.config ??
-			NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][
-				handlerConfig.ruleIndex
-			];
+			NetDisk.$rule.ruleOption[handlerConfig.ruleKeyName][handlerConfig.ruleIndex];
 		let uiLink = NetDiskRuleUtils.replaceParam(ruleConfig.uiLinkShow, {
 			shareCode: handlerConfig.shareCode,
 		});
@@ -599,10 +549,7 @@ export const NetDisk = {
 				`结果: ${uiLink}`,
 			],
 		});
-		if (
-			typeof handlerConfig.accessCode === "string" &&
-			handlerConfig.accessCode.trim() != ""
-		) {
+		if (typeof handlerConfig.accessCode === "string" && handlerConfig.accessCode.trim() != "") {
 			// 替换{#accessCode#}占位符
 			uiLink = NetDiskRuleUtils.replaceParam(uiLink, {
 				accessCode: handlerConfig.accessCode,
@@ -617,11 +564,7 @@ export const NetDisk = {
 				],
 			});
 		} else {
-			uiLink = NetDiskHandlerUtil.replaceText(
-				uiLink,
-				NetDisk.$extraRule.noAccessCodeRegExp,
-				""
-			);
+			uiLink = NetDiskHandlerUtil.replaceText(uiLink, NetDisk.$extraRule.noAccessCodeRegExp, "");
 			handlerConfig.debugConfig?.logCallBack?.({
 				status: true,
 				msg: [
@@ -638,12 +581,9 @@ export const NetDisk = {
 			let currentDict = NetDisk.$match.matchedInfo
 				.get(handlerConfig.ruleKeyName)
 				.get(handlerConfig.shareCode);
-			handlerConfig.matchText =
-				handlerConfig.matchText ?? currentDict?.matchText;
+			handlerConfig.matchText = handlerConfig.matchText ?? currentDict?.matchText;
 			if (utils.isNotNull(handlerConfig.matchText)) {
-				let paramMatchArray = handlerConfig.matchText.match(
-					ruleConfig.paramMatch
-				);
+				let paramMatchArray = handlerConfig.matchText.match(ruleConfig.paramMatch);
 				let replaceParamData: {
 					[key: string]: string;
 				} = {};

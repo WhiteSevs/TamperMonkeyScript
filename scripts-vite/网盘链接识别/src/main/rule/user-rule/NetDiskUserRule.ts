@@ -22,6 +22,7 @@ import { NetDiskPops } from "@/main/pops/NetDiskPops";
 import { PROPS_STORAGE_API } from "@components/setting/panel-config";
 import { UIInput } from "@components/setting/components/ui-input";
 import { NetDiskUserRuleSubscribeRule } from "./NetDiskUserRuleSubscribeRule";
+import { NetDiskCheckLinkValidityStatus } from "@/main/check-valid/NetDiskCheckLinkValidityStatus";
 
 const NetDiskUserRuleStorageApi = new StorageUtils("userRule");
 
@@ -231,6 +232,7 @@ export const NetDiskUserRule = {
 			window: window,
 			unsafeWindow: unsafeWindow,
 			NetDiskCheckLinkValidity: NetDiskCheckLinkValidity,
+			NetDiskCheckLinkValidityStatus: NetDiskCheckLinkValidityStatus,
 			log: log,
 			Qmsg: Qmsg,
 			pops: pops,

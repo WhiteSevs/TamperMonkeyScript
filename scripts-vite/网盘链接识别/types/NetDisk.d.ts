@@ -13,8 +13,7 @@ declare interface NetDiskDictData {
 	isForceAccessCode?: boolean;
 }
 
-declare interface NetDiskSettingMenuDetails
-	extends NetDiskUserCustomRuleSetting {
+declare interface NetDiskSettingMenuDetails extends NetDiskUserCustomRuleSetting {
 	/**
 	 * 名字
 	 */

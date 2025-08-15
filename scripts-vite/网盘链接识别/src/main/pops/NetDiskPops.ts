@@ -40,10 +40,7 @@ export const NetDiskPops = {
 	 * @param details 配置
 	 * @param sizeConfig 大小配置
 	 */
-	alert(
-		details: NetDiskPopsDetails<PopsAlertDetails>,
-		sizeConfig?: PopsSizeConfig
-	) {
+	alert(details: NetDiskPopsDetails<PopsAlertDetails>, sizeConfig?: PopsSizeConfig) {
 		details = this.handleDetails(details, sizeConfig);
 		// @ts-ignore
 		return pops.alert(details);
@@ -53,10 +50,7 @@ export const NetDiskPops = {
 	 * @param details 配置
 	 * @param sizeConfig 大小配置
 	 */
-	confirm(
-		details: NetDiskPopsDetails<PopsConfirmDetails>,
-		sizeConfig?: PopsSizeConfig
-	) {
+	confirm(details: NetDiskPopsDetails<PopsConfirmDetails>, sizeConfig?: PopsSizeConfig) {
 		details = this.handleDetails(details, sizeConfig);
 		// @ts-ignore
 		return pops.confirm(details);
@@ -80,10 +74,7 @@ export const NetDiskPops = {
 	 * @param details 配置
 	 * @param sizeConfig 大小配置
 	 */
-	prompt(
-		details: NetDiskPopsDetails<PopsPromptDetails>,
-		sizeConfig?: PopsSizeConfig
-	) {
+	prompt(details: NetDiskPopsDetails<PopsPromptDetails>, sizeConfig?: PopsSizeConfig) {
 		details = this.handleDetails(details, sizeConfig);
 		// @ts-ignore
 		return pops.prompt(details);
@@ -92,10 +83,7 @@ export const NetDiskPops = {
 	 * 文件夹
 	 * @param details 配置
 	 */
-	folder(
-		details: Omit<NetDiskPopsDetails<PopsFolderDetails>, "sort">,
-		sizeConfig?: PopsSizeConfig
-	) {
+	folder(details: Omit<NetDiskPopsDetails<PopsFolderDetails>, "sort">, sizeConfig?: PopsSizeConfig) {
 		details = this.handleDetails(details, sizeConfig);
 		// @ts-ignore
 		details["sort"] = {
@@ -104,8 +92,7 @@ export const NetDiskPops = {
 			// @ts-ignore
 			callback(target, event, sortName, sortDesc) {
 				NetDiskGlobalData.popsFolder["pops-folder-sort-name"].value = sortName;
-				NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value =
-					sortDesc;
+				NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].value = sortDesc;
 			},
 		};
 		// @ts-ignore
@@ -115,10 +102,7 @@ export const NetDiskPops = {
 	 * 菜单面板
 	 * @param details 配置
 	 */
-	panel(
-		details: NetDiskPopsDetails<PopsPanelDetails>,
-		sizeConfig?: PopsSizeConfig
-	) {
+	panel(details: NetDiskPopsDetails<PopsPanelDetails>, sizeConfig?: PopsSizeConfig) {
 		details = this.handleDetails(details, sizeConfig);
 		// @ts-ignore
 		return pops.panel(details);
@@ -149,9 +133,7 @@ export const NetDiskPops = {
 			if (pops.isPhone()) {
 				// 移动端
 				let popsWidth =
-					typeof sizeConfig.Mobile.width === "function"
-						? sizeConfig.Mobile.width()
-						: sizeConfig.Mobile.width;
+					typeof sizeConfig.Mobile.width === "function" ? sizeConfig.Mobile.width() : sizeConfig.Mobile.width;
 				let popsHeight =
 					typeof sizeConfig.Mobile.height === "function"
 						? sizeConfig.Mobile.height()
@@ -161,13 +143,9 @@ export const NetDiskPops = {
 			} else {
 				// PC端
 				let popsWidth =
-					typeof sizeConfig.PC.width === "function"
-						? sizeConfig.PC.width()
-						: sizeConfig.PC.width;
+					typeof sizeConfig.PC.width === "function" ? sizeConfig.PC.width() : sizeConfig.PC.width;
 				let popsHeight =
-					typeof sizeConfig.PC.height === "function"
-						? sizeConfig.PC.height()
-						: sizeConfig.PC.height;
+					typeof sizeConfig.PC.height === "function" ? sizeConfig.PC.height() : sizeConfig.PC.height;
 				details.width = popsWidth;
 				details.height = popsHeight;
 			}
@@ -183,8 +161,7 @@ export const NetDiskPops = {
 			details.mask.clickEvent = {};
 		}
 		if (typeof details.mask.clickEvent.toClose !== "boolean") {
-			details.mask.clickEvent.toClose =
-				NetDiskGlobalData.pops.clickMaskToCloseDialog.value;
+			details.mask.clickEvent.toClose = NetDiskGlobalData.pops.clickMaskToCloseDialog.value;
 		}
 		// 亚克力效果
 		if (NetDiskGlobalData.pops.popsAcrylic.value) {
@@ -219,10 +196,8 @@ export const NetDiskPops = {
 			/** 偏移量 */
 			const deviation = 10;
 			let maxZIndex = utils.getMaxZIndex(deviation);
-			let popsMaxZIndex =
-				pops.config.InstanceUtils.getPopsMaxZIndex(deviation).zIndex;
-			let zIndex =
-				utils.getMaxValue(99999, maxZIndex, popsMaxZIndex) + deviation;
+			let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex(deviation).zIndex;
+			let zIndex = utils.getMaxValue(99999, maxZIndex, popsMaxZIndex) + deviation;
 			return zIndex;
 		};
 		return details;

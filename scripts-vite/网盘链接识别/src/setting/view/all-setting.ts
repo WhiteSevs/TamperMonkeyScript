@@ -12,6 +12,7 @@ import { UIButton } from "@components/setting/components/ui-button";
 import { UISelectMultiple } from "@components/setting/components/ui-select-multiple";
 import { UIInput } from "@components/setting/components/ui-input";
 import DOMUtils from "@whitesev/domutils";
+import { NetDiskSuspension } from "@/main/view/suspension/NetDiskSuspensionView";
 
 export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 	return {
@@ -244,8 +245,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 									UISelect(
 										"排序名",
 										NetDiskGlobalData.popsFolder["pops-folder-sort-name"].KEY,
-										NetDiskGlobalData.popsFolder["pops-folder-sort-name"]
-											.default,
+										NetDiskGlobalData.popsFolder["pops-folder-sort-name"].default,
 										[
 											{
 												value: "fileName",
@@ -265,10 +265,8 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 									),
 									UISelect(
 										"排序规则",
-										NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"]
-											.KEY,
-										NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"]
-											.default,
+										NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].KEY,
+										NetDiskGlobalData.popsFolder["pops-folder-sort-is-desc"].default,
 										[
 											{
 												value: false,
@@ -301,9 +299,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 										15,
 										250,
 										(event, value) => {
-											NetDiskGlobalData.suspension.size.value = parseInt(
-												value.toString()
-											);
+											NetDiskGlobalData.suspension.size.value = parseInt(value.toString());
 											if (NetDiskUI.suspension.$data.isShow) {
 												DOMUtils.css(NetDiskUI.suspension.$el.$suspension, {
 													width: NetDiskGlobalData.suspension.size.value,
@@ -315,8 +311,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 										(value) => {
 											return `${value}px`;
 										},
-										"悬浮按钮的大小，默认: " +
-											NetDiskGlobalData.suspension.size.default
+										"悬浮按钮的大小，默认: " + NetDiskGlobalData.suspension.size.default
 									),
 									UISlider(
 										"透明度",
@@ -325,9 +320,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 										0.1,
 										1,
 										(event, value) => {
-											NetDiskGlobalData.suspension.opacity.value = parseFloat(
-												value.toString()
-											);
+											NetDiskGlobalData.suspension.opacity.value = parseFloat(value.toString());
 											if (NetDiskUI.suspension.$data.isShow) {
 												DOMUtils.css(NetDiskUI.suspension.$el.$suspension, {
 													opacity: NetDiskGlobalData.suspension.opacity.value,
@@ -335,8 +328,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 											}
 										},
 										void 0,
-										"值越小越透明，默认: " +
-											NetDiskGlobalData.suspension.opacity.default,
+										"值越小越透明，默认: " + NetDiskGlobalData.suspension.opacity.default,
 										0.1
 									),
 									UISlider(
@@ -349,9 +341,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 										(value) => {
 											return `${value}ms`;
 										},
-										"淡入/淡出的时间，默认: " +
-											NetDiskGlobalData.suspension["randbg-time"].default +
-											"ms",
+										"淡入/淡出的时间，默认: " + NetDiskGlobalData.suspension["randbg-time"].default + "ms",
 										100
 									),
 									UISlider(
@@ -369,14 +359,15 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 									),
 									UISwitch(
 										"吸附边缘",
-										NetDiskGlobalData.suspension[
-											"suspended-button-adsorption-edge"
-										].KEY,
-										NetDiskGlobalData.suspension[
-											"suspended-button-adsorption-edge"
-										].default,
+										NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].KEY,
+										NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].default,
 										void 0,
-										"移动悬浮按钮松开后自动吸附边缘"
+										"移动悬浮按钮松开后自动吸附边缘",
+										void 0,
+										void 0,
+										() => {
+											NetDiskSuspension.updatePosition(false);
+										}
 									),
 									UIInput(
 										"z-index",
@@ -385,8 +376,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 										"值小于等于0则为动态获取z-index",
 
 										(event, value, valueAsNumber) => {
-											NetDiskGlobalData.suspension["suspended-z-index"].value =
-												valueAsNumber!;
+											NetDiskGlobalData.suspension["suspended-z-index"].value = valueAsNumber!;
 											return true;
 										},
 										"",
@@ -407,12 +397,8 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 								forms: [
 									UISlider(
 										"宽度",
-										NetDiskGlobalData.smallWindow[
-											"netdisk-ui-small-window-width"
-										].KEY,
-										NetDiskGlobalData.smallWindow[
-											"netdisk-ui-small-window-width"
-										].default,
+										NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].KEY,
+										NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].default,
 										50,
 										DOMUtils.width(window),
 										void 0,
@@ -424,12 +410,8 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 									),
 									UISlider(
 										"高度",
-										NetDiskGlobalData.smallWindow[
-											"netdisk-ui-small-window-max-height"
-										].KEY,
-										NetDiskGlobalData.smallWindow[
-											"netdisk-ui-small-window-max-height"
-										].default,
+										NetDiskGlobalData.smallWindow["netdisk-ui-small-window-max-height"].KEY,
+										NetDiskGlobalData.smallWindow["netdisk-ui-small-window-max-height"].default,
 										50,
 										DOMUtils.height(window),
 										void 0,
@@ -437,9 +419,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 											return `${value}px`;
 										},
 										"设置小窗最大高度(px)，默认: " +
-											NetDiskGlobalData.smallWindow[
-												"netdisk-ui-small-window-max-height"
-											].default,
+											NetDiskGlobalData.smallWindow["netdisk-ui-small-window-max-height"].default,
 										1
 									),
 								],
@@ -450,15 +430,11 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 								forms: [
 									UIInput(
 										"z-index",
-										NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"]
-											.KEY,
-										NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"]
-											.default,
+										NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].KEY,
+										NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].default,
 										"值小于等于0则为动态获取z-index",
 										(event, value, valueAsNumber) => {
-											NetDiskGlobalData.smallWindow[
-												"netdisk-link-view-z-index"
-											].value = valueAsNumber!;
+											NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].value = valueAsNumber!;
 											return true;
 										},
 										"",
@@ -540,9 +516,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 								type: "forms",
 								text: "文本匹配范围",
 								forms: [
-									UISelectMultiple<
-										ArrayElementType<NetDiskWorkerOptions["matchTextRange"]>
-									>(
+									UISelectMultiple<ArrayElementType<NetDiskWorkerOptions["matchTextRange"]>>(
 										"匹配规则类型",
 										NetDiskGlobalData.match.pageMatchRange.KEY,
 										NetDiskGlobalData.match.pageMatchRange.default,
@@ -586,26 +560,22 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 									),
 									UISwitch(
 										"匹配input标签的内容",
-										NetDiskGlobalData.match.toBeMatchedWithInputElementValue
-											.KEY,
-										NetDiskGlobalData.match.toBeMatchedWithInputElementValue
-											.default,
+										NetDiskGlobalData.match.toBeMatchedWithInputElementValue.KEY,
+										NetDiskGlobalData.match.toBeMatchedWithInputElementValue.default,
 										void 0,
 										"提取页面中的<code>&lt;input&gt;</code>的内容进行匹配"
 									),
 									UISwitch(
 										"匹配textarea标签的内容",
 										NetDiskGlobalData.match.toBeMatchedTextAreaElementValue.KEY,
-										NetDiskGlobalData.match.toBeMatchedTextAreaElementValue
-											.default,
+										NetDiskGlobalData.match.toBeMatchedTextAreaElementValue.default,
 										void 0,
 										"提取页面中的<code>&lt;textarea&gt;</code>的内容进行匹配"
 									),
 									UISwitch(
 										"匹配网络请求的内容",
 										NetDiskGlobalData.match.toBeMatchedXhrHookResponseText.KEY,
-										NetDiskGlobalData.match.toBeMatchedXhrHookResponseText
-											.default,
+										NetDiskGlobalData.match.toBeMatchedXhrHookResponseText.default,
 										void 0,
 										"劫持xhr请求并对请求的内容进行匹配，注意：该功能可能会导致页面的部分功能异常，请谨慎使用"
 									),
@@ -638,17 +608,14 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 									UISwitch(
 										"观察器：childList",
 										NetDiskGlobalData.match["mutationObserver-childList"].KEY,
-										NetDiskGlobalData.match["mutationObserver-childList"]
-											.default,
+										NetDiskGlobalData.match["mutationObserver-childList"].default,
 										void 0,
 										"子节点的变动（新增、删除或者更改）"
 									),
 									UISwitch(
 										"观察器：characterData",
-										NetDiskGlobalData.match["mutationObserver-characterData"]
-											.KEY,
-										NetDiskGlobalData.match["mutationObserver-characterData"]
-											.default,
+										NetDiskGlobalData.match["mutationObserver-characterData"].KEY,
+										NetDiskGlobalData.match["mutationObserver-characterData"].default,
 										void 0,
 										"节点内容或节点文本的变动"
 									),
@@ -673,12 +640,9 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 								forms: [
 									UISwitch(
 										"点击定位分享码",
-										NetDiskGlobalData.smallIconNavgiator[
-											"pops-netdisk-icon-click-event-find-sharecode"
-										].KEY,
-										NetDiskGlobalData.smallIconNavgiator[
-											"pops-netdisk-icon-click-event-find-sharecode"
-										].default,
+										NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].KEY,
+										NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"]
+											.default,
 										void 0,
 										"自动滚动页面至包含分享码的元素"
 									),
@@ -695,12 +659,10 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 									),
 									UISwitch(
 										"循环定位",
-										NetDiskGlobalData.smallIconNavgiator[
-											"pops-netdisk-icon-click-event-loop-find-sharecode"
-										].KEY,
-										NetDiskGlobalData.smallIconNavgiator[
-											"pops-netdisk-icon-click-event-loop-find-sharecode"
-										].default,
+										NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"]
+											.KEY,
+										NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"]
+											.default,
 										void 0,
 										"关闭则是每一个元素只定位一次"
 									),
@@ -726,23 +688,15 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 									),
 									UISwitch(
 										"合并相同链接",
-										NetDiskGlobalData.historyMatch[
-											"netdisk-history-match-merge-same-link"
-										].KEY,
-										NetDiskGlobalData.historyMatch[
-											"netdisk-history-match-merge-same-link"
-										].default,
+										NetDiskGlobalData.historyMatch["netdisk-history-match-merge-same-link"].KEY,
+										NetDiskGlobalData.historyMatch["netdisk-history-match-merge-same-link"].default,
 										void 0,
 										"将合并匹配到的相同链接，并更新它最后一次匹配到的更新时间、网址信息"
 									),
 									UISelect(
 										"排序规则",
-										NetDiskGlobalData.historyMatch[
-											"netdisk-history-match-ordering-rule"
-										].KEY,
-										NetDiskGlobalData.historyMatch[
-											"netdisk-history-match-ordering-rule"
-										].default,
+										NetDiskGlobalData.historyMatch["netdisk-history-match-ordering-rule"].KEY,
+										NetDiskGlobalData.historyMatch["netdisk-history-match-ordering-rule"].default,
 										[
 											{
 												value: "按 记录时间 - 升序",
@@ -778,9 +732,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 												if (repairCount === 0) {
 													Qmsg.info(`不存在需要修复的数据`);
 												} else {
-													Qmsg.success(
-														`共计: ${count} 条，修复${repairCount}条`
-													);
+													Qmsg.success(`共计: ${count} 条，修复${repairCount}条`);
 												}
 											} catch (error: any) {
 												Qmsg.error("修复异常：" + error.toString());
@@ -803,17 +755,14 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 									UISwitch(
 										"排除分享码",
 										NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.KEY,
-										NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes
-											.default,
+										NetDiskGlobalData.shareCode.excludeIdenticalSharedCodes.default,
 										void 0,
 										"启用后会根据【相同系数】排除掉匹配到的分享码"
 									),
 									UISlider(
 										"相同系数",
-										NetDiskGlobalData.shareCode
-											.excludeIdenticalSharedCodesCoefficient.KEY,
-										NetDiskGlobalData.shareCode
-											.excludeIdenticalSharedCodesCoefficient.default,
+										NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient.KEY,
+										NetDiskGlobalData.shareCode.excludeIdenticalSharedCodesCoefficient.default,
 										0,
 										1,
 										void 0,
@@ -838,10 +787,8 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
 								forms: [
 									UISwitch(
 										"允许查询历史匹配记录",
-										NetDiskGlobalData.accessCode
-											.allowQueryHistoryMatchingAccessCode.KEY,
-										NetDiskGlobalData.accessCode
-											.allowQueryHistoryMatchingAccessCode.default,
+										NetDiskGlobalData.accessCode.allowQueryHistoryMatchingAccessCode.KEY,
+										NetDiskGlobalData.accessCode.allowQueryHistoryMatchingAccessCode.default,
 										void 0,
 										"当访问码为空时，访问码将从历史匹配记录中查询，优先级：页面匹配 < 历史匹配记录 < 网站规则 < 黑名单"
 									),

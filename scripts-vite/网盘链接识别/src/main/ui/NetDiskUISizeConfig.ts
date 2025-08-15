@@ -72,19 +72,13 @@ export const NetDiskUISizeConfig = {
 	mainViewSmallWindow: {
 		PC: {
 			get width() {
-				return (
-					NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].value +
-					"px"
-				);
+				return NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].value + "px";
 			},
 			height: "auto",
 		},
 		Mobile: {
 			get width() {
-				return (
-					NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].value +
-					"px"
-				);
+				return NetDiskGlobalData.smallWindow["netdisk-ui-small-window-width"].value + "px";
 			},
 			height: "auto",
 		},

@@ -6,11 +6,7 @@ import { WebsiteRule } from "./WebsiteRule";
  * @param value 全局获取的值，该值已经进行过默认值判空处理，需要的话直接返回它就行
  * @param defaultValue 默认值
  */
-export const WebsiteProxyGlobalValue = <T>(
-	key: string,
-	value: T,
-	defaultValue: T
-): T => {
+export const WebsiteProxyGlobalValue = <T>(key: string, value: T, defaultValue: T): T => {
 	// 注意：这里不能用this，因为会被修改指向
 	if (WebsiteRule.$data.isShowEditView) {
 		// 当前是添加|修改规则界面，直接获取全局默认的值

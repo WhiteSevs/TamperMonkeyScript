@@ -19,18 +19,12 @@ export const NetDiskWorkerUtils = {
 		function queryShadowRoot($ele: Element | ShadowRoot) {
 			let $queryChildNodeList = Array.from($ele.querySelectorAll("*"));
 			$queryChildNodeList.forEach(($childNode) => {
-				if (
-					$childNode.classList &&
-					$childNode.classList.contains("pops-shadow-container")
-				) {
+				if ($childNode.classList && $childNode.classList.contains("pops-shadow-container")) {
 					// 忽略pops库的ShadowRoot
 					return;
 				}
 				let $childNodeShadowRoot = $childNode.shadowRoot;
-				if (
-					$childNodeShadowRoot &&
-					$childNodeShadowRoot instanceof ShadowRoot
-				) {
+				if ($childNodeShadowRoot && $childNodeShadowRoot instanceof ShadowRoot) {
 					// 存在ShadowRoot
 					// 添加ShadowRoot节点和子节点信息
 					result.push({
@@ -78,10 +72,7 @@ export const NetDiskWorkerUtils = {
 	 * @param target 目标元素
 	 * @param isCheckShadowRoot 是否检索ShadowRoot
 	 */
-	getPageText(
-		target: HTMLElement = document.documentElement,
-		isCheckShadowRoot: boolean
-	): string[] {
+	getPageText(target: HTMLElement = document.documentElement, isCheckShadowRoot: boolean): string[] {
 		let strList: string[] = [];
 		// 先把页面的内容添加进去
 		strList.push(target?.textContent || target?.innerText || "");
@@ -107,10 +98,7 @@ export const NetDiskWorkerUtils = {
 	 * @param target 目标元素
 	 * @param isCheckShadowRoot 是否检索ShadowRoot
 	 */
-	getPageHTML(
-		target: HTMLElement = document.documentElement,
-		isCheckShadowRoot: boolean
-	): string[] {
+	getPageHTML(target: HTMLElement = document.documentElement, isCheckShadowRoot: boolean): string[] {
 		let strList: string[] = [];
 		// 先把页面的超文本内容添加进去
 		strList.push(target.innerHTML);
@@ -136,10 +124,7 @@ export const NetDiskWorkerUtils = {
 	 * @param target 目标元素
 	 * @param isCheckShadowRoot 是否检索ShadowRoot
 	 */
-	getInputElementValue(
-		target: HTMLElement = document.documentElement,
-		isCheckShadowRoot: boolean
-	): string[] {
+	getInputElementValue(target: HTMLElement = document.documentElement, isCheckShadowRoot: boolean): string[] {
 		let result: string[] = [];
 
 		Array.from(target.querySelectorAll("input")).forEach(($input) => {
@@ -152,11 +137,7 @@ export const NetDiskWorkerUtils = {
 			if (queryShadowRootAllNodeInfo.length) {
 				// 遍历ShadowRoot并把textContent添加进去
 				queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
-					for (
-						let index = 0;
-						index < queryShadowRootInfo.childNode.length;
-						index++
-					) {
+					for (let index = 0; index < queryShadowRootInfo.childNode.length; index++) {
 						const $childNode = queryShadowRootInfo.childNode[index];
 						if ($childNode instanceof HTMLInputElement && $childNode.value) {
 							result.push($childNode.value);
@@ -188,11 +169,7 @@ export const NetDiskWorkerUtils = {
 			if (queryShadowRootAllNodeInfo.length) {
 				// 遍历ShadowRoot并把textContent添加进去
 				queryShadowRootAllNodeInfo.forEach((queryShadowRootInfo) => {
-					for (
-						let index = 0;
-						index < queryShadowRootInfo.childNode.length;
-						index++
-					) {
+					for (let index = 0; index < queryShadowRootInfo.childNode.length; index++) {
 						const $childNode = queryShadowRootInfo.childNode[index];
 						if ($childNode instanceof HTMLTextAreaElement && $childNode.value) {
 							result.push($childNode.value);

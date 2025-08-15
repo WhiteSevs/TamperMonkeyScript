@@ -26,9 +26,8 @@ export const NetDiskMatchPasteText = {
 						text: "识别",
 						callback() {
 							let inputText =
-								popsConfirm.popsElement?.querySelector<HTMLInputElement>(
-									".netdisk-match-paste-text"
-								)?.value || "";
+								popsConfirm.popsElement?.querySelector<HTMLInputElement>(".netdisk-match-paste-text")
+									?.value || "";
 							if (inputText.trim() !== "") {
 								/* 删除掉中文 */
 								inputText = NetDiskRuleUtils.replaceChinese(inputText);
@@ -56,9 +55,7 @@ export const NetDiskMatchPasteText = {
 			},
 			NetDiskUI.popsStyle.matchPasteTextView
 		);
-		popsConfirm.popsElement
-			.querySelector<HTMLTextAreaElement>("textarea")!
-			.focus();
+		popsConfirm.popsElement.querySelector<HTMLTextAreaElement>("textarea")!.focus();
 	},
 	/**
 	 * Worker匹配完毕后执行的回调函数
@@ -66,9 +63,7 @@ export const NetDiskMatchPasteText = {
 	 */
 	workerMatchEndCallBack(data: NetDiskWorkerCallBackOptions) {
 		if (data.data.length) {
-			Qmsg.success(
-				`成功匹配${data.data.length}个，用时${Date.now() - data.startTime}ms`
-			);
+			Qmsg.success(`成功匹配${data.data.length}个，用时${Date.now() - data.startTime}ms`);
 		} else {
 			Qmsg.error("未识别到链接");
 		}

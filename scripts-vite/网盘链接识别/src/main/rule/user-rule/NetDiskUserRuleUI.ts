@@ -129,8 +129,7 @@ export const NetDiskUserRuleUI = {
 			},
 			NetDiskUI.popsStyle.customRulesView
 		);
-		$ruleInput =
-			dialog.$shadowRoot.querySelector<HTMLTextAreaElement>("textarea")!;
+		$ruleInput = dialog.$shadowRoot.querySelector<HTMLTextAreaElement>("textarea")!;
 		let rule;
 		if (isEdit) {
 			rule = NetDiskUserRule.getRule(ruleKey!)!;
@@ -167,10 +166,7 @@ export const NetDiskUserRuleUI = {
 			let parseRuleResult = NetDiskUserRule.parseRuleStrToRule(ruleText);
 			if (parseRuleResult.success) {
 				let userRule = parseRuleResult.data!;
-				let flag = NetDiskUserRuleSubscribeRule.updateSubscribeRule(
-					subscribeUUID,
-					userRule
-				);
+				let flag = NetDiskUserRuleSubscribeRule.updateSubscribeRule(subscribeUUID, userRule);
 				if (flag) {
 					Qmsg.success("更新成功");
 				} else {
@@ -254,13 +250,9 @@ export const NetDiskUserRuleUI = {
 			},
 			NetDiskUI.popsStyle.customRulesView
 		);
-		$ruleInput =
-			dialog.$shadowRoot.querySelector<HTMLTextAreaElement>("textarea")!;
+		$ruleInput = dialog.$shadowRoot.querySelector<HTMLTextAreaElement>("textarea")!;
 		let rule;
-		rule = NetDiskUserRuleSubscribeRule.getSubscribeRule(
-			subscribeUUID,
-			ruleKey!
-		)!;
+		rule = NetDiskUserRuleSubscribeRule.getSubscribeRule(subscribeUUID, ruleKey!)!;
 		$ruleInput.value = NetDiskUserRule.getFormatRule(rule);
 	},
 };

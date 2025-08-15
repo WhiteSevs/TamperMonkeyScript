@@ -3,21 +3,22 @@ import { NetDiskPops } from "../pops/NetDiskPops";
 import { NetDiskUI } from "../ui/NetDiskUI";
 import { DOMUtils, log, pops, utils } from "@/env";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
-import { NetDiskCheckLinkValidity } from "../check-valid/NetDiskCheckLinkValidity";
+import {
+	NetDiskCheckLinkValidity,
+	type NetDiskCheckLinkValidityInfoConfig,
+} from "../check-valid/NetDiskCheckLinkValidity";
 import {
 	PopsRightClickMenuDataDetails,
 	PopsRightClickMenuDetails,
 } from "@whitesev/pops/dist/types/src/components/rightClickMenu/types/index";
 import Qmsg from "qmsg";
 import { NetDiskSuspensionConfig } from "./suspension/NetDiskSuspensionView";
-import {
-	NetDiskLinkClickMode,
-	NetDiskLinkClickModeUtils,
-} from "@/main/link-click-mode/NetDiskLinkClickMode";
+import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
 import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import indexCSS from "./index.css?raw";
 import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 import { NetDiskFilterScheme } from "../scheme/NetDiskFilterScheme";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 /**
  * 传递给生成需要的网盘参数数据
@@ -89,10 +90,7 @@ export const NetDiskView = {
 	createView() {
 		const NetDiskViewConfig = {
 			view: {
-				"netdisl-small-window-shrink-status": GenerateData(
-					"netdisl-small-window-shrink-status",
-					false
-				),
+				"netdisl-small-window-shrink-status": GenerateData("netdisl-small-window-shrink-status", false),
 				"netdisk-ui-small-window-position": GenerateData<{
 					left: number;
 					top: number;
@@ -100,11 +98,7 @@ export const NetDiskView = {
 			},
 		};
 		const boxAllHTML = /*html*/ `<div class="netdisk-url-box-all"></div>`;
-		if (
-			NetDiskGlobalData.features["netdisk-behavior-mode"].value
-				.toLowerCase()
-				.includes("smallwindow")
-		) {
+		if (NetDiskGlobalData.features["netdisk-behavior-mode"].value.toLowerCase().includes("smallwindow")) {
 			// 小窗
 			NetDiskUI.Alias.uiLinkAlias = NetDiskPops.alert(
 				{
@@ -127,8 +121,7 @@ export const NetDiskView = {
 										.toLowerCase()
 										.includes("suspension")
 								) {
-									NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value =
-										"suspension";
+									NetDiskSuspensionConfig.mode.current_suspension_smallwindow_mode.value = "suspension";
 									detail.hide();
 									NetDiskUI.suspension.init();
 								} else {
@@ -145,14 +138,9 @@ export const NetDiskView = {
 					// @ts-ignore
 					animation: "",
 					beforeAppendToPageCallBack($shadowRoot, $shadowContainer) {
-						let $headerControl = $shadowRoot.querySelector<HTMLElement>(
-							".pops-header-control"
-						)!;
-						let $title =
-							$shadowRoot.querySelector<HTMLElement>(".pops-alert-title")!;
-						let $content = $shadowRoot.querySelector<HTMLElement>(
-							".pops-alert-content"
-						)!;
+						let $headerControl = $shadowRoot.querySelector<HTMLElement>(".pops-header-control")!;
+						let $title = $shadowRoot.querySelector<HTMLElement>(".pops-alert-title")!;
+						let $content = $shadowRoot.querySelector<HTMLElement>(".pops-alert-content")!;
 						/* 展开 */
 						let launchIcon = DOMUtils.createElement(
 							"button",
@@ -204,9 +192,7 @@ export const NetDiskView = {
 								DOMUtils.removeClass(shrinkIcon, "pops-hide-important");
 								DOMUtils.removeClass($title, "pops-no-border-important");
 								DOMUtils.removeClass($content, "pops-hide-important");
-								NetDiskViewConfig.view[
-									"netdisl-small-window-shrink-status"
-								].value = false;
+								NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = false;
 							},
 							{
 								capture: true,
@@ -221,17 +207,13 @@ export const NetDiskView = {
 								DOMUtils.addClass(shrinkIcon, "pops-hide-important");
 								DOMUtils.addClass($title, "pops-no-border-important");
 								DOMUtils.addClass($content, "pops-hide-important");
-								NetDiskViewConfig.view[
-									"netdisl-small-window-shrink-status"
-								].value = true;
+								NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value = true;
 							},
 							{
 								capture: true,
 							}
 						);
-						if (
-							NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value
-						) {
+						if (NetDiskViewConfig.view["netdisl-small-window-shrink-status"].value) {
 							shrinkIcon.click();
 						} else {
 							launchIcon.click();
@@ -286,16 +268,14 @@ export const NetDiskView = {
 				NetDiskUI.popsStyle.mainViewSmallWindow
 			);
 
-			let smallWindowPosition =
-				NetDiskViewConfig.view["netdisk-ui-small-window-position"].value;
+			let smallWindowPosition = NetDiskViewConfig.view["netdisk-ui-small-window-position"].value;
 			let popsElement = NetDiskUI.Alias.uiLinkAlias.popsElement;
 			if (smallWindowPosition) {
 				let viewWidth = DOMUtils.width(popsElement, true);
 				let viewHeight = DOMUtils.height(popsElement, true);
 				let maxWindowLeft = DOMUtils.width(window);
 				let maxWindowTop = DOMUtils.height(window);
-				const { transformLeft, transformTop } =
-					DOMUtils.getTransform(popsElement);
+				const { transformLeft, transformTop } = DOMUtils.getTransform(popsElement);
 				/* 最大的left偏移*/
 				let maxLeft = maxWindowLeft - viewWidth + transformLeft;
 				/* 最大的top偏移 */
@@ -370,10 +350,9 @@ export const NetDiskView = {
 			);
 		}
 		let $urlBoxAll =
-			NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector<HTMLElement>(
-				".netdisk-url-box-all"
-			)!;
+			NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector<HTMLElement>(".netdisk-url-box-all")!;
 
+		let checkInfoList: NetDiskCheckLinkValidityInfoConfig[] = [];
 		// 把匹配到的添加到视图中
 		NetDiskUI.isMatchedNetDiskIconMap.forEach((ruleKeyName) => {
 			let netDiskDict = NetDisk.$match.matchedInfo.get(ruleKeyName);
@@ -381,10 +360,10 @@ export const NetDiskView = {
 			netDiskDict.forEach((netDiskData, shareCode) => {
 				let uiLink = NetDisk.handleLinkShow({
 					ruleKeyName: ruleKeyName,
-					ruleIndex: netDiskData["ruleIndex"]!,
+					ruleIndex: netDiskData.ruleIndex!,
 					shareCode: shareCode,
-					accessCode: netDiskData["accessCode"],
-					matchText: netDiskData["matchText"],
+					accessCode: netDiskData.accessCode,
+					matchText: netDiskData.matchText,
 					showToast: false,
 				});
 				if (!uiLink) {
@@ -398,66 +377,40 @@ export const NetDiskView = {
 					netDiskData["accessCode"],
 					uiLink
 				);
-				documentFragment.appendChild(boxViewInfo.$viewBox);
+				checkInfoList.push({
+					$urlBox: boxViewInfo.$urlBox,
+					ruleKeyName,
+					ruleIndex: netDiskData.ruleIndex!,
+					shareCode,
+					accessCode: netDiskData.accessCode,
+				});
+				documentFragment.appendChild(boxViewInfo.$urlBox);
 			});
 			$urlBoxAll.appendChild(documentFragment);
 		});
 		// 链接视图的z-index
-		let netDiskLinkViewZIndex =
-			NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].value;
+		let netDiskLinkViewZIndex = NetDiskGlobalData.smallWindow["netdisk-link-view-z-index"].value;
 		if (netDiskLinkViewZIndex > 0) {
 			DOMUtils.css(NetDiskUI.Alias.uiLinkAlias.popsElement, {
 				"z-index": netDiskLinkViewZIndex,
 			});
 		}
-		NetDiskUI.Alias.uiLinkAlias.popsElement
-			.querySelectorAll<HTMLElement>(".netdisk-url-box-all .netdisk-url-box")
-			.forEach(($netDiskBox) => {
-				// 网盘链接验证
-				let ruleKeyName = $netDiskBox
-					.querySelector<HTMLElement>(".netdisk-link")!
-					.getAttribute("data-rule-key")!;
-				let ruleIndex = parseInt(
-					$netDiskBox
-						.querySelector<HTMLElement>(".netdisk-link")!
-						.getAttribute("data-rule-index")!
-				);
-				let shareCode = $netDiskBox
-					.querySelector<HTMLElement>(".netdisk-link")!
-					.getAttribute("data-sharecode")!;
-				let accessCode = $netDiskBox
-					.querySelector<HTMLElement>(".netdisk-link")!
-					.getAttribute("data-accesscode")!;
-				NetDiskCheckLinkValidity.check(
-					$netDiskBox,
-					ruleKeyName,
-					ruleIndex,
-					shareCode,
-					accessCode
-				);
-			});
+		// 网盘链接验证
+		NetDiskCheckLinkValidity.check(checkInfoList);
 	},
 	/**
 	 * 初始化事件（在创建视图后）
 	 */
 	initViewEvent() {
 		// 注册右键菜单
-		NetDiskUI.setRightClickMenu(
-			NetDiskUI.Alias.uiLinkAlias.$shadowRoot,
-			".whitesevPop .netdisk-url a"
-		);
+		NetDiskUI.setRightClickMenu(NetDiskUI.Alias.uiLinkAlias.$shadowRoot, ".whitesevPop .netdisk-url a");
 		// 注册网盘图标的点击事件
 		this.registerIconGotoPagePosition(NetDiskUI.Alias.uiLinkAlias.$shadowRoot);
 		// 注册网盘链接点击事件
-		this.setNetDiskUrlClickEvent(
-			NetDiskUI.Alias.uiLinkAlias.$shadowRoot,
-			".netdisk-url a"
-		);
+		this.setNetDiskUrlClickEvent(NetDiskUI.Alias.uiLinkAlias.$shadowRoot, ".netdisk-url a");
 		// 注册网盘链接弹窗视图的标题的右键菜单事件
 		NetDiskUI.setGlobalRightClickMenu(
-			NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector<HTMLElement>(
-				".pops .pops-alert-title > p"
-			)!
+			NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector<HTMLElement>(".pops .pops-alert-title > p")!
 		);
 	},
 	/**
@@ -474,27 +427,6 @@ export const NetDiskView = {
 			/** 访问码 */
 			"data-accesscode": data.accessCode,
 		};
-	},
-	/**
-	 * 创建在元素属性上的attribute的数据
-	 * @param data 数据
-	 * @param $ele 需要处理的元素
-	 */
-	handleElementAttributeRuleInfo(
-		data: NetDiskElementRuleData,
-		$ele: HTMLElement | HTMLElement[]
-	) {
-		let ruleInfoJSON = this.createElementAttributeRuleInfoJSON(data);
-		for (const key in ruleInfoJSON) {
-			const value = ruleInfoJSON[key as keyof typeof ruleInfoJSON]!;
-			if (Array.isArray($ele)) {
-				$ele.forEach(($ele) => {
-					$ele.setAttribute(key, value.toString());
-				});
-			} else {
-				$ele.setAttribute(key, value.toString());
-			}
-		}
 	},
 	/**
 	 * 解析创建在元素属性上的attribute的数据
@@ -514,6 +446,24 @@ export const NetDiskView = {
 		return result;
 	},
 	/**
+	 * 创建在元素属性上的attribute的数据
+	 * @param data 数据
+	 * @param $ele 需要处理的元素
+	 */
+	handleElementAttributeRuleInfo(data: NetDiskElementRuleData, $ele: HTMLElement | HTMLElement[]) {
+		let ruleInfoJSON = this.createElementAttributeRuleInfoJSON(data);
+		for (const key in ruleInfoJSON) {
+			const value = ruleInfoJSON[key as keyof typeof ruleInfoJSON]!;
+			if (Array.isArray($ele)) {
+				$ele.forEach(($ele) => {
+					$ele.setAttribute(key, value.toString());
+				});
+			} else {
+				$ele.setAttribute(key, value.toString());
+			}
+		}
+	},
+	/**
 	 * 创建每一项的网盘元素信息
 	 * @param ruleImgSrc 规则图标src
 	 * @param ruleKeyName 规则键名
@@ -530,17 +480,14 @@ export const NetDiskView = {
 		accessCode: AccessCodeType,
 		uiLinkText: string
 	) {
-		let $viewBox = DOMUtils.createElement("div", {
+		let $urlBox = DOMUtils.createElement("div", {
 			className: "netdisk-url-box",
 			innerHTML: /*html*/ `
 			<div class="netdisk-url-div">
                 <div class="netdisk-icon">
-                    <div class="netdisk-icon-img">
-                    </div>
+                    <div class="netdisk-icon-img"></div>
                 </div>
-                <div class="netdisk-status">
-
-                </div>
+                <div class="netdisk-status"></div>
                 <div class="netdisk-url">
                     <a  class="netdisk-link" href="javascript:;" isvisited="false"></a>
                 </div>
@@ -548,7 +495,7 @@ export const NetDiskView = {
 			`,
 		});
 		const { $urlDiv, $icon, $iconImg, $checkValidStatus, $url, $link } =
-			this.parseViewBoxElementInfo($viewBox);
+			this.parseViewBoxElementInfo($urlBox);
 		// 设置网盘图标（设置为背景图片）
 		$iconImg.style.cssText = `background: url(${ruleImgSrc}) no-repeat;background-size: 100%;`;
 		// 设置显示的网盘链接
@@ -566,12 +513,9 @@ export const NetDiskView = {
 		);
 		// 触发规则的渲染函数
 		NetDisk.$rule.rule.forEach((ruleConfig) => {
-			if (
-				ruleConfig.setting.key === ruleKeyName &&
-				typeof ruleConfig.afterRenderUrlBox === "function"
-			) {
+			if (ruleConfig.setting.key === ruleKeyName && typeof ruleConfig.afterRenderUrlBox === "function") {
 				ruleConfig.afterRenderUrlBox({
-					$viewBox,
+					$viewBox: $urlBox,
 					$urlDiv,
 					$url,
 					$link,
@@ -583,7 +527,7 @@ export const NetDiskView = {
 			}
 		});
 		return {
-			$viewBox,
+			$urlBox,
 			$urlDiv,
 			$icon,
 			$iconImg,
@@ -604,8 +548,7 @@ export const NetDiskView = {
 		let $icon = $urlBox.querySelector<HTMLDivElement>(".netdisk-icon")!;
 		let $iconImg = $urlBox.querySelector<HTMLDivElement>(".netdisk-icon-img")!;
 		/** 校验有效性 */
-		let $checkValidStatus =
-			$urlBox.querySelector<HTMLDivElement>(".netdisk-status")!;
+		let $checkValidStatus = $urlBox.querySelector<HTMLDivElement>(".netdisk-status")!;
 		let $url = $urlBox.querySelector<HTMLDivElement>(".netdisk-url")!;
 		let $link = $urlBox.querySelector<HTMLDivElement>(".netdisk-link")!;
 		return {
@@ -625,10 +568,7 @@ export const NetDiskView = {
 	 * @param $el 监听的元素
 	 * @param childSelector 子元素选择器
 	 */
-	setNetDiskUrlClickEvent(
-		$el: HTMLElement | ShadowRoot,
-		childSelector: string
-	) {
+	setNetDiskUrlClickEvent($el: HTMLElement | ShadowRoot, childSelector: string) {
 		// 点击事件
 		DOMUtils.on($el, "click", childSelector, (event) => {
 			let $click = event.target as HTMLElement;
@@ -653,36 +593,31 @@ export const NetDiskView = {
 			}
 		});
 		// 鼠标中键的点击事件
-		DOMUtils.on<PointerEvent>(
-			$el,
-			"auxclick",
-			childSelector,
-			(event, $click) => {
-				if (event.button !== 1) {
-					// 1是鼠标中键
-					// 2是鼠标右键
-					return;
-				}
-				utils.preventEvent(event);
-				$click.setAttribute("isvisited", "true");
-				// 解析数据
-				const data = NetDiskView.praseElementAttributeRuleInfo($click);
-				let url = NetDiskLinkClickModeUtils.getBlankUrl({
-					ruleKeyName: data.ruleKeyName,
-					ruleIndex: data.ruleIndex,
-					shareCode: data.shareCode,
-					accessCode: data.accessCode,
-				});
-				NetDiskLinkClickMode.openBlankUrl(
-					url,
-					data.ruleKeyName,
-					data.ruleIndex,
-					data.shareCode,
-					data.accessCode,
-					true
-				);
+		DOMUtils.on<PointerEvent>($el, "auxclick", childSelector, (event, $click) => {
+			if (event.button !== 1) {
+				// 1是鼠标中键
+				// 2是鼠标右键
+				return;
 			}
-		);
+			utils.preventEvent(event);
+			$click.setAttribute("isvisited", "true");
+			// 解析数据
+			const data = NetDiskView.praseElementAttributeRuleInfo($click);
+			let url = NetDiskLinkClickModeUtils.getBlankUrl({
+				ruleKeyName: data.ruleKeyName,
+				ruleIndex: data.ruleIndex,
+				shareCode: data.shareCode,
+				accessCode: data.accessCode,
+			});
+			NetDiskLinkClickMode.openBlankUrl(
+				url,
+				data.ruleKeyName,
+				data.ruleIndex,
+				data.shareCode,
+				data.accessCode,
+				true
+			);
+		});
 	},
 	/**
 	 * 网盘链接点击事件
@@ -697,17 +632,13 @@ export const NetDiskView = {
 	}) {
 		const { ruleKeyName, ruleIndex, shareCode, accessCode } = option.data;
 		// 获取对应的点击动作
-		let linkClickMode =
-			option.clickMode ??
-			NetDiskRuleData.function.linkClickMode(option.data.ruleKeyName);
+		let linkClickMode = option.clickMode ?? NetDiskRuleData.function.linkClickMode(option.data.ruleKeyName);
 		/** 关闭弹窗 */
 		let closePopup = () => {
 			if (option.$click) {
 				let $pops = option.$click.closest<HTMLElement>(".pops");
 				if ($pops) {
-					let $close = $pops.querySelector<HTMLElement>(
-						'.pops-header-control[type="close"]'
-					);
+					let $close = $pops.querySelector<HTMLElement>('.pops-header-control[type="close"]');
 					$close && $close.click();
 				}
 			}
@@ -719,10 +650,7 @@ export const NetDiskView = {
 				// 关闭弹窗
 				closePopup();
 			}
-		} else if (
-			linkClickMode === "openBlank" ||
-			linkClickMode === "openBlank-closePopup"
-		) {
+		} else if (linkClickMode === "openBlank" || linkClickMode === "openBlank-closePopup") {
 			// 新页打开
 			let url = NetDiskLinkClickModeUtils.getBlankUrl({
 				ruleKeyName,
@@ -731,41 +659,21 @@ export const NetDiskView = {
 				accessCode,
 			});
 			// 判断scheme转发新标签页链接是否开启
-			let isForwardBlankUrl =
-				NetDiskFilterScheme.isForwardBlankLink(ruleKeyName);
+			let isForwardBlankUrl = NetDiskFilterScheme.isForwardBlankLink(ruleKeyName);
 			if (isForwardBlankUrl) {
 				// 用scheme处理的进行新标签打开
-				NetDiskLinkClickMode.openBlankWithScheme(
-					ruleKeyName,
-					ruleIndex,
-					shareCode,
-					accessCode
-				);
+				NetDiskLinkClickMode.openBlankWithScheme(ruleKeyName, ruleIndex, shareCode, accessCode);
 			} else {
 				// 否则用原链接打开
-				NetDiskLinkClickMode.openBlankUrl(
-					url,
-					ruleKeyName,
-					ruleIndex,
-					shareCode,
-					accessCode
-				);
+				NetDiskLinkClickMode.openBlankUrl(url, ruleKeyName, ruleIndex, shareCode, accessCode);
 			}
 			if (linkClickMode === "openBlank-closePopup") {
 				// 关闭弹窗
 				closePopup();
 			}
-		} else if (
-			linkClickMode === "parseFile" ||
-			linkClickMode === "parseFile-closePopup"
-		) {
+		} else if (linkClickMode === "parseFile" || linkClickMode === "parseFile-closePopup") {
 			// 文件解析
-			NetDiskLinkClickMode.parseFile(
-				ruleKeyName,
-				ruleIndex,
-				shareCode,
-				accessCode
-			).then(() => {
+			NetDiskLinkClickMode.parseFile(ruleKeyName, ruleIndex, shareCode, accessCode).then(() => {
 				if (linkClickMode === "parseFile-closePopup") {
 					// 关闭弹窗
 					closePopup();
@@ -826,14 +734,9 @@ export const NetDiskView = {
 		accessCode: AccessCodeType,
 		matchText: string
 	) {
-		NetDiskUI.netDiskHistoryMatch.changeMatchedData(
-			ruleKeyName,
-			ruleIndex,
-			shareCode,
-			accessCode,
-			matchText
-		);
+		NetDiskUI.netDiskHistoryMatch.changeMatchedData(ruleKeyName, ruleIndex, shareCode, accessCode, matchText);
 		if (!NetDiskUI.Alias.uiLinkAlias) {
+			// 还未创建视图，那就不添加元素
 			return;
 		}
 		log.info(ruleKeyName, ruleIndex, shareCode, accessCode);
@@ -846,6 +749,7 @@ export const NetDiskView = {
 			matchText,
 		});
 		if (!uiLink) {
+			// 不存在显示到页面中的链接
 			return;
 		}
 		let boxViewInfo = this.createViewBoxElementInfo(
@@ -856,23 +760,13 @@ export const NetDiskView = {
 			accessCode,
 			uiLink
 		);
-		/** box容器 */
-		let $urlBoxAll =
-			NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector<HTMLElement>(
-				".netdisk-url-box-all"
-			)!;
-		DOMUtils.append($urlBoxAll, boxViewInfo.$viewBox);
-		/* 按顺序来，最后一个 */
-		let $urlBox = $urlBoxAll.children[
-			$urlBoxAll.children.length - 1
-		] as HTMLElement;
-		NetDiskCheckLinkValidity.check(
-			$urlBox,
+		NetDiskCheckLinkValidity.check({
+			$urlBox: boxViewInfo.$urlBox,
 			ruleKeyName,
 			ruleIndex,
 			shareCode,
-			accessCode
-		);
+			accessCode,
+		});
 	},
 	/**
 	 * 修改已存在的view
@@ -889,14 +783,9 @@ export const NetDiskView = {
 		accessCode: AccessCodeType,
 		matchText: string
 	) {
-		NetDiskUI.netDiskHistoryMatch.changeMatchedData(
-			ruleKeyName,
-			ruleIndex,
-			shareCode,
-			accessCode,
-			matchText
-		);
+		NetDiskUI.netDiskHistoryMatch.changeMatchedData(ruleKeyName, ruleIndex, shareCode, accessCode, matchText);
 		if (!NetDiskUI.Alias.uiLinkAlias) {
+			// 还未创建视图，那就不修改元素
 			return;
 		}
 		let uiLink = NetDisk.handleLinkShow({
@@ -907,12 +796,12 @@ export const NetDiskView = {
 			matchText,
 		});
 		if (!uiLink) {
+			// 不存在显示到页面中的链接
 			return;
 		}
-		let needChangeDOM =
-			NetDiskUI.Alias.uiLinkAlias.popsElement.querySelector<HTMLElement>(
-				`.netdisk-url a[data-sharecode='${shareCode}'][data-rule-index='${ruleIndex}']`
-			)!;
+		let needChangeDOM = NetDiskUI.Alias.uiLinkAlias.popsElement.querySelector<HTMLElement>(
+			`.netdisk-url a[data-sharecode='${shareCode}'][data-rule-index='${ruleIndex}']`
+		)!;
 		log.info("修改网盘链接视图");
 		log.info(needChangeDOM);
 		needChangeDOM.setAttribute("data-accesscode", accessCode!);
@@ -921,14 +810,9 @@ export const NetDiskView = {
 	/**
 	 * 设置点击图标按钮导航至该网盘链接所在网页中位置
 	 */
-	registerIconGotoPagePosition(
-		targetElement: ShadowRoot | Document | HTMLElement
-	) {
-		let findGenerator:
-			| Generator<HTMLElement | ChildNode, void, any>
-			| undefined = void 0;
-		let iterator: IteratorResult<HTMLElement | ChildNode, void> | undefined =
-			void 0;
+	registerIconGotoPagePosition(targetElement: ShadowRoot | Document | HTMLElement) {
+		let findGenerator: Generator<HTMLElement | ChildNode, void, any> | undefined = void 0;
+		let iterator: IteratorResult<HTMLElement | ChildNode, void> | undefined = void 0;
 		/**
 		 * 上一个的shareCode
 		 */
@@ -937,14 +821,10 @@ export const NetDiskView = {
 			targetElement,
 			"click",
 			".whitesevPop .netdisk-icon .netdisk-icon-img",
-			function (event) {
-				let $click = event.target as HTMLElement;
+			function (event, selectorTarget) {
+				let $click = selectorTarget;
 				let dataSharecode = $click.getAttribute("data-sharecode")!;
-				if (
-					!NetDiskGlobalData.smallIconNavgiator[
-						"pops-netdisk-icon-click-event-find-sharecode"
-					].value
-				) {
+				if (!NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode"].value) {
 					return;
 				}
 				if (typeof dataSharecode !== "string") {
@@ -955,19 +835,14 @@ export const NetDiskView = {
 					prevSearchShareCode = dataSharecode;
 				} else if (prevSearchShareCode !== dataSharecode) {
 					/* 切换到另一个shareCode搜索 */
-					log.info(
-						`上一个搜索：${prevSearchShareCode}，切换至：${dataSharecode}`
-					);
+					log.info(`上一个搜索：${prevSearchShareCode}，切换至：${dataSharecode}`);
 					findGenerator = void 0;
 					iterator = void 0;
 					prevSearchShareCode = dataSharecode;
 				}
 				if (findGenerator == void 0) {
 					/* 未找到元素或者已迭代完毕 */
-					findGenerator = utils.findElementsWithText(
-						document.documentElement,
-						dataSharecode
-					);
+					findGenerator = utils.findElementsWithText(document.documentElement, dataSharecode);
 					iterator = findGenerator.next();
 				}
 				if (iterator?.value) {
@@ -984,28 +859,22 @@ export const NetDiskView = {
 							inline: "nearest",
 						});
 						if (
-							NetDiskGlobalData.smallIconNavgiator[
-								"pops-netdisk-icon-click-event-find-sharecode-with-select"
-							].value
+							NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"]
+								.value
 						) {
 							/* 开启功能 */
 							let elementText =
-								(iterator.value as HTMLElement).innerText ||
-								(iterator.value as HTMLElement).textContent!;
+								(iterator.value as HTMLElement).innerText || (iterator.value as HTMLElement).textContent!;
 							let childTextNode: ChildNode | undefined = void 0;
 							let startIndex: number | undefined = void 0;
 							let endIndex: number | undefined = void 0;
 							if (elementText.includes(dataSharecode)) {
 								/* 文字包含shareCode */
-								let textNodeList = Array.from(
-									(iterator.value as HTMLElement).childNodes
-								).filter((ele) => ele.nodeType === Node.TEXT_NODE);
+								let textNodeList = Array.from((iterator.value as HTMLElement).childNodes).filter(
+									(ele) => ele.nodeType === Node.TEXT_NODE
+								);
 								for (const textNode of textNodeList) {
-									if (
-										(textNode as HTMLElement)!.textContent!.includes(
-											dataSharecode
-										)
-									) {
+									if ((textNode as HTMLElement)!.textContent!.includes(dataSharecode)) {
 										childTextNode = textNode;
 										startIndex = textNode!.textContent!.indexOf(dataSharecode);
 										endIndex = startIndex + dataSharecode.length;
@@ -1014,12 +883,7 @@ export const NetDiskView = {
 								}
 							}
 							try {
-								utils.selectElementText(
-									iterator.value,
-									childTextNode!,
-									startIndex,
-									endIndex
-								);
+								utils.selectElementText(iterator.value, childTextNode!, startIndex, endIndex);
 							} catch (error) {
 								log.error(error);
 								utils.selectElementText(iterator.value as HTMLElement);
@@ -1031,22 +895,15 @@ export const NetDiskView = {
 					) {
 						/* #text元素且可见 */
 						if (
-							NetDiskGlobalData.smallIconNavgiator[
-								"pops-netdisk-icon-click-event-find-sharecode-with-select"
-							].value
+							NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-find-sharecode-with-select"]
+								.value
 						) {
-							let elementText =
-								iterator.value.textContent || iterator.value.nodeValue!;
+							let elementText = iterator.value.textContent || iterator.value.nodeValue!;
 							let childTextNode = iterator.value;
 							let startIndex = elementText.indexOf(dataSharecode);
 							let endIndex = startIndex + dataSharecode.length;
 							try {
-								utils.selectElementText(
-									iterator.value,
-									childTextNode,
-									startIndex,
-									endIndex
-								);
+								utils.selectElementText(iterator.value, childTextNode, startIndex, endIndex);
 							} catch (error) {
 								log.error(error);
 								utils.selectElementText(iterator.value.parentElement!);
@@ -1057,8 +914,7 @@ export const NetDiskView = {
 								let rect = range.getBoundingClientRect();
 								let scrollYOffset = globalThis.scrollY;
 								/* 居中定位 */
-								let position =
-									rect.top + scrollYOffset - globalThis.innerHeight / 2;
+								let position = rect.top + scrollYOffset - globalThis.innerHeight / 2;
 								globalThis.scrollTo({
 									behavior: "smooth",
 									top: position,
@@ -1077,8 +933,7 @@ export const NetDiskView = {
 								let rect = range.getBoundingClientRect();
 								let scrollYOffset = globalThis.scrollY;
 								/* 居中定位 */
-								let position =
-									rect.top + scrollYOffset - globalThis.innerHeight / 2;
+								let position = rect.top + scrollYOffset - globalThis.innerHeight / 2;
 								globalThis.scrollTo({
 									behavior: "smooth",
 									top: position,
@@ -1094,12 +949,15 @@ export const NetDiskView = {
 						}
 					} else {
 						log.error("无法定位该元素位置", iterator.value);
+						const tagName = (
+							iterator.value.nodeName ||
+							(iterator.value as HTMLElement).localName ||
+							(iterator.value as HTMLElement).tagName
+						).toLowerCase();
 						Qmsg.error(
-							`无法定位该元素位置，类型：<${(
-								iterator.value.nodeName ||
-								(iterator.value as HTMLElement).localName ||
-								(iterator.value as HTMLElement).tagName
-							).toLowerCase()}>`,
+							`无法定位该元素位置，类型：${CommonUtil.escapeHtml("<")}${tagName}${CommonUtil.escapeHtml(
+								">"
+							)}`,
 							{
 								isHTML: true,
 							}
@@ -1111,9 +969,7 @@ export const NetDiskView = {
 				if (iterator.done) {
 					/* 循环查找 */
 					if (
-						!NetDiskGlobalData.smallIconNavgiator[
-							"pops-netdisk-icon-click-event-loop-find-sharecode"
-						].value
+						!NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"].value
 					) {
 						Qmsg.info("已经定位至最后一个元素了");
 						return;

@@ -50,11 +50,9 @@ export const NetDiskLinearChainDialogView = {
 						fileSize: fileDetails.fileSize!,
 						fileType: fileDetails.fileType ?? "",
 						// @ts-ignore
-						createTime:
-							fileDetails.fileUploadTime! || fileDetails.fileLatestTime!,
+						createTime: fileDetails.fileUploadTime! || fileDetails.fileLatestTime!,
 						// @ts-ignore
-						latestTime:
-							fileDetails.fileLatestTime! || fileDetails.fileUploadTime!,
+						latestTime: fileDetails.fileLatestTime! || fileDetails.fileUploadTime!,
 						isFolder: false,
 						index: 0,
 						async clickEvent() {

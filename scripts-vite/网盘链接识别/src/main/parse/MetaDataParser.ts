@@ -22,15 +22,12 @@ export const MetaDataParser = {
 	 * 解析文件链接的元数据
 	 */
 	async parseFileMetaInfo(url: string) {
-		const response = await httpx.get(
-			"https://whatslink.info/api/v1/link?url=" + url,
-			{
-				headers: {
-					Referer: "https://whatslink.info/",
-				},
-				allowInterceptConfig: false,
-			}
-		);
+		const response = await httpx.get("https://whatslink.info/api/v1/link?url=" + url, {
+			headers: {
+				Referer: "https://whatslink.info/",
+			},
+			allowInterceptConfig: false,
+		});
 		let data = utils.toJSON<MetaInfo>(response.data.responseText);
 		if (!response.status) {
 			if (typeof data.error === "string" && data.error.trim() !== "") {

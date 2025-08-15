@@ -181,18 +181,10 @@ export const NetDiskUserRuleDebug = {
 			},
 			NetDiskUI.popsStyle.customRuleDebugView
 		);
-		this.$el.$select = dialog.$shadowRoot.querySelector<HTMLSelectElement>(
-			".custom-rule-select-regexp"
-		)!;
-		this.$el.$matchText = dialog.$shadowRoot.querySelector<HTMLTextAreaElement>(
-			".custom-rule-match-text"
-		)!;
-		this.$el.$log = dialog.$shadowRoot.querySelector<HTMLDivElement>(
-			".custom-rule-match-log-container"
-		)!;
-		this.$el.$button = dialog.$shadowRoot.querySelector<HTMLButtonElement>(
-			".custom-rule-run-match-button"
-		)!;
+		this.$el.$select = dialog.$shadowRoot.querySelector<HTMLSelectElement>(".custom-rule-select-regexp")!;
+		this.$el.$matchText = dialog.$shadowRoot.querySelector<HTMLTextAreaElement>(".custom-rule-match-text")!;
+		this.$el.$log = dialog.$shadowRoot.querySelector<HTMLDivElement>(".custom-rule-match-log-container")!;
+		this.$el.$button = dialog.$shadowRoot.querySelector<HTMLButtonElement>(".custom-rule-run-match-button")!;
 		regexp.forEach((regExpItem, index) => {
 			this.$el.$select.appendChild(
 				DOMUtils.createElement("option", {

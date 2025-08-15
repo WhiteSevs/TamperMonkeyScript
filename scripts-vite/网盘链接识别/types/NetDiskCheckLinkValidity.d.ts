@@ -40,11 +40,7 @@ declare interface NetDiskCheckLinkValidityStatusInstance {
 	 * @param checkInfo
 	 * @param msg 悬浮提示
 	 */
-	setView(
-		$el: HTMLElement,
-		checkInfo: NetDiskCheckLinkValidityOption,
-		msg?: string
-	): void;
+	setView($el: HTMLElement, checkInfo: NetDiskCheckLinkValidityOption, msg?: string): void;
 }
 /**
  * 有效性校验的入口传入参数配置

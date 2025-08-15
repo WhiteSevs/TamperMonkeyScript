@@ -1,7 +1,4 @@
-import {
-	RulePanelView,
-	type RulePanelOption,
-} from "@components/utils/RulePanelView";
+import { RulePanelView, type RulePanelOption } from "@components/utils/RulePanelView";
 import { WebsiteRule } from "./website-rule/WebsiteRule";
 import { CharacterMapping } from "./character-mapping/CharacterMapping";
 import { WebsiteSubscribeRule } from "./website-rule/WebsiteSubscribeRule";
@@ -40,9 +37,9 @@ export const NetDiskRuleManager = {
 			}
 			return it;
 		});
-		let rulePanelView = new RulePanelView<
-			NetDiskUserCustomRule | WebsiteRuleOption | CharacterMappingOption
-		>(option);
+		let rulePanelView = new RulePanelView<NetDiskUserCustomRule | WebsiteRuleOption | CharacterMappingOption>(
+			option
+		);
 		return rulePanelView;
 	},
 	/**

@@ -336,14 +336,14 @@ declare interface NetDiskUserCustomRule {
 	 *
 	 * `this`是`NetDiskUserCustomRuleContext`对象:
 	 *
-	 * `@returns`返回值必须是NetDiskCheckLinkValidity.status内的任意属性值
+	 * `@returns`返回值必须是NetDiskCheckLinkValidityStatus内的任意属性值
 	 * 其中包括
-	 * + this.NetDiskCheckLinkValidity.status.loading
-	 * + this.NetDiskCheckLinkValidity.status.success
-	 * + this.NetDiskCheckLinkValidity.status.error
-	 * + this.NetDiskCheckLinkValidity.status.failed
-	 * + this.NetDiskCheckLinkValidity.status.needAccessCode
-	 * + this.NetDiskCheckLinkValidity.status.unknown
+	 * + this.NetDiskCheckLinkValidityStatus.loading
+	 * + this.NetDiskCheckLinkValidityStatus.success
+	 * + this.NetDiskCheckLinkValidityStatus.error
+	 * + this.NetDiskCheckLinkValidityStatus.failed
+	 * + this.NetDiskCheckLinkValidityStatus.needAccessCode
+	 * + this.NetDiskCheckLinkValidityStatus.unknown
 	 * @example
 	 * let response = await this.httpx.get("https://.../...",{
 	 *     headers: {
@@ -353,24 +353,24 @@ declare interface NetDiskUserCustomRule {
 	 * });
 	 * if (!response.status && utils.isNull(response.data.responseText)) {
 	 *     // 校验失败
-	 *     return this.NetDiskCheckLinkValidity.status.failed;
+	 *     return this.NetDiskCheckLinkValidityStatus.failed;
 	 * }
 	 * let responseText = response.data.responseText;
 	 * if(responseText.includes("请输入访问码")){
 	 *      return {
-	 *          ...this.NetDiskCheckLinkValidity.status.needAccessCode,
+	 *          ...this.NetDiskCheckLinkValidityStatus.needAccessCode,
 	 *          data: response,
 	 *      }
 	 * }else if(responseText.includes("来晚啦") || responseText.includes("不存在")){
 	 *      return {
-	 *          ...this.NetDiskCheckLinkValidity.status.failed,
+	 *          ...this.NetDiskCheckLinkValidityStatus.failed,
 	 *          data: response,
 	 *          tipMsg: "文件不存在",
 	 *      };
 	 * }
 	 * // 未知情况
 	 * return {
-	 *     ...this.NetDiskCheckLinkValidity.status.unknown,
+	 *     ...NetDiskCheckLinkValidityStatus.unknown,
 	 *     data: response,
 	 * }
 	 */

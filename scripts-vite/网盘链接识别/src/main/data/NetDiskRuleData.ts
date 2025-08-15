@@ -13,10 +13,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 20
 		 */
 		before(key: string, defaultValue: number = 20) {
-			const panelData = GeneratePanelStorage(
-				NetDiskRuleDataKEY.matchRange_text.before(key),
-				defaultValue
-			);
+			const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_text.before(key), defaultValue);
 			return parseInt(panelData.value.toString());
 		},
 		/**
@@ -25,10 +22,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 10
 		 */
 		after(key: string, defaultValue: number = 10) {
-			const panelData = GeneratePanelStorage(
-				NetDiskRuleDataKEY.matchRange_text.after(key),
-				defaultValue
-			);
+			const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_text.after(key), defaultValue);
 			return parseInt(panelData.value.toString());
 		},
 	},
@@ -40,10 +34,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 100
 		 */
 		before(key: string, defaultValue: number = 100) {
-			const panelData = GeneratePanelStorage(
-				NetDiskRuleDataKEY.matchRange_html.before(key),
-				defaultValue
-			);
+			const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_html.before(key), defaultValue);
 			return parseInt(panelData.value.toString());
 		},
 		/**
@@ -52,10 +43,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue 默认值: 15
 		 */
 		after(key: string, defaultValue: number = 15) {
-			const panelData = GeneratePanelStorage(
-				NetDiskRuleDataKEY.matchRange_html.after(key),
-				defaultValue
-			);
+			const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.matchRange_html.after(key), defaultValue);
 			return parseInt(panelData.value.toString());
 		},
 	},
@@ -67,10 +55,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		enable(key: string, defaultValue: boolean = true) {
-			const panelData = GeneratePanelStorage(
-				NetDiskRuleDataKEY.function.enable(key),
-				defaultValue
-			);
+			const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.function.enable(key), defaultValue);
 			return Boolean(panelData.value);
 		},
 		/**
@@ -82,10 +67,7 @@ export const NetDiskRuleData = {
 			key: string,
 			defaultValue: NetDiskRuleSettingConfigurationInterface_linkClickMode = "copy"
 		) {
-			const panelData = GeneratePanelStorage(
-				NetDiskRuleDataKEY.function.linkClickMode(key),
-				defaultValue
-			);
+			const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.function.linkClickMode(key), defaultValue);
 			return panelData.value;
 		},
 		/**
@@ -133,9 +115,7 @@ export const NetDiskRuleData = {
 		 */
 		openBlankWithCopyAccessCode(key: string, defaultValue: boolean = false) {
 			const panelData = GeneratePanelStorage(
-				NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(
-					key
-				),
+				NetDiskRuleDataKEY.linkClickMode_openBlank.openBlankWithCopyAccessCode(key),
 				defaultValue
 			);
 			return Boolean(panelData.value);
@@ -148,10 +128,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		enable(key: string, defaultValue: boolean = false) {
-			const panelData = GeneratePanelStorage(
-				NetDiskRuleDataKEY.schemeUri.enable(key),
-				defaultValue
-			);
+			const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.schemeUri.enable(key), defaultValue);
 			return Boolean(panelData.value);
 		},
 		/**
@@ -184,10 +161,7 @@ export const NetDiskRuleData = {
 		 * @param defaultValue
 		 */
 		uri(key: string, defaultValue: string = "") {
-			const panelData = GeneratePanelStorage(
-				NetDiskRuleDataKEY.schemeUri.uri(key),
-				defaultValue
-			);
+			const panelData = GeneratePanelStorage(NetDiskRuleDataKEY.schemeUri.uri(key), defaultValue);
 			return panelData.value;
 		},
 	},
