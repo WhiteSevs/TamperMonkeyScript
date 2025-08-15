@@ -745,9 +745,7 @@ const Panel = {
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
-						<div class="search-result-wrapper">
-
-						</div>
+						<div class="search-result-wrapper"></div>
 					`,
 					html: true,
 				},
@@ -766,7 +764,10 @@ const Panel = {
 					${pops.config.cssText.panelCSS}
 
 					.search-wrapper{
-						border-bottom: 1px solid #000000;
+						border-bottom: 1px solid rgb(235, 238, 245, 1);
+					}
+					.pops-content:has(.search-result-wrapper:empty) .search-wrapper{
+						border-bottom: 0;
 					}
 					.search-config-text{
 						width: 100%;
