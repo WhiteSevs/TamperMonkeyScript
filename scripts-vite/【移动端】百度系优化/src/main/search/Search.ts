@@ -11,6 +11,7 @@ import { BaiduSearchBlockRule } from "./SearchBlockRule";
 import { BaiduSearchVideo } from "./video/SearchVideo";
 import { BaiduSearchVSearch } from "./vsearch/VSearch";
 import { BaiduSearchToolBar } from "./SearchToolBar";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 /**
  * 处理百度搜索自定义的样式添加
@@ -42,6 +43,7 @@ const BaiduSearch = {
 			BaiduSearchHook.init();
 			/* 默认的百度搜索 */
 			addStyle(SearchShieldCSS);
+			BaiduHandleResultItem.addCSDNFlagCSS();
 			log.info("插入CSS规则");
 			Panel.execMenu("baidu_search_hijack__onClick_to_blank", () => {
 				this.openResultBlank();
@@ -134,7 +136,8 @@ const BaiduSearch = {
 			let $title =
 				$result.querySelector<HTMLElement>(".cu-title") ||
 				$result.querySelector<HTMLElement>(".c-title") ||
-				$result.querySelector<HTMLElement>(".cosc-title");
+				$result.querySelector<HTMLElement>(".cosc-title") ||
+				$result.querySelector<HTMLElement>(".coss-goods-spu-horizontal-title");
 
 			/**
 			 * 大家还在搜
@@ -165,19 +168,32 @@ const BaiduSearch = {
 			// .c-result.result
 			let $result = $selectorTarget;
 
-			changeVisitedNodeColor($click, $result);
-
 			if ($click) {
 				// 百度AI 总结全网xx篇结果
 				// 让它不点击跳转
 				let isWenDa = $result.matches('[srcid="wenda_generate"]');
 				if (isWenDa) {
-					log.info(["该点击来自百度AI总结全网xx篇结果，不点击跳转", { event, $click, $result, isWenDa }]);
+					log.warn(["该点击来自百度AI总结全网xx篇结果，不点击跳转", { event, $click, $result, isWenDa }]);
+					return;
+				}
+				// 切换tab
+				let isTab =
+					CommonUtil.findParentNode($click, ".cos-tab") ||
+					CommonUtil.findParentNode($click, '[class*="each-tab-name"]');
+				if (isTab) {
+					log.warn(["该点击来自切换tab，不点击跳转", { event, $click, $result }]);
+					return;
+				}
+				// 展开
+				let isFold = CommonUtil.findParentNode($click, ".cos-fold-switch");
+				if (isFold) {
+					log.warn(["该点击来自折叠，不点击跳转", { event, $click, $result }]);
 					return;
 				}
 				if ($click.closest("a")) {
 					let $link = $click.closest<HTMLAnchorElement>("a")!;
-					if (utils.isNotNull($link.href)) {
+					let linkUrl = $link.getAttribute("data-url") || $link.href;
+					if (utils.isNotNull(linkUrl)) {
 						log.info([
 							"链接来自上层a元素",
 							{
@@ -187,7 +203,7 @@ const BaiduSearch = {
 								$link,
 							},
 						]);
-						url = $link.href;
+						url = linkUrl;
 					}
 				} else if ($click.closest("[rl-link-href]")) {
 					let $rlLinkDiv = $click.closest<HTMLElement>("[rl-link-href]")!;
@@ -210,8 +226,9 @@ const BaiduSearch = {
 				url = $article.getAttribute("rl-link-href");
 				log.info(["链接来自顶层向下寻找article元素", { event, $click, $result, $article }]);
 			}
+
 			if (utils.isNull(url)) {
-				log.info(["未找到有效链接", { event, $click, $result, url }]);
+				log.warn(["未找到有效链接", { event, $click, $result, url }]);
 				return;
 			}
 			/* 阻止事件传递 */
@@ -224,6 +241,7 @@ const BaiduSearch = {
 			}
 			utils.preventEvent(event);
 			log.success(["新标签页打开-来自click事件", url]);
+			changeVisitedNodeColor($click, $result);
 			window.open(url, "_blank");
 		};
 		DOMUtils.on(document, "click", ".c-result.result", globalResultClickEvent, {

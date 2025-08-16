@@ -29,7 +29,9 @@ div[class*="relateTitle"] span[class*="subTitle"],
 /* 底部的广告 */
 [class^="adsContainer-"],
 /* 弹窗 打开百度App弹窗 */
-[class^="alertModalContainer-"] {
+[class^="alertModalContainer-"],
+/* 视频下面的广告推荐 */
+#hcgContainer > div:has([data-log-view*='"isAds":true']) {
 	display: none !important;
 }
 /* 展开阅读 */
