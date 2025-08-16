@@ -30,11 +30,7 @@ export const CommonUtil = {
 		if (args.length === 0) {
 			return;
 		}
-		if (
-			args.length === 1 &&
-			typeof args[0] === "string" &&
-			args[0].trim() === ""
-		) {
+		if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
 			return;
 		}
 		args.forEach((selector) => {
@@ -62,9 +58,7 @@ export const CommonUtil = {
 		url: string;
 	}) {
 		let cssText =
-			typeof GM_getResourceText === "function"
-				? GM_getResourceText(resourceMapData.keyName)
-				: null;
+			typeof GM_getResourceText === "function" ? GM_getResourceText(resourceMapData.keyName) : null;
 		if (typeof cssText === "string" && cssText) {
 			addStyle(cssText);
 		} else {
@@ -179,9 +173,7 @@ export const CommonUtil = {
 				overflow: hidden !important;
 			}
 		`;
-		let $elList = [document.documentElement, document.body].concat(
-			...(args || [])
-		);
+		let $elList = [document.documentElement, document.body].concat(...(args || []));
 		$elList.forEach(($el) => {
 			$el.classList.add("pops-overflow-hidden-important");
 		});
@@ -225,10 +217,7 @@ export const CommonUtil = {
 					readClipboardText(resolve);
 				})
 				.catch((error: TypeError) => {
-					log.error(
-						"申请剪贴板权限失败，尝试直接读取👉",
-						error.message ?? error.name ?? error.stack
-					);
+					log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
 					/* 该权限申请Api可能在该环境下不生效，尝试直接读取剪贴板 */
 					readClipboardText(resolve);
 				});
@@ -331,5 +320,27 @@ export const CommonUtil = {
 			}, intervalTime);
 		};
 		loop(false);
+	},
+	/**
+	 * 找到对应的上层元素
+	 */
+	findParentNode<T = HTMLElement>(
+		$el: HTMLElement,
+		selector: string,
+		parentSelector?: string
+	): T | null | undefined {
+		if (parentSelector) {
+			let $parent = DOMUtils.closest($el, parentSelector);
+			if ($parent) {
+				let $target = $parent.querySelector(selector);
+				return $target as T;
+			}
+		} else {
+			if (DOMUtils.matches($el, selector)) {
+				return $el as T;
+			}
+			let $parent = DOMUtils.closest($el, selector);
+			return $parent as T;
+		}
 	},
 };
