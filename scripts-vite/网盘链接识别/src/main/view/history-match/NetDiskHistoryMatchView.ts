@@ -6,6 +6,7 @@ import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskUI } from "../../ui/NetDiskUI";
 import { NetDiskView } from "../NetDiskView";
 import indexCSS from "./index.css?raw";
+import { NetDiskRightClickMenu } from "@/main/ui/NetDiskRightClickMenu";
 
 export const NetDiskHistoryMatchView = {
 	/**
@@ -134,7 +135,7 @@ export const NetDiskHistoryMatchView = {
 		this.setDataPaging(data);
 		this.setEvent(NetDiskUI.Alias.historyAlias.$shadowRoot);
 		this.setSearchEvent();
-		NetDiskUI.setRightClickMenu(
+		NetDiskRightClickMenu.setRightClickMenu(
 			NetDiskUI.Alias.historyAlias.$shadowRoot.querySelector<HTMLElement>(".whitesevPopNetDiskHistoryMatch")!,
 			".netdiskrecord-link a",
 			true

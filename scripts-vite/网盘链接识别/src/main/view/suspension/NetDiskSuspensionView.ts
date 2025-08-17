@@ -7,6 +7,7 @@ import indexCSS from "./index.css?raw";
 import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 import DOMUtils from "@whitesev/domutils";
 import { Panel } from "@components/setting/panel";
+import { NetDiskRightClickMenu } from "@/main/ui/NetDiskRightClickMenu";
 
 export const NetDiskSuspensionConfig = {
 	position: {
@@ -249,7 +250,7 @@ export const NetDiskSuspension = {
 				isDouble = true;
 			}
 		});
-		NetDiskUI.setGlobalRightClickMenu(needDragElement);
+		NetDiskRightClickMenu.setGlobalRightClickMenu(needDragElement);
 	},
 	/**
 	 * 设置window的resize事件监听，来重新设置悬浮按钮的位置

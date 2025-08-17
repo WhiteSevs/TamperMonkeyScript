@@ -1,7 +1,7 @@
 import { NetDisk } from "../NetDisk";
 import { NetDiskPops } from "../pops/NetDiskPops";
 import { NetDiskUI } from "../ui/NetDiskUI";
-import { DOMUtils, log, pops, utils } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
 import { NetDiskGlobalData } from "../data/NetDiskGlobalData";
 import {
 	NetDiskCheckLinkValidity,
@@ -19,6 +19,7 @@ import indexCSS from "./index.css?raw";
 import { GenerateData } from "@/main/data/NetDiskGenerateDataUtils";
 import { NetDiskFilterScheme } from "../scheme/NetDiskFilterScheme";
 import { CommonUtil } from "@components/utils/CommonUtil";
+import { NetDiskRightClickMenu } from "../ui/NetDiskRightClickMenu";
 
 /**
  * 传递给生成需要的网盘参数数据
@@ -403,13 +404,16 @@ export const NetDiskView = {
 	 */
 	initViewEvent() {
 		// 注册右键菜单
-		NetDiskUI.setRightClickMenu(NetDiskUI.Alias.uiLinkAlias.$shadowRoot, ".whitesevPop .netdisk-url a");
+		NetDiskRightClickMenu.setRightClickMenu(
+			NetDiskUI.Alias.uiLinkAlias.$shadowRoot,
+			".whitesevPop .netdisk-url a"
+		);
 		// 注册网盘图标的点击事件
 		this.registerIconGotoPagePosition(NetDiskUI.Alias.uiLinkAlias.$shadowRoot);
 		// 注册网盘链接点击事件
 		this.setNetDiskUrlClickEvent(NetDiskUI.Alias.uiLinkAlias.$shadowRoot, ".netdisk-url a");
 		// 注册网盘链接弹窗视图的标题的右键菜单事件
-		NetDiskUI.setGlobalRightClickMenu(
+		NetDiskRightClickMenu.setGlobalRightClickMenu(
 			NetDiskUI.Alias.uiLinkAlias.$shadowRoot.querySelector<HTMLElement>(".pops .pops-alert-title > p")!
 		);
 	},
