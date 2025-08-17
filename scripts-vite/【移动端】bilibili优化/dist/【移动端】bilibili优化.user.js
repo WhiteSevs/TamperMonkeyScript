@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.5
+// @version      2025.8.17
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,15 +13,15 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
-// @require      https://fastly.jsdelivr.net/npm/artplayer@5.2.3/dist/artplayer.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/ArtPlayer@aca6fb3795ea03b9614cd32613e2588e60470524/packages/artplayer-plugin-danmuku/dist/artplayer-plugin-danmuku.js
+// @require      https://fastly.jsdelivr.net/npm/artplayer@5.2.5/dist/artplayer.js
+// @require      https://fastly.jsdelivr.net/npm/artplayer-plugin-danmuku@5.1.8/dist/artplayer-plugin-danmuku.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      *
 // @connect      m.bilibili.com
@@ -186,6 +186,14 @@
         } else {
           return "550px";
         }
+      }
+    },
+    /**
+     * 中等的设置界面
+     */
+    settingMiddle: {
+      get width() {
+        return window.innerWidth < 350 ? "88vw" : "350px";
       }
     },
     /**
@@ -521,511 +529,6 @@
       this.$data.menuOption.splice(index, 1);
     }
   };
-  const Panel = {
-    /** 数据 */
-    $data: {
-      /**
-       * @private
-       */
-      __contentConfigInitDefaultValue: null,
-      /**
-       * @private
-       */
-      __onceExecMenuData: null,
-      /**
-       * @private
-       */
-      __onceExecData: null,
-      /**
-       * @private
-       */
-      __panelConfig: {},
-      $panel: null,
-      /**
-       * 菜单项初始化的默认值
-       */
-      get contentConfigInitDefaultValue() {
-        if (this.__contentConfigInitDefaultValue == null) {
-          this.__contentConfigInitDefaultValue = new utils.Dictionary();
-        }
-        return this.__contentConfigInitDefaultValue;
-      },
-      /**
-       * 菜单项初始化时禁用的键
-       */
-      contentConfigInitDisabledKeys: [],
-      /**
-       * 成功只执行了一次的项
-       */
-      get onceExecMenuData() {
-        if (this.__onceExecMenuData == null) {
-          this.__onceExecMenuData = new utils.Dictionary();
-        }
-        return this.__onceExecMenuData;
-      },
-      /**
-       * 成功只执行了一次的项
-       */
-      get onceExecData() {
-        if (this.__onceExecData == null) {
-          this.__onceExecData = new utils.Dictionary();
-        }
-        return this.__onceExecData;
-      },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
-        return SCRIPT_NAME;
-      },
-      /**
-       * pops.panel的默认配置
-       */
-      get panelConfig() {
-        return this.__panelConfig;
-      },
-      set panelConfig(value) {
-        this.__panelConfig = value;
-      },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
-    },
-    init() {
-      this.initContentDefaultValue();
-      PanelMenu.init();
-    },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
-      return _unsafeWindow.top === _unsafeWindow.self;
-    },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initContentDefaultValue() {
-      const initDefaultValue = (config) => {
-        if (!config.attributes) {
-          return;
-        }
-        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
-          return;
-        }
-        let menuDefaultConfig = /* @__PURE__ */ new Map();
-        let key = config.attributes[ATTRIBUTE_KEY];
-        if (key != null) {
-          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
-          menuDefaultConfig.set(key, defaultValue);
-        }
-        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
-          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
-          });
-        }
-        if (!menuDefaultConfig.size) {
-          log$1.warn(["请先配置键", config]);
-          return;
-        }
-        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
-        if (typeof __attr_init__ === "function") {
-          let __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
-        }
-        if (config.type === "switch") {
-          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
-          if (typeof disabled === "boolean" && disabled) {
-            this.$data.contentConfigInitDisabledKeys.push(
-              ...menuDefaultConfig.keys()
-            );
-          }
-        }
-        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
-          this.setDefaultValue(__key, __defaultValue);
-        }
-      };
-      const loopInitDefaultValue = (configList) => {
-        for (let index = 0; index < configList.length; index++) {
-          let configItem = configList[index];
-          initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
-          }
-        }
-      };
-      const contentConfigList = [...PanelContent.getAllContentConfig()];
-      for (let index = 0; index < contentConfigList.length; index++) {
-        let leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.forms) {
-          continue;
-        }
-        const rightContentConfigList = leftContentConfigItem.forms;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
-          loopInitDefaultValue(rightContentConfigList);
-        }
-      }
-      this.$data.contentConfigInitDisabledKeys = [
-        ...new Set(this.$data.contentConfigInitDisabledKeys)
-      ];
-    },
-    /**
-     * 设置初始化使用的默认值
-     */
-    setDefaultValue(key, defaultValue) {
-      if (this.$data.contentConfigInitDefaultValue.has(key)) {
-        log$1.warn("请检查该key(已存在): " + key);
-      }
-      this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
-    },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
-      PopsPanelStorageApi.set(key, value);
-    },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
-      let localValue = PopsPanelStorageApi.get(key);
-      if (localValue == null) {
-        if (this.$data.contentConfigInitDefaultValue.has(key)) {
-          return this.$data.contentConfigInitDefaultValue.get(key);
-        }
-        return defaultValue;
-      }
-      return localValue;
-    },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
-      PopsPanelStorageApi.delete(key);
-    },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
-      return PopsPanelStorageApi.has(key);
-    },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(
-        key,
-        (__key, __newValue, __oldValue) => {
-          callback(key, __oldValue, __newValue);
-        }
-      );
-      return listenerId;
-    },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
-      PopsPanelStorageApi.removeValueChangeListener(listenerId);
-    },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
-      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
-    },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
-      this.$data.onceExecMenuData.delete(key);
-      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
-    },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteOnceExec(key) {
-      this.$data.onceExecData.delete(key);
-    },
-    /**
-     * 执行菜单
-     *
-     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 执行的回调函数
-     * @param checkExec 判断是否执行回调
-     *
-     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-     *
-     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-     *
-     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-     * @param once 是否只执行一次，默认true
-     *
-     * + true （默认）只执行一次，且会监听键的值改变
-     * + false 不会监听键的值改变
-     */
-    exec(queryKey, callback, checkExec, once = true) {
-      const that = this;
-      let queryKeyFn;
-      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
-        queryKeyFn = () => queryKey;
-      } else {
-        queryKeyFn = queryKey;
-      }
-      let isArrayKey = false;
-      let queryKeyResult = queryKeyFn();
-      let keyList = [];
-      if (Array.isArray(queryKeyResult)) {
-        isArrayKey = true;
-        keyList = queryKeyResult;
-      } else {
-        keyList.push(queryKeyResult);
-      }
-      let findNotInDataKey = keyList.find(
-        (it) => !this.$data.contentConfigInitDefaultValue.has(it)
-      );
-      if (findNotInDataKey) {
-        log$1.warn(`${findNotInDataKey} 键不存在`);
-        return;
-      }
-      let storageKey = JSON.stringify(keyList);
-      if (once) {
-        if (this.$data.onceExecMenuData.has(storageKey)) {
-          return;
-        }
-        this.$data.onceExecMenuData.set(storageKey, 1);
-      }
-      let storeValueList = [];
-      let listenerIdList = [];
-      let dynamicAddStyleNodeCallback = (value, $style) => {
-        let dynamicResultList = [];
-        if (!Array.isArray($style)) {
-          $style = [$style];
-        }
-        $style.forEach(($styleItem) => {
-          if ($styleItem == null) {
-            return;
-          }
-          if ($styleItem instanceof HTMLStyleElement) {
-            dynamicResultList.push($styleItem);
-            return;
-          }
-        });
-        {
-          storeValueList = storeValueList.concat(dynamicResultList);
-        }
-      };
-      let getMenuValue = (key) => {
-        let value = this.getValue(key);
-        return value;
-      };
-      let clearBeforeStoreValue = () => {
-        for (let index = 0; index < storeValueList.length; index++) {
-          let $css = storeValueList[index];
-          $css.remove();
-          storeValueList.splice(index, 1);
-          index--;
-        }
-      };
-      let checkMenuExec = () => {
-        let flag = false;
-        if (typeof checkExec === "function") {
-          flag = checkExec(keyList);
-        } else {
-          flag = keyList.every((key) => getMenuValue(key));
-        }
-        return flag;
-      };
-      let valueChangeCallback = (valueOption) => {
-        let execFlag = checkMenuExec();
-        let resultList = [];
-        if (execFlag) {
-          let valueList = keyList.map((key) => this.getValue(key));
-          let callbackResult = callback({
-            value: isArrayKey ? valueList : valueList[0],
-            addStyleElement: (...args) => {
-              return dynamicAddStyleNodeCallback(true, ...args);
-            }
-          });
-          if (!Array.isArray(callbackResult)) {
-            callbackResult = [callbackResult];
-          }
-          callbackResult.forEach((it) => {
-            if (it == null) {
-              return;
-            }
-            if (it instanceof HTMLStyleElement) {
-              resultList.push(it);
-              return;
-            }
-          });
-        }
-        clearBeforeStoreValue();
-        storeValueList = [...resultList];
-      };
-      once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(
-          key,
-          (key2, newValue, oldValue) => {
-            valueChangeCallback();
-          }
-        );
-        listenerIdList.push(listenerId);
-      });
-      valueChangeCallback();
-      let result = {
-        /**
-         * 清空菜单执行情况
-         *
-         * + 清空存储的元素列表
-         * + 清空值改变的监听器
-         * + 清空存储的一次执行的键
-         */
-        clear() {
-          this.clearStoreStyleElements();
-          this.removeValueChangeListener();
-          once && that.$data.onceExecMenuData.delete(storageKey);
-        },
-        /**
-         * 清空存储的元素列表
-         */
-        clearStoreStyleElements: () => {
-          return clearBeforeStoreValue();
-        },
-        /**
-         * 移除值改变的监听器
-         */
-        removeValueChangeListener: () => {
-          listenerIdList.forEach((listenerId) => {
-            this.removeValueChangeListener(listenerId);
-          });
-        }
-      };
-      return result;
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     * @param once 是否是只执行一次，默认false
-     */
-    execMenu(key, callback, isReverse = false, once = false) {
-      return this.exec(
-        key,
-        (option) => {
-          return callback(option);
-        },
-        (keyList) => {
-          let execFlag = keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
-            if (disabled) {
-              flag = false;
-              log$1.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
-            }
-            isReverse && (flag = !flag);
-            return flag;
-          });
-          return execFlag;
-        },
-        once
-      );
-    },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     */
-    execMenuOnce(key, callback, isReverse = false) {
-      return this.execMenu(key, callback, isReverse, true);
-    },
-    /**
-     * 根据key执行一次
-     * @param key 键
-     * @param callback 回调
-     */
-    onceExec(key, callback) {
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExecData.has(key)) {
-        return;
-      }
-      callback();
-      this.$data.onceExecData.set(key, 1);
-    },
-    /**
-     * 显示设置面板
-     * @param content 显示的内容配置
-     * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号）
-     */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false) {
-      let checkHasBottomVersionContentConfig = content.findIndex((it) => {
-        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-        return isBottom && it.id === "script-version";
-      }) !== -1;
-      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
-        content.push(...PanelContent.getDefaultBottomContentConfig());
-      }
-      let $panel = __pops.panel({
-        ...{
-          title: {
-            text: title,
-            position: "center",
-            html: false,
-            style: ""
-          },
-          content,
-          btn: {
-            close: {
-              enable: true,
-              callback: (details, event) => {
-                details.close();
-                this.$data.$panel = null;
-              }
-            }
-          },
-          mask: {
-            enable: true,
-            clickEvent: {
-              toClose: true,
-              toHide: false
-            },
-            clickCallBack: (originalRun, config) => {
-              originalRun();
-              this.$data.$panel = null;
-            }
-          },
-          width: PanelUISize.setting.width,
-          height: PanelUISize.setting.height,
-          drag: true,
-          only: true
-        },
-        ...this.$data.panelConfig
-      });
-      this.$data.$panel = $panel;
-    }
-  };
   const CommonUtil = {
     /**
      * 移除元素（未出现也可以等待出现）
@@ -1186,9 +689,7 @@
 				overflow: hidden !important;
 			}
 		`;
-      let $elList = [document.documentElement, document.body].concat(
-        ...args || []
-      );
+      let $elList = [document.documentElement, document.body].concat(...args || []);
       $elList.forEach(($el) => {
         $el.classList.add("pops-overflow-hidden-important");
       });
@@ -1224,10 +725,7 @@
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
-          log$1.error(
-            "申请剪贴板权限失败，尝试直接读取👉",
-            error.message ?? error.name ?? error.stack
-          );
+          log$1.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
           readClipboardText(resolve);
         });
       }
@@ -1293,6 +791,963 @@
         }, intervalTime);
       };
       loop(false);
+    },
+    /**
+     * 找到对应的上层元素
+     */
+    findParentNode($el, selector, parentSelector) {
+      if (parentSelector) {
+        let $parent = DOMUtils.closest($el, parentSelector);
+        if ($parent) {
+          let $target = $parent.querySelector(selector);
+          return $target;
+        }
+      } else {
+        if (DOMUtils.matches($el, selector)) {
+          return $el;
+        }
+        let $parent = DOMUtils.closest($el, selector);
+        return $parent;
+      }
+    }
+  };
+  const Panel = {
+    /** 数据 */
+    $data: {
+      /**
+       * @private
+       */
+      __contentConfigInitDefaultValue: null,
+      /**
+       * @private
+       */
+      __onceExecMenuData: null,
+      /**
+       * @private
+       */
+      __onceExecData: null,
+      /**
+       * @private
+       */
+      __panelConfig: {},
+      /**
+       * 面板
+       */
+      $panel: null,
+      /**
+       * 面板配置
+       */
+      panelContent: [],
+      /**
+       * 菜单项初始化的默认值
+       */
+      get contentConfigInitDefaultValue() {
+        if (this.__contentConfigInitDefaultValue == null) {
+          this.__contentConfigInitDefaultValue = new utils.Dictionary();
+        }
+        return this.__contentConfigInitDefaultValue;
+      },
+      /**
+       * 菜单项初始化时禁用的键
+       */
+      contentConfigInitDisabledKeys: [],
+      /**
+       * 成功只执行了一次的菜单项
+       *
+       * + .exec
+       * + .execMenu
+       * + .execMenuOnce
+       */
+      get onceExecMenuData() {
+        if (this.__onceExecMenuData == null) {
+          this.__onceExecMenuData = new utils.Dictionary();
+        }
+        return this.__onceExecMenuData;
+      },
+      /**
+       * 成功只执行了一次的项
+       *
+       * + .onceExec
+       */
+      get onceExecData() {
+        if (this.__onceExecData == null) {
+          this.__onceExecData = new utils.Dictionary();
+        }
+        return this.__onceExecData;
+      },
+      /** 脚本名，一般用在设置的标题上 */
+      get scriptName() {
+        return SCRIPT_NAME;
+      },
+      /**
+       * pops.panel的默认配置
+       */
+      get panelConfig() {
+        return this.__panelConfig;
+      },
+      set panelConfig(value) {
+        this.__panelConfig = value;
+      },
+      /** 菜单项的总值在本地数据配置的键名 */
+      key: KEY,
+      /** 菜单项在attributes上配置的菜单键 */
+      attributeKeyName: ATTRIBUTE_KEY,
+      /** 菜单项在attributes上配置的菜单默认值 */
+      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+    },
+    init() {
+      this.initContentDefaultValue();
+      PanelMenu.init();
+    },
+    /** 判断是否是顶层窗口 */
+    isTopWindow() {
+      return _unsafeWindow.top === _unsafeWindow.self;
+    },
+    /** 初始化菜单项的默认值保存到本地数据中 */
+    initContentDefaultValue() {
+      const initDefaultValue = (config) => {
+        if (!config.attributes) {
+          return;
+        }
+        if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
+          return;
+        }
+        let menuDefaultConfig = /* @__PURE__ */ new Map();
+        let key = config.attributes[ATTRIBUTE_KEY];
+        if (key != null) {
+          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          menuDefaultConfig.set(key, defaultValue);
+        }
+        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
+          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
+            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+          });
+        }
+        if (!menuDefaultConfig.size) {
+          log$1.warn(["请先配置键", config]);
+          return;
+        }
+        let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
+        if (typeof __attr_init__ === "function") {
+          let __attr_result__ = __attr_init__();
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
+            return;
+          }
+        }
+        if (config.type === "switch") {
+          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          if (typeof disabled === "boolean" && disabled) {
+            this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
+          }
+        }
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
+          this.setDefaultValue(__key, __defaultValue);
+        }
+      };
+      const loopInitDefaultValue = (configList) => {
+        for (let index = 0; index < configList.length; index++) {
+          let configItem = configList[index];
+          initDefaultValue(configItem);
+          let child_forms = configItem.forms;
+          if (child_forms && Array.isArray(child_forms)) {
+            loopInitDefaultValue(child_forms);
+          }
+        }
+      };
+      const contentConfigList = [...PanelContent.getAllContentConfig()];
+      for (let index = 0; index < contentConfigList.length; index++) {
+        let leftContentConfigItem = contentConfigList[index];
+        if (!leftContentConfigItem.forms) {
+          continue;
+        }
+        const rightContentConfigList = leftContentConfigItem.forms;
+        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+          loopInitDefaultValue(rightContentConfigList);
+        }
+      }
+      this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
+    },
+    /**
+     * 设置初始化使用的默认值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    setDefaultValue(key, defaultValue) {
+      if (this.$data.contentConfigInitDefaultValue.has(key)) {
+        log$1.warn("请检查该key(已存在): " + key);
+      }
+      this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
+    },
+    /**
+     * 设置值
+     * @param key 键
+     * @param value 值
+     */
+    setValue(key, value) {
+      PopsPanelStorageApi.set(key, value);
+    },
+    /**
+     * 获取值
+     * @param key 键
+     * @param defaultValue 默认值
+     */
+    getValue(key, defaultValue) {
+      let localValue = PopsPanelStorageApi.get(key);
+      if (localValue == null) {
+        if (this.$data.contentConfigInitDefaultValue.has(key)) {
+          return this.$data.contentConfigInitDefaultValue.get(key);
+        }
+        return defaultValue;
+      }
+      return localValue;
+    },
+    /**
+     * 删除值
+     * @param key 键
+     */
+    deleteValue(key) {
+      PopsPanelStorageApi.delete(key);
+    },
+    /**
+     * 判断该键是否存在
+     * @param key 键
+     */
+    hasKey(key) {
+      return PopsPanelStorageApi.has(key);
+    },
+    /**
+     * 监听调用setValue、deleteValue
+     * @param key 需要监听的键
+     * @param callback
+     */
+    addValueChangeListener(key, callback) {
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+        callback(key, __oldValue, __newValue);
+      });
+      return listenerId;
+    },
+    /**
+     * 移除监听
+     * @param listenerId 监听的id
+     */
+    removeValueChangeListener(listenerId) {
+      PopsPanelStorageApi.removeValueChangeListener(listenerId);
+    },
+    /**
+     * 主动触发菜单值改变的回调
+     * @param key 菜单键
+     * @param newValue 想要触发的新值，默认使用当前值
+     * @param oldValue 想要触发的旧值，默认使用当前值
+     */
+    triggerMenuValueChange(key, newValue, oldValue) {
+      PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
+    },
+    /**
+     * 执行菜单
+     *
+     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
+     * @param callback 执行的回调函数
+     * @param checkExec 判断是否执行回调
+     *
+     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
+     *
+     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
+     *
+     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
+     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
+     * @param once 是否只执行一次，默认true
+     *
+     * + true （默认）只执行一次，且会监听键的值改变
+     * + false 不会监听键的值改变
+     */
+    exec(queryKey, callback, checkExec, once = true) {
+      const that = this;
+      let queryKeyFn;
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
+        queryKeyFn = () => queryKey;
+      } else {
+        queryKeyFn = queryKey;
+      }
+      let isArrayKey = false;
+      let queryKeyResult = queryKeyFn();
+      let keyList = [];
+      if (Array.isArray(queryKeyResult)) {
+        isArrayKey = true;
+        keyList = queryKeyResult;
+      } else {
+        keyList.push(queryKeyResult);
+      }
+      let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
+      if (findNotInDataKey) {
+        log$1.warn(`${findNotInDataKey} 键不存在`);
+        return;
+      }
+      let storageKey = JSON.stringify(keyList);
+      if (once) {
+        if (this.$data.onceExecMenuData.has(storageKey)) {
+          return;
+        }
+        this.$data.onceExecMenuData.set(storageKey, 1);
+      }
+      let storeValueList = [];
+      let listenerIdList = [];
+      let dynamicAddStyleNodeCallback = (value, $style) => {
+        let dynamicResultList = [];
+        if (!Array.isArray($style)) {
+          $style = [$style];
+        }
+        $style.forEach(($styleItem) => {
+          if ($styleItem == null) {
+            return;
+          }
+          if ($styleItem instanceof HTMLStyleElement) {
+            dynamicResultList.push($styleItem);
+            return;
+          }
+        });
+        {
+          storeValueList = storeValueList.concat(dynamicResultList);
+        }
+      };
+      let getMenuValue = (key) => {
+        let value = this.getValue(key);
+        return value;
+      };
+      let clearBeforeStoreValue = () => {
+        for (let index = 0; index < storeValueList.length; index++) {
+          let $css = storeValueList[index];
+          $css.remove();
+          storeValueList.splice(index, 1);
+          index--;
+        }
+      };
+      let checkMenuExec = () => {
+        let flag = false;
+        if (typeof checkExec === "function") {
+          flag = checkExec(keyList);
+        } else {
+          flag = keyList.every((key) => getMenuValue(key));
+        }
+        return flag;
+      };
+      let valueChangeCallback = (valueOption) => {
+        let execFlag = checkMenuExec();
+        let resultList = [];
+        if (execFlag) {
+          let valueList = keyList.map((key) => this.getValue(key));
+          let callbackResult = callback({
+            value: isArrayKey ? valueList : valueList[0],
+            addStyleElement: (...args) => {
+              return dynamicAddStyleNodeCallback(true, ...args);
+            }
+          });
+          if (!Array.isArray(callbackResult)) {
+            callbackResult = [callbackResult];
+          }
+          callbackResult.forEach((it) => {
+            if (it == null) {
+              return;
+            }
+            if (it instanceof HTMLStyleElement) {
+              resultList.push(it);
+              return;
+            }
+          });
+        }
+        clearBeforeStoreValue();
+        storeValueList = [...resultList];
+      };
+      once && keyList.forEach((key) => {
+        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          valueChangeCallback();
+        });
+        listenerIdList.push(listenerId);
+      });
+      valueChangeCallback();
+      let result = {
+        /**
+         * 清空菜单执行情况
+         *
+         * + 清空存储的元素列表
+         * + 清空值改变的监听器
+         * + 清空存储的一次执行的键
+         */
+        clear() {
+          this.clearStoreStyleElements();
+          this.removeValueChangeListener();
+          once && that.$data.onceExecMenuData.delete(storageKey);
+        },
+        /**
+         * 清空存储的元素列表
+         */
+        clearStoreStyleElements: () => {
+          return clearBeforeStoreValue();
+        },
+        /**
+         * 移除值改变的监听器
+         */
+        removeValueChangeListener: () => {
+          listenerIdList.forEach((listenerId) => {
+            this.removeValueChangeListener(listenerId);
+          });
+        }
+      };
+      return result;
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
+     * @param callback 回调
+     * @param isReverse 逆反判断菜单启用，默认false
+     * @param once 是否是只执行一次，默认false
+     */
+    execMenu(key, callback, isReverse = false, once = false) {
+      return this.exec(
+        key,
+        (option) => {
+          return callback(option);
+        },
+        (keyList) => {
+          let execFlag = keyList.every((__key__) => {
+            let flag = !!this.getValue(__key__);
+            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            if (disabled) {
+              flag = false;
+              log$1.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+            }
+            isReverse && (flag = !flag);
+            return flag;
+          });
+          return execFlag;
+        },
+        once
+      );
+    },
+    /**
+     * 自动判断菜单是否启用，然后执行回调，只会执行一次
+     *
+     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
+     * @param callback 回调
+     * @param isReverse 逆反判断菜单启用，默认false
+     */
+    execMenuOnce(key, callback, isReverse = false) {
+      return this.execMenu(key, callback, isReverse, true);
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * + .exec
+     * + .execMenu
+     * + .execMenuOnce
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.onceExecMenuData.delete(key);
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag;
+    },
+    /**
+     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
+     * @param key 键
+     * @param callback 回调
+     */
+    onceExec(key, callback) {
+      key = this.transformKey(key);
+      if (typeof key !== "string") {
+        throw new TypeError("key 必须是字符串");
+      }
+      if (this.$data.onceExecData.has(key)) {
+        return;
+      }
+      callback();
+      this.$data.onceExecData.set(key, 1);
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * + .onceExec
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      key = this.transformKey(key);
+      this.$data.onceExecData.delete(key);
+    },
+    /**
+     * 显示设置面板
+     * @param content 显示的内容配置
+     * @param [title] 标题
+     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
+     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
+     */
+    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+      this.$data.$panel = null;
+      this.$data.panelContent = [];
+      let checkHasBottomVersionContentConfig = content.findIndex((it) => {
+        let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
+        return isBottom && it.id === "script-version";
+      }) !== -1;
+      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
+        content.push(...PanelContent.getDefaultBottomContentConfig());
+      }
+      let $panel = __pops.panel({
+        ...{
+          title: {
+            text: title,
+            position: "center",
+            html: false,
+            style: ""
+          },
+          content,
+          btn: {
+            close: {
+              enable: true,
+              callback: (details, event) => {
+                details.close();
+                this.$data.$panel = null;
+              }
+            }
+          },
+          mask: {
+            enable: true,
+            clickEvent: {
+              toClose: true,
+              toHide: false
+            },
+            clickCallBack: (originalRun, config) => {
+              originalRun();
+              this.$data.$panel = null;
+            }
+          },
+          width: PanelUISize.setting.width,
+          height: PanelUISize.setting.height,
+          drag: true,
+          only: true
+        },
+        ...this.$data.panelConfig
+      });
+      this.$data.$panel = $panel;
+      this.$data.panelContent = content;
+      if (!preventRegisterSearchPlugin) {
+        this.registerConfigSearch({ $panel, content });
+      }
+    },
+    /**
+     * 注册设置面板的搜索功能（双击左侧选项第一个）
+     * @param config 配置项
+     */
+    registerConfigSearch(config) {
+      const { $panel, content } = config;
+      let asyncQueryProperty = async (target, handler) => {
+        if (target == null) {
+          return;
+        }
+        let handleResult = await handler(target);
+        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
+          return handleResult.data;
+        }
+        return await asyncQueryProperty(handleResult.data, handler);
+      };
+      let scrollToElementAndListen = ($el, callback) => {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                callback?.();
+                observer.disconnect();
+              }
+            });
+          },
+          {
+            root: null,
+            // 使用视口作为根
+            threshold: 1
+            // 元素完全进入视口时触发
+          }
+        );
+        observer.observe($el);
+        $el.scrollIntoView({ behavior: "smooth", block: "center" });
+      };
+      let addFlashingClass = ($el) => {
+        const flashingClassName = "pops-flashing";
+        domUtils.animationend($el, () => {
+          $el.classList.remove(flashingClassName);
+        });
+        $el.classList.add(flashingClassName);
+      };
+      let dbclick_event = (evt, selectorTarget) => {
+        utils.preventEvent(evt);
+        let $alert = __pops.alert({
+          title: {
+            text: "搜索配置",
+            position: "center"
+          },
+          content: {
+            text: (
+              /*html*/
+              `
+						<div class="search-wrapper">
+							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+						</div>
+						<div class="search-result-wrapper"></div>
+					`
+            ),
+            html: true
+          },
+          btn: {
+            ok: { enable: false }
+          },
+          mask: {
+            clickEvent: {
+              toClose: true
+            }
+          },
+          width: PanelUISize.settingMiddle.width,
+          height: "auto",
+          drag: true,
+          style: (
+            /*css*/
+            `
+					${__pops.config.cssText.panelCSS}
+
+					.search-wrapper{
+						border-bottom: 1px solid rgb(235, 238, 245, 1);
+					}
+					.pops-content:has(.search-result-wrapper:empty) .search-wrapper{
+						border-bottom: 0;
+					}
+					.search-config-text{
+						width: 100%;
+						border: 0;
+						height: 32px;
+						padding: 0px 10px;
+						outline: none;
+					}
+					.search-result-wrapper{
+						max-height: 400px;
+						overflow: auto;
+					}
+					.search-result-item{
+						cursor: pointer;
+						padding: 5px 10px;
+						display: flex;
+						flex-direction: column;
+					}
+					.search-result-item:hover{
+						background-color: #D8F1FD;
+					}
+					.search-result-item-path{
+						display: flex;
+    					align-items: center;
+					}
+					.search-result-item-description{
+						font-size: 0.8rem;
+						color: #6c6c6c;
+					}
+					${config.searchDialogStyle ?? ""}
+				`
+          )
+        });
+        $alert.$shadowRoot.querySelector(".search-wrapper");
+        let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
+        let $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
+        $searchInput.focus();
+        let clearSearchResult = () => {
+          domUtils.empty($searchResultWrapper);
+        };
+        let createSearchResultItem = (pathInfo) => {
+          const searchPath = utils.queryProperty(pathInfo, (target) => {
+            if (target?.next) {
+              return {
+                isFind: false,
+                data: target.next
+              };
+            } else {
+              return {
+                isFind: true,
+                data: target
+              };
+            }
+          });
+          let $item = domUtils.createElement("div", {
+            className: "search-result-item",
+            innerHTML: (
+              /*html*/
+              `
+							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
+							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
+						`
+            )
+          });
+          domUtils.on($item, "click", (clickItemEvent) => {
+            let $asideItems = $panel.$shadowRoot.querySelectorAll(
+              "aside.pops-panel-aside .pops-panel-aside-top-container li"
+            );
+            let $targetAsideItem = $asideItems[pathInfo.index];
+            if (!$targetAsideItem) {
+              Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              return;
+            }
+            $targetAsideItem.scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+            });
+            $targetAsideItem.click();
+            asyncQueryProperty(pathInfo.next, async (target) => {
+              if (target?.next) {
+                let $findDeepMenu = await utils.waitNode(() => {
+                  return Array.from(
+                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
+                  ).find(($deepMenu) => {
+                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
+                  });
+                }, 2500);
+                if ($findDeepMenu) {
+                  $findDeepMenu.click();
+                } else {
+                  Qmsg.error("未找到对应的二级菜单");
+                  return {
+                    isFind: true,
+                    data: target
+                  };
+                }
+                return {
+                  isFind: false,
+                  data: target.next
+                };
+              } else {
+                let $findTargetMenu = await utils.waitNode(() => {
+                  return Array.from(
+                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
+                  ).find(($menuItem) => {
+                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                    return __formConfig__ === target.matchedData?.formConfig;
+                  });
+                }, 2500);
+                if ($findTargetMenu) {
+                  scrollToElementAndListen($findTargetMenu);
+                  let $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
+                  if ($fold) {
+                    let $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
+                    $foldWrapper.click();
+                    await utils.sleep(500);
+                  }
+                  scrollToElementAndListen($findTargetMenu, () => {
+                    addFlashingClass($findTargetMenu);
+                  });
+                } else {
+                  Qmsg.error("未找到对应的菜单项");
+                }
+                return {
+                  isFind: true,
+                  data: target
+                };
+              }
+            });
+          });
+          return $item;
+        };
+        let execSearch = (searchText) => {
+          const searchTextRegExp = new RegExp(searchText, "i");
+          const searchConfigResult = [];
+          const loopContentConfig = (configList, path) => {
+            for (let index = 0; index < configList.length; index++) {
+              const configItem = configList[index];
+              let child_forms = configItem.forms;
+              if (child_forms && Array.isArray(child_forms)) {
+                const deepMenuPath = utils.deepClone(path);
+                if (configItem.type === "deepMenu") {
+                  const deepNext = utils.queryProperty(deepMenuPath, (target) => {
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  deepNext.next = {
+                    name: configItem.text
+                  };
+                }
+                loopContentConfig(child_forms, deepMenuPath);
+              } else {
+                let text = Reflect.get(configItem, "text");
+                let description = Reflect.get(configItem, "description");
+                const delayMatchedTextList = [text, description];
+                let matchedIndex = delayMatchedTextList.findIndex((configText) => {
+                  if (typeof configText !== "string") {
+                    return;
+                  }
+                  return configText.match(searchTextRegExp);
+                });
+                if (matchedIndex !== -1) {
+                  const matchedPath = utils.deepClone(path);
+                  const deepNext = utils.queryProperty(matchedPath, (target) => {
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  deepNext.next = {
+                    name: text,
+                    matchedData: {
+                      path: "",
+                      formConfig: configItem,
+                      matchedText: delayMatchedTextList[matchedIndex],
+                      description
+                    }
+                  };
+                  const pathList = [];
+                  utils.queryProperty(matchedPath, (target) => {
+                    const name = target?.name;
+                    if (typeof name === "string" && name.trim() !== "") {
+                      pathList.push(name);
+                    }
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  const pathStr = pathList.join(CommonUtil.escapeHtml(" - "));
+                  deepNext.next.matchedData.path = pathStr;
+                  searchConfigResult.push(matchedPath);
+                }
+              }
+            }
+          };
+          for (let index = 0; index < content.length; index++) {
+            const leftContentConfigItem = content[index];
+            if (!leftContentConfigItem.forms) {
+              continue;
+            }
+            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
+              continue;
+            }
+            const rightContentConfigList = leftContentConfigItem.forms;
+            if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+              let text = leftContentConfigItem.title;
+              if (typeof text === "function") {
+                text = text();
+              }
+              loopContentConfig(rightContentConfigList, {
+                index,
+                name: text
+              });
+            }
+          }
+          let fragment = document.createDocumentFragment();
+          for (const pathInfo of searchConfigResult) {
+            let $resultItem = createSearchResultItem(pathInfo);
+            fragment.appendChild($resultItem);
+          }
+          clearSearchResult();
+          $searchResultWrapper.append(fragment);
+        };
+        domUtils.on(
+          $searchInput,
+          "input",
+          utils.debounce((evt2) => {
+            utils.preventEvent(evt2);
+            let searchText = domUtils.val($searchInput).trim();
+            if (searchText === "") {
+              clearSearchResult();
+              return;
+            }
+            execSearch(searchText);
+          }, 200)
+        );
+      };
+      let clickElement = null;
+      let isDoubleClick = false;
+      let timer = void 0;
+      domUtils.on(
+        $panel.$shadowRoot,
+        "dblclick",
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+        dbclick_event
+      );
+      domUtils.on(
+        $panel.$shadowRoot,
+        "touchend",
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+        (evt, selectorTarget) => {
+          clearTimeout(timer);
+          timer = void 0;
+          if (isDoubleClick && clickElement === selectorTarget) {
+            isDoubleClick = false;
+            dbclick_event(evt);
+          } else {
+            timer = setTimeout(() => {
+              isDoubleClick = false;
+            }, 200);
+            clickElement = selectorTarget;
+            isDoubleClick = true;
+          }
+        },
+        {
+          capture: true
+        }
+      );
+      $panel.$shadowRoot.appendChild(
+        domUtils.createElement("style", {
+          type: "text/css",
+          textContent: (
+            /*css*/
+            `
+					.pops-flashing{
+						animation: double-blink 1.5s ease-in-out;
+					}
+					@keyframes double-blink {
+						 0% {
+							background-color: initial;
+						}
+						25% {
+							background-color: yellow;
+						}
+						50% {
+							background-color: initial;
+						}
+						75% {
+							background-color: yellow;
+						}
+						100% {
+							background-color: initial;
+						}
+					}
+				`
+          )
+        })
+      );
+    },
+    /**
+     * 把key:string[]转为string
+     */
+    transformKey(key) {
+      if (Array.isArray(key)) {
+        const keyArray = key.sort();
+        return JSON.stringify(keyArray);
+      } else {
+        return key;
+      }
     }
   };
   const GM_RESOURCE_MAPPING = {
@@ -6102,6 +6557,7 @@
       if ($("#artplayer")) {
         log$1.warn("已使用ArtPlayer覆盖原播放器，更新播放信息");
       } else {
+        log$1.info(`覆盖播放器`);
         addStyle(
           /*css*/
           `
@@ -6390,7 +6846,7 @@
     }
     return `${r & MASK_CODE ^ XOR_CODE2}`;
   }
-  const MobileCommentModule = function() {
+  const MobileCommentModule = (function() {
     const global = typeof _unsafeWindow === "undefined" ? window : _unsafeWindow;
     const videoRE = /https:\/\/m\.bilibili\.com\/video\/.*/;
     const dynamicRE = /https:\/\/m.bilibili.com\/dynamic\/\d+/;
@@ -6410,7 +6866,7 @@
       setupStandardCommentContainer(commentModuleWrapper);
       replyList = commentModuleWrapper.querySelector(".reply-list");
       await new Promise((resolve) => {
-        const timer = setInterval(async () => {
+        utils.wait(() => {
           if (videoRE.test(global.location.href)) {
             const videoID = global.location.pathname.replace("/video/", "").replace("/", "");
             if (videoID.startsWith("av")) oid = videoID.slice(2);
@@ -6424,10 +6880,17 @@
             commentType = global?.__INITIAL_STATE__?.opus?.detail?.basic?.comment_type;
           }
           if (oid && commentType) {
-            clearInterval(timer);
             resolve();
+            return {
+              success: true,
+              data: {}
+            };
           }
-        }, 200);
+          return {
+            success: false,
+            data: null
+          };
+        }, 0);
       });
       await enableSwitchingSortType(commentModuleWrapper);
       await loadFirstPagination(commentModuleWrapper);
@@ -7105,7 +7568,7 @@
       `;
       (document.head || document.documentElement).appendChild(otherCSS);
     }
-  }();
+  })();
   const MobileCommentModuleStyle = ':root {\r\n	--v_xs: 5px;\r\n	--v_xsx: 4px;\r\n	--v_xxs: 6px;\r\n	--v_sm: 10px;\r\n	--v_smx: 8px;\r\n	--v_xsm: 12px;\r\n	--v_md: 15px;\r\n	--v_mdx: 14px;\r\n	--v_xmd: 16px;\r\n	--v_lg: 20px;\r\n	--v_lgx: 18px;\r\n	--v_xlg: 22px;\r\n	--v_xl: 25px;\r\n	--v_xlx: 24px;\r\n	--v_xxl: 26px;\r\n	--v_fs_1: 24px;\r\n	--v_fs_2: 18px;\r\n	--v_fs_3: 16px;\r\n	--v_fs_4: 14px;\r\n	--v_fs_5: 13px;\r\n	--v_fs_6: 12px;\r\n	--v_lh_xs: 1;\r\n	--v_lh_sm: 1.25;\r\n	--v_lh_md: 1.5;\r\n	--v_lh_lg: 1.75;\r\n	--v_lh_xl: 2;\r\n	--v_height_xs: 16px;\r\n	--v_height_sm: 24px;\r\n	--v_height_md: 32px;\r\n	--v_height_lg: 40px;\r\n	--v_height_xl: 48px;\r\n	--v_radius: 6px;\r\n	--v_radius_sm: 4px;\r\n	--v_radius_md: 8px;\r\n	--v_radius_lg: 10px;\r\n	--v_brand_pink: var(--brand_pink, #ff6699);\r\n	--v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\r\n	--v_brand_blue: var(--brand_blue, #00aeec);\r\n	--v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\r\n	--v_stress_red: var(--stress_red, #f85a54);\r\n	--v_stress_red_thin: var(--stress_red_thin, #feecea);\r\n	--v_success_green: var(--success_green, #2ac864);\r\n	--v_success_green_thin: var(--success_green_thin, #e4f8ea);\r\n	--v_operate_orange: var(--operate_orange, #ff7f24);\r\n	--v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\r\n	--v_pay_yellow: var(--pay_yellow, #ffb027);\r\n	--v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\r\n	--v_bg1: var(--bg1, #ffffff);\r\n	--v_bg2: var(--bg2, #f6f7f8);\r\n	--v_bg3: var(--bg3, #f1f2f3);\r\n	--v_bg1_float: var(--bg1_float, #ffffff);\r\n	--v_bg2_float: var(--bg2_float, #f1f2f3);\r\n	--v_text_white: var(--text_white, #ffffff);\r\n	--v_text1: var(--text1, #18191c);\r\n	--v_text2: var(--text2, #61666d);\r\n	--v_text3: var(--text3, #9499a0);\r\n	--v_text4: var(--text4, #c9ccd0);\r\n	--v_text_link: var(--text_link, #008ac5);\r\n	--v_text_notice: var(--text_notice, #e58900);\r\n	--v_line_light: var(--line_light, #f1f2f3);\r\n	--v_line_regular: var(--line_regular, #e3e5e7);\r\n	--v_line_bold: var(--line_bold, #c9ccd0);\r\n	--v_graph_white: var(--graph_white, #ffffff);\r\n	--v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\r\n	--v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\r\n	--v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\r\n	--v_graph_weak: var(--graph_weak, #c9ccd0);\r\n	--v_graph_medium: var(--graph_medium, #9499a0);\r\n	--v_graph_icon: var(--graph_icon, #61666d);\r\n	--v_shadow: var(--shadow, #000000);\r\n	--v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\r\n	--v_brand_pink_active: var(--brand_pink_active, #e84b85);\r\n	--v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\r\n	--v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\r\n	--v_brand_blue_active: var(--brand_blue_active, #008ac5);\r\n	--v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\r\n	--v_stress_red_hover: var(--stress_red_hover, #fa857f);\r\n	--v_stress_red_active: var(--stress_red_active, #e23d3d);\r\n	--v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\r\n	--v_text_hover: var(--text_hover, #797f87);\r\n	--v_text_active: var(--text_active, #61666d);\r\n	--v_text_disabled: var(--text_disabled, #c9ccd0);\r\n	--v_line_border: var(--line_border, #c9ccd0);\r\n	--v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\r\n	--v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\r\n	--v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\r\n}\r\n\r\n@font-face {\r\n	font-family: fanscard;\r\n	src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\r\n}\r\n\r\n.svg-icon {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n}\r\n\r\n.svg-icon svg {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.svg-icon.use-color svg path {\r\n	fill: currentColor;\r\n	color: inherit;\r\n}\r\n\r\n.top-vote-card {\r\n	background-color: var(--graph_bg_thin);\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	height: 80px;\r\n	width: 100%;\r\n	margin-bottom: 24px;\r\n	padding: 12px 16px 12px 10px;\r\n	border-radius: 6px;\r\n}\r\n\r\n.top-vote-card__multi {\r\n	cursor: pointer;\r\n}\r\n\r\n.top-vote-card__multi:hover .vote-result-text {\r\n	color: var(--brand_blue);\r\n	transition: 0.2s;\r\n}\r\n\r\n.top-vote-card-left {\r\n	width: 40%;\r\n	max-width: calc(40% - 30px);\r\n	margin-right: 20px;\r\n	word-wrap: break-word;\r\n	font-size: 13px;\r\n	line-height: 18px;\r\n	color: var(--text1);\r\n}\r\n\r\n.top-vote-card-left__title {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.top-vote-card-left__title svg {\r\n	margin-right: 2px;\r\n	flex: none;\r\n}\r\n\r\n.top-vote-card-left__title span {\r\n	display: -webkit-box;\r\n	float: none;\r\n	height: 18px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	word-break: break-word;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-line-clamp: 1;\r\n}\r\n\r\n.top-vote-card-left__join {\r\n	height: 17px;\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 4px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.top-vote-card-left__join .vote-icon {\r\n	height: 12px;\r\n}\r\n\r\n.top-vote-card-left__join span {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.top-vote-card-right {\r\n	width: 60%;\r\n	font-size: var(--2fde2a28);\r\n	line-height: 17px;\r\n	display: flex;\r\n	--option-height: 40px;\r\n	--option-radius: 6px;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote {\r\n	opacity: 0.9;\r\n}\r\n\r\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\r\n	font-weight: 400 !important;\r\n}\r\n\r\n.top-vote-card-right .vote-text :first-child {\r\n	font-weight: 500;\r\n}\r\n\r\n.top-vote-card-right .vote-icon {\r\n	flex: none;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option {\r\n	position: relative;\r\n	display: flex;\r\n	min-width: 120px;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n	background-color: rgba(255, 102, 153, var(--212267a6));\r\n	height: var(--option-height);\r\n	width: var(--38c5ebb3);\r\n	padding-left: 10px;\r\n	border-radius: var(--option-radius) 0 0 var(--option-radius);\r\n	cursor: pointer;\r\n	margin-right: 30px;\r\n	color: var(--332a347e);\r\n	transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option {\r\n	position: absolute;\r\n	right: -20px;\r\n	top: 0;\r\n}\r\n\r\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\r\n	left: -8px;\r\n	background-color: #f69;\r\n	transform: skew(21deg);\r\n	border-top-right-radius: calc(var(--option-radius) - 2px);\r\n	border-bottom-right-radius: var(--option-radius);\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option {\r\n	height: 40px;\r\n	width: 20px;\r\n	overflow: hidden;\r\n	opacity: var(--212267a6);\r\n	pointer-events: none;\r\n}\r\n\r\n.top-vote-card-right .skew-vote-option__fill {\r\n	pointer-events: all;\r\n	position: absolute;\r\n	top: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option {\r\n	position: relative;\r\n	display: flex;\r\n	min-width: 120px;\r\n	align-items: center;\r\n	flex-direction: row-reverse;\r\n	justify-content: space-between;\r\n	background-color: rgba(0, 174, 236, var(--212267a6));\r\n	height: var(--option-height);\r\n	width: var(--4b2970aa);\r\n	padding-right: 10px;\r\n	border-radius: 0 var(--option-radius) var(--option-radius) 0;\r\n	cursor: pointer;\r\n	color: var(--1e587827);\r\n	transition: width ease-out 0.2s;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option {\r\n	position: absolute;\r\n	left: -20px;\r\n	top: 0;\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\r\n	left: 8px;\r\n	background-color: #00aeec;\r\n	transform: skew(21deg);\r\n	border-top-left-radius: var(--option-radius);\r\n	border-bottom-left-radius: calc(var(--option-radius) - 2px);\r\n}\r\n\r\n.top-vote-card-right .right-vote-option .vote-text {\r\n	text-align: right;\r\n}\r\n\r\n.top-vote-card-right .had_voted {\r\n	cursor: unset;\r\n}\r\n\r\n.reply-header .reply-notice {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	min-height: 40px;\r\n	padding: 4px 10px;\r\n	margin-bottom: 16px;\r\n	font-size: 13px;\r\n	border-radius: 2px;\r\n	color: var(--Ye5_u);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-notice:after {\r\n	content: "";\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	top: 0;\r\n	left: 0;\r\n	background-color: var(--Ye5_u);\r\n	opacity: 0.2;\r\n}\r\n\r\n.reply-header .reply-notice .notice-icon {\r\n	width: 16px;\r\n	height: 16px;\r\n	margin-right: 5px;\r\n}\r\n\r\n.reply-header .reply-notice .notice-content {\r\n	flex: 1;\r\n	padding: 0 5px;\r\n	vertical-align: top;\r\n	word-wrap: break-word;\r\n	word-break: break-all;\r\n}\r\n\r\n.reply-header .reply-notice .notice-close-icon {\r\n	position: relative;\r\n	z-index: 1;\r\n	width: 10px;\r\n	height: 10px;\r\n	margin-left: 5px;\r\n}\r\n\r\n.reply-header .reply-navigation {\r\n	margin-bottom: 22px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar {\r\n	display: flex;\r\n	align-items: center;\r\n	list-style: none;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title {\r\n		font-size: 20px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title {\r\n		font-size: 24px;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n	color: var(--text1);\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n	margin: 0 36px 0 6px;\r\n	font-weight: 400;\r\n	color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\r\n		font-size: 14px;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n	color: var(--text1);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n		font-size: 16px;\r\n	}\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.reply-header .reply-navigation .nav-bar .nav-select-reply {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort {\r\n	display: flex;\r\n	align-items: center;\r\n	color: var(--text3);\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-sort {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-header .reply-navigation .nav-bar .nav-sort {\r\n		font-size: 16px;\r\n	}\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n	height: 11px;\r\n	margin: 0 12px;\r\n	border-left: solid 1px;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-header .reply-navigation .nav-operation-warp {\r\n	position: absolute;\r\n	right: 0;\r\n}\r\n\r\n/*\r\n   * @bilibili/userAvatar\r\n   * version: 1.2.0-beta.2. Powered by main-frontend\r\n   * 用户头像公共组件.\r\n   * author: wuxiuran\r\n   */\r\n.bili-avatar {\r\n	display: block;\r\n	position: relative;\r\n	background-image: url(data:image/gif;base64,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);\r\n	-webkit-background-size: cover;\r\n	background-size: cover;\r\n	border-radius: 50%;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.bili-avatar * {\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.bili-avatar-face {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	-webkit-transform: translate(-50%, -50%);\r\n	-moz-transform: translate(-50%, -50%);\r\n	-ms-transform: translate(-50%, -50%);\r\n	-o-transform: translate(-50%, -50%);\r\n	transform: translate(-50%, -50%);\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.bili-avatar-pendent-dom {\r\n	height: 176.48%;\r\n	width: 176.48%;\r\n	position: absolute;\r\n	top: -38.33%;\r\n	left: -38.33%;\r\n	overflow: hidden;\r\n}\r\n\r\n.bili-avatar-pendent-dom img {\r\n	height: 100%;\r\n	min-width: 100%;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n}\r\n\r\n.bili-avatar-img {\r\n	border: none;\r\n	display: block;\r\n	-o-object-fit: cover;\r\n	object-fit: cover;\r\n	image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-img-radius {\r\n	border-radius: 50%;\r\n}\r\n\r\n.bili-avatar-img[src=""],\r\n.bili-avatar-img:not([src]) {\r\n	opacity: 0;\r\n}\r\n\r\n.bili-avatar-img.bili-avatar-img-error {\r\n	display: none;\r\n}\r\n\r\n.bili-avatar-right-icon {\r\n	width: 27.5%;\r\n	height: 27.5%;\r\n	position: absolute;\r\n	right: 0;\r\n	bottom: -1px;\r\n	-webkit-background-size: cover;\r\n	background-size: cover;\r\n	image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n.bili-avatar-nft-icon {\r\n	position: absolute;\r\n	width: 27.5%;\r\n	height: 27.5%;\r\n	right: -webkit-calc(27.5% - 1px);\r\n	right: -moz-calc(27.5% - 1px);\r\n	right: calc(27.5% - 1px);\r\n	bottom: -1px;\r\n	-webkit-background-size: cover;\r\n	background-size: cover;\r\n	image-rendering: -webkit-optimize-contrast;\r\n}\r\n\r\n@-webkit-keyframes bili-avatar {\r\n	0% {\r\n		-webkit-transform: translate3d(0, 0, 0);\r\n		transform: translateZ(0);\r\n	}\r\n\r\n	to {\r\n		-webkit-transform: translate3d(-97.5%, 0, 0);\r\n		transform: translate3d(-97.5%, 0, 0);\r\n	}\r\n}\r\n\r\n@-moz-keyframes bili-avatar {\r\n	0% {\r\n		-moz-transform: translate3d(0, 0, 0);\r\n		transform: translateZ(0);\r\n	}\r\n\r\n	to {\r\n		-moz-transform: translate3d(-97.5%, 0, 0);\r\n		transform: translate3d(-97.5%, 0, 0);\r\n	}\r\n}\r\n\r\n@keyframes bili-avatar {\r\n	0% {\r\n		-webkit-transform: translate3d(0, 0, 0);\r\n		-moz-transform: translate3d(0, 0, 0);\r\n		transform: translateZ(0);\r\n	}\r\n\r\n	to {\r\n		-webkit-transform: translate3d(-97.5%, 0, 0);\r\n		-moz-transform: translate3d(-97.5%, 0, 0);\r\n		transform: translate3d(-97.5%, 0, 0);\r\n	}\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-80 {\r\n	width: 22px;\r\n	height: 22px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-60,\r\n.bili-avatar .bili-avatar-size-50,\r\n.bili-avatar .bili-avatar-size-48 {\r\n	width: 18px;\r\n	height: 18px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-40,\r\n.bili-avatar .bili-avatar-size-36 {\r\n	width: 14px;\r\n	height: 14px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-30,\r\n.bili-avatar .bili-avatar-size-24 {\r\n	width: 12px;\r\n	height: 12px;\r\n	bottom: -1px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-80 {\r\n	width: 22px;\r\n	height: 22px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(22px - 1px);\r\n	right: -moz-calc(22px - 1px);\r\n	right: 21px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-60,\r\n.bili-avatar .bili-avatar-size-nft-50,\r\n.bili-avatar .bili-avatar-size-nft-48 {\r\n	width: 18px;\r\n	height: 18px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(18px - 1px);\r\n	right: -moz-calc(18px - 1px);\r\n	right: 17px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-40,\r\n.bili-avatar .bili-avatar-size-nft-36 {\r\n	width: 14px;\r\n	height: 14px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(14px - 1px);\r\n	right: -moz-calc(14px - 1px);\r\n	right: 13px;\r\n}\r\n\r\n.bili-avatar .bili-avatar-size-nft-30,\r\n.bili-avatar .bili-avatar-size-nft-24 {\r\n	width: 12px;\r\n	height: 12px;\r\n	bottom: -1px;\r\n	right: -webkit-calc(12px - 1px);\r\n	right: -moz-calc(12px - 1px);\r\n	right: 11px;\r\n}\r\n\r\n.reply-image {\r\n	width: var(--3414c33c);\r\n	height: var(--822197ea);\r\n}\r\n\r\n.reply-image.b-img {\r\n	background-color: inherit;\r\n}\r\n\r\n.reply-image.b-img img {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.opacity-enter-active,\r\n.opacity-leave-active {\r\n	transition: opacity 0.15s ease;\r\n}\r\n\r\n.opacity-enter-from,\r\n.opacity-leave-to {\r\n	opacity: 0;\r\n}\r\n\r\n.reply-box {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-box .box-normal {\r\n	display: flex;\r\n	z-index: 2;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 80px;\r\n	height: 48px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp {\r\n	position: relative;\r\n	flex: 1;\r\n	transition: 0.2s;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 6px;\r\n	background-color: var(--bg3);\r\n	overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp.focus-within,\r\n.reply-box .box-normal .reply-box-warp:hover {\r\n	border-color: var(--line_regular);\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\r\n	padding: 8px 0;\r\n	display: flex;\r\n	flex-direction: column;\r\n	width: 100%;\r\n	border-radius: 6px;\r\n	cursor: text;\r\n	overflow: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\r\n	margin-left: 10px;\r\n	margin-bottom: 4px;\r\n	height: 20px;\r\n	font-size: 12px;\r\n	line-height: 17px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\r\n	flex: none;\r\n	padding: 2px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 4px;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\r\n	background-color: var(--Pi1);\r\n	color: var(--Pi5);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\r\n	background-color: var(--brand_blue_thin);\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\r\n	background-color: var(--graph_bg_regular);\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\r\n	max-width: calc(100% - 68px);\r\n	color: var(--text2);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\r\n	flex: none;\r\n	margin-left: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input {\r\n	padding: 0 8px;\r\n	width: 100%;\r\n	height: 100%;\r\n	border: 1px solid var(--Ga1);\r\n	border-radius: 6px;\r\n	background-color: var(--bg3);\r\n	font-family: inherit;\r\n	line-height: 20px;\r\n	color: var(--text1);\r\n	resize: none;\r\n	outline: none;\r\n	overflow-y: scroll;\r\n	overflow-x: hidden;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\r\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\r\n	background-color: var(--bg1);\r\n	border-color: var(--graph_weak);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\r\n	padding: 0 8px;\r\n	width: 100%;\r\n	height: 32px;\r\n	border: none;\r\n	border-radius: 6px;\r\n	background-color: transparent;\r\n	font-family: inherit;\r\n	font-size: 14px;\r\n	line-height: 32px;\r\n	color: var(--text1);\r\n	resize: none;\r\n	outline: none;\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\r\n	background: transparent;\r\n}\r\n\r\n.reply-box .box-expand {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	margin-left: 80px;\r\n	margin-top: 10px;\r\n	z-index: 1;\r\n	height: 32px;\r\n	transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand.hide {\r\n	margin-top: 0;\r\n	height: 0;\r\n	overflow: hidden;\r\n	transition: all 0.2s ease-in-out;\r\n}\r\n\r\n.reply-box .box-expand .box-left {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji {\r\n	width: 32px;\r\n	height: 26px;\r\n	margin-right: 6px;\r\n	position: relative;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 4px;\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .at-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 32px;\r\n	height: 26px;\r\n	margin-right: 6px;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 4px;\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 32px;\r\n	height: 26px;\r\n	border: 1px solid var(--line_regular);\r\n	border-radius: 4px;\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .image-btn.disabled {\r\n	opacity: 0.4;\r\n}\r\n\r\n.reply-box .box-expand .image-btn .image-upload-input {\r\n	appearance: none;\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	opacity: 0;\r\n	font-size: 0;\r\n	user-select: auto;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-left: 16px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box .box-expand .forward-to-dynamic .forward-input,\r\n.reply-box .box-expand .forward-to-dynamic .forward-label {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send {\r\n	float: right;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 70px;\r\n	height: 32px;\r\n	border-radius: 6px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send .send-text {\r\n	position: absolute;\r\n	z-index: 1;\r\n	font-size: 16px;\r\n	color: var(--text_white);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:after {\r\n	content: "";\r\n	position: absolute;\r\n	opacity: 0.5;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 4px;\r\n	background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box .box-expand .reply-box-send:hover:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box.box-active\r\n	.box-normal\r\n	.reply-box-warp\r\n	.reply-box-textarea.send-active {\r\n	line-height: normal;\r\n}\r\n\r\n.reply-box.box-active .reply-box-send.send-active:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	z-index: 1;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 6px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: 100%;\r\n	height: 100%;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled\r\n	.box-normal\r\n	.reply-box-warp\r\n	.disable-mask\r\n	.no-login-mask\r\n	.login-btn {\r\n	padding: 4px 9px;\r\n	margin: 0 3px;\r\n	border-radius: 4px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-box.disabled\r\n	.box-normal\r\n	.reply-box-warp\r\n	.disable-mask\r\n	.no-login-mask\r\n	.login-btn:hover {\r\n	background-color: var(--Lb4);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box.disabled .reply-box-send .send-text {\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box.disabled .reply-box-send:after {\r\n	opacity: 1;\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.reply-box.fixed-box {\r\n	position: relative;\r\n	z-index: 2;\r\n	padding: 15px 0;\r\n	border-top: 0.5px solid var(--graph_bg_thick);\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.reply-content-container.fold .reply-content {\r\n	display: -webkit-box;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-line-clamp: 4;\r\n}\r\n\r\n.reply-content-container .reply-content {\r\n	color: var(--text1);\r\n	overflow: hidden;\r\n	word-wrap: break-word;\r\n	word-break: break-word;\r\n	white-space: pre-wrap;\r\n	line-height: 24px;\r\n	vertical-align: baseline;\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 1px 4px;\r\n	border-radius: 4px;\r\n	margin-right: 8px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	line-height: 20px;\r\n	vertical-align: bottom;\r\n	background-color: var(--bg2);\r\n}\r\n\r\n.reply-content-container .reply-content .note-prefix .note-icon {\r\n	width: 16px;\r\n	height: 16px;\r\n}\r\n\r\n.reply-content-container .reply-content .top-icon {\r\n	top: -2px;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 30px;\r\n	height: 18px;\r\n	border: 1px solid var(--brand_pink);\r\n	border-radius: 3px;\r\n	margin-right: 5px;\r\n	font-size: 12px;\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-small {\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-content-container .reply-content .emoji-small {\r\n		width: 20px;\r\n		height: 20px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-content-container .reply-content .emoji-small {\r\n		width: 22px;\r\n		height: 22px;\r\n	}\r\n}\r\n\r\n.reply-content-container .reply-content .emoji-large {\r\n	width: 50px;\r\n	height: 50px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-container .reply-content .icon {\r\n	width: 20px;\r\n	height: 20px;\r\n	vertical-align: text-top;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-content-container .reply-content .icon {\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-content-container .reply-content .icon {\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.reply-content-container .reply-content .icon.search-word {\r\n	width: 12px;\r\n	display: inline-block;\r\n	background-size: contain;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.reply-content-container .reply-content .jump-link {\r\n	vertical-align: baseline;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-content-container .reply-content .jump-link {\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-content-container .reply-content .jump-link {\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.reply-content-container .expand-content {\r\n	color: var(--text_link);\r\n	cursor: pointer;\r\n	margin-left: 4px;\r\n}\r\n\r\n.reply-content-container .expand-content:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item {\r\n	position: relative;\r\n	padding: 8px 0 8px 42px;\r\n	border-radius: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.sub-reply-item {\r\n		font-size: 15px;\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.sub-reply-item {\r\n		font-size: 16px;\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.sub-reply-item.show-reply {\r\n	background-color: #dff6fb;\r\n	animation-name: enterAnimation-jumpReply-1f8a4018;\r\n	animation-duration: 2s;\r\n	animation-delay: 3s;\r\n	animation-fill-mode: forwards;\r\n}\r\n\r\n.sub-reply-item .sub-user-info {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	margin-right: 9px;\r\n	line-height: 24px;\r\n	vertical-align: baseline;\r\n	white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-reply-avatar {\r\n	position: absolute;\r\n	left: 8px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-name {\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n	margin-right: 5px;\r\n	color: var(--3bab3096);\r\n	cursor: pointer;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.sub-reply-item .sub-user-info .sub-user-name {\r\n		font-size: 13px;\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.sub-reply-item .sub-user-info .sub-user-name {\r\n		font-size: 14px;\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.sub-reply-item .sub-user-info .sub-user-name {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-user-level {\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-user-info .sub-up-icon {\r\n	cursor: default;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	margin-top: 2px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-time {\r\n	margin-right: var(--7530c1e4);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-location {\r\n	margin-right: 20px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\r\n	margin-right: 5px;\r\n	color: #9499a0;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\r\n	color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\r\n	color: #9499a0;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\r\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\r\n	color: #00aeec;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn {\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\r\n	position: absolute;\r\n	right: 40px;\r\n	opacity: 0;\r\n}\r\n\r\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\r\n	opacity: 1;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-1f8a4018 {\r\n	0% {\r\n		background-color: #dff6fb;\r\n	}\r\n\r\n	to {\r\n		background-color: #dff6fb00;\r\n	}\r\n}\r\n\r\n.sub-reply-list .view-more {\r\n	padding-left: 8px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn {\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination {\r\n	color: var(--text1);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\r\n	margin-right: 10px;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\r\n	margin: 0 4 0 14px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\r\n	margin: 0 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\r\n.sub-reply-list\r\n	.view-more\r\n	.view-more-pagination\r\n	.pagination-page-number.current-page {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\r\n	margin: 0 4px;\r\n	cursor: default;\r\n}\r\n\r\n.image-exhibition {\r\n	margin-top: 8px;\r\n	user-select: none;\r\n}\r\n\r\n.image-exhibition .preview-image-container {\r\n	max-width: var(--dacbf126);\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	row-gap: var(--77b1c8ee);\r\n	column-gap: var(--0c349aa2);\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: relative;\r\n	border-radius: var(--7fefecd2);\r\n	overflow: hidden;\r\n	cursor: zoom-in;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\r\n	flex-direction: column;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\r\n	justify-content: start;\r\n}\r\n\r\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: absolute;\r\n	right: 4px;\r\n	bottom: 4px;\r\n	height: 20px;\r\n	padding: 0 6px;\r\n	border-radius: 4px;\r\n	font-size: 13px;\r\n	color: var(--text_white);\r\n	font-weight: 500;\r\n	line-height: 18px;\r\n	background: rgba(0, 0, 0, 0.7);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-child(3n + 1) {\r\n	border-bottom-right-radius: 0;\r\n	border-top-right-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-child(3n + 2) {\r\n	border-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-child(3n + 3) {\r\n	border-bottom-left-radius: 0;\r\n	border-top-left-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.client-image-item-warp:nth-last-child(1) {\r\n	border-bottom-right-radius: var(--7fefecd2);\r\n	border-top-right-radius: var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(1) {\r\n	border-radius: var(--7fefecd2) 0 0 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(3) {\r\n	border-radius: 0 var(--7fefecd2) 0 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(7) {\r\n	border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(9) {\r\n	border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp:nth-child(3n + 2) {\r\n	border-radius: 0;\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp.expand-image-two-rows:nth-child(4) {\r\n	border-radius: 0 0 0 var(--7fefecd2);\r\n}\r\n\r\n.image-exhibition\r\n	.preview-image-container\r\n	.expand-image-item-warp.expand-image-two-rows:nth-child(6) {\r\n	border-radius: 0 0 var(--7fefecd2) 0;\r\n}\r\n\r\n.reply-user-sailing {\r\n	height: 48px;\r\n}\r\n\r\n.vote-warp {\r\n	display: flex;\r\n	width: 100%;\r\n	height: 80px;\r\n	border: 0.5px solid var(--graph_bg_thick);\r\n	border-radius: 4px;\r\n	margin: 10px 0;\r\n}\r\n\r\n.vote-warp .vote-icon-warp {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	flex-basis: 80px;\r\n	flex-shrink: 0;\r\n	border-top-left-radius: 4px;\r\n	border-bottom-left-radius: 4px;\r\n	background-color: var(--brand_blue_thin);\r\n}\r\n\r\n.vote-warp .vote-icon-warp .vote-icon {\r\n	width: 40px;\r\n	height: 40px;\r\n}\r\n\r\n.vote-warp .vote-container {\r\n	display: flex;\r\n	align-items: center;\r\n	flex: 1;\r\n	border-top-right-radius: 4px;\r\n	border-bottom-right-radius: 4px;\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp {\r\n	flex: 1;\r\n	padding-left: 15px;\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-title {\r\n	font-size: 14px;\r\n	color: var(--text1);\r\n}\r\n\r\n.vote-warp .vote-container .vote-text-warp .vote-desc {\r\n	margin-top: 10px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	flex-basis: 90px;\r\n	flex-shrink: 0;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\r\n	width: 54px;\r\n	height: 28px;\r\n	border-radius: 4px;\r\n	font-size: 13px;\r\n	text-align: center;\r\n	line-height: 28px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n	cursor: pointer;\r\n}\r\n\r\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\r\n	background-color: var(--Lb4);\r\n}\r\n\r\n.vote-dialog {\r\n	max-height: 100vh;\r\n	overflow-y: auto;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar {\r\n	width: 4px;\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-thumb {\r\n	border-radius: 4px;\r\n	background-color: var(--graph_bg_thick);\r\n	transition: 0.3s ease-in-out;\r\n}\r\n\r\n.vote-dialog::-webkit-scrollbar-track {\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp {\r\n	height: 600px;\r\n	padding-top: 10px;\r\n	border-top: 0.5px solid var(--graph_weak);\r\n}\r\n\r\n.vote-dialog .vote-iframe-warp .vote-iframe {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.reply-item {\r\n	position: relative;\r\n}\r\n\r\n.reply-item .login-limit-mask {\r\n	display: none;\r\n	position: absolute;\r\n	top: 0;\r\n	right: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	z-index: 10;\r\n	pointer-events: none;\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-top {\r\n	height: 80%;\r\n	background: linear-gradient(\r\n		180deg,\r\n		rgba(255, 255, 255, 0) 0%,\r\n		var(--bg1) 100%\r\n	);\r\n}\r\n\r\n.reply-item .login-limit-mask .mask-bottom {\r\n	height: 20%;\r\n	background: var(--bg1);\r\n}\r\n\r\n.reply-item.login-limit-reply-end .login-limit-mask {\r\n	display: block;\r\n}\r\n\r\n.reply-item .root-reply-container {\r\n	padding: 22px 0 0 80px;\r\n}\r\n\r\n.reply-item .root-reply-container.show-reply {\r\n	animation-name: enterAnimation-jumpReply-7041f671;\r\n	animation-duration: 5s;\r\n	animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-item .root-reply-container .root-reply-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	left: 0;\r\n	width: 80px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp {\r\n	flex: 1;\r\n	position: relative;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate {\r\n	position: absolute;\r\n	top: 0;\r\n	right: 0;\r\n	user-select: none;\r\n	transform: translateY(-15px);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.easter-egg-label {\r\n	width: 82px;\r\n	height: 36px;\r\n	transform: translateY(6px);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.easter-egg-label\r\n	img {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.selected-reply\r\n	.selected-reply-icon {\r\n	width: var(--213e47ca);\r\n	height: var(--268890ba);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.user-sailing\r\n	.user-sailing-img {\r\n	height: 48px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.user-sailing\r\n	.user-sailing-text {\r\n	position: absolute;\r\n	right: 0;\r\n	font-size: 13px;\r\n	color: var(--2bd55d12);\r\n	line-height: 16px;\r\n	word-break: keep-all;\r\n	transform: scale(0.7);\r\n	transform-origin: center center;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.reply-decorate\r\n	.user-sailing\r\n	.user-sailing-text\r\n	.sailing-text {\r\n	font-family: fanscard;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-bottom: 4px;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .user-info {\r\n		font-size: 13px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .user-info {\r\n		font-size: 14px;\r\n	}\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n	font-family: PingFang SC, HarmonyOS_Medium, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 500;\r\n	margin-right: 5px;\r\n	color: var(--dc735352);\r\n	cursor: pointer;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.reply-item .root-reply-container .content-warp .user-info .user-name {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .user-level {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\r\n	cursor: default;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: var(--697d5c46);\r\n	height: 12px;\r\n	padding: 2px;\r\n	border-radius: 2px;\r\n	background-color: var(--brand_pink_thin);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.contractor-box.originalFan {\r\n	border: 0.5px solid var(--brand_pink);\r\n	background-color: transparent;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.contractor-box\r\n	.contractor-text {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 16px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	position: absolute;\r\n	color: var(--brand_pink);\r\n	white-space: nowrap;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\r\n	display: flex;\r\n	align-items: center;\r\n	height: 14px;\r\n	padding-left: 5px;\r\n	border: 0.5px solid var(--3d3b5a1e);\r\n	border-radius: 10px;\r\n	margin-left: 5px;\r\n	background-image: var(--35269ce2);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-icon-wrap {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	width: var(--1f5204fd);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-icon-wrap\r\n	.badge-frist-icon {\r\n	position: absolute;\r\n	left: -8px;\r\n	width: 20px;\r\n	height: 20px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-icon-wrap\r\n	.badge-second-icon {\r\n	position: absolute;\r\n	right: 0;\r\n	width: 8px;\r\n	height: 11px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-name-wrap {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: var(--4f9eed68);\r\n	height: 100%;\r\n	margin-right: 4px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-name-wrap\r\n	.badge-name {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 18px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	color: var(--57e6be72);\r\n	font-weight: 500;\r\n	white-space: nowrap;\r\n	transform: scale(0.5) translate(-50%, -50%);\r\n	transform-origin: 0 0;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-level-wrap {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: relative;\r\n	width: 11.5px;\r\n	height: 11.5px;\r\n	border-radius: 50%;\r\n	margin-right: 0.5px;\r\n	background-color: var(--59f85baa);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.user-info\r\n	.fan-badge\r\n	.badge-level-wrap\r\n	.badge-level {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 14px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	position: absolute;\r\n	top: 52%;\r\n	left: 50%;\r\n	font-family: Reeji-CloudHuPo-GBK;\r\n	color: var(--103312b6);\r\n	font-weight: 500;\r\n	white-space: nowrap;\r\n	line-height: 1;\r\n	transform: scale(0.5) translate(-50%, -43%);\r\n	transform-origin: 0 0;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info {\r\n	margin-bottom: 4px;\r\n	height: 20px;\r\n	font-size: 12px;\r\n	line-height: 17px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag {\r\n	padding: 2px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 4px;\r\n	flex: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\r\n	background-color: var(--Pi1);\r\n	color: var(--Pi5);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\r\n	background-color: var(--brand_blue_thin);\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\r\n	background-color: var(--graph_bg_regular);\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .vote-info__text {\r\n	color: var(--Ga7_u);\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply {\r\n	position: relative;\r\n	padding: 2px 0;\r\n}\r\n\r\n@media screen and (max-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .root-reply {\r\n		font-size: 15px;\r\n		line-height: 24px;\r\n	}\r\n}\r\n\r\n@media screen and (min-width: 1681px) {\r\n	.reply-item .root-reply-container .content-warp .root-reply {\r\n		font-size: 16px;\r\n		line-height: 26px;\r\n	}\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-content-container {\r\n	display: block;\r\n	overflow: hidden;\r\n	width: 100%;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	margin-top: 2px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-time {\r\n	margin-right: var(--472bae2d);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-location {\r\n	margin-right: 20px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like\r\n	.like-icon {\r\n	margin-right: 5px;\r\n	color: #9499a0;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like\r\n	.like-icon:hover,\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-like\r\n	.like-icon.liked {\r\n	color: #00aeec;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike\r\n	.dislike-icon {\r\n	color: #9499a0;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike\r\n	.dislike-icon:hover,\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-dislike\r\n	.dislike-icon.disliked {\r\n	color: #00aeec;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-btn {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-btn:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-operation-warp {\r\n	position: absolute;\r\n	right: 20px;\r\n	display: none;\r\n}\r\n\r\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 6px;\r\n	font-size: 12px;\r\n	line-height: 17px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container\r\n	.content-warp\r\n	.root-reply\r\n	.reply-tag-list\r\n	.reply-tag-item {\r\n	padding: 2px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 10px;\r\n}\r\n\r\n.reply-item\r\n	.root-reply-container:hover\r\n	.content-warp\r\n	.root-reply\r\n	.reply-info\r\n	.reply-operation-warp {\r\n	display: block;\r\n}\r\n\r\n.reply-item .sub-reply-container {\r\n	padding-left: 72px;\r\n}\r\n\r\n.reply-item .reply-box-container {\r\n	padding: 25px 0 10px 80px;\r\n}\r\n\r\n.reply-item .bottom-line {\r\n	margin-left: 80px;\r\n	border-bottom: 1px solid var(--graph_bg_thick);\r\n	margin-top: 14px;\r\n}\r\n\r\n.reply-item .reply-dynamic-card {\r\n	position: absolute;\r\n	z-index: 10;\r\n	top: 30px;\r\n	left: 400px;\r\n}\r\n\r\n@keyframes enterAnimation-jumpReply-7041f671 {\r\n	0% {\r\n		background-color: #dff6fb;\r\n	}\r\n\r\n	to {\r\n		background-color: #dff6fb00;\r\n	}\r\n}\r\n\r\n.reply-list {\r\n	margin-top: 14px;\r\n	padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n	height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading,\r\n.reply-list .view-all-reply {\r\n	margin-top: 20px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n	text-align: center;\r\n}\r\n\r\n.reply-list .view-all-reply:hover {\r\n	color: var(--brand_blue);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: calc(100% - 80px);\r\n	height: 50px;\r\n	margin: 16px 0 0 auto;\r\n	border-radius: 6px;\r\n	font-size: 14px;\r\n	color: var(--brand_blue);\r\n	background-color: var(--brand_blue_thin);\r\n	transition: 0.2s;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-list .login-prompt:hover {\r\n	background-color: var(--Lb2);\r\n}\r\n\r\n.user-card {\r\n	position: absolute;\r\n	top: var(--555c4a14);\r\n	left: var(--8468e010);\r\n	z-index: 10;\r\n	width: 366px;\r\n	border: 0.5px solid var(--graph_weak);\r\n	border-radius: 8px;\r\n	background-color: var(--bg1);\r\n	box-shadow: 0 0 30px #0000001a;\r\n}\r\n\r\n.user-card .card-bg {\r\n	width: 100%;\r\n	height: 85px;\r\n	border-radius: 8px 8px 0 0;\r\n	overflow: hidden;\r\n	background-image: var(--71924242);\r\n	background-size: cover;\r\n	background-repeat: no-repeat;\r\n	background-position: center;\r\n}\r\n\r\n.user-card .user-card-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	width: 70px;\r\n	margin-top: 10px;\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card .card-content {\r\n	display: flex;\r\n	flex-direction: column;\r\n	padding: 12px 20px 16px 70px;\r\n}\r\n\r\n.user-card .card-content .card-user-info {\r\n	display: flex;\r\n	align-items: center;\r\n	color: var(--text1);\r\n	margin-bottom: 10px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-name {\r\n	max-width: 160px;\r\n	margin-right: 5px;\r\n	font-size: 16px;\r\n	font-weight: 600;\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n	color: var(--text1);\r\n	color: var(--7ba58c95);\r\n	text-decoration: none;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-sex {\r\n	width: 16px;\r\n	height: 16px;\r\n	margin-right: 5px;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-level {\r\n	margin-right: 5px;\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: var(--7a718880);\r\n	height: 16px;\r\n	padding: 1px 4px;\r\n	border-radius: 2px;\r\n	color: var(--612d8511);\r\n	background-color: var(--29ab308e);\r\n	cursor: default;\r\n}\r\n\r\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	font-size: 20px;\r\n	transform-origin: center center;\r\n	transform: scale(0.5);\r\n	white-space: nowrap;\r\n	font-style: normal;\r\n}\r\n\r\n.user-card .card-content .card-social-info {\r\n	display: flex;\r\n	align-items: center;\r\n	font-size: 12px;\r\n	color: var(--text1);\r\n}\r\n\r\n.user-card .card-content .card-social-info .card-user-attention,\r\n.user-card .card-content .card-social-info .card-user-fans,\r\n.user-card .card-content .card-social-info .card-user-like {\r\n	margin-right: 18px;\r\n	color: inherit;\r\n	text-decoration: none;\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-social-info\r\n	.card-user-attention\r\n	.social-info-title,\r\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\r\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\r\n	margin-left: 3px;\r\n	color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info {\r\n	padding-top: 10px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.user-card .card-content .card-verify-info .card-verify-icon {\r\n	vertical-align: text-bottom;\r\n	margin-right: 3px;\r\n}\r\n\r\n.user-card .card-content .card-sign {\r\n	padding-top: 8px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	word-break: break-all;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp {\r\n	display: flex;\r\n	margin-top: 16px;\r\n	font-size: 14px;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 100px;\r\n	height: 30px;\r\n	border-radius: 4px;\r\n	margin-right: 8px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n	transition: 0.4s;\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-btn-warp\r\n	.card-attention-btn\r\n	.cancel-attention-text {\r\n	display: none;\r\n	position: absolute;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\r\n	color: var(--text2);\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-btn-warp\r\n	.card-attention-btn.attention:hover\r\n	.attention-text {\r\n	display: none;\r\n}\r\n\r\n.user-card\r\n	.card-content\r\n	.card-btn-warp\r\n	.card-attention-btn.attention:hover\r\n	.cancel-attention-text {\r\n	display: inline;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 100px;\r\n	height: 30px;\r\n	border: 1px solid var(--graph_weak);\r\n	border-radius: 4px;\r\n	color: var(--text2);\r\n	cursor: pointer;\r\n}\r\n\r\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\r\n	border-color: var(--brand_blue);\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.dynamic-card {\r\n	display: flex;\r\n	flex-direction: column;\r\n	position: absolute;\r\n	z-index: 10;\r\n	top: var(--7b058890);\r\n	left: 400px;\r\n	width: 710px;\r\n	height: 550px;\r\n	border-radius: 6px;\r\n	background-color: var(--bg1);\r\n	box-shadow: 0 0 25px #00000026;\r\n}\r\n\r\n.dynamic-card .card-header {\r\n	display: flex;\r\n	align-items: center;\r\n	flex-basis: 50px;\r\n	padding: 0 10px;\r\n	border-bottom: 0.5px solid var(--line_light);\r\n}\r\n\r\n.dynamic-card .card-header .card-title {\r\n	flex: 1;\r\n	text-align: center;\r\n	font-size: 16px;\r\n	color: var(--text1);\r\n}\r\n\r\n.dynamic-card .card-header .close-card {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	width: 30px;\r\n	height: 30px;\r\n	border-radius: 6px;\r\n	color: var(--text2);\r\n	transition: 0.2s;\r\n	cursor: pointer;\r\n}\r\n\r\n.dynamic-card .card-header .close-card:hover {\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.dynamic-card .card-content {\r\n	flex: 1;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar {\r\n	width: 4px;\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\r\n	border-radius: 4px;\r\n	background-color: var(--graph_bg_thick);\r\n	transition: 0.3s ease-in-out;\r\n}\r\n\r\n.dynamic-card .card-content::-webkit-scrollbar-track {\r\n	border-radius: 4px;\r\n	background-color: transparent;\r\n}\r\n\r\n.dynamic-card .card-content .dynamic-card-iframe {\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n\r\n.reply-view-image {\r\n	position: fixed;\r\n	z-index: 999999;\r\n	top: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	background: rgba(24, 25, 28, 0.85);\r\n	transform: scale(1);\r\n	user-select: none;\r\n	cursor: default;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	-webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image,\r\n.reply-view-image * {\r\n	box-sizing: border-box;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: absolute;\r\n	z-index: 2;\r\n	width: 42px;\r\n	height: 42px;\r\n	border-radius: 50%;\r\n	color: var(--text_white);\r\n	background: rgba(0, 0, 0, 0.58);\r\n	transition: 0.2s;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon:hover {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\r\n	top: 16px;\r\n	right: 16px;\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\r\n	top: 50%;\r\n	left: 16px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\r\n	top: 50%;\r\n	right: 16px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.reply-view-image .show-image-wrap {\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	position: absolute;\r\n	width: 100%;\r\n	height: 100%;\r\n	max-height: 100%;\r\n	padding: 0 100px;\r\n	overflow: auto;\r\n}\r\n\r\n.reply-view-image .show-image-wrap .loading-svga {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	transform: translate(-50%, -50%);\r\n	width: 42px;\r\n	height: 42px;\r\n}\r\n\r\n.reply-view-image .show-image-wrap.vertical {\r\n	flex-direction: column;\r\n	justify-content: var(--c186e874);\r\n}\r\n\r\n.reply-view-image .show-image-wrap .image-content {\r\n	width: calc(100vw - 200px);\r\n	max-width: var(--34114ac9);\r\n	-webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image .preview-list {\r\n	display: flex;\r\n	align-items: center;\r\n	position: absolute;\r\n	left: 50%;\r\n	bottom: 30px;\r\n	z-index: 2;\r\n	padding: 6px 10px;\r\n	border-radius: 8px;\r\n	background: rgba(24, 25, 28, 0.8);\r\n	backdrop-filter: blur(20px);\r\n	transform: translate(-50%);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box {\r\n	padding: 1px;\r\n	border: 2px solid transparent;\r\n	border-radius: 8px;\r\n	transition: 0.3s;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box.active {\r\n	border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\r\n	display: flex;\r\n	justify-content: center;\r\n	overflow: hidden;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 6px;\r\n}\r\n\r\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-view-image\r\n	.preview-list\r\n	.preview-item-box\r\n	.preview-item-wrap.extra-long {\r\n	justify-content: start;\r\n}\r\n\r\n.reply-view-image\r\n	.preview-list\r\n	.preview-item-box\r\n	.preview-item-wrap\r\n	.item-content {\r\n	-webkit-user-drag: none;\r\n}\r\n\r\n.reply-view-image--transition-enter-active,\r\n.reply-view-image--transition-leave-active {\r\n	transition: all 0.3s ease;\r\n}\r\n\r\n.reply-view-image--transition-enter-from,\r\n.reply-view-image--transition-leave-to {\r\n	transform: scale(0.4);\r\n	opacity: 0;\r\n}\r\n\r\n.reply-warp {\r\n	position: relative;\r\n}\r\n\r\n.reply-warp .fixed-reply-box {\r\n	position: fixed;\r\n	bottom: 0;\r\n	left: var(--3e88ddc5);\r\n	z-index: 10;\r\n	width: var(--d9a0b070);\r\n}\r\n\r\n.reply-warp .fixed-reply-box .reply-box-shadow {\r\n	position: absolute;\r\n	top: -10px;\r\n	z-index: 1;\r\n	width: 100%;\r\n	height: 36px;\r\n	border-radius: 50%;\r\n	background-color: #00000014;\r\n	filter: blur(10px);\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-active,\r\n.reply-warp .fixed-reply-box--transition-leave-active {\r\n	transition: opacity 0.5s ease;\r\n}\r\n\r\n.reply-warp .fixed-reply-box--transition-enter-from,\r\n.reply-warp .fixed-reply-box--transition-leave-to {\r\n	opacity: 0;\r\n}\r\n\r\n.bili-comment.browser-pc {\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.browser-pc * {\r\n	font-family: PingFang SC, HarmonyOS_Regular, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	font-weight: 400;\r\n	box-sizing: border-box;\r\n	-webkit-font-smoothing: antialiased;\r\n}\r\n\r\n@media (-webkit-max-device-pixel-ratio: 1) {\r\n	.bili-comment.browser-pc * {\r\n		font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,\r\n			Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;\r\n	}\r\n}\r\n\r\n.bili-comment.browser-pc * ul {\r\n	padding: 0;\r\n	margin: 0;\r\n	list-style: none;\r\n}\r\n\r\n.bili-comment.browser-pc * a {\r\n	text-decoration: none;\r\n	background-color: transparent;\r\n	color: var(--text_link);\r\n	cursor: pointer;\r\n}\r\n\r\n.bili-comment.browser-pc * a:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.browser-pc * i {\r\n	font-style: normal;\r\n}\r\n\r\n.bili-comment.browser-pc * p {\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.bili-comment.browser-pc .comment-container {\r\n	animation-name: enterAnimation-commentContainer;\r\n	animation-duration: 1s;\r\n	animation-fill-mode: forwards;\r\n}\r\n\r\n.reply-operation-client {\r\n	display: inline-flex;\r\n	position: relative;\r\n}\r\n\r\n.reply-operation-client .operation-icon {\r\n	border-radius: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-icon:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list {\r\n	display: flex;\r\n	flex-direction: column;\r\n	position: absolute;\r\n	top: 10px;\r\n	right: 0;\r\n	z-index: 10;\r\n	width: 180px;\r\n	padding: 12px 0;\r\n	border-radius: 6px;\r\n	font-size: 14px;\r\n	color: var(--text2);\r\n	background-color: var(--bg1_float);\r\n	box-shadow: 0 0 5px #0003;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option {\r\n	display: flex;\r\n	align-items: center;\r\n	height: 40px;\r\n	padding: 0 15px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-operation-client .operation-list .operation-option:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 50%;\r\n	width: auto;\r\n	padding: 10px 20px;\r\n	border: 1px solid var(--graph_bg_thick);\r\n	border-radius: 8px;\r\n	margin-bottom: 100px;\r\n	font-size: 12px;\r\n	line-height: 12px;\r\n	text-align: center;\r\n	white-space: nowrap;\r\n	background-color: var(--bg1);\r\n	box-shadow: 0 0 5px #0003;\r\n	transform: translate(-50%, -100%);\r\n}\r\n\r\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\r\n	display: flex;\r\n	justify-content: center;\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.comfirm-delete {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 40px;\r\n	height: 20px;\r\n	border-radius: 4px;\r\n	margin-right: 20px;\r\n	color: var(--text_white);\r\n	background-color: var(--brand_blue);\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.comfirm-delete:hover {\r\n	background-color: var(--Lb4);\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.cancel-delete {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 40px;\r\n	height: 20px;\r\n}\r\n\r\n.reply-operation-client\r\n	.operation-list\r\n	.delete-reply-modal\r\n	.delete-reply-btn\r\n	.cancel-delete:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.select-reply-dialog-client .select-dialog-content {\r\n	text-align: left;\r\n}\r\n\r\n.select-reply-dialog-client .cancel-select-reply {\r\n	width: 130px;\r\n	margin-right: 20px;\r\n}\r\n\r\n.select-reply-dialog-client .comfirm-select-reply {\r\n	width: 130px;\r\n}\r\n\r\n.close-reply-dialog-client .close-reply-dialog-content {\r\n	text-align: left;\r\n}\r\n\r\n.close-reply-dialog-client .cancel-close-reply {\r\n	width: 130px;\r\n	margin-right: 20px;\r\n}\r\n\r\n.close-reply-dialog-client .comfirm-close-reply {\r\n	width: 130px;\r\n}\r\n\r\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\r\n	text-align: left;\r\n}\r\n\r\n.close-danmaku-dialog-client .cancel-close-danmaku {\r\n	width: 130px;\r\n	margin-right: 20px;\r\n}\r\n\r\n.close-danmaku-dialog-client .comfirm-close-danmaku {\r\n	width: 130px;\r\n}\r\n\r\n.blacklist-dialog-client .blacklist-dialog-content {\r\n	text-align: center;\r\n}\r\n\r\n.blacklist-dialog-client .comfirm-pull-blacklist {\r\n	margin-right: 20px;\r\n}\r\n\r\n.reply-header-client .reply-notice {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	height: 40px;\r\n	padding: 11px 14px;\r\n	margin-bottom: 10px;\r\n	font-size: 12px;\r\n	border-radius: 2px;\r\n	color: var(--text_notice);\r\n	background-color: var(--Or0);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-notice .notice-content {\r\n	flex: 1;\r\n	position: relative;\r\n	padding: 0 5px;\r\n	line-height: 18px;\r\n	vertical-align: top;\r\n	word-wrap: break-word;\r\n	word-break: break-all;\r\n	white-space: nowrap;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	transition: 2s;\r\n}\r\n\r\n.reply-header-client .reply-navigation {\r\n	margin: 12px 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	list-style: none;\r\n	margin: 0;\r\n	padding: 0;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\r\n	font-size: 12px;\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\r\n	display: flex;\r\n	align-items: center;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\r\n	height: 10px;\r\n	margin: 0 8px;\r\n	border-left: solid 1px;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\r\n	color: var(--brand_blue);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\r\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-header-client .reply-navigation .nav-operation-warp {\r\n	position: absolute;\r\n	right: 0;\r\n}\r\n\r\n.reply-box-client {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-box-client .reply-box-warp {\r\n	position: relative;\r\n	flex: 1;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea {\r\n	width: 100%;\r\n	height: 32px;\r\n	padding: 5px 12px;\r\n	border: 1px solid transparent;\r\n	border-radius: 6px;\r\n	line-height: 20px;\r\n	color: var(--text1);\r\n	background-color: var(--bg2);\r\n	resize: none;\r\n	outline: none;\r\n	transition: 0.2s;\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\r\n	color: var(--text4);\r\n}\r\n\r\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\r\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\r\n	border-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 10px;\r\n	height: 32px;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji {\r\n	position: relative;\r\n	margin-right: auto;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 70px;\r\n	height: 100%;\r\n	border-radius: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\r\n	position: absolute;\r\n	z-index: 1;\r\n	color: var(--text_white);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:after {\r\n	content: "";\r\n	position: absolute;\r\n	opacity: 0.5;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 4px;\r\n	background-color: var(--brand_pink);\r\n}\r\n\r\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\r\n	height: 60px;\r\n}\r\n\r\n.reply-box-client.box-active .reply-box-send.send-active:after {\r\n	opacity: 1;\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	z-index: 1;\r\n	width: 100%;\r\n	height: 100%;\r\n	border-radius: 6px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\r\n	cursor: not-allowed;\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\r\n	opacity: 1;\r\n	background-color: var(--bg3);\r\n}\r\n\r\n.note-prefix {\r\n	vertical-align: -3px;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n	padding: 0 3px;\r\n	line-height: 19px;\r\n	border-radius: 4px;\r\n	margin-right: 6px;\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n	background-color: var(--bg2);\r\n}\r\n\r\n.note-prefix .note-icon {\r\n	width: 16px;\r\n	height: 16px;\r\n}\r\n\r\n.reply-content-client {\r\n	color: var(--text1);\r\n	overflow: hidden;\r\n	word-wrap: break-word;\r\n	word-break: break-word;\r\n	white-space: pre-wrap;\r\n	vertical-align: baseline;\r\n	transition: 0.2s;\r\n}\r\n\r\n.reply-content-client.root {\r\n	line-height: 25px;\r\n}\r\n\r\n.reply-content-client.need-view-more {\r\n	display: -webkit-box;\r\n	-webkit-box-orient: vertical;\r\n	overflow: hidden;\r\n}\r\n\r\n.reply-content-client.sub {\r\n	line-height: 20px;\r\n}\r\n\r\n.reply-content-client .top-icon {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	width: 30px;\r\n	height: 18px;\r\n	border: 1px solid var(--brand_pink);\r\n	border-radius: 3px;\r\n	margin-right: 5px;\r\n	font-size: 12px;\r\n	color: var(--brand_pink);\r\n	vertical-align: 1px;\r\n}\r\n\r\n.reply-content-client .emoji-small {\r\n	width: 20px;\r\n	height: 20px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .emoji-large {\r\n	width: 36px;\r\n	height: 36px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .jump-link {\r\n	vertical-align: baseline;\r\n}\r\n\r\n.reply-content-client .icon {\r\n	width: 20px;\r\n	height: 20px;\r\n	vertical-align: text-top;\r\n}\r\n\r\n.reply-content-client .icon.vote {\r\n	width: 16px;\r\n	height: 16px;\r\n	margin-right: 3px;\r\n	vertical-align: text-bottom;\r\n}\r\n\r\n.reply-content-client .icon.search-word {\r\n	width: 12px;\r\n	display: inline-block;\r\n	background-size: contain;\r\n	background-repeat: no-repeat;\r\n}\r\n\r\n.view-more-reply {\r\n	font-size: 12px;\r\n	color: var(--text_link);\r\n	line-height: 17px;\r\n	cursor: pointer;\r\n}\r\n\r\n.view-more-reply:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.sub-reply-item-client {\r\n	display: -webkit-box;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-line-clamp: 2;\r\n	position: relative;\r\n	max-height: 42px;\r\n	padding: 3px 0;\r\n	font-size: 14px;\r\n	overflow: hidden;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	color: var(--text2);\r\n	line-height: 20px;\r\n	vertical-align: baseline;\r\n	white-space: nowrap;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-user-name {\r\n	margin-right: 5px;\r\n	font-size: 14px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-item-client .sub-user-info .sub-up-icon {\r\n	margin-right: 4px;\r\n	cursor: default;\r\n}\r\n\r\n.sub-reply-list-client {\r\n	border-radius: 4px;\r\n	padding: 7px 10px;\r\n	margin-top: 12px;\r\n	background-color: var(--bg2_float);\r\n}\r\n\r\n.sub-reply-list-client .view-more {\r\n	margin-top: 4px;\r\n	cursor: pointer;\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text {\r\n	font-size: 12px;\r\n	color: var(--text_link);\r\n}\r\n\r\n.sub-reply-list-client .view-more .view-more-text:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.content-warp--blacklist .reply-content {\r\n	display: inline-flex;\r\n	align-items: center;\r\n	padding: 4px;\r\n	border-radius: 4px;\r\n	color: var(--text1);\r\n	background-color: var(--bg2_float);\r\n}\r\n\r\n.content-warp--blacklist .reply-content .ban-icon {\r\n	margin-right: 4px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-bottom: 8px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	left: 0;\r\n	cursor: pointer;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\r\n	width: 30px;\r\n	height: 30px;\r\n}\r\n\r\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\r\n	color: var(--text1);\r\n}\r\n\r\n.reply-item-client {\r\n	position: relative;\r\n	padding: 10px 0 14px 42px;\r\n	border-bottom: 1px solid var(--line_light);\r\n}\r\n\r\n.reply-item-client .content-warp {\r\n	flex: 1;\r\n	position: relative;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-bottom: 8px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\r\n	display: flex;\r\n	justify-content: center;\r\n	position: absolute;\r\n	left: -42px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info {\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\r\n	display: flex;\r\n	align-items: center;\r\n	font-size: 13px;\r\n	color: var(--text2);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.reply-header\r\n	.reply-info\r\n	.user-info\r\n	.user-name {\r\n	margin-right: 5px;\r\n	color: var(--be794234);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.reply-header\r\n	.reply-info\r\n	.user-info\r\n	.user-level {\r\n	margin-right: 5px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\r\n	cursor: default;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\r\n	font-size: 12px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply {\r\n	position: relative;\r\n	font-size: 15px;\r\n	line-height: 25px;\r\n	transition: 0.2s;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	margin-top: 12px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n	line-height: 16px;\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-like\r\n	.like-icon {\r\n	margin-right: 5px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-like\r\n	.like-icon:hover,\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-like\r\n	.like-icon.liked {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-right: 19px;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike\r\n	.dislike-icon {\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike\r\n	.dislike-icon:hover,\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-dislike\r\n	.dislike-icon.disliked {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\r\n	color: var(--text3);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.reply-icon:hover {\r\n	color: var(--brand_pink);\r\n}\r\n\r\n.reply-item-client\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.more-operation {\r\n	display: none;\r\n	position: absolute;\r\n	right: 20px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-item-box {\r\n	margin-top: 12px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list {\r\n	display: flex;\r\n	align-items: center;\r\n	margin-top: 12px;\r\n	font-size: 12px;\r\n	line-height: 14px;\r\n}\r\n\r\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\r\n	padding: 5px 6px;\r\n	border-radius: 2px;\r\n	margin-right: 10px;\r\n	color: var(--text2);\r\n	background-color: var(--bg2_float);\r\n}\r\n\r\n.reply-item-client:hover\r\n	.content-warp\r\n	.root-reply\r\n	.reply-operation-warp\r\n	.more-operation {\r\n	display: block;\r\n}\r\n\r\n.reply-list {\r\n	position: relative;\r\n	margin-top: 14px;\r\n	padding-bottom: 100px;\r\n}\r\n\r\n.reply-list .reply-empty {\r\n	margin-top: 100px;\r\n	text-align: center;\r\n	font-size: 14px;\r\n	color: var(--text3);\r\n}\r\n\r\n.reply-list .reply-end-mark {\r\n	height: 100px;\r\n}\r\n\r\n.reply-list .reply-end,\r\n.reply-list .reply-loading {\r\n	margin-top: 20px;\r\n	font-size: 13px;\r\n	color: var(--text3);\r\n	text-align: center;\r\n}\r\n\r\n.fixed-reply-box {\r\n	bottom: 0;\r\n	z-index: 20;\r\n	width: 100%;\r\n}\r\n\r\n.fixed-reply-box .reply-box-wrap {\r\n	background-color: var(--bg1);\r\n	padding: 14px 0;\r\n	border-top: 1px solid var(--line_light);\r\n}\r\n\r\n.fixed-reply-box .reply-box-shadow {\r\n	position: absolute;\r\n	top: -10px;\r\n	z-index: -1;\r\n	height: 36px;\r\n	border-radius: 50%;\r\n	background-color: #00000014;\r\n	filter: blur(10px);\r\n	width: calc(100% - 72px);\r\n	left: 50%;\r\n	transform: translate(-50%);\r\n}\r\n\r\n.reply-detail {\r\n	flex: 1;\r\n}\r\n\r\n.reply-detail .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	position: sticky;\r\n	z-index: 9;\r\n	top: 0;\r\n	left: 0;\r\n	height: 46px;\r\n	border-bottom: 1px solid var(--line_light);\r\n	margin-bottom: 14px;\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.reply-detail .reply-header .return-icon {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 32px;\r\n	height: 32px;\r\n	border-radius: 4px;\r\n	margin-right: 4px;\r\n	color: var(--text1);\r\n	cursor: pointer;\r\n}\r\n\r\n.reply-detail .reply-header .return-icon:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.reply-detail .reply-header .reply-title {\r\n	font-size: 16px;\r\n	font-weight: 600;\r\n	color: var(--text1);\r\n}\r\n\r\n.dialog-reply {\r\n	flex: 1;\r\n}\r\n\r\n.dialog-reply .reply-header {\r\n	display: flex;\r\n	align-items: center;\r\n	position: sticky;\r\n	z-index: 9;\r\n	top: 0;\r\n	left: 0;\r\n	height: 46px;\r\n	border-bottom: 1px solid var(--line_light);\r\n	margin-bottom: 14px;\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon {\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	width: 32px;\r\n	height: 32px;\r\n	border-radius: 4px;\r\n	margin-right: 4px;\r\n	color: var(--text1);\r\n	cursor: pointer;\r\n}\r\n\r\n.dialog-reply .reply-header .return-icon:hover {\r\n	background-color: var(--graph_bg_thick);\r\n}\r\n\r\n.dialog-reply .reply-header .reply-title {\r\n	font-size: 16px;\r\n	font-weight: 600;\r\n	color: var(--text1);\r\n}\r\n\r\n.bili-comment.client {\r\n	background-color: var(--bg1);\r\n}\r\n\r\n.bili-comment.client * {\r\n	box-sizing: border-box;\r\n	font-family: PingFang SC, HarmonyOS_Regular, Helvetica Neue, Microsoft YaHei,\r\n		sans-serif;\r\n	-webkit-font-smoothing: antialiased;\r\n}\r\n\r\n.bili-comment.client * ul {\r\n	list-style: none;\r\n}\r\n\r\n.bili-comment.client * a {\r\n	text-decoration: none;\r\n	background-color: transparent;\r\n	color: var(--text_link);\r\n	cursor: pointer;\r\n}\r\n\r\n.bili-comment.client * a:hover {\r\n	color: var(--Lb4);\r\n}\r\n\r\n.bili-comment.client * i {\r\n	font-style: normal;\r\n}\r\n';
   class GestureBack {
     /**
