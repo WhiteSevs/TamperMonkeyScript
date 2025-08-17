@@ -184,7 +184,7 @@ export const PopsSearchSuggestion = {
 					font-size: 12px;
 					color: var(--search-suggestion-item-none-color);
 				}
-				ul.pops-${popsType}-search-suggestion-hint li:hover{
+				ul.pops-${popsType}-search-suggestion-hint li:not([data-none]):hover{
 					background-color: var(--search-suggestion-item-hover-bg-color);
 				}
 

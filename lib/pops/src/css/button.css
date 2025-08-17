@@ -448,9 +448,9 @@
 	outline-offset: var(--button-info-focus-visible-outline-offset);
 }
 .pops button[data-type="info"]:disabled {
-	--button-color: var(--button-success-disabled-color);
-	--button-bd-color: var(--button-success-disabled-bd-color);
-	--button-bg-color: var(--button-success-disabled-bg-color);
+	--button-color: var(--button-info-disabled-color);
+	--button-bd-color: var(--button-info-disabled-bd-color);
+	--button-bg-color: var(--button-info-disabled-bg-color);
 }
 
 .pops button[data-type="warning"] {
@@ -473,9 +473,9 @@
 	outline-offset: var(--button-warning-focus-visible-outline-offset);
 }
 .pops button[data-type="warning"]:disabled {
-	--button-color: var(--button-success-disabled-color);
-	--button-bd-color: var(--button-success-disabled-bd-color);
-	--button-bg-color: var(--button-success-disabled-bg-color);
+	--button-color: var(--button-warning-disabled-color);
+	--button-bd-color: var(--button-warning-disabled-bd-color);
+	--button-bg-color: var(--button-warning-disabled-bg-color);
 }
 
 .pops button[data-type="danger"] {
@@ -498,9 +498,9 @@
 	outline-offset: var(--button-danger-focus-visible-outline-offset);
 }
 .pops button[data-type="danger"]:disabled {
-	--button-color: var(--button-success-disabled-color);
-	--button-bd-color: var(--button-success-disabled-bd-color);
-	--button-bg-color: var(--button-success-disabled-bg-color);
+	--button-color: var(--button-danger-disabled-color);
+	--button-bd-color: var(--button-danger-disabled-bd-color);
+	--button-bg-color: var(--button-danger-disabled-bg-color);
 }
 
 .pops button[data-type="xiaomi-primary"] {
@@ -523,7 +523,32 @@
 	outline-offset: var(--button-xiaomi-primary-focus-visible-outline-offset);
 }
 .pops button[data-type="xiaomi-primary"]:disabled {
-	--button-color: var(--button-success-disabled-color);
-	--button-bd-color: var(--button-success-disabled-bd-color);
-	--button-bg-color: var(--button-success-disabled-bg-color);
+	--button-color: var(--button-xiaomi-primary-disabled-color);
+	--button-bd-color: var(--button-xiaomi-primary-disabled-bd-color);
+	--button-bg-color: var(--button-xiaomi-primary-disabled-bg-color);
+}
+
+.pops button[data-type="violet"] {
+	--button-color: var(--button-violet-color);
+	--button-bd-color: var(--button-violet-bd-color);
+	--button-bg-color: var(--button-violet-bg-color);
+}
+.pops button[data-type="violet"]:active {
+	--button-color: var(--button-violet-active-color);
+	--button-bd-color: var(--button-violet-active-bd-color);
+	--button-bg-color: var(--button-violet-active-bg-color);
+}
+.pops button[data-type="violet"]:hover {
+	--button-color: var(--button-violet-hover-color);
+	--button-bd-color: var(--button-violet-hover-bd-color);
+	--button-bg-color: var(--button-violet-hover-bg-color);
+}
+.pops button[data-type="violet"]:focus-visible {
+	outline: var(--button-violet-focus-visible-outline);
+	outline-offset: var(--button-violet-focus-visible-outline-offset);
+}
+.pops button[data-type="violet"]:disabled {
+	--button-color: var(--button-violet-disabled-color);
+	--button-bd-color: var(--button-violet-disabled-bd-color);
+	--button-bg-color: var(--button-violet-disabled-bg-color);
 }

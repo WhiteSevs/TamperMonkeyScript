@@ -79,10 +79,10 @@ export interface PopsRightClickMenuDetails
 	 */
 	className?: string;
 	/**
-	 * 是否启用动画，默认true
+	 * 是否启用动画，默认false
 	 *
 	 * 该动画为从上往下展开
-	 * @default true
+	 * @default false
 	 */
 	isAnimation?: boolean;
 	/**
