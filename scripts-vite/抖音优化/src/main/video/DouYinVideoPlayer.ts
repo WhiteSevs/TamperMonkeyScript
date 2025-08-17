@@ -72,10 +72,8 @@ export const DouYinVideoPlayer = {
 		Panel.execMenuOnce("dy-video-doubleClickEnterElementFullScreen", () => {
 			this.doubleClickEnterElementFullScreen();
 		});
-		Panel.execMenu("dy-video-bgColor-enable", () => {
-			Panel.execMenuOnce("dy-video-changeBackgroundColor", (option) => {
-				return this.changeBackgroundColor(option.value);
-			});
+		Panel.execMenuOnce(["dy-video-bgColor-enable", "dy-video-changeBackgroundColor"], (option) => {
+			return this.changeBackgroundColor(option.value[1]);
 		});
 		Panel.execMenuOnce("repairProgressBar", () => {
 			Panel.onceExec("repairProgressBar", () => {
@@ -845,9 +843,9 @@ export const DouYinVideoPlayer = {
 	changeBackgroundColor(color: string) {
 		log.info("修改视频背景颜色");
 		return addStyle(/*css*/ `
-		#sliderVideo > div,
 		/* 推荐的直播间背景 */
 		xgmask,
+		#sliderVideo > div,
 		/* 用户主页的视频 */
 		.basePlayerContainer .imgBackground{
 			background: ${color}  !important;
