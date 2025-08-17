@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.17
+// @version      2025.8.17.21
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前包括百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云、文叔叔、奶牛快传、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘，支持蓝奏云、天翼云(需登录)、123盘、奶牛、UC网盘(需登录)、坚果云(需登录)和阿里云盘(需登录，且限制在网盘页面解析)直链获取下载，页面动态监控加载的链接，可自定义规则来识别小众网盘/网赚网盘或其它自定义的链接。
 // @license      GPL-3.0-only
@@ -946,7 +946,11 @@
        */
       contentConfigInitDisabledKeys: [],
       /**
-       * 成功只执行了一次的项
+       * 成功只执行了一次的菜单项
+       *
+       * + .exec
+       * + .execMenu
+       * + .execMenuOnce
        */
       get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
@@ -956,6 +960,8 @@
       },
       /**
        * 成功只执行了一次的项
+       *
+       * + .onceExec
        */
       get onceExecData() {
         if (this.__onceExecData == null) {
@@ -1058,6 +1064,8 @@
     },
     /**
      * 设置初始化使用的默认值
+     * @param key 键
+     * @param defaultValue 默认值
      */
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -1128,22 +1136,6 @@
      */
     triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
-    },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
-      this.$data.onceExecMenuData.delete(key);
-      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
-    },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteOnceExec(key) {
-      this.$data.onceExecData.delete(key);
     },
     /**
      * 执行菜单
@@ -1338,11 +1330,24 @@
       return this.execMenu(key, callback, isReverse, true);
     },
     /**
-     * 根据key执行一次
+     * 移除已执行的仅执行一次的菜单
+     * + .exec
+     * + .execMenu
+     * + .execMenuOnce
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.onceExecMenuData.delete(key);
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag;
+    },
+    /**
+     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
      * @param key 键
      * @param callback 回调
      */
     onceExec(key, callback) {
+      key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -1351,6 +1356,15 @@
       }
       callback();
       this.$data.onceExecData.set(key, 1);
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * + .onceExec
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      key = this.transformKey(key);
+      this.$data.onceExecData.delete(key);
     },
     /**
      * 显示设置面板
@@ -1413,6 +1427,7 @@
     },
     /**
      * 注册设置面板的搜索功能（双击左侧选项第一个）
+     * @param config 配置项
      */
     registerConfigSearch(config) {
       const { $panel, content } = config;
@@ -1816,6 +1831,17 @@
           )
         })
       );
+    },
+    /**
+     * 把key:string[]转为string
+     */
+    transformKey(key) {
+      if (Array.isArray(key)) {
+        const keyArray = key.sort();
+        return JSON.stringify(keyArray);
+      } else {
+        return key;
+      }
     }
   };
   class Paging {
@@ -19261,6 +19287,17 @@
         uiLinkShow: "caiyun.139.com/m/i?{#shareCode#} 提取码: {#accessCode#}",
         blank: "https://caiyun.139.com/m/i?{#shareCode#}",
         copyUrl: "https://caiyun.139.com/m/i?{#shareCode#}\n密码：{#accessCode#}"
+      },
+      {
+        link_innerText: `caiyun.139.com/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `caiyun.139.com/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: /caiyun\.139\.com\/w\/i\/([a-zA-Z0-9_\-]{8,14})/gi,
+        shareCodeNeedRemoveStr: /caiyun\.139\.com\/w\/i\//gi,
+        checkAccessCode: /(密码|访问码|提取码)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "caiyun.139.com/w/i/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://caiyun.139.com/w/i/{#shareCode#}",
+        copyUrl: "https://caiyun.139.com/w/i/{#shareCode#}\n密码：{#accessCode#}"
       },
       {
         link_innerText: `yun.139.com/link/w/i/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(密码|访问码|提取码)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
