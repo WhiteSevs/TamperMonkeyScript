@@ -309,6 +309,7 @@ export const BilibiliVideoPlayer = {
 		if ($("#artplayer")) {
 			log.warn("已使用ArtPlayer覆盖原播放器，更新播放信息");
 		} else {
+			log.info(`覆盖播放器`);
 			addStyle(/*css*/ `
             /* 隐藏原本的播放器 */
 			${BilibiliData.className.video} .m-video-player .player-container,

@@ -59,7 +59,7 @@ export const MobileCommentModule = (function () {
 
 		// collect oid & commentType
 		await new Promise((resolve) => {
-			const timer = setInterval(async () => {
+			utils.wait(()=>{
 				if (videoRE.test(global.location.href)) {
 					const videoID = global.location.pathname
 						.replace("/video/", "")
@@ -78,10 +78,18 @@ export const MobileCommentModule = (function () {
 
 				// final check
 				if (oid && commentType) {
-					clearInterval(timer);
+					// utils.workerClearInterval(timer);
 					resolve();
+					return {
+						success: true,
+						data: {}
+					}
 				}
-			}, 200);
+				return {
+					success: false,
+					data: null,
+				}
+			},0)
 		});
 
 		// enable switching sort type
