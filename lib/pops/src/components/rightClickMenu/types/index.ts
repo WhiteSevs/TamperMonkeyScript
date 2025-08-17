@@ -80,9 +80,18 @@ export interface PopsRightClickMenuDetails
 	className?: string;
 	/**
 	 * 是否启用动画，默认true
+	 *
+	 * 该动画为从上往下展开
 	 * @default true
 	 */
 	isAnimation?: boolean;
+	/**
+	 * 是否使用打开动画，默认true
+	 *
+	 * 该动画为放大动画
+	 * @default true
+	 */
+	useScaleAnimation?: boolean;
 	/**
 	 * 是否阻止默认contextmenu事件
 	 * @default false

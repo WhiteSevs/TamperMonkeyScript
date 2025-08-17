@@ -1,10 +1,13 @@
 .pops-rightClickMenu {
 	--pops-right-context-color: #000000;
-	--pops-right-context-bg-color: #ffffff;
+	--pops-right-context-bg-color: rgb(255, 255, 255, 0.733);
+	--pops-right-context-backdrop-filter: blur(10px);
 	--pops-right-context-z-index: 10000;
-	--pops-right-context-menu-shadow-color: #cacaca;
-	--pops-right-context-menu-row-visited-color: #dfdfdf;
-	--pops-right-context-menu-row-hover-color: #dfdfdf;
+	--pops-right-context-bd-radius: 6px;
+	--pops-right-context-menu-shadow-color: rgb(114, 114, 114, 0.251);
+	--pops-right-context-menu-row-bd-radius: 6px;
+	--pops-right-context-menu-row-visited-color: rgb(0, 0, 0, 0.067);
+	--pops-right-context-menu-row-hover-color: rgb(0, 0, 0, 0.067);
 }
 .pops-rightClickMenu * {
 	-webkit-box-sizing: border-box;
@@ -18,13 +21,29 @@
 	position: fixed;
 	z-index: var(--pops-right-context-z-index);
 	text-align: center;
-	border-radius: 3px;
+	border-radius: var(--pops-right-context-bd-radius);
 	font-size: 16px;
 	font-weight: 500;
 	color: var(--pops-right-context-color);
-	background-color: var(--pops-right-context-bg-color);
-	box-shadow: 0px 1px 6px 1px var(--pops-right-context-menu-shadow-color);
+	background: var(--pops-right-context-bg-color);
+	box-shadow: 0 0.25rem 0.5rem 0.125rem var(--pops-right-context-menu-shadow-color);
+	-webkit-backdrop-filter: var(--pops-right-context-backdrop-filter);
+	backdrop-filter: var(--pops-right-context-backdrop-filter);
 }
+/* scale动画 */
+.pops-rightClickMenu-anim-scale {
+	transition:
+		opacity 150ms cubic-bezier(0.2, 0, 0.2, 1),
+		transform 150ms cubic-bezier(0.2, 0, 0.2, 1);
+	transform: scale(0.85);
+}
+.pops-rightClickMenu-anim-scale-open {
+	transform: scale(1);
+}
+.pops-rightClickMenu-anim-scale-not-open {
+	opacity: 0;
+}
+/* 展开动画 */
 .pops-rightClickMenu-anim-grid {
 	display: grid;
 	transition: 0.3s;
@@ -69,7 +88,7 @@ i.pops-rightClickMenu-icon[is-loading="true"] {
 .pops-rightClickMenu ul li {
 	padding: 5px 10px;
 	margin: 5px 5px;
-	border-radius: 3px;
+	border-radius: var(--pops-right-context-menu-row-bd-radius);
 	display: flex;
 	width: -webkit-fill-available;
 	width: -moz-available;
@@ -82,7 +101,12 @@ i.pops-rightClickMenu-icon[is-loading="true"] {
 }
 
 @media (prefers-color-scheme: dark) {
-	.pops-rightClickMenu {
+	/*.pops-rightClickMenu {
 		--pops-right-context-menu-shadow-color: #3c3c3c;
+	}*/
+}
+@media (hover: hover) {
+	.pops-rightClickMenu ul li:active {
+		transform: scale(0.98);
 	}
 }

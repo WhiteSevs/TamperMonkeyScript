@@ -88,6 +88,7 @@ export const rightClickMenuConfig = (): DeepRequired<PopsRightClickMenuDetails> 
 		useShadowRoot: true,
 		className: "",
 		isAnimation: true,
+		useScaleAnimation: true,
 		only: false,
 		zIndex: 10000,
 		preventDefault: true,

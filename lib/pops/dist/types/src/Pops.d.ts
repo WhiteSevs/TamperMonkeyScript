@@ -21368,6 +21368,7 @@ declare class Pops {
             childMenuTopOrBottomDistance: number;
             className: string;
             isAnimation: boolean;
+            useScaleAnimation: boolean;
             preventDefault: boolean;
             useShadowRoot: boolean;
             only: boolean;

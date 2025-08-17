@@ -180,27 +180,38 @@ export const PopsRightClickMenu = {
 			},
 			/**
 			 * 自动判断是否存在动画，存在动画就执行关闭动画并删除
-			 * @param element
+			 * @param $menu
 			 */
-			animationCloseMenu(element: HTMLElement) {
+			animationCloseMenu($menu: HTMLElement) {
 				/**
 				 * 动画结束触发的事件
 				 */
-				function transitionEndEvent(event: TransitionEvent) {
-					popsDOMUtils.off(element, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
+				let transitionEndEvent = (event: TransitionEvent) => {
+					popsDOMUtils.off($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
 						capture: true,
 					});
-					element.remove();
-				}
-				if (element.classList.contains(`pops-${popsType}-anim-show`)) {
+					$menu.remove();
+				};
+				popsDOMUtils.containsClassName;
+				if (popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-show`)) {
 					/* 有动画 */
-					popsDOMUtils.on(element, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
+					popsDOMUtils.on($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
 						capture: true,
 					});
-					element.classList.remove(`pops-${popsType}-anim-show`);
+					popsDOMUtils.removeClassName($menu, `pops-${popsType}-anim-show`);
+				} else if (
+					popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-scale`) &&
+					popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-scale-open`)
+				) {
+					/* 有动画 */
+					popsDOMUtils.on($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
+						capture: true,
+					});
+					popsDOMUtils.removeClassName($menu, `pops-${popsType}-anim-scale-open`);
+					popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale-not-open`);
 				} else {
 					/* 无动画 */
-					element.remove();
+					$menu.remove();
 				}
 			},
 			/**
@@ -211,11 +222,12 @@ export const PopsRightClickMenu = {
 				if (rootElement == null) {
 					return;
 				}
-				if ((rootElement as any)?.["__menuData__"]?.root) {
-					rootElement = (rootElement as any)?.["__menuData__"]?.root;
+				const rootElementMenuData = Reflect.get(rootElement, "__menuData__");
+				if (rootElementMenuData?.root) {
+					rootElement = rootElementMenuData.root;
 				}
 
-				let childMenuList = (rootElement as any)["__menuData__"].child as HTMLElement[];
+				let childMenuList = rootElementMenuData.child as HTMLElement[];
 				childMenuList.forEach((childMenuElement) => {
 					this.animationCloseMenu(childMenuElement);
 				});
@@ -226,12 +238,10 @@ export const PopsRightClickMenu = {
 			 * 获取菜单容器
 			 * @param isChildren 是否是rightClickMenu的某一项的子菜单
 			 */
-			getMenuContainerElement(isChildren: boolean) {
+			createMenuContainerElement(isChildren: boolean) {
 				let $menu = popsDOMUtils.createElement("div", {
 					className: `pops-${popsType}`,
-					innerHTML: /*html*/ `
-					<ul></ul>
-					`,
+					innerHTML: /*html*/ `<ul class="pops-${popsType}-wrapper"></ul>`,
 				});
 				let zIndex = this.getMenuZIndex();
 				if (zIndex > 10000) {
@@ -243,6 +253,11 @@ export const PopsRightClickMenu = {
 				/* 添加动画 */
 				if (config.isAnimation) {
 					popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-grid`);
+				}
+				// 添加放大动画
+				if (config.useScaleAnimation) {
+					popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale`);
+					popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale-not-open`);
 				}
 				return $menu;
 			},
@@ -261,10 +276,10 @@ export const PopsRightClickMenu = {
 			getOffset(
 				menuElement: HTMLElement,
 				mousePosition: { x: number; y: number },
-				parentInfo: {
+				parentInfo?: {
 					$menu: HTMLElement;
 					$parentItem: HTMLElement;
-				} | null
+				}
 			) {
 				let result = {
 					top: 0,
@@ -355,39 +370,22 @@ export const PopsRightClickMenu = {
 				_config_: PopsRightClickMenuDataDetails[],
 				menuListenerRootNode: HTMLElement
 			) {
-				let menuElement = this.getMenuContainerElement(false);
+				let menuElement = this.createMenuContainerElement(false);
 				Reflect.set(menuElement, "__menuData__", {
 					child: [],
 				});
+				// 添加子元素
 				PopsContextMenu.addMenuLiELement(menuEvent, menuElement, menuElement, _config_, menuListenerRootNode);
-				/* 先隐藏 */
-				popsDOMUtils.css(menuElement, {
-					display: "none",
-				});
+				// 添加到页面
 				popsDOMUtils.append($shadowRoot, menuElement);
-				/* 添加到页面 */
+				// 判断容器是否存在
 				if (!document.contains($shadowContainer)) {
 					if (typeof config.beforeAppendToPageCallBack === "function") {
 						config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
 					}
 					popsDOMUtils.appendBody($shadowContainer);
 				}
-				let offset = this.getOffset(
-					menuElement,
-					{
-						x: menuEvent.clientX,
-						y: menuEvent.clientY,
-					},
-					null
-				);
-				popsDOMUtils.css(menuElement, {
-					...offset,
-					display: "",
-				});
-				/* 过渡动画 */
-				if (config.isAnimation) {
-					popsDOMUtils.addClassName(menuElement, `pops-${popsType}-anim-show`);
-				}
+				this.handlerShowMenuCSS(menuElement, menuEvent);
 				return menuElement;
 			},
 			/**
@@ -410,7 +408,7 @@ export const PopsRightClickMenu = {
 				targetLiElement: HTMLLIElement,
 				menuListenerRootNode: HTMLElement
 			) {
-				let menuElement = this.getMenuContainerElement(true);
+				let menuElement = this.createMenuContainerElement(true);
 				Reflect.set(menuElement, "__menuData__", {
 					parent: targetLiElement,
 					root: rootElement,
@@ -418,31 +416,54 @@ export const PopsRightClickMenu = {
 				// 根菜单数据
 				let rootElementMenuData = Reflect.get(rootElement, "__menuData__");
 				rootElementMenuData.child.push(menuElement);
+				// 添加子元素
 				PopsContextMenu.addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRootNode);
-				/* 先隐藏 */
-				popsDOMUtils.css(menuElement, {
-					display: "none",
-				});
-				/* 添加到页面 */
+				// 添加到页面
 				popsDOMUtils.append($shadowRoot, menuElement);
 				let $parentMenu = targetLiElement.closest<HTMLElement>(".pops-rightClickMenu")!;
+				this.handlerShowMenuCSS(menuElement, posInfo, {
+					$menu: $parentMenu,
+					$parentItem: targetLiElement,
+				});
+				return menuElement;
+			},
+			/**
+			 * 处理菜单显示的css样式（添加到页面后）
+			 * @param $menu 菜单元素
+			 * @param posInfo 菜单位置信息
+			 * @param parentInfo 配置子菜单的父级信息
+			 */
+			handlerShowMenuCSS(
+				$menu: HTMLElement,
+				posInfo: {
+					clientX: number;
+					clientY: number;
+				},
+				parentInfo?: {
+					$menu: HTMLElement;
+					$parentItem: HTMLElement;
+				}
+			) {
 				let offset = this.getOffset(
-					menuElement,
+					$menu,
 					{
 						x: posInfo.clientX,
 						y: posInfo.clientY,
 					},
-					{
-						$menu: $parentMenu,
-						$parentItem: targetLiElement,
-					}
+					parentInfo
 				);
-				popsDOMUtils.css(menuElement, { ...offset, display: "" });
+				// 显示
+				popsDOMUtils.css($menu, {
+					...offset,
+				});
 				/* 过渡动画 */
 				if (config.isAnimation) {
-					popsDOMUtils.addClassName(menuElement, `pops-${popsType}-anim-show`);
+					popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-show`);
 				}
-				return menuElement;
+				if (config.useScaleAnimation) {
+					popsDOMUtils.removeClassName($menu, `pops-${popsType}-anim-scale-not-open`);
+					popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale-open`);
+				}
 			},
 			/**
 			 * 获取菜单项的元素
