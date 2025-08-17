@@ -25,6 +25,8 @@ import type { PopsPanelDeepMenuDetails } from "@whitesev/pops/dist/types/src/com
 type ExecMenuCallBackOption = {
 	/**
 	 * 当前菜单项的值
+	 *
+	 * 如果queryKey|key是string[]，那么value也是对应的string[]
 	 */
 	value: any;
 	/**
@@ -77,7 +79,11 @@ const Panel = {
 		 */
 		contentConfigInitDisabledKeys: <string[]>[],
 		/**
-		 * 成功只执行了一次的项
+		 * 成功只执行了一次的菜单项
+		 *
+		 * + .exec
+		 * + .execMenu
+		 * + .execMenuOnce
 		 */
 		get onceExecMenuData() {
 			if (this.__onceExecMenuData == null) {
@@ -87,6 +93,8 @@ const Panel = {
 		},
 		/**
 		 * 成功只执行了一次的项
+		 *
+		 * + .onceExec
 		 */
 		get onceExecData() {
 			if (this.__onceExecData == null) {
@@ -218,6 +226,8 @@ const Panel = {
 	},
 	/**
 	 * 设置初始化使用的默认值
+	 * @param key 键
+	 * @param defaultValue 默认值
 	 */
 	setDefaultValue(key: string, defaultValue: any) {
 		/* 存储到缓存中*/
@@ -292,22 +302,6 @@ const Panel = {
 	 */
 	triggerMenuValueChange(key: string, newValue?: any, oldValue?: any) {
 		PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
-	},
-	/**
-	 * 移除已执行的仅执行一次的菜单
-	 * @param key 键
-	 */
-	deleteExecMenuOnce(key: string) {
-		this.$data.onceExecMenuData.delete(key);
-		let flag = PopsPanelStorageApi.removeValueChangeListener(key);
-		return flag;
-	},
-	/**
-	 * 移除已执行的仅执行一次的菜单
-	 * @param key 键
-	 */
-	deleteOnceExec(key: string) {
-		this.$data.onceExecData.delete(key);
 	},
 	/**
 	 * 执行菜单
@@ -571,11 +565,24 @@ const Panel = {
 		return this.execMenu(key, callback, isReverse, true);
 	},
 	/**
-	 * 根据key执行一次
+	 * 移除已执行的仅执行一次的菜单
+	 * + .exec
+	 * + .execMenu
+	 * + .execMenuOnce
+	 * @param key 键
+	 */
+	deleteExecMenuOnce(key: string) {
+		this.$data.onceExecMenuData.delete(key);
+		let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+		return flag;
+	},
+	/**
+	 * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
 	 * @param key 键
 	 * @param callback 回调
 	 */
-	onceExec(key: string, callback: () => void) {
+	onceExec(key: string | string[], callback: () => void) {
+		key = this.transformKey(key);
 		if (typeof key !== "string") {
 			throw new TypeError("key 必须是字符串");
 		}
@@ -585,6 +592,15 @@ const Panel = {
 		}
 		callback();
 		this.$data.onceExecData.set(key, 1);
+	},
+	/**
+	 * 移除已执行的仅执行一次的菜单
+	 * + .onceExec
+	 * @param key 键
+	 */
+	deleteOnceExec(key: string | string[]) {
+		key = this.transformKey(key);
+		this.$data.onceExecData.delete(key);
 	},
 	/**
 	 * 显示设置面板
@@ -654,6 +670,7 @@ const Panel = {
 	},
 	/**
 	 * 注册设置面板的搜索功能（双击左侧选项第一个）
+	 * @param config 配置项
 	 */
 	registerConfigSearch(config: {
 		$panel: ReturnType<typeof pops.panel>;
@@ -1117,6 +1134,17 @@ const Panel = {
 				`,
 			})
 		);
+	},
+	/**
+	 * 把key:string[]转为string
+	 */
+	transformKey(key: string | string[]) {
+		if (Array.isArray(key)) {
+			const keyArray = key.sort();
+			return JSON.stringify(keyArray);
+		} else {
+			return key;
+		}
 	},
 };
 
