@@ -847,7 +847,9 @@ export const DouYinVideoPlayer = {
 		xgmask,
 		#sliderVideo > div,
 		/* 用户主页的视频 */
-		.basePlayerContainer .imgBackground{
+		.basePlayerContainer .imgBackground,
+		/* 搜索的图文视频 */
+		.basePlayerContainer .dySwiperSlide img+div{
 			background: ${color}  !important;
 		}
 		`);
