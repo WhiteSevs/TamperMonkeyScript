@@ -29,7 +29,7 @@ export const vConsole = () => {
 		initPanelList.push("storage");
 	}
 	let theme = "light";
-	if (Panel.getValue(GlobalSettingConfig.vConsole_theme.key) === "auto") {
+	if (Panel.getValue<string>(GlobalSettingConfig.vConsole_theme.key) === "auto") {
 		if (utils.isThemeDark()) {
 			theme = "dark";
 		}
@@ -37,25 +37,13 @@ export const vConsole = () => {
 		theme = Panel.getValue(GlobalSettingConfig.vConsole_theme.key);
 	}
 	let defaultStorages = [];
-	if (
-		Panel.getValue(
-			GlobalSettingConfig.vConsole_storage_defaultStorages_cookies.key
-		)
-	) {
+	if (Panel.getValue(GlobalSettingConfig.vConsole_storage_defaultStorages_cookies.key)) {
 		defaultStorages.push("cookies");
 	}
-	if (
-		Panel.getValue(
-			GlobalSettingConfig.vConsole_storage_defaultStorages_localStorage.key
-		)
-	) {
+	if (Panel.getValue(GlobalSettingConfig.vConsole_storage_defaultStorages_localStorage.key)) {
 		defaultStorages.push("localStorage");
 	}
-	if (
-		Panel.getValue(
-			GlobalSettingConfig.vConsole_storage_defaultStorages_sessionStorage.key
-		)
-	) {
+	if (Panel.getValue(GlobalSettingConfig.vConsole_storage_defaultStorages_sessionStorage.key)) {
 		defaultStorages.push("sessionStorage");
 	}
 	let vConsole = new VConsole({
@@ -66,17 +54,13 @@ export const vConsole = () => {
 				vConsole.show();
 			}
 		},
-		disableLogScrolling: Panel.getValue(
-			GlobalSettingConfig.vconsole_disableLogScrolling.key
-		),
+		disableLogScrolling: Panel.getValue(GlobalSettingConfig.vconsole_disableLogScrolling.key),
 		log: {
 			maxLogNumber: Panel.getValue(
 				GlobalSettingConfig.vconsole_maxLogNumber.key,
 				GlobalSettingConfig.vconsole_maxLogNumber.defaultValue
 			),
-			showTimestamps: Panel.getValue(
-				GlobalSettingConfig.vconsole_showTimestamps.key
-			),
+			showTimestamps: Panel.getValue(GlobalSettingConfig.vconsole_showTimestamps.key),
 			maxNetworkNumber: Panel.getValue(
 				GlobalSettingConfig.vconsole_maxNetworkNumber.key,
 				GlobalSettingConfig.vconsole_maxNetworkNumber.defaultValue
@@ -91,47 +75,29 @@ export const vConsole = () => {
 	console.log(`VConsole当前版本：${vConsole.version}`);
 	console.log(`VConsole项目地址：${DebugToolConfig.vConsole.homeUrl}`);
 	console.log("VConsole的实例化的全局变量名: vConsole");
-	if (
-		Panel.getValue(
-			GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key
-		)
-	) {
+	if (Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsole_Stats.key)) {
 		try {
 			vConsolePluginState(vConsole, VConsole);
 		} catch (error) {
 			console.error("插件【vconsole-stats-plugin】加载失败，原因：", error);
 		}
 	}
-	if (
-		Panel.getValue(
-			GlobalSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key
-		)
-	) {
+	if (Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsole_ExportLog.key)) {
 		try {
 			vConsolePluginExportLog(vConsole, VConsole);
 		} catch (error) {
 			console.error("插件【vconsole-outputlog-plugin】加载失败，原因：", error);
 		}
 	}
-	if (
-		Panel.getValue(
-			GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key
-		)
-	) {
+	if (Panel.getValue(GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.key)) {
 		try {
 			WebSiteDebugUtil.evalPlugin(
-				GM_getResourceText(
-					GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools
-						.resource
-				)
+				GM_getResourceText(GlobalSettingConfig.vConsole_plugin_Resource_vConsoleVueDevtools.resource)
 			);
 			const Devtools = unsafeWin.vueVconsoleDevtools;
 			Devtools.initPlugin(vConsole);
 		} catch (error) {
-			console.error(
-				"插件【vconsole-vue-devtools-plugin】加载失败，原因：",
-				error
-			);
+			console.error("插件【vconsole-vue-devtools-plugin】加载失败，原因：", error);
 		}
 	}
 
