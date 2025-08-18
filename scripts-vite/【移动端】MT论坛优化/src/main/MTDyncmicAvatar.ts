@@ -165,7 +165,6 @@ export const MTDyncmicAvatar = {
 								Qmsg.error(response.data.responseText, {
 									timeout: 6000,
 									isHTML: false,
-									html: false,
 								});
 							}
 						} catch (error) {

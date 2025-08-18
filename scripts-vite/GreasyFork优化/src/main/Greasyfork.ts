@@ -171,87 +171,71 @@ const Greasyfork = {
 		 * @param element
 		 */
 		function getImgElementSrc(element: HTMLImageElement) {
-			return (
-				element.getAttribute("data-src") ||
-				element.getAttribute("src") ||
-				element.getAttribute("alt")
-			);
+			return element.getAttribute("data-src") || element.getAttribute("src") || element.getAttribute("alt");
 		}
-		DOMUtils.on<MouseEvent | PointerEvent>(
-			document,
-			"click",
-			"img",
-			function (event) {
-				let $img = event.target as HTMLImageElement;
-				/* 在超链接标签里 */
-				if (
-					$img.parentElement?.localName === "a" &&
-					$img.hasAttribute("data-screenshots")
-				) {
+		DOMUtils.on<MouseEvent | PointerEvent>(document, "click", "img", function (event) {
+			let $img = event.target as HTMLImageElement;
+			/* 在超链接标签里 */
+			if ($img.parentElement?.localName === "a" && $img.hasAttribute("data-screenshots")) {
+				return;
+			}
+			/* Viewer的图片浏览 */
+			if ($img.closest(".viewer-container")) {
+				return;
+			}
+			/* GreasFork自带的图片浏览 */
+			if ($img.closest(".lum-lightbox-position-helper")) {
+				return;
+			}
+			/* 判断是否是user-content内的，如果是，多图片模式 */
+			let userContentElement = $img.closest(".user-content");
+			/* 图片链接数组 */
+			let imgList: string[] = [];
+			/* 当前图片的下标 */
+			let imgIndex = 0;
+			/* 图片元素数组 */
+			let imgElementList: HTMLImageElement[] = [];
+			/* 当前的图片的链接 */
+			let currentImgSrc = getImgElementSrc($img);
+			if (currentImgSrc) {
+				if (currentImgSrc.startsWith("https://img.shields.io")) {
+					/** shields.io的图标 */
+					return;
+				} else if (currentImgSrc.startsWith("/vite/assets/")) {
+					// gf的资源
 					return;
 				}
-				/* Viewer的图片浏览 */
-				if ($img.closest(".viewer-container")) {
-					return;
-				}
-				/* GreasFork自带的图片浏览 */
-				if ($img.closest(".lum-lightbox-position-helper")) {
-					return;
-				}
-				/* 判断是否是user-content内的，如果是，多图片模式 */
-				let userContentElement = $img.closest(".user-content");
-				/* 图片链接数组 */
-				let imgList: string[] = [];
-				/* 当前图片的下标 */
-				let imgIndex = 0;
-				/* 图片元素数组 */
-				let imgElementList: HTMLImageElement[] = [];
-				/* 当前的图片的链接 */
-				let currentImgSrc = getImgElementSrc($img);
-				if (currentImgSrc) {
-					if (currentImgSrc.startsWith("https://img.shields.io")) {
-						/** shields.io的图标 */
-						return;
-					} else if (currentImgSrc.startsWith("/vite/assets/")) {
-						// gf的资源
-						return;
-					}
-				}
+			}
 
-				if (userContentElement) {
-					userContentElement
-						.querySelectorAll("img")
-						.forEach((childImgElement) => {
-							imgElementList.push(childImgElement);
-							let imgSrc = getImgElementSrc(childImgElement);
-							let $parent = childImgElement.parentElement as HTMLAnchorElement;
-							if ($parent?.localName === "a") {
-								imgSrc = $parent.getAttribute("data-href") || $parent.href;
-							}
-							imgList.push(imgSrc as string);
-						});
-					imgIndex = imgElementList.indexOf($img);
-					if (imgIndex === -1) {
-						imgIndex = 0;
+			if (userContentElement) {
+				userContentElement.querySelectorAll("img").forEach((childImgElement) => {
+					imgElementList.push(childImgElement);
+					let imgSrc = getImgElementSrc(childImgElement);
+					let $parent = childImgElement.parentElement as HTMLAnchorElement;
+					if ($parent?.localName === "a") {
+						imgSrc = $parent.getAttribute("data-href") || $parent.href;
 					}
-				} else {
-					imgList.push(currentImgSrc as string);
+					imgList.push(imgSrc as string);
+				});
+				imgIndex = imgElementList.indexOf($img);
+				if (imgIndex === -1) {
 					imgIndex = 0;
 				}
-
-				log.success("点击浏览图片👉", imgList, imgIndex);
-				viewIMG(imgList, imgIndex);
+			} else {
+				imgList.push(currentImgSrc as string);
+				imgIndex = 0;
 			}
-		);
+
+			log.success("点击浏览图片👉", imgList, imgIndex);
+			viewIMG(imgList, imgIndex);
+		});
 		/* 把上传的图片使用自定义图片预览 */
 		$$(".user-screenshots").forEach(($screenhot) => {
 			let linkElement = $screenhot.querySelector<HTMLAnchorElement>("a");
 			if (!linkElement) {
 				return;
 			}
-			let imgSrc =
-				linkElement.getAttribute("data-href") ||
-				linkElement.getAttribute("href");
+			let imgSrc = linkElement.getAttribute("data-href") || linkElement.getAttribute("href");
 			let imgElement = $screenhot.querySelector<HTMLImageElement>("img");
 			if (!imgElement) {
 				return;
@@ -285,7 +269,7 @@ const Greasyfork = {
 						"拦截跳转："
 					)}<a href="${url}" target="_blank">${url}</a></div>`,
 					{
-						html: true,
+						isHTML: true,
 						zIndex: utils.getMaxZIndex() + 105,
 					}
 				);
@@ -426,15 +410,9 @@ const Greasyfork = {
 				</clipboard-copy>
             `,
 			});
-			let clipboardCopyElement = $copy.querySelector<HTMLElement>(
-				".js-clipboard-copy"
-			) as HTMLElement;
-			let octiconCopyElement = $copy.querySelector<HTMLElement>(
-				".octicon-copy"
-			) as HTMLElement;
-			let octiconCheckCopyElement = $copy.querySelector<HTMLElement>(
-				".octicon-check-copy"
-			) as HTMLElement;
+			let clipboardCopyElement = $copy.querySelector<HTMLElement>(".js-clipboard-copy") as HTMLElement;
+			let octiconCopyElement = $copy.querySelector<HTMLElement>(".octicon-copy") as HTMLElement;
+			let octiconCheckCopyElement = $copy.querySelector<HTMLElement>(".octicon-check-copy") as HTMLElement;
 			DOMUtils.on($copy, "click", () => {
 				// .snippet-clipboard-content
 				let $parent = DOMUtils.parent($copy);
@@ -474,9 +452,7 @@ const Greasyfork = {
 		}
 
 		$$<HTMLPreElement>("pre").forEach((preElement) => {
-			let zeroclipboardElement = preElement.querySelector(
-				"div.zeroclipboard-container"
-			);
+			let zeroclipboardElement = preElement.querySelector("div.zeroclipboard-container");
 			if (zeroclipboardElement) {
 				return;
 			}
@@ -494,9 +470,7 @@ const Greasyfork = {
 	 */
 	languageSelectorLocale() {
 		let localeLanguage = Panel.getValue<string>("language-selector-locale");
-		let currentLocaleLanguage = window.location.pathname
-			.split("/")
-			.filter((item) => Boolean(item))[0];
+		let currentLocaleLanguage = window.location.pathname.split("/").filter((item) => Boolean(item))[0];
 		log.success("选择语言：" + localeLanguage);
 		log.success("当前语言：" + currentLocaleLanguage);
 		if (utils.isNull(localeLanguage)) {
@@ -510,13 +484,10 @@ const Greasyfork = {
 			GreasyforkApi.switchLanguage(url);
 			log.success("新Url：" + url);
 			Qmsg.loading(
-				i18next.t(
-					"当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}",
-					{
-						currentLocaleLanguage,
-						localeLanguage,
-					}
-				),
+				i18next.t("当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}", {
+					currentLocaleLanguage,
+					localeLanguage,
+				}),
 				{
 					timeout: 3000,
 					showClose: true,
@@ -549,27 +520,15 @@ const Greasyfork = {
 			) {
 				// 先获取上一次刷新页面的时间
 				let latestRefreshPageTime = parseInt(
-					GM_getValue<string | number>(
-						"greasyfork-check-page-time",
-						0
-					) as string
+					GM_getValue<string | number>("greasyfork-check-page-time", 0) as string
 				);
-				let checkPageTimeout = Panel.getValue(
-					"greasyfork-check-page-timeout",
-					5
-				);
+				let checkPageTimeout = Panel.getValue("greasyfork-check-page-timeout", 5);
 				let checkPageTimeoutStamp = checkPageTimeout * 1000;
-				if (
-					latestRefreshPageTime &&
-					Date.now() - latestRefreshPageTime < checkPageTimeoutStamp
-				) {
+				if (latestRefreshPageTime && Date.now() - latestRefreshPageTime < checkPageTimeoutStamp) {
 					/* 上次重载时间在xx秒内的话就拒绝重载 */
 					Qmsg.warning(
 						i18next.t("上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载", {
-							time: utils.formatTime(
-								latestRefreshPageTime,
-								"yyyy-MM-dd HH:mm:ss"
-							),
+							time: utils.formatTime(latestRefreshPageTime, "yyyy-MM-dd HH:mm:ss"),
 							timeout: checkPageTimeout,
 						})
 					);
@@ -586,10 +545,7 @@ const Greasyfork = {
 	addOperationPanelBtnWithNavigator() {
 		log.info("添加【操作面板】按钮");
 		// 隐藏右侧列表
-		CommonUtil.addBlockCSS(
-			".sidebarred .sidebar",
-			".sidebarred-main-content .open-sidebar"
-		);
+		CommonUtil.addBlockCSS(".sidebarred .sidebar", ".sidebarred-main-content .open-sidebar");
 		addStyle(/*css*/ `
 		.sidebarred .sidebarred-main-content{
 			max-width: 100%;
@@ -600,15 +556,12 @@ const Greasyfork = {
 			let $subNav = $<HTMLElement>("#site-nav .with-submenu nav");
 			// 右侧的过滤菜单
 			let $scriptsOptionGroups =
-				$<HTMLDivElement>("#script-list-option-groups")! ||
-				$<HTMLDivElement>(".list-option-groups")!;
+				$<HTMLDivElement>("#script-list-option-groups")! || $<HTMLDivElement>(".list-option-groups")!;
 			if (!$scriptsOptionGroups) {
 				log.warn("不存在右侧面板元素#script-list-option-groups");
 				return;
 			}
-			$scriptsOptionGroups = $scriptsOptionGroups.cloneNode(
-				true
-			) as HTMLDivElement;
+			$scriptsOptionGroups = $scriptsOptionGroups.cloneNode(true) as HTMLDivElement;
 			$scriptsOptionGroups.classList.add("option-panel-groups");
 			GreasyforkElementUtils.registerTopNavMenu({
 				name: i18next.t("操作面板"),
@@ -714,9 +667,7 @@ const Greasyfork = {
 						}
 						`,
 					});
-					let $content = $dialog.$shadowRoot.querySelector<HTMLDivElement>(
-						".pops-alert-content"
-					)!;
+					let $content = $dialog.$shadowRoot.querySelector<HTMLDivElement>(".pops-alert-content")!;
 					$content.appendChild($scriptsOptionGroups);
 				},
 			});

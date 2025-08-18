@@ -121,11 +121,8 @@ export const MTDyncmicAvatar = {
 								},
 							};
 							Object.keys(avatarInfo).forEach((keyName) => {
-								let value =
-									avatarInfo[keyName as any as keyof typeof avatarInfo];
-								value.base64 = value.base64.substring(
-									value.base64.indexOf(",") + 1
-								);
+								let value = avatarInfo[keyName as any as keyof typeof avatarInfo];
+								value.base64 = value.base64.substring(value.base64.indexOf(",") + 1);
 							});
 							let formData = new FormData();
 							formData.append("Filedata", this.$avatar.big || "");
@@ -153,11 +150,7 @@ export const MTDyncmicAvatar = {
 							if (!response.status) {
 								return;
 							}
-							if (
-								response.data.responseText.indexOf(
-									"window.parent.postMessage('success','*')"
-								) != -1
-							) {
+							if (response.data.responseText.indexOf("window.parent.postMessage('success','*')") != -1) {
 								$confirm.close();
 								Qmsg.success("上传成功");
 							} else {
@@ -165,7 +158,6 @@ export const MTDyncmicAvatar = {
 								Qmsg.error(response.data.responseText, {
 									timeout: 6000,
 									isHTML: false,
-									html: false,
 								});
 							}
 						} catch (error) {
@@ -210,14 +202,12 @@ export const MTDyncmicAvatar = {
             `,
 		});
 
-		this.$el.$smallUpload =
-			$confirm.$shadowRoot.querySelector<HTMLInputElement>(
-				".avatar-upload[data-type='small']"
-			)!;
-		this.$el.$middleUpload =
-			$confirm.$shadowRoot.querySelector<HTMLInputElement>(
-				".avatar-upload[data-type='middle']"
-			)!;
+		this.$el.$smallUpload = $confirm.$shadowRoot.querySelector<HTMLInputElement>(
+			".avatar-upload[data-type='small']"
+		)!;
+		this.$el.$middleUpload = $confirm.$shadowRoot.querySelector<HTMLInputElement>(
+			".avatar-upload[data-type='middle']"
+		)!;
 		this.$el.$bigUpload = $confirm.$shadowRoot.querySelector<HTMLInputElement>(
 			".avatar-upload[data-type='big']"
 		)!;
@@ -248,14 +238,9 @@ export const MTDyncmicAvatar = {
 				this.$upload.middle = true;
 			}
 		);
-		this.setUploadChangeEvent(
-			this.$el.$bigUpload,
-			this.$el.$bigStatus,
-			this.$data.avatarInfo.big,
-			() => {
-				this.$upload.big = true;
-			}
-		);
+		this.setUploadChangeEvent(this.$el.$bigUpload, this.$el.$bigStatus, this.$data.avatarInfo.big, () => {
+			this.$upload.big = true;
+		});
 	},
 	/**
 	 * 设置文件改变事件
@@ -283,16 +268,10 @@ export const MTDyncmicAvatar = {
 			reader.onload = function (response) {
 				$image.src = response!.target!.result as string;
 				$image.onload = function () {
-					if (
-						$image.width > sizeInfo.width ||
-						$image.height > sizeInfo.height
-					) {
+					if ($image.width > sizeInfo.width || $image.height > sizeInfo.height) {
 						$file.value = "";
 						$status.setAttribute("data-success", "false");
-						DOMUtils.text(
-							$status,
-							`🤡校验失败 ==> 图片尺寸不符合，宽：${$image.width} 高：${$image.height}`
-						);
+						DOMUtils.text($status, `🤡校验失败 ==> 图片尺寸不符合，宽：${$image.width} 高：${$image.height}`);
 						return;
 					}
 					if (fileSize > MTDyncmicAvatar.$data.avatarInfo.maxSize) {
@@ -305,10 +284,7 @@ export const MTDyncmicAvatar = {
 						return;
 					}
 					$status.setAttribute("data-success", "true");
-					DOMUtils.text(
-						$status,
-						`🤣 通过 宽:${$image.width} 高:${$image.height} 大小(byte):${fileSize}`
-					);
+					DOMUtils.text($status, `🤣 通过 宽:${$image.width} 高:${$image.height} 大小(byte):${fileSize}`);
 					successCallBack();
 				};
 			};
@@ -330,9 +306,7 @@ export const MTDyncmicAvatar = {
 			Qmsg.error("动态头像：获取上传地址的内容失败");
 			return;
 		}
-		let dataMatch = response.data.responseText.match(
-			/var[\s]*data[\s]*=[\s]*"(.+?)"/
-		);
+		let dataMatch = response.data.responseText.match(/var[\s]*data[\s]*=[\s]*"(.+?)"/);
 		if (dataMatch == null || dataMatch.length != 2) {
 			Qmsg.error("动态头像：获取变量data失败");
 			return;
@@ -349,10 +323,7 @@ export const MTDyncmicAvatar = {
 		}
 		let uploadUrl = data_split[srcIndex + 1];
 		let uploadUrlInst = new URL(uploadUrl);
-		uploadUrlInst.pathname = uploadUrlInst.pathname.replace(
-			"/images/camera.swf",
-			"/index.php"
-		);
+		uploadUrlInst.pathname = uploadUrlInst.pathname.replace("/images/camera.swf", "/index.php");
 		uploadUrlInst.searchParams.delete("inajax");
 		uploadUrlInst.searchParams.set("m", "user");
 		uploadUrlInst.searchParams.set("a", "rectavatar");

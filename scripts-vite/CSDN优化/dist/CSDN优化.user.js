@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.12
+// @version      2025.8.18
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
@@ -200,9 +200,7 @@
 				overflow: hidden !important;
 			}
 		`;
-      let $elList = [document.documentElement, document.body].concat(
-        ...args || []
-      );
+      let $elList = [document.documentElement, document.body].concat(...args || []);
       $elList.forEach(($el) => {
         $el.classList.add("pops-overflow-hidden-important");
       });
@@ -238,10 +236,7 @@
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
-          log.error(
-            "申请剪贴板权限失败，尝试直接读取👉",
-            error.message ?? error.name ?? error.stack
-          );
+          log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
           readClipboardText(resolve);
         });
       }
@@ -307,6 +302,24 @@
         }, intervalTime);
       };
       loop(false);
+    },
+    /**
+     * 找到对应的上层元素
+     */
+    findParentNode($el, selector, parentSelector) {
+      if (parentSelector) {
+        let $parent = DOMUtils.closest($el, parentSelector);
+        if ($parent) {
+          let $target = $parent.querySelector(selector);
+          return $target;
+        }
+      } else {
+        if (DOMUtils.matches($el, selector)) {
+          return $el;
+        }
+        let $parent = DOMUtils.closest($el, selector);
+        return $parent;
+      }
     }
   };
   const PanelSettingConfig = {
@@ -853,7 +866,11 @@
        */
       contentConfigInitDisabledKeys: [],
       /**
-       * 成功只执行了一次的项
+       * 成功只执行了一次的菜单项
+       *
+       * + .exec
+       * + .execMenu
+       * + .execMenuOnce
        */
       get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
@@ -863,6 +880,8 @@
       },
       /**
        * 成功只执行了一次的项
+       *
+       * + .onceExec
        */
       get onceExecData() {
         if (this.__onceExecData == null) {
@@ -965,6 +984,8 @@
     },
     /**
      * 设置初始化使用的默认值
+     * @param key 键
+     * @param defaultValue 默认值
      */
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -1035,22 +1056,6 @@
      */
     triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
-    },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
-      this.$data.onceExecMenuData.delete(key);
-      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
-    },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteOnceExec(key) {
-      this.$data.onceExecData.delete(key);
     },
     /**
      * 执行菜单
@@ -1245,11 +1250,24 @@
       return this.execMenu(key, callback, isReverse, true);
     },
     /**
-     * 根据key执行一次
+     * 移除已执行的仅执行一次的菜单
+     * + .exec
+     * + .execMenu
+     * + .execMenuOnce
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.onceExecMenuData.delete(key);
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag;
+    },
+    /**
+     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
      * @param key 键
      * @param callback 回调
      */
     onceExec(key, callback) {
+      key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -1258,6 +1276,15 @@
       }
       callback();
       this.$data.onceExecData.set(key, 1);
+    },
+    /**
+     * 移除已执行的仅执行一次的菜单
+     * + .onceExec
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      key = this.transformKey(key);
+      this.$data.onceExecData.delete(key);
     },
     /**
      * 显示设置面板
@@ -1320,6 +1347,7 @@
     },
     /**
      * 注册设置面板的搜索功能（双击左侧选项第一个）
+     * @param config 配置项
      */
     registerConfigSearch(config) {
       const { $panel, content } = config;
@@ -1374,9 +1402,7 @@
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
-						<div class="search-result-wrapper">
-
-						</div>
+						<div class="search-result-wrapper"></div>
 					`
             ),
             html: true
@@ -1398,7 +1424,10 @@
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
-						border-bottom: 1px solid #000000;
+						border-bottom: 1px solid rgb(235, 238, 245, 1);
+					}
+					.pops-content:has(.search-result-wrapper:empty) .search-wrapper{
+						border-bottom: 0;
 					}
 					.search-config-text{
 						width: 100%;
@@ -1722,6 +1751,17 @@
           )
         })
       );
+    },
+    /**
+     * 把key:string[]转为string
+     */
+    transformKey(key) {
+      if (Array.isArray(key)) {
+        const keyArray = key.sort();
+        return JSON.stringify(keyArray);
+      } else {
+        return key;
+      }
     }
   };
   const CSDNRouter = {

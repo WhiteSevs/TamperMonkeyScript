@@ -83,7 +83,7 @@ export class CookieManagerService {
 					cookieStore
 						.getAll()
 						.then((result) => {
-							callback(result);
+							callback(result as CookieStoreData[]);
 						})
 						.catch((reason) => {
 							log.error(reason);
@@ -92,7 +92,7 @@ export class CookieManagerService {
 				},
 				set(cookieInfo: GMCookieInstance, callback: (error?: Error | undefined | null) => void) {
 					cookieStore
-						.set(cookieInfo)
+						.set(cookieInfo as CookieInit)
 						.then(() => {
 							callback();
 						})

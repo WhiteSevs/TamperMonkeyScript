@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.7.13
+// @version            2025.8.18
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,13 +13,13 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.0/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.5.11/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.2.0/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/qmsg@1.3.8/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@25.3.2/i18next.min.js
-// @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.0/dist/otpauth.umd.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@25.3.6/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.1/dist/otpauth.umd.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
 // @connect            sleazyfork.org
@@ -181,6 +181,12 @@
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
+      } else if (url.startsWith("//")) {
+        if (url.startsWith("///")) ;
+        else {
+          url = window.location.protocol + url;
+        }
+        return url;
       } else {
         if (!url.startsWith("/")) {
           url += "/";
@@ -225,9 +231,7 @@
 				overflow: hidden !important;
 			}
 		`;
-      let $elList = [document.documentElement, document.body].concat(
-        ...args || []
-      );
+      let $elList = [document.documentElement, document.body].concat(...args || []);
       $elList.forEach(($el) => {
         $el.classList.add("pops-overflow-hidden-important");
       });
@@ -263,10 +267,7 @@
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
-          log.error(
-            "申请剪贴板权限失败，尝试直接读取👉",
-            error.message ?? error.name ?? error.stack
-          );
+          log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
           readClipboardText(resolve);
         });
       }
@@ -305,6 +306,51 @@
      */
     escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    },
+    /**
+     * 在规定时间内循环，如果超时或返回false则取消循环
+     * @param fn 循环的函数
+     * @param intervalTime 循环间隔时间
+     * @param [timeout=5000] 循环超时时间
+     */
+    interval(fn, intervalTime, timeout = 5e3) {
+      let timeId;
+      let maxTimeout = timeout - intervalTime;
+      let intervalTimeCount = intervalTime;
+      let loop = async (isTimeout) => {
+        let result = await fn(isTimeout);
+        if (typeof result === "boolean" && !result || isTimeout) {
+          utils.workerClearTimeout(timeId);
+          return;
+        }
+        intervalTimeCount += intervalTime;
+        if (intervalTimeCount > maxTimeout) {
+          loop(true);
+          return;
+        }
+        timeId = utils.workerSetTimeout(() => {
+          loop(false);
+        }, intervalTime);
+      };
+      loop(false);
+    },
+    /**
+     * 找到对应的上层元素
+     */
+    findParentNode($el, selector, parentSelector) {
+      if (parentSelector) {
+        let $parent = DOMUtils.closest($el, parentSelector);
+        if ($parent) {
+          let $target = $parent.querySelector(selector);
+          return $target;
+        }
+      } else {
+        if (DOMUtils.matches($el, selector)) {
+          return $el;
+        }
+        let $parent = DOMUtils.closest($el, selector);
+        return $parent;
+      }
     }
   };
   const PanelSettingConfig = {
@@ -340,48 +386,49 @@
     autoClearConsole: true,
     tag: true
   });
-  Qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_position.key,
-              PanelSettingConfig.qmsg_config_position.defaultValue
-            );
-          }
-        },
-        maxNums: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_maxnums.key,
-              PanelSettingConfig.qmsg_config_maxnums.defaultValue
-            );
-          }
-        },
-        showReverse: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_showreverse.key,
-              PanelSettingConfig.qmsg_config_showreverse.defaultValue
-            );
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = Utils.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-            return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
+  Qmsg.config({
+    isHTML: true,
+    autoClose: true,
+    showClose: false,
+    consoleLogContent(qmsgInst) {
+      const qmsgType = qmsgInst.getSetting().type;
+      if (qmsgType === "loading") {
+        return false;
       }
-    )
-  );
+      const content = qmsgInst.getSetting().content;
+      if (qmsgType === "warning") {
+        log.warn(content);
+      } else if (qmsgType === "error") {
+        log.error(content);
+      } else {
+        log.info(content);
+      }
+      return true;
+    },
+    get position() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_position.key,
+        PanelSettingConfig.qmsg_config_position.defaultValue
+      );
+    },
+    get maxNums() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_maxnums.key,
+        PanelSettingConfig.qmsg_config_maxnums.defaultValue
+      );
+    },
+    get showReverse() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_showreverse.key,
+        PanelSettingConfig.qmsg_config_showreverse.defaultValue
+      );
+    },
+    get zIndex() {
+      let maxZIndex = Utils.getMaxZIndex();
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    }
+  });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = Utils.getMaxZIndex(void 0, void 0, ($ele) => {
@@ -403,7 +450,8 @@
         toClose: false,
         toHide: false
       }
-    }
+    },
+    drag: true
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
@@ -445,8 +493,8 @@
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle.bind(utils);
-  const $ = document.querySelector.bind(document);
-  const $$ = document.querySelectorAll.bind(document);
+  const $ = DOMUtils.selector.bind(DOMUtils);
+  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
   new utils.GM_Cookie();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -479,6 +527,17 @@
       }
     },
     /**
+     * 中等的设置界面
+     */
+    settingMiddle: {
+      get width() {
+        return window.innerWidth < 350 ? "88vw" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "88vh" : "450px";
+      }
+    },
+    /**
      * 功能丰富，aside铺满了的设置界面，要稍微大一点
      */
     settingBig: {
@@ -494,10 +553,10 @@
      */
     info: {
       get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
+        return window.innerWidth < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
+        return window.innerHeight < 250 ? "88vh" : "250px";
       }
     }
   };
@@ -828,7 +887,7 @@
       /**
        * @private
        */
-      __configDefaultValueData: null,
+      __contentConfigInitDefaultValue: null,
       /**
        * @private
        */
@@ -841,18 +900,33 @@
        * @private
        */
       __panelConfig: {},
+      /**
+       * 面板
+       */
       $panel: null,
       /**
-       * 菜单项的默认值
+       * 面板配置
        */
-      get configDefaultValueData() {
-        if (this.__configDefaultValueData == null) {
-          this.__configDefaultValueData = new utils.Dictionary();
+      panelContent: [],
+      /**
+       * 菜单项初始化的默认值
+       */
+      get contentConfigInitDefaultValue() {
+        if (this.__contentConfigInitDefaultValue == null) {
+          this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
-        return this.__configDefaultValueData;
+        return this.__contentConfigInitDefaultValue;
       },
       /**
-       * 成功只执行了一次的项
+       * 菜单项初始化时禁用的键
+       */
+      contentConfigInitDisabledKeys: [],
+      /**
+       * 成功只执行了一次的菜单项
+       *
+       * + .exec
+       * + .execMenu
+       * + .execMenuOnce
        */
       get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
@@ -862,6 +936,8 @@
       },
       /**
        * 成功只执行了一次的项
+       *
+       * + .onceExec
        */
       get onceExecData() {
         if (this.__onceExecData == null) {
@@ -906,10 +982,21 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let needInitConfig = {};
+        let menuDefaultConfig = /* @__PURE__ */ new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          menuDefaultConfig.set(key, defaultValue);
+        }
+        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
+          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
+            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+          });
+        }
+        if (!menuDefaultConfig.size) {
+          log.warn(["请先配置键", config]);
+          return;
         }
         let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
@@ -918,27 +1005,23 @@
             return;
           }
         }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
+        if (config.type === "switch") {
+          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          if (typeof disabled === "boolean" && disabled) {
+            this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
+          }
         }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          log.warn(["请先配置键", config]);
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
           this.setDefaultValue(__key, __defaultValue);
-        });
+        }
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
           let configItem = configList[index];
           initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
+          let child_forms = configItem.forms;
+          if (child_forms && Array.isArray(child_forms)) {
+            loopInitDefaultValue(child_forms);
           }
         }
       };
@@ -953,15 +1036,18 @@
           loopInitDefaultValue(rightContentConfigList);
         }
       }
+      this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
     /**
      * 设置初始化使用的默认值
+     * @param key 键
+     * @param defaultValue 默认值
      */
     setDefaultValue(key, defaultValue) {
-      if (this.$data.configDefaultValueData.has(key)) {
+      if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
-      this.$data.configDefaultValueData.set(key, defaultValue);
+      this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
     /**
      * 设置值
@@ -979,8 +1065,8 @@
     getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.configDefaultValueData.has(key)) {
-          return this.$data.configDefaultValueData.get(key);
+        if (this.$data.contentConfigInitDefaultValue.has(key)) {
+          return this.$data.contentConfigInitDefaultValue.get(key);
         }
         return defaultValue;
       }
@@ -1006,12 +1092,9 @@
      * @param callback
      */
     addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(
-        key,
-        (__key, __newValue, __oldValue) => {
-          callback(key, __oldValue, __newValue);
-        }
-      );
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+        callback(key, __oldValue, __newValue);
+      });
       return listenerId;
     },
     /**
@@ -1031,25 +1114,9 @@
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
     /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
-      this.$data.onceExecMenuData.delete(key);
-      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
-    },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteOnceExec(key) {
-      this.$data.onceExecData.delete(key);
-    },
-    /**
      * 执行菜单
      *
-     * @param queryKey 键|键数组
+     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 执行的回调函数
      * @param checkExec 判断是否执行回调
      *
@@ -1081,9 +1148,7 @@
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find(
-        (it) => !this.$data.configDefaultValueData.has(it)
-      );
+      let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
@@ -1164,12 +1229,9 @@
         storeValueList = [...resultList];
       };
       once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(
-          key,
-          (key2, newValue, oldValue) => {
-            valueChangeCallback();
-          }
-        );
+        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          valueChangeCallback();
+        });
         listenerIdList.push(listenerId);
       });
       valueChangeCallback();
@@ -1205,11 +1267,12 @@
     },
     /**
      * 自动判断菜单是否启用，然后执行回调
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param [isReverse=false] 逆反判断菜单启用
+     * @param isReverse 逆反判断菜单启用，默认false
+     * @param once 是否是只执行一次，默认false
      */
-    execMenu(key, callback, isReverse = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -1218,43 +1281,49 @@
         (keyList) => {
           let execFlag = keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
+            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            if (disabled) {
+              flag = false;
+              log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+            }
             isReverse && (flag = !flag);
             return flag;
           });
           return execFlag;
         },
-        false
+        once
       );
     },
     /**
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      *
      * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     * @param isReverse 逆反判断菜单启用，默认false
      */
-    execMenuOnce(key, callback) {
-      return this.exec(
-        key,
-        callback,
-        (keyList) => {
-          let execFlag = keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            return flag;
-          });
-          return execFlag;
-        },
-        true
-      );
+    execMenuOnce(key, callback, isReverse = false) {
+      return this.execMenu(key, callback, isReverse, true);
     },
     /**
-     * 根据key执行一次
+     * 移除已执行的仅执行一次的菜单
+     * + .exec
+     * + .execMenu
+     * + .execMenuOnce
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.onceExecMenuData.delete(key);
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag;
+    },
+    /**
+     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
      * @param key 键
      * @param callback 回调
      */
     onceExec(key, callback) {
+      key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -1265,12 +1334,24 @@
       this.$data.onceExecData.set(key, 1);
     },
     /**
+     * 移除已执行的仅执行一次的菜单
+     * + .onceExec
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      key = this.transformKey(key);
+      this.$data.onceExecData.delete(key);
+    },
+    /**
      * 显示设置面板
      * @param content 显示的内容配置
      * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号）
+     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
+     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
      */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false) {
+    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+      this.$data.$panel = null;
+      this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
         let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
         return isBottom && it.id === "script-version";
@@ -1315,6 +1396,428 @@
         ...this.$data.panelConfig
       });
       this.$data.$panel = $panel;
+      this.$data.panelContent = content;
+      if (!preventRegisterSearchPlugin) {
+        this.registerConfigSearch({ $panel, content });
+      }
+    },
+    /**
+     * 注册设置面板的搜索功能（双击左侧选项第一个）
+     * @param config 配置项
+     */
+    registerConfigSearch(config) {
+      const { $panel, content } = config;
+      let asyncQueryProperty = async (target, handler) => {
+        if (target == null) {
+          return;
+        }
+        let handleResult = await handler(target);
+        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
+          return handleResult.data;
+        }
+        return await asyncQueryProperty(handleResult.data, handler);
+      };
+      let scrollToElementAndListen = ($el, callback) => {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                callback?.();
+                observer.disconnect();
+              }
+            });
+          },
+          {
+            root: null,
+            // 使用视口作为根
+            threshold: 1
+            // 元素完全进入视口时触发
+          }
+        );
+        observer.observe($el);
+        $el.scrollIntoView({ behavior: "smooth", block: "center" });
+      };
+      let addFlashingClass = ($el) => {
+        const flashingClassName = "pops-flashing";
+        domUtils.animationend($el, () => {
+          $el.classList.remove(flashingClassName);
+        });
+        $el.classList.add(flashingClassName);
+      };
+      let dbclick_event = (evt, selectorTarget) => {
+        utils.preventEvent(evt);
+        let $alert = __pops.alert({
+          title: {
+            text: "搜索配置",
+            position: "center"
+          },
+          content: {
+            text: (
+              /*html*/
+              `
+						<div class="search-wrapper">
+							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+						</div>
+						<div class="search-result-wrapper"></div>
+					`
+            ),
+            html: true
+          },
+          btn: {
+            ok: { enable: false }
+          },
+          mask: {
+            clickEvent: {
+              toClose: true
+            }
+          },
+          width: PanelUISize.settingMiddle.width,
+          height: "auto",
+          drag: true,
+          style: (
+            /*css*/
+            `
+					${__pops.config.cssText.panelCSS}
+
+					.search-wrapper{
+						border-bottom: 1px solid rgb(235, 238, 245, 1);
+					}
+					.pops-content:has(.search-result-wrapper:empty) .search-wrapper{
+						border-bottom: 0;
+					}
+					.search-config-text{
+						width: 100%;
+						border: 0;
+						height: 32px;
+						padding: 0px 10px;
+						outline: none;
+					}
+					.search-result-wrapper{
+						max-height: 400px;
+						overflow: auto;
+					}
+					.search-result-item{
+						cursor: pointer;
+						padding: 5px 10px;
+						display: flex;
+						flex-direction: column;
+					}
+					.search-result-item:hover{
+						background-color: #D8F1FD;
+					}
+					.search-result-item-path{
+						display: flex;
+    					align-items: center;
+					}
+					.search-result-item-description{
+						font-size: 0.8rem;
+						color: #6c6c6c;
+					}
+					${config.searchDialogStyle ?? ""}
+				`
+          )
+        });
+        $alert.$shadowRoot.querySelector(".search-wrapper");
+        let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
+        let $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
+        $searchInput.focus();
+        let clearSearchResult = () => {
+          domUtils.empty($searchResultWrapper);
+        };
+        let createSearchResultItem = (pathInfo) => {
+          const searchPath = utils.queryProperty(pathInfo, (target) => {
+            if (target?.next) {
+              return {
+                isFind: false,
+                data: target.next
+              };
+            } else {
+              return {
+                isFind: true,
+                data: target
+              };
+            }
+          });
+          let $item = domUtils.createElement("div", {
+            className: "search-result-item",
+            innerHTML: (
+              /*html*/
+              `
+							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
+							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
+						`
+            )
+          });
+          domUtils.on($item, "click", (clickItemEvent) => {
+            let $asideItems = $panel.$shadowRoot.querySelectorAll(
+              "aside.pops-panel-aside .pops-panel-aside-top-container li"
+            );
+            let $targetAsideItem = $asideItems[pathInfo.index];
+            if (!$targetAsideItem) {
+              Qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              return;
+            }
+            $targetAsideItem.scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+            });
+            $targetAsideItem.click();
+            asyncQueryProperty(pathInfo.next, async (target) => {
+              if (target?.next) {
+                let $findDeepMenu = await utils.waitNode(() => {
+                  return Array.from(
+                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
+                  ).find(($deepMenu) => {
+                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
+                  });
+                }, 2500);
+                if ($findDeepMenu) {
+                  $findDeepMenu.click();
+                } else {
+                  Qmsg.error("未找到对应的二级菜单");
+                  return {
+                    isFind: true,
+                    data: target
+                  };
+                }
+                return {
+                  isFind: false,
+                  data: target.next
+                };
+              } else {
+                let $findTargetMenu = await utils.waitNode(() => {
+                  return Array.from(
+                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
+                  ).find(($menuItem) => {
+                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                    return __formConfig__ === target.matchedData?.formConfig;
+                  });
+                }, 2500);
+                if ($findTargetMenu) {
+                  scrollToElementAndListen($findTargetMenu);
+                  let $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
+                  if ($fold) {
+                    let $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
+                    $foldWrapper.click();
+                    await utils.sleep(500);
+                  }
+                  scrollToElementAndListen($findTargetMenu, () => {
+                    addFlashingClass($findTargetMenu);
+                  });
+                } else {
+                  Qmsg.error("未找到对应的菜单项");
+                }
+                return {
+                  isFind: true,
+                  data: target
+                };
+              }
+            });
+          });
+          return $item;
+        };
+        let execSearch = (searchText) => {
+          const searchTextRegExp = new RegExp(searchText, "i");
+          const searchConfigResult = [];
+          const loopContentConfig = (configList, path) => {
+            for (let index = 0; index < configList.length; index++) {
+              const configItem = configList[index];
+              let child_forms = configItem.forms;
+              if (child_forms && Array.isArray(child_forms)) {
+                const deepMenuPath = utils.deepClone(path);
+                if (configItem.type === "deepMenu") {
+                  const deepNext = utils.queryProperty(deepMenuPath, (target) => {
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  deepNext.next = {
+                    name: configItem.text
+                  };
+                }
+                loopContentConfig(child_forms, deepMenuPath);
+              } else {
+                let text = Reflect.get(configItem, "text");
+                let description = Reflect.get(configItem, "description");
+                const delayMatchedTextList = [text, description];
+                let matchedIndex = delayMatchedTextList.findIndex((configText) => {
+                  if (typeof configText !== "string") {
+                    return;
+                  }
+                  return configText.match(searchTextRegExp);
+                });
+                if (matchedIndex !== -1) {
+                  const matchedPath = utils.deepClone(path);
+                  const deepNext = utils.queryProperty(matchedPath, (target) => {
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  deepNext.next = {
+                    name: text,
+                    matchedData: {
+                      path: "",
+                      formConfig: configItem,
+                      matchedText: delayMatchedTextList[matchedIndex],
+                      description
+                    }
+                  };
+                  const pathList = [];
+                  utils.queryProperty(matchedPath, (target) => {
+                    const name = target?.name;
+                    if (typeof name === "string" && name.trim() !== "") {
+                      pathList.push(name);
+                    }
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  const pathStr = pathList.join(CommonUtil.escapeHtml(" - "));
+                  deepNext.next.matchedData.path = pathStr;
+                  searchConfigResult.push(matchedPath);
+                }
+              }
+            }
+          };
+          for (let index = 0; index < content.length; index++) {
+            const leftContentConfigItem = content[index];
+            if (!leftContentConfigItem.forms) {
+              continue;
+            }
+            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
+              continue;
+            }
+            const rightContentConfigList = leftContentConfigItem.forms;
+            if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+              let text = leftContentConfigItem.title;
+              if (typeof text === "function") {
+                text = text();
+              }
+              loopContentConfig(rightContentConfigList, {
+                index,
+                name: text
+              });
+            }
+          }
+          let fragment = document.createDocumentFragment();
+          for (const pathInfo of searchConfigResult) {
+            let $resultItem = createSearchResultItem(pathInfo);
+            fragment.appendChild($resultItem);
+          }
+          clearSearchResult();
+          $searchResultWrapper.append(fragment);
+        };
+        domUtils.on(
+          $searchInput,
+          "input",
+          utils.debounce((evt2) => {
+            utils.preventEvent(evt2);
+            let searchText = domUtils.val($searchInput).trim();
+            if (searchText === "") {
+              clearSearchResult();
+              return;
+            }
+            execSearch(searchText);
+          }, 200)
+        );
+      };
+      let clickElement = null;
+      let isDoubleClick = false;
+      let timer = void 0;
+      domUtils.on(
+        $panel.$shadowRoot,
+        "dblclick",
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+        dbclick_event
+      );
+      domUtils.on(
+        $panel.$shadowRoot,
+        "touchend",
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+        (evt, selectorTarget) => {
+          clearTimeout(timer);
+          timer = void 0;
+          if (isDoubleClick && clickElement === selectorTarget) {
+            isDoubleClick = false;
+            dbclick_event(evt);
+          } else {
+            timer = setTimeout(() => {
+              isDoubleClick = false;
+            }, 200);
+            clickElement = selectorTarget;
+            isDoubleClick = true;
+          }
+        },
+        {
+          capture: true
+        }
+      );
+      $panel.$shadowRoot.appendChild(
+        domUtils.createElement("style", {
+          type: "text/css",
+          textContent: (
+            /*css*/
+            `
+					.pops-flashing{
+						animation: double-blink 1.5s ease-in-out;
+					}
+					@keyframes double-blink {
+						 0% {
+							background-color: initial;
+						}
+						25% {
+							background-color: yellow;
+						}
+						50% {
+							background-color: initial;
+						}
+						75% {
+							background-color: yellow;
+						}
+						100% {
+							background-color: initial;
+						}
+					}
+				`
+          )
+        })
+      );
+    },
+    /**
+     * 把key:string[]转为string
+     */
+    transformKey(key) {
+      if (Array.isArray(key)) {
+        const keyArray = key.sort();
+        return JSON.stringify(keyArray);
+      } else {
+        return key;
+      }
     }
   };
   const zh_CN_language = {
@@ -3035,23 +3538,17 @@
       let getLoadingHTML = function(scriptName, progress = 1) {
         return `
 			<div style="display: flex;flex-direction: column;align-items: flex-start;">
-				<div style="height: 30px;line-height: 30px;">${i18next.t(
-        "名称："
-      )}${scriptName}</div>
-				<div style="height: 30px;line-height: 30px;">${i18next.t(
-        "进度："
-      )}${progress}/${scriptUrlList.length}</div>
+				<div style="height: 30px;line-height: 30px;">${i18next.t("名称：")}${scriptName}</div>
+				<div style="height: 30px;line-height: 30px;">${i18next.t("进度：")}${progress}/${scriptUrlList.length}</div>
 			</div>`;
       };
       if (utils.isNull(scriptUrlList)) {
         Qmsg.error(i18next.t("未获取到【脚本列表】"));
       } else {
         let loading = Qmsg.loading(
-          getLoadingHTML(
-            GreasyforkUrlUtils.getScriptName(scriptUrlList[0])
-          ),
+          getLoadingHTML(GreasyforkUrlUtils.getScriptName(scriptUrlList[0])),
           {
-            html: true
+            isHTML: true
           }
         );
         let successNums = 0;
@@ -3065,11 +3562,7 @@
           let syncFormDataInfo = await GreasyforkApi.getSourceCodeSyncFormDataInfo(scriptId);
           if (syncFormDataInfo) {
             const { formData: codeSyncFormData, url: syncUrl } = syncFormDataInfo;
-            let syncUpdateStatus = await GreasyforkApi.sourceCodeSync(
-              scriptId,
-              codeSyncFormData,
-              syncUrl
-            );
+            let syncUpdateStatus = await GreasyforkApi.sourceCodeSync(scriptId, codeSyncFormData, syncUrl);
             if (syncUpdateStatus) {
               Qmsg.success(i18next.t("源代码同步成功，3秒后更新下一个"));
               await utils.sleep(3e3);
@@ -3097,7 +3590,7 @@
               }
             ),
             {
-              html: true
+              isHTML: true
             }
           );
         }
@@ -3110,10 +3603,7 @@
       if (Panel.getValue("goto_updateSettingsAndSynchronize_scriptList")) {
         Panel.deleteValue("goto_updateSettingsAndSynchronize_scriptList");
         if (!GreasyforkRouter.isUsers()) {
-          Panel.setValue(
-            "goto_updateSettingsAndSynchronize_scriptList",
-            true
-          );
+          Panel.setValue("goto_updateSettingsAndSynchronize_scriptList", true);
           if (GreasyforkMenu.getUserLinkElement()) {
             Qmsg.success(i18next.t("前往用户主页"));
             window.location.href = GreasyforkMenu.getUserLinkElement().href;
@@ -3123,23 +3613,14 @@
           return;
         }
         let scriptUrlList = [];
-        $$(
-          "#user-script-list-section li a.script-link"
-        ).forEach(($anchor) => {
-          scriptUrlList = scriptUrlList.concat(
-            GreasyforkUrlUtils.getAdminUrl($anchor.href)
-          );
+        $$("#user-script-list-section li a.script-link").forEach(($anchor) => {
+          scriptUrlList = scriptUrlList.concat(GreasyforkUrlUtils.getAdminUrl($anchor.href));
         });
         GreasyforkMenu.updateScript(scriptUrlList);
       } else if (Panel.getValue("goto_updateSettingsAndSynchronize_unlistedScriptList")) {
-        Panel.deleteValue(
-          "goto_updateSettingsAndSynchronize_unlistedScriptList"
-        );
+        Panel.deleteValue("goto_updateSettingsAndSynchronize_unlistedScriptList");
         if (!GreasyforkRouter.isUsers()) {
-          Panel.setValue(
-            "goto_updateSettingsAndSynchronize_unlistedScriptList",
-            true
-          );
+          Panel.setValue("goto_updateSettingsAndSynchronize_unlistedScriptList", true);
           if (GreasyforkMenu.getUserLinkElement()) {
             Qmsg.success(i18next.t("前往用户主页"));
             window.location.href = GreasyforkMenu.getUserLinkElement().href;
@@ -3149,23 +3630,14 @@
           return;
         }
         let scriptUrlList = [];
-        $$(
-          "#user-unlisted-script-list li a.script-link"
-        ).forEach(($anchor) => {
-          scriptUrlList = scriptUrlList.concat(
-            GreasyforkUrlUtils.getAdminUrl($anchor.href)
-          );
+        $$("#user-unlisted-script-list li a.script-link").forEach(($anchor) => {
+          scriptUrlList = scriptUrlList.concat(GreasyforkUrlUtils.getAdminUrl($anchor.href));
         });
         GreasyforkMenu.updateScript(scriptUrlList);
       } else if (Panel.getValue("goto_updateSettingsAndSynchronize_libraryScriptList")) {
-        Panel.deleteValue(
-          "goto_updateSettingsAndSynchronize_libraryScriptList"
-        );
+        Panel.deleteValue("goto_updateSettingsAndSynchronize_libraryScriptList");
         if (!GreasyforkRouter.isUsers()) {
-          Panel.setValue(
-            "goto_updateSettingsAndSynchronize_libraryScriptList",
-            true
-          );
+          Panel.setValue("goto_updateSettingsAndSynchronize_libraryScriptList", true);
           if (GreasyforkMenu.getUserLinkElement()) {
             Qmsg.success(i18next.t("前往用户主页"));
             window.location.href = GreasyforkMenu.getUserLinkElement().href;
@@ -3175,12 +3647,8 @@
           return;
         }
         let scriptUrlList = [];
-        $$(
-          "#user-library-script-list li a.script-link"
-        ).forEach(($anchor) => {
-          scriptUrlList = scriptUrlList.concat(
-            GreasyforkUrlUtils.getAdminUrl($anchor.href)
-          );
+        $$("#user-library-script-list li a.script-link").forEach(($anchor) => {
+          scriptUrlList = scriptUrlList.concat(GreasyforkUrlUtils.getAdminUrl($anchor.href));
         });
         GreasyforkMenu.updateScript(scriptUrlList);
       }
@@ -6676,55 +7144,50 @@
       function getImgElementSrc(element) {
         return element.getAttribute("data-src") || element.getAttribute("src") || element.getAttribute("alt");
       }
-      domUtils.on(
-        document,
-        "click",
-        "img",
-        function(event) {
-          let $img = event.target;
-          if ($img.parentElement?.localName === "a" && $img.hasAttribute("data-screenshots")) {
+      domUtils.on(document, "click", "img", function(event) {
+        let $img = event.target;
+        if ($img.parentElement?.localName === "a" && $img.hasAttribute("data-screenshots")) {
+          return;
+        }
+        if ($img.closest(".viewer-container")) {
+          return;
+        }
+        if ($img.closest(".lum-lightbox-position-helper")) {
+          return;
+        }
+        let userContentElement = $img.closest(".user-content");
+        let imgList = [];
+        let imgIndex = 0;
+        let imgElementList = [];
+        let currentImgSrc = getImgElementSrc($img);
+        if (currentImgSrc) {
+          if (currentImgSrc.startsWith("https://img.shields.io")) {
+            return;
+          } else if (currentImgSrc.startsWith("/vite/assets/")) {
             return;
           }
-          if ($img.closest(".viewer-container")) {
-            return;
-          }
-          if ($img.closest(".lum-lightbox-position-helper")) {
-            return;
-          }
-          let userContentElement = $img.closest(".user-content");
-          let imgList = [];
-          let imgIndex = 0;
-          let imgElementList = [];
-          let currentImgSrc = getImgElementSrc($img);
-          if (currentImgSrc) {
-            if (currentImgSrc.startsWith("https://img.shields.io")) {
-              return;
-            } else if (currentImgSrc.startsWith("/vite/assets/")) {
-              return;
+        }
+        if (userContentElement) {
+          userContentElement.querySelectorAll("img").forEach((childImgElement) => {
+            imgElementList.push(childImgElement);
+            let imgSrc = getImgElementSrc(childImgElement);
+            let $parent = childImgElement.parentElement;
+            if ($parent?.localName === "a") {
+              imgSrc = $parent.getAttribute("data-href") || $parent.href;
             }
-          }
-          if (userContentElement) {
-            userContentElement.querySelectorAll("img").forEach((childImgElement) => {
-              imgElementList.push(childImgElement);
-              let imgSrc = getImgElementSrc(childImgElement);
-              let $parent = childImgElement.parentElement;
-              if ($parent?.localName === "a") {
-                imgSrc = $parent.getAttribute("data-href") || $parent.href;
-              }
-              imgList.push(imgSrc);
-            });
-            imgIndex = imgElementList.indexOf($img);
-            if (imgIndex === -1) {
-              imgIndex = 0;
-            }
-          } else {
-            imgList.push(currentImgSrc);
+            imgList.push(imgSrc);
+          });
+          imgIndex = imgElementList.indexOf($img);
+          if (imgIndex === -1) {
             imgIndex = 0;
           }
-          log.success("点击浏览图片👉", imgList, imgIndex);
-          viewIMG(imgList, imgIndex);
+        } else {
+          imgList.push(currentImgSrc);
+          imgIndex = 0;
         }
-      );
+        log.success("点击浏览图片👉", imgList, imgIndex);
+        viewIMG(imgList, imgIndex);
+      });
       $$(".user-screenshots").forEach(($screenhot) => {
         let linkElement = $screenhot.querySelector("a");
         if (!linkElement) {
@@ -6763,7 +7226,7 @@
             "拦截跳转："
           )}<a href="${url}" target="_blank">${url}</a></div>`,
             {
-              html: true,
+              isHTML: true,
               zIndex: utils.getMaxZIndex() + 105
             }
           );
@@ -6913,15 +7376,9 @@
             `
           )
         });
-        let clipboardCopyElement = $copy.querySelector(
-          ".js-clipboard-copy"
-        );
-        let octiconCopyElement = $copy.querySelector(
-          ".octicon-copy"
-        );
-        let octiconCheckCopyElement = $copy.querySelector(
-          ".octicon-check-copy"
-        );
+        let clipboardCopyElement = $copy.querySelector(".js-clipboard-copy");
+        let octiconCopyElement = $copy.querySelector(".octicon-copy");
+        let octiconCheckCopyElement = $copy.querySelector(".octicon-check-copy");
         domUtils.on($copy, "click", () => {
           let $parent = domUtils.parent($copy);
           let $code = $parent.querySelector("code");
@@ -6957,9 +7414,7 @@
         return $copy;
       }
       $$("pre").forEach((preElement) => {
-        let zeroclipboardElement = preElement.querySelector(
-          "div.zeroclipboard-container"
-        );
+        let zeroclipboardElement = preElement.querySelector("div.zeroclipboard-container");
         if (zeroclipboardElement) {
           return;
         }
@@ -6991,13 +7446,10 @@
         GreasyforkApi.switchLanguage(url);
         log.success("新Url：" + url);
         Qmsg.loading(
-          i18next.t(
-            "当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}",
-            {
-              currentLocaleLanguage,
-              localeLanguage
-            }
-          ),
+          i18next.t("当前语言：{{currentLocaleLanguage}}，，3秒后切换至：{{localeLanguage}}", {
+            currentLocaleLanguage,
+            localeLanguage
+          }),
           {
             timeout: 3e3,
             showClose: true,
@@ -7025,23 +7477,14 @@
           "We're down for maintenance. Check back again soon."
         )) {
           let latestRefreshPageTime = parseInt(
-            _GM_getValue(
-              "greasyfork-check-page-time",
-              0
-            )
+            _GM_getValue("greasyfork-check-page-time", 0)
           );
-          let checkPageTimeout = Panel.getValue(
-            "greasyfork-check-page-timeout",
-            5
-          );
+          let checkPageTimeout = Panel.getValue("greasyfork-check-page-timeout", 5);
           let checkPageTimeoutStamp = checkPageTimeout * 1e3;
           if (latestRefreshPageTime && Date.now() - latestRefreshPageTime < checkPageTimeoutStamp) {
             Qmsg.warning(
               i18next.t("上次重载时间 {{time}}，{{timeout}}秒内拒绝反复重载", {
-                time: utils.formatTime(
-                  latestRefreshPageTime,
-                  "yyyy-MM-dd HH:mm:ss"
-                ),
+                time: utils.formatTime(latestRefreshPageTime, "yyyy-MM-dd HH:mm:ss"),
                 timeout: checkPageTimeout
               })
             );
@@ -7057,10 +7500,7 @@
      */
     addOperationPanelBtnWithNavigator() {
       log.info("添加【操作面板】按钮");
-      CommonUtil.addBlockCSS(
-        ".sidebarred .sidebar",
-        ".sidebarred-main-content .open-sidebar"
-      );
+      CommonUtil.addBlockCSS(".sidebarred .sidebar", ".sidebarred-main-content .open-sidebar");
       addStyle(
         /*css*/
         `
@@ -7077,9 +7517,7 @@
           log.warn("不存在右侧面板元素#script-list-option-groups");
           return;
         }
-        $scriptsOptionGroups = $scriptsOptionGroups.cloneNode(
-          true
-        );
+        $scriptsOptionGroups = $scriptsOptionGroups.cloneNode(true);
         $scriptsOptionGroups.classList.add("option-panel-groups");
         GreasyforkElementUtils.registerTopNavMenu({
           name: i18next.t("操作面板"),
@@ -7188,9 +7626,7 @@
 						`
               )
             });
-            let $content = $dialog.$shadowRoot.querySelector(
-              ".pops-alert-content"
-            );
+            let $content = $dialog.$shadowRoot.querySelector(".pops-alert-content");
             $content.appendChild($scriptsOptionGroups);
           }
         });
@@ -7420,7 +7856,7 @@
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
-  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack) {
+  const UIInput = function(text, key, defaultValue, description, changeCallback, placeholder = "", isNumber, isPassword, afterAddToUListCallBack, valueChangeCallback) {
     let result = {
       text,
       type: "input",
@@ -7456,16 +7892,18 @@
     );
     return result;
   };
-  const UISwitch = function(text, key, defaultValue, clickCallback, description, afterAddToUListCallBack) {
+  const UISwitch = function(text, key, defaultValue, clickCallBack, description, afterAddToUListCallBack, disabled, valueChangeCallBack) {
     let result = {
       text,
       type: "switch",
       description,
+      disabled,
       attributes: {},
       props: {},
       getValue() {
         let storageApiValue = this.props[PROPS_STORAGE_API];
-        return Boolean(storageApiValue.get(key, defaultValue));
+        let value = storageApiValue.get(key, defaultValue);
+        return value;
       },
       callback(event, __value) {
         let value = Boolean(__value);
@@ -7491,7 +7929,7 @@
     );
     return result;
   };
-  const UISelect = function(text, key, defaultValue, data, changeCallback, description) {
+  const UISelect = function(text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     let selectData = [];
     if (typeof data === "function") {
       selectData = data();
@@ -7511,8 +7949,8 @@
       callback(event, isSelectedValue, isSelectedText) {
         let value = isSelectedValue;
         log.info(`选择：${isSelectedText}`);
-        if (typeof changeCallback === "function") {
-          let result2 = changeCallback(event, value, isSelectedText);
+        if (typeof selectCallBack === "function") {
+          let result2 = selectCallBack(event, value, isSelectedText);
           if (result2) {
             return;
           }
@@ -7989,7 +8427,7 @@
                     i18next.t("固定当前语言"),
                     "language-selector-locale",
                     "",
-                    function() {
+                    (function() {
                       let result = [
                         {
                           value: "",
@@ -8014,7 +8452,7 @@
                         });
                       });
                       return result;
-                    }()
+                    })()
                   ),
                   UISwitch(
                     i18next.t("修复图片宽度显示问题"),

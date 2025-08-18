@@ -36,23 +36,17 @@ export const GreasyforkMenu = {
 		let getLoadingHTML = function (scriptName: string, progress = 1) {
 			return `
 			<div style="display: flex;flex-direction: column;align-items: flex-start;">
-				<div style="height: 30px;line-height: 30px;">${i18next.t(
-					"名称："
-				)}${scriptName}</div>
-				<div style="height: 30px;line-height: 30px;">${i18next.t(
-					"进度："
-				)}${progress}/${scriptUrlList.length}</div>
+				<div style="height: 30px;line-height: 30px;">${i18next.t("名称：")}${scriptName}</div>
+				<div style="height: 30px;line-height: 30px;">${i18next.t("进度：")}${progress}/${scriptUrlList.length}</div>
 			</div>`;
 		};
 		if (utils.isNull(scriptUrlList)) {
 			Qmsg.error(i18next.t("未获取到【脚本列表】"));
 		} else {
 			let loading = Qmsg.loading(
-				getLoadingHTML(
-					GreasyforkUrlUtils.getScriptName(scriptUrlList[0]) as string
-				),
+				getLoadingHTML(GreasyforkUrlUtils.getScriptName(scriptUrlList[0]) as string),
 				{
-					html: true,
+					isHTML: true,
 				}
 			);
 			let successNums = 0;
@@ -63,15 +57,10 @@ export const GreasyforkMenu = {
 				log.success("更新：" + scriptUrl);
 				let scriptName = GreasyforkUrlUtils.getScriptName(scriptUrl) as string;
 				loading.setHTML(getLoadingHTML(scriptName, index + 1));
-				let syncFormDataInfo =
-					await GreasyforkApi.getSourceCodeSyncFormDataInfo(scriptId);
+				let syncFormDataInfo = await GreasyforkApi.getSourceCodeSyncFormDataInfo(scriptId);
 				if (syncFormDataInfo) {
 					const { formData: codeSyncFormData, url: syncUrl } = syncFormDataInfo;
-					let syncUpdateStatus = await GreasyforkApi.sourceCodeSync(
-						scriptId,
-						codeSyncFormData,
-						syncUrl
-					);
+					let syncUpdateStatus = await GreasyforkApi.sourceCodeSync(scriptId, codeSyncFormData, syncUrl);
 					if (syncUpdateStatus) {
 						Qmsg.success(i18next.t("源代码同步成功，3秒后更新下一个"));
 						await utils.sleep(3000);
@@ -99,7 +88,7 @@ export const GreasyforkMenu = {
 						}
 					),
 					{
-						html: true,
+						isHTML: true,
 					}
 				);
 			}
@@ -113,10 +102,7 @@ export const GreasyforkMenu = {
 			Panel.deleteValue("goto_updateSettingsAndSynchronize_scriptList");
 			if (!GreasyforkRouter.isUsers()) {
 				/* 当前不在用户主页 */
-				Panel.setValue(
-					"goto_updateSettingsAndSynchronize_scriptList",
-					true
-				);
+				Panel.setValue("goto_updateSettingsAndSynchronize_scriptList", true);
 				if (GreasyforkMenu.getUserLinkElement()) {
 					Qmsg.success(i18next.t("前往用户主页"));
 					window.location.href = GreasyforkMenu.getUserLinkElement()!.href;
@@ -126,26 +112,15 @@ export const GreasyforkMenu = {
 				return;
 			}
 			let scriptUrlList: string[] = [];
-			$$<HTMLAnchorElement>(
-				"#user-script-list-section li a.script-link"
-			).forEach(($anchor) => {
-				scriptUrlList = scriptUrlList.concat(
-					GreasyforkUrlUtils.getAdminUrl($anchor.href)
-				);
+			$$<HTMLAnchorElement>("#user-script-list-section li a.script-link").forEach(($anchor) => {
+				scriptUrlList = scriptUrlList.concat(GreasyforkUrlUtils.getAdminUrl($anchor.href));
 			});
 			GreasyforkMenu.updateScript(scriptUrlList);
-		} else if (
-			Panel.getValue("goto_updateSettingsAndSynchronize_unlistedScriptList")
-		) {
-			Panel.deleteValue(
-				"goto_updateSettingsAndSynchronize_unlistedScriptList"
-			);
+		} else if (Panel.getValue("goto_updateSettingsAndSynchronize_unlistedScriptList")) {
+			Panel.deleteValue("goto_updateSettingsAndSynchronize_unlistedScriptList");
 			if (!GreasyforkRouter.isUsers()) {
 				/* 当前不在用户主页 */
-				Panel.setValue(
-					"goto_updateSettingsAndSynchronize_unlistedScriptList",
-					true
-				);
+				Panel.setValue("goto_updateSettingsAndSynchronize_unlistedScriptList", true);
 				if (GreasyforkMenu.getUserLinkElement()) {
 					Qmsg.success(i18next.t("前往用户主页"));
 					window.location.href = GreasyforkMenu.getUserLinkElement()!.href;
@@ -155,26 +130,15 @@ export const GreasyforkMenu = {
 				return;
 			}
 			let scriptUrlList: string[] = [];
-			$$<HTMLAnchorElement>(
-				"#user-unlisted-script-list li a.script-link"
-			).forEach(($anchor) => {
-				scriptUrlList = scriptUrlList.concat(
-					GreasyforkUrlUtils.getAdminUrl($anchor.href)
-				);
+			$$<HTMLAnchorElement>("#user-unlisted-script-list li a.script-link").forEach(($anchor) => {
+				scriptUrlList = scriptUrlList.concat(GreasyforkUrlUtils.getAdminUrl($anchor.href));
 			});
 			GreasyforkMenu.updateScript(scriptUrlList);
-		} else if (
-			Panel.getValue("goto_updateSettingsAndSynchronize_libraryScriptList")
-		) {
-			Panel.deleteValue(
-				"goto_updateSettingsAndSynchronize_libraryScriptList"
-			);
+		} else if (Panel.getValue("goto_updateSettingsAndSynchronize_libraryScriptList")) {
+			Panel.deleteValue("goto_updateSettingsAndSynchronize_libraryScriptList");
 			if (!GreasyforkRouter.isUsers()) {
 				/* 当前不在用户主页 */
-				Panel.setValue(
-					"goto_updateSettingsAndSynchronize_libraryScriptList",
-					true
-				);
+				Panel.setValue("goto_updateSettingsAndSynchronize_libraryScriptList", true);
 				if (GreasyforkMenu.getUserLinkElement()) {
 					Qmsg.success(i18next.t("前往用户主页"));
 					window.location.href = GreasyforkMenu.getUserLinkElement()!.href;
@@ -184,12 +148,8 @@ export const GreasyforkMenu = {
 				return;
 			}
 			let scriptUrlList: string[] = [];
-			$$<HTMLAnchorElement>(
-				"#user-library-script-list li a.script-link"
-			).forEach(($anchor) => {
-				scriptUrlList = scriptUrlList.concat(
-					GreasyforkUrlUtils.getAdminUrl($anchor.href)
-				);
+			$$<HTMLAnchorElement>("#user-library-script-list li a.script-link").forEach(($anchor) => {
+				scriptUrlList = scriptUrlList.concat(GreasyforkUrlUtils.getAdminUrl($anchor.href));
 			});
 			GreasyforkMenu.updateScript(scriptUrlList);
 		}

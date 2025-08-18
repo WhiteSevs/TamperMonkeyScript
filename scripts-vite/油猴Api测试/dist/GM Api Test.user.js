@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.7.13
+// @version      2025.8.18
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -188,7 +188,6 @@
         autoClose: true,
         listenEventToPauseAutoClose: true,
         content: "",
-        html: false,
         isHTML: false,
         position: "top",
         showClose: false,
@@ -359,7 +358,7 @@
     const fullBrokerImplementation = extendBrokerImplementation$3(brokerImplementation);
     return (sender) => {
       const ongoingRequests = createOrGetOngoingRequests$3(sender);
-      sender.addEventListener("message", ({ data: message }) => {
+      sender.addEventListener("message", (({ data: message }) => {
         const { id } = message;
         if (id !== null && ongoingRequests.has(id)) {
           const { reject, resolve } = ongoingRequests.get(id);
@@ -370,7 +369,7 @@
             reject(new Error(message.error.message));
           }
         }
-      });
+      }));
       if (isMessagePort$3(sender)) {
         sender.start();
       }
@@ -485,7 +484,7 @@
       return broker;
     };
   };
-  const worker$3 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),d=t(c);e.addUniqueNumber=d,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const d=r instanceof Promise?await r:r;if(null===a){if(void 0!==d.result)throw s(i)}else{if(void 0===d.result)throw s(i);const{result:e,transferables:r=[]}=d;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),d=(e,t,r=()=>!0)=>{const n=c(d,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},l=e=>t=>{const r=e.get(t);if(void 0===r)return Promise.resolve(!1);const[n,o]=r;return clearTimeout(n),e.delete(t),o(!1),Promise.resolve(!0)},f=(e,t,r)=>(n,o,s)=>{const{expected:a,remainingDelay:i}=e(n,o);return new Promise((e=>{t.set(s,[setTimeout(r,i,a,t,e,s),e])}))},m=(e,t)=>{const r=performance.now(),n=e+t-r-performance.timeOrigin;return{expected:r+n,remainingDelay:n}},p=(e,t,r,n)=>{const o=e-performance.now();o>0?t.set(n,[setTimeout(p,o,e,t,r,n),r]):(t.delete(n),r(!0))},h=new Map,v=l(h),w=new Map,g=l(w),M=f(m,h,p),y=f(m,w,p);d(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?v(e):g(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?M:y)(e,t,r)})})})()})();`;
+  const worker$3 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},f=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise((t=>{e.set(a,[r(n,u,i,e,t,a),t])}))},m=new Map,h=d(globalThis.clearTimeout,m),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=f(m,performance,globalThis.setTimeout,w),T=f(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
   const loadOrReturnBroker$3 = createLoadOrReturnBroker$3(load$3, worker$3);
   const clearInterval$4 = (timerId) => loadOrReturnBroker$3().clearInterval(timerId);
   const clearTimeout$3 = (timerId) => loadOrReturnBroker$3().clearTimeout(timerId);
@@ -878,7 +877,8 @@
       }
       let $content = document.createElement("span");
       let $positionClassName = QmsgUtils.getNameSpacify("data-position", this.setting.position.toLowerCase());
-      if (this.setting.html || this.setting.isHTML) {
+      let isHTML = this.setting.isHTML;
+      if (isHTML) {
         QmsgUtils.setSafeHTML($content, content);
       } else {
         $content.innerText = content;
@@ -1246,7 +1246,7 @@
      */
     constructor(config) {
       this.$data = {
-        version: "2025.6.7",
+        version: "2025.7.28",
         config: QmsgDefaultConfig,
         icon: QmsgIcon,
         instanceStorage: QmsgInstStorage
@@ -1426,7 +1426,7 @@
     const fullBrokerImplementation = extendBrokerImplementation$2(brokerImplementation);
     return (sender) => {
       const ongoingRequests = createOrGetOngoingRequests$2(sender);
-      sender.addEventListener("message", ({ data: message }) => {
+      sender.addEventListener("message", (({ data: message }) => {
         const { id } = message;
         if (id !== null && ongoingRequests.has(id)) {
           const { reject, resolve } = ongoingRequests.get(id);
@@ -1437,7 +1437,7 @@
             reject(new Error(message.error.message));
           }
         }
-      });
+      }));
       if (isMessagePort$2(sender)) {
         sender.start();
       }
@@ -1552,7 +1552,7 @@
       return broker;
     };
   };
-  const worker$2 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),d=t(c);e.addUniqueNumber=d,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const d=r instanceof Promise?await r:r;if(null===a){if(void 0!==d.result)throw s(i)}else{if(void 0===d.result)throw s(i);const{result:e,transferables:r=[]}=d;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),d=(e,t,r=()=>!0)=>{const n=c(d,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},l=e=>t=>{const r=e.get(t);if(void 0===r)return Promise.resolve(!1);const[n,o]=r;return clearTimeout(n),e.delete(t),o(!1),Promise.resolve(!0)},f=(e,t,r)=>(n,o,s)=>{const{expected:a,remainingDelay:i}=e(n,o);return new Promise((e=>{t.set(s,[setTimeout(r,i,a,t,e,s),e])}))},m=(e,t)=>{const r=performance.now(),n=e+t-r-performance.timeOrigin;return{expected:r+n,remainingDelay:n}},p=(e,t,r,n)=>{const o=e-performance.now();o>0?t.set(n,[setTimeout(p,o,e,t,r,n),r]):(t.delete(n),r(!0))},h=new Map,v=l(h),w=new Map,g=l(w),M=f(m,h,p),y=f(m,w,p);d(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?v(e):g(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?M:y)(e,t,r)})})})()})();`;
+  const worker$2 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},f=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise((t=>{e.set(a,[r(n,u,i,e,t,a),t])}))},m=new Map,h=d(globalThis.clearTimeout,m),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=f(m,performance,globalThis.setTimeout,w),T=f(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
   const loadOrReturnBroker$2 = createLoadOrReturnBroker$2(load$2, worker$2);
   const clearInterval$3 = (timerId) => loadOrReturnBroker$2().clearInterval(timerId);
   const clearTimeout$2 = (timerId) => loadOrReturnBroker$2().clearTimeout(timerId);
@@ -1734,6 +1734,14 @@
      */
     isNodeList($ele) {
       return Array.isArray($ele) || $ele instanceof NodeList;
+    },
+    /** 获取 animationend 在各个浏览器的兼容名 */
+    getAnimationEndNameList() {
+      return ["webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend", "animationend"];
+    },
+    /** 获取 transitionend 在各个浏览器的兼容名 */
+    getTransitionEndNameList() {
+      return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     }
   };
   const DOMUtilsData = {
@@ -2251,6 +2259,62 @@
       DOMUtilsContext.on(element, "mouseleave", null, handler, option);
     }
     /**
+     * 当动画结束时触发事件
+     * @param element 监听的元素
+     * @param handler 触发的回调函数
+     * @param option 配置项，这里默认配置once为true
+     */
+    animationend(element, handler, option) {
+      let DOMUtilsContext = this;
+      if (typeof element === "string") {
+        element = DOMUtilsContext.selector(element);
+      }
+      if (element == null) {
+        return;
+      }
+      const defaultOption = {
+        once: true
+      };
+      Object.assign(defaultOption, option || {});
+      const eventNameList = DOMUtilsCommonUtils.getAnimationEndNameList();
+      DOMUtilsContext.on(element, eventNameList, null, handler, defaultOption);
+      if (!defaultOption.once) {
+        return {
+          off() {
+            DOMUtilsContext.off(element, eventNameList, null, handler, defaultOption);
+          }
+        };
+      }
+    }
+    /**
+     * 当过渡结束时触发事件
+     * @param element 监听的元素
+     * @param handler 触发的回调函数
+     * @param option 配置项，这里默认配置once为true
+     */
+    transitionend(element, handler, option) {
+      let DOMUtilsContext = this;
+      if (typeof element === "string") {
+        element = DOMUtilsContext.selector(element);
+      }
+      if (element == null) {
+        return;
+      }
+      const defaultOption = {
+        once: true
+      };
+      Object.assign(defaultOption, option || {});
+      const eventNameList = DOMUtilsCommonUtils.getTransitionEndNameList();
+      DOMUtilsContext.on(element, eventNameList, null, handler, defaultOption);
+      if (!defaultOption.once) {
+        return {
+          off() {
+            DOMUtilsContext.off(element, eventNameList, null, handler, defaultOption);
+          }
+        };
+      }
+    }
+    /**
      * 当按键松开时触发事件
      * keydown - > keypress - > keyup
      * @param element 当前元素
@@ -2584,7 +2648,7 @@
       super(option);
     }
     /** 版本号 */
-    version = "2025.6.26";
+    version = "2025.8.11";
     attr(element, attrName, attrValue) {
       let DOMUtilsContext = this;
       if (typeof element === "string") {
@@ -2662,15 +2726,7 @@
     css(element, property, value) {
       let DOMUtilsContext = this;
       function handlePixe(propertyName, propertyValue) {
-        let allowAddPixe = [
-          "width",
-          "height",
-          "top",
-          "left",
-          "right",
-          "bottom",
-          "font-size"
-        ];
+        let allowAddPixe = ["width", "height", "top", "left", "right", "bottom", "font-size"];
         if (typeof propertyValue === "number") {
           propertyValue = propertyValue.toString();
         }
@@ -2986,7 +3042,13 @@
       if (typeof newElement === "string") {
         newElement = DOMUtilsContext.parseHTML(newElement, false, false);
       }
-      element.parentElement.replaceChild(newElement, element);
+      let $parent = element.parentElement;
+      if ($parent) {
+        $parent.replaceChild(newElement, element);
+      } else {
+        DOMUtilsContext.after(element, newElement);
+        element.remove();
+      }
     }
     /**
      * 给元素添加class
@@ -3081,7 +3143,14 @@
       }
       function elementAppendChild(ele, text) {
         if (typeof content === "string") {
-          ele.insertAdjacentHTML("beforeend", DOMUtilsCommonUtils.getSafeHTML(text));
+          if (ele instanceof DocumentFragment) {
+            if (typeof text === "string") {
+              text = DOMUtilsContext.parseHTML(text, true, false);
+            }
+            ele.appendChild(text);
+          } else {
+            ele.insertAdjacentHTML("beforeend", DOMUtilsCommonUtils.getSafeHTML(text));
+          }
         } else {
           ele.appendChild(text);
         }
@@ -3123,7 +3192,12 @@
         return;
       }
       if (typeof content === "string") {
-        element.insertAdjacentHTML("afterbegin", DOMUtilsCommonUtils.getSafeHTML(content));
+        if (element instanceof DocumentFragment) {
+          content = DOMUtilsContext.parseHTML(content, true, false);
+          element.prepend(content);
+        } else {
+          element.insertAdjacentHTML("afterbegin", DOMUtilsCommonUtils.getSafeHTML(content));
+        }
       } else {
         let $firstChild = element.firstChild;
         if ($firstChild == null) {
@@ -3225,7 +3299,13 @@
         });
         return;
       }
-      element.remove();
+      if (typeof element.remove === "function") {
+        element.remove();
+      } else if (element.parentElement) {
+        element.parentElement.removeChild(element);
+      } else if (element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
     }
     /**
      * 移除元素的所有子元素
@@ -3249,7 +3329,11 @@
         });
         return;
       }
-      DOMUtilsContext.html(element, "");
+      if (element.innerHTML) {
+        element.innerHTML = "";
+      } else if (element.textContent) {
+        element.textContent = "";
+      }
     }
     /**
      * 获取元素相对于文档的偏移坐标（加上文档的滚动条）
@@ -3599,14 +3683,7 @@
       let serializedArray = [];
       for (let i2 = 0; i2 < elements.length; i2++) {
         const element = elements[i2];
-        if (element.name && !element.disabled && (element.checked || [
-          "text",
-          "hidden",
-          "password",
-          "textarea",
-          "select-one",
-          "select-multiple"
-        ].includes(element.type))) {
+        if (element.name && !element.disabled && (element.checked || ["text", "hidden", "password", "textarea", "select-one", "select-multiple"].includes(element.type))) {
           if (element.type === "select-multiple") {
             for (let j2 = 0; j2 < element.options.length; j2++) {
               if (element.options[j2].selected) {
@@ -3938,6 +4015,14 @@
         return isNumber ? parseFloat(val) : val;
       }
     }
+    /** 获取 animationend 在各个浏览器的兼容名 */
+    getAnimationEndNameList() {
+      return DOMUtilsCommonUtils.getAnimationEndNameList();
+    }
+    /** 获取 transitionend 在各个浏览器的兼容名 */
+    getTransitionEndNameList() {
+      return DOMUtilsCommonUtils.getTransitionEndNameList();
+    }
   };
   let domUtils$2 = new DOMUtils$1();
   class ColorConversion {
@@ -3957,24 +4042,23 @@
     /**
      * 16进制颜色转rgba
      *
-     * #ff0000 转 rgba(123,123,123, 0.4)
+     * 例如：`#ff0000` 转为 `rgba(123,123,123, 0.4)`
      * @param hex
      * @param opacity
      */
     hexToRgba(hex, opacity) {
       if (!this.isHex(hex)) {
-        throw new TypeError("输入错误的hex", hex);
+        throw new TypeError("输入错误的hex：" + hex);
       }
       return hex && hex.replace(/\s+/g, "").length === 7 ? "rgba(" + parseInt("0x" + hex.slice(1, 3)) + "," + parseInt("0x" + hex.slice(3, 5)) + "," + parseInt("0x" + hex.slice(5, 7)) + "," + opacity + ")" : "";
     }
     /**
      * hex转rgb
      * @param str
-     * @returns
      */
     hexToRgb(str) {
       if (!this.isHex(str)) {
-        throw new TypeError("输入错误的hex", str);
+        throw new TypeError("输入错误的hex：" + str);
       }
       str = str.replace("#", "");
       let hxs = str.match(/../g);
@@ -3988,17 +4072,12 @@
      * @param redValue
      * @param greenValue
      * @param blueValue
-     * @returns
      */
     rgbToHex(redValue, greenValue, blueValue) {
       let validPattern = /^\d{1,3}$/;
       if (!validPattern.test(redValue.toString()) || !validPattern.test(greenValue.toString()) || !validPattern.test(blueValue.toString()))
         throw new TypeError("输入错误的rgb颜色值");
-      let hexs = [
-        redValue.toString(16),
-        greenValue.toString(16),
-        blueValue.toString(16)
-      ];
+      let hexs = [redValue.toString(16), greenValue.toString(16), blueValue.toString(16)];
       for (let index = 0; index < 3; index++)
         if (hexs[index].length == 1)
           hexs[index] = "0" + hexs[index];
@@ -4008,11 +4087,10 @@
      * 获取颜色变暗或亮
      * @param color 颜色
      * @param level 0~1.0
-     * @returns
      */
     getDarkColor(color, level) {
       if (!this.isHex(color)) {
-        throw new TypeError("输入错误的hex", color);
+        throw new TypeError("输入错误的hex：" + color);
       }
       let rgbc = this.hexToRgb(color);
       for (let index = 0; index < 3; index++) {
@@ -4024,11 +4102,10 @@
      * 获取颜色变亮
      * @param color 颜色
      * @param level 0~1.0
-     * @returns
      */
     getLightColor(color, level) {
       if (!this.isHex(color)) {
-        throw new TypeError("输入错误的hex", color);
+        throw new TypeError("输入错误的hex：" + color);
       }
       let rgbc = this.hexToRgb(color);
       for (let index = 0; index < 3; index++) {
@@ -4106,10 +4183,10 @@
      * @param str
      */
     decode(str) {
-      var GBKMatcher = /%[0-9A-F]{2}%[0-9A-F]{2}/;
-      var UTFMatcher = /%[0-9A-F]{2}/;
-      var utf = true;
-      let that = this;
+      let GBKMatcher = /%[0-9A-F]{2}%[0-9A-F]{2}/;
+      let UTFMatcher = /%[0-9A-F]{2}/;
+      let utf = true;
+      const that = this;
       while (utf) {
         let gbkMatch = str.match(GBKMatcher);
         let utfMatch = str.match(UTFMatcher);
@@ -4180,10 +4257,7 @@
         }
         if (handleErrorFunc) {
           if (typeof handleErrorFunc === "string") {
-            result = new Function(handleErrorFunc).apply(funcThis, [
-              ...args,
-              error
-            ]);
+            result = new Function(handleErrorFunc).apply(funcThis, [...args, error]);
           } else {
             result = handleErrorFunc.apply(funcThis, [...args, error]);
           }
@@ -4584,7 +4658,7 @@
   }
   // @license      GNU LGPL-3.0
   const ajaxHooker = function() {
-    const version = "1.4.6";
+    const version = "1.4.7";
     const hookInst = {
       hookFns: [],
       filters: []
@@ -4594,20 +4668,18 @@
     const resProto = win.Response.prototype;
     const xhrResponses = ["response", "responseText", "responseXML"];
     const fetchResponses = ["arrayBuffer", "blob", "formData", "json", "text"];
-    const fetchInitProps = [
-      "method",
-      "headers",
-      "body",
-      "mode",
-      "credentials",
+    const xhrExtraProps = ["responseType", "timeout", "withCredentials"];
+    const fetchExtraProps = [
       "cache",
+      "credentials",
+      "integrity",
+      "keepalive",
+      "mode",
+      "priority",
       "redirect",
       "referrer",
       "referrerPolicy",
-      "integrity",
-      "keepalive",
-      "signal",
-      "priority"
+      "signal"
     ];
     const xhrAsyncEvents = ["readystatechange", "load", "loadend"];
     const getType = {}.toString.call.bind({}.toString);
@@ -4681,6 +4753,10 @@
         this.request = request;
         this.requestClone = { ...this.request };
       }
+      _recoverRequestKey(key) {
+        if (key in this.requestClone) this.request[key] = this.requestClone[key];
+        else delete this.request[key];
+      }
       shouldFilter(filters) {
         const { type, url, method, async } = this.request;
         return filters.length && !filters.find((obj) => {
@@ -4696,7 +4772,6 @@
         });
       }
       waitForRequestKeys() {
-        const requestKeys = ["url", "method", "abort", "headers", "data"];
         if (!this.request.async) {
           win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
             if (this.shouldFilter(filters)) return;
@@ -4704,26 +4779,31 @@
               if (getType(fn) === "[object Function]")
                 catchError(fn, this.request);
             });
-            requestKeys.forEach((key) => {
-              if (isThenable(this.request[key]))
-                this.request[key] = this.requestClone[key];
-            });
+            for (const key in this.request) {
+              if (isThenable(this.request[key])) this._recoverRequestKey(key);
+            }
           });
           return new SyncThenable();
         }
         const promises = [];
+        const ignoreKeys = /* @__PURE__ */ new Set(["type", "async", "response"]);
         win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
           if (this.shouldFilter(filters)) return;
           promises.push(
             Promise.all(hookFns.map((fn) => catchError(fn, this.request))).then(
-              () => Promise.all(
-                requestKeys.map(
-                  (key) => Promise.resolve(this.request[key]).then(
-                    (val) => this.request[key] = val,
-                    () => this.request[key] = this.requestClone[key]
+              () => {
+                const requestKeys = [];
+                for (const key in this.request)
+                  !ignoreKeys.has(key) && requestKeys.push(key);
+                return Promise.all(
+                  requestKeys.map(
+                    (key) => Promise.resolve(this.request[key]).then(
+                      (val) => this.request[key] = val,
+                      () => this._recoverRequestKey(key)
+                    )
                   )
-                )
-              )
+                );
+              }
             )
           );
         });
@@ -4886,6 +4966,7 @@
         e2.stopImmediatePropagation = stopImmediatePropagation;
         defineProp(e2, "target", () => this.proxyXhr);
         defineProp(e2, "currentTarget", () => this.proxyXhr);
+        defineProp(e2, "srcElement", () => this.proxyXhr);
         this.proxyEvents[e2.type] && this.proxyEvents[e2.type].forEach((fn) => {
           this.resThenable.then(
             () => !e2.ajaxHooker_isStopped && fn.call(this.proxyXhr, e2)
@@ -4961,6 +5042,9 @@
             for (const header in request.headers) {
               xhr.setRequestHeader(header, request.headers[header]);
             }
+            for (const prop of xhrExtraProps) {
+              if (prop in request) xhr[prop] = request[prop];
+            }
             xhr.send(request.data);
           }
         });
@@ -4982,8 +5066,10 @@
       return new Promise(async (resolve, reject) => {
         const init = {};
         if (getType(url) === "[object Request]") {
-          for (const prop of fetchInitProps) init[prop] = url[prop];
+          init.method = url.method;
+          init.headers = url.headers;
           if (url.body) init.body = await url.arrayBuffer();
+          for (const prop of fetchExtraProps) init[prop] = url[prop];
           url = url.url;
         }
         url = url.toString();
@@ -5030,6 +5116,9 @@
         init.method = request.method;
         init.headers = request.headers;
         init.body = request.data;
+        for (const prop of fetchExtraProps) {
+          if (prop in request) init[prop] = request[prop];
+        }
         winAh.realFetch.call(win, request.url, init).then((res) => {
           if (typeof request.response === "function") {
             const response = {
@@ -5131,7 +5220,7 @@
     };
   };
   const AjaxHooker1_2_4 = function() {
-    return function() {
+    return (function() {
       const win = window.unsafeWindow || document.defaultView || window;
       const hookFns = [];
       const realXhr = win.XMLHttpRequest;
@@ -5553,7 +5642,7 @@
           writable(win, "fetch", realFetch);
         }
       };
-    }();
+    })();
   };
   class GMMenu {
     GM_Api = {
@@ -5694,24 +5783,6 @@
         let menuLocalDataItemKey = menuOption.key;
         let defaultEnable = Boolean(this.getLocalMenuData(menuLocalDataItemKey, menuOption.enable));
         let showText = menuOption.showText(menuOption.text, defaultEnable);
-        ({
-          /**
-           * 菜单的id
-           */
-          id: menuOption.id,
-          /**
-           * 点击菜单项后是否应关闭弹出菜单
-           */
-          autoClose: menuOption.autoClose,
-          /**
-           * 菜单项的可选访问键
-           */
-          accessKey: menuOption.accessKey,
-          /**
-           * 菜单项的鼠标悬浮上的工具提示
-           */
-          title: menuOption.title
-        });
         menuOption.autoReload = typeof menuOption.autoReload !== "boolean" ? this.$default.autoReload : menuOption.autoReload;
         menuOption.isStoreValue = typeof menuOption.isStoreValue !== "boolean" ? this.$default.isStoreValue : menuOption.isStoreValue;
         function clickCallBack(event) {
@@ -6238,7 +6309,9 @@
        * 对请求的参数进行合并处理
        */
       handleBeforeRequestOptionArgs(...args) {
-        let option = {};
+        let option = {
+          url: void 0
+        };
         if (typeof args[0] === "string") {
           let url = args[0];
           option.url = url;
@@ -6258,7 +6331,7 @@
        * @param method 当前请求方法，默认get
        * @param userRequestOption 用户的请求配置
        * @param resolve promise回调
-       * @param reject 抛出错误回调
+       * @param reject promise抛出错误回调
        */
       getRequestOption(method, userRequestOption, resolve, reject) {
         let that = this;
@@ -6301,25 +6374,25 @@
           user: userRequestOption.user || this.context.#defaultRequestOption.user,
           password: userRequestOption.password || this.context.#defaultRequestOption.password,
           onabort(...args) {
-            that.context.HttpxCallBack.onAbort(userRequestOption, resolve, reject, args);
+            that.context.HttpxResponseCallBack.onAbort(userRequestOption, resolve, reject, args);
           },
           onerror(...args) {
-            that.context.HttpxCallBack.onError(userRequestOption, resolve, reject, args);
+            that.context.HttpxResponseCallBack.onError(userRequestOption, resolve, reject, args);
           },
           onloadstart(...args) {
-            that.context.HttpxCallBack.onLoadStart(userRequestOption, args);
+            that.context.HttpxResponseCallBack.onLoadStart(userRequestOption, args);
           },
           onprogress(...args) {
-            that.context.HttpxCallBack.onProgress(userRequestOption, args);
+            that.context.HttpxResponseCallBack.onProgress(userRequestOption, args);
           },
           onreadystatechange(...args) {
-            that.context.HttpxCallBack.onReadyStateChange(userRequestOption, args);
+            that.context.HttpxResponseCallBack.onReadyStateChange(userRequestOption, args);
           },
           ontimeout(...args) {
-            that.context.HttpxCallBack.onTimeout(userRequestOption, resolve, reject, args);
+            that.context.HttpxResponseCallBack.onTimeout(userRequestOption, resolve, reject, args);
           },
           onload(...args) {
-            that.context.HttpxCallBack.onLoad(userRequestOption, resolve, reject, args);
+            that.context.HttpxResponseCallBack.onLoad(userRequestOption, resolve, reject, args);
           }
         };
         if (typeof userRequestOption.allowInterceptConfig === "boolean") {
@@ -6435,10 +6508,7 @@
                   }
                 } else if (ContentType.includes("application/x-www-form-urlencoded")) {
                   if (typeof requestOption.data === "object") {
-                    requestOption.data = new URLSearchParams(
-                      // @ts-ignore
-                      requestOption.data
-                    ).toString();
+                    requestOption.data = new URLSearchParams(requestOption.data).toString();
                   }
                 } else if (ContentType.includes("multipart/form-data")) {
                   if (requestOption.data instanceof FormData) {
@@ -6455,7 +6525,7 @@
       },
       /**
        * 处理发送请求的配置，去除值为undefined、空function的值
-       * @param option
+       * @param option 请求配置
        */
       removeRequestNullOption(option) {
         Object.keys(option).forEach((keyName) => {
@@ -6465,13 +6535,13 @@
           }
         });
         if (commonUtil.isNull(option.url)) {
-          throw new TypeError(`Utils.Httpx 参数 url不符合要求: ${option.url}`);
+          throw new TypeError(`Utils.Httpx 参数url不能为空：${option.url}`);
         }
         return option;
       },
       /**
        * 处理fetch的配置
-       * @param option
+       * @param option 请求配置
        */
       handleFetchOption(option) {
         let fetchRequestOption = {};
@@ -6509,19 +6579,19 @@
         };
       }
     };
-    HttpxCallBack = {
+    HttpxResponseCallBack = {
       context: this,
       /**
        * onabort请求被取消-触发
        * @param details 配置
-       * @param resolve 回调
-       * @param reject 抛出错误
+       * @param resolve promise回调
+       * @param reject promise抛出错误回调
        * @param argsResult 返回的参数列表
        */
       async onAbort(details, resolve, reject, argsResult) {
-        if ("onabort" in details) {
+        if (typeof details?.onabort === "function") {
           details.onabort.apply(this, argsResult);
-        } else if ("onabort" in this.context.#defaultRequestOption) {
+        } else if (typeof this.context.#defaultRequestOption?.onabort === "function") {
           this.context.#defaultRequestOption.onabort.apply(this, argsResult);
         }
         let response = argsResult;
@@ -6530,7 +6600,7 @@
         }
         if (await this.context.HttpxResponseHook.errorResponseCallBack({
           type: "onabort",
-          error: new TypeError("request canceled"),
+          error: new Error("request canceled"),
           response: null,
           details
         }) == null) {
@@ -6546,40 +6616,6 @@
         });
       },
       /**
-       * onerror请求异常-触发
-       * @param details 配置
-       * @param resolve 回调
-       * @param reject 抛出错误
-       * @param argsResult 返回的参数列表
-       */
-      async onError(details, resolve, reject, argsResult) {
-        if ("onerror" in details) {
-          details.onerror.apply(this, argsResult);
-        } else if ("onerror" in this.context.#defaultRequestOption) {
-          this.context.#defaultRequestOption.onerror.apply(this, argsResult);
-        }
-        let response = argsResult;
-        if (response.length) {
-          response = response[0];
-        }
-        if (await this.context.HttpxResponseHook.errorResponseCallBack({
-          type: "onerror",
-          error: new TypeError("request error"),
-          response,
-          details
-        }) == null) {
-          return;
-        }
-        resolve({
-          data: response,
-          details,
-          msg: "请求异常",
-          status: false,
-          statusCode: response["status"],
-          type: "onerror"
-        });
-      },
-      /**
        * ontimeout请求超时-触发
        * @param details 配置
        * @param resolve 回调
@@ -6587,9 +6623,9 @@
        * @param argsResult 返回的参数列表
        */
       async onTimeout(details, resolve, reject, argsResult) {
-        if ("ontimeout" in details) {
+        if (typeof details?.ontimeout === "function") {
           details.ontimeout.apply(this, argsResult);
-        } else if ("ontimeout" in this.context.#defaultRequestOption) {
+        } else if (typeof this.context.#defaultRequestOption?.ontimeout === "function") {
           this.context.#defaultRequestOption.ontimeout.apply(this, argsResult);
         }
         let response = argsResult;
@@ -6598,8 +6634,8 @@
         }
         if (await this.context.HttpxResponseHook.errorResponseCallBack({
           type: "ontimeout",
-          error: new TypeError("request timeout"),
-          response: (argsResult || [null])[0],
+          error: new Error("request timeout"),
+          response,
           details
         }) == null) {
           return;
@@ -6614,16 +6650,38 @@
         });
       },
       /**
-       * onloadstart请求开始-触发
+       * onerror请求异常-触发
        * @param details 配置
+       * @param resolve 回调
+       * @param reject 抛出错误
        * @param argsResult 返回的参数列表
        */
-      onLoadStart(details, argsResult) {
-        if ("onloadstart" in details) {
-          details.onloadstart.apply(this, argsResult);
-        } else if ("onloadstart" in this.context.#defaultRequestOption) {
-          this.context.#defaultRequestOption.onloadstart.apply(this, argsResult);
+      async onError(details, resolve, reject, argsResult) {
+        if (typeof details?.onerror === "function") {
+          details.onerror.apply(this, argsResult);
+        } else if (typeof this.context.#defaultRequestOption?.onerror === "function") {
+          this.context.#defaultRequestOption.onerror.apply(this, argsResult);
         }
+        let response = argsResult;
+        if (response.length) {
+          response = response[0];
+        }
+        if (await this.context.HttpxResponseHook.errorResponseCallBack({
+          type: "onerror",
+          error: new Error("request error"),
+          response,
+          details
+        }) == null) {
+          return;
+        }
+        resolve({
+          data: response,
+          details,
+          msg: "请求异常",
+          status: false,
+          statusCode: response["status"],
+          type: "onerror"
+        });
       },
       /**
        * onload加载完毕-触发
@@ -6696,19 +6754,19 @@
             type: "onload"
           });
         } else {
-          this.context.HttpxCallBack.onError(details, resolve, reject, argsResult);
+          this.context.HttpxResponseCallBack.onError(details, resolve, reject, argsResult);
         }
       },
       /**
-       * onprogress上传进度-触发
+       * onloadstart请求开始-触发
        * @param details 配置
        * @param argsResult 返回的参数列表
        */
-      onProgress(details, argsResult) {
-        if ("onprogress" in details) {
-          details.onprogress.apply(this, argsResult);
-        } else if ("onprogress" in this.context.#defaultRequestOption) {
-          this.context.#defaultRequestOption.onprogress.apply(this, argsResult);
+      onLoadStart(details, argsResult) {
+        if (typeof details?.onloadstart === "function") {
+          details.onloadstart.apply(this, argsResult);
+        } else if (typeof this.context.#defaultRequestOption?.onloadstart === "function") {
+          this.context.#defaultRequestOption.onloadstart.apply(this, argsResult);
         }
       },
       /**
@@ -6717,10 +6775,22 @@
        * @param argsResult 返回的参数列表
        */
       onReadyStateChange(details, argsResult) {
-        if ("onreadystatechange" in details) {
+        if (typeof details?.onreadystatechange === "function") {
           details.onreadystatechange.apply(this, argsResult);
-        } else if ("onreadystatechange" in this.context.#defaultRequestOption) {
+        } else if (typeof this.context.#defaultRequestOption?.onreadystatechange === "function") {
           this.context.#defaultRequestOption.onreadystatechange.apply(this, argsResult);
+        }
+      },
+      /**
+       * onprogress上传进度-触发
+       * @param details 配置
+       * @param argsResult 返回的参数列表
+       */
+      onProgress(details, argsResult) {
+        if (typeof details?.onprogress === "function") {
+          details.onprogress.apply(this, argsResult);
+        } else if (typeof this.context.#defaultRequestOption?.onprogress === "function") {
+          this.context.#defaultRequestOption.onprogress.apply(this, argsResult);
         }
       }
     };
@@ -6766,15 +6836,12 @@
             isFetch: true,
             finalUrl: fetchResponse.url,
             readyState: 4,
-            // @ts-ignore
             status: fetchResponse.status,
             statusText: fetchResponse.statusText,
-            // @ts-ignore
-            response: void 0,
+            response: "",
             responseFetchHeaders: fetchResponse.headers,
             responseHeaders: "",
-            // @ts-ignore
-            responseText: void 0,
+            responseText: "",
             responseType: option.responseType,
             responseXML: void 0
           };
@@ -6820,9 +6887,9 @@
           }
           let parser = new DOMParser();
           responseXML = parser.parseFromString(responseText, "text/xml");
-          Reflect.set(httpxResponse, "response", response);
-          Reflect.set(httpxResponse, "responseText", responseText);
-          Reflect.set(httpxResponse, "responseXML", responseXML);
+          httpxResponse.response = response;
+          httpxResponse.responseText = responseText;
+          httpxResponse.responseXML = responseXML;
           option.onload(httpxResponse);
         }).catch((error) => {
           if (error.name === "AbortError") {
@@ -7007,7 +7074,7 @@
     }
     /**
      * GET 请求
-     * @param url 网址
+     * @param url 请求的url
      * @param details 配置
      */
     get(...args) {
@@ -7095,14 +7162,12 @@
     #storeName;
     #dbVersion;
     /* websql的版本号，由于ios的问题，版本号的写法不一样 */
-    // @ts-ignore
-    #slqVersion = "1";
+    // #slqVersion = "1";
     /* 监听IndexDB */
     #indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
     /* 缓存数据库，避免同一个页面重复创建和销毁 */
     #db = {};
-    // @ts-ignore
-    #store = null;
+    // #store: IDBObjectStore = null as any;
     /** 状态码 */
     #statusCode = {
       operationSuccess: {
@@ -7146,7 +7211,6 @@
       let txn, store;
       txn = this.#db[dbName].transaction(this.#storeName, "readwrite");
       store = txn.objectStore(this.#storeName);
-      this.#store = store;
       return store;
     }
     /**
@@ -7798,11 +7862,39 @@
     }
   }
   class UtilsDictionary {
-    items = {};
+    items;
     constructor(key, value) {
+      this.items = {};
       if (key != null) {
         this.set(key, value);
       }
+    }
+    /**
+     * 获取字典的长度，同this.size
+     */
+    get length() {
+      return this.size();
+    }
+    /**
+     * 迭代器
+     */
+    get entries() {
+      let that = this;
+      return function* () {
+        let itemKeys = Object.keys(that.getItems());
+        for (const keyName of itemKeys) {
+          yield [keyName, that.get(keyName)];
+        }
+      };
+    }
+    /**
+     * 是否可遍历
+     */
+    get [Symbol.iterator]() {
+      let that = this;
+      return function() {
+        return that.entries();
+      };
     }
     /**
      * 检查是否有某一个键
@@ -7913,37 +8005,14 @@
     concat(data) {
       this.items = commonUtil.assign(this.items, data.getItems());
     }
+    /**
+     * 迭代字典
+     * @param callbackfn 回调函数
+     */
     forEach(callbackfn) {
       for (const key in this.getItems()) {
         callbackfn(this.get(key), key, this.getItems());
       }
-    }
-    /**
-     * 获取字典的长度，同this.size
-     */
-    get length() {
-      return this.size();
-    }
-    /**
-     * 迭代器
-     */
-    get entries() {
-      let that = this;
-      return function* () {
-        let itemKeys = Object.keys(that.getItems());
-        for (const keyName of itemKeys) {
-          yield [keyName, that.get(keyName)];
-        }
-      };
-    }
-    /**
-     * 是否可遍历
-     */
-    get [Symbol.iterator]() {
-      let that = this;
-      return function() {
-        return that.entries();
-      };
     }
   }
   class WindowApi2 {
@@ -8025,11 +8094,9 @@
     deps = [];
     active = true;
     fn;
-    // @ts-ignore
-    scheduler;
+    // private scheduler;
     constructor(fn, scheduler) {
       this.fn = fn;
-      this.scheduler = scheduler;
     }
     run(cb) {
       if (!this.active) {
@@ -8094,7 +8161,7 @@
     reactive(target) {
       const that = this;
       if (!(typeof target === "object" && target !== null)) {
-        return;
+        return void 0;
       }
       if (VueUtils.isReactive(target)) {
         return target;
@@ -8291,7 +8358,7 @@
     const fullBrokerImplementation = extendBrokerImplementation$1(brokerImplementation);
     return (sender) => {
       const ongoingRequests = createOrGetOngoingRequests$1(sender);
-      sender.addEventListener("message", ({ data: message }) => {
+      sender.addEventListener("message", (({ data: message }) => {
         const { id } = message;
         if (id !== null && ongoingRequests.has(id)) {
           const { reject, resolve } = ongoingRequests.get(id);
@@ -8302,7 +8369,7 @@
             reject(new Error(message.error.message));
           }
         }
-      });
+      }));
       if (isMessagePort$1(sender)) {
         sender.start();
       }
@@ -8417,7 +8484,7 @@
       return broker;
     };
   };
-  const worker$1 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),d=t(c);e.addUniqueNumber=d,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const d=r instanceof Promise?await r:r;if(null===a){if(void 0!==d.result)throw s(i)}else{if(void 0===d.result)throw s(i);const{result:e,transferables:r=[]}=d;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),d=(e,t,r=()=>!0)=>{const n=c(d,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},l=e=>t=>{const r=e.get(t);if(void 0===r)return Promise.resolve(!1);const[n,o]=r;return clearTimeout(n),e.delete(t),o(!1),Promise.resolve(!0)},f=(e,t,r)=>(n,o,s)=>{const{expected:a,remainingDelay:i}=e(n,o);return new Promise((e=>{t.set(s,[setTimeout(r,i,a,t,e,s),e])}))},m=(e,t)=>{const r=performance.now(),n=e+t-r-performance.timeOrigin;return{expected:r+n,remainingDelay:n}},p=(e,t,r,n)=>{const o=e-performance.now();o>0?t.set(n,[setTimeout(p,o,e,t,r,n),r]):(t.delete(n),r(!0))},h=new Map,v=l(h),w=new Map,g=l(w),M=f(m,h,p),y=f(m,w,p);d(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?v(e):g(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?M:y)(e,t,r)})})})()})();`;
+  const worker$1 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},f=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise((t=>{e.set(a,[r(n,u,i,e,t,a),t])}))},m=new Map,h=d(globalThis.clearTimeout,m),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=f(m,performance,globalThis.setTimeout,w),T=f(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
   const loadOrReturnBroker$1 = createLoadOrReturnBroker$1(load$1, worker$1);
   const clearInterval$2 = (timerId) => loadOrReturnBroker$1().clearInterval(timerId);
   const clearTimeout$1$1 = (timerId) => loadOrReturnBroker$1().clearTimeout(timerId);
@@ -8938,7 +9005,7 @@ ${err.stack}`);
       this.windowApi = new WindowApi2(option);
     }
     /** 版本号 */
-    version = "2025.6.26";
+    version = "2025.8.11";
     addStyle(cssText) {
       if (typeof cssText !== "string") {
         throw new Error("Utils.addStyle 参数cssText 必须为String类型");
@@ -9010,7 +9077,7 @@ ${err.stack}`);
      * ajax劫持库，支持xhr和fetch劫持。
      * + 来源：https://bbs.tampermonkey.net.cn/thread-3284-1-1.html
      * + 作者：cxxjackie
-     * + 版本：1.4.6
+     * + 版本：1.4.7
      * + 旧版本：1.2.4
      * + 文档：https://scriptcat.org/zh-CN/script-show-page/637/
      * @param useOldVersion 是否使用旧版本，默认false
@@ -9022,7 +9089,7 @@ ${err.stack}`);
         return ajaxHooker();
       }
     };
-    canvasClickByPosition(canvasElement, clientX = 0, clientY = 0, view = globalThis) {
+    canvasClickByPosition(canvasElement, clientX = 0, clientY = 0, view = this.windowApi.window) {
       if (!(canvasElement instanceof HTMLCanvasElement)) {
         throw new Error("Utils.canvasClickByPosition 参数canvasElement必须是canvas元素");
       }
@@ -9033,7 +9100,6 @@ ${err.stack}`);
         cancelable: true,
         clientX,
         clientY,
-        // @ts-ignore
         view,
         detail: 1
       };
@@ -9388,25 +9454,13 @@ ${err.stack}`);
      * 获取 transitionend 的在各个浏览器的兼容名
      */
     getTransitionEndNameList() {
-      return [
-        "webkitTransitionEnd",
-        "mozTransitionEnd",
-        "MSTransitionEnd",
-        "otransitionend",
-        "transitionend"
-      ];
+      return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     }
     /**
      * 获取 animationend 的在各个浏览器的兼容名
      */
     getAnimationEndNameList() {
-      return [
-        "webkitAnimationEnd",
-        "mozAnimationEnd",
-        "MSAnimationEnd",
-        "oanimationend",
-        "animationend"
-      ];
+      return ["webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend", "animationend"];
     }
     getArrayLastValue(targetObj) {
       return targetObj[targetObj.length - 1];
@@ -9485,9 +9539,9 @@ ${err.stack}`);
     getElementSelector(element) {
       let UtilsContext = this;
       if (!element)
-        return;
+        return void 0;
       if (!element.parentElement)
-        return;
+        return void 0;
       if (element.id)
         return "#" + element.id;
       let selector = UtilsContext.getElementSelector(element.parentElement);
@@ -9512,7 +9566,7 @@ ${err.stack}`);
       let result = [...args];
       let newResult = [];
       if (result.length === 0) {
-        return;
+        return void 0;
       }
       if (result.length > 1) {
         if (result.length === 2 && typeof result[0] === "object" && typeof result[1] === "function") {
@@ -9589,7 +9643,7 @@ ${err.stack}`);
       let result = [...args];
       let newResult = [];
       if (result.length === 0) {
-        return;
+        return void 0;
       }
       if (result.length > 1) {
         if (result.length === 2 && typeof result[0] === "object" && typeof result[1] === "function") {
@@ -10741,7 +10795,6 @@ ${err.stack}`);
       EventTarget.prototype.addEventListener = function(...args) {
         let type = args[0];
         let callback = args[1];
-        args[2];
         if (filter(type)) {
           if (typeof callback === "function") {
             args[1] = function(event) {
@@ -10757,7 +10810,7 @@ ${err.stack}`);
                 event instanceof Proxy;
                 oldHandleEvent.call(this, trustEvent(event));
               } catch (error) {
-                event["isTrusted"] = isTrustValue;
+                Reflect.set(event, "isTrusted", isTrustValue);
               }
             };
           }
@@ -10827,7 +10880,8 @@ ${err.stack}`);
         }
         async init() {
           let copyStatus = false;
-          await this.requestClipboardPermission();
+          let requestPermissionStatus = await this.requestClipboardPermission();
+          console.log(requestPermissionStatus);
           if (this.hasClipboard() && (this.hasClipboardWrite() || this.hasClipboardWriteText())) {
             try {
               copyStatus = await this.copyDataByClipboard();
@@ -10885,7 +10939,6 @@ ${err.stack}`);
           return new Promise((resolve, reject) => {
             if (navigator.permissions && navigator.permissions.query) {
               navigator.permissions.query({
-                // @ts-ignore
                 name: "clipboard-write"
               }).then((permissionStatus) => {
                 resolve(true);
@@ -11608,6 +11661,21 @@ ${err.stack}`);
       return this.queryProperty(handleResult.data, handler);
     }
     /**
+     * 异步-深度获取对象属性
+     * @param target 待获取的对象
+     * @param handler 获取属性的回调
+     */
+    async asyncQueryProperty(target, handler) {
+      if (target == null) {
+        return;
+      }
+      let handleResult = await handler(target);
+      if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
+        return handleResult.data;
+      }
+      return await this.asyncQueryProperty(handleResult.data, handler);
+    }
+    /**
      * 创建一个新的Utils实例
      * @param option
      * @returns
@@ -11767,7 +11835,6 @@ ${err.stack}`);
         }
         function requestPermissionsWithClipboard() {
           navigator.permissions.query({
-            // @ts-ignore
             name: "clipboard-read"
           }).then((permissionStatus) => {
             readClipboardText();
@@ -11804,6 +11871,142 @@ ${err.stack}`);
     }
   }
   let utils$1 = new Utils();
+  const GlobalConfig = {
+    config: {},
+    /**
+     * 为所有弹窗设置全局属性
+     */
+    setGlobalConfig(config) {
+      Reflect.ownKeys(config).forEach((keyName) => {
+        Reflect.set(GlobalConfig.config, keyName, Reflect.get(config, keyName));
+      });
+    },
+    /**
+     * 获取全局配置
+     */
+    getGlobalConfig() {
+      let result = {};
+      Object.keys(GlobalConfig.config).forEach((keyName) => {
+        let configValue = Reflect.get(GlobalConfig.config, keyName);
+        if (keyName === "style") {
+          let style = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
+          if (typeof style === "string") {
+            result.style = style;
+          }
+        } else if (keyName === "zIndex") {
+          let zIndex = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
+          if (typeof zIndex === "string") {
+            let newIndex = zIndex = Number(zIndex);
+            if (!isNaN(newIndex)) {
+              result.zIndex = newIndex;
+            }
+          } else {
+            if (!isNaN(zIndex)) {
+              result.zIndex = zIndex;
+            }
+          }
+        } else if (keyName === "mask") {
+          let mask = GlobalConfig.config.mask == null ? {} : GlobalConfig.config.mask;
+          if (typeof mask === "object" && mask != null) {
+            result.mask = mask;
+          }
+        } else {
+          Reflect.set(result, keyName, configValue);
+        }
+      });
+      return result;
+    }
+  };
+  var SVG_min = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M128 544h768a32 32 0 1 0 0-64H128a32 32 0 0 0 0 64z"></path>\r\n</svg>\r\n';
+  var SVG_mise = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M885.333333 85.333333H330.410667a53.333333 53.333333 0 0 0-53.333334 53.333334v106.666666H138.666667A53.333333 53.333333 0 0 0 85.333333 298.666667v586.666666a53.333333 53.333333 0 0 0 53.333334 53.333334H725.333333a53.333333 53.333333 0 0 0 53.333334-53.333334V746.154667h106.666666c29.44 0 53.333333-23.893333 53.333334-53.333334V138.666667A53.333333 53.333333 0 0 0 885.333333 85.333333zM725.333333 692.821333v192.512H138.666667V298.666667H725.333333v394.154666z m157.866667 0H778.666667V298.666667a53.333333 53.333333 0 0 0-53.333334-53.333334H330.410667v-106.666666h554.922666l-2.133333 554.154666z"></path>\r\n</svg>\r\n';
+  var SVG_max = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="m160 96.064 192 .192a32 32 0 0 1 0 64l-192-.192V352a32 32 0 0 1-64 0V96h64v.064zm0 831.872V928H96V672a32 32 0 1 1 64 0v191.936l192-.192a32 32 0 1 1 0 64l-192 .192zM864 96.064V96h64v256a32 32 0 1 1-64 0V160.064l-192 .192a32 32 0 1 1 0-64l192-.192zm0 831.872-192-.192a32 32 0 0 1 0-64l192 .192V672a32 32 0 1 1 64 0v256h-64v-.064z"></path>\r\n</svg>\r\n';
+  var SVG_close = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-type="close">\r\n	<path\r\n		fill="currentColor"\r\n		d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"></path>\r\n</svg>\r\n';
+  var SVG_edit = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640V512z"></path>\r\n	<path\r\n		fill="currentColor"\r\n		d="m469.952 554.24 52.8-7.552L847.104 222.4a32 32 0 1 0-45.248-45.248L477.44 501.44l-7.552 52.8zm422.4-422.4a96 96 0 0 1 0 135.808l-331.84 331.84a32 32 0 0 1-18.112 9.088L436.8 623.68a32 32 0 0 1-36.224-36.224l15.104-105.6a32 32 0 0 1 9.024-18.112l331.904-331.84a96 96 0 0 1 135.744 0z"></path>\r\n</svg>\r\n';
+  var SVG_share = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="m679.872 348.8-301.76 188.608a127.808 127.808 0 0 1 5.12 52.16l279.936 104.96a128 128 0 1 1-22.464 59.904l-279.872-104.96a128 128 0 1 1-16.64-166.272l301.696-188.608a128 128 0 1 1 33.92 54.272z"></path>\r\n</svg>\r\n';
+  var SVG_delete = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V256zm448-64v-64H416v64h192zM224 896h576V256H224v640zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32zm192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32z"></path>\r\n</svg>\r\n';
+  var SVG_search = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="m795.904 750.72 124.992 124.928a32 32 0 0 1-45.248 45.248L750.656 795.904a416 416 0 1 1 45.248-45.248zM480 832a352 352 0 1 0 0-704 352 352 0 0 0 0 704z"></path>\r\n</svg>\r\n';
+  var SVG_upload = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M160 832h704a32 32 0 1 1 0 64H160a32 32 0 1 1 0-64zm384-578.304V704h-64V247.296L237.248 490.048 192 444.8 508.8 128l316.8 316.8-45.312 45.248L544 253.696z"></path>\r\n</svg>\r\n';
+  var SVG_loading = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 64a32 32 0 0 1 32 32v192a32 32 0 0 1-64 0V96a32 32 0 0 1 32-32zm0 640a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V736a32 32 0 0 1 32-32zm448-192a32 32 0 0 1-32 32H736a32 32 0 1 1 0-64h192a32 32 0 0 1 32 32zm-640 0a32 32 0 0 1-32 32H96a32 32 0 0 1 0-64h192a32 32 0 0 1 32 32zM195.2 195.2a32 32 0 0 1 45.248 0L376.32 331.008a32 32 0 0 1-45.248 45.248L195.2 240.448a32 32 0 0 1 0-45.248zm452.544 452.544a32 32 0 0 1 45.248 0L828.8 783.552a32 32 0 0 1-45.248 45.248L647.744 692.992a32 32 0 0 1 0-45.248zM828.8 195.264a32 32 0 0 1 0 45.184L692.992 376.32a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0zm-452.544 452.48a32 32 0 0 1 0 45.248L240.448 828.8a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0z"></path>\r\n</svg>\r\n';
+  var SVG_next = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>\r\n</svg>\r\n';
+  var SVG_prev = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M609.408 149.376 277.76 489.6a32 32 0 0 0 0 44.672l331.648 340.352a29.12 29.12 0 0 0 41.728 0 30.592 30.592 0 0 0 0-42.752L339.264 511.936l311.872-319.872a30.592 30.592 0 0 0 0-42.688 29.12 29.12 0 0 0-41.728 0z"></path>\r\n</svg>\r\n';
+  var SVG_eleme = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M300.032 188.8c174.72-113.28 408-63.36 522.24 109.44 5.76 10.56 11.52 20.16 17.28 30.72v.96a22.4 22.4 0 0 1-7.68 26.88l-352.32 228.48c-9.6 6.72-22.08 3.84-28.8-5.76l-18.24-27.84a54.336 54.336 0 0 1 16.32-74.88l225.6-146.88c9.6-6.72 12.48-19.2 5.76-28.8-.96-1.92-1.92-3.84-3.84-4.8a267.84 267.84 0 0 0-315.84-17.28c-123.84 81.6-159.36 247.68-78.72 371.52a268.096 268.096 0 0 0 370.56 78.72 54.336 54.336 0 0 1 74.88 16.32l17.28 26.88c5.76 9.6 3.84 21.12-4.8 27.84-8.64 7.68-18.24 14.4-28.8 21.12a377.92 377.92 0 0 1-522.24-110.4c-113.28-174.72-63.36-408 111.36-522.24zm526.08 305.28a22.336 22.336 0 0 1 28.8 5.76l23.04 35.52a63.232 63.232 0 0 1-18.24 87.36l-35.52 23.04c-9.6 6.72-22.08 3.84-28.8-5.76l-46.08-71.04c-6.72-9.6-3.84-22.08 5.76-28.8l71.04-46.08z"></path>\r\n</svg>\r\n';
+  var SVG_elemePlus = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M839.7 734.7c0 33.3-17.9 41-17.9 41S519.7 949.8 499.2 960c-10.2 5.1-20.5 5.1-30.7 0 0 0-314.9-184.3-325.1-192-5.1-5.1-10.2-12.8-12.8-20.5V368.6c0-17.9 20.5-28.2 20.5-28.2L466 158.6c12.8-5.1 25.6-5.1 38.4 0 0 0 279 161.3 309.8 179.2 17.9 7.7 28.2 25.6 25.6 46.1-.1-5-.1 317.5-.1 350.8zM714.2 371.2c-64-35.8-217.6-125.4-217.6-125.4-7.7-5.1-20.5-5.1-30.7 0L217.6 389.1s-17.9 10.2-17.9 23v297c0 5.1 5.1 12.8 7.7 17.9 7.7 5.1 256 148.5 256 148.5 7.7 5.1 17.9 5.1 25.6 0 15.4-7.7 250.9-145.9 250.9-145.9s12.8-5.1 12.8-30.7v-74.2l-276.5 169v-64c0-17.9 7.7-30.7 20.5-46.1L745 535c5.1-7.7 10.2-20.5 10.2-30.7v-66.6l-279 169v-69.1c0-15.4 5.1-30.7 17.9-38.4l220.1-128zM919 135.7c0-5.1-5.1-7.7-7.7-7.7h-58.9V66.6c0-5.1-5.1-5.1-10.2-5.1l-30.7 5.1c-5.1 0-5.1 2.6-5.1 5.1V128h-56.3c-5.1 0-5.1 5.1-7.7 5.1v38.4h69.1v64c0 5.1 5.1 5.1 10.2 5.1l30.7-5.1c5.1 0 5.1-2.6 5.1-5.1v-56.3h64l-2.5-38.4z"\r\n		fill="currentColor"></path>\r\n</svg>\r\n';
+  var SVG_chromeFilled = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" xml:space="preserve" data-type="chromeFilled">\r\n	<path\r\n		d="M938.67 512.01c0-44.59-6.82-87.6-19.54-128H682.67a212.372 212.372 0 0 1 42.67 128c.06 38.71-10.45 76.7-30.42 109.87l-182.91 316.8c235.65-.01 426.66-191.02 426.66-426.67z"\r\n		fill="currentColor"></path>\r\n	<path\r\n		d="M576.79 401.63a127.92 127.92 0 0 0-63.56-17.6c-22.36-.22-44.39 5.43-63.89 16.38s-35.79 26.82-47.25 46.02a128.005 128.005 0 0 0-2.16 127.44l1.24 2.13a127.906 127.906 0 0 0 46.36 46.61 127.907 127.907 0 0 0 63.38 17.44c22.29.2 44.24-5.43 63.68-16.33a127.94 127.94 0 0 0 47.16-45.79v-.01l1.11-1.92a127.984 127.984 0 0 0 .29-127.46 127.957 127.957 0 0 0-46.36-46.91z"\r\n		fill="currentColor"></path>\r\n	<path\r\n		d="M394.45 333.96A213.336 213.336 0 0 1 512 298.67h369.58A426.503 426.503 0 0 0 512 85.34a425.598 425.598 0 0 0-171.74 35.98 425.644 425.644 0 0 0-142.62 102.22l118.14 204.63a213.397 213.397 0 0 1 78.67-94.21zM512.01 938.68H512zM414.76 701.95a213.284 213.284 0 0 1-89.54-86.81L142.48 298.6c-36.35 62.81-57.13 135.68-57.13 213.42 0 203.81 142.93 374.22 333.95 416.55h.04l118.19-204.71a213.315 213.315 0 0 1-122.77-21.91z"\r\n		fill="currentColor"></path>\r\n</svg>\r\n';
+  var SVG_cpu = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M320 256a64 64 0 0 0-64 64v384a64 64 0 0 0 64 64h384a64 64 0 0 0 64-64V320a64 64 0 0 0-64-64H320zm0-64h384a128 128 0 0 1 128 128v384a128 128 0 0 1-128 128H320a128 128 0 0 1-128-128V320a128 128 0 0 1 128-128z"></path>\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 64a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32zm160 0a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32zm-320 0a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32zm160 896a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32zm160 0a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32zm-320 0a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32zM64 512a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32zm0-160a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32zm0 320a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32zm896-160a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32zm0-160a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32zm0 320a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32z"></path>\r\n</svg>\r\n';
+  var SVG_videoPlay = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896zm0 832a384 384 0 0 0 0-768 384 384 0 0 0 0 768zm-48-247.616L668.608 512 464 375.616v272.768zm10.624-342.656 249.472 166.336a48 48 0 0 1 0 79.872L474.624 718.272A48 48 0 0 1 400 678.336V345.6a48 48 0 0 1 74.624-39.936z"></path>\r\n</svg>\r\n';
+  var SVG_videoPause = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896zm0 832a384 384 0 0 0 0-768 384 384 0 0 0 0 768zm-96-544q32 0 32 32v256q0 32-32 32t-32-32V384q0-32 32-32zm192 0q32 0 32 32v256q0 32-32 32t-32-32V384q0-32 32-32z"></path>\r\n</svg>\r\n';
+  var SVG_headset = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M896 529.152V512a384 384 0 1 0-768 0v17.152A128 128 0 0 1 320 640v128a128 128 0 1 1-256 0V512a448 448 0 1 1 896 0v256a128 128 0 1 1-256 0V640a128 128 0 0 1 192-110.848zM896 640a64 64 0 0 0-128 0v128a64 64 0 0 0 128 0V640zm-768 0v128a64 64 0 0 0 128 0V640a64 64 0 1 0-128 0z"></path>\r\n</svg>\r\n';
+  var SVG_monitor = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M544 768v128h192a32 32 0 1 1 0 64H288a32 32 0 1 1 0-64h192V768H192A128 128 0 0 1 64 640V256a128 128 0 0 1 128-128h640a128 128 0 0 1 128 128v384a128 128 0 0 1-128 128H544zM192 192a64 64 0 0 0-64 64v384a64 64 0 0 0 64 64h640a64 64 0 0 0 64-64V256a64 64 0 0 0-64-64H192z"></path>\r\n</svg>\r\n';
+  var SVG_documentCopy = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M128 320v576h576V320H128zm-32-64h640a32 32 0 0 1 32 32v640a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V288a32 32 0 0 1 32-32zM960 96v704a32 32 0 0 1-32 32h-96v-64h64V128H384v64h-64V96a32 32 0 0 1 32-32h576a32 32 0 0 1 32 32zM256 672h320v64H256v-64zm0-192h320v64H256v-64z"></path>\r\n</svg>\r\n';
+  var SVG_picture = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M160 160v704h704V160H160zm-32-64h768a32 32 0 0 1 32 32v768a32 32 0 0 1-32 32H128a32 32 0 0 1-32-32V128a32 32 0 0 1 32-32z"></path>\r\n	<path\r\n		fill="currentColor"\r\n		d="M384 288q64 0 64 64t-64 64q-64 0-64-64t64-64zM185.408 876.992l-50.816-38.912L350.72 556.032a96 96 0 0 1 134.592-17.856l1.856 1.472 122.88 99.136a32 32 0 0 0 44.992-4.864l216-269.888 49.92 39.936-215.808 269.824-.256.32a96 96 0 0 1-135.04 14.464l-122.88-99.072-.64-.512a32 32 0 0 0-44.8 5.952L185.408 876.992z"></path>\r\n</svg>\r\n';
+  var SVG_circleClose = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" data-type="circleClose">\r\n	<path\r\n		fill="currentColor"\r\n		d="m466.752 512-90.496-90.496a32 32 0 0 1 45.248-45.248L512 466.752l90.496-90.496a32 32 0 1 1 45.248 45.248L557.248 512l90.496 90.496a32 32 0 1 1-45.248 45.248L512 557.248l-90.496 90.496a32 32 0 0 1-45.248-45.248z"></path>\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"></path>\r\n</svg>\r\n';
+  var SVG_view = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 160c320 0 512 352 512 352S832 864 512 864 0 512 0 512s192-352 512-352m0 64c-225.28 0-384.128 208.064-436.8 288 52.608 79.872 211.456 288 436.8 288 225.28 0 384.128-208.064 436.8-288-52.608-79.872-211.456-288-436.8-288zm0 64a224 224 0 1 1 0 448 224 224 0 0 1 0-448m0 64a160.192 160.192 0 0 0-160 160c0 88.192 71.744 160 160 160s160-71.808 160-160-71.744-160-160-160"></path>\r\n</svg>\r\n';
+  var SVG_hide = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">\r\n	<path\r\n		fill="currentColor"\r\n		d="M876.8 156.8c0-9.6-3.2-16-9.6-22.4-6.4-6.4-12.8-9.6-22.4-9.6-9.6 0-16 3.2-22.4 9.6L736 220.8c-64-32-137.6-51.2-224-60.8-160 16-288 73.6-377.6 176C44.8 438.4 0 496 0 512s48 73.6 134.4 176c22.4 25.6 44.8 48 73.6 67.2l-86.4 89.6c-6.4 6.4-9.6 12.8-9.6 22.4 0 9.6 3.2 16 9.6 22.4 6.4 6.4 12.8 9.6 22.4 9.6 9.6 0 16-3.2 22.4-9.6l704-710.4c3.2-6.4 6.4-12.8 6.4-22.4Zm-646.4 528c-76.8-70.4-128-128-153.6-172.8 28.8-48 80-105.6 153.6-172.8C304 272 400 230.4 512 224c64 3.2 124.8 19.2 176 44.8l-54.4 54.4C598.4 300.8 560 288 512 288c-64 0-115.2 22.4-160 64s-64 96-64 160c0 48 12.8 89.6 35.2 124.8L256 707.2c-9.6-6.4-19.2-16-25.6-22.4Zm140.8-96c-12.8-22.4-19.2-48-19.2-76.8 0-44.8 16-83.2 48-112 32-28.8 67.2-48 112-48 28.8 0 54.4 6.4 73.6 19.2zM889.599 336c-12.8-16-28.8-28.8-41.6-41.6l-48 48c73.6 67.2 124.8 124.8 150.4 169.6-28.8 48-80 105.6-153.6 172.8-73.6 67.2-172.8 108.8-284.8 115.2-51.2-3.2-99.2-12.8-140.8-28.8l-48 48c57.6 22.4 118.4 38.4 188.8 44.8 160-16 288-73.6 377.6-176C979.199 585.6 1024 528 1024 512s-48.001-73.6-134.401-176Z"></path>\r\n	<path\r\n		fill="currentColor"\r\n		d="M511.998 672c-12.8 0-25.6-3.2-38.4-6.4l-51.2 51.2c28.8 12.8 57.6 19.2 89.6 19.2 64 0 115.2-22.4 160-64 41.6-41.6 64-96 64-160 0-32-6.4-64-19.2-89.6l-51.2 51.2c3.2 12.8 6.4 25.6 6.4 38.4 0 44.8-16 83.2-48 112-32 28.8-67.2 48-112 48Z"></path>\r\n</svg>\r\n';
+  var SVG_keyboard = '<svg viewBox="0 0 1123 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M1014.122186 1024H109.753483A109.753483 109.753483 0 0 1 0 914.246517V392.917471a109.753483 109.753483 0 0 1 109.753483-109.753484h904.368703a109.753483 109.753483 0 0 1 109.753484 109.753484v521.329046a109.753483 109.753483 0 0 1-109.753484 109.753483zM109.753483 370.966774a21.950697 21.950697 0 0 0-21.950696 21.950697v521.329046a21.950697 21.950697 0 0 0 21.950696 21.950696h904.368703a21.950697 21.950697 0 0 0 21.950697-21.950696V392.917471a21.950697 21.950697 0 0 0-21.950697-21.950697z"></path>\r\n	<path\r\n		d="M687.056806 891.198285H307.309753a43.901393 43.901393 0 0 1 0-87.802787h379.747053a43.901393 43.901393 0 0 1 0 87.802787zM175.605573 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM432.428725 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM947.172562 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 546.572347a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 803.395498a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 678.276527a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM948.270096 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394z"></path>\r\n	<path\r\n		d="M881.320472 766.079314H689.251876a43.901393 43.901393 0 0 1 0-87.802787h192.068596a21.950697 21.950697 0 0 0 21.950696-21.950696v-65.85209a43.901393 43.901393 0 0 1 87.802787 0v65.85209a109.753483 109.753483 0 0 1-109.753483 109.753483zM305.114684 502.670954H175.605573a43.901393 43.901393 0 0 1 0-87.802787h129.509111a43.901393 43.901393 0 0 1 0 87.802787zM563.03537 365.4791a43.901393 43.901393 0 0 1-43.901394-43.901394v-105.363344A109.753483 109.753483 0 0 1 628.88746 106.460879h61.461951a21.950697 21.950697 0 0 0 21.950696-21.950697V43.901393a43.901393 43.901393 0 0 1 87.802787 0v40.608789a109.753483 109.753483 0 0 1-109.753483 109.753484h-61.461951a21.950697 21.950697 0 0 0-21.950697 21.950696v105.363344a43.901393 43.901393 0 0 1-43.901393 43.901394z"></path>\r\n</svg>\r\n';
+  var SVG_arrowRight = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" data-type="arrowRight">\r\n	<path\r\n		d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>\r\n</svg>\r\n';
+  var SVG_arrowLeft = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" data-type="arrowLeft">\r\n	<path\r\n		d="M609.408 149.376 277.76 489.6a32 32 0 0 0 0 44.672l331.648 340.352a29.12 29.12 0 0 0 41.728 0 30.592 30.592 0 0 0 0-42.752L339.264 511.936l311.872-319.872a30.592 30.592 0 0 0 0-42.688 29.12 29.12 0 0 0-41.728 0z"></path>\r\n</svg>\r\n';
+  const PopsIconData = {
+    min: SVG_min,
+    mise: SVG_mise,
+    max: SVG_max,
+    close: SVG_close,
+    edit: SVG_edit,
+    share: SVG_share,
+    delete: SVG_delete,
+    search: SVG_search,
+    upload: SVG_upload,
+    loading: SVG_loading,
+    next: SVG_next,
+    prev: SVG_prev,
+    eleme: SVG_eleme,
+    elemePlus: SVG_elemePlus,
+    chromeFilled: SVG_chromeFilled,
+    cpu: SVG_cpu,
+    videoPlay: SVG_videoPlay,
+    videoPause: SVG_videoPause,
+    headset: SVG_headset,
+    monitor: SVG_monitor,
+    documentCopy: SVG_documentCopy,
+    picture: SVG_picture,
+    circleClose: SVG_circleClose,
+    view: SVG_view,
+    hide: SVG_hide,
+    keyboard: SVG_keyboard,
+    arrowRight: SVG_arrowRight,
+    arrowLeft: SVG_arrowLeft
+  };
+  const PopsIcon = {
+    $data: PopsIconData,
+    /**
+     * 判断是否存在某个icon
+     * @param iconName 图标名
+     */
+    hasIcon(iconName) {
+      return Object.keys(PopsIcon.$data).includes(iconName);
+    },
+    /**
+     * 获取icon
+     * @param iconName 图标名
+     */
+    getIcon(iconName) {
+      return PopsIcon.$data[iconName];
+    },
+    /**
+     * 删除图标
+     * @param iconName 图标名
+     */
+    deleteIcon(iconName) {
+      return Reflect.deleteProperty(PopsIcon.$data, iconName);
+    },
+    /**
+     * 设置图标
+     * @param iconName 图标名
+     * @param iconHTML 图标html
+     */
+    setIcon(iconName, iconHTML) {
+      Reflect.set(PopsIcon.$data, iconName, iconHTML);
+    }
+  };
   const SymbolEvents = Symbol("events_" + ((1 + Math.random()) * 65536 | 0).toString(16).substring(1));
   const PopsCoreDefaultEnv = {
     document,
@@ -11905,7 +12108,7 @@ ${err.stack}`);
     const fullBrokerImplementation = extendBrokerImplementation(brokerImplementation);
     return (sender) => {
       const ongoingRequests = createOrGetOngoingRequests(sender);
-      sender.addEventListener("message", ({ data: message }) => {
+      sender.addEventListener("message", (({ data: message }) => {
         const { id } = message;
         if (id !== null && ongoingRequests.has(id)) {
           const { reject, resolve } = ongoingRequests.get(id);
@@ -11916,7 +12119,7 @@ ${err.stack}`);
             reject(new Error(message.error.message));
           }
         }
-      });
+      }));
       if (isMessagePort(sender)) {
         sender.start();
       }
@@ -12031,7 +12234,7 @@ ${err.stack}`);
       return broker;
     };
   };
-  const worker = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},f=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise((t=>{e.set(a,[r(n,u,i,e,t,a),t])}))},m=new Map,h=d(globalThis.clearTimeout,m),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=f(m,performance,globalThis.setTimeout,w),T=f(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
+  const worker = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,()=>{n(),t.close(),u.delete(o)}),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise(e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])})){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},f=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise(t=>{e.set(a,[r(n,u,i,e,t,a),t])})},m=new Map,h=d(globalThis.clearTimeout,m),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=f(m,performance,globalThis.setTimeout,w),T=f(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
   const loadOrReturnBroker = createLoadOrReturnBroker(load, worker);
   const clearInterval$1 = (timerId) => loadOrReturnBroker().clearInterval(timerId);
   const clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
@@ -12054,9 +12257,9 @@ ${err.stack}`);
       return this;
     }
     emit(t3, i2, s2) {
-      void 0 !== this.__interceptor ? this.__interceptor(t3, () => {
+      void 0 !== this.__interceptor ? this.__interceptor(t3, (() => {
         this.__emit(t3, i2), s2 && s2();
-      }) : (this.__emit(t3, i2), s2 && s2());
+      })) : (this.__emit(t3, i2), s2 && s2());
     }
     __emit(t3, i2) {
       const s2 = this.__map[t3];
@@ -12067,7 +12270,7 @@ ${err.stack}`);
       const s2 = this.__map[t3];
       if (void 0 !== s2) if (void 0 === i2) delete this.__map[t3];
       else {
-        const t4 = s2.findIndex((t5) => t5 === i2);
+        const t4 = s2.findIndex(((t5) => t5 === i2));
         s2.splice(t4, 1);
       }
     }
@@ -12103,13 +12306,13 @@ ${err.stack}`);
     return function(u2) {
       if (t3 = o2, void 0 !== u2) {
         a2 = Number.MAX_SAFE_INTEGER > a2 ? ++a2 : 1;
-        const h2 = function(t4, o3) {
+        const h2 = (function(t4, o3) {
           const { phase: i3, points: r3, changedPoints: a3, nativeEvent: u3 } = t4, h3 = r3.length, p3 = c$3 === i3, g3 = u$3 === i3 && 0 === h3 || s$1 === i3, l3 = Date.now(), { x: d2, y: m2 } = c$2(r3) || c$2(a3), { currentTarget: v2 } = u3;
           return Object.assign(t4, { id: o3, x: d2, y: m2, timestamp: l3, isStart: p3, isEnd: g3, pointLength: h3, currentTarget: v2, getOffset(t5 = v2) {
             const e2 = t5.getBoundingClientRect();
             return { x: d2 - Math.round(e2.left), y: m2 - Math.round(e2.top) };
           } });
-        }(u2, a2);
+        })(u2, a2);
         o2 = h2;
         const { isStart: p2, pointLength: g2 } = h2;
         return p2 && (i2 = h2, t3 = void 0, r2 = 1 < g2 ? h2 : void 0), Object.assign(Object.assign({}, h2), { prevInput: t3, startMultiInput: r2, startInput: i2 });
@@ -12123,7 +12326,7 @@ ${err.stack}`);
         const { clientX: e3, clientY: n3 } = t3[0];
         return { x: Math.round(e3), y: Math.round(n3) };
       }
-      const n2 = t3.reduce((t4, e3) => (t4.x += e3[n$1], t4.y += e3[e$2], t4), { x: 0, y: 0 });
+      const n2 = t3.reduce(((t4, e3) => (t4.x += e3[n$1], t4.y += e3[e$2], t4)), { x: 0, y: 0 });
       return { x: Math.round(n2.x / e2), y: Math.round(n2.y / e2) };
     }
   }
@@ -12131,7 +12334,7 @@ ${err.stack}`);
     const o2 = {};
     for (const t4 in n2) ["target", "currentTarget", "type"].includes(t4) || (o2[t4] = n2[t4]);
     let i2;
-    return document.createEvent ? (i2 = document.createEvent("HTMLEvents"), i2.initEvent(t3, null == s2 ? void 0 : s2.bubbles, null == s2 ? void 0 : s2.cancelable)) : i2 = new Event(t3, s2), Object.assign(i2, o2, { match: () => n2.targets && 0 < n2.targets.length && n2.targets.every((t4) => i2.currentTarget.contains(t4)) }), e2.dispatchEvent(i2);
+    return document.createEvent ? (i2 = document.createEvent("HTMLEvents"), i2.initEvent(t3, null == s2 ? void 0 : s2.bubbles, null == s2 ? void 0 : s2.cancelable)) : i2 = new Event(t3, s2), Object.assign(i2, o2, { match: () => n2.targets && 0 < n2.targets.length && n2.targets.every(((t4) => i2.currentTarget.contains(t4))) }), e2.dispatchEvent(i2);
   }
   function u$2(t3, e2) {
     const { preventDefault: n2 } = e2;
@@ -12149,17 +12352,17 @@ ${err.stack}`);
   let l$1 = class l extends t$1 {
     constructor(t3, e2) {
       super(), this.v = "2.1.3", this.__computeFunctionList = [], this.__computeFunctionCreatorList = [], this.__pluginContexts = [], this.__isIgnoreMouse = false, this.el = t3, this.c = {}, this.__options = Object.assign(Object.assign({}, g), e2);
-      const n2 = function(t4) {
+      const n2 = (function(t4) {
         const e3 = r$3();
         return function(n3) {
           const s3 = [], o2 = [];
-          Array.from(n3.touches).forEach(({ clientX: e4, clientY: n4, target: i3 }) => {
+          Array.from(n3.touches).forEach((({ clientX: e4, clientY: n4, target: i3 }) => {
             (null == t4 ? void 0 : t4.contains(i3)) && (s3.push(i3), o2.push({ clientX: e4, clientY: n4, target: i3 }));
-          });
-          const i2 = Array.from(n3.changedTouches).map(({ clientX: t5, clientY: e4, target: n4 }) => ({ clientX: t5, clientY: e4, target: n4 }));
+          }));
+          const i2 = Array.from(n3.changedTouches).map((({ clientX: t5, clientY: e4, target: n4 }) => ({ clientX: t5, clientY: e4, target: n4 })));
           return e3({ phase: n3.type.replace("touch", ""), changedPoints: i2, points: o2, nativeEvent: n3, target: n3.target, targets: s3 });
         };
-      }(this.el), s2 = function() {
+      })(this.el), s2 = (function() {
         let t4, e3 = false, n3 = null;
         const s3 = r$3();
         return function(o2) {
@@ -12173,34 +12376,34 @@ ${err.stack}`);
           const g2 = t4 || [{ clientX: i2, clientY: r2, target: u2 }];
           if (t4 = [{ clientX: i2, clientY: r2, target: u2 }], void 0 !== h2) return s3({ phase: h2, changedPoints: g2, points: p2, target: n3, targets: [n3], nativeEvent: o2 });
         };
-      }();
-      if (this.__inputCreatorMap = { touchstart: n2, touchmove: n2, touchend: n2, touchcancel: n2, mousedown: s2, mousemove: s2, mouseup: s2 }, this.on("at:after", (t4) => {
+      })();
+      if (this.__inputCreatorMap = { touchstart: n2, touchmove: n2, touchend: n2, touchcancel: n2, mousedown: s2, mousemove: s2, mouseup: s2 }, this.on("at:after", ((t4) => {
         const { target: e3, __type: n3 } = t4, { domEvents: s3 } = this.__options;
         s3 && void 0 !== this.el && e3 && (a$1(n3, e3, t4, s3), a$1("at:after", e3, t4, s3));
-      }), void 0 !== t3) {
+      })), void 0 !== t3) {
         t3.style.webkitTapHighlightColor = "rgba(0,0,0,0)";
         let e3 = false;
         try {
           const t4 = {};
           Object.defineProperty(t4, "passive", { get() {
             e3 = true;
-          } }), window.addEventListener("_", () => {
-          }, t4);
+          } }), window.addEventListener("_", (() => {
+          }), t4);
         } catch (t4) {
         }
-        this.on("u", function(t4, e4, n3) {
-          return h$2.forEach((s3) => {
+        this.on("u", (function(t4, e4, n3) {
+          return h$2.forEach(((s3) => {
             t4.addEventListener(s3, e4, n3);
-          }), p$2.forEach((t5) => {
+          })), p$2.forEach(((t5) => {
             window.addEventListener(t5, e4, n3);
-          }), () => {
-            h$2.forEach((n4) => {
+          })), () => {
+            h$2.forEach(((n4) => {
               t4.removeEventListener(n4, e4);
-            }), p$2.forEach((t5) => {
+            })), p$2.forEach(((t5) => {
               window.removeEventListener(t5, e4);
-            });
+            }));
           };
-        }(t3, this.catchEvent.bind(this), false === this.__options.preventDefault && e3 ? { passive: true } : { passive: false }));
+        })(t3, this.catchEvent.bind(this), false === this.__options.preventDefault && e3 ? { passive: true } : { passive: false }));
       }
     }
     use(t3, e2) {
@@ -12214,10 +12417,10 @@ ${err.stack}`);
         else if ("touchstart" === t3.type ? this.__isIgnoreMouse = true : "touchmove" === t3.type && (this.__isIgnoreMouse = false), this.__isIgnoreMouse && t3.type.startsWith("mouse")) return void ("mouseup" === t3.type && (this.__isIgnoreMouse = false));
         this.emit("input", e2), this.emit2(`at:${e2.phase}`, e2, {});
         const i2 = {};
-        this.__computeFunctionList.forEach((t4) => {
+        this.__computeFunctionList.forEach(((t4) => {
           const n3 = t4(e2, i2);
           if (void 0 !== n3) for (const t5 in n3) i2[t5] = n3[t5];
-        }), this.emit("computed", Object.assign(Object.assign(Object.assign({}, e2), i2), { stopPropagation: n2, stopImmediatePropagation: s2, preventDefault: o2 }));
+        })), this.emit("computed", Object.assign(Object.assign(Object.assign({}, e2), i2), { stopPropagation: n2, stopImmediatePropagation: s2, preventDefault: o2 }));
       }
     }
     compute(t3, e2) {
@@ -12225,21 +12428,21 @@ ${err.stack}`);
       this.on("computed", e2);
     }
     beforeEach(t3) {
-      super.beforeEach((e2, n2) => {
+      super.beforeEach(((e2, n2) => {
         var s2;
         (null === (s2 = this.c) || void 0 === s2 ? void 0 : s2.name) ? t3(e2, n2) : n2();
-      });
+      }));
     }
     get(t3) {
-      return this.__pluginContexts.find((e2) => t3 === e2.name);
+      return this.__pluginContexts.find(((e2) => t3 === e2.name));
     }
     set(t3) {
       this.__options = Object.assign(Object.assign({}, this.__options), t3);
     }
     emit2(t3, e2, n2) {
-      this.c = n2, this.emit(t3, Object.assign(Object.assign({}, e2), { type: t3 }), () => {
+      this.c = n2, this.emit(t3, Object.assign(Object.assign({}, e2), { type: t3 }), (() => {
         this.emit("at:after", Object.assign(Object.assign({}, e2), { name: t3, __type: t3 }));
-      });
+      }));
     }
     destroy() {
       this.emit("u"), super.destroy();
@@ -12327,88 +12530,88 @@ ${err.stack}`);
     function f2() {
       T = 0, p2 = void 0, u2 = void 0;
     }
-    return r2.compute([h$1, M], (t3) => {
+    return r2.compute([h$1, M], ((t3) => {
       if (j(c2)) return;
       const { phase: i2, x: o2, y: m2 } = t3;
-      u$3 === i2 && (c2.state = 0, !function() {
+      u$3 === i2 && (c2.state = 0, !(function() {
         const { startInput: e2, pointLength: n2, timestamp: a2 } = t3, i3 = a2 - e2.timestamp, { distance: o3, maxPointLength: m3 } = t3;
         return m3 === c2.pointLength && 0 === n2 && c2.maxDistance >= o3 && c2.maxPressTime > i3;
-      }() ? (f2(), c2.state = 2) : (clearTimeout(x$1), function(t4, e2) {
+      })() ? (f2(), c2.state = 2) : (clearTimeout(x$1), (function(t4, e2) {
         if (void 0 !== p2) {
           const n2 = x({ x: t4.x - p2.x, y: t4.y - p2.y });
           return p2 = t4, e2.maxDistanceFromPrevTap >= n2;
         }
         return p2 = t4, true;
-      }({ x: o2, y: m2 }, c2) && function(t4) {
+      })({ x: o2, y: m2 }, c2) && (function(t4) {
         const e2 = performance.now();
         if (void 0 === u2) return u2 = e2, true;
         {
           const n2 = e2 - u2;
           return u2 = e2, n2 < t4;
         }
-      }(c2.waitNextTapTime) ? T++ : T = 1, 0 == T % c2.tapTimes ? (c2.state = 1, r2.emit2(c2.name, t3, c2), f2()) : x$1 = setTimeout(() => {
+      })(c2.waitNextTapTime) ? T++ : T = 1, 0 == T % c2.tapTimes ? (c2.state = 1, r2.emit2(c2.name, t3, c2), f2()) : x$1 = setTimeout((() => {
         c2.state = 2, f2();
-      }, c2.waitNextTapTime)));
-    }), c2;
+      }), c2.waitNextTapTime)));
+    })), c2;
   }
   const p = { name: "pan", threshold: 10, pointLength: 1 };
   function u(u2, d$12) {
     const f$1 = O(p, d$12);
-    return u2.compute([f, h$1, d], (t3) => {
+    return u2.compute([f, h$1, d], ((t3) => {
       if (g$1(f$1), j(f$1)) return;
-      const c2 = function() {
+      const c2 = (function() {
         const { pointLength: e2, distance: n2 } = t3;
         return f$1.pointLength === e2 && f$1.threshold <= n2;
-      }();
+      })();
       if (f$1.state = b(c2, f$1.state, t3.phase), c2 || h$3(f$1.state)) {
         const { name: e2 } = f$1;
         u2.emit2(e2, t3, f$1), u2.emit2(e2 + v$1(f$1.state), t3, f$1), ![u$3, s$1].includes(t3.phase) && t3.direction && u2.emit2(e2 + t3.direction, t3, f$1);
       }
-    }), f$1;
+    })), f$1;
   }
   const c$1 = { name: "swipe", threshold: 10, velocity: 0.3, pointLength: 1 };
   function a(a2, r2) {
     const s2 = O(c$1, r2);
-    return a2.compute([h$1, f, M], (t3) => {
-      if (s2.state = 0, !s2.disabled && function() {
+    return a2.compute([h$1, f, M], ((t3) => {
+      if (s2.state = 0, !s2.disabled && (function() {
         if (u$3 !== t3.phase) return false;
         const { velocityX: o2, velocityY: n2, distance: i2, maxPointLength: c2 } = t3;
         return c2 === s2.pointLength && 0 === t3.points.length && s2.threshold < i2 && s2.velocity < Math.max(o2, n2);
-      }()) {
+      })()) {
         const { name: e2 } = s2;
         s2.state = 1, a2.emit2(e2, t3, s2), a2.emit2(e2 + t3.direction, t3, s2);
       }
-    }), s2;
+    })), s2;
   }
   const r$1 = { name: "press", pointLength: 1, maxDistance: 9, minPressTime: 251 };
   function c(c2, u2) {
     const p2 = O(r$1, u2);
     let f2 = 0;
-    return c2.compute([h$1], (t3) => {
+    return c2.compute([h$1], ((t3) => {
       if (j(p2)) return;
       const { phase: o2, startInput: r2, pointLength: u3 } = t3;
-      if (c$3 === o2 && p2.pointLength === u3) g$1(p2), clearTimeout(f2), f2 = setTimeout(() => {
+      if (c$3 === o2 && p2.pointLength === u3) g$1(p2), clearTimeout(f2), f2 = setTimeout((() => {
         p2.state = 1, c2.emit2(p2.name, t3, p2);
-      }, p2.minPressTime);
+      }), p2.minPressTime);
       else if (u$3 === o2 && 1 === p2.state) c2.emit2(`${p2.name}${r$4}`, t3, p2);
       else if (1 !== p2.state) {
         const e2 = t3.timestamp - r2.timestamp;
-        (!function() {
+        (!(function() {
           const { distance: e3 } = t3;
           return e3 && p2.maxDistance > e3;
-        }() || p2.minPressTime > e2 && [u$3, s$1].includes(o2)) && (clearTimeout(f2), p2.state = 2);
+        })() || p2.minPressTime > e2 && [u$3, s$1].includes(o2)) && (clearTimeout(f2), p2.state = 2);
       }
-    }), p2;
+    })), p2;
   }
   const i$2 = { name: "pinch", threshold: 0, pointLength: 2 };
   function r(r2, m2) {
     const p2 = O(i$2, m2);
-    return r2.compute([m$1, l2], (t3) => {
+    return r2.compute([m$1, l2], ((t3) => {
       if (g$1(p2), j(p2)) return;
-      const c2 = function() {
+      const c2 = (function() {
         const { pointLength: e2, scale: n2, deltaScale: o2, phase: a2 } = t3;
         return p2.pointLength === e2 && p2.threshold < Math.abs(n2 - 1);
-      }();
+      })();
       p2.state = b(c2, p2.state, t3.phase);
       const { name: h2 } = p2;
       if (c2 || h$3(p2.state)) {
@@ -12418,34 +12621,34 @@ ${err.stack}`);
       }
       const i2 = v$1(p2.state);
       i2 && r2.emit2(h2 + i2, t3, p2);
-    }), p2;
+    })), p2;
   }
   const h = { name: "rotate", threshold: 0, pointLength: 2 };
   function i$1(i2, m2) {
     const u2 = O(h, m2);
-    return i2.compute([m$1, p$1], (t3) => {
+    return i2.compute([m$1, p$1], ((t3) => {
       if (j(u2)) return;
       g$1(u2);
-      const r2 = function() {
+      const r2 = (function() {
         const { pointLength: e2, angle: n2 } = t3;
         return u2.pointLength === e2 && u2.threshold < Math.abs(n2);
-      }();
+      })();
       u2.state = b(r2, u2.state, t3.phase);
       const { name: c2 } = u2;
       (r2 || h$3(u2.state)) && i2.emit2(c2, t3, u2);
       const h2 = v$1(u2.state);
       h2 && i2.emit2(c2 + h2, t3, u2);
-    }), u2;
+    })), u2;
   }
   function e(e2) {
     e2.use(r$2, { name: "doubletap", tapTimes: 2 });
     const a2 = e2.get("doubletap");
     let o2;
-    return e2.beforeEach((t3, e3) => {
-      "tap" === t3 ? (clearTimeout(o2), o2 = setTimeout(() => {
+    return e2.beforeEach(((t3, e3) => {
+      "tap" === t3 ? (clearTimeout(o2), o2 = setTimeout((() => {
         [0, 2].includes(a2.state) && e3();
-      }, 300)) : e3();
-    }), a2;
+      }), 300)) : e3();
+    })), a2;
   }
   class i extends l$1 {
     constructor(t3, u$12) {
@@ -12723,6 +12926,14 @@ ${err.stack}`);
     setSafeHTML($el, text) {
       $el.innerHTML = this.getSafeHTML(text);
     }
+  };
+  const PopsCommonCSSClassName = {
+    flexCenter: "pops-flex-items-center",
+    flexYCenter: "pops-flex-y-center",
+    hide: "pops-hide",
+    hideImportant: "pops-hide-important",
+    userSelectNone: "pops-user-select-none",
+    textIsDisabled: "pops-text-is-disabled"
   };
   class PopsDOMUtilsEvent {
     on(element, eventType, selector, callback, option) {
@@ -13434,23 +13645,11 @@ ${err.stack}`);
   class PopsDOMUtils extends PopsDOMUtilsEvent {
     /** 获取 animationend 在各个浏览器的兼容名 */
     getAnimationEndNameList() {
-      return [
-        "webkitAnimationEnd",
-        "mozAnimationEnd",
-        "MSAnimationEnd",
-        "oanimationend",
-        "animationend"
-      ];
+      return ["webkitAnimationEnd", "mozAnimationEnd", "MSAnimationEnd", "oanimationend", "animationend"];
     }
     /** 获取 transitionend 在各个浏览器的兼容名 */
     getTransitionEndNameList() {
-      return [
-        "webkitTransitionEnd",
-        "mozTransitionEnd",
-        "MSTransitionEnd",
-        "otransitionend",
-        "transitionend"
-      ];
+      return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
     }
     /**
      * 实现jQuery中的$().offset();
@@ -13591,6 +13790,9 @@ ${err.stack}`);
      * @param className className属性
      */
     addClassName(element, className) {
+      if (element == null) {
+        return;
+      }
       if (typeof className !== "string") {
         return;
       }
@@ -13605,6 +13807,9 @@ ${err.stack}`);
      * @param className className属性
      */
     removeClassName(element, className) {
+      if (element == null) {
+        return;
+      }
       if (typeof className !== "string") {
         return;
       }
@@ -13619,6 +13824,9 @@ ${err.stack}`);
      * @param className className属性
      */
     containsClassName(element, className) {
+      if (element == null) {
+        return false;
+      }
       if (typeof className !== "string") {
         return false;
       }
@@ -13629,15 +13837,7 @@ ${err.stack}`);
     }
     css(element, property, value) {
       function handlePixe(propertyName, propertyValue) {
-        let allowAddPixe = [
-          "width",
-          "height",
-          "top",
-          "left",
-          "right",
-          "bottom",
-          "font-size"
-        ];
+        let allowAddPixe = ["width", "height", "top", "left", "right", "bottom", "font-size"];
         if (typeof propertyValue === "number") {
           propertyValue = propertyValue.toString();
         }
@@ -13858,9 +14058,9 @@ ${err.stack}`);
         return;
       }
       if (isImportant) {
-        ele.classList.add("pops-hide-important");
+        popsDOMUtils.addClassName(ele, PopsCommonCSSClassName.hideImportant);
       } else {
-        ele.classList.add("pops-hide");
+        popsDOMUtils.addClassName(ele, PopsCommonCSSClassName.hide);
       }
     }
     /**
@@ -13871,8 +14071,8 @@ ${err.stack}`);
       if (ele == null) {
         return;
       }
-      ele.classList.remove("pops-hide-important");
-      ele.classList.remove("pops-hide");
+      popsDOMUtils.removeClassName(ele, PopsCommonCSSClassName.hide);
+      popsDOMUtils.removeClassName(ele, PopsCommonCSSClassName.hideImportant);
     }
     parseHTML(html, useParser = false, isComplete = false) {
       function parseHTMLByDOMParser() {
@@ -14144,35 +14344,280 @@ ${err.stack}`);
     }
   }
   const popsDOMUtils = new PopsDOMUtils();
-  const PopsLayerData = {
-    alert: [],
-    confirm: [],
-    drawer: [],
-    folder: [],
-    iframe: [],
-    loading: [],
-    panel: [],
-    prompt: [],
-    rightClickMenu: [],
-    // 没有 searchSuggestion
-    tooltip: []
+  const PopsElementHandler = {
+    /**
+     * 获取遮罩层HTML
+     * @param guid
+     * @param zIndex z-index
+     * @param style
+     */
+    createMask(guid, zIndex = 101, style = "") {
+      zIndex = zIndex - 100;
+      if (style.startsWith(";")) {
+        style = style.replace(";", "");
+      }
+      return (
+        /*html*/
+        `<div class="pops-mask" data-guid="${guid}" style="z-index:${zIndex};${style}"></div>`
+      );
+    },
+    /**
+     * 获取动画层HTML
+     * @param guid
+     * @param type
+     * @param config
+     * @param html
+     * @param bottomBtnHTML
+     * @param zIndex
+     */
+    createAnim(guid, type, config, html = "", bottomBtnHTML = "", zIndex) {
+      let __config = config;
+      let popsAnimStyle = "";
+      let popsStyle = "";
+      let popsPosition = __config.position || "";
+      if (config.zIndex != null) {
+        popsAnimStyle += `z-index: ${zIndex};`;
+        popsStyle += `z-index: ${zIndex};`;
+      }
+      if (__config.width != null) {
+        popsStyle += `width: ${__config.width};`;
+      }
+      if (__config.height != null) {
+        popsStyle += `height: ${__config.height};`;
+      }
+      let hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
+      return (
+        /*html*/
+        `
+		<div class="pops-anim" anim="${__config.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${config.style != null ? `<style tyle="text/css">${config.style}</style>` : ""}
+			<div class="pops ${config.class || ""}" data-bottom-btn="${hasBottomBtn}" type-value="${type}" style="${popsStyle}" position="${popsPosition}" data-guid="${guid}">${html}</div>
+		</div>`
+      );
+    },
+    /**
+     * 获取顶部按钮层HTML
+     * @param type
+     * @param config
+     */
+    createHeader(type, config) {
+      if (!config.btn) {
+        return "";
+      }
+      let confirm_config = config;
+      if (type !== "iframe" && !confirm_config.btn?.close?.enable) {
+        return "";
+      }
+      let resultHTML = "";
+      let closeHTML = "";
+      let iframe_config = config;
+      if (type === "iframe" && iframe_config.topRightButton?.trim() !== "") {
+        let topRightButtonHTML = "";
+        iframe_config.topRightButton.split("|").forEach((item) => {
+          item = item.toLowerCase();
+          topRightButtonHTML += /*html*/
+          `
+                <button class="pops-header-control" type="button" data-type="${item}">
+                    <i class="pops-icon">${PopsIcon.getIcon(item)}</i>
+                </button>`;
+        });
+        resultHTML = /*html*/
+        `
+            <div class="pops-header-controls" data-margin>${topRightButtonHTML}</div>`;
+      } else {
+        if (confirm_config.btn?.close?.enable) {
+          closeHTML = /*html*/
+          `
+                <div class="pops-header-controls">
+                    <button class="pops-header-control" type="button" data-type="close" data-header>
+                    	<i class="pops-icon">${PopsIcon.getIcon("close")}</i>
+                    </button>
+                </div>`;
+        }
+        resultHTML = closeHTML;
+      }
+      return resultHTML;
+    },
+    /**
+     * 获取标题style
+     * @param type 弹窗类型
+     * @param config 弹窗配置
+     */
+    createHeaderStyle(type, config) {
+      return {
+        headerStyle: config?.title?.html ? config?.title?.style || "" : "",
+        headerPStyle: config?.title?.html ? "" : config?.title?.style || ""
+      };
+    },
+    /**
+     * 获取底部按钮层HTML
+     * @param type
+     * @param config
+     */
+    createBottom(type, config) {
+      if (config.btn == null) {
+        return "";
+      }
+      let confirm_config = config;
+      if (!(config.btn?.ok?.enable || confirm_config.btn?.cancel?.enable || confirm_config.btn?.other?.enable)) {
+        return "";
+      }
+      let btnStyle = "";
+      let resultHTML = "";
+      let okHTML = "";
+      let cancelHTML = "";
+      let ohterHTML = "";
+      if (config.btn.position) {
+        btnStyle += `justify-content: ${config.btn.position};`;
+      }
+      if (confirm_config.btn.reverse) {
+        btnStyle += "flex-direction: row-reverse;";
+      }
+      if (config.btn?.ok?.enable) {
+        let okButtonSizeClassName = "";
+        if (config.btn.ok.size === "large") {
+          okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
+        } else if (config.btn.ok.size === "small") {
+          okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
+        }
+        let okIconHTML = "";
+        let okIcon = confirm_config.btn.ok.icon;
+        if (okIcon !== "") {
+          let iconHTML = "";
+          if (PopsIcon.hasIcon(okIcon)) {
+            iconHTML = PopsIcon.getIcon(okIcon);
+          } else {
+            iconHTML = okIcon;
+          }
+          iconHTML = iconHTML || "";
+          okIconHTML = /*html*/
+          `<i class="pops-bottom-icon" is-loading="${config.btn.ok.iconIsLoading}">${iconHTML}</i>`;
+        }
+        okHTML = /*html*/
+        `
+            <button 
+				class="pops-${type}-btn-ok ${okButtonSizeClassName}"
+				type="button"
+				data-type="${confirm_config.btn.ok?.type}"
+				data-has-icon="${(confirm_config.btn.ok.icon || "") !== ""}"
+				data-rightIcon="${confirm_config.btn.ok?.rightIcon}"
+            >${okIconHTML}<span>${config.btn.ok.text}</span>
+            </button>`;
+      }
+      if (confirm_config.btn?.cancel?.enable) {
+        let cancelButtonSizeClassName = "";
+        if (confirm_config.btn.cancel.size === "large") {
+          cancelButtonSizeClassName = "pops-button-" + confirm_config.btn.cancel.size;
+        } else if (confirm_config.btn.cancel.size === "small") {
+          cancelButtonSizeClassName = "pops-button-" + confirm_config.btn.cancel.size;
+        }
+        let cancelIconHTML = "";
+        let cancelIcon = confirm_config.btn.cancel.icon;
+        if (cancelIcon !== "") {
+          let iconHTML = "";
+          if (PopsIcon.hasIcon(cancelIcon)) {
+            iconHTML = PopsIcon.getIcon(cancelIcon);
+          } else {
+            iconHTML = cancelIcon;
+          }
+          iconHTML = iconHTML || "";
+          cancelIconHTML = /*html*/
+          `<i class="pops-bottom-icon" is-loading="${confirm_config.btn.cancel.iconIsLoading}">${iconHTML}</i>`;
+        }
+        cancelHTML = /*html*/
+        `
+            <button
+				class="pops-${type}-btn-cancel ${cancelButtonSizeClassName}"
+				type="button"
+				data-type="${confirm_config.btn.cancel.type}"
+				data-has-icon="${(confirm_config.btn.cancel.icon || "") !== ""}"
+				data-rightIcon="${confirm_config.btn.cancel.rightIcon}"
+            >${cancelIconHTML}<span>${confirm_config.btn.cancel.text}</span>
+            </button>`;
+      }
+      if (confirm_config.btn?.other?.enable) {
+        let otherButtonSizeClassName = "";
+        if (confirm_config.btn.other.size === "large") {
+          otherButtonSizeClassName = "pops-button-" + confirm_config.btn.other.size;
+        } else if (confirm_config.btn.other.size === "small") {
+          otherButtonSizeClassName = "pops-button-" + confirm_config.btn.other.size;
+        }
+        let otherIconHTML = "";
+        let otherIcon = confirm_config.btn.other.icon;
+        if (otherIcon !== "") {
+          let iconHTML = "";
+          if (PopsIcon.hasIcon(otherIcon)) {
+            iconHTML = PopsIcon.getIcon(otherIcon);
+          }
+          iconHTML = iconHTML || "";
+          otherIconHTML = /*html*/
+          `<i class="pops-bottom-icon" is-loading="${confirm_config.btn.other.iconIsLoading}">${iconHTML}</i>`;
+        }
+        ohterHTML = /*html*/
+        `
+            <button
+				class="pops-${type}-btn-other ${otherButtonSizeClassName}"
+				type="button"
+				data-type="${confirm_config.btn.other.type}"
+				data-has-icon="${(confirm_config.btn.other.icon || "") !== ""}"
+				data-rightIcon="${confirm_config.btn.other.rightIcon}"
+            >${otherIconHTML}<span>${confirm_config.btn.other.text}</span>
+            </button>`;
+      }
+      if (confirm_config.btn.merge) {
+        let flexStyle = "display: flex;";
+        if (confirm_config.btn.mergeReverse) {
+          flexStyle += "flex-direction: row-reverse;";
+        } else {
+          flexStyle += "flex-direction: row;";
+        }
+        resultHTML = /*html*/
+        `
+            <div class="pops-botttom-btn-controls pops-${type}-btn" style="${btnStyle}">${ohterHTML}<div 
+                    class="pops-${type}-btn-merge"
+                    style="${flexStyle}">${okHTML}${cancelHTML}</div>
+            </div>
+            `;
+      } else {
+        resultHTML = /*html*/
+        `<div class="pops-botttom-btn-controls pops-${type}-btn" style="${btnStyle}">${okHTML}${cancelHTML}${ohterHTML}</div>`;
+      }
+      return resultHTML;
+    },
+    /**
+     * 获取内容style
+     * @param type 弹窗类型
+     * @param config 弹窗配置
+     */
+    createContentStyle(type, config) {
+      return {
+        contentStyle: config?.content?.html ? config?.content?.style || "" : "",
+        contentPStyle: config?.content?.html ? "" : config?.content?.style || ""
+      };
+    },
+    /**
+     * 将html转换成元素
+     * @param html
+     */
+    parseElement(html) {
+      return popsDOMUtils.parseTextToDOM(html);
+    }
   };
-  var indexCSS = '@charset "utf-8";\r\n.pops * {\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	margin: 0;\r\n	padding: 0;\r\n	-webkit-tap-highlight-color: transparent;\r\n	/* 代替::-webkit-scrollbar */\r\n	scrollbar-width: thin;\r\n}\r\n.pops {\r\n	--pops-bg-opacity: 1;\r\n	--pops-bd-opacity: 1;\r\n	--pops-font-size: 16px;\r\n	interpolate-size: allow-keywords;\r\n	--pops-color: #000000;\r\n	--pops-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	--pops-bd-color: rgb(235, 238, 245, var(--pops-bd-opacity));\r\n	--pops-box-shadow-color: rgba(0, 0, 0, 0.12);\r\n	--pops-title-color: #000000;\r\n	--pops-title-border-color: rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	--pops-content-color: #000000;\r\n	--pops-bottom-btn-controls-border-color: rgb(\r\n		229,\r\n		229,\r\n		229,\r\n		var(--pops-bd-opacity)\r\n	);\r\n}\r\n@media (prefers-color-scheme: dark) {\r\n	.pops {\r\n		--pops-mask-bg-opacity: 0.8;\r\n		--pops-color: #ffffff;\r\n		--pops-bg-color: rgb(17, 17, 17, var(--pops-bg-opacity));\r\n		--pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));\r\n		--pops-box-shadow-color: rgba(81, 81, 81, 0.12);\r\n		--pops-title-color: #e8e8e8;\r\n		--pops-title-border-color: rgb(229, 229, 229, var(--pops-bd-opacity));\r\n		--pops-content-color: #e5e5e5;\r\n	}\r\n}\r\n.pops {\r\n	color: var(--pops-color);\r\n	background-color: var(--pops-bg-color);\r\n	border: 1px solid var(--pops-bd-color);\r\n	border-radius: 4px;\r\n	font-size: var(--pops-font-size);\r\n	line-height: normal;\r\n	box-shadow: 0 0 12px var(--pops-box-shadow-color);\r\n	box-sizing: border-box;\r\n	overflow: hidden;\r\n	transition: all 0.35s;\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.pops-anim {\r\n	position: fixed;\r\n	top: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n}\r\n.pops-anim[anim=""] {\r\n	top: unset;\r\n	right: unset;\r\n	bottom: unset;\r\n	left: unset;\r\n	width: unset;\r\n	height: unset;\r\n	transition: none;\r\n}\r\n/* 底部图标动画和样式 */\r\n.pops i.pops-bottom-icon[is-loading="true"] {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n.pops i.pops-bottom-icon {\r\n	height: 1em;\r\n	width: 1em;\r\n	line-height: normal;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n	color: inherit;\r\n	font-size: inherit;\r\n}\r\n\r\n/* 遮罩层样式 */\r\n.pops-mask {\r\n	--pops-mask-bg-opacity: 0.4;\r\n	--pops-mask-bg-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));\r\n}\r\n.pops-mask {\r\n	position: fixed;\r\n	top: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n	width: 100%;\r\n	height: 100%;\r\n	border: 0;\r\n	border-radius: 0;\r\n	background-color: var(--pops-mask-bg-color);\r\n	box-shadow: none;\r\n	transition: none;\r\n}\r\n\r\n.pops-header-controls button.pops-header-control[type][data-header] {\r\n	float: right;\r\n	margin: 0 0;\r\n	outline: 0;\r\n	border: 0;\r\n	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\r\n	background-color: transparent;\r\n	color: #888;\r\n	cursor: pointer;\r\n}\r\n.pops-header-controls button.pops-header-control[type="max"],\r\n.pops-header-controls button.pops-header-control[type="mise"],\r\n.pops-header-controls button.pops-header-control[type="min"] {\r\n	outline: 0 !important;\r\n	border: 0;\r\n	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\r\n	background-color: transparent;\r\n	color: rgb(136, 136, 136);\r\n	cursor: pointer;\r\n	transition: all 0.3s ease-in-out;\r\n}\r\nbutton.pops-header-control i {\r\n	color: rgb(144, 147, 153);\r\n	font-size: inherit;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n}\r\nbutton.pops-header-control svg {\r\n	height: 1.25em;\r\n	width: 1.25em;\r\n}\r\nbutton.pops-header-control {\r\n	right: 15px;\r\n	padding: 0;\r\n	border: none;\r\n	outline: 0;\r\n	background: 0 0;\r\n	cursor: pointer;\r\n	position: unset;\r\n	line-height: normal;\r\n}\r\nbutton.pops-header-control i:hover {\r\n	color: rgb(64, 158, 255);\r\n}\r\n.pops-header-controls[data-margin] button.pops-header-control {\r\n	margin: 0 6px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops[type-value] .pops-header-controls {\r\n	display: flex;\r\n	gap: 6px;\r\n}\r\n\r\n/* 代码块 <code> */\r\n.pops code {\r\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\r\n	font-size: 0.85em;\r\n	color: #000;\r\n	background-color: #f0f0f0;\r\n	border-radius: 3px;\r\n	border: 0;\r\n	padding: 0.2em 0;\r\n	white-space: normal;\r\n	background: #f5f5f5;\r\n	text-wrap: wrap;\r\n	text-align: left;\r\n	word-spacing: normal;\r\n	word-break: normal;\r\n	word-wrap: normal;\r\n	line-height: 1.4;\r\n	-moz-tab-size: 8;\r\n	-o-tab-size: 8;\r\n	tab-size: 8;\r\n	-webkit-hyphens: none;\r\n	-moz-hyphens: none;\r\n	-ms-hyphens: none;\r\n	hyphens: none;\r\n	direction: ltr;\r\n}\r\n\r\n.pops code::before,\r\n.pops code::after {\r\n	letter-spacing: -0.2em;\r\n	content: "\\00a0";\r\n}\r\n\r\n/* 标题 */\r\n.pops .pops-title {\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: space-between;\r\n	border-bottom: 1px solid var(--pops-title-border-color);\r\n	width: 100%;\r\n	height: var(--container-title-height);\r\n}\r\n/* 标题-普通文本 */\r\n.pops .pops-title p[pops] {\r\n	color: var(--pops-title-color);\r\n	width: 100%;\r\n	overflow: hidden;\r\n	text-indent: 15px;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n}\r\n\r\n/* 内容 */\r\n.pops .pops-content {\r\n	width: 100%;\r\n	/*height: calc(\r\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\r\n	);*/\r\n	flex: 1;\r\n	overflow: auto;\r\n	word-break: break-word;\r\n}\r\n/* 内容-普通文本 */\r\n.pops .pops-content p[pops] {\r\n	color: var(--pops-content-color);\r\n	padding: 5px 10px;\r\n	text-indent: 15px;\r\n}\r\n\r\n/* 底部-按钮组 */\r\n.pops .pops-botttom-btn-controls {\r\n	display: flex;\r\n	padding: 10px 10px 10px 10px;\r\n	width: 100%;\r\n	height: var(--container-bottom-btn-height);\r\n	max-height: var(--container-bottom-btn-height);\r\n	line-height: normal;\r\n	border-top: 1px solid var(--pops-bottom-btn-controls-border-color);\r\n	text-align: right;\r\n	align-items: center;\r\n}\r\n';
-  var ninePalaceGridPositionCSS = '.pops[position="top_left"] {\r\n	position: fixed;\r\n	top: 0;\r\n	left: 0;\r\n}\r\n.pops[position="top"] {\r\n	position: fixed;\r\n	top: 0;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n}\r\n.pops[position="top_right"] {\r\n	position: fixed;\r\n	top: 0;\r\n	right: 0;\r\n}\r\n.pops[position="center_left"] {\r\n	position: fixed;\r\n	top: 50%;\r\n	left: 0;\r\n	transform: translateY(-50%);\r\n}\r\n.pops[position="center"] {\r\n	position: fixed;\r\n	top: 50%;\r\n	left: 50%;\r\n	transform: translate(-50%, -50%);\r\n}\r\n.pops[position="center_right"] {\r\n	position: fixed;\r\n	top: 50%;\r\n	right: 0;\r\n	transform: translateY(-50%);\r\n}\r\n.pops[position="bottom_left"] {\r\n	position: fixed;\r\n	bottom: 0;\r\n	left: 0;\r\n}\r\n.pops[position="bottom"] {\r\n	position: fixed;\r\n	bottom: 0;\r\n	left: 50%;\r\n	transform: translate(-50%, 0);\r\n}\r\n.pops[position="bottom_right"] {\r\n	position: fixed;\r\n	right: 0;\r\n	bottom: 0;\r\n}\r\n';
-  var scrollbarCSS = "/* firefox上暂不支持::-webkit-scrollbar */\r\n.pops ::-webkit-scrollbar {\r\n	width: 6px;\r\n	height: 0;\r\n}\r\n\r\n.pops ::-webkit-scrollbar-track {\r\n	width: 0;\r\n}\r\n.pops ::-webkit-scrollbar-thumb:hover {\r\n	background: rgb(178, 178, 178, var(--pops-bg-opacity));\r\n}\r\n.pops ::-webkit-scrollbar-thumb {\r\n	min-height: 28px;\r\n	border-radius: 2em;\r\n	background: rgb(204, 204, 204, var(--pops-bg-opacity));\r\n	background-clip: padding-box;\r\n}\r\n";
-  var buttonCSS = '.pops {\r\n	--button-font-size: 14px;\r\n	--button-height: 32px;\r\n	--button-color: rgb(51, 51, 51);\r\n	--button-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n	--button-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n	--button-margin-top: 0px;\r\n	--button-margin-bottom: 0px;\r\n	--button-margin-left: 5px;\r\n	--button-margin-right: 5px;\r\n	--button-padding-top: 6px;\r\n	--button-padding-bottom: 6px;\r\n	--button-padding-left: 12px;\r\n	--button-padding-right: 12px;\r\n	--button-radius: 4px;\r\n\r\n	--container-title-height: 55px;\r\n	--container-bottom-btn-height: 55px;\r\n\r\n	/* default按钮 */\r\n	--button-default-color: #333333;\r\n	--button-default-bd-color: #dcdfe6;\r\n	--button-default-bg-color: #ffffff;\r\n	--button-default-active-color: #409eff;\r\n	--button-default-active-bd-color: #409eff;\r\n	--button-default-active-bg-color: #ecf5ff;\r\n	--button-default-hover-color: #409eff;\r\n	--button-default-hover-bd-color: #c6e2ff;\r\n	--button-default-hover-bg-color: #ecf5ff;\r\n	--button-default-focus-visible-outline-color: #a0cfff;\r\n	--button-default-focus-visible-outline: 2px solid\r\n		var(--button-default-focus-visible-outline-color);\r\n	--button-default-focus-visible-outline-offset: 1px;\r\n	--button-default-disabled-color: #a8abb2;\r\n	--button-default-disabled-bd-color: #ffffff;\r\n	--button-default-disabled-bg-color: #e4e7ed;\r\n\r\n	/* primary按钮 */\r\n	--button-primary-color: #ffffff;\r\n	--button-primary-bd-color: #409eff;\r\n	--button-primary-bg-color: #409eff;\r\n	--button-primary-active-color: #ffffff;\r\n	--button-primary-active-bd-color: #337ecc;\r\n	--button-primary-active-bg-color: #337ecc;\r\n	--button-primary-hover-color: #ffffff;\r\n	--button-primary-hover-bd-color: #79bbff;\r\n	--button-primary-hover-bg-color: #79bbff;\r\n	--button-primary-focus-visible-outline-color: #a0cfff;\r\n	--button-primary-focus-visible-outline: 2px solid\r\n		var(--button-primary-focus-visible-outline-color);\r\n	--button-primary-focus-visible-outline-offset: 1px;\r\n	--button-primary-disabled-color: #ffffff80;\r\n	--button-primary-disabled-bd-color: #a0cfff;\r\n	--button-primary-disabled-bg-color: #a0cfff;\r\n\r\n	/* success按钮 */\r\n	--button-success-color: #ffffff;\r\n	--button-success-bd-color: #4cae4c;\r\n	--button-success-bg-color: #5cb85c;\r\n	--button-success-active-color: #ffffff;\r\n	--button-success-active-bd-color: #529b2e;\r\n	--button-success-active-bg-color: #529b2e;\r\n	--button-success-hover-color: #ffffff;\r\n	--button-success-hover-bd-color: #95d475;\r\n	--button-success-hover-bg-color: #95d475;\r\n	--button-success-focus-visible-outline-color: #b3e19d;\r\n	--button-success-focus-visible-outline: 2px solid\r\n		var(--button-success-focus-visible-outline-color);\r\n	--button-success-focus-visible-outline-offset: 1px;\r\n	--button-success-disabled-color: #ffffff80;\r\n	--button-success-disabled-bd-color: #b3e19d;\r\n	--button-success-disabled-bg-color: #b3e19d;\r\n\r\n	/* info按钮 */\r\n	--button-info-color: #ffffff;\r\n	--button-info-bd-color: #909399;\r\n	--button-info-bg-color: #909399;\r\n	--button-info-active-color: #ffffff;\r\n	--button-info-active-bd-color: #73767a;\r\n	--button-info-active-bg-color: #73767a;\r\n	--button-info-hover-color: #ffffff;\r\n	--button-info-hover-bd-color: #b1b3b8;\r\n	--button-info-hover-bg-color: #b1b3b8;\r\n	--button-info-focus-visible-outline-color: #c8c9cc;\r\n	--button-info-focus-visible-outline: 2px solid\r\n		var(--button-info-focus-visible-outline-color);\r\n	--button-info-focus-visible-outline-offset: 1px;\r\n	--button-info-disabled-color: #ffffff80;\r\n	--button-info-disabled-bd-color: #c8c9cc;\r\n	--button-info-disabled-bg-color: #c8c9cc;\r\n\r\n	/* warning按钮 */\r\n	--button-warning-color: #ffffff;\r\n	--button-warning-bd-color: #e6a23c;\r\n	--button-warning-bg-color: #e6a23c;\r\n	--button-warning-active-color: #ffffff;\r\n	--button-warning-active-bd-color: #b88230;\r\n	--button-warning-active-bg-color: #b88230;\r\n	--button-warning-hover-color: #ffffff80;\r\n	--button-warning-hover-bd-color: #eebe77;\r\n	--button-warning-hover-bg-color: #eebe77;\r\n	--button-warning-focus-visible-outline-color: #f3d19e;\r\n	--button-warning-focus-visible-outline: 2px solid\r\n		var(--button-warning-focus-visible-outline-color);\r\n	--button-warning-focus-visible-outline-offset: 1px;\r\n	--button-warning-disabled-color: #ffffff80;\r\n	--button-warning-disabled-bd-color: #f3d19e;\r\n	--button-warning-disabled-bg-color: #f3d19e;\r\n\r\n	/* danger按钮 */\r\n	--button-danger-color: #ffffff;\r\n	--button-danger-bd-color: #f56c6c;\r\n	--button-danger-bg-color: #f56c6c;\r\n	--button-danger-active-color: #ffffff;\r\n	--button-danger-active-bd-color: #c45656;\r\n	--button-danger-active-bg-color: #c45656;\r\n	--button-danger-hover-color: #ffffff;\r\n	--button-danger-hover-bd-color: #f89898;\r\n	--button-danger-hover-bg-color: #f89898;\r\n	--button-danger-focus-visible-outline-color: #fab6b6;\r\n	--button-danger-focus-visible-outline: 2px solid\r\n		var(--button-danger-focus-visible-outline-color);\r\n	--button-danger-focus-visible-outline-offset: 1px;\r\n	--button-danger-disabled-color: #ffffff80;\r\n	--button-danger-disabled-bd-color: #fab6b6;\r\n	--button-danger-disabled-bg-color: #fab6b6;\r\n\r\n	/* xiaomi-primary按钮 */\r\n	--button-xiaomi-primary-color: #ffffff;\r\n	--button-xiaomi-primary-bd-color: #ff5c00;\r\n	--button-xiaomi-primary-bg-color: #ff5c00;\r\n	--button-xiaomi-primary-active-color: #ffffff;\r\n	--button-xiaomi-primary-active-bd-color: #da4f00;\r\n	--button-xiaomi-primary-active-bg-color: #da4f00;\r\n	--button-xiaomi-primary-hover-color: #ffffff;\r\n	--button-xiaomi-primary-hover-bd-color: #ff7e29;\r\n	--button-xiaomi-primary-hover-bg-color: #ff7e29;\r\n	--button-xiaomi-primary-focus-visible-outline-color: #ffa061;\r\n	--button-xiaomi-primary-focus-visible-outline: 2px solid\r\n		var(--button-xiaomi-primary-focus-visible-outline-color);\r\n	--button-xiaomi-primary-focus-visible-outline-offset: 1px;\r\n	--button-xiaomi-primary-disabled-color: #ffffff80;\r\n	--button-xiaomi-primary-disabled-bd-color: #fad5b6;\r\n	--button-xiaomi-primary-disabled-bg-color: #fad5b6;\r\n\r\n	/* violet按钮 */\r\n	--button-violet-color: #ffffff;\r\n	--button-violet-bd-color: #626aef;\r\n	--button-violet-bg-color: #626aef;\r\n	--button-violet-active-color: #ffffff;\r\n	--button-violet-active-bd-color: #8188f2;\r\n	--button-violet-active-bg-color: #8188f2;\r\n	--button-violet-hover-color: #ffffff;\r\n	--button-violet-hover-bd-color: #4b50ad;\r\n	--button-violet-hover-bg-color: #4b50ad;\r\n	--button-violet-focus-visible-outline-color: #2a598a;\r\n	--button-violet-focus-visible-outline: 2px solid\r\n		var(--button-violet-focus-visible-outline-color);\r\n	--button-violet-focus-visible-outline-offset: 1px;\r\n	--button-violet-disabled-color: #ffffff80;\r\n	--button-violet-disabled-bd-color: #3b3f82;\r\n	--button-violet-disabled-bg-color: #3b3f82;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n	.pops {\r\n		/* default按钮 */\r\n		--button-default-color: #cfd3dc;\r\n		--button-default-bd-color: #4c4d4f;\r\n		--button-default-bg-color: transparent;\r\n		--button-default-active-color: #409eff;\r\n		--button-default-active-bd-color: #409eff;\r\n		--button-default-active-bg-color: #18222c;\r\n		--button-default-hover-color: #409eff;\r\n		--button-default-hover-bd-color: #213d5b;\r\n		--button-default-hover-bg-color: #18222c;\r\n		--button-default-focus-visible-outline-color: #2a598a;\r\n		--button-default-focus-visible-outline: 2px solid\r\n			var(--button-default-focus-visible-outline-color);\r\n		--button-default-focus-visible-outline-offset: 1px;\r\n		--button-default-disabled-color: #ffffff80;\r\n		--button-default-disabled-bd-color: #414243;\r\n		--button-default-disabled-bg-color: transparent;\r\n\r\n		/* primary按钮 */\r\n		--button-primary-color: #ffffff;\r\n		--button-primary-bd-color: #409eff;\r\n		--button-primary-bg-color: #409eff;\r\n		--button-primary-active-color: #ffffff;\r\n		--button-primary-active-bd-color: #66b1ff;\r\n		--button-primary-active-bg-color: #66b1ff;\r\n		--button-primary-hover-color: #ffffff;\r\n		--button-primary-hover-bd-color: #3375b9;\r\n		--button-primary-hover-bg-color: #3375b9;\r\n		--button-primary-focus-visible-outline-color: #2a598a;\r\n		--button-primary-focus-visible-outline: 2px solid\r\n			var(--button-primary-focus-visible-outline-color);\r\n		--button-primary-focus-visible-outline-offset: 1px;\r\n		--button-primary-disabled-color: #ffffff80;\r\n		--button-primary-disabled-bd-color: #2a598a;\r\n		--button-primary-disabled-bg-color: #2a598a;\r\n\r\n		/* success按钮 */\r\n		--button-success-color: #ffffff;\r\n		--button-success-bd-color: #67c23a;\r\n		--button-success-bg-color: #67c23a;\r\n		--button-success-active-color: #ffffff;\r\n		--button-success-active-bd-color: #85ce61;\r\n		--button-success-active-bg-color: #85ce61;\r\n		--button-success-hover-color: #ffffff;\r\n		--button-success-hover-bd-color: #4e8e2f;\r\n		--button-success-hover-bg-color: #4e8e2f;\r\n		--button-success-focus-visible-outline-color: #3e6b27;\r\n		--button-success-focus-visible-outline: 2px solid\r\n			var(--button-success-focus-visible-outline-color);\r\n		--button-success-focus-visible-outline-offset: 1px;\r\n		--button-success-disabled-color: #ffffff80;\r\n		--button-success-disabled-bd-color: #3e6b27;\r\n		--button-success-disabled-bg-color: #3e6b27;\r\n\r\n		/* info按钮 */\r\n		--button-info-color: #ffffff;\r\n		--button-info-bd-color: #909399;\r\n		--button-info-bg-color: #909399;\r\n		--button-info-active-color: #ffffff;\r\n		--button-info-active-bd-color: #a6a9ad;\r\n		--button-info-active-bg-color: #a6a9ad;\r\n		--button-info-hover-color: #ffffff;\r\n		--button-info-hover-bd-color: #6b6d71;\r\n		--button-info-hover-bg-color: #6b6d71;\r\n		--button-info-focus-visible-outline-color: #525457;\r\n		--button-info-focus-visible-outline: 2px solid\r\n			var(--button-info-focus-visible-outline-color);\r\n		--button-info-focus-visible-outline-offset: 1px;\r\n		--button-info-disabled-color: #ffffff80;\r\n		--button-info-disabled-bd-color: #525457;\r\n		--button-info-disabled-bg-color: #525457;\r\n\r\n		/* warning按钮 */\r\n		--button-warning-color: #ffffff;\r\n		--button-warning-bd-color: #e6a23c;\r\n		--button-warning-bg-color: #e6a23c;\r\n		--button-warning-active-color: #ffffff;\r\n		--button-warning-active-bd-color: #ebb563;\r\n		--button-warning-active-bg-color: #ebb563;\r\n		--button-warning-hover-color: #ffffff80;\r\n		--button-warning-hover-bd-color: #a77730;\r\n		--button-warning-hover-bg-color: #a77730;\r\n		--button-warning-focus-visible-outline-color: #7d5b28;\r\n		--button-warning-focus-visible-outline: 2px solid\r\n			var(--button-warning-focus-visible-outline-color);\r\n		--button-warning-focus-visible-outline-offset: 1px;\r\n		--button-warning-disabled-color: #ffffff80;\r\n		--button-warning-disabled-bd-color: #7d5b28;\r\n		--button-warning-disabled-bg-color: #7d5b28;\r\n\r\n		/* danger按钮 */\r\n		--button-danger-color: #ffffff;\r\n		--button-danger-bd-color: #f56c6c;\r\n		--button-danger-bg-color: #f56c6c;\r\n		--button-danger-active-color: #ffffff;\r\n		--button-danger-active-bd-color: #f78989;\r\n		--button-danger-active-bg-color: #f78989;\r\n		--button-danger-hover-color: #ffffff;\r\n		--button-danger-hover-bd-color: #b25252;\r\n		--button-danger-hover-bg-color: #b25252;\r\n		--button-danger-focus-visible-outline-color: #854040;\r\n		--button-danger-focus-visible-outline: 2px solid\r\n			var(--button-danger-focus-visible-outline-color);\r\n		--button-danger-focus-visible-outline-offset: 1px;\r\n		--button-danger-disabled-color: #ffffff80;\r\n		--button-danger-disabled-bd-color: #854040;\r\n		--button-danger-disabled-bg-color: #854040;\r\n	}\r\n}\r\n.pops[data-bottom-btn="false"] {\r\n	--container-bottom-btn-height: 0px;\r\n}\r\n.pops button {\r\n	white-space: nowrap;\r\n	float: right;\r\n	display: inline-block;\r\n	margin: var(--button-margin-top) var(--button-margin-right)\r\n		var(--button-margin-bottom) var(--button-margin-left);\r\n	padding: var(--button-padding-top) var(--button-padding-right)\r\n		var(--button-padding-bottom) var(--button-padding-left);\r\n	outline: 0;\r\n}\r\n.pops button[data-has-icon="false"] .pops-bottom-icon {\r\n	display: none;\r\n}\r\n.pops button {\r\n	border-radius: var(--button-radius);\r\n	box-shadow: none;\r\n	font-weight: 400;\r\n	font-size: var(--button-font-size);\r\n	cursor: pointer;\r\n	transition: all 0.3s ease-in-out;\r\n}\r\n.pops button {\r\n	display: flex;\r\n	align-items: center;\r\n	height: var(--button-height);\r\n	line-height: normal;\r\n	box-sizing: border-box;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	border: 1px solid var(--button-bd-color);\r\n}\r\n.pops button {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button:active {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n	outline: 0;\r\n}\r\n.pops button:hover {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button:focus-visible {\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button:disabled {\r\n	cursor: not-allowed;\r\n	color: var(--button-color);\r\n	border-color: var(--button-bd-color);\r\n	background-color: var(--button-bg-color);\r\n}\r\n.pops button.pops-button-large {\r\n	--button-height: 32px;\r\n	--button-padding-top: 12px;\r\n	--button-padding-bottom: 12px;\r\n	--button-padding-left: 19px;\r\n	--button-padding-right: 19px;\r\n	--button-font-size: 14px;\r\n	--button-border-radius: 4px;\r\n}\r\n\r\n.pops button.pops-button-small {\r\n	--button-height: 24px;\r\n	--button-padding-top: 5px;\r\n	--button-padding-bottom: 5px;\r\n	--button-padding-left: 11px;\r\n	--button-padding-right: 11px;\r\n	--button-font-size: 12px;\r\n	--button-border-radius: 4px;\r\n}\r\n.pops-panel-button-no-icon .pops-panel-button_inner i {\r\n	display: none;\r\n}\r\n.pops-panel-button-right-icon {\r\n}\r\n.pops-panel-button-right-icon .pops-panel-button_inner {\r\n	flex-direction: row-reverse;\r\n}\r\n.pops-panel-button-right-icon .pops-panel-button_inner i {\r\n}\r\n.pops-panel-button .pops-panel-button_inner i:has(svg),\r\n.pops-panel-button-right-icon .pops-panel-button-text {\r\n	margin-right: 6px;\r\n}\r\n\r\n.pops button[type="default"] {\r\n	--button-color: var(--button-default-color);\r\n	--button-bd-color: var(--button-default-bd-color);\r\n	--button-bg-color: var(--button-default-bg-color);\r\n}\r\n.pops button[type="default"]:active {\r\n	--button-color: var(--button-default-active-color);\r\n	--button-bd-color: var(--button-default-active-bd-color);\r\n	--button-bg-color: var(--button-default-active-bg-color);\r\n}\r\n.pops button[type="default"]:hover {\r\n	--button-color: var(--button-default-hover-color);\r\n	--button-bd-color: var(--button-default-hover-bd-color);\r\n	--button-bg-color: var(--button-default-hover-bg-color);\r\n}\r\n.pops button[type="default"]:focus-visible {\r\n	outline: var(--button-default-focus-visible-outline);\r\n	outline-offset: var(--button-default-focus-visible-outline-offset);\r\n}\r\n.pops button[type="default"]:disabled {\r\n	--button-color: var(--button-default-disabled-color);\r\n	--button-bd-color: var(--button-default-disabled-bd-color);\r\n	--button-bg-color: var(--button-default-disabled-bg-color);\r\n}\r\n\r\n.pops button[type="primary"] {\r\n	--button-color: var(--button-primary-color);\r\n	--button-bd-color: var(--button-primary-bd-color);\r\n	--button-bg-color: var(--button-primary-bg-color);\r\n}\r\n.pops button[type="primary"]:active {\r\n	--button-color: var(--button-primary-active-color);\r\n	--button-bd-color: var(--button-primary-active-bd-color);\r\n	--button-bg-color: var(--button-primary-active-bg-color);\r\n}\r\n.pops button[type="primary"]:hover {\r\n	--button-color: var(--button-primary-hover-color);\r\n	--button-bd-color: var(--button-primary-hover-bd-color);\r\n	--button-bg-color: var(--button-primary-hover-bg-color);\r\n}\r\n.pops button[type="primary"]:focus-visible {\r\n	outline: var(--button-primary-focus-visible-outline);\r\n	outline-offset: var(--button-primary-focus-visible-outline-offset);\r\n}\r\n.pops button[type="primary"]:disabled {\r\n	--button-color: var(--button-primary-disabled-color);\r\n	--button-bd-color: var(--button-primary-disabled-bd-color);\r\n	--button-bg-color: var(--button-primary-disabled-bg-color);\r\n}\r\n\r\n.pops button[type="success"] {\r\n	--button-color: var(--button-success-color);\r\n	--button-bd-color: var(--button-success-bd-color);\r\n	--button-bg-color: var(--button-success-bg-color);\r\n}\r\n.pops button[type="success"]:active {\r\n	--button-color: var(--button-success-active-color);\r\n	--button-bd-color: var(--button-success-active-bd-color);\r\n	--button-bg-color: var(--button-success-active-bg-color);\r\n}\r\n.pops button[type="success"]:hover {\r\n	--button-color: var(--button-success-hover-color);\r\n	--button-bd-color: var(--button-success-hover-bd-color);\r\n	--button-bg-color: var(--button-success-hover-bg-color);\r\n}\r\n.pops button[type="success"]:focus-visible {\r\n	outline: var(--button-success-focus-visible-outline);\r\n	outline-offset: var(--button-success-focus-visible-outline-offset);\r\n}\r\n.pops button[type="success"]:disabled {\r\n	--button-color: var(--button-success-disabled-color);\r\n	--button-bd-color: var(--button-success-disabled-bd-color);\r\n	--button-bg-color: var(--button-success-disabled-bg-color);\r\n}\r\n\r\n.pops button[type="info"] {\r\n	--button-color: var(--button-info-color);\r\n	--button-bd-color: var(--button-info-bd-color);\r\n	--button-bg-color: var(--button-info-bg-color);\r\n}\r\n.pops button[type="info"]:active {\r\n	--button-color: var(--button-info-active-color);\r\n	--button-bd-color: var(--button-info-active-bd-color);\r\n	--button-bg-color: var(--button-info-active-bg-color);\r\n}\r\n.pops button[type="info"]:hover {\r\n	--button-color: var(--button-info-hover-color);\r\n	--button-bd-color: var(--button-info-hover-bd-color);\r\n	--button-bg-color: var(--button-info-hover-bg-color);\r\n}\r\n.pops button[type="info"]:focus-visible {\r\n	outline: var(--button-info-focus-visible-outline);\r\n	outline-offset: var(--button-info-focus-visible-outline-offset);\r\n}\r\n.pops button[type="info"]:disabled {\r\n	--button-color: var(--button-success-disabled-color);\r\n	--button-bd-color: var(--button-success-disabled-bd-color);\r\n	--button-bg-color: var(--button-success-disabled-bg-color);\r\n}\r\n\r\n.pops button[type="warning"] {\r\n	--button-color: var(--button-warning-color);\r\n	--button-bd-color: var(--button-warning-bd-color);\r\n	--button-bg-color: var(--button-warning-bg-color);\r\n}\r\n.pops button[type="warning"]:active {\r\n	--button-color: var(--button-warning-active-color);\r\n	--button-bd-color: var(--button-warning-active-bd-color);\r\n	--button-bg-color: var(--button-warning-active-bg-color);\r\n}\r\n.pops button[type="warning"]:hover {\r\n	--button-color: var(--button-warning-hover-color);\r\n	--button-bd-color: var(--button-warning-hover-bd-color);\r\n	--button-bg-color: var(--button-warning-hover-bg-color);\r\n}\r\n.pops button[type="warning"]:focus-visible {\r\n	outline: var(--button-warning-focus-visible-outline);\r\n	outline-offset: var(--button-warning-focus-visible-outline-offset);\r\n}\r\n.pops button[type="warning"]:disabled {\r\n	--button-color: var(--button-success-disabled-color);\r\n	--button-bd-color: var(--button-success-disabled-bd-color);\r\n	--button-bg-color: var(--button-success-disabled-bg-color);\r\n}\r\n\r\n.pops button[type="danger"] {\r\n	--button-color: var(--button-danger-color);\r\n	--button-bd-color: var(--button-danger-bd-color);\r\n	--button-bg-color: var(--button-danger-bg-color);\r\n}\r\n.pops button[type="danger"]:active {\r\n	--button-color: var(--button-danger-active-color);\r\n	--button-bd-color: var(--button-danger-active-bd-color);\r\n	--button-bg-color: var(--button-danger-active-bg-color);\r\n}\r\n.pops button[type="danger"]:hover {\r\n	--button-color: var(--button-danger-hover-color);\r\n	--button-bd-color: var(--button-danger-hover-bd-color);\r\n	--button-bg-color: var(--button-danger-hover-bg-color);\r\n}\r\n.pops button[type="danger"]:focus-visible {\r\n	outline: var(--button-danger-focus-visible-outline);\r\n	outline-offset: var(--button-danger-focus-visible-outline-offset);\r\n}\r\n.pops button[type="danger"]:disabled {\r\n	--button-color: var(--button-success-disabled-color);\r\n	--button-bd-color: var(--button-success-disabled-bd-color);\r\n	--button-bg-color: var(--button-success-disabled-bg-color);\r\n}\r\n\r\n.pops button[type="xiaomi-primary"] {\r\n	--button-color: var(--button-xiaomi-primary-color);\r\n	--button-bd-color: var(--button-xiaomi-primary-bd-color);\r\n	--button-bg-color: var(--button-xiaomi-primary-bg-color);\r\n}\r\n.pops button[type="xiaomi-primary"]:active {\r\n	--button-color: var(--button-xiaomi-primary-active-color);\r\n	--button-bd-color: var(--button-xiaomi-primary-active-bd-color);\r\n	--button-bg-color: var(--button-xiaomi-primary-active-bg-color);\r\n}\r\n.pops button[type="xiaomi-primary"]:hover {\r\n	--button-color: var(--button-xiaomi-primary-hover-color);\r\n	--button-bd-color: var(--button-xiaomi-primary-hover-bd-color);\r\n	--button-bg-color: var(--button-xiaomi-primary-hover-bg-color);\r\n}\r\n.pops button[type="xiaomi-primary"]:focus-visible {\r\n	outline: var(--button-xiaomi-primary-focus-visible-outline);\r\n	outline-offset: var(--button-xiaomi-primary-focus-visible-outline-offset);\r\n}\r\n.pops button[type="xiaomi-primary"]:disabled {\r\n	--button-color: var(--button-success-disabled-color);\r\n	--button-bd-color: var(--button-success-disabled-bd-color);\r\n	--button-bg-color: var(--button-success-disabled-bg-color);\r\n}\r\n';
-  var commonCSS = ".pops-flex-items-center {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops-flex-y-center {\r\n	display: flex;\r\n	justify-content: space-between;\r\n}\r\n.pops-flex-x-center {\r\n	display: flex;\r\n	align-content: center;\r\n}\r\n.pops-hide {\r\n	display: none;\r\n}\r\n.pops-hide-important {\r\n	display: none !important;\r\n}\r\n.pops-no-border {\r\n	border: 0;\r\n}\r\n.pops-no-border-important {\r\n	border: 0 !important;\r\n}\r\n.pops-user-select-none {\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-ms-user-select: none;\r\n	-moz-user-select: none;\r\n}\r\n.pops-line-height-center {\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops-width-fill {\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n}\r\n";
-  var animCSS = '@keyframes rotating {\r\n	0% {\r\n		transform: rotate(0);\r\n	}\r\n	to {\r\n		transform: rotate(360deg);\r\n	}\r\n}\r\n@keyframes iframeLoadingChange_85 {\r\n	0% {\r\n		background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n	}\r\n	20% {\r\n		background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\r\n	}\r\n	40% {\r\n		background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\r\n	}\r\n	60% {\r\n		background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\r\n	}\r\n	80% {\r\n		background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\r\n	}\r\n	100% {\r\n		background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\r\n	}\r\n	from {\r\n		width: 75%;\r\n	}\r\n	to {\r\n		width: 100%;\r\n	}\r\n}\r\n@keyframes iframeLoadingChange {\r\n	0% {\r\n		background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n	}\r\n	20% {\r\n		background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\r\n	}\r\n	40% {\r\n		background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\r\n	}\r\n	60% {\r\n		background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\r\n	}\r\n	80% {\r\n		background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\r\n	}\r\n	100% {\r\n		background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\r\n	}\r\n	from {\r\n		width: 0;\r\n	}\r\n	to {\r\n		width: 75%;\r\n	}\r\n}\r\n\r\n@keyframes searchSelectFalIn {\r\n	from {\r\n		opacity: 0;\r\n		display:none;\r\n	}\r\n	to {\r\n		display:block;\r\n		opacity: 1;\r\n	}\r\n}\r\n@keyframes searchSelectFalOut {\r\n	from {\r\n		display:block;\r\n		opacity: 1;\r\n	}\r\n	to {\r\n		opacity: 0;\r\n		display:none;\r\n	}\r\n}\r\n\r\n@keyframes pops-anim-wait-rotate {\r\n	form {\r\n		transform: rotate(0);\r\n	}\r\n	to {\r\n		transform: rotate(360deg);\r\n	}\r\n}\r\n@keyframes pops-anim-spread {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scaleX(0);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scaleX(1);\r\n	}\r\n}\r\n@keyframes pops-anim-shake {\r\n	0%,\r\n	100% {\r\n		transform: translateX(0);\r\n	}\r\n	10%,\r\n	30%,\r\n	50%,\r\n	70%,\r\n	90% {\r\n		transform: translateX(-10px);\r\n	}\r\n	20%,\r\n	40%,\r\n	60%,\r\n	80% {\r\n		transform: translateX(10px);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-left {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateX(-100%) rotate(-120deg);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-right {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateX(100%) rotate(120deg);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-top {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateY(-200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-bottom {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateY(200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-left {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateX(-200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-right {\r\n	0% {\r\n		transform: translateX(200%);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein {\r\n	0% {\r\n		opacity: 0;\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-zoom {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale(0.5);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scale(1);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-alert {\r\n	0% {\r\n		transform: scale(0.5);\r\n	}\r\n	45% {\r\n		transform: scale(1.05);\r\n	}\r\n	80% {\r\n		transform: scale(0.95);\r\n	}\r\n	100% {\r\n		transform: scale(1);\r\n	}\r\n}\r\n@keyframes pops-anim-don {\r\n	0% {\r\n		opacity: 0;\r\n		transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	2.08333% {\r\n		transform: matrix3d(\r\n			0.75266,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.76342,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	4.16667% {\r\n		transform: matrix3d(\r\n			0.81071,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.84545,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	6.25% {\r\n		transform: matrix3d(\r\n			0.86808,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.9286,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	8.33333% {\r\n		transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	10.4167% {\r\n		transform: matrix3d(\r\n			0.96482,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.05202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	12.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	14.5833% {\r\n		transform: matrix3d(\r\n			1.02563,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.09149,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	16.6667% {\r\n		transform: matrix3d(\r\n			1.04227,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.08453,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	18.75% {\r\n		transform: matrix3d(\r\n			1.05102,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.06666,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	20.8333% {\r\n		transform: matrix3d(\r\n			1.05334,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.04355,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	22.9167% {\r\n		transform: matrix3d(\r\n			1.05078,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.02012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	25% {\r\n		transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	27.0833% {\r\n		transform: matrix3d(\r\n			1.03699,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98534,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	29.1667% {\r\n		transform: matrix3d(\r\n			1.02831,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97688,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	31.25% {\r\n		transform: matrix3d(\r\n			1.01973,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97422,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	33.3333% {\r\n		transform: matrix3d(\r\n			1.01191,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97618,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	35.4167% {\r\n		transform: matrix3d(\r\n			1.00526,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98122,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	37.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	39.5833% {\r\n		transform: matrix3d(\r\n			0.99617,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99433,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	41.6667% {\r\n		transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	43.75% {\r\n		transform: matrix3d(\r\n			0.99237,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00413,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	45.8333% {\r\n		transform: matrix3d(\r\n			0.99202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00651,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	47.9167% {\r\n		transform: matrix3d(\r\n			0.99241,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00726,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	50% {\r\n		opacity: 1;\r\n		transform: matrix3d(\r\n			0.99329,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00671,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	52.0833% {\r\n		transform: matrix3d(\r\n			0.99447,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00529,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	54.1667% {\r\n		transform: matrix3d(\r\n			0.99577,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00346,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	56.25% {\r\n		transform: matrix3d(\r\n			0.99705,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.0016,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	58.3333% {\r\n		transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	60.4167% {\r\n		transform: matrix3d(\r\n			0.99921,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99884,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	62.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	64.5833% {\r\n		transform: matrix3d(\r\n			1.00057,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99795,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	66.6667% {\r\n		transform: matrix3d(\r\n			1.00095,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99811,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	68.75% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99851,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	70.8333% {\r\n		transform: matrix3d(\r\n			1.00119,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99903,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	72.9167% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99955,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	75% {\r\n		transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	77.0833% {\r\n		transform: matrix3d(\r\n			1.00083,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00033,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	79.1667% {\r\n		transform: matrix3d(\r\n			1.00063,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00052,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	81.25% {\r\n		transform: matrix3d(\r\n			1.00044,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00058,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	83.3333% {\r\n		transform: matrix3d(\r\n			1.00027,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00053,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	85.4167% {\r\n		transform: matrix3d(\r\n			1.00012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00042,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	87.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	89.5833% {\r\n		transform: matrix3d(\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00013,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	91.6667% {\r\n		transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	93.75% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	95.8333% {\r\n		transform: matrix3d(\r\n			0.99982,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99985,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	97.9167% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99984,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-roll {\r\n	0% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\r\n	}\r\n	100% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\r\n	}\r\n}\r\n@keyframes pops-anim-sandra {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale3d(1.1, 1.1, 1);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scale3d(1, 1, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-gather {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale(5, 0);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: scale(1, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-spread-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: scaleX(1);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scaleX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-shake-reverse {\r\n	0%,\r\n	100% {\r\n		transform: translateX(10px);\r\n	}\r\n	10%,\r\n	30%,\r\n	50%,\r\n	70%,\r\n	90% {\r\n		transform: translateX(-10px);\r\n	}\r\n	20%,\r\n	40%,\r\n	60%,\r\n	80% {\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-left-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateX(-100%) rotate(-120deg);\r\n	}\r\n}\r\n@keyframes pops-anim-rolling-right-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0) rotate(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateX(100%) rotate(120deg);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-top-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateY(-200%);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-bottom-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateY(200%);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-left-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateX(-200%);\r\n	}\r\n}\r\n@keyframes pops-anim-slide-right-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		transform: translateX(200%);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-reverse {\r\n	0% {\r\n		opacity: 1;\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-zoom-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: scale(1);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scale(0.5);\r\n	}\r\n}\r\n@keyframes pops-anim-fadein-alert-reverse {\r\n	0% {\r\n		transform: scale(1);\r\n	}\r\n	45% {\r\n		transform: scale(0.95);\r\n	}\r\n	80% {\r\n		transform: scale(1.05);\r\n	}\r\n	100% {\r\n		transform: scale(0.5);\r\n	}\r\n}\r\n@keyframes pops-anim-don-reverse {\r\n	100% {\r\n		opacity: 0;\r\n		transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	97.9167% {\r\n		transform: matrix3d(\r\n			0.75266,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.76342,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	95.8333% {\r\n		transform: matrix3d(\r\n			0.81071,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.84545,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	93.75% {\r\n		transform: matrix3d(\r\n			0.86808,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.9286,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	91.6667% {\r\n		transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	89.5833% {\r\n		transform: matrix3d(\r\n			0.96482,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.05202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	87.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	85.4167% {\r\n		transform: matrix3d(\r\n			1.02563,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.09149,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	83.3333% {\r\n		transform: matrix3d(\r\n			1.04227,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.08453,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	81.25% {\r\n		transform: matrix3d(\r\n			1.05102,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.06666,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	79.1667% {\r\n		transform: matrix3d(\r\n			1.05334,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.04355,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	77.0833% {\r\n		transform: matrix3d(\r\n			1.05078,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.02012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	75% {\r\n		transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	72.9167% {\r\n		transform: matrix3d(\r\n			1.03699,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98534,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	70.8333% {\r\n		transform: matrix3d(\r\n			1.02831,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97688,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	68.75% {\r\n		transform: matrix3d(\r\n			1.01973,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97422,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	66.6667% {\r\n		transform: matrix3d(\r\n			1.01191,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.97618,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	64.5833% {\r\n		transform: matrix3d(\r\n			1.00526,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.98122,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	62.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	60.4167% {\r\n		transform: matrix3d(\r\n			0.99617,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99433,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	58.3333% {\r\n		transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	56.25% {\r\n		transform: matrix3d(\r\n			0.99237,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00413,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	54.1667% {\r\n		transform: matrix3d(\r\n			0.99202,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00651,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	52.0833% {\r\n		transform: matrix3d(\r\n			0.99241,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00726,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	50% {\r\n		opacity: 1;\r\n		transform: matrix3d(\r\n			0.99329,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00671,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	47.9167% {\r\n		transform: matrix3d(\r\n			0.99447,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00529,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	45.8333% {\r\n		transform: matrix3d(\r\n			0.99577,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00346,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	43.75% {\r\n		transform: matrix3d(\r\n			0.99705,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.0016,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	41.6667% {\r\n		transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	39.5833% {\r\n		transform: matrix3d(\r\n			0.99921,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99884,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	37.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	35.4167% {\r\n		transform: matrix3d(\r\n			1.00057,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99795,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	33.3333% {\r\n		transform: matrix3d(\r\n			1.00095,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99811,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	31.25% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99851,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	29.1667% {\r\n		transform: matrix3d(\r\n			1.00119,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99903,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	27.0833% {\r\n		transform: matrix3d(\r\n			1.00114,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99955,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	25% {\r\n		transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	22.9167% {\r\n		transform: matrix3d(\r\n			1.00083,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00033,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	20.8333% {\r\n		transform: matrix3d(\r\n			1.00063,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00052,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	18.75% {\r\n		transform: matrix3d(\r\n			1.00044,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00058,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	16.6667% {\r\n		transform: matrix3d(\r\n			1.00027,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00053,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	14.5833% {\r\n		transform: matrix3d(\r\n			1.00012,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00042,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	12.5% {\r\n		transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	10.4167% {\r\n		transform: matrix3d(\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1.00013,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	8.33333% {\r\n		transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\r\n	}\r\n	6.25% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99991,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	4.16667% {\r\n		transform: matrix3d(\r\n			0.99982,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99985,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	2.08333% {\r\n		transform: matrix3d(\r\n			0.99983,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			0.99984,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1\r\n		);\r\n	}\r\n	0% {\r\n		opacity: 1;\r\n		transform: matrix3d(\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0,\r\n			1,\r\n			0,\r\n			0,\r\n			0,\r\n			0type=close,\r\n			1\r\n		);\r\n	}\r\n}\r\n@keyframes pops-anim-roll-reverse {\r\n	0% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\r\n	}\r\n	100% {\r\n		transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\r\n	}\r\n}\r\n@keyframes pops-anim-sandra-reverse {\r\n	0% {\r\n		opacity: 1;\r\n		transform: scale3d(1, 1, 1);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scale3d(1.1, 1.1, 1);\r\n	}\r\n}\r\n@keyframes pops-anim-gather-reverse {\r\n	0% {\r\n		opacity: 0;\r\n		transform: scale(5, 0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: scale(5, 0);\r\n	}\r\n}\r\n\r\n@-webkit-keyframes pops-motion-fadeInTop {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(-30px);\r\n		transform: translateY(-30px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInTop {\r\n	0% {\r\n		opacity: 0;\r\n		transform: translateY(-30px);\r\n		-ms-transform: translateY(-30px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutTop {\r\n	0% {\r\n		opacity: 10;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(-30px);\r\n		transform: translateY(-30px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutTop {\r\n	0% {\r\n		opacity: 1;\r\n		transform: translateY(0);\r\n		-ms-transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		transform: translateY(-30px);\r\n		-ms-transform: translateY(-30px);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeInBottom {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInBottom {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n		-ms-transform: translateY(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n		-ms-transform: translateY(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutBottom {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutBottom {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateY(0);\r\n		transform: translateY(0);\r\n		-ms-transform: translateY(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateY(20px);\r\n		transform: translateY(20px);\r\n		-ms-transform: translateY(20px);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeInLeft {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-20px);\r\n		transform: translateX(-20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInLeft {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-30px);\r\n		transform: translateX(-30px);\r\n		-ms-transform: translateX(-30px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutLeft {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-30px);\r\n		transform: translateX(-30px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutLeft {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(-20px);\r\n		transform: translateX(-20px);\r\n		-ms-transform: translateX(-20px);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeInRight {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeInRight {\r\n	0% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n		-ms-transform: translateX(20px);\r\n	}\r\n	100% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n}\r\n@-webkit-keyframes pops-motion-fadeOutRight {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n	}\r\n}\r\n@keyframes pops-motion-fadeOutRight {\r\n	0% {\r\n		opacity: 1;\r\n		-webkit-transform: translateX(0);\r\n		transform: translateX(0);\r\n		-ms-transform: translateX(0);\r\n	}\r\n	100% {\r\n		opacity: 0;\r\n		-webkit-transform: translateX(20px);\r\n		transform: translateX(20px);\r\n		-ms-transform: translateX(20px);\r\n	}\r\n}\r\n\r\n/* 动画 */\r\n.pops-anim[anim="pops-anim-spread"] {\r\n	animation: pops-anim-spread 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-shake"] {\r\n	animation: pops-anim-shake 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-left"] {\r\n	animation: pops-anim-rolling-left 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-right"] {\r\n	animation: pops-anim-rolling-right 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-top"] {\r\n	animation: pops-anim-slide-top 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-bottom"] {\r\n	animation: pops-anim-slide-bottom 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-left"] {\r\n	animation: pops-anim-slide-left 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-right"] {\r\n	animation: pops-anim-slide-right 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein"] {\r\n	animation: pops-anim-fadein 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-zoom"] {\r\n	animation: pops-anim-fadein-zoom 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-alert"] {\r\n	animation: pops-anim-fadein-alert 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-don"] {\r\n	animation: pops-anim-don 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-roll"] {\r\n	animation: pops-anim-roll 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-sandra"] {\r\n	animation: pops-anim-sandra 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-gather"] {\r\n	animation: pops-anim-gather 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-spread-reverse"] {\r\n	animation: pops-anim-spread-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-shake-reverse"] {\r\n	animation: pops-anim-shake-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-left-reverse"] {\r\n	animation: pops-anim-rolling-left-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-rolling-right-reverse"] {\r\n	animation: pops-anim-rolling-right-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-top-reverse"] {\r\n	animation: pops-anim-slide-top-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-bottom-reverse"] {\r\n	animation: pops-anim-slide-bottom-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-left-reverse"] {\r\n	animation: pops-anim-slide-left-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-slide-right-reverse"] {\r\n	animation: pops-anim-slide-right-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-reverse"] {\r\n	animation: pops-anim-fadein-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-zoom-reverse"] {\r\n	animation: pops-anim-fadein-zoom-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-fadein-alert-reverse"] {\r\n	animation: pops-anim-fadein-alert-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-don-reverse"] {\r\n	animation: pops-anim-don-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-roll-reverse"] {\r\n	animation: pops-anim-roll-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-sandra-reverse"] {\r\n	animation: pops-anim-sandra-reverse 0.3s;\r\n}\r\n.pops-anim[anim="pops-anim-gather-reverse"] {\r\n	animation: pops-anim-gather-reverse 0.3s;\r\n}\r\n';
+  var indexCSS = '@charset "utf-8";\n.pops * {\n	-webkit-box-sizing: border-box;\n	box-sizing: border-box;\n	margin: 0;\n	padding: 0;\n	-webkit-tap-highlight-color: transparent;\n	/* 代替::-webkit-scrollbar */\n	scrollbar-width: thin;\n}\n.pops {\n	--pops-bg-opacity: 1;\n	--pops-bd-opacity: 1;\n	--pops-font-size: 16px;\n	interpolate-size: allow-keywords;\n	--pops-color: #000000;\n	--pops-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	--pops-bd-color: rgb(235, 238, 245, var(--pops-bd-opacity));\n	--pops-box-shadow-color: rgba(0, 0, 0, 0.12);\n	--pops-title-color: #000000;\n	--pops-title-border-color: var(--pops-bd-color);\n	--pops-content-color: #000000;\n	--pops-bottom-btn-controls-border-color: var(--pops-bd-color);\n	--pops-components-is-disabled-text-color: #a8abb2;\n	--pops-components-is-disabled-bg-color: #f5f7fa;\n}\n@media (prefers-color-scheme: dark) {\n	.pops {\n		--pops-mask-bg-opacity: 0.8;\n		--pops-color: #ffffff;\n		--pops-bg-color: rgb(17, 17, 17, var(--pops-bg-opacity));\n		--pops-bd-color: rgb(55, 55, 55, var(--pops-bd-opacity));\n		--pops-box-shadow-color: rgba(81, 81, 81, 0.12);\n		--pops-title-color: #e8e8e8;\n		--pops-title-border-color: var(--pops-bd-color);\n		--pops-content-color: #e5e5e5;\n		--pops-components-is-disabled-text-color: #a8abb2;\n		--pops-components-is-disabled-bg-color: #262727;\n	}\n}\n.pops {\n	color: var(--pops-color);\n	background-color: var(--pops-bg-color);\n	border: 1px solid var(--pops-bd-color);\n	border-radius: 4px;\n	font-size: var(--pops-font-size);\n	line-height: normal;\n	box-shadow: 0 0 12px var(--pops-box-shadow-color);\n	box-sizing: border-box;\n	overflow: hidden;\n	transition: all 0.35s;\n	display: flex;\n	flex-direction: column;\n}\n.pops-anim {\n	position: fixed;\n	top: 0;\n	right: 0;\n	bottom: 0;\n	left: 0;\n	width: 100%;\n	height: 100%;\n}\n.pops-anim[anim=""] {\n	top: unset;\n	right: unset;\n	bottom: unset;\n	left: unset;\n	width: unset;\n	height: unset;\n	transition: none;\n}\n/* 底部图标动画和样式 */\n.pops i.pops-bottom-icon[is-loading="true"] {\n	animation: rotating 2s linear infinite;\n}\n.pops i.pops-bottom-icon {\n	height: 1em;\n	width: 1em;\n	line-height: normal;\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	position: relative;\n	fill: currentColor;\n	color: inherit;\n	font-size: inherit;\n}\n\n/* 遮罩层样式 */\n.pops-mask {\n	--pops-mask-bg-opacity: 0.4;\n	--pops-mask-bg-color: rgba(0, 0, 0, var(--pops-mask-bg-opacity));\n}\n.pops-mask {\n	position: fixed;\n	top: 0;\n	right: 0;\n	bottom: 0;\n	left: 0;\n	width: 100%;\n	height: 100%;\n	border: 0;\n	border-radius: 0;\n	background-color: var(--pops-mask-bg-color);\n	box-shadow: none;\n	transition: none;\n}\n\n.pops-header-controls button.pops-header-control[type][data-header] {\n	float: right;\n	margin: 0 0;\n	outline: 0;\n	border: 0;\n	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n	background-color: transparent;\n	color: #888;\n	cursor: pointer;\n}\n.pops-header-controls button.pops-header-control[data-type="max"],\n.pops-header-controls button.pops-header-control[data-type="mise"],\n.pops-header-controls button.pops-header-control[data-type="min"] {\n	outline: 0 !important;\n	border: 0;\n	border-color: rgb(136, 136, 136, var(--pops-bd-opacity));\n	background-color: transparent;\n	color: rgb(136, 136, 136);\n	cursor: pointer;\n	transition: all 0.3s ease-in-out;\n}\nbutton.pops-header-control i {\n	color: rgb(144, 147, 153);\n	font-size: inherit;\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	position: relative;\n	fill: currentColor;\n}\nbutton.pops-header-control svg {\n	height: 1.25em;\n	width: 1.25em;\n}\nbutton.pops-header-control {\n	right: 15px;\n	padding: 0;\n	border: none;\n	outline: 0;\n	background: 0 0;\n	cursor: pointer;\n	position: unset;\n	line-height: normal;\n}\nbutton.pops-header-control i:hover {\n	color: rgb(64, 158, 255);\n}\n.pops-header-controls[data-margin] button.pops-header-control {\n	margin: 0 6px;\n	display: flex;\n	align-items: center;\n}\n.pops[type-value] .pops-header-controls {\n	display: flex;\n	gap: 6px;\n}\n\n/* 代码块 <code> */\n.pops code {\n	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;\n	font-size: 0.85em;\n	color: #000;\n	background-color: #f0f0f0;\n	border-radius: 3px;\n	border: 0;\n	padding: 0.2em 0;\n	white-space: normal;\n	background: #f5f5f5;\n	text-wrap: wrap;\n	text-align: left;\n	word-spacing: normal;\n	word-break: normal;\n	word-wrap: normal;\n	line-height: 1.4;\n	-moz-tab-size: 8;\n	-o-tab-size: 8;\n	tab-size: 8;\n	-webkit-hyphens: none;\n	-moz-hyphens: none;\n	-ms-hyphens: none;\n	hyphens: none;\n	direction: ltr;\n}\n\n.pops code::before,\n.pops code::after {\n	letter-spacing: -0.2em;\n	content: "\\00a0";\n}\n\n/* 标题 */\n.pops .pops-title {\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	user-select: none;\n\n	display: flex;\n	align-items: center;\n	justify-content: space-between;\n	border-bottom: 1px solid var(--pops-title-border-color);\n	width: 100%;\n	height: var(--container-title-height);\n}\n/* 标题-普通文本 */\n.pops .pops-title p[pops] {\n	color: var(--pops-title-color);\n	width: 100%;\n	overflow: hidden;\n	text-indent: 15px;\n	text-overflow: ellipsis;\n	white-space: nowrap;\n	font-weight: 500;\n	line-height: normal;\n}\n\n/* 内容 */\n.pops .pops-content {\n	width: 100%;\n	/*height: calc(\n		100% - var(--container-title-height) - var(--container-bottom-btn-height)\n	);*/\n	flex: 1;\n	overflow: auto;\n	word-break: break-word;\n}\n/* 内容-普通文本 */\n.pops .pops-content p[pops] {\n	color: var(--pops-content-color);\n	padding: 5px 10px;\n	text-indent: 15px;\n}\n\n/* 底部-按钮组 */\n.pops .pops-botttom-btn-controls {\n	display: flex;\n	padding: 10px 10px 10px 10px;\n	width: 100%;\n	height: var(--container-bottom-btn-height);\n	max-height: var(--container-bottom-btn-height);\n	line-height: normal;\n	border-top: 1px solid var(--pops-bottom-btn-controls-border-color);\n	text-align: right;\n	align-items: center;\n}\n';
+  var ninePalaceGridPositionCSS = '.pops[position="top_left"] {\n	position: fixed;\n	top: 0;\n	left: 0;\n}\n.pops[position="top"] {\n	position: fixed;\n	top: 0;\n	left: 50%;\n	transform: translateX(-50%);\n}\n.pops[position="top_right"] {\n	position: fixed;\n	top: 0;\n	right: 0;\n}\n.pops[position="center_left"] {\n	position: fixed;\n	top: 50%;\n	left: 0;\n	transform: translateY(-50%);\n}\n.pops[position="center"] {\n	position: fixed;\n	top: 50%;\n	left: 50%;\n	transform: translate(-50%, -50%);\n}\n.pops[position="center_right"] {\n	position: fixed;\n	top: 50%;\n	right: 0;\n	transform: translateY(-50%);\n}\n.pops[position="bottom_left"] {\n	position: fixed;\n	bottom: 0;\n	left: 0;\n}\n.pops[position="bottom"] {\n	position: fixed;\n	bottom: 0;\n	left: 50%;\n	transform: translate(-50%, 0);\n}\n.pops[position="bottom_right"] {\n	position: fixed;\n	right: 0;\n	bottom: 0;\n}\n';
+  var scrollbarCSS = "/* ::-webkit-scrollbar 是非标准的css */\n/* https://caniuse.com/?search=%20%3A%3A-webkit-scrollbar */\n.pops ::-webkit-scrollbar {\n	width: 6px;\n	height: 0;\n}\n\n/* 滚动条轨道 */\n.pops ::-webkit-scrollbar-track {\n	width: 0;\n}\n/* 滚动条滑块 */\n.pops ::-webkit-scrollbar-thumb {\n	min-height: 28px;\n	border-radius: 2em;\n	background: rgb(204, 204, 204, var(--pops-bg-opacity, 1));\n	background-clip: padding-box;\n}\n/* 滚动条滑块 */\n.pops ::-webkit-scrollbar-thumb:hover {\n	background: rgb(178, 178, 178, var(--pops-bg-opacity, 1));\n}\n";
+  var buttonCSS = '.pops {\n	--button-font-size: 14px;\n	--button-height: 32px;\n	--button-color: rgb(51, 51, 51);\n	--button-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n	--button-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n	--button-margin-top: 0px;\n	--button-margin-bottom: 0px;\n	--button-margin-left: 5px;\n	--button-margin-right: 5px;\n	--button-padding-top: 6px;\n	--button-padding-bottom: 6px;\n	--button-padding-left: 12px;\n	--button-padding-right: 12px;\n	--button-radius: 4px;\n\n	--container-title-height: 55px;\n	--container-bottom-btn-height: 55px;\n\n	/* default按钮 */\n	--button-default-color: #333333;\n	--button-default-bd-color: #dcdfe6;\n	--button-default-bg-color: #ffffff;\n	--button-default-active-color: #409eff;\n	--button-default-active-bd-color: #409eff;\n	--button-default-active-bg-color: #ecf5ff;\n	--button-default-hover-color: #409eff;\n	--button-default-hover-bd-color: #c6e2ff;\n	--button-default-hover-bg-color: #ecf5ff;\n	--button-default-focus-visible-outline-color: #a0cfff;\n	--button-default-focus-visible-outline: 2px solid var(--button-default-focus-visible-outline-color);\n	--button-default-focus-visible-outline-offset: 1px;\n	--button-default-disabled-color: #a8abb2;\n	--button-default-disabled-bd-color: #ffffff;\n	--button-default-disabled-bg-color: #e4e7ed;\n\n	/* primary按钮 */\n	--button-primary-color: #ffffff;\n	--button-primary-bd-color: #409eff;\n	--button-primary-bg-color: #409eff;\n	--button-primary-active-color: #ffffff;\n	--button-primary-active-bd-color: #337ecc;\n	--button-primary-active-bg-color: #337ecc;\n	--button-primary-hover-color: #ffffff;\n	--button-primary-hover-bd-color: #79bbff;\n	--button-primary-hover-bg-color: #79bbff;\n	--button-primary-focus-visible-outline-color: #a0cfff;\n	--button-primary-focus-visible-outline: 2px solid var(--button-primary-focus-visible-outline-color);\n	--button-primary-focus-visible-outline-offset: 1px;\n	--button-primary-disabled-color: #ffffff80;\n	--button-primary-disabled-bd-color: #a0cfff;\n	--button-primary-disabled-bg-color: #a0cfff;\n\n	/* success按钮 */\n	--button-success-color: #ffffff;\n	--button-success-bd-color: #4cae4c;\n	--button-success-bg-color: #5cb85c;\n	--button-success-active-color: #ffffff;\n	--button-success-active-bd-color: #529b2e;\n	--button-success-active-bg-color: #529b2e;\n	--button-success-hover-color: #ffffff;\n	--button-success-hover-bd-color: #95d475;\n	--button-success-hover-bg-color: #95d475;\n	--button-success-focus-visible-outline-color: #b3e19d;\n	--button-success-focus-visible-outline: 2px solid var(--button-success-focus-visible-outline-color);\n	--button-success-focus-visible-outline-offset: 1px;\n	--button-success-disabled-color: #ffffff80;\n	--button-success-disabled-bd-color: #b3e19d;\n	--button-success-disabled-bg-color: #b3e19d;\n\n	/* info按钮 */\n	--button-info-color: #ffffff;\n	--button-info-bd-color: #909399;\n	--button-info-bg-color: #909399;\n	--button-info-active-color: #ffffff;\n	--button-info-active-bd-color: #73767a;\n	--button-info-active-bg-color: #73767a;\n	--button-info-hover-color: #ffffff;\n	--button-info-hover-bd-color: #b1b3b8;\n	--button-info-hover-bg-color: #b1b3b8;\n	--button-info-focus-visible-outline-color: #c8c9cc;\n	--button-info-focus-visible-outline: 2px solid var(--button-info-focus-visible-outline-color);\n	--button-info-focus-visible-outline-offset: 1px;\n	--button-info-disabled-color: #ffffff80;\n	--button-info-disabled-bd-color: #c8c9cc;\n	--button-info-disabled-bg-color: #c8c9cc;\n\n	/* warning按钮 */\n	--button-warning-color: #ffffff;\n	--button-warning-bd-color: #e6a23c;\n	--button-warning-bg-color: #e6a23c;\n	--button-warning-active-color: #ffffff;\n	--button-warning-active-bd-color: #b88230;\n	--button-warning-active-bg-color: #b88230;\n	--button-warning-hover-color: #ffffff80;\n	--button-warning-hover-bd-color: #eebe77;\n	--button-warning-hover-bg-color: #eebe77;\n	--button-warning-focus-visible-outline-color: #f3d19e;\n	--button-warning-focus-visible-outline: 2px solid var(--button-warning-focus-visible-outline-color);\n	--button-warning-focus-visible-outline-offset: 1px;\n	--button-warning-disabled-color: #ffffff80;\n	--button-warning-disabled-bd-color: #f3d19e;\n	--button-warning-disabled-bg-color: #f3d19e;\n\n	/* danger按钮 */\n	--button-danger-color: #ffffff;\n	--button-danger-bd-color: #f56c6c;\n	--button-danger-bg-color: #f56c6c;\n	--button-danger-active-color: #ffffff;\n	--button-danger-active-bd-color: #c45656;\n	--button-danger-active-bg-color: #c45656;\n	--button-danger-hover-color: #ffffff;\n	--button-danger-hover-bd-color: #f89898;\n	--button-danger-hover-bg-color: #f89898;\n	--button-danger-focus-visible-outline-color: #fab6b6;\n	--button-danger-focus-visible-outline: 2px solid var(--button-danger-focus-visible-outline-color);\n	--button-danger-focus-visible-outline-offset: 1px;\n	--button-danger-disabled-color: #ffffff80;\n	--button-danger-disabled-bd-color: #fab6b6;\n	--button-danger-disabled-bg-color: #fab6b6;\n\n	/* xiaomi-primary按钮 */\n	--button-xiaomi-primary-color: #ffffff;\n	--button-xiaomi-primary-bd-color: #ff5c00;\n	--button-xiaomi-primary-bg-color: #ff5c00;\n	--button-xiaomi-primary-active-color: #ffffff;\n	--button-xiaomi-primary-active-bd-color: #da4f00;\n	--button-xiaomi-primary-active-bg-color: #da4f00;\n	--button-xiaomi-primary-hover-color: #ffffff;\n	--button-xiaomi-primary-hover-bd-color: #ff7e29;\n	--button-xiaomi-primary-hover-bg-color: #ff7e29;\n	--button-xiaomi-primary-focus-visible-outline-color: #ffa061;\n	--button-xiaomi-primary-focus-visible-outline: 2px solid\n		var(--button-xiaomi-primary-focus-visible-outline-color);\n	--button-xiaomi-primary-focus-visible-outline-offset: 1px;\n	--button-xiaomi-primary-disabled-color: #ffffff80;\n	--button-xiaomi-primary-disabled-bd-color: #fad5b6;\n	--button-xiaomi-primary-disabled-bg-color: #fad5b6;\n\n	/* violet按钮 */\n	--button-violet-color: #ffffff;\n	--button-violet-bd-color: #626aef;\n	--button-violet-bg-color: #626aef;\n	--button-violet-active-color: #ffffff;\n	--button-violet-active-bd-color: #8188f2;\n	--button-violet-active-bg-color: #8188f2;\n	--button-violet-hover-color: #ffffff;\n	--button-violet-hover-bd-color: #4b50ad;\n	--button-violet-hover-bg-color: #4b50ad;\n	--button-violet-focus-visible-outline-color: #2a598a;\n	--button-violet-focus-visible-outline: 2px solid var(--button-violet-focus-visible-outline-color);\n	--button-violet-focus-visible-outline-offset: 1px;\n	--button-violet-disabled-color: #ffffff80;\n	--button-violet-disabled-bd-color: #3b3f82;\n	--button-violet-disabled-bg-color: #3b3f82;\n}\n\n@media (prefers-color-scheme: dark) {\n	.pops {\n		/* default按钮 */\n		--button-default-color: #cfd3dc;\n		--button-default-bd-color: #4c4d4f;\n		--button-default-bg-color: transparent;\n		--button-default-active-color: #409eff;\n		--button-default-active-bd-color: #409eff;\n		--button-default-active-bg-color: #18222c;\n		--button-default-hover-color: #409eff;\n		--button-default-hover-bd-color: #213d5b;\n		--button-default-hover-bg-color: #18222c;\n		--button-default-focus-visible-outline-color: #2a598a;\n		--button-default-focus-visible-outline: 2px solid var(--button-default-focus-visible-outline-color);\n		--button-default-focus-visible-outline-offset: 1px;\n		--button-default-disabled-color: #ffffff80;\n		--button-default-disabled-bd-color: #414243;\n		--button-default-disabled-bg-color: transparent;\n\n		/* primary按钮 */\n		--button-primary-color: #ffffff;\n		--button-primary-bd-color: #409eff;\n		--button-primary-bg-color: #409eff;\n		--button-primary-active-color: #ffffff;\n		--button-primary-active-bd-color: #66b1ff;\n		--button-primary-active-bg-color: #66b1ff;\n		--button-primary-hover-color: #ffffff;\n		--button-primary-hover-bd-color: #3375b9;\n		--button-primary-hover-bg-color: #3375b9;\n		--button-primary-focus-visible-outline-color: #2a598a;\n		--button-primary-focus-visible-outline: 2px solid var(--button-primary-focus-visible-outline-color);\n		--button-primary-focus-visible-outline-offset: 1px;\n		--button-primary-disabled-color: #ffffff80;\n		--button-primary-disabled-bd-color: #2a598a;\n		--button-primary-disabled-bg-color: #2a598a;\n\n		/* success按钮 */\n		--button-success-color: #ffffff;\n		--button-success-bd-color: #67c23a;\n		--button-success-bg-color: #67c23a;\n		--button-success-active-color: #ffffff;\n		--button-success-active-bd-color: #85ce61;\n		--button-success-active-bg-color: #85ce61;\n		--button-success-hover-color: #ffffff;\n		--button-success-hover-bd-color: #4e8e2f;\n		--button-success-hover-bg-color: #4e8e2f;\n		--button-success-focus-visible-outline-color: #3e6b27;\n		--button-success-focus-visible-outline: 2px solid var(--button-success-focus-visible-outline-color);\n		--button-success-focus-visible-outline-offset: 1px;\n		--button-success-disabled-color: #ffffff80;\n		--button-success-disabled-bd-color: #3e6b27;\n		--button-success-disabled-bg-color: #3e6b27;\n\n		/* info按钮 */\n		--button-info-color: #ffffff;\n		--button-info-bd-color: #909399;\n		--button-info-bg-color: #909399;\n		--button-info-active-color: #ffffff;\n		--button-info-active-bd-color: #a6a9ad;\n		--button-info-active-bg-color: #a6a9ad;\n		--button-info-hover-color: #ffffff;\n		--button-info-hover-bd-color: #6b6d71;\n		--button-info-hover-bg-color: #6b6d71;\n		--button-info-focus-visible-outline-color: #525457;\n		--button-info-focus-visible-outline: 2px solid var(--button-info-focus-visible-outline-color);\n		--button-info-focus-visible-outline-offset: 1px;\n		--button-info-disabled-color: #ffffff80;\n		--button-info-disabled-bd-color: #525457;\n		--button-info-disabled-bg-color: #525457;\n\n		/* warning按钮 */\n		--button-warning-color: #ffffff;\n		--button-warning-bd-color: #e6a23c;\n		--button-warning-bg-color: #e6a23c;\n		--button-warning-active-color: #ffffff;\n		--button-warning-active-bd-color: #ebb563;\n		--button-warning-active-bg-color: #ebb563;\n		--button-warning-hover-color: #ffffff80;\n		--button-warning-hover-bd-color: #a77730;\n		--button-warning-hover-bg-color: #a77730;\n		--button-warning-focus-visible-outline-color: #7d5b28;\n		--button-warning-focus-visible-outline: 2px solid var(--button-warning-focus-visible-outline-color);\n		--button-warning-focus-visible-outline-offset: 1px;\n		--button-warning-disabled-color: #ffffff80;\n		--button-warning-disabled-bd-color: #7d5b28;\n		--button-warning-disabled-bg-color: #7d5b28;\n\n		/* danger按钮 */\n		--button-danger-color: #ffffff;\n		--button-danger-bd-color: #f56c6c;\n		--button-danger-bg-color: #f56c6c;\n		--button-danger-active-color: #ffffff;\n		--button-danger-active-bd-color: #f78989;\n		--button-danger-active-bg-color: #f78989;\n		--button-danger-hover-color: #ffffff;\n		--button-danger-hover-bd-color: #b25252;\n		--button-danger-hover-bg-color: #b25252;\n		--button-danger-focus-visible-outline-color: #854040;\n		--button-danger-focus-visible-outline: 2px solid var(--button-danger-focus-visible-outline-color);\n		--button-danger-focus-visible-outline-offset: 1px;\n		--button-danger-disabled-color: #ffffff80;\n		--button-danger-disabled-bd-color: #854040;\n		--button-danger-disabled-bg-color: #854040;\n	}\n}\n.pops[data-bottom-btn="false"] {\n	--container-bottom-btn-height: 0px;\n}\n.pops button {\n	white-space: nowrap;\n	float: right;\n	display: inline-block;\n	margin: var(--button-margin-top) var(--button-margin-right) var(--button-margin-bottom)\n		var(--button-margin-left);\n	padding: var(--button-padding-top) var(--button-padding-right) var(--button-padding-bottom)\n		var(--button-padding-left);\n	outline: 0;\n}\n.pops button[data-has-icon="false"] .pops-bottom-icon {\n	display: none;\n}\n.pops button {\n	border-radius: var(--button-radius);\n	box-shadow: none;\n	font-weight: 400;\n	font-size: var(--button-font-size);\n	cursor: pointer;\n	transition: all 0.3s ease-in-out;\n}\n.pops button {\n	display: flex;\n	align-items: center;\n	height: var(--button-height);\n	line-height: normal;\n	box-sizing: border-box;\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	border: 1px solid var(--button-bd-color);\n}\n.pops button {\n	color: var(--button-color);\n	border-color: var(--button-bd-color);\n	background-color: var(--button-bg-color);\n}\n.pops button:active {\n	color: var(--button-color);\n	border-color: var(--button-bd-color);\n	background-color: var(--button-bg-color);\n	outline: 0;\n}\n.pops button:hover {\n	color: var(--button-color);\n	border-color: var(--button-bd-color);\n	background-color: var(--button-bg-color);\n}\n.pops button:focus-visible {\n	color: var(--button-color);\n	border-color: var(--button-bd-color);\n	background-color: var(--button-bg-color);\n}\n.pops button:disabled {\n	cursor: not-allowed;\n	color: var(--button-color);\n	border-color: var(--button-bd-color);\n	background-color: var(--button-bg-color);\n}\n.pops button.pops-button-large {\n	--button-height: 32px;\n	--button-padding-top: 12px;\n	--button-padding-bottom: 12px;\n	--button-padding-left: 19px;\n	--button-padding-right: 19px;\n	--button-font-size: 14px;\n	--button-border-radius: 4px;\n}\n\n.pops button.pops-button-small {\n	--button-height: 24px;\n	--button-padding-top: 5px;\n	--button-padding-bottom: 5px;\n	--button-padding-left: 11px;\n	--button-padding-right: 11px;\n	--button-font-size: 12px;\n	--button-border-radius: 4px;\n}\n.pops-panel-button-no-icon .pops-panel-button_inner i {\n	display: none;\n}\n.pops-panel-button-right-icon .pops-panel-button_inner {\n	flex-direction: row-reverse;\n}\n.pops-panel-button .pops-panel-button_inner i:has(svg),\n.pops-panel-button-right-icon .pops-panel-button-text {\n	margin-right: 6px;\n}\n\n.pops button[data-type="default"] {\n	--button-color: var(--button-default-color);\n	--button-bd-color: var(--button-default-bd-color);\n	--button-bg-color: var(--button-default-bg-color);\n}\n.pops button[data-type="default"]:active {\n	--button-color: var(--button-default-active-color);\n	--button-bd-color: var(--button-default-active-bd-color);\n	--button-bg-color: var(--button-default-active-bg-color);\n}\n.pops button[data-type="default"]:hover {\n	--button-color: var(--button-default-hover-color);\n	--button-bd-color: var(--button-default-hover-bd-color);\n	--button-bg-color: var(--button-default-hover-bg-color);\n}\n.pops button[data-type="default"]:focus-visible {\n	outline: var(--button-default-focus-visible-outline);\n	outline-offset: var(--button-default-focus-visible-outline-offset);\n}\n.pops button[data-type="default"]:disabled {\n	--button-color: var(--button-default-disabled-color);\n	--button-bd-color: var(--button-default-disabled-bd-color);\n	--button-bg-color: var(--button-default-disabled-bg-color);\n}\n\n.pops button[data-type="primary"] {\n	--button-color: var(--button-primary-color);\n	--button-bd-color: var(--button-primary-bd-color);\n	--button-bg-color: var(--button-primary-bg-color);\n}\n.pops button[data-type="primary"]:active {\n	--button-color: var(--button-primary-active-color);\n	--button-bd-color: var(--button-primary-active-bd-color);\n	--button-bg-color: var(--button-primary-active-bg-color);\n}\n.pops button[data-type="primary"]:hover {\n	--button-color: var(--button-primary-hover-color);\n	--button-bd-color: var(--button-primary-hover-bd-color);\n	--button-bg-color: var(--button-primary-hover-bg-color);\n}\n.pops button[data-type="primary"]:focus-visible {\n	outline: var(--button-primary-focus-visible-outline);\n	outline-offset: var(--button-primary-focus-visible-outline-offset);\n}\n.pops button[data-type="primary"]:disabled {\n	--button-color: var(--button-primary-disabled-color);\n	--button-bd-color: var(--button-primary-disabled-bd-color);\n	--button-bg-color: var(--button-primary-disabled-bg-color);\n}\n\n.pops button[data-type="success"] {\n	--button-color: var(--button-success-color);\n	--button-bd-color: var(--button-success-bd-color);\n	--button-bg-color: var(--button-success-bg-color);\n}\n.pops button[data-type="success"]:active {\n	--button-color: var(--button-success-active-color);\n	--button-bd-color: var(--button-success-active-bd-color);\n	--button-bg-color: var(--button-success-active-bg-color);\n}\n.pops button[data-type="success"]:hover {\n	--button-color: var(--button-success-hover-color);\n	--button-bd-color: var(--button-success-hover-bd-color);\n	--button-bg-color: var(--button-success-hover-bg-color);\n}\n.pops button[data-type="success"]:focus-visible {\n	outline: var(--button-success-focus-visible-outline);\n	outline-offset: var(--button-success-focus-visible-outline-offset);\n}\n.pops button[data-type="success"]:disabled {\n	--button-color: var(--button-success-disabled-color);\n	--button-bd-color: var(--button-success-disabled-bd-color);\n	--button-bg-color: var(--button-success-disabled-bg-color);\n}\n\n.pops button[data-type="info"] {\n	--button-color: var(--button-info-color);\n	--button-bd-color: var(--button-info-bd-color);\n	--button-bg-color: var(--button-info-bg-color);\n}\n.pops button[data-type="info"]:active {\n	--button-color: var(--button-info-active-color);\n	--button-bd-color: var(--button-info-active-bd-color);\n	--button-bg-color: var(--button-info-active-bg-color);\n}\n.pops button[data-type="info"]:hover {\n	--button-color: var(--button-info-hover-color);\n	--button-bd-color: var(--button-info-hover-bd-color);\n	--button-bg-color: var(--button-info-hover-bg-color);\n}\n.pops button[data-type="info"]:focus-visible {\n	outline: var(--button-info-focus-visible-outline);\n	outline-offset: var(--button-info-focus-visible-outline-offset);\n}\n.pops button[data-type="info"]:disabled {\n	--button-color: var(--button-info-disabled-color);\n	--button-bd-color: var(--button-info-disabled-bd-color);\n	--button-bg-color: var(--button-info-disabled-bg-color);\n}\n\n.pops button[data-type="warning"] {\n	--button-color: var(--button-warning-color);\n	--button-bd-color: var(--button-warning-bd-color);\n	--button-bg-color: var(--button-warning-bg-color);\n}\n.pops button[data-type="warning"]:active {\n	--button-color: var(--button-warning-active-color);\n	--button-bd-color: var(--button-warning-active-bd-color);\n	--button-bg-color: var(--button-warning-active-bg-color);\n}\n.pops button[data-type="warning"]:hover {\n	--button-color: var(--button-warning-hover-color);\n	--button-bd-color: var(--button-warning-hover-bd-color);\n	--button-bg-color: var(--button-warning-hover-bg-color);\n}\n.pops button[data-type="warning"]:focus-visible {\n	outline: var(--button-warning-focus-visible-outline);\n	outline-offset: var(--button-warning-focus-visible-outline-offset);\n}\n.pops button[data-type="warning"]:disabled {\n	--button-color: var(--button-warning-disabled-color);\n	--button-bd-color: var(--button-warning-disabled-bd-color);\n	--button-bg-color: var(--button-warning-disabled-bg-color);\n}\n\n.pops button[data-type="danger"] {\n	--button-color: var(--button-danger-color);\n	--button-bd-color: var(--button-danger-bd-color);\n	--button-bg-color: var(--button-danger-bg-color);\n}\n.pops button[data-type="danger"]:active {\n	--button-color: var(--button-danger-active-color);\n	--button-bd-color: var(--button-danger-active-bd-color);\n	--button-bg-color: var(--button-danger-active-bg-color);\n}\n.pops button[data-type="danger"]:hover {\n	--button-color: var(--button-danger-hover-color);\n	--button-bd-color: var(--button-danger-hover-bd-color);\n	--button-bg-color: var(--button-danger-hover-bg-color);\n}\n.pops button[data-type="danger"]:focus-visible {\n	outline: var(--button-danger-focus-visible-outline);\n	outline-offset: var(--button-danger-focus-visible-outline-offset);\n}\n.pops button[data-type="danger"]:disabled {\n	--button-color: var(--button-danger-disabled-color);\n	--button-bd-color: var(--button-danger-disabled-bd-color);\n	--button-bg-color: var(--button-danger-disabled-bg-color);\n}\n\n.pops button[data-type="xiaomi-primary"] {\n	--button-color: var(--button-xiaomi-primary-color);\n	--button-bd-color: var(--button-xiaomi-primary-bd-color);\n	--button-bg-color: var(--button-xiaomi-primary-bg-color);\n}\n.pops button[data-type="xiaomi-primary"]:active {\n	--button-color: var(--button-xiaomi-primary-active-color);\n	--button-bd-color: var(--button-xiaomi-primary-active-bd-color);\n	--button-bg-color: var(--button-xiaomi-primary-active-bg-color);\n}\n.pops button[data-type="xiaomi-primary"]:hover {\n	--button-color: var(--button-xiaomi-primary-hover-color);\n	--button-bd-color: var(--button-xiaomi-primary-hover-bd-color);\n	--button-bg-color: var(--button-xiaomi-primary-hover-bg-color);\n}\n.pops button[data-type="xiaomi-primary"]:focus-visible {\n	outline: var(--button-xiaomi-primary-focus-visible-outline);\n	outline-offset: var(--button-xiaomi-primary-focus-visible-outline-offset);\n}\n.pops button[data-type="xiaomi-primary"]:disabled {\n	--button-color: var(--button-xiaomi-primary-disabled-color);\n	--button-bd-color: var(--button-xiaomi-primary-disabled-bd-color);\n	--button-bg-color: var(--button-xiaomi-primary-disabled-bg-color);\n}\n\n.pops button[data-type="violet"] {\n	--button-color: var(--button-violet-color);\n	--button-bd-color: var(--button-violet-bd-color);\n	--button-bg-color: var(--button-violet-bg-color);\n}\n.pops button[data-type="violet"]:active {\n	--button-color: var(--button-violet-active-color);\n	--button-bd-color: var(--button-violet-active-bd-color);\n	--button-bg-color: var(--button-violet-active-bg-color);\n}\n.pops button[data-type="violet"]:hover {\n	--button-color: var(--button-violet-hover-color);\n	--button-bd-color: var(--button-violet-hover-bd-color);\n	--button-bg-color: var(--button-violet-hover-bg-color);\n}\n.pops button[data-type="violet"]:focus-visible {\n	outline: var(--button-violet-focus-visible-outline);\n	outline-offset: var(--button-violet-focus-visible-outline-offset);\n}\n.pops button[data-type="violet"]:disabled {\n	--button-color: var(--button-violet-disabled-color);\n	--button-bd-color: var(--button-violet-disabled-bd-color);\n	--button-bg-color: var(--button-violet-disabled-bg-color);\n}\n';
+  var commonCSS = ".pops-flex-items-center {\n	display: flex;\n	align-items: center;\n}\n.pops-flex-y-center {\n	display: flex;\n	justify-content: space-between;\n}\n.pops-flex-x-center {\n	display: flex;\n	align-content: center;\n}\n.pops-hide {\n	display: none;\n}\n.pops-hide-important {\n	display: none !important;\n}\n.pops-no-border {\n	border: 0;\n}\n.pops-no-border-important {\n	border: 0 !important;\n}\n.pops-user-select-none {\n	user-select: none;\n	-webkit-user-select: none;\n	-ms-user-select: none;\n	-moz-user-select: none;\n}\n.pops-line-height-center {\n	line-height: normal;\n	align-content: center;\n}\n.pops-width-fill {\n	width: -webkit-fill-available;\n	width: -moz-available;\n}\n.pops-text-is-disabled {\n	--pops-text-is-disabled-color: #a8abb2;\n	color: var(--pops-text-is-disabled-color);\n	--pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color);\n}\n.pops-text-is-disabled-important {\n	--pops-text-is-disabled-color: #a8abb2;\n	color: var(--pops-text-is-disabled-color) !important;\n	--pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color) !important;\n}\n";
+  var animCSS = '@keyframes rotating {\n	0% {\n		transform: rotate(0);\n	}\n	to {\n		transform: rotate(360deg);\n	}\n}\n@keyframes iframeLoadingChange_85 {\n	0% {\n		background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\n	}\n	20% {\n		background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\n	}\n	40% {\n		background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\n	}\n	60% {\n		background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\n	}\n	80% {\n		background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\n	}\n	100% {\n		background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\n	}\n	from {\n		width: 75%;\n	}\n	to {\n		width: 100%;\n	}\n}\n@keyframes iframeLoadingChange {\n	0% {\n		background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\n	}\n	20% {\n		background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\n	}\n	40% {\n		background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\n	}\n	60% {\n		background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\n	}\n	80% {\n		background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\n	}\n	100% {\n		background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\n	}\n	from {\n		width: 0;\n	}\n	to {\n		width: 75%;\n	}\n}\n\n@keyframes searchSelectFalIn {\n	from {\n		opacity: 0;\n		display: none;\n	}\n	to {\n		display: block;\n		opacity: 1;\n	}\n}\n@keyframes searchSelectFalOut {\n	from {\n		display: block;\n		opacity: 1;\n	}\n	to {\n		opacity: 0;\n		display: none;\n	}\n}\n\n@keyframes pops-anim-wait-rotate {\n	form {\n		transform: rotate(0);\n	}\n	to {\n		transform: rotate(360deg);\n	}\n}\n@keyframes pops-anim-spread {\n	0% {\n		opacity: 0;\n		transform: scaleX(0);\n	}\n	100% {\n		opacity: 1;\n		transform: scaleX(1);\n	}\n}\n@keyframes pops-anim-shake {\n	0%,\n	100% {\n		transform: translateX(0);\n	}\n	10%,\n	30%,\n	50%,\n	70%,\n	90% {\n		transform: translateX(-10px);\n	}\n	20%,\n	40%,\n	60%,\n	80% {\n		transform: translateX(10px);\n	}\n}\n@keyframes pops-anim-rolling-left {\n	0% {\n		opacity: 0;\n		transform: translateX(-100%) rotate(-120deg);\n	}\n	100% {\n		opacity: 1;\n		transform: translateX(0) rotate(0);\n	}\n}\n@keyframes pops-anim-rolling-right {\n	0% {\n		opacity: 0;\n		transform: translateX(100%) rotate(120deg);\n	}\n	100% {\n		opacity: 1;\n		transform: translateX(0) rotate(0);\n	}\n}\n@keyframes pops-anim-slide-top {\n	0% {\n		opacity: 0;\n		transform: translateY(-200%);\n	}\n	100% {\n		opacity: 1;\n		transform: translateY(0);\n	}\n}\n@keyframes pops-anim-slide-bottom {\n	0% {\n		opacity: 0;\n		transform: translateY(200%);\n	}\n	100% {\n		opacity: 1;\n		transform: translateY(0);\n	}\n}\n@keyframes pops-anim-slide-left {\n	0% {\n		opacity: 0;\n		transform: translateX(-200%);\n	}\n	100% {\n		opacity: 1;\n		transform: translateX(0);\n	}\n}\n@keyframes pops-anim-slide-right {\n	0% {\n		transform: translateX(200%);\n	}\n	100% {\n		opacity: 1;\n		transform: translateX(0);\n	}\n}\n@keyframes pops-anim-fadein {\n	0% {\n		opacity: 0;\n	}\n	100% {\n		opacity: 1;\n	}\n}\n@keyframes pops-anim-fadein-zoom {\n	0% {\n		opacity: 0;\n		transform: scale(0.5);\n	}\n	100% {\n		opacity: 1;\n		transform: scale(1);\n	}\n}\n@keyframes pops-anim-fadein-alert {\n	0% {\n		transform: scale(0.5);\n	}\n	45% {\n		transform: scale(1.05);\n	}\n	80% {\n		transform: scale(0.95);\n	}\n	100% {\n		transform: scale(1);\n	}\n}\n@keyframes pops-anim-don {\n	0% {\n		opacity: 0;\n		transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	2.08333% {\n		transform: matrix3d(0.75266, 0, 0, 0, 0, 0.76342, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	4.16667% {\n		transform: matrix3d(0.81071, 0, 0, 0, 0, 0.84545, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	6.25% {\n		transform: matrix3d(0.86808, 0, 0, 0, 0, 0.9286, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	8.33333% {\n		transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	10.4167% {\n		transform: matrix3d(0.96482, 0, 0, 0, 0, 1.05202, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	12.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	14.5833% {\n		transform: matrix3d(1.02563, 0, 0, 0, 0, 1.09149, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	16.6667% {\n		transform: matrix3d(1.04227, 0, 0, 0, 0, 1.08453, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	18.75% {\n		transform: matrix3d(1.05102, 0, 0, 0, 0, 1.06666, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	20.8333% {\n		transform: matrix3d(1.05334, 0, 0, 0, 0, 1.04355, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	22.9167% {\n		transform: matrix3d(1.05078, 0, 0, 0, 0, 1.02012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	25% {\n		transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	27.0833% {\n		transform: matrix3d(1.03699, 0, 0, 0, 0, 0.98534, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	29.1667% {\n		transform: matrix3d(1.02831, 0, 0, 0, 0, 0.97688, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	31.25% {\n		transform: matrix3d(1.01973, 0, 0, 0, 0, 0.97422, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	33.3333% {\n		transform: matrix3d(1.01191, 0, 0, 0, 0, 0.97618, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	35.4167% {\n		transform: matrix3d(1.00526, 0, 0, 0, 0, 0.98122, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	37.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	39.5833% {\n		transform: matrix3d(0.99617, 0, 0, 0, 0, 0.99433, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	41.6667% {\n		transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	43.75% {\n		transform: matrix3d(0.99237, 0, 0, 0, 0, 1.00413, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	45.8333% {\n		transform: matrix3d(0.99202, 0, 0, 0, 0, 1.00651, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	47.9167% {\n		transform: matrix3d(0.99241, 0, 0, 0, 0, 1.00726, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	50% {\n		opacity: 1;\n		transform: matrix3d(0.99329, 0, 0, 0, 0, 1.00671, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	52.0833% {\n		transform: matrix3d(0.99447, 0, 0, 0, 0, 1.00529, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	54.1667% {\n		transform: matrix3d(0.99577, 0, 0, 0, 0, 1.00346, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	56.25% {\n		transform: matrix3d(0.99705, 0, 0, 0, 0, 1.0016, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	58.3333% {\n		transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	60.4167% {\n		transform: matrix3d(0.99921, 0, 0, 0, 0, 0.99884, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	62.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	64.5833% {\n		transform: matrix3d(1.00057, 0, 0, 0, 0, 0.99795, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	66.6667% {\n		transform: matrix3d(1.00095, 0, 0, 0, 0, 0.99811, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	68.75% {\n		transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99851, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	70.8333% {\n		transform: matrix3d(1.00119, 0, 0, 0, 0, 0.99903, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	72.9167% {\n		transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99955, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	75% {\n		transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	77.0833% {\n		transform: matrix3d(1.00083, 0, 0, 0, 0, 1.00033, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	79.1667% {\n		transform: matrix3d(1.00063, 0, 0, 0, 0, 1.00052, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	81.25% {\n		transform: matrix3d(1.00044, 0, 0, 0, 0, 1.00058, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	83.3333% {\n		transform: matrix3d(1.00027, 0, 0, 0, 0, 1.00053, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	85.4167% {\n		transform: matrix3d(1.00012, 0, 0, 0, 0, 1.00042, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	87.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	89.5833% {\n		transform: matrix3d(0.99991, 0, 0, 0, 0, 1.00013, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	91.6667% {\n		transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	93.75% {\n		transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99991, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	95.8333% {\n		transform: matrix3d(0.99982, 0, 0, 0, 0, 0.99985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	97.9167% {\n		transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	100% {\n		opacity: 1;\n		transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n}\n@keyframes pops-anim-roll {\n	0% {\n		transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\n	}\n	100% {\n		transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\n	}\n}\n@keyframes pops-anim-sandra {\n	0% {\n		opacity: 0;\n		transform: scale3d(1.1, 1.1, 1);\n	}\n	100% {\n		opacity: 1;\n		transform: scale3d(1, 1, 1);\n	}\n}\n@keyframes pops-anim-gather {\n	0% {\n		opacity: 0;\n		transform: scale(5, 0);\n	}\n	100% {\n		opacity: 1;\n		transform: scale(1, 1);\n	}\n}\n@keyframes pops-anim-spread-reverse {\n	0% {\n		opacity: 1;\n		transform: scaleX(1);\n	}\n	100% {\n		opacity: 0;\n		transform: scaleX(0);\n	}\n}\n@keyframes pops-anim-shake-reverse {\n	0%,\n	100% {\n		transform: translateX(10px);\n	}\n	10%,\n	30%,\n	50%,\n	70%,\n	90% {\n		transform: translateX(-10px);\n	}\n	20%,\n	40%,\n	60%,\n	80% {\n		transform: translateX(0);\n	}\n}\n@keyframes pops-anim-rolling-left-reverse {\n	0% {\n		opacity: 1;\n		transform: translateX(0) rotate(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateX(-100%) rotate(-120deg);\n	}\n}\n@keyframes pops-anim-rolling-right-reverse {\n	0% {\n		opacity: 1;\n		transform: translateX(0) rotate(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateX(100%) rotate(120deg);\n	}\n}\n@keyframes pops-anim-slide-top-reverse {\n	0% {\n		opacity: 1;\n		transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateY(-200%);\n	}\n}\n@keyframes pops-anim-slide-bottom-reverse {\n	0% {\n		opacity: 1;\n		transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateY(200%);\n	}\n}\n@keyframes pops-anim-slide-left-reverse {\n	0% {\n		opacity: 1;\n		transform: translateX(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateX(-200%);\n	}\n}\n@keyframes pops-anim-slide-right-reverse {\n	0% {\n		opacity: 1;\n		transform: translateX(0);\n	}\n	100% {\n		transform: translateX(200%);\n	}\n}\n@keyframes pops-anim-fadein-reverse {\n	0% {\n		opacity: 1;\n	}\n	100% {\n		opacity: 0;\n	}\n}\n@keyframes pops-anim-fadein-zoom-reverse {\n	0% {\n		opacity: 1;\n		transform: scale(1);\n	}\n	100% {\n		opacity: 0;\n		transform: scale(0.5);\n	}\n}\n@keyframes pops-anim-fadein-alert-reverse {\n	0% {\n		transform: scale(1);\n	}\n	45% {\n		transform: scale(0.95);\n	}\n	80% {\n		transform: scale(1.05);\n	}\n	100% {\n		transform: scale(0.5);\n	}\n}\n@keyframes pops-anim-don-reverse {\n	100% {\n		opacity: 0;\n		transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	97.9167% {\n		transform: matrix3d(0.75266, 0, 0, 0, 0, 0.76342, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	95.8333% {\n		transform: matrix3d(0.81071, 0, 0, 0, 0, 0.84545, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	93.75% {\n		transform: matrix3d(0.86808, 0, 0, 0, 0, 0.9286, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	91.6667% {\n		transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	89.5833% {\n		transform: matrix3d(0.96482, 0, 0, 0, 0, 1.05202, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	87.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	85.4167% {\n		transform: matrix3d(1.02563, 0, 0, 0, 0, 1.09149, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	83.3333% {\n		transform: matrix3d(1.04227, 0, 0, 0, 0, 1.08453, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	81.25% {\n		transform: matrix3d(1.05102, 0, 0, 0, 0, 1.06666, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	79.1667% {\n		transform: matrix3d(1.05334, 0, 0, 0, 0, 1.04355, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	77.0833% {\n		transform: matrix3d(1.05078, 0, 0, 0, 0, 1.02012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	75% {\n		transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	72.9167% {\n		transform: matrix3d(1.03699, 0, 0, 0, 0, 0.98534, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	70.8333% {\n		transform: matrix3d(1.02831, 0, 0, 0, 0, 0.97688, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	68.75% {\n		transform: matrix3d(1.01973, 0, 0, 0, 0, 0.97422, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	66.6667% {\n		transform: matrix3d(1.01191, 0, 0, 0, 0, 0.97618, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	64.5833% {\n		transform: matrix3d(1.00526, 0, 0, 0, 0, 0.98122, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	62.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	60.4167% {\n		transform: matrix3d(0.99617, 0, 0, 0, 0, 0.99433, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	58.3333% {\n		transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	56.25% {\n		transform: matrix3d(0.99237, 0, 0, 0, 0, 1.00413, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	54.1667% {\n		transform: matrix3d(0.99202, 0, 0, 0, 0, 1.00651, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	52.0833% {\n		transform: matrix3d(0.99241, 0, 0, 0, 0, 1.00726, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	50% {\n		opacity: 1;\n		transform: matrix3d(0.99329, 0, 0, 0, 0, 1.00671, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	47.9167% {\n		transform: matrix3d(0.99447, 0, 0, 0, 0, 1.00529, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	45.8333% {\n		transform: matrix3d(0.99577, 0, 0, 0, 0, 1.00346, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	43.75% {\n		transform: matrix3d(0.99705, 0, 0, 0, 0, 1.0016, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	41.6667% {\n		transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	39.5833% {\n		transform: matrix3d(0.99921, 0, 0, 0, 0, 0.99884, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	37.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	35.4167% {\n		transform: matrix3d(1.00057, 0, 0, 0, 0, 0.99795, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	33.3333% {\n		transform: matrix3d(1.00095, 0, 0, 0, 0, 0.99811, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	31.25% {\n		transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99851, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	29.1667% {\n		transform: matrix3d(1.00119, 0, 0, 0, 0, 0.99903, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	27.0833% {\n		transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99955, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	25% {\n		transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	22.9167% {\n		transform: matrix3d(1.00083, 0, 0, 0, 0, 1.00033, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	20.8333% {\n		transform: matrix3d(1.00063, 0, 0, 0, 0, 1.00052, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	18.75% {\n		transform: matrix3d(1.00044, 0, 0, 0, 0, 1.00058, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	16.6667% {\n		transform: matrix3d(1.00027, 0, 0, 0, 0, 1.00053, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	14.5833% {\n		transform: matrix3d(1.00012, 0, 0, 0, 0, 1.00042, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	12.5% {\n		transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	10.4167% {\n		transform: matrix3d(0.99991, 0, 0, 0, 0, 1.00013, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	8.33333% {\n		transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	6.25% {\n		transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99991, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	4.16667% {\n		transform: matrix3d(0.99982, 0, 0, 0, 0, 0.99985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	2.08333% {\n		transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n	0% {\n		opacity: 1;\n		transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n	}\n}\n@keyframes pops-anim-roll-reverse {\n	0% {\n		transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\n	}\n	100% {\n		transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\n	}\n}\n@keyframes pops-anim-sandra-reverse {\n	0% {\n		opacity: 1;\n		transform: scale3d(1, 1, 1);\n	}\n	100% {\n		opacity: 0;\n		transform: scale3d(1.1, 1.1, 1);\n	}\n}\n@keyframes pops-anim-gather-reverse {\n	0% {\n		opacity: 0;\n		transform: scale(5, 0);\n	}\n	100% {\n		opacity: 0;\n		transform: scale(5, 0);\n	}\n}\n\n@-webkit-keyframes pops-motion-fadeInTop {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateY(-30px);\n		transform: translateY(-30px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n	}\n}\n@keyframes pops-motion-fadeInTop {\n	0% {\n		opacity: 0;\n		transform: translateY(-30px);\n		-ms-transform: translateY(-30px);\n	}\n	100% {\n		opacity: 1;\n		transform: translateX(0);\n		-ms-transform: translateX(0);\n	}\n}\n@-webkit-keyframes pops-motion-fadeOutTop {\n	0% {\n		opacity: 10;\n		-webkit-transform: translateY(0);\n		transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateY(-30px);\n		transform: translateY(-30px);\n	}\n}\n@keyframes pops-motion-fadeOutTop {\n	0% {\n		opacity: 1;\n		transform: translateY(0);\n		-ms-transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		transform: translateY(-30px);\n		-ms-transform: translateY(-30px);\n	}\n}\n@-webkit-keyframes pops-motion-fadeInBottom {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateY(20px);\n		transform: translateY(20px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateY(0);\n		transform: translateY(0);\n	}\n}\n@keyframes pops-motion-fadeInBottom {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateY(20px);\n		transform: translateY(20px);\n		-ms-transform: translateY(20px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateY(0);\n		transform: translateY(0);\n		-ms-transform: translateY(0);\n	}\n}\n@-webkit-keyframes pops-motion-fadeOutBottom {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateY(0);\n		transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateY(20px);\n		transform: translateY(20px);\n	}\n}\n@keyframes pops-motion-fadeOutBottom {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateY(0);\n		transform: translateY(0);\n		-ms-transform: translateY(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateY(20px);\n		transform: translateY(20px);\n		-ms-transform: translateY(20px);\n	}\n}\n@-webkit-keyframes pops-motion-fadeInLeft {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateX(-20px);\n		transform: translateX(-20px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n	}\n}\n@keyframes pops-motion-fadeInLeft {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateX(-30px);\n		transform: translateX(-30px);\n		-ms-transform: translateX(-30px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n		-ms-transform: translateX(0);\n	}\n}\n@-webkit-keyframes pops-motion-fadeOutLeft {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateX(-30px);\n		transform: translateX(-30px);\n	}\n}\n@keyframes pops-motion-fadeOutLeft {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n		-ms-transform: translateX(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateX(-20px);\n		transform: translateX(-20px);\n		-ms-transform: translateX(-20px);\n	}\n}\n@-webkit-keyframes pops-motion-fadeInRight {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateX(20px);\n		transform: translateX(20px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n	}\n}\n@keyframes pops-motion-fadeInRight {\n	0% {\n		opacity: 0;\n		-webkit-transform: translateX(20px);\n		transform: translateX(20px);\n		-ms-transform: translateX(20px);\n	}\n	100% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n		-ms-transform: translateX(0);\n	}\n}\n@-webkit-keyframes pops-motion-fadeOutRight {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateX(20px);\n		transform: translateX(20px);\n	}\n}\n@keyframes pops-motion-fadeOutRight {\n	0% {\n		opacity: 1;\n		-webkit-transform: translateX(0);\n		transform: translateX(0);\n		-ms-transform: translateX(0);\n	}\n	100% {\n		opacity: 0;\n		-webkit-transform: translateX(20px);\n		transform: translateX(20px);\n		-ms-transform: translateX(20px);\n	}\n}\n\n/* 动画 */\n.pops-anim[anim="pops-anim-spread"] {\n	animation: pops-anim-spread 0.3s;\n}\n.pops-anim[anim="pops-anim-shake"] {\n	animation: pops-anim-shake 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-left"] {\n	animation: pops-anim-rolling-left 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-right"] {\n	animation: pops-anim-rolling-right 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-top"] {\n	animation: pops-anim-slide-top 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-bottom"] {\n	animation: pops-anim-slide-bottom 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-left"] {\n	animation: pops-anim-slide-left 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-right"] {\n	animation: pops-anim-slide-right 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein"] {\n	animation: pops-anim-fadein 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-zoom"] {\n	animation: pops-anim-fadein-zoom 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-alert"] {\n	animation: pops-anim-fadein-alert 0.3s;\n}\n.pops-anim[anim="pops-anim-don"] {\n	animation: pops-anim-don 0.3s;\n}\n.pops-anim[anim="pops-anim-roll"] {\n	animation: pops-anim-roll 0.3s;\n}\n.pops-anim[anim="pops-anim-sandra"] {\n	animation: pops-anim-sandra 0.3s;\n}\n.pops-anim[anim="pops-anim-gather"] {\n	animation: pops-anim-gather 0.3s;\n}\n.pops-anim[anim="pops-anim-spread-reverse"] {\n	animation: pops-anim-spread-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-shake-reverse"] {\n	animation: pops-anim-shake-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-left-reverse"] {\n	animation: pops-anim-rolling-left-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-right-reverse"] {\n	animation: pops-anim-rolling-right-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-top-reverse"] {\n	animation: pops-anim-slide-top-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-bottom-reverse"] {\n	animation: pops-anim-slide-bottom-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-left-reverse"] {\n	animation: pops-anim-slide-left-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-right-reverse"] {\n	animation: pops-anim-slide-right-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-reverse"] {\n	animation: pops-anim-fadein-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-zoom-reverse"] {\n	animation: pops-anim-fadein-zoom-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-alert-reverse"] {\n	animation: pops-anim-fadein-alert-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-don-reverse"] {\n	animation: pops-anim-don-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-roll-reverse"] {\n	animation: pops-anim-roll-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-sandra-reverse"] {\n	animation: pops-anim-sandra-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-gather-reverse"] {\n	animation: pops-anim-gather-reverse 0.3s;\n}\n';
   var alertCSS = "";
   var confirmCSS = "";
-  var promptCSS = '.pops[type-value="prompt"] {\r\n	--input-color: #000000;\r\n	--input-bg-color: none;\r\n	--input-placeholder-color: #a1a4ac;\r\n}\r\n.pops[type-value="prompt"] input[pops],\r\n.pops[type-value="prompt"] textarea[pops] {\r\n	width: 100%;\r\n	height: 100%;\r\n	outline: 0;\r\n	border: 0;\r\n	color: var(--input-color);\r\n	background-color: var(--input-bg-color);\r\n}\r\n\r\n.pops[type-value="prompt"] input[pops] {\r\n	padding: 5px 10px;\r\n}\r\n.pops[type-value="prompt"] textarea[pops] {\r\n	padding: 5px 10px;\r\n	resize: none;\r\n}\r\n\r\n.pops[type-value="prompt"] input[pops]::placeholder,\r\n.pops[type-value="prompt"] textarea[pops]::placeholder {\r\n	color: var(--input-placeholder-color);\r\n}\r\n@media (prefers-color-scheme: dark) {\r\n	.pops[type-value="prompt"] {\r\n		--input-color: #ffffff;\r\n		--input-bg-color: #333333;\r\n		--input-placeholder-color: #8d9095;\r\n	}\r\n}\r\n';
-  var loadingCSS = '.pops[type-value="loading"] {\r\n	--loading-bd-color: rgba(0, 0, 0, 0.2);\r\n	--loading-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	--loading-box-shadow-color: rgb(0 0 0 / 50%);\r\n	--loading-icon-color: rgba(100, 149, 237, 0.1);\r\n	--loading-icon-bd-top-color: rgb(100, 149, 237, var(--pops-bd-opacity));\r\n}\r\n.pops[type-value="loading"] {\r\n	position: absolute;\r\n	top: 272.5px;\r\n	top: 50%;\r\n	left: 26px;\r\n	left: 50%;\r\n	display: flex;\r\n	overflow: hidden;\r\n	padding: 10px 15px;\r\n	max-width: 100%;\r\n	max-height: 100%;\r\n	min-width: 0;\r\n	min-height: 0;\r\n	border: 1px solid var(--loading-bd-color);\r\n	border-radius: 5px;\r\n	background-color: var(--loading-bg-color);\r\n	box-shadow: 0 0 5px var(--loading-box-shadow-color);\r\n	vertical-align: middle;\r\n	transition: all 0.35s;\r\n	transform: translate(-50%, -50%);\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	flex-direction: column;\r\n	align-items: center;\r\n	justify-content: center;\r\n	align-content: center;\r\n}\r\n.pops[type-value="loading"]:before {\r\n	float: left;\r\n	display: inline-block;\r\n	width: 2em;\r\n	height: 2em;\r\n	border: 0.3em solid var(--loading-icon-color);\r\n	border-top: 0.3em solid var(--loading-icon-bd-top-color);\r\n	border-radius: 50%;\r\n	content: " ";\r\n	vertical-align: middle;\r\n	font-size: inherit;\r\n	animation: pops-anim-wait-rotate 1.2s linear infinite;\r\n}\r\n.pops[type-value="loading"] .pops-loading-content {\r\n	position: static;\r\n	top: 0;\r\n	bottom: 0;\r\n	float: left;\r\n	overflow: hidden;\r\n	width: auto;\r\n	font-size: inherit;\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n	.pops[type-value="loading"] {\r\n		--loading-bg-color: #222222;\r\n	}\r\n}\r\n';
-  var iframeCSS = '.pops[type-value="iframe"] {\r\n	--container-title-height: 55px;\r\n	transition: width 0.35s ease, height 0.35s ease;\r\n}\r\n.pops[type-value="iframe"] .pops-content {\r\n	overflow: hidden;\r\n}\r\n.pops-loading {\r\n	position: absolute;\r\n	top: 40px;\r\n	right: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n	z-index: 5;\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n}\r\n.pops-loading:before {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 50%;\r\n	z-index: 3;\r\n	display: block;\r\n	margin: -20px 0 0 -20px;\r\n	padding: 20px;\r\n	border: 4px solid rgb(221, 221, 221, var(--pops-bd-opacity));\r\n	border-radius: 50%;\r\n	content: "";\r\n	border-top-color: transparent;\r\n	animation: pops-anim-wait-rotate 1.2s linear infinite;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="min"] {\r\n	bottom: 0;\r\n	max-width: 200px;\r\n	max-height: 53px;\r\n	position: unset;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="min"]\r\n	.pops-header-control[type="min"] {\r\n	display: none;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-top {\r\n	top: unset !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-left {\r\n	left: unset !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-transform {\r\n	transform: none !important;\r\n}\r\n.pops[type-value="iframe"].pops-iframe-unset-transition {\r\n	transition: none !important;\r\n}\r\n.pops[type-value="iframe"].pops[type-module="max"] {\r\n	width: 100% !important;\r\n	height: 100% !important;\r\n}\r\n.pops[type-value="iframe"] iframe[pops] {\r\n	width: 100%;\r\n	height: 100%;\r\n	border: 0;\r\n}\r\n.pops-iframe-content-global-loading {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 0;\r\n	z-index: 999999;\r\n	width: 0;\r\n	height: 4px;\r\n	background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\r\n	animation: iframeLoadingChange 2s forwards;\r\n}\r\n\r\n.pops-anim:has(.pops[type-value="iframe"].pops[type-module="min"]) {\r\n	position: unset;\r\n}\r\n';
-  var tooltipCSS = '.pops-tip {\r\n	--pops-bg-opacity: 1;\r\n	--tooltip-color: #4e4e4e;\r\n	--tooltip-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	--tooltip-bd-radius: 2px;\r\n	--tooltip-box-shadow-left-color: rgba(0, 0, 0, 0.24);\r\n	--tooltip-box-shadow-right-color: rgba(0, 0, 0, 0.12);\r\n	--tooltip-font-size: 14px;\r\n	--tooltip-padding-top: 13px;\r\n	--tooltip-padding-right: 13px;\r\n	--tooltip-padding-bottom: 13px;\r\n	--tooltip-padding-left: 13px;\r\n\r\n	--tooltip-arrow-box-shadow-left-color: rgba(0, 0, 0, 0.24);\r\n	--tooltip-arrow-box-shadow-right-color: rgba(0, 0, 0, 0.12);\r\n	--tooltip-arrow--after-color: rgb(78, 78, 78);\r\n	--tooltip-arrow--after-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	--tooltip-arrow--after-width: 12px;\r\n	--tooltip-arrow--after-height: 12px;\r\n}\r\n.pops-tip {\r\n	padding: var(--tooltip-padding-top) var(--tooltip-padding-right)\r\n		var(--tooltip-padding-bottom) var(--tooltip-padding-left);\r\n	max-width: 400px;\r\n	max-height: 300px;\r\n	border-radius: var(--tooltip-bd-radius);\r\n	background-color: var(--tooltip-bg-color);\r\n	box-shadow: 0 1.5px 4px var(--tooltip-box-shadow-left-color),\r\n		0 1.5px 6px var(--tooltip-box-shadow-right-color);\r\n	color: var(--tooltip-color);\r\n	font-size: var(--tooltip-font-size);\r\n}\r\n.pops-tip[data-position="absolute"] {\r\n	position: absolute;\r\n}\r\n.pops-tip[data-position="fixed"] {\r\n	position: fixed;\r\n}\r\n\r\n.pops-tip .pops-tip-arrow {\r\n	position: absolute;\r\n	top: 100%;\r\n	left: 50%;\r\n	overflow: hidden;\r\n	width: 100%;\r\n	height: 12.5px;\r\n	transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow::after {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 50%;\r\n	width: var(--tooltip-arrow--after-width);\r\n	height: var(--tooltip-arrow--after-height);\r\n	background: var(--tooltip-arrow--after-bg-color);\r\n	color: var(--tooltip-arrow--after-color);\r\n	box-shadow: 0 1px 7px var(--tooltip-arrow-box-shadow-left-color),\r\n		0 1px 7px var(--tooltip-arrow-box-shadow-right-color);\r\n	content: "";\r\n	transform: translateX(-50%) translateY(-50%) rotate(45deg);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="bottom"] {\r\n	position: absolute;\r\n	top: 100%;\r\n	left: 50%;\r\n	overflow: hidden;\r\n	width: 100%;\r\n	height: 12.5px;\r\n	transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="bottom"]:after {\r\n	position: absolute;\r\n	top: 0;\r\n	left: 50%;\r\n	width: var(--tooltip-arrow--after-width);\r\n	height: var(--tooltip-arrow--after-height);\r\n	background: var(--tooltip-arrow--after-bg-color);\r\n	box-shadow: 0 1px 7px var(--tooltip-arrow-box-shadow-left-color),\r\n		0 1px 7px var(--tooltip-arrow-box-shadow-right-color);\r\n	content: "";\r\n	transform: translateX(-50%) translateY(-50%) rotate(45deg);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="left"] {\r\n	top: 50%;\r\n	left: -12.5px;\r\n	width: 12.5px;\r\n	height: 50px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="left"]:after {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 100%;\r\n	content: "";\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="right"] {\r\n	top: 50%;\r\n	right: -12.5px;\r\n	left: auto;\r\n	width: 12.5px;\r\n	height: 50px;\r\n	transform: translateY(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="right"]:after {\r\n	position: absolute;\r\n	top: 50%;\r\n	left: 0;\r\n	content: "";\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="top"] {\r\n	top: -12.5px;\r\n	left: 50%;\r\n	transform: translateX(-50%);\r\n}\r\n\r\n.pops-tip .pops-tip-arrow[data-position="top"]:after {\r\n	position: absolute;\r\n	top: 100%;\r\n	left: 50%;\r\n	content: "";\r\n}\r\n\r\n.pops-tip[data-motion] {\r\n	-webkit-animation-duration: 0.25s;\r\n	animation-duration: 0.25s;\r\n	-webkit-animation-fill-mode: forwards;\r\n	animation-fill-mode: forwards;\r\n}\r\n.pops-tip[data-motion="fadeOutRight"] {\r\n	-webkit-animation-name: pops-motion-fadeOutRight;\r\n	animation-name: pops-motion-fadeOutRight;\r\n}\r\n.pops-tip[data-motion="fadeInTop"] {\r\n	-webkit-animation-name: pops-motion-fadeInTop;\r\n	animation-name: pops-motion-fadeInTop;\r\n	animation-timing-function: cubic-bezier(0.49, 0.49, 0.13, 1.3);\r\n}\r\n.pops-tip[data-motion="fadeOutTop"] {\r\n	-webkit-animation-name: pops-motion-fadeOutTop;\r\n	animation-name: pops-motion-fadeOutTop;\r\n	animation-timing-function: cubic-bezier(0.32, 0.37, 0.06, 0.87);\r\n}\r\n.pops-tip[data-motion="fadeInBottom"] {\r\n	-webkit-animation-name: pops-motion-fadeInBottom;\r\n	animation-name: pops-motion-fadeInBottom;\r\n}\r\n.pops-tip[data-motion="fadeOutBottom"] {\r\n	-webkit-animation-name: pops-motion-fadeOutBottom;\r\n	animation-name: pops-motion-fadeOutBottom;\r\n}\r\n.pops-tip[data-motion="fadeInLeft"] {\r\n	-webkit-animation-name: pops-motion-fadeInLeft;\r\n	animation-name: pops-motion-fadeInLeft;\r\n}\r\n.pops-tip[data-motion="fadeOutLeft"] {\r\n	-webkit-animation-name: pops-motion-fadeOutLeft;\r\n	animation-name: pops-motion-fadeOutLeft;\r\n}\r\n.pops-tip[data-motion="fadeInRight"] {\r\n	-webkit-animation-name: pops-motion-fadeInRight;\r\n	animation-name: pops-motion-fadeInRight;\r\n}\r\n\r\n/* github的样式 */\r\n.pops-tip.github-tooltip {\r\n	--tooltip-bg-opacity: 1;\r\n	--tooltip-color: #ffffff;\r\n	--tooltip-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\r\n	--tooltip-bd-radius: 6px;\r\n	--tooltip-padding-top: 6px;\r\n	--tooltip-padding-right: 8px;\r\n	--tooltip-padding-bottom: 6px;\r\n	--tooltip-padding-left: 8px;\r\n\r\n	--tooltip-arrow--after-color: rgb(255, 255, 255);\r\n	--tooltip-arrow--after-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\r\n	--tooltip-arrow--after-width: 8px;\r\n	--tooltip-arrow--after-height: 8px;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n	.pops-tip {\r\n		--tooltip-color: #ffffff;\r\n		--tooltip-bg-color: #fafafa;\r\n		--tooltip-arrow--after-color: #fafafa;\r\n		--tooltip-arrow--after-bg-color: rgb(250, 250, 250, var(--pops-bg-opacity));\r\n	}\r\n}\r\n';
-  var drawerCSS = '.pops[type-value="drawer"] {\r\n	position: fixed;\r\n	box-sizing: border-box;\r\n	display: flex;\r\n	flex-direction: column;\r\n	box-shadow: 0px 16px 48px 16px rgba(0, 0, 0, 0.08),\r\n		0px 12px 32px rgba(0, 0, 0, 0.12), 0px 8px 16px -8px rgba(0, 0, 0, 0.16);\r\n	overflow: hidden;\r\n	transition: all 0.3s;\r\n}\r\n\r\n.pops[type-value="drawer"][direction="top"] {\r\n	width: 100%;\r\n	left: 0;\r\n	right: 0;\r\n	top: 0;\r\n}\r\n.pops[type-value="drawer"][direction="bottom"] {\r\n	width: 100%;\r\n	left: 0;\r\n	right: 0;\r\n	bottom: 0;\r\n}\r\n.pops[type-value="drawer"][direction="left"] {\r\n	height: 100%;\r\n	top: 0;\r\n	bottom: 0;\r\n	left: 0;\r\n}\r\n.pops[type-value="drawer"][direction="right"] {\r\n	height: 100%;\r\n	top: 0;\r\n	bottom: 0;\r\n	right: 0;\r\n}\r\n';
-  var folderCSS = '.pops-folder-list {\r\n	--folder-arrow-fill-color: #d4d7de;\r\n	--folder-arrow-active-fill-color: #06a7ff;\r\n	--header-breadcrumb-text-color: #06a7ff;\r\n	--header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\r\n	--header-breadcrumb-all-files-first-text-color: var(\r\n		--header-breadcrumb-text-color\r\n	);\r\n	--header-breadcrumb-all-files-last-text-color: #999999;\r\n	--table-header-row-text-color: #818999;\r\n	--table-body-td-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\r\n	--table-body-th-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\r\n	--table-body-row-text-color: #05082c;\r\n	--table-body-row-file-name-text-color: #05082c;\r\n	--table-body-row-hover-bd-color: rgb(245, 246, 247, var(--pops-bg-opacity));\r\n	--table-body-row-hover-bg-color: rgb(245, 246, 247, var(--pops-bg-opacity));\r\n	--table-body-row-file-name-hover-text-color: #06a7ff;\r\n	--table-body-row-content-text-color: #818999;\r\n}\r\n.pops-folder-list .cursor-p {\r\n	cursor: pointer;\r\n}\r\n.pops-folder-list a {\r\n	background: 0 0;\r\n	text-decoration: none;\r\n	-webkit-tap-highlight-color: transparent;\r\n	color: var(--header-breadcrumb-text-color);\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n	width: 100%;\r\n	table-layout: fixed;\r\n	border-collapse: collapse;\r\n	border-spacing: 0;\r\n	padding: 0 20px;\r\n}\r\ntable.pops-folder-list-table__body,\r\ntable.pops-folder-list-table__header {\r\n	height: 100%;\r\n	background: 0 0;\r\n	overflow: hidden;\r\n	display: -webkit-box;\r\n	display: -ms-flexbox;\r\n	-ms-flex-direction: column;\r\n	-webkit-box-orient: vertical;\r\n	-webkit-box-direction: normal;\r\n}\r\ntable.pops-folder-list-table__body {\r\n	height: 100%;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n}\r\n.pops-folder-list table tr {\r\n	line-height: normal;\r\n	align-content: center;\r\n}\r\n.pops-folder-list-table__header-row {\r\n	height: 50px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	color: var(--table-header-row-text-color);\r\n	text-align: left;\r\n	font-size: 12px;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	user-select: none;\r\n}\r\n.pops-folder-list-table__body-row {\r\n	height: 50px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	color: var(--table-body-row-text-color);\r\n	font-size: 12px;\r\n}\r\n.pops-folder-list-table__body-row:hover {\r\n	background-color: var(--table-body-row-hover-bg-color);\r\n	border-color: var(--table-body-row-hover-bd-color);\r\n	border: 0;\r\n	outline: none;\r\n}\r\n.pops-folder-list table th {\r\n	border: 0;\r\n	border-bottom: 1px solid var(--table-body-th-text-color);\r\n}\r\n.pops-folder-list table td {\r\n	border: 0;\r\n	border-bottom: 1px solid var(--table-body-td-text-color);\r\n	position: relative;\r\n}\r\n.pops-folder-list .list-name-text {\r\n	display: inline-block;\r\n	padding-left: 12px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	max-width: 176px;\r\n}\r\n.pops-folder-list-file-name > div {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n\r\n.pops-mobile-folder-list-file-name {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops-mobile-folder-list-file-name > div {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	justify-content: flex-start;\r\n	align-items: flex-start;\r\n	padding: 6px 0px;\r\n	flex-direction: column;\r\n}\r\n.pops-mobile-folder-list-file-name img.pops-folder-list-file-icon {\r\n	width: 45px;\r\n	height: 45px;\r\n}\r\n.pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {\r\n	padding-left: unset;\r\n	max-width: 250px;\r\n	overflow-x: hidden;\r\n	font-weight: 400;\r\n	line-height: unset;\r\n	margin-bottom: 4px;\r\n	white-space: normal;\r\n	text-overflow: unset;\r\n}\r\n\r\n/* 修改滚动 */\r\n.pops-folder-content {\r\n	overflow: hidden !important;\r\n}\r\n.pops-folder-content .pops-folder-list {\r\n	height: 100%;\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\n.pops-folder-content .pops-folder-list-table__body-div {\r\n	height: 100%;\r\n	flex: 1 auto;\r\n	overflow: auto;\r\n	padding-bottom: 0;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__body-div {\r\n	height: 100%;\r\n	flex: 1 auto;\r\n	overflow: auto;\r\n	padding-bottom: 0;\r\n}\r\n.pops-folder-content table.pops-folder-list-table__body {\r\n	overflow: auto;\r\n}\r\n.pops-folder-content .pops-folder-list-table__header-div {\r\n	flex: 0;\r\n}\r\n.pops-mobile-folder-content .pops-folder-list-table__header-div {\r\n	display: none;\r\n}\r\n\r\n.pops-folder-list .pops-folder-list-file-name-title-text {\r\n	color: var(--table-body-row-file-name-text-color);\r\n}\r\n.pops-folder-list .pops-folder-list-file-name-title-text:hover {\r\n	text-decoration: none;\r\n	color: var(--table-body-row-file-name-hover-text-color);\r\n}\r\n.pops-folder-list .text-ellip {\r\n	overflow: hidden;\r\n	white-space: nowrap;\r\n	text-overflow: ellipsis;\r\n}\r\n.pops-folder-list .content {\r\n	color: var(--table-body-row-content-text-color);\r\n	position: relative;\r\n	width: 100%;\r\n	text-align: left;\r\n}\r\n.pops-folder-list .inline-block-v-middle {\r\n	display: inline-block;\r\n	vertical-align: middle;\r\n}\r\n.pops-folder-list .flex-a-i-center {\r\n	display: flex;\r\n	align-items: center;\r\n}\r\n.pops-folder-list .u-file-icon {\r\n	display: inline-block;\r\n	vertical-align: middle;\r\n}\r\n.pops-folder-list .u-file-icon--list {\r\n	width: 32px;\r\n	height: 32px;\r\n}\r\n.pops-folder-list .pops-folder-list-file-icon {\r\n	line-height: normal;\r\n	align-content: center;\r\n	position: relative;\r\n	vertical-align: middle;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-primary {\r\n	flex: 1;\r\n	display: -webkit-box;\r\n	display: -webkit-flex;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	-webkit-box-align: center;\r\n	-webkit-align-items: center;\r\n	-ms-flex-align: center;\r\n	align-items: center;\r\n	-webkit-box-orient: horizontal;\r\n	-webkit-box-direction: normal;\r\n	-webkit-flex-direction: row;\r\n	-ms-flex-direction: row;\r\n	flex-direction: row;\r\n	min-height: 17px;\r\n	flex-wrap: wrap;\r\n}\r\n.pops-folder-list .pops-folder-list-table__sort {\r\n	display: inline-flex;\r\n	margin-left: 4px;\r\n	flex-direction: column;\r\n}\r\n\r\n.pops-folder-list .pops-folder-icon-arrow {\r\n	width: 10px;\r\n	height: 10px;\r\n	fill: var(--folder-arrow-fill-color);\r\n}\r\n.pops-folder-list .pops-folder-icon-active {\r\n	fill: var(--folder-arrow-active-fill-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb {\r\n	padding: 4px 20px;\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	display: -webkit-box;\r\n	display: -webkit-flex;\r\n	display: -ms-flexbox;\r\n	display: flex;\r\n	-webkit-box-align: center;\r\n	-webkit-align-items: center;\r\n	-ms-flex-align: center;\r\n	align-items: center;\r\n	-webkit-box-orient: horizontal;\r\n	-webkit-box-direction: normal;\r\n	-webkit-flex-direction: row;\r\n	-ms-flex-direction: row;\r\n	flex-direction: row;\r\n	-webkit-box-pack: start;\r\n	-webkit-justify-content: start;\r\n	-ms-flex-pack: start;\r\n	justify-content: flex-start;\r\n	min-height: 35px;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {\r\n	font-size: 12px;\r\n	color: var(--header-breadcrumb-all-files-text-color);\r\n	line-height: normal;\r\n	align-content: center;\r\n	font-weight: 700;\r\n	display: inline-block;\r\n	max-width: 140px;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	word-wrap: normal;\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a {\r\n	color: var(--header-breadcrumb-all-files-last-text-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child a {\r\n	font-size: 14px;\r\n	color: var(--header-breadcrumb-all-files-first-text-color);\r\n}\r\n.pops-folder-list .pops-folder-file-list-breadcrumb .iconArrow {\r\n	width: 16px;\r\n	height: 16px;\r\n}\r\n.pops-folder-list .iconArrow {\r\n	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAASCAMAAABYd88+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTOLi4uLi4t7e3uPj49/f397e3t3d3f///97e3vDw8N3d3d7e3t3d3d3d3ejo6N/f397e3t7e3t3d3d/f393d3d3d3RK+NoEAAAAWdFJOUwAnM4YPU/iQA+UIeMDaHhY41i7zX7UebpjFAAAAUElEQVQI15XOORaAIAwE0LATXHCd+x9VfCiksXCq+UUWou8oZ1vXHrt7YVBiYkW4gdMKYFIC4CSATWCNHWPuM6HuHkr1x3N0ZrBu/9gl0b9c3+kF7C7hS1YAAAAASUVORK5CYII=)\r\n		55% 50%/6px 9px no-repeat;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n	.pops[type-value="folder"] {\r\n		--pops-title-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n		--pops-bottom-btn-controls-border-color: rgb(\r\n			73,\r\n			83,\r\n			102,\r\n			var(--pops-bg-opacity)\r\n		);\r\n	}\r\n	.pops-folder-list {\r\n		--header-breadcrumb-text-color: #06a7ff;\r\n		--header-breadcrumb-all-files-text-color: var(\r\n			--header-breadcrumb-text-color\r\n		);\r\n		--header-breadcrumb-all-files-first-text-color: var(\r\n			--header-breadcrumb-text-color\r\n		);\r\n		--header-breadcrumb-all-files-last-text-color: #818999;\r\n		--table-body-row-text-color: #f7f8fa;\r\n		--table-body-td-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n		--table-body-th-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\r\n		--table-body-td-text-color: #495366;\r\n		--table-body-row-hover-bd-color: #1f2022;\r\n		--table-body-row-hover-bg-color: #1f2022;\r\n		--table-body-row-file-name-text-color: #f7f8fa;\r\n	}\r\n}\r\n';
-  var panelCSS = '.pops[type-value="panel"] {\r\n	--pops-bg-color: #f2f2f2;\r\n	--pops-color: #333333;\r\n	--panel-title-bg-color: #ffffff;\r\n\r\n	--panel-aside-bg-color: #ffffff;\r\n	--panel-aside-hover-color: rgb(64, 158, 255);\r\n	--panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\r\n\r\n	--pops-panel-forms-margin-top-bottom: 10px;\r\n	--pops-panel-forms-margin-left-right: 20px;\r\n	--pops-panel-forms-header-icon-size: calc(\r\n		var(--pops-panel-forms-container-li-padding-left-right) + 1px\r\n	);\r\n	--pops-panel-forms-header-padding-top-bottom: 15px;\r\n	--pops-panel-forms-header-padding-left-right: 10px;\r\n	--pops-panel-forms-container-item-left-text-gap: 6px;\r\n	--pops-panel-forms-container-item-left-desc-text-size: 0.8em;\r\n	--pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n	--pops-panel-forms-container-item-bg-color: #ffffff;\r\n	--pops-panel-forms-container-item-title-color: #333;\r\n	--pops-panel-forms-container-item-border-radius: 6px;\r\n	--pops-panel-forms-container-item-margin-top-bottom: 10px;\r\n	--pops-panel-forms-container-item-margin-left-right: var(\r\n		--pops-panel-forms-margin-left-right\r\n	);\r\n	--pops-panel-forms-container-li-border-color: rgb(\r\n		229,\r\n		229,\r\n		229,\r\n		var(--pops-bd-opacity)\r\n	);\r\n	--pops-panel-forms-container-li-padding-top-bottom: 12px;\r\n	--pops-panel-forms-container-li-padding-left-right: 16px;\r\n}\r\n.pops[type-value="panel"] {\r\n	color: var(--pops-color);\r\n	background: var(--pops-bg-color);\r\n}\r\n.pops[type-value] .pops-panel-title {\r\n	background: var(--panel-title-bg-color);\r\n}\r\n\r\n/* ↓panel的CSS↓ */\r\naside.pops-panel-aside {\r\n	box-sizing: border-box;\r\n	flex-shrink: 0;\r\n	max-width: 200px;\r\n	min-width: 100px;\r\n	height: 100%;\r\n	background: var(--panel-aside-bg-color);\r\n	border-right: 1px solid var(--panel-aside-bg-color);\r\n	font-size: 0.9em;\r\n	display: flex;\r\n	flex-direction: column;\r\n	justify-content: space-between;\r\n}\r\naside.pops-panel-aside {\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n}\r\naside.pops-panel-aside .pops-panel-aside-top-container {\r\n	overflow: auto;\r\n}\r\n.pops-panel-content {\r\n	display: flex;\r\n	flex-direction: row;\r\n	flex: 1;\r\n	overflow: auto;\r\n	flex-basis: auto;\r\n	box-sizing: border-box;\r\n	min-width: 0;\r\n	bottom: 0 !important;\r\n}\r\nsection.pops-panel-container {\r\n	width: 100%;\r\n	overflow: hidden;\r\n	display: flex;\r\n	flex-direction: column;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul,\r\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\r\n	border-bottom: 1px solid rgb(229, 229, 229, var(--pops-bd-opacity));\r\n	flex: 0 auto;\r\n}\r\nsection.pops-panel-container .pops-panel-container-header-ul li,\r\nsection.pops-panel-container\r\n	.pops-panel-container-header-ul\r\n	li.pops-panel-container-header-title-text {\r\n	display: flex;\r\n	justify-content: flex-start !important;\r\n	margin: 0px !important;\r\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n		calc(\r\n			var(--pops-panel-forms-margin-left-right) +\r\n				var(--pops-panel-forms-container-li-padding-left-right)\r\n		);\r\n	text-align: left;\r\n}\r\nsection.pops-panel-container ul.pops-panel-container-main-ul {\r\n	overflow: auto;\r\n	/*flex: 1;*/\r\n}\r\naside.pops-panel-aside ul li {\r\n	margin: 6px 8px;\r\n	border-radius: 4px;\r\n	padding: 6px 10px;\r\n	cursor: default;\r\n	display: flex;\r\n	align-items: center;\r\n	justify-content: flex-start;\r\n}\r\naside.pops-panel-aside .pops-is-visited,\r\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\r\n	color: var(--panel-aside-hover-color);\r\n	background: var(--panel-aside-hover-bg-color);\r\n}\r\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	margin: var(--pops-panel-forms-margin-top-bottom)\r\n		calc(\r\n			var(--pops-panel-forms-margin-left-right) +\r\n				var(--pops-panel-forms-margin-left-right)\r\n		);\r\n	gap: 10px;\r\n}\r\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\r\n	margin: 10px;\r\n	margin-left: calc(\r\n		var(--pops-panel-forms-margin-left-right) +\r\n			var(--pops-panel-forms-container-li-padding-left-right)\r\n	);\r\n	font-size: 0.9em;\r\n	text-align: left;\r\n	color: var(--pops-panel-forms-container-item-title-color);\r\n}\r\nsection.pops-panel-container li.pops-panel-forms-container-item {\r\n	display: block;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	ul.pops-panel-forms-container-item-formlist {\r\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n	background: var(--pops-panel-forms-container-item-bg-color);\r\n	margin: var(--pops-panel-forms-container-item-margin-top-bottom)\r\n		var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	ul.pops-panel-forms-container-item-formlist\r\n	li {\r\n	display: flex;\r\n	justify-content: space-between;\r\n	align-items: center;\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\r\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\r\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\r\n	text-align: left;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	ul\r\n	li.pops-panel-deepMenu-nav-item {\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom)\r\n		var(--pops-panel-forms-container-li-padding-left-right);\r\n	margin: 0px;\r\n	border-bottom: 0;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-container-item\r\n	ul.pops-panel-forms-container-item-formlist\r\n	li:last-child {\r\n	border: 0;\r\n}\r\n/* 左侧的文字 */\r\nsection.pops-panel-container .pops-panel-item-left-text {\r\n	display: flex;\r\n	flex-direction: column;\r\n	gap: var(--pops-panel-forms-container-item-left-text-gap);\r\n}\r\n\r\n/* 左侧的主文字 */\r\n/*section.pops-panel-container .pops-panel-item-left-main-text {\r\n	\r\n}*/\r\n/* 左侧的描述文字 */\r\nsection.pops-panel-container .pops-panel-item-left-desc-text {\r\n	font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\r\n	color: var(--pops-panel-forms-container-item-left-desc-text-color);\r\n}\r\n\r\n/* 折叠面板 */\r\n\r\nsection.pops-panel-container .pops-panel-forms-fold {\r\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\r\n	background: var(--pops-panel-forms-container-item-bg-color);\r\n	margin: var(--pops-panel-forms-margin-top-bottom)\r\n		var(--pops-panel-forms-margin-left-right);\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold\r\n	.pops-panel-forms-fold-container {\r\n	display: flex;\r\n	align-items: center;\r\n	fill: #6c6c6c;\r\n	justify-content: space-between;\r\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\r\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold[data-fold-enable]\r\n	.pops-panel-forms-fold-container-icon {\r\n	transform: rotate(90deg);\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold\r\n	.pops-panel-forms-fold-container-icon {\r\n	width: 15px;\r\n	height: 15px;\r\n	display: flex;\r\n	align-items: center;\r\n	transform: rotate(-90deg);\r\n	transition: transform 0.3s;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold[data-fold-enable]\r\n	.pops-panel-forms-container-item-formlist {\r\n	height: 0;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-forms-fold\r\n	.pops-panel-forms-container-item-formlist {\r\n	transition: height 0.3s;\r\n	overflow: hidden;\r\n	border-radius: unset;\r\n	background: unset;\r\n	margin: 0;\r\n	height: auto;\r\n	height: calc-size(auto, size);\r\n}\r\n/* 折叠面板 */\r\n\r\n/* 姑且认为小于600px的屏幕为移动端 */\r\n@media (max-width: 600px) {\r\n	/* 兼容移动端CSS */\r\n	.pops[type-value="panel"] {\r\n		--pops-panel-forms-margin-left-right: 10px;\r\n	}\r\n	.pops[type-value="panel"] {\r\n		width: 92%;\r\n		width: 92vw;\r\n		width: 92dvw;\r\n	}\r\n	.pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\r\n		max-width: 20%;\r\n		min-width: auto;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-forms-container-item\r\n		> div {\r\n		text-align: left;\r\n		--pops-panel-forms-margin-left-right: 0px;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-forms-container-item\r\n		ul {\r\n		margin: 0px !important;\r\n	}\r\n	.pops[type-value="panel"] section.pops-panel-container > ul > li {\r\n		margin: 10px 10px;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		> ul\r\n		> li\r\n		div:nth-child(2) {\r\n		max-width: 55%;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-select\r\n		select {\r\n		min-width: 88px !important;\r\n		width: -webkit-fill-available;\r\n		width: -moz-available;\r\n	}\r\n	.pops[type-value="panel"]\r\n		section.pops-panel-container\r\n		.pops-panel-container-header-ul\r\n		li {\r\n		font-size: 16px;\r\n	}\r\n	.pops[type-value="panel"] .pops-panel-title p[pops],\r\n	.pops[type-value="panel"] section.pops-panel-container > ul li,\r\n	.pops[type-value="panel"] aside.pops-panel-aside ul li {\r\n		font-size: 14px;\r\n	}\r\n}\r\n/* switch的CSS */\r\n.pops-panel-switch {\r\n	--panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n	--panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n	--panel-switch-circle-color: #dcdfe6;\r\n	--panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	--panel-switch-checked-circle-color: #409eff;\r\n	--panel-switch-checked-core-bd-color: rgb(\r\n		64,\r\n		158,\r\n		255,\r\n		var(--pops-bd-opacity)\r\n	);\r\n	--panel-switch-checked-core-bg-color: rgb(\r\n		64,\r\n		158,\r\n		255,\r\n		var(--pops-bg-opacity)\r\n	);\r\n}\r\n.pops-panel-switch {\r\n	display: inline-flex;\r\n	flex-direction: row-reverse;\r\n	align-items: center;\r\n	position: relative;\r\n	font-size: 14px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	height: 32px;\r\n	vertical-align: middle;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-ms-user-select: none;\r\n	-moz-user-select: none;\r\n}\r\n.pops-panel-switch input.pops-panel-switch__input {\r\n	position: absolute;\r\n	width: 0;\r\n	height: 0;\r\n	opacity: 0;\r\n	margin: 0;\r\n}\r\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\r\n.pops-panel-switch[data-disabled],\r\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\r\n.pops-panel-switch\r\n	input.pops-panel-switch__input:disabled\r\n	+ .pops-panel-switch__core {\r\n	cursor: not-allowed;\r\n	opacity: 0.6;\r\n}\r\n.pops-panel-switch span.pops-panel-switch__core {\r\n	display: inline-flex;\r\n	position: relative;\r\n	align-items: center;\r\n	min-width: 40px;\r\n	height: 20px;\r\n	border: 1px solid var(--panel-switch-core-bd-color);\r\n	outline: 0;\r\n	border-radius: 10px;\r\n	box-sizing: border-box;\r\n	background: var(--panel-switch-core-bg-color);\r\n	cursor: pointer;\r\n	transition: border-color 0.3s, background-color 0.3s;\r\n}\r\n.pops-panel-switch .pops-panel-switch__action {\r\n	position: absolute;\r\n	left: 1px;\r\n	border-radius: 100%;\r\n	transition: all 0.3s;\r\n	width: 16px;\r\n	height: 16px;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	background-color: var(--panel-switch-circle-bg-color);\r\n	color: var(--panel-switch-circle-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\r\n	border-color: var(--panel-switch-checked-core-bd-color);\r\n	background-color: var(--panel-switch-checked-core-bg-color);\r\n}\r\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\r\n	left: calc(100% - 17px);\r\n	color: var(--panel-switch-checked-circle-color);\r\n}\r\n/* switch的CSS */\r\n\r\n/* slider旧的CSS */\r\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\r\n	overflow: hidden;\r\n	height: 25px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\r\n	height: 6px;\r\n	background: rgb(228, 231, 237, var(--pops-bg-opacity));\r\n	outline: 0;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	width: 100%;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-slider\r\n	input[type="range"]::-webkit-slider-thumb {\r\n	width: 20px;\r\n	height: 20px;\r\n	border-radius: 50%;\r\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	box-shadow: 0 0 2px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-slider\r\n	input[type="range"]::-moz-range-thumb {\r\n	width: 20px;\r\n	height: 20px;\r\n	border-radius: 50%;\r\n	border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\r\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n	box-shadow: 0 0 2px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);\r\n	cursor: pointer;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n}\r\nsection.pops-panel-container\r\n	.pops-panel-slider\r\n	input[type="range"]::-moz-range-progress {\r\n	height: 6px;\r\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\r\n}\r\n/* slider旧的CSS */\r\n\r\n/* slider的CSS */\r\n.pops-slider {\r\n	--pops-slider-color-white: #ffffff;\r\n	--pops-slider-color-primary: #409eff;\r\n	--pops-slider-color-info: #909399;\r\n	--pops-slider-text-color-placeholder: #a8abb2;\r\n	--pops-slider-border-color-light: #e4e7ed;\r\n	--pops-slider-border-radius-circle: 100%;\r\n	--pops-slider-transition-duration-fast: 0.2s;\r\n\r\n	--pops-slider-main-bg-color: var(--pops-slider-color-primary);\r\n	--pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\r\n	--pops-slider-stop-bg-color: var(--pops-slider-color-white);\r\n	--pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\r\n	--pops-slider-border-radius: 3px;\r\n	--pops-slider-height: 6px;\r\n	--pops-slider-button-size: 20px;\r\n	--pops-slider-button-wrapper-size: 36px;\r\n	--pops-slider-button-wrapper-offset: -15px;\r\n}\r\n\r\n.pops-slider {\r\n	width: 100%;\r\n	height: 32px;\r\n	display: flex;\r\n	align-items: center;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-ms-user-select: none;\r\n	-moz-user-select: none;\r\n}\r\n\r\n.pops-slider-width {\r\n	flex: 0 0 52%;\r\n	margin-left: 10px;\r\n}\r\n\r\n.pops-slider__runway {\r\n	flex: 1;\r\n	height: var(--pops-slider-height);\r\n	background-color: var(--pops-slider-runway-bg-color);\r\n	border-radius: var(--pops-slider-border-radius);\r\n	position: relative;\r\n	cursor: pointer;\r\n}\r\n\r\n.pops-slider__runway.show-input {\r\n	margin-right: 30px;\r\n	width: auto;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled {\r\n	cursor: default;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\r\n	background-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\r\n	border-color: var(--pops-slider-disabled-color);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n	cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n	transform: scale(1);\r\n}\r\n\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\r\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\r\n	cursor: not-allowed;\r\n}\r\n\r\n.pops-slider__input {\r\n	flex-shrink: 0;\r\n	width: 130px;\r\n}\r\n\r\n.pops-slider__bar {\r\n	height: var(--pops-slider-height);\r\n	background-color: var(--pops-slider-main-bg-color);\r\n	border-top-left-radius: var(--pops-slider-border-radius);\r\n	border-bottom-left-radius: var(--pops-slider-border-radius);\r\n	position: absolute;\r\n}\r\n\r\n.pops-slider__button-wrapper {\r\n	height: var(--pops-slider-button-wrapper-size);\r\n	width: var(--pops-slider-button-wrapper-size);\r\n	position: absolute;\r\n	z-index: 1;\r\n	top: var(--pops-slider-button-wrapper-offset);\r\n	transform: translate(-50%);\r\n	background-color: transparent;\r\n	text-align: center;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	line-height: normal;\r\n	outline: none;\r\n}\r\n\r\n.pops-slider__button-wrapper:after {\r\n	display: inline-block;\r\n	content: "";\r\n	height: 100%;\r\n	vertical-align: middle;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n	cursor: grab;\r\n}\r\n\r\n.pops-slider__button {\r\n	display: inline-block;\r\n	width: var(--pops-slider-button-size);\r\n	height: var(--pops-slider-button-size);\r\n	vertical-align: middle;\r\n	border: solid 2px var(--pops-slider-main-bg-color);\r\n	background-color: var(--pops-slider-color-white);\r\n	border-radius: 50%;\r\n	box-sizing: border-box;\r\n	transition: var(--pops-slider-transition-duration-fast);\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover,\r\n.pops-slider__button.dragging {\r\n	transform: scale(1.2);\r\n}\r\n\r\n.pops-slider__button:hover,\r\n.pops-slider__button.hover {\r\n	cursor: grab;\r\n}\r\n\r\n.pops-slider__button.dragging {\r\n	cursor: grabbing;\r\n}\r\n\r\n.pops-slider__stop {\r\n	position: absolute;\r\n	height: var(--pops-slider-height);\r\n	width: var(--pops-slider-height);\r\n	border-radius: var(--pops-slider-border-radius-circle);\r\n	background-color: var(--pops-slider-stop-bg-color);\r\n	transform: translate(-50%);\r\n}\r\n\r\n.pops-slider__marks {\r\n	top: 0;\r\n	left: 12px;\r\n	width: 18px;\r\n	height: 100%;\r\n}\r\n\r\n.pops-slider__marks-text {\r\n	position: absolute;\r\n	transform: translate(-50%);\r\n	font-size: 14px;\r\n	color: var(--pops-slider-color-info);\r\n	margin-top: 15px;\r\n	white-space: pre;\r\n}\r\n\r\n.pops-slider.is-vertical {\r\n	position: relative;\r\n	display: inline-flex;\r\n	width: auto;\r\n	height: 100%;\r\n	flex: 0;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__runway {\r\n	width: var(--pops-slider-height);\r\n	height: 100%;\r\n	margin: 0 16px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__bar {\r\n	width: var(--pops-slider-height);\r\n	height: auto;\r\n	border-radius: 0 0 3px 3px;\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__button-wrapper {\r\n	top: auto;\r\n	left: var(--pops-slider-button-wrapper-offset);\r\n	transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__stop {\r\n	transform: translateY(50%);\r\n}\r\n\r\n.pops-slider.is-vertical .pops-slider__marks-text {\r\n	margin-top: 0;\r\n	left: 15px;\r\n	transform: translateY(50%);\r\n}\r\n\r\n.pops-slider--large {\r\n	height: 40px;\r\n}\r\n\r\n.pops-slider--small {\r\n	height: 24px;\r\n}\r\n/* slider的CSS */\r\n\r\n/* input的CSS */\r\n.pops-panel-input {\r\n	--el-disabled-text-color: #a8abb2;\r\n	--el-disabled-bg-color: #f5f7fa;\r\n	--el-disabled-border-color: #e4e7ed;\r\n\r\n	--pops-panel-components-input-text-color: #000000;\r\n	--pops-panel-components-input-text-bg-color: transparent;\r\n	--pops-panel-components-input-bd-color: #dcdfe6;\r\n	--pops-panel-components-input-bg-color: #ffffff;\r\n	--pops-panel-components-input-hover-bd-color: #c0c4cc;\r\n	--pops-panel-components-input-focus-bd-color: #409eff;\r\n	--pops-panel-components-input-suffix-color: #a8abb2;\r\n}\r\n.pops-panel-input {\r\n	display: flex;\r\n	align-items: center;\r\n	border: 1px solid var(--pops-panel-components-input-bd-color);\r\n	border-radius: 4px;\r\n	background-color: var(--pops-panel-components-input-bg-color);\r\n	position: relative;\r\n	box-shadow: none;\r\n}\r\n.pops-panel-input:hover {\r\n	border: 1px solid var(--pops-panel-components-input-hover-bd-color);\r\n}\r\n.pops-panel-input:has(input:disabled):hover {\r\n	--pops-panel-components-input-hover-bd-color: var(\r\n		--pops-panel-components-input-bd-color\r\n	);\r\n}\r\n.pops-panel-input:has(input:focus) {\r\n	outline: 0;\r\n	border: 1px solid var(--pops-panel-components-input-focus-bd-color);\r\n	border-radius: 4px;\r\n	box-shadow: none;\r\n}\r\n.pops-panel-input input {\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	text-align: start;\r\n	align-items: center;\r\n	align-content: center;\r\n	white-space: nowrap;\r\n	cursor: text;\r\n	box-sizing: border-box;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	vertical-align: middle;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	color: var(--pops-panel-components-input-text-color);\r\n	background-color: var(--pops-panel-components-input-text-bg-color);\r\n	outline: 0;\r\n	transition: 0.1s;\r\n	border: 0;\r\n	font-size: 14px;\r\n	font-weight: 500;\r\n	line-height: normal;\r\n	height: 32px;\r\n	width: 100%;\r\n	flex: 1;\r\n	margin-right: calc(1em + 8px);\r\n	padding: 8px 8px;\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix {\r\n	display: inline-flex;\r\n	white-space: nowrap;\r\n	flex-shrink: 0;\r\n	flex-wrap: nowrap;\r\n	height: 100%;\r\n	text-align: center;\r\n	color: var(--pops-panel-components-input-suffix-color);\r\n	transition: all 0.3s;\r\n	pointer-events: none;\r\n	margin: 0 8px;\r\n	position: absolute;\r\n	right: 0px;\r\n}\r\n.pops-panel-input span.pops-panel-input__suffix-inner {\r\n	pointer-events: all;\r\n	display: inline-flex;\r\n	align-items: center;\r\n	justify-content: center;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n	cursor: pointer;\r\n}\r\n.pops-panel-input .pops-panel-icon {\r\n	height: inherit;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	transition: all 0.3s;\r\n}\r\n.pops-panel-input .pops-panel-icon svg {\r\n	height: 1em;\r\n	width: 1em;\r\n}\r\n\r\n.pops-input-disabled {\r\n	background-color: var(--el-disabled-bg-color);\r\n}\r\n.pops-panel-input.pops-input-disabled {\r\n	border: none;\r\n}\r\n.pops-panel-input.pops-input-disabled:hover {\r\n	--pops-panel-components-input-hover-bd-color: var(\r\n		--pops-panel-components-input-bd-color\r\n	);\r\n}\r\n.pops-panel-input input:disabled,\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	color: var(--el-disabled-text-color);\r\n	-webkit-text-fill-color: var(--el-disabled-text-color);\r\n	cursor: not-allowed;\r\n}\r\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\r\n	display: none;\r\n}\r\n/* input的CSS */\r\n\r\n/* textarea的CSS */\r\n.pops-panel-textarea {\r\n	--pops-panel-components-textarea-text-color: #000000;\r\n	--pops-panel-components-textarea-text-bg-color: #ffffff;\r\n	--pops-panel-components-textarea-bd-color: #dcdfe6;\r\n	--pops-panel-components-textarea-hover-bd-color: #c0c4cc;\r\n	--pops-panel-components-textarea-focus-bd-color: #409eff;\r\n}\r\n.pops-panel-textarea textarea {\r\n	width: 100%;\r\n	/*vertical-align: bottom;*/\r\n	position: relative;\r\n	display: block;\r\n	resize: none;\r\n	padding: 5px 11px;\r\n	/*line-height: 1;*/\r\n	box-sizing: border-box;\r\n	font-size: inherit;\r\n	font-family: inherit;\r\n	color: var(--pops-panel-components-textarea-text-color);\r\n	background-color: var(--pops-panel-components-textarea-text-bg-color);\r\n	background-image: none;\r\n	-webkit-appearance: none;\r\n	appearance: none;\r\n	box-shadow: none;\r\n	border-radius: 0;\r\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\r\n	border: 1px solid var(--pops-panel-components-textarea-bd-color);\r\n}\r\n.pops-panel-textarea textarea:hover {\r\n	border-color: var(--pops-panel-components-textarea-hover-bd-color);\r\n}\r\n.pops-panel-textarea:has(textarea:disabled):hover {\r\n	--pops-panel-components-textarea-hover-bd-color: var(\r\n		--pops-panel-components-textarea-bd-color\r\n	);\r\n}\r\n.pops-panel-textarea-disable .pops-panel-textarea textarea:hover {\r\n	box-shadow: none;\r\n}\r\n.pops-panel-textarea textarea:focus {\r\n	outline: 0;\r\n	border-color: var(--pops-panel-components-textarea-focus-bd-color);\r\n}\r\n/* textarea的CSS */\r\n\r\n/* select的CSS */\r\n.pops-panel-select {\r\n	--pops-panel-components-select-text-color: #000000;\r\n	--pops-panel-components-select-bd-color: rgb(\r\n		184,\r\n		184,\r\n		184,\r\n		var(--pops-bd-opacity)\r\n	);\r\n	--pops-panel-components-select-bg-color: rgb(\r\n		255,\r\n		255,\r\n		255,\r\n		var(--pops-bg-opacity)\r\n	);\r\n	--pops-panel-components-select-hover-bd-color: #c0c4cc;\r\n}\r\n.pops-panel-select {\r\n	border: 0;\r\n}\r\n.pops-panel-select select {\r\n	height: 32px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	min-width: 200px;\r\n	border: 1px solid var(--pops-panel-components-select-bd-color);\r\n	border-radius: 5px;\r\n	text-align: center;\r\n	outline: 0;\r\n	color: var(--pops-panel-components-select-text-color);\r\n	background-color: var(--pops-panel-components-select-bg-color);\r\n	box-shadow: none;\r\n}\r\n.pops-panel-select select:hover {\r\n	--pops-panel-components-select-bd-color: var(\r\n		--pops-panel-components-select-hover-bd-color\r\n	);\r\n}\r\n.pops-panel-select-disable .pops-panel-select select:hover {\r\n	box-shadow: none;\r\n}\r\n.pops-panel-select select:focus {\r\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\r\n	box-shadow: none;\r\n}\r\n/* select的CSS */\r\n\r\n/* select-multiple的CSS*/\r\n.pops-panel-select-multiple {\r\n	--el-border-radius-base: 4px;\r\n	--el-fill-color-blank: #ffffff;\r\n	--el-transition-duration: 0.3s;\r\n	--el-border-color: #dcdfe6;\r\n	--el-text-color-placeholder: #a8abb2;\r\n	--color: inherit;\r\n	--el-select-input-color: #a8abb2;\r\n	--el-select-input-font-size: 14px;\r\n	--el-text-color-regular: #606266;\r\n	--el-color-info: #909399;\r\n	--el-color-info-light-9: #f4f4f5;\r\n	--el-color-info-light-8: #e9e9eb;\r\n	--el-color-primary-light-9: #ecf5ff;\r\n	--el-color-primary-light-8: #d9ecff;\r\n	--el-color-primary: #409eff;\r\n	--el-color-white: #ffffff;\r\n	width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper {\r\n	display: flex;\r\n	align-items: center;\r\n	position: relative;\r\n	box-sizing: border-box;\r\n	cursor: pointer;\r\n	text-align: left;\r\n	font-size: 14px;\r\n	padding: 4px 12px;\r\n	gap: 6px;\r\n	min-height: 32px;\r\n	line-height: normal;\r\n	align-content: center;\r\n	border-radius: var(--el-border-radius-base);\r\n	background-color: var(--el-fill-color-blank);\r\n	transition: var(--el-transition-duration);\r\n	transform: translateZ(0);\r\n	box-shadow: 0 0 0 1px var(--el-border-color) inset;\r\n}\r\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\r\n	box-shadow: 0 0 0 1px var(--el-color-primary) inset;\r\n}\r\n.pops-panel-select-multiple .el-select__selection {\r\n	position: relative;\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	align-items: center;\r\n	flex: 1;\r\n	min-width: 0;\r\n	gap: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__selected-item {\r\n	display: flex;\r\n	flex-wrap: wrap;\r\n	-webkit-user-select: none;\r\n	user-select: none;\r\n}\r\n.pops-panel-select-multiple\r\n	.el-select__selected-item.el-select__choose_tag\r\n	.el-tag {\r\n	max-width: 200px;\r\n}\r\n.pops-panel-select-multiple .el-select__input-wrapper {\r\n	max-width: 100%;\r\n}\r\n.pops-panel-select-multiple .el-select__selection.is-near {\r\n	margin-left: -8px;\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder {\r\n	position: absolute;\r\n	display: block;\r\n	top: 50%;\r\n	transform: translateY(-50%);\r\n	width: 100%;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n	color: var(--el-input-text-color, var(--el-text-color-regular));\r\n}\r\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\r\n	-webkit-user-select: none;\r\n	user-select: none;\r\n	color: var(--el-text-color-placeholder);\r\n}\r\n.pops-panel-select-multiple .el-select__prefix,\r\n.pops-panel-select-multiple .el-select__suffix {\r\n	display: flex;\r\n	align-items: center;\r\n	flex-shrink: 0;\r\n	gap: 6px;\r\n	color: var(--el-input-icon-color, var(--el-text-color-placeholder));\r\n}\r\n.pops-panel-select-multiple .el-icon {\r\n	--color: inherit;\r\n	height: 1em;\r\n	width: 1em;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n	color: var(--color);\r\n	font-size: inherit;\r\n}\r\n.pops-panel-select-multiple .el-icon svg {\r\n	height: 1em;\r\n	width: 1em;\r\n}\r\n.pops-panel-select-multiple .el-select__caret {\r\n	color: var(--el-select-input-color);\r\n	font-size: var(--el-select-input-font-size);\r\n	transition: var(--el-transition-duration);\r\n	transform: rotate(0);\r\n	cursor: pointer;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n	--el-tag-font-size: 12px;\r\n	--el-tag-border-radius: 4px;\r\n	--el-tag-border-radius-rounded: 9999px;\r\n}\r\n.pops-panel-select-multiple .el-tag {\r\n	background-color: var(--el-tag-bg-color);\r\n	border-color: var(--el-tag-border-color);\r\n	color: var(--el-tag-text-color);\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	vertical-align: middle;\r\n	height: 24px;\r\n	padding: 0 9px;\r\n	font-size: var(--el-tag-font-size);\r\n	line-height: normal;\r\n	align-content: center;\r\n	border-width: 1px;\r\n	border-style: solid;\r\n	border-radius: var(--el-tag-border-radius);\r\n	box-sizing: border-box;\r\n	white-space: nowrap;\r\n	--el-icon-size: 14px;\r\n	--el-tag-bg-color: var(--el-color-primary-light-9);\r\n	--el-tag-border-color: var(--el-color-primary-light-8);\r\n	--el-tag-hover-color: var(--el-color-primary);\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag {\r\n	cursor: pointer;\r\n	border-color: transparent;\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n	--el-tag-bg-color: var(--el-color-info-light-9);\r\n	--el-tag-border-color: var(--el-color-info-light-8);\r\n	--el-tag-hover-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.el-tag--info {\r\n	--el-tag-text-color: var(--el-color-info);\r\n}\r\n.pops-panel-select-multiple .el-tag.is-closable {\r\n	padding-right: 5px;\r\n}\r\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\r\n	min-width: 0;\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n	flex-shrink: 0;\r\n	color: var(--el-tag-text-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\r\n	color: var(--el-color-white);\r\n	background-color: var(--el-tag-hover-color);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-icon {\r\n	border-radius: 50%;\r\n	cursor: pointer;\r\n	font-size: calc(var(--el-icon-size) - 2px);\r\n	height: var(--el-icon-size);\r\n	width: var(--el-icon-size);\r\n}\r\n.pops-panel-select-multiple .el-tag .el-tag__close {\r\n	margin-left: 6px;\r\n}\r\n.pops-panel-select-multiple .el-select__tags-text {\r\n	display: block;\r\n	line-height: normal;\r\n	align-content: center;\r\n	overflow: hidden;\r\n	text-overflow: ellipsis;\r\n	white-space: nowrap;\r\n}\r\n/* select-multiple的CSS*/\r\n\r\n/* deepMenu的css */\r\n.pops-panel-deepMenu-nav-item {\r\n	cursor: pointer;\r\n}\r\n.pops-panel-deepMenu-nav-item:active {\r\n	background: #e9e9e9;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\r\n	display: flex;\r\n	align-items: center;\r\n	color: #6c6c6c;\r\n	fill: #6c6c6c;\r\n}\r\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\r\n	width: 15px;\r\n	height: 15px;\r\n	display: flex;\r\n	align-items: center;\r\n}\r\nsection.pops-panel-deepMenu-container\r\n	.pops-panel-container-header-ul\r\n	li.pops-panel-deepMenu-container-header {\r\n	display: flex;\r\n	align-items: center;\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\r\n		calc(\r\n			var(--pops-panel-forms-margin-left-right) +\r\n				var(--pops-panel-forms-container-li-padding-left-right) -\r\n				var(--pops-panel-forms-header-icon-size)\r\n		);\r\n	gap: 0px;\r\n}\r\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\r\n	width: var(--pops-panel-forms-header-icon-size);\r\n	height: var(--pops-panel-forms-header-icon-size);\r\n	display: flex;\r\n	align-items: center;\r\n	cursor: pointer;\r\n}\r\n/* 修复safari上图标大小未正常显示 */\r\n.pops-panel-deepMenu-container\r\n	.pops-panel-deepMenu-container-left-arrow-icon\r\n	> svg {\r\n	width: inherit;\r\n	height: inherit;\r\n}\r\n/* deepMenu的css */\r\n\r\n/* 文字对齐 */\r\n.pops-panel-item-left-desc-text:has(code) {\r\n	display: flex;\r\n	align-items: baseline;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n	.pops[type-value="panel"] {\r\n		--pops-bg-color: #000000;\r\n		--pops-color: #f2f2f2;\r\n		--panel-title-bg-color: #000000;\r\n		--panel-aside-bg-color: #262626;\r\n		--pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\r\n		--pops-panel-forms-container-item-bg-color: #262626;\r\n		--pops-panel-forms-container-item-title-color: #c1c1c1;\r\n\r\n		--pops-panel-forms-container-li-border-color: rgb(\r\n			51,\r\n			51,\r\n			51,\r\n			var(--pops-bd-opacity)\r\n		);\r\n	}\r\n	.pops[type-value="panel"]\r\n		.pops-panel-deepMenu-container\r\n		.pops-panel-deepMenu-container-left-arrow-icon {\r\n		fill: #f2f2f2;\r\n	}\r\n\r\n	/* switch的CSS */\r\n	.pops-panel-switch {\r\n		--panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\r\n		--panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\r\n		--panel-switch-circle-color: #dcdfe6;\r\n		--panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\r\n		--panel-switch-checked-circle-color: #409eff;\r\n		--panel-switch-checked-core-bd-color: rgb(\r\n			64,\r\n			158,\r\n			255,\r\n			var(--pops-bd-opacity)\r\n		);\r\n		--panel-switch-checked-core-bg-color: rgb(\r\n			64,\r\n			158,\r\n			255,\r\n			var(--pops-bg-opacity)\r\n		);\r\n	}\r\n	/* select的CSS */\r\n	.pops-panel-select {\r\n		--pops-panel-components-select-text-color: #f2f2f2;\r\n		--pops-panel-components-select-bd-color: rgb(\r\n			51,\r\n			51,\r\n			51,\r\n			var(--pops-bd-opacity)\r\n		);\r\n		--pops-panel-components-select-bg-color: #141414;\r\n	}\r\n	/* select-multiple的CSS*/\r\n	.pops-panel-select-multiple {\r\n		--el-fill-color-blank: #141414;\r\n		--el-border-color: #4c4d4f;\r\n		--el-text-color-placeholder: #a8abb2;\r\n		--el-select-input-color: #a8abb2;\r\n		--el-text-color-regular: #606266;\r\n		--el-color-info: #909399;\r\n		--el-color-info-light-8: #e9e9eb;\r\n		--el-color-primary-light-9: #ecf5ff;\r\n		--el-color-primary-light-8: #d9ecff;\r\n		--el-color-primary: #409eff;\r\n		--el-color-white: #ffffff;\r\n	}\r\n	/* select-multiple的CSS*/\r\n	.pops-panel-select-multiple .el-tag {\r\n		--el-color-info-light-9: #202121;\r\n	}\r\n	/* slider的CSS */\r\n	.pops-slider {\r\n		--pops-slider-border-color-light: #414243;\r\n	}\r\n	/* input的CSS */\r\n	.pops-panel-input {\r\n		--pops-panel-components-input-text-color: #f2f2f2;\r\n		--pops-panel-components-input-bd-color: #4f5052;\r\n		--pops-panel-components-input-bg-color: #141414;\r\n		--pops-panel-components-input-hover-bd-color: #6f7175;\r\n		--pops-panel-components-input-focus-bd-color: #409eff;\r\n		--pops-panel-components-input-suffix-color: #a8abb2;\r\n	}\r\n	/* textarea的CSS */\r\n	.pops-panel-textarea {\r\n		--pops-panel-components-textarea-text-color: #f2f2f2;\r\n		--pops-panel-components-textarea-text-bg-color: #141414;\r\n		--pops-panel-components-textarea-bd-color: #4f5052;\r\n		--pops-panel-components-textarea-hover-bd-color: #6f7175;\r\n		--pops-panel-components-textarea-focus-bd-color: #409eff;\r\n	}\r\n}\r\n';
-  var rightClickMenuCSS = '.pops-rightClickMenu {\r\n	--pops-right-context-color: #000000;\r\n	--pops-right-context-bg-color: #ffffff;\r\n	--pops-right-context-z-index: 10000;\r\n	--pops-right-context-menu-shadow-color: #cacaca;\r\n	--pops-right-context-menu-row-visited-color: #dfdfdf;\r\n	--pops-right-context-menu-row-hover-color: #dfdfdf;\r\n}\r\n.pops-rightClickMenu * {\r\n	-webkit-box-sizing: border-box;\r\n	box-sizing: border-box;\r\n	margin: 0;\r\n	padding: 0;\r\n	-webkit-tap-highlight-color: transparent;\r\n	scrollbar-width: thin;\r\n}\r\n.pops-rightClickMenu {\r\n	position: fixed;\r\n	z-index: var(--pops-right-context-z-index);\r\n	text-align: center;\r\n	border-radius: 3px;\r\n	font-size: 16px;\r\n	font-weight: 500;\r\n	color: var(--pops-right-context-color);\r\n	background-color: var(--pops-right-context-bg-color);\r\n	box-shadow: 0px 1px 6px 1px var(--pops-right-context-menu-shadow-color);\r\n}\r\n.pops-rightClickMenu-anim-grid {\r\n	display: grid;\r\n	transition: 0.3s;\r\n	grid-template-rows: 0fr;\r\n}\r\n.pops-rightClickMenu-anim-show {\r\n	grid-template-rows: 1fr;\r\n}\r\n.pops-rightClickMenu-is-visited {\r\n	background: var(--pops-right-context-menu-row-visited-color);\r\n}\r\ni.pops-rightClickMenu-icon {\r\n	height: 1em;\r\n	width: 1em;\r\n	line-height: normal;\r\n	align-content: center;\r\n	display: inline-flex;\r\n	justify-content: center;\r\n	align-items: center;\r\n	position: relative;\r\n	fill: currentColor;\r\n	color: inherit;\r\n	font-size: inherit;\r\n	margin-right: 6px;\r\n}\r\ni.pops-rightClickMenu-icon[is-loading="true"] {\r\n	animation: rotating 2s linear infinite;\r\n}\r\n.pops-rightClickMenu li:hover {\r\n	background: var(--pops-right-context-menu-row-hover-color);\r\n	cursor: pointer;\r\n}\r\n.pops-rightClickMenu ul {\r\n	margin: 0;\r\n	padding: 0;\r\n	display: flex;\r\n	flex-direction: column;\r\n	align-items: flex-start;\r\n	justify-content: center;\r\n	overflow: hidden;\r\n}\r\n.pops-rightClickMenu ul li {\r\n	padding: 5px 10px;\r\n	margin: 5px 5px;\r\n	border-radius: 3px;\r\n	display: flex;\r\n	width: -webkit-fill-available;\r\n	width: -moz-available;\r\n	text-align: left;\r\n	user-select: none;\r\n	-webkit-user-select: none;\r\n	-moz-user-select: none;\r\n	-ms-user-select: none;\r\n	align-items: center;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n	.pops-rightClickMenu {\r\n		--pops-right-context-menu-shadow-color: #3c3c3c;\r\n	}\r\n}\r\n';
+  var promptCSS = '.pops[type-value="prompt"] {\n	--input-color: #000000;\n	--input-bg-color: none;\n	--input-placeholder-color: #a1a4ac;\n}\n.pops[type-value="prompt"] input[pops],\n.pops[type-value="prompt"] textarea[pops] {\n	width: 100%;\n	height: 100%;\n	outline: 0;\n	border: 0;\n	color: var(--input-color);\n	background-color: var(--input-bg-color);\n}\n\n.pops[type-value="prompt"] input[pops] {\n	padding: 5px 10px;\n}\n.pops[type-value="prompt"] textarea[pops] {\n	padding: 5px 10px;\n	resize: none;\n}\n\n.pops[type-value="prompt"] input[pops]::placeholder,\n.pops[type-value="prompt"] textarea[pops]::placeholder {\n	color: var(--input-placeholder-color);\n}\n@media (prefers-color-scheme: dark) {\n	.pops[type-value="prompt"] {\n		--input-color: #ffffff;\n		--input-bg-color: #333333;\n		--input-placeholder-color: #8d9095;\n	}\n}\n';
+  var loadingCSS = '.pops[type-value="loading"] {\n	--loading-bd-color: rgba(0, 0, 0, 0.2);\n	--loading-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	--loading-box-shadow-color: rgb(0 0 0 / 50%);\n	--loading-icon-color: rgba(100, 149, 237, 0.1);\n	--loading-icon-bd-top-color: rgb(100, 149, 237, var(--pops-bd-opacity));\n}\n.pops[type-value="loading"] {\n	position: absolute;\n	top: 272.5px;\n	top: 50%;\n	left: 26px;\n	left: 50%;\n	display: flex;\n	overflow: hidden;\n	padding: 10px 15px;\n	max-width: 100%;\n	max-height: 100%;\n	min-width: 0;\n	min-height: 0;\n	border: 1px solid var(--loading-bd-color);\n	border-radius: 5px;\n	background-color: var(--loading-bg-color);\n	box-shadow: 0 0 5px var(--loading-box-shadow-color);\n	vertical-align: middle;\n	transition: all 0.35s;\n	transform: translate(-50%, -50%);\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	flex-direction: column;\n	align-items: center;\n	justify-content: center;\n	align-content: center;\n}\n.pops[type-value="loading"]:before {\n	float: left;\n	display: inline-block;\n	width: 2em;\n	height: 2em;\n	border: 0.3em solid var(--loading-icon-color);\n	border-top: 0.3em solid var(--loading-icon-bd-top-color);\n	border-radius: 50%;\n	content: " ";\n	vertical-align: middle;\n	font-size: inherit;\n	animation: pops-anim-wait-rotate 1.2s linear infinite;\n}\n.pops[type-value="loading"] .pops-loading-content {\n	position: static;\n	top: 0;\n	bottom: 0;\n	float: left;\n	overflow: hidden;\n	width: auto;\n	font-size: inherit;\n	line-height: normal;\n	align-content: center;\n}\n\n@media (prefers-color-scheme: dark) {\n	.pops[type-value="loading"] {\n		--loading-bg-color: #222222;\n	}\n}\n';
+  var iframeCSS = '.pops[type-value="iframe"] {\n	--container-title-height: 55px;\n	transition:\n		width 0.35s ease,\n		height 0.35s ease;\n}\n.pops[type-value="iframe"] .pops-content {\n	overflow: hidden;\n}\n.pops-loading {\n	position: absolute;\n	top: 40px;\n	right: 0;\n	bottom: 0;\n	left: 0;\n	z-index: 5;\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n}\n.pops-loading:before {\n	position: absolute;\n	top: 50%;\n	left: 50%;\n	z-index: 3;\n	display: block;\n	margin: -20px 0 0 -20px;\n	padding: 20px;\n	border: 4px solid rgb(221, 221, 221, var(--pops-bd-opacity));\n	border-radius: 50%;\n	content: "";\n	border-top-color: transparent;\n	animation: pops-anim-wait-rotate 1.2s linear infinite;\n}\n.pops[type-value="iframe"].pops[type-module="min"] {\n	bottom: 0;\n	max-width: 200px;\n	max-height: 53px;\n	position: unset;\n}\n.pops[type-value="iframe"].pops[type-module="min"] .pops-header-control[data-type="min"] {\n	display: none;\n}\n.pops[type-value="iframe"].pops-iframe-unset-top {\n	top: unset !important;\n}\n.pops[type-value="iframe"].pops-iframe-unset-left {\n	left: unset !important;\n}\n.pops[type-value="iframe"].pops-iframe-unset-transform {\n	transform: none !important;\n}\n.pops[type-value="iframe"].pops-iframe-unset-transition {\n	transition: none !important;\n}\n.pops[type-value="iframe"].pops[type-module="max"] {\n	width: 100% !important;\n	height: 100% !important;\n}\n.pops[type-value="iframe"] iframe[pops] {\n	width: 100%;\n	height: 100%;\n	border: 0;\n}\n.pops-iframe-content-global-loading {\n	position: absolute;\n	top: 0;\n	left: 0;\n	z-index: 999999;\n	width: 0;\n	height: 4px;\n	background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\n	animation: iframeLoadingChange 2s forwards;\n}\n\n.pops-anim:has(.pops[type-value="iframe"].pops[type-module="min"]) {\n	position: unset;\n}\n';
+  var tooltipCSS = '.pops-tip {\n	--pops-bg-opacity: 1;\n	--tooltip-color: #4e4e4e;\n	--tooltip-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	--tooltip-bd-radius: 2px;\n	--tooltip-box-shadow-left-color: rgba(0, 0, 0, 0.24);\n	--tooltip-box-shadow-right-color: rgba(0, 0, 0, 0.12);\n	--tooltip-font-size: 14px;\n	--tooltip-padding-top: 13px;\n	--tooltip-padding-right: 13px;\n	--tooltip-padding-bottom: 13px;\n	--tooltip-padding-left: 13px;\n\n	--tooltip-arrow-box-shadow-left-color: rgba(0, 0, 0, 0.24);\n	--tooltip-arrow-box-shadow-right-color: rgba(0, 0, 0, 0.12);\n	--tooltip-arrow--after-color: rgb(78, 78, 78);\n	--tooltip-arrow--after-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	--tooltip-arrow--after-width: 12px;\n	--tooltip-arrow--after-height: 12px;\n}\n.pops-tip {\n	padding: var(--tooltip-padding-top) var(--tooltip-padding-right) var(--tooltip-padding-bottom)\n		var(--tooltip-padding-left);\n	max-width: 400px;\n	max-height: 300px;\n	border-radius: var(--tooltip-bd-radius);\n	background-color: var(--tooltip-bg-color);\n	box-shadow:\n		0 1.5px 4px var(--tooltip-box-shadow-left-color),\n		0 1.5px 6px var(--tooltip-box-shadow-right-color);\n	color: var(--tooltip-color);\n	font-size: var(--tooltip-font-size);\n}\n.pops-tip[data-position="absolute"] {\n	position: absolute;\n}\n.pops-tip[data-position="fixed"] {\n	position: fixed;\n}\n\n.pops-tip .pops-tip-arrow {\n	position: absolute;\n	top: 100%;\n	left: 50%;\n	overflow: hidden;\n	width: 100%;\n	height: 12.5px;\n	transform: translateX(-50%);\n}\n\n.pops-tip .pops-tip-arrow::after {\n	position: absolute;\n	top: 0;\n	left: 50%;\n	width: var(--tooltip-arrow--after-width);\n	height: var(--tooltip-arrow--after-height);\n	background: var(--tooltip-arrow--after-bg-color);\n	color: var(--tooltip-arrow--after-color);\n	box-shadow:\n		0 1px 7px var(--tooltip-arrow-box-shadow-left-color),\n		0 1px 7px var(--tooltip-arrow-box-shadow-right-color);\n	content: "";\n	transform: translateX(-50%) translateY(-50%) rotate(45deg);\n}\n\n.pops-tip .pops-tip-arrow[data-position="bottom"] {\n	position: absolute;\n	top: 100%;\n	left: 50%;\n	overflow: hidden;\n	width: 100%;\n	height: 12.5px;\n	transform: translateX(-50%);\n}\n\n.pops-tip .pops-tip-arrow[data-position="bottom"]:after {\n	position: absolute;\n	top: 0;\n	left: 50%;\n	width: var(--tooltip-arrow--after-width);\n	height: var(--tooltip-arrow--after-height);\n	background: var(--tooltip-arrow--after-bg-color);\n	box-shadow:\n		0 1px 7px var(--tooltip-arrow-box-shadow-left-color),\n		0 1px 7px var(--tooltip-arrow-box-shadow-right-color);\n	content: "";\n	transform: translateX(-50%) translateY(-50%) rotate(45deg);\n}\n\n.pops-tip .pops-tip-arrow[data-position="left"] {\n	top: 50%;\n	left: -12.5px;\n	width: 12.5px;\n	height: 50px;\n	transform: translateY(-50%);\n}\n\n.pops-tip .pops-tip-arrow[data-position="left"]:after {\n	position: absolute;\n	top: 50%;\n	left: 100%;\n	content: "";\n}\n\n.pops-tip .pops-tip-arrow[data-position="right"] {\n	top: 50%;\n	right: -12.5px;\n	left: auto;\n	width: 12.5px;\n	height: 50px;\n	transform: translateY(-50%);\n}\n\n.pops-tip .pops-tip-arrow[data-position="right"]:after {\n	position: absolute;\n	top: 50%;\n	left: 0;\n	content: "";\n}\n\n.pops-tip .pops-tip-arrow[data-position="top"] {\n	top: -12.5px;\n	left: 50%;\n	transform: translateX(-50%);\n}\n\n.pops-tip .pops-tip-arrow[data-position="top"]:after {\n	position: absolute;\n	top: 100%;\n	left: 50%;\n	content: "";\n}\n\n.pops-tip[data-motion] {\n	-webkit-animation-duration: 0.25s;\n	animation-duration: 0.25s;\n	-webkit-animation-fill-mode: forwards;\n	animation-fill-mode: forwards;\n}\n.pops-tip[data-motion="fadeOutRight"] {\n	-webkit-animation-name: pops-motion-fadeOutRight;\n	animation-name: pops-motion-fadeOutRight;\n}\n.pops-tip[data-motion="fadeInTop"] {\n	-webkit-animation-name: pops-motion-fadeInTop;\n	animation-name: pops-motion-fadeInTop;\n	animation-timing-function: cubic-bezier(0.49, 0.49, 0.13, 1.3);\n}\n.pops-tip[data-motion="fadeOutTop"] {\n	-webkit-animation-name: pops-motion-fadeOutTop;\n	animation-name: pops-motion-fadeOutTop;\n	animation-timing-function: cubic-bezier(0.32, 0.37, 0.06, 0.87);\n}\n.pops-tip[data-motion="fadeInBottom"] {\n	-webkit-animation-name: pops-motion-fadeInBottom;\n	animation-name: pops-motion-fadeInBottom;\n}\n.pops-tip[data-motion="fadeOutBottom"] {\n	-webkit-animation-name: pops-motion-fadeOutBottom;\n	animation-name: pops-motion-fadeOutBottom;\n}\n.pops-tip[data-motion="fadeInLeft"] {\n	-webkit-animation-name: pops-motion-fadeInLeft;\n	animation-name: pops-motion-fadeInLeft;\n}\n.pops-tip[data-motion="fadeOutLeft"] {\n	-webkit-animation-name: pops-motion-fadeOutLeft;\n	animation-name: pops-motion-fadeOutLeft;\n}\n.pops-tip[data-motion="fadeInRight"] {\n	-webkit-animation-name: pops-motion-fadeInRight;\n	animation-name: pops-motion-fadeInRight;\n}\n\n/* github的样式 */\n.pops-tip.github-tooltip {\n	--tooltip-bg-opacity: 1;\n	--tooltip-color: #ffffff;\n	--tooltip-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\n	--tooltip-bd-radius: 6px;\n	--tooltip-padding-top: 6px;\n	--tooltip-padding-right: 8px;\n	--tooltip-padding-bottom: 6px;\n	--tooltip-padding-left: 8px;\n\n	--tooltip-arrow--after-color: rgb(255, 255, 255);\n	--tooltip-arrow--after-bg-color: rgb(36, 41, 47, var(--tooltip-bg-opacity));\n	--tooltip-arrow--after-width: 8px;\n	--tooltip-arrow--after-height: 8px;\n}\n\n@media (prefers-color-scheme: dark) {\n	.pops-tip {\n		--tooltip-color: #ffffff;\n		--tooltip-bg-color: #fafafa;\n		--tooltip-arrow--after-color: #fafafa;\n		--tooltip-arrow--after-bg-color: rgb(250, 250, 250, var(--pops-bg-opacity));\n	}\n}\n';
+  var drawerCSS = '.pops[type-value="drawer"] {\n	position: fixed;\n	box-sizing: border-box;\n	display: flex;\n	flex-direction: column;\n	box-shadow:\n		0px 16px 48px 16px rgba(0, 0, 0, 0.08),\n		0px 12px 32px rgba(0, 0, 0, 0.12),\n		0px 8px 16px -8px rgba(0, 0, 0, 0.16);\n	overflow: hidden;\n	transition: all 0.3s;\n}\n\n.pops[type-value="drawer"][direction="top"] {\n	width: 100%;\n	left: 0;\n	right: 0;\n	top: 0;\n}\n.pops[type-value="drawer"][direction="bottom"] {\n	width: 100%;\n	left: 0;\n	right: 0;\n	bottom: 0;\n}\n.pops[type-value="drawer"][direction="left"] {\n	height: 100%;\n	top: 0;\n	bottom: 0;\n	left: 0;\n}\n.pops[type-value="drawer"][direction="right"] {\n	height: 100%;\n	top: 0;\n	bottom: 0;\n	right: 0;\n}\n';
+  var folderCSS = '.pops-folder-list {\n	--folder-arrow-fill-color: #d4d7de;\n	--folder-arrow-active-fill-color: #06a7ff;\n	--header-breadcrumb-text-color: #06a7ff;\n	--header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\n	--header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\n	--header-breadcrumb-all-files-last-text-color: #999999;\n	--table-header-row-text-color: #818999;\n	--table-body-td-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\n	--table-body-th-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\n	--table-body-row-text-color: #05082c;\n	--table-body-row-file-name-text-color: #05082c;\n	--table-body-row-hover-bd-color: rgb(245, 246, 247, var(--pops-bg-opacity));\n	--table-body-row-hover-bg-color: rgb(245, 246, 247, var(--pops-bg-opacity));\n	--table-body-row-file-name-hover-text-color: #06a7ff;\n	--table-body-row-content-text-color: #818999;\n}\n.pops-folder-list .cursor-p {\n	cursor: pointer;\n}\n.pops-folder-list a {\n	background: 0 0;\n	text-decoration: none;\n	-webkit-tap-highlight-color: transparent;\n	color: var(--header-breadcrumb-text-color);\n}\ntable.pops-folder-list-table__body,\ntable.pops-folder-list-table__header {\n	width: 100%;\n	table-layout: fixed;\n	border-collapse: collapse;\n	border-spacing: 0;\n	padding: 0 20px;\n}\ntable.pops-folder-list-table__body,\ntable.pops-folder-list-table__header {\n	height: 100%;\n	background: 0 0;\n	overflow: hidden;\n	display: -webkit-box;\n	display: -ms-flexbox;\n	-ms-flex-direction: column;\n	-webkit-box-orient: vertical;\n	-webkit-box-direction: normal;\n}\ntable.pops-folder-list-table__body {\n	height: 100%;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	user-select: none;\n}\n.pops-folder-list table tr {\n	line-height: normal;\n	align-content: center;\n}\n.pops-folder-list-table__header-row {\n	height: 50px;\n	line-height: normal;\n	align-content: center;\n	color: var(--table-header-row-text-color);\n	text-align: left;\n	font-size: 12px;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	user-select: none;\n}\n.pops-folder-list-table__body-row {\n	height: 50px;\n	line-height: normal;\n	align-content: center;\n	color: var(--table-body-row-text-color);\n	font-size: 12px;\n}\n.pops-folder-list-table__body-row:hover {\n	background-color: var(--table-body-row-hover-bg-color);\n	border-color: var(--table-body-row-hover-bd-color);\n	border: 0;\n	outline: none;\n}\n.pops-folder-list table th {\n	border: 0;\n	border-bottom: 1px solid var(--table-body-th-text-color);\n}\n.pops-folder-list table td {\n	border: 0;\n	border-bottom: 1px solid var(--table-body-td-text-color);\n	position: relative;\n}\n.pops-folder-list .list-name-text {\n	display: inline-block;\n	padding-left: 12px;\n	line-height: normal;\n	align-content: center;\n	max-width: 176px;\n}\n.pops-folder-list-file-name > div {\n	display: flex;\n	align-items: center;\n}\n\n.pops-mobile-folder-list-file-name {\n	display: flex;\n	align-items: center;\n}\n.pops-mobile-folder-list-file-name > div {\n	display: flex;\n	flex-wrap: wrap;\n	justify-content: flex-start;\n	align-items: flex-start;\n	padding: 6px 0px;\n	flex-direction: column;\n}\n.pops-mobile-folder-list-file-name img.pops-folder-list-file-icon {\n	width: 45px;\n	height: 45px;\n}\n.pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {\n	padding-left: unset;\n	max-width: 250px;\n	overflow-x: hidden;\n	font-weight: 400;\n	line-height: unset;\n	margin-bottom: 4px;\n	white-space: normal;\n	text-overflow: unset;\n}\n\n/* 修改滚动 */\n.pops-folder-content {\n	overflow: hidden !important;\n}\n.pops-folder-content .pops-folder-list {\n	height: 100%;\n	display: flex;\n	flex-direction: column;\n}\n.pops-folder-content .pops-folder-list-table__body-div {\n	height: 100%;\n	flex: 1 auto;\n	overflow: auto;\n	padding-bottom: 0;\n}\n.pops-mobile-folder-content .pops-folder-list-table__body-div {\n	height: 100%;\n	flex: 1 auto;\n	overflow: auto;\n	padding-bottom: 0;\n}\n.pops-folder-content table.pops-folder-list-table__body {\n	overflow: auto;\n}\n.pops-folder-content .pops-folder-list-table__header-div {\n	flex: 0;\n}\n.pops-mobile-folder-content .pops-folder-list-table__header-div {\n	display: none;\n}\n\n.pops-folder-list .pops-folder-list-file-name-title-text {\n	color: var(--table-body-row-file-name-text-color);\n}\n.pops-folder-list .pops-folder-list-file-name-title-text:hover {\n	text-decoration: none;\n	color: var(--table-body-row-file-name-hover-text-color);\n}\n.pops-folder-list .text-ellip {\n	overflow: hidden;\n	white-space: nowrap;\n	text-overflow: ellipsis;\n}\n.pops-folder-list .content {\n	color: var(--table-body-row-content-text-color);\n	position: relative;\n	width: 100%;\n	text-align: left;\n}\n.pops-folder-list .inline-block-v-middle {\n	display: inline-block;\n	vertical-align: middle;\n}\n.pops-folder-list .flex-a-i-center {\n	display: flex;\n	align-items: center;\n}\n.pops-folder-list .u-file-icon {\n	display: inline-block;\n	vertical-align: middle;\n}\n.pops-folder-list .u-file-icon--list {\n	width: 32px;\n	height: 32px;\n}\n.pops-folder-list .pops-folder-list-file-icon {\n	line-height: normal;\n	align-content: center;\n	position: relative;\n	vertical-align: middle;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-primary {\n	flex: 1;\n	display: -webkit-box;\n	display: -webkit-flex;\n	display: -ms-flexbox;\n	display: flex;\n	-webkit-box-align: center;\n	-webkit-align-items: center;\n	-ms-flex-align: center;\n	align-items: center;\n	-webkit-box-orient: horizontal;\n	-webkit-box-direction: normal;\n	-webkit-flex-direction: row;\n	-ms-flex-direction: row;\n	flex-direction: row;\n	min-height: 17px;\n	flex-wrap: wrap;\n}\n.pops-folder-list .pops-folder-list-table__sort {\n	display: inline-flex;\n	margin-left: 4px;\n	flex-direction: column;\n}\n\n.pops-folder-list .pops-folder-icon-arrow {\n	width: 10px;\n	height: 10px;\n	fill: var(--folder-arrow-fill-color);\n}\n.pops-folder-list .pops-folder-icon-active {\n	fill: var(--folder-arrow-active-fill-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb {\n	padding: 4px 20px;\n	-webkit-box-sizing: border-box;\n	box-sizing: border-box;\n	display: -webkit-box;\n	display: -webkit-flex;\n	display: -ms-flexbox;\n	display: flex;\n	-webkit-box-align: center;\n	-webkit-align-items: center;\n	-ms-flex-align: center;\n	align-items: center;\n	-webkit-box-orient: horizontal;\n	-webkit-box-direction: normal;\n	-webkit-flex-direction: row;\n	-ms-flex-direction: row;\n	flex-direction: row;\n	-webkit-box-pack: start;\n	-webkit-justify-content: start;\n	-ms-flex-pack: start;\n	justify-content: flex-start;\n	min-height: 35px;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {\n	font-size: 12px;\n	color: var(--header-breadcrumb-all-files-text-color);\n	line-height: normal;\n	align-content: center;\n	font-weight: 700;\n	display: inline-block;\n	max-width: 140px;\n	overflow: hidden;\n	text-overflow: ellipsis;\n	white-space: nowrap;\n	word-wrap: normal;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a {\n	color: var(--header-breadcrumb-all-files-last-text-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child a {\n	font-size: 14px;\n	color: var(--header-breadcrumb-all-files-first-text-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb .iconArrow {\n	width: 16px;\n	height: 16px;\n}\n.pops-folder-list .iconArrow {\n	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAASCAMAAABYd88+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTOLi4uLi4t7e3uPj49/f397e3t3d3f///97e3vDw8N3d3d7e3t3d3d3d3ejo6N/f397e3t7e3t3d3d/f393d3d3d3RK+NoEAAAAWdFJOUwAnM4YPU/iQA+UIeMDaHhY41i7zX7UebpjFAAAAUElEQVQI15XOORaAIAwE0LATXHCd+x9VfCiksXCq+UUWou8oZ1vXHrt7YVBiYkW4gdMKYFIC4CSATWCNHWPuM6HuHkr1x3N0ZrBu/9gl0b9c3+kF7C7hS1YAAAAASUVORK5CYII=)\n		55% 50%/6px 9px no-repeat;\n}\n\n@media (prefers-color-scheme: dark) {\n	.pops[type-value="folder"] {\n		--pops-title-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n		--pops-bottom-btn-controls-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n	}\n	.pops-folder-list {\n		--header-breadcrumb-text-color: #06a7ff;\n		--header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\n		--header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\n		--header-breadcrumb-all-files-last-text-color: #818999;\n		--table-body-row-text-color: #f7f8fa;\n		--table-body-td-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n		--table-body-th-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n		--table-body-td-text-color: #495366;\n		--table-body-row-hover-bd-color: #1f2022;\n		--table-body-row-hover-bg-color: #1f2022;\n		--table-body-row-file-name-text-color: #f7f8fa;\n	}\n}\n';
+  var panelCSS = '.pops[type-value="panel"] {\n	--pops-bg-color: #f2f2f2;\n	--pops-color: #333333;\n	--panel-title-bg-color: #ffffff;\n\n	--panel-aside-bg-color: #ffffff;\n	--panel-aside-hover-color: rgb(64, 158, 255);\n	--panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\n\n	--pops-panel-forms-margin-top-bottom: 10px;\n	--pops-panel-forms-margin-left-right: 20px;\n	--pops-panel-forms-header-icon-size: calc(var(--pops-panel-forms-container-li-padding-left-right) + 1px);\n	--pops-panel-forms-header-padding-top-bottom: 15px;\n	--pops-panel-forms-header-padding-left-right: 10px;\n	--pops-panel-forms-container-item-left-text-gap: 6px;\n	--pops-panel-forms-container-item-left-desc-text-size: 0.8em;\n	--pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n	--pops-panel-forms-container-item-bg-color: #ffffff;\n	--pops-panel-forms-container-item-title-color: #333;\n	--pops-panel-forms-container-item-border-radius: 6px;\n	--pops-panel-forms-container-item-margin-top-bottom: 10px;\n	--pops-panel-forms-container-item-margin-left-right: var(--pops-panel-forms-margin-left-right);\n	--pops-panel-forms-container-li-border-color: var(--pops-bd-color);\n	--pops-panel-forms-container-li-padding-top-bottom: 12px;\n	--pops-panel-forms-container-li-padding-left-right: 16px;\n\n	--pops-panel-forms-container-deepMenu-item-active-bg: #e9e9e9;\n}\n.pops[type-value="panel"] {\n	color: var(--pops-color);\n	background: var(--pops-bg-color);\n}\n.pops[type-value] .pops-panel-title {\n	background: var(--panel-title-bg-color);\n}\n\n/* ↓panel的CSS↓ */\naside.pops-panel-aside {\n	box-sizing: border-box;\n	flex-shrink: 0;\n	max-width: 200px;\n	min-width: 100px;\n	height: 100%;\n	background: var(--panel-aside-bg-color);\n	border-right: 1px solid var(--panel-aside-bg-color);\n	font-size: 0.9em;\n	display: flex;\n	flex-direction: column;\n	justify-content: space-between;\n}\naside.pops-panel-aside {\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n}\naside.pops-panel-aside .pops-panel-aside-top-container {\n	overflow: auto;\n}\n.pops-panel-content {\n	display: flex;\n	flex-direction: row;\n	flex: 1;\n	overflow: auto;\n	flex-basis: auto;\n	box-sizing: border-box;\n	min-width: 0;\n	bottom: 0 !important;\n}\nsection.pops-panel-container {\n	width: 100%;\n	overflow: hidden;\n	display: flex;\n	flex-direction: column;\n}\nsection.pops-panel-container .pops-panel-container-header-ul,\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\n	border-bottom: 1px solid rgba(223, 223, 223, var(--pops-bg-opacity));\n	flex: 0 auto;\n}\nsection.pops-panel-container .pops-panel-container-header-ul li,\nsection.pops-panel-container .pops-panel-container-header-ul li.pops-panel-container-header-title-text {\n	display: flex;\n	justify-content: flex-start !important;\n	margin: 0px !important;\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\n		calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right));\n	text-align: left;\n}\nsection.pops-panel-container ul.pops-panel-container-main-ul {\n	overflow: auto;\n	/*flex: 1;*/\n}\naside.pops-panel-aside ul li {\n	margin: 6px 8px;\n	border-radius: 4px;\n	padding: 6px 10px;\n	cursor: default;\n	display: flex;\n	align-items: center;\n	justify-content: flex-start;\n}\naside.pops-panel-aside .pops-is-visited,\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\n	color: var(--panel-aside-hover-color);\n	background: var(--panel-aside-hover-bg-color);\n}\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\n	display: flex;\n	justify-content: space-between;\n	align-items: center;\n	margin: var(--pops-panel-forms-margin-top-bottom)\n		calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));\n	gap: 10px;\n}\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\n	margin: 10px;\n	margin-left: calc(\n		var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right)\n	);\n	font-size: 0.9em;\n	text-align: left;\n	color: var(--pops-panel-forms-container-item-title-color);\n}\nsection.pops-panel-container li.pops-panel-forms-container-item {\n	/* 去除<li>左侧的圆点 */\n	display: block;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist {\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\n	background: var(--pops-panel-forms-container-item-bg-color);\n	margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist li {\n	display: flex;\n	justify-content: space-between;\n	align-items: center;\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n		var(--pops-panel-forms-container-li-padding-left-right);\n	margin: 0px 0px;\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n	text-align: left;\n}\n/*section.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item {\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n}*/\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul.pops-panel-forms-container-item-formlist\n	li:last-child {\n	border: 0px;\n}\n/* 左侧的文字 */\nsection.pops-panel-container .pops-panel-item-left-text {\n	display: flex;\n	flex-direction: column;\n	gap: var(--pops-panel-forms-container-item-left-text-gap);\n}\n\n/* 左侧的主文字 */\n/*section.pops-panel-container .pops-panel-item-left-main-text {\n	\n}*/\n/* 左侧的描述文字 */\nsection.pops-panel-container .pops-panel-item-left-desc-text {\n	font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\n	color: var(--pops-panel-forms-container-item-left-desc-text-color);\n}\n\n/* 折叠面板 */\nsection.pops-panel-container .pops-panel-forms-fold {\n	border-radius: var(--pops-panel-forms-container-item-border-radius);\n	background: var(--pops-panel-forms-container-item-bg-color);\n	margin: var(--pops-panel-forms-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container {\n	display: flex;\n	align-items: center;\n	fill: #6c6c6c;\n	justify-content: space-between;\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\n}\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-fold-container-icon {\n	transform: rotate(90deg);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container-icon {\n	width: 15px;\n	height: 15px;\n	display: flex;\n	align-items: center;\n	transform: rotate(-90deg);\n	transition: transform 0.3s;\n}\n/* 折叠状态 */\nsection.pops-panel-container\n	.pops-panel-forms-fold[data-fold-enable]\n	.pops-panel-forms-container-item-formlist {\n	height: 0;\n}\n/* 非折叠状态 */\nsection.pops-panel-container .pops-panel-forms-fold ul.pops-panel-forms-container-item-formlist {\n	margin: 0;\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-item-formlist {\n	transition: height 0.3s;\n	overflow: hidden;\n	border-radius: unset;\n	background: unset;\n	margin: 0;\n	height: calc-size(auto, size);\n}\n/* 折叠面板 */\n\n/* 姑且认为小于600px的屏幕为移动端 */\n@media (max-width: 600px) {\n	/* 兼容移动端CSS */\n	.pops[type-value="panel"] {\n		--pops-panel-forms-margin-left-right: 10px;\n	}\n	.pops[type-value="panel"] {\n		width: 92%;\n		width: 92vw;\n		width: 92dvw;\n	}\n	.pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\n		max-width: 20%;\n		min-width: auto;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item > div {\n		text-align: left;\n		--pops-panel-forms-margin-left-right: 0px;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item ul {\n		margin: 0px !important;\n	}\n	.pops[type-value="panel"] section.pops-panel-container > ul > li {\n		margin: 10px 10px;\n	}\n	.pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {\n		max-width: 55%;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {\n		min-width: 88px !important;\n		width: -webkit-fill-available;\n		width: -moz-available;\n	}\n	.pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {\n		font-size: 16px;\n	}\n	.pops[type-value="panel"] .pops-panel-title p[pops],\n	.pops[type-value="panel"] section.pops-panel-container > ul li,\n	.pops[type-value="panel"] aside.pops-panel-aside ul li {\n		font-size: 14px;\n	}\n}\n/* switch的CSS */\n.pops-panel-switch {\n	--panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n	--panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n	--panel-switch-circle-color: #dcdfe6;\n	--panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	--panel-switch-checked-circle-color: #409eff;\n	--panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n	--panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n}\n.pops-panel-switch {\n	display: inline-flex;\n	flex-direction: row-reverse;\n	align-items: center;\n	position: relative;\n	font-size: 14px;\n	line-height: normal;\n	align-content: center;\n	height: 32px;\n	vertical-align: middle;\n	user-select: none;\n	-webkit-user-select: none;\n	-ms-user-select: none;\n	-moz-user-select: none;\n}\n.pops-panel-switch input.pops-panel-switch__input {\n	position: absolute;\n	width: 0;\n	height: 0;\n	opacity: 0;\n	margin: 0;\n}\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\n.pops-panel-switch[data-disabled],\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\n.pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core {\n	cursor: not-allowed;\n	opacity: 0.6;\n}\n.pops-panel-switch span.pops-panel-switch__core {\n	display: inline-flex;\n	position: relative;\n	align-items: center;\n	min-width: 40px;\n	height: 20px;\n	border: 1px solid var(--panel-switch-core-bd-color);\n	outline: 0;\n	border-radius: 10px;\n	box-sizing: border-box;\n	background: var(--panel-switch-core-bg-color);\n	cursor: pointer;\n	transition:\n		border-color 0.3s,\n		background-color 0.3s;\n}\n.pops-panel-switch .pops-panel-switch__action {\n	position: absolute;\n	left: 1px;\n	border-radius: 100%;\n	transition: all 0.3s;\n	width: 16px;\n	height: 16px;\n	display: flex;\n	justify-content: center;\n	align-items: center;\n	background-color: var(--panel-switch-circle-bg-color);\n	color: var(--panel-switch-circle-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\n	border-color: var(--panel-switch-checked-core-bd-color);\n	background-color: var(--panel-switch-checked-core-bg-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\n	left: calc(100% - 17px);\n	color: var(--panel-switch-checked-circle-color);\n}\n/* switch的CSS */\n\n/* slider旧的CSS */\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\n	overflow: hidden;\n	height: 25px;\n	line-height: normal;\n	align-content: center;\n	display: flex;\n	align-items: center;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\n	height: 6px;\n	background: rgb(228, 231, 237, var(--pops-bg-opacity));\n	outline: 0;\n	-webkit-appearance: none;\n	appearance: none;\n	width: 100%;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-slider-thumb {\n	width: 20px;\n	height: 20px;\n	border-radius: 50%;\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	box-shadow:\n		0 0 2px rgba(0, 0, 0, 0.3),\n		0 3px 5px rgba(0, 0, 0, 0.2);\n	cursor: pointer;\n	-webkit-appearance: none;\n	appearance: none;\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-thumb {\n	width: 20px;\n	height: 20px;\n	border-radius: 50%;\n	border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\n	background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n	box-shadow:\n		0 0 2px rgba(0, 0, 0, 0.3),\n		0 3px 5px rgba(0, 0, 0, 0.2);\n	cursor: pointer;\n	-webkit-appearance: none;\n	appearance: none;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-progress {\n	height: 6px;\n	border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\n/* slider旧的CSS */\n\n/* slider的CSS */\n.pops-slider {\n	--pops-slider-color-white: #ffffff;\n	--pops-slider-color-primary: #409eff;\n	--pops-slider-color-info: #909399;\n	--pops-slider-text-color-placeholder: #a8abb2;\n	--pops-slider-border-color-light: #e4e7ed;\n	--pops-slider-border-radius-circle: 100%;\n	--pops-slider-transition-duration-fast: 0.2s;\n\n	--pops-slider-main-bg-color: var(--pops-slider-color-primary);\n	--pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\n	--pops-slider-stop-bg-color: var(--pops-slider-color-white);\n	--pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\n	--pops-slider-border-radius: 3px;\n	--pops-slider-height: 6px;\n	--pops-slider-button-size: 20px;\n	--pops-slider-button-wrapper-size: 36px;\n	--pops-slider-button-wrapper-offset: -15px;\n}\n\n.pops-slider {\n	width: 100%;\n	height: 32px;\n	display: flex;\n	align-items: center;\n	user-select: none;\n	-webkit-user-select: none;\n	-ms-user-select: none;\n	-moz-user-select: none;\n}\n\n.pops-slider-width {\n	flex: 0 0 52%;\n	margin-left: 10px;\n}\n\n.pops-slider__runway {\n	flex: 1;\n	height: var(--pops-slider-height);\n	background-color: var(--pops-slider-runway-bg-color);\n	border-radius: var(--pops-slider-border-radius);\n	position: relative;\n	cursor: pointer;\n}\n\n.pops-slider__runway.show-input {\n	margin-right: 30px;\n	width: auto;\n}\n\n.pops-slider__runway.pops-slider-is-disabled {\n	cursor: default;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\n	background-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\n	border-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n	cursor: not-allowed;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n	transform: scale(1);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n	cursor: not-allowed;\n}\n\n.pops-slider__input {\n	flex-shrink: 0;\n	width: 130px;\n}\n\n.pops-slider__bar {\n	height: var(--pops-slider-height);\n	background-color: var(--pops-slider-main-bg-color);\n	border-top-left-radius: var(--pops-slider-border-radius);\n	border-bottom-left-radius: var(--pops-slider-border-radius);\n	position: absolute;\n}\n\n.pops-slider__button-wrapper {\n	height: var(--pops-slider-button-wrapper-size);\n	width: var(--pops-slider-button-wrapper-size);\n	position: absolute;\n	z-index: 1;\n	top: var(--pops-slider-button-wrapper-offset);\n	transform: translate(-50%);\n	background-color: transparent;\n	text-align: center;\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	line-height: normal;\n	outline: none;\n}\n\n.pops-slider__button-wrapper:after {\n	display: inline-block;\n	content: "";\n	height: 100%;\n	vertical-align: middle;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n	cursor: grab;\n}\n\n.pops-slider__button {\n	display: inline-block;\n	width: var(--pops-slider-button-size);\n	height: var(--pops-slider-button-size);\n	vertical-align: middle;\n	border: solid 2px var(--pops-slider-main-bg-color);\n	background-color: var(--pops-slider-color-white);\n	border-radius: 50%;\n	box-sizing: border-box;\n	transition: var(--pops-slider-transition-duration-fast);\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover,\n.pops-slider__button.dragging {\n	transform: scale(1.2);\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n	cursor: grab;\n}\n\n.pops-slider__button.dragging {\n	cursor: grabbing;\n}\n\n.pops-slider__stop {\n	position: absolute;\n	height: var(--pops-slider-height);\n	width: var(--pops-slider-height);\n	border-radius: var(--pops-slider-border-radius-circle);\n	background-color: var(--pops-slider-stop-bg-color);\n	transform: translate(-50%);\n}\n\n.pops-slider__marks {\n	top: 0;\n	left: 12px;\n	width: 18px;\n	height: 100%;\n}\n\n.pops-slider__marks-text {\n	position: absolute;\n	transform: translate(-50%);\n	font-size: 14px;\n	color: var(--pops-slider-color-info);\n	margin-top: 15px;\n	white-space: pre;\n}\n\n.pops-slider.is-vertical {\n	position: relative;\n	display: inline-flex;\n	width: auto;\n	height: 100%;\n	flex: 0;\n}\n\n.pops-slider.is-vertical .pops-slider__runway {\n	width: var(--pops-slider-height);\n	height: 100%;\n	margin: 0 16px;\n}\n\n.pops-slider.is-vertical .pops-slider__bar {\n	width: var(--pops-slider-height);\n	height: auto;\n	border-radius: 0 0 3px 3px;\n}\n\n.pops-slider.is-vertical .pops-slider__button-wrapper {\n	top: auto;\n	left: var(--pops-slider-button-wrapper-offset);\n	transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__stop {\n	transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__marks-text {\n	margin-top: 0;\n	left: 15px;\n	transform: translateY(50%);\n}\n\n.pops-slider--large {\n	height: 40px;\n}\n\n.pops-slider--small {\n	height: 24px;\n}\n/* slider的CSS */\n\n/* input的CSS */\n.pops-panel-input {\n	--el-disabled-text-color: #a8abb2;\n	--el-disabled-bg-color: #f5f7fa;\n	--el-disabled-border-color: #e4e7ed;\n\n	--pops-panel-components-input-text-color: #000000;\n	--pops-panel-components-input-text-bg-color: transparent;\n	--pops-panel-components-input-text-default-padding: 8px;\n	--pops-panel-components-input-bd-color: #dcdfe6;\n	--pops-panel-components-input-bg-color: #ffffff;\n	--pops-panel-components-input-hover-bd-color: #c0c4cc;\n	--pops-panel-components-input-focus-bd-color: #409eff;\n	--pops-panel-components-input-suffix-color: #a8abb2;\n	--pops-panel-components-input-suffix-bg-color: #ffffff;\n}\n.pops-panel-input {\n	display: flex;\n	align-items: center;\n	border: 1px solid var(--pops-panel-components-input-bd-color);\n	border-radius: 4px;\n	background-color: var(--pops-panel-components-input-bg-color);\n	position: relative;\n	box-shadow: none;\n}\n.pops-panel-input:hover {\n	border: 1px solid var(--pops-panel-components-input-hover-bd-color);\n}\n.pops-panel-input:has(input:disabled):hover {\n	--pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input:has(input:focus) {\n	outline: 0;\n	border: 1px solid var(--pops-panel-components-input-focus-bd-color);\n	border-radius: 4px;\n	box-shadow: none;\n}\n.pops-panel-input input {\n	display: inline-flex;\n	justify-content: center;\n	text-align: start;\n	align-items: center;\n	align-content: center;\n	white-space: nowrap;\n	cursor: text;\n	box-sizing: border-box;\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	vertical-align: middle;\n	-webkit-appearance: none;\n	appearance: none;\n	color: var(--pops-panel-components-input-text-color);\n	background-color: var(--pops-panel-components-input-text-bg-color);\n	outline: 0;\n	transition: 0.1s;\n	border: 0;\n	font-size: 14px;\n	font-weight: 500;\n	line-height: normal;\n	height: 32px;\n	width: 100%;\n	flex: 1;\n	/*margin-right: calc(1em + 8px);*/\n	margin: 0px;\n	padding: var(--pops-panel-components-input-text-default-padding);\n}\n.pops-panel-input span.pops-panel-input__suffix {\n	display: inline-flex;\n	white-space: nowrap;\n	flex-shrink: 0;\n	flex-wrap: nowrap;\n	height: 100%;\n	text-align: center;\n	color: var(--pops-panel-components-input-suffix-color);\n	background: var(--pops-panel-components-input-suffix-bg-color);\n	transition: all 0.3s;\n	pointer-events: none;\n	padding: 0 8px;\n	position: absolute;\n	right: 0px;\n	border-top-right-radius: 4px;\n	border-bottom-right-radius: 4px;\n	border: 1px solid transparent;\n}\n.pops-panel-input span.pops-panel-input__suffix-inner {\n	pointer-events: all;\n	display: inline-flex;\n	align-items: center;\n	justify-content: center;\n}\n/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */\n.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n	display: none;\n}\n.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n	display: inline-flex;\n}\n.pops-panel-input .pops-panel-icon {\n	cursor: pointer;\n}\n.pops-panel-input .pops-panel-icon {\n	height: inherit;\n	line-height: normal;\n	align-content: center;\n	display: flex;\n	justify-content: center;\n	align-items: center;\n	transition: all 0.3s;\n}\n.pops-panel-input .pops-panel-icon svg {\n	height: 1em;\n	width: 1em;\n}\n\n.pops-input-disabled {\n	background-color: var(--pops-components-is-disabled-bg-color);\n}\n.pops-panel-input.pops-input-disabled:hover {\n	--pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input input:disabled,\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	color: var(--el-disabled-text-color);\n	-webkit-text-fill-color: var(--el-disabled-text-color);\n	cursor: not-allowed;\n}\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n	display: none;\n}\n/* input的CSS */\n\n/* textarea的CSS */\n.pops-panel-textarea {\n	--pops-panel-components-textarea-text-color: #000000;\n	--pops-panel-components-textarea-text-bg-color: #ffffff;\n	--pops-panel-components-textarea-bd-color: #dcdfe6;\n	--pops-panel-components-textarea-hover-bd-color: #c0c4cc;\n	--pops-panel-components-textarea-focus-bd-color: #409eff;\n}\n.pops-panel-textarea textarea {\n	width: 100%;\n	/*vertical-align: bottom;*/\n	position: relative;\n	display: block;\n	resize: none;\n	padding: 5px 11px;\n	/*line-height: 1;*/\n	box-sizing: border-box;\n	font-size: inherit;\n	font-family: inherit;\n	color: var(--pops-panel-components-textarea-text-color);\n	background-color: var(--pops-panel-components-textarea-text-bg-color);\n	background-image: none;\n	-webkit-appearance: none;\n	appearance: none;\n	box-shadow: none;\n	border-radius: 0;\n	transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\n	border: 1px solid var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea textarea:hover {\n	border-color: var(--pops-panel-components-textarea-hover-bd-color);\n}\n.pops-panel-textarea:has(textarea:disabled):hover {\n	--pops-panel-components-textarea-hover-bd-color: var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea-disable {\n	--pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color) !important;\n	--pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-textarea-disable textarea {\n	cursor: not-allowed;\n}\n.pops-panel-textarea textarea:focus {\n	outline: 0;\n	border-color: var(--pops-panel-components-textarea-focus-bd-color);\n}\n/* textarea的CSS */\n\n/* select的CSS */\n.pops-panel-select {\n	--pops-panel-components-select-text-color: #000000;\n	--pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n	--pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n	--pops-panel-components-select-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n}\n.pops-panel-select {\n	border: 0;\n}\n.pops-panel-select select {\n	height: 32px;\n	line-height: normal;\n	align-content: center;\n	min-width: 200px;\n	border: 1px solid var(--pops-panel-components-select-bd-color);\n	border-radius: 5px;\n	text-align: center;\n	outline: 0;\n	color: var(--pops-panel-components-select-text-color);\n	background-color: var(--pops-panel-components-select-bg-color);\n	box-shadow: none;\n}\n.pops-panel-select select:hover {\n	border: 1px solid var(--pops-panel-components-select-hover-bd-color);\n}\n.pops-panel-select-disable {\n	--pops-panel-components-select-text-color: var(--pops-components-is-disabled-text-color);\n	--pops-panel-components-select-bg-color: var(--pops-components-is-disabled-bg-color);\n}\n.pops-panel-select-disable select {\n	cursor: not-allowed;\n}\n.pops-panel-select-disable select:hover {\n	box-shadow: none;\n	--pops-panel-components-select-hover-bd-color: var(--pops-panel-components-select-bd-color);\n}\n.pops-panel-select select:focus {\n	border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n	box-shadow: none;\n}\n/* select的CSS */\n\n/* select-multiple的CSS*/\n.pops-panel-select-multiple {\n	--el-border-radius-base: 4px;\n	--el-fill-color-blank: #ffffff;\n	--el-transition-duration: 0.3s;\n	--el-border-color: #cbcbcb;\n	--el-text-color-placeholder: #a8abb2;\n	--color: inherit;\n	--el-select-input-color: #a8abb2;\n	--el-select-input-font-size: 14px;\n	--el-text-color-regular: #606266;\n	--el-color-info: #909399;\n	--el-color-info-light-9: #f4f4f5;\n	--el-color-info-light-8: #e9e9eb;\n	--el-color-primary-light-9: #ecf5ff;\n	--el-color-primary-light-8: #d9ecff;\n	--el-color-primary: #409eff;\n	--el-color-white: #ffffff;\n	width: 200px;\n}\n.pops-panel-select-multiple .el-select__wrapper {\n	display: flex;\n	align-items: center;\n	position: relative;\n	box-sizing: border-box;\n	cursor: pointer;\n	text-align: left;\n	font-size: 14px;\n	padding: 4px 12px;\n	gap: 6px;\n	min-height: 32px;\n	line-height: normal;\n	align-content: center;\n	border-radius: var(--el-border-radius-base);\n	background-color: var(--el-fill-color-blank);\n	transition: var(--el-transition-duration);\n	transform: translateZ(0);\n	border: 1px solid var(--el-border-color);\n}\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\n	--el-border-color: var(--el-color-primary);\n}\n.pops-panel-select-multiple .el-select__selection {\n	position: relative;\n	display: flex;\n	flex-wrap: wrap;\n	align-items: center;\n	flex: 1;\n	min-width: 0;\n	gap: 6px;\n}\n.pops-panel-select-multiple .el-select__selected-item {\n	display: flex;\n	flex-wrap: wrap;\n	-webkit-user-select: none;\n	user-select: none;\n}\n.pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {\n	max-width: 200px;\n}\n.pops-panel-select-multiple .el-select__input-wrapper {\n	max-width: 100%;\n}\n.pops-panel-select-multiple .el-select__selection.is-near {\n	margin-left: -8px;\n}\n.pops-panel-select-multiple .el-select__placeholder {\n	position: absolute;\n	display: block;\n	top: 50%;\n	transform: translateY(-50%);\n	width: 100%;\n	overflow: hidden;\n	text-overflow: ellipsis;\n	white-space: nowrap;\n	color: var(--el-input-text-color, var(--el-text-color-regular));\n}\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\n	-webkit-user-select: none;\n	user-select: none;\n	color: var(--el-text-color-placeholder);\n}\n.pops-panel-select-multiple .el-select__prefix,\n.pops-panel-select-multiple .el-select__suffix {\n	display: flex;\n	align-items: center;\n	flex-shrink: 0;\n	gap: 6px;\n	color: var(--el-input-icon-color, var(--el-text-color-placeholder));\n}\n.pops-panel-select-multiple .el-icon {\n	--color: inherit;\n	height: 1em;\n	width: 1em;\n	line-height: normal;\n	align-content: center;\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	position: relative;\n	fill: currentColor;\n	color: var(--color);\n	font-size: inherit;\n}\n.pops-panel-select-multiple .el-icon svg {\n	height: 1em;\n	width: 1em;\n}\n.pops-panel-select-multiple .el-select__caret {\n	color: var(--el-select-input-color);\n	font-size: var(--el-select-input-font-size);\n	transition: var(--el-transition-duration);\n	transform: rotate(0);\n	cursor: pointer;\n}\n.pops-panel-select-multiple .el-tag {\n	--el-tag-font-size: 12px;\n	--el-tag-border-radius: 4px;\n	--el-tag-border-radius-rounded: 9999px;\n}\n.pops-panel-select-multiple .el-tag {\n	background-color: var(--el-tag-bg-color);\n	border-color: var(--el-tag-border-color);\n	color: var(--el-tag-text-color);\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	vertical-align: middle;\n	height: 24px;\n	padding: 0 9px;\n	font-size: var(--el-tag-font-size);\n	line-height: normal;\n	align-content: center;\n	border-width: 1px;\n	border-style: solid;\n	border-radius: var(--el-tag-border-radius);\n	box-sizing: border-box;\n	white-space: nowrap;\n	--el-icon-size: 14px;\n	--el-tag-bg-color: var(--el-color-primary-light-9);\n	--el-tag-border-color: var(--el-color-primary-light-8);\n	--el-tag-hover-color: var(--el-color-primary);\n}\n.pops-panel-select-multiple .el-select__selection .el-tag {\n	cursor: pointer;\n	border-color: transparent;\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n	--el-tag-bg-color: var(--el-color-info-light-9);\n	--el-tag-border-color: var(--el-color-info-light-8);\n	--el-tag-hover-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n	--el-tag-text-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.is-closable {\n	padding-right: 5px;\n}\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\n	min-width: 0;\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n	flex-shrink: 0;\n	color: var(--el-tag-text-color);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\n	color: var(--el-color-white);\n	background-color: var(--el-tag-hover-color);\n}\n.pops-panel-select-multiple .el-tag .el-icon {\n	border-radius: 50%;\n	cursor: pointer;\n	font-size: calc(var(--el-icon-size) - 2px);\n	height: var(--el-icon-size);\n	width: var(--el-icon-size);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n	margin-left: 6px;\n}\n.pops-panel-select-multiple .el-select__tags-text {\n	display: block;\n	line-height: normal;\n	align-content: center;\n	overflow: hidden;\n	text-overflow: ellipsis;\n	white-space: nowrap;\n}\n.pops-panel-select-multiple-disable {\n	--el-fill-color-blank: #f5f7fa;\n	--color: #a8abb2;\n	--el-border-color: #cbcbcb;\n}\n.pops-panel-select-multiple-disable .el-tag.el-tag--info {\n	--el-tag-bg-color: #e7e7e7;\n	--el-tag-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-select-multiple-disable .el-select__selection .el-tag,\n.pops-panel-select-multiple-disable .el-tag .el-tag__close:hover,\n.pops-panel-select-multiple-disable .el-select__wrapper,\n.pops-panel-select-multiple-disable .el-select__caret {\n	cursor: not-allowed;\n}\n/* select-multiple的CSS*/\n\n/* deepMenu的css */\n.pops-panel-deepMenu-nav-item {\n	cursor: pointer;\n}\n.pops-panel-deepMenu-nav-item:active {\n	background: var(--pops-panel-forms-container-deepMenu-item-active-bg);\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:active {\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n		var(--pops-panel-forms-container-li-padding-left-right);\n	margin: 0px;\n}\n/* 去除上个兄弟item的底部边框颜色 */\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li:has(+ .pops-panel-deepMenu-nav-item:active) {\n	border-bottom: 1px solid transparent;\n}\n/* 第一个和最后一个跟随圆角 */\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item:first-child:active {\n	border-top-left-radius: var(--pops-panel-forms-container-item-border-radius);\n	border-top-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\nsection.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item:last-child:active {\n	border-bottom-left-radius: var(--pops-panel-forms-container-item-border-radius);\n	border-bottom-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\n	display: flex;\n	align-items: center;\n	color: #6c6c6c;\n	fill: #6c6c6c;\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\n	width: 15px;\n	height: 15px;\n	display: flex;\n	align-items: center;\n}\nsection.pops-panel-deepMenu-container\n	.pops-panel-container-header-ul\n	li.pops-panel-deepMenu-container-header {\n	display: flex;\n	align-items: center;\n	width: -webkit-fill-available;\n	width: -moz-available;\n	padding: var(--pops-panel-forms-header-padding-top-bottom)\n		calc(\n			var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -\n				var(--pops-panel-forms-header-icon-size)\n		);\n	gap: 0px;\n}\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n	width: var(--pops-panel-forms-header-icon-size);\n	height: var(--pops-panel-forms-header-icon-size);\n	display: flex;\n	align-items: center;\n	cursor: pointer;\n}\n/* 修复safari上图标大小未正常显示 */\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon > svg {\n	width: inherit;\n	height: inherit;\n}\n/* deepMenu的css */\n\n/* 文字对齐 */\n.pops-panel-item-left-desc-text:has(code) {\n	display: flex;\n	align-items: baseline;\n	flex-wrap: wrap;\n}\n\n@media (prefers-color-scheme: dark) {\n	.pops[type-value="panel"] {\n		--pops-bg-color: #000000;\n		--pops-color: #f2f2f2;\n		--panel-title-bg-color: #000000;\n		--panel-aside-bg-color: #262626;\n		--pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n		--pops-panel-forms-container-item-bg-color: #262626;\n		--pops-panel-forms-container-item-title-color: #c1c1c1;\n\n		--pops-panel-forms-container-li-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n		--pops-panel-forms-container-deepMenu-item-active-bg: #333333;\n	}\n	.pops[type-value="panel"] .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n		fill: #f2f2f2;\n	}\n\n	/* switch的CSS */\n	.pops-panel-switch {\n		--panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n		--panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n		--panel-switch-circle-color: #dcdfe6;\n		--panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n		--panel-switch-checked-circle-color: #409eff;\n		--panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n		--panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n	}\n	/* select的CSS */\n	.pops-panel-select {\n		--pops-panel-components-select-text-color: #f2f2f2;\n		--pops-panel-components-select-bd-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n		--pops-panel-components-select-bg-color: #141414;\n	}\n	/* select-multiple的CSS*/\n	.pops-panel-select-multiple {\n		--el-fill-color-blank: #141414;\n		--el-border-color: #4c4d4f;\n		--el-text-color-placeholder: #a8abb2;\n		--el-select-input-color: #a8abb2;\n		--el-text-color-regular: #606266;\n		--el-color-info: #909399;\n		--el-color-info-light-8: #e9e9eb;\n		--el-color-primary-light-9: #ecf5ff;\n		--el-color-primary-light-8: #d9ecff;\n		--el-color-primary: #409eff;\n		--el-color-white: #ffffff;\n	}\n	.pops-panel-select-multiple .el-tag {\n		--el-color-info-light-9: #202121;\n	}\n	.pops-panel-select-multiple-disable {\n		--el-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n	}\n	.pops-panel-select-multiple-disable .el-tag.el-tag--info {\n		--el-tag-bg-color: #2f2f2f;\n	}\n	/* select-multiple的CSS*/\n	/* slider的CSS */\n	.pops-slider {\n		--pops-slider-border-color-light: #414243;\n	}\n	/* input的CSS */\n	.pops-panel-input {\n		--pops-panel-components-input-text-color: #f2f2f2;\n		--pops-panel-components-input-bd-color: #4f5052;\n		--pops-panel-components-input-bg-color: #141414;\n		--pops-panel-components-input-hover-bd-color: #6f7175;\n		--pops-panel-components-input-focus-bd-color: #409eff;\n		--pops-panel-components-input-suffix-color: #a8abb2;\n	}\n	/* textarea的CSS */\n	.pops-panel-textarea {\n		--pops-panel-components-textarea-text-color: #f2f2f2;\n		--pops-panel-components-textarea-text-bg-color: #141414;\n		--pops-panel-components-textarea-bd-color: #4f5052;\n		--pops-panel-components-textarea-hover-bd-color: #6f7175;\n		--pops-panel-components-textarea-focus-bd-color: #409eff;\n	}\n	.pops-panel-textarea-disable {\n		--pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n		--pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color);\n	}\n	/* slider */\n	.pops-slider {\n		--pops-slider-text-color-placeholder: #8d9095;\n	}\n}\n';
+  var rightClickMenuCSS = '.pops-rightClickMenu {\n	--pops-right-context-color: #000000;\n	--pops-right-context-bg-color: rgb(255, 255, 255, 0.733);\n	--pops-right-context-backdrop-filter: blur(10px);\n	--pops-right-context-z-index: 10000;\n	--pops-right-context-bd-radius: 6px;\n	--pops-right-context-menu-shadow-color: rgb(114, 114, 114, 0.251);\n	--pops-right-context-menu-row-bd-radius: 6px;\n	--pops-right-context-menu-row-visited-color: rgb(0, 0, 0, 0.067);\n	--pops-right-context-menu-row-hover-color: rgb(0, 0, 0, 0.067);\n}\n.pops-rightClickMenu * {\n	-webkit-box-sizing: border-box;\n	box-sizing: border-box;\n	margin: 0;\n	padding: 0;\n	-webkit-tap-highlight-color: transparent;\n	scrollbar-width: thin;\n}\n.pops-rightClickMenu {\n	position: fixed;\n	z-index: var(--pops-right-context-z-index);\n	text-align: center;\n	border-radius: var(--pops-right-context-bd-radius);\n	font-size: 16px;\n	font-weight: 500;\n	color: var(--pops-right-context-color);\n	background: var(--pops-right-context-bg-color);\n	box-shadow: 0 0.25rem 0.5rem 0.125rem var(--pops-right-context-menu-shadow-color);\n	-webkit-backdrop-filter: var(--pops-right-context-backdrop-filter);\n	backdrop-filter: var(--pops-right-context-backdrop-filter);\n}\n/* scale动画 */\n.pops-rightClickMenu-anim-scale {\n	transition:\n		opacity 150ms cubic-bezier(0.2, 0, 0.2, 1),\n		transform 150ms cubic-bezier(0.2, 0, 0.2, 1);\n	transform: scale(0.85);\n}\n.pops-rightClickMenu-anim-scale-open {\n	transform: scale(1);\n}\n.pops-rightClickMenu-anim-scale-not-open {\n	opacity: 0;\n}\n/* 展开动画 */\n.pops-rightClickMenu-anim-grid {\n	display: grid;\n	transition: 0.3s;\n	grid-template-rows: 0fr;\n}\n.pops-rightClickMenu-anim-show {\n	grid-template-rows: 1fr;\n}\n.pops-rightClickMenu-is-visited {\n	background: var(--pops-right-context-menu-row-visited-color);\n}\ni.pops-rightClickMenu-icon {\n	height: 1em;\n	width: 1em;\n	line-height: normal;\n	align-content: center;\n	display: inline-flex;\n	justify-content: center;\n	align-items: center;\n	position: relative;\n	fill: currentColor;\n	color: inherit;\n	font-size: inherit;\n	margin-right: 6px;\n}\ni.pops-rightClickMenu-icon[is-loading="true"] {\n	animation: rotating 2s linear infinite;\n}\n.pops-rightClickMenu li:hover {\n	background: var(--pops-right-context-menu-row-hover-color);\n	cursor: pointer;\n}\n.pops-rightClickMenu ul {\n	margin: 0;\n	padding: 0;\n	display: flex;\n	flex-direction: column;\n	align-items: flex-start;\n	justify-content: center;\n	overflow: hidden;\n}\n.pops-rightClickMenu ul li {\n	padding: 5px 10px;\n	margin: 5px 5px;\n	border-radius: var(--pops-right-context-menu-row-bd-radius);\n	display: flex;\n	width: -webkit-fill-available;\n	width: -moz-available;\n	text-align: left;\n	user-select: none;\n	-webkit-user-select: none;\n	-moz-user-select: none;\n	-ms-user-select: none;\n	align-items: center;\n}\n\n@media (prefers-color-scheme: dark) {\n	/*.pops-rightClickMenu {\n		--pops-right-context-menu-shadow-color: #3c3c3c;\n	}*/\n}\n@media (hover: hover) {\n	.pops-rightClickMenu ul li:active {\n		transform: scale(0.98);\n	}\n}\n';
   const PopsCSS = {
     /** 主CSS */
     index: indexCSS,
@@ -14232,6 +14677,19 @@ ${err.stack}`);
     hasAnim(name) {
       return this.$data.hasOwnProperty(name);
     }
+  };
+  const PopsInstData = {
+    alert: [],
+    confirm: [],
+    drawer: [],
+    folder: [],
+    iframe: [],
+    loading: [],
+    panel: [],
+    prompt: [],
+    rightClickMenu: [],
+    // 没有 searchSuggestion
+    tooltip: []
   };
   const PopsInstanceUtils = {
     /**
@@ -14301,17 +14759,17 @@ ${err.stack}`);
       function isVisibleNode($css) {
         return $css.position !== "static" && $css.display !== "none";
       }
-      Object.keys(PopsLayerData).forEach((layerName) => {
-        let layerList = PopsLayerData[layerName];
-        for (let index = 0; index < layerList.length; index++) {
-          const layer = layerList[index];
-          let nodeStyle = window.getComputedStyle(layer.animElement);
+      Object.keys(PopsInstData).forEach((instKeyName) => {
+        let instData = PopsInstData[instKeyName];
+        for (let index = 0; index < instData.length; index++) {
+          const inst = instData[index];
+          let nodeStyle = window.getComputedStyle(inst.animElement);
           if (isVisibleNode(nodeStyle)) {
             let nodeZIndex = parseInt(nodeStyle.zIndex);
             if (!isNaN(nodeZIndex)) {
               if (nodeZIndex > zIndex) {
                 zIndex = nodeZIndex;
-                maxZIndexNode = layer.animElement;
+                maxZIndexNode = inst.animElement;
               }
             }
           }
@@ -14336,57 +14794,57 @@ ${err.stack}`);
     },
     /**
      * 删除配置中对应的对象
-     * @param moreLayerConfigList 配置实例列表
+     * @param instConfigList 配置实例列表
      * @param  guid 唯一标识
      * @param isAll 是否全部删除
      */
-    removeInstance(moreLayerConfigList, guid, isAll = false) {
-      function removeItem(layerCommonConfig) {
-        if (typeof layerCommonConfig.beforeRemoveCallBack === "function") {
-          layerCommonConfig.beforeRemoveCallBack(layerCommonConfig);
+    removeInstance(instConfigList, guid, isAll = false) {
+      function removeItem(instCommonConfig) {
+        if (typeof instCommonConfig.beforeRemoveCallBack === "function") {
+          instCommonConfig.beforeRemoveCallBack(instCommonConfig);
         }
-        layerCommonConfig?.animElement?.remove();
-        layerCommonConfig?.popsElement?.remove();
-        layerCommonConfig?.maskElement?.remove();
-        layerCommonConfig?.$shadowContainer?.remove();
+        instCommonConfig?.animElement?.remove();
+        instCommonConfig?.popsElement?.remove();
+        instCommonConfig?.maskElement?.remove();
+        instCommonConfig?.$shadowContainer?.remove();
       }
-      moreLayerConfigList.forEach((layerConfigList) => {
-        layerConfigList.forEach((layerConfigItem, index) => {
-          if (isAll || layerConfigItem["guid"] === guid) {
-            let animName = layerConfigItem.animElement.getAttribute("anim");
+      instConfigList.forEach((instConfigList2) => {
+        instConfigList2.forEach((instConfigItem, index) => {
+          if (isAll || instConfigItem["guid"] === guid) {
+            let animName = instConfigItem.animElement.getAttribute("anim");
             if (PopsAnimation.hasAnim(animName)) {
               let reverseAnimName = animName + "-reverse";
-              layerConfigItem.animElement.style.width = "100%";
-              layerConfigItem.animElement.style.height = "100%";
-              layerConfigItem.animElement.style["animation-name"] = reverseAnimName;
-              if (PopsAnimation.hasAnim(layerConfigItem.animElement.style["animation-name"])) {
-                popsDOMUtils.on(layerConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), function() {
-                  removeItem(layerConfigItem);
+              instConfigItem.animElement.style.width = "100%";
+              instConfigItem.animElement.style.height = "100%";
+              instConfigItem.animElement.style["animation-name"] = reverseAnimName;
+              if (PopsAnimation.hasAnim(instConfigItem.animElement.style["animation-name"])) {
+                popsDOMUtils.on(instConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), function() {
+                  removeItem(instConfigItem);
                 }, {
                   capture: true
                 });
               } else {
-                removeItem(layerConfigItem);
+                removeItem(instConfigItem);
               }
             } else {
-              removeItem(layerConfigItem);
+              removeItem(instConfigItem);
             }
-            layerConfigList.splice(index, 1);
+            instConfigList2.splice(index, 1);
           }
         });
       });
-      return moreLayerConfigList;
+      return instConfigList;
     },
     /**
      * 隐藏
      * @param popsType
-     * @param layerConfigList
+     * @param instConfigList
      * @param guid
      * @param config
      * @param animElement
      * @param maskElement
      */
-    hide(popsType, layerConfigList, guid, config, animElement, maskElement) {
+    hide(popsType, instConfigList, guid, config, animElement, maskElement) {
       return new Promise((resolve) => {
         let popsElement = animElement.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
@@ -14403,30 +14861,33 @@ ${err.stack}`);
             resolve();
           }, drawerConfig.closeDelay);
         } else {
-          let findLayerIns = layerConfigList.find((layerConfigItem) => layerConfigItem.guid === guid);
-          if (findLayerIns) {
-            let layerConfigItem = findLayerIns;
-            layerConfigItem.animElement.style.width = "100%";
-            layerConfigItem.animElement.style.height = "100%";
-            layerConfigItem.animElement.style["animation-name"] = layerConfigItem.animElement.getAttribute("anim") + "-reverse";
-            if (PopsAnimation.hasAnim(layerConfigItem.animElement.style["animation-name"])) {
+          let fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
+          if (fintInst) {
+            let instConfigItem = fintInst;
+            instConfigItem.animElement.style.width = "100%";
+            instConfigItem.animElement.style.height = "100%";
+            instConfigItem.animElement.style["animation-name"] = instConfigItem.animElement.getAttribute("anim") + "-reverse";
+            if (PopsAnimation.hasAnim(
+              // @ts-ignore
+              instConfigItem.animElement.style["animation-name"]
+            )) {
               let animationendCallBack2 = function() {
-                layerConfigItem.animElement.style.display = "none";
-                if (layerConfigItem.maskElement) {
-                  layerConfigItem.maskElement.style.display = "none";
+                instConfigItem.animElement.style.display = "none";
+                if (instConfigItem.maskElement) {
+                  instConfigItem.maskElement.style.display = "none";
                 }
-                popsDOMUtils.off(layerConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
+                popsDOMUtils.off(instConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
                   capture: true
                 });
                 resolve();
               };
-              popsDOMUtils.on(layerConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
+              popsDOMUtils.on(instConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
                 capture: true
               });
             } else {
-              layerConfigItem.animElement.style.display = "none";
-              if (layerConfigItem.maskElement) {
-                layerConfigItem.maskElement.style.display = "none";
+              instConfigItem.animElement.style.display = "none";
+              if (instConfigItem.maskElement) {
+                instConfigItem.maskElement.style.display = "none";
               }
               resolve();
             }
@@ -14437,13 +14898,13 @@ ${err.stack}`);
     /**
      * 显示
      * @param popsType
-     * @param layerConfigList
+     * @param instConfigList
      * @param guid
      * @param config
      * @param animElement
      * @param maskElement
      */
-    show(popsType, layerConfigList, guid, config, animElement, maskElement) {
+    show(popsType, instConfigList, guid, config, animElement, maskElement) {
       return new Promise((resolve) => {
         let popsElement = animElement.querySelector(".pops[type-value]");
         if (popsType === "drawer") {
@@ -14462,30 +14923,33 @@ ${err.stack}`);
             resolve();
           }, drawerConfig.openDelay ?? 0);
         } else {
-          let findLayerIns = layerConfigList.find((layerConfigItem) => layerConfigItem.guid === guid);
-          if (findLayerIns) {
-            let layerConfigItem = findLayerIns;
-            layerConfigItem.animElement.style.width = "";
-            layerConfigItem.animElement.style.height = "";
-            layerConfigItem.animElement.style["animation-name"] = layerConfigItem.animElement.getAttribute("anim").replace("-reverse", "");
-            if (PopsAnimation.hasAnim(layerConfigItem.animElement.style["animation-name"])) {
+          let fintInst = instConfigList.find((instConfigItem) => instConfigItem.guid === guid);
+          if (fintInst) {
+            let instConfigItem = fintInst;
+            instConfigItem.animElement.style.width = "";
+            instConfigItem.animElement.style.height = "";
+            instConfigItem.animElement.style["animation-name"] = instConfigItem.animElement.getAttribute("anim").replace("-reverse", "");
+            if (PopsAnimation.hasAnim(
+              // @ts-ignore
+              instConfigItem.animElement.style["animation-name"]
+            )) {
               let animationendCallBack2 = function() {
-                popsDOMUtils.off(layerConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
+                popsDOMUtils.off(instConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
                   capture: true
                 });
                 resolve();
               };
-              layerConfigItem.animElement.style.display = "";
-              if (layerConfigItem.maskElement) {
-                layerConfigItem.maskElement.style.display = "";
+              instConfigItem.animElement.style.display = "";
+              if (instConfigItem.maskElement) {
+                instConfigItem.maskElement.style.display = "";
               }
-              popsDOMUtils.on(layerConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
+              popsDOMUtils.on(instConfigItem.animElement, popsDOMUtils.getAnimationEndNameList(), animationendCallBack2, {
                 capture: true
               });
             } else {
-              layerConfigItem.animElement.style.display = "";
-              if (layerConfigItem.maskElement) {
-                layerConfigItem.maskElement.style.display = "";
+              instConfigItem.animElement.style.display = "";
+              if (instConfigItem.maskElement) {
+                instConfigItem.maskElement.style.display = "";
               }
               resolve();
             }
@@ -14496,12 +14960,12 @@ ${err.stack}`);
     /**
      * 关闭
      * @param popsType
-     * @param layerConfigList
+     * @param instConfigList
      * @param guid
      * @param config
      * @param animElement
      */
-    close(popsType, layerConfigList, guid, config, animElement) {
+    close(popsType, instConfigList, guid, config, animElement) {
       return new Promise((resolve) => {
         let popsElement = animElement.querySelector(".pops[type-value]");
         let drawerConfig = config;
@@ -14511,7 +14975,7 @@ ${err.stack}`);
               return;
             }
             popsDOMUtils.off(popsElement, popsDOMUtils.getTransitionEndNameList(), void 0, closeCallBack);
-            PopsInstanceUtils.removeInstance([layerConfigList], guid);
+            PopsInstanceUtils.removeInstance([instConfigList], guid);
             resolve();
           }
           popsDOMUtils.on(popsElement, popsDOMUtils.getTransitionEndNameList(), closeCallBack);
@@ -14537,7 +15001,7 @@ ${err.stack}`);
             transitionendEvent();
           }, drawerConfig.closeDelay);
         } else {
-          PopsInstanceUtils.removeInstance([layerConfigList], guid);
+          PopsInstanceUtils.removeInstance([instConfigList], guid);
           resolve();
         }
       });
@@ -14722,397 +15186,6 @@ ${err.stack}`);
       };
     }
   };
-  const GlobalConfig = {
-    config: {},
-    /**
-     * 为所有弹窗设置全局属性
-     */
-    setGlobalConfig(config) {
-      Reflect.ownKeys(config).forEach((keyName) => {
-        Reflect.set(GlobalConfig.config, keyName, Reflect.get(config, keyName));
-      });
-    },
-    /**
-     * 获取全局配置
-     */
-    getGlobalConfig() {
-      let result = {};
-      Object.keys(GlobalConfig.config).forEach((keyName) => {
-        let configValue = Reflect.get(GlobalConfig.config, keyName);
-        if (keyName === "style") {
-          let style = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
-          if (typeof style === "string") {
-            result.style = style;
-          }
-        } else if (keyName === "zIndex") {
-          let zIndex = configValue == null ? "" : typeof configValue === "function" ? configValue() : configValue;
-          if (typeof zIndex === "string") {
-            let newIndex = zIndex = Number(zIndex);
-            if (!isNaN(newIndex)) {
-              result.zIndex = newIndex;
-            }
-          } else {
-            if (!isNaN(zIndex)) {
-              result.zIndex = zIndex;
-            }
-          }
-        } else if (keyName === "mask") {
-          let mask = GlobalConfig.config.mask == null ? {} : GlobalConfig.config.mask;
-          if (typeof mask === "object" && mask != null) {
-            result.mask = mask;
-          }
-        } else {
-          Reflect.set(result, keyName, configValue);
-        }
-      });
-      return result;
-    }
-  };
-  var SVG_min = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M128 544h768a32 32 0 1 0 0-64H128a32 32 0 0 0 0 64z"></path>\r\n</svg>\r\n';
-  var SVG_mise = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M885.333333 85.333333H330.410667a53.333333 53.333333 0 0 0-53.333334 53.333334v106.666666H138.666667A53.333333 53.333333 0 0 0 85.333333 298.666667v586.666666a53.333333 53.333333 0 0 0 53.333334 53.333334H725.333333a53.333333 53.333333 0 0 0 53.333334-53.333334V746.154667h106.666666c29.44 0 53.333333-23.893333 53.333334-53.333334V138.666667A53.333333 53.333333 0 0 0 885.333333 85.333333zM725.333333 692.821333v192.512H138.666667V298.666667H725.333333v394.154666z m157.866667 0H778.666667V298.666667a53.333333 53.333333 0 0 0-53.333334-53.333334H330.410667v-106.666666h554.922666l-2.133333 554.154666z"></path>\r\n</svg>\r\n';
-  var SVG_max = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="m160 96.064 192 .192a32 32 0 0 1 0 64l-192-.192V352a32 32 0 0 1-64 0V96h64v.064zm0 831.872V928H96V672a32 32 0 1 1 64 0v191.936l192-.192a32 32 0 1 1 0 64l-192 .192zM864 96.064V96h64v256a32 32 0 1 1-64 0V160.064l-192 .192a32 32 0 1 1 0-64l192-.192zm0 831.872-192-.192a32 32 0 0 1 0-64l192 .192V672a32 32 0 1 1 64 0v256h-64v-.064z"></path>\r\n</svg>\r\n';
-  var SVG_close = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z"></path>\r\n</svg>\r\n';
-  var SVG_edit = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M832 512a32 32 0 1 1 64 0v352a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V160a32 32 0 0 1 32-32h352a32 32 0 0 1 0 64H192v640h640V512z"></path>\r\n	<path\r\n		fill="currentColor"\r\n		d="m469.952 554.24 52.8-7.552L847.104 222.4a32 32 0 1 0-45.248-45.248L477.44 501.44l-7.552 52.8zm422.4-422.4a96 96 0 0 1 0 135.808l-331.84 331.84a32 32 0 0 1-18.112 9.088L436.8 623.68a32 32 0 0 1-36.224-36.224l15.104-105.6a32 32 0 0 1 9.024-18.112l331.904-331.84a96 96 0 0 1 135.744 0z"></path>\r\n</svg>\r\n';
-  var SVG_share = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="m679.872 348.8-301.76 188.608a127.808 127.808 0 0 1 5.12 52.16l279.936 104.96a128 128 0 1 1-22.464 59.904l-279.872-104.96a128 128 0 1 1-16.64-166.272l301.696-188.608a128 128 0 1 1 33.92 54.272z"></path>\r\n</svg>\r\n';
-  var SVG_delete = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V256zm448-64v-64H416v64h192zM224 896h576V256H224v640zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32zm192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32z"></path>\r\n</svg>\r\n';
-  var SVG_search = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="m795.904 750.72 124.992 124.928a32 32 0 0 1-45.248 45.248L750.656 795.904a416 416 0 1 1 45.248-45.248zM480 832a352 352 0 1 0 0-704 352 352 0 0 0 0 704z"></path>\r\n</svg>\r\n';
-  var SVG_upload = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M160 832h704a32 32 0 1 1 0 64H160a32 32 0 1 1 0-64zm384-578.304V704h-64V247.296L237.248 490.048 192 444.8 508.8 128l316.8 316.8-45.312 45.248L544 253.696z"></path>\r\n</svg>\r\n';
-  var SVG_loading = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 64a32 32 0 0 1 32 32v192a32 32 0 0 1-64 0V96a32 32 0 0 1 32-32zm0 640a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V736a32 32 0 0 1 32-32zm448-192a32 32 0 0 1-32 32H736a32 32 0 1 1 0-64h192a32 32 0 0 1 32 32zm-640 0a32 32 0 0 1-32 32H96a32 32 0 0 1 0-64h192a32 32 0 0 1 32 32zM195.2 195.2a32 32 0 0 1 45.248 0L376.32 331.008a32 32 0 0 1-45.248 45.248L195.2 240.448a32 32 0 0 1 0-45.248zm452.544 452.544a32 32 0 0 1 45.248 0L828.8 783.552a32 32 0 0 1-45.248 45.248L647.744 692.992a32 32 0 0 1 0-45.248zM828.8 195.264a32 32 0 0 1 0 45.184L692.992 376.32a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0zm-452.544 452.48a32 32 0 0 1 0 45.248L240.448 828.8a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0z"></path>\r\n</svg>\r\n';
-  var SVG_next = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>\r\n</svg>\r\n';
-  var SVG_prev = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M609.408 149.376 277.76 489.6a32 32 0 0 0 0 44.672l331.648 340.352a29.12 29.12 0 0 0 41.728 0 30.592 30.592 0 0 0 0-42.752L339.264 511.936l311.872-319.872a30.592 30.592 0 0 0 0-42.688 29.12 29.12 0 0 0-41.728 0z"></path>\r\n</svg>\r\n';
-  var SVG_eleme = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M300.032 188.8c174.72-113.28 408-63.36 522.24 109.44 5.76 10.56 11.52 20.16 17.28 30.72v.96a22.4 22.4 0 0 1-7.68 26.88l-352.32 228.48c-9.6 6.72-22.08 3.84-28.8-5.76l-18.24-27.84a54.336 54.336 0 0 1 16.32-74.88l225.6-146.88c9.6-6.72 12.48-19.2 5.76-28.8-.96-1.92-1.92-3.84-3.84-4.8a267.84 267.84 0 0 0-315.84-17.28c-123.84 81.6-159.36 247.68-78.72 371.52a268.096 268.096 0 0 0 370.56 78.72 54.336 54.336 0 0 1 74.88 16.32l17.28 26.88c5.76 9.6 3.84 21.12-4.8 27.84-8.64 7.68-18.24 14.4-28.8 21.12a377.92 377.92 0 0 1-522.24-110.4c-113.28-174.72-63.36-408 111.36-522.24zm526.08 305.28a22.336 22.336 0 0 1 28.8 5.76l23.04 35.52a63.232 63.232 0 0 1-18.24 87.36l-35.52 23.04c-9.6 6.72-22.08 3.84-28.8-5.76l-46.08-71.04c-6.72-9.6-3.84-22.08 5.76-28.8l71.04-46.08z"></path>\r\n</svg>\r\n';
-  var SVG_elemePlus = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M839.7 734.7c0 33.3-17.9 41-17.9 41S519.7 949.8 499.2 960c-10.2 5.1-20.5 5.1-30.7 0 0 0-314.9-184.3-325.1-192-5.1-5.1-10.2-12.8-12.8-20.5V368.6c0-17.9 20.5-28.2 20.5-28.2L466 158.6c12.8-5.1 25.6-5.1 38.4 0 0 0 279 161.3 309.8 179.2 17.9 7.7 28.2 25.6 25.6 46.1-.1-5-.1 317.5-.1 350.8zM714.2 371.2c-64-35.8-217.6-125.4-217.6-125.4-7.7-5.1-20.5-5.1-30.7 0L217.6 389.1s-17.9 10.2-17.9 23v297c0 5.1 5.1 12.8 7.7 17.9 7.7 5.1 256 148.5 256 148.5 7.7 5.1 17.9 5.1 25.6 0 15.4-7.7 250.9-145.9 250.9-145.9s12.8-5.1 12.8-30.7v-74.2l-276.5 169v-64c0-17.9 7.7-30.7 20.5-46.1L745 535c5.1-7.7 10.2-20.5 10.2-30.7v-66.6l-279 169v-69.1c0-15.4 5.1-30.7 17.9-38.4l220.1-128zM919 135.7c0-5.1-5.1-7.7-7.7-7.7h-58.9V66.6c0-5.1-5.1-5.1-10.2-5.1l-30.7 5.1c-5.1 0-5.1 2.6-5.1 5.1V128h-56.3c-5.1 0-5.1 5.1-7.7 5.1v38.4h69.1v64c0 5.1 5.1 5.1 10.2 5.1l30.7-5.1c5.1 0 5.1-2.6 5.1-5.1v-56.3h64l-2.5-38.4z"\r\n		fill="currentColor"></path>\r\n</svg>\r\n';
-  var SVG_chromeFilled = '<svg\r\n	xmlns="http://www.w3.org/2000/svg"\r\n	viewBox="0 0 1024 1024"\r\n	xml:space="preserve">\r\n	<path\r\n		d="M938.67 512.01c0-44.59-6.82-87.6-19.54-128H682.67a212.372 212.372 0 0 1 42.67 128c.06 38.71-10.45 76.7-30.42 109.87l-182.91 316.8c235.65-.01 426.66-191.02 426.66-426.67z"\r\n		fill="currentColor"></path>\r\n	<path\r\n		d="M576.79 401.63a127.92 127.92 0 0 0-63.56-17.6c-22.36-.22-44.39 5.43-63.89 16.38s-35.79 26.82-47.25 46.02a128.005 128.005 0 0 0-2.16 127.44l1.24 2.13a127.906 127.906 0 0 0 46.36 46.61 127.907 127.907 0 0 0 63.38 17.44c22.29.2 44.24-5.43 63.68-16.33a127.94 127.94 0 0 0 47.16-45.79v-.01l1.11-1.92a127.984 127.984 0 0 0 .29-127.46 127.957 127.957 0 0 0-46.36-46.91z"\r\n		fill="currentColor"></path>\r\n	<path\r\n		d="M394.45 333.96A213.336 213.336 0 0 1 512 298.67h369.58A426.503 426.503 0 0 0 512 85.34a425.598 425.598 0 0 0-171.74 35.98 425.644 425.644 0 0 0-142.62 102.22l118.14 204.63a213.397 213.397 0 0 1 78.67-94.21zM512.01 938.68H512zM414.76 701.95a213.284 213.284 0 0 1-89.54-86.81L142.48 298.6c-36.35 62.81-57.13 135.68-57.13 213.42 0 203.81 142.93 374.22 333.95 416.55h.04l118.19-204.71a213.315 213.315 0 0 1-122.77-21.91z"\r\n		fill="currentColor"></path>\r\n</svg>\r\n';
-  var SVG_cpu = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M320 256a64 64 0 0 0-64 64v384a64 64 0 0 0 64 64h384a64 64 0 0 0 64-64V320a64 64 0 0 0-64-64H320zm0-64h384a128 128 0 0 1 128 128v384a128 128 0 0 1-128 128H320a128 128 0 0 1-128-128V320a128 128 0 0 1 128-128z"></path>\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 64a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32zm160 0a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32zm-320 0a32 32 0 0 1 32 32v128h-64V96a32 32 0 0 1 32-32zm160 896a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32zm160 0a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32zm-320 0a32 32 0 0 1-32-32V800h64v128a32 32 0 0 1-32 32zM64 512a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32zm0-160a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32zm0 320a32 32 0 0 1 32-32h128v64H96a32 32 0 0 1-32-32zm896-160a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32zm0-160a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32zm0 320a32 32 0 0 1-32 32H800v-64h128a32 32 0 0 1 32 32z"></path>\r\n</svg>\r\n';
-  var SVG_videoPlay = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896zm0 832a384 384 0 0 0 0-768 384 384 0 0 0 0 768zm-48-247.616L668.608 512 464 375.616v272.768zm10.624-342.656 249.472 166.336a48 48 0 0 1 0 79.872L474.624 718.272A48 48 0 0 1 400 678.336V345.6a48 48 0 0 1 74.624-39.936z"></path>\r\n</svg>\r\n';
-  var SVG_videoPause = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 64a448 448 0 1 1 0 896 448 448 0 0 1 0-896zm0 832a384 384 0 0 0 0-768 384 384 0 0 0 0 768zm-96-544q32 0 32 32v256q0 32-32 32t-32-32V384q0-32 32-32zm192 0q32 0 32 32v256q0 32-32 32t-32-32V384q0-32 32-32z"></path>\r\n</svg>\r\n';
-  var SVG_headset = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M896 529.152V512a384 384 0 1 0-768 0v17.152A128 128 0 0 1 320 640v128a128 128 0 1 1-256 0V512a448 448 0 1 1 896 0v256a128 128 0 1 1-256 0V640a128 128 0 0 1 192-110.848zM896 640a64 64 0 0 0-128 0v128a64 64 0 0 0 128 0V640zm-768 0v128a64 64 0 0 0 128 0V640a64 64 0 1 0-128 0z"></path>\r\n</svg>\r\n';
-  var SVG_monitor = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M544 768v128h192a32 32 0 1 1 0 64H288a32 32 0 1 1 0-64h192V768H192A128 128 0 0 1 64 640V256a128 128 0 0 1 128-128h640a128 128 0 0 1 128 128v384a128 128 0 0 1-128 128H544zM192 192a64 64 0 0 0-64 64v384a64 64 0 0 0 64 64h640a64 64 0 0 0 64-64V256a64 64 0 0 0-64-64H192z"></path>\r\n</svg>\r\n';
-  var SVG_documentCopy = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M128 320v576h576V320H128zm-32-64h640a32 32 0 0 1 32 32v640a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V288a32 32 0 0 1 32-32zM960 96v704a32 32 0 0 1-32 32h-96v-64h64V128H384v64h-64V96a32 32 0 0 1 32-32h576a32 32 0 0 1 32 32zM256 672h320v64H256v-64zm0-192h320v64H256v-64z"></path>\r\n</svg>\r\n';
-  var SVG_picture = '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		fill="currentColor"\r\n		d="M160 160v704h704V160H160zm-32-64h768a32 32 0 0 1 32 32v768a32 32 0 0 1-32 32H128a32 32 0 0 1-32-32V128a32 32 0 0 1 32-32z"></path>\r\n	<path\r\n		fill="currentColor"\r\n		d="M384 288q64 0 64 64t-64 64q-64 0-64-64t64-64zM185.408 876.992l-50.816-38.912L350.72 556.032a96 96 0 0 1 134.592-17.856l1.856 1.472 122.88 99.136a32 32 0 0 0 44.992-4.864l216-269.888 49.92 39.936-215.808 269.824-.256.32a96 96 0 0 1-135.04 14.464l-122.88-99.072-.64-.512a32 32 0 0 0-44.8 5.952L185.408 876.992z"></path>\r\n</svg>\r\n';
-  var SVG_circleClose = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">\r\n	<path\r\n		fill="currentColor"\r\n		d="m466.752 512-90.496-90.496a32 32 0 0 1 45.248-45.248L512 466.752l90.496-90.496a32 32 0 1 1 45.248 45.248L557.248 512l90.496 90.496a32 32 0 1 1-45.248 45.248L512 557.248l-90.496 90.496a32 32 0 0 1-45.248-45.248z"></path>\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 896a384 384 0 1 0 0-768 384 384 0 0 0 0 768m0 64a448 448 0 1 1 0-896 448 448 0 0 1 0 896"></path>\r\n</svg>\r\n';
-  var SVG_view = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">\r\n	<path\r\n		fill="currentColor"\r\n		d="M512 160c320 0 512 352 512 352S832 864 512 864 0 512 0 512s192-352 512-352m0 64c-225.28 0-384.128 208.064-436.8 288 52.608 79.872 211.456 288 436.8 288 225.28 0 384.128-208.064 436.8-288-52.608-79.872-211.456-288-436.8-288zm0 64a224 224 0 1 1 0 448 224 224 0 0 1 0-448m0 64a160.192 160.192 0 0 0-160 160c0 88.192 71.744 160 160 160s160-71.808 160-160-71.744-160-160-160"></path>\r\n</svg>\r\n';
-  var SVG_hide = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">\r\n	<path\r\n		fill="currentColor"\r\n		d="M876.8 156.8c0-9.6-3.2-16-9.6-22.4-6.4-6.4-12.8-9.6-22.4-9.6-9.6 0-16 3.2-22.4 9.6L736 220.8c-64-32-137.6-51.2-224-60.8-160 16-288 73.6-377.6 176C44.8 438.4 0 496 0 512s48 73.6 134.4 176c22.4 25.6 44.8 48 73.6 67.2l-86.4 89.6c-6.4 6.4-9.6 12.8-9.6 22.4 0 9.6 3.2 16 9.6 22.4 6.4 6.4 12.8 9.6 22.4 9.6 9.6 0 16-3.2 22.4-9.6l704-710.4c3.2-6.4 6.4-12.8 6.4-22.4Zm-646.4 528c-76.8-70.4-128-128-153.6-172.8 28.8-48 80-105.6 153.6-172.8C304 272 400 230.4 512 224c64 3.2 124.8 19.2 176 44.8l-54.4 54.4C598.4 300.8 560 288 512 288c-64 0-115.2 22.4-160 64s-64 96-64 160c0 48 12.8 89.6 35.2 124.8L256 707.2c-9.6-6.4-19.2-16-25.6-22.4Zm140.8-96c-12.8-22.4-19.2-48-19.2-76.8 0-44.8 16-83.2 48-112 32-28.8 67.2-48 112-48 28.8 0 54.4 6.4 73.6 19.2zM889.599 336c-12.8-16-28.8-28.8-41.6-41.6l-48 48c73.6 67.2 124.8 124.8 150.4 169.6-28.8 48-80 105.6-153.6 172.8-73.6 67.2-172.8 108.8-284.8 115.2-51.2-3.2-99.2-12.8-140.8-28.8l-48 48c57.6 22.4 118.4 38.4 188.8 44.8 160-16 288-73.6 377.6-176C979.199 585.6 1024 528 1024 512s-48.001-73.6-134.401-176Z"></path>\r\n	<path\r\n		fill="currentColor"\r\n		d="M511.998 672c-12.8 0-25.6-3.2-38.4-6.4l-51.2 51.2c28.8 12.8 57.6 19.2 89.6 19.2 64 0 115.2-22.4 160-64 41.6-41.6 64-96 64-160 0-32-6.4-64-19.2-89.6l-51.2 51.2c3.2 12.8 6.4 25.6 6.4 38.4 0 44.8-16 83.2-48 112-32 28.8-67.2 48-112 48Z"></path>\r\n</svg>\r\n';
-  var SVG_keyboard = '<svg viewBox="0 0 1123 1024" xmlns="http://www.w3.org/2000/svg">\r\n	<path\r\n		d="M1014.122186 1024H109.753483A109.753483 109.753483 0 0 1 0 914.246517V392.917471a109.753483 109.753483 0 0 1 109.753483-109.753484h904.368703a109.753483 109.753483 0 0 1 109.753484 109.753484v521.329046a109.753483 109.753483 0 0 1-109.753484 109.753483zM109.753483 370.966774a21.950697 21.950697 0 0 0-21.950696 21.950697v521.329046a21.950697 21.950697 0 0 0 21.950696 21.950696h904.368703a21.950697 21.950697 0 0 0 21.950697-21.950696V392.917471a21.950697 21.950697 0 0 0-21.950697-21.950697z"></path>\r\n	<path\r\n		d="M687.056806 891.198285H307.309753a43.901393 43.901393 0 0 1 0-87.802787h379.747053a43.901393 43.901393 0 0 1 0 87.802787zM175.605573 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM432.428725 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM947.172562 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 546.572347a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 803.395498a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 678.276527a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM948.270096 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394z"></path>\r\n	<path\r\n		d="M881.320472 766.079314H689.251876a43.901393 43.901393 0 0 1 0-87.802787h192.068596a21.950697 21.950697 0 0 0 21.950696-21.950696v-65.85209a43.901393 43.901393 0 0 1 87.802787 0v65.85209a109.753483 109.753483 0 0 1-109.753483 109.753483zM305.114684 502.670954H175.605573a43.901393 43.901393 0 0 1 0-87.802787h129.509111a43.901393 43.901393 0 0 1 0 87.802787zM563.03537 365.4791a43.901393 43.901393 0 0 1-43.901394-43.901394v-105.363344A109.753483 109.753483 0 0 1 628.88746 106.460879h61.461951a21.950697 21.950697 0 0 0 21.950696-21.950697V43.901393a43.901393 43.901393 0 0 1 87.802787 0v40.608789a109.753483 109.753483 0 0 1-109.753483 109.753484h-61.461951a21.950697 21.950697 0 0 0-21.950697 21.950696v105.363344a43.901393 43.901393 0 0 1-43.901393 43.901394z"></path>\r\n</svg>\r\n';
-  var SVG_arrowRight = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">\r\n	<path\r\n		d="M340.864 149.312a30.592 30.592 0 0 0 0 42.752L652.736 512 340.864 831.872a30.592 30.592 0 0 0 0 42.752 29.12 29.12 0 0 0 41.728 0L714.24 534.336a32 32 0 0 0 0-44.672L382.592 149.376a29.12 29.12 0 0 0-41.728 0z"></path>\r\n</svg>\r\n';
-  var SVG_arrowLeft = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">\r\n	<path\r\n		d="M609.408 149.376 277.76 489.6a32 32 0 0 0 0 44.672l331.648 340.352a29.12 29.12 0 0 0 41.728 0 30.592 30.592 0 0 0 0-42.752L339.264 511.936l311.872-319.872a30.592 30.592 0 0 0 0-42.688 29.12 29.12 0 0 0-41.728 0z"></path>\r\n</svg>\r\n';
-  const PopsIconData = {
-    min: SVG_min,
-    mise: SVG_mise,
-    max: SVG_max,
-    close: SVG_close,
-    edit: SVG_edit,
-    share: SVG_share,
-    delete: SVG_delete,
-    search: SVG_search,
-    upload: SVG_upload,
-    loading: SVG_loading,
-    next: SVG_next,
-    prev: SVG_prev,
-    eleme: SVG_eleme,
-    elemePlus: SVG_elemePlus,
-    chromeFilled: SVG_chromeFilled,
-    cpu: SVG_cpu,
-    videoPlay: SVG_videoPlay,
-    videoPause: SVG_videoPause,
-    headset: SVG_headset,
-    monitor: SVG_monitor,
-    documentCopy: SVG_documentCopy,
-    picture: SVG_picture,
-    circleClose: SVG_circleClose,
-    view: SVG_view,
-    hide: SVG_hide,
-    keyboard: SVG_keyboard,
-    arrowRight: SVG_arrowRight,
-    arrowLeft: SVG_arrowLeft
-  };
-  const PopsIcon = {
-    $data: PopsIconData,
-    /**
-     * 判断是否存在某个icon
-     * @param iconName 图标名
-     */
-    hasIcon(iconName) {
-      return Object.keys(PopsIcon.$data).includes(iconName);
-    },
-    /**
-     * 获取icon
-     * @param iconName 图标名
-     */
-    getIcon(iconName) {
-      return PopsIcon.$data[iconName];
-    },
-    /**
-     * 删除图标
-     * @param iconName 图标名
-     */
-    deleteIcon(iconName) {
-      return Reflect.deleteProperty(PopsIcon.$data, iconName);
-    },
-    /**
-     * 设置图标
-     * @param iconName 图标名
-     * @param iconHTML 图标html
-     */
-    setIcon(iconName, iconHTML) {
-      Reflect.set(PopsIcon.$data, iconName, iconHTML);
-    }
-  };
-  const PopsElementHandler = {
-    /**
-     * 获取遮罩层HTML
-     * @param guid
-     * @param zIndex z-index
-     * @param style
-     */
-    getMaskHTML(guid, zIndex = 101, style = "") {
-      zIndex = zIndex - 100;
-      if (style.startsWith(";")) {
-        style = style.replace(";", "");
-      }
-      return (
-        /*html*/
-        `<div class="pops-mask" data-guid="${guid}" style="z-index:${zIndex};${style}"></div>`
-      );
-    },
-    /**
-     * 获取动画层HTML
-     * @param guid
-     * @param type
-     * @param config
-     * @param html
-     * @param bottomBtnHTML
-     * @param zIndex
-     */
-    getAnimHTML(guid, type, config, html = "", bottomBtnHTML = "", zIndex) {
-      let __config = config;
-      let popsAnimStyle = "";
-      let popsStyle = "";
-      let popsPosition = __config.position || "";
-      if (config.zIndex != null) {
-        popsAnimStyle += `z-index: ${zIndex};`;
-        popsStyle += `z-index: ${zIndex};`;
-      }
-      if (__config.width != null) {
-        popsStyle += `width: ${__config.width};`;
-      }
-      if (__config.height != null) {
-        popsStyle += `height: ${__config.height};`;
-      }
-      let hasBottomBtn = bottomBtnHTML.trim() === "" ? false : true;
-      return (
-        /*html*/
-        `
-		<div class="pops-anim" anim="${__config.animation || ""}" style="${popsAnimStyle}" data-guid="${guid}">${config.style != null ? `<style tyle="text/css">${config.style}</style>` : ""}
-			<div class="pops ${config.class || ""}" data-bottom-btn="${hasBottomBtn}" type-value="${type}" style="${popsStyle}" position="${popsPosition}" data-guid="${guid}">${html}</div>
-		</div>`
-      );
-    },
-    /**
-     * 获取顶部按钮层HTML
-     * @param type
-     * @param config
-     */
-    getHeaderBtnHTML(type, config) {
-      if (!config.btn) {
-        return "";
-      }
-      let __config_confirm = config;
-      if (type !== "iframe" && !__config_confirm.btn?.close?.enable) {
-        return "";
-      }
-      let resultHTML = "";
-      let closeHTML = "";
-      let __config_iframe = config;
-      if (type === "iframe" && __config_iframe.topRightButton?.trim() !== "") {
-        let topRightButtonHTML = "";
-        __config_iframe.topRightButton.split("|").forEach((item) => {
-          item = item.toLowerCase();
-          topRightButtonHTML += /*html*/
-          `
-                <button class="pops-header-control" type="${item}">
-                    <i class="pops-icon">${PopsIcon.getIcon(item)}</i>
-                </button>`;
-        });
-        resultHTML = /*html*/
-        `
-            <div class="pops-header-controls" data-margin>${topRightButtonHTML}</div>`;
-      } else {
-        if (__config_confirm.btn?.close?.enable) {
-          closeHTML = /*html*/
-          `
-                <div class="pops-header-controls">
-                    <button class="pops-header-control" type="close" data-header>
-                    	<i class="pops-icon">${PopsIcon.getIcon("close")}</i>
-                    </button>
-                </div>`;
-        }
-        resultHTML = closeHTML;
-      }
-      return resultHTML;
-    },
-    /**
-     * 获取底部按钮层HTML
-     * @param type
-     * @param config
-     */
-    getBottomBtnHTML(type, config) {
-      if (!config.btn) {
-        return "";
-      }
-      let __config_confirm = config;
-      if (!(config.btn?.ok?.enable || __config_confirm.btn?.cancel?.enable || __config_confirm.btn?.other?.enable)) {
-        return "";
-      }
-      let btnStyle = "";
-      let resultHTML = "";
-      let okHTML = "";
-      let cancelHTML = "";
-      let ohterHTML = "";
-      if (config.btn.position) {
-        btnStyle += `justify-content: ${config.btn.position};`;
-      }
-      if (__config_confirm.btn.reverse) {
-        btnStyle += "flex-direction: row-reverse;";
-      }
-      if (config.btn?.ok?.enable) {
-        let okButtonSizeClassName = "";
-        if (config.btn.ok.size === "large") {
-          okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
-        } else if (config.btn.ok.size === "small") {
-          okButtonSizeClassName = "pops-button-" + config.btn.ok.size;
-        }
-        let okIconHTML = "";
-        let okIcon = __config_confirm.btn.ok.icon;
-        if (okIcon !== "") {
-          let iconHTML = "";
-          if (PopsIcon.hasIcon(okIcon)) {
-            iconHTML = PopsIcon.getIcon(okIcon);
-          } else {
-            iconHTML = okIcon;
-          }
-          iconHTML = iconHTML || "";
-          okIconHTML = /*html*/
-          `<i class="pops-bottom-icon" is-loading="${config.btn.ok.iconIsLoading}">${iconHTML}</i>`;
-        }
-        okHTML = /*html*/
-        `
-            <button 
-                    class="pops-${type}-btn-ok ${okButtonSizeClassName}"
-                    type="${__config_confirm.btn.ok?.type}"
-					data-has-icon="${(__config_confirm.btn.ok.icon || "") !== ""}"
-                    data-rightIcon="${__config_confirm.btn.ok?.rightIcon}"
-            >${okIconHTML}<span>${config.btn.ok.text}</span>
-            </button>`;
-      }
-      if (__config_confirm.btn?.cancel?.enable) {
-        let cancelButtonSizeClassName = "";
-        if (__config_confirm.btn.cancel.size === "large") {
-          cancelButtonSizeClassName = "pops-button-" + __config_confirm.btn.cancel.size;
-        } else if (__config_confirm.btn.cancel.size === "small") {
-          cancelButtonSizeClassName = "pops-button-" + __config_confirm.btn.cancel.size;
-        }
-        let cancelIconHTML = "";
-        let cancelIcon = __config_confirm.btn.cancel.icon;
-        if (cancelIcon !== "") {
-          let iconHTML = "";
-          if (PopsIcon.hasIcon(cancelIcon)) {
-            iconHTML = PopsIcon.getIcon(cancelIcon);
-          } else {
-            iconHTML = cancelIcon;
-          }
-          iconHTML = iconHTML || "";
-          cancelIconHTML = /*html*/
-          `<i class="pops-bottom-icon" is-loading="${__config_confirm.btn.cancel.iconIsLoading}">${iconHTML}</i>`;
-        }
-        cancelHTML = /*html*/
-        `
-            <button
-                    class="pops-${type}-btn-cancel ${cancelButtonSizeClassName}"
-                    type="${__config_confirm.btn.cancel.type}"
-					data-has-icon="${(__config_confirm.btn.cancel.icon || "") !== ""}"
-                    data-rightIcon="${__config_confirm.btn.cancel.rightIcon}"
-            >${cancelIconHTML}<span>${__config_confirm.btn.cancel.text}</span>
-            </button>`;
-      }
-      if (__config_confirm.btn?.other?.enable) {
-        let otherButtonSizeClassName = "";
-        if (__config_confirm.btn.other.size === "large") {
-          otherButtonSizeClassName = "pops-button-" + __config_confirm.btn.other.size;
-        } else if (__config_confirm.btn.other.size === "small") {
-          otherButtonSizeClassName = "pops-button-" + __config_confirm.btn.other.size;
-        }
-        let otherIconHTML = "";
-        let otherIcon = __config_confirm.btn.other.icon;
-        if (otherIcon !== "") {
-          let iconHTML = "";
-          if (PopsIcon.hasIcon(otherIcon)) {
-            iconHTML = PopsIcon.getIcon(otherIcon);
-          }
-          iconHTML = iconHTML || "";
-          otherIconHTML = /*html*/
-          `<i class="pops-bottom-icon" is-loading="${__config_confirm.btn.other.iconIsLoading}">${iconHTML}</i>`;
-        }
-        ohterHTML = /*html*/
-        `
-            <button
-                    class="pops-${type}-btn-other ${otherButtonSizeClassName}"
-                    type="${__config_confirm.btn.other.type}"
-					data-has-icon="${(__config_confirm.btn.other.icon || "") !== ""}"
-                    data-rightIcon="${__config_confirm.btn.other.rightIcon}"
-            >${otherIconHTML}<span>${__config_confirm.btn.other.text}</span>
-            </button>`;
-      }
-      if (__config_confirm.btn.merge) {
-        let flexStyle = "display: flex;";
-        if (__config_confirm.btn.mergeReverse) {
-          flexStyle += "flex-direction: row-reverse;";
-        } else {
-          flexStyle += "flex-direction: row;";
-        }
-        resultHTML = /*html*/
-        `
-            <div class="pops-botttom-btn-controls pops-${type}-btn" style="${btnStyle}">${ohterHTML}<div 
-                    class="pops-${type}-btn-merge"
-                    style="${flexStyle}">${okHTML}${cancelHTML}</div>
-            </div>
-            `;
-      } else {
-        resultHTML = /*html*/
-        `<div class="pops-botttom-btn-controls pops-${type}-btn" style="${btnStyle}">${okHTML}${cancelHTML}${ohterHTML}</div>`;
-      }
-      return resultHTML;
-    },
-    /**
-     * 获取标题style
-     * @param type 弹窗类型
-     * @param config 弹窗配置
-     */
-    getHeaderStyle(type, config) {
-      return {
-        headerStyle: config?.title?.html ? config?.title?.style || "" : "",
-        headerPStyle: config?.title?.html ? "" : config?.title?.style || ""
-      };
-    },
-    /**
-     * 获取内容style
-     * @param type 弹窗类型
-     * @param config 弹窗配置
-     */
-    getContentStyle(type, config) {
-      return {
-        contentStyle: config?.content?.html ? config?.content?.style || "" : "",
-        contentPStyle: config?.content?.html ? "" : config?.content?.style || ""
-      };
-    },
-    /**
-     * 将html转换成元素
-     * @param html
-     */
-    parseElement(html) {
-      return popsDOMUtils.parseTextToDOM(html);
-    }
-  };
   const PopsHandler = {
     /**
      * 创建shadow
@@ -15193,12 +15266,12 @@ ${err.stack}`);
       let isMaskClick = false;
       function clickEvent(event) {
         popsDOMUtils.preventEvent(event);
-        let targetLayer = PopsLayerData[details.type];
+        let targetInst = PopsInstData[details.type];
         function originalRun() {
           if (details.config.mask.clickEvent.toClose) {
-            return PopsInstanceUtils.close(details.type, targetLayer, details.guid, details.config, details.animElement);
+            return PopsInstanceUtils.close(details.type, targetInst, details.guid, details.config, details.animElement);
           } else if (details.config.mask.clickEvent.toHide) {
-            return PopsInstanceUtils.hide(details.type, targetLayer, details.guid, details.config, details.animElement, result.maskElement);
+            return PopsInstanceUtils.hide(details.type, targetInst, details.guid, details.config, details.animElement, result.maskElement);
           }
         }
         if (typeof details.config.mask.clickCallBack === "function") {
@@ -15291,19 +15364,19 @@ ${err.stack}`);
         /**
          * 顶部缩小按钮
          */
-        headerMinBtnElement: animElement.querySelector(".pops-header-control[type='min']"),
+        headerMinBtnElement: animElement.querySelector(".pops-header-control[data-type='min']"),
         /**
          * 顶部放大按钮
          */
-        headerMaxBtnElement: animElement.querySelector(".pops-header-control[type='max']"),
+        headerMaxBtnElement: animElement.querySelector(".pops-header-control[data-type='max']"),
         /**
          * 顶部恢复原样按钮
          */
-        headerMiseBtnElement: animElement.querySelector(".pops-header-control[type='mise']"),
+        headerMiseBtnElement: animElement.querySelector(".pops-header-control[data-type='mise']"),
         /**
          * 顶部关闭按钮
          */
-        headerCloseBtnElement: animElement.querySelector(".pops-header-control[type='close']"),
+        headerCloseBtnElement: animElement.querySelector(".pops-header-control[data-type='close']"),
         /**
          * 文件夹列表元素
          */
@@ -15360,13 +15433,13 @@ ${err.stack}`);
         mode,
         guid,
         close() {
-          return PopsInstanceUtils.close(mode, PopsLayerData[mode], guid, config, animElement);
+          return PopsInstanceUtils.close(mode, PopsInstData[mode], guid, config, animElement);
         },
         hide() {
-          return PopsInstanceUtils.hide(mode, PopsLayerData[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.hide(mode, PopsInstData[mode], guid, config, animElement, maskElement);
         },
         show() {
-          return PopsInstanceUtils.show(mode, PopsLayerData[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.show(mode, PopsInstData[mode], guid, config, animElement, maskElement);
         }
       };
     },
@@ -15388,13 +15461,13 @@ ${err.stack}`);
         mode,
         guid,
         close() {
-          return PopsInstanceUtils.close(mode, PopsLayerData[mode], guid, config, animElement);
+          return PopsInstanceUtils.close(mode, PopsInstData[mode], guid, config, animElement);
         },
         hide() {
-          return PopsInstanceUtils.hide(mode, PopsLayerData[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.hide(mode, PopsInstData[mode], guid, config, animElement, maskElement);
         },
         show() {
-          return PopsInstanceUtils.show(mode, PopsLayerData[mode], guid, config, animElement, maskElement);
+          return PopsInstanceUtils.show(mode, PopsInstData[mode], guid, config, animElement, maskElement);
         }
       };
     },
@@ -15501,19 +15574,19 @@ ${err.stack}`);
     handleOnly(type, config) {
       if (config.only) {
         if (type === "loading" || type === "tooltip" || type === "rightClickMenu") {
-          let layer = PopsLayerData[type];
-          if (layer) {
-            PopsInstanceUtils.removeInstance([layer], "", true);
+          let inst = PopsInstData[type];
+          if (inst) {
+            PopsInstanceUtils.removeInstance([inst], "", true);
           }
         } else {
           PopsInstanceUtils.removeInstance([
-            PopsLayerData.alert,
-            PopsLayerData.confirm,
-            PopsLayerData.prompt,
-            PopsLayerData.iframe,
-            PopsLayerData.drawer,
-            PopsLayerData.folder,
-            PopsLayerData.panel
+            PopsInstData.alert,
+            PopsInstData.confirm,
+            PopsInstData.prompt,
+            PopsInstData.iframe,
+            PopsInstData.drawer,
+            PopsInstData.folder,
+            PopsInstData.panel
           ], "", true);
         }
       } else {
@@ -15531,7 +15604,7 @@ ${err.stack}`);
      * @param value
      */
     handlePush(type, value) {
-      PopsLayerData[type].push(value);
+      PopsInstData[type].push(value);
     }
   };
   const PopsAlertConfig = () => {
@@ -15571,8 +15644,8 @@ ${err.stack}`);
       useShadowRoot: true,
       class: "",
       only: false,
-      width: "350px",
-      height: "200px",
+      width: window.innerWidth < 550 ? "88vw" : "350px",
+      height: window.innerHeight < 450 ? "70vh" : "200px",
       position: "center",
       animation: "pops-anim-fadein-zoom",
       zIndex: 1e4,
@@ -15600,11 +15673,11 @@ ${err.stack}`);
   const PopsAlert = {
     init(details) {
       const guid = popsUtils.getRandomGUID();
-      const PopsType = "alert";
+      const popsType = "alert";
       let config = PopsAlertConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
-      config = PopsHandler.handleOnly(PopsType, config);
+      config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -15637,29 +15710,29 @@ ${err.stack}`);
         }
       ]);
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
-      let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(PopsType, config);
-      let { contentStyle, contentPStyle } = PopsElementHandler.getContentStyle(PopsType, config);
-      let animHTML = PopsElementHandler.getAnimHTML(
+      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
+      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
+      let animHTML = PopsElementHandler.createAnim(
         guid,
-        PopsType,
+        popsType,
         config,
         /*html*/
         `
-			<div class="pops-title pops-${PopsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${PopsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
-			<div class="pops-content pops-${PopsType}-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
+			<div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
+			<div class="pops-content pops-${popsType}-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
         bottomBtnHTML,
         zIndex
       );
       let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops, headerCloseBtnElement: $headerCloseBtn, btnOkElement, titleElement: $title } = PopsHandler.handleQueryElement($anim, PopsType);
+      let { popsElement: $pops, headerCloseBtnElement: $headerCloseBtn, btnOkElement, titleElement: $title } = PopsHandler.handleQueryElement($anim, popsType);
       let $mask = null;
       let elementList = [$anim];
       if (config.mask.enable) {
         let _handleMask_ = PopsHandler.handleMask({
-          type: PopsType,
+          type: popsType,
           guid,
           config,
           animElement: $anim,
@@ -15668,7 +15741,7 @@ ${err.stack}`);
         $mask = _handleMask_.maskElement;
         elementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, PopsType, $anim, $pops, $mask, config);
+      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       PopsHandler.handleClickEvent("close", $headerCloseBtn, eventDetails, config.btn.close.callback);
       PopsHandler.handleClickEvent("ok", btnOkElement, eventDetails, config.btn.ok.callback);
       popsDOMUtils.append($shadowRoot, elementList);
@@ -15679,7 +15752,7 @@ ${err.stack}`);
       if ($mask != null) {
         $anim.after($mask);
       }
-      PopsHandler.handlePush(PopsType, {
+      PopsHandler.handlePush(popsType, {
         guid,
         animElement: $anim,
         popsElement: $pops,
@@ -15764,8 +15837,8 @@ ${err.stack}`);
       useShadowRoot: true,
       class: "",
       only: false,
-      width: "350px",
-      height: "200px",
+      width: window.innerWidth < 550 ? "88vw" : "350px",
+      height: window.innerHeight < 450 ? "70vh" : "200px",
       position: "center",
       animation: "pops-anim-fadein-zoom",
       zIndex: 1e4,
@@ -15793,11 +15866,11 @@ ${err.stack}`);
   const PopsConfirm = {
     init(details) {
       const guid = popsUtils.getRandomGUID();
-      const PopsType = "confirm";
+      const popsType = "confirm";
       let config = PopsConfirmConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
-      config = PopsHandler.handleOnly(PopsType, config);
+      config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -15830,29 +15903,29 @@ ${err.stack}`);
         }
       ]);
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
-      let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(PopsType, config);
-      let { contentStyle, contentPStyle } = PopsElementHandler.getContentStyle(PopsType, config);
-      let animHTML = PopsElementHandler.getAnimHTML(
+      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
+      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
+      let animHTML = PopsElementHandler.createAnim(
         guid,
-        PopsType,
+        popsType,
         config,
         /*html*/
         `
-            <div class="pops-title pops-${PopsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${PopsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
-                        <div class="pops-content pops-${PopsType}-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
+            <div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
+                        <div class="pops-content pops-${popsType}-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
         bottomBtnHTML,
         zIndex
       );
       let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops, titleElement: $title, headerCloseBtnElement: $btnClose, btnOkElement: $btnOk, btnCancelElement: $btnCancel, btnOtherElement: $btnOther } = PopsHandler.handleQueryElement($anim, PopsType);
+      let { popsElement: $pops, titleElement: $title, headerCloseBtnElement: $btnClose, btnOkElement: $btnOk, btnCancelElement: $btnCancel, btnOtherElement: $btnOther } = PopsHandler.handleQueryElement($anim, popsType);
       let $mask = null;
       let elementList = [$anim];
       if (config.mask.enable) {
         let _handleMask_ = PopsHandler.handleMask({
-          type: PopsType,
+          type: popsType,
           guid,
           config,
           animElement: $anim,
@@ -15861,7 +15934,7 @@ ${err.stack}`);
         $mask = _handleMask_.maskElement;
         elementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, PopsType, $anim, $pops, $mask, config);
+      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       PopsHandler.handleClickEvent("close", $btnClose, eventDetails, config.btn.close.callback);
       PopsHandler.handleClickEvent("ok", $btnOk, eventDetails, config.btn.ok.callback);
       PopsHandler.handleClickEvent("cancel", $btnCancel, eventDetails, config.btn.cancel.callback);
@@ -15874,7 +15947,7 @@ ${err.stack}`);
       if ($mask != null) {
         $anim.after($mask);
       }
-      PopsHandler.handlePush(PopsType, {
+      PopsHandler.handlePush(popsType, {
         guid,
         animElement: $anim,
         popsElement: $pops,
@@ -15891,594 +15964,6 @@ ${err.stack}`);
           endCallBack: config.dragEndCallBack
         });
       }
-      let result = PopsHandler.handleResultDetails(eventDetails);
-      return result;
-    }
-  };
-  const PopsPromptConfig = () => {
-    return {
-      title: {
-        text: "默认标题",
-        position: "left",
-        html: false,
-        style: ""
-      },
-      content: {
-        text: "",
-        select: false,
-        password: false,
-        row: false,
-        focus: true,
-        placeholder: "默认提示",
-        style: ""
-      },
-      btn: {
-        merge: false,
-        mergeReverse: false,
-        reverse: false,
-        position: "flex-end",
-        ok: {
-          enable: true,
-          size: void 0,
-          icon: void 0,
-          rightIcon: false,
-          iconIsLoading: false,
-          text: "确定",
-          type: "success",
-          callback(detail) {
-            detail.close();
-          }
-        },
-        cancel: {
-          enable: true,
-          size: void 0,
-          icon: void 0,
-          rightIcon: false,
-          iconIsLoading: false,
-          text: "关闭",
-          type: "default",
-          callback(detail) {
-            detail.close();
-          }
-        },
-        other: {
-          enable: false,
-          size: void 0,
-          icon: void 0,
-          rightIcon: false,
-          iconIsLoading: false,
-          text: "其它按钮",
-          type: "default",
-          callback(detail) {
-            detail.close();
-          }
-        },
-        close: {
-          enable: true,
-          callback(detail) {
-            detail.close();
-          }
-        }
-      },
-      useShadowRoot: true,
-      class: "",
-      only: false,
-      width: "350px",
-      height: "200px",
-      position: "center",
-      animation: "pops-anim-fadein-zoom",
-      zIndex: 1e4,
-      mask: {
-        enable: false,
-        clickEvent: {
-          toClose: false,
-          toHide: false
-        },
-        clickCallBack: null
-      },
-      drag: false,
-      dragLimit: true,
-      dragExtraDistance: 3,
-      dragMoveCallBack() {
-      },
-      dragEndCallBack() {
-      },
-      forbiddenScroll: false,
-      style: null,
-      beforeAppendToPageCallBack() {
-      }
-    };
-  };
-  const PopsPrompt = {
-    init(details) {
-      const guid = popsUtils.getRandomGUID();
-      const PopsType = "prompt";
-      let config = PopsPromptConfig();
-      config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
-      config = PopsHandler.handleOnly(PopsType, config);
-      const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
-      PopsHandler.handleInit($shadowRoot, [
-        {
-          name: "index",
-          css: PopsCSS.index
-        },
-        {
-          name: "ninePalaceGridPosition",
-          css: PopsCSS.ninePalaceGridPosition
-        },
-        {
-          name: "scrollbar",
-          css: PopsCSS.scrollbar
-        },
-        {
-          name: "button",
-          css: PopsCSS.button
-        },
-        {
-          name: "anim",
-          css: PopsCSS.anim
-        },
-        {
-          name: "common",
-          css: PopsCSS.common
-        },
-        {
-          name: "promptCSS",
-          css: PopsCSS.promptCSS
-        }
-      ]);
-      let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
-      let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(PopsType, config);
-      let { contentPStyle } = PopsElementHandler.getContentStyle(PopsType, config);
-      let animHTML = PopsElementHandler.getAnimHTML(
-        guid,
-        PopsType,
-        config,
-        /*html*/
-        `
-            <div class="pops-title pops-${PopsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${PopsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
-            <div class="pops-content pops-${PopsType}-content" style="${contentPStyle}">${config.content.row ? '<textarea name="pops-input-text" pops="" placeholder="' + config.content.placeholder + '"></textarea>' : '<input name="pops-input-text" pops="" placeholder="' + config.content.placeholder + '" type="' + (config.content.password ? "password" : "text") + '">'}</div>${bottomBtnHTML}`,
-        bottomBtnHTML,
-        zIndex
-      );
-      let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops, inputElement: $input, headerCloseBtnElement: $btnClose, btnOkElement: $btnOk, btnCancelElement: $btnCancel, btnOtherElement: $btnOther, titleElement: $title } = PopsHandler.handleQueryElement($anim, PopsType);
-      let $mask = null;
-      let elementList = [$anim];
-      if (config.mask.enable) {
-        let _handleMask_ = PopsHandler.handleMask({
-          type: PopsType,
-          guid,
-          config,
-          animElement: $anim,
-          maskHTML
-        });
-        $mask = _handleMask_.maskElement;
-        elementList.push($mask);
-      }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, PopsType, $anim, $pops, $mask, config);
-      $input.value = config.content.text;
-      PopsHandler.handlePromptClickEvent("close", $input, $btnClose, eventDetails, config.btn.close.callback);
-      PopsHandler.handlePromptClickEvent("ok", $input, $btnOk, eventDetails, config.btn.ok.callback);
-      PopsHandler.handlePromptClickEvent("cancel", $input, $btnCancel, eventDetails, config.btn.cancel.callback);
-      PopsHandler.handlePromptClickEvent("other", $input, $btnOther, eventDetails, config.btn.other.callback);
-      popsDOMUtils.append($shadowRoot, elementList);
-      if (typeof config.beforeAppendToPageCallBack === "function") {
-        config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-      }
-      popsDOMUtils.appendBody($shadowContainer);
-      if ($mask != null) {
-        $anim.after($mask);
-      }
-      PopsHandler.handlePush(PopsType, {
-        guid,
-        animElement: $anim,
-        popsElement: $pops,
-        maskElement: $mask,
-        $shadowContainer,
-        $shadowRoot
-      });
-      if (config.drag) {
-        PopsInstanceUtils.drag($pops, {
-          dragElement: $title,
-          limit: config.dragLimit,
-          extraDistance: config.dragExtraDistance,
-          moveCallBack: config.dragMoveCallBack,
-          endCallBack: config.dragEndCallBack
-        });
-      }
-      if (config.content.focus) {
-        $input.focus();
-      }
-      if (config.content.select) {
-        $input.select();
-      }
-      let result = PopsHandler.handleResultDetails(eventDetails);
-      return result;
-    }
-  };
-  const PopsLoadingConfig = () => {
-    return {
-      parent: document.body,
-      content: {
-        text: "加载中...",
-        icon: "loading",
-        style: ""
-      },
-      useShadowRoot: true,
-      class: "",
-      only: false,
-      zIndex: 1e4,
-      mask: {
-        enable: false,
-        clickEvent: {
-          toClose: false,
-          toHide: false
-        },
-        clickCallBack: null
-      },
-      animation: "pops-anim-fadein-zoom",
-      forbiddenScroll: false,
-      isAbsolute: false,
-      style: null,
-      addIndexCSS: true
-    };
-  };
-  const PopsLoading = {
-    init(details) {
-      let config = PopsLoadingConfig();
-      config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
-      let guid = popsUtils.getRandomGUID();
-      const PopsType = "loading";
-      config = PopsHandler.handleOnly(PopsType, config);
-      let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
-      let { contentPStyle } = PopsElementHandler.getContentStyle("loading", config);
-      let animHTML = PopsElementHandler.getAnimHTML(
-        guid,
-        PopsType,
-        config,
-        /*html*/
-        `
-            <div class="pops-content pops-${PopsType}-content">${config.addIndexCSS ? (
-        /*html*/
-        `
-                <style data-model-name="index">${PopsCSS.index}</style>
-                <style data-model-name="anim">${PopsCSS.anim}</style>
-                <style data-model-name="common">${PopsCSS.common}</style>
-                `
-      ) : ""}
-                <style data-model-name="loadingCSS">
-                    ${PopsCSS.loadingCSS}
-                </style>
-            ${config.style != null ? `<style>${config.style}</style>` : ""}
-            	<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>
-            </div>`,
-        "",
-        zIndex
-      );
-      let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops } = PopsHandler.handleQueryElement($anim, PopsType);
-      let $mask = null;
-      let elementList = [$anim];
-      if (config.mask.enable) {
-        let _handleMask_ = PopsHandler.handleMask({
-          type: PopsType,
-          guid,
-          config,
-          animElement: $anim,
-          maskHTML
-        });
-        $mask = _handleMask_.maskElement;
-        elementList.push($mask);
-      }
-      let eventDetails = PopsHandler.handleLoadingEventDetails(guid, PopsType, $anim, $pops, $mask, config);
-      popsDOMUtils.append(config.parent, elementList);
-      if ($mask != null) {
-        $anim.after($mask);
-      }
-      PopsHandler.handlePush(PopsType, {
-        guid,
-        animElement: $anim,
-        popsElement: $pops,
-        maskElement: $mask
-      });
-      if (config.isAbsolute) {
-        popsDOMUtils.css($anim, "position", "absolute !important");
-        $mask && popsDOMUtils.css($mask, "position", "absolute !important");
-      }
-      let result = PopsHandler.handleResultDetails(eventDetails);
-      return result;
-    }
-  };
-  const PopsIframeConfig = () => {
-    return {
-      title: {
-        position: "center",
-        text: "",
-        html: false,
-        style: ""
-      },
-      loading: {
-        enable: true,
-        icon: true,
-        text: ""
-      },
-      useShadowRoot: true,
-      class: "",
-      url: window.location.href,
-      only: false,
-      zIndex: 1e4,
-      mask: {
-        enable: false,
-        clickEvent: {
-          toClose: false,
-          toHide: false
-        },
-        clickCallBack: null
-      },
-      animation: "pops-anim-fadein-zoom",
-      position: "center",
-      drag: true,
-      dragLimit: true,
-      dragExtraDistance: 3,
-      dragMoveCallBack() {
-      },
-      dragEndCallBack() {
-      },
-      width: "300px",
-      height: "250px",
-      topRightButton: "min|max|mise|close",
-      sandbox: false,
-      forbiddenScroll: false,
-      loadEndCallBack() {
-      },
-      btn: {
-        min: {
-          callback() {
-          }
-        },
-        max: {
-          callback() {
-          }
-        },
-        mise: {
-          callback() {
-          }
-        },
-        close: {
-          callback() {
-          }
-        }
-      },
-      style: null,
-      beforeAppendToPageCallBack() {
-      }
-    };
-  };
-  const PopsIframe = {
-    init(details) {
-      const guid = popsUtils.getRandomGUID();
-      const PopsType = "iframe";
-      let config = PopsIframeConfig();
-      config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
-      config = popsUtils.assign(config, details);
-      if (config.url == null) {
-        throw new Error("config.url不能为空");
-      }
-      config = PopsHandler.handleOnly(PopsType, config);
-      const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
-      PopsHandler.handleInit($shadowRoot, [
-        {
-          name: "index",
-          css: PopsCSS.index
-        },
-        {
-          name: "ninePalaceGridPosition",
-          css: PopsCSS.ninePalaceGridPosition
-        },
-        {
-          name: "scrollbar",
-          css: PopsCSS.scrollbar
-        },
-        {
-          name: "anim",
-          css: PopsCSS.anim
-        },
-        {
-          name: "common",
-          css: PopsCSS.common
-        },
-        {
-          name: "iframeCSS",
-          css: PopsCSS.iframeCSS
-        }
-      ]);
-      let maskExtraStyle = (
-        // @ts-ignore
-        config.animation != null && config.animation != "" ? "position:absolute;" : ""
-      );
-      let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex, maskExtraStyle);
-      let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
-      let iframeLoadingHTML = '<div class="pops-loading"></div>';
-      let titleText = config.title.text.trim() !== "" ? config.title.text : config.url;
-      let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(PopsType, config);
-      let animHTML = PopsElementHandler.getAnimHTML(
-        guid,
-        PopsType,
-        config,
-        /*html*/
-        `
-            <div class="pops-title pops-${PopsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? titleText : `<p pops class="pops-${PopsType}-title-text" style="${headerPStyle}">${titleText}</p>`}${headerBtnHTML}</div>
-			<div class="pops-content pops-${PopsType}-content">
-                <div class="pops-${PopsType}-content-global-loading"></div>
-                <iframe src="${config.url}" pops ${config.sandbox ? "sandbox='allow-forms allow-same-origin allow-scripts'" : ""}>
-                </iframe>
-			</div>${config.loading.enable ? iframeLoadingHTML : ""}`,
-        "",
-        zIndex
-      );
-      let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops, headerCloseBtnElement, headerControlsElement, titleElement: $title, iframeElement: $iframe, loadingElement, contentLoadingElement: $contentLoading, headerMinBtnElement, headerMaxBtnElement, headerMiseBtnElement } = PopsHandler.handleQueryElement($anim, PopsType);
-      let $iframeContainer = PopsCore.document.querySelector(".pops-iframe-container");
-      if (!$iframeContainer) {
-        $iframeContainer = PopsCore.document.createElement("div");
-        $iframeContainer.className = "pops-iframe-container";
-        $iframeContainer.style.cssText = "display: flex;position: fixed;bottom: 0px;flex-flow: wrap-reverse;user-select: none;-webkit-user-select: none;-ms-user-select: none;-moz-user-select: none;";
-        popsDOMUtils.appendBody($iframeContainer);
-      }
-      let $mask = null;
-      let elementList = [$anim];
-      if (config.mask.enable) {
-        let _handleMask_ = PopsHandler.handleMask({
-          type: PopsType,
-          guid,
-          config,
-          animElement: $anim,
-          maskHTML
-        });
-        $mask = _handleMask_.maskElement;
-        elementList.push($mask);
-      }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, PopsType, $anim, $pops, $mask, config);
-      eventDetails["iframeElement"] = $iframe;
-      popsDOMUtils.on($anim, popsDOMUtils.getAnimationEndNameList(), function() {
-        $anim.style.width = "0%";
-        $anim.style.height = "0%";
-      });
-      popsDOMUtils.on($iframe, "load", () => {
-        loadingElement?.remove();
-        $contentLoading.style.animation = "iframeLoadingChange_85 0.3s forwards";
-        popsDOMUtils.on($contentLoading, popsDOMUtils.getAnimationEndNameList(), () => {
-          $contentLoading.remove();
-        });
-        if (config.title.text.trim() === "" && $iframe.contentDocument) {
-          $title.querySelector("p").innerText = $iframe.contentDocument.title;
-        }
-        config.loadEndCallBack(eventDetails);
-      });
-      popsDOMUtils.append($shadowRoot, elementList);
-      if (typeof config.beforeAppendToPageCallBack === "function") {
-        config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
-      }
-      $iframeContainer.appendChild($shadowContainer);
-      if ($mask != null) {
-        $anim.after($mask);
-      }
-      if (config.drag) {
-        PopsInstanceUtils.drag($pops, {
-          dragElement: $title,
-          limit: config.dragLimit,
-          extraDistance: config.dragExtraDistance,
-          moveCallBack: config.dragMoveCallBack,
-          endCallBack: config.dragEndCallBack
-        });
-      }
-      const TYPE_MODULE = "type-module";
-      let origin_left = "";
-      let origin_top = "";
-      let origin_is_max = false;
-      popsDOMUtils.on(headerMinBtnElement, "click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        origin_left = $pops.style.left;
-        origin_top = $pops.style.top;
-        $pops.classList.add("pops-iframe-unset-top");
-        $pops.classList.add("pops-iframe-unset-left");
-        $pops.classList.add("pops-iframe-unset-transform");
-        $pops.style.transitionDuration = "";
-        $pops.setAttribute(TYPE_MODULE, "min");
-        headerControlsElement.setAttribute("type", "min");
-        headerMaxBtnElement.style.setProperty("display", "none");
-        headerMiseBtnElement.style.setProperty("display", "");
-        if (typeof config?.btn?.min?.callback === "function") {
-          config.btn.min.callback(eventDetails, event);
-        }
-      }, {
-        capture: true
-      });
-      popsDOMUtils.on(headerMaxBtnElement, "click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        if ($pops.getAttribute(TYPE_MODULE) !== "min") {
-          origin_left = $pops.style.left;
-          origin_top = $pops.style.top;
-        }
-        origin_is_max = true;
-        $pops.style.transitionDuration = "";
-        $pops.style.transform = "";
-        $pops.removeAttribute(TYPE_MODULE);
-        $pops.classList.add("pops-iframe-unset-transition");
-        $pops.classList.add("pops-iframe-unset-left");
-        $pops.classList.add("pops-iframe-unset-top");
-        $pops.classList.add("pops-iframe-unset-transform");
-        $pops.classList.remove("pops-iframe-unset-transition");
-        $pops.setAttribute(TYPE_MODULE, "max");
-        headerControlsElement.setAttribute("type", "max");
-        headerMaxBtnElement.style.setProperty("display", "none");
-        headerMiseBtnElement.style.setProperty("display", "");
-        if (typeof config?.btn?.max?.callback === "function") {
-          config.btn.max.callback(eventDetails, event);
-        }
-      }, {
-        capture: true
-      });
-      headerMiseBtnElement?.style?.setProperty("display", "none");
-      popsDOMUtils.on(headerMiseBtnElement, "click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        if (origin_is_max && $pops.getAttribute(TYPE_MODULE) === "min") {
-          $pops.classList.add("pops-iframe-unset-transition");
-          $pops.classList.add("pops-iframe-unset-left");
-          $pops.classList.add("pops-iframe-unset-top");
-          $pops.classList.add("pops-iframe-unset-transform");
-          $pops.classList.remove("pops-iframe-unset-transition");
-          $pops.setAttribute(TYPE_MODULE, "max");
-          headerControlsElement.setAttribute("type", "max");
-        } else {
-          origin_is_max = false;
-          $pops.style.left = origin_left;
-          $pops.style.top = origin_top;
-          $pops.style.transitionDuration = "";
-          $pops.style.transform = "";
-          headerControlsElement.removeAttribute("type");
-          $pops.removeAttribute(TYPE_MODULE);
-          $pops.classList.remove("pops-iframe-unset-top");
-          $pops.classList.remove("pops-iframe-unset-left");
-          $pops.classList.remove("pops-iframe-unset-transform");
-          headerMaxBtnElement.style.setProperty("display", "");
-          headerMiseBtnElement.style.setProperty("display", "none");
-        }
-        if (typeof config?.btn?.mise?.callback === "function") {
-          config.btn.mise.callback(eventDetails, event);
-        }
-      }, {
-        capture: true
-      });
-      popsDOMUtils.on(headerCloseBtnElement, "click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        PopsInstanceUtils.removeInstance([PopsLayerData.iframe], guid, false);
-        if (typeof config?.btn?.close?.callback === "function") {
-          config.btn.close.callback(eventDetails, event);
-        }
-      }, {
-        capture: true
-      });
-      PopsHandler.handlePush(PopsType, {
-        guid,
-        animElement: $anim,
-        popsElement: $pops,
-        maskElement: $mask,
-        $shadowContainer,
-        $shadowRoot
-      });
       let result = PopsHandler.handleResultDetails(eventDetails);
       return result;
     }
@@ -16573,11 +16058,11 @@ ${err.stack}`);
   const PopsDrawer = {
     init(details) {
       const guid = popsUtils.getRandomGUID();
-      const PopsType = "drawer";
+      const popsType = "drawer";
       let config = PopsDrawerConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
-      config = PopsHandler.handleOnly(PopsType, config);
+      config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -16610,30 +16095,30 @@ ${err.stack}`);
         }
       ]);
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
-      let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(PopsType, config);
-      let { contentStyle, contentPStyle } = PopsElementHandler.getContentStyle(PopsType, config);
-      let animHTML = PopsElementHandler.getAnimHTML(
+      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
+      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      let { contentStyle, contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
+      let animHTML = PopsElementHandler.createAnim(
         guid,
-        PopsType,
+        popsType,
         config,
         /*html*/
         `
             ${config.title.enable ? (
         /*html*/
-        `<div class="pops-title pops-${PopsType}-title" style="${headerStyle}">${config.title.html ? config.title.text : (
+        `<div class="pops-title pops-${popsType}-title" style="${headerStyle}">${config.title.html ? config.title.text : (
           /*html*/
-          `<p pops class="pops-${PopsType}-title-text" style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
+          `<p pops class="pops-${popsType}-title-text" style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`
         )}${headerBtnHTML}</div>`
       ) : ""}
-            <div class="pops-content pops-${PopsType}-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
+            <div class="pops-content pops-${popsType}-content" style="${contentStyle}">${config.content.html ? config.content.text : `<p pops class="pops-${popsType}-content-text" style="${contentPStyle}">${config.content.text}</p>`}</div>${bottomBtnHTML}`,
         bottomBtnHTML,
         zIndex
       );
       let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement, headerCloseBtnElement, btnCancelElement, btnOkElement, btnOtherElement } = PopsHandler.handleQueryElement($anim, PopsType);
+      let { popsElement, headerCloseBtnElement, btnCancelElement, btnOkElement, btnOtherElement } = PopsHandler.handleQueryElement($anim, popsType);
       let $pops = popsElement;
       let $headerCloseBtn = headerCloseBtnElement;
       let $btnCancel = btnCancelElement;
@@ -16643,7 +16128,7 @@ ${err.stack}`);
       let elementList = [$anim];
       if (config.mask.enable) {
         let _handleMask_ = PopsHandler.handleMask({
-          type: PopsType,
+          type: popsType,
           guid,
           config,
           animElement: $anim,
@@ -16652,7 +16137,7 @@ ${err.stack}`);
         $mask = _handleMask_.maskElement;
         elementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, PopsType, $anim, $pops, $mask, config);
+      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       $pops.setAttribute("direction", config.direction);
       if (config.direction === "top") {
         $pops.style.setProperty("height", "0");
@@ -16727,7 +16212,7 @@ ${err.stack}`);
       if ($mask != null) {
         $anim.after($mask);
       }
-      PopsHandler.handlePush(PopsType, {
+      PopsHandler.handlePush(popsType, {
         guid,
         animElement: $anim,
         popsElement: $pops,
@@ -16735,6 +16220,101 @@ ${err.stack}`);
         $shadowContainer,
         $shadowRoot
       });
+      let result = PopsHandler.handleResultDetails(eventDetails);
+      return result;
+    }
+  };
+  const PopsLoadingConfig = () => {
+    return {
+      parent: document.body,
+      content: {
+        text: "加载中...",
+        icon: "loading",
+        style: ""
+      },
+      useShadowRoot: true,
+      class: "",
+      only: false,
+      zIndex: 1e4,
+      mask: {
+        enable: false,
+        clickEvent: {
+          toClose: false,
+          toHide: false
+        },
+        clickCallBack: null
+      },
+      animation: "pops-anim-fadein-zoom",
+      forbiddenScroll: false,
+      isAbsolute: false,
+      style: null,
+      addIndexCSS: true
+    };
+  };
+  const PopsLoading = {
+    init(details) {
+      let config = PopsLoadingConfig();
+      config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+      config = popsUtils.assign(config, details);
+      let guid = popsUtils.getRandomGUID();
+      const PopsType = "loading";
+      config = PopsHandler.handleOnly(PopsType, config);
+      let zIndex = PopsHandler.handleZIndex(config.zIndex);
+      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      let { contentPStyle } = PopsElementHandler.createContentStyle("loading", config);
+      let animHTML = PopsElementHandler.createAnim(
+        guid,
+        PopsType,
+        config,
+        /*html*/
+        `
+            <div class="pops-content pops-${PopsType}-content">${config.addIndexCSS ? (
+        /*html*/
+        `
+                <style data-model-name="index">${PopsCSS.index}</style>
+                <style data-model-name="anim">${PopsCSS.anim}</style>
+                <style data-model-name="common">${PopsCSS.common}</style>
+                `
+      ) : ""}
+                <style data-model-name="loadingCSS">
+                    ${PopsCSS.loadingCSS}
+                </style>
+            ${config.style != null ? `<style>${config.style}</style>` : ""}
+            	<p pops class="pops-${PopsType}-content-text" style="${contentPStyle}">${config.content.text}</p>
+            </div>`,
+        "",
+        zIndex
+      );
+      let $anim = PopsElementHandler.parseElement(animHTML);
+      let { popsElement: $pops } = PopsHandler.handleQueryElement($anim, PopsType);
+      let $mask = null;
+      let elementList = [$anim];
+      if (config.mask.enable) {
+        let _handleMask_ = PopsHandler.handleMask({
+          type: PopsType,
+          guid,
+          config,
+          animElement: $anim,
+          maskHTML
+        });
+        $mask = _handleMask_.maskElement;
+        elementList.push($mask);
+      }
+      let eventDetails = PopsHandler.handleLoadingEventDetails(guid, PopsType, $anim, $pops, $mask, config);
+      popsDOMUtils.append(config.parent, elementList);
+      if ($mask != null) {
+        $anim.after($mask);
+      }
+      PopsHandler.handlePush(PopsType, {
+        guid,
+        animElement: $anim,
+        popsElement: $pops,
+        maskElement: $mask
+      });
+      if (config.isAbsolute) {
+        popsDOMUtils.css($anim, "position", "absolute !important");
+        $mask && popsDOMUtils.css($mask, "position", "absolute !important");
+      }
       let result = PopsHandler.handleResultDetails(eventDetails);
       return result;
     }
@@ -16862,8 +16442,8 @@ ${err.stack}`);
       useShadowRoot: true,
       class: "",
       only: false,
-      width: "500px",
-      height: "400px",
+      width: window.innerWidth < 550 ? "88vw" : "500px",
+      height: window.innerHeight < 450 ? "70vh" : "400px",
       position: "center",
       animation: "pops-anim-fadein-zoom",
       zIndex: 1e4,
@@ -16915,11 +16495,11 @@ ${err.stack}`);
   const PopsFolder = {
     init(details) {
       const guid = popsUtils.getRandomGUID();
-      const PopsType = "folder";
+      const popsType = "folder";
       let config = PopsFolderConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
-      config = PopsHandler.handleOnly(PopsType, config);
+      config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -16976,16 +16556,7 @@ ${err.stack}`);
         "001"
       ];
       let imageIconList = ["jpg", "jpeg", "ico", "webp"];
-      let codeLanguageIconList = [
-        "htm",
-        "py",
-        "vue",
-        "bat",
-        "sh",
-        "vbs",
-        "java",
-        "kt"
-      ];
+      let codeLanguageIconList = ["htm", "py", "vue", "bat", "sh", "vbs", "java", "kt"];
       let androidIconList = ["apk", "apkm", "xapk"];
       zipIconList.forEach((keyName) => {
         Folder_ICON[keyName] = Folder_ICON.zip;
@@ -17003,109 +16574,106 @@ ${err.stack}`);
         config.folder = details.folder;
       }
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
-      let bottomBtnHTML = PopsElementHandler.getBottomBtnHTML(PopsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(PopsType, config);
-      let animHTML = PopsElementHandler.getAnimHTML(
+      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
+      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      let animHTML = PopsElementHandler.createAnim(
         guid,
-        PopsType,
+        popsType,
         config,
         /*html*/
         `
-            <div class="pops-title pops-${PopsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${PopsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
-			<div class="pops-content pops-${PopsType}-content ${popsUtils.isPhone() ? "pops-mobile-folder-content" : ""}">
+            <div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
+			<div class="pops-content pops-${popsType}-content ${popsUtils.isPhone() ? "pops-mobile-folder-content" : ""}">
                 <div class="pops-folder-list">
                     <div class="pops-folder-file-list-breadcrumb">
-                    <div class="pops-folder-file-list-breadcrumb-primary">
-                        <span class="pops-folder-file-list-breadcrumb-allFiles cursor-p" title="全部文件">
-                        <a>全部文件</a>
-                        </span>
-                    </div>
+						<div class="pops-folder-file-list-breadcrumb-primary">
+							<span class="pops-folder-file-list-breadcrumb-allFiles cursor-p" title="全部文件">
+								<a>全部文件</a>
+							</span>
+						</div>
                     </div>
                     <div class="pops-folder-list-table__header-div">
-                    <table class="pops-folder-list-table__header">
-                        <colgroup>
-                        <col width="52%">
-                        <col width="24%">
-                        <col width="16%">
-                        </colgroup>
-                        <thead>
-                        <tr class="pops-folder-list-table__header-row">
-                            <th class="pops-folder-list-table__header-th cursor-p">
-                            <div class="text-ellip content flex-a-i-center">
-                                <span>文件名</span>
-                                <div class="pops-folder-list-table__sort" data-sort="fileName">
-                                <div class="pops-folder-icon-arrow" data-sort="按文件名排序">
-                                    <svg
-                                    viewBox="0 0 1024 1024"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
-                                        class="pops-folder-icon-arrow-up"></path>
-                                    <path
-                                        d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
-                                        class="pops-folder-icon-arrow-down"></path>
-                                    </svg>
-                                </div>
-                                </div>
-                            </div>
-                            </th>
-                            <th class="pops-folder-list-table__header-th cursor-p">
-                            <div class="text-ellip content flex-a-i-center">
-                                <span>修改时间</span>
-                                <div class="pops-folder-list-table__sort" data-sort="latestTime">
-                                <div class="pops-folder-icon-arrow" title="按修改时间排序">
-                                    <svg
-                                    viewBox="0 0 1024 1024"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
-                                        class="pops-folder-icon-arrow-up"></path>
-                                    <path
-                                        d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
-                                        class="pops-folder-icon-arrow-down"></path>
-                                    </svg>
-                                </div>
-                                </div>
-                            </div>
-                            </th>
-                            <th class="pops-folder-list-table__header-th cursor-p">
-                            <div class="text-ellip content flex-a-i-center">
-                                <span>大小</span>
-                                <div class="pops-folder-list-table__sort" data-sort="fileSize">
-                                <div class="pops-folder-icon-arrow" title="按大小排序">
-                                    <svg
-                                    viewBox="0 0 1024 1024"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
-                                        class="pops-folder-icon-arrow-up"></path>
-                                    <path
-                                        d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
-                                        class="pops-folder-icon-arrow-down"></path>
-                                    </svg>
-                                </div>
-                                </div>
-                            </div>
-                            </th>
-                        </tr>
-                        </thead>
-                    </table>
+						<table class="pops-folder-list-table__header">
+							<colgroup>
+								<col width="52%">
+								<col width="24%">
+								<col width="16%">
+							</colgroup>
+							<thead>
+								<tr class="pops-folder-list-table__header-row">
+									<th class="pops-folder-list-table__header-th cursor-p">
+										<div class="text-ellip content flex-a-i-center">
+											<span>文件名</span>
+											<div class="pops-folder-list-table__sort" data-sort="fileName">
+												<div class="pops-folder-icon-arrow" data-sort="按文件名排序">
+													<svg
+														viewBox="0 0 1024 1024"
+														xmlns="http://www.w3.org/2000/svg">
+														<path
+															d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
+															class="pops-folder-icon-arrow-up"></path>
+														<path
+															d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
+															class="pops-folder-icon-arrow-down"></path>
+													</svg>
+												</div>
+											</div>
+										</div>
+									</th>
+									<th class="pops-folder-list-table__header-th cursor-p">
+										<div class="text-ellip content flex-a-i-center">
+											<span>修改时间</span>
+											<div class="pops-folder-list-table__sort" data-sort="latestTime">
+												<div class="pops-folder-icon-arrow" title="按修改时间排序">
+													<svg
+														viewBox="0 0 1024 1024"
+														xmlns="http://www.w3.org/2000/svg">
+														<path
+															d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
+															class="pops-folder-icon-arrow-up"></path>
+														<path
+															d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
+															class="pops-folder-icon-arrow-down"></path>
+													</svg>
+												</div>
+											</div>
+										</div>
+									</th>
+									<th class="pops-folder-list-table__header-th cursor-p">
+										<div class="text-ellip content flex-a-i-center">
+											<span>大小</span>
+											<div class="pops-folder-list-table__sort" data-sort="fileSize">
+												<div class="pops-folder-icon-arrow" title="按大小排序">
+													<svg
+														viewBox="0 0 1024 1024"
+														xmlns="http://www.w3.org/2000/svg">
+														<path
+															d="M509.624392 5.882457 57.127707 458.379143 962.121078 458.379143Z"
+															class="pops-folder-icon-arrow-up"></path>
+														<path
+															d="M509.624392 1024 962.121078 571.503314 57.127707 571.503314Z"
+															class="pops-folder-icon-arrow-down"></path>
+													</svg>
+												</div>
+											</div>
+										</div>
+									</th>
+								</tr>
+							</thead>
+						</table>
                     </div>
                     <div class="pops-folder-list-table__body-div">
-                    <table class="pops-folder-list-table__body">
-                        <colgroup>
-                        ${popsUtils.isPhone() ? `<col width="100%">` : `
-                            <col width="52%">
-                            <col width="24%">
-                            <col width="16%">`}
-                        
-                        </colgroup>
-                        <tbody>
-                        
-                        </tbody>
-                    </table>
+						<table class="pops-folder-list-table__body">
+							<colgroup>
+							${popsUtils.isPhone() ? `<col width="100%">` : `
+								<col width="52%">
+								<col width="24%">
+								<col width="16%">`}
+							</colgroup>
+							<tbody></tbody>
+						</table>
                     </div>
                 </div>
             </div>${bottomBtnHTML}`,
@@ -17129,12 +16697,12 @@ ${err.stack}`);
         folderListSortFileNameElement,
         folderListSortLatestTimeElement,
         folderListSortFileSizeElement
-      } = PopsHandler.handleQueryElement($anim, PopsType);
+      } = PopsHandler.handleQueryElement($anim, popsType);
       let $mask = null;
       let elementList = [$anim];
       if (config.mask.enable) {
         let _handleMask_ = PopsHandler.handleMask({
-          type: PopsType,
+          type: popsType,
           guid,
           config,
           animElement: $anim,
@@ -17143,7 +16711,7 @@ ${err.stack}`);
         $mask = _handleMask_.maskElement;
         elementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, PopsType, $anim, $pops, $mask, config);
+      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       PopsHandler.handleClickEvent("close", $btnCloseBtn, eventDetails, config.btn.close.callback);
       PopsHandler.handleClickEvent("ok", btnOkElement, eventDetails, config.btn.ok.callback);
       PopsHandler.handleClickEvent("cancel", btnCancelElement, eventDetails, config.btn.cancel.callback);
@@ -17232,10 +16800,10 @@ ${err.stack}`);
           fileSize: origin_fileSize,
           isFolder
         };
-        fileNameElement["__value__"] = __value__;
-        fileTimeElement["__value__"] = __value__;
-        fileFormatSize["__value__"] = __value__;
-        folderELement["__value__"] = __value__;
+        Reflect.set(fileNameElement, "__value__", __value__);
+        Reflect.set(fileTimeElement, "__value__", __value__);
+        Reflect.set(fileFormatSize, "__value__", __value__);
+        Reflect.set(folderELement, "__value__", __value__);
         folderELement.appendChild(fileNameElement);
         folderELement.appendChild(fileTimeElement);
         folderELement.appendChild(fileFormatSize);
@@ -17298,35 +16866,35 @@ ${err.stack}`);
           fileSize: origin_fileSize,
           isFolder
         };
-        fileNameElement["__value__"] = __value__;
-        folderELement["__value__"] = __value__;
+        Reflect.set(fileNameElement, "__value__", __value__);
+        Reflect.set(folderELement, "__value__", __value__);
         folderELement.appendChild(fileNameElement);
         return {
           folderELement,
           fileNameElement
         };
       }
-      function clearFolerRow() {
+      function clearFolderRow() {
         PopsSafeUtils.setSafeHTML(folderListBodyElement, "");
       }
-      function getArrowIconElement() {
+      function createHeaderArrowIcon() {
         let iconArrowElement = popsDOMUtils.createElement("div", {
           className: "iconArrow"
         });
         return iconArrowElement;
       }
-      function getBreadcrumbAllFilesElement(name, _config_) {
+      function createHeaderFileLinkNavgiation(folderName, folderDataConfig) {
         let spanElement = popsDOMUtils.createElement("span", {
           className: "pops-folder-file-list-breadcrumb-allFiles cursor-p",
-          innerHTML: `<a>${name}</a>`,
-          _config_
+          innerHTML: `<a>${folderName}</a>`,
+          _config_: folderDataConfig
         }, {
-          title: "name"
+          title: folderName
         });
         return spanElement;
       }
-      function breadcrumbAllFilesElementClickEvent(event, isTop, _config_) {
-        clearFolerRow();
+      function breadcrumbAllFilesElementClickEvent(event, isTop, folderDataConfigList) {
+        clearFolderRow();
         let $click = event.target;
         let currentBreadcrumb = $click.closest("span.pops-folder-file-list-breadcrumb-allFiles");
         if (currentBreadcrumb) {
@@ -17350,11 +16918,11 @@ ${err.stack}`);
           },
           addIndexCSS: false
         });
-        addFolderElement(_config_);
+        addFolderElement(folderDataConfigList);
         loadingMask.close();
       }
-      async function refreshFolderInfoClickEvent(event, _config_) {
-        clearFolerRow();
+      async function refreshFolderInfoClickEvent(event, folderDataConfig) {
+        clearFolderRow();
         let loadingMask = PopsLoading.init({
           parent: $content,
           content: {
@@ -17365,10 +16933,10 @@ ${err.stack}`);
           },
           addIndexCSS: false
         });
-        if (typeof _config_.clickEvent === "function") {
-          let childConfig = await _config_.clickEvent(event, _config_);
-          folderFileListBreadcrumbPrimaryElement.appendChild(getArrowIconElement());
-          let breadcrumbAllFilesElement = getBreadcrumbAllFilesElement(_config_["fileName"], childConfig);
+        if (typeof folderDataConfig.clickEvent === "function") {
+          let childConfig = await folderDataConfig.clickEvent(event, folderDataConfig);
+          folderFileListBreadcrumbPrimaryElement.appendChild(createHeaderArrowIcon());
+          let breadcrumbAllFilesElement = createHeaderFileLinkNavgiation(folderDataConfig.fileName, childConfig);
           folderFileListBreadcrumbPrimaryElement.appendChild(breadcrumbAllFilesElement);
           popsDOMUtils.on(breadcrumbAllFilesElement, "click", function(event2) {
             breadcrumbAllFilesElementClickEvent(event2, false, childConfig);
@@ -17590,7 +17158,294 @@ ${err.stack}`);
           endCallBack: config.dragEndCallBack
         });
       }
-      PopsHandler.handlePush(PopsType, {
+      PopsHandler.handlePush(popsType, {
+        guid,
+        animElement: $anim,
+        popsElement: $pops,
+        maskElement: $mask,
+        $shadowContainer,
+        $shadowRoot
+      });
+      let result = PopsHandler.handleResultDetails(eventDetails);
+      return result;
+    }
+  };
+  const PopsIframeConfig = () => {
+    return {
+      title: {
+        position: "center",
+        text: "",
+        html: false,
+        style: ""
+      },
+      loading: {
+        enable: true,
+        icon: true,
+        text: ""
+      },
+      useShadowRoot: true,
+      class: "",
+      url: window.location.href,
+      only: false,
+      zIndex: 1e4,
+      mask: {
+        enable: false,
+        clickEvent: {
+          toClose: false,
+          toHide: false
+        },
+        clickCallBack: null
+      },
+      animation: "pops-anim-fadein-zoom",
+      position: "center",
+      drag: true,
+      dragLimit: true,
+      dragExtraDistance: 3,
+      dragMoveCallBack() {
+      },
+      dragEndCallBack() {
+      },
+      width: window.innerWidth < 550 ? "88vw" : "350px",
+      height: window.innerHeight < 450 ? "70vh" : "200px",
+      topRightButton: "min|max|mise|close",
+      sandbox: false,
+      forbiddenScroll: false,
+      loadEndCallBack() {
+      },
+      btn: {
+        min: {
+          callback() {
+          }
+        },
+        max: {
+          callback() {
+          }
+        },
+        mise: {
+          callback() {
+          }
+        },
+        close: {
+          callback() {
+          }
+        }
+      },
+      style: null,
+      beforeAppendToPageCallBack() {
+      }
+    };
+  };
+  const PopsIframe = {
+    init(details) {
+      const guid = popsUtils.getRandomGUID();
+      const popsType = "iframe";
+      let config = PopsIframeConfig();
+      config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+      config = popsUtils.assign(config, details);
+      if (config.url == null) {
+        throw new Error("config.url不能为空");
+      }
+      config = PopsHandler.handleOnly(popsType, config);
+      const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
+      PopsHandler.handleInit($shadowRoot, [
+        {
+          name: "index",
+          css: PopsCSS.index
+        },
+        {
+          name: "ninePalaceGridPosition",
+          css: PopsCSS.ninePalaceGridPosition
+        },
+        {
+          name: "scrollbar",
+          css: PopsCSS.scrollbar
+        },
+        {
+          name: "anim",
+          css: PopsCSS.anim
+        },
+        {
+          name: "common",
+          css: PopsCSS.common
+        },
+        {
+          name: "iframeCSS",
+          css: PopsCSS.iframeCSS
+        }
+      ]);
+      let maskExtraStyle = (
+        // @ts-ignore
+        config.animation != null && config.animation != "" ? "position:absolute;" : ""
+      );
+      let zIndex = PopsHandler.handleZIndex(config.zIndex);
+      let maskHTML = PopsElementHandler.createMask(guid, zIndex, maskExtraStyle);
+      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      let iframeLoadingHTML = '<div class="pops-loading"></div>';
+      let titleText = config.title.text.trim() !== "" ? config.title.text : config.url;
+      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      let animHTML = PopsElementHandler.createAnim(
+        guid,
+        popsType,
+        config,
+        /*html*/
+        `
+            <div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? titleText : `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${titleText}</p>`}${headerBtnHTML}</div>
+			<div class="pops-content pops-${popsType}-content">
+                <div class="pops-${popsType}-content-global-loading"></div>
+                <iframe src="${config.url}" pops ${config.sandbox ? "sandbox='allow-forms allow-same-origin allow-scripts'" : ""}>
+                </iframe>
+			</div>${config.loading.enable ? iframeLoadingHTML : ""}`,
+        "",
+        zIndex
+      );
+      let $anim = PopsElementHandler.parseElement(animHTML);
+      let { popsElement: $pops, headerCloseBtnElement, headerControlsElement, titleElement: $title, iframeElement: $iframe, loadingElement, contentLoadingElement: $contentLoading, headerMinBtnElement, headerMaxBtnElement, headerMiseBtnElement } = PopsHandler.handleQueryElement($anim, popsType);
+      let $iframeContainer = PopsCore.document.querySelector(".pops-iframe-container");
+      if (!$iframeContainer) {
+        $iframeContainer = PopsCore.document.createElement("div");
+        $iframeContainer.className = "pops-iframe-container";
+        $iframeContainer.style.cssText = "display: flex;position: fixed;bottom: 0px;flex-flow: wrap-reverse;user-select: none;-webkit-user-select: none;-ms-user-select: none;-moz-user-select: none;";
+        popsDOMUtils.appendBody($iframeContainer);
+      }
+      let $mask = null;
+      let elementList = [$anim];
+      if (config.mask.enable) {
+        let _handleMask_ = PopsHandler.handleMask({
+          type: popsType,
+          guid,
+          config,
+          animElement: $anim,
+          maskHTML
+        });
+        $mask = _handleMask_.maskElement;
+        elementList.push($mask);
+      }
+      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
+      eventDetails["iframeElement"] = $iframe;
+      popsDOMUtils.on($anim, popsDOMUtils.getAnimationEndNameList(), function() {
+        $anim.style.width = "0%";
+        $anim.style.height = "0%";
+      });
+      popsDOMUtils.on($iframe, "load", () => {
+        loadingElement?.remove();
+        $contentLoading.style.animation = "iframeLoadingChange_85 0.3s forwards";
+        popsDOMUtils.on($contentLoading, popsDOMUtils.getAnimationEndNameList(), () => {
+          $contentLoading.remove();
+        });
+        if (config.title.text.trim() === "" && $iframe.contentDocument) {
+          $title.querySelector("p").innerText = $iframe.contentDocument.title;
+        }
+        config.loadEndCallBack(eventDetails);
+      });
+      popsDOMUtils.append($shadowRoot, elementList);
+      if (typeof config.beforeAppendToPageCallBack === "function") {
+        config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
+      }
+      $iframeContainer.appendChild($shadowContainer);
+      if ($mask != null) {
+        $anim.after($mask);
+      }
+      if (config.drag) {
+        PopsInstanceUtils.drag($pops, {
+          dragElement: $title,
+          limit: config.dragLimit,
+          extraDistance: config.dragExtraDistance,
+          moveCallBack: config.dragMoveCallBack,
+          endCallBack: config.dragEndCallBack
+        });
+      }
+      const TYPE_MODULE = "type-module";
+      let origin_left = "";
+      let origin_top = "";
+      let origin_is_max = false;
+      popsDOMUtils.on(headerMinBtnElement, "click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        origin_left = $pops.style.left;
+        origin_top = $pops.style.top;
+        $pops.classList.add("pops-iframe-unset-top");
+        $pops.classList.add("pops-iframe-unset-left");
+        $pops.classList.add("pops-iframe-unset-transform");
+        $pops.style.transitionDuration = "";
+        $pops.setAttribute(TYPE_MODULE, "min");
+        headerControlsElement.setAttribute("type", "min");
+        headerMaxBtnElement.style.setProperty("display", "none");
+        headerMiseBtnElement.style.setProperty("display", "");
+        if (typeof config?.btn?.min?.callback === "function") {
+          config.btn.min.callback(eventDetails, event);
+        }
+      }, {
+        capture: true
+      });
+      popsDOMUtils.on(headerMaxBtnElement, "click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if ($pops.getAttribute(TYPE_MODULE) !== "min") {
+          origin_left = $pops.style.left;
+          origin_top = $pops.style.top;
+        }
+        origin_is_max = true;
+        $pops.style.transitionDuration = "";
+        $pops.style.transform = "";
+        $pops.removeAttribute(TYPE_MODULE);
+        $pops.classList.add("pops-iframe-unset-transition");
+        $pops.classList.add("pops-iframe-unset-left");
+        $pops.classList.add("pops-iframe-unset-top");
+        $pops.classList.add("pops-iframe-unset-transform");
+        $pops.classList.remove("pops-iframe-unset-transition");
+        $pops.setAttribute(TYPE_MODULE, "max");
+        headerControlsElement.setAttribute("type", "max");
+        headerMaxBtnElement.style.setProperty("display", "none");
+        headerMiseBtnElement.style.setProperty("display", "");
+        if (typeof config?.btn?.max?.callback === "function") {
+          config.btn.max.callback(eventDetails, event);
+        }
+      }, {
+        capture: true
+      });
+      headerMiseBtnElement?.style?.setProperty("display", "none");
+      popsDOMUtils.on(headerMiseBtnElement, "click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (origin_is_max && $pops.getAttribute(TYPE_MODULE) === "min") {
+          $pops.classList.add("pops-iframe-unset-transition");
+          $pops.classList.add("pops-iframe-unset-left");
+          $pops.classList.add("pops-iframe-unset-top");
+          $pops.classList.add("pops-iframe-unset-transform");
+          $pops.classList.remove("pops-iframe-unset-transition");
+          $pops.setAttribute(TYPE_MODULE, "max");
+          headerControlsElement.setAttribute("type", "max");
+        } else {
+          origin_is_max = false;
+          $pops.style.left = origin_left;
+          $pops.style.top = origin_top;
+          $pops.style.transitionDuration = "";
+          $pops.style.transform = "";
+          headerControlsElement.removeAttribute("type");
+          $pops.removeAttribute(TYPE_MODULE);
+          $pops.classList.remove("pops-iframe-unset-top");
+          $pops.classList.remove("pops-iframe-unset-left");
+          $pops.classList.remove("pops-iframe-unset-transform");
+          headerMaxBtnElement.style.setProperty("display", "");
+          headerMiseBtnElement.style.setProperty("display", "none");
+        }
+        if (typeof config?.btn?.mise?.callback === "function") {
+          config.btn.mise.callback(eventDetails, event);
+        }
+      }, {
+        capture: true
+      });
+      popsDOMUtils.on(headerCloseBtnElement, "click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        PopsInstanceUtils.removeInstance([PopsInstData.iframe], guid, false);
+        if (typeof config?.btn?.close?.callback === "function") {
+          config.btn.close.callback(eventDetails, event);
+        }
+      }, {
+        capture: true
+      });
+      PopsHandler.handlePush(popsType, {
         guid,
         animElement: $anim,
         popsElement: $pops,
@@ -17635,7 +17490,6 @@ ${err.stack}`);
                   type: "switch",
                   // @ts-ignore
                   props: {},
-                  disabled: false,
                   attributes: [],
                   getValue() {
                     return true;
@@ -17659,6 +17513,21 @@ ${err.stack}`);
                   },
                   min: 1,
                   max: 100
+                },
+                {
+                  className: "panel-button",
+                  text: "button",
+                  type: "button",
+                  // @ts-ignore
+                  props: {},
+                  attributes: [],
+                  buttonIcon: "view",
+                  buttonIconIsLoading: true,
+                  buttonType: "default",
+                  buttonText: "default按钮",
+                  callback(event) {
+                    console.log("点击按钮", event);
+                  }
                 },
                 {
                   className: "panel-button",
@@ -17774,6 +17643,7 @@ ${err.stack}`);
               className: "panel-select",
               text: "select",
               type: "select",
+              disabled: true,
               // @ts-ignore
               props: {},
               attributes: [],
@@ -17814,6 +17684,7 @@ ${err.stack}`);
               className: "panel-select-multiple",
               type: "select-multiple",
               text: "select-multiple",
+              disabled: true,
               // @ts-ignore
               props: {},
               attributes: [],
@@ -17977,6 +17848,24 @@ ${err.stack}`);
                       ]
                     }
                   ]
+                },
+                {
+                  type: "deepMenu",
+                  className: "panel-deepMenu2",
+                  attributes: {},
+                  //@ts-ignore
+                  props: {},
+                  text: "deepMenu2",
+                  description: "二级菜单",
+                  rightText: "自定义配置",
+                  arrowRightIcon: true,
+                  afterAddToUListCallBack(formConfig, container) {
+                    console.log(formConfig, container);
+                  },
+                  clickCallBack(event, formConfig) {
+                    console.log("进入子配置", event, formConfig);
+                  },
+                  forms: []
                 }
               ]
             },
@@ -18068,8 +17957,8 @@ ${err.stack}`);
       mobileClassName: "pops-panel-is-mobile",
       isMobile: false,
       only: false,
-      width: "700px",
-      height: "500px",
+      width: window.innerWidth < 550 ? "88vw" : "700px",
+      height: window.innerHeight < 450 ? "70vh" : "500px",
       position: "center",
       animation: "pops-anim-fadein-zoom",
       zIndex: 1e4,
@@ -18622,14 +18511,14 @@ ${err.stack}`);
   const PopsTooltip = {
     init(details) {
       const guid = popsUtils.getRandomGUID();
-      const PopsType = "tooltip";
+      const popsType = "tooltip";
       let config = PopsTooltipConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
       if (!(config.target instanceof HTMLElement)) {
         throw new TypeError("config.target 必须是HTMLElement类型");
       }
-      config = PopsHandler.handleOnly(PopsType, config);
+      config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -18894,20 +18783,25 @@ ${err.stack}`);
             value: Boolean(formConfig.getValue())
           },
           $ele: {
+            itemLeftTextContainer: $li.querySelector(".pops-panel-item-left-text"),
             switch: $li.querySelector(".pops-panel-switch"),
             input: $li.querySelector(".pops-panel-switch__input"),
             core: $li.querySelector(".pops-panel-switch__core")
           },
           init() {
             this.setStatus(this.$data.value);
-            if (formConfig.disabled) {
+            let disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            if (disabled) {
               this.disable();
             }
             this.setClickEvent();
           },
+          /**
+           * 设置点击事件
+           */
           setClickEvent() {
             let that = this;
-            popsDOMUtils.on(this.$ele.core, "click", void 0, function(event) {
+            popsDOMUtils.on(this.$ele.core, "click", function(event) {
               if (that.$ele.input.disabled || that.$ele.switch.hasAttribute("data-disabled")) {
                 return;
               }
@@ -18946,13 +18840,15 @@ ${err.stack}`);
           disable() {
             this.$ele.input.disabled = true;
             this.$ele.switch.setAttribute("data-disabled", "true");
+            popsDOMUtils.addClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
           /**
-           * 启用复选框
+           * 取消禁用复选框
            */
           notDisable() {
             this.$ele.input.disabled = false;
             this.$ele.switch.removeAttribute("data-disabled");
+            popsDOMUtils.removeClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           }
         };
         PopsPanelSwitch.init();
@@ -19113,6 +19009,7 @@ ${err.stack}`);
             tooltip: null
           },
           $ele: {
+            itemLeftTextContainer: $li.querySelector(".pops-panel-item-left-text"),
             slider: $li.querySelector(".pops-slider"),
             runAway: $li.querySelector(".pops-slider__runway"),
             bar: $li.querySelector(".pops-slider__bar"),
@@ -19339,26 +19236,28 @@ ${err.stack}`);
            * 禁止拖拽
            */
           disableDrag() {
-            this.$ele.runAway.classList.add("pops-slider-is-disabled");
+            popsDOMUtils.addClassName(this.$ele.runAway, "pops-slider-is-disabled");
+            popsDOMUtils.addClassName(this.$ele.runAway, PopsCommonCSSClassName.textIsDisabled);
           },
           /**
            * 允许拖拽
            */
           allowDrag() {
-            this.$ele.runAway.classList.remove("pops-slider-is-disabled");
+            popsDOMUtils.removeClassName(this.$ele.runAway, "pops-slider-is-disabled");
+            popsDOMUtils.removeClassName(this.$ele.runAway, PopsCommonCSSClassName.textIsDisabled);
           },
           /**
            * 判断当前滑块是否被禁用
            */
           isDisabledDrag() {
-            return this.$ele.runAway.classList.contains("pops-slider-is-disabled");
+            return popsDOMUtils.containsClassName(this.$ele.runAway, "pops-slider-is-disabled");
           },
           /**
            * 判断当前滑块是否被禁用（配置中判断）
            */
           isFormConfigDisabledDrag() {
-            if (typeof formConfig.disabled === "function" || typeof formConfig.disabled === "boolean") {
-              let isDisabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            let isDisabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            if (typeof isDisabled === "boolean") {
               return isDisabled;
             } else {
               return false;
@@ -19368,12 +19267,15 @@ ${err.stack}`);
            * 设置进度条点击定位的事件
            */
           setRunAwayClickEvent() {
-            popsDOMUtils.on(this.$ele.runAway, "click", void 0, (event) => {
+            popsDOMUtils.on(this.$ele.runAway, "click", (event) => {
               if (event.target !== this.$ele.runAway && event.target !== this.$ele.bar) {
                 return;
               }
               let clickX = parseFloat(event.offsetX.toString());
-              this.dragStartCallBack();
+              let dragStartResult = this.dragStartCallBack();
+              if (!dragStartResult) {
+                return;
+              }
               this.dragMoveCallBack(event, clickX, this.value);
               this.dragEndCallBack(clickX);
             }, {
@@ -19384,14 +19286,13 @@ ${err.stack}`);
            * 拖拽开始的回调，如果返回false，禁止拖拽
            */
           dragStartCallBack() {
+            if (this.isFormConfigDisabledDrag()) {
+              this.disableDrag();
+              return false;
+            }
             if (!this.$data.isMove) {
-              if (this.isFormConfigDisabledDrag()) {
-                this.disableDrag();
-                return false;
-              } else {
-                if (this.isDisabledDrag()) {
-                  this.allowDrag();
-                }
+              if (this.isDisabledDrag()) {
+                this.allowDrag();
               }
               this.$data.isMove = true;
             }
@@ -19577,14 +19478,15 @@ ${err.stack}`);
           `
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
-				<div class="pops-panel-input pops-user-select-none">
-					<input type="${inputType}" placeholder="${formConfig.placeholder}">
+				<div class="pops-panel-input">
+					<input type="${inputType}" placeholder="${formConfig.placeholder ?? ""}">
 				</div>
 				`
         );
         const PopsPanelInput = {
           [Symbol.toStringTag]: "PopsPanelInput",
           $ele: {
+            itemLeftTextContainer: $li.querySelector(".pops-panel-item-left-text"),
             panelInput: $li.querySelector(".pops-panel-input"),
             input: $li.querySelector("input"),
             inputSpanIcon: document.createElement("span"),
@@ -19608,7 +19510,8 @@ ${err.stack}`);
               }
             }
             this.setInputChangeEvent();
-            if (formConfig.disabled) {
+            let disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            if (disabled) {
               this.disable();
             }
             if (typeof formConfig.handlerCallBack === "function") {
@@ -19632,20 +19535,23 @@ ${err.stack}`);
             );
             this.$ele.inputSpanIconInner = this.$ele.inputSpanIcon.querySelector(".pops-panel-input__suffix-inner");
             this.$ele.icon = this.$ele.inputSpanIcon.querySelector(".pops-panel-icon");
+            popsDOMUtils.addClassName(this.$ele.panelInput, PopsCommonCSSClassName.userSelectNone);
           },
           /**
            * 禁用
            */
           disable() {
             this.$ele.input.disabled = true;
-            this.$ele.panelInput.classList.add("pops-input-disabled");
+            popsDOMUtils.addClassName(this.$ele.panelInput, "pops-input-disabled");
+            popsDOMUtils.addClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
           /**
            * 取消禁用
            */
           notDisable() {
             this.$ele.input.disabled = false;
-            this.$ele.panelInput.classList.remove("pops-input-disabled");
+            popsDOMUtils.removeClassName(this.$ele.panelInput, "pops-input-disabled");
+            popsDOMUtils.removeClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
           /**
            * 判断是否已被禁用
@@ -19763,6 +19669,7 @@ ${err.stack}`);
         const PopsPanelTextArea = {
           [Symbol.toStringTag]: "PopsPanelTextArea",
           $ele: {
+            itemLeftTextContainer: $li.querySelector(".pops-panel-item-left-text"),
             panelTextarea: $li.querySelector(".pops-panel-textarea"),
             textarea: $li.querySelector(".pops-panel-textarea textarea")
           },
@@ -19772,20 +19679,23 @@ ${err.stack}`);
           init() {
             this.setValue(this.$data.value);
             this.setChangeEvent();
-            if (formConfig.disabled) {
+            let disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            if (disabled) {
               this.disable();
             }
           },
           disable() {
             this.$ele.textarea.setAttribute("disabled", "true");
-            this.$ele.panelTextarea.classList.add("pops-panel-textarea-disable");
+            popsDOMUtils.addClassName(this.$ele.panelTextarea, "pops-panel-textarea-disable");
+            popsDOMUtils.addClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
           notDisable() {
             this.$ele.textarea.removeAttribute("disabled");
-            this.$ele.panelTextarea.classList.remove("pops-panel-textarea-disable");
+            popsDOMUtils.removeClassName(this.$ele.panelTextarea, "pops-panel-textarea-disable");
+            popsDOMUtils.removeClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
           isDisabled() {
-            return this.$ele.textarea.hasAttribute("disabled") || this.$ele.panelTextarea.classList.contains("pops-panel-textarea-disable");
+            return this.$ele.textarea.hasAttribute("disabled") || popsDOMUtils.containsClassName(this.$ele.panelTextarea, "pops-panel-textarea-disable");
           },
           setValue(value) {
             this.$ele.textarea.value = value;
@@ -19794,7 +19704,7 @@ ${err.stack}`);
            * 监听选择内容改变
            */
           setChangeEvent() {
-            popsDOMUtils.on(this.$ele.textarea, ["input", "propertychange"], void 0, (event) => {
+            popsDOMUtils.on(this.$ele.textarea, ["input", "propertychange"], (event) => {
               let value = this.$ele.textarea.value;
               this.$data.value = value;
               if (typeof formConfig.callback === "function") {
@@ -19830,7 +19740,7 @@ ${err.stack}`);
           `
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
-				<div class="pops-panel-select pops-user-select-none">
+				<div class="pops-panel-select">
 					<select></select>
 				</div>
 				`
@@ -19838,6 +19748,7 @@ ${err.stack}`);
         const PopsPanelSelect = {
           [Symbol.toStringTag]: "PopsPanelSelect",
           $ele: {
+            itemLeftTextContainer: $li.querySelector(".pops-panel-item-left-text"),
             panelSelect: $li.querySelector(".pops-panel-select"),
             select: $li.querySelector(".pops-panel-select select")
           },
@@ -19850,10 +19761,12 @@ ${err.stack}`);
             defaultValue: formConfig.getValue()
           },
           init() {
+            popsDOMUtils.addClassName(this.$ele.panelSelect, PopsCommonCSSClassName.userSelectNone);
             this.initOption();
             this.setChangeEvent();
             this.setClickEvent();
-            if (formConfig.disabled) {
+            let disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            if (disabled) {
               this.disable();
             }
           },
@@ -19880,20 +19793,22 @@ ${err.stack}`);
            */
           disable() {
             this.$ele.select.setAttribute("disabled", "true");
-            this.$ele.panelSelect.classList.add("pops-panel-select-disable");
+            popsDOMUtils.addClassName(this.$ele.panelSelect, "pops-panel-select-disable");
+            popsDOMUtils.addClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
           /**
            * 取消禁用
            */
           notDisable() {
             this.$ele.select.removeAttribute("disabled");
-            this.$ele.panelSelect.classList.remove("pops-panel-select-disable");
+            popsDOMUtils.removeClassName(this.$ele.panelSelect, "pops-panel-select-disable");
+            popsDOMUtils.removeClassName(this.$ele.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
           },
           /**
            * 判断是否禁用
            */
           isDisabled() {
-            return this.$ele.select.hasAttribute("disabled") || this.$ele.panelSelect.classList.contains("pops-panel-select-disable");
+            return this.$ele.select.hasAttribute("disabled") || popsDOMUtils.containsClassName(this.$ele.panelSelect, "pops-panel-select-disable");
           },
           /**
            * 初始化选项
@@ -20045,6 +19960,8 @@ ${err.stack}`);
         const PopsPanelSelectMultiple = {
           [Symbol.toStringTag]: "PopsPanelSelectMultiple",
           $el: {
+            /** 左侧文本容器 */
+            itemLeftTextContainer: $li.querySelector(".pops-panel-item-left-text"),
             /** 容器 */
             $container: void 0,
             /** 包括的容器 */
@@ -20074,6 +19991,10 @@ ${err.stack}`);
             this.initPlaceHolder();
             this.initTagElement();
             this.setSelectContainerClickEvent();
+            let disabled = typeof formConfig.disabled === "function" ? formConfig.disabled() : formConfig.disabled;
+            if (disabled) {
+              this.disable();
+            }
           },
           /** 初始化默认值 */
           initDefault() {
@@ -20415,6 +20336,9 @@ ${err.stack}`);
           setSelectContainerClickEvent() {
             const that = this;
             popsDOMUtils.on(this.$el.$container, "click", (event) => {
+              if (this.isDisabled()) {
+                return;
+              }
               let selectedInfo = that.$data.selectInfo;
               let { style, ...userConfirmDetails } = formConfig.selectConfirmDialogDetails || {};
               let confirmDetails = popsUtils.assign({
@@ -20547,6 +20471,9 @@ ${err.stack}`);
           setSelectedItemCloseIconClickEvent(data) {
             popsDOMUtils.on(data.$closeIcon, "click", (event) => {
               popsDOMUtils.preventEvent(event);
+              if (this.isDisabled()) {
+                return;
+              }
               if (typeof formConfig.closeIconClickCallBack === "function") {
                 let result = formConfig.closeIconClickCallBack(event, {
                   $tag: data.$tag,
@@ -20623,6 +20550,26 @@ ${err.stack}`);
           /** 取消设置隐藏section的前面的空白 */
           removeSectionIsNear() {
             this.$el.$section.classList.remove("is-near");
+          },
+          /**
+           * 禁用标签
+           */
+          disable() {
+            popsDOMUtils.addClassName(this.$el.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
+            popsDOMUtils.addClassName(this.$el.$container, "pops-panel-select-multiple-disable");
+          },
+          /**
+           * 判断是否被禁用
+           */
+          isDisabled() {
+            return popsDOMUtils.containsClassName(this.$el.$container, "pops-panel-select-multiple-disable");
+          },
+          /**
+           * 取消禁用标签
+           */
+          cancleDisable() {
+            popsDOMUtils.removeClassName(this.$el.itemLeftTextContainer, PopsCommonCSSClassName.textIsDisabled);
+            popsDOMUtils.removeClassName(this.$el.$container, "pops-panel-select-multiple-disable");
           }
         };
         PopsPanelSelectMultiple.init();
@@ -20652,7 +20599,7 @@ ${err.stack}`);
 				<div class="pops-panel-item-left-text">
 					<p class="pops-panel-item-left-main-text">${formConfig.text}</p>${leftDescriptionText}</div>
 				<div class="pops-panel-button">
-					<button class="pops-panel-button_inner">
+					<button class="pops-panel-button_inner" type="button">
 						<i class="pops-bottom-icon"></i>
 						<span class="pops-panel-button-text"></span>
 					</button>
@@ -20742,7 +20689,7 @@ ${err.stack}`);
            * @param typeValue
            */
           setButtonType(typeValue) {
-            this.$ele.button.setAttribute("type", typeValue);
+            this.$ele.button.setAttribute("data-type", typeValue);
           },
           /**
            * 添加按钮的图标在右边
@@ -20783,7 +20730,7 @@ ${err.stack}`);
       createSectionContainerItem_deepMenu(formConfig) {
         let that = this;
         let $li = document.createElement("li");
-        $li.classList.add("pops-panel-deepMenu-nav-item");
+        popsDOMUtils.addClassName($li, "pops-panel-deepMenu-nav-item");
         Reflect.set($li, "__formConfig__", formConfig);
         this.setElementClassName($li, formConfig.className);
         this.setElementAttributes($li, formConfig.attributes);
@@ -20828,7 +20775,7 @@ ${err.stack}`);
            */
           initFormItem($container, formItemConfig) {
             let formConfig_forms = formItemConfig;
-            if (formConfig_forms["type"] === "forms") {
+            if (formConfig_forms.type === "forms") {
               let childForms = formConfig_forms["forms"];
               let formContainerListElement = document.createElement("li");
               let formContainerULElement = document.createElement("ul");
@@ -20858,10 +20805,10 @@ ${err.stack}`);
                     formContainerListElement.setAttribute("data-fold-enable", "");
                   }
                 });
-                formHeaderDivElement.classList.add("pops-panel-forms-fold-container");
-                formHeaderDivElement.classList.add("pops-user-select-none");
+                popsDOMUtils.addClassName(formHeaderDivElement, "pops-panel-forms-fold-container");
+                popsDOMUtils.addClassName(formHeaderDivElement, PopsCommonCSSClassName.userSelectNone);
                 formContainerListElement.setAttribute("data-fold-enable", "");
-                formContainerListElement.classList.add("pops-panel-forms-fold");
+                popsDOMUtils.addClassName(formHeaderDivElement, "pops-panel-forms-fold");
                 formContainerListElement.appendChild(formHeaderDivElement);
               } else {
                 formContainerListElement.appendChild(formHeaderDivElement);
@@ -20992,7 +20939,7 @@ ${err.stack}`);
        * @param formConfig
        */
       createSectionContainerItem(formConfig) {
-        let formType = formConfig["type"];
+        let formType = formConfig.type;
         if (formType === "switch") {
           return this.createSectionContainerItem_switch(formConfig);
         } else if (formType === "slider") {
@@ -21023,7 +20970,7 @@ ${err.stack}`);
       createSectionContainerItem_forms(formConfig) {
         let that = this;
         let formConfig_forms = formConfig;
-        if (formConfig_forms["type"] === "forms") {
+        if (formConfig_forms.type === "forms") {
           let childForms = formConfig["forms"];
           let formContainerListElement = document.createElement("li");
           let formContainerULElement = document.createElement("ul");
@@ -21053,10 +21000,10 @@ ${err.stack}`);
                 formContainerListElement.setAttribute("data-fold-enable", "");
               }
             });
-            formHeaderDivElement.classList.add("pops-panel-forms-fold-container");
-            formHeaderDivElement.classList.add("pops-user-select-none");
+            popsDOMUtils.addClassName(formHeaderDivElement, "pops-panel-forms-fold-container");
+            popsDOMUtils.addClassName(formHeaderDivElement, PopsCommonCSSClassName.userSelectNone);
             formContainerListElement.setAttribute("data-fold-enable", "");
-            formContainerListElement.classList.add("pops-panel-forms-fold");
+            popsDOMUtils.addClassName(formContainerListElement, "pops-panel-forms-fold");
             formContainerListElement.appendChild(formHeaderDivElement);
           } else {
             formContainerListElement.appendChild(formHeaderDivElement);
@@ -21163,14 +21110,14 @@ ${err.stack}`);
   const PopsPanel = {
     init(details) {
       const guid = popsUtils.getRandomGUID();
-      const PopsType = "panel";
+      const popsType = "panel";
       let config = PopsPanelConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
       if (details && Array.isArray(details.content)) {
         config.content = details.content;
       }
-      config = PopsHandler.handleOnly(PopsType, config);
+      config = PopsHandler.handleOnly(popsType, config);
       const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
       PopsHandler.handleInit($shadowRoot, [
         {
@@ -21203,31 +21150,31 @@ ${err.stack}`);
         }
       ]);
       let zIndex = PopsHandler.handleZIndex(config.zIndex);
-      let maskHTML = PopsElementHandler.getMaskHTML(guid, zIndex);
-      let headerBtnHTML = PopsElementHandler.getHeaderBtnHTML(PopsType, config);
-      let { headerStyle, headerPStyle } = PopsElementHandler.getHeaderStyle(PopsType, config);
-      let animHTML = PopsElementHandler.getAnimHTML(
+      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      let animHTML = PopsElementHandler.createAnim(
         guid,
-        PopsType,
+        popsType,
         config,
         /*html*/
         `
-			<div class="pops-title pops-${PopsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${PopsType}-title-text" class="pops-${PopsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
-			<div class="pops-content pops-${PopsType}-content">
-				<aside class="pops-${PopsType}-aside">
-					<ul class="pops-${PopsType}-aside-top-container"></ul>
-					<ul class="pops-${PopsType}-aside-bottom-container"></ul>
+			<div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${popsType}-title-text" class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
+			<div class="pops-content pops-${popsType}-content">
+				<aside class="pops-${popsType}-aside">
+					<ul class="pops-${popsType}-aside-top-container"></ul>
+					<ul class="pops-${popsType}-aside-bottom-container"></ul>
 				</aside>
-				<section class="pops-${PopsType}-container">
-					<ul class="pops-${PopsType}-container-header-ul"></ul>
-					<ul class="pops-${PopsType}-container-main-ul"></ul>
+				<section class="pops-${popsType}-container">
+					<ul class="pops-${popsType}-container-header-ul"></ul>
+					<ul class="pops-${popsType}-container-main-ul"></ul>
 				</section>
 			</div>`,
         "",
         zIndex
       );
       let $anim = PopsElementHandler.parseElement(animHTML);
-      let { popsElement: $pops, headerCloseBtnElement: $headerCloseBtn, titleElement: $title, contentElement: $content, contentAsideElement: $contentAside, contentSectionContainerElement: $contentSectionContainer } = PopsHandler.handleQueryElement($anim, PopsType);
+      let { popsElement: $pops, headerCloseBtnElement: $headerCloseBtn, titleElement: $title, contentElement: $content, contentAsideElement: $contentAside, contentSectionContainerElement: $contentSectionContainer } = PopsHandler.handleQueryElement($anim, popsType);
       if (config.isMobile || popsUtils.isPhone()) {
         popsDOMUtils.addClassName($pops, config.mobileClassName);
       }
@@ -21235,7 +21182,7 @@ ${err.stack}`);
       let isCreatedElementList = [$anim];
       if (config.mask.enable) {
         let { maskElement } = PopsHandler.handleMask({
-          type: PopsType,
+          type: popsType,
           guid,
           config,
           animElement: $anim,
@@ -21244,7 +21191,7 @@ ${err.stack}`);
         $mask = maskElement;
         isCreatedElementList.push($mask);
       }
-      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, PopsType, $anim, $pops, $mask, config);
+      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
       PopsHandler.handleClickEvent("close", $headerCloseBtn, eventDetails, config.btn.close.callback);
       popsDOMUtils.append($shadowRoot, isCreatedElementList);
       if (typeof config.beforeAppendToPageCallBack === "function") {
@@ -21264,7 +21211,7 @@ ${err.stack}`);
           $contentSectionContainer
         }
       });
-      PopsHandler.handlePush(PopsType, {
+      PopsHandler.handlePush(popsType, {
         guid,
         animElement: $anim,
         popsElement: $pops,
@@ -21293,6 +21240,212 @@ ${err.stack}`);
       };
     }
   };
+  const PopsPromptConfig = () => {
+    return {
+      title: {
+        text: "默认标题",
+        position: "left",
+        html: false,
+        style: ""
+      },
+      content: {
+        text: "",
+        select: false,
+        password: false,
+        row: false,
+        focus: true,
+        placeholder: "默认提示",
+        style: ""
+      },
+      btn: {
+        merge: false,
+        mergeReverse: false,
+        reverse: false,
+        position: "flex-end",
+        ok: {
+          enable: true,
+          size: void 0,
+          icon: void 0,
+          rightIcon: false,
+          iconIsLoading: false,
+          text: "确定",
+          type: "success",
+          callback(detail) {
+            detail.close();
+          }
+        },
+        cancel: {
+          enable: true,
+          size: void 0,
+          icon: void 0,
+          rightIcon: false,
+          iconIsLoading: false,
+          text: "关闭",
+          type: "default",
+          callback(detail) {
+            detail.close();
+          }
+        },
+        other: {
+          enable: false,
+          size: void 0,
+          icon: void 0,
+          rightIcon: false,
+          iconIsLoading: false,
+          text: "其它按钮",
+          type: "default",
+          callback(detail) {
+            detail.close();
+          }
+        },
+        close: {
+          enable: true,
+          callback(detail) {
+            detail.close();
+          }
+        }
+      },
+      useShadowRoot: true,
+      class: "",
+      only: false,
+      width: window.innerWidth < 550 ? "88vw" : "350px",
+      height: window.innerHeight < 450 ? "70vh" : "200px",
+      position: "center",
+      animation: "pops-anim-fadein-zoom",
+      zIndex: 1e4,
+      mask: {
+        enable: false,
+        clickEvent: {
+          toClose: false,
+          toHide: false
+        },
+        clickCallBack: null
+      },
+      drag: false,
+      dragLimit: true,
+      dragExtraDistance: 3,
+      dragMoveCallBack() {
+      },
+      dragEndCallBack() {
+      },
+      forbiddenScroll: false,
+      style: null,
+      beforeAppendToPageCallBack() {
+      }
+    };
+  };
+  const PopsPrompt = {
+    init(details) {
+      const guid = popsUtils.getRandomGUID();
+      const popsType = "prompt";
+      let config = PopsPromptConfig();
+      config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
+      config = popsUtils.assign(config, details);
+      config = PopsHandler.handleOnly(popsType, config);
+      const { $shadowContainer, $shadowRoot } = PopsHandler.handlerShadow(config);
+      PopsHandler.handleInit($shadowRoot, [
+        {
+          name: "index",
+          css: PopsCSS.index
+        },
+        {
+          name: "ninePalaceGridPosition",
+          css: PopsCSS.ninePalaceGridPosition
+        },
+        {
+          name: "scrollbar",
+          css: PopsCSS.scrollbar
+        },
+        {
+          name: "button",
+          css: PopsCSS.button
+        },
+        {
+          name: "anim",
+          css: PopsCSS.anim
+        },
+        {
+          name: "common",
+          css: PopsCSS.common
+        },
+        {
+          name: "promptCSS",
+          css: PopsCSS.promptCSS
+        }
+      ]);
+      let zIndex = PopsHandler.handleZIndex(config.zIndex);
+      let maskHTML = PopsElementHandler.createMask(guid, zIndex);
+      let headerBtnHTML = PopsElementHandler.createHeader(popsType, config);
+      let bottomBtnHTML = PopsElementHandler.createBottom(popsType, config);
+      let { headerStyle, headerPStyle } = PopsElementHandler.createHeaderStyle(popsType, config);
+      let { contentPStyle } = PopsElementHandler.createContentStyle(popsType, config);
+      let animHTML = PopsElementHandler.createAnim(
+        guid,
+        popsType,
+        config,
+        /*html*/
+        `
+            <div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${config.title.html ? config.title.text : `<p pops class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`}${headerBtnHTML}</div>
+            <div class="pops-content pops-${popsType}-content" style="${contentPStyle}">${config.content.row ? '<textarea name="pops-input-text" pops="" placeholder="' + config.content.placeholder + '"></textarea>' : '<input name="pops-input-text" pops="" placeholder="' + config.content.placeholder + '" type="' + (config.content.password ? "password" : "text") + '">'}</div>${bottomBtnHTML}`,
+        bottomBtnHTML,
+        zIndex
+      );
+      let $anim = PopsElementHandler.parseElement(animHTML);
+      let { popsElement: $pops, inputElement: $input, headerCloseBtnElement: $btnClose, btnOkElement: $btnOk, btnCancelElement: $btnCancel, btnOtherElement: $btnOther, titleElement: $title } = PopsHandler.handleQueryElement($anim, popsType);
+      let $mask = null;
+      let elementList = [$anim];
+      if (config.mask.enable) {
+        let _handleMask_ = PopsHandler.handleMask({
+          type: popsType,
+          guid,
+          config,
+          animElement: $anim,
+          maskHTML
+        });
+        $mask = _handleMask_.maskElement;
+        elementList.push($mask);
+      }
+      let eventDetails = PopsHandler.handleEventDetails(guid, $shadowContainer, $shadowRoot, popsType, $anim, $pops, $mask, config);
+      $input.value = config.content.text;
+      PopsHandler.handlePromptClickEvent("close", $input, $btnClose, eventDetails, config.btn.close.callback);
+      PopsHandler.handlePromptClickEvent("ok", $input, $btnOk, eventDetails, config.btn.ok.callback);
+      PopsHandler.handlePromptClickEvent("cancel", $input, $btnCancel, eventDetails, config.btn.cancel.callback);
+      PopsHandler.handlePromptClickEvent("other", $input, $btnOther, eventDetails, config.btn.other.callback);
+      popsDOMUtils.append($shadowRoot, elementList);
+      if (typeof config.beforeAppendToPageCallBack === "function") {
+        config.beforeAppendToPageCallBack($shadowRoot, $shadowContainer);
+      }
+      popsDOMUtils.appendBody($shadowContainer);
+      if ($mask != null) {
+        $anim.after($mask);
+      }
+      PopsHandler.handlePush(popsType, {
+        guid,
+        animElement: $anim,
+        popsElement: $pops,
+        maskElement: $mask,
+        $shadowContainer,
+        $shadowRoot
+      });
+      if (config.drag) {
+        PopsInstanceUtils.drag($pops, {
+          dragElement: $title,
+          limit: config.dragLimit,
+          extraDistance: config.dragExtraDistance,
+          moveCallBack: config.dragMoveCallBack,
+          endCallBack: config.dragEndCallBack
+        });
+      }
+      if (config.content.focus) {
+        $input.focus();
+      }
+      if (config.content.select) {
+        $input.select();
+      }
+      let result = PopsHandler.handleResultDetails(eventDetails);
+      return result;
+    }
+  };
   const rightClickMenuConfig = () => {
     return {
       target: document.documentElement,
@@ -21304,11 +21457,7 @@ ${err.stack}`);
           text: "搜索",
           item: [],
           callback(clickEvent, contextMenuEvent, liElement) {
-            console.log("点击：" + this.text, [
-              clickEvent,
-              contextMenuEvent,
-              liElement
-            ]);
+            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
           }
         },
         {
@@ -21317,11 +21466,7 @@ ${err.stack}`);
           text: "复制",
           item: [],
           callback(clickEvent, contextMenuEvent, liElement) {
-            console.log("点击：" + this.text, [
-              clickEvent,
-              contextMenuEvent,
-              liElement
-            ]);
+            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
           }
         },
         {
@@ -21330,11 +21475,7 @@ ${err.stack}`);
           iconIsLoading: false,
           item: [],
           callback(clickEvent, contextMenuEvent, liElement) {
-            console.log("点击：" + this.text, [
-              clickEvent,
-              contextMenuEvent,
-              liElement
-            ]);
+            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
           }
         },
         {
@@ -21343,11 +21484,7 @@ ${err.stack}`);
           text: "加载",
           item: [],
           callback(clickEvent, contextMenuEvent, liElement) {
-            console.log("点击：" + this.text, [
-              clickEvent,
-              contextMenuEvent,
-              liElement
-            ]);
+            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
             return false;
           }
         },
@@ -21356,11 +21493,7 @@ ${err.stack}`);
           iconIsLoading: true,
           text: "饿了么",
           callback(clickEvent, contextMenuEvent, liElement) {
-            console.log("点击：" + this.text, [
-              clickEvent,
-              contextMenuEvent,
-              liElement
-            ]);
+            console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
             return false;
           },
           item: [
@@ -21370,11 +21503,7 @@ ${err.stack}`);
               text: "处理文件",
               item: [],
               callback(clickEvent, contextMenuEvent, liElement) {
-                console.log("点击：" + this.text, [
-                  clickEvent,
-                  contextMenuEvent,
-                  liElement
-                ]);
+                console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
               }
             },
             {
@@ -21382,11 +21511,7 @@ ${err.stack}`);
               iconIsLoading: false,
               text: "其它处理",
               callback(clickEvent, contextMenuEvent, liElement) {
-                console.log("点击：" + this.text, [
-                  clickEvent,
-                  contextMenuEvent,
-                  liElement
-                ]);
+                console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
               },
               item: [
                 {
@@ -21395,11 +21520,7 @@ ${err.stack}`);
                   text: "查看",
                   item: [],
                   callback(clickEvent, contextMenuEvent, liElement) {
-                    console.log("点击：" + this.text, [
-                      clickEvent,
-                      contextMenuEvent,
-                      liElement
-                    ]);
+                    console.log("点击：" + this.text, [clickEvent, contextMenuEvent, liElement]);
                   }
                 }
               ]
@@ -21411,7 +21532,8 @@ ${err.stack}`);
       childMenuTopOrBottomDistance: 0,
       useShadowRoot: true,
       className: "",
-      isAnimation: true,
+      isAnimation: false,
+      useScaleAnimation: true,
       only: false,
       zIndex: 1e4,
       preventDefault: true,
@@ -21423,11 +21545,11 @@ ${err.stack}`);
   const PopsRightClickMenu = {
     init(details) {
       const guid = popsUtils.getRandomGUID();
-      const PopsType = "rightClickMenu";
+      const popsType = "rightClickMenu";
       let config = rightClickMenuConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
-      config = PopsHandler.handleOnly(PopsType, config);
+      config = PopsHandler.handleOnly(popsType, config);
       if (config.target == null) {
         throw new Error("config.target 不能为空");
       }
@@ -21475,7 +21597,7 @@ ${err.stack}`);
             return;
           }
           let $click = event.target;
-          if ($click.closest(`.pops-${PopsType}`)) {
+          if ($click.closest(`.pops-${popsType}`)) {
             return;
           }
           if ($click.className && $click.className === "pops-shadow-container" && $click.shadowRoot != null) {
@@ -21492,7 +21614,7 @@ ${err.stack}`);
             return;
           }
           let $click = event.target;
-          if ($click.closest(`.pops-${PopsType}`)) {
+          if ($click.closest(`.pops-${popsType}`)) {
             return;
           }
           PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
@@ -21538,21 +21660,21 @@ ${err.stack}`);
           if (config.preventDefault) {
             popsDOMUtils.preventEvent(event);
           }
-          PopsHandler.handleOnly(PopsType, config);
+          PopsHandler.handleOnly(popsType, config);
           if (PopsContextMenu.rootElement) {
             PopsContextMenu.closeAllMenu(PopsContextMenu.rootElement);
           }
           let rootElement = PopsContextMenu.showMenu(event, config.data, selectorTarget);
           PopsContextMenu.rootElement = rootElement;
           if (config.only) {
-            PopsHandler.handlePush(PopsType, {
+            PopsHandler.handlePush(popsType, {
               $shadowRoot,
               $shadowContainer,
               guid,
               animElement: rootElement,
               popsElement: rootElement,
-              beforeRemoveCallBack(layerCommonConfig) {
-                PopsContextMenu.closeAllMenu(layerCommonConfig.popsElement);
+              beforeRemoveCallBack(instCommonConfig) {
+                PopsContextMenu.closeAllMenu(instCommonConfig.popsElement);
               }
             });
           }
@@ -21575,22 +21697,29 @@ ${err.stack}`);
         },
         /**
          * 自动判断是否存在动画，存在动画就执行关闭动画并删除
-         * @param element
+         * @param $menu
          */
-        animationCloseMenu(element) {
-          function transitionEndEvent(event) {
-            popsDOMUtils.off(element, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
+        animationCloseMenu($menu) {
+          let transitionEndEvent = (event) => {
+            popsDOMUtils.off($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
               capture: true
             });
-            element.remove();
-          }
-          if (element.classList.contains(`pops-${PopsType}-anim-show`)) {
-            popsDOMUtils.on(element, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
+            $menu.remove();
+          };
+          popsDOMUtils.containsClassName;
+          if (popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-show`)) {
+            popsDOMUtils.on($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
               capture: true
             });
-            element.classList.remove(`pops-${PopsType}-anim-show`);
+            popsDOMUtils.removeClassName($menu, `pops-${popsType}-anim-show`);
+          } else if (popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-scale`) && popsDOMUtils.containsClassName($menu, `pops-${popsType}-anim-scale-open`)) {
+            popsDOMUtils.on($menu, popsDOMUtils.getTransitionEndNameList(), transitionEndEvent, {
+              capture: true
+            });
+            popsDOMUtils.removeClassName($menu, `pops-${popsType}-anim-scale-open`);
+            popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale-not-open`);
           } else {
-            element.remove();
+            $menu.remove();
           }
         },
         /**
@@ -21601,10 +21730,11 @@ ${err.stack}`);
           if (rootElement == null) {
             return;
           }
-          if (rootElement?.["__menuData__"]?.root) {
-            rootElement = rootElement?.["__menuData__"]?.root;
+          const rootElementMenuData = Reflect.get(rootElement, "__menuData__");
+          if (rootElementMenuData?.root) {
+            rootElement = rootElementMenuData.root;
           }
-          let childMenuList = rootElement["__menuData__"].child;
+          let childMenuList = rootElementMenuData.child;
           childMenuList.forEach((childMenuElement) => {
             this.animationCloseMenu(childMenuElement);
           });
@@ -21615,14 +21745,12 @@ ${err.stack}`);
          * 获取菜单容器
          * @param isChildren 是否是rightClickMenu的某一项的子菜单
          */
-        getMenuContainerElement(isChildren) {
+        createMenuContainerElement(isChildren) {
           let $menu = popsDOMUtils.createElement("div", {
-            className: `pops-${PopsType}`,
+            className: `pops-${popsType}`,
             innerHTML: (
               /*html*/
-              `
-					<ul></ul>
-					`
+              `<ul class="pops-${popsType}-wrapper"></ul>`
             )
           });
           let zIndex = this.getMenuZIndex();
@@ -21633,7 +21761,11 @@ ${err.stack}`);
             $menu.setAttribute("is-children", "true");
           }
           if (config.isAnimation) {
-            popsDOMUtils.addClassName($menu, `pops-${PopsType}-anim-grid`);
+            popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-grid`);
+          }
+          if (config.useScaleAnimation) {
+            popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale`);
+            popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale-not-open`);
           }
           return $menu;
         },
@@ -21716,14 +21848,11 @@ ${err.stack}`);
          * @param menuListenerRootNode 右键菜单监听的元素
          */
         showMenu(menuEvent, _config_, menuListenerRootNode) {
-          let menuElement = this.getMenuContainerElement(false);
+          let menuElement = this.createMenuContainerElement(false);
           Reflect.set(menuElement, "__menuData__", {
             child: []
           });
           PopsContextMenu.addMenuLiELement(menuEvent, menuElement, menuElement, _config_, menuListenerRootNode);
-          popsDOMUtils.css(menuElement, {
-            display: "none"
-          });
           popsDOMUtils.append($shadowRoot, menuElement);
           if (!document.contains($shadowContainer)) {
             if (typeof config.beforeAppendToPageCallBack === "function") {
@@ -21731,17 +21860,7 @@ ${err.stack}`);
             }
             popsDOMUtils.appendBody($shadowContainer);
           }
-          let offset = this.getOffset(menuElement, {
-            x: menuEvent.clientX,
-            y: menuEvent.clientY
-          }, null);
-          popsDOMUtils.css(menuElement, {
-            ...offset,
-            display: ""
-          });
-          if (config.isAnimation) {
-            popsDOMUtils.addClassName(menuElement, `pops-${PopsType}-anim-show`);
-          }
+          this.handlerShowMenuCSS(menuElement, menuEvent);
           return menuElement;
         },
         /**
@@ -21754,7 +21873,7 @@ ${err.stack}`);
          * @param menuListenerRootNode 右键菜单监听的元素
          */
         showClildMenu(menuEvent, posInfo, _config_, rootElement, targetLiElement, menuListenerRootNode) {
-          let menuElement = this.getMenuContainerElement(true);
+          let menuElement = this.createMenuContainerElement(true);
           Reflect.set(menuElement, "__menuData__", {
             parent: targetLiElement,
             root: rootElement
@@ -21762,23 +21881,35 @@ ${err.stack}`);
           let rootElementMenuData = Reflect.get(rootElement, "__menuData__");
           rootElementMenuData.child.push(menuElement);
           PopsContextMenu.addMenuLiELement(menuEvent, rootElement, menuElement, _config_, menuListenerRootNode);
-          popsDOMUtils.css(menuElement, {
-            display: "none"
-          });
           popsDOMUtils.append($shadowRoot, menuElement);
           let $parentMenu = targetLiElement.closest(".pops-rightClickMenu");
-          let offset = this.getOffset(menuElement, {
-            x: posInfo.clientX,
-            y: posInfo.clientY
-          }, {
+          this.handlerShowMenuCSS(menuElement, posInfo, {
             $menu: $parentMenu,
             $parentItem: targetLiElement
           });
-          popsDOMUtils.css(menuElement, { ...offset, display: "" });
-          if (config.isAnimation) {
-            popsDOMUtils.addClassName(menuElement, `pops-${PopsType}-anim-show`);
-          }
           return menuElement;
+        },
+        /**
+         * 处理菜单显示的css样式（添加到页面后）
+         * @param $menu 菜单元素
+         * @param posInfo 菜单位置信息
+         * @param parentInfo 配置子菜单的父级信息
+         */
+        handlerShowMenuCSS($menu, posInfo, parentInfo) {
+          let offset = this.getOffset($menu, {
+            x: posInfo.clientX,
+            y: posInfo.clientY
+          }, parentInfo);
+          popsDOMUtils.css($menu, {
+            ...offset
+          });
+          if (config.isAnimation) {
+            popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-show`);
+          }
+          if (config.useScaleAnimation) {
+            popsDOMUtils.removeClassName($menu, `pops-${popsType}-anim-scale-not-open`);
+            popsDOMUtils.addClassName($menu, `pops-${popsType}-anim-scale-open`);
+          }
         },
         /**
          * 获取菜单项的元素
@@ -21797,17 +21928,17 @@ ${err.stack}`);
               let iconSVGHTML = PopsIcon.getIcon(item.icon) ?? item.icon;
               let iconElement = popsDOMUtils.parseTextToDOM(
                 /*html*/
-                `<i class="pops-${PopsType}-icon" is-loading="${item.iconIsLoading ?? false}">${iconSVGHTML}</i>`
+                `<i class="pops-${popsType}-icon" is-loading="${item.iconIsLoading ?? false}">${iconSVGHTML}</i>`
               );
               menuLiElement.appendChild(iconElement);
             }
             menuLiElement.insertAdjacentHTML("beforeend", PopsSafeUtils.getSafeHTML(`<span>${item.text}</span>`));
             if (item.item && Array.isArray(item.item)) {
-              popsDOMUtils.addClassName(menuLiElement, `pops-${PopsType}-item`);
+              popsDOMUtils.addClassName(menuLiElement, `pops-${popsType}-item`);
             }
             function liElementHoverEvent() {
               Array.from(menuULElement.children).forEach((liElement) => {
-                popsDOMUtils.removeClassName(liElement, `pops-${PopsType}-is-visited`);
+                popsDOMUtils.removeClassName(liElement, `pops-${popsType}-is-visited`);
                 if (!liElement.__menuData__) {
                   return;
                 }
@@ -21828,7 +21959,7 @@ ${err.stack}`);
                   index--;
                 }
               }
-              popsDOMUtils.addClassName(menuLiElement, `pops-${PopsType}-is-visited`);
+              popsDOMUtils.addClassName(menuLiElement, `pops-${popsType}-is-visited`);
               if (!item.item) {
                 return;
               }
@@ -21938,7 +22069,7 @@ ${err.stack}`);
   const PopsSearchSuggestion = {
     init(details) {
       const guid = popsUtils.getRandomGUID();
-      const PopsType = "searchSuggestion";
+      const popsType = "searchSuggestion";
       let config = searchSuggestionConfig();
       config = popsUtils.assign(config, GlobalConfig.getGlobalConfig());
       config = popsUtils.assign(config, details);
@@ -22003,7 +22134,7 @@ ${err.stack}`);
           SearchSuggestion.changeHintULElementPosition();
           SearchSuggestion.hide();
           if (config.isAnimation) {
-            SearchSuggestion.$el.root.classList.add(`pops-${PopsType}-animation`);
+            SearchSuggestion.$el.root.classList.add(`pops-${popsType}-animation`);
           }
           $shadowRoot.appendChild(SearchSuggestion.$el.root);
           parentElement.appendChild($shadowContainer);
@@ -22019,19 +22150,19 @@ ${err.stack}`);
          */
         getSearchSelectElement() {
           let element = popsDOMUtils.createElement("div", {
-            className: `pops pops-${PopsType}-search-suggestion`,
+            className: `pops pops-${popsType}-search-suggestion`,
             innerHTML: (
               /*html*/
               `
 						<style data-dynamic="true">
 							${this.getDynamicCSS()}
 						</style>
-						<ul class="pops-${PopsType}-search-suggestion-hint">${config.toSearhNotResultHTML}</ul>
+						<ul class="pops-${popsType}-search-suggestion-hint">${config.toSearhNotResultHTML}</ul>
          				 `
             )
           }, {
             "data-guid": guid,
-            "type-value": PopsType
+            "type-value": popsType
           });
           if (config.className !== "" && config.className != null) {
             popsDOMUtils.addClassName(element, config.className);
@@ -22043,24 +22174,24 @@ ${err.stack}`);
           return (
             /*css*/
             `
-				.pops-${PopsType}-animation{
+				.pops-${popsType}-animation{
 					-moz-animation: searchSelectFalIn 0.5s 1 linear;
 					-webkit-animation: searchSelectFalIn 0.5s 1 linear;
 					-o-animation: searchSelectFalIn 0.5s 1 linear;
 					-ms-animation: searchSelectFalIn 0.5s 1 linear;
 				}
-				.pops-${PopsType}-search-suggestion{
+				.pops-${popsType}-search-suggestion{
 					--search-suggestion-bg-color: #ffffff;
 					--search-suggestion-box-shadow-color: rgb(0 0 0 / 20%);
 					--search-suggestion-item-color: #515a6e;
 					--search-suggestion-item-none-color: #8e8e8e;
 					--search-suggestion-item-hover-bg-color: rgba(0, 0, 0, .1);
 				}
-				.pops-${PopsType}-search-suggestion{
+				.pops-${popsType}-search-suggestion{
 					border: initial;
 					overflow: initial;
 				}
-				ul.pops-${PopsType}-search-suggestion-hint{
+				ul.pops-${popsType}-search-suggestion-hint{
 					position: ${config.isAbsolute ? "absolute" : "fixed"};
 					z-index: ${PopsHandler.handleZIndex(config.zIndex)};
 					width: 0;
@@ -22075,14 +22206,14 @@ ${err.stack}`);
 					box-shadow: 0 1px 6px var(--search-suggestion-box-shadow-color);
 				}
 				/* 建议框在上面时 */
-				ul.pops-${PopsType}-search-suggestion-hint[data-top-reverse]{
+				ul.pops-${popsType}-search-suggestion-hint[data-top-reverse]{
 					display: flex;
 					flex-direction: column-reverse;
 				}
-				ul.pops-${PopsType}-search-suggestion-hint[data-top-reverse] li{
+				ul.pops-${popsType}-search-suggestion-hint[data-top-reverse] li{
 					flex-shrink: 0;
 				}
-				ul.pops-${PopsType}-search-suggestion-hint li{
+				ul.pops-${popsType}-search-suggestion-hint li{
 					padding: 7px;
 					margin: 0;
 					clear: both;
@@ -22095,17 +22226,17 @@ ${err.stack}`);
 					text-overflow: ellipsis;
 					width: 100%;
 				}
-				ul.pops-${PopsType}-search-suggestion-hint li[data-none]{
+				ul.pops-${popsType}-search-suggestion-hint li[data-none]{
 					text-align: center;
 					font-size: 12px;
 					color: var(--search-suggestion-item-none-color);
 				}
-				ul.pops-${PopsType}-search-suggestion-hint li:hover{
+				ul.pops-${popsType}-search-suggestion-hint li:not([data-none]):hover{
 					background-color: var(--search-suggestion-item-hover-bg-color);
 				}
 
 				@media (prefers-color-scheme: dark){
-					.pops-${PopsType}-search-suggestion{
+					.pops-${popsType}-search-suggestion{
 						--search-suggestion-bg-color: #1d1e1f;
 						--search-suggestion-item-color: #cfd3d4;
 						--search-suggestion-item-hover-bg-color: rgba(175, 175, 175, .1);
@@ -22120,12 +22251,15 @@ ${err.stack}`);
          * @param index 当前项的下标
          */
         getSearchItemLiElement(data, index) {
-          return popsDOMUtils.createElement("li", {
-            className: `pops-${PopsType}-search-suggestion-hint-item pops-flex-items-center pops-flex-y-center`,
+          let $li = popsDOMUtils.createElement("li", {
+            className: `pops-${popsType}-search-suggestion-hint-item`,
             "data-index": index,
             "data-value": SearchSuggestion.getItemDataValue(data),
             innerHTML: `${config.getItemHTML(data)}${config.deleteIcon.enable ? SearchSuggestion.getDeleteIconHTML() : ""}`
           });
+          popsDOMUtils.addClassName($li, PopsCommonCSSClassName.flexCenter);
+          popsDOMUtils.addClassName($li, PopsCommonCSSClassName.flexYCenter);
+          return $li;
         },
         /**
          * 获取data-value值
@@ -22142,7 +22276,7 @@ ${err.stack}`);
           popsDOMUtils.on(liElement, "click", void 0, (event) => {
             popsDOMUtils.preventEvent(event);
             let $click = event.target;
-            if ($click.closest(`.pops-${PopsType}-delete-icon`)) {
+            if ($click.closest(`.pops-${popsType}-delete-icon`)) {
               if (typeof config.deleteIcon.callback === "function") {
                 config.deleteIcon.callback(event, liElement, liElement["data-value"]);
               }
@@ -22300,7 +22434,7 @@ ${err.stack}`);
           return (
             /*html*/
             `
-				<svg class="pops-${PopsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
+				<svg class="pops-${popsType}-delete-icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="${fill}">
 					<path d="M512 883.2A371.2 371.2 0 1 0 140.8 512 371.2 371.2 0 0 0 512 883.2z m0 64a435.2 435.2 0 1 1 435.2-435.2 435.2 435.2 0 0 1-435.2 435.2z"></path>
 					<path d="M557.056 512l122.368 122.368a31.744 31.744 0 1 1-45.056 45.056L512 557.056l-122.368 122.368a31.744 31.744 0 1 1-45.056-45.056L466.944 512 344.576 389.632a31.744 31.744 0 1 1 45.056-45.056L512 466.944l122.368-122.368a31.744 31.744 0 1 1 45.056 45.056z"></path>
 				</svg>
@@ -22312,7 +22446,7 @@ ${err.stack}`);
          */
         setPromptsInSearch() {
           let isSearchingElement = popsDOMUtils.createElement("li", {
-            className: `pops-${PopsType}-search-suggestion-hint-searching-item`,
+            className: `pops-${popsType}-search-suggestion-hint-searching-item`,
             innerHTML: config.searchingTip
           });
           SearchSuggestion.$el.$hintULContainer.appendChild(isSearchingElement);
@@ -22321,7 +22455,7 @@ ${err.stack}`);
          * 移除正在搜索中的提示
          */
         removePromptsInSearch() {
-          SearchSuggestion.$el.$hintULContainer.querySelector(`li.pops-${PopsType}-search-suggestion-hint-searching-item`)?.remove();
+          SearchSuggestion.$el.$hintULContainer.querySelector(`li.pops-${popsType}-search-suggestion-hint-searching-item`)?.remove();
         },
         /**
          * 清空所有的搜索结果
@@ -22448,14 +22582,14 @@ ${err.stack}`);
     /** 配置 */
     config = {
       /** 版本号 */
-      version: "2025.7.13",
+      version: "2025.8.17",
       cssText: PopsCSS,
       /** icon图标的svg代码 */
       iconSVG: PopsIcon.$data,
       /** 当前已配置的动画@keyframes名字映射(初始化时生成) */
       animation: PopsAnimation.$data,
       /** 存储已创建的元素 */
-      layer: PopsLayerData,
+      instData: PopsInstData,
       /** 禁止滚动 */
       forbiddenScroll: {
         event(event) {
@@ -22713,6 +22847,12 @@ ${err.stack}`);
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
+      } else if (url.startsWith("//")) {
+        if (url.startsWith("///")) ;
+        else {
+          url = window.location.protocol + url;
+        }
+        return url;
       } else {
         if (!url.startsWith("/")) {
           url += "/";
@@ -22757,9 +22897,7 @@ ${err.stack}`);
 				overflow: hidden !important;
 			}
 		`;
-      let $elList = [document.documentElement, document.body].concat(
-        ...args || []
-      );
+      let $elList = [document.documentElement, document.body].concat(...args || []);
       $elList.forEach(($el) => {
         $el.classList.add("pops-overflow-hidden-important");
       });
@@ -22795,10 +22933,7 @@ ${err.stack}`);
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
-          log.error(
-            "申请剪贴板权限失败，尝试直接读取👉",
-            error.message ?? error.name ?? error.stack
-          );
+          log.error("申请剪贴板权限失败，尝试直接读取👉", error.message ?? error.name ?? error.stack);
           readClipboardText(resolve);
         });
       }
@@ -22837,6 +22972,51 @@ ${err.stack}`);
      */
     escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    },
+    /**
+     * 在规定时间内循环，如果超时或返回false则取消循环
+     * @param fn 循环的函数
+     * @param intervalTime 循环间隔时间
+     * @param [timeout=5000] 循环超时时间
+     */
+    interval(fn, intervalTime, timeout = 5e3) {
+      let timeId;
+      let maxTimeout = timeout - intervalTime;
+      let intervalTimeCount = intervalTime;
+      let loop = async (isTimeout) => {
+        let result = await fn(isTimeout);
+        if (typeof result === "boolean" && !result || isTimeout) {
+          utils.workerClearTimeout(timeId);
+          return;
+        }
+        intervalTimeCount += intervalTime;
+        if (intervalTimeCount > maxTimeout) {
+          loop(true);
+          return;
+        }
+        timeId = utils.workerSetTimeout(() => {
+          loop(false);
+        }, intervalTime);
+      };
+      loop(false);
+    },
+    /**
+     * 找到对应的上层元素
+     */
+    findParentNode($el, selector, parentSelector) {
+      if (parentSelector) {
+        let $parent = domUtils$2.closest($el, parentSelector);
+        if ($parent) {
+          let $target = $parent.querySelector(selector);
+          return $target;
+        }
+      } else {
+        if (domUtils$2.matches($el, selector)) {
+          return $el;
+        }
+        let $parent = domUtils$2.closest($el, selector);
+        return $parent;
+      }
     }
   };
   const PanelSettingConfig = {
@@ -22872,48 +23052,49 @@ ${err.stack}`);
     autoClearConsole: true,
     tag: true
   });
-  qmsg.config(
-    Object.defineProperties(
-      {
-        html: true,
-        autoClose: true,
-        showClose: false
-      },
-      {
-        position: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_position.key,
-              PanelSettingConfig.qmsg_config_position.defaultValue
-            );
-          }
-        },
-        maxNums: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_maxnums.key,
-              PanelSettingConfig.qmsg_config_maxnums.defaultValue
-            );
-          }
-        },
-        showReverse: {
-          get() {
-            return Panel.getValue(
-              PanelSettingConfig.qmsg_config_showreverse.key,
-              PanelSettingConfig.qmsg_config_showreverse.defaultValue
-            );
-          }
-        },
-        zIndex: {
-          get() {
-            let maxZIndex = utils$1.getMaxZIndex();
-            let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
-            return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
-          }
-        }
+  qmsg.config({
+    isHTML: true,
+    autoClose: true,
+    showClose: false,
+    consoleLogContent(qmsgInst) {
+      const qmsgType = qmsgInst.getSetting().type;
+      if (qmsgType === "loading") {
+        return false;
       }
-    )
-  );
+      const content = qmsgInst.getSetting().content;
+      if (qmsgType === "warning") {
+        log.warn(content);
+      } else if (qmsgType === "error") {
+        log.error(content);
+      } else {
+        log.info(content);
+      }
+      return true;
+    },
+    get position() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_position.key,
+        PanelSettingConfig.qmsg_config_position.defaultValue
+      );
+    },
+    get maxNums() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_maxnums.key,
+        PanelSettingConfig.qmsg_config_maxnums.defaultValue
+      );
+    },
+    get showReverse() {
+      return Panel.getValue(
+        PanelSettingConfig.qmsg_config_showreverse.key,
+        PanelSettingConfig.qmsg_config_showreverse.defaultValue
+      );
+    },
+    get zIndex() {
+      let maxZIndex = utils$1.getMaxZIndex();
+      let popsMaxZIndex = pops.config.InstanceUtils.getPopsMaxZIndex().zIndex;
+      return utils$1.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
+    }
+  });
   __pops.GlobalConfig.setGlobalConfig({
     zIndex: () => {
       let maxZIndex = utils$1.getMaxZIndex(void 0, void 0, ($ele) => {
@@ -22935,7 +23116,8 @@ ${err.stack}`);
         toClose: false,
         toHide: false
       }
-    }
+    },
+    drag: true
   });
   const GM_Menu = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
@@ -22977,8 +23159,8 @@ ${err.stack}`);
     setTimeout: _unsafeWindow.setTimeout
   });
   const addStyle = utils.addStyle.bind(utils);
-  document.querySelector.bind(document);
-  document.querySelectorAll.bind(document);
+  domUtils$2.selector.bind(domUtils$2);
+  domUtils$2.selectorAll.bind(domUtils$2);
   new utils.GM_Cookie();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
@@ -23010,6 +23192,17 @@ ${err.stack}`);
       }
     },
     /**
+     * 中等的设置界面
+     */
+    settingMiddle: {
+      get width() {
+        return window.innerWidth < 350 ? "88vw" : "350px";
+      },
+      get height() {
+        return window.innerHeight < 450 ? "88vh" : "450px";
+      }
+    },
+    /**
      * 功能丰富，aside铺满了的设置界面，要稍微大一点
      */
     settingBig: {
@@ -23025,10 +23218,10 @@ ${err.stack}`);
      */
     info: {
       get width() {
-        return window.innerWidth < 350 ? "350px" : "350px";
+        return window.innerWidth < 350 ? "88vw" : "350px";
       },
       get height() {
-        return window.innerHeight < 250 ? "250px" : "250px";
+        return window.innerHeight < 250 ? "88vh" : "250px";
       }
     }
   };
@@ -23359,7 +23552,7 @@ ${err.stack}`);
       /**
        * @private
        */
-      __configDefaultValueData: null,
+      __contentConfigInitDefaultValue: null,
       /**
        * @private
        */
@@ -23372,18 +23565,33 @@ ${err.stack}`);
        * @private
        */
       __panelConfig: {},
+      /**
+       * 面板
+       */
       $panel: null,
       /**
-       * 菜单项的默认值
+       * 面板配置
        */
-      get configDefaultValueData() {
-        if (this.__configDefaultValueData == null) {
-          this.__configDefaultValueData = new utils.Dictionary();
+      panelContent: [],
+      /**
+       * 菜单项初始化的默认值
+       */
+      get contentConfigInitDefaultValue() {
+        if (this.__contentConfigInitDefaultValue == null) {
+          this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
-        return this.__configDefaultValueData;
+        return this.__contentConfigInitDefaultValue;
       },
       /**
-       * 成功只执行了一次的项
+       * 菜单项初始化时禁用的键
+       */
+      contentConfigInitDisabledKeys: [],
+      /**
+       * 成功只执行了一次的菜单项
+       *
+       * + .exec
+       * + .execMenu
+       * + .execMenuOnce
        */
       get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
@@ -23393,6 +23601,8 @@ ${err.stack}`);
       },
       /**
        * 成功只执行了一次的项
+       *
+       * + .onceExec
        */
       get onceExecData() {
         if (this.__onceExecData == null) {
@@ -23437,10 +23647,21 @@ ${err.stack}`);
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let needInitConfig = {};
+        let menuDefaultConfig = /* @__PURE__ */ new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
-          needInitConfig[key] = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
+          menuDefaultConfig.set(key, defaultValue);
+        }
+        let moreMenuDefaultConfig = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
+          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
+            menuDefaultConfig.set(key2, moreMenuDefaultConfig[key2]);
+          });
+        }
+        if (!menuDefaultConfig.size) {
+          log.warn(["请先配置键", config]);
+          return;
         }
         let __attr_init__ = config.attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
@@ -23449,27 +23670,23 @@ ${err.stack}`);
             return;
           }
         }
-        let initMoreValue = config.attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (initMoreValue && typeof initMoreValue === "object") {
-          Object.assign(needInitConfig, initMoreValue);
+        if (config.type === "switch") {
+          let disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
+          if (typeof disabled === "boolean" && disabled) {
+            this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
+          }
         }
-        let needInitConfigList = Object.keys(needInitConfig);
-        if (!needInitConfigList.length) {
-          log.warn(["请先配置键", config]);
-          return;
-        }
-        needInitConfigList.forEach((__key) => {
-          let __defaultValue = needInitConfig[__key];
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
           this.setDefaultValue(__key, __defaultValue);
-        });
+        }
       };
       const loopInitDefaultValue = (configList2) => {
         for (let index = 0; index < configList2.length; index++) {
           let configItem = configList2[index];
           initDefaultValue(configItem);
-          let childForms = configItem.forms;
-          if (childForms && Array.isArray(childForms)) {
-            loopInitDefaultValue(childForms);
+          let child_forms = configItem.forms;
+          if (child_forms && Array.isArray(child_forms)) {
+            loopInitDefaultValue(child_forms);
           }
         }
       };
@@ -23484,15 +23701,18 @@ ${err.stack}`);
           loopInitDefaultValue(rightContentConfigList);
         }
       }
+      this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
     /**
      * 设置初始化使用的默认值
+     * @param key 键
+     * @param defaultValue 默认值
      */
     setDefaultValue(key, defaultValue) {
-      if (this.$data.configDefaultValueData.has(key)) {
+      if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
-      this.$data.configDefaultValueData.set(key, defaultValue);
+      this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
     /**
      * 设置值
@@ -23510,8 +23730,8 @@ ${err.stack}`);
     getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.configDefaultValueData.has(key)) {
-          return this.$data.configDefaultValueData.get(key);
+        if (this.$data.contentConfigInitDefaultValue.has(key)) {
+          return this.$data.contentConfigInitDefaultValue.get(key);
         }
         return defaultValue;
       }
@@ -23537,12 +23757,9 @@ ${err.stack}`);
      * @param callback
      */
     addValueChangeListener(key, callback) {
-      let listenerId = PopsPanelStorageApi.addValueChangeListener(
-        key,
-        (__key, __newValue, __oldValue) => {
-          callback(key, __oldValue, __newValue);
-        }
-      );
+      let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
+        callback(key, __oldValue, __newValue);
+      });
       return listenerId;
     },
     /**
@@ -23562,25 +23779,9 @@ ${err.stack}`);
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
     /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
-      this.$data.onceExecMenuData.delete(key);
-      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
-    },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * @param key 键
-     */
-    deleteOnceExec(key) {
-      this.$data.onceExecData.delete(key);
-    },
-    /**
      * 执行菜单
      *
-     * @param queryKey 键|键数组
+     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 执行的回调函数
      * @param checkExec 判断是否执行回调
      *
@@ -23612,9 +23813,7 @@ ${err.stack}`);
       } else {
         keyList.push(queryKeyResult);
       }
-      let findNotInDataKey = keyList.find(
-        (it) => !this.$data.configDefaultValueData.has(it)
-      );
+      let findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
         return;
@@ -23695,12 +23894,9 @@ ${err.stack}`);
         storeValueList = [...resultList];
       };
       once && keyList.forEach((key) => {
-        let listenerId = this.addValueChangeListener(
-          key,
-          (key2, newValue, oldValue) => {
-            valueChangeCallback();
-          }
-        );
+        let listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          valueChangeCallback();
+        });
         listenerIdList.push(listenerId);
       });
       valueChangeCallback();
@@ -23736,11 +23932,12 @@ ${err.stack}`);
     },
     /**
      * 自动判断菜单是否启用，然后执行回调
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param [isReverse=false] 逆反判断菜单启用
+     * @param isReverse 逆反判断菜单启用，默认false
+     * @param once 是否是只执行一次，默认false
      */
-    execMenu(key, callback, isReverse = false) {
+    execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -23749,43 +23946,49 @@ ${err.stack}`);
         (keyList) => {
           let execFlag = keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
+            let disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+            if (disabled) {
+              flag = false;
+              log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+            }
             isReverse && (flag = !flag);
             return flag;
           });
           return execFlag;
         },
-        false
+        once
       );
     },
     /**
      * 自动判断菜单是否启用，然后执行回调，只会执行一次
      *
      * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key
+     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
      * @param callback 回调
-     * @param getValueFn 自定义处理获取当前值，值true是启用并执行回调，值false是不执行回调
-     * @param handleValueChangeFn 自定义处理值改变时的回调，值true是启用并执行回调，值false是不执行回调
+     * @param isReverse 逆反判断菜单启用，默认false
      */
-    execMenuOnce(key, callback) {
-      return this.exec(
-        key,
-        callback,
-        (keyList) => {
-          let execFlag = keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            return flag;
-          });
-          return execFlag;
-        },
-        true
-      );
+    execMenuOnce(key, callback, isReverse = false) {
+      return this.execMenu(key, callback, isReverse, true);
     },
     /**
-     * 根据key执行一次
+     * 移除已执行的仅执行一次的菜单
+     * + .exec
+     * + .execMenu
+     * + .execMenuOnce
+     * @param key 键
+     */
+    deleteExecMenuOnce(key) {
+      this.$data.onceExecMenuData.delete(key);
+      let flag = PopsPanelStorageApi.removeValueChangeListener(key);
+      return flag;
+    },
+    /**
+     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
      * @param key 键
      * @param callback 回调
      */
     onceExec(key, callback) {
+      key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
       }
@@ -23796,12 +23999,24 @@ ${err.stack}`);
       this.$data.onceExecData.set(key, 1);
     },
     /**
+     * 移除已执行的仅执行一次的菜单
+     * + .onceExec
+     * @param key 键
+     */
+    deleteOnceExec(key) {
+      key = this.transformKey(key);
+      this.$data.onceExecData.delete(key);
+    },
+    /**
      * 显示设置面板
      * @param content 显示的内容配置
      * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号）
+     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
+     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
      */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false) {
+    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+      this.$data.$panel = null;
+      this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
         let isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
         return isBottom && it.id === "script-version";
@@ -23846,6 +24061,428 @@ ${err.stack}`);
         ...this.$data.panelConfig
       });
       this.$data.$panel = $panel;
+      this.$data.panelContent = content;
+      if (!preventRegisterSearchPlugin) {
+        this.registerConfigSearch({ $panel, content });
+      }
+    },
+    /**
+     * 注册设置面板的搜索功能（双击左侧选项第一个）
+     * @param config 配置项
+     */
+    registerConfigSearch(config) {
+      const { $panel, content } = config;
+      let asyncQueryProperty = async (target, handler) => {
+        if (target == null) {
+          return;
+        }
+        let handleResult = await handler(target);
+        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
+          return handleResult.data;
+        }
+        return await asyncQueryProperty(handleResult.data, handler);
+      };
+      let scrollToElementAndListen = ($el, callback) => {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                callback?.();
+                observer.disconnect();
+              }
+            });
+          },
+          {
+            root: null,
+            // 使用视口作为根
+            threshold: 1
+            // 元素完全进入视口时触发
+          }
+        );
+        observer.observe($el);
+        $el.scrollIntoView({ behavior: "smooth", block: "center" });
+      };
+      let addFlashingClass = ($el) => {
+        const flashingClassName = "pops-flashing";
+        domUtils.animationend($el, () => {
+          $el.classList.remove(flashingClassName);
+        });
+        $el.classList.add(flashingClassName);
+      };
+      let dbclick_event = (evt, selectorTarget) => {
+        utils.preventEvent(evt);
+        let $alert = __pops.alert({
+          title: {
+            text: "搜索配置",
+            position: "center"
+          },
+          content: {
+            text: (
+              /*html*/
+              `
+						<div class="search-wrapper">
+							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
+						</div>
+						<div class="search-result-wrapper"></div>
+					`
+            ),
+            html: true
+          },
+          btn: {
+            ok: { enable: false }
+          },
+          mask: {
+            clickEvent: {
+              toClose: true
+            }
+          },
+          width: PanelUISize.settingMiddle.width,
+          height: "auto",
+          drag: true,
+          style: (
+            /*css*/
+            `
+					${__pops.config.cssText.panelCSS}
+
+					.search-wrapper{
+						border-bottom: 1px solid rgb(235, 238, 245, 1);
+					}
+					.pops-content:has(.search-result-wrapper:empty) .search-wrapper{
+						border-bottom: 0;
+					}
+					.search-config-text{
+						width: 100%;
+						border: 0;
+						height: 32px;
+						padding: 0px 10px;
+						outline: none;
+					}
+					.search-result-wrapper{
+						max-height: 400px;
+						overflow: auto;
+					}
+					.search-result-item{
+						cursor: pointer;
+						padding: 5px 10px;
+						display: flex;
+						flex-direction: column;
+					}
+					.search-result-item:hover{
+						background-color: #D8F1FD;
+					}
+					.search-result-item-path{
+						display: flex;
+    					align-items: center;
+					}
+					.search-result-item-description{
+						font-size: 0.8rem;
+						color: #6c6c6c;
+					}
+					${config.searchDialogStyle ?? ""}
+				`
+          )
+        });
+        $alert.$shadowRoot.querySelector(".search-wrapper");
+        let $searchInput = $alert.$shadowRoot.querySelector(".search-config-text");
+        let $searchResultWrapper = $alert.$shadowRoot.querySelector(".search-result-wrapper");
+        $searchInput.focus();
+        let clearSearchResult = () => {
+          domUtils.empty($searchResultWrapper);
+        };
+        let createSearchResultItem = (pathInfo) => {
+          const searchPath = utils.queryProperty(pathInfo, (target) => {
+            if (target?.next) {
+              return {
+                isFind: false,
+                data: target.next
+              };
+            } else {
+              return {
+                isFind: true,
+                data: target
+              };
+            }
+          });
+          let $item = domUtils.createElement("div", {
+            className: "search-result-item",
+            innerHTML: (
+              /*html*/
+              `
+							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
+							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
+						`
+            )
+          });
+          domUtils.on($item, "click", (clickItemEvent) => {
+            let $asideItems = $panel.$shadowRoot.querySelectorAll(
+              "aside.pops-panel-aside .pops-panel-aside-top-container li"
+            );
+            let $targetAsideItem = $asideItems[pathInfo.index];
+            if (!$targetAsideItem) {
+              qmsg.error(`左侧项下标${pathInfo.index}不存在`);
+              return;
+            }
+            $targetAsideItem.scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+            });
+            $targetAsideItem.click();
+            asyncQueryProperty(pathInfo.next, async (target) => {
+              if (target?.next) {
+                let $findDeepMenu = await utils.waitNode(() => {
+                  return Array.from(
+                    $panel.$shadowRoot.querySelectorAll(".pops-panel-deepMenu-nav-item")
+                  ).find(($deepMenu) => {
+                    const __formConfig__ = Reflect.get($deepMenu, "__formConfig__");
+                    return typeof __formConfig__ === "object" && __formConfig__ != null && __formConfig__.text === target.name;
+                  });
+                }, 2500);
+                if ($findDeepMenu) {
+                  $findDeepMenu.click();
+                } else {
+                  qmsg.error("未找到对应的二级菜单");
+                  return {
+                    isFind: true,
+                    data: target
+                  };
+                }
+                return {
+                  isFind: false,
+                  data: target.next
+                };
+              } else {
+                let $findTargetMenu = await utils.waitNode(() => {
+                  return Array.from(
+                    $panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)
+                  ).find(($menuItem) => {
+                    const __formConfig__ = Reflect.get($menuItem, "__formConfig__");
+                    return __formConfig__ === target.matchedData?.formConfig;
+                  });
+                }, 2500);
+                if ($findTargetMenu) {
+                  scrollToElementAndListen($findTargetMenu);
+                  let $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
+                  if ($fold) {
+                    let $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
+                    $foldWrapper.click();
+                    await utils.sleep(500);
+                  }
+                  scrollToElementAndListen($findTargetMenu, () => {
+                    addFlashingClass($findTargetMenu);
+                  });
+                } else {
+                  qmsg.error("未找到对应的菜单项");
+                }
+                return {
+                  isFind: true,
+                  data: target
+                };
+              }
+            });
+          });
+          return $item;
+        };
+        let execSearch = (searchText) => {
+          const searchTextRegExp = new RegExp(searchText, "i");
+          const searchConfigResult = [];
+          const loopContentConfig = (configList2, path) => {
+            for (let index = 0; index < configList2.length; index++) {
+              const configItem = configList2[index];
+              let child_forms = configItem.forms;
+              if (child_forms && Array.isArray(child_forms)) {
+                const deepMenuPath = utils.deepClone(path);
+                if (configItem.type === "deepMenu") {
+                  const deepNext = utils.queryProperty(deepMenuPath, (target) => {
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  deepNext.next = {
+                    name: configItem.text
+                  };
+                }
+                loopContentConfig(child_forms, deepMenuPath);
+              } else {
+                let text = Reflect.get(configItem, "text");
+                let description = Reflect.get(configItem, "description");
+                const delayMatchedTextList = [text, description];
+                let matchedIndex = delayMatchedTextList.findIndex((configText) => {
+                  if (typeof configText !== "string") {
+                    return;
+                  }
+                  return configText.match(searchTextRegExp);
+                });
+                if (matchedIndex !== -1) {
+                  const matchedPath = utils.deepClone(path);
+                  const deepNext = utils.queryProperty(matchedPath, (target) => {
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  deepNext.next = {
+                    name: text,
+                    matchedData: {
+                      path: "",
+                      formConfig: configItem,
+                      matchedText: delayMatchedTextList[matchedIndex],
+                      description
+                    }
+                  };
+                  const pathList = [];
+                  utils.queryProperty(matchedPath, (target) => {
+                    const name = target?.name;
+                    if (typeof name === "string" && name.trim() !== "") {
+                      pathList.push(name);
+                    }
+                    if (target?.next) {
+                      return {
+                        isFind: false,
+                        data: target.next
+                      };
+                    } else {
+                      return {
+                        isFind: true,
+                        data: target
+                      };
+                    }
+                  });
+                  const pathStr = pathList.join(CommonUtil2.escapeHtml(" - "));
+                  deepNext.next.matchedData.path = pathStr;
+                  searchConfigResult.push(matchedPath);
+                }
+              }
+            }
+          };
+          for (let index = 0; index < content.length; index++) {
+            const leftContentConfigItem = content[index];
+            if (!leftContentConfigItem.forms) {
+              continue;
+            }
+            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
+              continue;
+            }
+            const rightContentConfigList = leftContentConfigItem.forms;
+            if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+              let text = leftContentConfigItem.title;
+              if (typeof text === "function") {
+                text = text();
+              }
+              loopContentConfig(rightContentConfigList, {
+                index,
+                name: text
+              });
+            }
+          }
+          let fragment = document.createDocumentFragment();
+          for (const pathInfo of searchConfigResult) {
+            let $resultItem = createSearchResultItem(pathInfo);
+            fragment.appendChild($resultItem);
+          }
+          clearSearchResult();
+          $searchResultWrapper.append(fragment);
+        };
+        domUtils.on(
+          $searchInput,
+          "input",
+          utils.debounce((evt2) => {
+            utils.preventEvent(evt2);
+            let searchText = domUtils.val($searchInput).trim();
+            if (searchText === "") {
+              clearSearchResult();
+              return;
+            }
+            execSearch(searchText);
+          }, 200)
+        );
+      };
+      let clickElement = null;
+      let isDoubleClick = false;
+      let timer = void 0;
+      domUtils.on(
+        $panel.$shadowRoot,
+        "dblclick",
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+        dbclick_event
+      );
+      domUtils.on(
+        $panel.$shadowRoot,
+        "touchend",
+        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`,
+        (evt, selectorTarget) => {
+          clearTimeout(timer);
+          timer = void 0;
+          if (isDoubleClick && clickElement === selectorTarget) {
+            isDoubleClick = false;
+            dbclick_event(evt);
+          } else {
+            timer = setTimeout(() => {
+              isDoubleClick = false;
+            }, 200);
+            clickElement = selectorTarget;
+            isDoubleClick = true;
+          }
+        },
+        {
+          capture: true
+        }
+      );
+      $panel.$shadowRoot.appendChild(
+        domUtils.createElement("style", {
+          type: "text/css",
+          textContent: (
+            /*css*/
+            `
+					.pops-flashing{
+						animation: double-blink 1.5s ease-in-out;
+					}
+					@keyframes double-blink {
+						 0% {
+							background-color: initial;
+						}
+						25% {
+							background-color: yellow;
+						}
+						50% {
+							background-color: initial;
+						}
+						75% {
+							background-color: yellow;
+						}
+						100% {
+							background-color: initial;
+						}
+					}
+				`
+          )
+        })
+      );
+    },
+    /**
+     * 把key:string[]转为string
+     */
+    transformKey(key) {
+      if (Array.isArray(key)) {
+        const keyArray = key.sort();
+        return JSON.stringify(keyArray);
+      } else {
+        return key;
+      }
     }
   };
   let injectDocumentTime = "";
