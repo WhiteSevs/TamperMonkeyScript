@@ -17,16 +17,20 @@ export declare const PopsSearchSuggestion: {
             /** 是否结果为空 */
             isEmpty: boolean;
         };
+        /** 初始化元素变量 */
+        initEl(): void;
         /**
          * 初始化
          */
         init(parentElement?: HTMLElement): void;
-        /** 初始化元素变量 */
-        initEl(): void;
+        /**
+         * 获取数据
+         */
+        getData(): any[];
         /**
          * 获取显示出搜索建议框的html
          */
-        getSearchSelectElement(): HTMLDivElement;
+        createSearchSelectElement(): HTMLDivElement;
         /** 动态获取CSS */
         getDynamicCSS(): string;
         /**
@@ -34,7 +38,7 @@ export declare const PopsSearchSuggestion: {
          * @param data 当前项的值
          * @param index 当前项的下标
          */
-        getSearchItemLiElement(data: any, index: number): HTMLLIElement;
+        createSearchItemLiElement(data: any, index: number): HTMLLIElement;
         /**
          * 获取data-value值
          * @param data
@@ -42,9 +46,9 @@ export declare const PopsSearchSuggestion: {
         getItemDataValue(data: any): any;
         /**
          * 设置搜索建议框每一项的点击事件
-         * @param liElement
+         * @param $searchItem
          */
-        setSearchItemClickEvent(liElement: HTMLLIElement): void;
+        setSearchItemClickEvent($searchItem: HTMLLIElement): void;
         /**
          * 设置搜索建议框每一项的选中事件
          * @param liElement
@@ -122,6 +126,10 @@ export declare const PopsSearchSuggestion: {
          */
         updateDynamicCSS(): void;
         /**
+         * 数据项的数量改变时调用
+         */
+        updateStyleSheet(): void;
+        /**
          * 更新页面显示的搜索结果
          * @param data
          */
@@ -132,8 +140,9 @@ export declare const PopsSearchSuggestion: {
         clear(): void;
         /**
          * 隐藏搜索建议框
+         * @param useAnimationToHide 是否使用动画隐藏
          */
-        hide(): void;
+        hide(useAnimationToHide?: boolean): void;
         /**
          * 显示搜索建议框
          */

@@ -1621,11 +1621,11 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 	}
 	/**
 	 * 添加className
-	 * @param element 目标元素
+	 * @param $el 目标元素
 	 * @param className className属性
 	 */
-	addClassName(element: Element | undefined | null, className: string) {
-		if (element == null) {
+	addClassName($el: Element | undefined | null, className: string) {
+		if ($el == null) {
 			return;
 		}
 		if (typeof className !== "string") {
@@ -1634,15 +1634,16 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		if (className.trim() === "") {
 			return;
 		}
-		element.classList.add(className);
+		const classNameList = className.split(" ").filter((item) => item.trim() !== "");
+		$el.classList.add(...classNameList);
 	}
 	/**
 	 * 删除className
-	 * @param element 目标元素
+	 * @param $el 目标元素
 	 * @param className className属性
 	 */
-	removeClassName(element: Element | undefined | null, className: string) {
-		if (element == null) {
+	removeClassName($el: Element | undefined | null, className: string) {
+		if ($el == null) {
 			return;
 		}
 		if (typeof className !== "string") {
@@ -1651,15 +1652,16 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		if (className.trim() === "") {
 			return;
 		}
-		element.classList.remove(className);
+		const classNameList = className.split(" ").filter((item) => item.trim() !== "");
+		$el.classList.remove(...classNameList);
 	}
 	/**
 	 * 判断元素是否包含某个className
-	 * @param element 目标元素
+	 * @param $el 目标元素
 	 * @param className className属性
 	 */
-	containsClassName(element: HTMLElement | undefined | null, className: string): boolean {
-		if (element == null) {
+	containsClassName($el: HTMLElement | undefined | null, className: string): boolean {
+		if ($el == null) {
 			return false;
 		}
 		if (typeof className !== "string") {
@@ -1668,7 +1670,7 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 		if (className.trim() === "") {
 			return false;
 		}
-		return element.classList.contains(className);
+		return $el.classList.contains(className);
 	}
 	/**
 	 * 获取元素的样式属性值
@@ -2419,6 +2421,24 @@ class PopsDOMUtils extends PopsDOMUtilsEvent {
 			};
 		}
 		return useChangeColor();
+	}
+	/**
+	 * 获取移动元素的transform偏移
+	 * @param element 元素
+	 */
+	getTransform(element: HTMLElement) {
+		let transform_left = 0;
+		let transform_top = 0;
+		let elementTransform = PopsCore.globalThis.getComputedStyle(element).transform;
+		if (elementTransform !== "none" && elementTransform != null && elementTransform !== "") {
+			let elementTransformSplit = elementTransform.match(/\((.+)\)/)?.[1].split(",")!;
+			transform_left = Math.abs(parseInt(elementTransformSplit[4]));
+			transform_top = Math.abs(parseInt(elementTransformSplit[5]));
+		}
+		return {
+			transformLeft: transform_left,
+			transformTop: transform_top,
+		};
 	}
 }
 

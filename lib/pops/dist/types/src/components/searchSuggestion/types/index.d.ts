@@ -33,7 +33,7 @@ export interface PopsSearchSuggestionDetails<T = any> extends Pick<PopsCommonCon
         /**
          * 点击回调
          */
-        callback?: (event: MouseEvent | PointerEvent, liElement: HTMLLIElement, data: T) => void;
+        callback?: (event: MouseEvent | PointerEvent, $dataItem: HTMLLIElement, dataItem: T) => void;
     };
     /**
      * 自定义的className
@@ -46,9 +46,19 @@ export interface PopsSearchSuggestionDetails<T = any> extends Pick<PopsCommonCon
     isAbsolute?: boolean;
     /**
      * 是否启用动画
-     * @default true
+     * @default false
      */
     isAnimation?: boolean;
+    /**
+     * 是否启用折叠动画
+     * @default true
+     */
+    useFoldAnimation?: boolean;
+    /**
+     * 是否启用箭头
+     * @default false
+     */
+    useArrow?: boolean;
     /**
      * 建议框的宽度
      * @default "250px"
@@ -110,24 +120,25 @@ export interface PopsSearchSuggestionDetails<T = any> extends Pick<PopsCommonCon
      *
      * 它的父元素是一个<li>标签
      */
-    getItemHTML: (item: T) => string;
+    getItemHTML: (dataItem: T) => string;
     /**
      * 当config.target触发input时自动调用该函数来获取数据
      * @param inputValue 当前输入框的值
+     * @param data 当前数据
      */
-    getData?: (inputValue: string) => Promise<T[]> | T[];
+    getData?: (inputValue: string, data: T[]) => Promise<T[]> | T[];
     /**
      * 每一项的点击回调
      * @param event 触发的事件
-     * @param liElement 每一项的元素
-     * @param data config.data的数据
+     * @param $dataItem 每一项的元素
+     * @param dataItem config.data的点击项的值
      */
-    itemClickCallBack?: (event: MouseEvent | PointerEvent, liElement: HTMLLIElement, data: T) => void;
+    itemClickCallBack?: (event: MouseEvent | PointerEvent, $dataItem: HTMLLIElement, dataItem: T) => void;
     /**
      * 键盘的上下键选择的回调
      * @param event 触发的事件
-     * @param liElement 每一项的元素
-     * @param data config.data的数据
+     * @param $dataItem 每一项的元素
+     * @param dataItem config.data的选中项的值
      */
-    selectCallBack?: (event: MouseEvent, liElement: HTMLLIElement, data: T) => void;
+    selectCallBack?: (event: MouseEvent, $dataItem: HTMLLIElement, dataItem: T) => void;
 }

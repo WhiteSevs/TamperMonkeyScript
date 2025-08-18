@@ -1,33 +1,34 @@
 import type { PopsSearchSuggestionDetails } from "./types/index";
 
 export const searchSuggestionConfig = (): DeepRequired<PopsSearchSuggestionDetails> => {
+	const data: any[] = [];
+	for (let index = 0; index < 10; index++) {
+		data.push({
+			value: `测试${index}`,
+			text: `测试${index}-html`,
+		});
+	}
 	return {
 		// @ts-ignore
 		target: null,
 		// @ts-ignore
 		inputTarget: null,
 		selfDocument: document,
-		data: [
-			{
-				value: "数据1",
-				text: "数据1-html",
-			},
-			{
-				value: "数据2",
-				text: "数据2-html",
-			},
-		],
+		data: data,
 		deleteIcon: {
 			enable: true,
-			callback(event, liElement, data) {
-				console.log("删除当前项", [event, liElement, data]);
+			callback(event, liElement, dataItem) {
+				console.log("删除当前项", [event, liElement, dataItem]);
+				data.splice(data.indexOf(dataItem), 1);
 				liElement.remove();
 			},
 		},
 		useShadowRoot: true,
 		className: "",
 		isAbsolute: true,
-		isAnimation: true,
+		isAnimation: false,
+		useFoldAnimation: true,
+		useArrow: false,
 		width: "250px",
 		maxHeight: "300px",
 		followTargetWidth: true,
@@ -42,9 +43,9 @@ export const searchSuggestionConfig = (): DeepRequired<PopsSearchSuggestionDetai
 		getItemHTML(item) {
 			return item.text ?? item;
 		},
-		async getData(value) {
+		async getData(value, data) {
 			console.log("当前输入框的值是：", value);
-			return [];
+			return data.filter((it) => it.value.includes(value));
 		},
 		itemClickCallBack(event, liElement, data) {
 			console.log("item项的点击回调", [event, liElement, data]);

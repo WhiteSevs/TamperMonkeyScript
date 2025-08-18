@@ -522,23 +522,6 @@ export const PopsInstanceUtils = {
 			cursor: "move",
 		});
 		/**
-		 * 获取移动元素的transform偏移
-		 */
-		function getTransform(element: HTMLElement) {
-			let transform_left = 0;
-			let transform_top = 0;
-			let elementTransform = PopsCore.globalThis.getComputedStyle(element).transform;
-			if (elementTransform !== "none" && elementTransform != null && elementTransform !== "") {
-				let elementTransformSplit = elementTransform.match(/\((.+)\)/)?.[1].split(",")!;
-				transform_left = Math.abs(parseInt(elementTransformSplit[4]));
-				transform_top = Math.abs(parseInt(elementTransformSplit[5]));
-			}
-			return {
-				transformLeft: transform_left,
-				transformTop: transform_top,
-			};
-		}
-		/**
 		 * 修改移动的元素的style
 		 */
 		function changeMoveElementStyle(element: HTMLElement) {
@@ -553,7 +536,6 @@ export const PopsInstanceUtils = {
 		/**
 		 * 获取容器的高度、宽度，一般是window为容器
 		 */
-
 		function getContainerWidthOrHeight(container: HTMLElement | Window | typeof globalThis) {
 			container = container ?? globalThis;
 			return {
@@ -580,9 +562,8 @@ export const PopsInstanceUtils = {
 				};
 			}
 		}
-		let transformInfo = getTransform(moveElement);
-		let transformLeft = transformInfo.transformLeft;
-		let transformTop = transformInfo.transformTop;
+		// 获取transform偏移
+		let transformInfo = popsDOMUtils.getTransform(moveElement);
 
 		let resumeMoveElementStyle: Function | null = null;
 
@@ -592,9 +573,7 @@ export const PopsInstanceUtils = {
 				let rect = options.dragElement.getBoundingClientRect();
 				clickElementLeftOffset = event.x - rect.left;
 				clickElementTopOffset = event.y - rect.top;
-				transformInfo = getTransform(moveElement);
-				transformLeft = transformInfo.transformLeft;
-				transformTop = transformInfo.transformTop;
+				transformInfo = popsDOMUtils.getTransform(moveElement);
 				//if (event.nativeEvent.offsetX) {
 				//  clickElementLeftOffset = parseInt(event.nativeEvent.offsetX);
 				//} else {
@@ -609,9 +588,9 @@ export const PopsInstanceUtils = {
 			}
 
 			/** 当前移动的left偏移 */
-			let currentMoveLeftOffset = event.x - clickElementLeftOffset + transformLeft;
+			let currentMoveLeftOffset = event.x - clickElementLeftOffset + transformInfo.transformLeft;
 			/** 当前移动的top偏移 */
-			let currentMoveTopOffset = event.y - clickElementTopOffset + transformTop;
+			let currentMoveTopOffset = event.y - clickElementTopOffset + transformInfo.transformTop;
 			/* 拖拽移动 */
 			if (event.phase === "move") {
 				if (options.limit) {
@@ -620,13 +599,13 @@ export const PopsInstanceUtils = {
 					let maxLeftOffset =
 						getContainerWidthOrHeight(options.container!).width -
 						popsDOMUtils.width(moveElement) +
-						transformLeft;
+						transformInfo.transformLeft;
 					let { left: minLeftOffset, top: minTopOffset } = getContainerTopOrLeft(options.container!);
 					/* top偏移的最大值 */
 					let maxTopOffset =
 						getContainerWidthOrHeight(options.container!).height -
 						popsDOMUtils.height(moveElement) +
-						transformTop;
+						transformInfo.transformTop;
 					if (currentMoveLeftOffset > maxLeftOffset) {
 						/* 不允许超过容器的最大宽度 */
 						currentMoveLeftOffset = maxLeftOffset;
@@ -635,18 +614,21 @@ export const PopsInstanceUtils = {
 						/* 不允许超过容器的最大高度 */
 						currentMoveTopOffset = maxTopOffset;
 					}
-					if (currentMoveLeftOffset - options.extraDistance * 2 < minLeftOffset + transformLeft) {
+					if (
+						currentMoveLeftOffset - options.extraDistance * 2 <
+						minLeftOffset + transformInfo.transformLeft
+					) {
 						/* 不允许left偏移小于容器最小值 */
-						currentMoveLeftOffset = minLeftOffset + transformLeft;
+						currentMoveLeftOffset = minLeftOffset + transformInfo.transformLeft;
 						/* 最左边 +额外距离 */
 						currentMoveLeftOffset += options.extraDistance;
 					} else {
 						/* 最右边 -额外距离 */
 						currentMoveLeftOffset -= options.extraDistance;
 					}
-					if (currentMoveTopOffset - options.extraDistance * 2 < minTopOffset + transformTop) {
+					if (currentMoveTopOffset - options.extraDistance * 2 < minTopOffset + transformInfo.transformTop) {
 						/* 不允许top偏移小于容器最小值 */
-						currentMoveTopOffset = minTopOffset + transformTop;
+						currentMoveTopOffset = minTopOffset + transformInfo.transformTop;
 						/* 最上面 +额外距离 */
 						currentMoveTopOffset += options.extraDistance;
 					} else {

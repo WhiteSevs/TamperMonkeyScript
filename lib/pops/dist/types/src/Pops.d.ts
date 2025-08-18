@@ -112,9 +112,9 @@ declare class Pops {
             height(element: HTMLElement | string | Window | Document | typeof globalThis, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             outerWidth(element: HTMLElement | string | Window | Document, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
             outerHeight(element: HTMLElement | string | Window, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
-            addClassName(element: Element | undefined | null, className: string): void;
-            removeClassName(element: Element | undefined | null, className: string): void;
-            containsClassName(element: HTMLElement | undefined | null, className: string): boolean;
+            addClassName($el: Element | undefined | null, className: string): void;
+            removeClassName($el: Element | undefined | null, className: string): void;
+            containsClassName($el: HTMLElement | undefined | null, className: string): boolean;
             css(element: HTMLElement | string, property: keyof CSSStyleDeclaration): string;
             css(element: HTMLElement | string, property: string): string;
             css(element: HTMLElement | string, property: keyof CSSStyleDeclaration & string, value: string | number): string;
@@ -146,6 +146,10 @@ declare class Pops {
                 rgbToHex: (r: any, g: any, b: any) => string;
                 getDarkColor: (color: string, level: number) => string;
                 getLightColor: (color: string, level: number) => string;
+            };
+            getTransform(element: HTMLElement): {
+                transformLeft: number;
+                transformTop: number;
             };
             on<T extends import("./types/PopsDOMUtilsEventType").PopsDOMUtils_EventType>(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType: T | T[], callback: (this: HTMLElement, event: import("./types/PopsDOMUtilsEventType").PopsDOMUtils_Event[T]) => void, option?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOption | boolean): void;
             on<T extends Event>(element: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsElementEventType, eventType: string | string[], callback: (this: HTMLElement, event: T) => void, option?: import("./types/PopsDOMUtilsEventType").PopsDOMUtilsEventListenerOption | boolean): void;
@@ -21408,13 +21412,14 @@ declare class Pops {
         $data: {
             isEmpty: boolean;
         };
-        init(parentElement?: HTMLElement): void;
         initEl(): void;
-        getSearchSelectElement(): HTMLDivElement;
+        init(parentElement?: HTMLElement): void;
+        getData(): any[];
+        createSearchSelectElement(): HTMLDivElement;
         getDynamicCSS(): string;
-        getSearchItemLiElement(data: any, index: number): HTMLLIElement;
+        createSearchItemLiElement(data: any, index: number): HTMLLIElement;
         getItemDataValue(data: any): any;
-        setSearchItemClickEvent(liElement: HTMLLIElement): void;
+        setSearchItemClickEvent($searchItem: HTMLLIElement): void;
         setSearchItemSelectEvent(liElement: HTMLLIElement): void;
         setInputChangeEvent(option?: AddEventListenerOptions): void;
         removeInputChangeEvent(option?: AddEventListenerOptions): void;
@@ -21433,9 +21438,10 @@ declare class Pops {
         changeHintULElementPosition(target?: HTMLElement): void;
         changeHintULElementWidth(target?: HTMLElement): void;
         updateDynamicCSS(): void;
+        updateStyleSheet(): void;
         update(data?: any[]): void;
         clear(): void;
-        hide(): void;
+        hide(useAnimationToHide?: boolean): void;
         show(): void;
     };
 }

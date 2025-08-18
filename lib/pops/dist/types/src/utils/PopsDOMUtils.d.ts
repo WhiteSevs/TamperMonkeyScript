@@ -499,22 +499,22 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
     outerHeight(element: HTMLElement | string | Window, isShow?: boolean, parent?: HTMLElement | ShadowRoot): number;
     /**
      * 添加className
-     * @param element 目标元素
+     * @param $el 目标元素
      * @param className className属性
      */
-    addClassName(element: Element | undefined | null, className: string): void;
+    addClassName($el: Element | undefined | null, className: string): void;
     /**
      * 删除className
-     * @param element 目标元素
+     * @param $el 目标元素
      * @param className className属性
      */
-    removeClassName(element: Element | undefined | null, className: string): void;
+    removeClassName($el: Element | undefined | null, className: string): void;
     /**
      * 判断元素是否包含某个className
-     * @param element 目标元素
+     * @param $el 目标元素
      * @param className className属性
      */
-    containsClassName(element: HTMLElement | undefined | null, className: string): boolean;
+    containsClassName($el: HTMLElement | undefined | null, className: string): boolean;
     /**
      * 获取元素的样式属性值
      * @param element 目标元素
@@ -741,6 +741,14 @@ declare class PopsDOMUtils extends PopsDOMUtilsEvent {
         rgbToHex: (r: any, g: any, b: any) => string;
         getDarkColor: (color: string, level: number) => string;
         getLightColor: (color: string, level: number) => string;
+    };
+    /**
+     * 获取移动元素的transform偏移
+     * @param element 元素
+     */
+    getTransform(element: HTMLElement): {
+        transformLeft: number;
+        transformTop: number;
     };
 }
 declare const popsDOMUtils: PopsDOMUtils;
