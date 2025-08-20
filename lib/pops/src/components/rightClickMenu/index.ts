@@ -504,28 +504,42 @@ export const PopsRightClickMenu = {
 						popsDOMUtils.addClassName(menuLiElement, `pops-${popsType}-item`);
 					}
 					/* 鼠标|触摸 移入事件 */
-					function liElementHoverEvent() {
+					// 在移动端会先触发touchstart再然后mouseenter
+					let isTriggerTouchEvent = false;
+					/**
+					 * 鼠标|触摸 移入事件
+					 */
+					function liElementHoverEvent(event: MouseEvent | TouchEvent) {
+						if (event.type === "touchstart") {
+							isTriggerTouchEvent = true;
+						}
+						if (isTriggerTouchEvent && event.type === "mouseenter") {
+							return;
+						}
 						Array.from(menuULElement.children as any as HTMLLIElement[]).forEach((liElement) => {
 							popsDOMUtils.removeClassName(liElement, `pops-${popsType}-is-visited`);
-							if (!(liElement as any).__menuData__) {
+							let li_menuData = Reflect.get(liElement, "__menuData__");
+							if (!li_menuData) {
 								return;
 							}
 							function removeElement(element: HTMLElement) {
-								element.querySelectorAll<HTMLLIElement>("ul li").forEach((ele) => {
-									if ((ele as any)?.__menuData__?.child) {
-										removeElement((ele as any).__menuData__.child);
+								element.querySelectorAll<HTMLLIElement>("ul li").forEach(($ele) => {
+									let menuData = Reflect.get($ele, "__menuData__");
+									if (menuData?.child) {
+										removeElement(menuData.child);
 									}
 								});
 								element.remove();
 							}
 							/* 遍历根元素的上的__menuData__.child，判断 */
-							removeElement((liElement as any).__menuData__.child);
+							removeElement(li_menuData.child);
 						});
 						/* 清理根元素上的children不存在于页面中的元素 */
-						for (let index = 0; index < (rootElement as any).__menuData__.child.length; index++) {
-							let element = (rootElement as any).__menuData__.child[index];
+						let root_menuData = Reflect.get(rootElement, "__menuData__");
+						for (let index = 0; index < root_menuData.child.length; index++) {
+							let element = root_menuData.child[index];
 							if (!$shadowRoot.contains(element)) {
-								(rootElement as any).__menuData__.child.splice(index, 1);
+								root_menuData.child.splice(index, 1);
 								index--;
 							}
 						}
@@ -545,14 +559,13 @@ export const PopsRightClickMenu = {
 							menuLiElement,
 							menuListenerRootNode
 						);
-						(menuLiElement as any).__menuData__ = {
+						Reflect.set(menuLiElement, "__menuData__", {
 							child: childMenu,
-						};
+						});
 					}
 					/**
 					 * 点击事件
 					 * @param clickEvent
-					 * @returns
 					 */
 					async function liElementClickEvent(clickEvent: MouseEvent | PointerEvent) {
 						if (typeof item.callback === "function") {
@@ -579,9 +592,9 @@ export const PopsRightClickMenu = {
 						});
 						PopsContextMenu.closeAllMenu(rootElement);
 					}
-					popsDOMUtils.on(menuLiElement, "mouseenter touchstart", void 0, liElementHoverEvent);
+					popsDOMUtils.on(menuLiElement, "mouseenter touchstart", liElementHoverEvent);
 					/* 项-点击事件 */
-					popsDOMUtils.on(menuLiElement, "click", void 0, liElementClickEvent);
+					popsDOMUtils.on(menuLiElement, "click", liElementClickEvent);
 					menuULElement.appendChild(menuLiElement);
 				});
 			},
