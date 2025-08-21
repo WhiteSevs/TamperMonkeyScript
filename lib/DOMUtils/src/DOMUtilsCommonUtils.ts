@@ -7,7 +7,7 @@ import {
 } from "worker-timers";
 
 /** 通用工具类 */
-const DOMUtilsCommonUtils = {
+export const DOMUtilsCommonUtils = {
 	windowApi: new WindowApi({
 		document: document,
 		window: window,
@@ -201,4 +201,3 @@ const DOMUtilsCommonUtils = {
 		return ["webkitTransitionEnd", "mozTransitionEnd", "MSTransitionEnd", "otransitionend", "transitionend"];
 	},
 };
-export { DOMUtilsCommonUtils };

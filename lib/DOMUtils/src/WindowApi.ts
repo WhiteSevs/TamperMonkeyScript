@@ -27,8 +27,7 @@ export class WindowApi {
 		if (!option) {
 			option = Object.assign({}, this.defaultApi);
 		}
-		// @ts-ignore
-		this.api = Object.assign({}, option);
+		this.api = Object.assign({}, option as Required<WindowApiOption>);
 	}
 	get document() {
 		return this.api.document;
