@@ -448,6 +448,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									"例如：相关搜索、AI搜索、合集...等"
 								),
 								UISwitch("【屏蔽】点击推荐", "dy-video-blockClickRecommend", false, void 0, "屏蔽元素"),
+								UISwitch(
+									"【屏蔽】及时接收作品更新提醒",
+									"dy-video-blockClickUpdateReminder",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
 							],
 						},
 						{

@@ -1,5 +1,5 @@
 import { Panel } from "@components/setting/panel";
-import { addStyle, log } from "@/env";
+import { $$, addStyle, DOMUtils, log, utils } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { DouYinVideoPlayer } from "./DouYinVideoPlayer";
@@ -293,6 +293,9 @@ export const DouYinVideoBlock = {
 		Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
 			return this.blockClickRecommend();
 		});
+		Panel.execMenuOnce("dy-video-blockClickUpdateReminder", () => {
+			return this.blockClickUpdateReminder();
+		});
 		DouYinVideoBlock_BottomToolbar.init();
 		DouYinVideoBlock_RightToolbar.init();
 		DouYinVideoBlock_Comment.init();
@@ -387,5 +390,26 @@ export const DouYinVideoBlock = {
 	blockClickRecommend() {
 		log.info(`【屏蔽】点击推荐`);
 		return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
+	},
+	/**
+	 * 【屏蔽】及时接收作品更新提醒
+	 */
+	blockClickUpdateReminder() {
+		log.info(`【屏蔽】及时接收作品更新提醒`);
+		let lockFn = new utils.LockFunction(() => {
+			let $reminder = $$<HTMLElement>(
+				".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')"
+			);
+			DOMUtils.remove($reminder);
+		});
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			callback: () => {
+				lockFn.run();
+			},
+		});
 	},
 };
