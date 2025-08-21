@@ -7,4 +7,8 @@ export type WindowApiOption = {
 	globalThis?: typeof globalThis | Window;
 	self?: Window & typeof globalThis;
 	top: Window;
+	setTimeout: typeof setTimeout;
+	clearTimeout: typeof clearTimeout;
+	setInterval: typeof setInterval;
+	clearInterval: typeof clearInterval;
 };

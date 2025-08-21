@@ -12,6 +12,10 @@ const DOMUtilsCommonUtils = {
 		document: document,
 		window: window,
 		top: top!,
+		setTimeout: setTimeout,
+		clearTimeout: clearTimeout,
+		setInterval: setInterval,
+		clearInterval: clearInterval,
 	}),
 	/**
 	 * 判断元素是否已显示或已连接
@@ -142,7 +146,7 @@ const DOMUtilsCommonUtils = {
 		try {
 			return WorkerSetTimeout(callback, timeout);
 		} catch (error) {
-			return globalThis.setTimeout(callback, timeout);
+			return this.windowApi.setTimeout(callback, timeout);
 		}
 	},
 	/**
@@ -155,7 +159,7 @@ const DOMUtilsCommonUtils = {
 			}
 		} catch (error) {
 		} finally {
-			globalThis.clearTimeout(timeId);
+			this.windowApi.clearTimeout(timeId);
 		}
 	},
 	/**
@@ -165,7 +169,7 @@ const DOMUtilsCommonUtils = {
 		try {
 			return WorkerSetInterval(callback, timeout);
 		} catch (error) {
-			return globalThis.setInterval(callback, timeout);
+			return this.windowApi.setInterval(callback, timeout);
 		}
 	},
 	/**
@@ -178,7 +182,7 @@ const DOMUtilsCommonUtils = {
 			}
 		} catch (error) {
 		} finally {
-			globalThis.clearInterval(timeId);
+			this.windowApi.clearInterval(timeId);
 		}
 	},
 	/**
