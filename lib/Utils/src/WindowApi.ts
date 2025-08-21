@@ -8,6 +8,10 @@ export class WindowApi {
 		globalThis: globalThis,
 		self: self,
 		top: top!,
+		setTimeout: globalThis.setTimeout,
+		setInterval: globalThis.setInterval,
+		clearTimeout: globalThis.clearTimeout,
+		clearInterval: globalThis.clearInterval,
 	};
 	/** 使用的配置 */
 	private api: Required<WindowApiOption>;
@@ -39,5 +43,17 @@ export class WindowApi {
 	}
 	get top() {
 		return this.api.top;
+	}
+	get setTimeout() {
+		return this.api.setTimeout;
+	}
+	get setInterval() {
+		return this.api.setInterval;
+	}
+	get clearTimeout() {
+		return this.api.clearTimeout;
+	}
+	get clearInterval() {
+		return this.api.clearInterval;
 	}
 }

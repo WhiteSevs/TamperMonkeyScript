@@ -35,7 +35,7 @@ class Utils {
 		this.windowApi = new WindowApi(option);
 	}
 	/** 版本号 */
-	version = "2025.8.11";
+	version = "2025.8.21";
 	/**
 	 * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
 	 * @param cssText css字符串
@@ -4698,7 +4698,7 @@ class Utils {
 		try {
 			return WorkerSetTimeout(callback, timeout);
 		} catch (error) {
-			return globalThis.setTimeout(callback, timeout);
+			return this.windowApi.setTimeout(callback, timeout);
 		}
 	}
 	/**
@@ -4712,7 +4712,7 @@ class Utils {
 			}
 		} catch (error) {
 		} finally {
-			globalThis.clearTimeout(timeId);
+			this.windowApi.clearTimeout(timeId);
 		}
 	}
 	/**
@@ -4724,7 +4724,7 @@ class Utils {
 		try {
 			return WorkerSetInterval(callback, timeout);
 		} catch (error) {
-			return globalThis.setInterval(callback, timeout);
+			return this.windowApi.setInterval(callback, timeout);
 		}
 	}
 	/**
@@ -4738,7 +4738,7 @@ class Utils {
 			}
 		} catch (error) {
 		} finally {
-			globalThis.clearInterval(timeId);
+			this.windowApi.clearInterval(timeId);
 		}
 	}
 	/**
