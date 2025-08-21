@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2025.8.18
+// @version            2025.8.21
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,12 +13,12 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.3/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@25.3.6/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@25.4.0/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.4.1/dist/otpauth.umd.js
 // @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect            greasyfork.org
@@ -36,8 +36,6 @@
 // @grant              unsafeWindow
 // @run-at             document-start
 // ==/UserScript==
-
-(t=>{function d(n){if(typeof n!="string")throw new TypeError("cssText must be a string");let e=document.createElement("style");return e.setAttribute("type","text/css"),e.innerHTML=n,document.head?document.head.appendChild(e):document.body?document.body.appendChild(e):document.documentElement.childNodes.length===0?document.documentElement.appendChild(e):document.documentElement.insertBefore(e,document.documentElement.childNodes[0]),e}if(typeof GM_addStyle=="function"){GM_addStyle(t);return}d(t)})(" .whitesev-hide{display:none}.whitesev-hide-important{display:none!important} ");
 
 (function (v, O, it, yt, r, Kt, Rt) {
 	'use strict';
@@ -60,6 +58,10 @@
 	}
 
 	const Kt__namespace = /*#__PURE__*/_interopNamespaceDefault(Kt);
+
+	const o=new Set;const i = async t=>{o.has(t)||o.add(t);};
+
+	i(" .whitesev-hide{display:none}.whitesev-hide-important{display:none!important} ");
 
 	var Lt=typeof GM_deleteValue<"u"?GM_deleteValue:void 0,Pt=typeof GM_getResourceText<"u"?GM_getResourceText:void 0,_=typeof GM_getValue<"u"?GM_getValue:void 0,ft=typeof GM_info<"u"?GM_info:void 0,Xt=typeof GM_registerMenuCommand<"u"?GM_registerMenuCommand:void 0,Z=typeof GM_setValue<"u"?GM_setValue:void 0,Ht=typeof GM_unregisterMenuCommand<"u"?GM_unregisterMenuCommand:void 0,qt=typeof GM_xmlhttpRequest<"u"?GM_xmlhttpRequest:void 0,X=typeof unsafeWindow<"u"?unsafeWindow:void 0,Gt=window;const ot={waitRemove(...t){t.forEach(e=>{typeof e=="string"&&g.waitNodeList(e).then(A=>{A.forEach(n=>n.remove());});});},addBlockCSS(...t){let e=[];if(t.length!==0&&!(t.length===1&&typeof t[0]=="string"&&t[0].trim()===""))return t.forEach(A=>{Array.isArray(A)?e=e.concat(A):e.push(A);}),M(`${e.join(`,
 `)}{display: none !important;}`)},setGMResourceCSS(t){let e=typeof Pt=="function"?Pt(t.keyName):null;typeof e=="string"&&e?M(e):ot.loadStyleLink(t.url);},async loadStyleLink(t){let e=document.createElement("link");e.rel="stylesheet",e.type="text/css",e.href=t,O.ready(()=>{document.head.appendChild(e);});},async loadScript(t){let e=document.createElement("script");return e.src=t,new Promise(A=>{e.onload=()=>{A(null);},(document.head||document.documentElement).appendChild(e);})},fixUrl(t){return t=t.trim(),t.match(/^http(s|):\/\//i)?t:t.startsWith("//")?(t.startsWith("///")||(t=window.location.protocol+t),t):(t.startsWith("/")||(t+="/"),t=window.location.origin+t,t)},fixHttps(t){if(t.startsWith("https://")||!t.startsWith("http://"))return t;let e=new URL(t);return e.protocol="https:",e.toString()},lockScroll(...t){let e=document.createElement("style");e.innerHTML=`

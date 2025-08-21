@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.18
+// @version      2025.8.21
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -4658,7 +4658,7 @@
   }
   // @license      GNU LGPL-3.0
   const ajaxHooker = function() {
-    const version = "1.4.7";
+    const version = "1.4.8";
     const hookInst = {
       hookFns: [],
       filters: []
@@ -4776,8 +4776,7 @@
           win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
             if (this.shouldFilter(filters)) return;
             hookFns.forEach((fn) => {
-              if (getType(fn) === "[object Function]")
-                catchError(fn, this.request);
+              if (getType(fn) === "[object Function]") catchError(fn, this.request);
             });
             for (const key in this.request) {
               if (isThenable(this.request[key])) this._recoverRequestKey(key);
@@ -4790,21 +4789,18 @@
         win.__ajaxHooker.hookInsts.forEach(({ hookFns, filters }) => {
           if (this.shouldFilter(filters)) return;
           promises.push(
-            Promise.all(hookFns.map((fn) => catchError(fn, this.request))).then(
-              () => {
-                const requestKeys = [];
-                for (const key in this.request)
-                  !ignoreKeys.has(key) && requestKeys.push(key);
-                return Promise.all(
-                  requestKeys.map(
-                    (key) => Promise.resolve(this.request[key]).then(
-                      (val) => this.request[key] = val,
-                      () => this._recoverRequestKey(key)
-                    )
+            Promise.all(hookFns.map((fn) => catchError(fn, this.request))).then(() => {
+              const requestKeys = [];
+              for (const key in this.request) !ignoreKeys.has(key) && requestKeys.push(key);
+              return Promise.all(
+                requestKeys.map(
+                  (key) => Promise.resolve(this.request[key]).then(
+                    (val) => this.request[key] = val,
+                    () => this._recoverRequestKey(key)
                   )
-                );
-              }
-            )
+                )
+              );
+            })
           );
         });
         return Promise.all(promises);
@@ -4849,19 +4845,16 @@
           if (prop in ah.proxyProps) {
             const pDescriptor = ah.proxyProps[prop];
             if ("get" in pDescriptor) return pDescriptor.get();
-            if (typeof pDescriptor.value === "function")
-              return pDescriptor.value.bind(ah);
+            if (typeof pDescriptor.value === "function") return pDescriptor.value.bind(ah);
             return pDescriptor.value;
           }
-          if (typeof target[prop] === "function")
-            return target[prop].bind(target);
+          if (typeof target[prop] === "function") return target[prop].bind(target);
         }
         return target[prop];
       },
       set(target, prop, value) {
         const descriptor = getDescriptor(target, prop);
-        if (descriptor && !descriptor.configurable && !descriptor.writable && !descriptor.set)
-          return true;
+        if (descriptor && !descriptor.configurable && !descriptor.writable && !descriptor.set) return true;
         const ah = target.__ajaxHooker;
         if (ah && ah.proxyProps && prop in ah.proxyProps) {
           const pDescriptor = ah.proxyProps[prop];
@@ -4929,13 +4922,7 @@
             set: (val) => ah.addEvent(onEvt, val)
           };
         }
-        for (const method of [
-          "setRequestHeader",
-          "addEventListener",
-          "removeEventListener",
-          "open",
-          "send"
-        ]) {
+        for (const method of ["setRequestHeader", "addEventListener", "removeEventListener", "open", "send"]) {
           ah.proxyProps[method] = { value: ah[method] };
         }
       }
@@ -4946,8 +4933,7 @@
         if (type.startsWith("on")) {
           this.proxyEvents[type] = typeof event === "function" ? event : null;
         } else {
-          if (typeof event === "object" && event !== null)
-            event = event.handleEvent;
+          if (typeof event === "object" && event !== null) event = event.handleEvent;
           if (typeof event !== "function") return;
           this.proxyEvents[type] = this.proxyEvents[type] || /* @__PURE__ */ new Set();
           this.proxyEvents[type].add(event);
@@ -4957,8 +4943,7 @@
         if (type.startsWith("on")) {
           this.proxyEvents[type] = null;
         } else {
-          if (typeof event === "object" && event !== null)
-            event = event.handleEvent;
+          if (typeof event === "object" && event !== null) event = event.handleEvent;
           this.proxyEvents[type] && this.proxyEvents[type].delete(event);
         }
       }
@@ -4968,9 +4953,7 @@
         defineProp(e2, "currentTarget", () => this.proxyXhr);
         defineProp(e2, "srcElement", () => this.proxyXhr);
         this.proxyEvents[e2.type] && this.proxyEvents[e2.type].forEach((fn) => {
-          this.resThenable.then(
-            () => !e2.ajaxHooker_isStopped && fn.call(this.proxyXhr, e2)
-          );
+          this.resThenable.then(() => !e2.ajaxHooker_isStopped && fn.call(this.proxyXhr, e2));
         });
         if (e2.ajaxHooker_isStopped) return;
         const onEvent = this.proxyEvents["on" + e2.type];
@@ -5009,13 +4992,7 @@
         };
         this.openArgs = args;
         this.resThenable = new SyncThenable();
-        [
-          "responseURL",
-          "readyState",
-          "status",
-          "statusText",
-          ...xhrResponses
-        ].forEach((key) => {
+        ["responseURL", "readyState", "status", "statusText", ...xhrResponses].forEach((key) => {
           delete this.proxyProps[key];
         });
         return this.originalXhr.open(method, url, async, ...args);
@@ -5052,15 +5029,12 @@
     }
     function fakeXHR() {
       const xhr = new winAh.realXHR();
-      if ("__ajaxHooker" in xhr)
-        console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
+      if ("__ajaxHooker" in xhr) console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
       xhr.__ajaxHooker = new XhrHooker(xhr);
       return xhr.__ajaxHooker.proxyXhr;
     }
     fakeXHR.prototype = win.XMLHttpRequest.prototype;
-    Object.keys(win.XMLHttpRequest).forEach(
-      (key) => fakeXHR[key] = win.XMLHttpRequest[key]
-    );
+    Object.keys(win.XMLHttpRequest).forEach((key) => fakeXHR[key] = win.XMLHttpRequest[key]);
     function fakeFetch(url, options = {}) {
       if (!url) return winAh.realFetch.call(win, url, options);
       return new Promise(async (resolve, reject) => {
@@ -5126,15 +5100,19 @@
               status: res.status,
               responseHeaders: parseHeaders(res.headers)
             };
-            fetchResponses.forEach(
-              (key) => res[key] = function() {
-                if (key in response) return Promise.resolve(response[key]);
-                return resProto[key].call(this).then((val) => {
-                  response[key] = val;
-                  return req.waitForResponseKeys(response).then(() => key in response ? response[key] : val);
-                });
-              }
-            );
+            if (res.ok) {
+              fetchResponses.forEach(
+                (key) => res[key] = function() {
+                  if (key in response) return Promise.resolve(response[key]);
+                  return resProto[key].call(this).then((val) => {
+                    response[key] = val;
+                    return req.waitForResponseKeys(response).then(() => key in response ? response[key] : val);
+                  });
+                }
+              );
+            } else {
+              catchError(request.response, response);
+            }
           }
           resolve(res);
         }, reject);
@@ -5156,8 +5134,7 @@
       realFetchClone: resProto.clone,
       hookInsts: /* @__PURE__ */ new Set()
     };
-    if (winAh.version !== version)
-      console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
+    if (winAh.version !== version) console.warn("检测到不同版本的ajaxHooker，可能发生冲突！");
     win.XMLHttpRequest = winAh.fakeXHR;
     win.fetch = winAh.fakeFetch;
     resProto.clone = winAh.fakeFetchClone;
@@ -5177,16 +5154,12 @@
       }
     }
     function hookSecsdk(csrf) {
-      Object.setPrototypeOf(
-        csrf.nativeXMLHttpRequestSetRequestHeader,
-        AHFunction.prototype
-      );
+      Object.setPrototypeOf(csrf.nativeXMLHttpRequestSetRequestHeader, AHFunction.prototype);
       Object.setPrototypeOf(csrf.nativeXMLHttpRequestOpen, AHFunction.prototype);
       Object.setPrototypeOf(csrf.nativeXMLHttpRequestSend, AHFunction.prototype);
     }
     if (win.secsdk) {
-      if (win.secsdk.csrf && win.secsdk.csrf.nativeXMLHttpRequestOpen)
-        hookSecsdk(win.secsdk.csrf);
+      if (win.secsdk.csrf && win.secsdk.csrf.nativeXMLHttpRequestOpen) hookSecsdk(win.secsdk.csrf);
     } else {
       defineProp(win, "secsdk", emptyFn, (secsdk) => {
         delete win.secsdk;
@@ -8022,7 +7995,11 @@
       window,
       globalThis,
       self,
-      top
+      top,
+      setTimeout: globalThis.setTimeout,
+      setInterval: globalThis.setInterval,
+      clearTimeout: globalThis.clearTimeout,
+      clearInterval: globalThis.clearInterval
     };
     /** 使用的配置 */
     api;
@@ -8054,6 +8031,18 @@
     }
     get top() {
       return this.api.top;
+    }
+    get setTimeout() {
+      return this.api.setTimeout;
+    }
+    get setInterval() {
+      return this.api.setInterval;
+    }
+    get clearTimeout() {
+      return this.api.clearTimeout;
+    }
+    get clearInterval() {
+      return this.api.clearInterval;
     }
   }
   const VueUtils = {
@@ -8484,7 +8473,7 @@
       return broker;
     };
   };
-  const worker$1 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,(()=>{n(),t.close(),u.delete(o)})),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise((e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])}))){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},f=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise((t=>{e.set(a,[r(n,u,i,e,t,a),t])}))},m=new Map,h=d(globalThis.clearTimeout,m),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=f(m,performance,globalThis.setTimeout,w),T=f(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
+  const worker$1 = `(()=>{var e={455:function(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,()=>{n(),t.close(),u.delete(o)}),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise(e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])})){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},f=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise(t=>{e.set(a,[r(n,u,i,e,t,a),t])})},m=new Map,h=d(globalThis.clearTimeout,m),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=f(m,performance,globalThis.setTimeout,w),T=f(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`;
   const loadOrReturnBroker$1 = createLoadOrReturnBroker$1(load$1, worker$1);
   const clearInterval$2 = (timerId) => loadOrReturnBroker$1().clearInterval(timerId);
   const clearTimeout$1$1 = (timerId) => loadOrReturnBroker$1().clearTimeout(timerId);
@@ -9005,7 +8994,7 @@ ${err.stack}`);
       this.windowApi = new WindowApi2(option);
     }
     /** 版本号 */
-    version = "2025.8.11";
+    version = "2025.8.21";
     addStyle(cssText) {
       if (typeof cssText !== "string") {
         throw new Error("Utils.addStyle 参数cssText 必须为String类型");
@@ -11772,7 +11761,7 @@ ${err.stack}`);
       try {
         return setTimeout$1$1(callback, timeout);
       } catch (error) {
-        return globalThis.setTimeout(callback, timeout);
+        return this.windowApi.setTimeout(callback, timeout);
       }
     }
     /**
@@ -11786,7 +11775,7 @@ ${err.stack}`);
         }
       } catch (error) {
       } finally {
-        globalThis.clearTimeout(timeId);
+        this.windowApi.clearTimeout(timeId);
       }
     }
     /**
@@ -11798,7 +11787,7 @@ ${err.stack}`);
       try {
         return setInterval$2(callback, timeout);
       } catch (error) {
-        return globalThis.setInterval(callback, timeout);
+        return this.windowApi.setInterval(callback, timeout);
       }
     }
     /**
@@ -11812,7 +11801,7 @@ ${err.stack}`);
         }
       } catch (error) {
       } finally {
-        globalThis.clearInterval(timeId);
+        this.windowApi.clearInterval(timeId);
       }
     }
     /**
@@ -13786,11 +13775,11 @@ ${err.stack}`);
     }
     /**
      * 添加className
-     * @param element 目标元素
+     * @param $el 目标元素
      * @param className className属性
      */
-    addClassName(element, className) {
-      if (element == null) {
+    addClassName($el, className) {
+      if ($el == null) {
         return;
       }
       if (typeof className !== "string") {
@@ -13799,15 +13788,16 @@ ${err.stack}`);
       if (className.trim() === "") {
         return;
       }
-      element.classList.add(className);
+      const classNameList = className.split(" ").filter((item) => item.trim() !== "");
+      $el.classList.add(...classNameList);
     }
     /**
      * 删除className
-     * @param element 目标元素
+     * @param $el 目标元素
      * @param className className属性
      */
-    removeClassName(element, className) {
-      if (element == null) {
+    removeClassName($el, className) {
+      if ($el == null) {
         return;
       }
       if (typeof className !== "string") {
@@ -13816,15 +13806,16 @@ ${err.stack}`);
       if (className.trim() === "") {
         return;
       }
-      element.classList.remove(className);
+      const classNameList = className.split(" ").filter((item) => item.trim() !== "");
+      $el.classList.remove(...classNameList);
     }
     /**
      * 判断元素是否包含某个className
-     * @param element 目标元素
+     * @param $el 目标元素
      * @param className className属性
      */
-    containsClassName(element, className) {
-      if (element == null) {
+    containsClassName($el, className) {
+      if ($el == null) {
         return false;
       }
       if (typeof className !== "string") {
@@ -13833,7 +13824,7 @@ ${err.stack}`);
       if (className.trim() === "") {
         return false;
       }
-      return element.classList.contains(className);
+      return $el.classList.contains(className);
     }
     css(element, property, value) {
       function handlePixe(propertyName, propertyValue) {
@@ -14341,6 +14332,24 @@ ${err.stack}`);
         };
       }
       return useChangeColor();
+    }
+    /**
+     * 获取移动元素的transform偏移
+     * @param element 元素
+     */
+    getTransform(element) {
+      let transform_left = 0;
+      let transform_top = 0;
+      let elementTransform = PopsCore.globalThis.getComputedStyle(element).transform;
+      if (elementTransform !== "none" && elementTransform != null && elementTransform !== "") {
+        let elementTransformSplit = elementTransform.match(/\((.+)\)/)?.[1].split(",");
+        transform_left = Math.abs(parseInt(elementTransformSplit[4]));
+        transform_top = Math.abs(parseInt(elementTransformSplit[5]));
+      }
+      return {
+        transformLeft: transform_left,
+        transformTop: transform_top
+      };
     }
   }
   const popsDOMUtils = new PopsDOMUtils();
@@ -15037,20 +15046,6 @@ ${err.stack}`);
       popsDOMUtils.css(options.dragElement, {
         cursor: "move"
       });
-      function getTransform(element) {
-        let transform_left = 0;
-        let transform_top = 0;
-        let elementTransform = PopsCore.globalThis.getComputedStyle(element).transform;
-        if (elementTransform !== "none" && elementTransform != null && elementTransform !== "") {
-          let elementTransformSplit = elementTransform.match(/\((.+)\)/)?.[1].split(",");
-          transform_left = Math.abs(parseInt(elementTransformSplit[4]));
-          transform_top = Math.abs(parseInt(elementTransformSplit[5]));
-        }
-        return {
-          transformLeft: transform_left,
-          transformTop: transform_top
-        };
-      }
       function changeMoveElementStyle(element) {
         let old_transitionDuration = element.style.transitionDuration;
         if (globalThis.getComputedStyle(element).transitionDuration !== "0s") {
@@ -15082,9 +15077,7 @@ ${err.stack}`);
           };
         }
       }
-      let transformInfo = getTransform(moveElement);
-      let transformLeft = transformInfo.transformLeft;
-      let transformTop = transformInfo.transformTop;
+      let transformInfo = popsDOMUtils.getTransform(moveElement);
       let resumeMoveElementStyle = null;
       anyTouchElement.on("pan", function(event) {
         if (!isMove) {
@@ -15092,32 +15085,30 @@ ${err.stack}`);
           let rect = options.dragElement.getBoundingClientRect();
           clickElementLeftOffset = event.x - rect.left;
           clickElementTopOffset = event.y - rect.top;
-          transformInfo = getTransform(moveElement);
-          transformLeft = transformInfo.transformLeft;
-          transformTop = transformInfo.transformTop;
+          transformInfo = popsDOMUtils.getTransform(moveElement);
           resumeMoveElementStyle = changeMoveElementStyle(moveElement);
         }
-        let currentMoveLeftOffset = event.x - clickElementLeftOffset + transformLeft;
-        let currentMoveTopOffset = event.y - clickElementTopOffset + transformTop;
+        let currentMoveLeftOffset = event.x - clickElementLeftOffset + transformInfo.transformLeft;
+        let currentMoveTopOffset = event.y - clickElementTopOffset + transformInfo.transformTop;
         if (event.phase === "move") {
           if (options.limit) {
-            let maxLeftOffset = getContainerWidthOrHeight(options.container).width - popsDOMUtils.width(moveElement) + transformLeft;
+            let maxLeftOffset = getContainerWidthOrHeight(options.container).width - popsDOMUtils.width(moveElement) + transformInfo.transformLeft;
             let { left: minLeftOffset, top: minTopOffset } = getContainerTopOrLeft(options.container);
-            let maxTopOffset = getContainerWidthOrHeight(options.container).height - popsDOMUtils.height(moveElement) + transformTop;
+            let maxTopOffset = getContainerWidthOrHeight(options.container).height - popsDOMUtils.height(moveElement) + transformInfo.transformTop;
             if (currentMoveLeftOffset > maxLeftOffset) {
               currentMoveLeftOffset = maxLeftOffset;
             }
             if (currentMoveTopOffset > maxTopOffset) {
               currentMoveTopOffset = maxTopOffset;
             }
-            if (currentMoveLeftOffset - options.extraDistance * 2 < minLeftOffset + transformLeft) {
-              currentMoveLeftOffset = minLeftOffset + transformLeft;
+            if (currentMoveLeftOffset - options.extraDistance * 2 < minLeftOffset + transformInfo.transformLeft) {
+              currentMoveLeftOffset = minLeftOffset + transformInfo.transformLeft;
               currentMoveLeftOffset += options.extraDistance;
             } else {
               currentMoveLeftOffset -= options.extraDistance;
             }
-            if (currentMoveTopOffset - options.extraDistance * 2 < minTopOffset + transformTop) {
-              currentMoveTopOffset = minTopOffset + transformTop;
+            if (currentMoveTopOffset - options.extraDistance * 2 < minTopOffset + transformInfo.transformTop) {
+              currentMoveTopOffset = minTopOffset + transformInfo.transformTop;
               currentMoveTopOffset += options.extraDistance;
             } else {
               currentMoveTopOffset -= options.extraDistance;
@@ -21936,26 +21927,36 @@ ${err.stack}`);
             if (item.item && Array.isArray(item.item)) {
               popsDOMUtils.addClassName(menuLiElement, `pops-${popsType}-item`);
             }
-            function liElementHoverEvent() {
+            let isTriggerTouchEvent = false;
+            function liElementHoverEvent(event) {
+              if (event.type === "touchstart") {
+                isTriggerTouchEvent = true;
+              }
+              if (isTriggerTouchEvent && event.type === "mouseenter") {
+                return;
+              }
               Array.from(menuULElement.children).forEach((liElement) => {
                 popsDOMUtils.removeClassName(liElement, `pops-${popsType}-is-visited`);
-                if (!liElement.__menuData__) {
+                let li_menuData = Reflect.get(liElement, "__menuData__");
+                if (!li_menuData) {
                   return;
                 }
                 function removeElement(element) {
-                  element.querySelectorAll("ul li").forEach((ele) => {
-                    if (ele?.__menuData__?.child) {
-                      removeElement(ele.__menuData__.child);
+                  element.querySelectorAll("ul li").forEach(($ele) => {
+                    let menuData = Reflect.get($ele, "__menuData__");
+                    if (menuData?.child) {
+                      removeElement(menuData.child);
                     }
                   });
                   element.remove();
                 }
-                removeElement(liElement.__menuData__.child);
+                removeElement(li_menuData.child);
               });
-              for (let index = 0; index < rootElement.__menuData__.child.length; index++) {
-                let element = rootElement.__menuData__.child[index];
+              let root_menuData = Reflect.get(rootElement, "__menuData__");
+              for (let index = 0; index < root_menuData.child.length; index++) {
+                let element = root_menuData.child[index];
                 if (!$shadowRoot.contains(element)) {
-                  rootElement.__menuData__.child.splice(index, 1);
+                  root_menuData.child.splice(index, 1);
                   index--;
                 }
               }
@@ -21968,9 +21969,9 @@ ${err.stack}`);
                 clientX: rect.left + popsDOMUtils.outerWidth(menuLiElement),
                 clientY: rect.top
               }, item.item, rootElement, menuLiElement, menuListenerRootNode);
-              menuLiElement.__menuData__ = {
+              Reflect.set(menuLiElement, "__menuData__", {
                 child: childMenu
-              };
+              });
             }
             async function liElementClickEvent(clickEvent) {
               if (typeof item.callback === "function") {
@@ -21992,8 +21993,8 @@ ${err.stack}`);
               });
               PopsContextMenu.closeAllMenu(rootElement);
             }
-            popsDOMUtils.on(menuLiElement, "mouseenter touchstart", void 0, liElementHoverEvent);
-            popsDOMUtils.on(menuLiElement, "click", void 0, liElementClickEvent);
+            popsDOMUtils.on(menuLiElement, "mouseenter touchstart", liElementHoverEvent);
+            popsDOMUtils.on(menuLiElement, "click", liElementClickEvent);
             menuULElement.appendChild(menuLiElement);
           });
         }
@@ -22011,33 +22012,34 @@ ${err.stack}`);
     }
   };
   const searchSuggestionConfig = () => {
+    const data = [];
+    for (let index = 0; index < 10; index++) {
+      data.push({
+        value: `测试${index}`,
+        text: `测试${index}-html`
+      });
+    }
     return {
       // @ts-ignore
       target: null,
       // @ts-ignore
       inputTarget: null,
       selfDocument: document,
-      data: [
-        {
-          value: "数据1",
-          text: "数据1-html"
-        },
-        {
-          value: "数据2",
-          text: "数据2-html"
-        }
-      ],
+      data,
       deleteIcon: {
         enable: true,
-        callback(event, liElement, data) {
-          console.log("删除当前项", [event, liElement, data]);
+        callback(event, liElement, dataItem) {
+          console.log("删除当前项", [event, liElement, dataItem]);
+          data.splice(data.indexOf(dataItem), 1);
           liElement.remove();
         }
       },
       useShadowRoot: true,
       className: "",
       isAbsolute: true,
-      isAnimation: true,
+      isAnimation: false,
+      useFoldAnimation: true,
+      useArrow: false,
       width: "250px",
       maxHeight: "300px",
       followTargetWidth: true,
@@ -22052,16 +22054,16 @@ ${err.stack}`);
       getItemHTML(item) {
         return item.text ?? item;
       },
-      async getData(value) {
+      async getData(value, data2) {
         console.log("当前输入框的值是：", value);
-        return [];
+        return data2.filter((it) => it.value.includes(value));
       },
-      itemClickCallBack(event, liElement, data) {
-        console.log("item项的点击回调", [event, liElement, data]);
-        this.inputTarget.value = data.value;
+      itemClickCallBack(event, liElement, data2) {
+        console.log("item项的点击回调", [event, liElement, data2]);
+        this.inputTarget.value = data2.value;
       },
-      selectCallBack(event, liElement, data) {
-        console.log("item项的选中回调", [event, liElement, data]);
+      selectCallBack(event, liElement, data2) {
+        console.log("item项的选中回调", [event, liElement, data2]);
       },
       style: ""
     };
@@ -22123,41 +22125,139 @@ ${err.stack}`);
           /** 是否结果为空 */
           isEmpty: true
         },
+        /** 初始化元素变量 */
+        initEl() {
+          this.$el.root = SearchSuggestion.createSearchSelectElement();
+          this.$el.$dynamicCSS = this.$el.root.querySelector("style[data-dynamic]");
+          this.$el.$hintULContainer = SearchSuggestion.$el.root.querySelector("ul");
+        },
         /**
          * 初始化
          */
         init(parentElement = document.body || document.documentElement) {
           this.initEl();
-          SearchSuggestion.update(typeof config.data === "function" ? config.data() : config.data);
-          SearchSuggestion.updateDynamicCSS();
-          SearchSuggestion.changeHintULElementWidth();
-          SearchSuggestion.changeHintULElementPosition();
+          SearchSuggestion.update(this.getData());
+          SearchSuggestion.updateStyleSheet();
           SearchSuggestion.hide();
-          if (config.isAnimation) {
-            SearchSuggestion.$el.root.classList.add(`pops-${popsType}-animation`);
-          }
           $shadowRoot.appendChild(SearchSuggestion.$el.root);
           parentElement.appendChild($shadowContainer);
         },
-        /** 初始化元素变量 */
-        initEl() {
-          this.$el.root = SearchSuggestion.getSearchSelectElement();
-          this.$el.$dynamicCSS = this.$el.root.querySelector("style[data-dynamic]");
-          this.$el.$hintULContainer = SearchSuggestion.$el.root.querySelector("ul");
+        /**
+         * 获取数据
+         */
+        getData() {
+          return typeof config.data === "function" ? config.data() : config.data;
         },
         /**
          * 获取显示出搜索建议框的html
          */
-        getSearchSelectElement() {
-          let element = popsDOMUtils.createElement("div", {
+        createSearchSelectElement() {
+          let $el = popsDOMUtils.createElement("div", {
             className: `pops pops-${popsType}-search-suggestion`,
             innerHTML: (
               /*html*/
               `
+						<style>
+							.pops-${popsType}-animation{
+								-moz-animation: searchSelectFalIn 0.5s 1 linear;
+								-webkit-animation: searchSelectFalIn 0.5s 1 linear;
+								-o-animation: searchSelectFalIn 0.5s 1 linear;
+								-ms-animation: searchSelectFalIn 0.5s 1 linear;
+							}
+						</style>
+						<style>
+							.pops-${popsType}-search-suggestion-arrow{
+								--suggestion-arrow-box-shadow-left-color: rgba(0, 0, 0, 0.24);
+								--suggestion-arrow-box-shadow-right-color: rgba(0, 0, 0, 0.12);
+								--suggestion-arrow--after-color: rgb(78, 78, 78);
+								--suggestion-arrow--after-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));
+								--suggestion-arrow--after-width: 10px;
+								--suggestion-arrow--after-height: 10px;
+							}
+							.pops-${popsType}-search-suggestion-arrow{
+								position: absolute;
+								top: 100%;
+								left: 50%;
+								overflow: hidden;
+								width: 100%;
+								height: 12.5px;
+								transform: translateX(-50%);
+							}
+							.pops-${popsType}-search-suggestion-arrow::after{
+								position: absolute;
+								top: 0;
+								left: 50%;
+								width: var(--suggestion-arrow--after-width);
+								height: var(--suggestion-arrow--after-height);
+								background: var(--suggestion-arrow--after-bg-color);
+								color: var(--suggestion-arrow--after-color);
+								box-shadow:
+									0 1px 7px var(--suggestion-arrow-box-shadow-left-color),
+									0 1px 7px var(--suggestion-arrow-box-shadow-right-color);
+								content: "";
+								transform: translateX(-50%) translateY(-50%) rotate(45deg);
+							}
+							.pops-${popsType}-search-suggestion[data-popper-placement^="top"] .pops-${popsType}-search-suggestion-arrow{
+								position: absolute;
+								top: 100%;
+								left: 50%;
+								overflow: hidden;
+								width: 100%;
+								height: 12.5px;
+								transform: translateX(-50%);
+							}
+							.pops-${popsType}-search-suggestion[data-popper-placement^="top"] .pops-${popsType}-search-suggestion-arrow::after{
+								position: absolute;
+								top: 0;
+								left: 50%;
+								width: var(--suggestion-arrow--after-width);
+								height: var(--suggestion-arrow--after-height);
+								background: var(--suggestion-arrow--after-bg-color);
+								box-shadow:
+									0 1px 7px var(--suggestion-arrow-box-shadow-left-color),
+									0 1px 7px var(--suggestion-arrow-box-shadow-right-color);
+								content: "";
+								transform: translateX(-50%) translateY(-50%) rotate(45deg);
+							}
+							.pops-${popsType}-search-suggestion[data-popper-placement^="bottom"] .pops-${popsType}-search-suggestion-arrow{
+								top: -12.5px;
+								left: 50%;
+								transform: translateX(-50%);
+							}
+							.pops-${popsType}-search-suggestion[data-popper-placement^="bottom"] .pops-${popsType}-search-suggestion-arrow::after{
+								position: absolute;
+								top: 100%;
+								left: 50%;
+								content: "";
+							}
+						</style>
 						<style data-dynamic="true">
 							${this.getDynamicCSS()}
 						</style>
-						<ul class="pops-${popsType}-search-suggestion-hint">${config.toSearhNotResultHTML}</ul>
+						<style>
+							.el-zoom-in-top-animation{
+								--el-transition-md-fade: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+									opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+								transition: var(--el-transition-md-fade);
+								transform-origin: center top;
+							}
+							.el-zoom-in-top-animation[data-popper-placement^="top"] {
+								transform-origin: center bottom;
+							}
+							.el-zoom-in-top-animation-hide{
+								opacity: 0;
+								transform: scaleY(0);
+							}
+							.el-zoom-in-top-animation-show{
+								opacity: 1;
+								transform: scaleY(1);
+							}
+						</style>
+						<ul class="pops-${popsType}-search-suggestion-hint ${PopsCommonCSSClassName.userSelectNone}">${config.toSearhNotResultHTML}</ul>
+						${config.useArrow ? (
+              /*html*/
+              `<div class="pops-${popsType}-search-suggestion-arrow"></div>`
+            ) : ""}
          				 `
             )
           }, {
@@ -22165,37 +22265,36 @@ ${err.stack}`);
             "type-value": popsType
           });
           if (config.className !== "" && config.className != null) {
-            popsDOMUtils.addClassName(element, config.className);
+            popsDOMUtils.addClassName($el, config.className);
           }
-          return element;
+          if (config.isAnimation) {
+            popsDOMUtils.addClassName($el, `pops-${popsType}-animation`);
+          }
+          if (config.useFoldAnimation) {
+            popsDOMUtils.addClassName($el, "el-zoom-in-top-animation");
+          }
+          return $el;
         },
         /** 动态获取CSS */
         getDynamicCSS() {
           return (
             /*css*/
             `
-				.pops-${popsType}-animation{
-					-moz-animation: searchSelectFalIn 0.5s 1 linear;
-					-webkit-animation: searchSelectFalIn 0.5s 1 linear;
-					-o-animation: searchSelectFalIn 0.5s 1 linear;
-					-ms-animation: searchSelectFalIn 0.5s 1 linear;
-				}
 				.pops-${popsType}-search-suggestion{
 					--search-suggestion-bg-color: #ffffff;
 					--search-suggestion-box-shadow-color: rgb(0 0 0 / 20%);
 					--search-suggestion-item-color: #515a6e;
 					--search-suggestion-item-none-color: #8e8e8e;
-					--search-suggestion-item-hover-bg-color: rgba(0, 0, 0, .1);
+					--search-suggestion-item-is-hover-bg-color: #f5f7fa;
+					--search-suggestion-item-is-select-bg-color: #409eff;
 				}
 				.pops-${popsType}-search-suggestion{
 					border: initial;
 					overflow: initial;
-				}
-				ul.pops-${popsType}-search-suggestion-hint{
 					position: ${config.isAbsolute ? "absolute" : "fixed"};
 					z-index: ${PopsHandler.handleZIndex(config.zIndex)};
-					width: 0;
-					left: 0;
+				}
+				ul.pops-${popsType}-search-suggestion-hint{
 					max-height: ${config.maxHeight};
 					overflow-x: hidden;
 					overflow-y: auto;
@@ -22206,11 +22305,11 @@ ${err.stack}`);
 					box-shadow: 0 1px 6px var(--search-suggestion-box-shadow-color);
 				}
 				/* 建议框在上面时 */
-				ul.pops-${popsType}-search-suggestion-hint[data-top-reverse]{
+				.pops-${popsType}-search-suggestion[data-top-reverse] ul.pops-${popsType}-search-suggestion-hint{
 					display: flex;
 					flex-direction: column-reverse;
 				}
-				ul.pops-${popsType}-search-suggestion-hint[data-top-reverse] li{
+				.pops-${popsType}-search-suggestion[data-top-reverse] ul.pops-${popsType}-search-suggestion-hint li{
 					flex-shrink: 0;
 				}
 				ul.pops-${popsType}-search-suggestion-hint li{
@@ -22232,14 +22331,13 @@ ${err.stack}`);
 					color: var(--search-suggestion-item-none-color);
 				}
 				ul.pops-${popsType}-search-suggestion-hint li:not([data-none]):hover{
-					background-color: var(--search-suggestion-item-hover-bg-color);
+					background-color: var(--search-suggestion-item-is-hover-bg-color);
 				}
-
 				@media (prefers-color-scheme: dark){
 					.pops-${popsType}-search-suggestion{
 						--search-suggestion-bg-color: #1d1e1f;
 						--search-suggestion-item-color: #cfd3d4;
-						--search-suggestion-item-hover-bg-color: rgba(175, 175, 175, .1);
+						--search-suggestion-item-is-hover-bg-color: rgba(175, 175, 175, .1);
 					}
 				}
 				`
@@ -22250,7 +22348,7 @@ ${err.stack}`);
          * @param data 当前项的值
          * @param index 当前项的下标
          */
-        getSearchItemLiElement(data, index) {
+        createSearchItemLiElement(data, index) {
           let $li = popsDOMUtils.createElement("li", {
             className: `pops-${popsType}-search-suggestion-hint-item`,
             "data-index": index,
@@ -22270,21 +22368,24 @@ ${err.stack}`);
         },
         /**
          * 设置搜索建议框每一项的点击事件
-         * @param liElement
+         * @param $searchItem
          */
-        setSearchItemClickEvent(liElement) {
-          popsDOMUtils.on(liElement, "click", void 0, (event) => {
+        setSearchItemClickEvent($searchItem) {
+          popsDOMUtils.on($searchItem, "click", (event) => {
             popsDOMUtils.preventEvent(event);
             let $click = event.target;
-            if ($click.closest(`.pops-${popsType}-delete-icon`)) {
+            let dataValue = Reflect.get($searchItem, "data-value");
+            let isDelete = Boolean($click.closest(`.pops-${popsType}-delete-icon`));
+            if (isDelete) {
               if (typeof config.deleteIcon.callback === "function") {
-                config.deleteIcon.callback(event, liElement, liElement["data-value"]);
+                config.deleteIcon.callback(event, $searchItem, dataValue);
               }
               if (!this.$el.$hintULContainer.children.length) {
                 this.clear();
               }
+              SearchSuggestion.updateStyleSheet();
             } else {
-              config.itemClickCallBack(event, liElement, liElement["data-value"]);
+              config.itemClickCallBack(event, $searchItem, dataValue);
             }
           }, {
             capture: true
@@ -22307,8 +22408,9 @@ ${err.stack}`);
           }
           config.inputTarget.setAttribute("autocomplete", "off");
           popsDOMUtils.on(config.inputTarget, "input", void 0, async (event) => {
-            let getListResult = await config.getData(event.target.value);
+            let getListResult = await config.getData(config.inputTarget.value, this.getData());
             SearchSuggestion.update(getListResult);
+            SearchSuggestion.updateStyleSheet();
           }, option);
         },
         /**
@@ -22323,12 +22425,10 @@ ${err.stack}`);
          * 显示搜索建议框的事件
          */
         showEvent() {
-          SearchSuggestion.updateDynamicCSS();
-          SearchSuggestion.changeHintULElementWidth();
-          SearchSuggestion.changeHintULElementPosition();
+          SearchSuggestion.updateStyleSheet();
           if (config.toHideWithNotResult) {
             if (SearchSuggestion.$data.isEmpty) {
-              SearchSuggestion.hide();
+              SearchSuggestion.hide(true);
             } else {
               SearchSuggestion.show();
             }
@@ -22376,7 +22476,7 @@ ${err.stack}`);
             if (config.inputTarget.contains(event.target)) {
               return;
             }
-            SearchSuggestion.hide();
+            SearchSuggestion.hide(true);
           }
         },
         /**
@@ -22490,22 +22590,33 @@ ${err.stack}`);
               position = "top";
             } else {
               position = "bottom";
-              SearchSuggestion.$el.$hintULContainer.removeAttribute("data-top");
             }
           }
           if (position === "top") {
             if (config.positionTopToReverse) {
-              SearchSuggestion.$el.$hintULContainer.setAttribute("data-top-reverse", "true");
+              SearchSuggestion.$el.root.setAttribute("data-top-reverse", "true");
             }
-            SearchSuggestion.$el.$hintULContainer.style.top = "";
-            SearchSuggestion.$el.$hintULContainer.style.bottom = documentHeight - targetRect.top + config.topDistance + "px";
+            if (config.useFoldAnimation) {
+              SearchSuggestion.$el.root.setAttribute("data-popper-placement", "top");
+            }
+            let bottom = documentHeight - targetRect.top + config.topDistance;
+            SearchSuggestion.$el.root.style.top = "";
+            SearchSuggestion.$el.root.style.bottom = bottom + "px";
           } else if (position === "bottom") {
-            SearchSuggestion.$el.$hintULContainer.removeAttribute("data-top-reverse");
-            SearchSuggestion.$el.$hintULContainer.style.bottom = "";
-            SearchSuggestion.$el.$hintULContainer.style.top = targetRect.height + targetRect.top + config.topDistance + "px";
+            if (config.useFoldAnimation) {
+              SearchSuggestion.$el.root.setAttribute("data-popper-placement", "bottom-center");
+            }
+            let top2 = targetRect.height + targetRect.top + config.topDistance;
+            SearchSuggestion.$el.root.removeAttribute("data-top-reverse");
+            SearchSuggestion.$el.root.style.bottom = "";
+            SearchSuggestion.$el.root.style.top = top2 + "px";
           }
+          let left = targetRect.left;
           let hintUIWidth = popsDOMUtils.width(SearchSuggestion.$el.$hintULContainer);
-          SearchSuggestion.$el.$hintULContainer.style.left = (targetRect.left + hintUIWidth > documentWidth ? documentWidth - hintUIWidth : targetRect.left) + "px";
+          if (hintUIWidth > documentWidth) {
+            left = left + documentWidth - hintUIWidth;
+          }
+          SearchSuggestion.$el.root.style.left = left + "px";
         },
         /**
          * 更新搜索建议框的width
@@ -22527,6 +22638,14 @@ ${err.stack}`);
           PopsSafeUtils.setSafeHTML(this.$el.$dynamicCSS, cssText);
         },
         /**
+         * 数据项的数量改变时调用
+         */
+        updateStyleSheet() {
+          SearchSuggestion.updateDynamicCSS();
+          SearchSuggestion.changeHintULElementWidth();
+          SearchSuggestion.changeHintULElementPosition();
+        },
+        /**
          * 更新页面显示的搜索结果
          * @param data
          */
@@ -22542,7 +22661,7 @@ ${err.stack}`);
             }
             SearchSuggestion.clearAllSearchItemLi();
             config.data.forEach((item, index) => {
-              let itemElement = SearchSuggestion.getSearchItemLiElement(item, index);
+              let itemElement = SearchSuggestion.createSearchItemLiElement(item, index);
               SearchSuggestion.setSearchItemClickEvent(itemElement);
               SearchSuggestion.setSearchItemSelectEvent(itemElement);
               SearchSuggestion.$el.$hintULContainer.appendChild(itemElement);
@@ -22564,15 +22683,30 @@ ${err.stack}`);
         },
         /**
          * 隐藏搜索建议框
+         * @param useAnimationToHide 是否使用动画隐藏
          */
-        hide() {
-          this.$el.root.style.display = "none";
+        hide(useAnimationToHide = false) {
+          if (config.useFoldAnimation) {
+            if (!useAnimationToHide) {
+              popsDOMUtils.removeClassName(this.$el.root, "el-zoom-in-top-animation");
+            }
+            popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation");
+            popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation-hide");
+            popsDOMUtils.removeClassName(this.$el.root, "el-zoom-in-top-animation-show");
+          } else {
+            this.$el.root.style.display = "none";
+          }
         },
         /**
          * 显示搜索建议框
          */
         show() {
           this.$el.root.style.display = "";
+          if (config.useFoldAnimation) {
+            popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation");
+            popsDOMUtils.removeClassName(this.$el.root, "el-zoom-in-top-animation-hide");
+            popsDOMUtils.addClassName(this.$el.root, "el-zoom-in-top-animation-show");
+          }
         }
       };
       return SearchSuggestion;

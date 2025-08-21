@@ -34,34 +34,35 @@ const BaiduMiniJiaoYu = {
 			return;
 		}
 		DOMUtils.ready(() => {
-			utils
-				.waitNode<HTMLIFrameElement>(iframeSelector, 10000)
-				.then(($iframe) => {
-					if (!$iframe) {
-						return;
-					}
-					let iframe__document = $iframe.contentDocument!;
-					let iframe__window = $iframe.contentWindow! as any as Window &
-						typeof globalThis;
-					let iframe__globalThis = iframe__window;
-					let iframe__self = iframe__window;
-					let coreOption = {
-						document: iframe__document,
-						window: iframe__window,
-						globalThis: iframe__globalThis,
-						self: iframe__self,
-						top: unsafeWindow.top!,
-					};
-					let iframeDOMUtils = DOMUtils.createDOMUtils(coreOption);
-					let iframeUtils = utils.createUtils(coreOption);
-					if (typeof readyCallback === "function") {
-						readyCallback({
-							...coreOption,
-							utils: iframeUtils,
-							DOMUtils: iframeDOMUtils,
-						});
-					}
-				});
+			utils.waitNode<HTMLIFrameElement>(iframeSelector, 10000).then(($iframe) => {
+				if (!$iframe) {
+					return;
+				}
+				let iframe__document = $iframe.contentDocument!;
+				let iframe__window = $iframe.contentWindow! as any as Window & typeof globalThis;
+				let iframe__globalThis = iframe__window;
+				let iframe__self = iframe__window;
+				let coreOption = {
+					document: iframe__document,
+					window: iframe__window,
+					globalThis: iframe__globalThis,
+					self: iframe__self,
+					top: unsafeWindow.top!,
+					setTimeout: unsafeWindow.setTimeout,
+					setInterval: unsafeWindow.setInterval,
+					clearTimeout: unsafeWindow.clearTimeout,
+					clearInterval: unsafeWindow.clearInterval,
+				};
+				let iframeDOMUtils = DOMUtils.createDOMUtils(coreOption);
+				let iframeUtils = utils.createUtils(coreOption);
+				if (typeof readyCallback === "function") {
+					readyCallback({
+						...coreOption,
+						utils: iframeUtils,
+						DOMUtils: iframeDOMUtils,
+					});
+				}
+			});
 		});
 	},
 	/**
