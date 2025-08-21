@@ -19,7 +19,7 @@
 		"@mgdn/bvid": "^0.3.0",
 		"@whitesev/domutils": "^1.6.3",
 		"@whitesev/pops": "^2.3.5",
-		"@whitesev/utils": "^2.7.3",
+		"@whitesev/utils": "^2.7.4",
 		"artplayer": "^5.2.5",
 		"artplayer-plugin-danmuku": "^5.1.8",
 		"crypto-js": "^4.2.0",
