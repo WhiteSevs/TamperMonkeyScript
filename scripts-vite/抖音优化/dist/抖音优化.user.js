@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.18
+// @version      2025.8.21
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -3657,6 +3657,9 @@
       Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
         return this.blockClickRecommend();
       });
+      Panel.execMenuOnce("dy-video-blockClickUpdateReminder", () => {
+        return this.blockClickUpdateReminder();
+      });
       DouYinVideoBlock_BottomToolbar.init();
       DouYinVideoBlock_RightToolbar.init();
       DouYinVideoBlock_Comment.init();
@@ -3752,6 +3755,27 @@
     blockClickRecommend() {
       log.info(`【屏蔽】点击推荐`);
       return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
+    },
+    /**
+     * 【屏蔽】及时接收作品更新提醒
+     */
+    blockClickUpdateReminder() {
+      log.info(`【屏蔽】及时接收作品更新提醒`);
+      let lockFn = new utils.LockFunction(() => {
+        let $reminder = $$(
+          ".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')"
+        );
+        domUtils.remove($reminder);
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: () => {
+          lockFn.run();
+        }
+      });
     }
   };
   class ShortCut {
@@ -6540,13 +6564,42 @@
       Panel.execMenuOnce("douyin-search-blockAIAsk", () => {
         return this.blockAIAsk();
       });
+      this.resizeSearchFilterBar();
+    },
+    /**
+     * 把搜索结果过滤器宽度自适应
+     */
+    resizeSearchFilterBar() {
+      domUtils.ready(() => {
+        let $searchFilter = $("div:has(+#search-result-container)");
+        let $searchResultContainer = $("#search-result-container");
+        if (!$searchFilter) {
+          return;
+        }
+        if (!$searchResultContainer) {
+          return;
+        }
+        let searchResultContainerWidth = domUtils.width($searchResultContainer);
+        domUtils.css($searchFilter, "width", searchResultContainerWidth + "px");
+      });
     },
     /**
      * 【屏蔽】相关搜索
      */
     shieldReleatedSearches() {
       log.info("【屏蔽】相关搜索");
-      return [CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)")];
+      return [
+        CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
+        addStyle(
+          /*css*/
+          `
+			/* 把搜索结果宽度自适应 */
+			#search-result-container{
+        		width: auto !important;
+			}
+		`
+        )
+      ];
     },
     /**
      * 【屏蔽】AI问一问
@@ -9905,10 +9958,7 @@
      * 移除<meta>标签name="apple-itunes-app"
      */
     removeMetaAppleItunesApp() {
-      utils.waitNodeList(
-        ['meta[name="apple-itunes-app"]'],
-        1e4
-      ).then(($metaList) => {
+      utils.waitNodeList(['meta[name="apple-itunes-app"]'], 1e4).then(($metaList) => {
         if (!$metaList) {
           return;
         }
@@ -11493,7 +11543,14 @@
                     void 0,
                     "例如：相关搜索、AI搜索、合集...等"
                   ),
-                  UISwitch("【屏蔽】点击推荐", "dy-video-blockClickRecommend", false, void 0, "屏蔽元素")
+                  UISwitch("【屏蔽】点击推荐", "dy-video-blockClickRecommend", false, void 0, "屏蔽元素"),
+                  UISwitch(
+                    "【屏蔽】及时接收作品更新提醒",
+                    "dy-video-blockClickUpdateReminder",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  )
                 ]
               },
               {
