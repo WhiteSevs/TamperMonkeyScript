@@ -99,8 +99,6 @@ export const DouYin = {
 				}
 				DOMUtils.remove($el);
 			});
-		// .basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')
-		// `.basePlayerContainer > div > div:contains("及时接收作品更新提醒")`
 		return [addStyle(blockCSS)];
 	},
 	/**
@@ -114,8 +112,7 @@ export const DouYin = {
 				{},
 				{
 					name: "viewport",
-					content:
-						"width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
+					content: "width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover",
 				}
 			);
 			DOMUtils.remove("meta[name='viewport']");
@@ -129,10 +126,7 @@ export const DouYin = {
 	 */
 	removeMetaAppleItunesApp() {
 		utils
-			.waitNodeList<NodeListOf<HTMLMeterElement>>(
-				['meta[name="apple-itunes-app"]'],
-				10000
-			)
+			.waitNodeList<NodeListOf<HTMLMeterElement>>(['meta[name="apple-itunes-app"]'], 10000)
 			.then(($metaList) => {
 				if (!$metaList) {
 					return;
