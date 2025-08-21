@@ -14,7 +14,7 @@
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.3/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.4/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
@@ -59,9 +59,7 @@
 
   const OTPAuth__namespace = /*#__PURE__*/_interopNamespaceDefault(OTPAuth);
 
-  const o=new Set;const i = async t=>{o.has(t)||o.add(t);};
-
-  i(" .whitesev-hide{display:none}.whitesev-hide-important{display:none!important} ");
+  const o=new Set;const importCSS = async t=>{o.has(t)||o.add(t);};
 
   var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
   var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
@@ -1822,6 +1820,8 @@
       }
     }
   };
+  const OwnCSSCss = ".whitesev-hide{display:none}.whitesev-hide-important{display:none!important}";
+  importCSS(OwnCSSCss);
   const zh_CN_language = {
     GreasyFork优化: "GreasyFork优化",
     请求取消: "请求取消",
