@@ -415,17 +415,9 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 							],
 						},
 						{
-							text: "底部工具栏",
+							text: "底部工具栏-视频信息区域",
 							type: "forms",
 							forms: [
-								UISwitch("【屏蔽】底部视频工具栏", "shieldBottomVideoToolBar", false, void 0, "屏蔽元素"),
-								UISwitch(
-									"【屏蔽】弹幕容器",
-									"shieldBottomVideoToolbarDanmuContainer",
-									false,
-									void 0,
-									"屏蔽元素（不包括屏蔽弹幕）"
-								),
 								UISwitch(
 									"【屏蔽】视频信息",
 									"dy-video-bottom-shieldVideoInfoWrap",
@@ -433,24 +425,64 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽元素，可代替【清屏】功能"
 								),
+								UISwitch("【屏蔽】点击推荐", "dy-video-blockClickRecommend", false, void 0, "屏蔽元素"),
 								UISwitch(
-									"【屏蔽】视频标题上的标签",
+									"【屏蔽】视频标题上面的标签",
 									"dy-video-blockTitleTopTag",
 									false,
 									void 0,
 									"例如：每周精选、抖音精选"
 								),
 								UISwitch(
-									"【屏蔽】视频标题下的标签",
+									"【屏蔽】视频标题下面的标签",
 									"dy-video-bottom-shieldVideoUnderTitleTag",
 									false,
 									void 0,
 									"例如：相关搜索、AI搜索、合集...等"
 								),
-								UISwitch("【屏蔽】点击推荐", "dy-video-blockClickRecommend", false, void 0, "屏蔽元素"),
 								UISwitch(
 									"【屏蔽】及时接收作品更新提醒",
 									"dy-video-blockClickUpdateReminder",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+							],
+						},
+						{
+							type: "forms",
+							text: "底部工具栏-播放工具",
+							forms: [
+								UISwitch("【屏蔽】播放工具组件", "shieldBottomVideoToolBar", false, void 0, "屏蔽元素"),
+								UISwitch(
+									"【屏蔽】弹幕容器",
+									"shieldBottomVideoToolbarDanmuContainer",
+									false,
+									void 0,
+									"屏蔽元素（不包括屏蔽弹幕）"
+								),
+								UISwitch("【屏蔽】连播", "shieldBottomVideoToolbar-autoPlay", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】清屏", "shieldBottomVideoToolbar-clearScreen", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】清晰度", "shieldBottomVideoToolbar-playclarity", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】倍速", "shieldBottomVideoToolbar-playback", false, void 0, "屏蔽元素"),
+								UISwitch(
+									"【屏蔽】稍后再看",
+									"shieldBottomVideoToolbar-watchLater",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch("【屏蔽】小窗模式", "shieldBottomVideoToolbar-miniMode", false, void 0, "屏蔽元素"),
+								UISwitch(
+									"【屏蔽】网页全屏",
+									"shieldBottomVideoToolbar-pageFullScreen",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
+								UISwitch(
+									"【屏蔽】进入全屏",
+									"shieldBottomVideoToolbar-fullScreen",
 									false,
 									void 0,
 									"屏蔽元素"

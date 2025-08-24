@@ -30,19 +30,112 @@ export const DouYinVideoBlock_Comment = {
 	},
 };
 
-export const DouYinVideoBlock_BottomToolbar = {
+export const DouYinVideoBlock_BottomToolbar_videoInfo = {
+	init() {
+		Panel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
+			return this.shieldVideoInfoWrap();
+		});
+		Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
+			return this.blockClickRecommend();
+		});
+		Panel.execMenuOnce("dy-video-blockTitleTopTag", () => {
+			return this.blobkTitleTopTag();
+		});
+		Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
+			return this.shieldVideoUnderTitleTag();
+		});
+		Panel.execMenuOnce("dy-video-blockClickUpdateReminder", () => {
+			return this.blockClickUpdateReminder();
+		});
+	},
+	/**
+	 * 【屏蔽】视频信息
+	 */
+	shieldVideoInfoWrap() {
+		log.info("【屏蔽】视频信息");
+		return [CommonUtil.addBlockCSS("#video-info-wrap")];
+	},
+	/**
+	 * 【屏蔽】点击推荐
+	 */
+	blockClickRecommend() {
+		log.info(`【屏蔽】点击推荐`);
+		return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
+	},
+	/**
+	 * 【屏蔽】视频标题上的标签
+	 *
+	 * - 每周精选
+	 * - 抖音精选
+	 */
+	blobkTitleTopTag() {
+		log.info(`【屏蔽】视频标题上的标签`);
+		return CommonUtil.addBlockCSS(
+			"span:has(+#video-info-wrap):has(img)",
+			"span:has(+div #video-info-wrap):has(img)"
+		);
+	},
+	/**
+	 * 【屏蔽】视频标题下的标签
+	 */
+	shieldVideoUnderTitleTag() {
+		log.info(`【屏蔽】视频标题下的标签`);
+		return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
+	},
+	/**
+	 * 【屏蔽】及时接收作品更新提醒
+	 */
+	blockClickUpdateReminder() {
+		log.info(`【屏蔽】及时接收作品更新提醒`);
+		let lockFn = new utils.LockFunction(() => {
+			let $reminder = $$<HTMLElement>(
+				".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')"
+			);
+			DOMUtils.remove($reminder);
+		});
+		utils.mutationObserver(document, {
+			config: {
+				subtree: true,
+				childList: true,
+			},
+			callback: () => {
+				lockFn.run();
+			},
+		});
+	},
+};
+
+export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
 	init() {
 		Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
 			return this.shieldBottomVideoToolBar();
 		});
-		Panel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
-			return this.shieldVideoInfoWrap();
-		});
 		Panel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
 			return this.shieldBottomVideoToolbarDanmuContainer();
 		});
-		Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
-			return this.shieldVideoUnderTitleTag();
+		Panel.execMenuOnce("shieldBottomVideoToolbar-autoPlay", () => {
+			return this.autoPlay();
+		});
+		Panel.execMenuOnce("shieldBottomVideoToolbar-clearScreen", () => {
+			return this.clearScreen();
+		});
+		Panel.execMenuOnce("shieldBottomVideoToolbar-playclarity", () => {
+			return this.playclarity();
+		});
+		Panel.execMenuOnce("shieldBottomVideoToolbar-playback", () => {
+			return this.playback();
+		});
+		Panel.execMenuOnce("shieldBottomVideoToolbar-watchLater", () => {
+			return this.watchLater();
+		});
+		Panel.execMenuOnce("shieldBottomVideoToolbar-miniMode", () => {
+			return this.miniMode();
+		});
+		Panel.execMenuOnce("shieldBottomVideoToolbar-pageFullScreen", () => {
+			return this.pageFullScreen();
+		});
+		Panel.execMenuOnce("shieldBottomVideoToolbar-fullScreen", () => {
+			return this.fullScreen();
 		});
 	},
 	/**
@@ -63,13 +156,6 @@ export const DouYinVideoBlock_BottomToolbar = {
 		];
 	},
 	/**
-	 * 【屏蔽】视频信息
-	 */
-	shieldVideoInfoWrap() {
-		log.info("【屏蔽】视频信息");
-		return [CommonUtil.addBlockCSS("#video-info-wrap")];
-	},
-	/**
 	 * 【屏蔽】底部视频工具栏的弹幕容器
 	 */
 	shieldBottomVideoToolbarDanmuContainer() {
@@ -81,11 +167,60 @@ export const DouYinVideoBlock_BottomToolbar = {
 		];
 	},
 	/**
-	 * 【屏蔽】视频标题下的标签
+	 * 【屏蔽】连播
 	 */
-	shieldVideoUnderTitleTag() {
-		log.info(`【屏蔽】视频标题下的标签`);
-		return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
+	autoPlay() {
+		log.info(`【屏蔽】连播`);
+		return [CommonUtil.addBlockCSS(".xgplayer-autoplay-setting")];
+	},
+	/**
+	 * 【屏蔽】清屏
+	 */
+	clearScreen() {
+		log.info(`【屏蔽】清屏`);
+		return [CommonUtil.addBlockCSS(".xgplayer-immersive-switch-setting")];
+	},
+	/**
+	 * 【屏蔽】清晰度
+	 */
+	playclarity() {
+		log.info(`【屏蔽】清晰度`);
+		return [CommonUtil.addBlockCSS(".xgplayer-playclarity-setting")];
+	},
+	/**
+	 * 【屏蔽】倍速
+	 */
+	playback() {
+		log.info(`【屏蔽】倍速`);
+		return [CommonUtil.addBlockCSS(".xgplayer-playback-setting")];
+	},
+	/**
+	 * 【屏蔽】稍后再看
+	 */
+	watchLater() {
+		log.info(`【屏蔽】稍后再看`);
+		return [CommonUtil.addBlockCSS(".xgplayer-watch-later")];
+	},
+	/**
+	 * 【屏蔽】小窗模式
+	 */
+	miniMode() {
+		log.info(`【屏蔽】小窗模式`);
+		return [CommonUtil.addBlockCSS(".xgplayer-pip")];
+	},
+	/**
+	 * 【屏蔽】网页全屏
+	 */
+	pageFullScreen() {
+		log.info(`【屏蔽】网页全屏`);
+		return [CommonUtil.addBlockCSS(".xgplayer-page-full-screen")];
+	},
+	/**
+	 * 【屏蔽】进入全屏
+	 */
+	fullScreen() {
+		log.info(`【屏蔽】进入全屏`);
+		return [CommonUtil.addBlockCSS(".xgplayer-fullscreen")];
 	},
 };
 
@@ -287,16 +422,8 @@ export const DouYinVideoBlock = {
 		Panel.execMenuOnce("dy-video-blockShopInfo", () => {
 			return this.blockShopInfo();
 		});
-		Panel.execMenuOnce("dy-video-blockTitleTopTag", () => {
-			return this.blobkTitleTopTag();
-		});
-		Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
-			return this.blockClickRecommend();
-		});
-		Panel.execMenuOnce("dy-video-blockClickUpdateReminder", () => {
-			return this.blockClickUpdateReminder();
-		});
-		DouYinVideoBlock_BottomToolbar.init();
+		DouYinVideoBlock_BottomToolbar_videoInfo.init();
+		DouYinVideoBlock_BottomToolbar_PlayerComponents.init();
 		DouYinVideoBlock_RightToolbar.init();
 		DouYinVideoBlock_Comment.init();
 	},
@@ -370,46 +497,5 @@ export const DouYinVideoBlock = {
 	blockShopInfo() {
 		log.info(`【屏蔽】购物信息`);
 		return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
-	},
-	/**
-	 * 【屏蔽】视频标题上的标签
-	 *
-	 * - 每周精选
-	 * - 抖音精选
-	 */
-	blobkTitleTopTag() {
-		log.info(`【屏蔽】视频标题上的标签`);
-		return CommonUtil.addBlockCSS(
-			"span:has(+#video-info-wrap):has(img)",
-			"span:has(+div #video-info-wrap):has(img)"
-		);
-	},
-	/**
-	 * 【屏蔽】点击推荐
-	 */
-	blockClickRecommend() {
-		log.info(`【屏蔽】点击推荐`);
-		return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
-	},
-	/**
-	 * 【屏蔽】及时接收作品更新提醒
-	 */
-	blockClickUpdateReminder() {
-		log.info(`【屏蔽】及时接收作品更新提醒`);
-		let lockFn = new utils.LockFunction(() => {
-			let $reminder = $$<HTMLElement>(
-				".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')"
-			);
-			DOMUtils.remove($reminder);
-		});
-		utils.mutationObserver(document, {
-			config: {
-				subtree: true,
-				childList: true,
-			},
-			callback: () => {
-				lockFn.run();
-			},
-		});
 	},
 };
