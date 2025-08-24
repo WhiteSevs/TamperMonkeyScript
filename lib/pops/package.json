@@ -1,6 +1,6 @@
 {
 	"name": "@whitesev/pops",
-	"version": "2.3.5",
+	"version": "2.3.6",
 	"description": "弹窗库",
 	"type": "module",
 	"homepage": "https://github.com/WhiteSevs/TamperMonkeyScript/tree/master/lib/pops#readme",

@@ -1,6 +1,6 @@
 import { WindowApi } from "./WindowApi";
 /** 通用工具类 */
-declare const DOMUtilsCommonUtils: {
+export declare const DOMUtilsCommonUtils: {
     windowApi: WindowApi;
     /**
      * 判断元素是否已显示或已连接
@@ -70,4 +70,3 @@ declare const DOMUtilsCommonUtils: {
     /** 获取 transitionend 在各个浏览器的兼容名 */
     getTransitionEndNameList(): string[];
 };
-export { DOMUtilsCommonUtils };
