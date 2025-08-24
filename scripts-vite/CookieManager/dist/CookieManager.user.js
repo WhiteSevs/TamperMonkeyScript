@@ -5443,11 +5443,6 @@
     ]
   };
   PanelContent.addContentConfig([Component_Common, Component_Rule]);
-  let defaultMenuOption = PanelMenu.getMenuOption(0);
-  defaultMenuOption.callback = () => {
-    Panel.showPanel(PanelContent.getConfig(0), void 0, void 0, true);
-  };
-  PanelMenu.updateMenuOption(defaultMenuOption);
   Panel.init();
   CookieManagerView.init();
   CookieRule.init();
