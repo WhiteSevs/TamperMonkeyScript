@@ -77,6 +77,8 @@ export const DouYin = {
 			} else {
 				log.warn("子router: " + window.location.href);
 			}
+		} else if (window.location.hostname.startsWith("lf-zt.douyin.com")) {
+			// ignore
 		} else {
 			log.error("未适配router: " + window.location.href);
 		}
