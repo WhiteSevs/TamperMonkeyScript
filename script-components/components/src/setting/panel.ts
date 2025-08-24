@@ -1092,6 +1092,7 @@ const Panel = {
 				timer = void 0;
 				if (isDoubleClick && clickElement === selectorTarget) {
 					isDoubleClick = false;
+					clickElement = null;
 					/* 判定为双击 */
 					dbclick_event(evt, selectorTarget);
 				} else {
@@ -1099,8 +1100,8 @@ const Panel = {
 						isDoubleClick = false;
 						// 判断为单击
 					}, 200);
-					clickElement = selectorTarget;
 					isDoubleClick = true;
+					clickElement = selectorTarget;
 				}
 			},
 			{
