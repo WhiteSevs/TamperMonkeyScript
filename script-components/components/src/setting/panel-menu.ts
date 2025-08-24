@@ -50,7 +50,7 @@ export const PanelMenu = {
 		this.$data.menuOption.push(...option);
 	},
 	/**
-	 * 更新菜单项
+	 * 更新菜单项（如果该菜单项已存在，则更新，不存在则不做处理）
 	 * @param option 菜单配置
 	 */
 	updateMenuOption(option: UtilsGMMenuOption[] | UtilsGMMenuOption) {
@@ -58,6 +58,7 @@ export const PanelMenu = {
 			option = [option];
 		}
 		option.forEach((optionItem) => {
+			// 找到对应的菜单项
 			let findIndex = this.$data.menuOption.findIndex((it) => {
 				return it.key === optionItem.key;
 			});
