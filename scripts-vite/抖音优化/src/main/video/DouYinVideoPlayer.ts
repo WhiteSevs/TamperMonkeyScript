@@ -6,7 +6,7 @@ import { DouYinRouter } from "@/router/DouYinRouter";
 import MobileCSS from "./css/mobile.css?raw";
 import Qmsg from "qmsg";
 import { DouYin } from "../DouYin";
-import { DouYinVideoBlock } from "./DouYinVideoBlock";
+import { DouYinVideoBlock, DouYinVideoBlock_BottomToolbar_videoInfo } from "./DouYinVideoBlock";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
 import { GestureBack } from "@components/utils/GestureBack";
 import { DouYinGestureBackHashConfig } from "../DouYinGestureBackConfig";
@@ -124,9 +124,9 @@ export const DouYinVideoPlayer = {
 				"xg-controls.xgplayer-controls"
 			)
 		);
-		result.push(DouYinVideoBlock.blobkTitleTopTag());
+		result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blobkTitleTopTag());
 		result.push(DouYinVideoBlock.shieldSearchFloatingBar());
-		result.push(DouYinVideoBlock.blockClickRecommend());
+		result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockClickRecommend());
 		result.push(
 			addStyle(/*css*/ `
 			/* 视频全屏 */
@@ -269,16 +269,19 @@ export const DouYinVideoPlayer = {
 		log.info("选择视频清晰度: " + mode);
 		let QualitySessionKey = "MANUAL_SWITCH";
 		let clarityReal = [
-			"adapt_lowest_4_1",
-			"adapt_lowest_1440_1",
+			"normal_720_0",
 			"normal_1080_0",
 			"normal_540_0",
 			"low_720_0",
-			"normal_720_0",
 			"low_540_0",
+			"adapt_lowest_1440_1",
 			"lower_540_0",
 			"adapt_low_540_0",
 			"adapt_lowest_1080_1",
+			"adapt_lowest_720_1",
+			"adapt_540_1",
+			"adapt_lower_540_1",
+			"adapt_lowest_1440_1",
 			"adapt_lowest_720_1",
 			"adapt_540_1",
 			"adapt_lower_540_1",
