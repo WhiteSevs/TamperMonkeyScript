@@ -92,7 +92,7 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
 								let $button = DOMUtils.parseHTML(
 									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -177,7 +177,7 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
 								let $button = DOMUtils.parseHTML(
 									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -252,7 +252,7 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
 								let $button = DOMUtils.parseHTML(
 									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -323,7 +323,7 @@ export class ApiTest_openInTab extends ApiAsyncTestBase {
 								let $button = DOMUtils.parseHTML(
 									/*html*/ `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>

@@ -7,6 +7,7 @@ import type { PopsPanelFormsTotalDetails } from "@whitesev/pops/dist/types/src/t
 import { ApiAsyncTestBase } from "../base/ApiAsyncTestBase";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { TamperMonkeyUtils } from "@/utils/TamperMonkeyUtils";
+import type { TagName } from "@/setting/tag";
 
 export class ApiTest_info extends ApiAsyncTestBase {
 	public isSupport() {
@@ -29,10 +30,7 @@ export class ApiTest_info extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: "" + apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -80,6 +78,12 @@ export class ApiTest_info extends ApiAsyncTestBase {
 			((result["forms"][1] as any).forms as PopsPanelFormsTotalDetails[]).push(
 				...[
 					{
+						value: GM_info?.downloadMode,
+						type: "string",
+						text: "GM_info.downloadMode",
+						notExistsTag: "error" as TagName,
+					},
+					{
 						value: GM_info?.scriptHandler,
 						type: "string",
 						text: "GM_info.scriptHandler",
@@ -105,6 +109,16 @@ export class ApiTest_info extends ApiAsyncTestBase {
 						text: "GM_info.script.name",
 					},
 					{
+						value: GM_info?.script?.author,
+						type: "string",
+						text: "GM_info.script.author",
+					},
+					{
+						value: GM_info?.script?.description,
+						type: "string",
+						text: "GM_info.script.description",
+					},
+					{
 						value: GM_info?.script?.version,
 						type: "string",
 						text: "GM_info.script.version",
@@ -120,7 +134,7 @@ export class ApiTest_info extends ApiAsyncTestBase {
 							} else {
 								return {
 									text: "不支持 " + it.text + " 类型：" + it.type,
-									tag: "error",
+									tag: <TagName>it.notExistsTag ?? "error",
 								};
 							}
 						} catch (error) {

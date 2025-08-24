@@ -31,10 +31,7 @@ export class ApiTest_addElement extends ApiAsyncTestBase {
 		let result: PopsPanelContentConfig = {
 			id: "aside-" + apiName,
 			title: apiName,
-			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-				apiName,
-				`${apiName} & ${apiAsyncInfo.name}`
-			)}`,
+			headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
 			scrollToDefaultView: true,
 			isDefault() {
 				return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -117,9 +114,7 @@ export class ApiTest_addElement extends ApiAsyncTestBase {
 								textContent: `window["${winPropName}"] = "bar";`,
 							});
 
-							$script_page = document.querySelector<HTMLScriptElement>(
-								"#" + el_script_id
-							);
+							$script_page = document.querySelector<HTMLScriptElement>("#" + el_script_id);
 							if ($script == null) {
 								return {
 									text: `${data.name} returns is null`,
@@ -188,7 +183,7 @@ export class ApiTest_addElement extends ApiAsyncTestBase {
 							const shadowRoot = $el_page.attachShadow({
 								mode: "closed",
 							});
-							$el_div = await data.fn(shadowRoot, "style", {
+							await data.fn(shadowRoot, "style", {
 								textContent: "div { color: black; };",
 							});
 							if (!shadowRoot.querySelector("style")) {

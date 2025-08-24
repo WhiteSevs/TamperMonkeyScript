@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.21
+// @version      2025.8.24
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -1319,10 +1319,10 @@
       globalThis,
       self,
       top,
-      setTimeout: globalThis.setTimeout,
-      clearTimeout: globalThis.clearTimeout,
-      setInterval: globalThis.setInterval,
-      clearInterval: globalThis.clearInterval
+      setTimeout: globalThis.setTimeout.bind(globalThis),
+      setInterval: globalThis.setInterval.bind(globalThis),
+      clearTimeout: globalThis.clearTimeout.bind(globalThis),
+      clearInterval: globalThis.clearInterval.bind(globalThis)
     };
     /** 使用的配置 */
     api;
@@ -8016,10 +8016,10 @@
       globalThis,
       self,
       top,
-      setTimeout: globalThis.setTimeout,
-      setInterval: globalThis.setInterval,
-      clearTimeout: globalThis.clearTimeout,
-      clearInterval: globalThis.clearInterval
+      setTimeout: globalThis.setTimeout.bind(globalThis),
+      setInterval: globalThis.setInterval.bind(globalThis),
+      clearTimeout: globalThis.clearTimeout.bind(globalThis),
+      clearInterval: globalThis.clearInterval.bind(globalThis)
     };
     /** 使用的配置 */
     api;
@@ -12021,10 +12021,20 @@ ${err.stack}`);
     document,
     window,
     globalThis,
-    self
+    self,
+    setTimeout: globalThis.setTimeout.bind(globalThis),
+    setInterval: globalThis.setInterval.bind(globalThis),
+    clearTimeout: globalThis.clearTimeout.bind(globalThis),
+    clearInterval: globalThis.clearInterval.bind(globalThis)
   };
   const PopsCoreEnv = Object.assign({}, PopsCoreDefaultEnv);
   const PopsCore = {
+    init(option) {
+      if (!option) {
+        option = Object.assign({}, PopsCoreDefaultEnv);
+      }
+      Object.assign(PopsCoreEnv, option);
+    },
     get document() {
       return PopsCoreEnv.document;
     },
@@ -12036,6 +12046,18 @@ ${err.stack}`);
     },
     get self() {
       return PopsCoreEnv.self;
+    },
+    get setTimeout() {
+      return PopsCoreEnv.setTimeout;
+    },
+    get setInterval() {
+      return PopsCoreEnv.setInterval;
+    },
+    get clearTimeout() {
+      return PopsCoreEnv.clearTimeout;
+    },
+    get clearInterval() {
+      return PopsCoreEnv.clearInterval;
     }
   };
   const OriginPrototype = {
@@ -12874,7 +12896,7 @@ ${err.stack}`);
       try {
         return setTimeout$1(callback, timeout);
       } catch (error) {
-        return globalThis.setTimeout(callback, timeout);
+        return PopsCore.setTimeout(callback, timeout);
       }
     }
     /**
@@ -12887,7 +12909,7 @@ ${err.stack}`);
         }
       } catch (error) {
       } finally {
-        globalThis.clearTimeout(timeId);
+        PopsCore.clearTimeout(timeId);
       }
     }
     /**
@@ -12897,7 +12919,7 @@ ${err.stack}`);
       try {
         return setInterval$1(callback, timeout);
       } catch (error) {
-        return globalThis.setInterval(callback, timeout);
+        return PopsCore.setInterval(callback, timeout);
       }
     }
     /**
@@ -12910,7 +12932,7 @@ ${err.stack}`);
         }
       } catch (error) {
       } finally {
-        globalThis.clearInterval(timeId);
+        PopsCore.clearInterval(timeId);
       }
     }
   }
@@ -23669,7 +23691,7 @@ ${err.stack}`);
       this.$data.menuOption.push(...option);
     },
     /**
-     * 更新菜单项
+     * 更新菜单项（如果该菜单项已存在，则更新，不存在则不做处理）
      * @param option 菜单配置
      */
     updateMenuOption(option) {
@@ -24583,13 +24605,14 @@ ${err.stack}`);
           timer = void 0;
           if (isDoubleClick && clickElement === selectorTarget) {
             isDoubleClick = false;
+            clickElement = null;
             dbclick_event(evt);
           } else {
             timer = setTimeout(() => {
               isDoubleClick = false;
             }, 200);
-            clickElement = selectorTarget;
             isDoubleClick = true;
+            clickElement = selectorTarget;
           }
         },
         {
@@ -24841,10 +24864,7 @@ ${err.stack}`);
       let result = {
         id: "aside-" + apiName,
         title: apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -24920,9 +24940,7 @@ ${err.stack}`);
                   id: el_script_id,
                   textContent: `window["${winPropName}"] = "bar";`
                 });
-                $script_page = document.querySelector(
-                  "#" + el_script_id
-                );
+                $script_page = document.querySelector("#" + el_script_id);
                 if ($script == null) {
                   return {
                     text: `${data.name} returns is null`,
@@ -24989,7 +25007,7 @@ ${err.stack}`);
                 const shadowRoot = $el_page.attachShadow({
                   mode: "closed"
                 });
-                $el_div = await data.fn(shadowRoot, "style", {
+                await data.fn(shadowRoot, "style", {
                   textContent: "div { color: black; };"
                 });
                 if (!shadowRoot.querySelector("style")) {
@@ -25252,7 +25270,7 @@ ${err.stack}`);
                     /*html*/
                     `
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="default">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">点击测试</span>
 											</button>
@@ -25507,7 +25525,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击执行</span>
 										</button>
@@ -25583,7 +25601,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击执行</span>
 										</button>
@@ -25636,7 +25654,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击执行</span>
 										</button>
@@ -25757,7 +25775,7 @@ ${err.stack}`);
                     /*html*/
                     `
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="default">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">点击测试</span>
 											</button>
@@ -25870,7 +25888,7 @@ ${err.stack}`);
                     /*html*/
                     `
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="default">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">点击测试</span>
 											</button>
@@ -26325,7 +26343,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -26490,7 +26508,7 @@ ${err.stack}`);
                     /*html*/
                     `
 								<div class="pops-panel-button pops-panel-button-no-icon">
-									<button class="pops-panel-button_inner" type="default">
+									<button class="pops-panel-button_inner" type="button" data-type="default">
 										<i class="pops-bottom-icon" is-loading="false"></i>
 										<span class="pops-panel-button-text">点击测试</span>
 									</button>
@@ -26658,7 +26676,7 @@ ${err.stack}`);
                       /*html*/
                       `
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="default">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">点击测试</span>
 											</button>
@@ -26706,7 +26724,7 @@ ${err.stack}`);
                     /*html*/
                     `
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="default">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">点击测试</span>
 											</button>
@@ -26750,7 +26768,7 @@ ${err.stack}`);
                     /*html*/
                     `
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="default">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">点击测试</span>
 											</button>
@@ -26860,7 +26878,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -26899,7 +26917,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -26944,7 +26962,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -27000,10 +27018,7 @@ ${err.stack}`);
       let result = {
         id: "aside-" + apiName,
         title: "" + apiName,
-        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(
-        apiName,
-        `${apiName} & ${apiAsyncInfo.name}`
-      )}`,
+        headerTitle: `${TamperMonkeyUtils.getApiDocUrl(apiName, `${apiName} & ${apiAsyncInfo.name}`)}`,
         scrollToDefaultView: true,
         isDefault() {
           return StorageApi.get(PanelKeyConfig.asideLastVisit) === apiName;
@@ -27047,6 +27062,12 @@ ${err.stack}`);
         result["forms"][1].forms.push(
           ...[
             {
+              value: _GM_info?.downloadMode,
+              type: "string",
+              text: "GM_info.downloadMode",
+              notExistsTag: "error"
+            },
+            {
               value: _GM_info?.scriptHandler,
               type: "string",
               text: "GM_info.scriptHandler"
@@ -27072,6 +27093,16 @@ ${err.stack}`);
               text: "GM_info.script.name"
             },
             {
+              value: _GM_info?.script?.author,
+              type: "string",
+              text: "GM_info.script.author"
+            },
+            {
+              value: _GM_info?.script?.description,
+              type: "string",
+              text: "GM_info.script.description"
+            },
+            {
               value: _GM_info?.script?.version,
               type: "string",
               text: "GM_info.script.version"
@@ -27087,7 +27118,7 @@ ${err.stack}`);
                 } else {
                   return {
                     text: "不支持 " + it.text + " 类型：" + it.type,
-                    tag: "error"
+                    tag: it.notExistsTag ?? "error"
                   };
                 }
               } catch (error) {
@@ -27178,7 +27209,7 @@ ${err.stack}`);
                   /*html*/
                   `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -27292,7 +27323,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击执行</span>
 										</button>
@@ -27433,7 +27464,7 @@ ${err.stack}`);
                       /*html*/
                       `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -27482,7 +27513,7 @@ ${err.stack}`);
                       /*html*/
                       `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -27576,7 +27607,7 @@ ${err.stack}`);
                       /*html*/
                       `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -27715,7 +27746,7 @@ ${err.stack}`);
                       /*html*/
                       `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -27849,7 +27880,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -27919,7 +27950,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -27994,7 +28025,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -28066,7 +28097,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -28221,7 +28252,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -28335,7 +28366,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -28466,7 +28497,7 @@ ${err.stack}`);
                     /*html*/
                     `
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="default">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">点击测试</span>
 											</button>
@@ -28677,7 +28708,7 @@ ${err.stack}`);
                   /*html*/
                   `
 								<div class="pops-panel-button pops-panel-button-no-icon">
-									<button class="pops-panel-button_inner" type="default">
+									<button class="pops-panel-button_inner" type="button" data-type="default">
 										<i class="pops-bottom-icon" is-loading="false"></i>
 										<span class="pops-panel-button-text">点击测试</span>
 									</button>
@@ -28859,7 +28890,7 @@ ${err.stack}`);
                       /*html*/
                       `
 										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="default">
+											<button class="pops-panel-button_inner" type="button" data-type="default">
 												<i class="pops-bottom-icon" is-loading="false"></i>
 												<span class="pops-panel-button-text">点击测试</span>
 											</button>
@@ -28964,7 +28995,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -29067,7 +29098,7 @@ ${err.stack}`);
                     /*html*/
                     `
 									<div class="pops-panel-button pops-panel-button-no-icon">
-										<button class="pops-panel-button_inner" type="default">
+										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
 											<span class="pops-panel-button-text">点击测试</span>
 										</button>
@@ -29672,7 +29703,7 @@ ${err.stack}`);
                         /*html*/
                         `
 											<div class="pops-panel-button pops-panel-button-no-icon">
-												<button class="pops-panel-button_inner" type="default">
+												<button class="pops-panel-button_inner" type="button" data-type="default">
 													<i class="pops-bottom-icon" is-loading="false"></i>
 													<span class="pops-panel-button-text">点击执行</span>
 												</button>
@@ -29771,7 +29802,7 @@ ${err.stack}`);
                         /*html*/
                         `
 											<div class="pops-panel-button pops-panel-button-no-icon">
-												<button class="pops-panel-button_inner" type="default">
+												<button class="pops-panel-button_inner" type="button" data-type="default">
 													<i class="pops-bottom-icon" is-loading="false"></i>
 													<span class="pops-panel-button-text">点击执行</span>
 												</button>
@@ -29848,7 +29879,7 @@ ${err.stack}`);
                         /*html*/
                         `
 											<div class="pops-panel-button pops-panel-button-no-icon">
-												<button class="pops-panel-button_inner" type="default">
+												<button class="pops-panel-button_inner" type="button" data-type="default">
 													<i class="pops-bottom-icon" is-loading="false"></i>
 													<span class="pops-panel-button-text">点击执行</span>
 												</button>
@@ -29900,6 +29931,14 @@ ${err.stack}`);
       return result;
     }
   }
+  let showPanel = () => {
+    Panel.showPanel(PanelContent.getConfig(0), void 0, void 0, true);
+  };
+  let defaultMenuOption = PanelMenu.getMenuOption(0);
+  defaultMenuOption.callback = () => {
+    showPanel();
+  };
+  PanelMenu.updateMenuOption(defaultMenuOption);
   let configList = [Component_Common()];
   Object.keys(GMTotal).forEach((keyName) => {
     let value = GMTotal[keyName];
@@ -29964,6 +30003,6 @@ ${err.stack}`);
     )
   };
   Panel.init();
-  Panel.showPanel(PanelContent.getConfig());
+  showPanel();
 
 })();

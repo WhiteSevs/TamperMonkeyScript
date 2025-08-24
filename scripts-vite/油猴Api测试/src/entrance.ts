@@ -6,7 +6,16 @@ import { GMTotal } from "./main/GMTotal";
 import { GrantTest_onurlchange } from "./main/grant/onurlchange";
 import { GrantTest_close } from "./main/grant/close";
 import { GrantTest_focus } from "./main/grant/focus";
+import { PanelMenu } from "@components/setting/panel-menu";
 
+let showPanel = () => {
+	Panel.showPanel(PanelContent.getConfig(0), void 0, void 0, true);
+};
+let defaultMenuOption = PanelMenu.getMenuOption(0);
+defaultMenuOption.callback = () => {
+	showPanel();
+};
+PanelMenu.updateMenuOption(defaultMenuOption);
 let configList: PopsPanelContentConfig[] = [Component_Common()];
 Object.keys(GMTotal).forEach((keyName) => {
 	let value = GMTotal[keyName as keyof typeof GMTotal];
@@ -68,4 +77,5 @@ Panel.$data.panelConfig = {
 	`,
 };
 Panel.init();
-Panel.showPanel(PanelContent.getConfig());
+// 直接自动显示面板
+showPanel();
