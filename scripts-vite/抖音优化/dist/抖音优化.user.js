@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.21
+// @version      2025.8.24
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://*.douyin.com/*
 // @match        *://*.iesdouyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.4/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.7.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.6.5/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@2.3.6/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.4.0/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -3385,19 +3385,111 @@
       return [CommonUtil.addBlockCSS(".comment-header-with-search")];
     }
   };
-  const DouYinVideoBlock_BottomToolbar = {
+  const DouYinVideoBlock_BottomToolbar_videoInfo = {
+    init() {
+      Panel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
+        return this.shieldVideoInfoWrap();
+      });
+      Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
+        return this.blockClickRecommend();
+      });
+      Panel.execMenuOnce("dy-video-blockTitleTopTag", () => {
+        return this.blobkTitleTopTag();
+      });
+      Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
+        return this.shieldVideoUnderTitleTag();
+      });
+      Panel.execMenuOnce("dy-video-blockClickUpdateReminder", () => {
+        return this.blockClickUpdateReminder();
+      });
+    },
+    /**
+     * 【屏蔽】视频信息
+     */
+    shieldVideoInfoWrap() {
+      log.info("【屏蔽】视频信息");
+      return [CommonUtil.addBlockCSS("#video-info-wrap")];
+    },
+    /**
+     * 【屏蔽】点击推荐
+     */
+    blockClickRecommend() {
+      log.info(`【屏蔽】点击推荐`);
+      return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
+    },
+    /**
+     * 【屏蔽】视频标题上的标签
+     *
+     * - 每周精选
+     * - 抖音精选
+     */
+    blobkTitleTopTag() {
+      log.info(`【屏蔽】视频标题上的标签`);
+      return CommonUtil.addBlockCSS(
+        "span:has(+#video-info-wrap):has(img)",
+        "span:has(+div #video-info-wrap):has(img)"
+      );
+    },
+    /**
+     * 【屏蔽】视频标题下的标签
+     */
+    shieldVideoUnderTitleTag() {
+      log.info(`【屏蔽】视频标题下的标签`);
+      return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
+    },
+    /**
+     * 【屏蔽】及时接收作品更新提醒
+     */
+    blockClickUpdateReminder() {
+      log.info(`【屏蔽】及时接收作品更新提醒`);
+      let lockFn = new utils.LockFunction(() => {
+        let $reminder = $$(
+          ".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')"
+        );
+        domUtils.remove($reminder);
+      });
+      utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true
+        },
+        callback: () => {
+          lockFn.run();
+        }
+      });
+    }
+  };
+  const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
     init() {
       Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
         return this.shieldBottomVideoToolBar();
       });
-      Panel.execMenuOnce("dy-video-bottom-shieldVideoInfoWrap", () => {
-        return this.shieldVideoInfoWrap();
-      });
       Panel.execMenuOnce("shieldBottomVideoToolbarDanmuContainer", () => {
         return this.shieldBottomVideoToolbarDanmuContainer();
       });
-      Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
-        return this.shieldVideoUnderTitleTag();
+      Panel.execMenuOnce("shieldBottomVideoToolbar-autoPlay", () => {
+        return this.autoPlay();
+      });
+      Panel.execMenuOnce("shieldBottomVideoToolbar-clearScreen", () => {
+        return this.clearScreen();
+      });
+      Panel.execMenuOnce("shieldBottomVideoToolbar-playclarity", () => {
+        return this.playclarity();
+      });
+      Panel.execMenuOnce("shieldBottomVideoToolbar-playback", () => {
+        return this.playback();
+      });
+      Panel.execMenuOnce("shieldBottomVideoToolbar-watchLater", () => {
+        return this.watchLater();
+      });
+      Panel.execMenuOnce("shieldBottomVideoToolbar-miniMode", () => {
+        return this.miniMode();
+      });
+      Panel.execMenuOnce("shieldBottomVideoToolbar-pageFullScreen", () => {
+        return this.pageFullScreen();
+      });
+      Panel.execMenuOnce("shieldBottomVideoToolbar-fullScreen", () => {
+        return this.fullScreen();
       });
     },
     /**
@@ -3421,13 +3513,6 @@
       ];
     },
     /**
-     * 【屏蔽】视频信息
-     */
-    shieldVideoInfoWrap() {
-      log.info("【屏蔽】视频信息");
-      return [CommonUtil.addBlockCSS("#video-info-wrap")];
-    },
-    /**
      * 【屏蔽】底部视频工具栏的弹幕容器
      */
     shieldBottomVideoToolbarDanmuContainer() {
@@ -3437,11 +3522,60 @@
       ];
     },
     /**
-     * 【屏蔽】视频标题下的标签
+     * 【屏蔽】连播
      */
-    shieldVideoUnderTitleTag() {
-      log.info(`【屏蔽】视频标题下的标签`);
-      return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
+    autoPlay() {
+      log.info(`【屏蔽】连播`);
+      return [CommonUtil.addBlockCSS(".xgplayer-autoplay-setting")];
+    },
+    /**
+     * 【屏蔽】清屏
+     */
+    clearScreen() {
+      log.info(`【屏蔽】清屏`);
+      return [CommonUtil.addBlockCSS(".xgplayer-immersive-switch-setting")];
+    },
+    /**
+     * 【屏蔽】清晰度
+     */
+    playclarity() {
+      log.info(`【屏蔽】清晰度`);
+      return [CommonUtil.addBlockCSS(".xgplayer-playclarity-setting")];
+    },
+    /**
+     * 【屏蔽】倍速
+     */
+    playback() {
+      log.info(`【屏蔽】倍速`);
+      return [CommonUtil.addBlockCSS(".xgplayer-playback-setting")];
+    },
+    /**
+     * 【屏蔽】稍后再看
+     */
+    watchLater() {
+      log.info(`【屏蔽】稍后再看`);
+      return [CommonUtil.addBlockCSS(".xgplayer-watch-later")];
+    },
+    /**
+     * 【屏蔽】小窗模式
+     */
+    miniMode() {
+      log.info(`【屏蔽】小窗模式`);
+      return [CommonUtil.addBlockCSS(".xgplayer-pip")];
+    },
+    /**
+     * 【屏蔽】网页全屏
+     */
+    pageFullScreen() {
+      log.info(`【屏蔽】网页全屏`);
+      return [CommonUtil.addBlockCSS(".xgplayer-page-full-screen")];
+    },
+    /**
+     * 【屏蔽】进入全屏
+     */
+    fullScreen() {
+      log.info(`【屏蔽】进入全屏`);
+      return [CommonUtil.addBlockCSS(".xgplayer-fullscreen")];
     }
   };
   const DouYinVideoBlock_RightToolbar = {
@@ -3651,16 +3785,8 @@
       Panel.execMenuOnce("dy-video-blockShopInfo", () => {
         return this.blockShopInfo();
       });
-      Panel.execMenuOnce("dy-video-blockTitleTopTag", () => {
-        return this.blobkTitleTopTag();
-      });
-      Panel.execMenuOnce("dy-video-blockClickRecommend", () => {
-        return this.blockClickRecommend();
-      });
-      Panel.execMenuOnce("dy-video-blockClickUpdateReminder", () => {
-        return this.blockClickUpdateReminder();
-      });
-      DouYinVideoBlock_BottomToolbar.init();
+      DouYinVideoBlock_BottomToolbar_videoInfo.init();
+      DouYinVideoBlock_BottomToolbar_PlayerComponents.init();
       DouYinVideoBlock_RightToolbar.init();
       DouYinVideoBlock_Comment.init();
     },
@@ -3735,47 +3861,6 @@
     blockShopInfo() {
       log.info(`【屏蔽】购物信息`);
       return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
-    },
-    /**
-     * 【屏蔽】视频标题上的标签
-     *
-     * - 每周精选
-     * - 抖音精选
-     */
-    blobkTitleTopTag() {
-      log.info(`【屏蔽】视频标题上的标签`);
-      return CommonUtil.addBlockCSS(
-        "span:has(+#video-info-wrap):has(img)",
-        "span:has(+div #video-info-wrap):has(img)"
-      );
-    },
-    /**
-     * 【屏蔽】点击推荐
-     */
-    blockClickRecommend() {
-      log.info(`【屏蔽】点击推荐`);
-      return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
-    },
-    /**
-     * 【屏蔽】及时接收作品更新提醒
-     */
-    blockClickUpdateReminder() {
-      log.info(`【屏蔽】及时接收作品更新提醒`);
-      let lockFn = new utils.LockFunction(() => {
-        let $reminder = $$(
-          ".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')"
-        );
-        domUtils.remove($reminder);
-      });
-      utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true
-        },
-        callback: () => {
-          lockFn.run();
-        }
-      });
     }
   };
   class ShortCut {
@@ -4737,9 +4822,9 @@
           "xg-controls.xgplayer-controls"
         )
       );
-      result.push(DouYinVideoBlock.blobkTitleTopTag());
+      result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blobkTitleTopTag());
       result.push(DouYinVideoBlock.shieldSearchFloatingBar());
-      result.push(DouYinVideoBlock.blockClickRecommend());
+      result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockClickRecommend());
       result.push(
         addStyle(
           /*css*/
@@ -4881,16 +4966,19 @@
       log.info("选择视频清晰度: " + mode);
       let QualitySessionKey = "MANUAL_SWITCH";
       let clarityReal = [
-        "adapt_lowest_4_1",
-        "adapt_lowest_1440_1",
+        "normal_720_0",
         "normal_1080_0",
         "normal_540_0",
         "low_720_0",
-        "normal_720_0",
         "low_540_0",
+        "adapt_lowest_1440_1",
         "lower_540_0",
         "adapt_low_540_0",
         "adapt_lowest_1080_1",
+        "adapt_lowest_720_1",
+        "adapt_540_1",
+        "adapt_lower_540_1",
+        "adapt_lowest_1440_1",
         "adapt_lowest_720_1",
         "adapt_540_1",
         "adapt_lower_540_1"
@@ -9913,7 +10001,8 @@
         } else {
           log.warn("子router: " + window.location.href);
         }
-      } else {
+      } else if (window.location.hostname.startsWith("lf-zt.douyin.com")) ;
+      else {
         log.error("未适配router: " + window.location.href);
       }
     },
@@ -11511,17 +11600,9 @@
                 ]
               },
               {
-                text: "底部工具栏",
+                text: "底部工具栏-视频信息区域",
                 type: "forms",
                 forms: [
-                  UISwitch("【屏蔽】底部视频工具栏", "shieldBottomVideoToolBar", false, void 0, "屏蔽元素"),
-                  UISwitch(
-                    "【屏蔽】弹幕容器",
-                    "shieldBottomVideoToolbarDanmuContainer",
-                    false,
-                    void 0,
-                    "屏蔽元素（不包括屏蔽弹幕）"
-                  ),
                   UISwitch(
                     "【屏蔽】视频信息",
                     "dy-video-bottom-shieldVideoInfoWrap",
@@ -11529,24 +11610,64 @@
                     void 0,
                     "屏蔽元素，可代替【清屏】功能"
                   ),
+                  UISwitch("【屏蔽】点击推荐", "dy-video-blockClickRecommend", false, void 0, "屏蔽元素"),
                   UISwitch(
-                    "【屏蔽】视频标题上的标签",
+                    "【屏蔽】视频标题上面的标签",
                     "dy-video-blockTitleTopTag",
                     false,
                     void 0,
                     "例如：每周精选、抖音精选"
                   ),
                   UISwitch(
-                    "【屏蔽】视频标题下的标签",
+                    "【屏蔽】视频标题下面的标签",
                     "dy-video-bottom-shieldVideoUnderTitleTag",
                     false,
                     void 0,
                     "例如：相关搜索、AI搜索、合集...等"
                   ),
-                  UISwitch("【屏蔽】点击推荐", "dy-video-blockClickRecommend", false, void 0, "屏蔽元素"),
                   UISwitch(
                     "【屏蔽】及时接收作品更新提醒",
                     "dy-video-blockClickUpdateReminder",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  )
+                ]
+              },
+              {
+                type: "forms",
+                text: "底部工具栏-播放工具",
+                forms: [
+                  UISwitch("【屏蔽】播放工具组件", "shieldBottomVideoToolBar", false, void 0, "屏蔽元素"),
+                  UISwitch(
+                    "【屏蔽】弹幕容器",
+                    "shieldBottomVideoToolbarDanmuContainer",
+                    false,
+                    void 0,
+                    "屏蔽元素（不包括屏蔽弹幕）"
+                  ),
+                  UISwitch("【屏蔽】连播", "shieldBottomVideoToolbar-autoPlay", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】清屏", "shieldBottomVideoToolbar-clearScreen", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】清晰度", "shieldBottomVideoToolbar-playclarity", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】倍速", "shieldBottomVideoToolbar-playback", false, void 0, "屏蔽元素"),
+                  UISwitch(
+                    "【屏蔽】稍后再看",
+                    "shieldBottomVideoToolbar-watchLater",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch("【屏蔽】小窗模式", "shieldBottomVideoToolbar-miniMode", false, void 0, "屏蔽元素"),
+                  UISwitch(
+                    "【屏蔽】网页全屏",
+                    "shieldBottomVideoToolbar-pageFullScreen",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
+                  UISwitch(
+                    "【屏蔽】进入全屏",
+                    "shieldBottomVideoToolbar-fullScreen",
                     false,
                     void 0,
                     "屏蔽元素"
