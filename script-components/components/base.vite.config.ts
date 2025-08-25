@@ -325,7 +325,7 @@ const GenerateUserConfig = async (option: {
 			build: {
 				externalResource: {
 					"element-plus/dist/index.css": (pkg) =>
-						`https://cdn.jsdelivr.net/npm/${pkg.name}@${pkg.version}}/dist/index.css`,
+						`https://fastly.jsdelivr.net/npm/${pkg.name}@${pkg.version}}/dist/index.css`,
 				},
 				externalGlobals: {
 					vue: cdn.jsdelivrFastly("Vue", "dist/vue.global.prod.js"),
