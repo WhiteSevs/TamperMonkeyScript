@@ -86,18 +86,29 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
 	 * 【屏蔽】及时接收作品更新提醒
 	 */
 	blockClickUpdateReminder() {
-		log.info(`【屏蔽】及时接收作品更新提醒`);
 		let lockFn = new utils.LockFunction(() => {
 			let $reminder = $$<HTMLElement>(
 				".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')"
 			);
-			DOMUtils.remove($reminder);
+			// 修复因移除导致视频信息为归为问题
+			if ($reminder.length) {
+				for (const $reminderItem of $reminder) {
+					const $basePlayerContainer = $reminderItem.closest<HTMLElement>(".basePlayerContainer");
+					const $videoInfoDetail = $basePlayerContainer?.querySelector<HTMLElement>(".video-info-detail");
+					if ($videoInfoDetail) {
+						DOMUtils.css($videoInfoDetail, "paddingBottom", "8px");
+					}
+				}
+				DOMUtils.remove($reminder);
+				log.success(`【屏蔽】及时接收作品更新提醒`);
+			}
 		});
 		utils.mutationObserver(document, {
 			config: {
 				subtree: true,
 				childList: true,
 			},
+			immediate: true,
 			callback: () => {
 				lockFn.run();
 			},

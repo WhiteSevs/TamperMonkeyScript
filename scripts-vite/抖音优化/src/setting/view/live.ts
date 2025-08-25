@@ -42,7 +42,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 									"自行选择清晰度"
 								),
 								UISwitch(
-									"解锁画质选择",
+									"解锁画质选择（已失效，请关闭该功能）",
 									"live-unlockImageQuality",
 									true,
 									void 0,
@@ -62,13 +62,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									"自动监听并检测弹窗"
 								),
-								UISwitch(
-									"禁止自动播放",
-									"live-pauseVideo",
-									false,
-									void 0,
-									"3秒内禁止任何形式的播放"
-								),
+								UISwitch("禁止自动播放", "live-pauseVideo", false, void 0, "3秒内禁止任何形式的播放"),
 								UISwitch(
 									"解析直播信息",
 									"live-parsePlayerInstance",
@@ -96,13 +90,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 							text: "视频区域背景色",
 							type: "forms",
 							forms: [
-								UISwitch(
-									"启用",
-									"live-bgColor-enable",
-									false,
-									void 0,
-									"自定义视频背景色"
-								),
+								UISwitch("启用", "live-bgColor-enable", false, void 0, "自定义视频背景色"),
 								{
 									type: "own",
 									attributes: {
@@ -123,22 +111,12 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 											<input type="color" class="pops-color-choose" />
 											`,
 										});
-										let $color =
-											$right.querySelector<HTMLInputElement>(
-												".pops-color-choose"
-											)!;
+										let $color = $right.querySelector<HTMLInputElement>(".pops-color-choose")!;
 										$color.value = Panel.getValue("live-changeBackgroundColor");
-										DOMUtils.on(
-											$color,
-											["input", "propertychange"],
-											(event) => {
-												log.info("选择颜色：" + $color.value);
-												Panel.setValue(
-													"live-changeBackgroundColor",
-													$color.value
-												);
-											}
-										);
+										DOMUtils.on($color, ["input", "propertychange"], (event) => {
+											log.info("选择颜色：" + $color.value);
+											Panel.setValue("live-changeBackgroundColor", $color.value);
+										});
 
 										liElement.appendChild($left);
 										liElement.appendChild($right);
@@ -158,27 +136,9 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 							text: "",
 							type: "forms",
 							forms: [
-								UISwitch(
-									"启用",
-									"live-danmu-shield-rule-enable",
-									false,
-									void 0,
-									"启用自定义的弹幕过滤规则"
-								),
-								UISwitch(
-									"【屏蔽】送礼信息",
-									"live-danmu-shield-gift",
-									false,
-									void 0,
-									""
-								),
-								UISwitch(
-									"【屏蔽】福袋口令",
-									"live-danmu-shield-lucky-bag",
-									false,
-									void 0,
-									""
-								),
+								UISwitch("启用", "live-danmu-shield-rule-enable", false, void 0, "启用自定义的弹幕过滤规则"),
+								UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift", false, void 0, ""),
+								UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag", false, void 0, ""),
 							],
 						},
 						{
@@ -192,13 +152,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									""
 								),
-								UISwitch(
-									"【屏蔽】emoji",
-									"live-message-shield-method-emoji-chat",
-									false,
-									void 0,
-									""
-								),
+								UISwitch("【屏蔽】emoji", "live-message-shield-method-emoji-chat", false, void 0, ""),
 							],
 						},
 						{
@@ -278,28 +232,15 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 				{
 					type: "deepMenu",
 					text: "禁用抖音快捷键",
-					afterEnterDeepMenuCallBack:
-						AutoOpenOrClose.afterEnterDeepMenuCallBack,
+					afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
 							type: "forms",
 							text: AutoOpenOrClose.text,
 							forms: [
 								UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
-								UISwitch(
-									"屏幕旋转",
-									"dy-live-screenRotation",
-									false,
-									void 0,
-									"D"
-								),
-								UISwitch(
-									"开启小窗模式",
-									"dy-live-enableSmallWindowMode",
-									false,
-									void 0,
-									"U"
-								),
+								UISwitch("屏幕旋转", "dy-live-screenRotation", false, void 0, "D"),
+								UISwitch("开启小窗模式", "dy-live-enableSmallWindowMode", false, void 0, "U"),
 							],
 						},
 					],
@@ -313,8 +254,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 				{
 					text: "布局屏蔽-视频区域内",
 					type: "deepMenu",
-					afterEnterDeepMenuCallBack:
-						AutoOpenOrClose.afterEnterDeepMenuCallBack,
+					afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
 							text: AutoOpenOrClose.text,
@@ -327,41 +267,11 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽元素，包括直播作者、右侧的礼物展馆"
 								),
-								UISwitch(
-									"【屏蔽】底部的礼物栏",
-									"live-shieldGiftColumn",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】礼物特效",
-									"live-shieldGiftEffects",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】福袋",
-									"live-shieldLucky",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】弹幕",
-									"live-shieldDanmuku",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】小黄车",
-									"live-shielYellowCar",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
+								UISwitch("【屏蔽】底部的礼物栏", "live-shieldGiftColumn", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】礼物特效", "live-shieldGiftEffects", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】福袋", "live-shieldLucky", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】弹幕", "live-shieldDanmuku", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】小黄车", "live-shielYellowCar", false, void 0, "屏蔽元素"),
 								UISwitch(
 									"【屏蔽】点亮展馆帮主播集星",
 									"live-block-exhibition-banner-dylive-tooltip",
@@ -389,48 +299,17 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
 				{
 					text: "布局屏蔽-聊天室",
 					type: "deepMenu",
-					afterEnterDeepMenuCallBack:
-						AutoOpenOrClose.afterEnterDeepMenuCallBack,
+					afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
 					forms: [
 						{
 							text: AutoOpenOrClose.text,
 							type: "forms",
 							forms: [
-								UISwitch(
-									"【屏蔽】聊天室",
-									"live-shieldChatRoom",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】贵宾席",
-									"live-shielChatRoomVipSeats",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】用户等级图标",
-									"dy-live-shieldUserLevelIcon",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】VIP图标",
-									"dy-live-shieldUserVIPIcon",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
-								UISwitch(
-									"【屏蔽】粉丝牌",
-									"dy-live-shieldUserFansIcon",
-									false,
-									void 0,
-									"屏蔽元素"
-								),
+								UISwitch("【屏蔽】聊天室", "live-shieldChatRoom", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】VIP图标", "dy-live-shieldUserVIPIcon", false, void 0, "屏蔽元素"),
+								UISwitch("【屏蔽】粉丝牌", "dy-live-shieldUserFansIcon", false, void 0, "屏蔽元素"),
 								UISwitch(
 									"【屏蔽】信息播报",
 									"dy-live-shieldMessage",

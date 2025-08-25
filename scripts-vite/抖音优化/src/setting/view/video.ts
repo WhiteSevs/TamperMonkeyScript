@@ -425,7 +425,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
 									void 0,
 									"屏蔽元素，可代替【清屏】功能"
 								),
-								UISwitch("【屏蔽】点击推荐", "dy-video-blockClickRecommend", false, void 0, "屏蔽元素"),
+								UISwitch(
+									"<code>【屏蔽】点击推荐</code>或<code>【屏蔽】共xx人推荐</code>",
+									"dy-video-blockClickRecommend",
+									false,
+									void 0,
+									"屏蔽元素"
+								),
 								UISwitch(
 									"【屏蔽】视频标题上面的标签",
 									"dy-video-blockTitleTopTag",

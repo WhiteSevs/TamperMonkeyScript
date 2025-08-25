@@ -98,24 +98,20 @@ export const DouYinLive = {
 	 */
 	autoEnterElementFullScreen() {
 		DOMUtils.ready(() => {
-			ReactUtils.waitReactPropsToSet(
-				"xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)",
-				"reactFiber",
-				{
-					check(reactInstance) {
-						return typeof reactInstance?.memoizedProps?.onClick === "function";
-					},
-					set(reactInstance, $target) {
-						let $xgIcon = $target.closest<HTMLElement>("xg-icon");
-						if ($xgIcon && DOMUtils.text($xgIcon).includes("退出网页全屏")) {
-							log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
-							return;
-						}
-						log.success("成功自动进入网页全屏");
-						reactInstance.memoizedProps.onClick();
-					},
-				}
-			);
+			ReactUtils.waitReactPropsToSet("xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)", "reactFiber", {
+				check(reactInstance) {
+					return typeof reactInstance?.memoizedProps?.onClick === "function";
+				},
+				set(reactInstance, $target) {
+					let $xgIcon = $target.closest<HTMLElement>("xg-icon");
+					if ($xgIcon && DOMUtils.text($xgIcon).includes("退出网页全屏")) {
+						log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
+						return;
+					}
+					log.success("成功自动进入网页全屏");
+					reactInstance.memoizedProps.onClick();
+				},
+			});
 		});
 	},
 	/**
@@ -129,22 +125,17 @@ export const DouYinLive = {
 			{
 				check(reactInstance) {
 					return (
-						typeof reactInstance?.children?.props?.children?.props
-							?.qualityHandler === "object" &&
-						typeof reactInstance?.children?.props?.children?.props
-							?.qualityHandler?.getCurrentQualityList === "function"
+						typeof reactInstance?.children?.props?.children?.props?.qualityHandler === "object" &&
+						typeof reactInstance?.children?.props?.children?.props?.qualityHandler?.getCurrentQualityList ===
+							"function"
 					);
 				},
 				set(reactInstance) {
-					let qualityHandler =
-						reactInstance.children.props.children.props.qualityHandler;
+					let qualityHandler = reactInstance.children.props.children.props.qualityHandler;
 					// 当前直播可选的画质
-					let currentQualityList: string[] =
-						qualityHandler.getCurrentQualityList();
+					let currentQualityList: string[] = qualityHandler.getCurrentQualityList();
 					if (!currentQualityList.includes(quality)) {
-						Qmsg.warning(
-							"当前直播没有【" + quality + "】画质，自动选择最高画质"
-						);
+						Qmsg.warning("当前直播没有【" + quality + "】画质，自动选择最高画质");
 						currentQualityList.sort((a, b) => {
 							if (!VideoQualityMap[a]) {
 								log.error("画质【" + a + "】不存在");
@@ -169,21 +160,16 @@ export const DouYinLive = {
 			{
 				check(reactPropInst, $el) {
 					return (
-						typeof reactPropInst?.return?.memoizedProps?.qualityHandler
-							?.setCurrentQuality === "function" &&
+						typeof reactPropInst?.return?.memoizedProps?.qualityHandler?.setCurrentQuality === "function" &&
 						Array.isArray(reactPropInst?.return?.memoizedProps?.qualityList)
 					);
 				},
 				set(reactPropInst, $el) {
-					let qualityHandler =
-						reactPropInst.return.memoizedProps.qualityHandler;
+					let qualityHandler = reactPropInst.return.memoizedProps.qualityHandler;
 					// 当前直播可选的画质
-					let currentQualityList: string[] =
-						reactPropInst?.return?.memoizedProps?.qualityList;
+					let currentQualityList: string[] = reactPropInst?.return?.memoizedProps?.qualityList;
 					if (!currentQualityList.includes(quality)) {
-						Qmsg.warning(
-							"当前直播没有【" + quality + "】画质，自动选择最高画质"
-						);
+						Qmsg.warning("当前直播没有【" + quality + "】画质，自动选择最高画质");
 						currentQualityList.sort((a, b) => {
 							if (!VideoQualityMap[a]) {
 								log.error("画质【" + a + "】不存在");
@@ -218,6 +204,7 @@ export const DouYinLive = {
 				utils.preventEvent(event);
 				try {
 					let reactInst = utils.getReactObj(clickNode);
+					let $QualitySwitchNewPlugin = clickNode.closest<HTMLElement>(".QualitySwitchNewPlugin");
 					let parent =
 						clickNode.closest<HTMLElement>(".QualitySwitchNewPlugin > div") ||
 						clickNode.closest<HTMLElement>("div[data-index]");
@@ -228,17 +215,16 @@ export const DouYinLive = {
 						},
 						getCurrentQualityList(): string[] {
 							return (
-								parentReactInst?.reactFiber?.return?.memoizedProps
-									?.qualityList ||
+								parentReactInst?.reactFiber?.return?.memoizedProps?.qualityList ||
 								parentReactInst?.reactProps?.["children"]["ref"]["current"]
 							);
 						},
 						setCurrentQuality(quality: string) {
 							let setCurrentQuality =
-								parentReactInst?.reactFiber?.return?.memoizedProps
-									?.qualityHandler?.setCurrentQuality ||
-								parentReactInst?.reactProps?.["children"]?.["ref"]?.["current"]
-									?.setCurrentQuality;
+								parentReactInst?.reactFiber?.return?.memoizedProps?.qualityHandler?.setCurrentQuality ||
+								parentReactInst?.reactFiber?.child?.memoizedProps?.qualityHandler?.setCurrentQuality ||
+								parentReactInst?.reactFiber?.return?.memoizedProps?.qualityHandler?.setCurrentQuality ||
+								parentReactInst?.reactProps?.["children"]?.["ref"]?.["current"]?.setCurrentQuality;
 							if (typeof setCurrentQuality === "function") {
 								setCurrentQuality(quality);
 							} else {
@@ -246,6 +232,20 @@ export const DouYinLive = {
 							}
 						},
 					};
+
+					if ($QualitySwitchNewPlugin) {
+						let QualitySwitchNewPluginReactInst = utils.getReactObj($QualitySwitchNewPlugin);
+						let current = QualitySwitchNewPluginReactInst?.reactFiber?.child?.ref?.current;
+						if (
+							typeof current === "object" &&
+							current != null &&
+							typeof current?.getCurrentQuality === "function" &&
+							typeof current?.getCurrentQualityList === "function" &&
+							typeof current?.setCurrentQuality === "function"
+						) {
+							qualityHandler = current;
+						}
+					}
 					let currentQuality = qualityHandler.getCurrentQuality();
 					log.info("当前选择的画质: " + currentQuality);
 					log.info(["所有的画质: ", qualityHandler.getCurrentQualityList()]);
@@ -289,9 +289,7 @@ export const DouYinLive = {
 									isFind: true,
 									data: obj["onClose"],
 								};
-							} else if (
-								typeof obj?.["memoizedProps"]?.["onClose"] === "function"
-							) {
+							} else if (typeof obj?.["memoizedProps"]?.["onClose"] === "function") {
 								return {
 									isFind: true,
 									data: obj?.["memoizedProps"]?.["onClose"],
@@ -303,9 +301,7 @@ export const DouYinLive = {
 									data: obj["child"],
 								};
 							}
-						}) ||
-						$rect?.reactContainer?.memoizedState?.element?.props?.children
-							?.props?.onClose;
+						}) || $rect?.reactContainer?.memoizedState?.element?.props?.children?.props?.onClose;
 					if (typeof closeDialogFn === "function") {
 						Qmsg.success(`检测${from}：调用函数关闭弹窗`, {
 							consoleLogContent: true,
@@ -319,16 +315,12 @@ export const DouYinLive = {
 			if (!Panel.getValue("live-waitToRemovePauseDialog")) {
 				return;
 			}
-			$$<HTMLDivElement>("body > div[elementtiming='element-timing']").forEach(
-				($elementTiming) => {
-					checkDialogToClose($elementTiming, "1");
-				}
-			);
-			$$<HTMLDivElement>('body > div:not([id="root"]):not(:empty)').forEach(
-				($ele) => {
-					checkDialogToClose($ele, "2");
-				}
-			);
+			$$<HTMLDivElement>("body > div[elementtiming='element-timing']").forEach(($elementTiming) => {
+				checkDialogToClose($elementTiming, "1");
+			});
+			$$<HTMLDivElement>('body > div:not([id="root"]):not(:empty)').forEach(($ele) => {
+				checkDialogToClose($ele, "2");
+			});
 		});
 		DOMUtils.ready(() => {
 			utils.mutationObserver(document.body, {
@@ -349,10 +341,7 @@ export const DouYinLive = {
 	pauseVideo() {
 		utils
 			.waitAnyNode<HTMLVideoElement>(
-				[
-					'.basicPlayer[data-e2e="basicPlayer"] video',
-					"#PlayerLayout .douyin-player video",
-				],
+				['.basicPlayer[data-e2e="basicPlayer"] video', "#PlayerLayout .douyin-player video"],
 				10000
 			)
 			.then(($video) => {
