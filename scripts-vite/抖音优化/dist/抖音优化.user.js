@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.24
+// @version      2025.8.25
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -32,17 +32,17 @@
 (function (Qmsg, DOMUtils, Utils, pops) {
   'use strict';
 
-  var _GM_deleteValue = /* @__PURE__ */ (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
-  var _GM_download = /* @__PURE__ */ (() => typeof GM_download != "undefined" ? GM_download : void 0)();
-  var _GM_getResourceText = /* @__PURE__ */ (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
-  var _GM_getValue = /* @__PURE__ */ (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
-  var _GM_info = /* @__PURE__ */ (() => typeof GM_info != "undefined" ? GM_info : void 0)();
-  var _GM_registerMenuCommand = /* @__PURE__ */ (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_setValue = /* @__PURE__ */ (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
-  var _GM_unregisterMenuCommand = /* @__PURE__ */ (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = /* @__PURE__ */ (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
-  var _unsafeWindow = /* @__PURE__ */ (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
-  var _monkeyWindow = /* @__PURE__ */ (() => window)();
+  var _GM_deleteValue = (() => typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0)();
+  var _GM_download = (() => typeof GM_download != "undefined" ? GM_download : void 0)();
+  var _GM_getResourceText = (() => typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0)();
+  var _GM_getValue = (() => typeof GM_getValue != "undefined" ? GM_getValue : void 0)();
+  var _GM_info = (() => typeof GM_info != "undefined" ? GM_info : void 0)();
+  var _GM_registerMenuCommand = (() => typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_setValue = (() => typeof GM_setValue != "undefined" ? GM_setValue : void 0)();
+  var _GM_unregisterMenuCommand = (() => typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0)();
+  var _unsafeWindow = (() => typeof unsafeWindow != "undefined" ? unsafeWindow : void 0)();
+  var _monkeyWindow = (() => window)();
   const KEY = "GM_Panel";
   const ATTRIBUTE_INIT = "data-init";
   const ATTRIBUTE_KEY = "data-key";
@@ -50,10 +50,7 @@
   const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
   const PROPS_STORAGE_API = "data-storage-api";
   const PanelUISize = {
-    /**
-     * 一般设置界面的尺寸
-     */
-    setting: {
+setting: {
       get width() {
         if (window.innerWidth < 550) {
           return "88vw";
@@ -73,18 +70,12 @@
         }
       }
     },
-    /**
-     * 中等的设置界面
-     */
-    settingMiddle: {
+settingMiddle: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       }
     },
-    /**
-     * 信息界面，一般用于提示信息之类
-     */
-    info: {
+info: {
       get width() {
         return window.innerWidth < 350 ? "88vw" : "350px";
       },
@@ -94,25 +85,9 @@
     }
   };
   class StorageUtils {
-    /** 存储的键名 */
-    storageKey;
+storageKey;
     listenerData;
-    /**
-     * 存储的键名，可以是多层的，如：a.b.c
-     *
-     * 那就是
-     * {
-     *  "a": {
-     *     "b": {
-     *       "c": {
-     *         ...你的数据
-     *       }
-     *     }
-     *   }
-     * }
-     * @param key
-     */
-    constructor(key) {
+constructor(key) {
       if (typeof key === "string") {
         let trimKey = key.trim();
         if (trimKey == "") {
@@ -124,10 +99,7 @@
       }
       this.listenerData = new Utils.Dictionary();
     }
-    /**
-     * 获取本地值
-     */
-    getLocalValue() {
+getLocalValue() {
       let localValue = _GM_getValue(this.storageKey);
       if (localValue == null) {
         localValue = {};
@@ -135,89 +107,49 @@
       }
       return localValue;
     }
-    /**
-     * 设置本地值
-     * @param value
-     */
-    setLocalValue(value) {
+setLocalValue(value) {
       _GM_setValue(this.storageKey, value);
     }
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    set(key, value) {
+set(key, value) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.set(localValue, key, value);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, value);
     }
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    get(key, defaultValue) {
+get(key, defaultValue) {
       let localValue = this.getLocalValue();
       return Reflect.get(localValue, key) ?? defaultValue;
     }
-    /**
-     * 获取所有值
-     */
-    getAll() {
+getAll() {
       let localValue = this.getLocalValue();
       return localValue;
     }
-    /**
-     * 删除值
-     * @param key 键
-     */
-    delete(key) {
+delete(key) {
       let oldValue = this.get(key);
       let localValue = this.getLocalValue();
       Reflect.deleteProperty(localValue, key);
       this.setLocalValue(localValue);
       this.triggerValueChangeListener(key, oldValue, void 0);
     }
-    /**
-     * 判断是否存在该值
-     */
-    has(key) {
+has(key) {
       let localValue = this.getLocalValue();
       return Reflect.has(localValue, key);
     }
-    /**
-     * 获取所有键
-     */
-    keys() {
+keys() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue);
     }
-    /**
-     * 获取所有值
-     */
-    values() {
+values() {
       let localValue = this.getLocalValue();
       return Reflect.ownKeys(localValue).map(
         (key) => Reflect.get(localValue, key)
       );
     }
-    /**
-     * 清空所有值
-     */
-    clear() {
+clear() {
       _GM_deleteValue(this.storageKey);
     }
-    /**
-     * 监听值改变
-     * + .set
-     * + .delete
-     * @param key 监听的键
-     * @param callback 值改变的回调函数
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = Math.random();
       let listenerData = this.listenerData.get(key) || [];
       listenerData.push({
@@ -228,11 +160,7 @@
       this.listenerData.set(key, listenerData);
       return listenerId;
     }
-    /**
-     * 移除监听
-     * @param listenerId 监听的id或键名
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       let flag = false;
       for (const [key, listenerData] of this.listenerData.entries()) {
         for (let index = 0; index < listenerData.length; index++) {
@@ -247,13 +175,7 @@
       }
       return flag;
     }
-    /**
-     * 主动触发监听器
-     * @param key 键
-     * @param oldValue （可选）旧值
-     * @param newValue （可选）新值
-     */
-    triggerValueChangeListener(key, oldValue, newValue) {
+triggerValueChangeListener(key, oldValue, newValue) {
       if (!this.listenerData.has(key)) {
         return;
       }
@@ -282,10 +204,7 @@
   const PopsPanelStorageApi = new StorageUtils(KEY);
   const PanelContent = {
     $data: {
-      /**
-       * @private
-       */
-      __contentConfig: null,
+__contentConfig: null,
       get contentConfig() {
         if (this.__contentConfig == null) {
           this.__contentConfig = new utils.Dictionary();
@@ -293,36 +212,20 @@
         return this.__contentConfig;
       }
     },
-    /**
-     * 设置所有配置项，用于初始化默认的值
-     *
-     * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
-     * @param configList 配置项
-     */
-    addContentConfig(configList) {
+addContentConfig(configList) {
       if (!Array.isArray(configList)) {
         configList = [configList];
       }
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
-    /**
-     * 获取所有的配置内容，用于初始化默认的值
-     */
-    getAllContentConfig() {
+getAllContentConfig() {
       return this.$data.contentConfig.values().flat();
     },
-    /**
-     * 获取配置内容
-     * @param index 配置索引
-     */
-    getConfig(index = 0) {
+getConfig(index = 0) {
       return this.$data.contentConfig.get(index) ?? [];
     },
-    /**
-     * 获取默认左侧底部的配置项
-     */
-    getDefaultBottomContentConfig() {
+getDefaultBottomContentConfig() {
       return [
         {
           id: "script-version",
@@ -363,30 +266,19 @@
     init() {
       this.initExtensionsMenu();
     },
-    /**
-     * 初始化菜单项
-     */
-    initExtensionsMenu() {
+initExtensionsMenu() {
       if (!Panel.isTopWindow()) {
         return;
       }
       GM_Menu.add(this.$data.menuOption);
     },
-    /**
-     * 添加菜单项
-     * @param option 菜单配置
-     */
-    addMenuOption(option) {
+addMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
       this.$data.menuOption.push(...option);
     },
-    /**
-     * 更新菜单项
-     * @param option 菜单配置
-     */
-    updateMenuOption(option) {
+updateMenuOption(option) {
       if (!Array.isArray(option)) {
         option = [option];
       }
@@ -399,27 +291,15 @@
         }
       });
     },
-    /**
-     * 获取菜单项
-     * @param [index=0] 索引
-     */
-    getMenuOption(index = 0) {
+getMenuOption(index = 0) {
       return this.$data.menuOption[index];
     },
-    /**
-     * 删除菜单项
-     * @param [index=0] 索引
-     */
-    deleteMenuOption(index = 0) {
+deleteMenuOption(index = 0) {
       this.$data.menuOption.splice(index, 1);
     }
   };
   const CommonUtil = {
-    /**
-     * 移除元素（未出现也可以等待出现）
-     * @param selector 元素选择器
-     */
-    waitRemove(...args) {
+waitRemove(...args) {
       args.forEach((selector) => {
         if (typeof selector !== "string") {
           return;
@@ -429,15 +309,7 @@
         });
       });
     },
-    /**
-     * 添加屏蔽CSS
-     * @param args
-     * @example
-     * addBlockCSS("")
-     * addBlockCSS("","")
-     * addBlockCSS(["",""])
-     */
-    addBlockCSS(...args) {
+addBlockCSS(...args) {
       let selectorList = [];
       if (args.length === 0) {
         return;
@@ -454,16 +326,7 @@
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
-    /**
-     * 设置GM_getResourceText的style内容
-     * @param resourceMapData 资源数据
-     * @example
-     * setGMResourceCSS({
-     *   keyName: "ViewerCSS",
-     *   url: "https://example.com/example.css",
-     * })
-     */
-    setGMResourceCSS(resourceMapData) {
+setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) {
         addStyle(cssText);
@@ -471,13 +334,7 @@
         CommonUtil.loadStyleLink(resourceMapData.url);
       }
     },
-    /**
-     * 添加<link>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.css")
-     */
-    async loadStyleLink(url) {
+async loadStyleLink(url) {
       let $link = document.createElement("link");
       $link.rel = "stylesheet";
       $link.type = "text/css";
@@ -486,13 +343,7 @@
         document.head.appendChild($link);
       });
     },
-    /**
-     * 添加<script>标签
-     * @param url
-     * @example
-     * loadStyleLink("https://example.com/example.js")
-     */
-    async loadScript(url) {
+async loadScript(url) {
       let $script = document.createElement("script");
       $script.src = url;
       return new Promise((resolve) => {
@@ -502,25 +353,7 @@
         (document.head || document.documentElement).appendChild($script);
       });
     },
-    /**
-     * 将url修复，例如只有search的链接修复为完整的链接
-     *
-     * 注意：不包括http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：`/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`//xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     * @example
-     * 修复前：`xxx/xxx?ss=ssss`
-     * 修复后：`https://xxx.xxx.xxx/xxx/xxx?ss=ssss`
-     */
-    fixUrl(url) {
+fixUrl(url) {
       url = url.trim();
       if (url.match(/^http(s|):\/\//i)) {
         return url;
@@ -538,17 +371,7 @@
         return url;
       }
     },
-    /**
-     * http转https
-     * @param url 需要修复的链接
-     * @example
-     * 修复前：
-     * 修复后：
-     * @example
-     * 修复前：
-     * 修复后：
-     */
-    fixHttps(url) {
+fixHttps(url) {
       if (url.startsWith("https://")) {
         return url;
       }
@@ -559,17 +382,10 @@
       urlInstance.protocol = "https:";
       return urlInstance.toString();
     },
-    /**
-     * 禁止页面滚动，默认锁定html和body
-     * @example
-     * lockScroll();
-     * @example
-     * lockScroll(document.body);
-     */
-    lockScroll(...args) {
+lockScroll(...args) {
       let $hidden = document.createElement("style");
-      $hidden.innerHTML = /*css*/
-      `
+      $hidden.innerHTML =
+`
 			.pops-overflow-hidden-important {
 				overflow: hidden !important;
 			}
@@ -580,10 +396,7 @@
       });
       (document.head || document.documentElement).appendChild($hidden);
       return {
-        /**
-         * 解除锁定
-         */
-        recovery() {
+recovery() {
           $elList.forEach(($el) => {
             $el.classList.remove("pops-overflow-hidden-important");
           });
@@ -591,10 +404,7 @@
         }
       };
     },
-    /**
-     * 获取剪贴板文本
-     */
-    async getClipboardText() {
+async getClipboardText() {
       function readClipboardText(resolve) {
         navigator.clipboard.readText().then((clipboardText) => {
           resolve(clipboardText);
@@ -605,8 +415,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions.query({
-          // @ts-ignore
-          name: "clipboard-read"
+name: "clipboard-read"
         }).then((permissionStatus) => {
           readClipboardText(resolve);
         }).catch((error) => {
@@ -643,20 +452,10 @@
         }
       });
     },
-    /**
-     * html转义
-     * @param unsafe
-     */
-    escapeHtml(unsafe) {
+escapeHtml(unsafe) {
       return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/©/g, "&copy;").replace(/®/g, "&reg;").replace(/™/g, "&trade;").replace(/→/g, "&rarr;").replace(/←/g, "&larr;").replace(/↑/g, "&uarr;").replace(/↓/g, "&darr;").replace(/—/g, "&mdash;").replace(/–/g, "&ndash;").replace(/…/g, "&hellip;").replace(/ /g, "&nbsp;").replace(/\r\n/g, "<br>").replace(/\r/g, "<br>").replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
     },
-    /**
-     * 在规定时间内循环，如果超时或返回false则取消循环
-     * @param fn 循环的函数
-     * @param intervalTime 循环间隔时间
-     * @param [timeout=5000] 循环超时时间
-     */
-    interval(fn, intervalTime, timeout = 5e3) {
+interval(fn, intervalTime, timeout = 5e3) {
       let timeId;
       let maxTimeout = timeout - intervalTime;
       let intervalTimeCount = intervalTime;
@@ -677,10 +476,7 @@
       };
       loop(false);
     },
-    /**
-     * 找到对应的上层元素
-     */
-    findParentNode($el, selector, parentSelector) {
+findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
         let $parent = DOMUtils.closest($el, parentSelector);
         if ($parent) {
@@ -697,99 +493,53 @@
     }
   };
   const Panel = {
-    /** 数据 */
-    $data: {
-      /**
-       * @private
-       */
-      __contentConfigInitDefaultValue: null,
-      /**
-       * @private
-       */
-      __onceExecMenuData: null,
-      /**
-       * @private
-       */
-      __onceExecData: null,
-      /**
-       * @private
-       */
-      __panelConfig: {},
-      /**
-       * 面板
-       */
-      $panel: null,
-      /**
-       * 面板配置
-       */
-      panelContent: [],
-      /**
-       * 菜单项初始化的默认值
-       */
-      get contentConfigInitDefaultValue() {
+$data: {
+__contentConfigInitDefaultValue: null,
+__onceExecMenuData: null,
+__onceExecData: null,
+__panelConfig: {},
+$panel: null,
+panelContent: [],
+get contentConfigInitDefaultValue() {
         if (this.__contentConfigInitDefaultValue == null) {
           this.__contentConfigInitDefaultValue = new utils.Dictionary();
         }
         return this.__contentConfigInitDefaultValue;
       },
-      /**
-       * 菜单项初始化时禁用的键
-       */
-      contentConfigInitDisabledKeys: [],
-      /**
-       * 成功只执行了一次的菜单项
-       *
-       * + .exec
-       * + .execMenu
-       * + .execMenuOnce
-       */
-      get onceExecMenuData() {
+contentConfigInitDisabledKeys: [],
+get onceExecMenuData() {
         if (this.__onceExecMenuData == null) {
           this.__onceExecMenuData = new utils.Dictionary();
         }
         return this.__onceExecMenuData;
       },
-      /**
-       * 成功只执行了一次的项
-       *
-       * + .onceExec
-       */
-      get onceExecData() {
+get onceExecData() {
         if (this.__onceExecData == null) {
           this.__onceExecData = new utils.Dictionary();
         }
         return this.__onceExecData;
       },
-      /** 脚本名，一般用在设置的标题上 */
-      get scriptName() {
+get scriptName() {
         return SCRIPT_NAME;
       },
-      /**
-       * pops.panel的默认配置
-       */
-      get panelConfig() {
+get panelConfig() {
         return this.__panelConfig;
       },
       set panelConfig(value) {
         this.__panelConfig = value;
       },
-      /** 菜单项的总值在本地数据配置的键名 */
-      key: KEY,
-      /** 菜单项在attributes上配置的菜单键 */
-      attributeKeyName: ATTRIBUTE_KEY,
-      /** 菜单项在attributes上配置的菜单默认值 */
-      attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
+key: KEY,
+attributeKeyName: ATTRIBUTE_KEY,
+attributeDefaultValueName: ATTRIBUTE_DEFAULT_VALUE
     },
     init() {
       this.initContentDefaultValue();
       PanelMenu.init();
     },
-    /** 判断是否是顶层窗口 */
-    isTopWindow() {
+isTopWindow() {
       return _unsafeWindow.top === _unsafeWindow.self;
     },
-    /** 初始化菜单项的默认值保存到本地数据中 */
-    initContentDefaultValue() {
+initContentDefaultValue() {
       const initDefaultValue = (config) => {
         if (!config.attributes) {
           return;
@@ -797,7 +547,7 @@
         if (config.type === "button" || config.type === "forms" || config.type === "deepMenu") {
           return;
         }
-        let menuDefaultConfig = /* @__PURE__ */ new Map();
+        let menuDefaultConfig = new Map();
         let key = config.attributes[ATTRIBUTE_KEY];
         if (key != null) {
           const defaultValue = config.attributes[ATTRIBUTE_DEFAULT_VALUE];
@@ -853,31 +603,16 @@
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
-    /**
-     * 设置初始化使用的默认值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    setDefaultValue(key, defaultValue) {
+setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key)) {
         log.warn("请检查该key(已存在): " + key);
       }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
-    /**
-     * 设置值
-     * @param key 键
-     * @param value 值
-     */
-    setValue(key, value) {
+setValue(key, value) {
       PopsPanelStorageApi.set(key, value);
     },
-    /**
-     * 获取值
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getValue(key, defaultValue) {
+getValue(key, defaultValue) {
       let localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
         if (this.$data.contentConfigInitDefaultValue.has(key)) {
@@ -887,66 +622,25 @@
       }
       return localValue;
     },
-    /**
-     * 删除值
-     * @param key 键
-     */
-    deleteValue(key) {
+deleteValue(key) {
       PopsPanelStorageApi.delete(key);
     },
-    /**
-     * 判断该键是否存在
-     * @param key 键
-     */
-    hasKey(key) {
+hasKey(key) {
       return PopsPanelStorageApi.has(key);
     },
-    /**
-     * 监听调用setValue、deleteValue
-     * @param key 需要监听的键
-     * @param callback
-     */
-    addValueChangeListener(key, callback) {
+addValueChangeListener(key, callback) {
       let listenerId = PopsPanelStorageApi.addValueChangeListener(key, (__key, __newValue, __oldValue) => {
         callback(key, __oldValue, __newValue);
       });
       return listenerId;
     },
-    /**
-     * 移除监听
-     * @param listenerId 监听的id
-     */
-    removeValueChangeListener(listenerId) {
+removeValueChangeListener(listenerId) {
       PopsPanelStorageApi.removeValueChangeListener(listenerId);
     },
-    /**
-     * 主动触发菜单值改变的回调
-     * @param key 菜单键
-     * @param newValue 想要触发的新值，默认使用当前值
-     * @param oldValue 想要触发的旧值，默认使用当前值
-     */
-    triggerMenuValueChange(key, newValue, oldValue) {
+triggerMenuValueChange(key, newValue, oldValue) {
       PopsPanelStorageApi.triggerValueChangeListener(key, oldValue, newValue);
     },
-    /**
-     * 执行菜单
-     *
-     * @param queryKey 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 执行的回调函数
-     * @param checkExec 判断是否执行回调
-     *
-     * （默认）如果想要每个菜单是`与`关系，即每个菜单都判断为开启，那么就判断它们的值&就行
-     *
-     * 如果想要任意菜单存在true再执行，那么判断它们的值|就行
-     *
-     * + 返回值都为`true`，执行回调，如果回调返回了<style>元素，该元素会在监听到值改变时被移除掉
-     * + 返回值有一个为`false`，则不执行回调，且移除之前回调函数返回的<style>元素
-     * @param once 是否只执行一次，默认true
-     *
-     * + true （默认）只执行一次，且会监听键的值改变
-     * + false 不会监听键的值改变
-     */
-    exec(queryKey, callback, checkExec, once = true) {
+exec(queryKey, callback, checkExec, once = true) {
       const that = this;
       let queryKeyFn;
       if (typeof queryKey === "string" || Array.isArray(queryKey)) {
@@ -1051,28 +745,15 @@
       });
       valueChangeCallback();
       let result = {
-        /**
-         * 清空菜单执行情况
-         *
-         * + 清空存储的元素列表
-         * + 清空值改变的监听器
-         * + 清空存储的一次执行的键
-         */
-        clear() {
+clear() {
           this.clearStoreStyleElements();
           this.removeValueChangeListener();
           once && that.$data.onceExecMenuData.delete(storageKey);
         },
-        /**
-         * 清空存储的元素列表
-         */
-        clearStoreStyleElements: () => {
+clearStoreStyleElements: () => {
           return clearBeforeStoreValue();
         },
-        /**
-         * 移除值改变的监听器
-         */
-        removeValueChangeListener: () => {
+removeValueChangeListener: () => {
           listenerIdList.forEach((listenerId) => {
             this.removeValueChangeListener(listenerId);
           });
@@ -1080,14 +761,7 @@
       };
       return result;
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     * @param once 是否是只执行一次，默认false
-     */
-    execMenu(key, callback, isReverse = false, once = false) {
+execMenu(key, callback, isReverse = false, once = false) {
       return this.exec(
         key,
         (option) => {
@@ -1109,35 +783,15 @@
         once
       );
     },
-    /**
-     * 自动判断菜单是否启用，然后执行回调，只会执行一次
-     *
-     * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-     * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
-     * @param callback 回调
-     * @param isReverse 逆反判断菜单启用，默认false
-     */
-    execMenuOnce(key, callback, isReverse = false) {
+execMenuOnce(key, callback, isReverse = false) {
       return this.execMenu(key, callback, isReverse, true);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .exec
-     * + .execMenu
-     * + .execMenuOnce
-     * @param key 键
-     */
-    deleteExecMenuOnce(key) {
+deleteExecMenuOnce(key) {
       this.$data.onceExecMenuData.delete(key);
       let flag = PopsPanelStorageApi.removeValueChangeListener(key);
       return flag;
     },
-    /**
-     * 根据key执行一次，该key不会和execMenu|exec|execMenuOnce已执行的key冲突
-     * @param key 键
-     * @param callback 回调
-     */
-    onceExec(key, callback) {
+onceExec(key, callback) {
       key = this.transformKey(key);
       if (typeof key !== "string") {
         throw new TypeError("key 必须是字符串");
@@ -1148,23 +802,11 @@
       callback();
       this.$data.onceExecData.set(key, 1);
     },
-    /**
-     * 移除已执行的仅执行一次的菜单
-     * + .onceExec
-     * @param key 键
-     */
-    deleteOnceExec(key) {
+deleteOnceExec(key) {
       key = this.transformKey(key);
       this.$data.onceExecData.delete(key);
     },
-    /**
-     * 显示设置面板
-     * @param content 显示的内容配置
-     * @param [title] 标题
-     * @param [preventDefaultContentConfig=false] 是否阻止默认添加内容配置（版本号），默认false
-     * @param [preventRegisterSearchPlugin=false] 是否阻止默认添加搜索组件，默认false
-     */
-    showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
+showPanel(content, title = `${SCRIPT_NAME}-设置`, preventDefaultContentConfig = false, preventRegisterSearchPlugin = false) {
       this.$data.$panel = null;
       this.$data.panelContent = [];
       let checkHasBottomVersionContentConfig = content.findIndex((it) => {
@@ -1216,11 +858,7 @@
         this.registerConfigSearch({ $panel, content });
       }
     },
-    /**
-     * 注册设置面板的搜索功能（双击左侧选项第一个）
-     * @param config 配置项
-     */
-    registerConfigSearch(config) {
+registerConfigSearch(config) {
       const { $panel, content } = config;
       let asyncQueryProperty = async (target, handler) => {
         if (target == null) {
@@ -1244,10 +882,8 @@
           },
           {
             root: null,
-            // 使用视口作为根
-            threshold: 1
-            // 元素完全进入视口时触发
-          }
+threshold: 1
+}
         );
         observer.observe($el);
         $el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1268,8 +904,7 @@
           },
           content: {
             text: (
-              /*html*/
-              `
+`
 						<div class="search-wrapper">
 							<input class="search-config-text" name="search-config" type="text" placeholder="请输入需要搜素的配置名称">
 						</div>
@@ -1290,8 +925,7 @@
           height: "auto",
           drag: true,
           style: (
-            /*css*/
-            `
+`
 					${__pops.config.cssText.panelCSS}
 
 					.search-wrapper{
@@ -1356,8 +990,7 @@
           let $item = domUtils.createElement("div", {
             className: "search-result-item",
             innerHTML: (
-              /*html*/
-              `
+`
 							<div class="search-result-item-path">${searchPath.matchedData?.path}</div>
 							<div class="search-result-item-description">${searchPath.matchedData?.description ?? ""}</div>
 						`
@@ -1597,8 +1230,7 @@
         domUtils.createElement("style", {
           type: "text/css",
           textContent: (
-            /*css*/
-            `
+`
 					.pops-flashing{
 						animation: double-blink 1.5s ease-in-out;
 					}
@@ -1624,10 +1256,7 @@
         })
       );
     },
-    /**
-     * 把key:string[]转为string
-     */
-    transformKey(key) {
+transformKey(key) {
       if (Array.isArray(key)) {
         const keyArray = key.sort();
         return JSON.stringify(keyArray);
@@ -1637,18 +1266,15 @@
     }
   };
   const PanelSettingConfig = {
-    /** Toast位置 */
-    qmsg_config_position: {
+qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom"
     },
-    /** 最多显示的数量 */
-    qmsg_config_maxnums: {
+qmsg_config_maxnums: {
       key: "qmsg-config-maxnums",
       defaultValue: 3
     },
-    /** 逆序弹出 */
-    qmsg_config_showreverse: {
+qmsg_config_showreverse: {
       key: "qmsg-config-showreverse",
       defaultValue: false
     }
@@ -1726,10 +1352,8 @@
       return Utils.getMaxValue(maxZIndex, popsMaxZIndex) + 100;
     },
     mask: {
-      // 开启遮罩层
-      enable: true,
-      // 取消点击遮罩层的事件
-      clickEvent: {
+enable: true,
+clickEvent: {
         toClose: false,
         toHide: false
       }
@@ -1781,122 +1405,50 @@
   const cookieManager = new utils.GM_Cookie();
   const _SCRIPT_NAME_ = SCRIPT_NAME || "抖音优化";
   const DouYinRouter = {
-    /**
-     * 是否是抖音主站
-     */
-    isIndex() {
+isIndex() {
       return window.location.hostname === "www.douyin.com";
     },
-    /**
-     * 关注
-     *
-     * + /follow
-     */
-    isFollow() {
+isFollow() {
       return this.isIndex() && window.location.pathname.startsWith("/follow");
     },
-    /**
-     * 直播
-     */
-    isLive() {
+isLive() {
       return window.location.hostname === "live.douyin.com" || this.isFollowLive() || this.isRootLive();
     },
-    /**
-     * 关注-直播
-     *
-     * + /follow/live/
-     */
-    isFollowLive() {
+isFollowLive() {
       return this.isIndex() && window.location.pathname.startsWith("/follow/live/");
     },
-    /**
-     * 刷视频时的点击进去的直播
-     *
-     * + /root/live/
-     */
-    isRootLive() {
+isRootLive() {
       return this.isIndex() && window.location.pathname.startsWith("/root/live/");
     },
-    /**
-     * 推荐视频
-     *
-     * + /?recommend=1
-     */
-    isRecommend() {
+isRecommend() {
       let searchParams = new URLSearchParams(window.location.search);
       return this.isIndex() && window.location.pathname === "/" && searchParams.has("recommend");
     },
-    /**
-     * 搜索
-     *
-     * + /search/
-     * + /root/search/
-     */
-    isSearch() {
+isSearch() {
       return this.isIndex() && (window.location.pathname.startsWith("/search/") || this.isRootSearch());
     },
-    /**
-     * 其它地方进去的搜索
-     *
-     * + /root/search/
-     */
-    isRootSearch() {
+isRootSearch() {
       return this.isIndex() && window.location.pathname.startsWith("/root/search/");
     },
-    /**
-     * 例如：知识、二次元、游戏、美食等
-     *
-     * + /channel/
-     */
-    isChannel() {
+isChannel() {
       return this.isIndex() && window.location.pathname.startsWith("/channel/");
     },
-    /**
-     * 精选
-     *
-     * + /discover/
-     */
-    isDiscover() {
+isDiscover() {
       return this.isIndex() && window.location.pathname.startsWith("/discover/");
     },
-    /**
-     * 用户主页
-     *
-     * + /user/
-     */
-    isUser() {
+isUser() {
       return this.isIndex() && window.location.pathname.startsWith("/user/");
     },
-    /**
-     * 单个视频，一般是分享的视频链接
-     *
-     * + /video/
-     */
-    isVideo() {
+isVideo() {
       return this.isIndex() && window.location.pathname.startsWith("/video/");
     },
-    /**
-     * 笔记图文
-     *
-     * + /note/
-     */
-    isNote() {
+isNote() {
       return this.isIndex() && window.location.pathname.startsWith("/note/");
     },
-    /**
-     * 精选
-     *
-     * + /jingxuan/
-     */
-    isJingXuan() {
+isJingXuan() {
       return this.isIndex() && window.location.pathname.startsWith("/jingxuan");
     },
-    /**
-     * 朋友
-     *
-     * + /friend
-     */
-    isFriend() {
+isFriend() {
       return this.isIndex() && window.location.pathname.startsWith("/friend");
     }
   };
@@ -1961,17 +1513,13 @@
         return this.shieldAISearch();
       });
     },
-    /**
-     * 【屏蔽】顶部导航栏
-     */
-    shieldTopNavigator() {
+shieldTopNavigator() {
       log.info("【屏蔽】顶部导航栏");
       let result = [];
       result.push(CommonUtil.addBlockCSS("#douyin-header"));
       result.push(
         addStyle(
-          /*css*/
-          `
+`
 			/* 修复视频的高度 */
 			#douyin-right-container{
 				padding-top: 0px !important;
@@ -1988,8 +1536,7 @@
       );
       result.push(
         addStyle(
-          /*css*/
-          `
+`
 				#slidelist .page-recommend-container{
 					margin: 0 !important;
 					height: 100vh !important;
@@ -2000,8 +1547,7 @@
       if (DouYinRouter.isSearch()) {
         result.push(
           addStyle(
-            /*css*/
-            `
+`
 				/* 把搜索顶部的工具栏置顶 */
 				#search-content-area > div > div:nth-child(1) > div:nth-child(1){
 					top: 0;
@@ -2011,88 +1557,68 @@
       }
       return result;
     },
-    /**
-     * 【屏蔽】充钻石
-     */
-    shieldFillingBricksAndStones() {
+shieldFillingBricksAndStones() {
       log.info("【屏蔽】充钻石");
       let result = [];
       const iconPath = `d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"`;
       result.push(
         CommonUtil.addBlockCSS(
-          // 2024.8.12
-          `div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`,
-          // 2024.7.16 更多 充钻石
-          'body .semi-portal .semi-portal-inner li.semi-dropdown-item:has(a[href*="douyin_recharge"])'
+`div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`,
+'body .semi-portal .semi-portal-inner li.semi-dropdown-item:has(a[href*="douyin_recharge"])'
         )
       );
       if (DouYinRouter.isSearch()) {
         result.push(
           CommonUtil.addBlockCSS(
-            // 2024.8.12
-            `div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`
+`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`
           )
         );
       } else if (DouYinRouter.isLive()) {
         result.push(
           CommonUtil.addBlockCSS(
-            // 直播
-            '#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"])'
+'#douyin-header pace-island[id^="island"] > div[class]:not([data-click]):has(div[data-e2e="something-button"]) > :has(path[d="M12.8013 19.9762C12.3693 20.4436 11.6307 20.4436 11.1986 19.9762L3.11756 11.2346C2.74913 10.8361 2.72958 10.2274 3.07168 9.80599L6.92716 5.05714C7.13438 4.8019 7.44562 4.65369 7.77439 4.65369H16.2256C16.5544 4.65369 16.8656 4.8019 17.0728 5.05714L20.9283 9.80599C21.2704 10.2274 21.2508 10.8361 20.8824 11.2346L12.8013 19.9762ZM4.45944 10.4765L12 18.6334L19.5405 10.4765L16.031 6.15369H7.96901L4.45944 10.4765ZM16.0867 9.09336L16.0954 10.4557C15.3615 10.4557 14.6822 10.2315 14.1281 9.85065V12.5739C14.1281 13.9502 12.964 15.0659 11.5281 15.0659C10.0922 15.0659 8.9281 13.9502 8.9281 12.5739C8.9281 11.1976 10.0922 10.0819 11.5281 10.0819C11.6486 10.0819 11.7672 10.0897 11.8834 10.1049V11.4964C11.7713 11.4625 11.6519 11.4442 11.5281 11.4442C10.8771 11.4442 10.3494 11.95 10.3494 12.5739C10.3494 13.1978 10.8771 13.7036 11.5281 13.7036C12.179 13.7036 12.7067 13.1978 12.7067 12.5739V7.21604H14.1281C14.1281 8.25285 15.005 9.09336 16.0867 9.09336Z"])'
           )
         );
       }
       return result;
     },
-    /**
-     * 【屏蔽】客户端
-     */
-    shieldClient() {
+shieldClient() {
       log.info("【屏蔽】客户端");
       let result = [];
       result.push(
         CommonUtil.addBlockCSS(
           '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container',
-          // 2024.7.15
-          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
-          // ios
-          'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])'
+'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[download^="douyin-downloader"])',
+'div[id^="douyin-header-menu"] pace-island > div > div[aria-describedby]:has(a[href*="/douyin-pc-web/"])'
         )
       );
       if (DouYinRouter.isSearch()) {
         result.push(
           CommonUtil.addBlockCSS(
             'div:has(> div[data-e2e="something-button"] path[d="M18.404 19.018h-12v-1.5h12v1.5zM11.654 13.457v-8.19h1.5v8.19l3.22-3.22 1.06 1.061-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5 1.06-1.06 3.22 3.22z"])',
-            // 2024.7.15
-            'div[id^="douyin-header-menu"] >  div > div > div:has(a[download^="douyin-downloader"])'
+'div[id^="douyin-header-menu"] >  div > div > div:has(a[download^="douyin-downloader"])'
           )
         );
       } else if (DouYinRouter.isLive()) {
         result.push(
           CommonUtil.addBlockCSS(
-            // 直播
-            '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)',
-            // 直播
-            '#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
-            /* 直播 更多 客户端 */
-            '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
+'#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) .dy-tip-container:has(a)',
+'#douyin-header pace-island[id^="island"] > div[class] span:has(a[download][href*="client"])',
+'.semi-portal-inner .semi-dropdown-content .semi-dropdown-item:has(a[download][href*="client"])'
           )
         );
       }
       return result;
     },
-    /**
-     * 【屏蔽】快捷访问
-     */
-    shieldQuickAccess() {
+shieldQuickAccess() {
       log.info("【屏蔽】快捷访问");
       let result = [];
       result.push(
         CommonUtil.addBlockCSS(
           'header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(.quick-access-nav-icon)',
-          // 直播 更多里面的 快捷访问
-          // '.semi-portal-inner .semi-dropdown-content .semi-dropdown-item'
-          // 2024.7.15 更新规则
-          'div[id^="douyin-header-menu"] pace-island > div > div:has(.quick-access-nav-icon)'
+
+
+'div[id^="douyin-header-menu"] pace-island > div > div:has(.quick-access-nav-icon)'
         )
       );
       if (DouYinRouter.isSearch()) {
@@ -2108,46 +1634,36 @@
       } else if (DouYinRouter.isLive()) ;
       return result;
     },
-    /**
-     * 【屏蔽】通知
-     */
-    shieldNotifitation() {
+shieldNotifitation() {
       log.info("【屏蔽】通知");
       let result = [];
       result.push(
-        // 2024.11.11
-        CommonUtil.addBlockCSS(
+CommonUtil.addBlockCSS(
           '#douyin-right-container #douyin-header-menuCt pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
         )
       );
       if (DouYinRouter.isSearch()) {
         result.push(
           CommonUtil.addBlockCSS(
-            // 2024.8.12
-            'div[id^="douyin-header-menu"] >  div > div > ul:has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+'div[id^="douyin-header-menu"] >  div > div > ul:has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
           )
         );
       } else if (DouYinRouter.isLive()) {
         result.push(
           CommonUtil.addBlockCSS(
-            // 直播
-            'div[id^="douyin-header-menu"] pace-island[id^="island"] > * > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
+'div[id^="douyin-header-menu"] pace-island[id^="island"] > * > :has(path[d="M11.9998 4.50037C9.02034 4.50037 6.55167 6.81159 6.35561 9.78463L5.94855 15.9572H18.0507L17.6441 9.78506C17.4482 6.81184 14.9795 4.50037 11.9998 4.50037ZM7.85236 9.88334C7.99643 7.6987 9.81045 6.00037 11.9998 6.00037C14.1893 6.00037 16.0034 7.69888 16.1473 9.88365L16.4486 14.4572H7.55073L7.85236 9.88334Z"])'
           )
         );
       }
       return result;
     },
-    /**
-     * 【屏蔽】私信
-     */
-    shieldPrivateMessage() {
+shieldPrivateMessage() {
       log.info("【屏蔽】私信");
       let result = [];
       result.push(
         CommonUtil.addBlockCSS(
           '#douyin-right-container pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])',
-          // 直播
-          '#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
+'#douyin-header pace-island[id^="island"] > div[class]:has(div[data-e2e="something-button"]) > ul:has(div[data-e2e="im-entry"])'
         )
       );
       if (DouYinRouter.isSearch()) {
@@ -2155,31 +1671,25 @@
         result.push(
           CommonUtil.addBlockCSS(
             'ul:has( div>div[data-e2e="im-entry"] )',
-            // 2024.7.15
-            'div[id^="douyin-header-menu"] >  div > div > ul:has([data-e2e="im-entry"])'
+'div[id^="douyin-header-menu"] >  div > div > ul:has([data-e2e="im-entry"])'
           )
         );
       }
       return result;
     },
-    /**
-     * 【屏蔽】投稿
-     */
-    shieldSubmission() {
+shieldSubmission() {
       log.info("【屏蔽】投稿");
       let result = [];
       const iconPath = `d="M11.3487 4.90125H11.3164H11.3164C10.2479 4.90124 9.40104 4.90124 8.71799 4.95587C8.01959 5.01173 7.42807 5.12824 6.88626 5.39747C5.95866 5.8584 5.20716 6.60991 4.74622 7.53751C4.477 8.07932 4.36048 8.67084 4.30462 9.36923C4.24999 10.0523 4.24999 10.8991 4.25 11.9677V12V12.0322C4.24999 13.1008 4.24999 13.9477 4.30462 14.6307C4.36048 15.3291 4.477 15.9206 4.74622 16.4624C5.20716 17.39 5.95866 18.1415 6.88626 18.6025C7.42807 18.8717 8.01959 18.9882 8.71799 19.0441C9.40104 19.0987 10.2479 19.0987 11.3164 19.0987H11.3487H12.6513H12.6836C13.7521 19.0987 14.599 19.0987 15.282 19.0441C15.9804 18.9882 16.5719 18.8717 17.1137 18.6025C18.0413 18.1415 18.7928 17.39 19.2538 16.4624C19.523 15.9206 19.6395 15.3291 19.6954 14.6307C19.75 13.9477 19.75 13.1008 19.75 12.0322V12V11.9677C19.75 10.8991 19.75 10.0523 19.6954 9.36923C19.6395 8.67084 19.523 8.07932 19.2538 7.53751C18.7928 6.60991 18.0413 5.8584 17.1137 5.39747C16.5719 5.12824 15.9804 5.01173 15.282 4.95587C14.599 4.90124 13.7521 4.90124 12.6836 4.90125H12.6513H11.3487ZM7.55376 6.74077C7.8529 6.59212 8.22981 6.4997 8.83757 6.45109C9.45382 6.4018 10.2407 6.40125 11.3487 6.40125H12.6513C13.7593 6.40125 14.5462 6.4018 15.1624 6.45109C15.7702 6.4997 16.1471 6.59212 16.4462 6.74077C17.0809 7.05614 17.5951 7.57033 17.9105 8.205C18.0591 8.50414 18.1515 8.88105 18.2002 9.48882C18.2494 10.1051 18.25 10.8919 18.25 12C18.25 13.108 18.2494 13.8949 18.2002 14.5111C18.1515 15.1189 18.0591 15.4958 17.9105 15.7949C17.5951 16.4296 17.0809 16.9438 16.4462 17.2592C16.1471 17.4078 15.7702 17.5002 15.1624 17.5488C14.5462 17.5981 13.7593 17.5987 12.6513 17.5987H11.3487C10.2407 17.5987 9.45382 17.5981 8.83757 17.5488C8.22981 17.5002 7.8529 17.4078 7.55376 17.2592C6.91909 16.9438 6.4049 16.4296 6.08952 15.7949C5.94088 15.4958 5.84846 15.1189 5.79985 14.5111C5.75056 13.8949 5.75 13.108 5.75 12C5.75 10.8919 5.75056 10.1051 5.79985 9.48882C5.84846 8.88105 5.94088 8.50414 6.08952 8.205C6.4049 7.57033 6.91909 7.05614 7.55376 6.74077ZM11.25 15V12.75H9V11.25H11.25V8.99997H12.75V11.25H15V12.75H12.75V15H11.25Z"`;
       result.push(
         CommonUtil.addBlockCSS(
-          // 2024.8.12 更新规则
-          `div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`
+`div[id^="douyin-header-menu"] pace-island > div > div:has(path[${iconPath}])`
         )
       );
       if (DouYinRouter.isSearch()) {
         result.push(
           CommonUtil.addBlockCSS(
-            // 2024.8.12
-            `div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`
+`div[id^="douyin-header-menu"] >  div > div > div:has(path[${iconPath}])`
           )
         );
       } else if (DouYinRouter.isLive()) {
@@ -2191,53 +1701,39 @@
       }
       return result;
     },
-    /**
-     * 【屏蔽】客户端提示
-     */
-    shieldClientTip() {
+shieldClientTip() {
       log.info("【屏蔽】客户端提示");
       let result = [];
       result.push(
         CommonUtil.addBlockCSS(
-          /* 右上角 通知 下载客户端，实时接收消息通知 */
-          'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
-          /* 右上角 个人信息 客户端登录访问更便捷 [下载] */
-          '#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
-          /* 右上角 私信 下载客户端，实时接收好友消息 */
-          '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
-          /* 右上角 壁纸 下载客户端，使用壁纸 */
-          '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
+'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
+'#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
+'#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
+'#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
         )
       );
       if (DouYinRouter.isSearch()) {
         result.push(
           CommonUtil.addBlockCSS(
-            /* 右上角 私信 下载客户端，实时接收好友消息 */
-            'div[id^="douyin-header-menu"] ul li div[data-e2e="im-entry"] div > div > div:has(>a[download*="douyin-downloader"])',
-            /* 右上角 个人信息 客户端登录访问更便捷 [下载] */
-            'div[id^="douyin-header-menu"] ul > div:has(>a[download*="douyin-downloader"])'
+'div[id^="douyin-header-menu"] ul li div[data-e2e="im-entry"] div > div > div:has(>a[download*="douyin-downloader"])',
+'div[id^="douyin-header-menu"] ul > div:has(>a[download*="douyin-downloader"])'
           )
         );
       }
       return result;
     },
-    /**
-     * 【屏蔽】壁纸
-     */
-    shieldWallpaper() {
+shieldWallpaper() {
       log.info("【屏蔽】壁纸");
       let result = [];
       result.push(
         CommonUtil.addBlockCSS(
-          // 2024.8.12
-          'div[id^="douyin-header-menu"] pace-island > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
+'div[id^="douyin-header-menu"] pace-island > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
         )
       );
       if (DouYinRouter.isSearch()) {
         result.push(
           CommonUtil.addBlockCSS(
-            // 2024.8.12
-            'div[id^="douyin-header-menu"] >  div > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
+'div[id^="douyin-header-menu"] >  div > div > div:has(span.semi-icon path[d="M9.10335 4.79386C8.86882 4.64984 8.57425 4.64585 8.3359 4.78346C8.09755 4.92108 7.95372 5.17818 7.96117 5.4533L8.05873 9.05336L5.31808 11.3898C5.10864 11.5683 5.01381 11.8473 5.07104 12.1165C5.12826 12.3857 5.32833 12.6019 5.59229 12.6798L9.0463 13.6995L10.4215 17.028C10.5266 17.2824 10.7625 17.4588 11.0362 17.4875C11.3099 17.5163 11.5774 17.3929 11.7331 17.1659L13.3237 14.8471L16.4638 19.3577L17.6949 18.5007L14.6505 14.1276L17.3608 13.9168C17.6352 13.8954 17.8758 13.7255 17.9878 13.4741C18.0997 13.2226 18.065 12.9301 17.8972 12.7119L15.7022 9.85673L16.5462 6.35562C16.6107 6.08806 16.5234 5.80667 16.3189 5.62251C16.1144 5.43835 15.8254 5.38101 15.566 5.47312L12.1723 6.67838L9.10335 4.79386ZM9.56789 9.37117L9.49812 6.79649L11.693 8.14425C11.8862 8.26291 12.1227 8.28777 12.3364 8.21188L14.7635 7.34991L14.16 9.85382C14.1068 10.0743 14.1563 10.3069 14.2945 10.4867L15.8643 12.5286L13.2964 12.7284C13.0704 12.746 12.8644 12.8649 12.7361 13.0519L11.2792 15.1758L10.2957 12.7954C10.2091 12.5858 10.0324 12.4267 9.81491 12.3624L7.34469 11.6332L9.30473 9.96224C9.47729 9.81513 9.57403 9.59784 9.56789 9.37117Z"])'
           )
         );
       } else if (DouYinRouter.isLive()) {
@@ -2250,49 +1746,31 @@
       }
       return result;
     },
-    /**
-     * 屏蔽底部问题按钮
-     */
-    shieldBottomQuestionButton() {
+shieldBottomQuestionButton() {
       log.info("屏蔽底部问题按钮");
       return CommonUtil.addBlockCSS([
         "#douyin-sidebar",
-        /* 推荐视频右下角的？按钮 */
-        "#douyin-temp-sidebar"
+"#douyin-temp-sidebar"
       ]);
     },
-    /**
-     * 【屏蔽】右侧菜单栏
-     */
-    shieldRightMenu() {
+shieldRightMenu() {
       log.info(`【屏蔽】右侧菜单栏`);
       return CommonUtil.addBlockCSS(`div[id^="douyin-header-menu"]`);
     },
-    /**
-     * 【屏蔽】更多
-     */
-    shieldRightMenuMore() {
+shieldRightMenuMore() {
       log.info(`【屏蔽】更多`);
       return CommonUtil.addBlockCSS(
         `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M17 8.75H7V7.25H17V8.75ZM17 12.75H7V11.25H17V12.75ZM7 16.75H17V15.25H7V16.75Z"])`
       );
     },
-    /**
-     * 【屏蔽】登录头像
-     */
-    shieldRightMenuLoginAvatar() {
+shieldRightMenuLoginAvatar() {
       log.info(`【屏蔽】登录头像`);
       return CommonUtil.addBlockCSS(
-        // 未登录
-        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M6.484 43.177c4.765-5.408 11.743-8.821 19.517-8.821 7.775 0 14.753 3.413 19.517 8.821C40.754 48.587 33.776 52 26.001 52c-7.774 0-14.752-3.413-19.517-8.822zM35.287 21.356a9.286 9.286 0 1 1-18.571 0 9.286 9.286 0 0 1 18.571 0z"])`,
-        // 已登录
-        `#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has([data-e2e="live-avatar"])`
+`#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has(path[d="M6.484 43.177c4.765-5.408 11.743-8.821 19.517-8.821 7.775 0 14.753 3.413 19.517 8.821C40.754 48.587 33.776 52 26.001 52c-7.774 0-14.752-3.413-19.517-8.822zM35.287 21.356a9.286 9.286 0 1 1-18.571 0 9.286 9.286 0 0 1 18.571 0z"])`,
+`#douyin-header header div[id^="douyin-header-menu"] pace-island > div > div:has([data-e2e="live-avatar"])`
       );
     },
-    /**
-     * 【屏蔽】AI搜索/抖音
-     */
-    shieldAISearch() {
+shieldAISearch() {
       log.info(`【屏蔽】AI搜索/抖音`);
       return CommonUtil.addBlockCSS(
         `#douyin-header header div:has(>svg g[clip-path*="aiSearch"])`
@@ -2314,19 +1792,13 @@
         return this.shieldSearchTiktokHotspot();
       });
     },
-    /**
-     * 【屏蔽】搜索框
-     */
-    shieldSearch() {
+shieldSearch() {
       log.info("【屏蔽】搜索框");
       return CommonUtil.addBlockCSS(
         '#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div:has(input[data-e2e="searchbar-input"])'
       );
     },
-    /**
-     * 【屏蔽】搜索框的提示
-     */
-    shieldSearchPlaceholder() {
+shieldSearchPlaceholder() {
       log.info("【屏蔽】搜索框的提示");
       let result = [];
       result.push(
@@ -2336,8 +1808,7 @@
       );
       result.push(
         addStyle(
-          /*css*/
-          `
+`
 			#douyin-header div[data-click="doubleClick"] > div[data-click="doubleClick"] > div input[data-e2e="searchbar-input"]::placeholder{
 				color: transparent;
 			}`
@@ -2345,20 +1816,14 @@
       );
       return result;
     },
-    /**
-     * 【屏蔽】搜索-猜你想搜
-     */
-    shieldSearchGuessYouWantToSearch() {
+shieldSearchGuessYouWantToSearch() {
       log.info("【屏蔽】搜索-猜你想搜");
       return CommonUtil.addBlockCSS(
         'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-guess-container"])',
         'button[data-e2e="searchbar-button"] + div div[data-e2e="search-guess-container"]'
       );
     },
-    /**
-     * 【屏蔽】搜索-抖音热点
-     */
-    shieldSearchTiktokHotspot() {
+shieldSearchTiktokHotspot() {
       log.info("【屏蔽】搜索-抖音热点");
       return CommonUtil.addBlockCSS(
         'button[data-e2e="searchbar-button"] + div div:has( + div[data-e2e="search-hot-container"])',
@@ -2376,18 +1841,14 @@
       function_call: [],
       defineProperty: []
     },
-    /**
-     * 劫持 document.addEventListener
-     * @param handler
-     */
-    document_addEventListener(handler) {
+document_addEventListener(handler) {
       this.$data.document_addEventListener.push(handler);
       log.info("document.addEventListener hook新增劫持判断回调");
       if (this.$data.document_addEventListener.length > 1) {
         return;
       }
       const that = this;
-      let weakMap = /* @__PURE__ */ new WeakMap();
+      let weakMap = new WeakMap();
       const originAddEventListener = _unsafeWindow.document.addEventListener;
       const originRemoveEventListener = _unsafeWindow.document.removeEventListener;
       _unsafeWindow.document.addEventListener = function(...args) {
@@ -2444,18 +1905,14 @@
         return Reflect.apply(originRemoveEventListener, this, args);
       };
     },
-    /**
-     * 劫持 Element.property.addEventListener
-     * @param handler
-     */
-    element_addEventListener(handler) {
+element_addEventListener(handler) {
       this.$data.element_addEventListener.push(handler);
       log.info("Element.prototype.addEventListener hook新增劫持判断回调");
       if (this.$data.element_addEventListener.length > 1) {
         return;
       }
       const that = this;
-      let weakMap = /* @__PURE__ */ new WeakMap();
+      let weakMap = new WeakMap();
       const originAddEventListener = _unsafeWindow.Element.prototype.addEventListener;
       const originRemoveEventListener = _unsafeWindow.Element.prototype.removeEventListener;
       _unsafeWindow.Element.prototype.addEventListener = function(...args) {
@@ -2512,12 +1969,7 @@
         return Reflect.apply(originRemoveEventListener, this, args);
       };
     },
-    /**
-     * 劫持 window.setTimeout
-     *
-     * @param handler
-     */
-    setTimeout(handler) {
+setTimeout(handler) {
       this.$data.setTimeout.push(handler);
       log.info("window.setTimeout hook新增劫持");
       if (this.$data.setTimeout.length > 1) {
@@ -2538,11 +1990,7 @@
         return Reflect.apply(originSetTimeout, this, args);
       };
     },
-    /**
-     * 劫持 window.setInterval
-     * @param handler
-     */
-    setInterval(handler) {
+setInterval(handler) {
       this.$data.setInterval.push(handler);
       log.info("window.setInterval hook新增劫持");
       if (this.$data.setInterval.length > 1) {
@@ -2563,11 +2011,7 @@
         return Reflect.apply(originSetInterval, this, args);
       };
     },
-    /**
-     * 劫持 Function.prototype.apply
-     * @param handler
-     */
-    function_apply(handler) {
+function_apply(handler) {
       this.$data.function_apply.push(handler);
       log.info("Function.prototype.apply hook新增劫持");
       if (this.$data.function_apply.length > 1) {
@@ -2592,11 +2036,7 @@
         return Reflect.apply(originFunctionApply, context, args);
       };
     },
-    /**
-     * 劫持 Function.prototype.call
-     * @param handler
-     */
-    function_call(handler) {
+function_call(handler) {
       this.$data.function_call.push(handler);
       log.info("Function.prototype.call hook新增劫持");
       if (this.$data.function_call.length > 1) {
@@ -2621,11 +2061,7 @@
         return Reflect.apply(originFunctionCall, context, args);
       };
     },
-    /**
-     * 劫持 Object.defineProperty
-     * @package handler
-     */
-    defineProperty(handler) {
+defineProperty(handler) {
       this.$data.defineProperty.push(handler);
       log.info("Object.defineProperty hook新增劫持");
       if (this.$data.defineProperty.length > 1) {
@@ -2650,15 +2086,7 @@
         return Reflect.apply(originDefineProperty, this, args);
       };
     },
-    /**
-     * 劫持webpack
-     * @param webpackName 当前全局变量的webpack名
-     * @param mainCoreData 需要劫持的webpack的顶部core
-     * 例如：(window.webpackJsonp = window.webpackJsonp || []).push([["core:0"],{}])
-     * 此时mainCoreData是["core:0"]
-     * @param handler 如果mainCoreData匹配上，则调用此回调函数，替换的话把传入的值进行处理后再返回它就行
-     */
-    window_webpack(webpackName = "webpackJsonp", mainCoreData, handler) {
+window_webpack(webpackName = "webpackJsonp", mainCoreData, handler) {
       let originObject = void 0;
       _unsafeWindow.Object.defineProperty(_unsafeWindow, webpackName, {
         get() {
@@ -2707,10 +2135,7 @@
         });
       }
     },
-    /**
-     * 移除环境检测
-     */
-    removeEnvCheck() {
+removeEnvCheck() {
       log.info("移除环境检测");
       let originalSetInterval = _unsafeWindow.setInterval;
       _unsafeWindow.setInterval = function(callback, time) {
@@ -2726,10 +2151,7 @@
         return originalSetInterval.call(this, callback, time);
       };
     },
-    /**
-     * 移除Cookie
-     */
-    removeCookie() {
+removeCookie() {
       let cookieHandler = new utils.GM_Cookie();
       let cookieNameList = ["__ac_signature", "__ac_referer", "__ac_nonce"];
       cookieNameList.forEach((cookieName) => {
@@ -2748,10 +2170,7 @@
         );
       });
     },
-    /**
-     * 禁用快捷键
-     */
-    disableShortCut() {
+disableShortCut() {
       Hook.document_addEventListener((target, eventName, listener, option) => {
         if (["keydown", "keypress", "keyup"].includes(eventName) && typeof listener === "function") {
           return function(...eventArgs) {
@@ -2937,10 +2356,7 @@
         }
       });
     },
-    /**
-     * 禁用双击点赞
-     */
-    disableDoubleClickLike() {
+disableDoubleClickLike() {
       let latestClickTime = Date.now();
       Hook.element_addEventListener((target, eventName, listener, option) => {
         const listenerStr = listener.toString();
@@ -2960,17 +2376,12 @@
     }
   };
   const DouYinElement = {
-    /**
-     * 观察 #slidelist的加载每条视频
-     * @param callback
-     */
-    watchFeedVideoListChange(callback) {
+watchFeedVideoListChange(callback) {
       let $os = null;
       domUtils.ready(() => {
         utils.waitAnyNode([
           "#slidelist",
-          // 搜索页面的↓搜索结果列表
-          '#search-content-area ul[data-e2e="scroll-list"]'
+'#search-content-area ul[data-e2e="scroll-list"]'
         ]).then(($ele) => {
           log.info(`启用观察器观察加载的视频`);
           let lockFn = new utils.LockFunction((observer) => {
@@ -3008,10 +2419,7 @@
     },
     init() {
     },
-    /**
-     * 评论区的查看评论api
-     */
-    commentReply() {
+commentReply() {
       this.ajaxHooker.hook((request) => {
         let url = CommonUtil.fixUrl(request.url);
         let urlInstance = new URL(url);
@@ -3022,10 +2430,7 @@
         }
       });
     },
-    /**
-     * 篡改未登录时的响应结果
-     */
-    hookUserNoLoginResponse() {
+hookUserNoLoginResponse() {
       this.ajaxHooker.hook((request) => {
         let originResponse = request.response;
         request.response = (response) => {
@@ -3049,10 +2454,7 @@
     }
   };
   const DouYinAccount = {
-    /**
-     * 伪装登录
-     */
-    disguiseLogin() {
+disguiseLogin() {
       log.info("伪装登录");
       DouYinNetWorkHook.hookUserNoLoginResponse();
       const WAIT_TIME = 2e4;
@@ -3063,31 +2465,21 @@
         shortId: "",
         realName: "",
         nickname: "乌萨奇",
-        // 昵称
-        desc: "除草证3级",
-        // 描述
-        gender: 0,
-        // 性别
-        avatarUrl: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
-        // 头像
-        avatar300Url: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+desc: "除草证3级",
+gender: 0,
+avatarUrl: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
+avatar300Url: "https://www.z4a.net/images/2025/02/28/008DOnfHgy1hxpz9zshl4g30hs0hsnpj.gif",
         followStatus: 0,
         followerStatus: 0,
         awemeCount: 0,
-        // 作品数量
-        watchLaterCount: 0,
-        // 稍后再看数量
-        followingCount: 0,
-        // 关注
-        followerCount: 0,
+watchLaterCount: 0,
+followingCount: 0,
+followerCount: 0,
         followerCountStr: "",
         mplatformFollowersCount: 9999999,
-        // 粉丝数量
-        favoritingCount: 0,
-        // 我的喜欢的数量
-        totalFavorited: 9999999,
-        // 获赞
-        userCollectCount: {
+favoritingCount: 0,
+totalFavorited: 9999999,
+userCollectCount: {
           logPb: {
             impr_id: ""
           },
@@ -3104,17 +2496,14 @@
         generalPermission: {
           is_hit_active_fans_grayed: false
         },
-        age: (/* @__PURE__ */ new Date()).getFullYear() - 2019,
-        // 年龄
-        country: "",
+        age: ( new Date()).getFullYear() - 2019,
+country: "",
         province: "",
         city: "",
         district: "",
         school: "chiikawa",
-        // 学校
-        schoolVisible: 1,
-        // 控制学校显示
-        enterpriseVerifyReason: "",
+schoolVisible: 1,
+enterpriseVerifyReason: "",
         secret: 1,
         userCanceled: false,
         roomData: {},
@@ -3249,10 +2638,7 @@
         });
       }
     },
-    /**
-     * 关闭登录弹窗
-     */
-    watchLoginDialogToClose() {
+watchLoginDialogToClose() {
       log.info("监听登录弹窗并关闭");
       let result = [
         CommonUtil.addBlockCSS('body > div[id^="login-full-panel-"]')
@@ -3307,10 +2693,7 @@
       });
       return result;
     },
-    /**
-     * 关闭评论区的登录遮罩层
-     */
-    watchCommentDialogToClose() {
+watchCommentDialogToClose() {
       let lockFn = new utils.LockFunction(() => {
         let $cardLoginGuide = $('[id^="related-video-card-login-guide"]');
         if (!$cardLoginGuide) {
@@ -3338,8 +2721,7 @@
       return [
         CommonUtil.addBlockCSS('[id^="related-video-card-login-guide"]'),
         addStyle(
-          /*css*/
-          `
+`
 			/* 去除遮罩层 */
 			[id^="related-video-card-login-guide"]+div{
 				filter: none !important;
@@ -3350,14 +2732,7 @@
     }
   };
   const DouYinUtils = {
-    /**
-     * 判断是否是竖屏
-     *
-     * window.screen.orientation.type
-     * + landscape-primary 横屏
-     * + portrait-primary 竖屏
-     */
-    isVerticalScreen() {
+isVerticalScreen() {
       return !window.screen.orientation.type.includes("landscape");
     }
   };
@@ -3371,17 +2746,11 @@
         return this.shieldUserCommentEveryOneAllSearch();
       });
     },
-    /**
-     * 【屏蔽】评论工具栏
-     */
-    shieldUserCommentToolBar() {
+shieldUserCommentToolBar() {
       log.info("【屏蔽】评论工具栏");
       return [CommonUtil.addBlockCSS(".comment-input-container")];
     },
-    /**
-     * 【屏蔽】大家都在搜
-     */
-    shieldUserCommentEveryOneAllSearch() {
+shieldUserCommentEveryOneAllSearch() {
       log.info("【屏蔽】大家都在搜");
       return [CommonUtil.addBlockCSS(".comment-header-with-search")];
     }
@@ -3404,56 +2773,48 @@
         return this.blockClickUpdateReminder();
       });
     },
-    /**
-     * 【屏蔽】视频信息
-     */
-    shieldVideoInfoWrap() {
+shieldVideoInfoWrap() {
       log.info("【屏蔽】视频信息");
       return [CommonUtil.addBlockCSS("#video-info-wrap")];
     },
-    /**
-     * 【屏蔽】点击推荐
-     */
-    blockClickRecommend() {
+blockClickRecommend() {
       log.info(`【屏蔽】点击推荐`);
       return CommonUtil.addBlockCSS(".xgplayer-recommend-tag");
     },
-    /**
-     * 【屏蔽】视频标题上的标签
-     *
-     * - 每周精选
-     * - 抖音精选
-     */
-    blobkTitleTopTag() {
+blobkTitleTopTag() {
       log.info(`【屏蔽】视频标题上的标签`);
       return CommonUtil.addBlockCSS(
         "span:has(+#video-info-wrap):has(img)",
         "span:has(+div #video-info-wrap):has(img)"
       );
     },
-    /**
-     * 【屏蔽】视频标题下的标签
-     */
-    shieldVideoUnderTitleTag() {
+shieldVideoUnderTitleTag() {
       log.info(`【屏蔽】视频标题下的标签`);
       return [CommonUtil.addBlockCSS("#video-info-wrap .under-title-tag")];
     },
-    /**
-     * 【屏蔽】及时接收作品更新提醒
-     */
-    blockClickUpdateReminder() {
-      log.info(`【屏蔽】及时接收作品更新提醒`);
+blockClickUpdateReminder() {
       let lockFn = new utils.LockFunction(() => {
         let $reminder = $$(
           ".basePlayerContainer div:has(>div>div):contains('及时接收作品更新提醒')"
         );
-        domUtils.remove($reminder);
+        if ($reminder.length) {
+          for (const $reminderItem of $reminder) {
+            const $basePlayerContainer = $reminderItem.closest(".basePlayerContainer");
+            const $videoInfoDetail = $basePlayerContainer?.querySelector(".video-info-detail");
+            if ($videoInfoDetail) {
+              domUtils.css($videoInfoDetail, "paddingBottom", "8px");
+            }
+          }
+          domUtils.remove($reminder);
+          log.success(`【屏蔽】及时接收作品更新提醒`);
+        }
       });
       utils.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true
         },
+        immediate: true,
         callback: () => {
           lockFn.run();
         }
@@ -3493,18 +2854,13 @@
         return this.fullScreen();
       });
     },
-    /**
-     * 【屏蔽】底部视频工具栏
-     */
-    shieldBottomVideoToolBar() {
+shieldBottomVideoToolBar() {
       log.info("【屏蔽】底部视频工具栏");
       return [
         CommonUtil.addBlockCSS("xg-controls.xgplayer-controls"),
-        // 修复屏蔽后视频信息区域未沉底
-        DouYinVideoPlayer.removeStyleBottom(),
+DouYinVideoPlayer.removeStyleBottom(),
         addStyle(
-          /*css*/
-          `
+`
 				/* 视频标题往下移 */
 				div:has(> #video-info-wrap){
 					bottom: 0px !important;
@@ -3513,68 +2869,41 @@
         )
       ];
     },
-    /**
-     * 【屏蔽】底部视频工具栏的弹幕容器
-     */
-    shieldBottomVideoToolbarDanmuContainer() {
+shieldBottomVideoToolbarDanmuContainer() {
       log.info("【屏蔽】底部视频工具栏的弹幕容器");
       return [
         CommonUtil.addBlockCSS('xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]')
       ];
     },
-    /**
-     * 【屏蔽】连播
-     */
-    autoPlay() {
+autoPlay() {
       log.info(`【屏蔽】连播`);
       return [CommonUtil.addBlockCSS(".xgplayer-autoplay-setting")];
     },
-    /**
-     * 【屏蔽】清屏
-     */
-    clearScreen() {
+clearScreen() {
       log.info(`【屏蔽】清屏`);
       return [CommonUtil.addBlockCSS(".xgplayer-immersive-switch-setting")];
     },
-    /**
-     * 【屏蔽】清晰度
-     */
-    playclarity() {
+playclarity() {
       log.info(`【屏蔽】清晰度`);
       return [CommonUtil.addBlockCSS(".xgplayer-playclarity-setting")];
     },
-    /**
-     * 【屏蔽】倍速
-     */
-    playback() {
+playback() {
       log.info(`【屏蔽】倍速`);
       return [CommonUtil.addBlockCSS(".xgplayer-playback-setting")];
     },
-    /**
-     * 【屏蔽】稍后再看
-     */
-    watchLater() {
+watchLater() {
       log.info(`【屏蔽】稍后再看`);
       return [CommonUtil.addBlockCSS(".xgplayer-watch-later")];
     },
-    /**
-     * 【屏蔽】小窗模式
-     */
-    miniMode() {
+miniMode() {
       log.info(`【屏蔽】小窗模式`);
       return [CommonUtil.addBlockCSS(".xgplayer-pip")];
     },
-    /**
-     * 【屏蔽】网页全屏
-     */
-    pageFullScreen() {
+pageFullScreen() {
       log.info(`【屏蔽】网页全屏`);
       return [CommonUtil.addBlockCSS(".xgplayer-page-full-screen")];
     },
-    /**
-     * 【屏蔽】进入全屏
-     */
-    fullScreen() {
+fullScreen() {
       log.info(`【屏蔽】进入全屏`);
       return [CommonUtil.addBlockCSS(".xgplayer-fullscreen")];
     }
@@ -3612,21 +2941,16 @@
         return this.shieldMoreButton();
       });
     },
-    /**
-     * 【屏蔽】切换播放
-     */
-    shieldPlaySwitchButton() {
+shieldPlaySwitchButton() {
       log.info("【屏蔽】切换播放");
       return [
         CommonUtil.addBlockCSS(
           '.positionBox  .xgplayer-playswitch[data-state="normal"]',
           "div.xgplayer-playswitch",
-          /* 全屏下的右侧的切换播放 */
-          ".xgplayer-playswitch"
+".xgplayer-playswitch"
         ),
         addStyle(
-          /*css*/
-          `
+`
 			div[data-e2e="slideList"]{
 				/* 修复屏蔽后的视频宽度占据 */
 				padding: 0px !important;
@@ -3635,86 +2959,59 @@
         )
       ];
     },
-    /**
-     * 【屏蔽】AI抖音
-     */
-    blockAIDouYin() {
+blockAIDouYin() {
       log.info(`【屏蔽】AI抖音`);
       return CommonUtil.addBlockCSS(
         '.immersive-player-switch-on-hide-interaction-area>div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])',
-        // 搜索页面的
-        '.xgplayer div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])'
+'.xgplayer div:has(>svg path[d="M8.175 4.88C8.318 2.458 10.38.548 12.815.665l.12.008a4.428 4.428 0 0 1 3.08 1.586 4.354 4.354 0 0 1 1.014 2.948l-.005.108c-.016.282-.06.556-.129.82l-.113.444 1.927-.499.111-.027c2.335-.543 4.733.81 5.362 3.105l.05.182a4.351 4.351 0 0 1-.524 3.23l-.06.096a4.409 4.409 0 0 1-2.514 1.87l-.105.028h-.001a4.336 4.336 0 0 1-.827.133l-.458.03 1.075 1.67.06.096c1.221 2.003.705 4.63-1.222 5.957l-.095.063a4.44 4.44 0 0 1-3.424.605l-.11-.027a4.41 4.41 0 0 1-2.568-1.795l-.06-.09-.056-.09a4.355 4.355 0 0 1-.326-.65l-.17-.421-1.263 1.528c-1.53 1.85-4.265 2.207-6.162.774l-.09-.07a4.376 4.376 0 0 1-1.636-3.044l-.008-.112a4.361 4.361 0 0 1 .994-3.061 4.64 4.64 0 0 1 .592-.59l.352-.293-1.856-.722c-2.28-.886-3.468-3.423-2.606-5.68v-.001A4.407 4.407 0 0 1 3.68 6.245a4.448 4.448 0 0 1 3.991.37l.386.24.118-1.975zm4.57-2.218a2.413 2.413 0 0 0-2.547 2.165v.01l-.463 7.542a.046.046 0 0 1-.053.041l-.011-.003-.163-.064h-.001l-2.109-.821c.165-.28.28-.606.31-.978l.006-.09A2.422 2.422 0 0 0 6.475 8.23l-.081-.043-.104-.049a2.42 2.42 0 0 0-1.479-.153l-.102.024a2.403 2.403 0 0 0-1.652 1.446 2.396 2.396 0 0 0 1.285 3.076l.01.004 7.082 2.769a.044.044 0 0 1 .02.068l-.112.134v.001l-1.44 1.74a2.312 2.312 0 0 0-.775-.568l-.067-.03-.086-.033c-.856-.319-1.842-.147-2.517.48l-.066.064a2.38 2.38 0 0 0-.692 1.538c-.047.744.252 1.5.876 2.01a2.428 2.428 0 0 0 3.339-.265l.003-.004.003-.004 4.84-5.833a.046.046 0 0 1 .04-.016c.012 0 .022.005.03.012l.007.009.092.146.001.001 1.22 1.893c-.28.122-.547.302-.78.555l-.049.054v.001c-.64.74-.793 1.807-.337 2.682.282.545.737.927 1.257 1.13a2.418 2.418 0 0 0 2.19-.206 2.393 2.393 0 0 0 .78-3.24l-.002-.004-.003-.004-4.09-6.373-.001-.001-.005-.009a.043.043 0 0 1 .032-.055l.17-.044 2.195-.569c.032.325.133.654.328.974a2.445 2.445 0 0 0 2.462 1.146l.112-.022a2.405 2.405 0 0 0 1.358-.818l.29-.442a2.375 2.375 0 0 0 .206-1.621l-.018-.073a2.415 2.415 0 0 0-2.858-1.737l-.009.002-7.369 1.894h-.002a.043.043 0 0 1-.039-.009.043.043 0 0 1-.016-.037l.013-.204v-.002l.132-2.212c.32.07.67.077 1.034-.009.955-.225 1.708-.997 1.859-1.972a2.371 2.371 0 0 0-.296-1.56l-.055-.09a2.41 2.41 0 0 0-1.82-1.106l-.075-.005z"])'
       );
     },
-    /**
-     * 【屏蔽】作者头像
-     */
-    shieldAuthorAvatar() {
+shieldAuthorAvatar() {
       log.info("【屏蔽】作者头像");
       return [
         CommonUtil.addBlockCSS(
           'div.dy-tip-container:has([data-e2e="video-avatar"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[aria-describedby]:has([data-e2e="video-avatar"])'
+'.basePlayerContainer div[aria-describedby]:has([data-e2e="video-avatar"])'
         )
       ];
     },
-    /**
-     * 【屏蔽】点赞
-     */
-    shieldLikeButton() {
+shieldLikeButton() {
       log.info("【屏蔽】点赞");
       return [
         CommonUtil.addBlockCSS(
           'div.dy-tip-container:has([data-e2e="video-player-digg"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[aria-describedby]:has([data-e2e="video-player-digg"])'
+'.basePlayerContainer div[aria-describedby]:has([data-e2e="video-player-digg"])'
         )
       ];
     },
-    /**
-     * 【屏蔽】评论
-     */
-    shieldCommentButton() {
+shieldCommentButton() {
       log.info("【屏蔽】评论");
       return [
         CommonUtil.addBlockCSS(
           'div.dy-tip-container:has([data-e2e="feed-comment-icon"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[aria-describedby]:has([data-e2e="feed-comment-icon"])'
+'.basePlayerContainer div[aria-describedby]:has([data-e2e="feed-comment-icon"])'
         )
       ];
     },
-    /**
-     * 【屏蔽】收藏
-     */
-    shieldCollectionButton() {
+shieldCollectionButton() {
       log.info("【屏蔽】收藏");
       return [
         CommonUtil.addBlockCSS(
           'div.dy-tip-container:has([data-e2e="video-player-collect"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[data-e2e="video-player-collect"][data-e2e-state="video-player-no-collect"]'
+'.basePlayerContainer div[data-e2e="video-player-collect"][data-e2e-state="video-player-no-collect"]'
         )
       ];
     },
-    /**
-     * 【屏蔽】分享
-     */
-    shieldSharenButton() {
+shieldSharenButton() {
       log.info("【屏蔽】分享");
       return [
         CommonUtil.addBlockCSS(
           'div.dy-tip-container:has([data-e2e="video-player-share"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div:has(>div[data-e2e="video-player-share"])'
+'.basePlayerContainer div:has(>div[data-e2e="video-player-share"])'
         )
       ];
     },
-    /**
-     * 【屏蔽】听抖音
-     */
-    shieldListenDouYinButton() {
+shieldListenDouYinButton() {
       log.info("【屏蔽】听抖音");
       return [
         CommonUtil.addBlockCSS(
@@ -3722,25 +3019,18 @@
         )
       ];
     },
-    /**
-     * 【屏蔽】看相关
-     */
-    shieldRelatedRecommendationsButton() {
+shieldRelatedRecommendationsButton() {
       log.info("【屏蔽】看相关");
       return [
         CommonUtil.addBlockCSS(
           'div.dy-tip-container:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
           'div.dy-tip-container:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
-          // 2024.7.15
-          '.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 0 0-8 8v4a8 8 0 0 0 8 8h8a8 8 0 0 0 8-8v-4a8 8 0 0 0-8-8h-8zm8.5 10.866a1 1 0 0 0 0-1.732l-6-3.464a1 1 0 0 0-1.5.866v6.928a1 1 0 0 0 1.5.866l6-3.464z"])',
-          // 2024.7.16 移动端的屏蔽规则
-          '.basePlayerContainer div[aria-describedby]:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
+'.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 00-8 8v4a8 8 0 008 8h8a8 8 0 008-8v-4a8 8 0 00-8-8h-8zm8.5 10.866a1 1 0 000-1.732l-6-3.464a1 1 0 00-1.5.866v6.928a1 1 0 001.5.866l6-3.464z"])',
+'.basePlayerContainer div[aria-describedby]:has(path[d="M14 8a8 8 0 0 0-8 8v4a8 8 0 0 0 8 8h8a8 8 0 0 0 8-8v-4a8 8 0 0 0-8-8h-8zm8.5 10.866a1 1 0 0 0 0-1.732l-6-3.464a1 1 0 0 0-1.5.866v6.928a1 1 0 0 0 1.5.866l6-3.464z"])',
+'.basePlayerContainer div[aria-describedby]:has(path[d=" M-4,-10 C-4,-10 4,-10 4,-10 C8.418000221252441,-10 12,-6.418000221252441 12,-2 C12,-2 12,2 12,2 C12,6.418000221252441 8.418000221252441,10 4,10 C4,10 -4,10 -4,10 C-8.418000221252441,10 -12,6.418000221252441 -12,2 C-12,2 -12,-2 -12,-2 C-12,-6.418000221252441 -8.418000221252441,-10 -4,-10z M4.5,0.8659999966621399 C5.166999816894531,0.48100000619888306 5.166999816894531,-0.48100000619888306 4.5,-0.8659999966621399 C4.5,-0.8659999966621399 -1.5,-4.329999923706055 -1.5,-4.329999923706055 C-2.1670000553131104,-4.715000152587891 -3,-4.234000205993652 -3,-3.4639999866485596 C-3,-3.4639999866485596 -3,3.4639999866485596 -3,3.4639999866485596 C-3,4.234000205993652 -2.1670000553131104,4.715000152587891 -1.5,4.329999923706055 C-1.5,4.329999923706055 4.5,0.8659999966621399 4.5,0.8659999966621399z"])'
         ),
         addStyle(
-          /*css*/
-          `
+`
 				/* 修复分享的悬浮框距离底部的高度 */
 				[data-e2e="video-player-share"]+div[data-e2e="video-share-container"] > div:first-child{
 					bottom: 0px !important;
@@ -3749,20 +3039,15 @@
         )
       ];
     },
-    /**
-     * 【屏蔽】更多
-     */
-    shieldMoreButton() {
+shieldMoreButton() {
       log.info("【屏蔽】更多");
       return [
         CommonUtil.addBlockCSS(
           'div.dy-tip-container:has([data-e2e="video-play-more"])',
-          // 2024.7.2 新增其它的样式匹配
-          '.basePlayerContainer div[data-e2e="video-play-more"]'
+'.basePlayerContainer div[data-e2e="video-play-more"]'
         ),
         addStyle(
-          /*css*/
-          `
+`
 				/* 修复分享的悬浮框距离底部的高度 */
 				[data-e2e="video-player-share"]+div[data-e2e="video-share-container"] > div:first-child{
 					bottom: 0px !important;
@@ -3791,10 +3076,7 @@
       DouYinVideoBlock_RightToolbar.init();
       DouYinVideoBlock_Comment.init();
     },
-    /**
-     * 【屏蔽】右侧的展开评论按钮
-     */
-    shieldRightExpandCommentButton() {
+shieldRightExpandCommentButton() {
       log.info("【屏蔽】右侧的展开评论按钮");
       return [
         CommonUtil.addBlockCSS(
@@ -3802,49 +3084,37 @@
           '.playerContainer button[type=button] svg > g[filter] > path[d="M21.316 29.73a1.393 1.393 0 01-1.97 0l-5.056-5.055a1.393 1.393 0 010-1.97l.012-.011 5.044-5.045a1.393 1.393 0 011.97 1.97l-4.07 4.071 4.07 4.071a1.393 1.393 0 010 1.97z"]'
         ),
         addStyle(
-          /*css*/
-          `
+`
 			.basePlayerContainer .positionBox{
 				padding-right: 20px !important;
 			}`
         )
       ];
     },
-    /**
-     * 左上角的鼠标的快捷搜索热点的悬浮栏
-     * 【屏蔽】搜索悬浮栏
-     */
-    shieldSearchFloatingBar() {
+shieldSearchFloatingBar() {
       log.info("【屏蔽】搜索悬浮栏");
       let result = [];
       result.push(
         CommonUtil.addBlockCSS(
-          /* 看相关页面的 */
-          "#slideMode + div",
-          // 2024.7.16
-          '.playerContainer .slider-video>div>div:has([data-e2e="searchbar-button"])'
+"#slideMode + div",
+'.playerContainer .slider-video>div>div:has([data-e2e="searchbar-button"])'
         )
       );
       if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
         result.push(
           CommonUtil.addBlockCSS(
-            // 2024.7.30
-            '#douyin-right-container> div>div>div> div:has( div> input[data-e2e="searchbar-input"])'
+'#douyin-right-container> div>div>div> div:has( div> input[data-e2e="searchbar-input"])'
           )
         );
       }
       return result;
     },
-    /**
-     * 【屏蔽】网页全屏关闭按钮
-     */
-    shieldCloseFullScreenButton() {
+shieldCloseFullScreenButton() {
       log.info("【屏蔽】网页全屏关闭按钮");
       let result = [];
       result.push(
         CommonUtil.addBlockCSS(
-          // 2024.7.16
-          '.playerContainer .slider-video>div>div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
+'.playerContainer .slider-video>div>div:has(path[d="M17.448 17.448a1.886 1.886 0 0 1-2.668 0L9 11.668l-5.78 5.78A1.886 1.886 0 1 1 .552 14.78L6.332 9 .552 3.22A1.886 1.886 0 1 1 3.22.552L9 6.332l5.78-5.78a1.886 1.886 0 1 1 2.668 2.668L11.668 9l5.78 5.78a1.886 1.886 0 0 1 0 2.668z"])'
         )
       );
       if (DouYinRouter.isSearch() || DouYinRouter.isDiscover()) {
@@ -3856,71 +3126,42 @@
       }
       return result;
     },
-    /**
-     * 【屏蔽】购物信息
-     */
-    blockShopInfo() {
+blockShopInfo() {
       log.info(`【屏蔽】购物信息`);
       return CommonUtil.addBlockCSS(`.xgplayer-shop-anchor`);
     }
   };
   class ShortCut {
-    /** 存储的键 */
-    key = "short-cut";
-    /** 配置 */
-    $data;
-    /** 是否存在等待按下的按键 */
-    isWaitPress = false;
-    /**
-     * 当前等待按下的按键实例
-     */
-    currentWaitEnterPressInstanceHandler = null;
+key = "short-cut";
+$data;
+isWaitPress = false;
+currentWaitEnterPressInstanceHandler = null;
     constructor(key) {
       if (typeof key === "string") {
         this.key = key;
       }
       this.$data = {
-        /**
-         * 其它实例的快捷键的配置
-         *
-         * 这里一般是用于在录入快捷键时判断是否存在重复的快捷键
-         */
-        otherShortCutOptions: []
+otherShortCutOptions: []
       };
     }
-    /**
-     * 初始化配置默认值
-     */
-    initConfig(key, option) {
+initConfig(key, option) {
       if (this.hasOption(key)) ;
       else {
         this.setOption(key, option);
       }
     }
-    /** 获取存储的键 */
-    getStorageKey() {
+getStorageKey() {
       return this.key;
     }
-    /**
-     * 获取本地存储的所有值
-     */
-    getLocalAllOptions() {
+getLocalAllOptions() {
       return _GM_getValue(this.key, []);
     }
-    /**
-     * 判断是否存在该配置
-     * @param key 键
-     */
-    hasOption(key) {
+hasOption(key) {
       let localOptions = this.getLocalAllOptions();
       let findOption = localOptions.find((item) => item.key === key);
       return !!findOption;
     }
-    /**
-     * 判断是否存在该配置的value值
-     * @param key 键
-     */
-    hasOptionValue(key) {
+hasOptionValue(key) {
       if (this.hasOption(key)) {
         let option = this.getOption(key);
         return !(option?.value == null);
@@ -3928,22 +3169,12 @@
         return false;
       }
     }
-    /**
-     * 获取配置
-     * @param key 键
-     * @param defaultValue 默认值
-     */
-    getOption(key, defaultValue) {
+getOption(key, defaultValue) {
       let localOptions = this.getLocalAllOptions();
       let findOption = localOptions.find((item) => item.key === key);
       return findOption ?? defaultValue;
     }
-    /**
-     * 设置配置
-     * @param key 键
-     * @param value 配置
-     */
-    setOption(key, value) {
+setOption(key, value) {
       let localOptions = this.getLocalAllOptions();
       let findIndex = localOptions.findIndex((item) => item.key === key);
       if (findIndex == -1) {
@@ -3956,11 +3187,7 @@
       }
       _GM_setValue(this.key, localOptions);
     }
-    /**
-     * 清空当前已有配置录入的值
-     * @param key
-     */
-    emptyOption(key) {
+emptyOption(key) {
       let result = false;
       let localOptions = this.getLocalAllOptions();
       let findIndex = localOptions.findIndex((item) => item.key === key);
@@ -3971,11 +3198,7 @@
       _GM_setValue(this.key, localOptions);
       return result;
     }
-    /**
-     * 删除配置
-     * @param key 键
-     */
-    deleteOption(key) {
+deleteOption(key) {
       let result = false;
       let localValue = this.getLocalAllOptions();
       let findValueIndex = localValue.findIndex((item) => item.key === key);
@@ -3986,11 +3209,7 @@
       _GM_setValue(this.key, localValue);
       return result;
     }
-    /**
-     * 把配置的快捷键转成文字
-     * @param keyboardValue
-     */
-    translateKeyboardValueToButtonText(keyboardValue) {
+translateKeyboardValueToButtonText(keyboardValue) {
       let result = "";
       keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
         result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
@@ -3998,12 +3217,7 @@
       result += utils.stringTitleToUpperCase(keyboardValue.keyName);
       return result;
     }
-    /**
-     * 获取快捷键显示的文字
-     * @param key 本地存储的快捷键键名
-     * @param defaultShowText 默认显示的文字
-     */
-    getShowText(key, defaultShowText) {
+getShowText(key, defaultShowText) {
       if (this.hasOption(key)) {
         let localOption = this.getOption(key);
         if (localOption.value == null) {
@@ -4015,11 +3229,7 @@
         return defaultShowText;
       }
     }
-    /**
-     * 录入快捷键
-     * @param key 本地存储的快捷键键名
-     */
-    async enterShortcutKeys(key) {
+async enterShortcutKeys(key) {
       const that = this;
       return new Promise((resolve) => {
         this.isWaitPress = true;
@@ -4086,20 +3296,12 @@
         };
       });
     }
-    /**
-     * 取消当前的录入快捷键操作
-     */
-    cancelEnterShortcutKeys() {
+cancelEnterShortcutKeys() {
       if (typeof this.currentWaitEnterPressInstanceHandler === "function") {
         this.currentWaitEnterPressInstanceHandler();
       }
     }
-    /**
-     * 初始化全局键盘监听
-     * @param shortCutOption 快捷键配置 一般是{ "键名": { callback: ()=>{}}}，键名是本地存储的自定义快捷键的键名
-     * @param config 配置
-     */
-    initGlobalKeyboardListener(shortCutOption, config) {
+initGlobalKeyboardListener(shortCutOption, config) {
       let localOptions = this.getLocalAllOptions();
       if (!localOptions.length) {
         log.warn("没有设置快捷键");
@@ -4267,10 +3469,7 @@
     }
   };
   class GestureBack {
-    /**
-     * 是否正在后退
-     */
-    isBacking = false;
+isBacking = false;
     config;
     constructor(config) {
       this.config = config;
@@ -4284,21 +3483,14 @@
         this.config.win = self;
       }
     }
-    /**
-     * popstate事件函数
-     * @param event
-     */
-    popStateEvent(event) {
+popStateEvent(event) {
       Utils.preventEvent(event);
       if (this.isBacking) {
         return;
       }
       this.quitGestureBackMode(true);
     }
-    /**
-     * 进入手势模式
-     */
-    enterGestureBackMode() {
+enterGestureBackMode() {
       log.success("进入手势模式");
       let pushUrl = this.config.hash;
       if (!pushUrl.startsWith("#")) {
@@ -4316,11 +3508,7 @@
         capture: true
       });
     }
-    /**
-     * 退出手势模式
-     * @param isUrlChange 是否是url改变触发的
-     */
-    async quitGestureBackMode(isUrlChange = false) {
+async quitGestureBackMode(isUrlChange = false) {
       this.isBacking = true;
       log.success("退出手势模式");
       if (typeof this.config.beforeHistoryBackCallBack === "function") {
@@ -4351,8 +3539,7 @@
     }
   }
   const DouYinGestureBackHashConfig = {
-    /** 进入视频评论区 */
-    videoCommentDrawer: "videoCommentDrawer"
+videoCommentDrawer: "videoCommentDrawer"
   };
   const DouYinGestureBackClearHash = () => {
     let findValue = Object.values(DouYinGestureBackHashConfig).find((hash) => {
@@ -4399,62 +3586,41 @@
         }
       );
     },
-    /**
-     * 禁用进入作者主页按钮的悬浮提示
-     */
-    blockEnterUserHomeMouseHoverTip() {
+blockEnterUserHomeMouseHoverTip() {
       log.info(`禁用进入作者主页按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(
         ` div > div:has( >a[data-e2e="video-avatar"]) + .semi-portal`
       );
     },
-    /**
-     * 禁用关注按钮的悬浮提示
-     */
-    blockFollowMouseHoverTip() {
+blockFollowMouseHoverTip() {
       log.info(`禁用关注按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(
         `div[data-e2e="feed-follow-icon"]  .semi-portal`
       );
     },
-    /**
-     * 禁用点赞按钮的悬浮提示
-     */
-    blockAddLikeMouseHoverTip() {
+blockAddLikeMouseHoverTip() {
       log.info(`禁用点赞按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(
         `div[data-e2e="video-player-digg"] + .semi-portal`
       );
     },
-    /**
-     * 禁用评论按钮的悬浮提示
-     */
-    blockCommentMouseHoverTip() {
+blockCommentMouseHoverTip() {
       log.info(`禁用评论按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(
         `div[data-e2e="feed-comment-icon"] + .semi-portal`
       );
     },
-    /**
-     * 禁用收藏按钮的悬浮提示
-     */
-    blockCollectMouseHoverTip() {
+blockCollectMouseHoverTip() {
       log.info(`禁用收藏按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(
         `div[data-e2e="video-player-collect"] + .semi-always-dark`
       );
     },
-    /**
-     * 禁用分享按钮的悬浮提示
-     */
-    blockShareMouseHoverTip() {
+blockShareMouseHoverTip() {
       log.info(`禁用分享按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(`div[data-e2e="video-share-container"]`);
     },
-    /**
-     * 禁用看相关推荐按钮的悬浮提示
-     */
-    blockSeeCorrelationMouseHoverTip() {
+blockSeeCorrelationMouseHoverTip() {
       log.info(`禁用看相关推荐按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(
         `div:has(+[data-e2e="video-play-more"]) .semi-portal`
@@ -4494,43 +3660,28 @@
         }
       );
     },
-    /**
-     * 禁用自动连播按钮的悬浮提示
-     */
-    blockAutomaticBroadcast() {
+blockAutomaticBroadcast() {
       log.info(`禁用自动连播按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(
         `div[data-e2e="video-player-auto-play"] + .xgTips`
       );
     },
-    /**
-     * 禁用清屏按钮的悬浮提示
-     */
-    blockClearScreenMouseHoverTip() {
+blockClearScreenMouseHoverTip() {
       log.info(`禁用清屏按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(`.xgplayer-immersive-switch-setting .xgTips`);
     },
-    /**
-     * 禁用稍后再看按钮的悬浮提示
-     */
-    blockWatchLaterMouseHoverTip() {
+blockWatchLaterMouseHoverTip() {
       log.info(`禁用稍后再看按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(
         `.xgplayer-watch-later .xgTips`,
         `.xgplayer-watch-later-item + .xgTips`
       );
     },
-    /**
-     * 禁用网页全屏按钮的悬浮提示
-     */
-    blockPageFullScreenMouseHoverTip() {
+blockPageFullScreenMouseHoverTip() {
       log.info(`禁用网页全屏按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(`.xgplayer-page-full-screen .xgTips`);
     },
-    /**
-     * 禁用全屏按钮的悬浮提示
-     */
-    blockFullScreenMouseHoverTip() {
+blockFullScreenMouseHoverTip() {
       log.info(`禁用全屏按钮的悬浮提示`);
       return CommonUtil.addBlockCSS(`.xgplayer-fullscreen .xg-tips`);
     }
@@ -4543,8 +3694,7 @@
     let styleCSS = (__delayTime__ = delayTime()) => {
       if (__delayTime__ === 0) {
         return (
-          /*css*/
-          `
+`
             ${selectors.join(",")}{
                 opacity: 0 !important;
                 
@@ -4558,8 +3708,7 @@
         );
       } else {
         return (
-          /*css*/
-          `
+`
             ${selectors.join(",")}{
                 &[${opacityHideAttrName}]{
                     opacity: 0 !important;
@@ -4630,13 +3779,7 @@
     };
   };
   const ReactUtils = {
-    /**
-     * 等待react某个属性并进行设置
-     * @param $el 需要检测的元素对象
-     * @param reactPropNameOrNameList react属性的名称
-     * @param checkOption 检测的配置项
-     */
-    async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
+async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
       if (!Array.isArray(reactPropNameOrNameList)) {
         reactPropNameOrNameList = [reactPropNameOrNameList];
       }
@@ -4807,20 +3950,14 @@
         });
       });
     },
-    /**
-     * 全屏（沉浸模式）
-     */
-    fullScreen() {
+fullScreen() {
       log.info("沉浸模式");
       let result = [];
       result.push(
         CommonUtil.addBlockCSS(
-          /* 右侧工具栏 */
-          ".slider-video .positionBox",
-          /* 中间底部的视频信息（描述、作者、话题等） */
-          "#video-info-wrap",
-          /* 中间底部的视频控制工具栏 */
-          "xg-controls.xgplayer-controls"
+".slider-video .positionBox",
+"#video-info-wrap",
+"xg-controls.xgplayer-controls"
         )
       );
       result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blobkTitleTopTag());
@@ -4828,8 +3965,7 @@
       result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockClickRecommend());
       result.push(
         addStyle(
-          /*css*/
-          `
+`
 			/* 视频全屏 */
 			xg-video-container.xg-video-container{
 				bottom: 0px !important;
@@ -4839,11 +3975,7 @@
       );
       return result;
     },
-    /**
-     * 自动进入网页全屏
-     * @param [userKeyBoard=false] 是否使用键盘触发
-     */
-    autoEnterElementFullScreen(userKeyBoard = false) {
+autoEnterElementFullScreen(userKeyBoard = false) {
       if (this.$flag.isWaitEnterFullScreen) {
         log.warn(`已存在等待进入全屏...`);
         return;
@@ -4868,9 +4000,8 @@
           ReactUtils.waitReactPropsToSet(
             () => {
               return (
-                // 普通视频的网页全屏按钮
-                $('xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon') || // 搜索页面的网页全屏按钮↓
-                $(
+$('xg-icon[data-e2e="xgplayer-page-full-screen"] .xgplayer-icon') ||
+$(
                   '[data-e2e="feed-active-video"] dy-icon.douyin-player-page-full-screen .douyin-player-icon'
                 )
               );
@@ -4890,10 +4021,7 @@
         });
       }
     },
-    /**
-     * 双击进入网页全屏
-     */
-    doubleClickEnterElementFullScreen() {
+doubleClickEnterElementFullScreen() {
       let isDouble = false;
       log.info("注册双击进入网页全屏事件");
       let selectorList = [".newVideoPlayer", "#sliderVideo"];
@@ -4911,10 +4039,7 @@
         });
       });
     },
-    /**
-     * 评论区修改为底部
-     */
-    changeCommentToBottom() {
+changeCommentToBottom() {
       log.info("评论区修改为底部");
       let ATTRIBUTE_KEY2 = "data-vertical-screen";
       function autoChangeCommentPosition() {
@@ -4928,8 +4053,7 @@
       }
       autoChangeCommentPosition();
       addStyle(
-        /*css*/
-        `
+`
 		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
 		html[${ATTRIBUTE_KEY2}] #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
 			display: none !important;
@@ -4959,11 +4083,7 @@
         domUtils.on(window, "resize", autoChangeCommentPosition);
       });
     },
-    /**
-     * 选择视频清晰度
-     * @param [mode=0] 视频播放模式
-     */
-    chooseQuality(mode = 0) {
+chooseQuality(mode = 0) {
       log.info("选择视频清晰度: " + mode);
       let QualitySessionKey = "MANUAL_SWITCH";
       let clarityReal = [
@@ -5058,11 +4178,7 @@
         log.error("该清晰度不存在: " + mode);
       }
     },
-    /**
-     * 选择视频倍速
-     * @param [rate="1"] 倍速
-     */
-    chooseVideoRate(rate = "1") {
+chooseVideoRate(rate = "1") {
       let Definition_Key = "player_playbackratio";
       function setRate(value = "1") {
         _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
@@ -5073,17 +4189,14 @@
       }
       setRate(rate);
     },
-    /**
-     * 修改页面的分享-下载按钮变成解析视频
-     */
-    hookDownloadButtonToParseVideo() {
+hookDownloadButtonToParseVideo() {
       log.info("修改页面的分享-下载按钮变成解析视频");
       function showParseInfoDialog(downloadFileName, downloadUrlInfoList) {
         let contentHTML = "";
         downloadUrlInfoList.forEach((downloadInfo) => {
           let videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
-          contentHTML += /*html*/
-          `
+          contentHTML +=
+`
           		<div class="douyin-video-link-item">
 					<div class="dy-video-name">
 						<span>清晰度信息：</span>
@@ -5098,14 +4211,12 @@
 						<a href="${downloadInfo.url}" data-file-name="${downloadFileName} - ${videoQualityInfo}.${downloadInfo.format}">${downloadInfo.url}</a>
 					</div>
 					${downloadInfo.backUrl.length ? (
-          /*html*/
-          `
+`
 						<div class="dy-video-back-uri">
 							<span>备用地址：</span>
 							${downloadInfo.backUrl.map((url, index) => {
             return (
-              /*html*/
-              `
+`
 									<a href="${url}" data-file-name="${downloadFileName} - ${videoQualityInfo}.${downloadInfo.format}">地址${index + 1}</a>
 								`
             );
@@ -5116,8 +4227,8 @@
 				</div>
             	`;
         });
-        contentHTML = /*html*/
-        `<div class="douyin-video-link-container">${contentHTML}</div>`;
+        contentHTML =
+`<div class="douyin-video-link-container">${contentHTML}</div>`;
         let $dialog = __pops.alert({
           title: {
             text: "视频解析",
@@ -5138,8 +4249,7 @@
           drag: true,
           dragLimit: true,
           style: (
-            /*css*/
-            `
+`
                 .douyin-video-link-container a{
                     white-space: nowrap;
                     overflow: hidden;
@@ -5329,10 +4439,7 @@
         }
       );
     },
-    /**
-     * 修改页面的分享-复制链接
-     */
-    hookCopyLinkButton() {
+hookCopyLinkButton() {
       log.info("修改页面的分享-复制链接");
       domUtils.on(
         document,
@@ -5378,10 +4485,7 @@
         { capture: true }
       );
     },
-    /**
-     * 手机模式
-     */
-    mobileMode() {
+mobileMode() {
       log.info("启用手机模式");
       let result = [];
       DouYin.initialScale();
@@ -5391,14 +4495,10 @@
       });
       return result;
     },
-    /**
-     * 修复进度条按钮
-     */
-    repairVideoProgressBar() {
+repairVideoProgressBar() {
       log.info("修复进度条按钮");
       addStyle(
-        /*css*/
-        `
+`
 		/* 禁止触发touch事件，因为会影响到按钮点击不到 */
 		xg-outer,
 		xg-inners {
@@ -5439,15 +4539,10 @@
         );
       });
     },
-    /**
-     * 修改视频背景颜色
-     * @param color 颜色
-     */
-    changeBackgroundColor(color) {
+changeBackgroundColor(color) {
       log.info("修改视频背景颜色");
       return addStyle(
-        /*css*/
-        `
+`
 		/* 推荐的直播间背景 */
 		xgmask,
 		#sliderVideo > div,
@@ -5460,60 +4555,38 @@
 		`
       );
     },
-    /**
-     * 自动隐藏视频标题
-     */
-    titleInfoAutoHide() {
+titleInfoAutoHide() {
       log.info(`自动隐藏视频标题`);
       DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
-        // 一般的推荐视频|单个视频的当前观看的视频
-        '#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap',
-        // 进入作者主页后的当前观看的视频
-        '#slideMode[data-e2e="feed-active-video"] #video-info-wrap',
-        // 单个视频
-        'div[data-e2e="video-detail"] #video-info-wrap'
+'#sliderVideo[data-e2e="feed-active-video"] #video-info-wrap',
+'#slideMode[data-e2e="feed-active-video"] #video-info-wrap',
+'div[data-e2e="video-detail"] #video-info-wrap'
       ]);
     },
-    /**
-     * 自动隐藏视频控件
-     */
-    videoControlsAutoHide() {
+videoControlsAutoHide() {
       log.info(`自动隐藏视频控件`);
       DouYinVideoElementAutoHide("dy-video-videoControlsAutoHide-delayTime", [
-        // 一般的推荐视频|单个视频的当前观看的视频
-        `#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls`,
-        // 进入作者主页后的当前观看的视频
-        '#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls',
-        // 单个视频
-        'div[data-e2e="video-detail"] xg-controls.xgplayer-controls'
+`#sliderVideo[data-e2e="feed-active-video"] xg-controls.xgplayer-controls`,
+'#slideMode[data-e2e="feed-active-video"] xg-controls.xgplayer-controls',
+'div[data-e2e="video-detail"] xg-controls.xgplayer-controls'
       ]);
     },
-    /**
-     * 自动隐藏右侧工具栏
-     */
-    rightToolBarAutoHide() {
+rightToolBarAutoHide() {
       log.info(`自动隐藏右侧工具栏`);
       addStyle(
-        /*css*/
-        `
+`
 			.positionBox{
 				transition: opacity 0.5s;
 			}
 		`
       );
       DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
-        // 一般的推荐视频|单个视频的当前观看的视频
-        '#sliderVideo[data-e2e="feed-active-video"] .positionBox',
-        // 进入作者主页后的当前观看的视频
-        '#slideMode[data-e2e="feed-active-video"] .positionBox',
-        // 单个视频
-        'div[data-e2e="video-detail"] .positionBox'
+'#sliderVideo[data-e2e="feed-active-video"] .positionBox',
+'#slideMode[data-e2e="feed-active-video"] .positionBox',
+'div[data-e2e="video-detail"] .positionBox'
       ]);
     },
-    /**
-     * 手势返回关闭评论区
-     */
-    gestureBackCloseComment() {
+gestureBackCloseComment() {
       log.info(`手势返回关闭评论区`);
       let gestureback = new GestureBack({
         hash: DouYinGestureBackHashConfig.videoCommentDrawer,
@@ -5574,12 +4647,7 @@
         }
       );
     },
-    /**
-     * 信息区域
-     *
-     * 长时间无操作，已暂停播放
-     */
-    waitToRemovePauseDialog() {
+waitToRemovePauseDialog() {
       log.info("监听信息区域【长时间无操作，已暂停播放】弹窗");
       let checkDialogToClose = ($ele) => {
         let eleText = domUtils.text($ele);
@@ -5633,14 +4701,10 @@
         });
       });
     },
-    /**
-     * 移除video的bottom偏移
-     */
-    removeStyleBottom() {
+removeStyleBottom() {
       log.info(`移除video的bottom偏移`);
       return addStyle(
-        /*css*/
-        `
+`
 			#sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
 			div:has( > div > pace-island > #video-info-wrap ),
 			xg-video-container.xg-video-container{
@@ -5649,14 +4713,10 @@
 		`
       );
     },
-    /**
-     * 禁用右侧工具栏的transform
-     */
-    disableRightToolbarTransform() {
+disableRightToolbarTransform() {
       log.info(`禁用右侧工具栏的transform`);
       return addStyle(
-        /*css*/
-        `
+`
 			.basePlayerContainer .positionBox{
 				transform: unset !important;
 			}
@@ -5672,10 +4732,7 @@
     init() {
       this.initRule();
     },
-    /**
-     * 初始化解析规则
-     */
-    initRule() {
+initRule() {
       this.$data.rule = [];
       let localRule = this.get().trim();
       let localRuleSplit = localRule.split("\n");
@@ -5686,10 +4743,7 @@
         this.$data.rule.push(itemRegExp);
       });
     },
-    /**
-     * 通知弹幕改变(可能是新增)
-     */
-    change() {
+change() {
       this.execMessageFilter(
         [
           ...Array.from(
@@ -5731,12 +4785,7 @@
         );
       }
     },
-    /**
-     * 执行过滤
-     * @param messageQueue 消息元素队列
-     * @param from 来自
-     */
-    execMessageFilter(messageQueue, from) {
+execMessageFilter(messageQueue, from) {
       for (let index = 0; index < messageQueue.length; index++) {
         let $danmu = messageQueue[index];
         let react = utils.getReactObj($danmu);
@@ -5800,10 +4849,7 @@
     }
   };
   const DouYinLiveMessage = {
-    /**
-     * 消息过滤
-     */
-    filterMessage() {
+filterMessage() {
       let lockFn = new utils.LockFunction(() => {
         if (!DouYinRouter.isLive()) {
           return;
@@ -5826,8 +4872,7 @@
       });
       return [
         addStyle(
-          /*css*/
-          `
+`
 				/* 修复一下聊天室屏蔽了某些聊天导致上下抖动不停 */
 				.webcast-chatroom___list > div{
 					height: 100% !important;
@@ -5858,20 +4903,15 @@
         return this.shieldMessage();
       });
     },
-    /**
-     * 【屏蔽】评论区（聊天室）
-     */
-    shieldChatRoom() {
+shieldChatRoom() {
       log.info("【屏蔽】评论区（聊天室）");
       return [
         CommonUtil.addBlockCSS(
           "#chatroom",
-          // 2025.6.29 新版
-          "#RightBackgroundLayout"
+"#RightBackgroundLayout"
         ),
         addStyle(
-          /*css*/
-          `
+`
             div[data-e2e="living-container"],
             div[data-e2e="living-container"] > div{
                 margin-bottom: 0px !important;
@@ -5879,24 +4919,17 @@
         )
       ];
     },
-    /**
-     * 【屏蔽】评论区的贵宾席
-     */
-    shielChatRoomVipSeats() {
+shielChatRoomVipSeats() {
       log.info("【屏蔽】评论区的贵宾席");
       return [
         CommonUtil.addBlockCSS(
           "#chatroom > div > div:has(#audiencePanelScrollId)",
           '#chatroom > div > div:has([data-e2e="live-room-audience"])',
-          // Firefox上的CSS，多了个pace-island
-          '#chatroom > pace-island > div > div:has([data-e2e="live-room-audience"])'
+'#chatroom > pace-island > div > div:has([data-e2e="live-room-audience"])'
         )
       ];
     },
-    /**
-     * 【屏蔽】用户等级图标
-     */
-    shieldUserLevelIcon() {
+shieldUserLevelIcon() {
       log.info("【屏蔽】用户等级图标");
       return [
         CommonUtil.addBlockCSS(
@@ -5904,10 +4937,7 @@
         )
       ];
     },
-    /**
-     * 【屏蔽】VIP图标
-     */
-    shieldUserVIPIcon() {
+shieldUserVIPIcon() {
       log.info("【屏蔽】VIP图标");
       return [
         CommonUtil.addBlockCSS(
@@ -5915,10 +4945,7 @@
         )
       ];
     },
-    /**
-     * 【屏蔽】粉丝牌
-     */
-    shieldUserFansIcon() {
+shieldUserFansIcon() {
       log.info("【屏蔽】粉丝牌");
       return [
         CommonUtil.addBlockCSS(
@@ -5927,18 +4954,13 @@
         )
       ];
     },
-    /**
-     * 【屏蔽】信息播报
-     */
-    shieldMessage() {
+shieldMessage() {
       log.info("【屏蔽】信息播报");
       return [
         CommonUtil.addBlockCSS(
           "#chatroom .webcast-chatroom___bottom-message",
-          // 上面的滚动播报，xxx加入了直播间
-          `#chatroom >div:nth-child(2)>div>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`,
-          // Firefox的，多了个pace-island
-          `#chatroom >pace-island>div>div:first-child>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`
+`#chatroom >div:nth-child(2)>div>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`,
+`#chatroom >pace-island>div>div:first-child>div:nth-child(4):not(:has([id^="audiencePanelScrollId"]))`
         )
       ];
     }
@@ -5949,10 +4971,7 @@
         return this.blockDownloadClient();
       });
     },
-    /**
-     * 【屏蔽】右键菜单-下载客户端
-     */
-    blockDownloadClient() {
+blockDownloadClient() {
       log.info(`【屏蔽】右键菜单-下载客户端`);
       return [
         CommonUtil.addBlockCSS(
@@ -5987,27 +5006,18 @@
       DouYinLiveBlock_ChatRoom.init();
       DouYinLiveBlock_VideoAreaRightMenu.init();
     },
-    /**
-     * 【屏蔽】底部的礼物栏
-     */
-    shieldGiftColumn() {
+shieldGiftColumn() {
       log.info("【屏蔽】底部的礼物栏");
       return [
         CommonUtil.addBlockCSS(
-          // 2025.5.9
-          'div[data-e2e="living-container"] [id^="living_room_player_container"] > :last-child:has(.gitBarOptimizeEnabled )',
-          // Firefox上的CSS，多了个pace-island
-          'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
-          // 全屏状态下的
-          'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))',
-          // 2025.6.29 新版
-          "#BottomLayout",
-          // 2025.7.23 新版 全屏下的礼物栏
-          ".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )"
+'div[data-e2e="living-container"] [id^="living_room_player_container"] > :last-child:has(.gitBarOptimizeEnabled )',
+'div[data-e2e="living-container"] >div> div:has(>pace-island >.gitBarOptimizeEnabled)',
+'div[data-e2e="living-container"] xg-controls > div:has(div[data-e2e="gifts-container"]):not(:has(video))',
+"#BottomLayout",
+".douyin-player .douyin-player-controls >div:nth-child(2):has(> .gitBarOptimizeEnabled )"
         ),
         addStyle(
-          /*css*/
-          `
+`
             /* 去除全屏状态下的礼物栏后，上面的工具栏bottom也去除 */
             div[data-e2e="living-container"] xg-controls xg-inner-controls:has(+div div[data-e2e="gifts-container"]){
                 bottom: 0 !important;
@@ -6015,27 +5025,18 @@
         )
       ];
     },
-    /**
-     * 【屏蔽】顶栏信息
-     * 包括直播作者、右侧的礼物展馆
-     */
-    shieldTopToolBarInfo() {
+shieldTopToolBarInfo() {
       log.info("【屏蔽】顶栏信息");
       return [
         CommonUtil.addBlockCSS(
           'div[data-e2e="living-container"] div[id*="living_room_player_container"] > pace-island[id^="island_"]',
-          // 2024.12.26
-          'div[data-e2e="living-container"] div[id*="living_room_player_container"] >div>div>pace-island[id^="island_"]:has(.__isFullPlayer)',
-          // 全屏状态下的
-          'div[data-e2e="living-container"] xg-bar.xg-top-bar',
-          // 2025.6.29 新版
-          "#HeaderLayout",
-          // 2025.7.23 新版 全屏下的礼物栏
-          ".douyin-player .douyin-player-top-bar"
+'div[data-e2e="living-container"] div[id*="living_room_player_container"] >div>div>pace-island[id^="island_"]:has(.__isFullPlayer)',
+'div[data-e2e="living-container"] xg-bar.xg-top-bar',
+"#HeaderLayout",
+".douyin-player .douyin-player-top-bar"
         ),
         addStyle(
-          /*css*/
-          `
+`
 				/* 去除屏蔽顶部后直播的video偏移 */
 				#PlayerLayout [id^="living_player_containerdouyin-player"]{
 					padding-top: 0 !important;
@@ -6044,10 +5045,7 @@
         )
       ];
     },
-    /**
-     * 【屏蔽】礼物特效
-     */
-    shieldGiftEffects() {
+shieldGiftEffects() {
       domUtils.ready(() => {
         utils.waitNode(() => {
           return domUtils.selector(
@@ -6073,51 +5071,35 @@
         });
       });
     },
-    /**
-     * 【屏蔽】福袋
-     */
-    shieldLucky() {
+shieldLucky() {
       log.info("【屏蔽】福袋");
       return [
         CommonUtil.addBlockCSS(
           '.basicPlayer[data-e2e="basicPlayer"] > pace-island[id^="island_"]:has(.ShortTouchContainer):has(>div > div:not([class*="video_layout_container"]) > div)',
-          // 2026.6.29 新版
-          "#ShortTouchLayout x-view",
-          // 2025.7.23 新版
-          "#ShortTouchLayout .ShortTouchContainer"
+"#ShortTouchLayout x-view",
+"#ShortTouchLayout .ShortTouchContainer"
         )
       ];
     },
-    /**
-     * 【屏蔽】小黄车
-     */
-    shieldYellowCar() {
+shieldYellowCar() {
       log.info("【屏蔽】小黄车");
       return [
         CommonUtil.addBlockCSS(
           'div[id^="living_room_player_container"] .basicPlayer  > div:has(div[data-e2e="yellowCart-container"])',
-          // 2026.6.29 新版
-          "#EcmoCardLayout"
+"#EcmoCardLayout"
         )
       ];
     },
-    /**
-     * 屏蔽弹幕
-     */
-    shieldDanmu() {
+shieldDanmu() {
       log.info("屏蔽弹幕");
       return [
         CommonUtil.addBlockCSS(
           "xg-danmu.xgplayer-danmu",
-          // 2025.6.29 新版
-          "#DanmakuLayout"
+"#DanmakuLayout"
         )
       ];
     },
-    /**
-     * 【屏蔽】点亮展馆帮主播集星
-     */
-    block_exhibition_banner_dylive_tooltip() {
+block_exhibition_banner_dylive_tooltip() {
       log.info(`【屏蔽】点亮展馆帮主播集星`);
       return [
         CommonUtil.addBlockCSS('[data-e2e="exhibition-banner"] .dylive-tooltip')
@@ -6131,10 +5113,7 @@
     $el: {
       $playerIns: null
     },
-    /**
-     * 添加油猴菜单
-     */
-    initMenu() {
+initMenu() {
       GM_Menu.add({
         key: "live-parsePlayerInstance",
         text: "⚙ PlayerInstance",
@@ -6163,17 +5142,11 @@
         }
       });
     },
-    /**
-     * 解析元素上的播放器实例
-     */
-    parseElementPlayerIns($ele) {
+parseElementPlayerIns($ele) {
       let react = utils.getReactObj($ele);
       return react?.reactFiber?.child?.child?.memoizedProps?.playerInstance;
     },
-    /**
-     * 显示解析的信息弹窗
-     */
-    showParseDialog() {
+showParseDialog() {
       log.info(["解析的信息：", this.$data.playerInstance]);
       let blobSrc = this.$data.playerInstance?.url || this.$data.playerInstance?.src;
       let pushSrc = this.$data.playerInstance?.config.url;
@@ -6184,8 +5157,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="live-dy-parse-container">
                     <div class="live-dy-parse-item">
                         <div class="live-dy-parse-item-name">推流地址：</div>
@@ -6220,8 +5192,7 @@
         width: window.innerWidth > 550 ? "550px" : "88wv",
         height: window.innerHeight > 550 ? "550px" : "70vh",
         style: (
-          /*css*/
-          `
+`
             .live-dy-parse-container{
                 display: flex;
                 flex-direction: column;
@@ -6345,36 +5316,25 @@
         });
       });
     },
-    /**
-     * 自动进入网页全屏
-     */
-    autoEnterElementFullScreen() {
+autoEnterElementFullScreen() {
       domUtils.ready(() => {
-        ReactUtils.waitReactPropsToSet(
-          "xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)",
-          "reactFiber",
-          {
-            check(reactInstance) {
-              return typeof reactInstance?.memoizedProps?.onClick === "function";
-            },
-            set(reactInstance, $target) {
-              let $xgIcon = $target.closest("xg-icon");
-              if ($xgIcon && domUtils.text($xgIcon).includes("退出网页全屏")) {
-                log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
-                return;
-              }
-              log.success("成功自动进入网页全屏");
-              reactInstance.memoizedProps.onClick();
+        ReactUtils.waitReactPropsToSet("xg-icon.xgplayer-fullscreen + xg-icon  div:has(>svg)", "reactFiber", {
+          check(reactInstance) {
+            return typeof reactInstance?.memoizedProps?.onClick === "function";
+          },
+          set(reactInstance, $target) {
+            let $xgIcon = $target.closest("xg-icon");
+            if ($xgIcon && domUtils.text($xgIcon).includes("退出网页全屏")) {
+              log.warn("抖音已自动进入网页全屏，不执行脚本的操作");
+              return;
             }
+            log.success("成功自动进入网页全屏");
+            reactInstance.memoizedProps.onClick();
           }
-        );
+        });
       });
     },
-    /**
-     * 选择画质
-     * @param quality 选择的画质，默认原画
-     */
-    chooseQuality(quality = "origin") {
+chooseQuality(quality = "origin") {
       ReactUtils.waitReactPropsToSet(
         'xg-inner-controls xg-right-grid >div:has([data-e2e="quality-selector"])',
         "reactProps",
@@ -6386,9 +5346,7 @@
             let qualityHandler = reactInstance.children.props.children.props.qualityHandler;
             let currentQualityList = qualityHandler.getCurrentQualityList();
             if (!currentQualityList.includes(quality)) {
-              Qmsg.warning(
-                "当前直播没有【" + quality + "】画质，自动选择最高画质"
-              );
+              Qmsg.warning("当前直播没有【" + quality + "】画质，自动选择最高画质");
               currentQualityList.sort((a, b) => {
                 if (!VideoQualityMap[a]) {
                   log.error("画质【" + a + "】不存在");
@@ -6418,9 +5376,7 @@
             let qualityHandler = reactPropInst.return.memoizedProps.qualityHandler;
             let currentQualityList = reactPropInst?.return?.memoizedProps?.qualityList;
             if (!currentQualityList.includes(quality)) {
-              Qmsg.warning(
-                "当前直播没有【" + quality + "】画质，自动选择最高画质"
-              );
+              Qmsg.warning("当前直播没有【" + quality + "】画质，自动选择最高画质");
               currentQualityList.sort((a, b) => {
                 if (!VideoQualityMap[a]) {
                   log.error("画质【" + a + "】不存在");
@@ -6440,12 +5396,7 @@
         }
       );
     },
-    /**
-     * 解锁画质选择
-     *
-     * 未登录情况下最高选择【高清】画质
-     */
-    unlockImageQuality() {
+unlockImageQuality() {
       log.info("解锁画质选择");
       domUtils.on(
         document,
@@ -6455,6 +5406,7 @@
           utils.preventEvent(event);
           try {
             let reactInst = utils.getReactObj(clickNode);
+            let $QualitySwitchNewPlugin = clickNode.closest(".QualitySwitchNewPlugin");
             let parent = clickNode.closest(".QualitySwitchNewPlugin > div") || clickNode.closest("div[data-index]");
             let parentReactInst = utils.getReactObj(parent);
             let qualityHandler = {
@@ -6465,7 +5417,7 @@
                 return parentReactInst?.reactFiber?.return?.memoizedProps?.qualityList || parentReactInst?.reactProps?.["children"]["ref"]["current"];
               },
               setCurrentQuality(quality) {
-                let setCurrentQuality = parentReactInst?.reactFiber?.return?.memoizedProps?.qualityHandler?.setCurrentQuality || parentReactInst?.reactProps?.["children"]?.["ref"]?.["current"]?.setCurrentQuality;
+                let setCurrentQuality = parentReactInst?.reactFiber?.return?.memoizedProps?.qualityHandler?.setCurrentQuality || parentReactInst?.reactFiber?.child?.memoizedProps?.qualityHandler?.setCurrentQuality || parentReactInst?.reactFiber?.return?.memoizedProps?.qualityHandler?.setCurrentQuality || parentReactInst?.reactProps?.["children"]?.["ref"]?.["current"]?.setCurrentQuality;
                 if (typeof setCurrentQuality === "function") {
                   setCurrentQuality(quality);
                 } else {
@@ -6473,6 +5425,13 @@
                 }
               }
             };
+            if ($QualitySwitchNewPlugin) {
+              let QualitySwitchNewPluginReactInst = utils.getReactObj($QualitySwitchNewPlugin);
+              let current = QualitySwitchNewPluginReactInst?.reactFiber?.child?.ref?.current;
+              if (typeof current === "object" && current != null && typeof current?.getCurrentQuality === "function" && typeof current?.getCurrentQualityList === "function" && typeof current?.setCurrentQuality === "function") {
+                qualityHandler = current;
+              }
+            }
             let currentQuality = qualityHandler.getCurrentQuality();
             log.info("当前选择的画质: " + currentQuality);
             log.info(["所有的画质: ", qualityHandler.getCurrentQualityList()]);
@@ -6487,11 +5446,7 @@
         }
       );
     },
-    /**
-     * 长时间无操作，已暂停播放
-     * 累计节能xx分钟
-     */
-    waitToRemovePauseDialog() {
+waitToRemovePauseDialog() {
       log.info("监听【长时间无操作，已暂停播放】弹窗");
       let checkDialogToClose = ($ele, from) => {
         let eleText = domUtils.text($ele);
@@ -6532,16 +5487,12 @@
         if (!Panel.getValue("live-waitToRemovePauseDialog")) {
           return;
         }
-        $$("body > div[elementtiming='element-timing']").forEach(
-          ($elementTiming) => {
-            checkDialogToClose($elementTiming, "1");
-          }
-        );
-        $$('body > div:not([id="root"]):not(:empty)').forEach(
-          ($ele) => {
-            checkDialogToClose($ele, "2");
-          }
-        );
+        $$("body > div[elementtiming='element-timing']").forEach(($elementTiming) => {
+          checkDialogToClose($elementTiming, "1");
+        });
+        $$('body > div:not([id="root"]):not(:empty)').forEach(($ele) => {
+          checkDialogToClose($ele, "2");
+        });
       });
       domUtils.ready(() => {
         utils.mutationObserver(document.body, {
@@ -6556,15 +5507,9 @@
         });
       });
     },
-    /**
-     * 暂停视频
-     */
-    pauseVideo() {
+pauseVideo() {
       utils.waitAnyNode(
-        [
-          '.basicPlayer[data-e2e="basicPlayer"] video',
-          "#PlayerLayout .douyin-player video"
-        ],
+        ['.basicPlayer[data-e2e="basicPlayer"] video', "#PlayerLayout .douyin-player video"],
         1e4
       ).then(($video) => {
         if (!$video) {
@@ -6592,16 +5537,11 @@
         }, timeout);
       });
     },
-    /**
-     * 修改视频背景颜色
-     * @param color 颜色
-     */
-    changeBackgroundColor() {
+changeBackgroundColor() {
       log.info("修改视频背景颜色");
       let color = Panel.getValue("live-changeBackgroundColor");
       return addStyle(
-        /*css*/
-        `
+`
 		div[id^="living_room_player_container"] div[data-anchor-id="living-background"] div:has(>.xgplayer-dynamic-bg),
 		#LeftBackgroundLayout {
 			background: ${color} !important;
@@ -6613,10 +5553,7 @@
 		`
       );
     },
-    /**
-     * 自动关闭聊天室
-     */
-    autoCloseChatRoom() {
+autoCloseChatRoom() {
       ReactUtils.waitReactPropsToSet("#chatroom .chatroom_close", "reactFiber", {
         check(reactPropInst, $el) {
           return typeof reactPropInst?.memoizedProps?.onClick === "function";
@@ -6634,10 +5571,7 @@
         this.redirectUrlHomeToRoot();
       });
     },
-    /**
-     * 从首页到根目录
-     */
-    redirectUrlHomeToRoot() {
+redirectUrlHomeToRoot() {
       if (window.location.pathname === "/home") {
         log.info("从首页跳转到根目录");
         window.location.href = window.location.origin + "/?is_from_mobile_home=1&recommend=1";
@@ -6655,10 +5589,7 @@
       });
       this.resizeSearchFilterBar();
     },
-    /**
-     * 把搜索结果过滤器宽度自适应
-     */
-    resizeSearchFilterBar() {
+resizeSearchFilterBar() {
       domUtils.ready(() => {
         let $searchFilter = $("div:has(+#search-result-container)");
         let $searchResultContainer = $("#search-result-container");
@@ -6672,16 +5603,12 @@
         domUtils.css($searchFilter, "width", searchResultContainerWidth + "px");
       });
     },
-    /**
-     * 【屏蔽】相关搜索
-     */
-    shieldReleatedSearches() {
+shieldReleatedSearches() {
       log.info("【屏蔽】相关搜索");
       return [
         CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2)"),
         addStyle(
-          /*css*/
-          `
+`
 			/* 把搜索结果宽度自适应 */
 			#search-result-container{
         		width: auto !important;
@@ -6690,10 +5617,7 @@
         )
       ];
     },
-    /**
-     * 【屏蔽】AI问一问
-     */
-    blockAIAsk() {
+blockAIAsk() {
       log.info(`【屏蔽】AI问一问`);
       return CommonUtil.addBlockCSS("#search-content-area > div > div:nth-child(2) > div > div:first-child");
     }
@@ -6711,18 +5635,13 @@
         return this.setSearchResultFilterWithVideoStyle(option.value);
       });
     },
-    /**
-     * 手机模式
-     * (由通用统一调用，勿放在本函数的init内)
-     */
-    mobileMode() {
+mobileMode() {
       log.info("搜索-手机模式");
       let result = [];
       result.push(addStyle(MobileCSS));
       result.push(
         addStyle(
-          /*css*/
-          `
+`
 			@media screen and (max-width: 550px){
 				div#search-body-container {
 					display: flex;
@@ -6779,8 +5698,7 @@
         log.info("评论区展开的className：" + $relatedVideoCard.className);
         result.push(
           addStyle(
-            /*css*/
-            `
+`
 					html[data-vertical-screen]
 						#sliderVideo[data-e2e="feed-active-video"]
 						#videoSideBar:has(#relatedVideoCard[class="${$relatedVideoCard.className}"]) {
@@ -6791,10 +5709,7 @@
       });
       return result;
     },
-    /**
-     * 禁止点击视频区域进入全屏
-     */
-    disableClickToEnterFullScreen() {
+disableClickToEnterFullScreen() {
       log.info("搜索-禁止点击视频区域进入全屏");
       domUtils.on(
         document,
@@ -6849,11 +5764,7 @@
         }
       );
     },
-    /**
-     * 设置搜索结果-按视频过滤的显示样式
-     * @param lineMode 单列/双列
-     */
-    setSearchResultFilterWithVideoStyle(lineMode = "one") {
+setSearchResultFilterWithVideoStyle(lineMode = "one") {
       log.info(`设置搜索结果-按视频过滤的显示样式：${lineMode}`);
       if (lineMode === "one") {
         cookieManager.set({
@@ -6861,8 +5772,7 @@
           value: encodeURIComponent(`"single"`)
         });
         return addStyle(
-          /*css*/
-          `
+`
 			@media screen and (max-width: 800px){
 				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
 					width: calc(100% - 21px);
@@ -6876,8 +5786,7 @@
           value: encodeURIComponent(`"multi"`)
         });
         return addStyle(
-          /*css*/
-          `	
+`	
 			@media screen and (max-width: 800px){
 				.search-horizontal-new-layout ul[data-e2e="scroll-list"] li{
 					width: calc(50% - 21px);
@@ -6937,17 +5846,13 @@
         return this.block_tab_ai_search();
       });
     },
-    /**
-     * 【屏蔽】左侧导航栏
-     */
-    shieldLeftNavigator() {
+shieldLeftNavigator() {
       log.info("【屏蔽】左侧导航栏");
       let result = [];
       result.push(CommonUtil.addBlockCSS("#douyin-navigation"));
       result.push(
         addStyle(
-          /*css*/
-          `
+`
 			/* 修复顶部导航栏的宽度 */
 			#douyin-header{
 				width: 100%;
@@ -6956,154 +5861,103 @@
       );
       return result;
     },
-    /**
-     * 【屏蔽】精选
-     */
-    block_tab_home() {
+block_tab_home() {
       log.info("【屏蔽】精选");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-discover)'
       );
     },
-    /**
-     * 【屏蔽】推荐
-     */
-    block_tab_recommend() {
+block_tab_recommend() {
       log.info("【屏蔽】推荐");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-recommend)'
       );
     },
-    /**
-     * 【屏蔽】关注
-     */
-    block_tab_follow() {
+block_tab_follow() {
       log.info("【屏蔽】关注");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-follow)'
       );
     },
-    /**
-     * 【屏蔽】朋友
-     */
-    block_tab_friend() {
+block_tab_friend() {
       log.info("【屏蔽】朋友");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-friend)'
       );
     },
-    /**
-     * 【屏蔽】我的
-     */
-    block_tab_user_self() {
+block_tab_user_self() {
       log.info("【屏蔽】我的");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self)'
       );
     },
-    /**
-     * 【屏蔽】喜欢
-     */
-    block_tab_user_self_like() {
+block_tab_user_self_like() {
       log.info("【屏蔽】喜欢");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_like)'
       );
     },
-    /**
-     * 【屏蔽】收藏
-     */
-    block_tab_user_self_collection() {
+block_tab_user_self_collection() {
       log.info("【屏蔽】收藏");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_collection)'
       );
     },
-    /**
-     * 【屏蔽】观看历史
-     */
-    block_tab_user_self_record() {
+block_tab_user_self_record() {
       log.info("【屏蔽】观看历史");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div > div:has(.tab-user_self_record)'
       );
     },
-    /**
-     * 【屏蔽】直播
-     */
-    block_tab_live() {
+block_tab_live() {
       log.info("【屏蔽】直播");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-live)'
       );
     },
-    /**
-     * 【屏蔽】放映厅
-     */
-    block_tab_vs() {
+block_tab_vs() {
       log.info("【屏蔽】放映厅");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-vs)'
       );
     },
-    /**
-     * 【屏蔽】短剧
-     */
-    block_tab_series() {
+block_tab_series() {
       log.info(`短剧`);
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-series)'
       );
     },
-    /**
-     * 【屏蔽】AI搜索
-     */
-    block_tab_ai_search() {
+block_tab_ai_search() {
       log.info(`【屏蔽】AI搜索`);
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has([class^="tab-aisearch"])'
       );
     },
-    /**
-     * 【屏蔽】知识
-     */
-    block_tab_channel_300203() {
+block_tab_channel_300203() {
       log.info("【屏蔽】知识");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300203)'
       );
     },
-    /**
-     * 【屏蔽】游戏
-     */
-    block_tab_channel_300205() {
+block_tab_channel_300205() {
       log.info("【屏蔽】游戏");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300205)'
       );
     },
-    /**
-     * 【屏蔽】二次元
-     */
-    block_tab_channel_300206() {
+block_tab_channel_300206() {
       log.info("【屏蔽】二次元");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300206)'
       );
     },
-    /**
-     * 【屏蔽】音乐
-     */
-    block_tab_channel_300209() {
+block_tab_channel_300209() {
       log.info("【屏蔽】音乐");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300209)'
       );
     },
-    /**
-     * 【屏蔽】美食
-     */
-    block_tab_channel_300204() {
+block_tab_channel_300204() {
       log.info("【屏蔽】美食");
       return CommonUtil.addBlockCSS(
         'div[data-e2e="douyin-navigation"] > div > div > div > div:has(.tab-channel_300204)'
@@ -7121,10 +5975,7 @@
         });
       });
     },
-    /**
-     * 显示UID
-     */
-    addShowUserUID() {
+addShowUserUID() {
       ReactUtils.waitReactPropsToSet(
         `[data-e2e="user-detail"] [data-e2e="user-info"]`,
         "reactFiber",
@@ -7143,8 +5994,7 @@
               {
                 className: "gm-user-uid",
                 innerHTML: (
-                  /*html*/
-                  `
+`
 							<span>UID：${uid}</span>
 						`
                 )
@@ -7180,39 +6030,19 @@
         return this.__storeApiFn;
       }
     },
-    /**
-     * 获取自定义的存储接口
-     * @param type 组件类型
-     */
-    getStorageApi(type) {
+getStorageApi(type) {
       if (!this.hasStorageApi(type)) {
         return;
       }
       return this.$data.storeApiValue.get(type);
     },
-    /**
-     * 判断是否存在自定义的存储接口
-     * @param type 组件类型
-     */
-    hasStorageApi(type) {
+hasStorageApi(type) {
       return this.$data.storeApiValue.has(type);
     },
-    /**
-     * 设置自定义的存储接口
-     * @param type 组件类型
-     * @param storageApiValue 存储接口
-     */
-    setStorageApi(type, storageApiValue) {
+setStorageApi(type, storageApiValue) {
       this.$data.storeApiValue.set(type, storageApiValue);
     },
-    /**
-     * 初始化组件的存储接口属性
-     *
-     * @param type 组件类型
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    initComponentsStorageApi(type, config, storageApiValue) {
+initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
       if (this.hasStorageApi(type)) {
         propsStorageApi = this.getStorageApi(type);
@@ -7221,12 +6051,7 @@
       }
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
-    /**
-     * 设置组件的存储接口属性
-     * @param config 组件配置，必须包含prop属性
-     * @param storageApiValue 存储接口
-     */
-    setComponentsStorageApiProperty(config, storageApiValue) {
+setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     }
   };
@@ -7354,10 +6179,7 @@
     constructor(option) {
       this.option = option;
     }
-    /**
-     * 显示视图
-     */
-    async showView() {
+async showView() {
       let $dialog = __pops.confirm({
         title: {
           text: this.option.title,
@@ -7365,8 +6187,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <form class="rule-form-container" onsubmit="return false">
                         <ul class="rule-form-ulist"></ul>
                         <input type="submit" style="display: none;" />
@@ -7391,8 +6212,7 @@
           enable: true
         },
         style: (
-          /*css*/
-          `
+`
                 ${__pops.config.cssText.panelCSS}
                 
                 .rule-form-container {
@@ -7482,8 +6302,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                 <div class="filter-container"></div>
                 `
           )
@@ -7501,8 +6320,7 @@
         width: window.innerWidth > 500 ? "350px" : "80vw",
         height: window.innerHeight > 500 ? "300px" : "70vh",
         style: (
-          /*css*/
-          `
+`
             .filter-container{
                 height: 100%;
                 display: flex;
@@ -7568,11 +6386,7 @@
     constructor(option) {
       this.option = option;
     }
-    /**
-     * 显示视图
-     * @param filterCallBack 返回值为false隐藏，true则不隐藏（不处理）
-     */
-    async showView(filterCallBack) {
+async showView(filterCallBack) {
       let $popsConfirm = __pops.confirm({
         title: {
           text: this.option.title,
@@ -7580,8 +6394,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="rule-view-container">
                     </div>
                     `
@@ -7703,8 +6516,7 @@
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
         style: (
-          /*css*/
-          `
+`
             ${__pops.config.cssText.panelCSS}
             
             .rule-item{
@@ -7771,16 +6583,7 @@
         domUtils.text($button, "取消过滤");
       }
     }
-    /**
-     * 显示编辑视图
-     * @param isEdit 是否是编辑状态
-     * @param editData 编辑的数据
-     * @param $parentShadowRoot （可选）关闭弹窗后对ShadowRoot进行操作
-     * @param $editRuleItemElement （可选）关闭弹窗后对规则行进行更新数据
-     * @param updateDataCallBack （可选）关闭添加/编辑弹窗的回调（不更新数据）
-     * @param submitCallBack （可选）添加/修改提交的回调
-     */
-    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
           if (typeof submitCallBack === "function") {
@@ -7857,10 +6660,7 @@
       });
       editView.showView();
     }
-    /**
-     * 解析弹窗内的各个元素
-     */
-    parseViewElement($shadowRoot) {
+parseViewElement($shadowRoot) {
       let $container = $shadowRoot.querySelector(
         ".rule-view-container"
       );
@@ -7868,16 +6668,11 @@
         ".pops-confirm-btn button.pops-confirm-btn-other"
       );
       return {
-        /** 容器 */
-        $container,
-        /** 左下角的清空按钮 */
-        $deleteBtn
+$container,
+$deleteBtn
       };
     }
-    /**
-     * 解析每一项的元素
-     */
-    parseRuleItemElement($ruleElement) {
+parseRuleItemElement($ruleElement) {
       let $enable = $ruleElement.querySelector(
         ".rule-controls-enable"
       );
@@ -7893,32 +6688,21 @@
         ".rule-controls-delete"
       );
       return {
-        /** 启用开关 */
-        $enable,
-        /** 启用开关的container */
-        $enableSwitch,
-        /** 启用开关的input */
-        $enableSwitchInput,
-        /** 启用开关的core */
-        $enableSwitchCore,
-        /** 编辑按钮 */
-        $edit,
-        /** 删除按钮 */
-        $delete,
-        /** 存储在元素上的数据 */
-        data: Reflect.get($ruleElement, "data-rule")
+$enable,
+$enableSwitch,
+$enableSwitchInput,
+$enableSwitchCore,
+$edit,
+$delete,
+data: Reflect.get($ruleElement, "data-rule")
       };
     }
-    /**
-     * 创建一条规则元素
-     */
-    async createRuleItemElement(data, $shadowRoot) {
+async createRuleItemElement(data, $shadowRoot) {
       let name = await this.option.getDataItemName(data);
       let $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
         innerHTML: (
-          /*html*/
-          `
+`
 			<div class="rule-name">${name}</div>
 			<div class="rule-controls">
 				<div class="rule-controls-enable">
@@ -8027,10 +6811,7 @@
       }
       return $ruleItem;
     }
-    /**
-     * 添加一个规则元素
-     */
-    async appendRuleItemElement($shadowRoot, data) {
+async appendRuleItemElement($shadowRoot, data) {
       let { $container } = this.parseViewElement($shadowRoot);
       let $ruleItem = [];
       let iteratorData = Array.isArray(data) ? data : [data];
@@ -8043,35 +6824,23 @@
       await this.updateDeleteAllBtnText($shadowRoot);
       return $ruleItem;
     }
-    /**
-     * 更新弹窗内容的元素
-     */
-    async updateRuleContaienrElement($shadowRoot) {
+async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
       const { $container } = this.parseViewElement($shadowRoot);
       let data = await this.option.data();
       await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
-    /**
-     * 更新规则元素
-     */
-    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
       let $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
-    /**
-     * 清空内容
-     */
-    clearContent($shadowRoot) {
+clearContent($shadowRoot) {
       const { $container } = this.parseViewElement($shadowRoot);
       domUtils.html($container, "");
     }
-    /**
-     * 设置删除按钮的文字
-     */
-    setDeleteBtnText($shadowRoot, text, isHTML = false) {
+setDeleteBtnText($shadowRoot, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($shadowRoot);
       if (isHTML) {
         domUtils.html($deleteBtn, text);
@@ -8079,11 +6848,7 @@
         domUtils.text($deleteBtn, text);
       }
     }
-    /**
-     * 更新【清空所有】的按钮的文字
-     * @param $shadowRoot
-     */
-    async updateDeleteAllBtnText($shadowRoot) {
+async updateDeleteAllBtnText($shadowRoot) {
       let data = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
@@ -8093,30 +6858,17 @@
     constructor(option) {
       this.option = option;
     }
-    /**
-     * 获取所有规则
-     */
-    getAllRule() {
+getAllRule() {
       let allRules = _GM_getValue(this.option.STORAGE_API_KEY, []);
       return allRules;
     }
-    /**
-     * 设置全部规则
-     */
-    setAllRule(rules) {
+setAllRule(rules) {
       _GM_setValue(this.option.STORAGE_API_KEY, rules);
     }
-    /**
-     * 清空所有规则
-     */
-    clearAllRule() {
+clearAllRule() {
       this.setAllRule([]);
     }
-    /**
-     * 获取规则
-     * @param uuid
-     */
-    getRule(uuid) {
+getRule(uuid) {
       let allRules = this.getAllRule();
       let findIndex = allRules.findIndex((item) => item.uuid === uuid);
       if (findIndex !== -1) {
@@ -8124,14 +6876,7 @@
         return rule;
       }
     }
-    /**
-     * 设置规则（覆盖规则）
-     * @param rule 规则
-     * @returns
-     * + true 成功覆盖
-     * + false 未找到规则
-     */
-    setRule(rule) {
+setRule(rule) {
       let allRules = this.getAllRule();
       let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
       let updateFlag = false;
@@ -8142,10 +6887,7 @@
       }
       return updateFlag;
     }
-    /**
-     * 添加规则
-     */
-    addRule(rule) {
+addRule(rule) {
       let allRules = this.getAllRule();
       let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
       let addFlag = false;
@@ -8157,11 +6899,7 @@
       }
       return addFlag;
     }
-    /**
-     * 规则规则（有就更新，没有就添加）
-     * @param rule 规则
-     */
-    updateRule(rule) {
+updateRule(rule) {
       let allRules = this.getAllRule();
       let findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
       if (findIndex !== -1) {
@@ -8171,11 +6909,7 @@
       }
       this.setAllRule(allRules);
     }
-    /**
-     * 删除规则
-     * @param rule 规则/规则的uuid
-     */
-    deleteRule(rule) {
+deleteRule(rule) {
       let allRules = this.getAllRule();
       let ruleUUID = typeof rule === "string" ? rule : rule.uuid;
       let findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
@@ -8187,11 +6921,7 @@
         return false;
       }
     }
-    /**
-     * 导入规则
-     * @param importEndCallBack 导入完毕后的回调
-     */
-    importRules(importEndCallBack) {
+importRules(importEndCallBack) {
       let $alert = __pops.alert({
         title: {
           text: "请选择导入方式",
@@ -8199,8 +6929,7 @@
         },
         content: {
           text: (
-            /*html*/
-            `
+`
                     <div class="btn-control" data-mode="local">本地导入</div>
                     <div class="btn-control" data-mode="network">网络导入</div>
                     <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
@@ -8222,8 +6951,7 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: (
-          /*css*/
-          `
+`
                 .btn-control{
                     display: inline-block;
                     margin: 10px;
@@ -8448,10 +7176,7 @@
         }
       });
     }
-    /**
-     * 导出规则
-     */
-    exportRules(fileName = "rule.json") {
+exportRules(fileName = "rule.json") {
       let allRules = this.getAllRule();
       let blob = new Blob([JSON.stringify(allRules, null, 4)]);
       let blobUrl = globalThis.URL.createObjectURL(blob);
@@ -8468,45 +7193,38 @@
     $data = {
       dislike_request_queue: []
     };
-    /**
-     * 解析awemeInfo转为规则过滤的字典
-     * @param awemeInfo
-     * @param showLog 是否显示日志输出
-     */
-    parseAwemeInfoDictData(awemeInfo, showLog = false) {
-      let authorInfo = awemeInfo?.["authorInfo"] || // @ts-ignore
-      awemeInfo?.["author"];
+parseAwemeInfoDictData(awemeInfo, showLog = false) {
+      let authorInfo = awemeInfo?.["authorInfo"] ||
+awemeInfo?.["author"];
       let nickname = authorInfo?.["nickname"]?.toString();
       let uid = authorInfo?.["uid"]?.toString();
       let desc = awemeInfo?.["desc"]?.toString();
       let musicAlbum = awemeInfo?.["music"]?.["album"];
       let musicAuthor = awemeInfo?.["music"]?.["author"];
       let musicTitle = awemeInfo?.["music"]?.["title"];
-      let collectCount = awemeInfo?.["stats"]?.["collectCount"] || // @ts-ignore
-      awemeInfo?.["statistics"]?.["collect_count"];
-      let commentCount = awemeInfo?.["stats"]?.["commentCount"] || // @ts-ignore
-      awemeInfo?.["statistics"]?.["comment_count"];
-      let diggCount = awemeInfo?.["stats"]?.["diggCount"] || // @ts-ignore
-      awemeInfo?.["statistics"]?.["digg_count"];
-      let shareCount = awemeInfo?.["stats"]?.["shareCount"] || // @ts-ignore
-      awemeInfo?.["statistics"]?.["share_count"];
+      let collectCount = awemeInfo?.["stats"]?.["collectCount"] ||
+awemeInfo?.["statistics"]?.["collect_count"];
+      let commentCount = awemeInfo?.["stats"]?.["commentCount"] ||
+awemeInfo?.["statistics"]?.["comment_count"];
+      let diggCount = awemeInfo?.["stats"]?.["diggCount"] ||
+awemeInfo?.["statistics"]?.["digg_count"];
+      let shareCount = awemeInfo?.["stats"]?.["shareCount"] ||
+awemeInfo?.["statistics"]?.["share_count"];
       let duration = awemeInfo?.["video"]?.["duration"];
       let textExtraInstance = (
-        // @ts-ignore
-        awemeInfo?.["textExtra"] || awemeInfo?.["text_extra"]
+awemeInfo?.["textExtra"] || awemeInfo?.["text_extra"]
       );
       let textExtra = [];
       let isLive = false;
       let isAds = false;
       let isSeriesInfo = false;
       let isMixInfo = false;
-      let riskInfoContent = awemeInfo?.["riskInfos"]?.content || // @ts-ignore
-      awemeInfo?.["risk_infos"]?.content;
+      let riskInfoContent = awemeInfo?.["riskInfos"]?.content ||
+awemeInfo?.["risk_infos"]?.content;
       let seriesInfoName = void 0;
       let seriesInfoContentTypes = [];
       let isPicture = (
-        // @ts-ignore
-        awemeInfo?.["aweme_type"] === 68
+awemeInfo?.["aweme_type"] === 68
       );
       if (typeof textExtraInstance === "object" && Array.isArray(textExtraInstance)) {
         textExtraInstance?.forEach((item) => {
@@ -8519,14 +7237,12 @@
       let mixInfoName = void 0;
       let mixInfoDesc = void 0;
       let videoTagInstance = (
-        // @ts-ignore
-        awemeInfo?.["videoTag"] || awemeInfo?.["video_tag"]
+awemeInfo?.["videoTag"] || awemeInfo?.["video_tag"]
       );
       let videoTag = [];
       let videoTagId = [];
       let awemeId = (
-        // @ts-ignore
-        awemeInfo?.["aweme_id"] || awemeInfo?.["awemeId"]
+awemeInfo?.["aweme_id"] || awemeInfo?.["awemeId"]
       );
       if (typeof videoTagInstance === "object" && Array.isArray(videoTagInstance)) {
         videoTagInstance.forEach((item) => {
@@ -8543,22 +7259,22 @@
           }
         });
       }
-      if (typeof awemeInfo["cellRoom"] === "object" || // @ts-ignore
-      typeof awemeInfo["cell_room"] === "object") {
+      if (typeof awemeInfo["cellRoom"] === "object" ||
+typeof awemeInfo["cell_room"] === "object") {
         isLive = true;
         if (showLog) {
           log.success("直播间：cellRoom is not null");
         }
       }
-      if (awemeInfo["isAds"] || // @ts-ignore
-      awemeInfo["is_ads"]) {
+      if (awemeInfo["isAds"] ||
+awemeInfo["is_ads"]) {
         isAds = true;
         if (showLog) {
           log.success("广告：isAds is true");
         }
-      } else if (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"]) || // @ts-ignore
-      typeof awemeInfo["raw_ad_data"] === "string" && // @ts-ignore
-      utils.isNotNull(awemeInfo["raw_ad_data"])) {
+      } else if (typeof awemeInfo["rawAdData"] === "string" && utils.isNotNull(awemeInfo["rawAdData"]) ||
+typeof awemeInfo["raw_ad_data"] === "string" &&
+utils.isNotNull(awemeInfo["raw_ad_data"])) {
         isAds = true;
         if (showLog) {
           log.success("广告：rawAdData is not null");
@@ -8581,14 +7297,14 @@
       if (typeof riskInfoContent === "string" && riskInfoContent.trim() === "" || typeof riskInfoContent !== "string") {
         riskInfoContent = void 0;
       }
-      let series_info = awemeInfo?.["seriesInfo"] || // @ts-ignore
-      awemeInfo?.["series_info"];
+      let series_info = awemeInfo?.["seriesInfo"] ||
+awemeInfo?.["series_info"];
       if (typeof series_info === "object" && series_info != null) {
         isSeriesInfo = true;
-        seriesInfoName = series_info?.["seriesName"] || // @ts-ignore
-        series_info?.["series_name"];
-        let series_content_types = series_info?.["seriesContentTypes"] || // @ts-ignore
-        series_info?.["series_content_types"];
+        seriesInfoName = series_info?.["seriesName"] ||
+series_info?.["series_name"];
+        let series_content_types = series_info?.["seriesContentTypes"] ||
+series_info?.["series_content_types"];
         if (Array.isArray(series_content_types)) {
           series_content_types.forEach((it) => {
             let seriesInfoName2 = it["name"];
@@ -8596,8 +7312,8 @@
           });
         }
       }
-      let mixInfo = awemeInfo?.["mixInfo"] || // @ts-ignore
-      awemeInfo?.["mix_info"];
+      let mixInfo = awemeInfo?.["mixInfo"] ||
+awemeInfo?.["mix_info"];
       if (typeof mixInfo === "object" && utils.isNotNull(mixInfo)) {
         mixInfoName = mixInfo?.["mixName"] || mixInfo?.["mix_name"];
         mixInfoDesc = mixInfo?.["desc"];
@@ -8607,9 +7323,8 @@
       }
       let suggestWord = [];
       let suggestWords = (
-        // @ts-ignore
-        awemeInfo?.["suggest_words"] || // @ts-ignore
-        awemeInfo?.["suggest_words"]?.["suggest_words"] || awemeInfo?.["suggestWords"]
+awemeInfo?.["suggest_words"] ||
+awemeInfo?.["suggest_words"]?.["suggest_words"] || awemeInfo?.["suggestWords"]
       );
       if (Array.isArray(suggestWords)) {
         suggestWords.forEach((suggestWordItem) => {
@@ -8627,8 +7342,7 @@
       suggestWord = [...new Set(suggestWord)];
       let authorAccountCertInfo = "";
       let authorAccountCertInfoInsStr = (
-        // @ts-ignore
-        awemeInfo?.["author"]?.["account_cert_info"]
+awemeInfo?.["author"]?.["account_cert_info"]
       );
       if (typeof authorAccountCertInfoInsStr === "string") {
         let authorAccountCertInfoJSON = utils.toJSON(authorAccountCertInfoInsStr);
@@ -8641,14 +7355,12 @@
         }
       }
       let authorCustomVerify = (
-        // @ts-ignore
-        awemeInfo?.["author"]?.["custom_verify"] || // @ts-ignore
-        awemeInfo?.["authorInfo"]?.["customVerify"] || ""
+awemeInfo?.["author"]?.["custom_verify"] ||
+awemeInfo?.["authorInfo"]?.["customVerify"] || ""
       );
       let authorEnterpriseVerifyReason = (
-        // @ts-ignore
-        awemeInfo?.["author"]?.["enterprise_verify_reason"] || // @ts-ignore
-        awemeInfo?.["authorInfo"]?.["enterpriseVerifyReason"] || ""
+awemeInfo?.["author"]?.["enterprise_verify_reason"] ||
+awemeInfo?.["authorInfo"]?.["enterpriseVerifyReason"] || ""
       );
       return {
         awemeId,
@@ -8682,10 +7394,7 @@
         isPicture
       };
     }
-    /**
-     * 根据视频信息，判断是否需要屏蔽
-     */
-    checkFilterWithRule(details) {
+checkFilterWithRule(details) {
       if (details.videoInfoValue == null) {
         return false;
       }
@@ -8755,12 +7464,7 @@
       }
       return false;
     }
-    /**
-     * 检测视频是否可以屏蔽，可以屏蔽返回true
-     * @param rule 规则
-     * @param awemeInfo 视频信息结构
-     */
-    checkAwemeInfoIsFilter(rule, awemeInfo) {
+checkAwemeInfoIsFilter(rule, awemeInfo) {
       let transformAwemeInfo = this.parseAwemeInfoDictData(awemeInfo);
       let flag = false;
       let matchedFilterOption = null;
@@ -8828,22 +7532,13 @@
         }
       }
       return {
-        /** 是否允许过滤 */
-        isFilter: flag,
-        /** 命中的过滤规则 */
-        matchedFilterOption,
-        /** 解析出的视频信息 */
-        transformAwemeInfo,
-        /** 原始视频信息 */
-        awemeInfo
+isFilter: flag,
+matchedFilterOption,
+transformAwemeInfo,
+awemeInfo
       };
     }
-    /**
-     * 发送请求-不感兴趣
-     * @param matchedFilterOption 命中的规则
-     * @param awemeInfo 视频信息结构
-     */
-    async sendDislikeVideo(matchedFilterOption, awemeInfo) {
+async sendDislikeVideo(matchedFilterOption, awemeInfo) {
     }
     removeAweme(...args) {
       if (args.length === 1) {
@@ -8907,12 +7602,8 @@
       ENABLE_KEY: "shieldVideo-exec-network-enable"
     },
     $data: {
-      /** 已经过滤的信息 */
-      isFilterAwemeInfoList: new Utils.Dictionary(),
-      /**
-       * 网络接口的视频信息字典
-       */
-      awemeInfoMap: new Utils.Dictionary(),
+isFilterAwemeInfoList: new Utils.Dictionary(),
+awemeInfoMap: new Utils.Dictionary(),
       __videoFilterRuleStorage: null,
       get videoFilterRuleStorage() {
         if (this.__videoFilterRuleStorage == null) {
@@ -8922,10 +7613,7 @@
         }
         return this.__videoFilterRuleStorage;
       },
-      /**
-       * 当命中过滤规则，如果开启了仅显示被过滤的视频，则修改isFilter值
-       */
-      get isReverse() {
+get isReverse() {
         return Panel.getValue("shieldVideo-only-show-filtered-video");
       }
     },
@@ -8939,10 +7627,7 @@
         this.addParseButton();
       });
     },
-    /**
-     * 执行过滤
-     */
-    execFilter() {
+execFilter() {
       const that = this;
       Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
         log.info(`执行视频过滤器`);
@@ -9159,13 +7844,9 @@
         });
       });
     },
-    /**
-     * 添加解析按钮
-     */
-    addParseButton() {
+addParseButton() {
       addStyle(
-        /*css*/
-        `
+`
 			.basePlayerContainer .gm-video-filter-parse-btn{
 				margin-left: 4px;
 			}
@@ -9272,8 +7953,7 @@
           width: PanelUISize.setting.width,
           height: PanelUISize.setting.height,
           style: (
-            /*css*/
-            `
+`
 				.pops-confirm-content p{
 					white-space: break-spaces;
 				}
@@ -9288,8 +7968,7 @@
           let $gmFilterParseBtn = domUtils.createElement("xg-icon", {
             className: "gm-video-filter-parse-btn",
             innerHTML: (
-              /*html*/
-              `
+`
 						<div class="xgplayer-icon">
 							<span role="img" class="semi-icon semi-icon-default">
 								<svg
@@ -9336,10 +8015,7 @@
         }
       });
     },
-    /**
-     * 获取规则视图实例
-     */
-    getRuleViewInstance() {
+getRuleViewInstance() {
       const that = this;
       let panelHandlerComponents = __pops.config.PanelHandlerComponents();
       function generateStorageApi(data) {
@@ -9567,8 +8243,7 @@
               let $dynamicContainer = domUtils.createElement("div", {
                 className: "rule-form-ulist-dynamic",
                 innerHTML: (
-                  /*html*/
-                  `
+`
 							<div class="rule-form-ulist-dynamic__inner">
 
 							</div>
@@ -9595,8 +8270,7 @@
                 let $dynamicUListContainer = domUtils.createElement("div", {
                   className: "rule-form-ulist-dynamic__inner-container",
                   innerHTML: (
-                    /*html*/
-                    `
+`
 									<div class="dynamic-control-delete">
 										<div class="pops-panel-button pops-panel-button-no-icon">
 											<button class="pops-panel-button_inner" type="button" data-type="danger">
@@ -9654,8 +8328,7 @@
                 $enable,
                 $name,
                 $scope,
-                // $autoSendDisLikeRequest,
-                $ruleName,
+$ruleName,
                 $ruleValue,
                 $remarks,
                 $dynamicContainer
@@ -9756,8 +8429,7 @@
               }
             },
             style: (
-              /*css*/
-              `
+`
                     .pops-panel-textarea textarea{
                         height: 150px;
                     }
@@ -9837,25 +8509,18 @@
       });
       return ruleView;
     },
-    /**
-     * 显示视图
-     */
-    showView() {
+showView() {
       let ruleView = this.getRuleViewInstance();
       ruleView.showView();
     },
-    /**
-     * 获取模板数据
-     */
-    getTemplateData() {
+getTemplateData() {
       return {
         uuid: utils.generateUUID(),
         enable: true,
         name: "",
         data: {
           scope: [],
-          // autoSendDisLikeRequest: false,
-          ruleName: "nickname",
+ruleName: "nickname",
           ruleValue: "",
           remarks: ""
         },
@@ -9875,10 +8540,7 @@
         this.automaticContinuousPlayback();
       });
     },
-    /**
-     * 自动连播
-     */
-    automaticContinuousPlayback() {
+automaticContinuousPlayback() {
       log.info(`自动连播`);
       const attrFlagName = "data-automaticContinuousPlayback";
       let queryActiveVideo = (withAttr = false) => {
@@ -10007,10 +8669,7 @@
         log.error("未适配router: " + window.location.href);
       }
     },
-    /**
-     * 移除ads
-     */
-    removeAds() {
+removeAds() {
       utils.waitNode(
         () => domUtils.selector(
           '#douyin-navigation [data-e2e="douyin-navigation"] > div > div > div:regexp("下载抖音精选|条条都是宝藏视频")'
@@ -10024,10 +8683,7 @@
       });
       return [addStyle(blockCSS$8)];
     },
-    /**
-     * 固定meta viewport缩放倍率为1
-     */
-    initialScale() {
+initialScale() {
       log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
       domUtils.ready(() => {
         let meta = domUtils.createElement(
@@ -10044,10 +8700,7 @@
         });
       });
     },
-    /**
-     * 移除<meta>标签name="apple-itunes-app"
-     */
-    removeMetaAppleItunesApp() {
+removeMetaAppleItunesApp() {
       utils.waitNodeList(['meta[name="apple-itunes-app"]'], 1e4).then(($metaList) => {
         if (!$metaList) {
           return;
@@ -10057,10 +8710,7 @@
         });
       });
     },
-    /**
-     * 监听Router重载
-     */
-    listenRouterChange() {
+listenRouterChange() {
       log.info(`监听Router重载`);
       domUtils.on(window, "wb_url_change", (event) => {
         let currentUrl = window.location.href;
@@ -10070,85 +8720,43 @@
     }
   };
   const MDouYinRouter = {
-    /**
-     * 是否是移动端抖音
-     */
-    isMDouYin() {
+isMDouYin() {
       return window.location.hostname === "m.douyin.com" || window.location.hostname === "www.iesdouyin.com";
     },
-    /**
-     * 用户主页
-     */
-    isShareUser() {
+isShareUser() {
       return this.isMDouYin() && window.location.pathname.startsWith("/share/user/");
     },
-    /**
-     * 分享的视频
-     */
-    isShareVideo() {
+isShareVideo() {
       return this.isMDouYin() && (window.location.pathname.startsWith("/share/video/") || window.location.pathname.startsWith("/shipin/"));
     },
-    /**
-     * 笔记
-     */
-    isShareNote() {
+isShareNote() {
       return this.isMDouYin() && window.location.pathname.startsWith("/share/note/");
     },
-    /**
-     * 音乐
-     */
-    isShareMusic() {
+isShareMusic() {
       return this.isMDouYin() && window.location.pathname.startsWith("/share/music/");
     },
-    /**
-     * 话题
-     */
-    isShareChallenge() {
+isShareChallenge() {
       return this.isMDouYin() && window.location.pathname.startsWith("/share/challenge/");
     }
   };
   const blockCSS$4 = "/* 顶部 打开看看 登录 */\r\n.adapt-login-header,\r\n/* 上面屏蔽后的空白区域 */\r\n.user-card .nav-bar-placeholder,\r\n/* 视频区域底部的【打开抖音App看更多内容】 */\r\n.select-list .img-button{\r\n    display: none !important;\r\n}";
   const DouYinUrlUtils = {
-    /**
-     * 获取视频链接
-     * @param videoId 视频id
-     */
-    getVideoUrl(videoId) {
+getVideoUrl(videoId) {
       return "https://www.douyin.com/video/" + videoId;
     },
-    /**
-     * 获取视频合集链接
-     * @param collectionId 合集id
-     */
-    getCollectionUrl(collectionId) {
+getCollectionUrl(collectionId) {
       return "https://www.douyin.com/collection/" + collectionId;
     },
-    /**
-     * 获取笔记链接
-     * @param noteId 笔记id
-     */
-    getNoteUrl(noteId) {
+getNoteUrl(noteId) {
       return "https://www.douyin.com/note/" + noteId;
     },
-    /**
-     * 获取话题链接
-     * @param hashTagId 话题id
-     */
-    getHashTagUrl(hashTagId) {
+getHashTagUrl(hashTagId) {
       return "https://www.douyin.com/hashtag/" + hashTagId;
     },
-    /**
-     * 获取用户主页链接
-     * @param sec_uid
-     */
-    getUserHomeUrl(sec_uid) {
+getUserHomeUrl(sec_uid) {
       return "https://www.douyin.com/user/" + sec_uid;
     },
-    /**
-     * 获取音乐链接
-     * @param musicId 音乐id
-     */
-    getMusicUrl(musicId) {
+getMusicUrl(musicId) {
       return "https://www.douyin.com/music/" + musicId;
     }
   };
@@ -10162,10 +8770,7 @@
         this.coverPostListContainer();
       });
     },
-    /**
-     * 覆盖视频合集点击事件
-     */
-    coverPlayletList() {
+coverPlayletList() {
       domUtils.on(
         document,
         "click",
@@ -10198,10 +8803,7 @@
         }
       );
     },
-    /**
-     * 覆盖视频列表点击事件
-     */
-    coverPostListContainer() {
+coverPostListContainer() {
       domUtils.on(
         document,
         "click",
@@ -10233,10 +8835,7 @@
         this.coverGlobalClick();
       });
     },
-    /**
-     * 阻止全局点击，会跳转
-     */
-    coverGlobalClick() {
+coverGlobalClick() {
       let selectorList = [".right-con", ".footer", ".mix-info"];
       selectorList.forEach((selector) => {
         DOMUtils.on(
@@ -10285,31 +8884,19 @@
         }
       );
     },
-    /**
-     * 【屏蔽】相关推荐
-     */
-    blockRecommend() {
+blockRecommend() {
       log.info("【屏蔽】相关推荐");
       return CommonUtil.addBlockCSS(".recommend-con");
     },
-    /**
-     * 【屏蔽】评论
-     */
-    blockComment() {
+blockComment() {
       log.info("【屏蔽】评论");
       return CommonUtil.addBlockCSS(".comment-con");
     },
-    /**
-     * 【屏蔽】底部工具栏
-     */
-    blockFooterToobar() {
+blockFooterToobar() {
       log.info("【屏蔽】底部工具栏");
       return CommonUtil.addBlockCSS(".footer-con");
     },
-    /**
-     * 覆盖相关推荐的点击事件
-     */
-    coverRecommend() {
+coverRecommend() {
       log.info("覆盖相关推荐的点击事件");
       domUtils.on(
         document,
@@ -10331,10 +8918,7 @@
         { capture: true }
       );
     },
-    /**
-     * 覆盖用户点击事件
-     */
-    coverUser() {
+coverUser() {
       log.info("覆盖用户点击事件");
       domUtils.on(
         document,
@@ -10356,10 +8940,7 @@
         { capture: true }
       );
     },
-    /**
-     * 覆盖话题点击事件
-     */
-    coverHashTag() {
+coverHashTag() {
       log.info("覆盖话题点击事件");
       domUtils.on(
         document,
@@ -10384,10 +8965,7 @@
         { capture: true }
       );
     },
-    /**
-     * 覆盖音乐点击事件
-     */
-    coverMusic() {
+coverMusic() {
       log.info("覆盖音乐点击事件");
       domUtils.on(
         document,
@@ -10409,10 +8987,7 @@
         { capture: true }
       );
     },
-    /**
-     * 覆盖精彩图文点击事件
-     */
-    coverExcitingGraphicsAndText() {
+coverExcitingGraphicsAndText() {
       log.info("覆盖精彩图文点击事件");
       domUtils.on(
         document,
@@ -10454,10 +9029,7 @@
         this.coverVideoCard();
       });
     },
-    /**
-     * 阻止上面区域点击跳转至下载页面
-     */
-    coverTopJump() {
+coverTopJump() {
       log.info("阻止上面区域点击跳转至下载页面");
       domUtils.on(
         document,
@@ -10471,10 +9043,7 @@
         }
       );
     },
-    /**
-     * 覆盖视频卡片点击事件
-     */
-    coverVideoCard() {
+coverVideoCard() {
       log.info("覆盖视频卡片点击事件");
       domUtils.on(
         document,
@@ -10509,10 +9078,7 @@
         this.coverVideoCard();
       });
     },
-    /**
-     * 覆盖视频卡片点击事件
-     */
-    coverVideoCard() {
+coverVideoCard() {
       log.info("覆盖视频卡片点击事件");
       domUtils.on(
         document,
@@ -10645,8 +9211,7 @@
   };
   const AutoOpenOrClose = {
     text: (
-      /*html*/
-      `
+`
 		<p>注：开启是禁用该快捷键、关闭是不禁用该快捷键</p>
         <a href="javascript:;" class="keyboard-oneClickOpen">禁用全部快捷键</a>
         <br>
@@ -10769,8 +9334,7 @@
               let $left = domUtils.createElement("div", {
                 className: "pops-panel-item-left-text",
                 innerHTML: (
-                  /*html*/
-                  `
+`
 							<p class="pops-panel-item-left-main-text">WebGL</p>
 							<p class="pops-panel-item-left-desc-text"></p>
 							`
@@ -10919,66 +9483,64 @@
                   UISwitch("【屏蔽】关注", "shieldLeftNavigator-tab-follow", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】朋友", "shieldLeftNavigator-tab-friend", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】我的", "shieldLeftNavigator-tab-user_self", false, void 0, "屏蔽元素"),
-                  // UISwitch(
-                  // 	"【屏蔽】喜欢",
-                  // 	"shieldLeftNavigator-tab-user_self_like",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】收藏",
-                  // 	"shieldLeftNavigator-tab-user_self_collection",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】观看历史",
-                  // 	"shieldLeftNavigator-tab-user_self_record",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false, void 0, "屏蔽元素"),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】放映厅", "shieldLeftNavigator-tab-vs", false, void 0, "屏蔽元素"),
                   UISwitch("【屏蔽】短剧", "shieldLeftNavigator-tab-series", false, void 0, "屏蔽元素")
-                  // UISwitch(
-                  // 	"【屏蔽】知识",
-                  // 	"shieldLeftNavigator-tab-channel_300203",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】游戏",
-                  // 	"shieldLeftNavigator-tab-channel_300205",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】二次元",
-                  // 	"shieldLeftNavigator-tab-channel_300206",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】音乐",
-                  // 	"shieldLeftNavigator-tab-channel_300209",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                  // UISwitch(
-                  // 	"【屏蔽】美食",
-                  // 	"shieldLeftNavigator-tab-channel_300204",
-                  // 	false,
-                  // 	void 0,
-                  // 	"屏蔽元素"
-                  // ),
-                ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]
               }
             ]
           },
@@ -11213,8 +9775,7 @@
                     [
                       {
                         text: "超清 4K",
-                        // ↓gearType
-                        value: -2
+value: -2
                       },
                       {
                         text: "超清 2K",
@@ -11341,8 +9902,7 @@
                       let $left = domUtils.createElement("div", {
                         className: "pops-panel-item-left-text",
                         innerHTML: (
-                          /*html*/
-                          `
+`
 											<p class="pops-panel-item-left-main-text">视频背景颜色</p>
 											<p class="pops-panel-item-left-desc-text">自定义视频背景颜色，包括评论区</p>
 											`
@@ -11351,8 +9911,7 @@
                       let $right = domUtils.createElement("div", {
                         className: "pops-panel-item-right",
                         innerHTML: (
-                          /*html*/
-                          `
+`
 											<input type="color" class="pops-color-choose" />
 											`
                         )
@@ -11363,8 +9922,8 @@
                       domUtils.append(document.head, $style);
                       domUtils.on($color, ["input", "propertychange"], (event) => {
                         log.info("选择颜色：" + $color.value);
-                        $style.innerHTML = /*css*/
-                        `
+                        $style.innerHTML =
+`
 												#sliderVideo > div{
 													background: ${$color.value};
 												}
@@ -11611,7 +10170,13 @@
                     void 0,
                     "屏蔽元素，可代替【清屏】功能"
                   ),
-                  UISwitch("【屏蔽】点击推荐", "dy-video-blockClickRecommend", false, void 0, "屏蔽元素"),
+                  UISwitch(
+                    "<code>【屏蔽】点击推荐</code>或<code>【屏蔽】共xx人推荐</code>",
+                    "dy-video-blockClickRecommend",
+                    false,
+                    void 0,
+                    "屏蔽元素"
+                  ),
                   UISwitch(
                     "【屏蔽】视频标题上面的标签",
                     "dy-video-blockTitleTopTag",
@@ -11943,7 +10508,7 @@
                     "自行选择清晰度"
                   ),
                   UISwitch(
-                    "解锁画质选择",
+                    "解锁画质选择（已失效，请关闭该功能）",
                     "live-unlockImageQuality",
                     true,
                     void 0,
@@ -11963,13 +10528,7 @@
                     void 0,
                     "自动监听并检测弹窗"
                   ),
-                  UISwitch(
-                    "禁止自动播放",
-                    "live-pauseVideo",
-                    false,
-                    void 0,
-                    "3秒内禁止任何形式的播放"
-                  ),
+                  UISwitch("禁止自动播放", "live-pauseVideo", false, void 0, "3秒内禁止任何形式的播放"),
                   UISwitch(
                     "解析直播信息",
                     "live-parsePlayerInstance",
@@ -11997,13 +10556,7 @@
                 text: "视频区域背景色",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "启用",
-                    "live-bgColor-enable",
-                    false,
-                    void 0,
-                    "自定义视频背景色"
-                  ),
+                  UISwitch("启用", "live-bgColor-enable", false, void 0, "自定义视频背景色"),
                   {
                     type: "own",
                     attributes: {
@@ -12024,21 +10577,12 @@
 											<input type="color" class="pops-color-choose" />
 											`
                       });
-                      let $color = $right.querySelector(
-                        ".pops-color-choose"
-                      );
+                      let $color = $right.querySelector(".pops-color-choose");
                       $color.value = Panel.getValue("live-changeBackgroundColor");
-                      domUtils.on(
-                        $color,
-                        ["input", "propertychange"],
-                        (event) => {
-                          log.info("选择颜色：" + $color.value);
-                          Panel.setValue(
-                            "live-changeBackgroundColor",
-                            $color.value
-                          );
-                        }
-                      );
+                      domUtils.on($color, ["input", "propertychange"], (event) => {
+                        log.info("选择颜色：" + $color.value);
+                        Panel.setValue("live-changeBackgroundColor", $color.value);
+                      });
                       liElement.appendChild($left);
                       liElement.appendChild($right);
                       return liElement;
@@ -12057,27 +10601,9 @@
                 text: "",
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "启用",
-                    "live-danmu-shield-rule-enable",
-                    false,
-                    void 0,
-                    "启用自定义的弹幕过滤规则"
-                  ),
-                  UISwitch(
-                    "【屏蔽】送礼信息",
-                    "live-danmu-shield-gift",
-                    false,
-                    void 0,
-                    ""
-                  ),
-                  UISwitch(
-                    "【屏蔽】福袋口令",
-                    "live-danmu-shield-lucky-bag",
-                    false,
-                    void 0,
-                    ""
-                  )
+                  UISwitch("启用", "live-danmu-shield-rule-enable", false, void 0, "启用自定义的弹幕过滤规则"),
+                  UISwitch("【屏蔽】送礼信息", "live-danmu-shield-gift", false, void 0, ""),
+                  UISwitch("【屏蔽】福袋口令", "live-danmu-shield-lucky-bag", false, void 0, "")
                 ]
               },
               {
@@ -12091,13 +10617,7 @@
                     void 0,
                     ""
                   ),
-                  UISwitch(
-                    "【屏蔽】emoji",
-                    "live-message-shield-method-emoji-chat",
-                    false,
-                    void 0,
-                    ""
-                  )
+                  UISwitch("【屏蔽】emoji", "live-message-shield-method-emoji-chat", false, void 0, "")
                 ]
               },
               {
@@ -12184,20 +10704,8 @@
                 text: AutoOpenOrClose.text,
                 forms: [
                   UISwitch("刷新", "dy-live-refresh", false, void 0, "E"),
-                  UISwitch(
-                    "屏幕旋转",
-                    "dy-live-screenRotation",
-                    false,
-                    void 0,
-                    "D"
-                  ),
-                  UISwitch(
-                    "开启小窗模式",
-                    "dy-live-enableSmallWindowMode",
-                    false,
-                    void 0,
-                    "U"
-                  )
+                  UISwitch("屏幕旋转", "dy-live-screenRotation", false, void 0, "D"),
+                  UISwitch("开启小窗模式", "dy-live-enableSmallWindowMode", false, void 0, "U")
                 ]
               }
             ]
@@ -12224,41 +10732,11 @@
                     void 0,
                     "屏蔽元素，包括直播作者、右侧的礼物展馆"
                   ),
-                  UISwitch(
-                    "【屏蔽】底部的礼物栏",
-                    "live-shieldGiftColumn",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】礼物特效",
-                    "live-shieldGiftEffects",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】福袋",
-                    "live-shieldLucky",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】弹幕",
-                    "live-shieldDanmuku",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】小黄车",
-                    "live-shielYellowCar",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
+                  UISwitch("【屏蔽】底部的礼物栏", "live-shieldGiftColumn", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】礼物特效", "live-shieldGiftEffects", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】福袋", "live-shieldLucky", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】弹幕", "live-shieldDanmuku", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】小黄车", "live-shielYellowCar", false, void 0, "屏蔽元素"),
                   UISwitch(
                     "【屏蔽】点亮展馆帮主播集星",
                     "live-block-exhibition-banner-dylive-tooltip",
@@ -12292,41 +10770,11 @@
                 text: AutoOpenOrClose.text,
                 type: "forms",
                 forms: [
-                  UISwitch(
-                    "【屏蔽】聊天室",
-                    "live-shieldChatRoom",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】贵宾席",
-                    "live-shielChatRoomVipSeats",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】用户等级图标",
-                    "dy-live-shieldUserLevelIcon",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】VIP图标",
-                    "dy-live-shieldUserVIPIcon",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
-                  UISwitch(
-                    "【屏蔽】粉丝牌",
-                    "dy-live-shieldUserFansIcon",
-                    false,
-                    void 0,
-                    "屏蔽元素"
-                  ),
+                  UISwitch("【屏蔽】聊天室", "live-shieldChatRoom", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】贵宾席", "live-shielChatRoomVipSeats", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】用户等级图标", "dy-live-shieldUserLevelIcon", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】VIP图标", "dy-live-shieldUserVIPIcon", false, void 0, "屏蔽元素"),
+                  UISwitch("【屏蔽】粉丝牌", "dy-live-shieldUserFansIcon", false, void 0, "屏蔽元素"),
                   UISwitch(
                     "【屏蔽】信息播报",
                     "dy-live-shieldMessage",
@@ -12357,52 +10805,51 @@
             void 0,
             "在用户信息区域下方显示当前用户的uid"
           )
-          // UIButton(
-          // 	"跳转至用户主页",
-          // 	"输入用户UID自动跳转至用户主页",
-          // 	"跳转",
-          // 	void 0,
-          // 	false,
-          // 	false,
-          // 	"default",
-          // 	async (evt) => {
-          // 		utils.preventEvent(evt);
-          // 		let uid = prompt("请输入用户UID");
-          // 		if (typeof uid !== "string") {
-          // 			return;
-          // 		}
-          // 		let url = `https://www.toutiao.com/c/user/${uid}/`;
-          // 		let urlInst = new URL(url);
-          // 		let response = await httpx.options(url, {
-          // 			allowInterceptConfig: false,
-          // 			headers: {
-          // 				"User-Agent": utils.getRandomPCUA(),
-          // 				Host: urlInst.hostname,
-          // 				Origin: urlInst.origin,
-          // 				Referer: "https://www.toutiao.com/",
-          // 			},
-          // 		});
-          // 		if (!response.status) {
-          // 			log.error(response);
-          // 			Qmsg.error("获取用户sec_uid失败", { consoleLogContent: true });
-          // 			return;
-          // 		}
-          // 		let finalUrl = response.data.finalUrl;
-          // 		let sec_uid_match = finalUrl.match(/\/user\/token\/(.+)\//);
-          // 		if (!sec_uid_match) {
-          // 			Qmsg.error("正则获取用户sec_uid失败", {
-          // 				consoleLogContent: true,
-          // 			});
-          // 			return;
-          // 		}
-          // 		let sec_uid = sec_uid_match[sec_uid_match.length - 1];
-          // 		let userHomeUrl = DouYinUrlUtils.getUserHomeUrl(sec_uid);
-          // 		log.info(`用户sec_uid：` + sec_uid);
-          // 		log.info(`用户主页链接：` + userHomeUrl);
-          // 		window.open(userHomeUrl, "_blank");
-          // 	}
-          // ),
-        ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]
       }
     ]
   };
