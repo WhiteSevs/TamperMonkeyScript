@@ -9,3 +9,4 @@ package-lock.json
 scripts-local
 vite.config.ts.timestamp*
 /**/*.meta.local.user.js
+/**/package-lock.json
