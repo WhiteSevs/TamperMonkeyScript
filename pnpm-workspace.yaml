@@ -5,4 +5,5 @@ packages:
   - '!lib/*'
 
 ignoredBuiltDependencies:
+  - esbuild
   - vue-demi
