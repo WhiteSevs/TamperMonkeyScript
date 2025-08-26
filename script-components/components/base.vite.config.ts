@@ -96,38 +96,30 @@ const GenerateUserConfig = async (option: {
 			},
 			// import资源文件的映射
 			externalResource: {},
-			cssSideEffects: () => {
-				return (cssText: string) => {
-					function addStyle(cssText: string) {
-						if (typeof cssText !== "string") {
-							throw new TypeError("cssText must be a string");
-						}
-						let cssNode = document.createElement("style");
-						cssNode.setAttribute("type", "text/css");
-						cssNode.innerHTML = cssText;
-						if (document.head) {
-							/* 插入head最后 */
-							document.head.appendChild(cssNode);
-						} else if (document.body) {
-							/* 插入body后 */
-							document.body.appendChild(cssNode);
-						} else if (document.documentElement.childNodes.length === 0) {
-							/* 插入#html第一个元素后 */
-							document.documentElement.appendChild(cssNode);
-						} else {
-							/* 插入head前面 */
-							document.documentElement.insertBefore(cssNode, document.documentElement.childNodes[0]);
-						}
-						return cssNode;
-					}
-					// @ts-ignore
-					if (typeof GM_addStyle == "function") {
+			cssSideEffects: (cssText: string) => {
+				function addStyle(cssText: string) {
+					let $css = document.createElement("style");
+					$css.setAttribute("type", "text/css");
+					$css.setAttribute("data-type", "gm-css");
+					if (globalThis.trustedTypes) {
 						// @ts-ignore
-						GM_addStyle(cssText);
-						return;
+						const policy = globalThis.trustedTypes.createPolicy("safe-innerHTML", {
+							createHTML: (html: string) => html,
+						});
+						$css.innerHTML = policy.createHTML(cssText);
+					} else {
+						$css.innerHTML = cssText;
 					}
-					addStyle(cssText);
-				};
+					(document.head || document.documentElement).appendChild($css);
+					return $css;
+				}
+				// @ts-ignore
+				if (typeof GM_addStyle == "function") {
+					// @ts-ignore
+					GM_addStyle(cssText);
+					return;
+				}
+				addStyle(cssText);
 			},
 		},
 	};
