@@ -401,6 +401,7 @@ export const PanelCommonConfig: PopsPanelContentConfig = {
 								UISwitch("收藏", "dy-video-mouseHoverTip-rightToolBar-collect", false),
 								UISwitch("分享", "dy-video-mouseHoverTip-rightToolBar-share", false),
 								UISwitch("看相关", "dy-video-mouseHoverTip-rightToolBar-seeCorrelation", false),
+								UISwitch("更多", "dy-video-mouseHoverTip-rightToolBar-more", false),
 							],
 						},
 						{

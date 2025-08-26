@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2025.8.25
+// @version      2025.8.27
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，伪装登录、屏蔽登录弹窗、自定义清晰度选择、未登录解锁画质选择、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、修复进度条拖拽、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -3558,12 +3558,9 @@ videoCommentDrawer: "videoCommentDrawer"
   };
   const DouYinVideoPlayerBlockMouseHoverTip_RightToolBar = {
     init() {
-      Panel.execMenuOnce(
-        "dy-video-mouseHoverTip-rightToolBar-enterUserHome",
-        () => {
-          return this.blockEnterUserHomeMouseHoverTip();
-        }
-      );
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-enterUserHome", () => {
+        return this.blockEnterUserHomeMouseHoverTip();
+      });
       Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-follow", () => {
         return this.blockFollowMouseHoverTip();
       });
@@ -3579,42 +3576,32 @@ videoCommentDrawer: "videoCommentDrawer"
       Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-share", () => {
         return this.blockShareMouseHoverTip();
       });
-      Panel.execMenuOnce(
-        "dy-video-mouseHoverTip-rightToolBar-seeCorrelation",
-        () => {
-          return this.blockSeeCorrelationMouseHoverTip();
-        }
-      );
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-seeCorrelation", () => {
+        return this.blockSeeCorrelationMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-rightToolBar-more", () => {
+        return this.blockMoreMouseHoverTip();
+      });
     },
 blockEnterUserHomeMouseHoverTip() {
       log.info(`禁用进入作者主页按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(
-        ` div > div:has( >a[data-e2e="video-avatar"]) + .semi-portal`
-      );
+      return CommonUtil.addBlockCSS(` div > div:has( >a[data-e2e="video-avatar"]) + .semi-portal`);
     },
 blockFollowMouseHoverTip() {
       log.info(`禁用关注按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(
-        `div[data-e2e="feed-follow-icon"]  .semi-portal`
-      );
+      return CommonUtil.addBlockCSS(`div[data-e2e="feed-follow-icon"]  .semi-portal`);
     },
 blockAddLikeMouseHoverTip() {
       log.info(`禁用点赞按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(
-        `div[data-e2e="video-player-digg"] + .semi-portal`
-      );
+      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-digg"] + .semi-portal`);
     },
 blockCommentMouseHoverTip() {
       log.info(`禁用评论按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(
-        `div[data-e2e="feed-comment-icon"] + .semi-portal`
-      );
+      return CommonUtil.addBlockCSS(`div[data-e2e="feed-comment-icon"] + .semi-portal`);
     },
 blockCollectMouseHoverTip() {
       log.info(`禁用收藏按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(
-        `div[data-e2e="video-player-collect"] + .semi-always-dark`
-      );
+      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-collect"] + .semi-always-dark`);
     },
 blockShareMouseHoverTip() {
       log.info(`禁用分享按钮的悬浮提示`);
@@ -3622,49 +3609,34 @@ blockShareMouseHoverTip() {
     },
 blockSeeCorrelationMouseHoverTip() {
       log.info(`禁用看相关推荐按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(
-        `div:has(+[data-e2e="video-play-more"]) .semi-portal`
-      );
+      return CommonUtil.addBlockCSS(`div:has(+[data-e2e="video-play-more"]) .semi-portal`);
+    },
+blockMoreMouseHoverTip() {
+      log.info(`禁用更多按钮的悬浮提示`);
+      return CommonUtil.addBlockCSS(`[data-e2e="video-play-more"] > div:has([data-e2e="more-music-detail"])`);
     }
   };
   const DouYinVideoPlayerBlockMouseHoverTip_BottomToolBar = {
     init() {
-      Panel.execMenuOnce(
-        "dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast",
-        () => {
-          return this.blockAutomaticBroadcast();
-        }
-      );
-      Panel.execMenuOnce(
-        "dy-video-mouseHoverTip-bottomToolBar-clearScreen",
-        () => {
-          return this.blockClearScreenMouseHoverTip();
-        }
-      );
-      Panel.execMenuOnce(
-        "dy-video-mouseHoverTip-bottomToolBar-watchLater",
-        () => {
-          return this.blockWatchLaterMouseHoverTip();
-        }
-      );
-      Panel.execMenuOnce(
-        "dy-video-mouseHoverTip-bottomToolBar-pageFullScreen",
-        () => {
-          return this.blockPageFullScreenMouseHoverTip();
-        }
-      );
-      Panel.execMenuOnce(
-        "dy-video-mouseHoverTip-bottomToolBar-fullScreen",
-        () => {
-          return this.blockFullScreenMouseHoverTip();
-        }
-      );
+      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-automaticBroadcast", () => {
+        return this.blockAutomaticBroadcast();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-clearScreen", () => {
+        return this.blockClearScreenMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-watchLater", () => {
+        return this.blockWatchLaterMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-pageFullScreen", () => {
+        return this.blockPageFullScreenMouseHoverTip();
+      });
+      Panel.execMenuOnce("dy-video-mouseHoverTip-bottomToolBar-fullScreen", () => {
+        return this.blockFullScreenMouseHoverTip();
+      });
     },
 blockAutomaticBroadcast() {
       log.info(`禁用自动连播按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(
-        `div[data-e2e="video-player-auto-play"] + .xgTips`
-      );
+      return CommonUtil.addBlockCSS(`div[data-e2e="video-player-auto-play"] + .xgTips`);
     },
 blockClearScreenMouseHoverTip() {
       log.info(`禁用清屏按钮的悬浮提示`);
@@ -3672,10 +3644,7 @@ blockClearScreenMouseHoverTip() {
     },
 blockWatchLaterMouseHoverTip() {
       log.info(`禁用稍后再看按钮的悬浮提示`);
-      return CommonUtil.addBlockCSS(
-        `.xgplayer-watch-later .xgTips`,
-        `.xgplayer-watch-later-item + .xgTips`
-      );
+      return CommonUtil.addBlockCSS(`.xgplayer-watch-later .xgTips`, `.xgplayer-watch-later-item + .xgTips`);
     },
 blockPageFullScreenMouseHoverTip() {
       log.info(`禁用网页全屏按钮的悬浮提示`);
@@ -9608,7 +9577,8 @@ UISwitch("【屏蔽】直播", "shieldLeftNavigator-tab-live", false, void 0, "�
                   UISwitch("评论", "dy-video-mouseHoverTip-rightToolBar-comment", false),
                   UISwitch("收藏", "dy-video-mouseHoverTip-rightToolBar-collect", false),
                   UISwitch("分享", "dy-video-mouseHoverTip-rightToolBar-share", false),
-                  UISwitch("看相关", "dy-video-mouseHoverTip-rightToolBar-seeCorrelation", false)
+                  UISwitch("看相关", "dy-video-mouseHoverTip-rightToolBar-seeCorrelation", false),
+                  UISwitch("更多", "dy-video-mouseHoverTip-rightToolBar-more", false)
                 ]
               },
               {
