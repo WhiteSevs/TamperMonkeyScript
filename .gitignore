@@ -1,8 +1,7 @@
-/index.html
-.vscode/settings.json
+.vscode
+.idea
 y
 y.pub
-.gitignore
 node_modules
 pnpm-lock.yaml
 package-lock.json
@@ -10,3 +9,4 @@ scripts-local
 vite.config.ts.timestamp*
 /**/*.meta.local.user.js
 /**/package-lock.json
+/**/**/package-lock.json
